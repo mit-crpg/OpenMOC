@@ -67,10 +67,8 @@ Geometry::Geometry(Parser* parser) {
 	/* Load maps with cell and material ids */
 	for (int r=0; r < _num_FSRs; r++) {
 
-//		CellBasic* curr =  static_cast<CellBasic*>
-//											(findCell(_universes.at(0), r));
 		CellBasic* curr =  static_cast<CellBasic*>
-											(findCell(_universes.at(0), r+1));
+											(findCell(_universes.at(0), r));
 
 		_FSRs_to_cells[r] = curr->getId();
 		_FSRs_to_materials[r] = curr->getMaterial();
@@ -1310,7 +1308,7 @@ Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
  * @return a pointer to the cell that this fsr is in
  */
 Cell* Geometry::findCell(int fsr_id) {
-	return findCell(_universes.at(0), fsr_id+1);
+	return findCell(_universes.at(0), fsr_id);
 }
 
 
@@ -1336,11 +1334,9 @@ Cell* Geometry::findCell(Universe* univ, int fsr_id) {
 	/* If the universe is a SIMPLE type, then find the cell the smallest fsr map
 	   entry that is not larger than the fsr_id argument to this function.	*/
 	if (univ->getType() == SIMPLE) {
-		log_printf(NORMAL, "Trying to find cell for fsr_id = %d", fsr_id);
 		std::map<short int, Cell*>::iterator iter;
 		std::map<short int, Cell*> cells = univ->getCells();
 		Cell* cell_min = NULL;
-		Cell* cell_max = NULL;
 		int max_id = 0;
 		int min_id = INT_MAX;
 		int fsr_map_id;
@@ -1348,50 +1344,36 @@ Cell* Geometry::findCell(Universe* univ, int fsr_id) {
 		/* Loop over this universe's cells */
 		for (iter = cells.begin(); iter != cells.end(); ++iter) {
 			fsr_map_id = univ->getFSR(iter->first);
-			log_printf(NORMAL, "Looping over universe %d cells with fsr_map_id = %d", univ->getId(), fsr_map_id);
-//			if (fsr_map_id <= fsr_id && fsr_map_id >= max_id) {
-			if (fsr_map_id >= max_id) {
+			if (fsr_map_id <= fsr_id && fsr_map_id >= max_id) {
 				max_id = fsr_map_id;
 				cell = iter->second;
-				cell_max = iter->second;
 			}
 			if (fsr_map_id < min_id) {
 				min_id = fsr_map_id;
 				cell_min = iter->second;
 			}
-			log_printf(NORMAL, "max_id = %d, min_id = %d, fsr_map_id = %d", max_id, min_id, fsr_map_id);
 		}
 
 		/* If the max_id is greater than the fsr_id, there has either been
 		 * an error or we are at universe 0 and need to go down one level */
 		if (max_id > fsr_id) {
 			if (cell_min->getType() == MATERIAL)
-//			if (cell_max->getType() == MATERIAL)
-//				log_printf(ERROR, "Could not find cell for fsr_id = %d: "
-//						"max_id(%d) > fsr_id(%d)", fsr_id, max_id, fsr_id);
-				return cell_min;
+				log_printf(ERROR, "Could not find cell for fsr_id = %d: "
+						"max_id(%d) > fsr_id(%d)", fsr_id, max_id, fsr_id);
 			else {
-//				CellFill* cellfill = static_cast<CellFill*>(cell_min);
-				CellFill* cellfill = static_cast<CellFill*>(cell_max);
+				CellFill* cellfill = static_cast<CellFill*>(cell_min);
 				return findCell(cellfill->getUniverseFill(), fsr_id);
 			}
 		}
 		/* Otherwise, decrement the fsr_id and make recursive call to next
 		   universe unless an error condition is met */
 		else {
-
-//			if (fsr_id > max_id && cell_max->getType() == FILL) {
-//				CellFill* cellfill = static_cast<CellFill*>(cell_max);
-//				return findCell(cellfill->getUniverseFill(), fsr_id);
-//			}
-
-
 			fsr_id -= max_id;
 			if (fsr_id == 0 && cell_min->getType() == MATERIAL)
 				return cell;
 			else if (fsr_id != 0 && cell_min->getType() == MATERIAL)
 				log_printf(ERROR, "Could not find cell for fsr_id = %d: "
-					"fsr_id = %d and cell type = MATERIAL with id = %d", fsr_id, fsr_id, cell_min->getId());
+					"fsr_id = %d and cell type = MATERIAL", fsr_id, fsr_id);
 			else {
 				CellFill* cellfill = static_cast<CellFill*>(cell_min);
 				return findCell(cellfill->getUniverseFill(), fsr_id);

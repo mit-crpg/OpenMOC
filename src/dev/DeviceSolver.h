@@ -16,7 +16,6 @@
 #include "DeviceTrack.h"
 #include "DeviceMaterial.h"
 #include <cutil_math.h>
-#include <stdio.h>
 
 
 class DeviceSolver {

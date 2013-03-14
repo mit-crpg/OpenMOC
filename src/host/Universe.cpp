@@ -110,7 +110,6 @@ int Universe::getFSR(short int cell_id) {
 		log_printf(ERROR, "Tried to find FSR id for cell with id = %d"
 				" in universe with id = %d but no cell exists", cell_id, _id);
 
-	log_printf(NORMAL, "Universe %d getFSR method for cell_id %d is returning %d", _id, cell_id, _region_map.at(cell_id));
 	return _region_map.at(cell_id);
 }
 
@@ -157,14 +156,11 @@ Cell* Universe::findCell(LocalCoords* coords,
 
 		if (cell->cellContains(coords)) {
 
-			log_printf(NORMAL, "A cell contains this coords");
-
 			/* Set the cell on this level */
 			coords->setCell(cell->getId());
 
 			/* MATERIAL type cell - lowest level, terminate search for cell */
 			if (cell->getType() == MATERIAL) {
-				log_printf(NORMAL, "The cell is MATERIAL type");
 				coords->setCell(cell->getId());
 				return_cell = cell;
 				return return_cell;
@@ -173,7 +169,6 @@ Cell* Universe::findCell(LocalCoords* coords,
 			/* FILL type cell - cell contains a universe at a lower level
 			 * Update coords to next level and continue search */
 			else if (cell->getType() == FILL) {
-				log_printf(NORMAL, "The cell is FILL type");
 
 				LocalCoords* next_coords;
 
@@ -185,7 +180,6 @@ Cell* Universe::findCell(LocalCoords* coords,
 
 				CellFill* cell_fill = static_cast<CellFill*>(cell);
 				short int universe_id = cell_fill->getUniverseFillId();
-				log_printf(NORMAL, "The universe id = %d for cell fill id = %d", universe_id, cell_fill->getId());
 				next_coords->setUniverse(universe_id);
 				Universe* univ = universes.at(universe_id);
 				coords->setCell(cell->getId());
@@ -237,10 +231,8 @@ int Universe::computeFSRMaps() {
     
 	/* loop over cells in the universe to set the map and update count */
 	for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-		count += iter->second->getNumFSRs();
 		_region_map.insert(std::pair<int, int>(iter->first, count));
-//		count += iter->second->getNumFSRs();
-		log_printf(NORMAL, "Computing fsr map for universe %d with count = %d", _id, count);
+		count += iter->second->getNumFSRs();
 	}
 
 	return count;

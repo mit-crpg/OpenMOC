@@ -765,9 +765,6 @@ FP_PRECISION DeviceSolver::computeKeff(int max_iterations) {
 	FP_PRECISION* renorm_factor;
 	FP_PRECISION* k_eff;
 
-	FILE *keff_file;
-	keff_file = fopen("keff_file.txt", "w");
-
 	CUDA_SAFE_CALL(cudaHostGetDevicePointer((void**)&renorm_factor,
 											(void*)_renorm_factor, 0));
 	CUDA_SAFE_CALL(cudaHostGetDevicePointer((void**)&k_eff,
@@ -840,8 +837,6 @@ FP_PRECISION DeviceSolver::computeKeff(int max_iterations) {
 
 		*_k_eff = tot_fission / tot_abs;
 
-		fprintf(keff_file, "%1.6f\n", *_k_eff);
-
 		/* If keff converged, return keff */
 		if (i > 1 && tot_source_residual < SOURCE_CONVERG_THRESH) {
 
@@ -877,7 +872,6 @@ FP_PRECISION DeviceSolver::computeKeff(int max_iterations) {
 				free(temp_fsrs);
 			}
 
-			fclose(keff_file);
 			return *_k_eff;
 		}
 
