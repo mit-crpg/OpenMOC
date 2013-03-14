@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<materials>
+
+<!-- Definition of materials based on 2 group data from "Fundamentals
+       of Nuclear Reactor Physics" by Eugene Lewis
+-->
+
+  <material id="1" energy="2"
+			sigma_a="0.0038 0.184"
+			sigma_t="0.2208 1.604"
+			sigma_f="0.000625 0.135416667"
+			nu_sigma_f="0.0015 0.325"
+			chi="1.0 0.0"
+			sigma_s="0.1 0.117
+					 0.0 1.42"
+
+  />
+
+</materials>
+

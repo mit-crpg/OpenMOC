@@ -1,0 +1,344 @@
+<?xml version="1.0"?>
+
+<!-- C5G7 benchmark using 2x2 array of fuel bundles bordered by water on the 
+ left and bottom  Vacuum boundary conditions on the left and bottom are 
+ simulated by a large neutron absorber. 
+ -->
+
+<geometry>
+
+<!-- Definition of Cells -->
+  <!-- UO2 pin cell !-->
+  <cell id="1" universe="1" material="1" surfaces="-5" rings="2" sectors="8"/>
+  <cell id="2" universe="1" material="7" surfaces="5 -6" sectors="8"/>
+  <cell id="3" universe="1" material="7" surfaces="6 -7" sectors="8"/>
+  <cell id="4" universe="1" material="7" surfaces="7" sectors="8"/>
+
+  <!-- 4.3% MOX pin cell !-->
+  <cell id="5" universe="2" material="2" surfaces="-5" rings="2" sectors="8"/>
+  <cell id="6" universe="2" material="7" surfaces="5 -6" sectors="8"/>
+  <cell id="7" universe="2" material="7" surfaces="6 -7" sectors="8"/>
+  <cell id="8" universe="2" material="7" surfaces="7" sectors="8"/>
+
+  <!-- 7% MOX pin cell !-->
+  <cell id="9" universe="3" material="3" surfaces="-5" rings="2" sectors="8"/>
+  <cell id="10" universe="3" material="7" surfaces="5 -6" sectors="8"/>
+  <cell id="11" universe="3" material="7" surfaces="6 -7" sectors="8"/>
+  <cell id="12" universe="3" material="7" surfaces="7" sectors="8"/>
+
+  <!-- 8.7% MOX pin cell !-->
+  <cell id="13" universe="4" material="4" surfaces="-5" rings="2" sectors="8"/>
+  <cell id="14" universe="4" material="7" surfaces="5 -6" sectors="8"/>
+  <cell id="15" universe="4" material="7" surfaces="6 -7" sectors="8"/>
+  <cell id="16" universe="4" material="7" surfaces="7" sectors="8"/>
+
+  <!-- Fission chamber pin cell !-->
+  <cell id="17" universe="5" material="5" surfaces="-5" rings="2" sectors="8"/>
+  <cell id="18" universe="5" material="7" surfaces="5 -6" sectors="8"/>
+  <cell id="19" universe="5" material="7" surfaces="6 -7" sectors="8"/>
+  <cell id="20" universe="5" material="7" surfaces="7" sectors="8"/>
+
+  <!-- Guide tube pin cell !-->
+  <cell id="21" universe="6" material="6" surfaces="-5" rings="2" sectors="8"/>
+  <cell id="22" universe="6" material="7" surfaces="5 -6" sectors="8"/>
+  <cell id="23" universe="6" material="7" surfaces="6 -7" sectors="8"/>
+  <cell id="24" universe="6" material="7" surfaces="7" sectors="8"/>
+
+  <!-- Moderator lattice - very finely spaced !-->
+  <cell id="25" universe="11" fill="23" surfaces="" />
+
+  <!-- Moderator lattice - semi finely spaced !-->
+  <cell id="26" universe="12" fill="24" surfaces="" />
+
+  <!-- Moderator lattice - bottom of geometry!-->
+  <cell id="27" universe="13" fill="25" surfaces="" />
+
+  <!-- Moderator lattice - bottom corner of geometry!-->
+  <cell id="28" universe="14" fill="26" surfaces="" />
+
+  <!-- Moderator lattice - right side of geometry!-->
+  <cell id="29" universe="15" fill="27" surfaces="" />
+
+  <!-- Moderator cell !-->
+  <cell id="30" universe="7" material="7" surfaces="" />
+
+  <!-- Absorber cell for vacuum boundary conditions !-->
+  <cell id="31" universe="8" material="8" surfaces="" />
+      
+  <!-- Absorber assembly !-->
+  <cell id="97" universe="98" fill="99" surfaces="" />
+
+  <!-- Top left, bottom right lattice !-->
+  <cell id="32" universe="9" fill="20" surfaces="" />
+
+  <!-- Top right, bottom left lattice !-->
+  <cell id="33" universe="10" fill="21" surfaces="" />
+
+  <!-- Full geometry !-->
+  <cell id="34" universe="0" fill="22" surfaces="1 -2 3 -4" />
+
+  <cell id="35" universe="31" fill="30" surfaces="" />
+
+
+<!-- Definition of Lattices -->
+  <!-- Top left, bottom right 17 x 17 assemblies !-->
+  <lattice id="20">
+   <type>rectangular</type>
+   <dimension>17 17</dimension>
+   <width>1.26 1.26</width>
+   <universes>
+	 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+	 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+	 1 1 1 1 1 6 1 1 6 1 1 6 1 1 1 1 1
+	 1 1 1 6 1 1 1 1 1 1 1 1 1 6 1 1 1
+	 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+	 1 1 6 1 1 6 1 1 6 1 1 6 1 1 6 1 1
+	 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+	 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+	 1 1 6 1 1 6 1 1 5 1 1 6 1 1 6 1 1
+	 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+	 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+	 1 1 6 1 1 6 1 1 6 1 1 6 1 1 6 1 1
+	 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+	 1 1 1 6 1 1 1 1 1 1 1 1 1 6 1 1 1
+	 1 1 1 1 1 6 1 1 6 1 1 6 1 1 1 1 1
+	 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+	 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+   </universes>
+  </lattice>
+
+  <!-- Top left, bottom right 17 x 17 assemblies !-->
+  <lattice id="21">
+   <type>rectangular</type>
+   <dimension>17 17</dimension>
+   <width>1.26 1.26</width>
+   <universes>
+	 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+	 2 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 2
+	 2 3 3 3 3 6 3 3 6 3 3 6 3 3 3 3 2
+	 2 3 3 6 3 4 4 4 4 4 4 4 3 6 3 3 2
+	 2 3 3 3 4 4 4 4 4 4 4 4 4 3 3 3 2
+	 2 3 6 4 4 6 4 4 6 4 4 6 4 4 6 3 2
+	 2 3 3 4 4 4 4 4 4 4 4 4 4 4 3 3 2
+	 2 3 3 4 4 4 4 4 4 4 4 4 4 4 3 3 2
+	 2 3 6 4 4 6 4 4 5 4 4 6 4 4 6 3 2
+	 2 3 3 4 4 4 4 4 4 4 4 4 4 4 3 3 2
+	 2 3 3 4 4 4 4 4 4 4 4 4 4 4 3 3 2
+	 2 3 6 4 4 6 4 4 6 4 4 6 4 4 6 3 2
+	 2 3 3 3 4 4 4 4 4 4 4 4 4 3 3 3 2
+	 2 3 3 6 3 4 4 4 4 4 4 4 3 6 3 3 2
+	 2 3 3 3 3 6 3 3 6 3 3 6 3 3 3 3 2
+	 2 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 2
+	 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+   </universes>
+  </lattice>
+
+  <!-- Water test !-->
+  <lattice id="30">
+   <type>rectangular</type>
+   <dimension>17 17</dimension>
+   <width>1.26 1.26</width>
+   <universes>
+	 12 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+   </universes>
+  </lattice>
+
+ <!-- Sliced up water cells - very finely spaced!-->
+  <lattice id="23">
+   <type>rectangular</type>
+   <dimension>20 20</dimension>
+   <width>0.063 0.063</width>
+   <universes>
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+     7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+   </universes>
+  </lattice>
+
+ <!-- Sliced up water cells -  semi-finely spaced!-->
+  <lattice id="24">
+   <type>rectangular</type>
+   <dimension>10 10</dimension>
+   <width>0.126 0.126</width>
+   <universes>
+	 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7
+   </universes>
+  </lattice>
+
+    <!-- Absorber assembly -->
+    <lattice id="99">
+        <type>rectangular</type>
+        <dimension>17 17</dimension>
+        <width>1.26 1.26</width>
+        <universes>
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+            8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+        </universes>
+    </lattice>  
+
+
+
+  <!-- Sliced up water cells for bottom corner of geometry !-->
+  <lattice id="27">
+   <type>rectangular</type>
+   <dimension>17 17</dimension>
+   <width>1.26 1.26</width>
+   <universes>
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+   </universes>
+  </lattice>
+
+  <!-- Sliced up water cells for bottom corner of geometry !-->
+  <lattice id="26">
+   <type>rectangular</type>
+   <dimension>17 17</dimension>
+   <width>1.26 1.26</width>
+   <universes>
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 12 12 12 12 12 12 12 12 12 12 12 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+   </universes>
+  </lattice>
+
+  <!-- Sliced up water cells for bottom of geometry !-->
+  <lattice id="25">
+   <type>rectangular</type>
+   <dimension>17 17</dimension>
+   <width>1.26 1.26</width>
+   <universes>
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+     12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+	 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+   </universes>
+  </lattice>
+
+  <!-- 3 x 3 core -->
+  <lattice id="22">
+    <type>rectangular</type>
+    <dimension>4 4</dimension>
+    <width>21.42 21.42</width>
+    <universes>
+      9  10 15 98 
+	  10  9 15 98
+      13 13 14 98
+      98 98 98 98
+  </universes>
+  </lattice>
+
+
+<!-- Definition of Surfaces -->
+  <surface id="1" type="x-plane" coeffs="-42.84" boundary="reflective" />
+  <surface id="2" type="x-plane" coeffs="42.84" boundary="reflective" />
+  <surface id="3" type="y-plane" coeffs="-42.84" boundary="reflective" />
+  <surface id="4" type="y-plane" coeffs="42.84" boundary="reflective"/>
+  <surface id="5" type="circle" coeffs="0.0 0.0 0.54" />
+  <surface id="6" type="circle" coeffs="0.0 0.0 0.58" />
+  <surface id="7" type="circle" coeffs="0.0 0.0 0.62" />
+
+</geometry>

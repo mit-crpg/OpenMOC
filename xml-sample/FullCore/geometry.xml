@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+
+<!-- This geometry is the lower half of the Hoogenboom-Martin benchmark problem
+     adapted from the OpenMC input specifications. It contains one type of 
+     fuel assembly with fuel pins and instrumentation guide tubes, surrounded
+     by water.
+-->
+
+<geometry>
+
+<!-- Definition of Cells -->
+  <!-- All geometry on base universe -->
+  <cell id="1" universe="0" fill="6" surfaces="1 -2 3 -4" />
+  <cell id="2" universe="21" fill="4" surfaces="" />
+  <cell id="3" universe="22" fill="3" surfaces="" />
+  <cell id="4" universe="23" fill="5" surfaces="" />
+
+  <!-- Fuel pin, cladding, water -->
+  <cell id="101" universe="1" material="1" surfaces="-5" />
+  <cell id="102" universe="1" material="2" surfaces="5 -6" />
+  <cell id="103" universe="1" material="3" surfaces="6" />
+
+  <!-- Instrumentation guide tube -->
+  <cell id="201" universe="2" material="1" surfaces="-7" />
+  <cell id="202" universe="2" material="2" surfaces="7 -8" />
+  <cell id="203" universe="2" material="3" surfaces="8" />
+
+  <!-- Water reflector -->
+  <cell id="301" universe="3" material="3" surfaces=""/>
+
+
+<!-- Definition of Lattices -->
+  <!-- 17 x 17 fuel assembly -->
+  <lattice id="4">
+    <type>rectangular</type>
+    <dimension>17 17</dimension>
+    <width>1.5 1.5</width>
+    <universes>
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 2 1 1 2 1 1 2 1 1 1 1 1
+      1 1 1 2 1 1 1 1 1 1 1 1 1 2 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 2 1 1 2 1 1 2 1 1 2 1 1 2 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 2 1 1 2 1 1 2 1 1 2 1 1 2 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 2 1 1 2 1 1 2 1 1 2 1 1 2 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 2 1 1 1 1 1 1 1 1 1 2 1 1 1
+      1 1 1 1 1 2 1 1 2 1 1 2 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+    </universes>
+  </lattice>
+
+  <lattice id="5">
+    <type>rectangular</type>
+    <dimension>10 10</dimension>
+    <width>2.55 2.55</width>
+    <universes>
+      3 3 3 3 3 3 3 3 3 3
+      3 3 3 3 3 3 3 3 3 3
+      3 3 3 3 3 3 3 3 3 3
+      3 3 3 3 3 3 3 3 3 3
+      3 3 3 3 3 3 3 3 3 3
+      3 3 3 3 3 3 3 3 3 3
+      3 3 3 3 3 3 3 3 3 3
+      3 3 3 3 3 3 3 3 3 3
+      3 3 3 3 3 3 3 3 3 3
+      3 3 3 3 3 3 3 3 3 3
+    </universes>
+  </lattice>       
+
+    
+  <!-- 21 x 21 core -->
+  <lattice id="6">
+    <type>rectangular</type>
+    <dimension>21 21</dimension>
+    <width>25.5 25.5</width>
+    <universes>
+      22 22 22 22 22 23 23 23 23 23 23 23 23 23 23 23 22 22 22 22 22
+      22 22 22 23 23 23 23 23 23 23 23 23 23 23 23 23 23 23 22 22 22
+      22 22 23 23 23 23 23 21 21 21 21 21 21 21 23 23 23 23 22 22 22
+      22 22 23 23 23 21 21 21 21 21 21 21 21 21 21 21 23 23 23 22 22
+      22 23 23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23 23 22
+      22 23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23 22
+      23 23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23 23
+      23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23
+      23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23
+      23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23
+      23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23
+      23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23
+      23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23
+      23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23
+      23 23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23 22
+      22 23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23 22
+      22 23 23 23 21 21 21 21 21 21 21 21 21 21 21 21 21 23 23 23 22
+      22 22 23 23 23 21 21 21 21 21 21 21 21 21 21 21 23 23 23 22 22
+      22 22 23 23 23 23 23 21 21 21 21 21 21 21 23 23 23 23 22 22 22
+      22 22 22 23 23 23 23 23 23 23 23 23 23 23 23 23 23 23 22 22 22
+      22 22 22 22 22 23 23 23 23 23 23 23 23 23 23 23 22 22 22 22 22
+  </universes>
+  </lattice>
+
+
+<!-- Definition of Surfaces -->
+  <!-- Core outer boundaries -->
+  <surface id="1" type="x-plane" coeffs="-267.75" boundary="reflective" />
+  <surface id="2" type="x-plane" coeffs="267.75" boundary="reflective" />
+  <surface id="3" type="y-plane" coeffs="-267.75" boundary="reflective" />
+  <surface id="4" type="y-plane" coeffs="267.75" boundary="reflective"/>
+
+  <!-- Fuel and cladding -->
+  <surface id="5" type="circle" coeffs="0.0 0.0 0.41" />
+  <surface id="6" type="circle" coeffs="0.0 0.0 0.475" />
+
+  <!-- Instrumentation guide tube -->
+  <surface id="7" type="circle" coeffs="0.0 0.0 0.56" />
+  <surface id="8" type="circle" coeffs="0.0 0.0 0.62" />
+
+</geometry>

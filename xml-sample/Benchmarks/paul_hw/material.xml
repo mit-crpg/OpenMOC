@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<materials>
+
+<!-- Definition of material with a representative set of single energy group 
+     values for UO2 
+-->
+
+  <!-- fuel -->
+  <material id="1" energy="1"
+			sigma_a="0.069389522"
+			sigma_t="0.452648699"
+			sigma_f="0.0414198575"
+			nu_sigma_f="0.0994076580"
+			chi="1.0"
+			sigma_s="0.383259177"
+  />
+
+  <!-- water -->
+  <material id="2" energy="1"
+			sigma_a="0.003751099"
+			sigma_t="0.841545641" 
+			sigma_f="0.0"
+			nu_sigma_f="0.0"
+			chi="1.0"
+			sigma_s="0.837794542"
+  />
+
+</materials>

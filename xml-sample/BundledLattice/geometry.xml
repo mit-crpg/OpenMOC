@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+
+<!-- 4x4 Lattice of 17x17 lattice fuel assembly bundles. Each pin cell is 
+     1cm x 1cm with pins of radii 0.15cm, 0.2cm, 0.25cm, 0.3cm, 0.35cm, 
+	 and 0.4cm.
+-->
+
+<geometry>
+
+<!-- Definition of Cells -->
+  <cell id="101" universe="1" material="1" surfaces="-5" rings="2" sectors="16"/>
+  <cell id="102" universe="1" material="2" surfaces="5" />
+  <cell id="201" universe="2" material="1" surfaces="-6" rings="2" sectors="16"/>
+  <cell id="202" universe="2" material="2" surfaces="6" />
+  <cell id="301" universe="3" material="1" surfaces="-7" rings="2" sectors="16"/>
+  <cell id="302" universe="3" material="2" surfaces="7" />
+  <cell id="401" universe="4" material="1" surfaces="-8" rings="2" sectors="16"/>
+  <cell id="402" universe="4" material="2" surfaces="8" />
+  <cell id="501" universe="5" material="1" surfaces="-9" rings="2" sectors="16"/>
+  <cell id="502" universe="5" material="2" surfaces="9" />
+  <cell id="601" universe="6" material="1" surfaces="-10" rings="2" sectors="16"/>
+  <cell id="602" universe="6" material="2" surfaces="10" />
+  <cell id="1" universe="10" fill="7" surfaces="" />
+  <cell id="2" universe="11" fill="8" surfaces="" />
+  <cell id="3" universe="0" fill="9" surfaces="" />
+
+
+<!-- Definition of Lattices -->
+  <!-- 4 x 4 assembly -->
+  <lattice id="7">
+    <type>rectangular</type>
+    <dimension>17 17</dimension>
+    <width>1.0 1.0</width>
+    <universes>
+      1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+      2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+      1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+      2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+      1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+      2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+      1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+      2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+      1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+      2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+      1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+      2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+      1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+      2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+      1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+      2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
+      1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+    </universes>
+  </lattice>
+
+  <!-- 4 x 4 assembly -->
+  <lattice id="8">
+    <type>rectangular</type>
+    <dimension>17 17</dimension>
+    <width>1.0 1.0</width>
+    <universes>
+	  4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
+	  5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5
+	  4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
+	  5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5
+	  4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
+	  5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5
+	  4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
+	  5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5
+	  4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
+	  5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5
+	  4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
+	  5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5
+	  4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
+	  5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5
+	  4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
+	  5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5
+	  4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
+    </universes>
+  </lattice>
+
+  <!-- 4 x 4 core -->
+  <lattice id="9">
+    <type>rectangular</type>
+    <dimension>4 4</dimension>
+    <width>17.0 17.0</width>
+    <universes>
+      10 11 10 11
+      11 10 11 10
+      10 11 10 11
+      11 10 11 10
+  </universes>
+  </lattice>
+
+
+<!-- Definition of Surfaces -->
+  <surface id="1" type="x-plane" coeffs="-34.0" boundary="reflective" />
+  <surface id="2" type="x-plane" coeffs="34.0" boundary="reflective" />
+  <surface id="3" type="y-plane" coeffs="-34.0" boundary="reflective" />
+  <surface id="4" type="y-plane" coeffs="34.0" boundary="reflective"/>
+  <surface id="5" type="circle" coeffs="0.0 0.0 0.15" />
+  <surface id="6" type="circle" coeffs="0.0 0.0 0.2" />
+  <surface id="7" type="circle" coeffs="0.0 0.0 0.25" />
+  <surface id="8" type="circle" coeffs="0.0 0.0 0.3" />
+  <surface id="9" type="circle" coeffs="0.0 0.0 0.35" />
+  <surface id="10" type="circle" coeffs="0.0 0.0 0.4" />
+
+</geometry>

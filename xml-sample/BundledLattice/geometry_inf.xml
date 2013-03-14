@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+
+<!-- 4x4 Lattice of 17x17 lattice fuel assembly bundles. Each pin cell is 
+     1cm x 1cm with pins of radii 0.15cm, 0.2cm, 0.25cm, 0.3cm, 0.35cm, 
+	 and 0.4cm.
+-->
+
+<geometry>
+
+<!-- Definition of Cells -->
+  <cell id="101" universe="1" material="1" surfaces="-5"  rings="2" sectors="4"/>
+  <cell id="102" universe="1" material="2" surfaces="5" />
+  <cell id="1" universe="10" fill="7" surfaces="" />
+  <cell id="3" universe="0" fill="9" surfaces="" />
+
+
+<!-- Definition of Lattices -->
+  <!-- 4 x 4 assembly -->
+  <lattice id="7">
+    <type>rectangular</type>
+    <dimension>17 17</dimension>
+    <width>1.0 1.0</width>
+    <universes>
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+    </universes>
+  </lattice>
+
+  <!-- 4 x 4 core -->
+  <lattice id="9">
+    <type>rectangular</type>
+    <dimension>3 3</dimension>
+    <width>17.0 17.0</width>
+    <universes>
+      10 10 10
+      10 10 10 
+      10 10 10
+  </universes>
+  </lattice>
+
+
+<!-- Definition of Surfaces -->
+  <surface id="1" type="x-plane" coeffs="-25.5" boundary="reflective" />
+  <surface id="2" type="x-plane" coeffs="25.5" boundary="reflective" />
+  <surface id="3" type="y-plane" coeffs="-25.5" boundary="reflective" />
+  <surface id="4" type="y-plane" coeffs="25.5" boundary="reflective"/>
+  <surface id="5" type="circle" coeffs="0.0 0.0 0.3" />
+
+</geometry>

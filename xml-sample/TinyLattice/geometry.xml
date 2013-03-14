@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<!-- Simple 2x2 lattice of identical pin cells. Each lattice cell is 2cm x 2cm
+	 and each pin has a diameter of 0.8.
+-->
+
+<geometry>
+
+<!-- Definition of Cells -->
+  <cell id="1" fill="2" surfaces="2 -3 4 -5" />
+  <cell id="100" universe="1" material="1" surfaces="-1"/>
+  <cell id="101" universe="1" material="2" surfaces="1"/>
+
+
+<!-- Definition of Lattices -->
+  <lattice id="2">
+    <type>rectangular</type>
+    <dimension>2 2</dimension>
+    <width>2.0 2.0</width>
+    <universes>
+      1 1
+      1 1
+    </universes>
+  </lattice>
+
+  
+<!-- Defition of Surfaces -->
+  <surface id="1" type="circle" coeffs="0 0 0.8" />
+  <surface id="2" type="x-plane" coeffs="-2.0" boundary="reflective" />
+  <surface id="3" type="x-plane" coeffs="2.0" boundary="reflective" />
+  <surface id="4" type="y-plane" coeffs="-2.0" boundary="reflective" />
+  <surface id="5" type="y-plane" coeffs="2.0" boundary="reflective" />
+    
+</geometry>

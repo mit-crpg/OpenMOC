@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<!-- Simple rectangular pin cell with fuel and coolant. Cell is 4cm x 4cm
+     and the pin radius is 1cm. 
+-->
+
+<geometry>
+
+<!-- Definition of Cells -->
+  <cell id="100" material="1" surfaces="-1" />
+  <cell id="101" material="2" surfaces="1 2 -3 4 -5" />
+
+<!-- Defition of Surfaces -->
+  <surface id="1" type="circle" coeffs="0 0 0.54" />
+  <surface id="2" type="x-plane" coeffs="-0.635" boundary="reflective" />
+  <surface id="3" type="x-plane" coeffs="0.635" boundary="reflective" />
+  <surface id="4" type="y-plane" coeffs="-0.635" boundary="reflective" />
+  <surface id="5" type="y-plane" coeffs="0.635" boundary="reflective" />
+  
+</geometry>
