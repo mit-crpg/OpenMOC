@@ -1,4 +1,4 @@
-GPUA-MOC
+OpenMOC
 ========
 
-A GPU-accelerated version of OpenMOC, a method of characteristics neutronics code.
+An Open-Source Method of Characteristics Code
