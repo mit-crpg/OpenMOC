@@ -1,0 +1,166 @@
+#include "Universe.h"
+
+
+short int Universe::_n = 0;
+
+
+/**
+ * @brief Constructor assigns a unique and user-specified ID for the universe.
+ * @param id the user-specified universe id
+ */
+Universe::Universe(const short int id) {
+    _uid = _n;
+    _id = id;
+    _n++;
+    _type = SIMPLE;
+}
+
+
+/**
+ * @brief Destructor clears the cell pointers container.
+ */
+Universe::~Universe() {
+    _cells.clear();
+}
+
+
+/**
+ * @brief Returns the universe's unique ID.
+ * @return the universe's unique ID.
+ */
+short int Universe::getUid() const {
+    return _uid;
+}
+
+/**
+ * Return the user-specified ID for this universe.
+ * @return the user-specified universe ID
+ */
+short int Universe::getId() const {
+    return _id;
+}
+
+
+/**
+ * @brief Return the universe type (SIMPLE or LATTICE).
+ * @return the universe type
+ */
+universeType Universe::getType() {
+    return _type;
+}
+
+/**
+ * @brief Return the number of cells in this universe.
+ * @return the number of cells
+ */
+short int Universe::getNumCells() const {
+    return _cells.size();
+}
+
+
+/**
+ * @brief Return a pointer to the origin for this cell (in global coordinates).
+ * @return the origin of the cell
+ */
+Point* Universe::getOrigin() {
+    return &_origin;
+}
+
+
+/**
+ * @brief Returns the local ID for the FSR representing a cell in this universe.
+ * @details This method is used when constructing an ID for a FSR.
+ * @param cell_id the ID of the cell of interest
+ */
+int Universe::getFSR(short int cell_id) {
+
+    if (_cells.find(cell_id) == _cells.end())
+        log_printf(ERROR, "Tried to find FSR id for cell with id = %d in "
+		   " universe with id = %d but no cell exists", cell_id, _id);
+
+    return _region_map.at(cell_id);
+}
+
+
+/**
+ * @brief Return the vector of cell pointers in this universe.
+ * @return vector of cell ids
+ */
+std::map<short int, Cell*> Universe::getCells() const {
+    return _cells;
+}
+
+
+/**
+ * @brief Adds a cell to this universe.
+ * @details Stores the user-specified cell ID and cell pointer in a hash
+ *          table along with all of other cells added to this universe.
+ * @param cell the cell id
+ */
+void Universe::addCell(Cell* cell) {
+
+    try {
+        _cells.insert(std::pair<short int, Cell*>(cell->getId(), cell));
+	log_printf(INFO, "Added cell with id = %d to universe with id = %d",
+		   cell->getId(), _id);
+	}
+    catch (std::exception &e) {
+        log_printf(ERROR, "Unable to add cell with id = %d to universe with"
+		   " id = %d. Backtrace:\n%s", cell, _id, e.what());
+    }
+}
+
+
+/**
+ * @brief Sets the universe type to SIMPLE or LATTICE.
+ * @param type the universe type
+ */
+void Universe::setType(universeType type) {
+    _type = type;
+}
+
+
+/**
+ * @brief Set the origin in global coordinates for this universe.
+ * @param origin a pointer to the origin
+ */
+void Universe::setOrigin(Point* origin) {
+    _origin.setX(origin->getX());
+    _origin.setY(origin->getY());
+}
+
+
+/**
+ * @brief Finds the cell for which a localcoords object resides.
+ * @details Finds the cell that a localcoords object is located inside by 
+ *          checking each of this universe's cells. Returns NULL if the 
+ *          localcoords is not in any of the cells.
+ * @param coords a pointer to the localcoords of interest
+ * @param universes a container of all of the universes passed in by geometry
+ * @return a pointer the cell where the localcoords is located
+ */
+Cell* Universe::findCell(LocalCoords* coords,
+			 std::map<short int, Universe*> universes) {
+
+  //    log_printf(NORMAL, "Inside universe %d findCell method...", _id);
+
+    Cell* return_cell = NULL;
+    std::map<short int, Cell*>::iterator iter;
+
+    /* Sets the localcoord type to UNIV at this level */
+    coords->setType(UNIV);
+
+    /* Loop over all cells in this universe */
+    for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+        Cell* cell = iter->second;
+
+	//        log_printf(NORMAL, "Querying cell %d", cell->getId());
+
+	if (cell->cellContains(coords)) {
+
+	  //	  log_printf(NORMAL, "Cell %d in universe %d contained coords", 
+	  //	     cell->getId(), _id);
+	  
+	    /* Set the cell on this level */
+	    coords->setCell(cell->getId());
+
