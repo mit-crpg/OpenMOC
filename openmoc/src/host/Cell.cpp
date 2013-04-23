@@ -3,6 +3,24 @@
 
 short int Cell::_n = 0;
 
+static int auto_id = 10000;
+
+
+/**
+ * @brief Returns an auto-generated unique cell ID.
+ * @details This method is intended as a utility mehtod for user's writing
+ *          OpenMOC input files. The method makes use of a static cell
+ *          ID which is incremented each time the method is called to enable
+ *          unique generation of monotonically increasing IDs. The method's
+ *          first ID begins at 10000. Hence, user-defined cell IDs greater
+ *          than or equal to 10000 is prohibited.
+ */
+int cell_id() {
+    int id = auto_id;
+    auto_id++;
+    return id;
+}
+
 
 /**
  * @brief Default constructor used in rings/sectors subdivision of cells.
@@ -16,8 +34,14 @@ Cell::Cell() { }
  * @param universe the ID of the universe within which this cell resides
  */
 Cell::Cell(short int id, short int universe) {
-    _uid = _n;
+
+    if (id >= auto_id)
+        log_printf(ERROR, "Unable to set the ID of a cell to %d since "
+		 "cell IDs greater than or equal to 10000 is probibited "
+		 "by OpenMOC.", id);
+
     _id = id;
+    _uid = _n;
     _n++;
     _universe = universe;       
 }
@@ -105,6 +129,7 @@ void Cell::addSurface(short int halfspace, Surface* surface) {
         log_printf(ERROR, "Unable to add surface %d to cell %d since the "
                     "halfspace %d is not -1 or 1", surface->getId(), 
                                                     _id, halfspace);
+
     _surfaces.insert(std::pair<short int, Surface*>(halfspace*surface->getId(),
                                                                      surface));
 }
@@ -226,8 +251,8 @@ CellBasic::CellBasic(short int id, short int universe, short int material,
 		     int num_rings, int num_sectors): Cell(id, universe) {
     _cell_type = MATERIAL;
     _material = material;
-    _num_rings = num_rings;
-    _num_sectors = num_sectors;
+    setNumRings(num_rings);
+    setNumSectors(num_sectors);
 }
 
 
@@ -277,6 +302,10 @@ int CellBasic::getNumFSRs() {
  * @param num_rings the number of rings in this cell
  */
 void CellBasic::setNumRings(short int num_rings) {
+    if (num_rings < 0)
+        log_printf(ERROR, "Unable to give %d rings to cell %d since this is "
+		 "a negative number", num_rings, _id);
+
     _num_rings = num_rings;
 }
 
@@ -286,6 +315,10 @@ void CellBasic::setNumRings(short int num_rings) {
  * @param num_sectors the number of sectors in this cell
  */
 void CellBasic::setNumSectors(short int num_sectors) {
+    if (_num_rings < 0)
+        log_printf(ERROR, "Unable to give %d sectors to cell %d since this is "
+		 "a negative number", num_sectors, _id);
+
     _num_sectors = num_sectors;
 }
 
@@ -297,26 +330,169 @@ void CellBasic::setNumSectors(short int num_sectors) {
  * @param num_sectors the number of sectors to put in the clone
  * @return a pointer to the clone
  */
-CellBasic* CellBasic::clone(short int new_id, short int num_rings,
-                            short int num_sectors) {
+CellBasic* CellBasic::clone() {
 
     /* Construct new cell */
-    CellBasic* new_cell = new CellBasic(new_id, _universe, _material);
-    new_cell->setNumSectors(_num_sectors);
-    new_cell->setNumRings(_num_rings);
+    CellBasic* new_cell = new CellBasic(cell_id(), _universe, _material, 
+					_num_rings, _num_sectors);
 
     /* Loop over all of this cell's surfaces and add them to the clone */
     std::map<short int, Surface*>::iterator iter;
     int halfspace;
     Surface* surface;
+
     for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
         halfspace = iter->first / abs(iter->first);
         surface = iter->second;
         new_cell->addSurface(halfspace, surface);
     }
+
     return new_cell;
 }
 
+
+void CellBasic::sectorize() { 
+}
+
+
+void CellBasic::ringify() {
+
+    int num_circles = 0;
+    Circle* circle1 = NULL;
+    Circle* circle2 = NULL;
+    double radius1 = 0;
+    double radius2 = 0;
+    double x1 = 0.;
+    double y1 = 0.;
+    double x2 = 0.;
+    double y2 = 0.;
+    short int halfspace1 = 0;
+    short int halfspace2 = 0;
+    std::vector<Circle*> circles;
+
+    /* See if the cell contains 1 or 2 surfaces */
+    std::map<short int, Surface*>::iterator iter1;
+    for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
+        if ((*iter1).second->getSurfaceType() == CIRCLE) {
+	    short int halfspace = (*iter1).first / (*iter1).second->getId();
+	    Circle* circle = static_cast<Circle*>((*iter1).second);
+
+	    log_printf(INFO, "halfspace = %d", halfspace);
+
+	    /* Outermost bounding circle */
+	    if (halfspace == -1) {
+	        halfspace1 = halfspace;
+	        circle1 = circle;
+	        radius1 = circle1->getRadius();
+		x1 = circle1->getX0();
+		y1 = circle1->getY0();                
+	    }
+
+	    /* Innermost bounding circle */
+	    else if (halfspace == +1) {
+	        halfspace2 = halfspace;
+	        circle2 = circle;
+	        radius2 = circle2->getRadius();
+		x2 = circle2->getX0();
+		y2 = circle2->getY0();
+	    }
+	        
+	    num_circles++;
+        }
+    }
+
+    log_printf(INFO, "cell %d, num_circles = %d, radius1 = %f, radius2 = %f",
+	       _id, num_circles, radius1, radius2);
+
+    /* Error checking */
+    if (_num_rings == 0)
+        return;
+    if (num_circles == 0)
+        log_printf(ERROR, "Unable to ringify cell %d since it does not "
+		   "contain any CIRCLE type surface(s)", _id);
+    if (num_circles > 2)
+        log_printf(NORMAL, "Unable to ringify cell %d since it "
+		   "contains more than 2 CIRCLE surfaces", _id);
+    if (x1 != x2 && num_circles == 2)
+        log_printf(ERROR, "Unable to ringify cell %d since it contains "
+		 "circle %d centered at x=%f and circle %d at x=%f. "
+		   "Both circles must have the same center.", 
+		   _id, circle1->getId(), x1, circle2->getId(), x2);
+    if (y1 != y2 && num_circles == 2)
+        log_printf(ERROR, "Unable to ringify cell %d since it contains "
+		 "circle %d centered at y=%f and circle %d at y=%f. "
+		   "Both circles must have the same center.", 
+		   _id, circle1->getId(), y1, circle2->getId(), y2);
+    if (circle1 == NULL && circle2 != NULL)
+        log_printf(ERROR, "Unable to ringify cell %d since it only contains "
+		   "the positive halfpsace of circle %d. Rings can only be "
+		   "created for cells on the interior (negative halfspace) "
+		   "of a circle surface.", _id, circle2->getId());
+    if (radius1 <= radius2)
+        log_printf(ERROR, "Unable to ringify cell %d since it contains 2 "
+		 "disjoint CIRCLE surfaces: halspace %d for circle %d "
+		   "and halfspace %d for circle %d. Switch the signs of "
+		   "the 2 halfspaces for each surface.", _id, halfspace1,
+		   circle1->getId(), halfspace2, circle2->getId());
+
+    /* Compute the area to fill with each ring */
+    double area = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
+
+    /* Generate successively smaller circle surfaces */
+    for (int i=0; i < _num_rings-1; i++) {
+        radius2 = sqrt(radius1*radius1 - (area / M_PI));
+	Circle* circle = new Circle(surf_id(), x1, y1, radius1);
+	circles.push_back(circle);
+	radius1 = radius2;
+    }
+ 
+    /* Store smallest, innermost circle */
+    Circle* circle = new Circle(surf_id(), x1, y1, radius1);
+    circles.push_back(circle);
+
+    log_printf(INFO, "# circles = %d", circles.size());
+
+    //FIXME: Need inner loop over sector subcells 
+
+    /* Loop over circles and */
+    std::vector<Circle*>::iterator iter2;
+    for (iter2 = circles.begin(); iter2 != circles.end(); ++iter2) {
+
+        log_printf(NORMAL, "Creating a new ring");
+
+        /** Create circles for each of the sectorized cells */
+        if (_sectors.size() != 0) {
+        }
+
+	else {
+            /* Create a new CellBasic clone */
+	    CellBasic* ring = clone();
+	    ring->setNumSectors(0);
+	    ring->setNumRings(0);
+
+	    /* Add new bounding circle surfaces to the clone */
+	    ring->addSurface(-1, (*iter2));
+	    
+	    /* Look ahead and check if we have an inner circle to add */
+	    if (iter2+1 == circles.end()) {
+	        _rings.push_back(ring);
+		break;
+	    }
+	    else
+	        ring->addSurface(+1, *(iter2+1));
+
+	    _rings.push_back(ring);
+	}
+    }
+
+    _subcells.clear();
+    _subcells.insert(_subcells.end(), _rings.begin(), _rings.end());
+}
+
+
+std::vector<CellBasic*> CellBasic::getSubCells() {
+    return _subcells;
+}
 
 /**
  * @brief Convert this cellbasic's attributes to a string format.

@@ -1023,13 +1023,23 @@ int Geometry::findFSRId(LocalCoords* coords) {
 }
 
 
+void Geometry::subdivideCells() {
+    std::map<short int, Universe*>::iterator iter;
+    for (iter = _universes.begin(); iter != _universes.end(); ++iter)
+        (*iter).second->subdivideCells();
+}
+
 /**
  * @brief Compute the number of flat source regions and nitialize an array of 
  *        FSRs and FSR maps. 
  */
 void Geometry::initializeFlatSourceRegions() {
+
     /* Initialize pointers from fill cells to universes */
     initializeCellFillPointers();
+
+    /* Subdivide cells into sectors and regions */
+    subdivideCells();
 
     /* Generate flat source regions */
     Universe *univ = _universes.at(0);

@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
 import numpy as np
+import numpy.random
 import os
 from openmoc import *
 from log import *
@@ -267,7 +268,8 @@ def plotCells(geometry, gridsize=250):
     py_printf('NORMAL', 'Plotting the cells...')
 
     # Initialize a numpy array for the surface colors
-    surface = numpy.zeros((gridsize, gridsize), dtype=np.int32)
+    surface = np.zeros((gridsize, gridsize))
+    color_map = np.random.random_sample((150,))
 
     # Retrieve the bounding box for the geometry
     xmin = geometry.getXMin()
@@ -290,7 +292,7 @@ def plotCells(geometry, gridsize=250):
             point.setUniverse(0)
             geometry.findCell(point)
             fsr_id = geometry.findFSRId(point)
-            surface[j][i] = geometry.findCell(fsr_id).getId()
+            surface[j][i] = color_map[geometry.findCell(fsr_id).getId()%150]
 
 
     # Plot a 2D color map of the cells
@@ -339,7 +341,8 @@ def plotFlatSourceRegions(geometry, gridsize=250):
     py_printf('NORMAL', 'Plotting the flat source regions...')
 
     # Initialize a numpy array for the surface colors
-    surface = numpy.zeros((gridsize, gridsize), dtype=np.int32)
+    surface = numpy.zeros((gridsize, gridsize))
+    color_map = np.random.random_sample((50,))
 
     # Retrieve the bounding box for the geometry
     xmin = geometry.getXMin()
@@ -361,7 +364,7 @@ def plotFlatSourceRegions(geometry, gridsize=250):
             point = LocalCoords(x, y)
             point.setUniverse(0)
             geometry.findCell(point)
-            surface[j][i] = geometry.findFSRId(point)
+            surface[j][i] = color_map[geometry.findFSRId(point)%50]
 
 
     # Plot a 2D color map of the flat source regions

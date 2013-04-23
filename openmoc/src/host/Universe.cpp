@@ -254,6 +254,37 @@ int Universe::computeFSRMaps() {
 }
 
 
+void Universe::subdivideCells() {
+
+    log_printf(DEBUG, "Subdividing cells for universe %d", _id);
+
+    std::map<short int, Cell*>::iterator iter1;
+
+    while (iter1 != _cells.end()) {
+
+        for (iter1 = _cells.begin(); iter1 != _cells.end(); ++iter1) {
+
+	    if ((*iter1).second->getType() == MATERIAL) {
+	        CellBasic* cell = static_cast<CellBasic*>((*iter1).second);
+
+		if (cell->getNumRings() > 0) {
+		    cell->ringify();
+
+		    std::vector<CellBasic*> newcells = cell->getSubCells();
+
+		    std::vector<CellBasic*>::iterator iter2;
+		    for (iter2=newcells.begin(); iter2!=newcells.end(); ++iter2)
+	                addCell((*iter2));
+
+		    iter1= _cells.erase(iter1);
+		    break;
+		}
+	    }
+	}
+    }
+}
+
+
 /**
  * @brief Constructor sets the user-specified and unique IDs for this lattice.
  * @param id the user-specified lattice (universe) ID

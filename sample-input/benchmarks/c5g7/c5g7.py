@@ -167,8 +167,8 @@ planes.append(XPlane(id=2, x=32.13))
 planes.append(YPlane(id=3, y=-32.13))
 planes.append(YPlane(id=4, y=32.13))
 circles.append(Circle(id=5, x=0., y=0., radius=0.54))
-circles.append(Circle(id=5, x=0., y=0., radius=0.58))
-circles.append(Circle(id=5, x=0., y=0., radius=0.62))
+circles.append(Circle(id=6, x=0., y=0., radius=0.58))
+circles.append(Circle(id=7, x=0., y=0., radius=0.62))
 planes[0].setBoundaryType(REFLECTIVE)
 planes[1].setBoundaryType(VACUUM)
 planes[2].setBoundaryType(VACUUM)
@@ -178,7 +178,7 @@ log.py_printf('NORMAL', 'Creating cells...')
 
 cells = []
 # UO2 pin cells
-cells.append(CellBasic(id=1, universe=1, material=1))
+cells.append(CellBasic(id=1, universe=1, material=1, num_rings=3))
 cells.append(CellBasic(id=2, universe=1, material=7))
 cells.append(CellBasic(id=3, universe=1, material=7))
 cells.append(CellBasic(id=4, universe=1, material=7))
@@ -189,8 +189,9 @@ cells[2].addSurface(+1, circles[1])
 cells[2].addSurface(-1, circles[2])
 cells[3].addSurface(+1, circles[2])
 
+
 # 4.3% MOX pin cells
-cells.append(CellBasic(id=5, universe=2, material=2))
+cells.append(CellBasic(id=5, universe=2, material=2, num_rings=3))
 cells.append(CellBasic(id=6, universe=2, material=7))
 cells.append(CellBasic(id=7, universe=2, material=7))
 cells.append(CellBasic(id=8, universe=2, material=7))
@@ -201,8 +202,9 @@ cells[6].addSurface(+1, circles[1])
 cells[6].addSurface(-1, circles[2])
 cells[7].addSurface(+1, circles[2])
 
+
 # 7% MOX pin cells
-cells.append(CellBasic(id=9, universe=3, material=3))
+cells.append(CellBasic(id=9, universe=3, material=3, num_rings=3))
 cells.append(CellBasic(id=10, universe=3, material=7))
 cells.append(CellBasic(id=11, universe=3, material=7))
 cells.append(CellBasic(id=12, universe=3, material=7))
@@ -213,8 +215,10 @@ cells[10].addSurface(+1, circles[1])
 cells[10].addSurface(-1, circles[2])
 cells[11].addSurface(+1, circles[2])
 
+
+
 # 8.7% MOX pin cells
-cells.append(CellBasic(id=13, universe=4, material=4))
+cells.append(CellBasic(id=13, universe=4, material=4, num_rings=3))
 cells.append(CellBasic(id=14, universe=4, material=7))
 cells.append(CellBasic(id=15, universe=4, material=7))
 cells.append(CellBasic(id=16, universe=4, material=7))
@@ -226,7 +230,7 @@ cells[14].addSurface(-1, circles[2])
 cells[15].addSurface(+1, circles[2])
 
 # Fission chamber pin cells
-cells.append(CellBasic(id=17, universe=5, material=5))
+cells.append(CellBasic(id=17, universe=5, material=5, num_rings=3))
 cells.append(CellBasic(id=18, universe=5, material=7))
 cells.append(CellBasic(id=19, universe=5, material=7))
 cells.append(CellBasic(id=20, universe=5, material=7))
@@ -238,7 +242,7 @@ cells[18].addSurface(-1, circles[2])
 cells[19].addSurface(+1, circles[2])
 
 # Guide tube pin cells
-cells.append(CellBasic(id=21, universe=6, material=6))
+cells.append(CellBasic(id=21, universe=6, material=6, num_rings=3))
 cells.append(CellBasic(id=22, universe=6, material=7))
 cells.append(CellBasic(id=23, universe=6, material=7))
 cells.append(CellBasic(id=24, universe=6, material=7))
@@ -445,7 +449,7 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 
 timer.startTimer()
 track_generator = TrackGenerator()
-track_generator.setNumAzim(256)
+track_generator.setNumAzim(16)
 track_generator.setTrackSpacing(0.1)
 track_generator.setGeometry(geometry)
 track_generator.generateTracks()
@@ -454,14 +458,14 @@ timer.recordSplit('Generating tracks')
 timer.resetTimer()
 
 #plotter.plotTracks(track_generator)
-#plotter.plotMaterials(geometry, gridsize=250)
-#plotter.plotCells(geometry, gridsize=250)
-#plotter.plotFlatSourceRegions(geometry, gridsize=250)
+plotter.plotMaterials(geometry, gridsize=500)
+plotter.plotCells(geometry, gridsize=500)
+plotter.plotFlatSourceRegions(geometry, gridsize=500)
 
 timer.startTimer()
 solver = Solver(geometry, track_generator)
-solver.setNumThreads(16)
-solver.setSourceConvergenceThreshold(1E-5)
+solver.setNumThreads(4)
+solver.setSourceConvergenceThreshold(1E-3)
 solver.convergeSource(1000)
 timer.stopTimer()
 timer.recordSplit('Fixed source iteration on host')

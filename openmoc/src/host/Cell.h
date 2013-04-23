@@ -19,6 +19,9 @@ class Universe;
 class Surface;
 class LocalCoords;
 
+int cell_id();
+
+
 /**
  * @enum cellType
  * @brief The type of cell.
@@ -37,8 +40,10 @@ enum cellType {
 class Cell {
 
 protected:
-    /** A static counter fo the number of cell in a simulation */
+    /** A static counter for the number of cells in a simulation */
     static short int _n;
+    /** A static counter for the number of cell clones in a simulation */
+    static int _clone_n;
     /** A monotonically increasing unique ID for each cell created */
     short int _uid;
     /** A user-defined ID for each cell created */
@@ -106,6 +111,10 @@ private:
     /** The number of sectors sub-dividing this cell */
     short int _num_sectors;
 
+    std::vector<CellBasic*> _rings;
+    std::vector<CellBasic*> _sectors;
+    std::vector<CellBasic*> _subcells;
+
 public:
     CellBasic(short int id, short int universe, short int material,
 	      int num_rings=0, int num_sectors=0);
@@ -117,8 +126,10 @@ public:
 
     void setNumRings(short int num_rings);
     void setNumSectors(short int num_sectors);
-    CellBasic* clone(short int new_id, short int num_rings,
-                     short int num_sectors);
+    CellBasic* clone();
+    void ringify();
+    //    void sectorize();
+    std::vector<CellBasic*> getSubCells();
 
     std::string toString();
     void printString();

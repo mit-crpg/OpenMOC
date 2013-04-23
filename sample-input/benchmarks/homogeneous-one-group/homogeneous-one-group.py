@@ -35,7 +35,7 @@ bottom.setBoundaryType(REFLECTIVE)
 log.py_printf('NORMAL', 'Creating cells...')
 
 cells = []
-cells.append(CellBasic(id=1, universe=1, material=1))
+cells.append(CellBasic(id=1, universe=1, material=1, num_rings=3))
 cells.append(CellBasic(id=2, universe=1, material=1))
 cells.append(CellFill(id=3, universe=0, universe_fill=2))
 
@@ -62,6 +62,9 @@ geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
 
+plotter.plotCells(geometry)
+plotter.plotFlatSourceRegions(geometry)
+
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator()
@@ -69,8 +72,6 @@ track_generator.setNumAzim(128)
 track_generator.setTrackSpacing(0.5)
 track_generator.setGeometry(geometry)
 track_generator.generateTracks()
-
-
 
 solver = Solver(geometry, track_generator)
 solver.setNumThreads(1)

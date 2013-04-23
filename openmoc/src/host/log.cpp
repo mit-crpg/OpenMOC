@@ -128,7 +128,7 @@ void setSeparatorCharacter(char c) {
  * @brief Returns the character used to format SEPARATOR type log messages.
  * @return the character used for SEPARATOR type log messages
  */
-const char getSeparatorCharacter() {
+char getSeparatorCharacter() {
     return separator_char;
 }
 
@@ -145,7 +145,7 @@ void setHeaderCharacter(char c) {
  * @brief Returns the character used to format HEADER type log messages.
  * @return the character used for HEADER type log messages
  */
-const char getHeaderCharacter() {
+char getHeaderCharacter() {
     return header_char;
 }
 
@@ -163,7 +163,7 @@ void setTitleCharacter(char c) {
  * @brief Returns the character used to format TITLE type log messages.
  * @return the character used for TITLE type log messages
  */
-const char getTitleCharacter() {
+char getTitleCharacter() {
     return title_char;
 }
 

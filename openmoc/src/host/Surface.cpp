@@ -2,6 +2,23 @@
 
 short int Surface::_n = 0;
 
+static int auto_id = 10000;
+
+/**
+ * @brief Returns an auto-generated unique surface ID.
+ * @details This method is intended as a utility mehtod for user's writing
+ *          OpenMOC input files. The method makes use of a static surface
+ *          ID which is incremented each time the method is called to enable
+ *          unique generation of monotonically increasing IDs. The method's
+ *          first ID begins at 10000. Hence, user-defined surface IDs greater
+ *          than or equal to 10000 is prohibited.
+ */
+int surf_id() {
+    int id = auto_id;
+    auto_id++;
+    return id;
+}
+
 
 /**
  * @brief Constructor assigns unique ID and user-defined ID for a surface.
@@ -10,9 +27,15 @@ short int Surface::_n = 0;
  * @param id the user-defined surface id
  */
 Surface::Surface(const short int id){
+
+    if (id >= surf_id())
+        log_printf(ERROR, "Unable to set the ID of a surface to %d since "
+		 "surface IDs greater than or equal to 10000 is probibited "
+		 "by OpenMOC.", id);
+
+    _id = id;
     _uid = _n;
     _n++;
-    _id = id;
     _boundary_type = BOUNDARY_NONE;
 }
 
@@ -528,6 +551,24 @@ Circle::Circle(const short int id, const double x, const double y,
         _radius = radius;
         _center.setX(x);
         _center.setY(y);
+}
+
+
+/**
+ * @brief Return the x-coordinate of the circle's center point.
+ * @return the x-coordinate of the circle center
+ */
+double Circle::getX0() {
+    return _center.getX();
+}
+
+
+/**
+ * @brief Return the y-coordinate of the circle's center point.
+ * @return the y-coordinate of the circle center
+ */
+double Circle::getY0() {
+    return _center.getY();
 }
 
 

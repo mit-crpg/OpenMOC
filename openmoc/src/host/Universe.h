@@ -85,6 +85,7 @@ public:
     Cell* findCell(LocalCoords* coords,
 			   std::map<short int, Universe*> universes);
     int computeFSRMaps();
+    void subdivideCells();
     std::string toString();
     void printString();
 };

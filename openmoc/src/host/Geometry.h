@@ -121,6 +121,7 @@ public:
     Cell* findCell(Universe* univ, int fsr_id);
     CellBasic* findCell(int fsr_id);
     int findFSRId(LocalCoords* coords);
+    void subdivideCells();
     void initializeFlatSourceRegions();
     void segmentize(Track* track);
     void computePinPowers(FP_PRECISION* FSRs_to_powers,

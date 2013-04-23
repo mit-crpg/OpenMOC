@@ -78,11 +78,11 @@ void setLogfileName(char* filename);
 const char* getLogfileName();
 
 void setSeparatorCharacter(char c);
-const char getSeparatorCharacter();
+char getSeparatorCharacter();
 void setHeaderCharacter(char c);
-const char getHeaderCharacter();
+char getHeaderCharacter();
 void setTitleCharacter(char c);
-const char getTitleCharacter();
+char getTitleCharacter();
 void setLineLength(int length);
 
 void log_setlevel(logLevel newlevel);

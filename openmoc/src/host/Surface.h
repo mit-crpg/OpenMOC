@@ -24,6 +24,10 @@
 class LocalCoords;
 class Cell;
 
+
+int surf_id();
+
+
 /**
  * @enum surfaceType
  * @brief The types of surfaces supported by OpenMOC.
@@ -290,6 +294,8 @@ public:
     Circle(const short int id, const double x, const double y, 
            const double radius);
 
+    double getX0();
+    double getY0();
     double getRadius();
     double getXMin();
     double getXMax();

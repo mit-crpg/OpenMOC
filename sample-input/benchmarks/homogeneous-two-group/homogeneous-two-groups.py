@@ -41,6 +41,8 @@ cells.append(CellBasic(id=1, universe=1, material=1))
 cells.append(CellBasic(id=2, universe=1, material=1))
 cells.append(CellFill(id=3, universe=0, universe_fill=2))
 
+cells[0].setNumRings(3)
+
 cells[0].addSurface(halfspace=-1, surface=circle)
 cells[1].addSurface(halfspace=+1, surface=circle)
 cells[2].addSurface(halfspace=+1, surface=left)
@@ -66,6 +68,9 @@ geometry.initializeFlatSourceRegions()
 timer.stopTimer()
 timer.recordSplit('Geometry initialization')
 timer.resetTimer()
+
+plotter.plotCells(geometry)
+plotter.plotFlatSourceRegions(geometry)
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
