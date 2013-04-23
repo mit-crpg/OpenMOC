@@ -205,6 +205,8 @@ def plotMaterials(geometry, gridsize=250):
     ymin = geometry.getYMin()
     ymax = geometry.getYMax()
 
+    print 
+
     # Initialize numpy arrays for the grid points
     xcoords = np.linspace(xmin, xmax, gridsize)
     ycoords = np.linspace(ymin, ymax, gridsize)
@@ -223,10 +225,11 @@ def plotMaterials(geometry, gridsize=250):
             material_id = geometry.findCell(fsr_id).getMaterial()
             surface[j][i] = color_map[material_id % num_colors]
 
-
     # Plot a 2D color map of the materials
     fig = plt.figure()
     plt.pcolor(xcoords, ycoords, surface)
+    plt.xlim([xmin, xmax])
+    plt.ylim([ymin, ymax])
     plt.title('Materials')
     filename = directory + 'materials.png'
     fig.savefig(filename)
@@ -299,6 +302,8 @@ def plotCells(geometry, gridsize=250):
     # Plot a 2D color map of the cells
     fig = plt.figure()
     plt.pcolor(xcoords, ycoords, surface)
+    plt.xlim([xmin, xmax])
+    plt.ylim([ymin, ymax])
     plt.title('Cells')
     filename = directory + 'cells.png'
     fig.savefig(filename)
@@ -371,6 +376,8 @@ def plotFlatSourceRegions(geometry, gridsize=250):
     # Plot a 2D color map of the flat source regions
     fig = plt.figure()
     plt.pcolor(xcoords, ycoords, surface)
+    plt.xlim([xmin, xmax])
+    plt.ylim([ymin, ymax])
     plt.title('Flat Source Regions')
     filename = directory + 'flat-source-regions.png'
     fig.savefig(filename)
@@ -486,6 +493,8 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
         # Plot a 2D color map of the flat source regions
         fig = plt.figure()
         plt.pcolor(xcoords, ycoords, fluxes)
+        plt.xlim([xmin, xmax])
+        plt.ylim([ymin, ymax])
         plt.title('Flat Source Region Scalar Flux in Group ' + str(group))
         filename = directory + 'fsr-flux-group-' + str(group) + '-.png'
         fig.savefig(filename)
