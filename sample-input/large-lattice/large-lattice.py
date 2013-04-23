@@ -5,6 +5,10 @@ import openmoc.plotter as plotter
 
 log.py_setlevel('INFO')
 
+log.py_printf('TITLE', 'Simulating a simple 2x2 core of 2x2 nested lattices...')
+
+timer = Timer()
+
 log.py_printf('NORMAL', 'Creating materials...need to use hdf5...')
 
 fuel = Material(1)
@@ -53,66 +57,90 @@ moderator.setChi(numpy.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]))
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle1 = Circle(id=1, x=0.0, y=0.0, radius=1.0)
-circle2 = Circle(id=2, x=0.0, y=0.0, radius=0.5)
-left = XPlane(id=3, x=-2.0)
-right = XPlane(id=4, x=2.0)
-top = YPlane(id=5, y=2.0)
-bottom = YPlane(id=6, y=-2.0)
-
-left.setBoundaryType(REFLECTIVE)
-right.setBoundaryType(REFLECTIVE)
-top.setBoundaryType(REFLECTIVE)
-bottom.setBoundaryType(REFLECTIVE)
+circles = []
+planes = []
+planes.append(XPlane(id=1, x=-2.0))
+planes.append(XPlane(id=2, x=2.0))
+planes.append(YPlane(id=3, y=-2.0))
+planes.append(YPlane(id=4, y=2.0))
+circles.append(Circle(id=5, x=0.0, y=0.0, radius=0.4))
+circles.append(Circle(id=6, x=0.0, y=0.0, radius=0.3))
+circles.append(Circle(id=7, x=0.0, y=0.0, radius=0.2))
+for plane in planes: plane.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
 cells = []
-cells.append(CellBasic(id=1, universe=1, material=2, num_rings=4, num_sectors=5))
-cells.append(CellBasic(id=2, universe=1, material=2, num_rings=2, num_sectors=8))
-cells.append(CellBasic(id=3, universe=1, material=1, num_sectors=32))
-cells.append(CellFill(id=4, universe=0, universe_fill=2))
+cells.append(CellBasic(id=1, universe=1, material=1))
+cells.append(CellBasic(id=2, universe=1, material=2))
+cells.append(CellBasic(id=3, universe=2, material=1))
+cells.append(CellBasic(id=4, universe=2, material=2))
+cells.append(CellBasic(id=5, universe=3, material=1))
+cells.append(CellBasic(id=6, universe=3, material=2))
+cells.append(CellFill(id=7, universe=5, universe_fill=4))
+cells.append(CellFill(id=8, universe=0, universe_fill=6))
 
-cells[0].addSurface(halfspace=-1, surface=circle1)
-cells[0].addSurface(halfspace=+1, surface=circle2)
-cells[1].addSurface(halfspace=-1, surface=circle2)
-cells[2].addSurface(halfspace=+1, surface=circle1)
-cells[3].addSurface(halfspace=+1, surface=left)
-cells[3].addSurface(halfspace=-1, surface=right)
-cells[3].addSurface(halfspace=+1, surface=bottom)
-cells[3].addSurface(halfspace=-1, surface=top)
+cells[0].addSurface(halfspace=-1, surface=circles[0])
+cells[1].addSurface(halfspace=+1, surface=circles[0])
+cells[2].addSurface(halfspace=-1, surface=circles[1])
+cells[3].addSurface(halfspace=+1, surface=circles[1])
+cells[4].addSurface(halfspace=-1, surface=circles[2])
+cells[5].addSurface(halfspace=+1, surface=circles[2])
 
-log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
+cells[7].addSurface(halfspace=+1, surface=planes[0])
+cells[7].addSurface(halfspace=-1, surface=planes[1])
+cells[7].addSurface(halfspace=+1, surface=planes[2])
+cells[7].addSurface(halfspace=-1, surface=planes[3])
 
-lattice = Lattice(id=2, width_x=4.0, width_y=4.0)
-lattice.setLatticeCells([[1]])
+log.py_printf('NORMAL', 'Creating nested lattices...')
+
+# 2x2 assembly
+assembly = Lattice(id=4, width_x=1.0, width_y=1.0)
+assembly.setLatticeCells([[1, 2],
+                         [1, 3]])
+
+# 2x2 core
+core = Lattice(id=6, width_x=2.0, width_y=2.0)
+core.setLatticeCells([[5, 5],
+                         [5, 5]])
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
+timer.startTimer()
 geometry = Geometry()
 geometry.addMaterial(fuel)
 geometry.addMaterial(moderator)
 for cell in cells: geometry.addCell(cell)
-geometry.addLattice(lattice)
-
+geometry.addLattice(assembly)
+geometry.addLattice(core)
 geometry.initializeFlatSourceRegions()
+timer.stopTimer()
+timer.recordSplit('Geometry initialization')
+timer.resetTimer()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
+timer.startTimer()
 track_generator = TrackGenerator()
-track_generator.setNumAzim(64)
-track_generator.setTrackSpacing(0.05)
+track_generator.setNumAzim(128)
+track_generator.setTrackSpacing(0.1)
 track_generator.setGeometry(geometry)
 track_generator.generateTracks()
+timer.stopTimer()
+timer.recordSplit('Generating tracks')
+timer.resetTimer()
 
-#plotter.plotTracks(track_generator)
-#plotter.plotSegments(track_generator)
-#plotter.plotMaterials(geometry, gridsize=250)
+plotter.plotTracks(track_generator)
+plotter.plotSegments(track_generator)
+plotter.plotMaterials(geometry, gridsize=250)
 plotter.plotCells(geometry, gridsize=250)
 plotter.plotFlatSourceRegions(geometry, gridsize=250)
 
+timer.startTimer()
 solver = Solver(geometry, track_generator)
 solver.setNumThreads(1)
-solver.setSourceConvergenceThreshold(1E-5)
-solver.convergeSource(10000)
-
+solver.setSourceConvergenceThreshold(1E-4)
+solver.convergeSource(1000)
+timer.stopTimer()
+timer.recordSplit('Fixed source iteration on host')
+timer.printSplits()

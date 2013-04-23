@@ -71,9 +71,6 @@ cells.append(CellBasic(id=1, universe=1, material=1))
 cells.append(CellBasic(id=2, universe=1, material=2))
 cells.append(CellFill(id=3, universe=0, universe_fill=2))
 
-cells[0].setNumRings(3)
-
-
 cells[0].addSurface(halfspace=-1, surface=circle)
 cells[1].addSurface(halfspace=+1, surface=circle)
 cells[2].addSurface(halfspace=+1, surface=left)
@@ -85,8 +82,6 @@ log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
 
 lattice = Lattice(id=2, width_x=2.0, width_y=2.0)
 lattice.setLatticeCells([[1, 1], [1, 1]])
-print lattice.getNumX()
-print lattice.getNumY()
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
@@ -109,12 +104,14 @@ track_generator.setGeometry(geometry)
 track_generator.generateTracks()
 
 #plotter.plotTracks(track_generator)
-plotter.plotSegments(track_generator)
-plotter.plotMaterials(geometry, gridsize=50)
-plotter.plotCells(geometry, gridsize=50)
-plotter.plotFlatSourceRegions(geometry, gridsize=50)
+#plotter.plotMaterials(geometry, gridsize=50)
+#plotter.plotCells(geometry, gridsize=50)
+#plotter.plotFlatSourceRegions(geometry, gridsize=50)
+#plotter.plotSegments(track_generator)
 
 solver = Solver(geometry, track_generator)
 solver.setNumThreads(16)
 solver.setSourceConvergenceThreshold(1E-5)
 solver.convergeSource(1000)
+
+plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])

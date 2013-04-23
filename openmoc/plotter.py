@@ -20,7 +20,9 @@ from log import *
 
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
-    
+
+num_colors = 50
+color_map = np.random.random_sample((num_colors,))
 
 ##
 # @brief Plots the characteristic tracks from an OpenMOC simulation.
@@ -135,15 +137,14 @@ def plotSegments(track_generator):
         y[i*2+1] = coords[i*5+4]
 
 
-    # Create a color map corresponding to FSR IDs
-    jet = cm = plt.get_cmap('jet') 
-    cNorm  = colors.Normalize(vmin=0, vmax=num_fsrs)
-    scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
-
     # Make figure of line segments for each track
     fig = plt.figure()
     for i in range(num_segments):
-        color = scalarMap.to_rgba(fsrs[i])
+        # Create a color map corresponding to FSR IDs
+        jet = cm = plt.get_cmap('jet') 
+        cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
+        scalarMap = cmx.ScalarMappable(norm=cNorm)
+        color = scalarMap.to_rgba(color_map[fsrs[i] % num_colors])
         plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], c=color)
 
     plt.xlim([x.min(), x.max()])
@@ -196,7 +197,7 @@ def plotMaterials(geometry, gridsize=250):
     py_printf('NORMAL', 'Plotting the materials...')
 
     # Initialize a numpy array for the surface colors
-    surface = numpy.zeros((gridsize, gridsize), dtype=np.int32)
+    surface = numpy.zeros((gridsize, gridsize))
 
     # Retrieve the bounding box for the geometry
     xmin = geometry.getXMin()
@@ -219,7 +220,8 @@ def plotMaterials(geometry, gridsize=250):
             point.setUniverse(0)
             geometry.findCell(point)
             fsr_id = geometry.findFSRId(point)
-            surface[j][i] = geometry.findCell(fsr_id).getMaterial()
+            material_id = geometry.findCell(fsr_id).getMaterial()
+            surface[j][i] = color_map[material_id % num_colors]
 
 
     # Plot a 2D color map of the materials
@@ -228,7 +230,6 @@ def plotMaterials(geometry, gridsize=250):
     plt.title('Materials')
     filename = directory + 'materials.png'
     fig.savefig(filename)
-
 
 
 ##
@@ -269,7 +270,6 @@ def plotCells(geometry, gridsize=250):
 
     # Initialize a numpy array for the surface colors
     surface = np.zeros((gridsize, gridsize))
-    color_map = np.random.random_sample((150,))
 
     # Retrieve the bounding box for the geometry
     xmin = geometry.getXMin()
@@ -292,7 +292,8 @@ def plotCells(geometry, gridsize=250):
             point.setUniverse(0)
             geometry.findCell(point)
             fsr_id = geometry.findFSRId(point)
-            surface[j][i] = color_map[geometry.findCell(fsr_id).getId()%150]
+            cell_id = geometry.findCell(fsr_id).getId()
+            surface[j][i] = color_map[cell_id % num_colors]
 
 
     # Plot a 2D color map of the cells
@@ -342,7 +343,6 @@ def plotFlatSourceRegions(geometry, gridsize=250):
 
     # Initialize a numpy array for the surface colors
     surface = numpy.zeros((gridsize, gridsize))
-    color_map = np.random.random_sample((50,))
 
     # Retrieve the bounding box for the geometry
     xmin = geometry.getXMin()
@@ -364,7 +364,8 @@ def plotFlatSourceRegions(geometry, gridsize=250):
             point = LocalCoords(x, y)
             point.setUniverse(0)
             geometry.findCell(point)
-            surface[j][i] = color_map[geometry.findFSRId(point)%50]
+            fsr_id = geometry.findFSRId(point)
+            surface[j][i] = color_map[fsr_id % num_colors]
 
 
     # Plot a 2D color map of the flat source regions
@@ -373,3 +374,118 @@ def plotFlatSourceRegions(geometry, gridsize=250):
     plt.title('Flat Source Regions')
     filename = directory + 'flat-source-regions.png'
     fig.savefig(filename)
+
+
+##
+# @brief This method takes in a geometry object and plots a color-coded 2D surface #        plot representing the flat source regions in the geometry.
+# @details The geometry object must be initialized with materials, cells, 
+#          universes and lattices before being passed into this method. A user
+#          may invoke this function from an OpenMOC Python file as follows:
+#
+# @code
+#         openmoc.plotter.plotFlatSourceRegions(my_geometry)
+# @endcode
+#
+# @param geometry a geometry object which has been initialized with materials,
+#        cells, universes and lattices
+# @param gridsize an optional number of grid cells for the plot
+def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
+
+    global subdirectory
+
+    directory = getOutputDirectory() + subdirectory
+
+    # Make directory if it does not exist
+    if not os.path.exists(directory):
+            os.makedirs(directory)
+
+    # Error checking
+    if not isinstance(geometry, Geometry):
+        py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
+                  'flux since input did not contain a geometry class object')
+    if not isinstance(solver, Solver):
+        py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
+                  'flux since input did not contain a solver class object')
+    if isinstance(energy_groups, list):
+        for group in energy_groups:
+            if not isinstance(group, int):
+                py_print('ERROR', 'Unable to plot the flat source region ' + \
+                             'scalar flux since the energy_groups list ' + \
+                             'contains %s which is not an int', str(group))
+            elif group <= 0:
+                py_print('ERROR', 'Unable to plot the flat source region ' + \
+                             'scalar flux since the energy_groups list ' + \
+                             'contains %d which is less than the index ' + \
+                             'for all energy groups', str(group))
+            elif group > geometry.getNumEnergyGroups():
+                py_printf('ERROR', 'Unable to plot the flat source region ' + \
+                              'scalar flux since the energy_groups list ' + \
+                              'contains %d which is greater than the index ' + \
+                              'for all energy groups', str(group))
+    elif isinstance(energy_groups, int):
+        if energy_groups <= 0:
+            py_print('ERROR', 'Unable to plot the flat source region ' + \
+                         'scalar flux since the energy_groups argument ' + \
+                         'contains %d which is less than the index ' + \
+                         'for all energy groups', str(energy_groups))
+        elif energy_groups > geometry.getNumEnergyGroups():
+            py_printf('ERROR', 'Unable to plot the flat source region ' + \
+                          'scalar flux since the energy_groups argument ' + \
+                          'contains %d which is greater than the index ' + \
+                          'for all energy groups', str(energy_groups))
+    else:
+        py_printf('ERROR', 'Unable to plot the flat source region ' + \
+                      'scalar flux since the energy_groups argument ' + \
+                      'is %s which is not an energy group index or a list ' + \
+                      'of energy group indices', str(energy_groups))
+    if not isinstance(gridsize, int):
+        py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
+                  'flux since since the gridsize %s is not an integer', 
+                  str(gridsize))
+    if not isinstance(energy_groups, (int, list)):
+        py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
+                  'flux since the energy_groups is not an int or a list')
+    if gridsize <= 0:
+        py_printf('Error', 'Unable to plot the flat source regions ' + \
+                    'with a negative gridsize (%d)', gridsize)
+
+    py_printf('NORMAL', 'Plotting the flat source region scalar fluxes...')
+
+    if not isinstance(energy_groups, list):
+        energy_groups = [energy_groups]
+
+    # Initialize a numpy array for the surface colors
+    fluxes = numpy.zeros((gridsize, gridsize))
+
+    # Retrieve the bounding box for the geometry
+    xmin = geometry.getXMin()
+    xmax = geometry.getXMax()
+    ymin = geometry.getYMin()
+    ymax = geometry.getYMax()
+
+    # Initialize numpy arrays for the grid points
+    xcoords = np.linspace(xmin, xmax, gridsize)
+    ycoords = np.linspace(ymin, ymax, gridsize)
+
+    for group in energy_groups:
+
+        # Find the flat source region IDs for each grid point
+        for i in range(gridsize):
+            for j in range(gridsize):
+
+                x = xcoords[i]
+                y = ycoords[j]
+
+                point = LocalCoords(x, y)
+                point.setUniverse(0)
+                geometry.findCell(point)
+                fsr_id = geometry.findFSRId(point)
+                flux = solver.getFSRScalarFlux(fsr_id, group)
+                fluxes[j][i] = flux
+
+        # Plot a 2D color map of the flat source regions
+        fig = plt.figure()
+        plt.pcolor(xcoords, ycoords, fluxes)
+        plt.title('Flat Source Region Scalar Flux in Group ' + str(group))
+        filename = directory + 'fsr-flux-group-' + str(group) + '-.png'
+        fig.savefig(filename)

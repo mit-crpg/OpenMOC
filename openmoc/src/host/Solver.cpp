@@ -138,6 +138,30 @@ FP_PRECISION Solver::getFluxConvergenceThreshold() {
 }
 
 
+FP_PRECISION Solver::getFSRScalarFlux(int fsr_id, int energy_group) {
+
+    /* Error checking */
+    if (fsr_id >= _num_FSRs)
+        log_printf(ERROR, "Unable to return a scalar flux for FSR id = %d "
+		 "in enery group %d since the solver only contains FSR with "
+		   "IDs greater than or equal to %d", 
+		   fsr_id, energy_group, _num_FSRs-1);
+    if (fsr_id < 0)
+        log_printf(ERROR, "Unable to return a scalar flux for FSR id = %d "
+		  "in energy group %d since FSRs do not have negative IDs", 
+		  fsr_id, energy_group);
+    if (energy_group-1 >= _num_groups)
+        log_printf(ERROR, "Unable to return a scalar flux for FSR id = %d "
+		   "in energy group %d since the solver only has %d energy "
+		   "groups", fsr_id, energy_group, _num_groups);
+    if (energy_group <= 0)
+        log_printf(ERROR, "Unable to return a scalar flux for FSR id = %d "
+		 "in energy group %d since energy groups are greater than 1",
+		 fsr_id, energy_group);
+
+    return _scalar_flux(fsr_id,energy_group);
+}
+
 /**
  * @brief Return a 2D array indexed by flatsourceregion IDs and energy groups 
  *        which contains the corresponding fluxes for each flatsourceregion.

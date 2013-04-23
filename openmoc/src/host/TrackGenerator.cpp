@@ -261,6 +261,7 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
             x0 = _tracks[i][j].getStart()->getX();
             y0 = _tracks[i][j].getStart()->getY();
             phi = _tracks[i][j].getPhi();
+
             segments = _tracks[i][j].getSegments();
 
             for (iter = segments.begin(); iter != segments.end(); ++iter) {
@@ -847,23 +848,31 @@ void TrackGenerator::segmentize() {
     if (_num_segments != NULL)
         delete [] _num_segments;
 
-    _num_segments = new int[_tot_num_tracks];
-
     /* This section loops over all track and segmentizes each one if the
      * tracks were not read in from an input file */
     if (!_use_input_file) {
 
         /* Loop over all tracks */
         #pragma omp parallel for private(track)
-        for (int i = 0; i < _num_azim; i++) {
-            for (int j = 0; j < _num_tracks[i]; j++){
+        for (int i=0; i < _num_azim; i++) {
+            for (int j=0; j < _num_tracks[i]; j++){
                 track = &_tracks[i][j];
  	        log_printf(DEBUG, "Segmenting track %d/%d with i = %d, j = %d",
 			   track->getUid(), _tot_num_tracks, i, j);
                 _geometry->segmentize(track);
-		_num_segments[track->getUid()] = track->getNumSegments();
             }
         }
+
+	/* Compute the total number of segments in the simulation */
+	_num_segments = new int[_tot_num_tracks];
+	_tot_num_segments = 0;
+	for (int i=0; i < _num_azim; i++) {
+	    for (int j=0; j < _num_tracks[i]; j++) {
+	        track = &_tracks[i][j];
+		_num_segments[track->getUid()] = track->getNumSegments();
+	        _tot_num_segments += _num_segments[track->getUid()];
+	    }
+	}
     }
 
     return;
@@ -1010,6 +1019,7 @@ bool TrackGenerator::readTracksFromFile() {
         _tot_num_tracks += _num_tracks[i];
     _num_segments = new int[_tot_num_tracks];
     int uid = 0;
+    _tot_num_segments = 0;
     
     for (int i=0; i < _num_azim; i++) {
 

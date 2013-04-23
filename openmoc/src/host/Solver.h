@@ -140,6 +140,7 @@ public:
     quadratureType getPolarQuadratureType();
     FP_PRECISION getSourceConvergenceThreshold();
     FP_PRECISION getFluxConvergenceThreshold();
+    FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
     FP_PRECISION* getFSRScalarFluxes();
     FP_PRECISION* getFSRPowers();
     FP_PRECISION* getFSRPinPowers();

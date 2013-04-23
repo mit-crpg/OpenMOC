@@ -13,7 +13,7 @@
  *****************************************************************************/
 
 /** Floating point precision (DOUBLE or SINGLE) */
-#define SINGLE
+#define DOUBLE
 
 /** The floating point precision (float or double) to use */
 #ifdef DOUBLE
