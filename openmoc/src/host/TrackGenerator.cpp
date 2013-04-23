@@ -379,13 +379,14 @@ void TrackGenerator::generateTracks() {
     _tracks_filename = test_filename.str();
 
     if (!stat(_tracks_filename.c_str(), &buffer)) {
-        _use_input_file = true;
-        readTracksFromFile();
-        _contains_tracks = true;
+        if (readTracksFromFile()) {
+            _use_input_file = true;
+            _contains_tracks = true;
+	}
     }
     
     /* If not tracks input file exists, generate tracks */
-    else {
+    if (_use_input_file == false) {
 
         /* Allocate memory for the tracks */
         try {
@@ -884,6 +885,12 @@ void TrackGenerator::dumpTracksToFile() {
     FILE* out;
     out = fopen(_tracks_filename.c_str(), "w");
 
+    const char* geometry_to_string = _geometry->toString().c_str();
+    int string_length = _geometry->toString().size();
+
+    fwrite(&string_length, sizeof(int), 1, out);
+    fwrite(geometry_to_string, sizeof(char)*string_length, 1, out);
+
     fwrite(&_num_azim, sizeof(int), 1, out);
     fwrite(&_spacing, sizeof(double), 1, out);
     fwrite(_num_tracks, sizeof(int), _num_azim, out);
@@ -944,9 +951,7 @@ void TrackGenerator::dumpTracksToFile() {
  * @details Storing tracks in a file saves time by eliminating segmentation
  *          for commonly simulated geometries.
  */
-void TrackGenerator::readTracksFromFile() {
-
-    log_printf(NORMAL, "Reading tracks in from file");
+bool TrackGenerator::readTracksFromFile() {
 
     /* Deletes tracks arrays if tracks have been generated */
     if (_contains_tracks) {
@@ -965,6 +970,18 @@ void TrackGenerator::readTracksFromFile() {
     int ret;
     FILE* in;
     in = fopen(_tracks_filename.c_str(), "r");
+
+    int string_length;
+
+    ret = fread(&string_length, sizeof(int), 1, in);
+    char* geometry_to_string = new char[string_length];
+    ret = fread(geometry_to_string, sizeof(char)*string_length, 1, in);
+
+    if (_geometry->toString().compare(geometry_to_string) != 0)
+        return false;
+
+    log_printf(NORMAL, "Reading tracks in from file");
+
     ret = fread(&_num_azim, sizeof(int), 1, in);
     ret = fread(&_spacing, sizeof(double), 1, in);
 
@@ -1036,4 +1053,7 @@ void TrackGenerator::readTracksFromFile() {
         _contains_tracks = true;
     fclose(in);    
 
+    delete [] geometry_to_string;
+    
+    return true;
 }

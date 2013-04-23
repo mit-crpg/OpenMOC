@@ -115,6 +115,9 @@ private:
     std::vector<CellBasic*> _sectors;
     std::vector<CellBasic*> _subcells;
 
+    void ringify();
+    void sectorize();
+
 public:
     CellBasic(short int id, short int universe, short int material,
 	      int num_rings=0, int num_sectors=0);
@@ -127,9 +130,7 @@ public:
     void setNumRings(short int num_rings);
     void setNumSectors(short int num_sectors);
     CellBasic* clone();
-    void ringify();
-    //    void sectorize();
-    std::vector<CellBasic*> getSubCells();
+    std::vector<CellBasic*> subdivideCell();
 
     std::string toString();
     void printString();

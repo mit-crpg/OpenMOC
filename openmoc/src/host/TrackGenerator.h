@@ -68,7 +68,7 @@ private:
     void initializeBoundaryConditions();
     void segmentize();
     void dumpTracksToFile();
-    void readTracksFromFile();
+    bool readTracksFromFile();
 
 public:
     TrackGenerator();

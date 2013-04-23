@@ -68,9 +68,9 @@ bottom.setBoundaryType(REFLECTIVE)
 log.py_printf('NORMAL', 'Creating cells...')
 
 cells = []
-cells.append(CellBasic(id=1, universe=1, material=2))
-cells.append(CellBasic(id=2, universe=1, material=2))
-cells.append(CellBasic(id=3, universe=1, material=1))
+cells.append(CellBasic(id=1, universe=1, material=2, num_rings=4, num_sectors=5))
+cells.append(CellBasic(id=2, universe=1, material=2, num_rings=2, num_sectors=8))
+cells.append(CellBasic(id=3, universe=1, material=1, num_sectors=32))
 cells.append(CellFill(id=4, universe=0, universe_fill=2))
 
 cells[0].addSurface(halfspace=-1, surface=circle1)
@@ -81,9 +81,6 @@ cells[3].addSurface(halfspace=+1, surface=left)
 cells[3].addSurface(halfspace=-1, surface=right)
 cells[3].addSurface(halfspace=+1, surface=bottom)
 cells[3].addSurface(halfspace=-1, surface=top)
-
-cells[0].setNumRings(3)
-cells[1].setNumRings(2)
 
 log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
 
@@ -109,8 +106,8 @@ track_generator.setGeometry(geometry)
 track_generator.generateTracks()
 
 #plotter.plotTracks(track_generator)
-plotter.plotSegments(track_generator)
-plotter.plotMaterials(geometry, gridsize=250)
+#plotter.plotSegments(track_generator)
+#plotter.plotMaterials(geometry, gridsize=250)
 plotter.plotCells(geometry, gridsize=250)
 plotter.plotFlatSourceRegions(geometry, gridsize=250)
 

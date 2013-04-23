@@ -315,11 +315,14 @@ void CellBasic::setNumRings(short int num_rings) {
  * @param num_sectors the number of sectors in this cell
  */
 void CellBasic::setNumSectors(short int num_sectors) {
-    if (_num_rings < 0)
+    if (num_sectors < 0)
         log_printf(ERROR, "Unable to give %d sectors to cell %d since this is "
 		 "a negative number", num_sectors, _id);
 
-    _num_sectors = num_sectors;
+    if (num_sectors == 1)
+        _num_sectors = 0;
+    else
+        _num_sectors = num_sectors;
 }
 
 
@@ -352,10 +355,66 @@ CellBasic* CellBasic::clone() {
 
 
 void CellBasic::sectorize() { 
+
+    if (_num_sectors == 0)
+        return;
+
+    /* Figure out the angle for each sector */
+    double* azim_angles = new double[_num_sectors];
+    double delta_azim = 2. * M_PI / _num_sectors;
+    double A, B;
+
+    std::vector<Plane*> planes;
+    std::vector<Plane*>::iterator iter1;
+
+    log_printf(DEBUG, "Sectorizing cell %d with %d sectors",_id, _num_sectors);
+
+    for (int i=0; i < _num_sectors; i++) {
+        azim_angles[i] = i * delta_azim;
+	A = cos(azim_angles[i]);
+	B = sin(azim_angles[i]);
+	Plane* plane = new Plane(surf_id(), A, B, 0.);
+	planes.push_back(plane);
+	log_printf(DEBUG, "Created sector plane id = %d, angle = %f, A = %f, "
+		   "B = %f", i, azim_angles[i], A, B);
+    }
+
+    /* Create sectors using disjoint halfspaces of pairing planes */
+    for (int i=0; i < _num_sectors; i++) {
+
+        /* Create new CellBasic clones */
+        CellBasic* sector = clone();
+
+        sector->setNumSectors(0);
+        sector->setNumRings(0);
+
+        log_printf(DEBUG, "Creating a new sector cell with %d for cell %d", 
+		   sector->getId(), _id);
+
+        /* Add new bounding planar surfaces to the clone */
+        sector->addSurface(+1, planes.at(i));
+
+	if (_num_sectors != 2) {
+	    if (i+1 < _num_sectors)
+	        sector->addSurface(-1, planes.at(i+1));
+	    else
+	        sector->addSurface(-1, planes.at(0));
+	}
+
+	_sectors.push_back(sector);
+    }
+
+    _subcells.clear();
+    _subcells.insert(_subcells.end(), _sectors.begin(), _sectors.end());
+
+    delete [] azim_angles;
 }
 
 
 void CellBasic::ringify() {
+
+    if (_num_rings == 0)
+        return;
 
     int num_circles = 0;
     Circle* circle1 = NULL;
@@ -376,8 +435,6 @@ void CellBasic::ringify() {
         if ((*iter1).second->getSurfaceType() == CIRCLE) {
 	    short int halfspace = (*iter1).first / (*iter1).second->getId();
 	    Circle* circle = static_cast<Circle*>((*iter1).second);
-
-	    log_printf(INFO, "halfspace = %d", halfspace);
 
 	    /* Outermost bounding circle */
 	    if (halfspace == -1) {
@@ -401,12 +458,7 @@ void CellBasic::ringify() {
         }
     }
 
-    log_printf(INFO, "cell %d, num_circles = %d, radius1 = %f, radius2 = %f",
-	       _id, num_circles, radius1, radius2);
-
     /* Error checking */
-    if (_num_rings == 0)
-        return;
     if (num_circles == 0)
         log_printf(ERROR, "Unable to ringify cell %d since it does not "
 		   "contain any CIRCLE type surface(s)", _id);
@@ -450,21 +502,42 @@ void CellBasic::ringify() {
     Circle* circle = new Circle(surf_id(), x1, y1, radius1);
     circles.push_back(circle);
 
-    log_printf(INFO, "# circles = %d", circles.size());
-
-    //FIXME: Need inner loop over sector subcells 
-
     /* Loop over circles and */
     std::vector<Circle*>::iterator iter2;
+    std::vector<CellBasic*>::iterator iter3;
+
     for (iter2 = circles.begin(); iter2 != circles.end(); ++iter2) {
 
-        log_printf(NORMAL, "Creating a new ring");
+        /* Create circles for each of the sectorized cells */
+	if (_sectors.size() != 0) {
+	    for (iter3 = _sectors.begin(); iter3 != _sectors.end(); ++iter3) {
+	        log_printf(DEBUG, "Creating a new ring in sector cell %d",
+			 (*iter3)->getId());
 
-        /** Create circles for each of the sectorized cells */
-        if (_sectors.size() != 0) {
-        }
+                /* Create a new CellBasic clone */
+	        CellBasic* ring = (*iter3)->clone();
+	        ring->setNumSectors(0);
+	        ring->setNumRings(0);
 
+	        /* Add new bounding circle surfaces to the clone */
+	        ring->addSurface(-1, (*iter2));
+
+	        /* Look ahead and check if we have an inner circle to add */
+	        if (iter2+1 == circles.end()) {
+	            _rings.push_back(ring);
+		    continue;
+	        }
+	        else
+	            ring->addSurface(+1, *(iter2+1));
+
+		_rings.push_back(ring);
+	    }
+	}
+
+	/* Create circles for this un-sectorized cell */
 	else {
+	    log_printf(DEBUG, "Creating new ring in un-sectorized cell %d",_id);
+
             /* Create a new CellBasic clone */
 	    CellBasic* ring = clone();
 	    ring->setNumSectors(0);
@@ -490,7 +563,9 @@ void CellBasic::ringify() {
 }
 
 
-std::vector<CellBasic*> CellBasic::getSubCells() {
+std::vector<CellBasic*> CellBasic::subdivideCell() {
+    sectorize();
+    ringify();
     return _subcells;
 }
 

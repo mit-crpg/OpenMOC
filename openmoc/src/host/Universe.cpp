@@ -267,14 +267,16 @@ void Universe::subdivideCells() {
 	    if ((*iter1).second->getType() == MATERIAL) {
 	        CellBasic* cell = static_cast<CellBasic*>((*iter1).second);
 
-		if (cell->getNumRings() > 0) {
-		    cell->ringify();
+		if (cell->getNumRings() > 0 || cell->getNumSectors() > 0) {
 
-		    std::vector<CellBasic*> newcells = cell->getSubCells();
+		    std::vector<CellBasic*> newcells = cell->subdivideCell();
+		    
+		    log_printf(DEBUG, "cell %d in universe %d has %d subcells",
+			       cell->getId(), _id, newcells.size());
 
 		    std::vector<CellBasic*>::iterator iter2;
 		    for (iter2=newcells.begin(); iter2!=newcells.end(); ++iter2)
-	                addCell((*iter2));
+		        addCell((*iter2));
 
 		    iter1= _cells.erase(iter1);
 		    break;

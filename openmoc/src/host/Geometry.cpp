@@ -16,10 +16,10 @@ Geometry::Geometry() {
     _min_seg_length = std::numeric_limits<double>::infinity();
 
     /* Default boundary conditions are reflective */
-    _top_bc = true;
-    _bottom_bc = true;
-    _left_bc = true;
-    _right_bc = true;
+    _top_bc = 1;
+    _bottom_bc = 1;
+    _left_bc = 1;
+    _right_bc = 1;
 
     _num_FSRs = 0;
     _num_groups = 0;
