@@ -17,6 +17,7 @@
     #include "src/host/Track.h" 
     #include "src/host/TrackGenerator.h"
     #include "src/host/Universe.h"
+    #include "src/dev/DeviceMaterial.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -89,3 +90,4 @@
 %include src/host/Track.h
 %include src/host/TrackGenerator.h
 %include src/host/Universe.h
+%include src/dev/DeviceMaterial.h
