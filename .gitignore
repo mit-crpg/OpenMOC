@@ -1,5 +1,4 @@
 # installation
-# installation
 *.o
 *.cxx
 *.h.gch
@@ -17,6 +16,8 @@
 */*.pyc
 build
 build/*
+dist
+dist/*
 openmoc/openmoc.py
 openmoc/openmoc_wrap.cpp
 
@@ -41,3 +42,9 @@ plots/*
 
 openmoc-*-.log
 */openmoc-*-.log
+
+penmp
+*/penmp
+*.egg-info/*
+*/*.egg-info/
+
