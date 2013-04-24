@@ -21,11 +21,11 @@ infinite_medium.setSigmaT(numpy.array([0.452648699]))
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(id=1, x=0.0, y=0.0, radius=10.0)
-left = XPlane(id=2, x=-100.0)
-right = XPlane(id=3, x=100.0)
-top = YPlane(id=4, y=100.0)
-bottom = YPlane(id=5, y=-100.0)
+circle = Circle(x=0.0, y=0.0, radius=10.0)
+left = XPlane(x=-100.0)
+right = XPlane(x=100.0)
+top = YPlane(y=100.0)
+bottom = YPlane(y=-100.0)
 
 left.setBoundaryType(REFLECTIVE)
 right.setBoundaryType(REFLECTIVE)
@@ -35,9 +35,9 @@ bottom.setBoundaryType(REFLECTIVE)
 log.py_printf('NORMAL', 'Creating cells...')
 
 cells = []
-cells.append(CellBasic(id=1, universe=1, material=1, num_rings=3))
-cells.append(CellBasic(id=2, universe=1, material=1))
-cells.append(CellFill(id=3, universe=0, universe_fill=2))
+cells.append(CellBasic(universe=1, material=1, rings=2, sectors=4))
+cells.append(CellBasic(universe=1, material=1))
+cells.append(CellFill(universe=0, universe_fill=2))
 
 cells[0].addSurface(halfspace=-1, surface=circle)
 cells[1].addSurface(halfspace=+1, surface=circle)
@@ -62,13 +62,13 @@ geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
 
-plotter.plotCells(geometry)
-plotter.plotFlatSourceRegions(geometry)
+#plotter.plotCells(geometry)
+#plotter.plotFlatSourceRegions(geometry)
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator()
-track_generator.setNumAzim(128)
+track_generator.setNumAzim(32)
 track_generator.setTrackSpacing(0.5)
 track_generator.setGeometry(geometry)
 track_generator.generateTracks()

@@ -23,6 +23,8 @@
 #define SIGMA_T_THRESH 1E-3
 
 
+int material_id();
+
 
 /**
  * @class Material Material.h "openmoc/src/host/Material.h"

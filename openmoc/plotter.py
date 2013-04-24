@@ -21,8 +21,12 @@ from log import *
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
 
+## The number of colors to use when creating a random color map for plots
 num_colors = 50
+
+## An array of random floats that represents a random color map for plots
 color_map = np.random.random_sample((num_colors,))
+
 
 ##
 # @brief Plots the characteristic tracks from an OpenMOC simulation.
@@ -493,6 +497,7 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
         # Plot a 2D color map of the flat source regions
         fig = plt.figure()
         plt.pcolor(xcoords, ycoords, fluxes)
+        plt.colorbar()
         plt.xlim([xmin, xmax])
         plt.ylim([ymin, ymax])
         plt.title('Flat Source Region Scalar Flux in Group ' + str(group))

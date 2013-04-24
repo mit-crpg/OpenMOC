@@ -3,6 +3,25 @@
 int Material::_n = 0;
 
 
+static int auto_id = 10000;
+
+
+/**
+ * @brief Returns an auto-generated unique material ID.
+ * @details This method is intended as a utility method for user's writing
+ *          OpenMOC input files. The method makes use of a static material
+ *          ID which is incremented each time the method is called to enable
+ *          unique generation of monotonically increasing IDs. The method's
+ *          first ID begins at 10000. Hence, user-defined material IDs greater
+ *          than or equal to 10000 is prohibited.
+ */
+int material_id() {
+    int id = auto_id;
+    auto_id++;
+    return id;
+}
+
+
 /**
  * @brief Constructor sets the ID and unique ID for the material.
  * @param id the user-defined id for the material

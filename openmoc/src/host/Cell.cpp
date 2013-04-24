@@ -33,14 +33,19 @@ Cell::Cell() { }
  * @param id the user-specified cell ID
  * @param universe the ID of the universe within which this cell resides
  */
-Cell::Cell(short int id, short int universe) {
+Cell::Cell(short int universe, short int id) {
 
-    if (id >= auto_id)
+    /* If the user did not define an optional ID, create one */
+    if (id == 0)
+        _id = surf_id();
+    else if (id >= surf_id())
         log_printf(ERROR, "Unable to set the ID of a cell to %d since "
 		 "cell IDs greater than or equal to 10000 is probibited "
 		 "by OpenMOC.", id);
+    /* Use the user-defined ID */
+    else
+        _id = id;
 
-    _id = id;
     _uid = _n;
     _n++;
     _universe = universe;       
@@ -247,12 +252,12 @@ double Cell::minSurfaceDist(Point* point, double angle,
  * @param universe the ID for the universe within which this cellbasic resides
  * @param material the ID for the material which fills this cellbasic
  */
-CellBasic::CellBasic(short int id, short int universe, short int material,
-		     int num_rings, int num_sectors): Cell(id, universe) {
+CellBasic::CellBasic(short int universe, short int material, int rings, 
+		     int sectors, short int id): Cell(universe, id) {
     _cell_type = MATERIAL;
     _material = material;
-    setNumRings(num_rings);
-    setNumSectors(num_sectors);
+    setNumRings(rings);
+    setNumSectors(sectors);
 }
 
 
@@ -336,7 +341,7 @@ void CellBasic::setNumSectors(short int num_sectors) {
 CellBasic* CellBasic::clone() {
 
     /* Construct new cell */
-    CellBasic* new_cell = new CellBasic(cell_id(), _universe, _material, 
+    CellBasic* new_cell = new CellBasic(_universe, _material, 
 					_num_rings, _num_sectors);
 
     /* Loop over all of this cell's surfaces and add them to the clone */
@@ -373,7 +378,7 @@ void CellBasic::sectorize() {
         azim_angles[i] = i * delta_azim;
 	A = cos(azim_angles[i]);
 	B = sin(azim_angles[i]);
-	Plane* plane = new Plane(surf_id(), A, B, 0.);
+	Plane* plane = new Plane(A, B, 0.);
 	planes.push_back(plane);
 	log_printf(DEBUG, "Created sector plane id = %d, angle = %f, A = %f, "
 		   "B = %f", i, azim_angles[i], A, B);
@@ -493,13 +498,13 @@ void CellBasic::ringify() {
     /* Generate successively smaller circle surfaces */
     for (int i=0; i < _num_rings-1; i++) {
         radius2 = sqrt(radius1*radius1 - (area / M_PI));
-	Circle* circle = new Circle(surf_id(), x1, y1, radius1);
+	Circle* circle = new Circle(x1, y1, radius1);
 	circles.push_back(circle);
 	radius1 = radius2;
     }
  
     /* Store smallest, innermost circle */
-    Circle* circle = new Circle(surf_id(), x1, y1, radius1);
+    Circle* circle = new Circle(x1, y1, radius1);
     circles.push_back(circle);
 
     /* Loop over circles and */
@@ -609,8 +614,8 @@ void CellBasic::printString() {
  *  @param universe the ID of the universe within which this cell resides
  *  @param universe_fill the ID of the universe filling this cell
  */
-CellFill::CellFill(short int id, short int universe, short int universe_fill):
-    Cell(id, universe) {
+CellFill::CellFill(short int universe, short int universe_fill, short int id):
+  Cell(universe, id) {
         _cell_type = FILL;
         _universe_fill.first = universe_fill;
 }

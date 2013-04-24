@@ -87,7 +87,7 @@ protected:
     boundaryType _boundary_type;
 
 public:
-    Surface(const short int id);
+    Surface(const short int id=0);
     virtual ~Surface();
 
     short int getUid() const;
@@ -172,7 +172,7 @@ protected:
 
 public:
 
-    Plane(const short int id, const double A, const double B, const double C);
+    Plane(const double A, const double B, const double C, const short int id=0);
 
     double getXMin();
     double getXMax();
@@ -198,7 +198,7 @@ private:
     double _x;
 
 public:
-    XPlane(const short int id, const double x);
+    XPlane(const double x, const short int id=0);
 
     void setX(const double x);
 
@@ -223,7 +223,7 @@ private:
     double _y;
 
 public:
-    YPlane(const short int id, const double y);
+    YPlane(const double y, const short int id=0);
 
     void setY(const double y);
 
@@ -249,7 +249,7 @@ private:
     double _z;
 
 public:
-    ZPlane(const short int id, const double z);
+    ZPlane(const double z, const short int id=0);
 
     void setZ(const double z);
 
@@ -291,8 +291,8 @@ private:
     friend class Plane;
 
 public:
-    Circle(const short int id, const double x, const double y, 
-           const double radius);
+    Circle(const double x, const double y, const double radius, 
+	   const short int id=0);
 
     double getX0();
     double getY0();

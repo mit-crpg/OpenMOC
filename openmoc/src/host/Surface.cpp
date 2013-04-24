@@ -24,16 +24,21 @@ int surf_id() {
  * @brief Constructor assigns unique ID and user-defined ID for a surface.
  * @details Assigns a default boundary condition for this surface to 
  *          BOUNDARY_NONE.
- * @param id the user-defined surface id
+ * @param id an optional user-defined surface id
  */
 Surface::Surface(const short int id){
 
-    if (id >= surf_id())
+    /* If the user did not define an optional ID, create one */
+    if (id == 0)
+        _id = surf_id();
+    else if (id >= surf_id())
         log_printf(ERROR, "Unable to set the ID of a surface to %d since "
 		 "surface IDs greater than or equal to 10000 is probibited "
 		 "by OpenMOC.", id);
+    /* Use the user-defined ID */
+    else
+        _id = id;
 
-    _id = id;
     _uid = _n;
     _n++;
     _boundary_type = BOUNDARY_NONE;
@@ -125,8 +130,8 @@ bool Surface::onSurface(LocalCoords* coord) {
  * @param B the second coefficient in \f$ A * x + B * y + C = 0 \f$
  * @param C the third coefficient in \f$ A * x + B * y + C = 0 \f$
  */
-Plane::Plane(const short int id, const double A, const double B,
-             const double C): 
+Plane::Plane(const double A, const double B, const double C, 
+	     const short int id): 
     Surface(id) {
         _surface_type = PLANE;
         _A = A;
@@ -268,8 +273,8 @@ void Plane::printString() {
  * @param id the user-defined surface id
  * @param x the location of the plane along the x-axis
  */
-XPlane::XPlane(const short int id, const double x): 
-    Plane(id, 0, 1, -x) {
+XPlane::XPlane(const double x, const short int id): 
+    Plane(0, 1, -x, id) {
         _surface_type = XPLANE;
         _x = x;
 }
@@ -352,8 +357,8 @@ std::string XPlane::toString() {
  * @param id the surface id
  * @param y the location of the plane along the y-axis
  */
-YPlane::YPlane(const short int id, const double y): 
-    Plane(id, 1, 0, -y) {
+YPlane::YPlane(const double y, const short int id): 
+    Plane(1, 0, -y, id) {
         _surface_type = YPLANE;
         _y = y;
 }
@@ -444,8 +449,8 @@ void YPlane::printString() {
  * @param id the surface id
  * @param z the location of the plane along the z-axis
  */
-ZPlane::ZPlane(const short int id, const double z): 
-    Plane(id, 0, 0, -z) {
+ZPlane::ZPlane(const double z, const short int id): 
+    Plane(0, 0, -z, id) {
         _surface_type = ZPLANE;
         _z = z;
 }
@@ -539,8 +544,8 @@ void ZPlane::printString() {
  * @param y the y-coordinate of the circle center
  * @param radius the radius of the circle
  */
-Circle::Circle(const short int id, const double x, const double y, 
-               const double radius): 
+Circle::Circle(const double x, const double y, 
+               const double radius, const short int id): 
     Surface(id) {
         _surface_type = CIRCLE;
         _A = 1.;

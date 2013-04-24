@@ -60,7 +60,7 @@ protected:
 
 public:
     Cell();
-    Cell(short int id, short int universe);
+    Cell(short int universe, short int id=0);
     virtual ~Cell();
     short int getUid() const;
     short int getId() const;
@@ -119,8 +119,8 @@ private:
     void sectorize();
 
 public:
-    CellBasic(short int id, short int universe, short int material,
-	      int num_rings=0, int num_sectors=0);
+    CellBasic(short int universe, short int material,
+	      int rings=0, int sectors=0, short int id=0);
 
     short int getMaterial() const;
     short int getNumRings();
@@ -148,7 +148,7 @@ private:
     std::pair<short int, Universe*> _universe_fill;
 
 public:
-    CellFill(short int id, short int universe, short int universe_fill);
+    CellFill(short int universe, short int universe_fill, short int id=0);
 
     short int getUniverseFillId() const;
     Universe* getUniverseFill() const;
