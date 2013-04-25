@@ -1,5 +1,6 @@
 /**
  * @file Material.h
+ * @brief
  * @date January 19, 2012
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
  */

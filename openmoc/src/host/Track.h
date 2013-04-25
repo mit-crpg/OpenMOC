@@ -16,8 +16,8 @@
 
 /**
  * @struct segment
- * @brief A segment reprsents a line segment within a single flat source 
- *        regoin along a track.
+ * @brief A segment represents a line segment within a single flat source 
+ *        region along a track.
  */
 struct segment {
     /** The length of the segment (cm) */

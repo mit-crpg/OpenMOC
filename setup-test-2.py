@@ -1,6 +1,6 @@
 import  os
 from os.path import join as pjoin
-from setuptools import setup
+from setuptools import setup, find_packages
 from distutils.extension import Extension
 from distutils.command.build_ext import build_ext
 import subprocess
@@ -57,38 +57,41 @@ except AttributeError:
 
 
 openmoc = Extension('_openmoc',
-                    sources=['openmoc/openmoc.i',
-                             'openmoc/src/host/Cell.cpp',
-                             'openmoc/src/host/FlatSourceRegion.cpp',
-                             'openmoc/src/host/Geometry.cpp',
-                             'openmoc/src/host/LocalCoords.cpp',
-                             'openmoc/src/host/log.cpp',
-                             'openmoc/src/host/Material.cpp',
-                             'openmoc/src/host/Point.cpp',
-                             'openmoc/src/host/Quadrature.cpp',
-                             'openmoc/src/host/Solver.cpp',
-                             'openmoc/src/host/Surface.cpp',
-                             'openmoc/src/host/Timer.cpp',
-                             'openmoc/src/host/Track.cpp',
-                             'openmoc/src/host/TrackGenerator.cpp',
-                             'openmoc/src/host/Universe.cpp',
-                             'openmoc/src/dev/DeviceMaterial.cu'],
+                sources=['openmoc/openmoc.i',
+                         'openmoc/src/host/Cell.cpp',
+                         'openmoc/src/host/FlatSourceRegion.cpp',
+                         'openmoc/src/host/Geometry.cpp',
+                         'openmoc/src/host/LocalCoords.cpp',
+                         'openmoc/src/host/log.cpp',
+                         'openmoc/src/host/Material.cpp',
+                         'openmoc/src/host/Point.cpp',
+                         'openmoc/src/host/Quadrature.cpp',
+                         'openmoc/src/host/Solver.cpp',
+                         'openmoc/src/host/Surface.cpp',
+                         'openmoc/src/host/Timer.cpp',
+                         'openmoc/src/host/Track.cpp',
+                         'openmoc/src/host/TrackGenerator.cpp',
+                         'openmoc/src/host/Universe.cpp',
+                         'openmoc/src/dev/DeviceMaterial.cu',
+                         'openmoc/src/dev/DeviceTrack.cu',
+                         'openmoc/src/dev/DeviceFlatSourceRegion.cu'],
                 library_dirs=[CUDA['lib64']],
-                swig_opts=['-c++', '-keyword'],
                 libraries=['cudart'],
                 runtime_library_dirs=[CUDA['lib64']],
                 # this syntax is specific to this build system
                 # we're only going to use certain compiler args with nvcc and not with gcc
                 # the implementation of this trick is in customize_compiler() below
-                extra_link_args=['-lstdc++', '-lgomp', '-fopenmp'],
-                extra_compile_args={'gcc': ['-O3', '-fopenmp',  '-std=c++0x', '-fPIC'],
+                extra_compile_args={'gcc': ['-fopenmp', '-std=c++0x'],
                                     'nvcc': ['-arch=sm_20', '--ptxas-options=-v', '-c', '--compiler-options', "'-fPIC'"]},
-                include_dirs = [numpy_include, CUDA['include'], 'openmoc/src/host', 'openmoc/src/dev'])
+                include_dirs = [numpy_include, CUDA['include'], 'src'],
+                extra_link_args=['-lstdc++', '-lgomp', '-fopenmp'],
+                swig_opts=['-c++', '-keyword'],
+)
 
 
 # check for swig
 if find_in_path('swig', os.environ['PATH']):
-    subprocess.check_call('swig -python -c++ -o openmoc/openmoc_wrap.cpp openmoc/openmoc.i', shell=True)
+    subprocess.check_call('swig -python -c++ -keyword -o openmoc/openmoc_wrap.cpp openmoc/openmoc.i', shell=True)
 else:
     raise EnvironmentError('the swig executable was not found in your PATH')
 
@@ -114,20 +117,17 @@ def customize_compiler_for_nvcc(self):
     # now redefine the _compile method. This gets executed for each
     # object but distutils doesn't have the ability to change compilers
     # based on source extension: we add it.
-    def _compile(obj, src, openmoc, cc_args, extra_postargs, pp_opts):
+    def _compile(obj, src, ext, cc_args, extra_postargs, pp_opts):
         if os.path.splitext(src)[1] == '.cu':
             # use the cuda for .cu files
-            self.set_executable('compiler_so', 'nvcc')
+            self.set_executable('compiler_so', CUDA['nvcc'])
             # use only a subset of the extra_postargs, which are 1-1 translated
             # from the extra_compile_args in the Extension class
             postargs = extra_postargs['nvcc']
         else:
-#            self.set_executable('compiler_so', 'icpc')
-#            self.set_executable('linker_so', 'icpc')
-#            self.set_executable('linker_exe', 'icpc')
             postargs = extra_postargs['gcc']
 
-        super(obj, src, openmoc, cc_args, postargs, pp_opts)
+        super(obj, src, ext, cc_args, postargs, pp_opts)
         # reset the default compiler_so, which we might have changed for cuda
         self.compiler_so = default_compiler_so
 
@@ -143,15 +143,17 @@ class custom_build_ext(build_ext):
 
 setup(name='openmoc',
       # random metadata. there's more you can supploy
-      author='Will Boyd',
       version='0.1',
+      description = 'An open source method of characteristics code for solving the 2D neutron distribution in nuclear reactor cores',
+      author      = 'Will Boyd',
+      author_email = 'wboyd@mit.edu',
+      url = 'https://github.com/mit-crpg/OpenMOC',
 
       # this is necessary so that the swigged python file gets picked up
       py_modules=['openmoc'],
-      package_dir={'': 'openmoc/src'},
 
       ext_modules = [openmoc],
-      pagkages = ['openmoc'],
+      packages = ['openmoc'],
 
       # inject our custom trigger
       cmdclass={'build_ext': custom_build_ext},

@@ -1,36 +1,35 @@
-/*
- * FlatSourceRegion.h
- *
- *  Created on: Feb 3, 2012
- *      Author: William Boyd
- *				MIT, Course 22
- *              wboyd@mit.edu
+/**
+ * @file FlatSourceRegion.h
+ * @brief
+ * @date July 10, 2012
+ * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
  */
 
 #ifndef DEVICEFLATSOURCEREGION_H_
 #define DEVICEFLATSOURCEREGION_H_
 
 
-#include <cutil.h>
+#ifdef __cplusplus
 #include "../host/FlatSourceRegion.h"
 #include "DeviceMaterial.h"
 #include "DeviceTrack.h"
+#endif
 
-
+/**
+ * @struct dev_flatsourceregion
+ * @brief This struct represents a unique discretized region within the 
+ *        geometry in which OpenMOC approximates the scalar flux and source
+ *        as constant.
+ * @details The dev_flatsourceregion struct is intended to be stored on a GPU.
+ */
 typedef struct dev_flatsourceregion {
-	int _uid;
-	int _material_uid;
+    int _uid;
+    int _material_uid;
     FP_PRECISION _volume;
-	FP_PRECISION _flux[NUM_ENERGY_GROUPS];
-	FP_PRECISION _new_source[NUM_ENERGY_GROUPS];
-	FP_PRECISION _old_source[NUM_ENERGY_GROUPS];
-    FP_PRECISION _ratios[NUM_ENERGY_GROUPS];
 } dev_flatsourceregion;
 
 
-void cloneOnDevice(FlatSourceRegion* hfsr, dev_flatsourceregion* dfsr);
-FP_PRECISION computeFissionRate(dev_flatsourceregion* dev_fsr,
-													Material* material);
+void cloneOnDevice(FlatSourceRegion* fsr_h, dev_flatsourceregion* fsr_d);
 
 
 #endif /* DEVICEFLATSOURCEREGION_H_ */
