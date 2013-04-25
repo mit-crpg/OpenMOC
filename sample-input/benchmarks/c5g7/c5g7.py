@@ -1,4 +1,5 @@
 import numpy
+import matplotlib.pyplot as plt
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
@@ -11,7 +12,7 @@ import openmoc.materialize as materialize
 
 num_threads = 4
 track_spacing = 0.1
-num_azim = 16
+num_azim = 64
 tolerance = 1E-3
 max_iters = 1000
 gridsize = 500
@@ -345,16 +346,49 @@ track_generator.generateTracks()
 ###############################################################################
 
 timer = Timer()
+num_threads = numpy.linspace(1,12,12)
+times = []
 
 solver = Solver(geometry, track_generator)
-solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 
-timer.startTimer()
-solver.convergeSource(max_iters)
-timer.stopTimer()
-timer.recordSplit('Fixed source iteration on host')
-timer.printSplits()
+for threads in num_threads:
+
+    solver.setNumThreads(threads)
+
+    timer.startTimer()
+    solver.convergeSource(max_iters)
+    timer.stopTimer()
+    timer.recordSplit('Fixed source iteration on host')
+    timer.printSplits()
+    times.append(timer.getTime())
+
+# Plot Runtime 
+times = numpy.ndarray(times)
+fig = plt.figure()
+plt.plot(threads, times)
+plt.title('OpenMOC OpenMP Strong Scaling')
+plt.xlabel('# threads')
+plt.ylabel('Runtime [sec]')
+fig.savefig('strong-scaling-runtime.png')
+
+# Plot Speedup 
+speedup = times[0] / times
+fig = plt.figure()
+plt.plot(threads, speedup)
+plt.title('OpenMOC OpenMP Speedup')
+plt.xlabel('# threads')
+plt.ylabel('Speedup')
+fig.savefig('strong-scaling-speedup.png')
+
+# Plot parallel efficiency
+efficiency = times[0] / (threads * times)
+fig = plt.figure()
+plt.plot(threads, efficiency)
+plt.title('OpenMOC OpenMP Parallel Efficiency')
+plt.xlabel('# threads')
+plt.ylabel('Efficiency')
+fig.savefig('strong-scaling-efficiency.png')
 
 
 ###############################################################################
