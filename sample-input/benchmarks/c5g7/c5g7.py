@@ -345,54 +345,21 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-timer = Timer()
-num_threads = numpy.linspace(1,12,2)
-times = []
-
 solver = Solver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 
-for threads in num_threads:
+solver.setNumThreads(num_threads)
 
-    solver.setNumThreads(int(threads))
-
-    timer.startTimer()
-    solver.convergeSource(max_iters)
-    timer.stopTimer()
-    timer.recordSplit('Fixed source iteration on host')
-    timer.printSplits()
-    times.append(timer.getTime())
-
-# Plot Runtime 
-times = numpy.ndarray(times)
-fig = plt.figure()
-plt.plot(threads, times)
-plt.title('OpenMOC OpenMP Strong Scaling')
-plt.xlabel('# threads')
-plt.ylabel('Runtime [sec]')
-fig.savefig('strong-scaling-runtime.png')
-
-# Plot Speedup 
-speedup = times[0] / times
-fig = plt.figure()
-plt.plot(threads, speedup)
-plt.title('OpenMOC OpenMP Speedup')
-plt.xlabel('# threads')
-plt.ylabel('Speedup')
-fig.savefig('strong-scaling-speedup.png')
-
-# Plot parallel efficiency
-efficiency = times[0] / (threads * times)
-fig = plt.figure()
-plt.plot(threads, efficiency)
-plt.title('OpenMOC OpenMP Parallel Efficiency')
-plt.xlabel('# threads')
-plt.ylabel('Efficiency')
-fig.savefig('strong-scaling-efficiency.png')
+timer = Timer()
+timer.startTimer()
+solver.convergeSource(max_iters)
+timer.stopTimer()
+timer.recordSplit('Fixed source iteration on host')
+timer.printSplits()
 
 
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+############################   Generating Plots   #############################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')
@@ -402,3 +369,5 @@ plotter.plotMaterials(geometry, gridsize)
 plotter.plotCells(geometry, gridsize)
 plotter.plotFlatSourceRegions(geometry, gridsize)
 plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+
+log.py_printf('TITLE', 'Finished')

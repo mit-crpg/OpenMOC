@@ -3,11 +3,28 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 
+
+###############################################################################
+#######################   Main Simulation Parameters   ########################
+###############################################################################
+
+num_threads = 4
+track_spacing = 0.1
+num_azim = 16
+tolerance = 1E-3
+max_iters = 1000
+gridsize = 500
+
 log.py_setlevel('INFO')
 
 log.py_printf('TITLE', 'Simulating HW3 from Fall 2010 22.212...')
 
-log.py_printf('NORMAL', 'Creating materials...need to use hdf5...')
+
+###############################################################################
+###########################   Creating Materials   ############################
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating materials...')
 
 fuel = Material(1)
 moderator = Material(2)
@@ -29,25 +46,35 @@ moderator.setNuSigmaF(numpy.array([0.0]))
 moderator.setSigmaS(numpy.array([0.837794542]))
 moderator.setChi(numpy.array([1.0]))
 
+
+###############################################################################
+###########################   Creating Surfaces   #############################
+###############################################################################
+
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(id=1, x=0.0, y=0.0, radius=0.4)
-left = XPlane(id=2, x=-0.635)
-right = XPlane(id=3, x=0.635)
-top = YPlane(id=4, y=0.635)
-bottom = YPlane(id=5, y=-0.635)
+circle = Circle(x=0.0, y=0.0, radius=0.4)
+left = XPlane(x=-0.635)
+right = XPlane(x=0.635)
+top = YPlane(y=0.635)
+bottom = YPlane(y=-0.635)
 
 left.setBoundaryType(REFLECTIVE)
 right.setBoundaryType(REFLECTIVE)
 top.setBoundaryType(REFLECTIVE)
 bottom.setBoundaryType(REFLECTIVE)
 
+
+###############################################################################
+#############################   Creating Cells   ##############################
+###############################################################################
+
 log.py_printf('NORMAL', 'Creating cells...')
 
 cells = []
-cells.append(CellBasic(id=1, universe=1, material=1))
-cells.append(CellBasic(id=2, universe=1, material=2))
-cells.append(CellFill(id=3, universe=0, universe_fill=2))
+cells.append(CellBasic(universe=1, material=1))
+cells.append(CellBasic(universe=1, material=2))
+cells.append(CellFill(universe=0, universe_fill=2))
 
 cells[0].addSurface(halfspace=-1, surface=circle)
 cells[1].addSurface(halfspace=+1, surface=circle)
@@ -56,10 +83,20 @@ cells[2].addSurface(halfspace=-1, surface=right)
 cells[2].addSurface(halfspace=+1, surface=bottom)
 cells[2].addSurface(halfspace=-1, surface=top)
 
+
+###############################################################################
+###########################   Creating Lattices   #############################
+###############################################################################
+
 log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
 
 lattice = Lattice(id=2, width_x=1.27, width_y=1.27)
 lattice.setLatticeCells([[1]])
+
+
+###############################################################################
+##########################   Creating the Geometry   ##########################
+###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
@@ -73,15 +110,25 @@ geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
 
+
+###############################################################################
+########################   Creating the TrackGenerator   ######################
+###############################################################################
+
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator()
-track_generator.setNumAzim(64)
-track_generator.setTrackSpacing(0.1)
+track_generator.setNumAzim(num_azim)
+track_generator.setTrackSpacing(track_spacing)
 track_generator.setGeometry(geometry)
 track_generator.generateTracks()
 
+
+###############################################################################
+###########################   Running a Simulation   ##########################
+###############################################################################
+
 solver = Solver(geometry, track_generator)
-solver.setNumThreads(1)
-solver.setSourceConvergenceThreshold(1E-4)
-solver.convergeSource(10000)
+solver.setNumThreads(num_threads)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.convergeSource(max_iters)
