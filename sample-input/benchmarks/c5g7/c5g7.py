@@ -12,7 +12,7 @@ import openmoc.materialize as materialize
 
 num_threads = 4
 track_spacing = 0.1
-num_azim = 64
+num_azim = 16
 tolerance = 1E-3
 max_iters = 1000
 gridsize = 500
@@ -346,7 +346,7 @@ track_generator.generateTracks()
 ###############################################################################
 
 timer = Timer()
-num_threads = numpy.linspace(1,12,12)
+num_threads = numpy.linspace(1,12,2)
 times = []
 
 solver = Solver(geometry, track_generator)
@@ -354,7 +354,7 @@ solver.setSourceConvergenceThreshold(tolerance)
 
 for threads in num_threads:
 
-    solver.setNumThreads(threads)
+    solver.setNumThreads(int(threads))
 
     timer.startTimer()
     solver.convergeSource(max_iters)
