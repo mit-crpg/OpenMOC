@@ -278,7 +278,7 @@ void Universe::subdivideCells() {
 		    for (iter2=newcells.begin(); iter2!=newcells.end(); ++iter2)
 		        addCell((*iter2));
 
-		    iter1 = _cells.erase(iter1);
+		    _cells.erase(iter1);
 		    break;
 		}
 	    }
