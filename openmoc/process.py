@@ -161,7 +161,7 @@ def weakScalingStudy(solver, track_generator,  num_threads=None, \
 
         track_generator.setNumAzim(int(num_azim[i]))
         track_generator.generateTracks()
-                                  
+        solver.setTrackGenerator(track_generator)
         solver.setNumThreads(int(num_threads[i]))
         
         timer.resetTimer()
@@ -225,7 +225,7 @@ def weakScalingStudy(solver, track_generator,  num_threads=None, \
     else:
         filename3 = directory + filename + '-efficiency.png'
     
-    efficiency = (times[0] * num_threads[0]) / (num_threads * times)
+    efficiency = times[0] / times
     fig = plt.figure()
     plt.plot(num_threads, efficiency, linewidth=3)
     plt.xlabel('# threads')
@@ -254,16 +254,21 @@ def profile(solver, num_threads=4,  max_iters=25, title='', filename=''):
               'Flattening FSR flux to zero', 'Normalizing fluxes',
               'Reducing FSR scalar fluxes', 'Transport sweep']
 
-    times = []
+    times = numpy.zeros(3)
     timer = Timer()
 
     for label in labels:
-        times.append(timer.getSplit(label))
+        if label == 'Transport sweep':
+            times[0] = timer.getSplit(label)
+        elif label == 'Computing FSR sources':
+            times[1] = timer.getSplit(label)
+        else:
+            times[2] += timer.getSplit(label)
 
     timer.printSplits()
-    times = numpy.array(times)
     tot_time = numpy.sum(times)
     fracs = times / tot_time
+    labels = ['Transport Sweep', 'FSR Sources', 'Other']
 
     # Plot a pie chart showing the break down in compute time
     if title == '':

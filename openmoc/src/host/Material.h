@@ -13,7 +13,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include "configurations.h"
 #include "log.h"
 #endif
 

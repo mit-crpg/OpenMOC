@@ -11,7 +11,6 @@
 #ifdef __cplusplus
 #include <math.h>
 #include <sstream>
-#include "configurations.h"
 #include "log.h"
 #endif
 

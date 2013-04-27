@@ -3,7 +3,6 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "src/host/Cell.h"
-    #include "src/host/configurations.h"
     #include "src/host/FlatSourceRegion.h"
     #include "src/host/Geometry.h"
     #include "src/host/LocalCoords.h"
@@ -70,12 +69,11 @@
 %apply (float* IN_ARRAY1, int DIM1) {(float* sigma_f, int num_energy_groups)}
 %apply (float* IN_ARRAY1, int DIM1) {(float* nu_sigma_f, int num_energy_groups)}
 %apply (float* IN_ARRAY1, int DIM1) {(float* chi, int num_energy_groups)}
-%apply ( double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
-%apply ( double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
+%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
+%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
 
 %include <exception.i> 
 %include src/host/Cell.h
-%include src/host/configurations.h
 %include src/host/FlatSourceRegion.h
 %include src/host/Geometry.h
 %include src/host/LocalCoords.h
@@ -89,3 +87,10 @@
 %include src/host/Track.h
 %include src/host/TrackGenerator.h
 %include src/host/Universe.h
+
+#ifdef DOUBLE
+typedef double FP_PRECISION;
+#else
+typedef float FP_PRECISION;
+#endif
+

@@ -350,11 +350,13 @@ solver = Solver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 
-process.strongScalingStudy(solver, num_threads=[1,2,4,12], max_iters=5)
+process.strongScalingStudy(solver, numpy.linspace(1,24,24), max_iters)
 Timer.clearSplits()
-process.weakScalingStudy(solver, track_generator, num_threads=[1,2,4], \
-                             max_iters=5)
+process.weakScalingStudy(solver, track_generator, 
+                         numpy.linspace(1,24,24), max_iters)
+Timer.clearSplits()
 process.profile(solver, max_iters = 5)
+
 #solver.convergeSource(max_iters)
 
 

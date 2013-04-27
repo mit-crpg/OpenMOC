@@ -11,6 +11,7 @@ import numpy
 
 
 cpp_compiler = 'icpc'
+fp_precision = 'double'
 use_cuda = False
 
 
@@ -133,6 +134,7 @@ include_dirs = []
 extra_link_args = []
 extra_compile_args = {}
 include_dirs = [numpy_include, 'openmoc/src/host', 'openmoc/src/dev']
+define_macros = []
 swig_opts = ['-c++', '-keyword']
 
 if cpp_compiler == 'gcc':
@@ -143,7 +145,7 @@ elif cpp_compiler == 'icpc':
     library_dirs.extend([ICPC['lib64']])
     runtime_library_dirs.extend([ICPC['lib64']])
     extra_link_args.extend(['-lstdc++', '-openmp', '-liomp5', '-lpthread', 
-                            '-lirc', '-limf', '-lrt', '-lpython2.7', '-shared'])
+                            '-lirc', '-limf', '-lrt', '-shared'])
     extra_compile_args['icpc'] =['-c', '-O3', '-openmp', '-std=c++0x', '-fpic',
                                '-xhost', '-openmp-report', '-vec-report']
     include_dirs.extend([ICPC['include']])
@@ -164,30 +166,35 @@ if use_cuda:
 else:
     sources.extend(['openmoc/openmoc.i'])
 
+if fp_precision == 'single':
+    define_macros.extend([('FP_PRECISION', 'float'), ('SINGLE', None)])
+else:
+    define_macros.extend([('FP_PRECISION', 'double'), ('DOUBLE', None)])
+
 
 openmoc = Extension(name = '_openmoc', 
                     sources = sources, 
                     library_dirs = library_dirs, 
                     libraries = libraries,
                     runtime_library_dirs = runtime_library_dirs,
-#                    extra_compile_args = extra_compile_args,
                     extra_link_args = extra_link_args, 
                     include_dirs = include_dirs,
+                    define_macros = define_macros,
                     swig_opts = swig_opts)
 
 
 # check for swig
-if find_in_path('swig', os.environ['PATH']):
-    if use_cuda:
-        subprocess.check_call('swig -python -c++ -keyword -o ' + \
-                          'openmoc/openmoc-cuda_wrap.cpp ' + \
-                          'openmoc/openmoc-cuda.i', shell=True)
-    else:
-        subprocess.check_call('swig -python -c++ -keyword -o ' + \
-                          'openmoc/openmoc_wrap.cpp openmoc/openmoc.i', 
-                          shell=True)
-else:
-    raise EnvironmentError('The swig executable was not found in your PATH')
+#if find_in_path('swig', os.environ['PATH']):
+#    if use_cuda:
+#        subprocess.check_call('swig -python -c++ -keyword -o ' + \
+#                          'openmoc/openmoc-cuda_wrap.cpp ' + \
+#                          'openmoc/openmoc-cuda.i', shell=True)
+#    else:
+#        subprocess.check_call('swig -python -c++ -keyword -o ' + \
+#                          'openmoc/openmoc_wrap.cpp openmoc/openmoc.i', 
+#                          shell=True)
+#else:
+#    raise EnvironmentError('The swig executable was not found in your PATH')
 
 
 def customize_compiler(self):
@@ -205,8 +212,6 @@ def customize_compiler(self):
 
     # save references to the default compiler_so and _comple methods
     default_compiler_so = self.compiler_so
-#    self.linker_so = ['icpc', '-lstdc++', '-openmp', '-liomp5', \
-#                      '-lpthreads', '-lirc', '-limf']
     super_compile = self._compile
     super_link = self.link
 
