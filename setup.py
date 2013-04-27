@@ -178,7 +178,12 @@ openmoc = Extension(name = '_openmoc',
 
 # check for swig
 if find_in_path('swig', os.environ['PATH']):
-    subprocess.check_call('swig -python -c++ -keyword -o ' + \
+    if use_cuda:
+        subprocess.check_call('swig -python -c++ -keyword -o ' + \
+                          'openmoc/openmoc-cuda_wrap.cpp ' + \
+                          'openmoc/openmoc-cuda.i', shell=True)
+    else:
+        subprocess.check_call('swig -python -c++ -keyword -o ' + \
                           'openmoc/openmoc_wrap.cpp openmoc/openmoc.i', 
                           shell=True)
 else:

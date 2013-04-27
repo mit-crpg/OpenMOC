@@ -11,3 +11,5 @@ log_setlevel(NORMAL)
 now = datetime.datetime.now()
 current_time = str(now.month) + '-' + str(now.day) + '-' + str(now.year) + '--' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second)
 setLogfileName('log/openmoc-' + current_time + '.log');
+
+Timer = Timer()

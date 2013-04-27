@@ -15,6 +15,7 @@
 #include "../host/Quadrature.h"
 #include "../host/TrackGenerator.h"
 #include "../host/FlatSourceRegion.h"
+#include "../host/Timer.h"
 #endif
 
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
@@ -99,9 +100,16 @@ private:
 
     /** The current iteration's approximation to k-effective */
     FP_PRECISION _k_eff; 
+    /** The total leakage across vacuum boundaries */
     FP_PRECISION _leakage;
+
+    /** The number of transport sweeps to convergence */
+    int _num_iterations;
+    /** Whether or not the Solver has converged the source */
     bool _converged_source;
+    /** The tolerance for converging the source */
     FP_PRECISION _source_convergence_thresh;
+    /** The tolerance for converging the flux given a fixed source */
     FP_PRECISION _flux_convergence_thresh;
 
     /* Exponential pre-factor hash table */
@@ -114,6 +122,9 @@ private:
     /** The spacing for the exponential prefactor array */
     FP_PRECISION _prefactor_spacing;
 
+    /** A timer to profile the solver */
+    Timer* _timer;
+   
     void initializeFluxArrays();
     void initializeSourceArrays();
     void initializePowerArrays();
@@ -121,7 +132,6 @@ private:
     void precomputePrefactors();
     void initializeFSRs();
     void checkTrackSpacing();
-    void computeRatios();
     void zeroTrackFluxes();
     void flattenFSRFluxes(FP_PRECISION value);
     void flattenFSRSources(FP_PRECISION value);
@@ -138,6 +148,7 @@ public:
     int getNumThreads();
     int getNumPolarAngles();
     quadratureType getPolarQuadratureType();
+    int getNumIterations();
     FP_PRECISION getSourceConvergenceThreshold();
     FP_PRECISION getFluxConvergenceThreshold();
     FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);

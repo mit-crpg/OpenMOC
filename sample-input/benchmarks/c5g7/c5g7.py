@@ -4,6 +4,7 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
+import openmoc.process as process
 
 
 ###############################################################################
@@ -14,7 +15,7 @@ num_threads = 4
 track_spacing = 0.1
 num_azim = 16
 tolerance = 1E-3
-max_iters = 1000
+max_iters = 25
 gridsize = 500
 
 log.py_setlevel('NORMAL')
@@ -347,15 +348,14 @@ track_generator.generateTracks()
 
 solver = Solver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
-
 solver.setNumThreads(num_threads)
 
-timer = Timer()
-timer.startTimer()
-solver.convergeSource(max_iters)
-timer.stopTimer()
-timer.recordSplit('Fixed source iteration on host')
-timer.printSplits()
+process.strongScalingStudy(solver, num_threads=[1,2,4,12], max_iters=5)
+Timer.clearSplits()
+process.weakScalingStudy(solver, track_generator, num_threads=[1,2,4], \
+                             max_iters=5)
+process.profile(solver, max_iters = 5)
+#solver.convergeSource(max_iters)
 
 
 ###############################################################################
@@ -364,10 +364,10 @@ timer.printSplits()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-plotter.plotTracks(track_generator)
-plotter.plotMaterials(geometry, gridsize)
-plotter.plotCells(geometry, gridsize)
-plotter.plotFlatSourceRegions(geometry, gridsize)
-plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+#plotter.plotTracks(track_generator)
+#plotter.plotMaterials(geometry, gridsize)
+#plotter.plotCells(geometry, gridsize)
+#plotter.plotFlatSourceRegions(geometry, gridsize)
+#plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')

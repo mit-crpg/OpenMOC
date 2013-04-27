@@ -895,7 +895,7 @@ void TrackGenerator::dumpTracksToFile() {
     out = fopen(_tracks_filename.c_str(), "w");
 
     const char* geometry_to_string = _geometry->toString().c_str();
-    int string_length = _geometry->toString().size();
+    int string_length = _geometry->toString().length();
 
     fwrite(&string_length, sizeof(int), 1, out);
     fwrite(geometry_to_string, sizeof(char)*string_length, 1, out);
@@ -986,8 +986,11 @@ bool TrackGenerator::readTracksFromFile() {
     char* geometry_to_string = new char[string_length];
     ret = fread(geometry_to_string, sizeof(char)*string_length, 1, in);
 
-    if (_geometry->toString().compare(geometry_to_string) != 0)
+    if (_geometry->toString().compare(geometry_to_string) != 0) {
+        log_printf(NORMAL, "Returning from readTracksFromFile");
+	printf("%s", geometry_to_string);
         return false;
+    }
 
     log_printf(NORMAL, "Reading tracks in from file");
 

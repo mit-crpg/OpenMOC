@@ -1,5 +1,5 @@
-import numpy
 from openmoc import *
+import numpy
 import openmoc.log as log
 import openmoc.plotter as plotter
 
@@ -114,15 +114,14 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-timer = Timer()
 solver = Solver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 
-timer.startTimer()
+Timer.startTimer()
 solver.convergeSource(max_iters)
-timer.stopTimer()
-timer.recordSplit('Fixed source iteration on host')
-timer.printSplits()
+Timer.stopTimer()
+Timer.recordSplit('Fixed source iteration on host')
+Timer.printSplits()
 
 log.py_printf('TITLE', 'Finished')
