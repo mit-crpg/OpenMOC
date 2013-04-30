@@ -19,4 +19,4 @@ PATH=$PBS_O_PATH
 ######################################
  
 #PBS -k eo
-python full-core-weak-scaling-all-cc-fp.pbs
+python full-core-weak-scaling-all-cc-fp.py
