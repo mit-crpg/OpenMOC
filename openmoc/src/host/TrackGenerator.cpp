@@ -896,11 +896,11 @@ void TrackGenerator::dumpTracksToFile() {
     FILE* out;
     out = fopen(_tracks_filename.c_str(), "w");
 
-    const char* geometry_to_string = _geometry->toString().c_str();
-    int string_length = _geometry->toString().length();
+    std::string geometry_to_string = _geometry->toString();
+    int string_length = geometry_to_string.length();
 
     fwrite(&string_length, sizeof(int), 1, out);
-    fwrite(geometry_to_string, sizeof(char)*string_length, 1, out);
+    fwrite(geometry_to_string.c_str(), sizeof(char)*string_length, 1, out);
 
     fwrite(&_num_azim, sizeof(int), 1, out);
     fwrite(&_spacing, sizeof(double), 1, out);
@@ -990,7 +990,6 @@ bool TrackGenerator::readTracksFromFile() {
 
     if (_geometry->toString().compare(geometry_to_string) != 0) {
         log_printf(NORMAL, "Returning from readTracksFromFile");
-	printf("%s", geometry_to_string);
         return false;
     }
 

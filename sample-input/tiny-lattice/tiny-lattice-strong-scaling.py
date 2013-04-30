@@ -16,7 +16,7 @@ tolerance = 1E-3
 max_iters = 1000
 gridsize = 500
 
-log.setOutputDirectory('Tiny-Lattice')
+setOutputDirectory('Tiny-Lattice')
 
 log.py_setlevel('INFO')
 

@@ -18,6 +18,8 @@ tolerance = 1E-3
 max_iters = 25
 gridsize = 500
 
+setOutputDirectory('C5G7')
+
 log.py_setlevel('NORMAL')
 
 log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
