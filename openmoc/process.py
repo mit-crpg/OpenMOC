@@ -88,23 +88,22 @@ def strongScalingStudy(geometry, num_azim=48, track_spacing=0.1,
             track_generator.generateTracks()
 
             solver = openmoc.Solver(geometry, track_generator)
-            solver.convergeSource(max_iters)
 
             timer = openmoc.Timer()
             
             legend.append('' + cc + '-' + fp)
 
-            for threads in num_threads:
+            for k in range(num_threads.size):
                 
-                solver.setNumThreads(int(threads))
+                solver.setNumThreads(int(num_threads[k]))
         
                 timer.resetTimer()
                 timer.startTimer()
                 solver.convergeSource(max_iters)
                 timer.stopTimer()
-                timer.recordSplit('' + str(threads) + ' threads' + ' ' 
+                timer.recordSplit('' + str(num_threads[k]) + ' threads' + ' ' 
                                   + cc + '-' + fp)
-                times[i][j][threads-1] = timer.getTime()
+                times[i][j][k] = timer.getTime()
                 timer.printSplits()
 
             timer.printSplits()

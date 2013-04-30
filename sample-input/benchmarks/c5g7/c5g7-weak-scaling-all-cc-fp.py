@@ -1,8 +1,6 @@
 import numpy
-import matplotlib.pyplot as plt
 from openmoc import *
 import openmoc.log as log
-import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 import openmoc.process as process
 
@@ -11,18 +9,16 @@ import openmoc.process as process
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 4
-track_spacing = 0.1
-num_azim = 96
-tolerance = 1E-3
-max_iters = 25
-gridsize = 500
+num_threads = numpy.linspace(1,24,24)
+compiler = 'all'
+precision = 'all'
+num_azim = 4
 
-setOutputDirectory('C5G7')
+setOutputDirectory('C5G7-Weak-Scaling')
 
 log.py_setlevel('NORMAL')
 
-log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
+log.py_printf('TITLE', 'Weak Scaling the OECD\'s C5G7 Benchmark Problem...')
 
 
 ###############################################################################
@@ -331,39 +327,12 @@ geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+###############################   Weak Scaling   ##############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Initializing the track generator...')
+log.py_printf('NORMAL', 'Running a weak scaling study...')
 
-track_generator = TrackGenerator()
-track_generator.setGeometry(geometry)
-track_generator.setNumAzim(num_azim)
-track_generator.setTrackSpacing(track_spacing)
-
-track_generator.generateTracks()
-
-
-###############################################################################
-###########################   Running a Simulation   ##########################
-###############################################################################
-
-solver = Solver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-
-
-###############################################################################
-############################   Generating Plots   #############################
-###############################################################################
-
-log.py_printf('NORMAL', 'Plotting data...')
-
-#plotter.plotTracks(track_generator)
-#plotter.plotMaterials(geometry, gridsize)
-#plotter.plotCells(geometry, gridsize)
-#plotter.plotFlatSourceRegions(geometry, gridsize)
-#plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+process.weakScalingStudy(geometry, num_azim=num_azim, precision=precision, 
+                           compiler=compiler, num_threads=num_threads)
 
 log.py_printf('TITLE', 'Finished')
