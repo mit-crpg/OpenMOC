@@ -87,6 +87,10 @@ def strongScalingStudy(geometry, num_azim=48, track_spacing=0.1,
             track_generator.setGeometry(geometry)
             track_generator.generateTracks()
 
+            py_printf('NORMAL', '# FSRs = %d, # tracks = %d, # segments = %d',
+                      geometry.getNumFSRs(), track_generator.getNumTracks(),
+                      track_generator.getNumSegments())
+
             solver = openmoc.Solver(geometry, track_generator)
 
             timer = openmoc.Timer()
@@ -261,6 +265,11 @@ def weakScalingStudy(geometry, num_azim=4, track_spacing=0.1,
                 track_generator.setTrackSpacing(track_spacing)
                 track_generator.setGeometry(geometry)
                 track_generator.generateTracks()
+
+                py_printf('NORMAL', '# FSRs = %d, # tracks = %d, # ' + \
+                          'segments = %d', geometry.getNumFSRs(), 
+                          track_generator.getNumTracks(),
+                          track_generator.getNumSegments())
 
                 solver = openmoc.Solver(geometry, track_generator)
                 solver.setNumThreads(int(num_threads[k]))

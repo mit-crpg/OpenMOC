@@ -12,7 +12,7 @@ import openmoc.process as process
 num_threads = numpy.linspace(1,24,24)
 compiler = 'all'
 precision = 'all'
-num_azim = 4
+num_azim = 8
 
 setOutputDirectory('C5G7-Weak-Scaling')
 

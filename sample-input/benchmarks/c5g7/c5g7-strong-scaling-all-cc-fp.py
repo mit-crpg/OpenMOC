@@ -11,10 +11,10 @@ import openmoc.process as process
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = numpy.linspace(10,12,2)
+num_threads = numpy.linspace(1,24,24)
 compiler = 'all'
 precision = 'all'
-num_azim = 4
+num_azim = 96
 
 setOutputDirectory('C5G7-Strong-Scaling')
 

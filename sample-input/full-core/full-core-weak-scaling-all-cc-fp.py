@@ -14,7 +14,7 @@ import openmoc.process as process
 num_threads = numpy.linspace(1,12,12)
 compiler = 'all'
 precision = 'all'
-num_azim = 4
+num_azim = 8
 
 setOutputDirectory('Full-Core-Weak-Scaling')
 
