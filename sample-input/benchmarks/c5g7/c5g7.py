@@ -351,6 +351,7 @@ track_generator.generateTracks()
 solver = Solver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
+
 solver.convergeSource(max_iters)
 
 

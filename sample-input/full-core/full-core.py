@@ -18,9 +18,11 @@ tolerance = 1E-3
 max_iters = 10
 gridsize = 1000
 
+setOutputDirectory('Full-Core')
+
 log.py_setlevel('NORMAL')
 
-log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
+log.py_printf('TITLE', 'Simulating a Mock Full Core PWR...')
 
 
 ###############################################################################
@@ -338,13 +340,6 @@ track_generator.generateTracks()
 solver = Solver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
-
-process.strongScalingStudy(solver, numpy.linspace(1,12,12), max_iters)
-Timer.clearSplits()
-process.weakScalingStudy(solver, track_generator, 
-                         numpy.linspace(1,12,12), max_iters)
-Timer.clearSplits()
-process.profile(solver, max_iters)
 
 solver.convergeSource(max_iters)
 
