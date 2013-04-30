@@ -8,7 +8,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from openmoc import *
+#from openmoc import *
 from log import *
 import scipy.integrate as integrate
 import numpy
@@ -31,8 +31,10 @@ subdirectory = "/plots/"
 #
 # @param tally the tally of interest
 # @return a numpy array with the tally bin centers
-def strongScalingStudy(solver, num_threads=None, max_iters=25,
-                     title='', filename=''):
+def strongScalingStudy(geometry, num_azim=48, track_spacing=0.1, 
+                       num_threads=None, max_iters=10, 
+                       compiler='gnu', precision='double', 
+                       title='', filename=''):
 
     global subdirectory
 
@@ -47,21 +49,67 @@ def strongScalingStudy(solver, num_threads=None, max_iters=25,
     else:
         num_threads = numpy.array(num_threads)
 
-    times = []
-    timer = Timer()
+    if compiler == 'all':
+        compiler = ['gnu', 'intel']
+    elif compiler == 'intel':
+        compiler = ['intel']
+    else:
+        compiler = ['gnu']
 
-    for threads in num_threads:
-        solver.setNumThreads(int(threads))
+    if precision == 'all':
+        precision = ['single', 'double']
+    elif precision == 'double':
+        precision = ['double']
+    else:
+        precision = ['single']
+
+    legend = []
+    times = numpy.zeros((len(precision), len(compiler), num_threads.size))
+
+    for i in range(len(precision)):
+        for j in range(len(compiler)):
+            
+            fp = precision[i]
+            cc = compiler[j]
+
+            if fp == 'single' and cc == 'gnu':
+                import gnu.single as openmoc
+            elif fp == 'single' and cc == 'intel':
+                import intel.single as openmoc
+            elif fp == 'double' and cc == 'gnu':
+                import gnu.double as openmoc
+            elif fp == 'double' and cc == 'intel':
+                import intel.double as openmoc
+
+            track_generator = openmoc.TrackGenerator()
+            track_generator.setNumAzim(num_azim)
+            track_generator.setTrackSpacing(track_spacing)
+            track_generator.setGeometry(geometry)
+            track_generator.generateTracks()
+
+            solver = openmoc.Solver(geometry, track_generator)
+            solver.convergeSource(max_iters)
+
+            timer = openmoc.Timer()
+            
+            legend.append('' + cc + '-' + fp)
+
+            for threads in num_threads:
+                
+                solver.setNumThreads(int(threads))
         
-        timer.resetTimer()
-        timer.startTimer()
-        solver.convergeSource(max_iters)
-        timer.stopTimer()
-        timer.recordSplit('' + str(threads) + ' threads')
-        times.append(timer.getTime())
+                timer.resetTimer()
+                timer.startTimer()
+                solver.convergeSource(max_iters)
+                timer.stopTimer()
+                timer.recordSplit('' + str(threads) + ' threads' + ' ' 
+                                  + cc + '-' + fp)
+                times[i][j][threads-1] = timer.getTime()
+                timer.printSplits()
 
+            timer.printSplits()
 
-    timer.printSplits()
+    times /= max_iters
 
     # Plot Runtime
     if title == '':
@@ -74,12 +122,19 @@ def strongScalingStudy(solver, num_threads=None, max_iters=25,
     else:
         filename1 = directory + filename + '-runtime.png'
 
-    times = numpy.array(times) / solver.getNumIterations()
+    for i in range(len(precision)):
+        for j in range(len(compiler)):
+            plt.plot(num_threads, times[i][j], linewidth=3)
+
     fig = plt.figure()
-    plt.plot(num_threads, times, linewidth=3)
+    for i in range(len(precision)):
+        for j in range(len(compiler)):
+            plt.plot(num_threads, times[i][j], linewidth=3 )
     plt.xlabel('# threads')
     plt.ylabel('Runtime [sec]')
     plt.title(title1)
+    if (len(legend) > 1):
+        plt.legend(legend)
     plt.grid()
     plt.savefig(filename1)
 
@@ -94,12 +149,16 @@ def strongScalingStudy(solver, num_threads=None, max_iters=25,
     else:
         filename2 = directory + filename + '-speedup.png'
 
-    speedup = times[0] / times
+    speedup = times[:,:,0][:,:,numpy.newaxis] / times
     fig = plt.figure()
-    plt.plot(num_threads, speedup, linewidth=3)
+    for i in range(len(precision)):
+        for j in range(len(compiler)):
+            plt.plot(num_threads, speedup[i][j], linewidth=3)
     plt.xlabel('# threads')
     plt.ylabel('Speedup')
     plt.title(title2)
+    if (len(legend) > 1):
+        plt.legend(legend)
     plt.grid()
     plt.savefig(filename2)
 
@@ -114,12 +173,17 @@ def strongScalingStudy(solver, num_threads=None, max_iters=25,
     else:
         filename3 = directory + filename + '-efficiency.png'
     
-    efficiency = (times[0] * num_threads[0]) / (num_threads * times)
+    efficiency = (times[:,:,0][:,:,numpy.newaxis] * num_threads[0]) / \
+                 (num_threads * times)
     fig = plt.figure()
-    plt.plot(num_threads, efficiency, linewidth=3)
+    for i in range(len(precision)):
+        for j in range(len(compiler)):
+            plt.plot(num_threads, efficiency[i][j], linewidth=3)
     plt.xlabel('# threads')
     plt.ylabel('Efficiency')
     plt.title(title3)
+    if (len(legend) > 1):
+        plt.legend(legend)
     plt.grid()
     plt.savefig(filename3)
 
@@ -136,8 +200,10 @@ def strongScalingStudy(solver, num_threads=None, max_iters=25,
 #
 # @param tally the tally of interest
 # @return a numpy array with the tally bin centers
-def weakScalingStudy(solver, track_generator,  num_threads=None, \
-                         max_iters=25, title='', filename=''):
+def weakScalingStudy(geometry, num_azim=4, track_spacing=0.1, 
+                     num_threads=None, max_iters=10, 
+                     compiler='gnu', precision='double', 
+                     title='', filename=''):
 
     global subdirectory
 
@@ -152,27 +218,66 @@ def weakScalingStudy(solver, track_generator,  num_threads=None, \
     else:
         num_threads = numpy.array(num_threads)
 
-    times = []
-    timer = Timer()
+    if compiler == 'all':
+        compiler = ['gnu', 'intel']
+    elif compiler == 'intel':
+        compiler = ['intel']
+    else:
+        compiler = ['gnu']
 
-    num_azim = num_threads * 4
+    if precision == 'all':
+        precision = ['single', 'double']
+    elif precision == 'double':
+        precision = ['double']
+    else:
+        precision = ['single']
 
-    for i in range(len(num_azim)):
+    legend = []
+    times = numpy.zeros((len(precision), len(compiler), num_threads.size))
+    num_azim *= num_threads
 
-        track_generator.setNumAzim(int(num_azim[i]))
-        track_generator.generateTracks()
-        solver.setTrackGenerator(track_generator)
-        solver.setNumThreads(int(num_threads[i]))
+    for i in range(len(precision)):
+        for j in range(len(compiler)):
+            
+            fp = precision[i]
+            cc = compiler[j]
+
+            if fp == 'single' and cc == 'gnu':
+                import gnu.single as openmoc
+            elif fp == 'single' and cc == 'intel':
+                import intel.single as openmoc
+            elif fp == 'double' and cc == 'gnu':
+                import gnu.double as openmoc
+            elif fp == 'double' and cc == 'intel':
+                import intel.double as openmoc
+
+            timer = openmoc.Timer()
+            
+            legend.append('' + cc + '-' + fp)
+
+            for k in range(len(num_azim)):
+
+                track_generator = openmoc.TrackGenerator()
+                track_generator.setNumAzim(int(num_azim[k]))
+                track_generator.setTrackSpacing(track_spacing)
+                track_generator.setGeometry(geometry)
+                track_generator.generateTracks()
+
+                solver = openmoc.Solver(geometry, track_generator)
+                solver.setNumThreads(int(num_threads[k]))
         
-        timer.resetTimer()
-        timer.startTimer()
-        solver.convergeSource(max_iters)
-        timer.stopTimer()
-        times.append(timer.getTime())
-        timer.recordSplit('' + str(num_threads[i]) + ' threads')
+                timer.resetTimer()
+                timer.startTimer()
+                solver.convergeSource(max_iters)
+                timer.stopTimer()
+                timer.recordSplit('' + str(num_threads[k]) + ' threads' + ' ' 
+                                  + cc + '-' + fp)
+                times[i][j][k] = timer.getTime()
+                timer.printSplits()
 
+            timer.printSplits()
 
-    timer.printSplits()
+    times /= max_iters
 
     # Plot Runtime
     if title == '':
@@ -185,12 +290,15 @@ def weakScalingStudy(solver, track_generator,  num_threads=None, \
     else:
         filename1 = directory + filename + '-runtime.png'
 
-    times = numpy.array(times) / solver.getNumIterations()
     fig = plt.figure()
-    plt.plot(num_threads, times, linewidth=3)
+    for i in range(len(precision)):
+        for j in range(len(compiler)):
+            plt.plot(num_threads, times[i][j], linewidth=3)
     plt.xlabel('# threads')
     plt.ylabel('Runtime [sec]')
     plt.title(title1)
+    if (len(legend) > 1):
+        plt.legend(legend)
     plt.grid()
     plt.savefig(filename1)
 
@@ -205,13 +313,16 @@ def weakScalingStudy(solver, track_generator,  num_threads=None, \
     else:
         filename2 = directory + filename + '-speedup.png'
 
-    speedup = num_threads * times[0] / times
+    speedup = num_threads * (times[:,:,0][:,:,numpy.newaxis] / times)
     fig = plt.figure()
-    plt.plot(num_threads, speedup, linewidth=3)
+    for i in range(len(precision)):
+        for j in range(len(compiler)):
+            plt.plot(num_threads, speedup[i][j], linewidth=3)
     plt.xlabel('# threads')
     plt.ylabel('Speedup')
     plt.title(title2)
-    plt.grid()
+    if (len(legend) > 1):
+        plt.legend(legend)
     plt.savefig(filename2)
 
     # Plot parallel efficiency
@@ -225,12 +336,16 @@ def weakScalingStudy(solver, track_generator,  num_threads=None, \
     else:
         filename3 = directory + filename + '-efficiency.png'
     
-    efficiency = times[0] / times
+    efficiency = times[:,:,0][:,:,numpy.newaxis] / times
     fig = plt.figure()
-    plt.plot(num_threads, efficiency, linewidth=3)
+    for i in range(len(precision)):
+        for j in range(len(compiler)):
+            plt.plot(num_threads, efficiency[i][j], linewidth=3)
     plt.xlabel('# threads')
     plt.ylabel('Efficiency')
     plt.title(title3)
+    if (len(legend) > 1):
+        plt.legend(legend)
     plt.grid()
     plt.savefig(filename3)
 

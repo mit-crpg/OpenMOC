@@ -1,8 +1,8 @@
 import numpy
-from openmoc.intel.double import *
+from openmoc import *
 import openmoc.log as log
-import openmoc.plotter as plotter
 import openmoc.materialize as materialize
+import openmoc.process as process
 
 
 ###############################################################################
@@ -93,32 +93,13 @@ geometry.addLattice(lattice)
 geometry.initializeFlatSourceRegions()
 
 
-
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Initializing the track generator...')
+log.py_printf('NORMAL', 'Running a strong scaling study...')
 
-track_generator = TrackGenerator()
-track_generator.setNumAzim(num_azim)
-track_generator.setTrackSpacing(track_spacing)
-track_generator.setGeometry(geometry)
-track_generator.generateTracks()
-
-
-###############################################################################
-###########################   Running a Simulation   ##########################
-###############################################################################
-
-solver = Solver(geometry, track_generator)
-solver.setNumThreads(num_threads)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.convergeSource(max_iters)
-
-plotter.plotTracks(track_generator)
-plotter.plotMaterials(geometry, gridsize=50)
-plotter.plotCells(geometry, gridsize=50)
-plotter.plotFlatSourceRegions(geometry, gridsize=50)
-plotter.plotSegments(track_generator)
-plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+process.strongScalingStudy(geometry, precision='all', compiler='all',
+                           num_threads=numpy.linspace(1,24,24))
+process.weakScalingStudy(geometry, precision='all', compiler='all',
+                           num_threads=numpy.linspace(1,24,24))

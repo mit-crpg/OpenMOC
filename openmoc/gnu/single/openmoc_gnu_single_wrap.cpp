@@ -11341,6 +11341,68 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Solver_getGeometry(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Solver *arg1 = (Solver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Geometry *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Solver_getGeometry",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_getGeometry" "', argument " "1"" of type '" "Solver *""'"); 
+  }
+  arg1 = reinterpret_cast< Solver * >(argp1);
+  {
+    try {
+      result = (Geometry *)(arg1)->getGeometry();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Geometry, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Solver_getTrackGenerator(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Solver *arg1 = (Solver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  TrackGenerator *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Solver_getTrackGenerator",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_getTrackGenerator" "', argument " "1"" of type '" "Solver *""'"); 
+  }
+  arg1 = reinterpret_cast< Solver * >(argp1);
+  {
+    try {
+      result = (TrackGenerator *)(arg1)->getTrackGenerator();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_TrackGenerator, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Solver_getNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Solver *arg1 = (Solver *) 0 ;
@@ -19057,6 +19119,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Quadrature_swigregister", Quadrature_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_Solver", (PyCFunction) _wrap_new_Solver, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"delete_Solver", _wrap_delete_Solver, METH_VARARGS, NULL},
+	 { (char *)"Solver_getGeometry", _wrap_Solver_getGeometry, METH_VARARGS, NULL},
+	 { (char *)"Solver_getTrackGenerator", _wrap_Solver_getTrackGenerator, METH_VARARGS, NULL},
 	 { (char *)"Solver_getNumThreads", _wrap_Solver_getNumThreads, METH_VARARGS, NULL},
 	 { (char *)"Solver_getNumPolarAngles", _wrap_Solver_getNumPolarAngles, METH_VARARGS, NULL},
 	 { (char *)"Solver_getPolarQuadratureType", _wrap_Solver_getPolarQuadratureType, METH_VARARGS, NULL},

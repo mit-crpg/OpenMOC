@@ -442,6 +442,8 @@ class Solver(_object):
         except: self.this = this
     __swig_destroy__ = _openmoc_intel_single.delete_Solver
     __del__ = lambda self : None;
+    def getGeometry(self): return _openmoc_intel_single.Solver_getGeometry(self)
+    def getTrackGenerator(self): return _openmoc_intel_single.Solver_getTrackGenerator(self)
     def getNumThreads(self): return _openmoc_intel_single.Solver_getNumThreads(self)
     def getNumPolarAngles(self): return _openmoc_intel_single.Solver_getNumPolarAngles(self)
     def getPolarQuadratureType(self): return _openmoc_intel_single.Solver_getPolarQuadratureType(self)

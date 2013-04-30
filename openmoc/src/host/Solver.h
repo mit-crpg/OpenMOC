@@ -145,6 +145,8 @@ public:
 	   int num_threads=1);
     virtual ~Solver();
 
+    Geometry* getGeometry();
+    TrackGenerator* getTrackGenerator();
     int getNumThreads();
     int getNumPolarAngles();
     quadratureType getPolarQuadratureType();

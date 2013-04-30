@@ -96,6 +96,32 @@ Solver::~Solver() {
 
 
 /**
+ * @brief Returns a pointer to the geometry for this solver.
+ * @return a pointer to the geometry
+ */
+Geometry* Solver::getGeometry() {
+    if (_geometry == NULL)
+        log_printf(ERROR, "Unable to return the solver's geometry since it "
+		 "has not yet been set");
+
+    return _geometry;
+}
+
+
+/**
+ * @brief Returns a pointer to the geometry for this solver.
+ * @return a pointer to the geometry
+ */
+TrackGenerator* Solver::getTrackGenerator() {
+    if (_track_generator == NULL)
+        log_printf(ERROR, "Unable to return the solver's track genetrator "
+		   "since it has not yet been set");
+
+    return _track_generator;
+}
+
+
+/**
  * @brief Returns the number of shared memory OpenMP threads in use.
  * @return the number of threads
  */

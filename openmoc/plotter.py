@@ -50,7 +50,7 @@ def plotTracks(track_generator):
         os.makedirs(directory)
 
     # Error checking
-    if not isinstance(track_generator, TrackGenerator):
+    if not 'TrackGenerator' in str(type(track_generator)):
         py_printf('ERROR', 'Unable to plot tracks since a parameter ' + \
                 'of type %s was input rather than a TrackGenerator', \
                 str(type(track_generator))) 
@@ -111,7 +111,7 @@ def plotSegments(track_generator):
         os.makedirs(directory)
 
     # Error checking
-    if not isinstance(track_generator, TrackGenerator):
+    if not 'TrackGenerator' in str(type(track_generator)):
         py_printf('ERROR', 'Unable to plot track segments since a ' + \
                 'parameter of type %s was input rather than a ' + \
                 'TrackGenerator', str(type(track_generator))) 
@@ -188,7 +188,7 @@ def plotMaterials(geometry, gridsize=250):
             os.makedirs(directory)
 
     # Error checking
-    if not isinstance(geometry, Geometry):
+    if not 'Geometry' in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the materials since ' + \
                     'input was not a geometry class object')
     if not isinstance(gridsize, int):
@@ -263,7 +263,7 @@ def plotCells(geometry, gridsize=250):
             os.makedirs(directory)
 
     # Error checking
-    if not isinstance(geometry, Geometry):
+    if not 'Geometry' in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the cells since ' + \
                     'input was not a geometry class object')
     if not isinstance(gridsize, int):
@@ -338,7 +338,7 @@ def plotFlatSourceRegions(geometry, gridsize=250):
             os.makedirs(directory)
 
     # Error checking
-    if not isinstance(geometry, Geometry):
+    if not 'Geometry' in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
                     'input was not a geometry class object')
     if not isinstance(gridsize, int):
@@ -411,10 +411,10 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
             os.makedirs(directory)
 
     # Error checking
-    if not isinstance(geometry, Geometry):
+    if not 'Geometry' in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                   'flux since input did not contain a geometry class object')
-    if not isinstance(solver, Solver):
+    if not 'Solver' in str(type(solver)):
         py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                   'flux since input did not contain a solver class object')
     if isinstance(energy_groups, list):
