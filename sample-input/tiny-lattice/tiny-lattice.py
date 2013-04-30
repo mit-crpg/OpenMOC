@@ -16,6 +16,8 @@ tolerance = 1E-3
 max_iters = 1000
 gridsize = 500
 
+log.setOutputDirectory('Tiny-Lattice')
+
 log.py_setlevel('INFO')
 
 
@@ -114,9 +116,9 @@ solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 
-#plotter.plotTracks(track_generator)
-#plotter.plotMaterials(geometry, gridsize=50)
-#plotter.plotCells(geometry, gridsize=50)
-#plotter.plotFlatSourceRegions(geometry, gridsize=50)
-#plotter.plotSegments(track_generator)
+plotter.plotTracks(track_generator)
+plotter.plotMaterials(geometry, gridsize=50)
+plotter.plotCells(geometry, gridsize=50)
+plotter.plotFlatSourceRegions(geometry, gridsize=50)
+plotter.plotSegments(track_generator)
 plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])

@@ -348,8 +348,6 @@ track_generator.generateTracks()
 
 print 'num fsrs = ' + str(geometry.getNumFSRs())
 print 'num tracks = ' + str(track_generator.getNumTracks())
-print 'num segments = ' + str(track_generator.getNumSegments())
-
 solver = Solver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)

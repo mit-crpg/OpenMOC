@@ -367,14 +367,16 @@ void TrackGenerator::generateTracks() {
     }
 
     /** Create tracks directory if one does not yet exist */
-    std::string directory = std::string("tracks");
+    std::stringstream directory;
+    directory << getOutputDirectory() << "/tracks";
     struct stat st;
-    if (!stat(directory.c_str(), &st) == 0)
-        mkdir(directory.c_str(), S_IRWXU);    
+    if (!stat(directory.str().c_str(), &st) == 0)
+        mkdir(directory.str().c_str(), S_IRWXU);    
 
     struct stat buffer;
     std::stringstream test_filename;
-    test_filename << "tracks/tracks_" <<  _num_azim*2.0 << "_angles_" 
+    test_filename << directory.str() << "/tracks_" 
+		  <<  _num_azim*2.0 << "_angles_" 
 		  << _spacing << "_cm_spacing.data";
 
     _tracks_filename = test_filename.str();

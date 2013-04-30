@@ -1,6 +1,6 @@
 import os
 from os.path import join as pjoin
-from setuptools import setup
+from setuptools import setup, find_packages
 from distutils.extension import Extension
 from distutils.command.build_ext import build_ext
 import subprocess
@@ -10,8 +10,8 @@ import numpy
 # form here: https://github.com/rmcgibbo/npcuda-example
 
 
-cpp_compiler = 'icpc'
-fp_precision = 'double'
+cpp_compiler = 'all'
+fp_precision = 'all'
 use_cuda = False
 
 
@@ -110,91 +110,193 @@ except AttributeError:
     numpy_include = numpy.get_numpy_include()
 
 
-sources = ['openmoc/src/host/Cell.cpp',
-           'openmoc/src/host/FlatSourceRegion.cpp',
-           'openmoc/src/host/Geometry.cpp',
-           'openmoc/src/host/LocalCoords.cpp',
-           'openmoc/src/host/log.cpp',
-           'openmoc/src/host/Material.cpp',
-           'openmoc/src/host/Point.cpp',
-           'openmoc/src/host/Quadrature.cpp',
-           'openmoc/src/host/Solver.cpp',
-           'openmoc/src/host/Surface.cpp',
-           'openmoc/src/host/Timer.cpp',
-           'openmoc/src/host/Track.cpp',
-           'openmoc/src/host/TrackGenerator.cpp',
-           'openmoc/src/host/Universe.cpp']
+sources = {}
+sources['regular'] = ['openmoc/openmoc.i',
+                      'openmoc/src/host/Cell.cpp',
+                      'openmoc/src/host/FlatSourceRegion.cpp',
+                      'openmoc/src/host/Geometry.cpp',
+                      'openmoc/src/host/LocalCoords.cpp',
+                      'openmoc/src/host/log.cpp',
+                      'openmoc/src/host/Material.cpp',
+                      'openmoc/src/host/Point.cpp',
+                      'openmoc/src/host/Quadrature.cpp',
+                      'openmoc/src/host/Solver.cpp',
+                      'openmoc/src/host/Surface.cpp',
+                      'openmoc/src/host/Timer.cpp',
+                      'openmoc/src/host/Track.cpp',
+                      'openmoc/src/host/TrackGenerator.cpp',
+                      'openmoc/src/host/Universe.cpp']
 
-libraries = []
-library_dirs = []
-runtime_library_dirs = []
-extra_link_args = []
-extra_compile_args = []
-include_dirs = []
-extra_link_args = []
-extra_compile_args = {}
-include_dirs = [numpy_include, 'openmoc/src/host', 'openmoc/src/dev']
-define_macros = []
+sources['cuda'] = ['openmoc/openmoc.i',
+                   'openmoc/src/host/Cell.cpp',
+                   'openmoc/src/host/FlatSourceRegion.cpp',
+                   'openmoc/src/host/Geometry.cpp',
+                   'openmoc/src/host/LocalCoords.cpp',
+                   'openmoc/src/host/log.cpp',
+                   'openmoc/src/host/Material.cpp',
+                   'openmoc/src/host/Point.cpp',
+                   'openmoc/src/host/Quadrature.cpp',
+                   'openmoc/src/host/Solver.cpp',
+                   'openmoc/src/host/Surface.cpp',
+                   'openmoc/src/host/Timer.cpp',
+                   'openmoc/src/host/Track.cpp',
+                   'openmoc/src/host/TrackGenerator.cpp',
+                   'openmoc/src/host/Universe.cpp',
+                   'openmoc/src/dev/DeviceMaterial.cu',
+                   'openmoc/src/dev/DeviceTrack.cu',
+                   'openmoc/src/dev/DeviceFlatSourceRegion.cu']
+
+swig_interface_file = 'openmoc'
+swig_pkg_name = '_openmoc'
+pkg_name = 'openmoc'
+distro = ''
 swig_opts = ['-c++', '-keyword']
 
-if cpp_compiler == 'gcc':
-    extra_link_args.extend(['-lstdc++', '-lgomp', '-fopenmp', '-shared'])
-    extra_compile_args['gcc'] = ['-c', '-O3', '-fopenmp', '-std=c++0x', '-fPIC']
+extra_link_args = {}
+extra_compile_args = {}
+libraries = {}
+library_dirs = {}
+include_dirs = {}
+runtime_library_dirs = {}
+macros = {}
 
-elif cpp_compiler == 'icpc':
-    library_dirs.extend([ICPC['lib64']])
-    runtime_library_dirs.extend([ICPC['lib64']])
-    extra_link_args.extend(['-lstdc++', '-openmp', '-liomp5', '-lpthread', 
-                            '-lirc', '-limf', '-lrt', '-shared'])
-    extra_compile_args['icpc'] =['-c', '-O3', '-openmp', '-std=c++0x', '-fpic',
-                               '-xhost', '-openmp-report', '-vec-report']
-    include_dirs.extend([ICPC['include']])
+extra_link_args['gnu'] = ['-lstdc++', '-lgomp', '-fopenmp', '-shared',
+                          '-Wl,-Bsymbolic-functions', '-Wl,-z,relro']
+extra_link_args['intel'] = ['-lstdc++', '-openmp', '-liomp5', '-lpthread', 
+                            '-lirc', '-limf', '-lrt', '-shared',
+                            '-Wl,-Bsymbolic-functions', '-Wl,-z,relro']
+extra_compile_args['gnu'] = ['-c', '-O3', '-fopenmp', '-std=c++0x', '-fPIC']
+extra_compile_args['icpc'] =['-c', '-O3', '-openmp', '-std=c++0x', '-fpic',
+                             '-xhost', '-openmp-report', '-vec-report']
+
+libraries['gnu'] = []
+libraries['intel'] = []
+
+library_dirs['gnu'] = []
+library_dirs['intel'] = [ICPC['lib64']]
+
+include_dirs['gnu'] = [numpy_include, 'openmoc/src/host', 'openmoc/src/dev']
+include_dirs['intel'] =[numpy_include, 'openmoc/src/host', 'openmoc/src/dev', 
+                        ICPC['lib64']]
+
+runtime_library_dirs['gnu'] = []
+runtime_library_dirs['intel'] = [ICPC['lib64']]
+
+macros = {}
+macros['gnu'] = {}
+macros['intel'] = {}
+macros['gnu']['single']= [('FP_PRECISION', 'float'), 
+                          ('SINGLE', None),
+                          ('GNU', None)]
+macros['intel']['single']= [('FP_PRECISION', 'float'), 
+                            ('SINGLE', None),
+                            ('INTEL', None)]
+macros['gnu']['double'] = [('FP_PRECISION', 'double'), 
+                           ('DOUBLE', None),
+                           ('GNU', None)]
+macros['intel']['double'] = [('FP_PRECISION', 'double'), 
+                           ('DOUBLE', None),
+                           ('INTEL', None)]
+
+
+if cpp_compiler == 'gnu':
+    cpp_compiler = [cpp_compiler]
+    distro += '_gnu'
+
+elif cpp_compiler == 'intel':
+    cpp_compiler = [cpp_compiler]
+    distro += '_intel'
+
+elif cpp_compiler == 'all':
+    cpp_compiler = ['gnu', 'intel']
 
 
 if use_cuda:
-    sources.extend(['openmoc/src/dev/DeviceMaterial.cu',
-                    'openmoc/src/dev/DeviceTrack.cu',
-                    'openmoc/src/dev/DeviceFlatSourceRegion.cu',
-                    'openmoc/openmoc-cuda.i'])
-    libraries.extend(['cudart'])
-    library_dirs.extend([CUDA['lib64']])
-    runtime_library_dirs.extend([CUDA['lib64']])
+    libraries['gnu'].extend(['cudart'])
+    libraries['intel'].extend(['cudart'])
+    library_dirs['gnu'].extend([CUDA['lib64']])
+    library_dirs['intel'].extend([CUDA['lib64']])
+    runtime_library_dirs['gnu'].extend([CUDA['lib64']])
+    runtime_library_dirs['intel'].extend([CUDA['lib64']])
     extra_compile_args['nvcc'] = ['-c', '-arch=sm_20', '--ptxas-options=-v', 
                                   '--compiler-options', '-fpic']
-    include_dirs.extend([CUDA['include']])
+    include_dirs['gnu'].extend([CUDA['include']])
+    include_dirs['intel'].extend([CUDA['include']])
+    sources = sources['cuda']
+
+    distro += '_cuda'
 
 else:
-    sources.extend(['openmoc/openmoc.i'])
+    sources = sources['regular']
 
+# Define macros for single or double precision OpenMOC solver
 if fp_precision == 'single':
-    define_macros.extend([('FP_PRECISION', 'float'), ('SINGLE', None)])
-else:
-    define_macros.extend([('FP_PRECISION', 'double'), ('DOUBLE', None)])
+    fp_precision = [fp_precision]
+    distro += '_single'
 
+elif fp_precision == 'double':
+    fp_precision = [fp_precision]
+    distro += '_double'
 
-openmoc = Extension(name = '_openmoc', 
+elif fp_precision == 'all':
+    fp_precision = ['double', 'single']
+
+swig_pkg_name += distro
+pkg_name += distro
+swig_interface_file += distro + '.i'
+
+#sources.extend(['openmoc/' + swig_interface_file])
+
+extensions = []
+extensions.append(Extension(name = '_openmoc', 
                     sources = sources, 
-                    library_dirs = library_dirs, 
-                    libraries = libraries,
-                    runtime_library_dirs = runtime_library_dirs,
-                    extra_link_args = extra_link_args, 
-                    include_dirs = include_dirs,
-                    define_macros = define_macros,
-                    swig_opts = swig_opts)
+                    library_dirs = library_dirs['gnu'], 
+                    libraries = libraries['gnu'],
+                    runtime_library_dirs = runtime_library_dirs['gnu'],
+                    extra_link_args = extra_link_args['gnu'], 
+                    include_dirs = include_dirs['gnu'],
+                    define_macros = macros['gnu']['double'],
+                    swig_opts = swig_opts))
+
+sources.remove('openmoc/openmoc.i')
+distro = ''
+
+for fp in fp_precision:
+    for cc in cpp_compiler:
+        print fp
+        print cc
+        distro = 'openmoc_' + cc + '_' + fp 
+        swig_interface_file = distro.replace('_', '/') + '/' + distro + '.i'
+        sources.append(swig_interface_file)
+        ext_name = '_' + distro.replace('.', '_')
+#        ext_name = distro
+
+        print distro
+        print swig_interface_file
+
+        extensions.append(Extension(name = ext_name, 
+                    sources = sources, 
+                    library_dirs = library_dirs[cc], 
+                    libraries = libraries[cc],
+                    runtime_library_dirs = runtime_library_dirs[cc],
+                    extra_link_args = extra_link_args[cc], 
+                    include_dirs = include_dirs[cc],
+                    define_macros = macros[cc][fp],
+                    swig_opts = swig_opts))
+
+        distro = ''
+#        sources.remove(swig_interface_file)
 
 
-# check for swig
-#if find_in_path('swig', os.environ['PATH']):
-#    if use_cuda:
-#        subprocess.check_call('swig -python -c++ -keyword -o ' + \
-#                          'openmoc/openmoc-cuda_wrap.cpp ' + \
-#                          'openmoc/openmoc-cuda.i', shell=True)
-#    else:
-#        subprocess.check_call('swig -python -c++ -keyword -o ' + \
-#                          'openmoc/openmoc_wrap.cpp openmoc/openmoc.i', 
-#                          shell=True)
-#else:
-#    raise EnvironmentError('The swig executable was not found in your PATH')
+#openmoc = Extension(name = swig_pkg_name, 
+#                    sources = sources, 
+#                    library_dirs = library_dirs, 
+#                    libraries = libraries,
+#                    runtime_library_dirs = runtime_library_dirs,
+#                    extra_link_args = extra_link_args, 
+#                    include_dirs = include_dirs,
+#                    define_macros = define_macros,
+#                    swig_opts = swig_opts)
 
 
 def customize_compiler(self):
@@ -219,11 +321,15 @@ def customize_compiler(self):
     # object but distutils doesn't have the ability to change compilers
     # based on source extension: we add it.
     def _compile(obj, src, openmoc, cc_args, extra_postargs, pp_opts):
-        if os.path.splitext(src)[1] == '.cpp' and cpp_compiler == 'gcc':
-            self.set_executable('compiler_so', 'gcc')
-            postargs = extra_compile_args['gcc']
 
-        elif os.path.splitext(src)[1] == '.cpp' and cpp_compiler == 'icpc':
+        print pp_opts
+        print obj
+
+        if '-DGNU' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+            self.set_executable('compiler_so', 'gcc')
+            postargs = extra_compile_args['gnu']
+
+        elif '-DINTEL' in pp_opts and os.path.splitext(src)[1] == '.cpp':
             self.set_executable('compiler_so', 'icpc')
             postargs = extra_compile_args['icpc']
 
@@ -231,7 +337,7 @@ def customize_compiler(self):
             self.set_executable('compiler_so', 'nvcc')
             postargs = extra_compile_args['nvcc']
 
-            for item in cc_args:
+            for item in extra_postargs:
                 if 'intel' in item:
                     cc_args.remove(item)
 
@@ -252,11 +358,27 @@ def customize_compiler(self):
              export_symbols=None, debug=0, extra_preargs=None,
              extra_postargs=None, build_temp=None, target_lang=None):
 
-        if cpp_compiler == 'gcc':
+        print 'objects = ' + str(objects)
+
+        for obj in objects[:]:
+            if '_intel' in obj and '_gnu' in output_filename:
+                objects.remove(obj)
+            elif '_gnu' in obj and '_intel' in output_filename:
+                objects.remove(obj)
+            elif '_single' in obj and '_double' in output_filename:
+                objects.remove(obj)
+            elif '_double' in obj and '_single' in output_filename:
+                objects.remove(obj)
+
+
+        print 'objects = ' + str(objects)
+        print 'target = ' + str(output_filename)
+
+        if '-fopenmp' in extra_postargs:
             self.set_executable('linker_so', 'g++')
             self.set_executable('linker_exe', 'g++')
 
-        elif cpp_compiler == 'icpc':
+        elif '-openmp' in extra_postargs:
             self.set_executable('linker_so', 'icpc')
             self.set_executable('linker_exe', 'icpc')
 
@@ -278,8 +400,9 @@ class custom_build_ext(build_ext):
         customize_compiler(self.compiler)
         build_ext.build_extensions(self)
 
+print find_packages()
 
-setup(name = 'openmoc',
+setup(name = pkg_name,
       version = '0.1',
       description = 'An open source method of characteristics code for ' + \
                   'solving the 2D neutron distribution in nuclear reactors]',
@@ -288,9 +411,19 @@ setup(name = 'openmoc',
       url = 'https://github.com/mit-crpg/OpenMOC',
 
       # this is necessary so that the swigged python file gets picked up
-      py_modules=['openmoc'],
-      ext_modules = [openmoc],
-      packages = ['openmoc'],
+#      py_modules=['openmoc'],
+#      ext_package = 'openmoc',
+      ext_modules = extensions,
+      packages = find_packages(),
+#      packages = ['openmoc'],
+#      packages = ['openmoc', 'openmoc.intel.double', 'openmoc.intel.single', 
+#                  'openmoc.gnu.double', 'openmoc.gnu.single'],
+#      package_dir = {'openmoc.intel.double': 'openmoc/intel/double',
+#                     'openmoc.intel.single': 'openmoc/intel/single',
+#                     'openmoc.gnu.double': 'openmoc/gnu/double',
+#                     'openmoc.gnu.single': 'openmoc/gnu/single',
+#                     'openmoc': 'openmoc'},
+#      packages = ['openmoc']
 
       # inject our custom trigger
       cmdclass={'build_ext': custom_build_ext},
