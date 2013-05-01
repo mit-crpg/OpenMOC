@@ -52,6 +52,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator,
     /* Default polar quadrature */
     _quadrature_type = TABUCHI;
     _num_polar = 3;
+    _two_times_num_polar = 2 * _num_polar;
 
     _num_iterations = 0;
     _source_convergence_thresh = 1E-3;
@@ -325,6 +326,7 @@ void Solver::setNumPolarAngles(int num_polar) {
 		 "to %d since this is a negative number", num_polar);
 
     _num_polar = num_polar;
+    _two_times_num_polar = 2 * _num_polar;
 }
 
 
@@ -482,8 +484,8 @@ void Solver::precomputePrefactors() {
     /* Set size of prefactor array */
     int num_array_values = 10 * sqrt(1. / (8. * _source_convergence_thresh));
     _prefactor_spacing = 10. / num_array_values;
-    _prefactor_array_size = 2. * _num_polar * num_array_values;
-    _prefactor_max_index = _prefactor_array_size - 2. * _num_polar - 1.;
+    _prefactor_array_size = _two_times_num_polar * num_array_values;
+    _prefactor_max_index = _prefactor_array_size - _two_times_num_polar - 1.;
     
     log_printf(DEBUG, "Prefactor array size: %i, max index: %i",
 	       _prefactor_array_size, _prefactor_max_index);
@@ -502,8 +504,8 @@ void Solver::precomputePrefactors() {
 	    slope = - expon / _quad->getSinTheta(p);
 	    intercept = expon * (1 + (i * _prefactor_spacing) /
 				 _quad->getSinTheta(p));
-	    _prefactor_array[2 * _num_polar * i + 2 * p] = slope;
-	    _prefactor_array[2 * _num_polar * i + 2 * p + 1] = intercept;
+	    _prefactor_array[_two_times_num_polar * i + 2 * p] = slope;
+	    _prefactor_array[_two_times_num_polar * i + 2 * p + 1] = intercept;
 	}
     }
 
@@ -866,28 +868,6 @@ bool Solver::isScalarFluxConverged() {
 
     return converged;
 }
-
-
-/**
- * @brief Compute the index into the exponential prefactor hashtable.
- * @details This method computes the index into the exponential prefactor
- *          hashtable for a segment length multiplied by the total 
- *          cross-section of the material the segment resides in.
- * @param sigm_t_l the cross-section multiplied by segment length
- * @return the hasthable index
- */ 
-int Solver::computePrefactorIndex(FP_PRECISION sigma_t_l) {
-
-    int index;
-    sigma_t_l = std::min(sigma_t_l, FP_PRECISION(10.0));
-    index = sigma_t_l * _inverse_prefactor_spacing;
-    index = std::min(index * 2 * _num_polar,
-		     _prefactor_max_index);
-
-    return index;
-}
-
-
 
 
 /**

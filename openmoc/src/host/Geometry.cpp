@@ -1079,6 +1079,11 @@ void Geometry::segmentize(Track* track) {
     
     /* Length of each segment */
     FP_PRECISION segment_length;
+    Material* segment_material;
+    int fsr_id;
+    double* sigma_t;
+    int min_num_segments;
+    int num_segments;
     
     /* Use a LocalCoords for the start and end of each segment */
     LocalCoords segment_start(x0, y0);
@@ -1104,41 +1109,60 @@ void Geometry::segmentize(Track* track) {
         /* Find the next cell */
         prev = curr;
         curr = findNextCell(&segment_end, phi);
+	
+	/* Checks to make sure that new segment does not have the same start
+	 * and end points */
+	if (segment_start.getX() == segment_end.getX() &&
+	    segment_start.getY() == segment_end.getY()) {
+
+	  log_printf(ERROR, "Created a segment with the same start and end "
+		     "point: x = %f, y = %f", segment_start.getX(),
+		     segment_start.getY());
+	}
 
         /* Find the segment length between the segment's start and end points */
         segment_length = FP_PRECISION(segment_end.getPoint()
                                       ->distance(segment_start.getPoint()));
+	segment_material = _materials.at(static_cast<CellBasic*>(prev)
+					                      ->getMaterial());
+	sigma_t = segment_material->getSigmaT();
+	fsr_id = findFSRId(&segment_start);
 
-        /* Create a new segment */
-        segment* new_segment = new segment;
-        new_segment->_length = segment_length;
-        new_segment->_material = _materials.at(static_cast<CellBasic*>(prev)
-                                               ->getMaterial());
+	/* Compute the number of segments to cut this segment into to ensure
+	 * that it's length is small enough for the exponential hashtable */
+	min_num_segments = 1;
+	for (int e=0; e < _num_groups; e++) {
+	    num_segments = ceil(segment_length * sigma_t[e] / 10.0);
+	    if (num_segments > min_num_segments)
+	        min_num_segments = num_segments;
+	}
 
-        /* Update the max and min segment lengths */
-        if (segment_length > _max_seg_length)
-            _max_seg_length = segment_length;
-        if (segment_length < _min_seg_length)
-            _min_seg_length = segment_length;
+	/* "Cut up" segment such that it does not exceed the size of 
+	 * the exponential prefactor table in the solver */
+	for (int i=0; i < min_num_segments; i++) {
+	 
+	    /* Create a new segment */
+	    segment* new_segment = new segment;
+	    new_segment->_material = segment_material;
+	    new_segment->_length = segment_length / min_num_segments;
 
-        log_printf(DEBUG, "segment start x = %f, y = %f, segment end x = %f, "
-                   "y = %f", segment_start.getX(), segment_start.getY(), 
-                   segment_end.getX(), segment_end.getY());
+	    /* Update the max and min segment lengths */
+	    if (segment_length > _max_seg_length)
+	        _max_seg_length = segment_length;
+	    if (segment_length < _min_seg_length)
+	        _min_seg_length = segment_length;
 
-        new_segment->_region_id = findFSRId(&segment_start);
-        
-        /* Checks to make sure that new segment does not have the same start
-         * and end points */
-        if (segment_start.getX() == segment_end.getX() &&
-              segment_start.getY() == segment_end.getY()) {
+	    log_printf(DEBUG, "segment start x = %f, y = %f, segment end "
+		       "x = %f, y = %f", segment_start.getX(), 
+		       segment_start.getY(), segment_end.getX(), 
+		       segment_end.getY());
 
-            log_printf(ERROR, "Created a segment with the same start and end "
-                       "point: x = %f, y = %f", segment_start.getX(),
-                       segment_start.getY());
-        }
+	    new_segment->_region_id = fsr_id;
 
-        /* Add the segment to the track */
-        track->addSegment(new_segment);
+	    /* Add the segment to the track */
+	    track->addSegment(new_segment);
+ 
+	}
     }
 
     log_printf(DEBUG, "Created %d segments for track: %s",

@@ -352,7 +352,11 @@ solver = Solver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 
+Timer.startTimer()
 solver.convergeSource(max_iters)
+Timer.stopTimer()
+Timer.recordSplit('Converging the source')
+Timer.printSplits()
 
 
 ###############################################################################

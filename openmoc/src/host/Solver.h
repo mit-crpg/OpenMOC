@@ -59,6 +59,8 @@ private:
     Quadrature* _quad;
     /** The number of polar angles */
     int _num_polar;
+    /** Twice the number of polar angles */
+    int _two_times_num_polar;
     /** The number of polar angles times energy groups */
     int _polar_times_groups;
     /** The type of polar quadrature (TABUCHI or LEONARD) */
@@ -121,7 +123,7 @@ private:
     int _prefactor_max_index;
     /** The spacing for the exponential prefactor array */
     FP_PRECISION _prefactor_spacing;
-    /** The inverse of the spacing for the exponential prefactor array */
+    /** The inverse spacing for the exponential prefactor array */
     FP_PRECISION _inverse_prefactor_spacing;
 
     void initializeFluxArrays();
@@ -171,5 +173,19 @@ public:
     FP_PRECISION convergeSource(int max_iterations);
     void computePinPowers();
 };
+
+
+/**
+ * @brief Compute the index into the exponential prefactor hashtable.
+ * @details This method computes the index into the exponential prefactor
+ *          hashtable for a segment length multiplied by the total 
+ *          cross-section of the material the segment resides in.
+ * @param sigm_t_l the cross-section multiplied by segment length
+ * @return the hasthable index
+ */ 
+inline int Solver::computePrefactorIndex(FP_PRECISION sigma_t_l) {
+    return int(sigma_t_l * _inverse_prefactor_spacing) * _two_times_num_polar;
+}
+
 
 #endif /* SOLVER_H_ */
