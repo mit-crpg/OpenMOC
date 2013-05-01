@@ -15,7 +15,6 @@
 #include "../host/Quadrature.h"
 #include "../host/TrackGenerator.h"
 #include "../host/FlatSourceRegion.h"
-#include "../host/Timer.h"
 #endif
 
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
@@ -31,6 +30,7 @@
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
+
 /** The values of 1 divided by 4pi: \f$ \frac{1}{4\pi} \f$ */
 #define ONE_OVER_FOUR_PI 0.0795774715
 
@@ -121,10 +121,9 @@ private:
     int _prefactor_max_index;
     /** The spacing for the exponential prefactor array */
     FP_PRECISION _prefactor_spacing;
+    /** The inverse of the spacing for the exponential prefactor array */
+    FP_PRECISION _inverse_prefactor_spacing;
 
-    /** A timer to profile the solver */
-    Timer* _timer;
-   
     void initializeFluxArrays();
     void initializeSourceArrays();
     void initializePowerArrays();
@@ -135,9 +134,12 @@ private:
     void zeroTrackFluxes();
     void flattenFSRFluxes(FP_PRECISION value);
     void flattenFSRSources(FP_PRECISION value);
+
     void normalizeFluxes();
     FP_PRECISION computeFSRSources();
     void computeKeff();
+    bool isScalarFluxConverged();
+    int computePrefactorIndex(FP_PRECISION sigma_t_l);
     void transportSweep(int max_iterations);
 
 public:

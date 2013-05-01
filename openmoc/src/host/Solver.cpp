@@ -57,8 +57,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator,
     _source_convergence_thresh = 1E-3;
     _flux_convergence_thresh = 1E-5;
     _converged_source = false;
-
-    _timer = Timer::Get();
 }
 
 
@@ -223,6 +221,7 @@ FP_PRECISION* Solver::getFSRPowers() {
     if (_FSR_to_power == NULL)
         log_printf(ERROR, "Unable to returns the Solver's FSR power array "
 		 "since it has not yet been allocated in memory");
+
     return _FSR_to_power;
 }
 
@@ -507,6 +506,9 @@ void Solver::precomputePrefactors() {
 	    _prefactor_array[2 * _num_polar * i + 2 * p + 1] = intercept;
 	}
     }
+
+    /* Compute the reciprocal of the prefactor spacing */
+    _inverse_prefactor_spacing = 1.0 / _prefactor_spacing;
 
     return;
 }
@@ -843,6 +845,52 @@ void Solver::computeKeff() {
 
 
 /**
+ * @brief Checks if scalar flux has converged within the threshold.
+ * @return true if converged, false otherwise
+ */
+bool Solver::isScalarFluxConverged() {
+
+    bool converged = true;
+
+    #pragma omp parallel for
+    for (int r=0; r < _num_FSRs; r++) {
+        for (int e=0; e < _num_groups; e++) {
+	    if (fabs((_scalar_flux(r,e) - _old_scalar_flux(r,e)) /
+		     _old_scalar_flux(r,e)) > _flux_convergence_thresh)
+	      converged = false;
+
+	    /* Update old scalar flux */
+	    _old_scalar_flux(r,e) = _scalar_flux(r,e);
+	}
+    }
+
+    return converged;
+}
+
+
+/**
+ * @brief Compute the index into the exponential prefactor hashtable.
+ * @details This method computes the index into the exponential prefactor
+ *          hashtable for a segment length multiplied by the total 
+ *          cross-section of the material the segment resides in.
+ * @param sigm_t_l the cross-section multiplied by segment length
+ * @return the hasthable index
+ */ 
+int Solver::computePrefactorIndex(FP_PRECISION sigma_t_l) {
+
+    int index;
+    sigma_t_l = std::min(sigma_t_l, FP_PRECISION(10.0));
+    index = sigma_t_l * _inverse_prefactor_spacing;
+    index = std::min(index * 2 * _num_polar,
+		     _prefactor_max_index);
+
+    return index;
+}
+
+
+
+
+/**
  * This method performs on or more fixed source iterations by integrating
  * the flux along each track and updating the boundary fluxes for the
  * corresponding output track, while updating the scalar flux in each
@@ -855,6 +903,7 @@ void Solver::transportSweep(int max_iterations) {
     int thread_id;
     int track_id;
     int track_out_id;
+    bool bc;
     int fsr_id;
     std::vector<segment*> segments;
     std::vector<segment*>::iterator iter;
@@ -886,23 +935,18 @@ void Solver::transportSweep(int max_iterations) {
     /* Loop for until converged or max_iterations is reached */
     for (int i=0; i < max_iterations; i++) {
 
+        /* Initialize the global total leakage tally to zero */
+        _leakage = 0.0;
+
         /* Initialize flux in each region to zero */
-        _timer->resetTimer();
-	_timer->startTimer();
         flattenFSRFluxes(0.0);
-	_timer->stopTimer();
-	_timer->recordSplit(std::string("Flattening FSR flux to zero"));
-
-
-	_timer->resetTimer();
-	_timer->startTimer();
 
 	/* Loop over azimuthal each thread and azimuthal angle*
 	 * If we are using more than 1 OpenMP threads then we create a 
 	 * separate thread for each pair of complementary (reflecting) 
 	 * azimuthal angles - angles which wrap into cycles on each other */
 	/* Loop over each thread */
-        #pragma omp parallel for private(track_id, track_out_id, fsr_id, \
+        #pragma omp parallel for private(track_id, track_out_id, bc, fsr_id, \
 	          segments, iter, riter, sigma_t, fsr_flux, delta, volume, \
 	          pe, sigma_t_l, index, thread_id, start)
 	for (int t=0; t < max_num_threads; t++) {
@@ -932,10 +976,7 @@ void Solver::transportSweep(int max_iterations) {
 			for (int e=0; e < _num_groups; e++) {
 			    fsr_flux = 0.;
 			    sigma_t_l = sigma_t[e] * (*iter)->_length;
-			    sigma_t_l = std::min(sigma_t_l, FP_PRECISION(10.0));
-			    index = sigma_t_l / _prefactor_spacing;
-			    index = std::min(index * 2 * _num_polar,
-					     _prefactor_max_index);
+			    index = computePrefactorIndex(sigma_t_l);
 			    
 			    /* Loop over polar angles */
 			    for (int p=0; p < _num_polar; p++){
@@ -955,14 +996,14 @@ void Solver::transportSweep(int max_iterations) {
 
 		    /* Transfer flux to outgoing track */
 		    track_out_id = _tracks[j][k].getTrackOut()->getUid();
+		    bc = _tracks[j][k].getBCOut();
 		    start = _tracks[j][k].isReflOut() * _polar_times_groups;
 		    for (pe=0; pe < _polar_times_groups; pe++) {
 		        _boundary_flux(track_out_id,start+pe) = 
-			 _boundary_flux(track_id,pe) * _tracks[j][k].getBCOut();
+			    _boundary_flux(track_id,pe) * bc;
 		        thread_leakage[thread_id] += 
-			  _boundary_flux(track_id,pe) 
-			  * _polar_weights[pe%_num_polar] 
-			  * (!_tracks[j][k].getBCOut());
+			    _boundary_flux(track_id,pe) 
+			    * _polar_weights[pe%_num_polar] * (!bc);
 		    }
 
 
@@ -980,10 +1021,7 @@ void Solver::transportSweep(int max_iterations) {
 			for (int e=0; e < _num_groups; e++) {
 			    fsr_flux = 0.;
 			    sigma_t_l = sigma_t[e] * (*riter)->_length;
-			    sigma_t_l = std::min(sigma_t_l, FP_PRECISION(10.0));
-			    index = sigma_t_l / _prefactor_spacing;
-			    index = std::min(index * 2 * _num_polar,
-					     _prefactor_max_index);
+			    index = computePrefactorIndex(sigma_t_l);
 
 			    /* Loop over polar angles */
 			    for (int p=0; p < _num_polar; p++){
@@ -1003,15 +1041,14 @@ void Solver::transportSweep(int max_iterations) {
 
 		    /* Transfer flux to outgoing track */
 		    track_out_id = _tracks[j][k].getTrackIn()->getUid();
+		    bc = _tracks[j][k].getBCIn();
 		    start = _tracks[j][k].isReflIn() * _polar_times_groups;
 		    for (pe=0; pe < _polar_times_groups; pe++) {
 		        _boundary_flux(track_out_id,start+pe) = 
-			    _boundary_flux(track_id,_polar_times_groups+pe) * 
-			                            _tracks[j][k].getBCIn();
+			   _boundary_flux(track_id,_polar_times_groups+pe) * bc;
 		        thread_leakage[thread_id] += 
-			  _boundary_flux(track_id,_polar_times_groups+pe) 
-			  * _polar_weights[pe%_num_polar] 
-			  * (!_tracks[j][k].getBCIn());
+			    _boundary_flux(track_id,_polar_times_groups+pe) 
+			    * _polar_weights[pe%_num_polar] * (!bc);
 		    }
 		}
 
@@ -1028,16 +1065,10 @@ void Solver::transportSweep(int max_iterations) {
 			
 	}
 
-	_timer->stopTimer();
-	_timer->recordSplit(std::string("Transport sweep"));
-
         /** Reduce leakage across threads */
         for (int t=0; t < _num_threads; t++)
-	    _leakage += thread_leakage[t];
+	    _leakage += thread_leakage[t] * 0.5;
 
-	_timer->resetTimer();
-	_timer->startTimer();
-	
 	/* Reduce scalar fluxes across threads from transport sweep and
 	 * add in source term and normalize flux to volume for each region */
 	/* Loop over flat source regions, energy groups */
@@ -1057,33 +1088,16 @@ void Solver::transportSweep(int max_iterations) {
 	    }
 	}
 
-	_timer->stopTimer();
-	_timer->recordSplit(std::string("Reducing FSR scalar fluxes"));
-
 	/* Check for convergence if max_iterations > 1 */
-	if (max_iterations > 1) {
-	    converged = true;
-
-            #pragma omp parallel for
-	    for (int r=0; r < _num_FSRs; r++) {
-	        for (int e=0; e < _num_groups; e++) {
-		  if (fabs((_scalar_flux(r,e) - _old_scalar_flux(r,e)) /
-			   _old_scalar_flux(r,e)) > _flux_convergence_thresh)
-		      converged = false;
-
-		  /* Update old scalar flux */
-		  _old_scalar_flux(r,e) = _scalar_flux(r,e);
-		}
-	    }
-	    
-	    if (converged)
-	        break;
+	if (max_iterations == 1 || isScalarFluxConverged()) {
+            delete [] thread_flux;
+            delete [] thread_leakage;
+            return;
 	}
     }
 
-    if (max_iterations > 1 && !converged)
-        log_printf(WARNING, "Scalar flux did not converge after %d iterations",
-		   max_iterations);
+    log_printf(WARNING, "Scalar flux did not converge after %d iterations",
+	                                                   max_iterations);
 
     delete [] thread_flux;
     delete [] thread_leakage;
@@ -1110,6 +1124,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 
     log_printf(NORMAL, "Converging the source...");
 
+    /* Counter for the number of iterations to converge the source */
     _num_iterations = 0;
 
     /* An initial guess for the eigenvalue */
@@ -1140,29 +1155,10 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
         log_printf(NORMAL, "Iteration %d on host: \tk_eff = %1.6f"
 		 "\tres = %1.3E", i, _k_eff, residual);
 
-	_timer->resetTimer();
-	_timer->startTimer();
 	normalizeFluxes();
-	_timer->stopTimer();
-	_timer->recordSplit(std::string("Normalizing fluxes"));
-
-	_timer->resetTimer();
-	_timer->startTimer();
 	residual = computeFSRSources();
-	_timer->stopTimer();
-	_timer->recordSplit(std::string("Computing FSR sources"));
-
-        /* Initialize the global total leakage tally to zero */
-        _leakage = 0.0;
-
 	transportSweep(1);
-
-	_timer->resetTimer();
-	_timer->startTimer();
 	computeKeff();
-	_timer->stopTimer();
-	_timer->recordSplit(std::string("Computing k-eff"));
-
 	_num_iterations++;
 
 	if (i > 1 && residual < _source_convergence_thresh){

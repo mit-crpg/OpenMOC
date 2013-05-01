@@ -1105,7 +1105,7 @@ void Geometry::segmentize(Track* track) {
         prev = curr;
         curr = findNextCell(&segment_end, phi);
 
-        /* Find the segment length between the segments start and end points */
+        /* Find the segment length between the segment's start and end points */
         segment_length = FP_PRECISION(segment_end.getPoint()
                                       ->distance(segment_start.getPoint()));
 

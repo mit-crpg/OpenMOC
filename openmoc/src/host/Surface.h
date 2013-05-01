@@ -53,12 +53,12 @@ enum surfaceType {
  * @brief The types of boundary conditions supported by OpenMOC for surfaces.
  */
 enum boundaryType {
-    /** No boundary type (typically an interface between flat source regions) */
-    BOUNDARY_NONE,
+    /** A vacuum boundary condition */
+    VACUUM,
     /** A reflective boundary condition */
     REFLECTIVE,
-    /** A vacuum boundary condition */
-    VACUUM
+    /** No boundary type (typically an interface between flat source regions) */
+    BOUNDARY_NONE
 };
 
 

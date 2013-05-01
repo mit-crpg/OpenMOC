@@ -655,8 +655,14 @@ void TrackGenerator::initializeBoundaryConditions() {
                     curr[j].setReflIn(false);
                     refl[j].setReflIn(false);
                     
-                    curr[j].setBCIn(_geometry->getBCBottom());
-                    refl[j].setBCIn(_geometry->getBCBottom());
+		    if (_geometry->getBCBottom() == REFLECTIVE) {
+		        curr[j].setBCIn(1);
+			refl[j].setBCIn(1);
+		    }
+		    else {
+		        curr[j].setBCIn(0);
+			refl[j].setBCIn(0);
+		    }
 
                     curr[j].setTrackOut(&refl[2 * nxi - 1 - j]);
                     curr[j].setTrackOutI(_num_azim - i - 1);
@@ -669,8 +675,14 @@ void TrackGenerator::initializeBoundaryConditions() {
                     curr[j].setReflOut(false);
                     refl[2 * nxi - 1 - j].setReflIn(true);
 
-                    curr[j].setBCOut(_geometry->getBCRight());
-                    refl[2 * nxi - 1 - j].setBCIn(_geometry->getBCRight());
+		    if (_geometry->getBCRight() == REFLECTIVE) {
+		        curr[j].setBCOut(1);
+			refl[2 * nxi - 1 - j].setBCIn(1);
+		    }
+		    else {
+		        curr[j].setBCOut(0);
+			refl[2 * nxi - 1 - j].setBCIn(0);
+		    }
                 }
 
                 /* Left hand side to right hand side */
@@ -685,9 +697,15 @@ void TrackGenerator::initializeBoundaryConditions() {
 
                     curr[j].setReflIn(true);
                     refl[j - nxi].setReflOut(false);
-                    
-                    curr[j].setBCIn(_geometry->getBCLeft());
-                    refl[j - nxi].setBCOut(_geometry->getBCLeft());
+
+		    if (_geometry->getBCLeft() == REFLECTIVE) {
+		        curr[j].setBCIn(1);
+			refl[j - nxi].setBCOut(1);
+		    }
+		    else {
+		        curr[j].setBCIn(0);
+			refl[j - nxi].setBCOut(0);
+		    }
                     
                     curr[j].setTrackOut(&refl[j + nxi]);
                     curr[j].setTrackOutI(_num_azim - i - 1);
@@ -700,8 +718,14 @@ void TrackGenerator::initializeBoundaryConditions() {
                     curr[j].setReflOut(false);
                     refl[j + nxi].setReflIn(true);
 
-                    curr[j].setBCOut(_geometry->getBCRight());
-                    refl[j + nxi].setBCIn(_geometry->getBCRight());
+		    if (_geometry->getBCRight() == REFLECTIVE) {
+		        curr[j].setBCOut(1);
+		        refl[j + nxi].setBCIn(1);
+		    }
+		    else {
+		        curr[j].setBCOut(0);
+		        refl[j + nxi].setBCIn(0);
+		    }
                 }
 
                 /* Left hand side to top (j > ny) */
@@ -717,8 +741,14 @@ void TrackGenerator::initializeBoundaryConditions() {
                     curr[j].setReflIn(true);
                     refl[j - nxi].setReflOut(false);
 
-                    curr[j].setBCIn(_geometry->getBCLeft());
-                    refl[j - nxi].setBCOut(_geometry->getBCLeft());
+		    if (_geometry->getBCLeft() == REFLECTIVE) {
+		        curr[j].setBCIn(1);
+		        refl[j - nxi].setBCOut(1);
+		    }
+		    else {
+		        curr[j].setBCIn(0);
+		        refl[j - nxi].setBCOut(0);
+		    }
 
                     curr[j].setTrackOut(&refl[2 * nti - nxi - j - 1]);
                     curr[j].setTrackOutI(_num_azim - i - 1);
@@ -731,8 +761,14 @@ void TrackGenerator::initializeBoundaryConditions() {
                     curr[j].setReflOut(true);
                     refl[2 * nti - nxi - j - 1].setReflOut(true);
 
-                    curr[j].setBCOut(_geometry->getBCTop());
-                    refl[2 * nti - nxi - j - 1].setBCOut(_geometry->getBCTop());
+		    if (_geometry->getBCTop() == REFLECTIVE) {
+		        curr[j].setBCOut(1);
+			refl[2 * nti - nxi - j - 1].setBCOut(1);
+		    }
+		    else {
+		        curr[j].setBCOut(0);
+			refl[2 * nti - nxi - j - 1].setBCOut(0);
+		    }
                 }
             }
 
@@ -750,9 +786,15 @@ void TrackGenerator::initializeBoundaryConditions() {
                     
                     curr[j].setReflIn(false);
                     refl[j].setReflIn(false);
-                    
-                    curr[j].setBCIn(_geometry->getBCBottom());
-                    refl[j].setBCIn(_geometry->getBCBottom());
+
+		    if (_geometry->getBCBottom() == REFLECTIVE) {
+		        curr[j].setBCIn(1);
+			refl[j].setBCIn(1);
+		    }
+		    else {
+		        curr[j].setBCIn(0);
+			refl[j].setBCIn(0);
+		    }
 
                     curr[j].setTrackOut(&refl[nti - (nxi - nyi) + j]);
                     curr[j].setTrackOutI(_num_azim - i - 1);
@@ -765,8 +807,14 @@ void TrackGenerator::initializeBoundaryConditions() {
                     curr[j].setReflOut(true);
                     refl[nti - (nxi - nyi) + j].setReflOut(true);
 
-                    curr[j].setBCOut(_geometry->getBCTop());
-                    refl[nti - (nxi - nyi) + j].setBCOut(_geometry->getBCTop());
+		    if (_geometry->getBCTop() == REFLECTIVE) {
+		        curr[j].setBCOut(1);
+			refl[nti - (nxi - nyi) + j].setBCOut(1);
+		    }
+		    else {
+		        curr[j].setBCOut(0);
+			refl[nti - (nxi - nyi) + j].setBCOut(0);
+		    }
                 }
 
                 /* Bottom to right hand side */
@@ -782,8 +830,14 @@ void TrackGenerator::initializeBoundaryConditions() {
                     curr[j].setReflIn(false);
                     refl[j].setReflIn(false);
 
-                    curr[j].setBCIn(_geometry->getBCBottom());
-                    refl[j].setBCIn(_geometry->getBCBottom());
+		    if (_geometry->getBCBottom() == REFLECTIVE) {
+		        curr[j].setBCIn(1);
+		        refl[j].setBCIn(1);
+		    }
+		    else {
+		        curr[j].setBCIn(0);
+		        refl[j].setBCIn(0);
+		    }
 
                     curr[j].setTrackOut(&refl[nxi + (nxi - j) - 1]);
                     curr[j].setTrackOutI(_num_azim - i - 1);
@@ -796,8 +850,14 @@ void TrackGenerator::initializeBoundaryConditions() {
                     curr[j].setReflOut(false);
                     refl[nxi + (nxi - j) - 1].setReflIn(true);
 
-                    curr[j].setBCOut(_geometry->getBCRight());
-                    refl[nxi + (nxi - j) - 1].setBCIn(_geometry->getBCRight());
+		    if (_geometry->getBCRight() == REFLECTIVE) {
+		        curr[j].setBCOut(1);
+			refl[nxi + (nxi - j) - 1].setBCIn(1);
+		    }
+		    else {
+		        curr[j].setBCOut(0);
+			refl[nxi + (nxi - j) - 1].setBCIn(0);
+		    }
                 }
 
                 /* Left-hand side to top (j > nx) */
@@ -812,9 +872,15 @@ void TrackGenerator::initializeBoundaryConditions() {
 
                     curr[j].setReflIn(true);
                     refl[j - nxi].setReflOut(false);
-                    
-                    curr[j].setBCIn(_geometry->getBCLeft());
-                    refl[j - nxi].setBCOut(_geometry->getBCLeft());
+
+		    if (_geometry->getBCLeft() == REFLECTIVE) {
+		        curr[j].setBCIn(1);
+			refl[j - nxi].setBCOut(1);
+		    }
+		    else {
+		        curr[j].setBCIn(0);
+			refl[j - nxi].setBCOut(0);
+		    }
 
                     curr[j].setTrackOut(&refl[nyi + (nti - j) - 1]);
                     curr[j].setTrackOutI(_num_azim - i - 1);
@@ -827,8 +893,14 @@ void TrackGenerator::initializeBoundaryConditions() {
                     curr[j].setReflOut(true);
                     refl[nyi + (nti - j) - 1].setReflOut(true);
 
-                    curr[j].setBCOut(_geometry->getBCTop());
-                    refl[nyi + (nti - j) - 1].setBCOut(_geometry->getBCTop());
+		    if (_geometry->getBCTop() == REFLECTIVE) {
+		        curr[j].setBCOut(1);
+			refl[nyi + (nti - j) - 1].setBCOut(1);
+		    }
+		    else {
+		        curr[j].setBCOut(0);
+			refl[nyi + (nti - j) - 1].setBCOut(0);
+		    }
                 }
             }
         }

@@ -20237,9 +20237,9 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "YPLANE",SWIG_From_int(static_cast< int >(YPLANE)));
   SWIG_Python_SetConstant(d, "ZPLANE",SWIG_From_int(static_cast< int >(ZPLANE)));
   SWIG_Python_SetConstant(d, "QUADRATIC",SWIG_From_int(static_cast< int >(QUADRATIC)));
-  SWIG_Python_SetConstant(d, "BOUNDARY_NONE",SWIG_From_int(static_cast< int >(BOUNDARY_NONE)));
-  SWIG_Python_SetConstant(d, "REFLECTIVE",SWIG_From_int(static_cast< int >(REFLECTIVE)));
   SWIG_Python_SetConstant(d, "VACUUM",SWIG_From_int(static_cast< int >(VACUUM)));
+  SWIG_Python_SetConstant(d, "REFLECTIVE",SWIG_From_int(static_cast< int >(REFLECTIVE)));
+  SWIG_Python_SetConstant(d, "BOUNDARY_NONE",SWIG_From_int(static_cast< int >(BOUNDARY_NONE)));
   SWIG_Python_SetConstant(d, "ON_LATTICE_CELL_THRESH",SWIG_From_double(static_cast< double >(1E-12)));
   SWIG_Python_SetConstant(d, "TINY_MOVE",SWIG_From_double(static_cast< double >(1E-10)));
   SWIG_Python_SetConstant(d, "SIMPLE",SWIG_From_int(static_cast< int >(SIMPLE)));

@@ -477,9 +477,9 @@ XPLANE = _openmoc_intel_single.XPLANE
 YPLANE = _openmoc_intel_single.YPLANE
 ZPLANE = _openmoc_intel_single.ZPLANE
 QUADRATIC = _openmoc_intel_single.QUADRATIC
-BOUNDARY_NONE = _openmoc_intel_single.BOUNDARY_NONE
-REFLECTIVE = _openmoc_intel_single.REFLECTIVE
 VACUUM = _openmoc_intel_single.VACUUM
+REFLECTIVE = _openmoc_intel_single.REFLECTIVE
+BOUNDARY_NONE = _openmoc_intel_single.BOUNDARY_NONE
 class Surface(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, Surface, name, value)

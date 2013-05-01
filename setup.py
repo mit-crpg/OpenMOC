@@ -146,8 +146,7 @@ sources['cuda'] = ['openmoc/openmoc.i',
                    'openmoc/src/dev/DeviceTrack.cu',
                    'openmoc/src/dev/DeviceFlatSourceRegion.cu']
 
-swig_interface_file = 'openmoc'
-swig_pkg_name = '_openmoc'
+
 pkg_name = 'openmoc'
 distro = ''
 swig_opts = ['-c++', '-keyword']
@@ -241,11 +240,8 @@ elif fp_precision == 'double':
 elif fp_precision == 'all':
     fp_precision = ['double', 'single']
 
-swig_pkg_name += distro
 pkg_name += distro
-swig_interface_file += distro + '.i'
 
-#sources.extend(['openmoc/' + swig_interface_file])
 
 extensions = []
 extensions.append(Extension(name = '_openmoc', 
@@ -263,16 +259,10 @@ distro = ''
 
 for fp in fp_precision:
     for cc in cpp_compiler:
-        print fp
-        print cc
         distro = 'openmoc_' + cc + '_' + fp 
         swig_interface_file = distro.replace('_', '/') + '/' + distro + '.i'
         sources.append(swig_interface_file)
         ext_name = '_' + distro.replace('.', '_')
-#        ext_name = distro
-
-        print distro
-        print swig_interface_file
 
         extensions.append(Extension(name = ext_name, 
                     sources = sources, 
@@ -285,18 +275,6 @@ for fp in fp_precision:
                     swig_opts = swig_opts))
 
         distro = ''
-#        sources.remove(swig_interface_file)
-
-
-#openmoc = Extension(name = swig_pkg_name, 
-#                    sources = sources, 
-#                    library_dirs = library_dirs, 
-#                    libraries = libraries,
-#                    runtime_library_dirs = runtime_library_dirs,
-#                    extra_link_args = extra_link_args, 
-#                    include_dirs = include_dirs,
-#                    define_macros = define_macros,
-#                    swig_opts = swig_opts)
 
 
 def customize_compiler(self):
@@ -321,9 +299,6 @@ def customize_compiler(self):
     # object but distutils doesn't have the ability to change compilers
     # based on source extension: we add it.
     def _compile(obj, src, openmoc, cc_args, extra_postargs, pp_opts):
-
-        print pp_opts
-        print obj
 
         if '-DGNU' in pp_opts and os.path.splitext(src)[1] == '.cpp':
             self.set_executable('compiler_so', 'gcc')
@@ -358,8 +333,6 @@ def customize_compiler(self):
              export_symbols=None, debug=0, extra_preargs=None,
              extra_postargs=None, build_temp=None, target_lang=None):
 
-        print 'objects = ' + str(objects)
-
         for obj in objects[:]:
             if '_intel' in obj and '_gnu' in output_filename:
                 objects.remove(obj)
@@ -369,10 +342,6 @@ def customize_compiler(self):
                 objects.remove(obj)
             elif '_double' in obj and '_single' in output_filename:
                 objects.remove(obj)
-
-
-        print 'objects = ' + str(objects)
-        print 'target = ' + str(output_filename)
 
         if '-fopenmp' in extra_postargs:
             self.set_executable('linker_so', 'g++')
@@ -400,8 +369,6 @@ class custom_build_ext(build_ext):
         customize_compiler(self.compiler)
         build_ext.build_extensions(self)
 
-print find_packages()
-
 setup(name = pkg_name,
       version = '0.1',
       description = 'An open source method of characteristics code for ' + \
@@ -411,19 +378,8 @@ setup(name = pkg_name,
       url = 'https://github.com/mit-crpg/OpenMOC',
 
       # this is necessary so that the swigged python file gets picked up
-#      py_modules=['openmoc'],
-#      ext_package = 'openmoc',
       ext_modules = extensions,
       packages = find_packages(),
-#      packages = ['openmoc'],
-#      packages = ['openmoc', 'openmoc.intel.double', 'openmoc.intel.single', 
-#                  'openmoc.gnu.double', 'openmoc.gnu.single'],
-#      package_dir = {'openmoc.intel.double': 'openmoc/intel/double',
-#                     'openmoc.intel.single': 'openmoc/intel/single',
-#                     'openmoc.gnu.double': 'openmoc/gnu/double',
-#                     'openmoc.gnu.single': 'openmoc/gnu/single',
-#                     'openmoc': 'openmoc'},
-#      packages = ['openmoc']
 
       # inject our custom trigger
       cmdclass={'build_ext': custom_build_ext},
