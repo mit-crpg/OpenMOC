@@ -14,7 +14,7 @@ num_azim = 16
 tolerance = 1E-3
 max_iters = 1000
 
-log.py_setlevel('INFO')
+log.setLogLevel('INFO')
 
 log.py_printf('TITLE', 'Simulating a two group homogeneous infinite medium...')
 log.py_printf('HEADER', 'The reference keff = 1.72...')
@@ -104,11 +104,9 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator()
-track_generator.setNumAzim(num_azim)
-track_generator.setTrackSpacing(track_spacing)
-track_generator.setGeometry(geometry)
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
+
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################

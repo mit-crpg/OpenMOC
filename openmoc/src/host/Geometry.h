@@ -117,18 +117,20 @@ public:
     void addUniverse(Universe* universe);
     void addLattice(Lattice* lattice);
 
-    Cell* findCell(LocalCoords* coords);
+    Cell* findCellContainingCoords(LocalCoords* coords);
+    CellBasic* findCellContainingFSR(int fsr_id);
     Cell* findCell(Universe* univ, int fsr_id);
-    CellBasic* findCell(int fsr_id);
     int findFSRId(LocalCoords* coords);
     void subdivideCells();
     void initializeFlatSourceRegions();
     void segmentize(Track* track);
     void computePinPowers(FP_PRECISION* FSRs_to_powers,
                           FP_PRECISION* FSRs_to_pin_powers);
-    FP_PRECISION computePinPowers(Universe* univ, char* output_file_prefix,
-                                  int FSR_id, FP_PRECISION* FSRs_to_powers,
-                                  FP_PRECISION* FSRs_to_pin_powers);
+    FP_PRECISION computePinPowersInUniverse(Universe* univ, 
+					    char* output_file_prefix,
+					    int FSR_id, 
+					    FP_PRECISION* FSRs_to_powers,
+					    FP_PRECISION* FSRs_to_pin_powers);
 
     std::string toString();
     void printString();

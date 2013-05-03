@@ -2978,21 +2978,20 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 #define SWIGTYPE_p_ZPlane swig_types[20]
 #define SWIGTYPE_p_char swig_types[21]
 #define SWIGTYPE_p_double swig_types[22]
-#define SWIGTYPE_p_float swig_types[23]
-#define SWIGTYPE_p_int swig_types[24]
-#define SWIGTYPE_p_logLevels swig_types[25]
-#define SWIGTYPE_p_p_Track swig_types[26]
-#define SWIGTYPE_p_segment swig_types[27]
-#define SWIGTYPE_p_std__mapT_short_Cell_p_t swig_types[28]
-#define SWIGTYPE_p_std__mapT_short_Material_p_t swig_types[29]
-#define SWIGTYPE_p_std__mapT_short_Surface_p_t swig_types[30]
-#define SWIGTYPE_p_std__mapT_short_Universe_p_t swig_types[31]
-#define SWIGTYPE_p_std__string swig_types[32]
-#define SWIGTYPE_p_std__vectorT_CellBasic_p_t swig_types[33]
-#define SWIGTYPE_p_std__vectorT_segment_p_t swig_types[34]
-#define SWIGTYPE_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t swig_types[35]
-static swig_type_info *swig_types[37];
-static swig_module_info swig_module = {swig_types, 36, 0, 0, 0, 0};
+#define SWIGTYPE_p_int swig_types[23]
+#define SWIGTYPE_p_logLevels swig_types[24]
+#define SWIGTYPE_p_p_Track swig_types[25]
+#define SWIGTYPE_p_segment swig_types[26]
+#define SWIGTYPE_p_std__mapT_short_Cell_p_t swig_types[27]
+#define SWIGTYPE_p_std__mapT_short_Material_p_t swig_types[28]
+#define SWIGTYPE_p_std__mapT_short_Surface_p_t swig_types[29]
+#define SWIGTYPE_p_std__mapT_short_Universe_p_t swig_types[30]
+#define SWIGTYPE_p_std__string swig_types[31]
+#define SWIGTYPE_p_std__vectorT_CellBasic_p_t swig_types[32]
+#define SWIGTYPE_p_std__vectorT_segment_p_t swig_types[33]
+#define SWIGTYPE_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t swig_types[34]
+static swig_type_info *swig_types[36];
+static swig_module_info swig_module = {swig_types, 35, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -4280,7 +4279,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Cell_cellContains__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Cell_cellContainsPoint(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Cell *arg1 = (Cell *) 0 ;
   Point *arg2 = (Point *) 0 ;
@@ -4290,22 +4289,25 @@ SWIGINTERN PyObject *_wrap_Cell_cellContains__SWIG_0(PyObject *SWIGUNUSEDPARM(se
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "point", NULL 
+  };
   bool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Cell_cellContains",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Cell_cellContainsPoint",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Cell, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Cell_cellContains" "', argument " "1"" of type '" "Cell *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Cell_cellContainsPoint" "', argument " "1"" of type '" "Cell *""'"); 
   }
   arg1 = reinterpret_cast< Cell * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Point, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Cell_cellContains" "', argument " "2"" of type '" "Point *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Cell_cellContainsPoint" "', argument " "2"" of type '" "Point *""'"); 
   }
   arg2 = reinterpret_cast< Point * >(argp2);
   {
     try {
-      result = (bool)(arg1)->cellContains(arg2);
+      result = (bool)(arg1)->cellContainsPoint(arg2);
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -4320,7 +4322,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Cell_cellContains__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Cell_cellContainsCoords(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Cell *arg1 = (Cell *) 0 ;
   LocalCoords *arg2 = (LocalCoords *) 0 ;
@@ -4330,22 +4332,25 @@ SWIGINTERN PyObject *_wrap_Cell_cellContains__SWIG_1(PyObject *SWIGUNUSEDPARM(se
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "coords", NULL 
+  };
   bool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Cell_cellContains",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Cell_cellContainsCoords",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Cell, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Cell_cellContains" "', argument " "1"" of type '" "Cell *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Cell_cellContainsCoords" "', argument " "1"" of type '" "Cell *""'"); 
   }
   arg1 = reinterpret_cast< Cell * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_LocalCoords, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Cell_cellContains" "', argument " "2"" of type '" "LocalCoords *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Cell_cellContainsCoords" "', argument " "2"" of type '" "LocalCoords *""'"); 
   }
   arg2 = reinterpret_cast< LocalCoords * >(argp2);
   {
     try {
-      result = (bool)(arg1)->cellContains(arg2);
+      result = (bool)(arg1)->cellContainsCoords(arg2);
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -4357,54 +4362,6 @@ SWIGINTERN PyObject *_wrap_Cell_cellContains__SWIG_1(PyObject *SWIGUNUSEDPARM(se
   return resultobj;
 fail:
   return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Cell_cellContains(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[3];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Cell, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_Point, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        return _wrap_Cell_cellContains__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Cell, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_LocalCoords, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        return _wrap_Cell_cellContains__SWIG_1(self, args);
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Cell_cellContains'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Cell::cellContains(Point *)\n"
-    "    Cell::cellContains(LocalCoords *)\n");
-  return 0;
 }
 
 
@@ -6623,7 +6580,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Geometry_findCell__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Geometry_findCellContainingCoords(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
   LocalCoords *arg2 = (LocalCoords *) 0 ;
@@ -6633,22 +6590,25 @@ SWIGINTERN PyObject *_wrap_Geometry_findCell__SWIG_0(PyObject *SWIGUNUSEDPARM(se
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "coords", NULL 
+  };
   Cell *result = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Geometry_findCell",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Geometry_findCellContainingCoords",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_findCell" "', argument " "1"" of type '" "Geometry *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_findCellContainingCoords" "', argument " "1"" of type '" "Geometry *""'"); 
   }
   arg1 = reinterpret_cast< Geometry * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_LocalCoords, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Geometry_findCell" "', argument " "2"" of type '" "LocalCoords *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Geometry_findCellContainingCoords" "', argument " "2"" of type '" "LocalCoords *""'"); 
   }
   arg2 = reinterpret_cast< LocalCoords * >(argp2);
   {
     try {
-      result = (Cell *)(arg1)->findCell(arg2);
+      result = (Cell *)(arg1)->findCellContainingCoords(arg2);
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -6663,7 +6623,50 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Geometry_findCell__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Geometry_findCellContainingFSR(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Geometry *arg1 = (Geometry *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "fsr_id", NULL 
+  };
+  CellBasic *result = 0 ;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Geometry_findCellContainingFSR",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_findCellContainingFSR" "', argument " "1"" of type '" "Geometry *""'"); 
+  }
+  arg1 = reinterpret_cast< Geometry * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_findCellContainingFSR" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    try {
+      result = (CellBasic *)(arg1)->findCellContainingFSR(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_CellBasic, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Geometry_findCell(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
   Universe *arg2 = (Universe *) 0 ;
@@ -6677,9 +6680,12 @@ SWIGINTERN PyObject *_wrap_Geometry_findCell__SWIG_1(PyObject *SWIGUNUSEDPARM(se
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "univ",(char *) "fsr_id", NULL 
+  };
   Cell *result = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:Geometry_findCell",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OOO:Geometry_findCell",kwnames,&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_findCell" "', argument " "1"" of type '" "Geometry *""'"); 
@@ -6709,116 +6715,6 @@ SWIGINTERN PyObject *_wrap_Geometry_findCell__SWIG_1(PyObject *SWIGUNUSEDPARM(se
   return resultobj;
 fail:
   return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Geometry_findCell__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Geometry *arg1 = (Geometry *) 0 ;
-  int arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  CellBasic *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:Geometry_findCell",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_findCell" "', argument " "1"" of type '" "Geometry *""'"); 
-  }
-  arg1 = reinterpret_cast< Geometry * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_findCell" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = static_cast< int >(val2);
-  {
-    try {
-      result = (CellBasic *)(arg1)->findCell(arg2);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_CellBasic, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Geometry_findCell(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[4];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Geometry, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_LocalCoords, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        return _wrap_Geometry_findCell__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Geometry, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        int res = SWIG_AsVal_int(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
-      if (_v) {
-        return _wrap_Geometry_findCell__SWIG_2(self, args);
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Geometry, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_Universe, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        {
-          int res = SWIG_AsVal_int(argv[2], NULL);
-          _v = SWIG_CheckState(res);
-        }
-        if (_v) {
-          return _wrap_Geometry_findCell__SWIG_1(self, args);
-        }
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Geometry_findCell'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Geometry::findCell(LocalCoords *)\n"
-    "    Geometry::findCell(Universe *,int)\n"
-    "    Geometry::findCell(int)\n");
-  return 0;
 }
 
 
@@ -6967,7 +6863,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Geometry_computePinPowers__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Geometry_computePinPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
   FP_PRECISION *arg2 = (FP_PRECISION *) 0 ;
@@ -6981,8 +6877,11 @@ SWIGINTERN PyObject *_wrap_Geometry_computePinPowers__SWIG_0(PyObject *SWIGUNUSE
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "FSRs_to_powers",(char *) "FSRs_to_pin_powers", NULL 
+  };
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:Geometry_computePinPowers",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OOO:Geometry_computePinPowers",kwnames,&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_computePinPowers" "', argument " "1"" of type '" "Geometry *""'"); 
@@ -7015,7 +6914,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Geometry_computePinPowers__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Geometry_computePinPowersInUniverse(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
   Universe *arg2 = (Universe *) 0 ;
@@ -7042,42 +6941,45 @@ SWIGINTERN PyObject *_wrap_Geometry_computePinPowers__SWIG_1(PyObject *SWIGUNUSE
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
   PyObject * obj5 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "univ",(char *) "output_file_prefix",(char *) "FSR_id",(char *) "FSRs_to_powers",(char *) "FSRs_to_pin_powers", NULL 
+  };
   FP_PRECISION result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:Geometry_computePinPowers",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OOOOOO:Geometry_computePinPowersInUniverse",kwnames,&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_computePinPowers" "', argument " "1"" of type '" "Geometry *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_computePinPowersInUniverse" "', argument " "1"" of type '" "Geometry *""'"); 
   }
   arg1 = reinterpret_cast< Geometry * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Universe, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Geometry_computePinPowers" "', argument " "2"" of type '" "Universe *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Geometry_computePinPowersInUniverse" "', argument " "2"" of type '" "Universe *""'"); 
   }
   arg2 = reinterpret_cast< Universe * >(argp2);
   res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
   if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Geometry_computePinPowers" "', argument " "3"" of type '" "char *""'");
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Geometry_computePinPowersInUniverse" "', argument " "3"" of type '" "char *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
   ecode4 = SWIG_AsVal_int(obj3, &val4);
   if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "Geometry_computePinPowers" "', argument " "4"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "Geometry_computePinPowersInUniverse" "', argument " "4"" of type '" "int""'");
   } 
   arg4 = static_cast< int >(val4);
   res5 = SWIG_ConvertPtr(obj4, &argp5,SWIGTYPE_p_double, 0 |  0 );
   if (!SWIG_IsOK(res5)) {
-    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "Geometry_computePinPowers" "', argument " "5"" of type '" "FP_PRECISION *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "Geometry_computePinPowersInUniverse" "', argument " "5"" of type '" "FP_PRECISION *""'"); 
   }
   arg5 = reinterpret_cast< FP_PRECISION * >(argp5);
   res6 = SWIG_ConvertPtr(obj5, &argp6,SWIGTYPE_p_double, 0 |  0 );
   if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "Geometry_computePinPowers" "', argument " "6"" of type '" "FP_PRECISION *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "Geometry_computePinPowersInUniverse" "', argument " "6"" of type '" "FP_PRECISION *""'"); 
   }
   arg6 = reinterpret_cast< FP_PRECISION * >(argp6);
   {
     try {
-      result = (FP_PRECISION)(arg1)->computePinPowers(arg2,arg3,arg4,arg5,arg6);
+      result = (FP_PRECISION)(arg1)->computePinPowersInUniverse(arg2,arg3,arg4,arg5,arg6);
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -7091,79 +6993,6 @@ SWIGINTERN PyObject *_wrap_Geometry_computePinPowers__SWIG_1(PyObject *SWIGUNUSE
 fail:
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Geometry_computePinPowers(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[7];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 6) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Geometry, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_double, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_double, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_Geometry_computePinPowers__SWIG_0(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 6) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Geometry, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_Universe, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        int res = SWIG_AsCharPtrAndSize(argv[2], 0, NULL, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_int(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            void *vptr = 0;
-            int res = SWIG_ConvertPtr(argv[4], &vptr, SWIGTYPE_p_double, 0);
-            _v = SWIG_CheckState(res);
-            if (_v) {
-              void *vptr = 0;
-              int res = SWIG_ConvertPtr(argv[5], &vptr, SWIGTYPE_p_double, 0);
-              _v = SWIG_CheckState(res);
-              if (_v) {
-                return _wrap_Geometry_computePinPowers__SWIG_1(self, args);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Geometry_computePinPowers'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Geometry::computePinPowers(FP_PRECISION *,FP_PRECISION *)\n"
-    "    Geometry::computePinPowers(Universe *,char *,int,FP_PRECISION *,FP_PRECISION *)\n");
-  return 0;
 }
 
 
@@ -8653,53 +8482,26 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_log_setlevel__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  logLevel arg1 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:log_setlevel",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "log_setlevel" "', argument " "1"" of type '" "logLevel""'");
-  } 
-  arg1 = static_cast< logLevel >(val1);
-  {
-    try {
-      log_setlevel(arg1);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_log_setlevel__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_setLogLevel(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
   PyObject * obj0 = 0 ;
+  char *  kwnames[] = {
+    (char *) "newlevel", NULL 
+  };
   
-  if (!PyArg_ParseTuple(args,(char *)"O:log_setlevel",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"O:setLogLevel",kwnames,&obj0)) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "log_setlevel" "', argument " "1"" of type '" "char const *""'");
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "setLogLevel" "', argument " "1"" of type '" "char const *""'");
   }
   arg1 = reinterpret_cast< char * >(buf1);
   {
     try {
-      log_setlevel((char const *)arg1);
+      setLogLevel((char const *)arg1);
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -8716,52 +8518,14 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_log_setlevel(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[2];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 1) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 1) {
-    int _v;
-    {
-      int res = SWIG_AsVal_int(argv[0], NULL);
-      _v = SWIG_CheckState(res);
-    }
-    if (_v) {
-      return _wrap_log_setlevel__SWIG_0(self, args);
-    }
-  }
-  if (argc == 1) {
-    int _v;
-    int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      return _wrap_log_setlevel__SWIG_1(self, args);
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'log_setlevel'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    log_setlevel(logLevel)\n"
-    "    log_setlevel(char const *)\n");
-  return 0;
-}
-
-
-SWIGINTERN PyObject *_wrap_get_loglevel(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_getLogLevel(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int result;
   
-  if (!PyArg_ParseTuple(args,(char *)":get_loglevel")) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)":getLogLevel")) SWIG_fail;
   {
     try {
-      result = (int)get_loglevel();
+      result = (int)getLogLevel();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -9288,7 +9052,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Material_setSigmaT__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Material_setSigmaT(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Material *arg1 = (Material *) 0 ;
   double *arg2 = (double *) 0 ;
@@ -9299,8 +9063,11 @@ SWIGINTERN PyObject *_wrap_Material_setSigmaT__SWIG_0(PyObject *SWIGUNUSEDPARM(s
   int is_new_object2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "sigma_t", NULL 
+  };
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setSigmaT",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Material_setSigmaT",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setSigmaT" "', argument " "1"" of type '" "Material *""'"); 
@@ -9346,7 +9113,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Material_setSigmaA__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Material_setSigmaA(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Material *arg1 = (Material *) 0 ;
   double *arg2 = (double *) 0 ;
@@ -9357,8 +9124,11 @@ SWIGINTERN PyObject *_wrap_Material_setSigmaA__SWIG_0(PyObject *SWIGUNUSEDPARM(s
   int is_new_object2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "sigma_a", NULL 
+  };
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setSigmaA",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Material_setSigmaA",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setSigmaA" "', argument " "1"" of type '" "Material *""'"); 
@@ -9404,7 +9174,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Material_setSigmaS__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Material_setSigmaS(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Material *arg1 = (Material *) 0 ;
   double *arg2 = (double *) 0 ;
@@ -9415,8 +9185,11 @@ SWIGINTERN PyObject *_wrap_Material_setSigmaS__SWIG_0(PyObject *SWIGUNUSEDPARM(s
   int is_new_object2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "sigma_s", NULL 
+  };
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setSigmaS",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Material_setSigmaS",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setSigmaS" "', argument " "1"" of type '" "Material *""'"); 
@@ -9462,7 +9235,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Material_setSigmaF__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Material_setSigmaF(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Material *arg1 = (Material *) 0 ;
   double *arg2 = (double *) 0 ;
@@ -9473,8 +9246,11 @@ SWIGINTERN PyObject *_wrap_Material_setSigmaF__SWIG_0(PyObject *SWIGUNUSEDPARM(s
   int is_new_object2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "sigma_f", NULL 
+  };
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setSigmaF",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Material_setSigmaF",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setSigmaF" "', argument " "1"" of type '" "Material *""'"); 
@@ -9520,7 +9296,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Material_setNuSigmaF__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Material_setNuSigmaF(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Material *arg1 = (Material *) 0 ;
   double *arg2 = (double *) 0 ;
@@ -9531,8 +9307,11 @@ SWIGINTERN PyObject *_wrap_Material_setNuSigmaF__SWIG_0(PyObject *SWIGUNUSEDPARM
   int is_new_object2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "nu_sigma_f", NULL 
+  };
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setNuSigmaF",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Material_setNuSigmaF",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setNuSigmaF" "', argument " "1"" of type '" "Material *""'"); 
@@ -9578,7 +9357,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Material_setChi__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Material_setChi(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Material *arg1 = (Material *) 0 ;
   double *arg2 = (double *) 0 ;
@@ -9589,8 +9368,11 @@ SWIGINTERN PyObject *_wrap_Material_setChi__SWIG_0(PyObject *SWIGUNUSEDPARM(self
   int is_new_object2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "chi", NULL 
+  };
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setChi",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Material_setChi",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setChi" "', argument " "1"" of type '" "Material *""'"); 
@@ -9633,671 +9415,6 @@ fail:
     }
   }
   return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setSigmaT__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Material *arg1 = (Material *) 0 ;
-  float *arg2 = (float *) 0 ;
-  int arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyArrayObject *array2 = NULL ;
-  int is_new_object2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setSigmaT",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setSigmaT" "', argument " "1"" of type '" "Material *""'"); 
-  }
-  arg1 = reinterpret_cast< Material * >(argp1);
-  {
-    npy_intp size[1] = {
-      -1 
-    };
-    array2 = obj_to_array_contiguous_allow_conversion(obj1, NPY_FLOAT,
-      &is_new_object2);
-    if (!array2 || !require_dimensions(array2, 1) ||
-      !require_size(array2, size, 1)) SWIG_fail;
-    arg2 = (float*) array_data(array2);
-    arg3 = (int) array_size(array2,0);
-  }
-  {
-    try {
-      (arg1)->setSigmaT(arg2,arg3);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  {
-    if (is_new_object2 && array2)
-    {
-      Py_DECREF(array2); 
-    }
-  }
-  return resultobj;
-fail:
-  {
-    if (is_new_object2 && array2)
-    {
-      Py_DECREF(array2); 
-    }
-  }
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setSigmaT(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[3];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setSigmaT__SWIG_0(self, args);
-        }
-        return _wrap_Material_setSigmaT__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setSigmaT__SWIG_1(self, args);
-        }
-        return _wrap_Material_setSigmaT__SWIG_1(self, args);
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Material_setSigmaT'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Material::setSigmaT(double *,int)\n"
-    "    Material::setSigmaT(float *,int)\n");
-  return 0;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setSigmaA__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Material *arg1 = (Material *) 0 ;
-  float *arg2 = (float *) 0 ;
-  int arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyArrayObject *array2 = NULL ;
-  int is_new_object2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setSigmaA",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setSigmaA" "', argument " "1"" of type '" "Material *""'"); 
-  }
-  arg1 = reinterpret_cast< Material * >(argp1);
-  {
-    npy_intp size[1] = {
-      -1 
-    };
-    array2 = obj_to_array_contiguous_allow_conversion(obj1, NPY_FLOAT,
-      &is_new_object2);
-    if (!array2 || !require_dimensions(array2, 1) ||
-      !require_size(array2, size, 1)) SWIG_fail;
-    arg2 = (float*) array_data(array2);
-    arg3 = (int) array_size(array2,0);
-  }
-  {
-    try {
-      (arg1)->setSigmaA(arg2,arg3);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  {
-    if (is_new_object2 && array2)
-    {
-      Py_DECREF(array2); 
-    }
-  }
-  return resultobj;
-fail:
-  {
-    if (is_new_object2 && array2)
-    {
-      Py_DECREF(array2); 
-    }
-  }
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setSigmaA(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[3];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setSigmaA__SWIG_0(self, args);
-        }
-        return _wrap_Material_setSigmaA__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setSigmaA__SWIG_1(self, args);
-        }
-        return _wrap_Material_setSigmaA__SWIG_1(self, args);
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Material_setSigmaA'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Material::setSigmaA(double *,int)\n"
-    "    Material::setSigmaA(float *,int)\n");
-  return 0;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setSigmaS__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Material *arg1 = (Material *) 0 ;
-  float *arg2 = (float *) 0 ;
-  int arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:Material_setSigmaS",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setSigmaS" "', argument " "1"" of type '" "Material *""'"); 
-  }
-  arg1 = reinterpret_cast< Material * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_float, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Material_setSigmaS" "', argument " "2"" of type '" "float *""'"); 
-  }
-  arg2 = reinterpret_cast< float * >(argp2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Material_setSigmaS" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = static_cast< int >(val3);
-  {
-    try {
-      (arg1)->setSigmaS(arg2,arg3);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setSigmaS(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[4];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setSigmaS__SWIG_0(self, args);
-        }
-        return _wrap_Material_setSigmaS__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_float, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        {
-          int res = SWIG_AsVal_int(argv[2], NULL);
-          _v = SWIG_CheckState(res);
-        }
-        if (_v) {
-          return _wrap_Material_setSigmaS__SWIG_1(self, args);
-        }
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Material_setSigmaS'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Material::setSigmaS(double *,int)\n"
-    "    Material::setSigmaS(float *,int)\n");
-  return 0;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setSigmaF__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Material *arg1 = (Material *) 0 ;
-  float *arg2 = (float *) 0 ;
-  int arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyArrayObject *array2 = NULL ;
-  int is_new_object2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setSigmaF",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setSigmaF" "', argument " "1"" of type '" "Material *""'"); 
-  }
-  arg1 = reinterpret_cast< Material * >(argp1);
-  {
-    npy_intp size[1] = {
-      -1 
-    };
-    array2 = obj_to_array_contiguous_allow_conversion(obj1, NPY_FLOAT,
-      &is_new_object2);
-    if (!array2 || !require_dimensions(array2, 1) ||
-      !require_size(array2, size, 1)) SWIG_fail;
-    arg2 = (float*) array_data(array2);
-    arg3 = (int) array_size(array2,0);
-  }
-  {
-    try {
-      (arg1)->setSigmaF(arg2,arg3);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  {
-    if (is_new_object2 && array2)
-    {
-      Py_DECREF(array2); 
-    }
-  }
-  return resultobj;
-fail:
-  {
-    if (is_new_object2 && array2)
-    {
-      Py_DECREF(array2); 
-    }
-  }
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setSigmaF(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[3];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setSigmaF__SWIG_0(self, args);
-        }
-        return _wrap_Material_setSigmaF__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setSigmaF__SWIG_1(self, args);
-        }
-        return _wrap_Material_setSigmaF__SWIG_1(self, args);
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Material_setSigmaF'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Material::setSigmaF(double *,int)\n"
-    "    Material::setSigmaF(float *,int)\n");
-  return 0;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setNuSigmaF__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Material *arg1 = (Material *) 0 ;
-  float *arg2 = (float *) 0 ;
-  int arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyArrayObject *array2 = NULL ;
-  int is_new_object2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setNuSigmaF",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setNuSigmaF" "', argument " "1"" of type '" "Material *""'"); 
-  }
-  arg1 = reinterpret_cast< Material * >(argp1);
-  {
-    npy_intp size[1] = {
-      -1 
-    };
-    array2 = obj_to_array_contiguous_allow_conversion(obj1, NPY_FLOAT,
-      &is_new_object2);
-    if (!array2 || !require_dimensions(array2, 1) ||
-      !require_size(array2, size, 1)) SWIG_fail;
-    arg2 = (float*) array_data(array2);
-    arg3 = (int) array_size(array2,0);
-  }
-  {
-    try {
-      (arg1)->setNuSigmaF(arg2,arg3);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  {
-    if (is_new_object2 && array2)
-    {
-      Py_DECREF(array2); 
-    }
-  }
-  return resultobj;
-fail:
-  {
-    if (is_new_object2 && array2)
-    {
-      Py_DECREF(array2); 
-    }
-  }
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setNuSigmaF(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[3];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setNuSigmaF__SWIG_0(self, args);
-        }
-        return _wrap_Material_setNuSigmaF__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setNuSigmaF__SWIG_1(self, args);
-        }
-        return _wrap_Material_setNuSigmaF__SWIG_1(self, args);
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Material_setNuSigmaF'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Material::setNuSigmaF(double *,int)\n"
-    "    Material::setNuSigmaF(float *,int)\n");
-  return 0;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setChi__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Material *arg1 = (Material *) 0 ;
-  float *arg2 = (float *) 0 ;
-  int arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyArrayObject *array2 = NULL ;
-  int is_new_object2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:Material_setChi",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_setChi" "', argument " "1"" of type '" "Material *""'"); 
-  }
-  arg1 = reinterpret_cast< Material * >(argp1);
-  {
-    npy_intp size[1] = {
-      -1 
-    };
-    array2 = obj_to_array_contiguous_allow_conversion(obj1, NPY_FLOAT,
-      &is_new_object2);
-    if (!array2 || !require_dimensions(array2, 1) ||
-      !require_size(array2, size, 1)) SWIG_fail;
-    arg2 = (float*) array_data(array2);
-    arg3 = (int) array_size(array2,0);
-  }
-  {
-    try {
-      (arg1)->setChi(arg2,arg3);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  {
-    if (is_new_object2 && array2)
-    {
-      Py_DECREF(array2); 
-    }
-  }
-  return resultobj;
-fail:
-  {
-    if (is_new_object2 && array2)
-    {
-      Py_DECREF(array2); 
-    }
-  }
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Material_setChi(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[3];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setChi__SWIG_0(self, args);
-        }
-        return _wrap_Material_setChi__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Material, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        _v = is_array(argv[1]) || PySequence_Check(argv[1]);
-      }
-      if (_v) {
-        if (argc <= 2) {
-          return _wrap_Material_setChi__SWIG_1(self, args);
-        }
-        return _wrap_Material_setChi__SWIG_1(self, args);
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Material_setChi'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Material::setChi(double *,int)\n"
-    "    Material::setChi(float *,int)\n");
-  return 0;
 }
 
 
@@ -10648,7 +9765,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Point_distance__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Point_distance(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Point *arg1 = (Point *) 0 ;
   double arg2 ;
@@ -10662,9 +9779,12 @@ SWIGINTERN PyObject *_wrap_Point_distance__SWIG_0(PyObject *SWIGUNUSEDPARM(self)
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "x",(char *) "y", NULL 
+  };
   double result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:Point_distance",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OOO:Point_distance",kwnames,&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Point, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Point_distance" "', argument " "1"" of type '" "Point const *""'"); 
@@ -10697,7 +9817,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Point_distance__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Point_distanceToPoint(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Point *arg1 = (Point *) 0 ;
   Point *arg2 = (Point *) 0 ;
@@ -10707,22 +9827,25 @@ SWIGINTERN PyObject *_wrap_Point_distance__SWIG_1(PyObject *SWIGUNUSEDPARM(self)
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "point", NULL 
+  };
   double result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Point_distance",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Point_distanceToPoint",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Point, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Point_distance" "', argument " "1"" of type '" "Point *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Point_distanceToPoint" "', argument " "1"" of type '" "Point *""'"); 
   }
   arg1 = reinterpret_cast< Point * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Point, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Point_distance" "', argument " "2"" of type '" "Point const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Point_distanceToPoint" "', argument " "2"" of type '" "Point const *""'"); 
   }
   arg2 = reinterpret_cast< Point * >(argp2);
   {
     try {
-      result = (double)(arg1)->distance((Point const *)arg2);
+      result = (double)(arg1)->distanceToPoint((Point const *)arg2);
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -10734,61 +9857,6 @@ SWIGINTERN PyObject *_wrap_Point_distance__SWIG_1(PyObject *SWIGUNUSEDPARM(self)
   return resultobj;
 fail:
   return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Point_distance(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[4];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Point, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_Point, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        return _wrap_Point_distance__SWIG_1(self, args);
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Point, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        int res = SWIG_AsVal_double(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
-      if (_v) {
-        {
-          int res = SWIG_AsVal_double(argv[2], NULL);
-          _v = SWIG_CheckState(res);
-        }
-        if (_v) {
-          return _wrap_Point_distance__SWIG_0(self, args);
-        }
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Point_distance'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Point::distance(double const,double const) const\n"
-    "    Point::distance(Point const *)\n");
-  return 0;
 }
 
 
@@ -12530,7 +11598,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Surface_onSurface__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Surface_isPointOnSurface(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Surface *arg1 = (Surface *) 0 ;
   Point *arg2 = (Point *) 0 ;
@@ -12540,22 +11608,25 @@ SWIGINTERN PyObject *_wrap_Surface_onSurface__SWIG_0(PyObject *SWIGUNUSEDPARM(se
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "point", NULL 
+  };
   bool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Surface_onSurface",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Surface_isPointOnSurface",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Surface, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Surface_onSurface" "', argument " "1"" of type '" "Surface *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Surface_isPointOnSurface" "', argument " "1"" of type '" "Surface *""'"); 
   }
   arg1 = reinterpret_cast< Surface * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Point, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Surface_onSurface" "', argument " "2"" of type '" "Point *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Surface_isPointOnSurface" "', argument " "2"" of type '" "Point *""'"); 
   }
   arg2 = reinterpret_cast< Point * >(argp2);
   {
     try {
-      result = (bool)(arg1)->onSurface(arg2);
+      result = (bool)(arg1)->isPointOnSurface(arg2);
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -12570,7 +11641,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Surface_onSurface__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Surface_isCoordOnSurface(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Surface *arg1 = (Surface *) 0 ;
   LocalCoords *arg2 = (LocalCoords *) 0 ;
@@ -12580,22 +11651,25 @@ SWIGINTERN PyObject *_wrap_Surface_onSurface__SWIG_1(PyObject *SWIGUNUSEDPARM(se
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "coord", NULL 
+  };
   bool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Surface_onSurface",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Surface_isCoordOnSurface",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Surface, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Surface_onSurface" "', argument " "1"" of type '" "Surface *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Surface_isCoordOnSurface" "', argument " "1"" of type '" "Surface *""'"); 
   }
   arg1 = reinterpret_cast< Surface * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_LocalCoords, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Surface_onSurface" "', argument " "2"" of type '" "LocalCoords *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Surface_isCoordOnSurface" "', argument " "2"" of type '" "LocalCoords *""'"); 
   }
   arg2 = reinterpret_cast< LocalCoords * >(argp2);
   {
     try {
-      result = (bool)(arg1)->onSurface(arg2);
+      result = (bool)(arg1)->isCoordOnSurface(arg2);
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -12607,54 +11681,6 @@ SWIGINTERN PyObject *_wrap_Surface_onSurface__SWIG_1(PyObject *SWIGUNUSEDPARM(se
   return resultobj;
 fail:
   return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Surface_onSurface(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[3];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Surface, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_Point, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        return _wrap_Surface_onSurface__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Surface, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_LocalCoords, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        return _wrap_Surface_onSurface__SWIG_1(self, args);
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Surface_onSurface'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Surface::onSurface(Point *)\n"
-    "    Surface::onSurface(LocalCoords *)\n");
-  return 0;
 }
 
 
@@ -14842,54 +13868,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Timer_recordSplit__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Timer *arg1 = (Timer *) 0 ;
-  std::string arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:Timer_recordSplit",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Timer, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Timer_recordSplit" "', argument " "1"" of type '" "Timer *""'"); 
-  }
-  arg1 = reinterpret_cast< Timer * >(argp1);
-  {
-    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__string,  0  | 0);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Timer_recordSplit" "', argument " "2"" of type '" "std::string""'"); 
-    }  
-    if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Timer_recordSplit" "', argument " "2"" of type '" "std::string""'");
-    } else {
-      std::string * temp = reinterpret_cast< std::string * >(argp2);
-      arg2 = *temp;
-      if (SWIG_IsNewObj(res2)) delete temp;
-    }
-  }
-  {
-    try {
-      (arg1)->recordSplit(arg2);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Timer_recordSplit__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Timer_recordSplit(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Timer *arg1 = (Timer *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -14900,8 +13879,11 @@ SWIGINTERN PyObject *_wrap_Timer_recordSplit__SWIG_1(PyObject *SWIGUNUSEDPARM(se
   int alloc2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "msg", NULL 
+  };
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Timer_recordSplit",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Timer_recordSplit",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Timer, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Timer_recordSplit" "', argument " "1"" of type '" "Timer *""'"); 
@@ -14928,52 +13910,6 @@ SWIGINTERN PyObject *_wrap_Timer_recordSplit__SWIG_1(PyObject *SWIGUNUSEDPARM(se
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Timer_recordSplit(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[3];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Timer, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_std__string, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        return _wrap_Timer_recordSplit__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Timer, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_AsCharPtrAndSize(argv[1], 0, NULL, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        return _wrap_Timer_recordSplit__SWIG_1(self, args);
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Timer_recordSplit'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Timer::recordSplit(std::string)\n"
-    "    Timer::recordSplit(char const *)\n");
-  return 0;
 }
 
 
@@ -15008,55 +13944,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Timer_getSplit__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Timer *arg1 = (Timer *) 0 ;
-  std::string arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  double result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:Timer_getSplit",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Timer, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Timer_getSplit" "', argument " "1"" of type '" "Timer *""'"); 
-  }
-  arg1 = reinterpret_cast< Timer * >(argp1);
-  {
-    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__string,  0  | 0);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Timer_getSplit" "', argument " "2"" of type '" "std::string""'"); 
-    }  
-    if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Timer_getSplit" "', argument " "2"" of type '" "std::string""'");
-    } else {
-      std::string * temp = reinterpret_cast< std::string * >(argp2);
-      arg2 = *temp;
-      if (SWIG_IsNewObj(res2)) delete temp;
-    }
-  }
-  {
-    try {
-      result = (double)(arg1)->getSplit(arg2);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_From_double(static_cast< double >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Timer_getSplit__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Timer_getSplit(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Timer *arg1 = (Timer *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -15067,9 +13955,12 @@ SWIGINTERN PyObject *_wrap_Timer_getSplit__SWIG_1(PyObject *SWIGUNUSEDPARM(self)
   int alloc2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "msg", NULL 
+  };
   double result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Timer_getSplit",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Timer_getSplit",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Timer, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Timer_getSplit" "', argument " "1"" of type '" "Timer *""'"); 
@@ -15096,52 +13987,6 @@ SWIGINTERN PyObject *_wrap_Timer_getSplit__SWIG_1(PyObject *SWIGUNUSEDPARM(self)
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Timer_getSplit(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[3];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Timer, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_std__string, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        return _wrap_Timer_getSplit__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Timer, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_AsCharPtrAndSize(argv[1], 0, NULL, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        return _wrap_Timer_getSplit__SWIG_1(self, args);
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'Timer_getSplit'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    Timer::getSplit(std::string)\n"
-    "    Timer::getSplit(char const *)\n");
-  return 0;
 }
 
 
@@ -16826,29 +15671,7 @@ SWIGINTERN PyObject *Track_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject
   return SWIG_Py_Void();
 }
 
-SWIGINTERN PyObject *_wrap_new_TrackGenerator__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  TrackGenerator *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)":new_TrackGenerator")) SWIG_fail;
-  {
-    try {
-      result = (TrackGenerator *)new TrackGenerator();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_TrackGenerator, SWIG_POINTER_NEW |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_new_TrackGenerator__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_new_TrackGenerator(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
   int arg2 ;
@@ -16862,9 +15685,12 @@ SWIGINTERN PyObject *_wrap_new_TrackGenerator__SWIG_1(PyObject *SWIGUNUSEDPARM(s
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  char *  kwnames[] = {
+    (char *) "geometry",(char *) "num_azim",(char *) "spacing", NULL 
+  };
   TrackGenerator *result = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:new_TrackGenerator",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OOO:new_TrackGenerator",kwnames,&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_TrackGenerator" "', argument " "1"" of type '" "Geometry *""'"); 
@@ -16894,50 +15720,6 @@ SWIGINTERN PyObject *_wrap_new_TrackGenerator__SWIG_1(PyObject *SWIGUNUSEDPARM(s
   return resultobj;
 fail:
   return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_new_TrackGenerator(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[4];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 0) {
-    return _wrap_new_TrackGenerator__SWIG_0(self, args);
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_Geometry, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        int res = SWIG_AsVal_int(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
-      if (_v) {
-        {
-          int res = SWIG_AsVal_double(argv[2], NULL);
-          _v = SWIG_CheckState(res);
-        }
-        if (_v) {
-          return _wrap_new_TrackGenerator__SWIG_1(self, args);
-        }
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_TrackGenerator'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    TrackGenerator::TrackGenerator()\n"
-    "    TrackGenerator::TrackGenerator(Geometry *,int,double)\n");
-  return 0;
 }
 
 
@@ -18926,7 +17708,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Cell_setUniverse", (PyCFunction) _wrap_Cell_setUniverse, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Cell_addSurface", (PyCFunction) _wrap_Cell_addSurface, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Cell_setSurfacePointer", (PyCFunction) _wrap_Cell_setSurfacePointer, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"Cell_cellContains", _wrap_Cell_cellContains, METH_VARARGS, NULL},
+	 { (char *)"Cell_cellContainsPoint", (PyCFunction) _wrap_Cell_cellContainsPoint, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Cell_cellContainsCoords", (PyCFunction) _wrap_Cell_cellContainsCoords, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Cell_minSurfaceDist", (PyCFunction) _wrap_Cell_minSurfaceDist, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Cell_toString", _wrap_Cell_toString, METH_VARARGS, NULL},
 	 { (char *)"Cell_printString", _wrap_Cell_printString, METH_VARARGS, NULL},
@@ -18993,12 +17776,15 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Geometry_addCell", (PyCFunction) _wrap_Geometry_addCell, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Geometry_addUniverse", (PyCFunction) _wrap_Geometry_addUniverse, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Geometry_addLattice", (PyCFunction) _wrap_Geometry_addLattice, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"Geometry_findCell", _wrap_Geometry_findCell, METH_VARARGS, NULL},
+	 { (char *)"Geometry_findCellContainingCoords", (PyCFunction) _wrap_Geometry_findCellContainingCoords, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Geometry_findCellContainingFSR", (PyCFunction) _wrap_Geometry_findCellContainingFSR, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Geometry_findCell", (PyCFunction) _wrap_Geometry_findCell, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Geometry_findFSRId", (PyCFunction) _wrap_Geometry_findFSRId, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Geometry_subdivideCells", _wrap_Geometry_subdivideCells, METH_VARARGS, NULL},
 	 { (char *)"Geometry_initializeFlatSourceRegions", _wrap_Geometry_initializeFlatSourceRegions, METH_VARARGS, NULL},
 	 { (char *)"Geometry_segmentize", (PyCFunction) _wrap_Geometry_segmentize, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"Geometry_computePinPowers", _wrap_Geometry_computePinPowers, METH_VARARGS, NULL},
+	 { (char *)"Geometry_computePinPowers", (PyCFunction) _wrap_Geometry_computePinPowers, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Geometry_computePinPowersInUniverse", (PyCFunction) _wrap_Geometry_computePinPowersInUniverse, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Geometry_toString", _wrap_Geometry_toString, METH_VARARGS, NULL},
 	 { (char *)"Geometry_printString", _wrap_Geometry_printString, METH_VARARGS, NULL},
 	 { (char *)"Geometry_swigregister", Geometry_swigregister, METH_VARARGS, NULL},
@@ -19044,8 +17830,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"setTitleCharacter", (PyCFunction) _wrap_setTitleCharacter, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"getTitleCharacter", _wrap_getTitleCharacter, METH_VARARGS, NULL},
 	 { (char *)"setLineLength", (PyCFunction) _wrap_setLineLength, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"log_setlevel", _wrap_log_setlevel, METH_VARARGS, NULL},
-	 { (char *)"get_loglevel", _wrap_get_loglevel, METH_VARARGS, NULL},
+	 { (char *)"setLogLevel", (PyCFunction) _wrap_setLogLevel, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"getLogLevel", _wrap_getLogLevel, METH_VARARGS, NULL},
 	 { (char *)"log_printf", (PyCFunction) _wrap_log_printf, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"createMultilineMsg", (PyCFunction) _wrap_createMultilineMsg, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"material_id", _wrap_material_id, METH_VARARGS, NULL},
@@ -19061,12 +17847,12 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Material_getNuSigmaF", _wrap_Material_getNuSigmaF, METH_VARARGS, NULL},
 	 { (char *)"Material_getChi", _wrap_Material_getChi, METH_VARARGS, NULL},
 	 { (char *)"Material_setNumEnergyGroups", (PyCFunction) _wrap_Material_setNumEnergyGroups, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"Material_setSigmaT", _wrap_Material_setSigmaT, METH_VARARGS, NULL},
-	 { (char *)"Material_setSigmaA", _wrap_Material_setSigmaA, METH_VARARGS, NULL},
-	 { (char *)"Material_setSigmaS", _wrap_Material_setSigmaS, METH_VARARGS, NULL},
-	 { (char *)"Material_setSigmaF", _wrap_Material_setSigmaF, METH_VARARGS, NULL},
-	 { (char *)"Material_setNuSigmaF", _wrap_Material_setNuSigmaF, METH_VARARGS, NULL},
-	 { (char *)"Material_setChi", _wrap_Material_setChi, METH_VARARGS, NULL},
+	 { (char *)"Material_setSigmaT", (PyCFunction) _wrap_Material_setSigmaT, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Material_setSigmaA", (PyCFunction) _wrap_Material_setSigmaA, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Material_setSigmaS", (PyCFunction) _wrap_Material_setSigmaS, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Material_setSigmaF", (PyCFunction) _wrap_Material_setSigmaF, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Material_setNuSigmaF", (PyCFunction) _wrap_Material_setNuSigmaF, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Material_setChi", (PyCFunction) _wrap_Material_setChi, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Material_checkSigmaT", _wrap_Material_checkSigmaT, METH_VARARGS, NULL},
 	 { (char *)"Material_toString", _wrap_Material_toString, METH_VARARGS, NULL},
 	 { (char *)"Material_printString", _wrap_Material_printString, METH_VARARGS, NULL},
@@ -19078,7 +17864,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Point_getY", _wrap_Point_getY, METH_VARARGS, NULL},
 	 { (char *)"Point_setX", (PyCFunction) _wrap_Point_setX, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Point_setY", (PyCFunction) _wrap_Point_setY, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"Point_distance", _wrap_Point_distance, METH_VARARGS, NULL},
+	 { (char *)"Point_distance", (PyCFunction) _wrap_Point_distance, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Point_distanceToPoint", (PyCFunction) _wrap_Point_distanceToPoint, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Point_toString", _wrap_Point_toString, METH_VARARGS, NULL},
 	 { (char *)"Point_swigregister", Point_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_Quadrature", (PyCFunction) _wrap_new_Quadrature, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -19130,7 +17917,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Surface_setBoundaryType", (PyCFunction) _wrap_Surface_setBoundaryType, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Surface_evaluate", (PyCFunction) _wrap_Surface_evaluate, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Surface_intersection", (PyCFunction) _wrap_Surface_intersection, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"Surface_onSurface", _wrap_Surface_onSurface, METH_VARARGS, NULL},
+	 { (char *)"Surface_isPointOnSurface", (PyCFunction) _wrap_Surface_isPointOnSurface, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Surface_isCoordOnSurface", (PyCFunction) _wrap_Surface_isCoordOnSurface, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Surface_getMinDistance", (PyCFunction) _wrap_Surface_getMinDistance, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Surface_toString", _wrap_Surface_toString, METH_VARARGS, NULL},
 	 { (char *)"Surface_printString", _wrap_Surface_printString, METH_VARARGS, NULL},
@@ -19199,9 +17987,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Timer_stopTimer", _wrap_Timer_stopTimer, METH_VARARGS, NULL},
 	 { (char *)"Timer_resetTimer", _wrap_Timer_resetTimer, METH_VARARGS, NULL},
 	 { (char *)"Timer_restartTimer", _wrap_Timer_restartTimer, METH_VARARGS, NULL},
-	 { (char *)"Timer_recordSplit", _wrap_Timer_recordSplit, METH_VARARGS, NULL},
+	 { (char *)"Timer_recordSplit", (PyCFunction) _wrap_Timer_recordSplit, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Timer_getTime", _wrap_Timer_getTime, METH_VARARGS, NULL},
-	 { (char *)"Timer_getSplit", _wrap_Timer_getSplit, METH_VARARGS, NULL},
+	 { (char *)"Timer_getSplit", (PyCFunction) _wrap_Timer_getSplit, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Timer_printSplits", _wrap_Timer_printSplits, METH_VARARGS, NULL},
 	 { (char *)"Timer_clearSplits", _wrap_Timer_clearSplits, METH_VARARGS, NULL},
 	 { (char *)"Timer_swigregister", Timer_swigregister, METH_VARARGS, NULL},
@@ -19253,7 +18041,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Track_clearSegments", _wrap_Track_clearSegments, METH_VARARGS, NULL},
 	 { (char *)"Track_toString", _wrap_Track_toString, METH_VARARGS, NULL},
 	 { (char *)"Track_swigregister", Track_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_TrackGenerator", _wrap_new_TrackGenerator, METH_VARARGS, NULL},
+	 { (char *)"new_TrackGenerator", (PyCFunction) _wrap_new_TrackGenerator, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"delete_TrackGenerator", _wrap_delete_TrackGenerator, METH_VARARGS, NULL},
 	 { (char *)"TrackGenerator_getNumAzim", _wrap_TrackGenerator_getNumAzim, METH_VARARGS, NULL},
 	 { (char *)"TrackGenerator_getTrackSpacing", _wrap_TrackGenerator_getTrackSpacing, METH_VARARGS, NULL},
@@ -19371,7 +18159,6 @@ static swig_type_info _swigt__p_YPlane = {"_p_YPlane", "YPlane *", 0, 0, (void*)
 static swig_type_info _swigt__p_ZPlane = {"_p_ZPlane", "ZPlane *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_double = {"_p_double", "FP_PRECISION *|double *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_float = {"_p_float", "float *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_int = {"_p_int", "int *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_logLevels = {"_p_logLevels", "enum logLevels *|logLevel *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_Track = {"_p_p_Track", "Track **", 0, 0, (void*)0, 0};
@@ -19409,7 +18196,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_ZPlane,
   &_swigt__p_char,
   &_swigt__p_double,
-  &_swigt__p_float,
   &_swigt__p_int,
   &_swigt__p_logLevels,
   &_swigt__p_p_Track,
@@ -19447,7 +18233,6 @@ static swig_cast_info _swigc__p_YPlane[] = {  {&_swigt__p_YPlane, 0, 0, 0},{0, 0
 static swig_cast_info _swigc__p_ZPlane[] = {  {&_swigt__p_ZPlane, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_double[] = {  {&_swigt__p_double, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_float[] = {  {&_swigt__p_float, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_int[] = {  {&_swigt__p_int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_logLevels[] = {  {&_swigt__p_logLevels, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_Track[] = {  {&_swigt__p_p_Track, 0, 0, 0},{0, 0, 0, 0}};
@@ -19485,7 +18270,6 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_ZPlane,
   _swigc__p_char,
   _swigc__p_double,
-  _swigc__p_float,
   _swigc__p_int,
   _swigc__p_logLevels,
   _swigc__p_p_Track,

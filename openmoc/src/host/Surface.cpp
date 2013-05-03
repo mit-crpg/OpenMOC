@@ -103,7 +103,7 @@ void Surface::setBoundaryType(boundaryType boundary_type) {
  * @param point pointer to the point of interest
  * @return on (true) or off (false) the surface
  */
-bool Surface::onSurface(Point* point) {
+bool Surface::isPointOnSurface(Point* point) {
 
     /* Uses a threshold to determine whether the point is on the surface */
     if (abs(evaluate(point)) < ON_SURFACE_THRESH)
@@ -118,8 +118,8 @@ bool Surface::onSurface(Point* point) {
  * @param coord pointer to the localcoord of interest
  * @return on (true) or off (false) the surface
  */
-bool Surface::onSurface(LocalCoords* coord) {
-    return onSurface(coord->getPoint());
+bool Surface::isCoordOnSurface(LocalCoords* coord) {
+    return isPointOnSurface(coord->getPoint());
 }
 
 

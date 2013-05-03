@@ -89,10 +89,8 @@ public:
     void stopTimer();
     void resetTimer();
     void restartTimer();
-    void recordSplit(std::string msg);
     void recordSplit(const char* msg);
     double getTime();
-    double getSplit(std::string msg);
     double getSplit(const char* msg);
     void printSplits();
     void clearSplits();

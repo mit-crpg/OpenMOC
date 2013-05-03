@@ -71,7 +71,6 @@ private:
     bool readTracksFromFile();
 
 public:
-    TrackGenerator();
     TrackGenerator(Geometry* geometry, int num_azim, double spacing);
     virtual ~TrackGenerator();
 

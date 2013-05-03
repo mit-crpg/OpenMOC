@@ -209,8 +209,6 @@ def plotMaterials(geometry, gridsize=250):
     ymin = geometry.getYMin()
     ymax = geometry.getYMax()
 
-    print 
-
     # Initialize numpy arrays for the grid points
     xcoords = np.linspace(xmin, xmax, gridsize)
     ycoords = np.linspace(ymin, ymax, gridsize)
@@ -224,9 +222,9 @@ def plotMaterials(geometry, gridsize=250):
 
             point = LocalCoords(x, y)
             point.setUniverse(0)
-            geometry.findCell(point)
+            geometry.findCellContainingCoords(point)
             fsr_id = geometry.findFSRId(point)
-            material_id = geometry.findCell(fsr_id).getMaterial()
+            material_id = geometry.findCellContainingFSR(fsr_id).getMaterial()
             surface[j][i] = color_map[material_id % num_colors]
 
     # Plot a 2D color map of the materials
@@ -297,9 +295,9 @@ def plotCells(geometry, gridsize=250):
 
             point = LocalCoords(x, y)
             point.setUniverse(0)
-            geometry.findCell(point)
+            geometry.findCellContainingCoords(point)
             fsr_id = geometry.findFSRId(point)
-            cell_id = geometry.findCell(fsr_id).getId()
+            cell_id = geometry.findCellContainingFSR(fsr_id).getId()
             surface[j][i] = color_map[cell_id % num_colors]
 
 
@@ -372,7 +370,7 @@ def plotFlatSourceRegions(geometry, gridsize=250):
 
             point = LocalCoords(x, y)
             point.setUniverse(0)
-            geometry.findCell(point)
+            geometry.findCellContainingCoords(point)
             fsr_id = geometry.findFSRId(point)
             surface[j][i] = color_map[fsr_id % num_colors]
 
@@ -489,7 +487,7 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
 
                 point = LocalCoords(x, y)
                 point.setUniverse(0)
-                geometry.findCell(point)
+                geometry.findCellContainingCoords(point)
                 fsr_id = geometry.findFSRId(point)
                 flux = solver.getFSRScalarFlux(fsr_id, group)
                 fluxes[j][i] = flux

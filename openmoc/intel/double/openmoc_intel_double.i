@@ -34,6 +34,7 @@
     }
 %}
 
+%warnfilter(506) log_printf(logLevel level, const char *format, ...);
 
 %exception {
     try {

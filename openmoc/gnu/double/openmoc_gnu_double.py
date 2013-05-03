@@ -92,7 +92,8 @@ class Cell(_object):
     def setUniverse(self, *args, **kwargs): return _openmoc_gnu_double.Cell_setUniverse(self, *args, **kwargs)
     def addSurface(self, *args, **kwargs): return _openmoc_gnu_double.Cell_addSurface(self, *args, **kwargs)
     def setSurfacePointer(self, *args, **kwargs): return _openmoc_gnu_double.Cell_setSurfacePointer(self, *args, **kwargs)
-    def cellContains(self, *args): return _openmoc_gnu_double.Cell_cellContains(self, *args)
+    def cellContainsPoint(self, *args, **kwargs): return _openmoc_gnu_double.Cell_cellContainsPoint(self, *args, **kwargs)
+    def cellContainsCoords(self, *args, **kwargs): return _openmoc_gnu_double.Cell_cellContainsCoords(self, *args, **kwargs)
     def minSurfaceDist(self, *args, **kwargs): return _openmoc_gnu_double.Cell_minSurfaceDist(self, *args, **kwargs)
     def toString(self): return _openmoc_gnu_double.Cell_toString(self)
     def printString(self): return _openmoc_gnu_double.Cell_printString(self)
@@ -211,12 +212,15 @@ class Geometry(_object):
     def addCell(self, *args, **kwargs): return _openmoc_gnu_double.Geometry_addCell(self, *args, **kwargs)
     def addUniverse(self, *args, **kwargs): return _openmoc_gnu_double.Geometry_addUniverse(self, *args, **kwargs)
     def addLattice(self, *args, **kwargs): return _openmoc_gnu_double.Geometry_addLattice(self, *args, **kwargs)
-    def findCell(self, *args): return _openmoc_gnu_double.Geometry_findCell(self, *args)
+    def findCellContainingCoords(self, *args, **kwargs): return _openmoc_gnu_double.Geometry_findCellContainingCoords(self, *args, **kwargs)
+    def findCellContainingFSR(self, *args, **kwargs): return _openmoc_gnu_double.Geometry_findCellContainingFSR(self, *args, **kwargs)
+    def findCell(self, *args, **kwargs): return _openmoc_gnu_double.Geometry_findCell(self, *args, **kwargs)
     def findFSRId(self, *args, **kwargs): return _openmoc_gnu_double.Geometry_findFSRId(self, *args, **kwargs)
     def subdivideCells(self): return _openmoc_gnu_double.Geometry_subdivideCells(self)
     def initializeFlatSourceRegions(self): return _openmoc_gnu_double.Geometry_initializeFlatSourceRegions(self)
     def segmentize(self, *args, **kwargs): return _openmoc_gnu_double.Geometry_segmentize(self, *args, **kwargs)
-    def computePinPowers(self, *args): return _openmoc_gnu_double.Geometry_computePinPowers(self, *args)
+    def computePinPowers(self, *args, **kwargs): return _openmoc_gnu_double.Geometry_computePinPowers(self, *args, **kwargs)
+    def computePinPowersInUniverse(self, *args, **kwargs): return _openmoc_gnu_double.Geometry_computePinPowersInUniverse(self, *args, **kwargs)
     def toString(self): return _openmoc_gnu_double.Geometry_toString(self)
     def printString(self): return _openmoc_gnu_double.Geometry_printString(self)
 Geometry_swigregister = _openmoc_gnu_double.Geometry_swigregister
@@ -326,13 +330,13 @@ def setLineLength(*args, **kwargs):
   return _openmoc_gnu_double.setLineLength(*args, **kwargs)
 setLineLength = _openmoc_gnu_double.setLineLength
 
-def log_setlevel(*args):
-  return _openmoc_gnu_double.log_setlevel(*args)
-log_setlevel = _openmoc_gnu_double.log_setlevel
+def setLogLevel(*args, **kwargs):
+  return _openmoc_gnu_double.setLogLevel(*args, **kwargs)
+setLogLevel = _openmoc_gnu_double.setLogLevel
 
-def get_loglevel():
-  return _openmoc_gnu_double.get_loglevel()
-get_loglevel = _openmoc_gnu_double.get_loglevel
+def getLogLevel():
+  return _openmoc_gnu_double.getLogLevel()
+getLogLevel = _openmoc_gnu_double.getLogLevel
 
 def log_printf(*args, **kwargs):
   return _openmoc_gnu_double.log_printf(*args, **kwargs)
@@ -368,12 +372,12 @@ class Material(_object):
     def getNuSigmaF(self): return _openmoc_gnu_double.Material_getNuSigmaF(self)
     def getChi(self): return _openmoc_gnu_double.Material_getChi(self)
     def setNumEnergyGroups(self, *args, **kwargs): return _openmoc_gnu_double.Material_setNumEnergyGroups(self, *args, **kwargs)
-    def setSigmaT(self, *args): return _openmoc_gnu_double.Material_setSigmaT(self, *args)
-    def setSigmaA(self, *args): return _openmoc_gnu_double.Material_setSigmaA(self, *args)
-    def setSigmaS(self, *args): return _openmoc_gnu_double.Material_setSigmaS(self, *args)
-    def setSigmaF(self, *args): return _openmoc_gnu_double.Material_setSigmaF(self, *args)
-    def setNuSigmaF(self, *args): return _openmoc_gnu_double.Material_setNuSigmaF(self, *args)
-    def setChi(self, *args): return _openmoc_gnu_double.Material_setChi(self, *args)
+    def setSigmaT(self, *args, **kwargs): return _openmoc_gnu_double.Material_setSigmaT(self, *args, **kwargs)
+    def setSigmaA(self, *args, **kwargs): return _openmoc_gnu_double.Material_setSigmaA(self, *args, **kwargs)
+    def setSigmaS(self, *args, **kwargs): return _openmoc_gnu_double.Material_setSigmaS(self, *args, **kwargs)
+    def setSigmaF(self, *args, **kwargs): return _openmoc_gnu_double.Material_setSigmaF(self, *args, **kwargs)
+    def setNuSigmaF(self, *args, **kwargs): return _openmoc_gnu_double.Material_setNuSigmaF(self, *args, **kwargs)
+    def setChi(self, *args, **kwargs): return _openmoc_gnu_double.Material_setChi(self, *args, **kwargs)
     def checkSigmaT(self): return _openmoc_gnu_double.Material_checkSigmaT(self)
     def toString(self): return _openmoc_gnu_double.Material_toString(self)
     def printString(self): return _openmoc_gnu_double.Material_printString(self)
@@ -397,7 +401,8 @@ class Point(_object):
     def getY(self): return _openmoc_gnu_double.Point_getY(self)
     def setX(self, *args, **kwargs): return _openmoc_gnu_double.Point_setX(self, *args, **kwargs)
     def setY(self, *args, **kwargs): return _openmoc_gnu_double.Point_setY(self, *args, **kwargs)
-    def distance(self, *args): return _openmoc_gnu_double.Point_distance(self, *args)
+    def distance(self, *args, **kwargs): return _openmoc_gnu_double.Point_distance(self, *args, **kwargs)
+    def distanceToPoint(self, *args, **kwargs): return _openmoc_gnu_double.Point_distanceToPoint(self, *args, **kwargs)
     def toString(self): return _openmoc_gnu_double.Point_toString(self)
 Point_swigregister = _openmoc_gnu_double.Point_swigregister
 Point_swigregister(Point)
@@ -500,7 +505,8 @@ class Surface(_object):
     def setBoundaryType(self, *args, **kwargs): return _openmoc_gnu_double.Surface_setBoundaryType(self, *args, **kwargs)
     def evaluate(self, *args, **kwargs): return _openmoc_gnu_double.Surface_evaluate(self, *args, **kwargs)
     def intersection(self, *args, **kwargs): return _openmoc_gnu_double.Surface_intersection(self, *args, **kwargs)
-    def onSurface(self, *args): return _openmoc_gnu_double.Surface_onSurface(self, *args)
+    def isPointOnSurface(self, *args, **kwargs): return _openmoc_gnu_double.Surface_isPointOnSurface(self, *args, **kwargs)
+    def isCoordOnSurface(self, *args, **kwargs): return _openmoc_gnu_double.Surface_isCoordOnSurface(self, *args, **kwargs)
     def getMinDistance(self, *args, **kwargs): return _openmoc_gnu_double.Surface_getMinDistance(self, *args, **kwargs)
     def toString(self): return _openmoc_gnu_double.Surface_toString(self)
     def printString(self): return _openmoc_gnu_double.Surface_printString(self)
@@ -652,9 +658,9 @@ class Timer(_object):
     def stopTimer(self): return _openmoc_gnu_double.Timer_stopTimer(self)
     def resetTimer(self): return _openmoc_gnu_double.Timer_resetTimer(self)
     def restartTimer(self): return _openmoc_gnu_double.Timer_restartTimer(self)
-    def recordSplit(self, *args): return _openmoc_gnu_double.Timer_recordSplit(self, *args)
+    def recordSplit(self, *args, **kwargs): return _openmoc_gnu_double.Timer_recordSplit(self, *args, **kwargs)
     def getTime(self): return _openmoc_gnu_double.Timer_getTime(self)
-    def getSplit(self, *args): return _openmoc_gnu_double.Timer_getSplit(self, *args)
+    def getSplit(self, *args, **kwargs): return _openmoc_gnu_double.Timer_getSplit(self, *args, **kwargs)
     def printSplits(self): return _openmoc_gnu_double.Timer_printSplits(self)
     def clearSplits(self): return _openmoc_gnu_double.Timer_clearSplits(self)
 Timer_swigregister = _openmoc_gnu_double.Timer_swigregister
@@ -745,8 +751,8 @@ class TrackGenerator(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, TrackGenerator, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
-        this = _openmoc_gnu_double.new_TrackGenerator(*args)
+    def __init__(self, *args, **kwargs): 
+        this = _openmoc_gnu_double.new_TrackGenerator(*args, **kwargs)
         try: self.this.append(this)
         except: self.this = this
     __swig_destroy__ = _openmoc_gnu_double.delete_TrackGenerator

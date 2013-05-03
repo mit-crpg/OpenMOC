@@ -18,7 +18,7 @@ gridsize = 500
 
 setOutputDirectory('Tiny-Lattice')
 
-log.py_setlevel('INFO')
+log.setLogLevel('INFO')
 
 
 ###############################################################################
@@ -100,10 +100,7 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator()
-track_generator.setNumAzim(num_azim)
-track_generator.setTrackSpacing(track_spacing)
-track_generator.setGeometry(geometry)
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
 
 
@@ -116,9 +113,18 @@ solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 
+
+###############################################################################
+############################   Generating Plots   #############################
+###############################################################################
+
+log.py_printf('NORMAL', 'Plotting data...')
+
 plotter.plotTracks(track_generator)
 plotter.plotMaterials(geometry, gridsize=50)
 plotter.plotCells(geometry, gridsize=50)
 plotter.plotFlatSourceRegions(geometry, gridsize=50)
 plotter.plotSegments(track_generator)
 plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+
+log.py_printf('TITLE', 'Finished')

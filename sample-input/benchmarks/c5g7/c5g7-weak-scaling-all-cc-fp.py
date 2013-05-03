@@ -16,7 +16,7 @@ num_azim = 8
 
 setOutputDirectory('C5G7-Weak-Scaling')
 
-log.py_setlevel('NORMAL')
+log.setLogLevel('NORMAL')
 
 log.py_printf('TITLE', 'Weak Scaling the OECD\'s C5G7 Benchmark Problem...')
 

@@ -2,23 +2,6 @@
 
 
 /**
- * @brief Default constructor sets a default of 16 azimuthal angles and 0.1 cm
- *        track spacing.
- */
-TrackGenerator::TrackGenerator() {
-    _geometry = NULL;
-    _num_azim = 16;   /* Default is 16 angles (twice the number in 2pi) */
-    _spacing = 0.1;  /* Default track spacing is 0.1 cm */
-    _tot_num_tracks = 0;
-    _tot_num_segments = 0;
-    _num_segments = NULL;
-    _contains_tracks = false;
-    _use_input_file = false;
-    _tracks_filename = "";
-}
-
-
-/**
  * @brief Constructor.
  * @param geometry a pointer to a geometry object
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$

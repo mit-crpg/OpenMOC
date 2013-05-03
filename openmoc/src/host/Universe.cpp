@@ -152,7 +152,7 @@ Cell* Universe::findCell(LocalCoords* coords,
     for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
         Cell* cell = iter->second;
 
-	if (cell->cellContains(coords)) {
+	if (cell->cellContainsCoords(coords)) {
 	  
 	    /* Set the cell on this level */
 	    coords->setCell(cell->getId());
@@ -647,7 +647,7 @@ Cell* Lattice::findNextLatticeCell(LocalCoords* coords, double angle,
 
 	/* Check if the test point is within the bounds of the lattice */
 	if (withinBounds(&test)) {
-	    d = test.distance(coords->getPoint());
+	    d = test.distanceToPoint(coords->getPoint());
 
 	    /* Check if distance to test point is current minimum */
 	    if (d < distance) {
@@ -666,7 +666,7 @@ Cell* Lattice::findNextLatticeCell(LocalCoords* coords, double angle,
 
 	/* Check if the test point is within the bounds of the lattice */
 	if (withinBounds(&test)) {
-	    d = test.distance(coords->getPoint());
+	    d = test.distanceToPoint(coords->getPoint());
 
 	    /* Check if distance to test point is current minimum */
 	    if (d < distance) {
@@ -685,7 +685,7 @@ Cell* Lattice::findNextLatticeCell(LocalCoords* coords, double angle,
 
 	/* Check if the test point is within the bounds of the lattice */
 	if (withinBounds(&test)) {
-	    d = test.distance(coords->getPoint());
+	    d = test.distanceToPoint(coords->getPoint());
 
 	    /* Check if distance to test point is current minimum */
 	    if (d < distance) {
@@ -704,7 +704,7 @@ Cell* Lattice::findNextLatticeCell(LocalCoords* coords, double angle,
 	
 	/* Check if the test point is within the bounds of the lattice */
 	if (withinBounds(&test)) {
-	    d = test.distance(coords->getPoint());
+	    d = test.distanceToPoint(coords->getPoint());
 
 	    /* Check if distance to test point is current minimum */
 	    if (d < distance) {

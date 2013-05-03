@@ -133,8 +133,8 @@ public:
      * @return the number of intersection points (0 or 1)
      */
     virtual int intersection(Point* point, double angle, Point* points) =0;
-    bool onSurface(Point* point);
-    bool onSurface(LocalCoords* coord);
+    bool isPointOnSurface(Point* point);
+    bool isCoordOnSurface(LocalCoords* coord);
     double getMinDistance(Point* point, double angle, Point* intersection);
     /**
      * @brief Converts this surface's attributes to a character array.
@@ -332,15 +332,15 @@ inline double Surface::getMinDistance(Point* point, double angle,
   
     /* If there is one intersection point */
     if (num_inters == 1) {
-        distance = intersections[0].distance(point);
+        distance = intersections[0].distanceToPoint(point);
         intersection->setX(intersections[0].getX());
         intersection->setY(intersections[0].getY());
     }
 
     /* If there are two intersection points */
     else if (num_inters == 2) {
-        double dist1 = intersections[0].distance(point);
-        double dist2 = intersections[1].distance(point);
+        double dist1 = intersections[0].distanceToPoint(point);
+        double dist2 = intersections[1].distanceToPoint(point);
 
         /* Determine which intersection point is nearest */
         if (dist1 < dist2) {

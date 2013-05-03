@@ -183,7 +183,7 @@ void Cell::setSurfacePointer(Surface* surface) {
  *          in the cell.
  * @param point a pointer to a point
  */
-bool Cell::cellContains(Point* point) {
+bool Cell::cellContainsPoint(Point* point) {
 
     /* Loop over all surfaces inside the cell */
     std::map<short int, Surface*>::iterator iter;
@@ -206,8 +206,8 @@ bool Cell::cellContains(Point* point) {
  *          the cell if it is on the same side of every surface in the cell.
  * @param coords a pointer to a localcoord
  */
-bool Cell::cellContains(LocalCoords* coords) {
-    return this->cellContains(coords->getPoint());
+bool Cell::cellContainsCoords(LocalCoords* coords) {
+    return this->cellContainsPoint(coords->getPoint());
 }
 
 

@@ -657,7 +657,7 @@ void Geometry::addLattice(Lattice* lattice) {
  * @param coords pointer to a localcoords object
  * @return returns a pointer to a cell if found, NULL if no cell found
  */
-Cell* Geometry::findCell(LocalCoords* coords) {
+Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
     int universe_id = coords->getUniverse();
     Universe* univ = _universes.at(universe_id);
 
@@ -689,7 +689,7 @@ Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
     double delta_x = cos(angle) * TINY_MOVE;
     double delta_y = sin(angle) * TINY_MOVE;
     coords->adjustCoords(delta_x, delta_y);
-    return findCell(coords);
+    return findCellContainingCoords(coords);
 }
 
 
@@ -700,7 +700,7 @@ Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
  * @param fsr_id a flat source region id
  * @return a pointer to the cell that this fsr is in
  */
-CellBasic* Geometry::findCell(int fsr_id) {
+CellBasic* Geometry::findCellContainingFSR(int fsr_id) {
     return static_cast<CellBasic*>(findCell(_universes.at(0), fsr_id));
 }
 
@@ -835,7 +835,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
     double dist;
 
     /* Find the current cell */
-    cell = findCell(coords);
+    cell = findCellContainingCoords(coords);
 
     /* If the current coords is not in any cell, return NULL */
     if (cell == NULL)
@@ -867,7 +867,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
             coords->adjustCoords(delta_x, delta_y);
 
             /* Find new cell and return it */
-            cell = findCell(coords);
+            cell = findCellContainingCoords(coords);
             
             /* Check if cell is null - this means that intersection point
              * is outside the bounds of the geometry and the old coords
@@ -1122,7 +1122,7 @@ void Geometry::segmentize(Track* track) {
 
         /* Find the segment length between the segment's start and end points */
         segment_length = FP_PRECISION(segment_end.getPoint()
-                                      ->distance(segment_start.getPoint()));
+                                 ->distanceToPoint(segment_start.getPoint()));
 	segment_material = _materials.at(static_cast<CellBasic*>(prev)
 					                      ->getMaterial());
 	sigma_t = segment_material->getSigmaT();
@@ -1198,8 +1198,9 @@ void Geometry::computePinPowers(FP_PRECISION* FSRs_to_powers,
 
     /* Make call to recursive function to compute powers at each
      * level of lattice */
-    computePinPowers(univ, (char*)file_prefix.c_str(), 0, FSRs_to_powers,
-                     FSRs_to_pin_powers);
+    computePinPowersInUniverse(univ, (char*)file_prefix.c_str(), 0, 
+			       FSRs_to_powers,
+			       FSRs_to_pin_powers);
 
     return;
 }
@@ -1217,11 +1218,11 @@ void Geometry::computePinPowers(FP_PRECISION* FSRs_to_powers,
  * @param FSRs_to_pin_powers array of the fission rates for the lattice cell
  *        that each FSR is within
  */
-FP_PRECISION Geometry::computePinPowers(Universe* univ, 
-                                        char* output_file_prefix,
-                                        int FSR_id, 
-                                        FP_PRECISION* FSRs_to_powers, 
-                                        FP_PRECISION* FSRs_to_pin_powers) {
+FP_PRECISION Geometry::computePinPowersInUniverse(Universe* univ, 
+				    char* output_file_prefix,
+				    int FSR_id, 
+                                    FP_PRECISION* FSRs_to_powers, 
+				    FP_PRECISION* FSRs_to_pin_powers) {
 
     /* Power starts at 0 and is incremented for each FSR in this universe */
     FP_PRECISION power = 0;
@@ -1259,9 +1260,10 @@ FP_PRECISION Geometry::computePinPowers(Universe* univ,
                 Universe* universe_fill = fill_cell->getUniverseFill();
                 int fsr_id = univ->getFSR(curr->getId()) + FSR_id;
                 
-                power += computePinPowers(universe_fill, output_file_prefix, 
-                                          fsr_id, FSRs_to_powers, 
-                                          FSRs_to_pin_powers);
+                power += computePinPowersInUniverse(universe_fill, 
+						    output_file_prefix, 
+						    fsr_id, FSRs_to_powers, 
+						    FSRs_to_pin_powers);
             }
         }
 
@@ -1308,7 +1310,7 @@ FP_PRECISION Geometry::computePinPowers(Universe* univ,
                     lattice->getId() << "_x" << j << "_y" << i;
 
                 /* Find this lattice cell's power */
-                cell_power = computePinPowers(curr,
+                cell_power = computePinPowersInUniverse(curr,
                                               (char*)file_prefix.str().c_str(),
                                               fsr_id, FSRs_to_powers, 
                                               FSRs_to_pin_powers);

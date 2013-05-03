@@ -16,7 +16,7 @@ tolerance = 1E-3
 max_iters = 1000
 gridsize = 500
 
-log.py_setlevel('INFO')
+log.setLogLevel('INFO')
 
 
 ###############################################################################
@@ -98,10 +98,7 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator()
-track_generator.setNumAzim(num_azim)
-track_generator.setTrackSpacing(track_spacing)
-track_generator.setGeometry(geometry)
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
 
 
@@ -120,10 +117,10 @@ solver.convergeSource(max_iters)
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plotTracks(track_generator)
-#plotter.plotSegments(track_generator)
-#plotter.plotMaterials(geometry, gridsize)
-#plotter.plotCells(geometry, gridsize)
-#plotter.plotFlatSourceRegions(geometry, gridsize)
+plotter.plotTracks(track_generator)
+plotter.plotSegments(track_generator)
+plotter.plotMaterials(geometry, gridsize)
+plotter.plotCells(geometry, gridsize)
+plotter.plotFlatSourceRegions(geometry, gridsize)
 
 log.py_printf('TITLE', 'Finished')

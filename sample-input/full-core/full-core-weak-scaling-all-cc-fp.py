@@ -18,7 +18,7 @@ num_azim = 8
 
 setOutputDirectory('Full-Core-Weak-Scaling')
 
-log.py_setlevel('NORMAL')
+log.setLogLevel('NORMAL')
 
 log.py_printf('TITLE', 'Weak Scaling a Mock Full Core PWR...')
 

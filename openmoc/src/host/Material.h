@@ -78,12 +78,6 @@ public:
     void setSigmaF(double* sigma_f, int num_energy_groups);
     void setNuSigmaF(double* nu_sigma_f, int num_energy_groups);
     void setChi(double* chi, int num_energy_groups);
-    void setSigmaT(float* sigma_t, int num_energy_groups);
-    void setSigmaA(float* sigma_a, int num_energy_groups);
-    void setSigmaS(float* sigma_s, int num_energy_groups_squared);
-    void setSigmaF(float* sigma_f, int num_energy_groups);
-    void setNuSigmaF(float* nu_sigma_f, int num_energy_groups);
-    void setChi(float* chi, int num_energy_groups);
 
     void checkSigmaT();
     std::string toString();

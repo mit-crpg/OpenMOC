@@ -16,7 +16,7 @@ tolerance = 1E-3
 max_iters = 1000
 gridsize = 500
 
-log.py_setlevel('NORMAL')
+log.setLogLevel('NORMAL')
 
 
 ###############################################################################
@@ -109,10 +109,7 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator()
-track_generator.setNumAzim(num_azim)
-track_generator.setTrackSpacing(track_spacing)
-track_generator.setGeometry(geometry)
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
 
 
@@ -120,16 +117,15 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-timer = Timer()
 solver = Solver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 
-timer.startTimer()
+Timer.startTimer()
 solver.convergeSource(max_iters)
-timer.stopTimer()
-timer.recordSplit('Fixed source iteration')
-timer.printSplits()
+Timer.stopTimer()
+Timer.recordSplit('Fixed source iteration')
+Timer.printSplits()
 
 
 ###############################################################################
@@ -138,10 +134,10 @@ timer.printSplits()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plotTracks(track_generator)
-#plotter.plotMaterials(geometry, gridsize)
-#plotter.plotCells(geometry, gridsize)
-#plotter.plotFlatSourceRegions(geometry, gridsize)
-#plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+plotter.plotTracks(track_generator)
+plotter.plotMaterials(geometry, gridsize)
+plotter.plotCells(geometry, gridsize)
+plotter.plotFlatSourceRegions(geometry, gridsize)
+plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')

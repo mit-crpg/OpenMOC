@@ -4,8 +4,6 @@ import os
 import random
 import datetime
 
-# Set a default logging level
-#log_setlevel(NORMAL)
 
 # Set a log file name using a date and time
 now = datetime.datetime.now()

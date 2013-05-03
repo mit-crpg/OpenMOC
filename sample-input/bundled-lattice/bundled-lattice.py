@@ -16,7 +16,7 @@ tolerance = 1E-3
 max_iters = 1000
 gridsize = 500
 
-log.py_setlevel('NORMAL')
+log.setLogLevel('NORMAL')
 
 
 ###############################################################################
@@ -167,28 +167,23 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator()
-track_generator.setNumAzim(num_azim)
-track_generator.setTrackSpacing(track_spacing)
-track_generator.setGeometry(geometry)
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
-
 
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-timer = Timer()
 solver = Solver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 
-timer.startTimer()
+Timer.startTimer()
 solver.convergeSource(max_iters)
-timer.stopTimer()
-timer.recordSplit('Fixed source iteration on host')
-timer.printSplits()
+Timer.stopTimer()
+Timer.recordSplit('Fixed source iteration on host')
+Timer.printSplits()
 
 
 ###############################################################################

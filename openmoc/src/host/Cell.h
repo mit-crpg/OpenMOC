@@ -79,8 +79,8 @@ public:
     void setUniverse(short int universe);
     void addSurface(short int halfspace, Surface* surface);
     void setSurfacePointer(Surface* surface);
-    bool cellContains(Point* point);
-    bool cellContains(LocalCoords* coords);
+    bool cellContainsPoint(Point* point);
+    bool cellContainsCoords(LocalCoords* coords);
     double minSurfaceDist(Point* point, double angle, 
                           Point* min_intersection);
     /**

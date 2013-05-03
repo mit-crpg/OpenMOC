@@ -74,24 +74,6 @@ void Timer::restartTimer() {
  *          to the message.
  * @param msg a msg corresponding to this time split
  */
-void Timer::recordSplit(std::string msg) {
-
-    double time = getTime();
-
-    if (_timer_splits.find(msg) != _timer_splits.end())
-        _timer_splits[msg] += time;
-    else
-      _timer_splits.insert(std::pair<std::string, double>(msg, time));
-}
-
-
-/**
- * @brief Records a message corresponding to a time for the current split.
- * @details When this method is called it assumes that the timer has been
- *          stopped and has the current time for the process corresponding 
- *          to the message.
- * @param msg a msg corresponding to this time split
- */
 void Timer::recordSplit(const char* msg) {
 
     double time = getTime();
@@ -137,21 +119,6 @@ double Timer::getTime() {
         return _elapsed_time * 1.0E-9;
         #endif
     }
-}
-
-
-/**
- * @brief Returns the time associated with a particular split.
- * @details If the split does not exist, returns 0.
- * @param msg the message tag for the split
- * @return the time recorded for the split (seconds)
- */
-double Timer::getSplit(std::string msg) {
-
-    if (_timer_splits.find(msg) == _timer_splits.end())
-        return 0.0;
-    else
-        return _timer_splits[msg];
 }
 
 

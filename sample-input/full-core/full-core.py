@@ -20,7 +20,7 @@ gridsize = 1000
 
 setOutputDirectory('Full-Core')
 
-log.py_setlevel('NORMAL')
+log.setLogLevel('NORMAL')
 
 log.py_printf('TITLE', 'Simulating a Mock Full Core PWR...')
 
@@ -325,7 +325,7 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator()
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.setGeometry(geometry)
 track_generator.setNumAzim(num_azim)
 track_generator.setTrackSpacing(track_spacing)

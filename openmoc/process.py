@@ -81,10 +81,8 @@ def strongScalingStudy(geometry, num_azim=48, track_spacing=0.1,
             elif fp == 'double' and cc == 'intel':
                 import intel.double as openmoc
 
-            track_generator = openmoc.TrackGenerator()
-            track_generator.setNumAzim(num_azim)
-            track_generator.setTrackSpacing(track_spacing)
-            track_generator.setGeometry(geometry)
+            track_generator = openmoc.TrackGenerator(geometry, num_azim, 
+                                                     track_spacing)
             track_generator.generateTracks()
 
             py_printf('NORMAL', '# FSRs = %d, # tracks = %d, # segments = %d',
@@ -260,10 +258,9 @@ def weakScalingStudy(geometry, num_azim=4, track_spacing=0.1,
 
             for k in range(len(num_azim)):
 
-                track_generator = openmoc.TrackGenerator()
-                track_generator.setNumAzim(int(num_azim[k]))
-                track_generator.setTrackSpacing(track_spacing)
-                track_generator.setGeometry(geometry)
+                track_generator = openmoc.TrackGenerator(geometry, 
+                                                         int(num_azim[k]),
+                                                         track_spacing)
                 track_generator.generateTracks()
 
                 py_printf('NORMAL', '# FSRs = %d, # tracks = %d, # ' + \

@@ -73,31 +73,30 @@ def py_printf(level, my_str, *args):
 # @endcode
 #
 # @param level the minimum logging level ('DEBUG', 'INFO', etc)
-def py_setlevel(level):
+def setLogLevel(level):
     
     if level == 'DEBUG':
-        log_setlevel(DEBUG)
+        setLogLevel(DEBUG)
     elif level == 'INFO':
-        log_setlevel(INFO)
+        setLogLevel(INFO)
     elif level == 'NORMAL':
-        log_setlevel(NORMAL)
+        setLogLevel(NORMAL)
     elif level == 'SEPARATOR':
-        log_setlevel(SEPARATOR)
+        setLogLevel(SEPARATOR)
     elif level == 'HEADER':
-        log_setlevel(HEADER)
+        setLogLevel(HEADER)
     elif level == 'TITLE':
-        log_setlevel(TITLE)
+        setLogLevel(TITLE)
     elif level == 'WARNING':
-        log_setlevel(WARNING)
+        setLogLevel(WARNING)
     elif level == 'CRITICAL':
-        log_setlevel(CRITICAL)
+        setLogLevel(CRITICAL)
     elif level == 'RESULT':
-        log_setlevel(RESULT)
+        setLogLevel(RESULT)
     elif level == 'UNITTEST':
-        log_setlevel(UNITTEST)
+        setLogLevel(UNITTEST)
     elif level == 'ERROR':
-        log_setlevel(ERROR)
+        setLogLevel(ERROR)
     else:
-        py_printf('Cannot set log level to unsupported log level %s', str(level))
-
-
+        py_printf('Cannot set log level to unsupported log level %s', 
+                  str(level))

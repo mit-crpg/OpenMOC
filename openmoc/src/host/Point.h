@@ -35,7 +35,7 @@ public:
     void setX(const double x);
     void setY(const double y);
     double distance(const double x, const double y) const;
-    double distance(const Point* point);
+    double distanceToPoint(const Point* point);
     std::string toString();
 };
 
@@ -106,7 +106,7 @@ inline double Point::distance(const double x, const double y) const {
  * @param point a pointer to the point of interest
  * @return distance to the point of interest
  */
-inline double Point::distance(const Point* point) {
+inline double Point::distanceToPoint(const Point* point) {
     double deltax = _x - point->_x;
     double deltay = _y - point->_y;
     return sqrt(deltax*deltax + deltay*deltay);

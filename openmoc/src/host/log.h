@@ -85,9 +85,8 @@ void setTitleCharacter(char c);
 char getTitleCharacter();
 void setLineLength(int length);
 
-void log_setlevel(logLevel newlevel);
-void log_setlevel(const char* newlevel);
-int get_loglevel();
+void setLogLevel(const char* newlevel);
+int getLogLevel();
 
 void log_printf(logLevel level, const char *format, ...);
 std::string createMultilineMsg(std::string level, std::string message);

@@ -82,8 +82,6 @@ void setOutputDirectory(char* directory) {
         mkdir((output_directory+"/log").c_str(), S_IRWXU);
     }
 
-    logfile_name = output_directory + "/" + logfile_name;
-
     return;
 }
 
@@ -102,7 +100,7 @@ const char* getOutputDirectory() {
  * @param filename a character array for log filename
  */
 void setLogfileName(char* filename) {
-    logfile_name = output_directory + "/" + filename;
+    logfile_name = std::string(filename);
 }
 
 
@@ -184,53 +182,7 @@ void setLineLength(int length) {
  *        console and to the log file.
  * @param newlevel the minimum logging level
  */
-void log_setlevel(logLevel newlevel) {
-    log_level = newlevel;
-
-    switch (newlevel) {
-    case DEBUG:
-        log_printf(INFO, "Logging level set to DEBUG");
-        break;
-    case INFO:
-        log_printf(INFO, "Logging level set to INFO");
-        break;
-    case NORMAL:
-        log_printf(INFO, "Logging level set to NORMAL");
-        break;
-    case SEPARATOR:
-        log_printf(INFO, "Logging level set to SEPARATOR");
-        break;
-    case HEADER:
-        log_printf(INFO, "Logging level set to HEADER");
-        break;
-    case TITLE:
-        log_printf(INFO, "Logging level set to TITLE");
-        break;
-    case WARNING:
-        log_printf(INFO, "Logging level set to WARNING");
-        break;
-    case CRITICAL:
-        log_printf(INFO, "Logging level set to CRITICAL");
-        break;
-    case RESULT:
-        log_printf(INFO, "Logging level set to RESULT");
-        break;
-    case UNITTEST:
-        log_printf(INFO, "Logging level set to UNITTEST");
-        break;
-    case ERROR:
-        log_printf(INFO, "Logging level set to ERROR");
-        break;
-    }
-}
-
-
-/**
- * @brief Sets the minimum log message level which will be printed to the 
- *        console and to the log file.
- * @param newlevel the minimum logging level
- */
-void log_setlevel(const char* newlevel) {
+void setLogLevel(const char* newlevel) {
 
     if (strcmp("DEBUG", newlevel) == 0) {
         log_level = DEBUG;
@@ -285,7 +237,7 @@ void log_setlevel(const char* newlevel) {
  * @brief Return the minimum level for log messages printed to the screen.
  * @return the minimum level for log messages
  */
-int get_loglevel(){
+int getLogLevel(){
      return log_level;
 }
 
@@ -301,7 +253,6 @@ void log_printf(logLevel level, const char *format, ...) {
 
     char message[512];
     std::string msg_string;
-
     if (level >= log_level) {
     	va_list args;
 
@@ -464,7 +415,8 @@ void log_printf(logLevel level, const char *format, ...) {
 
             /* Write the message to the output file */
             std::ofstream logfile;
-            logfile.open (logfile_name.c_str(), std::ios::app); 
+            logfile.open ((output_directory + "/" + logfile_name).c_str(), 
+			  std::ios::app); 
 
             /* Append date, time to the top of log output file */
             time_t rawtime;
@@ -479,7 +431,8 @@ void log_printf(logLevel level, const char *format, ...) {
 
         /* Write the log message to the logfile */
         std::ofstream logfile;
-        logfile.open (logfile_name.c_str(), std::ios::app); 
+        logfile.open((output_directory + "/" + logfile_name).c_str(), 
+		     std::ios::app);
         logfile << msg_string;
         logfile.close();
 

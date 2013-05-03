@@ -15,7 +15,7 @@ tolerance = 1E-3
 max_iters = 1000
 gridsize = 500
 
-log.py_setlevel('INFO')
+log.setLogLevel('INFO')
 
 log.py_printf('TITLE', 'Simulating HW3 from Fall 2010 22.212...')
 
@@ -117,10 +117,7 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator()
-track_generator.setNumAzim(num_azim)
-track_generator.setTrackSpacing(track_spacing)
-track_generator.setGeometry(geometry)
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
 
 
