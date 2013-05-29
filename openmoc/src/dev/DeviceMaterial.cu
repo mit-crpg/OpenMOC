@@ -5,52 +5,52 @@
  * @brief Given a pointer to a material on the host and a material on the 
  *        device, copy all of the properties from the material on the host 
  *        to the device.
- * @param host_material pointer to a material on the host
- * @param dev_material pointer to a material on the device
+ * @param material_h pointer to a material on the host
+ * @param material_d pointer to a material on the device
  */
-void cloneOnDevice(Material* host_material, dev_material* dev_material) {
+void cloneOnDevice(Material* material_h, dev_material* material_d) {
 
     /* Copy over the material's id and uid */
-    int id = host_material->getId();
-    int uid = host_material->getUid();
+    int id = material_h->getId();
+    int uid = material_h->getUid();
 
-    cudaMemcpy((void*)&dev_material->_id, (void*)&id, sizeof(int), 
+    cudaMemcpy((void*)&material_d->_id, (void*)&id, sizeof(int), 
 	       cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)&dev_material->_uid, (void*)&uid, sizeof(int), 
+    cudaMemcpy((void*)&material_d->_uid, (void*)&uid, sizeof(int), 
 	       cudaMemcpyHostToDevice);
 
     /* Allocate memory on the device for each material data array */
-    int num_groups = host_material->getNumEnergyGroups();
+    int num_groups = material_h->getNumEnergyGroups();
 
-    cudaMalloc((void**)dev_material->_sigma_t, 
+    cudaMalloc((void**)material_d->_sigma_t, 
+	       num_groups * sizeof(double));
+    cudaMalloc((void**)material_d->_sigma_a, 
 	       num_groups * sizeof(FP_PRECISION));
-    cudaMalloc((void**)dev_material->_sigma_a, 
-	       num_groups * sizeof(FP_PRECISION));
-    cudaMalloc((void**)dev_material->_sigma_s, 
-	       num_groups * num_groups * sizeof(FP_PRECISION));
-    cudaMalloc((void**)dev_material->_sigma_f, 
-	       num_groups * sizeof(FP_PRECISION));
-    cudaMalloc((void**)dev_material->_nu_sigma_f, 
-	       num_groups * sizeof(FP_PRECISION));
-    cudaMalloc((void**)dev_material->_chi, 
-	       num_groups * sizeof(FP_PRECISION));
+    cudaMalloc((void**)material_d->_sigma_s, 
+	       num_groups * num_groups * sizeof(double));
+    cudaMalloc((void**)material_d->_sigma_f, 
+	       num_groups * sizeof(double));
+    cudaMalloc((void**)material_d->_nu_sigma_f, 
+	       num_groups * sizeof(double));
+    cudaMalloc((void**)material_d->_chi, 
+	       num_groups * sizeof(double));
 
     /* Copy materials data in to device material arrays */
-    cudaMemcpy((void*)dev_material->_sigma_t, (void*)host_material->getSigmaT(),
-	   num_groups * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)dev_material->_sigma_a, (void*)host_material->getSigmaA(),
-	   num_groups * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)dev_material->_sigma_s, 
-	       (void*)host_material->getSigmaS(),
-	       num_groups * num_groups * sizeof(FP_PRECISION),
+    cudaMemcpy((void*)material_d->_sigma_t, (void*)material_h->getSigmaT(),
+	   num_groups * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)material_d->_sigma_a, (void*)material_h->getSigmaA(),
+	   num_groups * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)material_d->_sigma_s, 
+	       (void*)material_h->getSigmaS(),
+	       num_groups * num_groups * sizeof(double),
 	       cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)dev_material->_sigma_f, (void*)host_material->getSigmaF(),
-	   num_groups * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)dev_material->_nu_sigma_f, 
-	       (void*)host_material->getNuSigmaF(),
-	       num_groups * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)dev_material->_chi, (void*)host_material->getChi(),
-	   num_groups * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)material_d->_sigma_f, (void*)material_h->getSigmaF(),
+	   num_groups * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)material_d->_nu_sigma_f, 
+	       (void*)material_h->getNuSigmaF(),
+	       num_groups * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)material_d->_chi, (void*)material_h->getChi(),
+	   num_groups * sizeof(double), cudaMemcpyHostToDevice);
 
     return;
 }

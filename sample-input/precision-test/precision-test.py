@@ -1,5 +1,7 @@
 import numpy
-from openmoc.intel.single import *
+import openmoc.gnu.single as sp
+import openmoc.gnu.double as dp
+from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -11,12 +13,10 @@ import openmoc.materialize as materialize
 
 num_threads = 4
 track_spacing = 0.1
-num_azim = 32
+num_azim = 16
 tolerance = 1E-3
-max_iters = 1000
+max_iters = 25
 gridsize = 500
-
-setOutputDirectory('Tiny-Lattice')
 
 log.setLogLevel('INFO')
 
@@ -39,7 +39,7 @@ water_id = materials['Water'].getId()
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(x=0.0, y=0.0, radius=0.8)
+circle = Circle(x=0.0, y=0.0, radius=1.0)
 left = XPlane(x=-2.0)
 right = XPlane(x=2.0)
 top = YPlane(y=2.0)
@@ -69,14 +69,15 @@ cells[2].addSurface(halfspace=-1, surface=right)
 cells[2].addSurface(halfspace=+1, surface=bottom)
 cells[2].addSurface(halfspace=-1, surface=top)
 
+
 ###############################################################################
 ###########################   Creating Lattices   #############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating simple 2 x 2 lattice...')
+log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
 
-lattice = Lattice(id=2, width_x=2.0, width_y=2.0)
-lattice.setLatticeCells([[1, 1], [1, 1]])
+lattice = Lattice(id=2, width_x=4.0, width_y=4.0)
+lattice.setLatticeCells([[1]])
 
 
 ###############################################################################
@@ -93,38 +94,30 @@ geometry.addLattice(lattice)
 geometry.initializeFlatSourceRegions()
 
 
-
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.generateTracks()
+sp_track_generator = sp.TrackGenerator(geometry, num_azim, track_spacing)
+dp_track_generator = dp.TrackGenerator(geometry, num_azim, track_spacing)
+sp_track_generator.generateTracks()
+dp_track_generator.generateTracks()
 
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = Solver(geometry, track_generator)
-solver.setNumThreads(num_threads)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.convergeSource(max_iters)
+sp_solver = sp.Solver(geometry, sp_track_generator)
+dp_solver = dp.Solver(geometry, dp_track_generator)
+sp_solver.setNumThreads(num_threads)
+dp_solver.setNumThreads(num_threads)
+sp_solver.setSourceConvergenceThreshold(tolerance)
+dp_solver.setSourceConvergenceThreshold(tolerance)
 
-
-###############################################################################
-############################   Generating Plots   #############################
-###############################################################################
-
-log.py_printf('NORMAL', 'Plotting data...')
-
-plotter.plotTracks(track_generator)
-plotter.plotMaterials(geometry, gridsize=50)
-plotter.plotCells(geometry, gridsize=50)
-plotter.plotFlatSourceRegions(geometry, gridsize=50)
-plotter.plotSegments(track_generator)
-plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+sp_solver.convergeSource(max_iters)
+dp_solver.convergeSource(max_iters)
 
 log.py_printf('TITLE', 'Finished')

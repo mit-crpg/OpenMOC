@@ -10,20 +10,15 @@
  */
 void cloneOnDevice(FlatSourceRegion* fsr_h, dev_flatsourceregion* fsr_d) {
 
-  /* Create a temporary flatsourceregion struct on the host and populate it
-   * with the data from the FlatSourceRegion object on the host */
-    dev_flatsourceregion* temp =
-                   (dev_flatsourceregion*)malloc(sizeof(dev_flatsourceregion));
+   /* Create a temporary flatsourceregion struct on the host and populate it
+    * with the data from the FlatSourceRegion object on the host */
+    dev_flatsourceregion new_fsr;
 
-    int uid = fsr_h->getUid();
-    int material_uid = fsr_h->getMaterial()->getUid();
-    FP_PRECISION volume = fsr_h->getVolume();
+    new_fsr._uid = fsr_h->getUid();
+    new_fsr._material_uid = fsr_h->getMaterial()->getUid();
+    new_fsr._volume = fsr_h->getVolume();
 
-    cudaMemcpy((void*)&fsr_d->_uid, (void*)&uid, sizeof(int), 
-	       cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)&fsr_d->_material_uid, (void*)&material_uid, sizeof(int), 
-	       cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)&fsr_d->_volume, (void*)&volume, sizeof(FP_PRECISION), 
+    cudaMemcpy((void*)fsr_d, (void*)&new_fsr, sizeof(dev_flatsourceregion),
 	       cudaMemcpyHostToDevice);
 
     return;

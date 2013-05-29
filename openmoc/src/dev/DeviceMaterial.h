@@ -11,7 +11,6 @@
 
 #ifdef __cplusplus
 #include "../host/Material.h"
-#include "../host/configurations.h"
 #endif
 
 /**
@@ -19,24 +18,33 @@
  * @brief A material's nuclear data to be stored on a GPU.
  */
 typedef struct dev_material {
-    int _id;
+    /** A monotonically increasing unique ID for each material created */
     int _uid;
-    FP_PRECISION* _sigma_t;
-    FP_PRECISION* _sigma_a;
-    FP_PRECISION* _sigma_f;
-    FP_PRECISION* _nu_sigma_f;
-    FP_PRECISION* _chi;
+    /** A user-defined ID for each material created */
+    int _id;
+    /** An array of the total cross-sections for each energy group */
+    double* _sigma_t;
+    /** An array of the absorption cross-sections for each energy group */
+    double* _sigma_a;
+    /** A 2D array of the scattering cross-section matrix. The first index is 
+     *  row number and second index is column number */
+    double* _sigma_f;
+    /** An array of the fission cross-sections multiplied by nu \f$ \nu \f$ 
+     *  for each energy group */
+    double* _nu_sigma_f;
+    /** An array of the chi \f$ \chi \f$ values for each energy group */
+    double* _chi;
 
     /* first index is row number; second index is column number */
-    FP_PRECISION* _sigma_s;
+    double* _sigma_s;
 
     dev_material() {
-      _sigma_t = NULL;
-      _sigma_a = NULL;
-      _sigma_s = NULL;
-      _sigma_f = NULL;
-      _nu_sigma_f = NULL;
-      _chi = NULL;
+        _sigma_t = NULL;
+        _sigma_a = NULL;
+	_sigma_s = NULL;
+	_sigma_f = NULL;
+	_nu_sigma_f = NULL;
+	_chi = NULL;
     }
 
     ~dev_material() {
@@ -57,6 +65,6 @@ typedef struct dev_material {
 } dev_material;
 
 
-void cloneOnDevice(Material* host_material, dev_material* dev_material);
+void cloneOnDevice(Material* material_h, dev_material* material_d);
 
 #endif /* MATERIAL_H_ */
