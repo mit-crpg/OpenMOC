@@ -45,6 +45,10 @@ openmoc-*-.log
 
 penmp
 */penmp
+penmoc
+penmp-report
+*/penmoc
+*/penmp-report
 *.egg-info/*
 */*.egg-info/
 
