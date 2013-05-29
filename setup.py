@@ -10,7 +10,7 @@ import numpy
 # form here: https://github.com/rmcgibbo/npcuda-example
 
 
-cpp_compiler = 'gnu'
+cpp_compiler = 'intel'
 fp_precision = 'single'
 use_cuda = True
 
@@ -152,7 +152,7 @@ extra_link_args['intel'] = ['-lstdc++', '-openmp', '-liomp5', '-lpthread',
                             '-lirc', '-limf', '-lrt', '-shared',
                             '-Wl,-Bsymbolic-functions', '-Wl,-z,relro']
 #extra_link_args['cuda'] = ['-shared', 'build/lib.linux-x86_64-2.7/_openmoc.so']
-extra_link_args['cuda'] = ['-shared', '-Wl,-rpath,.', 'build/lib.linux-x86_64-2.7/_openmoc.so']
+extra_link_args['cuda'] = ['-shared', 'build/lib.linux-x86_64-2.7/_openmoc.so']
 
 extra_compile_args['gnu'] = ['-c', '-O3', '-fopenmp', '-std=c++0x', '-fPIC']
 extra_compile_args['intel'] =['-c', '-O3', '-openmp', '-std=c++0x', '-fpic',
@@ -301,33 +301,33 @@ def customize_compiler(self):
     # based on source extension: we add it.
     def _compile(obj, src, openmoc, cc_args, extra_postargs, pp_opts):
 
-        print 'obj = ' + str(obj)
-        print 'src = ' + str(src)
-        print 'openmoc = ' + str(openmoc)
-        print 'cc_args = ' + str(cc_args)
-        print 'extra_postargs = ' + str(extra_postargs)
-        print 'pp_opts = ' + str(pp_opts)
-        print 'os.path.splitext = ' + str(os.path.splitext(src))
+#        print 'obj = ' + str(obj)
+#        print 'src = ' + str(src)
+#        print 'openmoc = ' + str(openmoc)
+#        print 'cc_args = ' + str(cc_args)
+#        print 'extra_postargs = ' + str(extra_postargs)
+#        print 'pp_opts = ' + str(pp_opts)
+#        print 'os.path.splitext = ' + str(os.path.splitext(src))
 
         if '-DGNU' in pp_opts and os.path.splitext(src)[1] == '.cpp':
-            self.set_executable('compiler_so', 'ccache-swig gcc')
+            self.set_executable('compiler_so', 'gcc')
             postargs = extra_compile_args['gnu']
 
         elif '-DINTEL' in pp_opts and os.path.splitext(src)[1] == '.cpp':
-            self.set_executable('compiler_so', 'ccache-swig icpc')
+            self.set_executable('compiler_so', 'icpc')
             postargs = extra_compile_args['intel']
 
         elif '-DCUDA' in pp_opts and os.path.splitext(src)[1] == '.cpp':
             if cpp_compiler == 'intel':
-                self.set_executable('compiler_so', 'ccache-swig icpc')
+                self.set_executable('compiler_so', 'icpc')
                 postargs = extra_compile_args['intel']
             # Default compiler for swigged cuda code file is gcc
             else:
-                self.set_executable('compiler_so', 'ccache-swig gcc')
+                self.set_executable('compiler_so', 'gcc')
                 postargs = extra_compile_args['gnu']
 
         elif os.path.splitext(src)[1] == '.cu':
-            self.set_executable('compiler_so', 'ccache-swig nvcc')
+            self.set_executable('compiler_so', 'nvcc')
             postargs = extra_compile_args['cuda']
 
             for item in extra_postargs:
@@ -361,19 +361,19 @@ def customize_compiler(self):
             elif '_double' in obj and '_single' in output_filename:
                 objects.remove(obj)
 
-        print 'target_desc = ' + str(target_desc)
-        print 'objects = ' + str(objects)
-        print 'output_filename = ' + str(output_filename)
-        print 'output_dir = ' + str(output_dir)
-        print 'libraries = ' + str(libraries)
-        print 'library_dirs = ' + str(library_dirs)
-        print 'runtime_library_dirs = ' + str(runtime_library_dirs)
-        print 'export_symbols = ' + str(export_symbols)
-        print 'extra_preargs = ' + str(extra_preargs)
-        print 'extra_postargs = ' + str(extra_postargs)
-        print 'build_temp = ' + str(build_temp)
-        print 'target_lang = ' + str(target_lang)
-        print 'CUDA = ' + str(CUDA)
+#        print 'target_desc = ' + str(target_desc)
+#        print 'objects = ' + str(objects)
+#        print 'output_filename = ' + str(output_filename)
+#        print 'output_dir = ' + str(output_dir)
+#        print 'libraries = ' + str(libraries)
+#        print 'library_dirs = ' + str(library_dirs)
+#        print 'runtime_library_dirs = ' + str(runtime_library_dirs)
+#        print 'export_symbols = ' + str(export_symbols)
+#        print 'extra_preargs = ' + str(extra_preargs)
+#        print 'extra_postargs = ' + str(extra_postargs)
+#        print 'build_temp = ' + str(build_temp)
+#        print 'target_lang = ' + str(target_lang)
+#        print 'CUDA = ' + str(CUDA)
 
         if '-fopenmp' in extra_postargs:
             self.set_executable('linker_so', 'g++')
