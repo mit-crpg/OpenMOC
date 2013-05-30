@@ -1,12 +1,12 @@
 import numpy
-from openmoc.intel.single import *
+from openmoc.icpc.single import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 
 
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#                           Main Simulation Parameters                        
 ###############################################################################
 
 num_threads = 4
@@ -22,7 +22,7 @@ log.setLogLevel('INFO')
 
 
 ###############################################################################
-###########################   Creating Materials   ############################
+#                              Creating Materials
 ###############################################################################
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
@@ -34,7 +34,7 @@ water_id = materials['Water'].getId()
 
 
 ###############################################################################
-###########################   Creating Surfaces   #############################
+#                              Creating Surfaces
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
@@ -52,7 +52,7 @@ bottom.setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
-#############################   Creating Cells   ##############################
+#                                Creating Cells
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
@@ -70,7 +70,7 @@ cells[2].addSurface(halfspace=+1, surface=bottom)
 cells[2].addSurface(halfspace=-1, surface=top)
 
 ###############################################################################
-###########################   Creating Lattices   #############################
+#                             Creating Lattices
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating simple 2 x 2 lattice...')
@@ -80,7 +80,7 @@ lattice.setLatticeCells([[1, 1], [1, 1]])
 
 
 ###############################################################################
-##########################   Creating the Geometry   ##########################
+#                            Creating the Geometry
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
@@ -95,7 +95,7 @@ geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+#                          Creating the TrackGenerator
 ###############################################################################
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
@@ -105,7 +105,7 @@ track_generator.generateTracks()
 
 
 ###############################################################################
-###########################   Running a Simulation   ##########################
+#                            Running a Simulation
 ###############################################################################
 
 solver = Solver(geometry, track_generator)
@@ -115,7 +115,7 @@ solver.convergeSource(max_iters)
 
 
 ###############################################################################
-############################   Generating Plots   #############################
+#                              Generating Plots
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')

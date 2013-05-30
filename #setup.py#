@@ -34,6 +34,7 @@ extensions.append(Extension(name = '_openmoc',
                     swig_opts = config.swig_flags))
 config.sources['c++'].remove('openmoc/openmoc.i')
 
+
 if config.with_cuda:
     extensions.append(Extension(name = '_openmoc_cuda', 
                         sources = config.sources['cuda'], 
