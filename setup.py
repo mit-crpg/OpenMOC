@@ -114,20 +114,20 @@ except AttributeError:
 
 sources = {}
 sources['c++'] = ['openmoc/openmoc.i',
-                      'openmoc/src/host/Cell.cpp',
-                      'openmoc/src/host/FlatSourceRegion.cpp',
-                      'openmoc/src/host/Geometry.cpp',
-                      'openmoc/src/host/LocalCoords.cpp',
-                      'openmoc/src/host/log.cpp',
-                      'openmoc/src/host/Material.cpp',
-                      'openmoc/src/host/Point.cpp',
-                      'openmoc/src/host/Quadrature.cpp',
-                      'openmoc/src/host/Solver.cpp',
-                      'openmoc/src/host/Surface.cpp',
-                      'openmoc/src/host/Timer.cpp',
-                      'openmoc/src/host/Track.cpp',
-                      'openmoc/src/host/TrackGenerator.cpp',
-                      'openmoc/src/host/Universe.cpp']
+                  'openmoc/src/host/Cell.cpp',
+                  'openmoc/src/host/FlatSourceRegion.cpp',
+                  'openmoc/src/host/Geometry.cpp',
+                  'openmoc/src/host/LocalCoords.cpp',
+                  'openmoc/src/host/log.cpp',
+                  'openmoc/src/host/Material.cpp',
+                  'openmoc/src/host/Point.cpp',
+                  'openmoc/src/host/Quadrature.cpp',
+                  'openmoc/src/host/Solver.cpp',
+                  'openmoc/src/host/Surface.cpp',
+                  'openmoc/src/host/Timer.cpp',
+                  'openmoc/src/host/Track.cpp',
+                  'openmoc/src/host/TrackGenerator.cpp',
+                  'openmoc/src/host/Universe.cpp']
 
 sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
                    'openmoc/src/dev/DeviceMaterial.cu',
@@ -147,18 +147,41 @@ include_dirs = {}
 runtime_library_dirs = {}
 macros = {}
 
-extra_link_args['gnu'] = ['-lstdc++', '-lgomp', '-fopenmp', '-shared', 
+extra_link_args['gnu'] = ['-lstdc++', 
+                          '-lgomp', 
+                          '-fopenmp', 
+                          '-shared', 
                           '-Wl,-soname,_openmoc.so']
-extra_link_args['intel'] = ['-lstdc++', '-openmp', '-liomp5', '-lpthread', 
-                            '-lirc', '-limf', '-lrt', '-shared', 
+extra_link_args['intel'] = ['-lstdc++', 
+                            '-openmp', 
+                            '-liomp5', 
+                            '-lpthread', 
+                            '-lirc', 
+                            '-limf', 
+                            '-lrt', 
+                            '-shared', 
                             '-Wl,-soname,_openmoc.so']
-extra_link_args['cuda'] = ['-shared', 'build/lib.linux-x86_64-2.7/_openmoc.so']
+extra_link_args['cuda'] = ['-shared', 
+                           'build/lib.linux-x86_64-2.7/_openmoc.so']
 
-extra_compile_args['gnu'] = ['-c', '-O3', '-fopenmp', '-std=c++0x', '-fpic']
-extra_compile_args['intel'] =['-c', '-O3', '-openmp', '-std=c++0x', '-fpic',
-                             '-xhost', '-openmp-report', '-vec-report']
-extra_compile_args['cuda'] =  ['-c', '-O3', '--ptxas-options=-v', 
-                               '--compiler-options', '-fpic',
+extra_compile_args['gnu'] = ['-c', 
+                             '-O3', 
+                             '-fopenmp', 
+                             '-std=c++0x', 
+                             '-fpic']
+extra_compile_args['intel'] =['-c', 
+                              '-O3', 
+                              '-openmp', 
+                              '-xhost', 
+                              '-std=c++0x', 
+                              '-fpic',
+                              '-openmp-report', 
+                              '-vec-report']
+extra_compile_args['cuda'] =  ['-c', 
+                               '-O3', 
+                               '--ptxas-options=-v', 
+                               '--compiler-options', 
+                               '-fpic',
                                '-gencode=arch=compute_20,code=sm_20',
                                '-gencode=arch=compute_30,code=sm_30']
 libraries['gnu'] = []
@@ -170,12 +193,8 @@ library_dirs['intel'] = [ICPC['lib64']]
 library_dirs['cuda'] = [CUDA['lib64']]
 
 include_dirs['gnu'] = []
-include_dirs['intel'] =[ICPC['lib64']]
+include_dirs['intel'] =[ICPC['include']]
 include_dirs['cuda'] = [CUDA['include']]
-
-runtime_library_dirs['gnu'] = []
-runtime_library_dirs['intel'] = [ICPC['lib64']]
-runtime_library_dirs['cuda'] = []
 
 macros = {}
 macros['gnu'] = {}
@@ -233,7 +252,6 @@ extensions.append(Extension(name = '_openmoc',
                     sources = sources['c++'], 
                     library_dirs = library_dirs['gnu'], 
                     libraries = libraries['gnu'],
-                    runtime_library_dirs = runtime_library_dirs['gnu'],
                     extra_link_args = extra_link_args['gnu'], 
                     include_dirs = include_dirs['gnu'],
                     define_macros = macros['gnu']['double'],
@@ -246,7 +264,6 @@ if use_cuda:
                         sources = sources['cuda'], 
                         library_dirs = library_dirs['cuda'], 
                         libraries = libraries['cuda'],
-                        runtime_library_dirs = runtime_library_dirs['cuda'],
                         extra_link_args = extra_link_args['cuda'], 
                         include_dirs = include_dirs['cuda'],
                         define_macros = macros['cuda']['double'],
@@ -267,7 +284,6 @@ for fp in fp_precision:
                     sources = sources['c++'], 
                     library_dirs = library_dirs[cc], 
                     libraries = libraries[cc],
-                    runtime_library_dirs = runtime_library_dirs[cc],
                     extra_link_args = extra_link_args[cc], 
                     include_dirs = include_dirs[cc],
                     define_macros = macros[cc][fp],
@@ -298,14 +314,6 @@ def customize_compiler(self):
     # object but distutils doesn't have the ability to change compilers
     # based on source extension: we add it.
     def _compile(obj, src, openmoc, cc_args, extra_postargs, pp_opts):
-
-#        print 'obj = ' + str(obj)
-#        print 'src = ' + str(src)
-#        print 'openmoc = ' + str(openmoc)
-#        print 'cc_args = ' + str(cc_args)
-#        print 'extra_postargs = ' + str(extra_postargs)
-#        print 'pp_opts = ' + str(pp_opts)
-#        print 'os.path.splitext = ' + str(os.path.splitext(src))
 
         if '-DGNU' in pp_opts and os.path.splitext(src)[1] == '.cpp':
             self.set_executable('compiler_so', 'gcc')
@@ -358,20 +366,6 @@ def customize_compiler(self):
                 objects.remove(obj)
             elif '_double' in obj and '_single' in output_filename:
                 objects.remove(obj)
-
-#        print 'target_desc = ' + str(target_desc)
-#        print 'objects = ' + str(objects)
-#        print 'output_filename = ' + str(output_filename)
-#        print 'output_dir = ' + str(output_dir)
-#        print 'libraries = ' + str(libraries)
-#        print 'library_dirs = ' + str(library_dirs)
-#        print 'runtime_library_dirs = ' + str(runtime_library_dirs)
-#        print 'export_symbols = ' + str(export_symbols)
-#        print 'extra_preargs = ' + str(extra_preargs)
-#        print 'extra_postargs = ' + str(extra_postargs)
-#        print 'build_temp = ' + str(build_temp)
-#        print 'target_lang = ' + str(target_lang)
-#        print 'CUDA = ' + str(CUDA)
 
         if '-fopenmp' in extra_postargs:
             self.set_executable('linker_so', 'g++')
