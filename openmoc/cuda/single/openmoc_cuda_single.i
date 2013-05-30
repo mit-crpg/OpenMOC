@@ -1,4 +1,4 @@
-%module openmoc_cuda_double
+%module openmoc_cuda_single
 
 %{
     #define SWIG_FILE_WITH_INIT
@@ -61,10 +61,10 @@
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
 
-%include <exception.i>
+%include <exception.i> 
 %include ../../src/dev/DeviceMaterial.h
 %include ../../src/dev/DeviceFlatSourceRegion.h
 %include ../../src/dev/DeviceTrack.h
 
-typedef double FP_PRECISION;
+typedef float FP_PRECISION;
 

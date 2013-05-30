@@ -15,11 +15,14 @@ except AttributeError:
 
 # If the user selected 'all' compilers, enumerate them
 if config.cpp_compilers == ['all']:
-    config.cpp_compiler = ['gcc', 'icpc']
+    config.cpp_compilers = ['gcc', 'icpc']
 
 # If the user selected 'all' floating point precision levels, enumerate them
 if config.fp_precision == ['all']:
     config.fp_precision = ['double', 'single']
+
+if config.with_cuda:
+    config.cpp_compilers.append('nvcc')
 
 
 # Create list of extensions for Python modules within the openmoc Python package
@@ -62,23 +65,29 @@ for fp in config.fp_precision:
             ext_name = '_openmoc_cuda_' + fp
             swig_interface_file = 'openmoc/cuda/' + fp
             swig_interface_file += '/openmoc_cuda_' + fp + '.i'
-            config.sources['c++']. append(swig_interface_file)
+            sources = config.sources['cuda']
+            sources.append(swig_interface_file)
+
         elif cc == 'gcc':
             ext_name = '_openmoc_gnu_' + fp
             swig_interface_file = 'openmoc/gnu/' + fp
             swig_interface_file += '/openmoc_gnu_' + fp + '.i'
-            config.sources['c++'].append(swig_interface_file)
+            sources = config.sources['c++']
+            sources.append(swig_interface_file)
+
         elif cc == 'icpc':
             ext_name = '_openmoc_intel_' + fp
             swig_interface_file = 'openmoc/intel/' + fp
             swig_interface_file += '/openmoc_intel_' + fp + '.i'
-            config.sources['c++'].append(swig_interface_file)
+            sources = config.sources['c++']
+            sources.append(swig_interface_file)
+
         else:
             raise NameError('Compiler ' + str(cc) + ' is not supported')
 
         # Create the extension module
         extensions.append(Extension(name = ext_name, 
-                            sources = config.sources['c++'], 
+                            sources = sources, 
                             library_dirs = config.library_directories[cc], 
                             libraries = config.shared_libraries[cc],
                             extra_link_args = config.linker_flags[cc], 
@@ -88,8 +97,7 @@ for fp in config.fp_precision:
 
 
 def customize_compiler(self):
-    """inject deep into distutils to customize how the dispatch
-    to gcc/nvcc works.
+    """inject redefined _compile and link methods into distutils
 
     Adapted from Robert McGibbon's CUDA distutils setup provide in open source 
     form here: https://github.com/rmcgibbo/npcuda-example
