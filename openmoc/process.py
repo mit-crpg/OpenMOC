@@ -98,7 +98,7 @@ def strongScalingStudy(geometry, num_azim=48, track_spacing=0.1,
             for k in range(num_threads.size):
                 
                 solver.setNumThreads(int(num_threads[k]))
-        
+
                 timer.resetTimer()
                 timer.startTimer()
                 solver.convergeSource(max_iters)
