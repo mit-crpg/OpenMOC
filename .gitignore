@@ -53,3 +53,19 @@ penmp-report
 *.egg-info/*
 */*.egg-info/
 
+openmoc/intel/single/openmoc_intel_single.py
+openmoc/intel/single/openmoc_intel_single_wrap.cpp
+openmoc/intel/double/openmoc_intel_double.py
+openmoc/intel/double/openmoc_intel_double_wrap.cpp
+
+openmoc/gnu/single/openmoc_gnu_single.py
+openmoc/gnu/single/openmoc_gnu_single_wrap.cpp
+openmoc/gnu/double/openmoc_gnu_double.py
+openmoc/gnu/doube/openmoc_gnu_double_wrap.cpp
+
+openmoc/cuda/openmoc_cuda.py
+openmoc/cuda/openmoc_cuda_wrap.cpp
+openmoc/cuda/single/openmoc_cuda_single.py
+openmoc/cuda/single/openmoc_cuda_single_wrap.cpp
+openmoc/cuda/double/openmoc_cuda_double.py
+openmoc/cuda/double/openmoc_cuda_double_wrap.cpp
