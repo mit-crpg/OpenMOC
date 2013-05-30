@@ -147,19 +147,20 @@ include_dirs = {}
 runtime_library_dirs = {}
 macros = {}
 
-extra_link_args['gnu'] = ['-lstdc++', '-lgomp', '-fopenmp', '-shared', '-Wl,-soname,_openmoc.so']
+extra_link_args['gnu'] = ['-lstdc++', '-lgomp', '-fopenmp', '-shared', 
+                          '-Wl,-soname,_openmoc.so']
 extra_link_args['intel'] = ['-lstdc++', '-openmp', '-liomp5', '-lpthread', 
-                            '-lirc', '-limf', '-lrt', '-shared',
-                            '-Wl,-Bsymbolic-functions', '-Wl,-z,relro']
-#extra_link_args['cuda'] = ['-shared', 'build/lib.linux-x86_64-2.7/_openmoc.so']
+                            '-lirc', '-limf', '-lrt', '-shared', 
+                            '-Wl,-soname,_openmoc.so']
 extra_link_args['cuda'] = ['-shared', 'build/lib.linux-x86_64-2.7/_openmoc.so']
 
-extra_compile_args['gnu'] = ['-c', '-O3', '-fopenmp', '-std=c++0x', '-fPIC']
+extra_compile_args['gnu'] = ['-c', '-O3', '-fopenmp', '-std=c++0x', '-fpic']
 extra_compile_args['intel'] =['-c', '-O3', '-openmp', '-std=c++0x', '-fpic',
                              '-xhost', '-openmp-report', '-vec-report']
-extra_compile_args['cuda'] =  ['-c', '-arch=sm_20', '--ptxas-options=-v', 
-                                  '--compiler-options', '-fpic']
-
+extra_compile_args['cuda'] =  ['-c', '-O3', '--ptxas-options=-v', 
+                               '--compiler-options', '-fpic',
+                               '-gencode=arch=compute_20,code=sm_20',
+                               '-gencode=arch=compute_30,code=sm_30']
 libraries['gnu'] = []
 libraries['intel'] = []
 libraries['cuda'] = ['cudart']
@@ -167,17 +168,14 @@ libraries['cuda'] = ['cudart']
 library_dirs['gnu'] = []
 library_dirs['intel'] = [ICPC['lib64']]
 library_dirs['cuda'] = [CUDA['lib64']]
-#library_dirs['cuda'] = [CUDA['lib64'], 'build/lib.linux-x86_64-2.7']
 
-include_dirs['gnu'] = [numpy_include, 'openmoc/src/host']
-include_dirs['intel'] =[numpy_include, 'openmoc/src/host', ICPC['lib64']]
-include_dirs['cuda'] = [numpy_include, 'openmoc/src/dev', 'openmoc/src/host', 
-                        CUDA['include'], '.']
+include_dirs['gnu'] = []
+include_dirs['intel'] =[ICPC['lib64']]
+include_dirs['cuda'] = [CUDA['include']]
 
 runtime_library_dirs['gnu'] = []
 runtime_library_dirs['intel'] = [ICPC['lib64']]
 runtime_library_dirs['cuda'] = []
-#runtime_library_dirs['cuda'] = [CUDA['lib64']]
 
 macros = {}
 macros['gnu'] = {}
