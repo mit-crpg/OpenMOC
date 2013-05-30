@@ -5,6 +5,7 @@
 *.so
 *.pbs.e*
 *.pbs.o*
+*.pyc
 */*.o
 */*.cxx
 */*.h.gch
