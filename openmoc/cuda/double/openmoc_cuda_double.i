@@ -5,6 +5,8 @@
     #include "../../src/dev/DeviceMaterial.h"
     #include "../../src/dev/DeviceFlatSourceRegion.h"
     #include "../../src/dev/DeviceTrack.h"
+    #include "../../src/dev/DeviceQuery.h"
+
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -45,26 +47,11 @@
 %}
 
 
-%apply (int DIM1, int DIM2, short* IN_ARRAY2) {(int num_x, int num_y, short* universes)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_t, int num_energy_groups)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_a, int num_energy_groups)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_s, int num_energy_groups)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_f, int num_energy_groups)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* nu_sigma_f, int num_energy_groups)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* chi, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_t, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_a, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_s, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_f, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* nu_sigma_f, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* chi, int num_energy_groups)}
-%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
-%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
-
 %include <exception.i>
 %include ../../src/dev/DeviceMaterial.h
 %include ../../src/dev/DeviceFlatSourceRegion.h
 %include ../../src/dev/DeviceTrack.h
+%include ../../src/dev/DeviceQuery.h
 
 typedef double FP_PRECISION;
 

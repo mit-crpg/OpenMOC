@@ -213,6 +213,22 @@ dev_track_swigregister(dev_track)
 def cloneTrack(*args, **kwargs):
   return _openmoc_cuda_single.cloneTrack(*args, **kwargs)
 cloneTrack = _openmoc_cuda_single.cloneTrack
+
+def machineContainsGPU():
+  return _openmoc_cuda_single.machineContainsGPU()
+machineContainsGPU = _openmoc_cuda_single.machineContainsGPU
+
+def attachGPU():
+  return _openmoc_cuda_single.attachGPU()
+attachGPU = _openmoc_cuda_single.attachGPU
+
+def printBasicDeviceInfo():
+  return _openmoc_cuda_single.printBasicDeviceInfo()
+printBasicDeviceInfo = _openmoc_cuda_single.printBasicDeviceInfo
+
+def printDetailedDeviceInfo():
+  return _openmoc_cuda_single.printDetailedDeviceInfo()
+printDetailedDeviceInfo = _openmoc_cuda_single.printDetailedDeviceInfo
 # This file is compatible with both classic and new-style classes.
 
 

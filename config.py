@@ -6,10 +6,10 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = ['all']
+cpp_compilers = ['icpc']
 
 # Supported floating point precision: 'single', 'double', 'all'
-fp_precision = ['all']
+fp_precision = ['double']
 
 # Use CUDA set to True or False
 with_cuda = True
@@ -41,7 +41,8 @@ sources['c++'] = ['openmoc/openmoc.i',
 sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
                    'openmoc/src/dev/DeviceMaterial.cu',
                    'openmoc/src/dev/DeviceTrack.cu',
-                   'openmoc/src/dev/DeviceFlatSourceRegion.cu']
+                   'openmoc/src/dev/DeviceFlatSourceRegion.cu',
+                   'openmoc/src/dev/DeviceQuery.cu']
 
 
 

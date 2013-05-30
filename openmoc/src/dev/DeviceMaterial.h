@@ -13,6 +13,7 @@
 #include "../host/Material.h"
 #endif
 
+
 /**
  * @struct dev_material
  * @brief A material's nuclear data to be stored on a GPU.

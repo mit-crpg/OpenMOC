@@ -3067,6 +3067,7 @@ namespace swig {
     #include "../../src/dev/DeviceMaterial.h"
     #include "../../src/dev/DeviceFlatSourceRegion.h"
     #include "../../src/dev/DeviceTrack.h"
+    #include "../../src/dev/DeviceQuery.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -5047,6 +5048,91 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_machineContainsGPU(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":machineContainsGPU")) SWIG_fail;
+  {
+    try {
+      result = (bool)machineContainsGPU();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_attachGPU(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":attachGPU")) SWIG_fail;
+  {
+    try {
+      attachGPU();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_printBasicDeviceInfo(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":printBasicDeviceInfo")) SWIG_fail;
+  {
+    try {
+      printBasicDeviceInfo();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_printDetailedDeviceInfo(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":printDetailedDeviceInfo")) SWIG_fail;
+  {
+    try {
+      printDetailedDeviceInfo();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"dev_material__uid_set", _wrap_dev_material__uid_set, METH_VARARGS, NULL},
@@ -5115,6 +5201,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_dev_track", _wrap_delete_dev_track, METH_VARARGS, NULL},
 	 { (char *)"dev_track_swigregister", dev_track_swigregister, METH_VARARGS, NULL},
 	 { (char *)"cloneTrack", (PyCFunction) _wrap_cloneTrack, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"machineContainsGPU", _wrap_machineContainsGPU, METH_VARARGS, NULL},
+	 { (char *)"attachGPU", _wrap_attachGPU, METH_VARARGS, NULL},
+	 { (char *)"printBasicDeviceInfo", _wrap_printBasicDeviceInfo, METH_VARARGS, NULL},
+	 { (char *)"printDetailedDeviceInfo", _wrap_printDetailedDeviceInfo, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
