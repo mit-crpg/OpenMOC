@@ -5,9 +5,6 @@ from distutils.extension import Extension
 from distutils.command.build_ext import build_ext
 import numpy
 
-# Adapted from Robert McGibbon's CUDA distutils setup provide in open source 
-# form here: https://github.com/rmcgibbo/npcuda-example
-
 
 # Obtain the numpy include directory
 try:
@@ -16,14 +13,19 @@ except AttributeError:
     numpy_include = numpy.get_numpy_include()
 
 
-if config.cpp_compiler == 'all':
+# If the user selected 'all' compilers, enumerate them
+if config.cpp_compilers == ['all']:
     config.cpp_compiler = ['gcc', 'icpc']
 
-if config.fp_precision == 'all':
+# If the user selected 'all' floating point precision levels, enumerate them
+if config.fp_precision == ['all']:
     config.fp_precision = ['double', 'single']
 
 
+# Create list of extensions for Python modules within the openmoc Python package
 extensions = []
+
+# The main extension will be openmoc compiled with gcc and double precision
 extensions.append(Extension(name = '_openmoc', 
                     sources = config.sources['c++'], 
                     library_dirs = config.library_directories['gcc'], 
@@ -32,8 +34,11 @@ extensions.append(Extension(name = '_openmoc',
                     include_dirs = config.include_directories['gcc'],
                     define_macros = config.macros['gcc']['double'],
                     swig_opts = config.swig_flags))
+
 config.sources['c++'].remove('openmoc/openmoc.i')
 
+
+# A CUDA extension if the user requested it
 if config.with_cuda:
     extensions.append(Extension(name = '_openmoc_cuda', 
                         sources = config.sources['cuda'], 
@@ -48,27 +53,47 @@ if config.with_cuda:
     config.sources['cuda'].remove('openmoc/cuda/openmoc_cuda.i')
 
 
+# Loop over the compilers and floating point precision levels to create
+# extension modules for each (ie, openmoc.icpc.double, openmoc.cuda.single, etc)
 for fp in config.fp_precision:
-    for cc in config.cpp_compiler:
-        distro = 'openmoc_' + cc + '_' + fp 
-        swig_interface_file = distro.replace('_', '/') + '/' + distro + '.i'
-        config.sources['c++'].append(swig_interface_file)
-        ext_name = '_' + distro.replace('.', '_')
+    for cc in config.cpp_compilers:
 
+        if cc == 'nvcc':
+            ext_name = '_openmoc_cuda_' + fp
+            swig_interface_file = 'openmoc/cuda/' + fp
+            swig_interface_file += '/openmoc_cuda_' + fp + '.i'
+            config.sources['c++']. append(swig_interface_file)
+        elif cc == 'gcc':
+            ext_name = '_openmoc_gnu_' + fp
+            swig_interface_file = 'openmoc/gnu/' + fp
+            swig_interface_file += '/openmoc_gnu_' + fp + '.i'
+            config.sources['c++'].append(swig_interface_file)
+        elif cc == 'icpc':
+            ext_name = '_openmoc_intel_' + fp
+            swig_interface_file = 'openmoc/intel/' + fp
+            swig_interface_file += '/openmoc_intel_' + fp + '.i'
+            config.sources['c++'].append(swig_interface_file)
+        else:
+            raise NameError('Compiler ' + str(cc) + ' is not supported')
+
+        # Create the extension module
         extensions.append(Extension(name = ext_name, 
-                    sources = config.sources['c++'], 
-                    library_dirs = config.library_directories[cc], 
-                    libraries = config.shared_libraries[cc],
-                    extra_link_args = config.linker_flags[cc], 
-                    include_dirs = config.include_directories[cc],
-                    define_macros = config.macros[cc][fp],
-                    swig_opts = config.swig_flags))
+                            sources = config.sources['c++'], 
+                            library_dirs = config.library_directories[cc], 
+                            libraries = config.shared_libraries[cc],
+                            extra_link_args = config.linker_flags[cc], 
+                            include_dirs = config.include_directories[cc],
+                            define_macros = config.macros[cc][fp],
+                            swig_opts = config.swig_flags))
 
 
 def customize_compiler(self):
     """inject deep into distutils to customize how the dispatch
     to gcc/nvcc works.
-    
+
+    Adapted from Robert McGibbon's CUDA distutils setup provide in open source 
+    form here: https://github.com/rmcgibbo/npcuda-example
+
     If you subclass UnixCCompiler, it's not trivial to get your subclass
     injected in, and still have the right customizations (i.e.
     distutils.sysconfig.customize_compiler) run on it. So instead of going
@@ -78,7 +103,7 @@ def customize_compiler(self):
     # tell the compiler it can processes .cu
     self.src_extensions.append('.cu')
 
-    # save references to the default compiler_so and _comple methods
+    # save references to the default compiler_so and _compile methods
     default_compiler_so = self.compiler_so
     super_compile = self._compile
     super_link = self.link
@@ -97,7 +122,7 @@ def customize_compiler(self):
             postargs = config.compiler_flags['icpc']
 
         elif '-DCUDA' in pp_opts and os.path.splitext(src)[1] == '.cpp':
-            if config.cpp_compiler == 'intel':
+            if config.cpp_compilers == 'intel':
                 self.set_executable('compiler_so', 'icpc')
                 postargs = config.compiler_flags['icpc']
             # Default compiler for swigged cuda code file is gcc
@@ -112,7 +137,6 @@ def customize_compiler(self):
             for item in extra_postargs:
                 if 'intel' in item:
                     cc_args.remove(item)
-
         else:
             raise EnvironmentError('Unable to compile ' + str(src))
 

@@ -2,16 +2,46 @@
 #                                 User Options
 ###############################################################################
 
+# Name of the Python package to be created
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compiler = ['icpc']
+cpp_compilers = ['icpc']
 
 # Supported floating point precision: 'single', 'double', 'all'
 fp_precision = ['single']
 
 # Use CUDA set to True or False
 with_cuda = True
+
+
+
+###############################################################################
+#                                 Source Code
+###############################################################################
+
+sources = {}
+
+sources['c++'] = ['openmoc/openmoc.i',
+                  'openmoc/src/host/Cell.cpp',
+                  'openmoc/src/host/FlatSourceRegion.cpp',
+                  'openmoc/src/host/Geometry.cpp',
+                  'openmoc/src/host/LocalCoords.cpp',
+                  'openmoc/src/host/log.cpp',
+                  'openmoc/src/host/Material.cpp',
+                  'openmoc/src/host/Point.cpp',
+                  'openmoc/src/host/Quadrature.cpp',
+                  'openmoc/src/host/Solver.cpp',
+                  'openmoc/src/host/Surface.cpp',
+                  'openmoc/src/host/Timer.cpp',
+                  'openmoc/src/host/Track.cpp',
+                  'openmoc/src/host/TrackGenerator.cpp',
+                  'openmoc/src/host/Universe.cpp']
+
+sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
+                   'openmoc/src/dev/DeviceMaterial.cu',
+                   'openmoc/src/dev/DeviceTrack.cu',
+                   'openmoc/src/dev/DeviceFlatSourceRegion.cu']
 
 
 
@@ -123,6 +153,7 @@ include_directories['icpc'] =[path_to_icpc + 'compiler/include']
 include_directories['nvcc'] = [path_to_nvcc + 'include']
 
 
+
 ###############################################################################
 #                                 SWIG Flags
 ###############################################################################
@@ -160,32 +191,3 @@ macros['nvcc']['single'] = [('FP_PRECISION', 'float'),
 macros['nvcc']['double'] = [('FP_PRECISION', 'double'), 
                             ('DOUBLE', None),
                             ('CUDA', None)]
-
-
-
-###############################################################################
-#                                 Source Code
-###############################################################################
-
-sources = {}
-
-sources['c++'] = ['openmoc/openmoc.i',
-                  'openmoc/src/host/Cell.cpp',
-                  'openmoc/src/host/FlatSourceRegion.cpp',
-                  'openmoc/src/host/Geometry.cpp',
-                  'openmoc/src/host/LocalCoords.cpp',
-                  'openmoc/src/host/log.cpp',
-                  'openmoc/src/host/Material.cpp',
-                  'openmoc/src/host/Point.cpp',
-                  'openmoc/src/host/Quadrature.cpp',
-                  'openmoc/src/host/Solver.cpp',
-                  'openmoc/src/host/Surface.cpp',
-                  'openmoc/src/host/Timer.cpp',
-                  'openmoc/src/host/Track.cpp',
-                  'openmoc/src/host/TrackGenerator.cpp',
-                  'openmoc/src/host/Universe.cpp']
-
-sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
-                   'openmoc/src/dev/DeviceMaterial.cu',
-                   'openmoc/src/dev/DeviceTrack.cu',
-                   'openmoc/src/dev/DeviceFlatSourceRegion.cu']

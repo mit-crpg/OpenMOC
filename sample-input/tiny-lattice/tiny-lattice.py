@@ -1,5 +1,5 @@
 import numpy
-from openmoc.icpc.single import *
+from openmoc.intel.single import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
