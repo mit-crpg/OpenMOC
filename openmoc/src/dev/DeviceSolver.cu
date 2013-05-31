@@ -1,30 +1,54 @@
-/*
- * DeviceSolver.cu
- *
- *  Created on: Aug 5, 2012
- *      Author: will
- */
-
-
 #include "DeviceSolver.h"
 
 
+/** The number of azimuthal angles */
 __constant__ int _num_azim[1];
-__constant__ int _num_fsrs[1];
+
+/** The number of energy groups */
+__constant__ int _num_groups[1];
+
+/** The number of azimuthal angles */
+__constant__ int _num_FSRs[1];
+
+/** The number of polar angles */
+__constant__ int _num_polar[1];
+
+/** Twice the number of polar angles */
+__constant__ int _two_times_num_polar[1];
+
+/** The number of polar angles times energy groups */
+__constant__ int _polar_times_groups[1];
+
+/** The type of polar quadrature (TABUCHI or LEONARD) */
+__constant__ quadratureType _quadrature_type[1];
+
+/** An array of the sine of the polar angles from the quadrature set */
+__constant__ FP_PRECISION _sinthetas[3];
+
+/** An array of the weights for the polar angles from the quadrature set */
+__constant__ FP_PRECISION _weights[3];
+
+/** An array of the sine multipled by the weight for the polar angles from 
+ *  the quadrature set */
+__constant__ FP_PRECISION _multiples[3];
+
+/** The total number of tracks */
 __constant__ int _tot_num_tracks[1];
-__constant__ FP_PRECISION _sinthetas[NUM_POLAR_ANGLES];
-__constant__ FP_PRECISION _weights[NUM_POLAR_ANGLES];
-__constant__ FP_PRECISION _multiples[NUM_POLAR_ANGLES];
 
-/* NOTE: The constant memory for polar weights will only
- * work for up to 256 azimuthal angles! This important since
- * constant memory cannot be allocated at runtime! */
-__constant__ FP_PRECISION _polar_weights[NUM_POLAR_ANGLES*128];
+/* NOTE: The constant memory for polar weights will only work for 
+ * up to 512 azimuthal angles! This important since constant 
+ * memory cannot be allocated at runtime! */
+/** The weights for each polar angle in the polar angle quadrature */
+__constant__ FP_PRECISION _polar_weights[NUM_POLAR_ANGLES*256];
 
-#if !STORE_PREFACTORS
+/** The maximum index of the exponential prefactor array */
 __constant__ int _prefactor_max_index[1];
+
+/** The spacing for the exponential prefactor array */
 __constant__ FP_PRECISION _prefactor_spacing[1];
-#endif
+
+/** The inverse spacing for the exponential prefactor array */
+__constant__ FP_PRECISION _inverse_prefactor_spacing[1];
 
 
 /**
@@ -32,8 +56,7 @@ __constant__ FP_PRECISION _prefactor_spacing[1];
  * @param geom pointer to the geometry
  * @param track_generator pointer to the TrackGenerator on the CPU
  */
-DeviceSolver::DeviceSolver(Geometry* geom, TrackGenerator* track_generator,
-										Plotter* plotter, Options* options) {
+DeviceSolver::DeviceSolver(Geometry* geom, TrackGenerator* track_generator) {
 
 	_geom = geom;
 	_track_generator = track_generator;
