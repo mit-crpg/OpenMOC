@@ -283,6 +283,7 @@ void Solver::setGeometry(Geometry* geometry) {
     _geometry = geometry;
     _num_FSRs = _geometry->getNumFSRs();
     _num_groups = _geometry->getNumEnergyGroups();
+    _polar_times_groups = _num_groups * _num_polar;
 }
 
 
@@ -321,12 +322,19 @@ void Solver::setPolarQuadratureType(quadratureType quadrature_type) {
  * @param num_polar the number of polar angles
  */
 void Solver::setNumPolarAngles(int num_polar) {
+
     if (num_polar <= 0)
         log_printf(ERROR, "Unable to set the Solver's number of polar angles "
 		 "to %d since this is a negative number", num_polar);
 
+    if (num_polar > 3)
+        log_printf(ERROR, "Unable to set the Solver's number of polar angles "
+		   "to %d since this is not a supported value (only 1, 2 or 3 "
+		   " are currently supported)", num_polar);
+
     _num_polar = num_polar;
     _two_times_num_polar = 2 * _num_polar;
+    _polar_times_groups = _num_groups * _num_polar;
 }
 
 
@@ -431,7 +439,7 @@ void Solver::initializePowerArrays() {
     if (_FSR_to_pin_power != NULL)
         delete [] _FSR_to_pin_power;
 
-    /* Allocate memory for all flux and source arrays */
+    /* Allocate memory for FSR power and pin power arrays */
     try{
 	_FSR_to_power = new FP_PRECISION[_num_FSRs];
 	_FSR_to_pin_power = new FP_PRECISION[_num_FSRs];

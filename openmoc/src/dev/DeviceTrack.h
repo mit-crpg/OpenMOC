@@ -40,46 +40,40 @@ struct dev_segment {
 struct dev_track {
     /** A monotonically increasing unique ID for each track created */
     int _uid;
+
     /** The azimuthal angle index into the global 2D ragged array of tracks */
     int _azim_angle_index;
+
     /** A vector of segments making up this track */
     dev_segment* _segments;
+
     /** The number of segments making up this track */
     int _num_segments;
+
+    /** Index of the track which reflects out of this track along its "forward"
+     * direction for reflective boundary conditions. */
+    int _track_in;
+
+    /** Index of the track which reflects out of this track along its "reverse"
+     * direction for reflective boundary conditions. */
+    int _track_out;
+
     /** The first index into the global 2D ragged array of tracks for the track
      *  that reflects out of this track along its "forward" direction for
      *  reflective boundary conditions. */
-    int _track_in_i;
-    /** The second index into the global 2D ragged array of tracks for the track
-     *  that reflects out of this track along its "forward" direction for 
-     *  reflective boundary conditions. */
-    int  _track_in_j;
-    /** The first index into the global 2D ragged array of tracks for the track
-     *  that reflects out of this track along its "reverse" direction for
-     *  reflective boundary conditions. */ 
-    int _track_out_i;
-    /** The second index into the global 2D ragged array of tracks for the track
-     *  that reflects out of this track along its "reverse" direction for
-     *  reflective boundary conditions */
-    int _track_out_j;
-    /** A boolean to indicate whether to give the flux to the "forward" 
-     *  (false) or "reverse" (true) direction of the track reflecting out of 
-     *  this one along its "forward" direction for reflective boundary 
-     *  conditions.*/
-    /** A boolean to indicate whether to give the flux to the "forward" 
-     *  (false) or "reverse" (true) direction of the track reflecting out of 
-     *  this one along its "forward" direction for reflective boundary 
-     *  conditions.*/
     bool _refl_in;
+
     /** A boolean to indicate whether to give the flux to the "forward" 
      *  (false) or "reverse" (true) direction of the track reflecting out of 
      *  this one along its "forward" direction for reflective boundary 
      *  conditions. */
     bool _refl_out;
+
     /** A boolean to indicate whether the outgoing angular flux along this 
      *  track's "forward" direction should be zeroed out for vacuum boundary
      *  conditions. */
     bool _bc_in;
+
     /** A boolean to indicate whether the outgoing angular flux along this 
      *  track's "reverse" direction should be zeroed out for vacuum boundary
      *  conditions. */

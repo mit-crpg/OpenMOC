@@ -18,11 +18,6 @@ void cloneTrack(Track* track_h, dev_track* track_d) {
     new_track._num_segments = track_h->getNumSegments();
     new_track._azim_angle_index = track_h->getAzimAngleIndex();
 
-    new_track._track_in_i = track_h->getTrackInI();
-    new_track._track_in_j = track_h->getTrackInJ();
-    new_track._track_out_i = track_h->getTrackOutI();
-    new_track._track_out_j = track_h->getTrackOutJ();
-
     new_track._refl_in = track_h->isReflIn();
     new_track._refl_out = track_h->isReflOut();
     new_track._bc_in = track_h->getBCIn();

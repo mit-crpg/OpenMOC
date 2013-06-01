@@ -21,18 +21,24 @@
 typedef struct dev_material {
     /** A monotonically increasing unique ID for each material created */
     int _uid;
+
     /** A user-defined ID for each material created */
     int _id;
+
     /** An array of the total cross-sections for each energy group */
     double* _sigma_t;
+
     /** An array of the absorption cross-sections for each energy group */
     double* _sigma_a;
+
     /** A 2D array of the scattering cross-section matrix. The first index is 
      *  row number and second index is column number */
     double* _sigma_f;
+
     /** An array of the fission cross-sections multiplied by nu \f$ \nu \f$ 
      *  for each energy group */
     double* _nu_sigma_f;
+
     /** An array of the chi \f$ \chi \f$ values for each energy group */
     double* _chi;
 

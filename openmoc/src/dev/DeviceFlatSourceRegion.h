@@ -24,14 +24,18 @@
  * @details The dev_flatsourceregion struct is intended to be stored on a GPU.
  */
 typedef struct dev_flatsourceregion {
+
     /** A monotonically increasing unique ID for each flat source 
      *  region created */
     int _uid;
+
     /** The UID for the material filling the flat source region */
     int _material_uid;
+
     /** The flat source region's volume approximated by the sum of track
      *  segment lengths within the FSR */
     FP_PRECISION _volume;
+
 } dev_flatsourceregion;
 
 
