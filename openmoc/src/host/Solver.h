@@ -44,36 +44,49 @@ class Solver {
 private:
     /** The number of shared memory OpenMP threads */
     int _num_threads;
+
     /** The number of azimuthal angles */
     int _num_azim;
+
     /** The number of energy groups */
     int _num_groups;
+
     /** The number of flat source regions */
     int _num_FSRs;
 
     /** A pointer to a trackgenerator which contains tracks */
     TrackGenerator* _track_generator;
+
     /** A pointer to a geometry with initialized flat source region maps */
     Geometry* _geometry;
+
     /** A pointer to a polar quadrature */
     Quadrature* _quad;
+
     /** The number of polar angles */
     int _num_polar;
+
     /** Twice the number of polar angles */
     int _two_times_num_polar;
+
     /** The number of polar angles times energy groups */
     int _polar_times_groups;
+
     /** The type of polar quadrature (TABUCHI or LEONARD) */
     quadratureType _quadrature_type;
 
     /** A pointer to the 2D ragged array of tracks */
     Track** _tracks;
+
     /** A pointer to an array with the number of tracks per azimuthal angle */
     int* _num_tracks;
+
     /** The weights for each azimuthal angle */
     double* _azim_weights;
+
     /** The weights for each polar angle in the polar angle quadrature */
     FP_PRECISION* _polar_weights;
+
     /** The angular fluxes for each track for all energy groups, polar angles,
      *  and azimuthal angles. This array stores the boundary fluxes for a
      *  a track along both "forward" and "reverse" directions. */
@@ -81,17 +94,22 @@ private:
 
     /** A pointer to an array of the flat source regions */
     FlatSourceRegion* _FSRs;
+
     /* Flat source regions */
     /** The scalar flux for each energy group in each flat source region */
     FP_PRECISION* _scalar_flux;
+
     /** The scalar flux for each energy group in each flat source region from
      *  the previous iteration */
     FP_PRECISION* _old_scalar_flux;
+
     /** The source in each energy group in each flat source region */
     FP_PRECISION* _source;
+
     /** The source in each energy group in each flat source region from the 
      *  previous iteration */
     FP_PRECISION* _old_source;
+
     /** Pre-computed Ratio of source / sigma_t for each energy group in each
      *  flat source region */
     FP_PRECISION* _ratios;
@@ -102,27 +120,35 @@ private:
 
     /** The current iteration's approximation to k-effective */
     FP_PRECISION _k_eff; 
+
     /** The total leakage across vacuum boundaries */
     FP_PRECISION _leakage;
 
     /** The number of transport sweeps to convergence */
     int _num_iterations;
+
     /** Whether or not the Solver has converged the source */
     bool _converged_source;
+
     /** The tolerance for converging the source */
     FP_PRECISION _source_convergence_thresh;
+
     /** The tolerance for converging the flux given a fixed source */
     FP_PRECISION _flux_convergence_thresh;
 
     /* Exponential pre-factor hash table */
     /** The hashtable of exponential prefactors from the transport equation */
     FP_PRECISION* _prefactor_array;
+
     /** The size of the exponential prefactor array */
     int _prefactor_array_size;
+
     /** The maximum index of the exponential prefactor array */
     int _prefactor_max_index;
+
     /** The spacing for the exponential prefactor array */
     FP_PRECISION _prefactor_spacing;
+
     /** The inverse spacing for the exponential prefactor array */
     FP_PRECISION _inverse_prefactor_spacing;
 

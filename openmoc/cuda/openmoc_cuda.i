@@ -6,6 +6,7 @@
     #include "../src/dev/DeviceFlatSourceRegion.h"
     #include "../src/dev/DeviceTrack.h"
     #include "../src/dev/DeviceQuery.h"
+    #include "../src/dev/DeviceSolver.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -50,6 +51,7 @@
 %include ../src/dev/DeviceFlatSourceRegion.h
 %include ../src/dev/DeviceTrack.h
 %include ../src/dev/DeviceQuery.h
+%include ../src/dev/DeviceSolver.h
 
 typedef float FP_PRECISION;
 
