@@ -181,7 +181,7 @@ private:
     void initializeConstantMemory();
     void initializePinnedMemory();
 
-    //void precomputePrefactors();
+    void precomputePrefactors();
     //void checkTrackSpacing();
     //void zeroTrackFluxes();
     //void flattenFSRFluxes(FP_PRECISION value);

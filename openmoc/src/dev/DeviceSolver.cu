@@ -513,7 +513,7 @@ void DeviceSolver::allocateDeviceData() {
     initializePinnedMemory();
 
     //FIXME: Need to compute prefactor hashtable on the device
-    //    computePrefactors();
+    precomputePrefactors();
 
     return;
 }
@@ -984,4 +984,67 @@ int DeviceSolver::computeScalarTrackIndex(int i, int j) {
     index += j;
     
     return index;
+}
+
+
+/**
+ * #This method computes the exponential prefactors from the transport
+ * equation and stores them as part of each track segment or in a
+ * table depending on STORE_PREFACTORS is set to true or false,
+ * respectively, in configurations.h
+ */
+void DeviceSolver::precomputePrefactors(){
+
+    log_printf(INFO, "Building exponential prefactor hashtable on device...");
+
+    /* Set size of prefactor array */
+    int num_array_values = 10 * sqrt(1. / (8. * _source_convergence_thresh));
+    FP_PRECISION prefactor_spacing = 10. / num_array_values;
+    FP_PRECISION inverse_prefactor_spacing = 1.0 / prefactor_spacing;
+    int prefactor_array_size = _two_times_num_polar * num_array_values;
+    int prefactor_max_index = prefactor_array_size - _two_times_num_polar - 1;
+    
+    /* allocate arrays */
+    FP_PRECISION* prefactor_array = new FP_PRECISION[prefactor_array_size];
+    
+    FP_PRECISION expon;
+    FP_PRECISION intercept;
+    FP_PRECISION slope;
+
+
+    /* Create prefactor array */
+    for (int i = 0; i < num_array_values; i ++){
+        for (int p = 0; p < _num_polar; p++){
+	    expon = exp(- (i * prefactor_spacing) / _quad->getSinTheta(p));
+	    slope = - expon / _quad->getSinTheta(p);
+	    intercept = expon * (1 + (i * prefactor_spacing) /
+				 _quad->getSinTheta(p));
+	    prefactor_array[_two_times_num_polar * i + 2 * p] = slope;
+	    prefactor_array[_two_times_num_polar * i + 2 * p + 1] = intercept;
+	}
+    }
+
+    /* Allocate memory for the prefactor array on the device */
+    cudaMalloc((void**)&_prefactor_array, 
+	       prefactor_array_size * sizeof(FP_PRECISION));
+
+    /* Copy prefactor array to the device */
+    cudaMemcpy((void*)_prefactor_array, (void*)prefactor_array, 
+	       prefactor_array_size * sizeof(FP_PRECISION),
+	       cudaMemcpyHostToDevice);
+
+    /* Copy prefactor array size and spacing to constant memory on the device */
+    cudaMemcpyToSymbol(_prefactor_spacing_devc, (void*)&prefactor_spacing, 
+		       sizeof(int), 0, cudaMemcpyHostToDevice);
+
+    cudaMemcpyToSymbol(_inverse_prefactor_spacing_devc, 
+		       (void*)&inverse_prefactor_spacing, 
+		       sizeof(int), 0, cudaMemcpyHostToDevice);
+
+    cudaMemcpyToSymbol(_prefactor_max_index_devc, (void*)&prefactor_max_index,
+		       sizeof(int), 0, cudaMemcpyHostToDevice);
+
+    free(prefactor_array);
+
+    return;
 }
