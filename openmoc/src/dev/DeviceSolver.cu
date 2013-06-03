@@ -46,7 +46,7 @@ __constant__ FP_PRECISION _inverse_prefactor_spacing_devc[1];
  * @param geom pointer to the geometry
  * @param track_generator pointer to the TrackGenerator on the CPU
  */
-DeviceSolver::DeviceSolver(Geometry* geom, TrackGenerator* track_generator) {
+DeviceSolver::DeviceSolver(Geometry* geometry, TrackGenerator* track_generator) {
 
     /**************************************************************************/
     /*                        Host data initialization                        */
@@ -103,8 +103,8 @@ DeviceSolver::DeviceSolver(Geometry* geom, TrackGenerator* track_generator) {
     _tot_fission = NULL;
     _source_residual = NULL;
 
-    _FSR_to_powers = NULL;
-    _FSR_to_pin_powers = NULL;
+    _FSRs_to_powers = NULL;
+    _FSRs_to_pin_powers = NULL;
 
     _prefactor_array = NULL;
     _k_eff = NULL;
@@ -136,7 +136,7 @@ DeviceSolver::~DeviceSolver() {
     if (_old_scalar_flux != NULL)
         cudaFree(_old_scalar_flux);
     if (_source != NULL)
-        cudaFree(source);
+        cudaFree(_source);
     if (_old_source != NULL)
         cudaFree(_old_source);
     if (_ratios != NULL)
@@ -267,7 +267,7 @@ FP_PRECISION DeviceSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
     /* Copy the scalar flux for this FSR and energy group from the device */
     FP_PRECISION fsr_scalar_flux;
     int flux_index = fsr_id * _num_groups + energy_group - 1;
-    cudaMemcpy((void*)&fsr_scalar_flux, (void*)_scalar_flux[flux_index], 
+    cudaMemcpy((void*)&fsr_scalar_flux, (void*)&_scalar_flux[flux_index], 
 	       sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
 
     return fsr_scalar_flux;
@@ -301,11 +301,11 @@ FP_PRECISION* DeviceSolver::getFSRScalarFluxes() {
  * @return an array of flatsourceregion powers
  */
 FP_PRECISION* DeviceSolver::getFSRPowers() {
-    if (_FSR_to_powers == NULL)
+    if (_FSRs_to_powers == NULL)
         log_printf(ERROR, "Unable to returns the device solver's FSR power "
 		   "array since it has not yet been allocated in memory");
 
-    return _FSR_to_powers;
+    return _FSRs_to_powers;
 }
 
 
@@ -315,11 +315,11 @@ FP_PRECISION* DeviceSolver::getFSRPowers() {
  * @return an array of flatsourceregion pin powers
  */
 FP_PRECISION* DeviceSolver::getFSRPinPowers() {
-    if (_FSR_to_pin_powers == NULL)
+    if (_FSRs_to_pin_powers == NULL)
         log_printf(ERROR, "Unable to returns the device solver's FSR pin power "
 		   "array since it has not yet been allocated in memory");
 
-    return _FSR_to_pin_powers;
+    return _FSRs_to_pin_powers;
 }
 
 
@@ -457,7 +457,7 @@ void DeviceSolver::setNumThreadsPerBlock(int num_threads) {
 
     if (num_threads < 0)
         log_printf(ERROR, "Unable to set the number of threads per block to %d "
-		   "since it is a negative number", num_blocks);
+		   "since it is a negative number", num_threads);
 
     _num_threads = num_threads;
 }
@@ -498,7 +498,7 @@ void DeviceSolver::allocateDeviceData() {
     initializePinnedMemory();
 
     //FIXME: Need to compute prefactor hashtable on the device
-    computePrefactors();
+    //    computePrefactors();
 
     return;
 }
@@ -537,7 +537,7 @@ void DeviceSolver::initializePolarQuadrature() {
  * @details Deletes memory for power arrays if they were allocated from
  *          previous simulation.
  */
-void Solver::initializePowerArrays() {
+void DeviceSolver::initializePowerArrays() {
 
     /* Delete old power arrays if they exist */
     if (_FSRs_to_powers != NULL)
@@ -593,7 +593,7 @@ void DeviceSolver::initializeFSRs() {
         cudaMalloc((void**)&_FSRs, _num_FSRs * sizeof(dev_flatsourceregion));
 
 	/* Create a temporary FSR array to populate and then copy to device */
-	dev_flatsourceregion* temp_fsrs = new dev_flatsourceregion[num_FSRs];
+	dev_flatsourceregion* temp_FSRs = new dev_flatsourceregion[_num_FSRs];
 
 	/* Get the array indexed by FSR IDs with material ID values */
 	int* FSRs_to_materials = _geometry->getFSRtoMaterialMap();
@@ -605,12 +605,15 @@ void DeviceSolver::initializeFSRs() {
 	}
 
 	/* Initialize each FSRs volume to 0 to avoid NaNs */
-	for (int r=0; r < _geom->getNumFSRs(); r++)
+	for (int r=0; r < _num_FSRs; r++)
 	    temp_FSRs[r]._volume = 0.0;
 
 	Track* track;
 	segment* seg;
 	dev_flatsourceregion* fsr;
+
+	double* azim_weights = _track_generator->getAzimWeights();
+
 
 	/* Set each FSR's volume by accumulating the total length of all
 	   tracks inside the FSR. Iterate over azimuthal angle, track, segment */
@@ -622,18 +625,18 @@ void DeviceSolver::initializeFSRs() {
 		for (int s = 0; s < track->getNumSegments(); s++) {
 		    seg = track->getSegment(s);
 		    fsr = &temp_FSRs[seg->_region_id];
-		    fsr->_volume += seg->_length * track->getAzimuthalWeight();
+		    fsr->_volume += seg->_length * azim_weights[i];
 		}
 	    }
 	}
 
 	/* Copy the temporary array of FSRs to the device */
-	cudaMemcpy((void*)_FSRs, (void*)temp_fsrs, 
+	cudaMemcpy((void*)_FSRs, (void*)temp_FSRs, 
 		   _num_FSRs * sizeof(dev_flatsourceregion), 
 		   cudaMemcpyHostToDevice);
 
 	/* Free the temporary array of FSRs on the host */
-	free(temp_fsrs);
+	free(temp_FSRs);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's flat "
@@ -655,7 +658,7 @@ void DeviceSolver::initializeMaterials() {
     /* Allocate memory for all tracks and track offset indices on the device */
     try{
 
-	std::map<short int, Material*> host_materials = _geom->getMaterials();
+	std::map<short int, Material*> host_materials=_geometry->getMaterials();
 	std::map<short int, Material*>::iterator iter;
 
         /* Iterate through all materials and clone them on the device */
@@ -696,6 +699,7 @@ void DeviceSolver::initializeTracks() {
 
         /* Iterate through all tracks and clone them on the device */
         int counter = 0;
+	int index;
 	for (int i=0; i < _num_azim; i++) {
 
             _track_index_offsets[i] = counter;
@@ -749,8 +753,8 @@ void DeviceSolver::initializeFluxArrays() {
 
     /* Allocate memory for all flux arrays on the device */
     try{
-        cudaMalloc((void**)&_boundary_flux, 
-		   2*_tot_num_tracks*_ polar_times_groups*sizeof(FP_PRECISION));
+        cudaMalloc((void**)&_boundary_flux,
+		   2*_tot_num_tracks * _polar_times_groups*sizeof(FP_PRECISION));
         cudaMalloc((void**)&_scalar_flux, 
 		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
         cudaMalloc((void**)&_old_scalar_flux, 
@@ -781,11 +785,11 @@ void DeviceSolver::initializeSourceArrays() {
     /* Allocate memory for all source arrays on the device */
     try{
 
-        cudaMalloc((void*)&_source, 
+        cudaMalloc((void**)&_source, 
 		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
-	cudaMalloc((void*)&_old_source,
+	cudaMalloc((void**)&_old_source,
 		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
-	cudaMalloc((void*)&_ratios,
+	cudaMalloc((void**)&_ratios,
 		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
     }
     catch(std::exception &e) {
@@ -809,7 +813,7 @@ void DeviceSolver::initializeThrustVectors() {
     }
     if (_tot_abs != NULL) {
         _tot_abs = NULL;
-        _tot_abs_vec.clear()
+        _tot_abs_vec.clear();
     }
     if (_tot_fission != NULL) {
         _tot_fission = NULL;
@@ -857,19 +861,19 @@ void DeviceSolver::initializeConstantMemory() {
 		       cudaMemcpyHostToDevice);
 
     /* Number of energy groups */
-    cudaMemcpyToSymbol(_num_groups_devc, (void*)&_num_groups, sizeof(int), 0
+    cudaMemcpyToSymbol(_num_groups_devc, (void*)&_num_groups, sizeof(int), 0,
 		       cudaMemcpyHostToDevice);
 
     /* Number of flat source regions */
-    cudaMemcpyToSymbol(_num_FSRs_devc, (void*)&_num_FSRs, sizeof(int), 0
+    cudaMemcpyToSymbol(_num_FSRs_devc, (void*)&_num_FSRs, sizeof(int), 0,
 		       cudaMemcpyHostToDevice);
 
     /* Number of polar angles */
-    cudaMemcpyToSymbol(_num_polar_devc, (void*)&_num_polar, sizeof(int), 0
+    cudaMemcpyToSymbol(_num_polar_devc, (void*)&_num_polar, sizeof(int), 0,
 		       cudaMemcpyHostToDevice);
 
     /* Twice the number of polar angles */
-    cudaMemcpyToSymbol(_two_times_polar_devc, (void*)&_two_times_polar, 
+    cudaMemcpyToSymbol(_two_times_num_polar_devc, (void*)&_two_times_num_polar, 
 		       sizeof(int), 0, cudaMemcpyHostToDevice);
 
     /* Number of polar angles times energy groups */
@@ -879,8 +883,8 @@ void DeviceSolver::initializeConstantMemory() {
     /* Compute polar times azimuthal angle weights */
     FP_PRECISION* polar_weights =
         (FP_PRECISION*)malloc(_num_polar * _num_azim * sizeof(FP_PRECISION));
-    FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
     FP_PRECISION* multiples = _quad->getMultiples();
+    double* azim_weights = _track_generator->getAzimWeights();
 
     for (int i=0; i < _num_azim; i++) {
         for (int j=0; j < _num_polar; j++)

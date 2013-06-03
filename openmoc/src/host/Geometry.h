@@ -88,7 +88,7 @@ public:
     virtual ~Geometry();
 
     double getWidth();
-    double geHeight();
+    double getHeight();
     double getXMin();
     double getXMax();
     double getYMin();

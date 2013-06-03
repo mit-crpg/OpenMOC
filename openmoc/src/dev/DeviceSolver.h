@@ -17,7 +17,6 @@
 #include "DeviceFlatSourceRegion.h"
 #include "DeviceTrack.h"
 #include "DeviceMaterial.h"
-#include <cutil_math.h>
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
@@ -197,7 +196,7 @@ private:
 
 public:
 
-    DeviceSolver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
+    DeviceSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);
     virtual ~DeviceSolver();
     
     Geometry* getGeometry();
