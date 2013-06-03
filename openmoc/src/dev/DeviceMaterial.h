@@ -10,6 +10,7 @@
 #define DEVICEMATERIAL_H_
 
 #ifdef __cplusplus
+#include "../host/log.h"
 #include "../host/Material.h"
 #endif
 

@@ -21,6 +21,12 @@ if config.cpp_compilers == ['all']:
 if config.fp_precision == ['all']:
     config.fp_precision = ['double', 'single']
 
+# If the user wishes to compile using debug mode, append the debugging flag
+if config.debug_mode:
+    for k in config.compiler_flags:
+        config.compiler_flags[k].append('-g')
+
+# If the user wishes to compile the CUDA package, append nvcc to list of compilers
 if config.with_cuda:
     config.cpp_compilers.append('nvcc')
 

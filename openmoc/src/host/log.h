@@ -29,12 +29,6 @@
 
 
 /**
- * @enum logLevels
- * @brief Logging levels characterize an ordered set of message types
- *        which may be printed to the screen.
- */
-
-/**
  * @var logLevel
  * @brief Logging levels characterize an ordered set of message types
  *        which may be printed to the screen.
@@ -42,24 +36,34 @@
 typedef enum logLevels {
     /** A debugging message */
     DEBUG,
+
     /** An informational but verbose message */
     INFO,
+
     /** A brief progress update on run progress */
     NORMAL,
+
     /** A message of a single line of characters */
     SEPARATOR,
+
     /** A message centered within a line of characters */
     HEADER,
+
     /** A message sandwiched between two lines of characters */
     TITLE,
+
     /** A message for to warn the user */
     WARNING,
+
     /** A message to warn of critical program conditions */
     CRITICAL,
+
     /** A message containing program results */
     RESULT,
+
     /** A messsage for unit testing */
     UNITTEST,
+
     /** A message reporting error conditions */
     ERROR
 } logLevel;

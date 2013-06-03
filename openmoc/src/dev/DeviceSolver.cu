@@ -122,41 +122,56 @@ DeviceSolver::~DeviceSolver() {
 
     /* Free FSRs, materials and tracks on device */
     if (_FSRs != NULL)
+
         cudaFree(_FSRs);
     if (_materials != NULL)
         cudaFree(_materials);
+
     if (_dev_tracks != NULL)
         cudaFree(_dev_tracks);
+
     if (_track_index_offsets != NULL)
         cudaFree(_track_index_offsets);
+
     if (_boundary_flux != NULL)
         cudaFree(_boundary_flux);
+
     if (_scalar_flux != NULL)
         cudaFree(_scalar_flux);
+
     if (_old_scalar_flux != NULL)
         cudaFree(_old_scalar_flux);
+
     if (_source != NULL)
         cudaFree(_source);
+
     if (_old_source != NULL)
         cudaFree(_old_source);
+
     if (_ratios != NULL)
         cudaFree(_ratios);
+
     if (_FSRs_to_powers != NULL)
         cudaFree(_FSRs_to_powers);
+
     if (_FSRs_to_pin_powers != NULL)
         cudaFree(_FSRs_to_pin_powers);
 
     if (_fission_source != NULL)
         _fission_source_vec.clear();
+
     if (_tot_abs != NULL)
         _tot_abs_vec.clear();
+
     if (_tot_fission != NULL)
         _tot_fission_vec.clear();
+
     if (_source_residual != NULL)
         _source_residual_vec.clear();
 
     if (_prefactor_array != NULL)
         cudaFree(_prefactor_array);
+
     if (_k_eff != NULL)
         cudaFreeHost(_k_eff);
 }
@@ -471,7 +486,7 @@ void DeviceSolver::setNumThreadsPerBlock(int num_threads) {
  */
 void DeviceSolver::allocateDeviceData() {
 
-    log_printf(NORMAL, "Allocating memory for the device solver...");
+    log_printf(INFO, "Allocating memory for the device solver...");
 
 
     /**************************************************************************/
@@ -509,6 +524,8 @@ void DeviceSolver::allocateDeviceData() {
  * @details Memory allocation includes the polar quadrature, 
  */
 void DeviceSolver::initializeHostMemory() {
+
+    log_printf(INFO, "Initializing host memory for the device solver...");
 
     /* Initialize the a polar quadrature object on the host */
     initializePolarQuadrature();
@@ -562,6 +579,9 @@ void DeviceSolver::initializePowerArrays() {
  * @details
  */
 void DeviceSolver::initializeGlobalMemory() {
+
+    log_printf(INFO, "Initializing global memory for the device solver...");
+
     initializeFSRs();
     initializeMaterials();
     initializeTracks();
@@ -580,7 +600,7 @@ void DeviceSolver::initializeGlobalMemory() {
  */
 void DeviceSolver::initializeFSRs() {
 
-    log_printf(NORMAL, "Initializing FSRs on the device...");
+    log_printf(INFO, "Initializing FSRs on the device...");
 
     /* Delete old FSRs array if it exists */
     if (_FSRs != NULL)
@@ -651,6 +671,8 @@ void DeviceSolver::initializeFSRs() {
  */
 void DeviceSolver::initializeMaterials() {
 
+    log_printf(INFO, "Initializing materials on the device...");
+
     /* Delete old materials array if it exists */
     if (_materials != NULL)
         cudaFree(_materials);
@@ -663,8 +685,9 @@ void DeviceSolver::initializeMaterials() {
 
         /* Iterate through all materials and clone them on the device */
         cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
-	for (iter = host_materials.begin(); iter != host_materials.end(); ++iter)
-	    cloneOnDevice(iter->second, &_materials[(*iter).second->getUid()]);
+	for (iter = host_materials.begin(); iter != host_materials.end(); ++iter) {
+	    cloneOnDevice(iter->second, &_materials[iter->second->getUid()]);
+	}
 
     }
     catch(std::exception &e) {
@@ -679,6 +702,8 @@ void DeviceSolver::initializeMaterials() {
  * @details
  */
 void DeviceSolver::initializeTracks() {
+
+    log_printf(INFO, "Initializing tracks on the device...");
 
     /* Delete old tracks array if it exists */
     if (_dev_tracks != NULL)
@@ -743,6 +768,8 @@ void DeviceSolver::initializeTracks() {
  */
 void DeviceSolver::initializeFluxArrays() {
 
+    log_printf(INFO, "Initializing flux arrays on the device...");
+
     /* Delete old flux arrays if they exist */
     if (_boundary_flux != NULL)
         cudaFree(_boundary_flux);
@@ -773,6 +800,8 @@ void DeviceSolver::initializeFluxArrays() {
  *          previous simulation.
  */
 void DeviceSolver::initializeSourceArrays() {
+
+    log_printf(INFO, "Initializing source arrays on the device...");
 
     /* Delete old sources arrays if they exist */
     if (_source != NULL)
@@ -805,6 +834,8 @@ void DeviceSolver::initializeSourceArrays() {
  * @details
  */
 void DeviceSolver::initializeThrustVectors() {
+
+    log_printf(INFO, "Initializing thrust vectors on the device...");
 
     /* Delete old vectors if they exist */
     if (_fission_source != NULL) {
@@ -855,6 +886,8 @@ void DeviceSolver::initializeThrustVectors() {
  * @details
  */
 void DeviceSolver::initializeConstantMemory() {
+
+    log_printf(INFO, "Initializing constant memory on the device...");
 
     /* Number of azimuthal angles */
     cudaMemcpyToSymbol(_num_azim_devc, (void*)&_num_azim, sizeof(int), 0, 
@@ -917,6 +950,9 @@ void DeviceSolver::initializeConstantMemory() {
  * @details
  */
 void DeviceSolver::initializePinnedMemory() {
+
+    log_printf(INFO, "Initializing pinned memory on the device...");
+
     /* Pinned host memory for keff */
     unsigned int flags = cudaHostAllocWriteCombined;
     cudaHostAlloc((void**)&_k_eff, sizeof(FP_PRECISION), flags);

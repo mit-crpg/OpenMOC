@@ -11,6 +11,9 @@ cpp_compilers = ['all']
 # Supported floating point precision: 'single', 'double', 'all'
 fp_precision = ['single']
 
+# Compile with debug flags
+debug_mode = True
+
 # Use CUDA set to True or False
 with_cuda = True
 
