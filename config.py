@@ -6,10 +6,10 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = ['icpc']
+cpp_compilers = ['all']
 
 # Supported floating point precision: 'single', 'double', 'all'
-fp_precision = ['double']
+fp_precision = ['all']
 
 # Use CUDA set to True or False
 with_cuda = True

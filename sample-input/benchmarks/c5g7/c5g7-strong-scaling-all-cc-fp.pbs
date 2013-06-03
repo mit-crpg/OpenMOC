@@ -4,7 +4,7 @@
 # and maximum running time
 #######################################
 
-#PBS -l nodes=1:ppn=12
+#PBS -l nodes=n012.cluster.com:ppn=24
 #PBS -l walltime=08:00:00
 
 ######################################
