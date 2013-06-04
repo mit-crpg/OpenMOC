@@ -9,7 +9,10 @@
 #define DEVICESOLVER_H_
 
 #ifdef __cplusplus
-#include "../host/Solver.h"
+//#include "../host/Solver.h"
+#include "../host/Geometry.h"
+#include "../host/TrackGenerator.h"
+#include "../host/Quadrature.h"
 #endif
 
 #include <thrust/reduce.h>
@@ -17,6 +20,12 @@
 #include "DeviceFlatSourceRegion.h"
 #include "DeviceTrack.h"
 #include "DeviceMaterial.h"
+
+#define scalar_flux(tid,e) (scalar_flux[(tid)*(*_num_groups_devc) + (e)])
+#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*_num_groups_devc) + (e)])
+#define source(tid,e) (source[(tid)*(*_num_groups_devc) + (e)])
+#define old_source(tid,e) (old_source[(tid)*(*_num_groups_devc) + (e)])
+#define boundary_flux(tid,pe2) (boundary_flux[2*(tid)*(*_polar_times_groups_devc)+(pe2)])
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
@@ -168,7 +177,6 @@ private:
 
     void initializeHostMemory();
     void initializePolarQuadrature();
-
     void initializeGlobalMemory();
     void initializeFSRs();
     void initializeMaterials();
@@ -177,15 +185,11 @@ private:
     void initializeSourceArrays();
     void initializePowerArrays();
     void initializeThrustVectors();
-
     void initializeConstantMemory();
     void initializePinnedMemory();
 
     void precomputePrefactors();
-    //void checkTrackSpacing();
-    //void zeroTrackFluxes();
-    //void flattenFSRFluxes(FP_PRECISION value);
-    //void flattenFSRSources(FP_PRECISION value);
+    void checkTrackSpacing();
 
     //void normalizeFluxes();
     //FP_PRECISION computeFSRSources();

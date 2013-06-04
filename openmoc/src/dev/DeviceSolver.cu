@@ -988,10 +988,10 @@ int DeviceSolver::computeScalarTrackIndex(int i, int j) {
 
 
 /**
- * #This method computes the exponential prefactors from the transport
- * equation and stores them as part of each track segment or in a
- * table depending on STORE_PREFACTORS is set to true or false,
- * respectively, in configurations.h
+ * @brief Pre-computes exponential pre-factors for each segment of each track 
+ *        for each polar angle and copies the table to the device. 
+ * @details This method will generate a hashmap which contains values of the 
+ *          pre-factor for specific segment lengths (the keys into the hashmap).
  */
 void DeviceSolver::precomputePrefactors(){
 
@@ -1045,6 +1045,117 @@ void DeviceSolver::precomputePrefactors(){
 		       sizeof(int), 0, cudaMemcpyHostToDevice);
 
     free(prefactor_array);
+
+    return;
+}
+
+
+/**
+ * @brief Checks that each flat source region has at least one segment within 
+ *        it and if not, throw an exception and prints an error message.
+ */
+void DeviceSolver::checkTrackSpacing() {
+
+    int* FSR_segment_tallies = new int[_num_FSRs];
+    std::vector<segment*> segments;
+    std::vector<segment*>::iterator iter;
+    Cell* cell;
+
+    /* Set each tally to zero to begin with */
+    for (int r=0; r < _num_FSRs; r++)
+        FSR_segment_tallies[r] = 0;
+
+    /* Iterate over all azimuthal angles, all tracks, and all segments
+     * and tally each segment in the corresponding FSR */
+    for (int i=0; i < _num_azim; i++) {
+        for (int j=0; j < _num_tracks[i]; j++) {
+	    segments = _host_tracks[i][j].getSegments();
+
+            for (iter=segments.begin(); iter != segments.end(); ++iter)
+	        FSR_segment_tallies[(*iter)->_region_id]++;
+	}
+    }
+
+    /* Loop over all FSRs and if one FSR does not have tracks in it, print
+     * error message to the screen and exit program */
+    for (int r=0; r < _num_FSRs; r++) {
+        if (FSR_segment_tallies[r] == 0) {
+	    cell = _geometry->findCellContainingFSR(r);
+	    log_printf(ERROR, "No tracks were tallied inside FSR id = %d which "
+		       "is cell id = %d. Please reduce your track spacing,"
+		       " increase the number of azimuthal angles, or increase "
+		       "the size of the flat source regions", r, cell->getId());
+	}
+    }
+
+    delete [] FSR_segment_tallies;
+}
+
+
+
+/**
+ * @brief Set the scalar flux for each energy group inside each 
+ *        dev_flatsourceregion to a constant value.
+ * @param value the value to assign to each flat source region flux
+ */
+__global__ void flattenFSRFluxes(FP_PRECISION* scalar_flux, 
+					       FP_PRECISION* old_scalar_flux,
+					       FP_PRECISION value) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    /* Loop over all FSRs and energy groups */
+    while (tid < *_num_FSRs_devc) {
+        for (int e=0; e < *_num_groups_devc; e++) {
+            scalar_flux(tid,e) = value;
+  	    old_scalar_flux(tid,e) = value;
+         }
+
+	tid += blockDim.x * gridDim.x;
+     }
+
+    return;
+}
+
+
+/**
+ * @brief Set the source for each energy group inside each dev_flatsourceregion
+ *        to a constant value.
+ * @param value the value to assign to each flat source region source
+ */
+__global__ void flattenFSRSources(FP_PRECISION* source, FP_PRECISION* old_source,
+				  FP_PRECISION value) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    while (tid < *_num_FSRs_devc) {
+        for (int e=0; e < *_num_groups_devc; e++) {
+	    source(tid,e) = value;
+	    old_source(tid,e) = value;
+	}
+
+	tid += blockDim.x * gridDim.x;
+    }
+
+    return;
+}
+
+
+/**
+ * @brief Zero each track's boundary fluxes for each energy group and polar
+ *        angle in the "forward" and "reverse" directions.
+ * @param boundary_flux array of angular fluxes for each track and energy group
+ */
+__global__ void zeroTrackFluxes(FP_PRECISION* boundary_flux) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    /* Loop over all tracks and energy groups and set each track's 
+     * incoming and outgoing flux to zero */
+    while(tid < *_tot_num_tracks_devc) {
+        for (int pe2=0; pe2 < 2*(*_polar_times_groups_devc); pe2++)
+    	    boundary_flux(tid,pe2) = 0.0;
+    }
 
     return;
 }
