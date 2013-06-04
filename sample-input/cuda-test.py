@@ -126,8 +126,7 @@ track_generator.generateTracks()
 log.py_printf('NORMAL', 'Initializing solver on the GPU...')
 
 device_solver = cuda.DeviceSolver(geometry, track_generator)
-
-device_solver.allocateDeviceData()
+device_solver.convergeSource()
 
 
 ###############################################################################

@@ -1197,13 +1197,42 @@ void DeviceSolver::checkTrackSpacing() {
 
 FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
   
+    /* Error checking */
+    if (_geometry == NULL)
+        log_printf(ERROR, "The DeviceSolver is unable to converge the source "
+		   "since it does not contain a Geometry");
+    if (_track_generator == NULL)
+        log_printf(ERROR, "The DeviceSolver is unable to converge the source "
+		   "since it does not contain a TrackGenerator");
+
     setNumThreadBlocks(B);
     setNumThreadsPerBlock(T);
 
+    FP_PRECISION* k_eff_pointer;
+    FP_PRECISION residual = 0.0;
+
+    /* Get keff from the device */
+    cudaHostGetDevicePointer((void**)&k_eff_pointer, (void*)_k_eff, 0);
+
+    /* Counter for the number of iterations to converge the source */
+    _num_iterations = 0;
+
+    /* An initial guess for the eigenvalue */
+    *_k_eff = 1.0;
+
+    /* Initialize data structures on the device */
+    allocateDeviceData();
+
+    /* Check that each FSR has at least one segment crossing it */
+    checkTrackSpacing();
+
+    /* Set scalar flux to unity for each region */
     flattenFSRFluxes<<<_num_blocks, _num_threads>>>(_scalar_flux, 
-						  _old_scalar_flux, 0.0);
-    flattenFSRSources<<<_num_blocks, _num_threads>>>(_source, _old_source, 0.0);
+						    _old_scalar_flux, 1.0);
+    flattenFSRSources<<<_num_blocks, _num_threads>>>(_source, _old_source, 1.0);
     zeroTrackFluxes<<<_num_blocks, _num_threads>>>(_boundary_flux);
+
+    log_printf(NORMAL, "Converging the source on the device...");
 
     return 0.;
 }
