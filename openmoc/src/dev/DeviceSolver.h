@@ -187,11 +187,9 @@ private:
     void initializeThrustVectors();
     void initializeConstantMemory();
     void initializePinnedMemory();
-
     void precomputePrefactors();
     void checkTrackSpacing();
 
-    //void normalizeFluxes();
     //FP_PRECISION computeFSRSources();
     //void computeKeff();
     //bool isScalarFluxConverged();
@@ -229,7 +227,7 @@ public:
     int computeScalarTrackIndex(int i, int j);
     //void computePrefactors();
 
-    //    FP_PRECISION convergeSource(int max_iterations, int B=64, int T=64);
+    FP_PRECISION convergeSource(int max_iterations, int B=64, int T=64);
     //    void computePinPowers();
 };
 

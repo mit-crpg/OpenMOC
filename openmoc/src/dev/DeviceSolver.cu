@@ -42,6 +42,109 @@ __constant__ FP_PRECISION _inverse_prefactor_spacing_devc[1];
 
 
 /**
+ * @brief Set the scalar flux for each energy group inside each 
+ *        dev_flatsourceregion to a constant value.
+ * @param value the value to assign to each flat source region flux
+ */
+__global__ void flattenFSRFluxes(FP_PRECISION* scalar_flux, 
+					       FP_PRECISION* old_scalar_flux,
+					       FP_PRECISION value) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    /* Loop over all FSRs and energy groups */
+    while (tid < *_num_FSRs_devc) {
+        for (int e=0; e < *_num_groups_devc; e++) {
+            scalar_flux(tid,e) = value;
+  	    old_scalar_flux(tid,e) = value;
+         }
+
+	tid += blockDim.x * gridDim.x;
+     }
+
+    return;
+}
+
+
+/**
+ * @brief Set the source for each energy group inside each dev_flatsourceregion
+ *        to a constant value.
+ * @param value the value to assign to each flat source region source
+ */
+__global__ void flattenFSRSources(FP_PRECISION* source, FP_PRECISION* old_source,
+				  FP_PRECISION value) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    while (tid < *_num_FSRs_devc) {
+        for (int e=0; e < *_num_groups_devc; e++) {
+	    source(tid,e) = value;
+	    old_source(tid,e) = value;
+	}
+
+	tid += blockDim.x * gridDim.x;
+    }
+
+    return;
+}
+
+
+/**
+ * @brief Zero each track's boundary fluxes for each energy group and polar
+ *        angle in the "forward" and "reverse" directions.
+ * @param boundary_flux array of angular fluxes for each track and energy group
+ */
+__global__ void zeroTrackFluxes(FP_PRECISION* boundary_flux) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    /* Loop over all tracks and energy groups and set each track's 
+     * incoming and outgoing flux to zero */
+    while(tid < *_tot_num_tracks_devc) {
+        for (int pe2=0; pe2 < 2*(*_polar_times_groups_devc); pe2++)
+    	    boundary_flux(tid,pe2) = 0.0;
+
+	tid += blockDim.x * gridDim.x;
+    }
+
+    return;
+}
+
+
+/**
+ * @brief Normalizes all flatsourceregion scalar fluxes and track boundary
+ *        angular fluxes to the total fission source (times nu).
+ */
+__global__ void normalizeFluxes(FP_PRECISION* scalar_flux, 
+				FP_PRECISION* boundary_flux, 
+				FP_PRECISION norm_factor) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    
+    /* Normalize scalar fluxes for each flat source region */
+    
+    while(tid < *_num_FSRs_devc) {
+        for (int e=0; e < *_num_groups_devc; e++)
+	  scalar_flux(tid,e) *= norm_factor;
+
+	tid += blockDim.x * gridDim.x;
+    }
+
+    tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    /* Normalize angular boundary fluxes for each track */
+    while(tid < *_tot_num_tracks_devc) {
+        for (int pe2=0; pe2 < 2*(*_polar_times_groups_devc); pe2++)
+	    boundary_flux(tid,pe2) *= norm_factor;
+
+	tid += blockDim.x * gridDim.x;
+    }
+
+    return;
+}
+
+
+/**
  * DeviceSolver constructor
  * @param geom pointer to the geometry
  * @param track_generator pointer to the TrackGenerator on the CPU
@@ -1092,70 +1195,15 @@ void DeviceSolver::checkTrackSpacing() {
 }
 
 
+FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
+  
+    setNumThreadBlocks(B);
+    setNumThreadsPerBlock(T);
 
-/**
- * @brief Set the scalar flux for each energy group inside each 
- *        dev_flatsourceregion to a constant value.
- * @param value the value to assign to each flat source region flux
- */
-__global__ void flattenFSRFluxes(FP_PRECISION* scalar_flux, 
-					       FP_PRECISION* old_scalar_flux,
-					       FP_PRECISION value) {
+    flattenFSRFluxes<<<_num_blocks, _num_threads>>>(_scalar_flux, 
+						  _old_scalar_flux, 0.0);
+    flattenFSRSources<<<_num_blocks, _num_threads>>>(_source, _old_source, 0.0);
+    zeroTrackFluxes<<<_num_blocks, _num_threads>>>(_boundary_flux);
 
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-
-    /* Loop over all FSRs and energy groups */
-    while (tid < *_num_FSRs_devc) {
-        for (int e=0; e < *_num_groups_devc; e++) {
-            scalar_flux(tid,e) = value;
-  	    old_scalar_flux(tid,e) = value;
-         }
-
-	tid += blockDim.x * gridDim.x;
-     }
-
-    return;
-}
-
-
-/**
- * @brief Set the source for each energy group inside each dev_flatsourceregion
- *        to a constant value.
- * @param value the value to assign to each flat source region source
- */
-__global__ void flattenFSRSources(FP_PRECISION* source, FP_PRECISION* old_source,
-				  FP_PRECISION value) {
-
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-
-    while (tid < *_num_FSRs_devc) {
-        for (int e=0; e < *_num_groups_devc; e++) {
-	    source(tid,e) = value;
-	    old_source(tid,e) = value;
-	}
-
-	tid += blockDim.x * gridDim.x;
-    }
-
-    return;
-}
-
-
-/**
- * @brief Zero each track's boundary fluxes for each energy group and polar
- *        angle in the "forward" and "reverse" directions.
- * @param boundary_flux array of angular fluxes for each track and energy group
- */
-__global__ void zeroTrackFluxes(FP_PRECISION* boundary_flux) {
-
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-
-    /* Loop over all tracks and energy groups and set each track's 
-     * incoming and outgoing flux to zero */
-    while(tid < *_tot_num_tracks_devc) {
-        for (int pe2=0; pe2 < 2*(*_polar_times_groups_devc); pe2++)
-    	    boundary_flux(tid,pe2) = 0.0;
-    }
-
-    return;
+    return 0.;
 }
