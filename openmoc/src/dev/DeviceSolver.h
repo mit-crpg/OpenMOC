@@ -190,6 +190,7 @@ private:
     void checkTrackSpacing();
 
     void normalizeFluxes();
+    FP_PRECISION computeFSRSources();
     void computeKeff();
     //bool isScalarFluxConverged();
     //int computePrefactorIndex(FP_PRECISION sigma_t_l);

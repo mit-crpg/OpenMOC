@@ -46,9 +46,9 @@ __constant__ FP_PRECISION _inverse_prefactor_spacing_devc[1];
  *        dev_flatsourceregion to a constant value.
  * @param value the value to assign to each flat source region flux
  */
-__global__ void flattenFSRFluxes(FP_PRECISION* scalar_flux, 
-					       FP_PRECISION* old_scalar_flux,
-					       FP_PRECISION value) {
+__global__ void flattenFSRFluxesOnDevice(FP_PRECISION* scalar_flux, 
+					 FP_PRECISION* old_scalar_flux,
+					 FP_PRECISION value) {
 
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -71,8 +71,9 @@ __global__ void flattenFSRFluxes(FP_PRECISION* scalar_flux,
  *        to a constant value.
  * @param value the value to assign to each flat source region source
  */
-__global__ void flattenFSRSources(FP_PRECISION* source, FP_PRECISION* old_source,
-				  FP_PRECISION value) {
+__global__ void flattenFSRSourcesOnDevice(FP_PRECISION* source, 
+					  FP_PRECISION* old_source,
+					  FP_PRECISION value) {
 
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -94,7 +95,7 @@ __global__ void flattenFSRSources(FP_PRECISION* source, FP_PRECISION* old_source
  *        angle in the "forward" and "reverse" directions.
  * @param boundary_flux array of angular fluxes for each track and energy group
  */
-__global__ void zeroTrackFluxes(FP_PRECISION* boundary_flux) {
+__global__ void zeroTrackFluxesOnDevice(FP_PRECISION* boundary_flux) {
 
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -118,10 +119,10 @@ __global__ void zeroTrackFluxes(FP_PRECISION* boundary_flux) {
 * @param materials pointer an array of materials on the device
 * @param fission_source pointer to the value for the total fission source
 */
-__global__ void computeFissionSource(dev_flatsourceregion* FSRs,
-				     dev_material* materials,
-				     FP_PRECISION* scalar_flux,
-				     FP_PRECISION* fission_source) {
+__global__ void computeFissionSourcesOnDevice(dev_flatsourceregion* FSRs,
+					      dev_material* materials,
+					      FP_PRECISION* scalar_flux,
+					      FP_PRECISION* fission_source) {
 
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -206,14 +207,14 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
  *
  * @return the residual between this source and the previous source
  */
- __global__ void computeFSRSources(dev_flatsourceregion* FSRs,
-				   dev_material* materials,
-				   FP_PRECISION* scalar_flux,
-				   FP_PRECISION* source,
-				   FP_PRECISION* old_source,
-				   FP_PRECISION* ratios,
-				   FP_PRECISION inverse_k_eff,
-				   FP_PRECISION* source_residual) {
+ __global__ void computeFSRSourcesOnDevice(dev_flatsourceregion* FSRs,
+					   dev_material* materials,
+					   FP_PRECISION* scalar_flux,
+					   FP_PRECISION* source,
+					   FP_PRECISION* old_source,
+					   FP_PRECISION* ratios,
+					   FP_PRECISION inverse_k_eff,
+					   FP_PRECISION* source_residual) {
 
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -1376,20 +1377,38 @@ void DeviceSolver::checkTrackSpacing() {
 
 void DeviceSolver::normalizeFluxes() {
 
-  computeFissionSource<<<_num_blocks, _num_threads,
-      sizeof(FP_PRECISION)*_num_threads>>>(_FSRs, 
-					   _materials, 
-					   _scalar_flux, 
-					   _fission_source);
+    computeFissionSourcesOnDevice<<<_num_blocks, _num_threads,
+        sizeof(FP_PRECISION)*_num_threads>>>(_FSRs, 
+					     _materials, 
+					     _scalar_flux, 
+					     _fission_source);
 
-  FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_source_vec.begin(),
-						  _fission_source_vec.end());
+    FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_source_vec.begin(),
+						    _fission_source_vec.end());
 
-  log_printf(INFO, "norm_factor = %f", norm_factor);
-  
-  normalizeFluxesOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux, 
-							 _boundary_flux, 
-							 norm_factor);
+    log_printf(INFO, "norm_factor = %f", norm_factor);
+    
+    normalizeFluxesOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux, 
+							   _boundary_flux, 
+							   norm_factor);
+}
+
+
+FP_PRECISION DeviceSolver::computeFSRSources() {
+
+    computeFSRSourcesOnDevice<<<_num_blocks, _num_threads>>>(_FSRs, 
+							     _materials, 
+							     _scalar_flux,
+							     _source, 
+							     _old_source, 
+							     _ratios,
+							     1.0 / _k_eff,
+							     _source_residual);
+
+    FP_PRECISION residual = thrust::reduce(_source_residual_vec.begin(), 
+					   _source_residual_vec.end());
+
+    return residual;
 }
 
 
@@ -1450,10 +1469,13 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
     checkTrackSpacing();
 
     /* Set scalar flux to unity for each region */
-    flattenFSRFluxes<<<_num_blocks, _num_threads>>>(_scalar_flux, 
-						    _old_scalar_flux, 1.0);
-    flattenFSRSources<<<_num_blocks, _num_threads>>>(_source, _old_source, 1.0);
-    zeroTrackFluxes<<<_num_blocks, _num_threads>>>(_boundary_flux);
+    flattenFSRFluxesOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux, 
+							    _old_scalar_flux, 
+							    1.0);
+    flattenFSRSourcesOnDevice<<<_num_blocks, _num_threads>>>(_source, 
+							     _old_source, 
+							     1.0);
+    zeroTrackFluxesOnDevice<<<_num_blocks, _num_threads>>>(_boundary_flux);
 
     log_printf(NORMAL, "Converging the source on the device...");
 
@@ -1464,19 +1486,7 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
 		 "\tres = %1.3E", i, _k_eff, residual);
 
 	normalizeFluxes();
-
-	computeFSRSources<<<_num_blocks, _num_threads>>>(_FSRs, 
-							 _materials, 
-						         _scalar_flux,
-							 _source, 
-							 _old_source, 
-							 _ratios,
-							 1.0 / _k_eff,
-							 _source_residual);
-
-	residual = thrust::reduce(_source_residual_vec.begin(), 
-				  _source_residual_vec.end());
-
+	residual = computeFSRSources();
 	//	transportSweep(1);
 	computeKeff();
 	_num_iterations++;
