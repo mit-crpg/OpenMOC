@@ -19,7 +19,7 @@ gridsize = 500
 
 setOutputDirectory('CUDA-Test')
 
-log.setLogLevel('NORMAL')
+log.setLogLevel('INFO')
 
 if cuda.machineContainsGPU():
     cuda.printBasicDeviceInfo()
@@ -126,7 +126,7 @@ track_generator.generateTracks()
 log.py_printf('NORMAL', 'Initializing solver on the GPU...')
 
 device_solver = cuda.DeviceSolver(geometry, track_generator)
-device_solver.convergeSource()
+device_solver.convergeSource(max_iterations=1000)
 
 
 ###############################################################################

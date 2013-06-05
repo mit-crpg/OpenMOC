@@ -589,7 +589,7 @@ void DeviceSolver::setNumThreadsPerBlock(int num_threads) {
  */
 void DeviceSolver::allocateDeviceData() {
 
-    log_printf(INFO, "Allocating memory for the device solver...");
+    log_printf(NORMAL, "Allocating memory for the device solver...");
 
 
     /**************************************************************************/
@@ -683,7 +683,7 @@ void DeviceSolver::initializePowerArrays() {
  */
 void DeviceSolver::initializeGlobalMemory() {
 
-    log_printf(INFO, "Initializing global memory for the device solver...");
+    log_printf(INFO, "Initializing global memory on the device...");
 
     initializeFSRs();
     initializeMaterials();
@@ -1159,6 +1159,8 @@ void DeviceSolver::precomputePrefactors(){
  */
 void DeviceSolver::checkTrackSpacing() {
 
+    log_printf(INFO, "Checking track spacing...");
+
     int* FSR_segment_tallies = new int[_num_FSRs];
     std::vector<segment*> segments;
     std::vector<segment*>::iterator iter;
@@ -1205,11 +1207,14 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
         log_printf(ERROR, "The DeviceSolver is unable to converge the source "
 		   "since it does not contain a TrackGenerator");
 
+    FP_PRECISION* k_eff_pointer;
+    FP_PRECISION residual = 0.0;
+
     setNumThreadBlocks(B);
     setNumThreadsPerBlock(T);
 
-    FP_PRECISION* k_eff_pointer;
-    FP_PRECISION residual = 0.0;
+    /* Initialize data structures on the device */
+    allocateDeviceData();
 
     /* Get keff from the device */
     cudaHostGetDevicePointer((void**)&k_eff_pointer, (void*)_k_eff, 0);
@@ -1219,9 +1224,6 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
 
     /* An initial guess for the eigenvalue */
     *_k_eff = 1.0;
-
-    /* Initialize data structures on the device */
-    allocateDeviceData();
 
     /* Check that each FSR has at least one segment crossing it */
     checkTrackSpacing();
