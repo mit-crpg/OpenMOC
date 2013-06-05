@@ -189,8 +189,8 @@ private:
     void precomputePrefactors();
     void checkTrackSpacing();
 
-    //FP_PRECISION computeFSRSources();
-    //void computeKeff();
+    void normalizeFluxes();
+    void computeKeff();
     //bool isScalarFluxConverged();
     //int computePrefactorIndex(FP_PRECISION sigma_t_l);
     //void transportSweep(int max_iterations);

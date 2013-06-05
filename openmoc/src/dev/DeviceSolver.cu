@@ -164,9 +164,9 @@ __global__ void computeFissionSource(dev_flatsourceregion* FSRs,
  * @brief Normalizes all flatsourceregion scalar fluxes and track boundary
  *        angular fluxes to the total fission source (times nu).
  */
-__global__ void normalizeFluxes(FP_PRECISION* scalar_flux, 
-				FP_PRECISION* boundary_flux, 
-				FP_PRECISION norm_factor) {
+__global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux, 
+					FP_PRECISION* boundary_flux, 
+					FP_PRECISION norm_factor) {
 
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
     
@@ -1374,6 +1374,54 @@ void DeviceSolver::checkTrackSpacing() {
 }
 
 
+void DeviceSolver::normalizeFluxes() {
+
+  computeFissionSource<<<_num_blocks, _num_threads,
+      sizeof(FP_PRECISION)*_num_threads>>>(_FSRs, 
+					   _materials, 
+					   _scalar_flux, 
+					   _fission_source);
+
+  FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_source_vec.begin(),
+						  _fission_source_vec.end());
+
+  log_printf(INFO, "norm_factor = %f", norm_factor);
+  
+  normalizeFluxesOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux, 
+							 _boundary_flux, 
+							 norm_factor);
+}
+
+
+void DeviceSolver::computeKeff() {
+
+    FP_PRECISION tot_absorption;
+    FP_PRECISION tot_fission;
+
+    /* Compute the total fission and absorption rates on the device.
+     * This kernel stores partial rates in a Thrust vector with as many
+     * entries as GPU threads executed by the kernel */
+    computeFissionAndAbsorption<<<_num_blocks, _num_threads>>>(_FSRs,
+							       _materials,
+							       _scalar_flux,
+							       _tot_absorption,
+							       _tot_fission);
+
+    /* Compute the total absorption rate by reducing the partial absorption
+     * rates compiled in the Thrust vector */
+    tot_absorption = thrust::reduce(_tot_absorption_vec.begin(),
+				    _tot_absorption_vec.end());
+
+    /* Compute the total fission rate by reducing the partial fission
+     * rates compiled in the Thrust vector */
+    tot_fission = thrust::reduce(_tot_fission_vec.begin(),
+				 _tot_fission_vec.end());
+
+    /* Compute the new keff from the fission and absorption rates */
+    _k_eff = tot_fission / tot_absorption;
+}
+
+
 FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
   
     /* Error checking */
@@ -1385,9 +1433,6 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
 		   "since it does not contain a TrackGenerator");
 
     FP_PRECISION residual;
-    FP_PRECISION norm_factor;
-    FP_PRECISION tot_absorption;
-    FP_PRECISION tot_fission;
 
     setNumThreadBlocks(B);
     setNumThreadsPerBlock(T);
@@ -1418,19 +1463,8 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
         log_printf(NORMAL, "Iteration %d on host: \tk_eff = %1.6f"
 		 "\tres = %1.3E", i, _k_eff, residual);
 
-	computeFissionSource<<<_num_blocks, _num_threads, 
-	  sizeof(FP_PRECISION)*_num_threads>>>(_FSRs, _materials, 
-					       _scalar_flux, _fission_source);
+	normalizeFluxes();
 
-	norm_factor = 1.0 / thrust::reduce(_fission_source_vec.begin(),
-					   _fission_source_vec.end());
-
-        log_printf(INFO, "norm_factor = %f", norm_factor);
-
-	normalizeFluxes<<<_num_blocks, _num_threads>>>(_scalar_flux, 
-						       _boundary_flux, 
-						       norm_factor);
-	
 	computeFSRSources<<<_num_blocks, _num_threads>>>(_FSRs, 
 							 _materials, 
 						         _scalar_flux,
@@ -1444,22 +1478,7 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
 				  _source_residual_vec.end());
 
 	//	transportSweep(1);
-	//	computeKeff();
-
-	computeFissionAndAbsorption<<<_num_blocks, _num_threads>>>(_FSRs,
-								   _materials,
-								   _scalar_flux,
-								   _tot_absorption,
-								   _tot_fission);
-
-	tot_absorption = thrust::reduce(_tot_absorption_vec.begin(),
-					_tot_absorption_vec.end());
-	tot_fission = thrust::reduce(_tot_fission_vec.begin(),
-				     _tot_fission_vec.end());
-
-	_k_eff = tot_fission / tot_absorption;
-
-
+	computeKeff();
 	_num_iterations++;
 
 	if (i > 1 && residual < _source_convergence_thresh){
