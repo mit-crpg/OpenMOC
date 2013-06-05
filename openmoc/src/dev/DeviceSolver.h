@@ -164,11 +164,11 @@ private:
     FP_PRECISION* _ratios;
 
     FP_PRECISION* _fission_source;
-    FP_PRECISION* _tot_abs;
+    FP_PRECISION* _tot_absorption;
     FP_PRECISION* _tot_fission;
     FP_PRECISION* _source_residual;
     thrust::device_vector<FP_PRECISION> _fission_source_vec;
-    thrust::device_vector<FP_PRECISION> _tot_abs_vec;
+    thrust::device_vector<FP_PRECISION> _tot_absorption_vec;
     thrust::device_vector<FP_PRECISION> _tot_fission_vec;
     thrust::device_vector<FP_PRECISION> _source_residual_vec;
 

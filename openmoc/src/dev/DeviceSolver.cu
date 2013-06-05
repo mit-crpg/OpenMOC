@@ -285,6 +285,62 @@ __global__ void normalizeFluxes(FP_PRECISION* scalar_flux,
 
 
 /**
+* Compute the total fission source from all flat source regions
+* @param FSRs pointer to the flat source region array on the device
+* @param num_FSRs pointer to an int of the number of flat source regions
+* @param materials pointer an array of materials on the device
+* @param fission_source pointer to the value for the total fission source
+*/
+__global__ void computeFissionAndAbsorption(dev_flatsourceregion* FSRs,
+					    dev_material* materials,
+					    FP_PRECISION* scalar_flux,
+					    FP_PRECISION* tot_absorption,
+					    FP_PRECISION* tot_fission) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    dev_flatsourceregion* curr_FSR;
+    dev_material* curr_material;
+    double* nu_sigma_f;
+    double* sigma_a;
+    FP_PRECISION volume;
+
+    FP_PRECISION absorption;
+    FP_PRECISION fission;
+
+    /* Iterate over all FSRs */
+    while (tid < *_num_FSRs_devc) {
+
+	absorption = 0;
+	fission = 0;
+        
+	curr_FSR = &FSRs[tid];
+	curr_material = &materials[curr_FSR->_material_uid];
+	nu_sigma_f = curr_material->_nu_sigma_f;
+	sigma_a = curr_material->_sigma_a;
+	volume = curr_FSR->_volume;
+
+	/* Iterate over all energy groups and update
+	 * fission and absorption rates for this block */
+	for (int e=0; e < *_num_groups_devc; e++) {
+	    absorption += sigma_a[e] * scalar_flux(tid,e) * volume;
+	    fission += nu_sigma_f[e] * scalar_flux(tid,e) * volume;
+	}
+
+	/* Increment thread id */
+	tid += blockDim.x * gridDim.x;
+    }
+
+    /* Copy this thread's fission and absorption rates to global memory */
+    tid = threadIdx.x + blockIdx.x * blockDim.x;
+    tot_absorption[tid] = absorption;
+    tot_fission[tid] = fission;
+    
+    return;
+}
+
+
+/**
  * DeviceSolver constructor
  * @param geom pointer to the geometry
  * @param track_generator pointer to the TrackGenerator on the CPU
@@ -342,7 +398,7 @@ DeviceSolver::DeviceSolver(Geometry* geometry, TrackGenerator* track_generator) 
     _ratios = NULL;
 
     _fission_source = NULL;
-    _tot_abs = NULL;
+    _tot_absorption = NULL;
     _tot_fission = NULL;
     _source_residual = NULL;
 
@@ -402,8 +458,8 @@ DeviceSolver::~DeviceSolver() {
     if (_fission_source != NULL)
         _fission_source_vec.clear();
 
-    if (_tot_abs != NULL)
-        _tot_abs_vec.clear();
+    if (_tot_absorption != NULL)
+        _tot_absorption_vec.clear();
 
     if (_tot_fission != NULL)
         _tot_fission_vec.clear();
@@ -1080,9 +1136,9 @@ void DeviceSolver::initializeThrustVectors() {
         _fission_source = NULL;
         _fission_source_vec.clear();
     }
-    if (_tot_abs != NULL) {
-        _tot_abs = NULL;
-        _tot_abs_vec.clear();
+    if (_tot_absorption != NULL) {
+        _tot_absorption = NULL;
+        _tot_absorption_vec.clear();
     }
     if (_tot_fission != NULL) {
         _tot_fission = NULL;
@@ -1101,8 +1157,8 @@ void DeviceSolver::initializeThrustVectors() {
 	_fission_source = thrust::raw_pointer_cast(&_fission_source_vec[0]);
       
 	/* Allocate total absorption reaction rate array on device */
-	_tot_abs_vec.resize(_num_blocks * _num_threads);
-	_tot_abs = thrust::raw_pointer_cast(&_tot_abs_vec[0]);
+	_tot_absorption_vec.resize(_num_blocks * _num_threads);
+	_tot_absorption = thrust::raw_pointer_cast(&_tot_absorption_vec[0]);
 
 	/* Allocate fission reaction rate array on device */
 	_tot_fission_vec.resize(_num_blocks * _num_threads);
@@ -1330,6 +1386,8 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
 
     FP_PRECISION residual;
     FP_PRECISION norm_factor;
+    FP_PRECISION tot_absorption;
+    FP_PRECISION tot_fission;
 
     setNumThreadBlocks(B);
     setNumThreadsPerBlock(T);
@@ -1365,7 +1423,7 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
 					       _scalar_flux, _fission_source);
 
 	norm_factor = 1.0 / thrust::reduce(_fission_source_vec.begin(),
-						    _fission_source_vec.end());
+					   _fission_source_vec.end());
 
         log_printf(INFO, "norm_factor = %f", norm_factor);
 
@@ -1378,16 +1436,29 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
 						         _scalar_flux,
 							 _source, 
 							 _old_source, 
-							 _ratios, 
+							 _ratios,
 							 1.0 / _k_eff,
 							 _source_residual);
-
 
 	residual = thrust::reduce(_source_residual_vec.begin(), 
 				  _source_residual_vec.end());
 
 	//	transportSweep(1);
 	//	computeKeff();
+
+	computeFissionAndAbsorption<<<_num_blocks, _num_threads>>>(_FSRs,
+								   _materials,
+								   _scalar_flux,
+								   _tot_absorption,
+								   _tot_fission);
+
+	tot_absorption = thrust::reduce(_tot_absorption_vec.begin(),
+					_tot_absorption_vec.end());
+	tot_fission = thrust::reduce(_tot_fission_vec.begin(),
+				     _tot_fission_vec.end());
+
+	_k_eff = tot_fission / tot_absorption;
+
 
 	_num_iterations++;
 
