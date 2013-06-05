@@ -210,7 +210,8 @@ DeviceSolver::DeviceSolver(Geometry* geometry, TrackGenerator* track_generator) 
     _FSRs_to_pin_powers = NULL;
 
     _prefactor_array = NULL;
-    _k_eff = NULL;
+    _k_eff_pinned = NULL;
+    _norm_factor_pinned = NULL;
 }
 
 
@@ -275,8 +276,11 @@ DeviceSolver::~DeviceSolver() {
     if (_prefactor_array != NULL)
         cudaFree(_prefactor_array);
 
-    if (_k_eff != NULL)
-        cudaFreeHost(_k_eff);
+    if (_k_eff_pinned != NULL)
+        cudaFreeHost(_k_eff_pinned);
+
+    if (_norm_factor_pinned != NULL)
+        cudaFreeHost(_norm_factor_pinned);
 }
 
 
@@ -1058,7 +1062,8 @@ void DeviceSolver::initializePinnedMemory() {
 
     /* Pinned host memory for keff */
     unsigned int flags = cudaHostAllocWriteCombined;
-    cudaHostAlloc((void**)&_k_eff, sizeof(FP_PRECISION), flags);
+    cudaHostAlloc((void**)&_k_eff_pinned, sizeof(FP_PRECISION), flags);
+    cudaHostAlloc((void**)&_norm_factor_pinned, sizeof(FP_PRECISION), flags);
 }
 
 
@@ -1207,7 +1212,15 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
         log_printf(ERROR, "The DeviceSolver is unable to converge the source "
 		   "since it does not contain a TrackGenerator");
 
+    /** A reference to _k_eff_pinned in the device's address space */
     FP_PRECISION* k_eff_pointer;
+    FP_PRECISION* norm_factor_pointer;
+
+    /* Get keff pointer from the device */
+    cudaHostGetDevicePointer((void**)&k_eff_pointer, (void*)_k_eff_pinned, 0);
+    cudaHostGetDevicePointer((void**)&norm_factor_pointer, 
+			     (void*)_norm_factor_pinned, 0);
+
     FP_PRECISION residual = 0.0;
 
     setNumThreadBlocks(B);
@@ -1216,14 +1229,11 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
     /* Initialize data structures on the device */
     allocateDeviceData();
 
-    /* Get keff from the device */
-    cudaHostGetDevicePointer((void**)&k_eff_pointer, (void*)_k_eff, 0);
-
     /* Counter for the number of iterations to converge the source */
     _num_iterations = 0;
 
     /* An initial guess for the eigenvalue */
-    *_k_eff = 1.0;
+    *_k_eff_pinned = 1.0;
 
     /* Check that each FSR has at least one segment crossing it */
     checkTrackSpacing();
@@ -1236,5 +1246,36 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
 
     log_printf(NORMAL, "Converging the source on the device...");
 
-    return 0.;
+    /* Source iteration loop */
+    for (int i=0; i < max_iterations; i++) {
+
+        log_printf(NORMAL, "Iteration %d on host: \tk_eff = %1.6f"
+		 "\tres = %1.3E", i, *_k_eff_pinned, residual);
+
+	// computeFissionSource<<<_num_blocks, _num_threads, sizeof(FP_PRECISION**_num_threads>>>(_source, _materials, _fission_source);
+
+	*_norm_factor_pinned = 1.0 / thrust::reduce(_fission_source_vec.begin(),
+						    _fission_source_vec.end());
+
+        log_printf(DEBUG, "norm_factor = %f", *_norm_factor_pinned);
+
+	normalizeFluxes<<<_num_blocks, _num_threads>>>(_scalar_flux, 
+						       _boundary_flux, 
+						       *_norm_factor_pinned);
+
+	//	residual = computeFSRSources();
+	//	transportSweep(1);
+	//	computeKeff();
+	_num_iterations++;
+
+	if (i > 1 && residual < _source_convergence_thresh){
+	  //	    transportSweep(1000);
+	    return *_k_eff_pinned;
+	}
+    }
+
+    log_printf(WARNING, "Unable to converge the source after %d iterations",
+	       max_iterations);
+
+    return *_k_eff_pinned;
 }

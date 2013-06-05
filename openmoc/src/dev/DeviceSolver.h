@@ -172,7 +172,10 @@ private:
     FP_PRECISION* _prefactor_array;
 
     /** The current iteration's keff, accessible from both device and host */
-    FP_PRECISION* _k_eff;
+    FP_PRECISION* _k_eff_pinned;
+
+    /** The current iteration's renormalization factor for the flux */
+    FP_PRECISION* _norm_factor_pinned;
 
 
     void initializeHostMemory();
