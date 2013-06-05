@@ -39,7 +39,4 @@ typedef struct dev_flatsourceregion {
 } dev_flatsourceregion;
 
 
-void cloneOnDevice(FlatSourceRegion* fsr_h, dev_flatsourceregion* fsr_d);
-
-
 #endif /* DEVICEFLATSOURCEREGION_H_ */

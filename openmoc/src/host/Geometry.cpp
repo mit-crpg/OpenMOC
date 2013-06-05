@@ -1056,7 +1056,7 @@ void Geometry::initializeFlatSourceRegions() {
     for (int r=0; r < _num_FSRs; r++) {
         CellBasic* curr=static_cast<CellBasic*>(findCell(_universes.at(0), r));
         _FSRs_to_cells[r] = curr->getId();
-        _FSRs_to_materials[r] = curr->getMaterial();    
+        _FSRs_to_materials[r] = getMaterial(curr->getMaterial())->getUid();
     }
 }
 

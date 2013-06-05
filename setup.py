@@ -122,23 +122,23 @@ def customize_compiler(self):
 
         # If GNU is a defined macro and the source is C++, use gcc
         if '-DGNU' in pp_opts and os.path.splitext(src)[1] == '.cpp':
-            self.set_executable('compiler_so', 'gcc')
+            self.set_executable('compiler_so', 'ccache-swig gcc')
             postargs = config.compiler_flags['gcc']
 
         # If INTEL is a defined macro and the source is C++, use icpc
         elif '-DINTEL' in pp_opts and os.path.splitext(src)[1] == '.cpp':
-            self.set_executable('compiler_so', 'icpc')
+            self.set_executable('compiler_so', 'ccache-swig icpc')
             postargs = config.compiler_flags['icpc']
 
         # If CUDA is a defined macro and the source is C++, compile SWIG-wrapped
         # CUDA code with gcc
         elif '-DCUDA' in pp_opts and os.path.splitext(src)[1] == '.cpp':
-            self.set_executable('compiler_so', 'gcc')
+            self.set_executable('compiler_so', 'ccache-swig gcc')
             postargs = config.compiler_flags['gcc']
 
         # If CUDA is a defined macro and the source is CUDA, use nvcc
         elif '-DCUDA' in pp_opts and os.path.splitext(src)[1] == '.cu':
-            self.set_executable('compiler_so', 'nvcc')
+            self.set_executable('compiler_so', 'ccache-swig nvcc')
             postargs = config.compiler_flags['nvcc']
 
         # If we cannot determine how to compile this file, throw exception

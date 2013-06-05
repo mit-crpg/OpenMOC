@@ -42,9 +42,8 @@ sources['c++'] = ['openmoc/openmoc.i',
                   'openmoc/src/host/Universe.cpp']
 
 sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
-                   'openmoc/src/dev/DeviceMaterial.cu',
                    'openmoc/src/dev/DeviceTrack.cu',
-                   'openmoc/src/dev/DeviceFlatSourceRegion.cu',
+                   'openmoc/src/dev/DeviceMaterial.cu',
                    'openmoc/src/dev/DeviceQuery.cu',
                    'openmoc/src/dev/DeviceSolver.cu']
 

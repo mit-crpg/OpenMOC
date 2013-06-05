@@ -144,10 +144,9 @@ __global__ void computeFissionSource(dev_flatsourceregion* FSRs,
 
 	/* Iterate over all energy groups and update
 	 * fission source for this block */
-	for (int i=0; i < *_num_groups_devc; i++)
-	    shared_fission_source[threadIdx.x] +=
-	      nu_sigma_f[i] * scalar_flux[i] * volume;
-	
+	for (int e=0; e < *_num_groups_devc; e++)
+	    shared_fission_source[threadIdx.x] += nu_sigma_f[e] * scalar_flux(tid,e) * volume;
+
 	/* Increment thread id */
 	tid += blockDim.x * gridDim.x;
     }
