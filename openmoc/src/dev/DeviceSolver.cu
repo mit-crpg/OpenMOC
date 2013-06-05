@@ -112,6 +112,55 @@ __global__ void zeroTrackFluxes(FP_PRECISION* boundary_flux) {
 
 
 /**
+* Compute the total fission source from all flat source regions
+* @param FSRs pointer to the flat source region array on the device
+* @param num_FSRs pointer to an int of the number of flat source regions
+* @param materials pointer an array of materials on the device
+* @param fission_source pointer to the value for the total fission source
+*/
+__global__ void computeFissionSource(dev_flatsourceregion* FSRs,
+				     dev_material* materials,
+				     FP_PRECISION* scalar_flux,
+				     FP_PRECISION* fission_source) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    extern __shared__ FP_PRECISION shared_fission_source[];
+    dev_flatsourceregion* curr_FSR;
+    dev_material* curr_material;
+    double* nu_sigma_f;
+    FP_PRECISION volume;
+
+    /* Initialize fission source to zero */
+    shared_fission_source[threadIdx.x] = 0;
+
+    /* Iterate over all FSRs */
+    while (tid < *_num_FSRs_devc) {
+
+        curr_FSR = &FSRs[tid];
+	curr_material = &materials[curr_FSR->_material_uid];
+	nu_sigma_f = curr_material->_nu_sigma_f;
+	volume = curr_FSR->_volume;
+
+	/* Iterate over all energy groups and update
+	 * fission source for this block */
+	for (int i=0; i < *_num_groups_devc; i++)
+	    shared_fission_source[threadIdx.x] +=
+	      nu_sigma_f[i] * scalar_flux[i] * volume;
+	
+	/* Increment thread id */
+	tid += blockDim.x * gridDim.x;
+    }
+
+    /* Copy this threads fission source to global memory */
+    tid = threadIdx.x + blockIdx.x * blockDim.x;
+    fission_source[tid] = shared_fission_source[threadIdx.x];
+    
+    return;
+}
+
+
+/**
  * @brief Normalizes all flatsourceregion scalar fluxes and track boundary
  *        angular fluxes to the total fission source (times nu).
  */
@@ -1252,7 +1301,9 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
         log_printf(NORMAL, "Iteration %d on host: \tk_eff = %1.6f"
 		 "\tres = %1.3E", i, *_k_eff_pinned, residual);
 
-	// computeFissionSource<<<_num_blocks, _num_threads, sizeof(FP_PRECISION**_num_threads>>>(_source, _materials, _fission_source);
+	computeFissionSource<<<_num_blocks, _num_threads, 
+	  sizeof(FP_PRECISION)*_num_threads>>>(_FSRs, _materials, 
+					       _scalar_flux, _fission_source);
 
 	*_norm_factor_pinned = 1.0 / thrust::reduce(_fission_source_vec.begin(),
 						    _fission_source_vec.end());
