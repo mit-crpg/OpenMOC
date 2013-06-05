@@ -86,7 +86,7 @@ compiler_flags['icpc'] =['-c',
                           '-vec-report']
 
 compiler_flags['nvcc'] =  ['-c', 
-                           '-O3', 
+                           '-O0',
                            '--ptxas-options=-v', 
                            '--compiler-options', 
                            '-fpic',

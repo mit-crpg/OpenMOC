@@ -107,6 +107,9 @@ private:
     /** The number of transport sweeps to convergence */
     int _num_iterations;
 
+    /** The current iteration's keff */
+    FP_PRECISION _k_eff;
+
     /** Whether or not the Solver has converged the source */
     bool _converged_source;
 
@@ -172,13 +175,6 @@ private:
     /** The hashtable of exponential prefactors from the transport equation */
     FP_PRECISION* _prefactor_array;
 
-    /** The current iteration's keff, accessible from both device and host */
-    FP_PRECISION* _k_eff_pinned;
-
-    /** The current iteration's renormalization factor for the flux */
-    FP_PRECISION* _norm_factor_pinned;
-
-
     void initializeHostMemory();
     void initializePolarQuadrature();
     void initializeGlobalMemory();
@@ -190,7 +186,6 @@ private:
     void initializePowerArrays();
     void initializeThrustVectors();
     void initializeConstantMemory();
-    void initializePinnedMemory();
     void precomputePrefactors();
     void checkTrackSpacing();
 
