@@ -25,6 +25,7 @@
 #define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*_num_groups_devc) + (e)])
 #define source(tid,e) (source[(tid)*(*_num_groups_devc) + (e)])
 #define old_source(tid,e) (old_source[(tid)*(*_num_groups_devc) + (e)])
+#define ratios(tid,e) (ratios[(tid)*(*_num_groups_devc) + (e)])
 #define boundary_flux(tid,pe2) (boundary_flux[2*(tid)*(*_polar_times_groups_devc)+(pe2)])
 
 /** The value of 4pi: \f$ 4\pi \f$ */
@@ -228,7 +229,6 @@ public:
     void allocateDeviceData();
     //    void validateDeviceData();
     int computeScalarTrackIndex(int i, int j);
-    //void computePrefactors();
 
     FP_PRECISION convergeSource(int max_iterations, int B=64, int T=64);
     //    void computePinPowers();

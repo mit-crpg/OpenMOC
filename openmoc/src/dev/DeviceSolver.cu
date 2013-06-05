@@ -145,7 +145,8 @@ __global__ void computeFissionSource(dev_flatsourceregion* FSRs,
 	/* Iterate over all energy groups and update
 	 * fission source for this block */
 	for (int e=0; e < *_num_groups_devc; e++)
-	    shared_fission_source[threadIdx.x] += nu_sigma_f[e] * scalar_flux(tid,e) * volume;
+	    shared_fission_source[threadIdx.x] += 
+	        nu_sigma_f[e] * scalar_flux(tid,e) * volume;
 
 	/* Increment thread id */
 	tid += blockDim.x * gridDim.x;
@@ -185,6 +186,97 @@ __global__ void normalizeFluxes(FP_PRECISION* scalar_flux,
         for (int pe2=0; pe2 < 2*(*_polar_times_groups_devc); pe2++)
 	    boundary_flux(tid,pe2) *= norm_factor;
 
+	tid += blockDim.x * gridDim.x;
+    }
+
+    return;
+}
+
+
+/**
+ * @brief Computes the total source (fission and scattering) in each flat 
+ *        source region.
+ * @details This method computes the total source in each region based on
+ *          this iteration's current approximation to the scalar flux. A
+ *          residual for the source with respect to the source compute on
+ *          the previous iteration is computed and returned. The residual
+ *          is determined as follows:
+ *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum 
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}} \f$
+ *
+ * @return the residual between this source and the previous source
+ */
+ __global__ void computeFSRSources(dev_flatsourceregion* FSRs,
+				   dev_material* materials,
+				   FP_PRECISION* scalar_flux,
+				   FP_PRECISION* source,
+				   FP_PRECISION* old_source,
+				   FP_PRECISION* ratios,
+				   FP_PRECISION* k_eff,
+				   FP_PRECISION* source_residual) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    /* Reset the residual for the old and new fission sources to zero */
+    source_residual[threadIdx.x + blockIdx.x * blockDim.x] = 0.0;
+
+    FP_PRECISION fission_source;
+    FP_PRECISION scatter_source;
+
+    dev_flatsourceregion* curr_FSR;
+    dev_material* curr_material;
+
+    double* nu_sigma_f;
+    double* sigma_s;
+    double* sigma_t;
+    double* chi;
+
+    /* Iterate over all FSRs */
+    while (tid < *_num_FSRs_devc) {
+
+	curr_FSR = &FSRs[tid];
+	curr_material = &materials[curr_FSR->_material_uid];
+
+	nu_sigma_f = curr_material->_nu_sigma_f;
+	chi = curr_material->_chi;
+	sigma_s = curr_material->_sigma_s;
+	sigma_t = curr_material->_sigma_t;
+
+	/* Initialize the fission source to zero for this region */
+	fission_source = 0;
+	
+	/* Compute total fission source for current region */
+	for (int e=0; e < *_num_groups_devc; e++)
+	    fission_source += scalar_flux(tid,e) * nu_sigma_f[e];
+      
+	/* Compute total scattering source for region for group G */
+	for (int G=0; G < *_num_groups_devc; G++) {
+	    scatter_source = 0;
+	
+	    for (int g=0; g < *_num_groups_devc; g++)
+	        scatter_source += 
+		    sigma_s[G*(*_num_groups_devc)+g] * scalar_flux(tid,g);
+	
+	    /* Set the total source for this region in this group */
+	    source(tid,G) = (__fdividef(1.0, *k_eff) * fission_source * chi[G] +
+			     scatter_source) * ONE_OVER_FOUR_PI;
+
+	    ratios(tid,G) = __fdividef(source(tid,G), sigma_t[G]);
+	
+	    //NOTE: You must index int a pointer to a thrust
+	    //vector using the threadIdx.x, blockIdx.x
+	    //and blockDim.x as shown below
+	    /* Compute the norm of residuals of the sources for convergence */
+	    if (fabs(source(tid,G)) > 1E-10)
+	        source_residual[threadIdx.x + blockIdx.x * blockDim.x] +=
+		    pow((source(tid,G) - old_source(tid,G)) /
+		         source(tid,G), 2);
+
+	    /* Update the old source */	
+	    old_source(tid,G) = source(tid,G);
+	}
+	
+	/* Increment the thread id */
 	tid += blockDim.x * gridDim.x;
     }
 
@@ -1307,15 +1399,28 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
 	*_norm_factor_pinned = 1.0 / thrust::reduce(_fission_source_vec.begin(),
 						    _fission_source_vec.end());
 
-        log_printf(DEBUG, "norm_factor = %f", *_norm_factor_pinned);
+        log_printf(INFO, "norm_factor = %f", *_norm_factor_pinned);
 
 	normalizeFluxes<<<_num_blocks, _num_threads>>>(_scalar_flux, 
 						       _boundary_flux, 
 						       *_norm_factor_pinned);
+	
+	computeFSRSources<<<_num_blocks, _num_threads>>>(_FSRs, 
+							 _materials, 
+							 _scalar_flux,
+							 _source, 
+							 _old_source, 
+							 _ratios, 
+							 _k_eff_pinned, 
+							 _source_residual);
 
-	//	residual = computeFSRSources();
+
+	residual = thrust::reduce(_source_residual_vec.begin(), 
+				  _source_residual_vec.end());
+
 	//	transportSweep(1);
 	//	computeKeff();
+
 	_num_iterations++;
 
 	if (i > 1 && residual < _source_convergence_thresh){

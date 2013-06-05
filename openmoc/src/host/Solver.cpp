@@ -758,14 +758,14 @@ FP_PRECISION Solver::computeFSRSources() {
     double* sigma_t;
     double* chi;
     Material* material;
-    FP_PRECISION source_residual_norm = 0.0;
+    FP_PRECISION source_residual = 0.0;
 
     /* For all regions, find the source */
     //TODO: This can be parallelized! Need to privatize some variable and
     //      reduce the residual at the end
     #pragma omp parallel for private(material, nu_sigma_f, chi, sigma_s, \
       sigma_t, fission_source, scatter_source) \
-      reduction(+:source_residual_norm)
+      reduction(+:source_residual)
     for (int r=0; r < _num_FSRs; r++) {
 
         material = _FSRs[r].getMaterial();
@@ -785,7 +785,6 @@ FP_PRECISION Solver::computeFSRSources() {
         for (int G=0; G < _num_groups; G++) {
             scatter_source = 0;
 
-	    /* Compute total fission source for current region */
 	    for (int g=0; g < _num_groups; g++)
 	        scatter_source += sigma_s[G*_num_groups+g] * _scalar_flux(r,g);
 
@@ -798,17 +797,17 @@ FP_PRECISION Solver::computeFSRSources() {
 
 	    /* Compute the norm of residuals of the sources for convergence */
 	    if (fabs(_source(r,G)) > 1E-10)
-	        source_residual_norm += pow((_source(r,G) - _old_source(r,G)) 
-                                                           / _source(r,G), 2);
+	        source_residual += pow((_source(r,G) - _old_source(r,G)) 
+                                       / _source(r,G), 2);
 	    
 	    /* Update the old source */
 	    _old_source(r,G) = _source(r,G);
         }
     }
 
-    source_residual_norm = sqrt(source_residual_norm / _num_FSRs);
+    source_residual = sqrt(source_residual / _num_FSRs);
 
-    return source_residual_norm;
+    return source_residual;
 }
 
 
