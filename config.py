@@ -9,7 +9,10 @@ package_name = 'openmoc'
 cpp_compilers = ['all']
 
 # Supported floating point precision: 'single', 'double', 'all'
-fp_precision = ['single']
+fp_precision = ['all']
+
+# Compile using ccache (most relevant for developers)
+with_ccache = True
 
 # Compile with debug flags
 debug_mode = True
@@ -78,15 +81,18 @@ compiler_flags['gcc'] = ['-c',
 
 compiler_flags['icpc'] =['-c', 
                           '-O3', 
+                          '--ccache-skip',
                           '-openmp', 
+                          '--ccache-skip',
                           '-xhost', 
                           '-std=c++0x', 
                           '-fpic',
+                          '--ccache-skip',
                           '-openmp-report', 
                           '-vec-report']
 
 compiler_flags['nvcc'] =  ['-c', 
-                           '-O0',
+                           '-O3',
                            '--ptxas-options=-v', 
                            '--compiler-options', 
                            '-fpic',
@@ -114,8 +120,9 @@ linker_flags['icpc'] = ['-lstdc++',
                         '-lirc', 
                         '-limf', 
                         '-lrt', 
-                        '-shared', 
-                        '-Wl,-soname,_openmoc.so']
+                        '-shared',
+                        '-Xlinker',
+                        '-soname=_openmoc.so']
 
 linker_flags['nvcc'] = ['-shared', 
                        'build/lib.linux-x86_64-2.7/_openmoc.so']
