@@ -36,7 +36,21 @@ void cloneOnDevice(Material* material_h, dev_material* material_d) {
     cudaMalloc((void**)&nu_sigma_f, num_groups * sizeof(double));
     cudaMalloc((void**)&chi, num_groups * sizeof(double));
 
-    /* Copy materials data in to device material arrays */
+    /* Copy materials data from host to arrays on the device */
+    cudaMemcpy((void*)sigma_t, (void*)material_h->getSigmaT(), 
+	       num_groups * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)sigma_a, (void*)material_h->getSigmaA(), 
+	       num_groups * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)sigma_s, (void*)material_h->getSigmaS(), 
+	       num_groups * num_groups * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)sigma_f, (void*)material_h->getSigmaF(), 
+	       num_groups * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)nu_sigma_f, (void*)material_h->getNuSigmaF(), 
+	       num_groups * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)chi, (void*)material_h->getChi(), 
+	       num_groups * sizeof(double), cudaMemcpyHostToDevice);
+
+    /* Copy materials data pointers to device material */
     cudaMemcpy((void*)&material_d->_sigma_t, (void*)&sigma_t, sizeof(double*), 
                 cudaMemcpyHostToDevice);
     cudaMemcpy((void*)&material_d->_sigma_a, (void*)&sigma_a, sizeof(double*), 

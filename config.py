@@ -93,11 +93,13 @@ compiler_flags['icpc'] =['-c',
 
 compiler_flags['nvcc'] =  ['-c', 
                            '-O3',
-                           '--ptxas-options=-v', 
                            '--compiler-options', 
                            '-fpic',
                            '-gencode=arch=compute_20,code=sm_20',
                            '-gencode=arch=compute_30,code=sm_30']
+
+
+#                           '--ptxas-options=-v', 
 
 
 
@@ -198,7 +200,9 @@ macros['icpc']['double'] = [('FP_PRECISION', 'double'),
 
 macros['nvcc']['single'] = [('FP_PRECISION', 'float'), 
                             ('SINGLE', None),
-                            ('CUDA', None)]
+                            ('CUDA', None),
+                            ('CCACHE_CC', 'nvcc')]
 macros['nvcc']['double'] = [('FP_PRECISION', 'double'), 
                             ('DOUBLE', None),
-                            ('CUDA', None)]
+                            ('CUDA', None),
+                            ('CCACHE_CC', 'nvcc')]

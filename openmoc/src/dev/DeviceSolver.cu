@@ -980,10 +980,8 @@ void DeviceSolver::initializeMaterials() {
 
         /* Iterate through all materials and clone them on the device */
         cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
-	for (iter = host_materials.begin(); iter != host_materials.end(); ++iter) {
+	for (iter = host_materials.begin(); iter != host_materials.end(); ++iter)
 	    cloneOnDevice(iter->second, &_materials[iter->second->getUid()]);
-	}
-
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the device solver's "
@@ -1386,8 +1384,6 @@ void DeviceSolver::normalizeFluxes() {
     FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_source_vec.begin(),
 						    _fission_source_vec.end());
 
-    log_printf(INFO, "norm_factor = %f", norm_factor);
-    
     normalizeFluxesOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux, 
 							   _boundary_flux, 
 							   norm_factor);
