@@ -928,10 +928,10 @@ void Solver::transportSweep(int max_iterations) {
         /* Initialize flux in each region to zero */
         flattenFSRFluxes(0.0);
 
-	/* Loop over azimuthal each thread and azimuthal angle*
-	 * If we are using more than 1 OpenMP threads then we create a 
-	 * separate thread for each pair of complementary (reflecting) 
-	 * azimuthal angles - angles which wrap into cycles on each other */
+	/* Loop over each thread and azimuthal angle.
+	 * If we are using more than 1 thread then we create 
+	 * separate threads for each pair of complementary  
+	 * azimuthal angles - angles which wrap into cycles */
 	/* Loop over each thread */
         #pragma omp parallel for private(track_id, track_out_id, bc, fsr_id, \
 	          segments, iter, riter, sigma_t, fsr_flux, delta, volume, \

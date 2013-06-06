@@ -17,16 +17,22 @@
 
 #include <thrust/reduce.h>
 #include <thrust/device_vector.h>
+#include <sm_13_double_functions.h>
+#include <sm_20_atomic_functions.h>
 #include "DeviceFlatSourceRegion.h"
 #include "DeviceTrack.h"
 #include "DeviceMaterial.h"
+
 
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*_num_groups_devc) + (e)])
 #define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*_num_groups_devc) + (e)])
 #define source(tid,e) (source[(tid)*(*_num_groups_devc) + (e)])
 #define old_source(tid,e) (old_source[(tid)*(*_num_groups_devc) + (e)])
 #define ratios(tid,e) (ratios[(tid)*(*_num_groups_devc) + (e)])
+#define polar_weights(i,p) (polar_weights[(i)*(*_num_polar_devc) + (p)])
 #define boundary_flux(tid,pe2) (boundary_flux[2*(tid)*(*_polar_times_groups_devc)+(pe2)])
+
+#define prefactor(index,p,sigma_t_l) (1. - (prefactor_array[index+2 * p] * sigma_t_l + prefactor_array[index + 2 * p +1]));
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
@@ -101,9 +107,6 @@ private:
     /** The total number of tracks */
     int _tot_num_tracks;
 
-    /** The total leakage across vacuum boundaries */
-    FP_PRECISION _leakage;
-
     /** The number of transport sweeps to convergence */
     int _num_iterations;
 
@@ -167,10 +170,12 @@ private:
     FP_PRECISION* _tot_absorption;
     FP_PRECISION* _tot_fission;
     FP_PRECISION* _source_residual;
+    FP_PRECISION* _leakage;
     thrust::device_vector<FP_PRECISION> _fission_source_vec;
     thrust::device_vector<FP_PRECISION> _tot_absorption_vec;
     thrust::device_vector<FP_PRECISION> _tot_fission_vec;
     thrust::device_vector<FP_PRECISION> _source_residual_vec;
+    thrust::device_vector<FP_PRECISION> _leakage_vec;
 
     /** The hashtable of exponential prefactors from the transport equation */
     FP_PRECISION* _prefactor_array;
@@ -193,8 +198,7 @@ private:
     FP_PRECISION computeFSRSources();
     void computeKeff();
     //bool isScalarFluxConverged();
-    //int computePrefactorIndex(FP_PRECISION sigma_t_l);
-    //void transportSweep(int max_iterations);
+    void transportSweep(int max_iterations);
 
 public:
 

@@ -342,6 +342,166 @@ __global__ void computeFissionAndAbsorption(dev_flatsourceregion* FSRs,
 
 
 /**
+ * @brief Compute the index into the exponential prefactor hashtable.
+ * @details This method computes the index into the exponential prefactor
+ *          hashtable for a segment length multiplied by the total 
+ *          cross-section of the material the segment resides in.
+ * @param sigm_t_l the cross-section multiplied by segment length
+ * @return the hasthable index
+ */ 
+__device__ int computePrefactorIndex(FP_PRECISION sigma_t_l) {
+    int index = sigma_t_l * *_inverse_prefactor_spacing_devc;
+    index *= *_two_times_num_polar_devc;
+    return index;
+}
+
+
+__device__ double atomicAdd(double* address, double val) {
+
+    unsigned long long int* address_as_ull = (unsigned long long int*)address;
+    unsigned long long int old = *address_as_ull, assumed;
+
+    do {
+        assumed = old;
+	old = atomicCAS(address_as_ull, assumed, __double_as_longlong(val +
+			__longlong_as_double(assumed)));
+    } while (assumed != old);
+  
+    return __longlong_as_double(old);
+}
+
+
+
+/**
+* This kernel integrates the neutron transport equation in the "forward"
+* direction along each track in the geometry using exponential prefactors
+* which are precomputed and stored in a hash table for O(1) lookup and
+* interpolation
+*/
+__global__ void forwardSweepOnDevice(FP_PRECISION* scalar_flux,
+				     FP_PRECISION* boundary_flux,
+				     FP_PRECISION* ratios,
+				     FP_PRECISION* leakage,
+				     dev_flatsourceregion* FSRs,
+				     dev_material* materials,
+				     dev_track* tracks,
+				     FP_PRECISION* prefactor_array) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    int polar_times_groups = *_polar_times_groups_devc;
+    FP_PRECISION* polar_weights = _polar_weights_devc;
+
+    int index_offset = threadIdx.x * (*_two_times_num_polar_devc + 1);
+    int energy_group = tid % (*_num_polar_devc);
+    int energy_angle_index = energy_group * (*_num_polar_devc);
+    int fsr_flux_index = index_offset + (*_two_times_num_polar_devc);
+    int track_flux_index;
+
+    int fsr_id;
+    int track_id;
+    int track_out_id;
+    bool bc;
+    int start;
+    int pe;
+    int azim_angle_index;
+
+    dev_track* curr_track;
+    dev_segment* curr_segment;
+    dev_material* curr_material;
+    int num_segments;
+    FP_PRECISION delta;
+    
+    double* sigma_t;
+
+    /* temporary flux for track and fsr fluxes */
+    extern __shared__ FP_PRECISION temp_flux[];
+
+    /* Indices for exponential prefactor hashtable */
+    FP_PRECISION sigma_t_l;
+    int index;
+
+    /* Iterate over track with azimuthal angles in (0, pi/2) */
+    while (int(tid / *_num_groups_devc) < _track_index_offsets_devc[*_num_azim_devc / 2]) {
+
+        /* Initialize local registers with important data */
+        track_id = int(tid / *_num_groups_devc);
+        curr_track = &tracks[track_id];
+	azim_angle_index = curr_track->_azim_angle_index;
+	num_segments = curr_track->_num_segments;
+      
+	/* Put track's flux in the shared memory temporary flux array */
+	for (int p=0; p < *_num_polar_devc; p++) {
+	
+	    /* Forward flux along this track */
+	    pe = energy_angle_index + p;
+	    temp_flux[index_offset + p] = boundary_flux(track_id,pe);
+	
+	    /* Reverse flux along this track */
+	    pe = polar_times_groups + energy_angle_index + p;
+	    temp_flux[index_offset + *_num_polar_devc + p] = 
+	        boundary_flux(track_id,pe);
+	}
+
+	track_flux_index = index_offset;
+      
+	/* Loop over each segment in forward direction */
+	for (int i=0; i < num_segments; i++) {
+
+	    curr_segment = &curr_track->_segments[i];
+	    fsr_id = curr_segment->_region_uid;
+	    curr_material = &materials[curr_segment->_material_uid];
+	    sigma_t = curr_material->_sigma_t;
+
+	    /* Zero the FSR scalar flux contribution from this segment 
+	     * and energy group */
+	    temp_flux[fsr_flux_index] = 0.0;
+
+	    /* Compute the exponential prefactor hashtable index */
+	    sigma_t_l = sigma_t[energy_group] * curr_segment->_length;
+	    index = computePrefactorIndex(sigma_t_l);
+	
+	    /* Loop over polar angles */
+	    for (int p=0; p < *_num_polar_devc; p++) {
+	        delta = (temp_flux[track_flux_index+p] - 
+			 ratios(fsr_id,energy_group)) * 
+		         prefactor(index,p,sigma_t_l);
+		temp_flux[fsr_flux_index] += delta * polar_weights[p];
+		temp_flux[track_flux_index+p] -= delta;
+	    }
+
+
+	    /* Increment the scalar flux for this flat source region */
+	    atomicAdd(&scalar_flux(fsr_id,energy_group), 
+		      temp_flux[fsr_flux_index]);
+	}
+      
+	/* Transfer flux to outgoing track */
+	track_out_id = curr_track->_track_out;
+	bc = curr_track->_bc_out;
+	start = curr_track->_refl_out * polar_times_groups;
+	for (pe=0; pe < polar_times_groups; pe++) {
+	    boundary_flux(track_out_id,start+pe) = 
+	        boundary_flux(track_id,pe) * bc;
+	    leakage[threadIdx.x + blockIdx.x * blockDim.x] += 
+	        boundary_flux(track_id,pe) *
+	        polar_weights(azim_angle_index,pe % (*_num_polar_devc)) * (!bc);
+	}
+
+	// FIX THIS: Reverse direction
+
+	tid += blockDim.x * gridDim.x;
+	energy_group = tid % (*_num_groups_devc);
+	energy_angle_index = energy_group * (*_num_polar_devc);
+    }
+
+    return;
+}
+
+
+
+
+/**
  * DeviceSolver constructor
  * @param geom pointer to the geometry
  * @param track_generator pointer to the TrackGenerator on the CPU
@@ -375,7 +535,6 @@ DeviceSolver::DeviceSolver(Geometry* geometry, TrackGenerator* track_generator) 
     _num_polar = 3;
     _two_times_num_polar = 2 * _num_polar;
 
-    _leakage = 0.0;
     _num_iterations = 0;
     _converged_source = false;
     _source_convergence_thresh = 1E-3;
@@ -467,6 +626,9 @@ DeviceSolver::~DeviceSolver() {
 
     if (_source_residual != NULL)
         _source_residual_vec.clear();
+
+    if (_leakage != NULL)
+        _leakage_vec.clear();
 
     if (_prefactor_array != NULL)
         cudaFree(_prefactor_array);
@@ -1147,6 +1309,10 @@ void DeviceSolver::initializeThrustVectors() {
         _source_residual = NULL;
         _source_residual_vec.clear();
     }
+    if (_leakage != NULL) {
+        _leakage = NULL;
+        _leakage_vec.clear();
+    }
 
 
     /* Allocate memory for fission, absorption and source vectors on device */
@@ -1166,6 +1332,10 @@ void DeviceSolver::initializeThrustVectors() {
 	/* Allocate source residual array on device */
 	_source_residual_vec.resize(_num_blocks * _num_threads);
 	_source_residual = thrust::raw_pointer_cast(&_source_residual_vec[0]);
+
+	/* Allocate leakage array on device */
+	_leakage_vec.resize(_num_blocks * _num_threads);
+	_leakage = thrust::raw_pointer_cast(&_leakage_vec[0]);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's "
@@ -1408,10 +1578,59 @@ FP_PRECISION DeviceSolver::computeFSRSources() {
 }
 
 
+void DeviceSolver::transportSweep(int max_iterations) {
+
+    bool converged = false;
+    int shared_mem_size = sizeof(FP_PRECISION)*_num_threads*(2*_num_polar + 1);
+
+    log_printf(DEBUG, "Transport sweep on device with max_iterations = %d "
+	       " and # blocks = %d, # threads = %d", 
+	       max_iterations, _num_blocks, _num_threads);
+
+    /* Loop for until converged or max_iterations is reached */
+    for (int i=0; i < max_iterations; i++) {
+
+        /* Initialize leakage to zero */
+        thrust::fill(_leakage_vec.begin(), _leakage_vec.end(), 0.0);
+
+        /* Initialize flux in each region to zero */
+        flattenFSRFluxesOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux, 
+								_old_scalar_flux,
+								0.0);
+        
+        forwardSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
+									     _boundary_flux,
+									     _ratios,
+									     _leakage,
+									     _FSRs,
+									     _materials,
+									     _dev_tracks,
+									     _prefactor_array);
+
+	//        reverseSweepOnDevice<<<_num_threads, _num_blocks>>>(_scalar_flux,
+	//								_boundary_flux,
+	//							_FSRs,
+	//							_dev_tracks, 
+	//							_track_index_offsets,
+	//							_prefactor_array);
+
+	/* Add in source term and normalize flux to volume for each region */
+	//	normalizeFluxToVolumeOnDevice<<<_num_threads, _num_blocks>>>(_scalar_flux,
+	//							     _materials,
+	//							     _FSRs);
+
+	
+	/* Check if scalar flux is converged */
+    }
+
+}
+
+
 void DeviceSolver::computeKeff() {
 
     FP_PRECISION tot_absorption;
     FP_PRECISION tot_fission;
+    FP_PRECISION tot_leakage;
 
     /* Compute the total fission and absorption rates on the device.
      * This kernel stores partial rates in a Thrust vector with as many
@@ -1432,8 +1651,14 @@ void DeviceSolver::computeKeff() {
     tot_fission = thrust::reduce(_tot_fission_vec.begin(),
 				 _tot_fission_vec.end());
 
+    /* Compute the total leakage by reducing the partial leakage
+     * rates compiled in the Thrust vector */
+    tot_leakage = thrust::reduce(_leakage_vec.begin(),
+				 _leakage_vec.end());
+
+
     /* Compute the new keff from the fission and absorption rates */
-    _k_eff = tot_fission / tot_absorption;
+    _k_eff = tot_fission / (tot_absorption + tot_leakage);
 }
 
 
@@ -1483,7 +1708,7 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
 
 	normalizeFluxes();
 	residual = computeFSRSources();
-	//	transportSweep(1);
+	transportSweep(1);
 	computeKeff();
 	_num_iterations++;
 
