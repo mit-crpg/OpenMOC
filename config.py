@@ -92,10 +92,13 @@ compiler_flags['icpc'] =['-c',
                           '-vec-report']
 
 compiler_flags['nvcc'] =  ['-c', 
-                           '-O3',
+                           '-O0',
+                           '--ccache-skip',
                            '--compiler-options', 
                            '-fpic',
+                           '--ccache-skip',
                            '-gencode=arch=compute_20,code=sm_20',
+                           '--ccache-skip',
                            '-gencode=arch=compute_30,code=sm_30']
 
 
@@ -205,4 +208,7 @@ macros['nvcc']['single'] = [('FP_PRECISION', 'float'),
 macros['nvcc']['double'] = [('FP_PRECISION', 'double'), 
                             ('DOUBLE', None),
                             ('CUDA', None),
-                            ('CCACHE_CC', 'nvcc')]
+                            ('CCACHE_CC', 'nvcc'),
+                            ('CCACHE_HARDLINK', None),
+                            ('CC', 'nvcc'),
+                            ('CCACHE_CPP2', None)]

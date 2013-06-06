@@ -264,9 +264,6 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
 
 	    ratios(tid,G) = __fdividef(source(tid,G), sigma_t[G]);
 	
-	    //NOTE: You must index int a pointer to a thrust
-	    //vector using the threadIdx.x, blockIdx.x
-	    //and blockDim.x as shown below
 	    /* Compute the norm of residuals of the sources for convergence */
 	    if (fabs(source(tid,G)) > 1E-10)
 	        source_residual[threadIdx.x + blockIdx.x * blockDim.x] +=
@@ -399,7 +396,7 @@ __global__ void forwardSweepOnDevice(FP_PRECISION* scalar_flux,
     int track_flux_index;
 
     int fsr_id;
-    int track_id;
+    int track_id = int(tid / *_num_groups_devc);
     int track_out_id;
     bool bc;
     int start;
@@ -422,10 +419,9 @@ __global__ void forwardSweepOnDevice(FP_PRECISION* scalar_flux,
     int index;
 
     /* Iterate over track with azimuthal angles in (0, pi/2) */
-    while (int(tid / *_num_groups_devc) < _track_index_offsets_devc[*_num_azim_devc / 2]) {
+    while (track_id < _track_index_offsets_devc[*_num_azim_devc / 2]) {
 
         /* Initialize local registers with important data */
-        track_id = int(tid / *_num_groups_devc);
         curr_track = &tracks[track_id];
 	azim_angle_index = curr_track->_azim_angle_index;
 	num_segments = curr_track->_num_segments;
@@ -491,6 +487,7 @@ __global__ void forwardSweepOnDevice(FP_PRECISION* scalar_flux,
 	// FIX THIS: Reverse direction
 
 	tid += blockDim.x * gridDim.x;
+        track_id = int(tid / *_num_groups_devc);
 	energy_group = tid % (*_num_groups_devc);
 	energy_angle_index = energy_group * (*_num_polar_devc);
     }
@@ -573,7 +570,6 @@ DeviceSolver::DeviceSolver(Geometry* geometry, TrackGenerator* track_generator) 
 /**
  * Solver destructor frees all memory on the device
  */
-//TODO: Fix this!!!
 DeviceSolver::~DeviceSolver() {
 
     log_printf(NORMAL, "Cleaning up memory on the device...");
@@ -969,7 +965,6 @@ void DeviceSolver::allocateDeviceData() {
     initializeGlobalMemory();
     initializeConstantMemory();
 
-    //FIXME: Need to compute prefactor hashtable on the device
     precomputePrefactors();
 
     return;
@@ -1171,7 +1166,6 @@ void DeviceSolver::initializeTracks() {
     /* Allocate array of tracks */
     cudaMalloc((void**)&_dev_tracks, _tot_num_tracks * sizeof(dev_track));
 
-    /* An array of the cumulative number of tracks for each azimuthal angle */
     _track_index_offsets = new int[_num_azim];
 
     /* Allocate memory for all tracks and track offset indices on the device */
@@ -1183,7 +1177,7 @@ void DeviceSolver::initializeTracks() {
 	for (int i=0; i < _num_azim; i++) {
 
             _track_index_offsets[i] = counter;
-  
+
 	    for (int j=0; j < _num_tracks[i]; j++) {
 
 	        /* Clone this track on the device */
@@ -1202,11 +1196,6 @@ void DeviceSolver::initializeTracks() {
 		counter++;
 	    }
 	}
-
-	/* Copy the cumulative track index offsets for each azimuthal angle */
-	cudaMemcpy((void*)&_track_index_offsets[_num_azim], (void*)&counter, 
-		   sizeof(int), cudaMemcpyHostToDevice);
-
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's tracks "
@@ -1393,7 +1382,7 @@ void DeviceSolver::initializeConstantMemory() {
     free(polar_weights);
 
     /* Array of number of tracks for each azimuthal angles */
-    cudaMemcpyToSymbol(_num_tracks_devc, (void*)&_num_tracks, 
+    cudaMemcpyToSymbol(_num_tracks_devc, (void*)_num_tracks, 
 		       _num_azim * sizeof(int), 0, cudaMemcpyHostToDevice);
     
     /* Total number of tracks */
@@ -1402,9 +1391,8 @@ void DeviceSolver::initializeConstantMemory() {
 
     /* Copy the cumulative index offset for the current azimuthal angle */
     cudaMemcpyToSymbol(_track_index_offsets_devc, 
-		       (void*)&_track_index_offsets, 
+		       (void*)_track_index_offsets, 
 		       _num_azim * sizeof(int), 0, cudaMemcpyHostToDevice);
-
 }
 
 
@@ -1597,7 +1585,7 @@ void DeviceSolver::transportSweep(int max_iterations) {
         flattenFSRFluxesOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux, 
 								_old_scalar_flux,
 								0.0);
-        
+
         forwardSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
 									     _boundary_flux,
 									     _ratios,
@@ -1703,7 +1691,7 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
     /* Source iteration loop */
     for (int i=0; i < max_iterations; i++) {
 
-        log_printf(NORMAL, "Iteration %d on host: \tk_eff = %1.6f"
+        log_printf(NORMAL, "Iteration %d on device: \tk_eff = %1.6f"
 		 "\tres = %1.3E", i, _k_eff, residual);
 
 	normalizeFluxes();

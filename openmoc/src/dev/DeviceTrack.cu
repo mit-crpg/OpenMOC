@@ -41,5 +41,7 @@ void cloneTrack(Track* track_h, dev_track* track_d) {
     cudaMemcpy((void*)track_d, (void*)&new_track, sizeof(dev_track), 
 	       cudaMemcpyHostToDevice);
 
+    delete [] host_segments;
+
     return;
 }
