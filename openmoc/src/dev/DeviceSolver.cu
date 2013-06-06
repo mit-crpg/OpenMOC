@@ -485,6 +485,52 @@ __global__ void forwardSweepOnDevice(FP_PRECISION* scalar_flux,
 	}
 
 	// FIX THIS: Reverse direction
+	track_flux_index = index_offset + (*_num_polar_devc);
+      
+	/* Loop over each segment in reverse direction */
+	for (int i=num_segments-1; i > -1; i--) {
+
+	    curr_segment = &curr_track->_segments[i];
+	    fsr_id = curr_segment->_region_uid;
+	    curr_material = &materials[curr_segment->_material_uid];
+	    sigma_t = curr_material->_sigma_t;
+
+	    /* Zero the FSR scalar flux contribution from this segment 
+	     * and energy group */
+	    temp_flux[fsr_flux_index] = 0.0;
+
+	    /* Compute the exponential prefactor hashtable index */
+	    sigma_t_l = sigma_t[energy_group] * curr_segment->_length;
+	    index = computePrefactorIndex(sigma_t_l);
+	
+	    /* Loop over polar angles */
+	    for (int p=0; p < *_num_polar_devc; p++) {
+	        delta = (temp_flux[track_flux_index+p] - 
+			 ratios(fsr_id,energy_group)) * 
+		         prefactor(index,p,sigma_t_l);
+		//FIXME: Is this the correct way to index into polar weights?
+		temp_flux[fsr_flux_index] += delta * polar_weights[p];
+		temp_flux[track_flux_index+p] -= delta;
+	    }
+
+
+	    /* Increment the scalar flux for this flat source region */
+	    atomicAdd(&scalar_flux(fsr_id,energy_group), 
+		      temp_flux[fsr_flux_index]);
+	}
+      
+	/* Transfer flux to outgoing track */
+	track_out_id = curr_track->_track_in;
+	bc = curr_track->_bc_in;
+	start = curr_track->_refl_in * polar_times_groups;
+	for (pe=0; pe < polar_times_groups; pe++) {
+	    boundary_flux(track_out_id,start+pe) = 
+	      boundary_flux(track_id,(*_polar_times_groups_devc)+pe) * bc;
+	    leakage[threadIdx.x + blockIdx.x * blockDim.x] += 
+	        boundary_flux(track_id,(*_polar_times_groups_devc)+pe) *
+	        polar_weights(azim_angle_index,pe%(*_num_polar_devc)) * (!bc);
+	}
+
 
 	tid += blockDim.x * gridDim.x;
         track_id = int(tid / *_num_groups_devc);
