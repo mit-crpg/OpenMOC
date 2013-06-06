@@ -379,12 +379,13 @@ __global__ void forwardSweepOnDevice(FP_PRECISION* scalar_flux,
 				     FP_PRECISION* boundary_flux,
 				     FP_PRECISION* ratios,
 				     FP_PRECISION* leakage,
-				     dev_flatsourceregion* FSRs,
 				     dev_material* materials,
 				     dev_track* tracks,
-				     FP_PRECISION* prefactor_array) {
+				     FP_PRECISION* prefactor_array,
+				     int tid_offset,
+				     int tid_max) {
 
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
 
     int polar_times_groups = *_polar_times_groups_devc;
     FP_PRECISION* polar_weights = _polar_weights_devc;
@@ -419,7 +420,7 @@ __global__ void forwardSweepOnDevice(FP_PRECISION* scalar_flux,
     int index;
 
     /* Iterate over track with azimuthal angles in (0, pi/2) */
-    while (track_id < _track_index_offsets_devc[*_num_azim_devc / 2]) {
+    while (track_id < tid_max) {
 
         /* Initialize local registers with important data */
         curr_track = &tracks[track_id];
@@ -1636,10 +1637,20 @@ void DeviceSolver::transportSweep(int max_iterations) {
 									     _boundary_flux,
 									     _ratios,
 									     _leakage,
-									     _FSRs,
 									     _materials,
 									     _dev_tracks,
-									     _prefactor_array);
+									     _prefactor_array,
+									     0,
+									     _track_index_offsets[_num_azim / 2]);
+
+        forwardSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
+									     _boundary_flux,
+									     _ratios,
+									     _leakage,
+									     _materials,
+									     _dev_tracks,
+									     _prefactor_array,
+									     _track_index_offsets[_num_azim / 2] * _num_groups, _track_index_offsets[_num_azim]);
 
 	//        reverseSweepOnDevice<<<_num_threads, _num_blocks>>>(_scalar_flux,
 	//								_boundary_flux,
