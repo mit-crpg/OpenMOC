@@ -375,15 +375,15 @@ __device__ double atomicAdd(double* address, double val) {
 * which are precomputed and stored in a hash table for O(1) lookup and
 * interpolation
 */
-__global__ void forwardSweepOnDevice(FP_PRECISION* scalar_flux,
-				     FP_PRECISION* boundary_flux,
-				     FP_PRECISION* ratios,
-				     FP_PRECISION* leakage,
-				     dev_material* materials,
-				     dev_track* tracks,
-				     FP_PRECISION* prefactor_array,
-				     int tid_offset,
-				     int tid_max) {
+__global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
+				       FP_PRECISION* boundary_flux,
+				       FP_PRECISION* ratios,
+				       FP_PRECISION* leakage,
+				       dev_material* materials,
+				       dev_track* tracks,
+				       FP_PRECISION* prefactor_array,
+				       int tid_offset,
+				       int tid_max) {
 
     int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -532,11 +532,50 @@ __global__ void forwardSweepOnDevice(FP_PRECISION* scalar_flux,
 	        polar_weights(azim_angle_index,pe%(*_num_polar_devc)) * (!bc);
 	}
 
-
 	tid += blockDim.x * gridDim.x;
         track_id = int(tid / *_num_groups_devc);
 	energy_group = tid % (*_num_groups_devc);
 	energy_angle_index = energy_group * (*_num_polar_devc);
+    }
+
+    return;
+}
+
+
+
+/**
+* Normalizes the flux to the volume of each FSR and adds in the source term
+* computed and stored in the ratios attribute for each FSR
+*/
+__global__ void normalizeFluxToVolumeOnDevice(FP_PRECISION* scalar_flux,
+					      FP_PRECISION* ratios,
+					      dev_flatsourceregion* FSRs,
+					      dev_material* materials) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    dev_flatsourceregion* curr_FSR;
+    FP_PRECISION volume;
+    
+    dev_material* curr_material;
+    FP_PRECISION* sigma_t;
+
+    /* Iterate over all FSRs */
+    while (tid < *_num_FSRs_devc) {
+
+        curr_FSR = &FSRs[tid];
+	curr_material = &materials[curr_FSR->_material_uid];
+	volume = curr_FSR->_volume;
+	sigma_t = curr_material->_sigma_t;
+	
+	/* Iterate over all energy groups */
+	for (int i=0; i < *_num_groups_devc; i++) {
+	    scalar_flux(tid,i) *= 0.5;
+	    scalar_flux(tid,i) = FOUR_PI * ratios(tid,i) + 
+	      __fdividef(scalar_flux(tid,i), (sigma_t[i] * volume));
+	}
+
+	/* Increment thread id */
+	tid += blockDim.x * gridDim.x;
     }
 
     return;
@@ -1633,39 +1672,33 @@ void DeviceSolver::transportSweep(int max_iterations) {
 								_old_scalar_flux,
 								0.0);
 
-        forwardSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
-									     _boundary_flux,
-									     _ratios,
-									     _leakage,
-									     _materials,
-									     _dev_tracks,
-									     _prefactor_array,
-									     0,
-									     _track_index_offsets[_num_azim / 2]);
+        transportSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
+									       _boundary_flux,
+									       _ratios,
+									       _leakage,
+									       _materials,
+									       _dev_tracks,
+									       _prefactor_array,
+									       0,
+									       _track_index_offsets[_num_azim / 2]);
 
-        forwardSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
-									     _boundary_flux,
-									     _ratios,
-									     _leakage,
-									     _materials,
-									     _dev_tracks,
-									     _prefactor_array,
-									     _track_index_offsets[_num_azim / 2] * _num_groups, _track_index_offsets[_num_azim]);
+        transportSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
+									       _boundary_flux,
+									       _ratios,
+									       _leakage,
+									       _materials,
+									       _dev_tracks,
+									       _prefactor_array,
+									       _track_index_offsets[_num_azim / 2] * _num_groups, 
+									       _track_index_offsets[_num_azim]);
 
-	//        reverseSweepOnDevice<<<_num_threads, _num_blocks>>>(_scalar_flux,
-	//								_boundary_flux,
-	//							_FSRs,
-	//							_dev_tracks, 
-	//							_track_index_offsets,
-	//							_prefactor_array);
-
-	/* Add in source term and normalize flux to volume for each region */
-	//	normalizeFluxToVolumeOnDevice<<<_num_threads, _num_blocks>>>(_scalar_flux,
-	//							     _materials,
-	//							     _FSRs);
-
-	
 	/* Check if scalar flux is converged */
+
+	/* Add in source term, normalize fluxes to volume and save old flux */
+	normalizeFluxToVolumeOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux,
+								     _ratios,
+								     _FSRs, 
+								     _materials);
     }
 
 }
@@ -1704,6 +1737,9 @@ void DeviceSolver::computeKeff() {
 
     /* Compute the new keff from the fission and absorption rates */
     _k_eff = tot_fission / (tot_absorption + tot_leakage);
+
+    log_printf(NORMAL, "abs = %f, fiss = %f, leak = %f, keff = %f",
+	       tot_absorption, tot_fission, tot_leakage, _k_eff);
 }
 
 
