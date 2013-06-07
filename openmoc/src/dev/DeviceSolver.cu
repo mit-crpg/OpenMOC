@@ -465,6 +465,15 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 		         prefactor(index,p,sigma_t_l);
 		temp_flux[fsr_flux_index] += delta * polar_weights[p];
 		temp_flux[track_flux_index+p] -= delta;
+
+		if (track_id == 1 && p == 0 && energy_group == 0) {
+		    printf("delta = %f, fsr flux = %f, boundary flux = %f\n",
+		            delta, temp_flux[fsr_flux_index], temp_flux[track_flux_index+p]);
+		    printf("polar weights = %f, ratio = %f, prefactor = %f\n", 
+		             polar_weights[p], ratios(fsr_id,energy_group),
+			     prefactor(index,p,sigma_t_l));
+		}
+		  
 	    }
 
 

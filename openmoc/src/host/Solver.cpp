@@ -844,6 +844,8 @@ void Solver::computeKeff() {
         }
     }
 
+    log_printf(NORMAL, "abs = %f, fiss = %f, leak = %f", tot_abs, tot_fission, _leakage);
+
     _k_eff = tot_fission / (tot_abs + _leakage);
 
     log_printf(DEBUG, "tot_abs = %f, tot_fission = %f, leakage = %f, "
@@ -972,6 +974,15 @@ void Solver::transportSweep(int max_iterations) {
 				        prefactor(index,p,sigma_t_l);
 				fsr_flux += delta * _polar_weights[p];
 				_boundary_flux(track_id,pe) -= delta;
+
+				if (track_id == 1 && p == 0 && e == 0) {
+				    printf("delta =%f, fsr_flux = %f, boundary flux = %f\n",
+					     delta, fsr_flux, _boundary_flux(track_id,pe));
+				    printf("polar weights = %f, ratios = %f, prefactor = %f\n", 
+					   _polar_weights[p], _ratios(fsr_id,e),
+					   prefactor(index,p,sigma_t_l));
+				}
+
 				pe++;
 			    }
 
@@ -1017,6 +1028,15 @@ void Solver::transportSweep(int max_iterations) {
 				         prefactor(index,p,sigma_t_l);
 				fsr_flux += delta * _polar_weights[p];
 				_boundary_flux(track_id,pe) -= delta;
+
+				if (track_id == 1 && p == 0 && e == 0) {
+				    printf("delta =%f, fsr_flux = %f, boundary flux = %f\n",
+					     delta, fsr_flux, _boundary_flux(track_id,pe));
+				    printf("polar weights = %f, ratio = %f, prefactor = %f\n", 
+					   _polar_weights[p], _ratios(fsr_id,e), 
+					   prefactor(index,p,sigma_t_l));
+				}
+
 				pe++;
 			    }
 
