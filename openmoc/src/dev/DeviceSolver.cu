@@ -605,8 +605,8 @@ DeviceSolver::DeviceSolver(Geometry* geometry, TrackGenerator* track_generator) 
     /**************************************************************************/
 
     /* The default number of threadblocks and threads per threadblock */
-    _num_blocks = 64;
-    _num_threads = 64;
+    _B = 64;
+    _T = 64;
 
     if (geometry != NULL)
         setGeometry(geometry);
@@ -1006,7 +1006,7 @@ void DeviceSolver::setNumThreadBlocks(int num_blocks) {
         log_printf(ERROR, "Unable to set the number of threadblocks to %d since "
 		   "it is a negative number", num_blocks);
 
-    _num_blocks = num_blocks;
+    _B = num_blocks;
 }
 
 
@@ -1020,7 +1020,7 @@ void DeviceSolver::setNumThreadsPerBlock(int num_threads) {
         log_printf(ERROR, "Unable to set the number of threads per block to %d "
 		   "since it is a negative number", num_threads);
 
-    _num_threads = num_threads;
+    _T = num_threads;
 }
 
 
@@ -1404,23 +1404,23 @@ void DeviceSolver::initializeThrustVectors() {
     /* Allocate memory for fission, absorption and source vectors on device */
     try{
         /* Allocate fission source array on device */
-        _fission_source_vec.resize(_num_blocks * _num_threads);
+        _fission_source_vec.resize(_B * _T);
 	_fission_source = thrust::raw_pointer_cast(&_fission_source_vec[0]);
       
 	/* Allocate total absorption reaction rate array on device */
-	_tot_absorption_vec.resize(_num_blocks * _num_threads);
+	_tot_absorption_vec.resize(_B * _T);
 	_tot_absorption = thrust::raw_pointer_cast(&_tot_absorption_vec[0]);
 
 	/* Allocate fission reaction rate array on device */
-	_tot_fission_vec.resize(_num_blocks * _num_threads);
+	_tot_fission_vec.resize(_B * _T);
 	_tot_fission = thrust::raw_pointer_cast(&_tot_fission_vec[0]);
 
 	/* Allocate source residual array on device */
-	_source_residual_vec.resize(_num_blocks * _num_threads);
+	_source_residual_vec.resize(_B * _T);
 	_source_residual = thrust::raw_pointer_cast(&_source_residual_vec[0]);
 
 	/* Allocate leakage array on device */
-	_leakage_vec.resize(_num_blocks * _num_threads);
+	_leakage_vec.resize(_B * _T);
 	_leakage = thrust::raw_pointer_cast(&_leakage_vec[0]);
     }
     catch(std::exception &e) {
@@ -1630,31 +1630,25 @@ void DeviceSolver::checkTrackSpacing() {
 
 void DeviceSolver::normalizeFluxes() {
 
-    computeFissionSourcesOnDevice<<<_num_blocks, _num_threads,
-        sizeof(FP_PRECISION)*_num_threads>>>(_FSRs, 
-					     _materials, 
-					     _scalar_flux, 
-					     _fission_source);
+    int shared_mem = sizeof(FP_PRECISION) * _T;
+
+    computeFissionSourcesOnDevice<<<_B, _T, shared_mem>>>(_FSRs, _materials, 
+							  _scalar_flux, 
+							  _fission_source);
 
     FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_source_vec.begin(),
 						    _fission_source_vec.end());
 
-    normalizeFluxesOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux, 
-							   _boundary_flux, 
-							   norm_factor);
+    normalizeFluxesOnDevice<<<_B, _T>>>(_scalar_flux, _boundary_flux, 
+					norm_factor);
 }
 
 
 FP_PRECISION DeviceSolver::computeFSRSources() {
 
-    computeFSRSourcesOnDevice<<<_num_blocks, _num_threads>>>(_FSRs, 
-							     _materials, 
-							     _scalar_flux,
-							     _source, 
-							     _old_source, 
-							     _ratios,
-							     1.0 / _k_eff,
-							     _source_residual);
+    computeFSRSourcesOnDevice<<<_B, _T>>>(_FSRs, _materials, _scalar_flux,
+					  _source, _old_source, _ratios,
+					  1.0 / _k_eff, _source_residual);
 
     FP_PRECISION residual = thrust::reduce(_source_residual_vec.begin(), 
 					   _source_residual_vec.end());
@@ -1666,11 +1660,12 @@ FP_PRECISION DeviceSolver::computeFSRSources() {
 void DeviceSolver::transportSweep(int max_iterations) {
 
     bool converged = false;
-    int shared_mem_size = sizeof(FP_PRECISION)*_num_threads*(2*_num_polar + 1);
+    int shared_mem = sizeof(FP_PRECISION) * _T * (2*_num_polar + 1);
+    int tid_offset, tid_max;
 
     log_printf(DEBUG, "Transport sweep on device with max_iterations = %d "
 	       " and # blocks = %d, # threads = %d", 
-	       max_iterations, _num_blocks, _num_threads);
+	       max_iterations, _B, _T);
 
     /* Loop for until converged or max_iterations is reached */
     for (int i=0; i < max_iterations; i++) {
@@ -1679,37 +1674,34 @@ void DeviceSolver::transportSweep(int max_iterations) {
         thrust::fill(_leakage_vec.begin(), _leakage_vec.end(), 0.0);
 
         /* Initialize flux in each region to zero */
-        flattenFSRFluxesOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux, 
-								_old_scalar_flux,
-								0.0);
+	tid_offset = 0;
+	tid_max = _track_index_offsets[_num_azim / 2];
 
-	transportSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
-									       _boundary_flux,
-									       _ratios,
-									       _leakage,
-									       _materials,
-									       _dev_tracks,
-									       _prefactor_array,
-									       0,
-									       _track_index_offsets[_num_azim / 2]);
+        flattenFSRFluxesOnDevice<<<_B, _T>>>(_scalar_flux, 
+					     _old_scalar_flux, 0.0);
 
-        transportSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
-									       _boundary_flux,
-									       _ratios,
-									       _leakage,
-									       _materials,
-									       _dev_tracks,
-									       _prefactor_array,
-									       _track_index_offsets[_num_azim / 2] * _num_groups, 
-									       _track_index_offsets[_num_azim]);
+	transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, 
+						       _boundary_flux,
+						       _ratios, _leakage,
+						       _materials, _dev_tracks,
+						       _prefactor_array, 
+						       tid_offset, tid_max);
+
+	tid_offset = _track_index_offsets[_num_azim / 2] * _num_groups;
+	tid_max = _track_index_offsets[_num_azim];
+
+        transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux,
+						       _boundary_flux,
+						       _ratios, _leakage,
+						       _materials, _dev_tracks,
+						       _prefactor_array,
+						       tid_offset, tid_max);
 
 	/* Check if scalar flux is converged */
 
 	/* Add in source term, normalize fluxes to volume and save old flux */
-	normalizeFluxToVolumeOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux,
-								     _ratios,
-								     _FSRs, 
-								     _materials);
+	normalizeFluxToVolumeOnDevice<<<_B, _T>>>(_scalar_flux, _ratios, 
+						  _FSRs, _materials);
     }
 
 }
@@ -1724,11 +1716,8 @@ void DeviceSolver::computeKeff() {
     /* Compute the total fission and absorption rates on the device.
      * This kernel stores partial rates in a Thrust vector with as many
      * entries as GPU threads executed by the kernel */
-    computeFissionAndAbsorption<<<_num_blocks, _num_threads>>>(_FSRs,
-							       _materials,
-							       _scalar_flux,
-							       _tot_absorption,
-							       _tot_fission);
+    computeFissionAndAbsorption<<<_B, _T>>>(_FSRs, _materials, _scalar_flux,
+					    _tot_absorption, _tot_fission);
 
     /* Compute the total absorption rate by reducing the partial absorption
      * rates compiled in the Thrust vector */
@@ -1779,13 +1768,9 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
     checkTrackSpacing();
 
     /* Set scalar flux to unity for each region */
-    flattenFSRFluxesOnDevice<<<_num_blocks, _num_threads>>>(_scalar_flux, 
-							    _old_scalar_flux, 
-							    1.0);
-    flattenFSRSourcesOnDevice<<<_num_blocks, _num_threads>>>(_source, 
-							     _old_source, 
-							     1.0);
-    zeroTrackFluxesOnDevice<<<_num_blocks, _num_threads>>>(_boundary_flux);
+    flattenFSRFluxesOnDevice<<<_B, _T>>>(_scalar_flux, _old_scalar_flux, 1.0);
+    flattenFSRSourcesOnDevice<<<_B, _T>>>(_source, _old_source, 1.0);
+    zeroTrackFluxesOnDevice<<<_B, _T>>>(_boundary_flux);
 
     log_printf(NORMAL, "Converging the source on the device...");
 

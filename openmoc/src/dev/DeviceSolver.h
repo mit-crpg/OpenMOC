@@ -60,10 +60,10 @@ private:
     /**************************************************************************/
 
     /** The number of threadblocks */
-    int _num_blocks;
+    int _B;
     
     /** The number of threads per threadblock */
-    int _num_threads;
+    int _T;
 
     /** The number of azimuthal angles */
     int _num_azim;
