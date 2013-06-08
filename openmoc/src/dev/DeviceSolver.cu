@@ -1652,6 +1652,7 @@ FP_PRECISION DeviceSolver::computeFSRSources() {
 
     FP_PRECISION residual = thrust::reduce(_source_residual_vec.begin(), 
 					   _source_residual_vec.end());
+    residual = sqrt(residual / _num_FSRs);
 
     return residual;
 }
@@ -1659,7 +1660,6 @@ FP_PRECISION DeviceSolver::computeFSRSources() {
 
 void DeviceSolver::transportSweep(int max_iterations) {
 
-    bool converged = false;
     int shared_mem = sizeof(FP_PRECISION) * _T * (2*_num_polar + 1);
     int tid_offset, tid_max;
 
@@ -1697,13 +1697,10 @@ void DeviceSolver::transportSweep(int max_iterations) {
 						       _prefactor_array,
 						       tid_offset, tid_max);
 
-	/* Check if scalar flux is converged */
-
 	/* Add in source term, normalize fluxes to volume and save old flux */
 	normalizeFluxToVolumeOnDevice<<<_B, _T>>>(_scalar_flux, _ratios, 
 						  _FSRs, _materials);
     }
-
 }
 
 
@@ -1750,7 +1747,7 @@ FP_PRECISION DeviceSolver::convergeSource(int max_iterations, int B, int T){
         log_printf(ERROR, "The DeviceSolver is unable to converge the source "
 		   "since it does not contain a TrackGenerator");
 
-    FP_PRECISION residual;
+    FP_PRECISION residual = 0.0;
 
     setNumThreadBlocks(B);
     setNumThreadsPerBlock(T);

@@ -197,7 +197,6 @@ private:
     void normalizeFluxes();
     FP_PRECISION computeFSRSources();
     void computeKeff();
-    //bool isScalarFluxConverged();
     void transportSweep(int max_iterations);
 
 public:
@@ -227,7 +226,6 @@ public:
     void setNumThreadsPerBlock(int num_threads);
 
     void allocateDeviceData();
-    //    void validateDeviceData();
     int computeScalarTrackIndex(int i, int j);
 
     FP_PRECISION convergeSource(int max_iterations, int B=64, int T=64);
