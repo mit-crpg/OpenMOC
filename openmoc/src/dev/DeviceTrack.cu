@@ -27,7 +27,6 @@ void cloneTrack(Track* track_h, dev_track* track_d) {
 	       track_h->getNumSegments() * sizeof(dev_segment));
     new_track._segments = dev_segments;
 
-    /* Iterate over all segments and memcpy to device */
     for (int s=0; s < track_h->getNumSegments(); s++) {
         segment* curr = track_h->getSegment(s);
 	host_segments[s]._length = curr->_length;

@@ -116,7 +116,7 @@ track_generator.generateTracks()
 solver = Solver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
-solver.convergeSource(max_iterations=1)
+solver.convergeSource(max_iterations=30)
 
 
 ###############################################################################
@@ -126,7 +126,7 @@ solver.convergeSource(max_iterations=1)
 log.py_printf('NORMAL', 'Initializing solver on the GPU...')
 
 device_solver = cuda.DeviceSolver(geometry, track_generator)
-device_solver.convergeSource(max_iterations=1)
+device_solver.convergeSource(max_iterations=30)
 
 
 ###############################################################################

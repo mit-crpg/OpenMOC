@@ -391,7 +391,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     FP_PRECISION* polar_weights = _polar_weights_devc;
 
     int index_offset = threadIdx.x * (*_two_times_num_polar_devc + 1);
-    int energy_group = tid % (*_num_polar_devc);
+    int energy_group = tid % (*_num_groups_devc);
     int energy_angle_index = energy_group * (*_num_polar_devc);
     int fsr_flux_index = index_offset + (*_two_times_num_polar_devc);
     int track_flux_index;
@@ -424,23 +424,23 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
         /* Initialize local registers with important data */
         curr_track = &tracks[track_id];
-	azim_angle_index = curr_track->_azim_angle_index;
-	num_segments = curr_track->_num_segments;
+        azim_angle_index = curr_track->_azim_angle_index;
+      	num_segments = curr_track->_num_segments;
       
 	/* Put track's flux in the shared memory temporary flux array */
-	for (int p=0; p < *_num_polar_devc; p++) {
+      	for (int p=0; p < *_num_polar_devc; p++) {
 	
 	    /* Forward flux along this track */
-	    pe = energy_angle_index + p;
+      	    pe = energy_angle_index + p;
 	    temp_flux[index_offset + p] = boundary_flux(track_id,pe);
 	
 	    /* Reverse flux along this track */
-	    pe = polar_times_groups + energy_angle_index + p;
+      	    pe = polar_times_groups + energy_angle_index + p;
 	    temp_flux[index_offset + *_num_polar_devc + p] = 
-	        boundary_flux(track_id,pe);
-	}
+	    boundary_flux(track_id,pe);
+      	}
 
-	track_flux_index = index_offset;
+      	track_flux_index = index_offset;
       
 	/* Loop over each segment in forward direction */
 	for (int i=0; i < num_segments; i++) {
@@ -460,44 +460,39 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	
 	    /* Loop over polar angles */
 	    for (int p=0; p < *_num_polar_devc; p++) {
-	        delta = (temp_flux[track_flux_index+p] - 
-			 ratios(fsr_id,energy_group)) * 
-		         prefactor(index,p,sigma_t_l);
+	      delta = (temp_flux[track_flux_index+p] - 
+		       ratios(fsr_id,energy_group)) * 
+	               prefactor(index,p,sigma_t_l);
 		temp_flux[fsr_flux_index] += delta * polar_weights[p];
-		temp_flux[track_flux_index+p] -= delta;
-
-		if (track_id == 1 && p == 0 && energy_group == 0) {
-		    printf("delta = %f, fsr flux = %f, boundary flux = %f\n",
-		            delta, temp_flux[fsr_flux_index], temp_flux[track_flux_index+p]);
-		    printf("polar weights = %f, ratio = %f, prefactor = %f\n", 
-		             polar_weights[p], ratios(fsr_id,energy_group),
-			     prefactor(index,p,sigma_t_l));
-		}
-		  
+	    	temp_flux[track_flux_index+p] -= delta;
 	    }
 
 
 	    /* Increment the scalar flux for this flat source region */
 	    atomicAdd(&scalar_flux(fsr_id,energy_group), 
-		      temp_flux[fsr_flux_index]);
+	  	      temp_flux[fsr_flux_index]);
 	}
       
 	/* Transfer flux to outgoing track */
 	track_out_id = curr_track->_track_out;
 	bc = curr_track->_bc_out;
 	start = curr_track->_refl_out * polar_times_groups;
-	for (pe=0; pe < polar_times_groups; pe++) {
-	    boundary_flux(track_out_id,start+pe) = 
-	        boundary_flux(track_id,pe) * bc;
-	    leakage[threadIdx.x + blockIdx.x * blockDim.x] += 
-	        boundary_flux(track_id,pe) *
-	        polar_weights(azim_angle_index,pe % (*_num_polar_devc)) * (!bc);
-	}
 
-	// FIX THIS: Reverse direction
-	track_flux_index = index_offset + (*_num_polar_devc);
-      
+	/* Put track's flux in the shared memory temporary flux array */
+      	for (int p=0; p < *_num_polar_devc; p++) {
+	
+	    /* Forward flux along this track */
+      	    pe = energy_angle_index + p;
+	    boundary_flux(track_out_id,start+pe) = 
+	        temp_flux[track_flux_index+p] * bc;
+	    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
+	        temp_flux[track_flux_index+p] * 
+	        polar_weights(azim_angle_index,pe % (*_num_polar_devc)) * (!bc);
+      	}
+
 	/* Loop over each segment in reverse direction */
+	track_flux_index = index_offset + (*_num_polar_devc);
+
 	for (int i=num_segments-1; i > -1; i--) {
 
 	    curr_segment = &curr_track->_segments[i];
@@ -516,13 +511,13 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	    /* Loop over polar angles */
 	    for (int p=0; p < *_num_polar_devc; p++) {
 	        delta = (temp_flux[track_flux_index+p] - 
-			 ratios(fsr_id,energy_group)) * 
+	    		 ratios(fsr_id,energy_group)) * 
 		         prefactor(index,p,sigma_t_l);
-		//FIXME: Is this the correct way to index into polar weights?
-		temp_flux[fsr_flux_index] += delta * polar_weights[p];
-		temp_flux[track_flux_index+p] -= delta;
-	    }
 
+		//FIXME: Is this the correct way to inex into polar weights?
+		temp_flux[fsr_flux_index] += delta * polar_weights[p];
+	    	temp_flux[track_flux_index+p] -= delta;
+	    }
 
 	    /* Increment the scalar flux for this flat source region */
 	    atomicAdd(&scalar_flux(fsr_id,energy_group), 
@@ -533,13 +528,18 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	track_out_id = curr_track->_track_in;
 	bc = curr_track->_bc_in;
 	start = curr_track->_refl_in * polar_times_groups;
-	for (pe=0; pe < polar_times_groups; pe++) {
+
+	/* Put track's flux in the shared memory temporary flux array */
+      	for (int p=0; p < *_num_polar_devc; p++) {
+	
+	    /* Forward flux along this track */
+      	    pe = energy_angle_index + p;
 	    boundary_flux(track_out_id,start+pe) = 
-	      boundary_flux(track_id,(*_polar_times_groups_devc)+pe) * bc;
-	    leakage[threadIdx.x + blockIdx.x * blockDim.x] += 
-	        boundary_flux(track_id,(*_polar_times_groups_devc)+pe) *
-	        polar_weights(azim_angle_index,pe%(*_num_polar_devc)) * (!bc);
-	}
+	        temp_flux[track_flux_index+p] * bc;
+	    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
+	        temp_flux[track_flux_index+p] * 
+	        polar_weights(azim_angle_index,pe % (*_num_polar_devc)) * (!bc);
+      	}
 
 	tid += blockDim.x * gridDim.x;
         track_id = int(tid / *_num_groups_devc);
@@ -566,7 +566,7 @@ __global__ void normalizeFluxToVolumeOnDevice(FP_PRECISION* scalar_flux,
     FP_PRECISION volume;
     
     dev_material* curr_material;
-    FP_PRECISION* sigma_t;
+    double* sigma_t;
 
     /* Iterate over all FSRs */
     while (tid < *_num_FSRs_devc) {
@@ -671,16 +671,13 @@ DeviceSolver::~DeviceSolver() {
 
     /* Free FSRs, materials and tracks on device */
     if (_FSRs != NULL)
-
         cudaFree(_FSRs);
+
     if (_materials != NULL)
         cudaFree(_materials);
 
     if (_dev_tracks != NULL)
         cudaFree(_dev_tracks);
-
-    if (_track_index_offsets != NULL)
-        cudaFree(_track_index_offsets);
 
     if (_boundary_flux != NULL)
         cudaFree(_boundary_flux);
@@ -1261,7 +1258,7 @@ void DeviceSolver::initializeTracks() {
     /* Allocate array of tracks */
     cudaMalloc((void**)&_dev_tracks, _tot_num_tracks * sizeof(dev_track));
 
-    _track_index_offsets = new int[_num_azim];
+    _track_index_offsets = new int[_num_azim+1];
 
     /* Allocate memory for all tracks and track offset indices on the device */
     try{
@@ -1284,14 +1281,19 @@ void DeviceSolver::initializeTracks() {
 		cudaMemcpy((void*)&_dev_tracks[counter]._track_in,
 			   (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
 
-		index = computeScalarTrackIndex(_host_tracks[i][j].getTrackOutI(),					_host_tracks[i][j].getTrackOutJ());
+		index = computeScalarTrackIndex(_host_tracks[i][j].getTrackOutI(), 
+						_host_tracks[i][j].getTrackOutJ());
 		cudaMemcpy((void*)&_dev_tracks[counter]._track_out, 
 			   (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
 
 		counter++;
 	    }
 	}
+
+	_track_index_offsets[_num_azim] = counter;
+
     }
+
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's tracks "
 		   "on the device. Backtrace:%s", e.what());
@@ -1487,7 +1489,7 @@ void DeviceSolver::initializeConstantMemory() {
     /* Copy the cumulative index offset for the current azimuthal angle */
     cudaMemcpyToSymbol(_track_index_offsets_devc, 
 		       (void*)_track_index_offsets, 
-		       _num_azim * sizeof(int), 0, cudaMemcpyHostToDevice);
+		       (_num_azim+1) * sizeof(int), 0, cudaMemcpyHostToDevice);
 }
 
 
@@ -1567,11 +1569,11 @@ void DeviceSolver::precomputePrefactors(){
 
     /* Copy prefactor array size and spacing to constant memory on the device */
     cudaMemcpyToSymbol(_prefactor_spacing_devc, (void*)&prefactor_spacing, 
-		       sizeof(int), 0, cudaMemcpyHostToDevice);
+		       sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
     cudaMemcpyToSymbol(_inverse_prefactor_spacing_devc, 
 		       (void*)&inverse_prefactor_spacing, 
-		       sizeof(int), 0, cudaMemcpyHostToDevice);
+		       sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
     cudaMemcpyToSymbol(_prefactor_max_index_devc, (void*)&prefactor_max_index,
 		       sizeof(int), 0, cudaMemcpyHostToDevice);
@@ -1681,7 +1683,7 @@ void DeviceSolver::transportSweep(int max_iterations) {
 								_old_scalar_flux,
 								0.0);
 
-        transportSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
+	transportSweepOnDevice<<<_num_threads, _num_blocks, shared_mem_size>>>(_scalar_flux,
 									       _boundary_flux,
 									       _ratios,
 									       _leakage,
@@ -1746,9 +1748,6 @@ void DeviceSolver::computeKeff() {
 
     /* Compute the new keff from the fission and absorption rates */
     _k_eff = tot_fission / (tot_absorption + tot_leakage);
-
-    log_printf(NORMAL, "abs = %f, fiss = %f, leak = %f, keff = %f",
-	       tot_absorption, tot_fission, tot_leakage, _k_eff);
 }
 
 
