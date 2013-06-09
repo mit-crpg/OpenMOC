@@ -3,6 +3,7 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
+import openmoc.cuda as cuda
 
 
 ###############################################################################
@@ -134,6 +135,23 @@ solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Fixed source iteration on host')
 Timer.printSplits()
+
+###############################################################################
+#                            Allocating Data on GPU
+###############################################################################
+
+log.py_printf('NORMAL', 'Initializing solver on the GPU...')
+
+device_solver = cuda.DeviceSolver(geometry, track_generator)
+device_solver.setSourceConvergenceThreshold(tolerance)
+
+Timer.resetTimer()
+Timer.startTimer()
+device_solver.convergeSource(max_iters)
+Timer.stopTimer()
+Timer.recordSplit('Converging the source on the GPU')
+Timer.printSplits()
+
 
 
 ###############################################################################

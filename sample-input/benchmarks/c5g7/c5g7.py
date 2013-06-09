@@ -12,9 +12,9 @@ import openmoc.cuda as cuda
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 4
+num_threads = 1
 track_spacing = 0.1
-num_azim = 16
+num_azim = 64
 tolerance = 1E-4
 max_iters = 1000
 gridsize = 500
@@ -350,10 +350,11 @@ solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 
 Timer.startTimer()
-#solver.convergeSource(max_iters)
+solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Converging the source on the CPU')
 Timer.printSplits()
+
 
 ###############################################################################
 #                            Allocating Data on GPU
@@ -364,12 +365,12 @@ log.py_printf('NORMAL', 'Initializing solver on the GPU...')
 device_solver = cuda.DeviceSolver(geometry, track_generator)
 device_solver.setSourceConvergenceThreshold(tolerance)
 
+Timer.resetTimer()
 Timer.startTimer()
 device_solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Converging the source on the GPU')
 Timer.printSplits()
-
 
 
 ###############################################################################

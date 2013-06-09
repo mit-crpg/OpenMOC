@@ -1147,10 +1147,6 @@ void Geometry::segmentize(Track* track) {
 	    new_segment->_length = segment_length / 
 	                                        FP_PRECISION(min_num_segments);
 
-	    if (new_segment->_length > 3.)
-	        log_printf(NORMAL, "Created a segment with huge length %f", 
-			   new_segment->_length);
-
 	    /* Update the max and min segment lengths */
 	    if (segment_length > _max_seg_length)
 	        _max_seg_length = segment_length;

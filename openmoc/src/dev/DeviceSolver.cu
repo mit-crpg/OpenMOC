@@ -303,14 +303,11 @@ __global__ void computeFissionAndAbsorption(dev_flatsourceregion* FSRs,
     double* sigma_a;
     FP_PRECISION volume;
 
-    FP_PRECISION absorption;
-    FP_PRECISION fission;
+    FP_PRECISION absorption = 0.;
+    FP_PRECISION fission = 0.;
 
     /* Iterate over all FSRs */
     while (tid < *_num_FSRs_devc) {
-
-	absorption = 0;
-	fission = 0;
         
 	curr_FSR = &FSRs[tid];
 	curr_material = &materials[curr_FSR->_material_uid];
@@ -333,7 +330,7 @@ __global__ void computeFissionAndAbsorption(dev_flatsourceregion* FSRs,
     tid = threadIdx.x + blockIdx.x * blockDim.x;
     tot_absorption[tid] = absorption;
     tot_fission[tid] = fission;
-    
+
     return;
 }
 
@@ -465,7 +462,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	               prefactor(index,p,sigma_t_l);
 		temp_flux[fsr_flux_index] += delta * polar_weights[p];
 	    	temp_flux[track_flux_index+p] -= delta;
-	    }
+ 	    }
 
 
 	    /* Increment the scalar flux for this flat source region */
@@ -487,7 +484,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	        temp_flux[track_flux_index+p] * bc;
 	    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
 	        temp_flux[track_flux_index+p] * 
-	        polar_weights(azim_angle_index,pe % (*_num_polar_devc)) * (!bc);
+	        polar_weights[pe % (*_num_polar_devc)] * (!bc);
       	}
 
 	/* Loop over each segment in reverse direction */
@@ -535,10 +532,10 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	    /* Forward flux along this track */
       	    pe = energy_angle_index + p;
 	    boundary_flux(track_out_id,start+pe) = 
-	        temp_flux[track_flux_index+p] * bc;
+	      temp_flux[track_flux_index+p] * bc;
 	    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
-	        temp_flux[track_flux_index+p] * 
-	        polar_weights(azim_angle_index,pe % (*_num_polar_devc)) * (!bc);
+	      temp_flux[track_flux_index+p] * 
+	        polar_weights[pe % (*_num_polar_devc)] * (!bc);
       	}
 
 	tid += blockDim.x * gridDim.x;
@@ -1673,7 +1670,7 @@ void DeviceSolver::transportSweep(int max_iterations) {
         /* Initialize leakage to zero */
         thrust::fill(_leakage_vec.begin(), _leakage_vec.end(), 0.0);
 
-        /* Initialize flux in each region to zero */
+       /* Initialize flux in each region to zero */
 	tid_offset = 0;
 	tid_max = _track_index_offsets[_num_azim / 2];
 
@@ -1726,14 +1723,22 @@ void DeviceSolver::computeKeff() {
     tot_fission = thrust::reduce(_tot_fission_vec.begin(),
 				 _tot_fission_vec.end());
 
+    FP_PRECISION* fiss = new FP_PRECISION[_B*_T];
+    cudaMemcpy((void*)&tot_fission, (void*)_tot_fission, 
+	       _B * _T * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
+
+
     /* Compute the total leakage by reducing the partial leakage
      * rates compiled in the Thrust vector */
-    tot_leakage = thrust::reduce(_leakage_vec.begin(),
-				 _leakage_vec.end());
+    tot_leakage = 0.5 * thrust::reduce(_leakage_vec.begin(),
+				       _leakage_vec.end());
 
 
     /* Compute the new keff from the fission and absorption rates */
     _k_eff = tot_fission / (tot_absorption + tot_leakage);
+
+    log_printf(DEBUG, "abs = %f, fiss = %f, leak = %f, keff = %f", 
+	       tot_absorption, tot_fission, tot_leakage, _k_eff);
 }
 
 

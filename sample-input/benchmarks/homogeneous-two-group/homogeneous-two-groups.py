@@ -2,6 +2,7 @@ from openmoc import *
 import numpy
 import openmoc.log as log
 import openmoc.plotter as plotter
+import openmoc.cuda as cuda
 
 
 ###############################################################################
@@ -115,11 +116,11 @@ track_generator.generateTracks()
 solver = Solver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
-
-Timer.startTimer()
 solver.convergeSource(max_iters)
-Timer.stopTimer()
-Timer.recordSplit('Fixed source iteration on host')
-Timer.printSplits()
+
+device_solver = cuda.DeviceSolver(geometry, track_generator)
+device_solver.setSourceConvergenceThreshold(tolerance)
+device_solver.convergeSource(max_iters)
+
 
 log.py_printf('TITLE', 'Finished')

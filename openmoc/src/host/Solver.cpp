@@ -1071,9 +1071,10 @@ void Solver::transportSweep(int max_iterations) {
 	        /* Reduce flux across threads from transport sweep */
                 for (int t=0; t < _num_threads; t++)
 		    _scalar_flux(r,e) += thread_flux(t,r,e);
-	            _scalar_flux(r,e) *= 0.5;
-		    _scalar_flux(r,e) = FOUR_PI * _ratios(r,e) + 
-		      (_scalar_flux(r,e) / (sigma_t[e] * volume));
+
+		_scalar_flux(r,e) *= 0.5;
+		_scalar_flux(r,e) = FOUR_PI * _ratios(r,e) + 
+		  (_scalar_flux(r,e) / (sigma_t[e] * volume));
 	    }
 	}
 

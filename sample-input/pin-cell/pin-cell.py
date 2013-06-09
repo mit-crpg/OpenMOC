@@ -3,6 +3,7 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
+import openmoc.cuda as cuda
 
 
 ###############################################################################
@@ -111,16 +112,28 @@ solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 
+
+###############################################################################
+#                            Allocating Data on GPU
+###############################################################################
+
+log.py_printf('NORMAL', 'Initializing solver on the GPU...')
+
+device_solver = cuda.DeviceSolver(geometry, track_generator)
+device_solver.setSourceConvergenceThreshold(tolerance)
+device_solver.convergeSource(max_iters)
+
+
 ###############################################################################
 ############################   Generating Plots   #############################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-plotter.plotTracks(track_generator)
-plotter.plotSegments(track_generator)
-plotter.plotMaterials(geometry, gridsize)
-plotter.plotCells(geometry, gridsize)
-plotter.plotFlatSourceRegions(geometry, gridsize)
+#plotter.plotTracks(track_generator)
+#plotter.plotSegments(track_generator)
+#plotter.plotMaterials(geometry, gridsize)
+#plotter.plotCells(geometry, gridsize)
+#plotter.plotFlatSourceRegions(geometry, gridsize)
 
 log.py_printf('TITLE', 'Finished')

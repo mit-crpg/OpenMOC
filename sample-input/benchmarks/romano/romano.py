@@ -2,6 +2,7 @@ import numpy
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
+import openmoc.cuda as cuda
 
 
 ###############################################################################
@@ -129,3 +130,7 @@ solver = Solver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
+
+device_solver = cuda.DeviceSolver(geometry, track_generator)
+device_solver.setSourceConvergenceThreshold(tolerance)
+device_solver.convergeSource(max_iters)
