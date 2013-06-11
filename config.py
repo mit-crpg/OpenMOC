@@ -1,4 +1,4 @@
-###############################################################################
+##############################################################################
 #                                 User Options
 ###############################################################################
 
@@ -6,19 +6,25 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = ['gcc']
+cpp_compilers = ['icpc']
 
 # Supported floating point precision: 'single', 'double', 'all'
 fp_precision = ['single']
+
+# Default floating point precision to use for main openmoc module
+default_fp = 'double'
 
 # Compile using ccache (most relevant for developers)
 with_ccache = True
 
 # Compile with debug flags
-debug_mode = True
+debug_mode = False
 
 # Use CUDA set to True or False
-with_cuda = True
+with_cuda = False
+
+# Compile package for Intel MIC
+with_mic = True
 
 
 
@@ -50,20 +56,8 @@ sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
                    'openmoc/src/dev/DeviceQuery.cu',
                    'openmoc/src/dev/DeviceSolver.cu']
 
-
-
-###############################################################################
-#                                Compiler Paths
-###############################################################################
-
-path_to_gcc = '/usr/'
-path_to_nvcc = '/usr/local/cuda-5.0/'
-path_to_icpc = '/usr/intel/composer_xe_2013.1.117/composer_xe_2013.1.117/'
-
-# Compiler binaries
-gcc = path_to_gcc + 'bin/gcc'
-icpc = path_to_icpc + 'bin/intel64/icpc'
-nvcc = path_to_nvcc + 'bin/nvcc'
+sources['mic'] = ['openmoc/mic/openmoc_mic.i',
+                  'openmoc/src/mic/DeviceQuery.cpp']
 
 
 
@@ -102,10 +96,6 @@ compiler_flags['nvcc'] =  ['-c',
                            '-gencode=arch=compute_30,code=sm_30']
 
 
-#                           '--ptxas-options=-v', 
-
-
-
 ###############################################################################
 #                                 Linker Flags
 ###############################################################################
@@ -126,11 +116,13 @@ linker_flags['icpc'] = ['-lstdc++',
                         '-limf', 
                         '-lrt', 
                         '-shared',
+                        'build/lib.linux-x86_64-2.6/_openmoc.so',
                         '-Xlinker',
-                        '-soname=_openmoc.so']
+                        '-soname=_openmoc.so',
+                        '-loffload']
 
 linker_flags['nvcc'] = ['-shared', 
-                       'build/lib.linux-x86_64-2.7/_openmoc.so']
+                       'build/lib.linux-x86_64-2.6/_openmoc.so']
 
 
 
@@ -153,8 +145,9 @@ shared_libraries['nvcc'] = ['cudart']
 library_directories = {}
 
 library_directories['gcc'] = []
-library_directories['icpc'] = [path_to_icpc + 'compiler/lib/intel64']
-library_directories['nvcc'] = [path_to_nvcc + 'lib64']
+library_directories['icpc'] = []
+library_directories['nvcc'] = []
+
 
 
 
@@ -165,8 +158,8 @@ library_directories['nvcc'] = [path_to_nvcc + 'lib64']
 include_directories = {}
 
 include_directories['gcc'] = []
-include_directories['icpc'] =[path_to_icpc + 'compiler/include']
-include_directories['nvcc'] = [path_to_nvcc + 'include']
+include_directories['icpc'] = []
+include_directories['nvcc'] = []
 
 
 
@@ -208,7 +201,4 @@ macros['nvcc']['single'] = [('FP_PRECISION', 'float'),
 macros['nvcc']['double'] = [('FP_PRECISION', 'double'), 
                             ('DOUBLE', None),
                             ('CUDA', None),
-                            ('CCACHE_CC', 'nvcc'),
-                            ('CCACHE_HARDLINK', None),
-                            ('CC', 'nvcc'),
-                            ('CCACHE_CPP2', None)]
+                            ('CCACHE_CC', 'nvcc')]

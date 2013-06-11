@@ -1,4 +1,7 @@
 # installation
+setup.py
+config.py
+
 *.o
 *.cxx
 *.h.gch

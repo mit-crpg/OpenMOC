@@ -41,7 +41,7 @@ extensions.append(Extension(name = '_openmoc',
                     libraries = config.shared_libraries['gcc'],
                     extra_link_args = config.linker_flags['gcc'], 
                     include_dirs = config.include_directories['gcc'],
-                    define_macros = config.macros['gcc']['double'],
+                    define_macros = config.macros['gcc'][config.default_fp],
                     swig_opts = config.swig_flags))
 
 config.sources['c++'].remove('openmoc/openmoc.i')
@@ -55,51 +55,68 @@ if config.with_cuda:
                         libraries = config.shared_libraries['nvcc'],
                         extra_link_args = config.linker_flags['nvcc'], 
                         include_dirs = config.include_directories['nvcc'],
-                        define_macros = config.macros['nvcc']['double'],
+                        define_macros = config.macros['nvcc'][config.default_fp],
                         swig_opts = config.swig_flags,
                         export_symbols = ['init_openmoc']))
                       
     config.sources['cuda'].remove('openmoc/cuda/openmoc_cuda.i')
 
 
+# A MIC extension if the user requested it
+if config.with_mic:
+#    config.linker_flags['gcc'] = config.linker_flags.append('-Wl,-soname,_openmoc.so')
+    extensions.append(Extension(name = '_openmoc_mic', 
+                        sources = config.sources['mic'], 
+                        library_dirs = config.library_directories['icpc'], 
+                        libraries = config.shared_libraries['icpc'],
+                        extra_link_args = config.linker_flags['icpc'], 
+                        include_dirs = config.include_directories['icpc'],
+                        define_macros = config.macros['icpc'][config.default_fp],
+                        swig_opts = config.swig_flags,
+                        export_symbols = ['init_openmoc']))
+                      
+    config.sources['mic'].remove('openmoc/mic/openmoc_mic.i')
+#    config.linker_flags[' = config.linker_flags.remove('-Wl,-soname,_openmoc.so')
+
+
 # Loop over the compilers and floating point precision levels to create
 # extension modules for each (ie, openmoc.icpc.double, openmoc.cuda.single, etc)
-#for fp in config.fp_precision:
-#    for cc in config.cpp_compilers:
+for fp in config.fp_precision:
+    for cc in config.cpp_compilers:
 
-#        if cc == 'nvcc':
-#            ext_name = '_openmoc_cuda_' + fp
-#            swig_interface_file = 'openmoc/cuda/' + fp
-#            swig_interface_file += '/openmoc_cuda_' + fp + '.i'
-#            sources = config.sources['cuda']
-#            sources.append(swig_interface_file)
+        if cc == 'nvcc':
+            ext_name = '_openmoc_cuda_' + fp
+            swig_interface_file = 'openmoc/cuda/' + fp
+            swig_interface_file += '/openmoc_cuda_' + fp + '.i'
+            sources = config.sources['cuda']
+            sources.append(swig_interface_file)
 
-#        elif cc == 'gcc':
-#            ext_name = '_openmoc_gnu_' + fp
-#            swig_interface_file = 'openmoc/gnu/' + fp
-#            swig_interface_file += '/openmoc_gnu_' + fp + '.i'
-#            sources = config.sources['c++']
-#            sources.append(swig_interface_file)
+        elif cc == 'gcc':
+            ext_name = '_openmoc_gnu_' + fp
+            swig_interface_file = 'openmoc/gnu/' + fp
+            swig_interface_file += '/openmoc_gnu_' + fp + '.i'
+            sources = config.sources['c++']
+            sources.append(swig_interface_file)
 
-#        elif cc == 'icpc':
-#            ext_name = '_openmoc_intel_' + fp
-#            swig_interface_file = 'openmoc/intel/' + fp
-#            swig_interface_file += '/openmoc_intel_' + fp + '.i'
-#            sources = config.sources['c++']
-#            sources.append(swig_interface_file)
+        elif cc == 'icpc':
+            ext_name = '_openmoc_intel_' + fp
+            swig_interface_file = 'openmoc/intel/' + fp
+            swig_interface_file += '/openmoc_intel_' + fp + '.i'
+            sources = config.sources['c++']
+            sources.append(swig_interface_file)
 
-#        else:
-#            raise NameError('Compiler ' + str(cc) + ' is not supported')
+        else:
+            raise NameError('Compiler ' + str(cc) + ' is not supported')
 
         # Create the extension module
-#        extensions.append(Extension(name = ext_name, 
-#                            sources = sources, 
-#                            library_dirs = config.library_directories[cc], 
-#                            libraries = config.shared_libraries[cc],
-#                            extra_link_args = config.linker_flags[cc], 
-#                            include_dirs = config.include_directories[cc],
-#                            define_macros = config.macros[cc][fp],
-#                            swig_opts = config.swig_flags))
+        extensions.append(Extension(name = ext_name, 
+                            sources = sources, 
+                            library_dirs = config.library_directories[cc], 
+                            libraries = config.shared_libraries[cc],
+                            extra_link_args = config.linker_flags[cc], 
+                            include_dirs = config.include_directories[cc],
+                            define_macros = config.macros[cc][fp],
+                            swig_opts = config.swig_flags))
 
 
 def customize_compiler(self):
@@ -194,7 +211,7 @@ def customize_linker(self):
                 objects.remove(obj)
 
         # If the filename for the extension contains intel, use icpc to link
-        if 'intel' in output_filename:
+        if 'intel' in output_filename or 'mic' in output_filename:
             self.set_executable('linker_so', 'icpc')
             self.set_executable('linker_exe', 'icpc')
 
