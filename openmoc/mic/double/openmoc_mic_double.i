@@ -2,7 +2,8 @@
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #define "../../src/mic/DeviceQuery.h"
+    #define "../../src/mic/MICQuery.h"
+    #define "../../src/mic/MICSolver.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -44,7 +45,8 @@
 
 
 %include <exception.i>
-%include ../../src/mic/DeviceQuery.h
+%include ../../src/mic/MICQuery.h
+%include ../../src/mic/MICSolver.h
 
 typedef double FP_PRECISION;
 

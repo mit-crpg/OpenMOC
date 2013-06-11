@@ -74,5 +74,43 @@ machineContainsMIC = _openmoc_mic.machineContainsMIC
 def getNumMICDevices():
   return _openmoc_mic.getNumMICDevices()
 getNumMICDevices = _openmoc_mic.getNumMICDevices
+FOUR_PI = _openmoc_mic.FOUR_PI
+ONE_OVER_FOUR_PI = _openmoc_mic.ONE_OVER_FOUR_PI
+class MICSolver(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, MICSolver, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, MICSolver, name)
+    __repr__ = _swig_repr
+    def __init__(self, geom = None, track_generator = None, num_threads = 1): 
+        this = _openmoc_mic.new_MICSolver(geom, track_generator, num_threads)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _openmoc_mic.delete_MICSolver
+    __del__ = lambda self : None;
+    def getGeometry(self): return _openmoc_mic.MICSolver_getGeometry(self)
+    def getTrackGenerator(self): return _openmoc_mic.MICSolver_getTrackGenerator(self)
+    def getNumThreads(self): return _openmoc_mic.MICSolver_getNumThreads(self)
+    def getNumPolarAngles(self): return _openmoc_mic.MICSolver_getNumPolarAngles(self)
+    def getPolarQuadratureType(self): return _openmoc_mic.MICSolver_getPolarQuadratureType(self)
+    def getNumIterations(self): return _openmoc_mic.MICSolver_getNumIterations(self)
+    def getSourceConvergenceThreshold(self): return _openmoc_mic.MICSolver_getSourceConvergenceThreshold(self)
+    def getFluxConvergenceThreshold(self): return _openmoc_mic.MICSolver_getFluxConvergenceThreshold(self)
+    def getFSRScalarFlux(self, *args, **kwargs): return _openmoc_mic.MICSolver_getFSRScalarFlux(self, *args, **kwargs)
+    def getFSRScalarFluxes(self): return _openmoc_mic.MICSolver_getFSRScalarFluxes(self)
+    def getFSRPowers(self): return _openmoc_mic.MICSolver_getFSRPowers(self)
+    def getFSRPinPowers(self): return _openmoc_mic.MICSolver_getFSRPinPowers(self)
+    def setNumThreads(self, *args, **kwargs): return _openmoc_mic.MICSolver_setNumThreads(self, *args, **kwargs)
+    def setGeometry(self, *args, **kwargs): return _openmoc_mic.MICSolver_setGeometry(self, *args, **kwargs)
+    def setTrackGenerator(self, *args, **kwargs): return _openmoc_mic.MICSolver_setTrackGenerator(self, *args, **kwargs)
+    def setPolarQuadratureType(self, *args, **kwargs): return _openmoc_mic.MICSolver_setPolarQuadratureType(self, *args, **kwargs)
+    def setNumPolarAngles(self, *args, **kwargs): return _openmoc_mic.MICSolver_setNumPolarAngles(self, *args, **kwargs)
+    def setSourceConvergenceThreshold(self, *args, **kwargs): return _openmoc_mic.MICSolver_setSourceConvergenceThreshold(self, *args, **kwargs)
+    def setFluxConvergenceThreshold(self, *args, **kwargs): return _openmoc_mic.MICSolver_setFluxConvergenceThreshold(self, *args, **kwargs)
+    def convergeSource(self, *args, **kwargs): return _openmoc_mic.MICSolver_convergeSource(self, *args, **kwargs)
+    def computePinPowers(self): return _openmoc_mic.MICSolver_computePinPowers(self)
+MICSolver_swigregister = _openmoc_mic.MICSolver_swigregister
+MICSolver_swigregister(MICSolver)
+
 
 

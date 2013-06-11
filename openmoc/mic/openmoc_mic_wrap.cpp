@@ -2685,10 +2685,14 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
 
 /* -------- TYPES TABLE (BEGIN) -------- */
 
-#define SWIGTYPE_p_char swig_types[0]
-#define SWIGTYPE_p_float swig_types[1]
-static swig_type_info *swig_types[3];
-static swig_module_info swig_module = {swig_types, 2, 0, 0, 0, 0};
+#define SWIGTYPE_p_Geometry swig_types[0]
+#define SWIGTYPE_p_MICSolver swig_types[1]
+#define SWIGTYPE_p_TrackGenerator swig_types[2]
+#define SWIGTYPE_p_char swig_types[3]
+#define SWIGTYPE_p_float swig_types[4]
+#define SWIGTYPE_p_quadratureType swig_types[5]
+static swig_type_info *swig_types[7];
+static swig_module_info swig_module = {swig_types, 6, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -2786,7 +2790,8 @@ namespace swig {
 
 
     #define SWIG_FILE_WITH_INIT
-    #include "../src/mic/DeviceQuery.h"
+    #include "../src/mic/MICQuery.h"
+    #include "../src/mic/MICSolver.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -2827,6 +2832,177 @@ SWIGINTERNINLINE PyObject *
 SWIG_From_int  (int value)
 {    
   return SWIG_From_long  (value);
+}
+
+
+  #define SWIG_From_double   PyFloat_FromDouble 
+
+
+#include <limits.h>
+#if !defined(SWIG_NO_LLONG_MAX)
+# if !defined(LLONG_MAX) && defined(__GNUC__) && defined (__LONG_LONG_MAX__)
+#   define LLONG_MAX __LONG_LONG_MAX__
+#   define LLONG_MIN (-LLONG_MAX - 1LL)
+#   define ULLONG_MAX (LLONG_MAX * 2ULL + 1ULL)
+# endif
+#endif
+
+
+SWIGINTERN int
+SWIG_AsVal_double (PyObject *obj, double *val)
+{
+  int res = SWIG_TypeError;
+  if (PyFloat_Check(obj)) {
+    if (val) *val = PyFloat_AsDouble(obj);
+    return SWIG_OK;
+  } else if (PyInt_Check(obj)) {
+    if (val) *val = PyInt_AsLong(obj);
+    return SWIG_OK;
+  } else if (PyLong_Check(obj)) {
+    double v = PyLong_AsDouble(obj);
+    if (!PyErr_Occurred()) {
+      if (val) *val = v;
+      return SWIG_OK;
+    } else {
+      PyErr_Clear();
+    }
+  }
+#ifdef SWIG_PYTHON_CAST_MODE
+  {
+    int dispatch = 0;
+    double d = PyFloat_AsDouble(obj);
+    if (!PyErr_Occurred()) {
+      if (val) *val = d;
+      return SWIG_AddCast(SWIG_OK);
+    } else {
+      PyErr_Clear();
+    }
+    if (!dispatch) {
+      long v = PyLong_AsLong(obj);
+      if (!PyErr_Occurred()) {
+	if (val) *val = v;
+	return SWIG_AddCast(SWIG_AddCast(SWIG_OK));
+      } else {
+	PyErr_Clear();
+      }
+    }
+  }
+#endif
+  return res;
+}
+
+
+#include <float.h>
+
+
+#include <math.h>
+
+
+SWIGINTERNINLINE int
+SWIG_CanCastAsInteger(double *d, double min, double max) {
+  double x = *d;
+  if ((min <= x && x <= max)) {
+   double fx = floor(x);
+   double cx = ceil(x);
+   double rd =  ((x - fx) < 0.5) ? fx : cx; /* simple rint */
+   if ((errno == EDOM) || (errno == ERANGE)) {
+     errno = 0;
+   } else {
+     double summ, reps, diff;
+     if (rd < x) {
+       diff = x - rd;
+     } else if (rd > x) {
+       diff = rd - x;
+     } else {
+       return 1;
+     }
+     summ = rd + x;
+     reps = diff/summ;
+     if (reps < 8*DBL_EPSILON) {
+       *d = rd;
+       return 1;
+     }
+   }
+  }
+  return 0;
+}
+
+
+SWIGINTERN int
+SWIG_AsVal_long (PyObject *obj, long* val)
+{
+  if (PyInt_Check(obj)) {
+    if (val) *val = PyInt_AsLong(obj);
+    return SWIG_OK;
+  } else if (PyLong_Check(obj)) {
+    long v = PyLong_AsLong(obj);
+    if (!PyErr_Occurred()) {
+      if (val) *val = v;
+      return SWIG_OK;
+    } else {
+      PyErr_Clear();
+    }
+  }
+#ifdef SWIG_PYTHON_CAST_MODE
+  {
+    int dispatch = 0;
+    long v = PyInt_AsLong(obj);
+    if (!PyErr_Occurred()) {
+      if (val) *val = v;
+      return SWIG_AddCast(SWIG_OK);
+    } else {
+      PyErr_Clear();
+    }
+    if (!dispatch) {
+      double d;
+      int res = SWIG_AddCast(SWIG_AsVal_double (obj,&d));
+      if (SWIG_IsOK(res) && SWIG_CanCastAsInteger(&d, LONG_MIN, LONG_MAX)) {
+	if (val) *val = (long)(d);
+	return res;
+      }
+    }
+  }
+#endif
+  return SWIG_TypeError;
+}
+
+
+SWIGINTERN int
+SWIG_AsVal_int (PyObject * obj, int *val)
+{
+  long v;
+  int res = SWIG_AsVal_long (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v < INT_MIN || v > INT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< int >(v);
+    }
+  }  
+  return res;
+}
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_From_float  (float value)
+{    
+  return SWIG_From_double  (value);
+}
+
+
+SWIGINTERN int
+SWIG_AsVal_float (PyObject * obj, float *val)
+{
+  double v;
+  int res = SWIG_AsVal_double (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v < -FLT_MAX || v > FLT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< float >(v);
+    }
+  }  
+  return res;
 }
 
 #ifdef __cplusplus
@@ -2876,30 +3052,933 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_new_MICSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Geometry *arg1 = (Geometry *) NULL ;
+  TrackGenerator *arg2 = (TrackGenerator *) NULL ;
+  int arg3 = (int) 1 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  char *  kwnames[] = {
+    (char *) "geom",(char *) "track_generator",(char *) "num_threads", NULL 
+  };
+  MICSolver *result = 0 ;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"|OOO:new_MICSolver",kwnames,&obj0,&obj1,&obj2)) SWIG_fail;
+  if (obj0) {
+    res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_MICSolver" "', argument " "1"" of type '" "Geometry *""'"); 
+    }
+    arg1 = reinterpret_cast< Geometry * >(argp1);
+  }
+  if (obj1) {
+    res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_TrackGenerator, 0 |  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_MICSolver" "', argument " "2"" of type '" "TrackGenerator *""'"); 
+    }
+    arg2 = reinterpret_cast< TrackGenerator * >(argp2);
+  }
+  if (obj2) {
+    ecode3 = SWIG_AsVal_int(obj2, &val3);
+    if (!SWIG_IsOK(ecode3)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_MICSolver" "', argument " "3"" of type '" "int""'");
+    } 
+    arg3 = static_cast< int >(val3);
+  }
+  {
+    try {
+      result = (MICSolver *)new MICSolver(arg1,arg2,arg3);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_MICSolver, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_MICSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_MICSolver",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_MICSolver" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      delete arg1;
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getGeometry(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  Geometry *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getGeometry",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getGeometry" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (Geometry *)(arg1)->getGeometry();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Geometry, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getTrackGenerator(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  TrackGenerator *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getTrackGenerator",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getTrackGenerator" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (TrackGenerator *)(arg1)->getTrackGenerator();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_TrackGenerator, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getNumThreads",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getNumThreads" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (int)(arg1)->getNumThreads();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getNumPolarAngles(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getNumPolarAngles",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getNumPolarAngles" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (int)(arg1)->getNumPolarAngles();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getPolarQuadratureType(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  quadratureType result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getPolarQuadratureType",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getPolarQuadratureType" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (arg1)->getPolarQuadratureType();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new quadratureType(static_cast< const quadratureType& >(result))), SWIGTYPE_p_quadratureType, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getNumIterations(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getNumIterations",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getNumIterations" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (int)(arg1)->getNumIterations();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getSourceConvergenceThreshold(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  FP_PRECISION result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getSourceConvergenceThreshold",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getSourceConvergenceThreshold" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (FP_PRECISION)(arg1)->getSourceConvergenceThreshold();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_float(static_cast< float >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getFluxConvergenceThreshold(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  FP_PRECISION result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getFluxConvergenceThreshold",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getFluxConvergenceThreshold" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (FP_PRECISION)(arg1)->getFluxConvergenceThreshold();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_float(static_cast< float >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getFSRScalarFlux(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "fsr_id",(char *) "energy_group", NULL 
+  };
+  FP_PRECISION result;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OOO:MICSolver_getFSRScalarFlux",kwnames,&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getFSRScalarFlux" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "MICSolver_getFSRScalarFlux" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "MICSolver_getFSRScalarFlux" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  {
+    try {
+      result = (FP_PRECISION)(arg1)->getFSRScalarFlux(arg2,arg3);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_float(static_cast< float >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getFSRScalarFluxes(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  FP_PRECISION *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getFSRScalarFluxes",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getFSRScalarFluxes" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (FP_PRECISION *)(arg1)->getFSRScalarFluxes();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getFSRPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  FP_PRECISION *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getFSRPowers",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getFSRPowers" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (FP_PRECISION *)(arg1)->getFSRPowers();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_getFSRPinPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  FP_PRECISION *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_getFSRPinPowers",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_getFSRPinPowers" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      result = (FP_PRECISION *)(arg1)->getFSRPinPowers();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_setNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "num_threads", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:MICSolver_setNumThreads",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_setNumThreads" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "MICSolver_setNumThreads" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    try {
+      (arg1)->setNumThreads(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_setGeometry(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  Geometry *arg2 = (Geometry *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "geometry", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:MICSolver_setGeometry",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_setGeometry" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Geometry, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "MICSolver_setGeometry" "', argument " "2"" of type '" "Geometry *""'"); 
+  }
+  arg2 = reinterpret_cast< Geometry * >(argp2);
+  {
+    try {
+      (arg1)->setGeometry(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_setTrackGenerator(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  TrackGenerator *arg2 = (TrackGenerator *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "track_generator", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:MICSolver_setTrackGenerator",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_setTrackGenerator" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_TrackGenerator, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "MICSolver_setTrackGenerator" "', argument " "2"" of type '" "TrackGenerator *""'"); 
+  }
+  arg2 = reinterpret_cast< TrackGenerator * >(argp2);
+  {
+    try {
+      (arg1)->setTrackGenerator(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_setPolarQuadratureType(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  quadratureType arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "quadrature_type", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:MICSolver_setPolarQuadratureType",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_setPolarQuadratureType" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_quadratureType,  0  | 0);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "MICSolver_setPolarQuadratureType" "', argument " "2"" of type '" "quadratureType""'"); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "MICSolver_setPolarQuadratureType" "', argument " "2"" of type '" "quadratureType""'");
+    } else {
+      quadratureType * temp = reinterpret_cast< quadratureType * >(argp2);
+      arg2 = *temp;
+      if (SWIG_IsNewObj(res2)) delete temp;
+    }
+  }
+  {
+    try {
+      (arg1)->setPolarQuadratureType(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_setNumPolarAngles(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "num_polar", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:MICSolver_setNumPolarAngles",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_setNumPolarAngles" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "MICSolver_setNumPolarAngles" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    try {
+      (arg1)->setNumPolarAngles(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_setSourceConvergenceThreshold(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  FP_PRECISION arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "source_thresh", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:MICSolver_setSourceConvergenceThreshold",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_setSourceConvergenceThreshold" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "MICSolver_setSourceConvergenceThreshold" "', argument " "2"" of type '" "FP_PRECISION""'");
+  } 
+  arg2 = static_cast< FP_PRECISION >(val2);
+  {
+    try {
+      (arg1)->setSourceConvergenceThreshold(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_setFluxConvergenceThreshold(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  FP_PRECISION arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "flux_thresh", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:MICSolver_setFluxConvergenceThreshold",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_setFluxConvergenceThreshold" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "MICSolver_setFluxConvergenceThreshold" "', argument " "2"" of type '" "FP_PRECISION""'");
+  } 
+  arg2 = static_cast< FP_PRECISION >(val2);
+  {
+    try {
+      (arg1)->setFluxConvergenceThreshold(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_convergeSource(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "max_iterations", NULL 
+  };
+  FP_PRECISION result;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:MICSolver_convergeSource",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_convergeSource" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "MICSolver_convergeSource" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    try {
+      result = (FP_PRECISION)(arg1)->convergeSource(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_float(static_cast< float >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MICSolver_computePinPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  MICSolver *arg1 = (MICSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MICSolver_computePinPowers",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MICSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MICSolver_computePinPowers" "', argument " "1"" of type '" "MICSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< MICSolver * >(argp1);
+  {
+    try {
+      (arg1)->computePinPowers();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *MICSolver_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_MICSolver, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"machineContainsMIC", _wrap_machineContainsMIC, METH_VARARGS, NULL},
 	 { (char *)"getNumMICDevices", _wrap_getNumMICDevices, METH_VARARGS, NULL},
+	 { (char *)"new_MICSolver", (PyCFunction) _wrap_new_MICSolver, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"delete_MICSolver", _wrap_delete_MICSolver, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getGeometry", _wrap_MICSolver_getGeometry, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getTrackGenerator", _wrap_MICSolver_getTrackGenerator, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getNumThreads", _wrap_MICSolver_getNumThreads, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getNumPolarAngles", _wrap_MICSolver_getNumPolarAngles, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getPolarQuadratureType", _wrap_MICSolver_getPolarQuadratureType, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getNumIterations", _wrap_MICSolver_getNumIterations, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getSourceConvergenceThreshold", _wrap_MICSolver_getSourceConvergenceThreshold, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getFluxConvergenceThreshold", _wrap_MICSolver_getFluxConvergenceThreshold, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getFSRScalarFlux", (PyCFunction) _wrap_MICSolver_getFSRScalarFlux, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"MICSolver_getFSRScalarFluxes", _wrap_MICSolver_getFSRScalarFluxes, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getFSRPowers", _wrap_MICSolver_getFSRPowers, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_getFSRPinPowers", _wrap_MICSolver_getFSRPinPowers, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_setNumThreads", (PyCFunction) _wrap_MICSolver_setNumThreads, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"MICSolver_setGeometry", (PyCFunction) _wrap_MICSolver_setGeometry, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"MICSolver_setTrackGenerator", (PyCFunction) _wrap_MICSolver_setTrackGenerator, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"MICSolver_setPolarQuadratureType", (PyCFunction) _wrap_MICSolver_setPolarQuadratureType, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"MICSolver_setNumPolarAngles", (PyCFunction) _wrap_MICSolver_setNumPolarAngles, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"MICSolver_setSourceConvergenceThreshold", (PyCFunction) _wrap_MICSolver_setSourceConvergenceThreshold, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"MICSolver_setFluxConvergenceThreshold", (PyCFunction) _wrap_MICSolver_setFluxConvergenceThreshold, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"MICSolver_convergeSource", (PyCFunction) _wrap_MICSolver_convergeSource, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"MICSolver_computePinPowers", _wrap_MICSolver_computePinPowers, METH_VARARGS, NULL},
+	 { (char *)"MICSolver_swigregister", MICSolver_swigregister, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
+static swig_type_info _swigt__p_Geometry = {"_p_Geometry", "Geometry *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_MICSolver = {"_p_MICSolver", "MICSolver *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_TrackGenerator = {"_p_TrackGenerator", "TrackGenerator *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_float = {"_p_float", "FP_PRECISION *|float *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_quadratureType = {"_p_quadratureType", "quadratureType *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
+  &_swigt__p_Geometry,
+  &_swigt__p_MICSolver,
+  &_swigt__p_TrackGenerator,
   &_swigt__p_char,
   &_swigt__p_float,
+  &_swigt__p_quadratureType,
 };
 
+static swig_cast_info _swigc__p_Geometry[] = {  {&_swigt__p_Geometry, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_MICSolver[] = {  {&_swigt__p_MICSolver, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_TrackGenerator[] = {  {&_swigt__p_TrackGenerator, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_float[] = {  {&_swigt__p_float, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_quadratureType[] = {  {&_swigt__p_quadratureType, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
+  _swigc__p_Geometry,
+  _swigc__p_MICSolver,
+  _swigc__p_TrackGenerator,
   _swigc__p_char,
   _swigc__p_float,
+  _swigc__p_quadratureType,
 };
 
 
@@ -3496,6 +4575,8 @@ SWIG_init(void) {
   
   import_array();
   
+  SWIG_Python_SetConstant(d, "FOUR_PI",SWIG_From_double(static_cast< double >(12.5663706143)));
+  SWIG_Python_SetConstant(d, "ONE_OVER_FOUR_PI",SWIG_From_double(static_cast< double >(0.0795774715)));
 #if PY_VERSION_HEX >= 0x03000000
   return m;
 #else

@@ -57,7 +57,8 @@ sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
                    'openmoc/src/dev/DeviceSolver.cu']
 
 sources['mic'] = ['openmoc/mic/openmoc_mic.i',
-                  'openmoc/src/mic/DeviceQuery.cpp']
+                  'openmoc/src/mic/MICQuery.cpp',
+                  'openmoc/src/mic/MICSolver.cpp']
 
 
 
@@ -201,4 +202,4 @@ macros['nvcc']['single'] = [('FP_PRECISION', 'float'),
 macros['nvcc']['double'] = [('FP_PRECISION', 'double'), 
                             ('DOUBLE', None),
                             ('CUDA', None),
-                            ('CCACHE_CC', 'nvcc')]
+                            ('CCACHE_CC', 'nvcc')] 

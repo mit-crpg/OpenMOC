@@ -2,7 +2,8 @@
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "../src/mic/DeviceQuery.h"
+    #include "../src/mic/MICQuery.h"
+    #include "../src/mic/MICSolver.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -43,7 +44,8 @@
 %}
 
 %include <exception.i> 
-%include ../src/mic/DeviceQuery.h
+%include ../src/mic/MICQuery.h
+%include ../src/mic/MICSolver.h
 
 typedef float FP_PRECISION;
 
