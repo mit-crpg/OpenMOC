@@ -24,7 +24,7 @@ bool machineContainsGPU() {
  * @brief Resets CUDA and sets the primary CUDA-enabled device to be the GPU
  *        with ID=0.
  */
-void attachGPU() {
+void attachGPU(int id) {
 
     if (!machineContainsGPU()) {
         log_printf(WARNING, "Unable to attach GPU since no GPU is attached "
@@ -34,8 +34,9 @@ void attachGPU() {
 
     cudaDeviceReset();
 
-    int dev = 0;
-    cudaSetDevice(dev);
+    log_printf(INFO, "Setting the device to GPU id = %d", id);
+
+    cudaSetDevice(id);
 
     return;
 }
@@ -55,7 +56,9 @@ void printBasicDeviceInfo() {
         return;
     }
 
-    int dev = 0;
+    int dev;
+    cudaGetDevice(&dev);
+
     cudaDeviceProp prop;
     cudaGetDeviceProperties(&prop, dev);
 
@@ -84,7 +87,9 @@ void printDetailedDeviceInfo() {
         return;
     }
 
-    int dev = 0;
+    int dev;
+    cudaGetDevice(&dev);
+    
     cudaDeviceProp prop;
     cudaGetDeviceProperties(&prop, dev);
 

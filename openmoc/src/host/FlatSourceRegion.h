@@ -26,11 +26,14 @@ private:
     /** A static counter for the number of flat source regions 
      *  in a simulation */    
     static int _n;
+
     /** A monotonically increasing unique ID for each flat source 
      *  region created */
     int _uid;
+
     /** A pointer to this flat source region's material */
     Material* _material;
+
     /** The flat source region's volume approximated by the sum of track
      *  segment lengths within the FSR */
     FP_PRECISION _volume;

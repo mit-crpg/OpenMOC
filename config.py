@@ -6,16 +6,16 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = ['gcc']
+cpp_compilers = ['all']
 
 # Supported floating point precision: 'single', 'double', 'all'
-fp_precision = ['single']
+fp_precision = ['all']
 
 # Compile using ccache (most relevant for developers)
 with_ccache = True
 
 # Compile with debug flags
-debug_mode = True
+debug_mode = False
 
 # Use CUDA set to True or False
 with_cuda = True
@@ -57,7 +57,7 @@ sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
 ###############################################################################
 
 path_to_gcc = '/usr/'
-path_to_nvcc = '/usr/local/cuda-5.0/'
+path_to_nvcc = '/usr/local/cuda-5.5/'
 path_to_icpc = '/usr/intel/composer_xe_2013.1.117/composer_xe_2013.1.117/'
 
 # Compiler binaries
@@ -92,17 +92,12 @@ compiler_flags['icpc'] =['-c',
                           '-vec-report']
 
 compiler_flags['nvcc'] =  ['-c', 
-                           '-O0',
-                           '--ccache-skip',
+                           '-O3',
                            '--compiler-options', 
                            '-fpic',
-                           '--ccache-skip',
                            '-gencode=arch=compute_20,code=sm_20',
-                           '--ccache-skip',
-                           '-gencode=arch=compute_30,code=sm_30']
-
-
-#                           '--ptxas-options=-v', 
+                           '-gencode=arch=compute_30,code=sm_30',
+                           '--ptxas-options=-v']
 
 
 

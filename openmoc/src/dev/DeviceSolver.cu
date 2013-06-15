@@ -131,6 +131,7 @@ __global__ void computeFissionSourcesOnDevice(dev_flatsourceregion* FSRs,
     dev_material* curr_material;
     double* nu_sigma_f;
     FP_PRECISION volume;
+    FP_PRECISION source;
 
     /* Initialize fission source to zero */
     shared_fission_source[threadIdx.x] = 0;
@@ -145,10 +146,11 @@ __global__ void computeFissionSourcesOnDevice(dev_flatsourceregion* FSRs,
 
 	/* Iterate over all energy groups and update
 	 * fission source for this block */
-	for (int e=0; e < *_num_groups_devc; e++)
-	    shared_fission_source[threadIdx.x] += 
-	        nu_sigma_f[e] * scalar_flux(tid,e) * volume;
-
+	for (int e=0; e < *_num_groups_devc; e++) {
+	    source = nu_sigma_f[e] * scalar_flux(tid,e) * volume;
+	    shared_fission_source[threadIdx.x] += source;
+	}
+		 
 	/* Increment thread id */
 	tid += blockDim.x * gridDim.x;
     }
@@ -263,7 +265,7 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
 			     scatter_source) * ONE_OVER_FOUR_PI;
 
 	    ratios(tid,G) = __fdividef(source(tid,G), sigma_t[G]);
-	
+
 	    /* Compute the norm of residuals of the sources for convergence */
 	    if (fabs(source(tid,G)) > 1E-10)
 	        source_residual[threadIdx.x + blockIdx.x * blockDim.x] +=
@@ -303,8 +305,8 @@ __global__ void computeFissionAndAbsorption(dev_flatsourceregion* FSRs,
     double* sigma_a;
     FP_PRECISION volume;
 
-    FP_PRECISION absorption = 0.;
-    FP_PRECISION fission = 0.;
+    double absorption = 0.;
+    double fission = 0.;
 
     /* Iterate over all FSRs */
     while (tid < *_num_FSRs_devc) {
@@ -315,12 +317,18 @@ __global__ void computeFissionAndAbsorption(dev_flatsourceregion* FSRs,
 	sigma_a = curr_material->_sigma_a;
 	volume = curr_FSR->_volume;
 
+	double part_abs = 0.;
+	double part_fission = 0.;
+
 	/* Iterate over all energy groups and update
 	 * fission and absorption rates for this block */
 	for (int e=0; e < *_num_groups_devc; e++) {
-	    absorption += sigma_a[e] * scalar_flux(tid,e) * volume;
-	    fission += nu_sigma_f[e] * scalar_flux(tid,e) * volume;
+	    part_abs += sigma_a[e] * scalar_flux(tid,e);
+	    part_fission += nu_sigma_f[e] * scalar_flux(tid,e);
 	}
+
+	absorption += part_abs * volume;
+	fission += part_fission * volume;
 
 	/* Increment thread id */
 	tid += blockDim.x * gridDim.x;
@@ -399,7 +407,6 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     bool bc;
     int start;
     int pe;
-    int azim_angle_index;
 
     dev_track* curr_track;
     dev_segment* curr_segment;
@@ -421,7 +428,6 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
         /* Initialize local registers with important data */
         curr_track = &tracks[track_id];
-        azim_angle_index = curr_track->_azim_angle_index;
       	num_segments = curr_track->_num_segments;
       
 	/* Put track's flux in the shared memory temporary flux array */
@@ -511,7 +517,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	    		 ratios(fsr_id,energy_group)) * 
 		         prefactor(index,p,sigma_t_l);
 
-		//FIXME: Is this the correct way to inex into polar weights?
+		//FIXME: Is this the correct way to index into polar weights?
 		temp_flux[fsr_flux_index] += delta * polar_weights[p];
 	    	temp_flux[track_flux_index+p] -= delta;
 	    }
@@ -1171,13 +1177,13 @@ void DeviceSolver::initializeFSRs() {
 
 	Track* track;
 	segment* seg;
-	dev_flatsourceregion* fsr;
+	FP_PRECISION volume;
 
 	double* azim_weights = _track_generator->getAzimWeights();
 
 
 	/* Set each FSR's volume by accumulating the total length of all
-	   tracks inside the FSR. Iterate over azimuthal angle, track, segment */
+	   tracks inside the FSR. Iterate over azimuthal angle, track, segment*/
 	for (int i=0; i < _num_azim; i++) {
 	    for (int j=0; j < _num_tracks[i]; j++) {
 	        track = &_track_generator->getTracks()[i][j];
@@ -1185,8 +1191,8 @@ void DeviceSolver::initializeFSRs() {
 		/* Iterate over the track's segments to update FSR volumes */
 		for (int s = 0; s < track->getNumSegments(); s++) {
 		    seg = track->getSegment(s);
-		    fsr = &temp_FSRs[seg->_region_id];
-		    fsr->_volume += seg->_length * azim_weights[i];
+		    volume = seg->_length * azim_weights[i];
+		    temp_FSRs[seg->_region_id]._volume += volume;
 		}
 	    }
 	}
@@ -1636,13 +1642,16 @@ void DeviceSolver::normalizeFluxes() {
     FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_source_vec.begin(),
 						    _fission_source_vec.end());
 
+    FP_PRECISION denom = thrust::reduce(_fission_source_vec.begin(),
+					_fission_source_vec.end());
+
     normalizeFluxesOnDevice<<<_B, _T>>>(_scalar_flux, _boundary_flux, 
 					norm_factor);
 }
 
 
 FP_PRECISION DeviceSolver::computeFSRSources() {
-
+    
     computeFSRSourcesOnDevice<<<_B, _T>>>(_FSRs, _materials, _scalar_flux,
 					  _source, _old_source, _ratios,
 					  1.0 / _k_eff, _source_residual);
@@ -1712,6 +1721,8 @@ void DeviceSolver::computeKeff() {
      * entries as GPU threads executed by the kernel */
     computeFissionAndAbsorption<<<_B, _T>>>(_FSRs, _materials, _scalar_flux,
 					    _tot_absorption, _tot_fission);
+
+    cudaDeviceSynchronize();
 
     /* Compute the total absorption rate by reducing the partial absorption
      * rates compiled in the Thrust vector */
