@@ -13,6 +13,8 @@
 #include "../host/Geometry.h"
 #include "../host/TrackGenerator.h"
 #include "../host/Quadrature.h"
+#include <iostream>
+#include <fstream>
 #endif
 
 #include <thrust/reduce.h>

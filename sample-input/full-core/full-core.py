@@ -5,6 +5,7 @@ import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 import openmoc.process as process
+import openmoc.cuda as cuda
 
 
 ###############################################################################
@@ -13,9 +14,9 @@ import openmoc.process as process
 
 num_threads = 4
 track_spacing = 0.1
-num_azim = 16
+num_azim = 4
 tolerance = 1E-3
-max_iters = 10
+max_iters = 5
 gridsize = 1000
 
 setOutputDirectory('Full-Core')
@@ -342,6 +343,25 @@ solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 
 solver.convergeSource(max_iters)
+
+
+###############################################################################
+#                            Allocating Data on GPU
+###############################################################################
+
+log.py_printf('NORMAL', 'Initializing solver on the GPU...')
+
+cuda.attachGPU(1)
+device_solver = cuda.DeviceSolver(geometry, track_generator)
+device_solver.setSourceConvergenceThreshold(tolerance)
+
+Timer.resetTimer()
+Timer.startTimer()
+device_solver.convergeSource(max_iters)
+Timer.stopTimer()
+Timer.recordSplit('Converging the source on the GPU')
+Timer.printSplits()
+
 
 
 ###############################################################################

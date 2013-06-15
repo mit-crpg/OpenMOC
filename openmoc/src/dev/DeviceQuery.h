@@ -15,7 +15,7 @@
 #endif
 
 bool machineContainsGPU();
-void attachGPU();
+void attachGPU(int id=0);
 void printBasicDeviceInfo();
 void printDetailedDeviceInfo();
 

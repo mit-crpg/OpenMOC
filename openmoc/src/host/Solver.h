@@ -15,6 +15,7 @@
 #include "../host/Quadrature.h"
 #include "../host/TrackGenerator.h"
 #include "../host/FlatSourceRegion.h"
+#include "../host/pairwise_sum.h"
 #endif
 
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
@@ -24,7 +25,9 @@
 #define _ratios(r,e) (_ratios[(r)*_num_groups + (e)])
 #define _polar_weights(i,p) (_polar_weights[(i)*_num_polar + (p)])
 #define _boundary_flux(i,pe2) (_boundary_flux[2*(i)*_polar_times_groups+(pe2)])
+#define _fission_source(r,e) (_fission_source[(r)*_num_groups + (e)])
 #define thread_flux(t,r,e) (thread_flux[(t)*_num_FSRs*_num_groups + (r)*_num_groups + (e)])
+#define source_residuals(r,e) (source_residuals[(r)*_num_groups + (e)])
 
 #define prefactor(index,p,sigma_t_l) (1. - (_prefactor_array[index+2 * p] * sigma_t_l + _prefactor_array[index + 2 * p +1]))
 
@@ -81,6 +84,9 @@ private:
     /** A pointer to an array with the number of tracks per azimuthal angle */
     int* _num_tracks;
 
+    /** The total number of tracks */
+    int _tot_num_tracks;
+
     /** The weights for each azimuthal angle */
     double* _azim_weights;
 
@@ -102,6 +108,9 @@ private:
     /** The scalar flux for each energy group in each flat source region from
      *  the previous iteration */
     FP_PRECISION* _old_scalar_flux;
+
+    /** The fission source in each energy group in each flat source region */
+    FP_PRECISION* _fission_source;
 
     /** The source in each energy group in each flat source region */
     FP_PRECISION* _source;
