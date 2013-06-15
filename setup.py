@@ -17,9 +17,17 @@ except AttributeError:
 if config.cpp_compilers == ['all']:
     config.cpp_compilers = ['gcc', 'icpc']
 
-# If the user selected 'all' floating point precision levels, enumerate them
+# If the user did not select a supported default C++ compiler, choose GCC
+if config.default_cc not in ['gcc', 'icpc']:
+    config.default_cc = 'gcc'
+
+# If the user selected 'all' FP precision levels, enumerate them
 if config.fp_precision == ['all']:
     config.fp_precision = ['double', 'single']
+
+# If the user did not select a supported default FP precision, choose single
+if config.default_fp not in ['double', 'single']:
+    config.default_fp = 'single'
 
 # If the user wishes to compile using debug mode, append the debugging flag
 if config.debug_mode:
@@ -34,14 +42,17 @@ if config.with_cuda:
 # Create list of extensions for Python modules within the openmoc Python package
 extensions = []
 
+cc = config.default_cc
+fp = config.default_fp
+
 # The main extension will be openmoc compiled with gcc and double precision
 extensions.append(Extension(name = '_openmoc', 
                     sources = config.sources['c++'], 
-                    library_dirs = config.library_directories['gcc'], 
-                    libraries = config.shared_libraries['gcc'],
-                    extra_link_args = config.linker_flags['gcc'], 
-                    include_dirs = config.include_directories['gcc'],
-                    define_macros = config.macros['gcc']['double'],
+                    library_dirs = config.library_directories[cc], 
+                    libraries = config.shared_libraries[cc],
+                    extra_link_args = config.linker_flags[cc], 
+                    include_dirs = config.include_directories[cc],
+                    define_macros = config.macros[cc][fp],
                     swig_opts = config.swig_flags))
 
 config.sources['c++'].remove('openmoc/openmoc.i')
@@ -55,7 +66,7 @@ if config.with_cuda:
                         libraries = config.shared_libraries['nvcc'],
                         extra_link_args = config.linker_flags['nvcc'], 
                         include_dirs = config.include_directories['nvcc'],
-                        define_macros = config.macros['nvcc']['double'],
+                        define_macros = config.macros['nvcc'][fp],
                         swig_opts = config.swig_flags,
                         export_symbols = ['init_openmoc']))
                       

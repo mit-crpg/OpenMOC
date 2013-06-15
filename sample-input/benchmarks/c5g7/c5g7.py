@@ -14,7 +14,7 @@ import openmoc.cuda as cuda
 
 num_threads = 12
 track_spacing = 0.1
-num_azim = 64
+num_azim = 4
 tolerance = 1E-4
 max_iters = 1000
 gridsize = 500
@@ -350,7 +350,7 @@ solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 
 Timer.startTimer()
-solver.convergeSource(max_iters)
+#solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Converging the source on the CPU')
 Timer.printSplits()
@@ -363,6 +363,7 @@ Timer.printSplits()
 log.py_printf('NORMAL', 'Initializing solver on the GPU...')
 
 cuda.attachGPU(1)
+cuda.printBasicDeviceInfo()
 device_solver = cuda.DeviceSolver(geometry, track_generator)
 device_solver.setSourceConvergenceThreshold(tolerance)
 
