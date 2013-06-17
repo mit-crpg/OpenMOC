@@ -6,7 +6,7 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = ['all']
+cpp_compilers = []
 
 default_cc = 'gcc'
 
@@ -61,7 +61,7 @@ sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
 ###############################################################################
 
 path_to_gcc = '/usr/'
-path_to_nvcc = '/usr/local/cuda-5.5/'
+path_to_nvcc = '/usr/local/cuda/'
 path_to_icpc = '/usr/intel/composer_xe_2013.1.117/composer_xe_2013.1.117/'
 
 # Compiler binaries
