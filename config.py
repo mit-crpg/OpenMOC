@@ -11,7 +11,7 @@ cpp_compilers = []
 default_cc = 'gcc'
 
 # Supported floating point precision: 'single', 'double', 'all'
-fp_precision = ['all']
+fp_precision = []
 
 default_fp = 'single'
 
@@ -19,7 +19,7 @@ default_fp = 'single'
 with_ccache = True
 
 # Compile with debug flags
-debug_mode = False
+debug_mode = True
 
 # Use CUDA set to True or False
 with_cuda = True

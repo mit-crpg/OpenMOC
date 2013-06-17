@@ -345,12 +345,12 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = Solver(geometry, track_generator)
+solver = CPUSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 
 Timer.startTimer()
-#solver.convergeSource(max_iters)
+solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Converging the source on the CPU')
 Timer.printSplits()
@@ -362,9 +362,9 @@ Timer.printSplits()
 
 log.py_printf('NORMAL', 'Initializing solver on the GPU...')
 
-cuda.attachGPU(1)
+cuda.attachGPU(0)
 cuda.printBasicDeviceInfo()
-device_solver = cuda.DeviceSolver(geometry, track_generator)
+device_solver = cuda.GPUSolver(geometry, track_generator)
 device_solver.setSourceConvergenceThreshold(tolerance)
 
 Timer.resetTimer()

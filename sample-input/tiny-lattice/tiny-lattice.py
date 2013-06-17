@@ -3,6 +3,7 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
+import imp
 
 
 ###############################################################################
@@ -118,19 +119,21 @@ solver.convergeSource(max_iters)
 #                            Allocating Data on GPU
 ###############################################################################
 
-
-if 'cuda' in dir(openmoc):
-
+try:
+    imp.find_module('_openmoc_cuda')
+    
     import openmoc.cuda as cuda
 
     if cuda.machineContainsGPU():
 
         log.py_printf('NORMAL', 'Initializing solver on the GPU...')
         
-        device_solver = cuda.DeviceSolver(geometry, track_generator)
+        device_solver = cuda.GPUSolver(geometry, track_generator)
         device_solver.setSourceConvergenceThreshold(tolerance)
         device_solver.convergeSource(max_iters)
-    
+
+except ImportError:
+    log.py_printf('NORMAL', 'OpenMOC CUDA module is not available')
 
 
 ###############################################################################
