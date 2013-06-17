@@ -2,47 +2,47 @@
 
 
 /** The number of azimuthal angles */
-__constant__ int _num_azim[1];
+__constant__ int num_azim[1];
 
 /** The number of energy groups */
-__constant__ int _num_groups[1];
+__constant__ int num_groups[1];
 
 /** The number of flat source regions */
-__constant__ int _num_FSRs[1];
+__constant__ int num_FSRs[1];
 
 /** The number of polar angles */
-__constant__ int _num_polar[1];
+__constant__ int num_polar[1];
 
 /** Twice the number of polar angles */
-__constant__ int _two_times_num_polar[1];
+__constant__ int two_times_num_polar[1];
 
 /** The number of polar angles times energy groups */
-__constant__ int _polar_times_groups[1];
+__constant__ int polar_times_groups[1];
 
 /** An array of the weights for the polar angles from the quadrature set */
-__constant__ FP_PRECISION _polar_weights[MAX_POLAR_ANGLES*MAX_AZIM_ANGLES];
+__constant__ FP_PRECISION polar_weights[MAX_POLAR_ANGLES*MAX_AZIM_ANGLES];
 
 /** A pointer to an array with the number of tracks per azimuthal angle */
-__constant__ int _num_tracks[MAX_AZIM_ANGLES/2];
+__constant__ int num_tracks[MAX_AZIM_ANGLES/2];
 
 /** The total number of tracks */
-__constant__ int _tot_num_tracks[1];
+__constant__ int tot_num_tracks[1];
 
 /** An array of the cumulative number of tracks for each azimuthal angle */
-__constant__ int _track_index_offsets[MAX_AZIM_ANGLES/2];
+__constant__ int track_index_offsets[MAX_AZIM_ANGLES/2];
 
 /** The maximum index of the exponential prefactor array */
-__constant__ int _prefactor_max_index[1];
+__constant__ int prefactor_max_index[1];
 
 /** The spacing for the exponential prefactor array */
-__constant__ FP_PRECISION _prefactor_spacing[1];
+__constant__ FP_PRECISION prefactor_spacing[1];
 
 /** The inverse spacing for the exponential prefactor array */
-__constant__ FP_PRECISION _inverse_prefactor_spacing[1];
+__constant__ FP_PRECISION inverse_prefactor_spacing[1];
 
-__constant__ bool _converged_flux[1];
+__constant__ bool converged_flux[1];
 
-__constant__ FP_PRECISION _flux_convergence_thresh[1];
+__constant__ FP_PRECISION flux_convergence_thresh[1];
 
 
 /**
@@ -57,8 +57,8 @@ __global__ void flattenFSRFluxesOnDevice(FP_PRECISION* scalar_flux,
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
     /* Loop over all FSRs and energy groups */
-    while (tid < *_num_FSRs) {
-        for (int e=0; e < *_num_groups; e++) {
+    while (tid < *num_FSRs) {
+        for (int e=0; e < *num_groups; e++) {
             scalar_flux(tid,e) = value;
   	    old_scalar_flux(tid,e) = value;
          }
@@ -81,8 +81,8 @@ __global__ void flattenFSRSourcesOnDevice(FP_PRECISION* source,
 
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
-    while (tid < *_num_FSRs) {
-        for (int e=0; e < *_num_groups; e++) {
+    while (tid < *num_FSRs) {
+        for (int e=0; e < *num_groups; e++) {
 	    source(tid,e) = value;
 	    old_source(tid,e) = value;
 	}
@@ -105,8 +105,8 @@ __global__ void zeroTrackFluxesOnDevice(FP_PRECISION* boundary_flux) {
 
     /* Loop over all tracks and energy groups and set each track's 
      * incoming and outgoing flux to zero */
-    while(tid < *_tot_num_tracks) {
-        for (int pe2=0; pe2 < 2*(*_polar_times_groups); pe2++)
+    while(tid < *tot_num_tracks) {
+        for (int pe2=0; pe2 < 2*(*polar_times_groups); pe2++)
     	    boundary_flux(tid,pe2) = 0.0;
 
 	tid += blockDim.x * gridDim.x;
@@ -141,7 +141,7 @@ __global__ void computeFissionSourcesOnDevice(dev_flatsourceregion* FSRs,
     shared_fission_source[threadIdx.x] = 0;
 
     /* Iterate over all FSRs */
-    while (tid < *_num_FSRs) {
+    while (tid < *num_FSRs) {
 
         curr_FSR = &FSRs[tid];
 	curr_material = &materials[curr_FSR->_material_uid];
@@ -150,7 +150,7 @@ __global__ void computeFissionSourcesOnDevice(dev_flatsourceregion* FSRs,
 
 	/* Iterate over all energy groups and update
 	 * fission source for this block */
-	for (int e=0; e < *_num_groups; e++) {
+	for (int e=0; e < *num_groups; e++) {
 	    source = nu_sigma_f[e] * scalar_flux(tid,e) * volume;
 	    shared_fission_source[threadIdx.x] += source;
 	}
@@ -179,8 +179,8 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
     
     /* Normalize scalar fluxes for each flat source region */
     
-    while(tid < *_num_FSRs) {
-        for (int e=0; e < *_num_groups; e++)
+    while(tid < *num_FSRs) {
+        for (int e=0; e < *num_groups; e++)
 	  scalar_flux(tid,e) *= norm_factor;
 
 	tid += blockDim.x * gridDim.x;
@@ -189,8 +189,8 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
     tid = threadIdx.x + blockIdx.x * blockDim.x;
 
     /* Normalize angular boundary fluxes for each track */
-    while(tid < *_tot_num_tracks) {
-        for (int pe2=0; pe2 < 2*(*_polar_times_groups); pe2++)
+    while(tid < *tot_num_tracks) {
+        for (int pe2=0; pe2 < 2*(*polar_times_groups); pe2++)
 	    boundary_flux(tid,pe2) *= norm_factor;
 
 	tid += blockDim.x * gridDim.x;
@@ -239,7 +239,7 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
     double* chi;
 
     /* Iterate over all FSRs */
-    while (tid < *_num_FSRs) {
+    while (tid < *num_FSRs) {
 
 	curr_FSR = &FSRs[tid];
 	curr_material = &materials[curr_FSR->_material_uid];
@@ -253,16 +253,16 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
 	fission_source = 0;
 	
 	/* Compute total fission source for current region */
-	for (int e=0; e < *_num_groups; e++)
+	for (int e=0; e < *num_groups; e++)
 	    fission_source += scalar_flux(tid,e) * nu_sigma_f[e];
       
 	/* Compute total scattering source for region for group G */
-	for (int G=0; G < *_num_groups; G++) {
+	for (int G=0; G < *num_groups; G++) {
 	    scatter_source = 0;
 	
-	    for (int g=0; g < *_num_groups; g++)
+	    for (int g=0; g < *num_groups; g++)
 	        scatter_source += 
-		    sigma_s[G*(*_num_groups)+g] * scalar_flux(tid,g);
+		    sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
 	
 	    /* Set the total source for this region in this group */
 	    source(tid,G) = (inverse_k_eff * fission_source * chi[G] +
@@ -294,16 +294,16 @@ __global__ void isScalarFluxConvergedOnDevice(FP_PRECISION* scalar_flux,
 
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
-    while (tid < *_num_FSRs) {
+    while (tid < *num_FSRs) {
 
-        for (int e=0; e < *_num_groups; e++) {
+        for (int e=0; e < *num_groups; e++) {
 
 	    /* If one scalar flux is not converged, break the loop */
 	    if (!converged_flux)
 	        break;
 
 	    if (fabs((scalar_flux(tid,e) - old_scalar_flux(tid,e)) /
-		     old_scalar_flux(tid,e)) > *_flux_convergence_thresh)
+		     old_scalar_flux(tid,e)) > *flux_convergence_thresh)
 	        converged_flux = false;
 
 	    /* Update old scalar flux */
@@ -341,7 +341,7 @@ __global__ void computeFissionAndAbsorption(dev_flatsourceregion* FSRs,
     double fission = 0.;
 
     /* Iterate over all FSRs */
-    while (tid < *_num_FSRs) {
+    while (tid < *num_FSRs) {
         
 	curr_FSR = &FSRs[tid];
 	curr_material = &materials[curr_FSR->_material_uid];
@@ -354,7 +354,7 @@ __global__ void computeFissionAndAbsorption(dev_flatsourceregion* FSRs,
 
 	/* Iterate over all energy groups and update
 	 * fission and absorption rates for this block */
-	for (int e=0; e < *_num_groups; e++) {
+	for (int e=0; e < *num_groups; e++) {
 	    part_abs += sigma_a[e] * scalar_flux(tid,e);
 	    part_fission += nu_sigma_f[e] * scalar_flux(tid,e);
 	}
@@ -384,8 +384,8 @@ __global__ void computeFissionAndAbsorption(dev_flatsourceregion* FSRs,
  * @return the hasthable index
  */ 
 __device__ int computePrefactorIndex(FP_PRECISION sigma_t_l) {
-    int index = sigma_t_l * *_inverse_prefactor_spacing;
-    index *= *_two_times_num_polar;
+    int index = sigma_t_l * *inverse_prefactor_spacing;
+    index *= *two_times_num_polar;
     return index;
 }
 
@@ -424,17 +424,14 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
     int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
 
-    int polar_times_groups = *_polar_times_groups;
-    FP_PRECISION* polar_weights = _polar_weights;
-
-    int index_offset = threadIdx.x * (*_two_times_num_polar + 1);
-    int energy_group = tid % (*_num_groups);
-    int energy_angle_index = energy_group * (*_num_polar);
-    int fsr_flux_index = index_offset + (*_two_times_num_polar);
+    int index_offset = threadIdx.x * (*two_times_num_polar + 1);
+    int energy_group = tid % (*num_groups);
+    int energy_angle_index = energy_group * (*num_polar);
+    int fsr_flux_index = index_offset + (*two_times_num_polar);
     int track_flux_index;
 
     int fsr_id;
-    int track_id = int(tid / *_num_groups);
+    int track_id = int(tid / *num_groups);
     int track_out_id;
     bool bc;
     int start;
@@ -463,15 +460,15 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
       	num_segments = curr_track->_num_segments;
       
 	/* Put track's flux in the shared memory temporary flux array */
-      	for (int p=0; p < *_num_polar; p++) {
+      	for (int p=0; p < *num_polar; p++) {
 	
 	    /* Forward flux along this track */
       	    pe = energy_angle_index + p;
 	    temp_flux[index_offset + p] = boundary_flux(track_id,pe);
 	
 	    /* Reverse flux along this track */
-      	    pe = polar_times_groups + energy_angle_index + p;
-	    temp_flux[index_offset + *_num_polar + p] = 
+      	    pe = (*polar_times_groups) + energy_angle_index + p;
+	    temp_flux[index_offset + *num_polar + p] = 
 	    boundary_flux(track_id,pe);
       	}
 
@@ -494,10 +491,10 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	    index = computePrefactorIndex(sigma_t_l);
 	
 	    /* Loop over polar angles */
-	    for (int p=0; p < *_num_polar; p++) {
-	      delta = (temp_flux[track_flux_index+p] - 
-		       ratios(fsr_id,energy_group)) * 
-	               prefactor(index,p,sigma_t_l);
+	    for (int p=0; p < *num_polar; p++) {
+	        delta = (temp_flux[track_flux_index+p] - 
+		             ratios(fsr_id,energy_group)) * 
+	              	      prefactor(index,p,sigma_t_l);
 		temp_flux[fsr_flux_index] += delta * polar_weights[p];
 	    	temp_flux[track_flux_index+p] -= delta;
  	    }
@@ -511,10 +508,10 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	/* Transfer flux to outgoing track */
 	track_out_id = curr_track->_track_out;
 	bc = curr_track->_bc_out;
-	start = curr_track->_refl_out * polar_times_groups;
+	start = curr_track->_refl_out * (*polar_times_groups);
 
 	/* Put track's flux in the shared memory temporary flux array */
-      	for (int p=0; p < *_num_polar; p++) {
+      	for (int p=0; p < *num_polar; p++) {
 	
 	    /* Forward flux along this track */
       	    pe = energy_angle_index + p;
@@ -522,11 +519,11 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	        temp_flux[track_flux_index+p] * bc;
 	    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
 	        temp_flux[track_flux_index+p] * 
-	        polar_weights[pe % (*_num_polar)] * (!bc);
+	        polar_weights[pe % (*num_polar)] * (!bc);
       	}
 
 	/* Loop over each segment in reverse direction */
-	track_flux_index = index_offset + (*_num_polar);
+	track_flux_index = index_offset + (*num_polar);
 
 	for (int i=num_segments-1; i > -1; i--) {
 
@@ -544,7 +541,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	    index = computePrefactorIndex(sigma_t_l);
 	
 	    /* Loop over polar angles */
-	    for (int p=0; p < *_num_polar; p++) {
+	    for (int p=0; p < *num_polar; p++) {
 	        delta = (temp_flux[track_flux_index+p] - 
 	    		 ratios(fsr_id,energy_group)) * 
 		         prefactor(index,p,sigma_t_l);
@@ -561,10 +558,10 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	/* Transfer flux to outgoing track */
 	track_out_id = curr_track->_track_in;
 	bc = curr_track->_bc_in;
-	start = curr_track->_refl_in * polar_times_groups;
+	start = curr_track->_refl_in * (*polar_times_groups);
 
 	/* Put track's flux in the shared memory temporary flux array */
-      	for (int p=0; p < *_num_polar; p++) {
+      	for (int p=0; p < *num_polar; p++) {
 	
 	    /* Forward flux along this track */
       	    pe = energy_angle_index + p;
@@ -572,13 +569,13 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	      temp_flux[track_flux_index+p] * bc;
 	    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
 	      temp_flux[track_flux_index+p] * 
-	        polar_weights[pe % (*_num_polar)] * (!bc);
+	        polar_weights[pe % (*num_polar)] * (!bc);
       	}
 
 	tid += blockDim.x * gridDim.x;
-        track_id = int(tid / *_num_groups);
-	energy_group = tid % (*_num_groups);
-	energy_angle_index = energy_group * (*_num_polar);
+        track_id = int(tid / *num_groups);
+	energy_group = tid % (*num_groups);
+	energy_angle_index = energy_group * (*num_polar);
     }
 
     return;
@@ -603,7 +600,7 @@ __global__ void normalizeFluxToVolumeOnDevice(FP_PRECISION* scalar_flux,
     double* sigma_t;
 
     /* Iterate over all FSRs */
-    while (tid < *_num_FSRs) {
+    while (tid < *num_FSRs) {
 
         curr_FSR = &FSRs[tid];
 	curr_material = &materials[curr_FSR->_material_uid];
@@ -611,7 +608,7 @@ __global__ void normalizeFluxToVolumeOnDevice(FP_PRECISION* scalar_flux,
 	sigma_t = curr_material->_sigma_t;
 	
 	/* Iterate over all energy groups */
-	for (int i=0; i < *_num_groups; i++) {
+	for (int i=0; i < *num_groups; i++) {
 	    scalar_flux(tid,i) *= 0.5;
 	    scalar_flux(tid,i) = FOUR_PI * ratios(tid,i) + 
 	      __fdividef(scalar_flux(tid,i), (sigma_t[i] * volume));
@@ -633,7 +630,7 @@ __global__ void normalizeFluxToVolumeOnDevice(FP_PRECISION* scalar_flux,
  * @param track_generator pointer to the TrackGenerator on the CPU
  */
 GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
-  Solver(geom, track_generator) {
+    Solver(geom, track_generator) {
 
     /**************************************************************************/
     /*                        Host data initialization                        */
@@ -658,6 +655,9 @@ GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
     _tot_fission = NULL;
     _source_residual = NULL;
     _leakage = NULL;
+
+    setTrackGenerator(track_generator);
+    setGeometry(geom);
 }
 
 
@@ -668,56 +668,90 @@ GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
 GPUSolver::~GPUSolver() {
 
     /* Free FSRs, materials and tracks on device */
-    if (_FSRs != NULL)
+    if (_FSRs != NULL) {
         cudaFree(_FSRs);
+	_FSRs = NULL;
+    }
 
-    if (_materials != NULL)
+    if (_materials != NULL) {
         cudaFree(_materials);
+	_materials = NULL;
+    }
 
-    if (_dev_tracks != NULL)
+    if (_dev_tracks != NULL) {
         cudaFree(_dev_tracks);
+	_dev_tracks = NULL;
+    }
 
-    if (_boundary_flux != NULL)
+    if (_boundary_flux != NULL) {
         cudaFree(_boundary_flux);
+	_boundary_flux = NULL;
+    }
 
-    if (_scalar_flux != NULL)
+    if (_scalar_flux != NULL) {
         cudaFree(_scalar_flux);
+	_scalar_flux = NULL;
+    }
 
-    if (_old_scalar_flux != NULL)
+    if (_old_scalar_flux != NULL) {
         cudaFree(_old_scalar_flux);
+	_old_scalar_flux = NULL;
+    }
 
-    if (_source != NULL)
+    if (_source != NULL) {
         cudaFree(_source);
+	_source = NULL;
+    }
 
-    if (_old_source != NULL)
+    if (_old_source != NULL) {
         cudaFree(_old_source);
+	_old_source = NULL;
+    }
 
-    if (_ratios != NULL)
+    if (_ratios != NULL) {
         cudaFree(_ratios);
+	_ratios = NULL;
+    }
 
-    if (_FSRs_to_powers != NULL)
+    if (_FSRs_to_powers != NULL) {
         cudaFree(_FSRs_to_powers);
+        _FSRs_to_powers = NULL;
+    }
 
-    if (_FSRs_to_pin_powers != NULL)
+    if (_FSRs_to_pin_powers != NULL) {
         cudaFree(_FSRs_to_pin_powers);
+    	_FSRs_to_pin_powers = NULL;
+    }
 
-    if (_fission_source != NULL)
+    if (_fission_source != NULL) {
         _fission_source_vec.clear();
+	_fission_source = NULL;
+    }
 
-    if (_tot_absorption != NULL)
+    if (_tot_absorption != NULL) {
         _tot_absorption_vec.clear();
+	_tot_absorption = NULL;
+    }
 
-    if (_tot_fission != NULL)
+    if (_tot_fission != NULL) {
         _tot_fission_vec.clear();
+	_tot_fission = NULL;
+    }
 
-    if (_source_residual != NULL)
+    if (_source_residual != NULL) {
         _source_residual_vec.clear();
+	_source_residual = NULL;
+    }
 
-    if (_leakage != NULL)
+    if (_leakage != NULL) {
         _leakage_vec.clear();
+	_leakage = NULL;
+    }
 
-    if (_prefactor_array != NULL)
+    if (_prefactor_array != NULL) {
         cudaFree(_prefactor_array);
+	_prefactor_array = NULL;
+    }
 }
 
 
@@ -847,7 +881,7 @@ void GPUSolver::setGeometry(Geometry* geometry) {
     initializeMaterials();
 
     /* Copy the number of energy groups to constant memory on the GPU */
-    cudaMemcpyToSymbol(_num_groups, (void*)&_num_groups, sizeof(int), 0,
+    cudaMemcpyToSymbol(num_groups, (void*)&_num_groups, sizeof(int), 0,
 		       cudaMemcpyHostToDevice);
 }
 
@@ -868,7 +902,7 @@ void GPUSolver::setFluxConvergenceThreshold(FP_PRECISION flux_thresh) {
     Solver::setFluxConvergenceThreshold(flux_thresh);
 
     /* Copy the flux convergence threshold to constant memory on the GPU */
-    cudaMemcpyToSymbol(_flux_convergence_thresh, 
+    cudaMemcpyToSymbol(flux_convergence_thresh, 
 		       (void*)&_flux_convergence_thresh,
 		       sizeof(FP_PRECISION), 0, 
 		       cudaMemcpyHostToDevice);
@@ -881,6 +915,8 @@ void GPUSolver::setFluxConvergenceThreshold(FP_PRECISION flux_thresh) {
  */
 void GPUSolver::initializePolarQuadrature() {
 
+     log_printf(INFO, "Initializing polar quadrature on the GPU...");
+
     /* Deletes the old quadrature if one existed */
     if (_quad != NULL)
         delete _quad;
@@ -889,36 +925,38 @@ void GPUSolver::initializePolarQuadrature() {
     _polar_times_groups = _num_groups * _num_polar;
 
     /* Copy the number of polar angles to constant memory on the GPU */
-    cudaMemcpyToSymbol(_num_polar, (void*)&_num_polar, sizeof(int), 0,
+    cudaMemcpyToSymbol(num_polar, (void*)&_num_polar, sizeof(int), 0,
 		       cudaMemcpyHostToDevice);
 
     /* Copy twice the number of polar angles to constant memory on the GPU */
-    cudaMemcpyToSymbol(_two_times_num_polar, (void*)&_two_times_num_polar, 
+    cudaMemcpyToSymbol(two_times_num_polar, (void*)&_two_times_num_polar, 
 		       sizeof(int), 0, cudaMemcpyHostToDevice);
 
     /* Copy the number of polar angles times energy groups to constant memory 
      * on the GPU */
-    cudaMemcpyToSymbol(_polar_times_groups, (void*)&_polar_times_groups, 
+    cudaMemcpyToSymbol(polar_times_groups, (void*)&_polar_times_groups, 
 		       sizeof(int), 0, cudaMemcpyHostToDevice);
 
 
     /* Compute polar times azimuthal angle weights */
-    FP_PRECISION* polar_weights =
+    if (_polar_weights != NULL)
+        delete [] _polar_weights;
+
+    _polar_weights =
         (FP_PRECISION*)malloc(_num_polar * _num_azim * sizeof(FP_PRECISION));
+
     FP_PRECISION* multiples = _quad->getMultiples();
     double* azim_weights = _track_generator->getAzimWeights();
 
     for (int i=0; i < _num_azim; i++) {
         for (int j=0; j < _num_polar; j++)
-	    polar_weights[i*_num_polar+j] = azim_weights[i]*multiples[j]*FOUR_PI;
+	    _polar_weights[i*_num_polar+j] = azim_weights[i]*multiples[j]*FOUR_PI;
     }
 
     /* Copy the polar weights to constant memory on the GPU */
-    cudaMemcpyToSymbol(_polar_weights, (void*)polar_weights,
+    cudaMemcpyToSymbol(polar_weights, (void*)_polar_weights,
 		       _num_polar * _num_azim * sizeof(FP_PRECISION),
 		       0, cudaMemcpyHostToDevice);
-
-    free(polar_weights);
 }
 
 
@@ -928,6 +966,8 @@ void GPUSolver::initializePolarQuadrature() {
  *          previous simulation.
  */
 void GPUSolver::initializePowerArrays() {
+
+     log_printf(INFO, "Initializing FSR power arrays on the GPU...");
 
     /* Delete old power arrays if they exist */
     if (_FSRs_to_powers != NULL)
@@ -955,7 +995,7 @@ void GPUSolver::initializePowerArrays() {
  */
 void GPUSolver::initializeFSRs() {
 
-    log_printf(INFO, "Initializing FSRs on the device...");
+    log_printf(INFO, "Initializing FSRs on the GPU...");
 
     /* Delete old FSRs array if it exists */
     if (_FSRs != NULL)
@@ -1012,7 +1052,7 @@ void GPUSolver::initializeFSRs() {
 
 	/* Copy the number of flat source regions into constant memory on 
 	 * the GPU */
-	cudaMemcpyToSymbol(_num_FSRs, (void*)&_num_FSRs, sizeof(int), 0,
+	cudaMemcpyToSymbol(num_FSRs, (void*)&_num_FSRs, sizeof(int), 0,
 		       cudaMemcpyHostToDevice);
 
 	/* Free the temporary array of FSRs on the host */
@@ -1033,7 +1073,7 @@ void GPUSolver::initializeFSRs() {
  */
 void GPUSolver::initializeMaterials() {
 
-    log_printf(INFO, "Initializing materials on the device...");
+    log_printf(INFO, "Initializing materials on the GPU...");
 
     /* Delete old materials array if it exists */
     if (_materials != NULL)
@@ -1063,7 +1103,7 @@ void GPUSolver::initializeMaterials() {
  */
 void GPUSolver::initializeTracks() {
 
-    log_printf(INFO, "Initializing tracks on the device...");
+    log_printf(INFO, "Initializing tracks on the GPU...");
 
     /* Delete old tracks array if it exists */
     if (_dev_tracks != NULL)
@@ -1112,30 +1152,30 @@ void GPUSolver::initializeTracks() {
 
 	/* Copy the cumulative index offset for the current azimuthal angle 
 	 * into constant memory on the GPU */
-	cudaMemcpyToSymbol(_track_index_offsets, (void*)_track_index_offsets, 
+	cudaMemcpyToSymbol(track_index_offsets, (void*)_track_index_offsets, 
 			   (_num_azim+1) * sizeof(int), 0, 
 			   cudaMemcpyHostToDevice);
 
 	/* Copy the array of number of tracks for each azimuthal angles into 
 	 * constant memory on the GPU */
-	cudaMemcpyToSymbol(_num_tracks, (void*)_num_tracks, 
+	cudaMemcpyToSymbol(num_tracks, (void*)_num_tracks, 
 			   _num_azim * sizeof(int), 0, cudaMemcpyHostToDevice);
     
 	/* Copy the total number of tracks into constant memory on the GPU */
-	cudaMemcpyToSymbol(_tot_num_tracks, (void*)&_tot_num_tracks,
+	cudaMemcpyToSymbol(tot_num_tracks, (void*)&_tot_num_tracks,
 			   sizeof(int), 0, cudaMemcpyHostToDevice);
 
 	/* Copy the number of azimuthal angles into constant memory on the GPU */
-	cudaMemcpyToSymbol(_num_azim, (void*)&_num_azim, sizeof(int), 0, 
+	cudaMemcpyToSymbol(num_azim, (void*)&_num_azim, sizeof(int), 0, 
 			   cudaMemcpyHostToDevice);
 	
 	/* Copy the array of number of tracks for each azimuthal angles into 
 	 * constant memory on the GPU */
-	cudaMemcpyToSymbol(_num_tracks, (void*)_num_tracks, 
+	cudaMemcpyToSymbol(num_tracks, (void*)_num_tracks, 
 			   _num_azim * sizeof(int), 0, cudaMemcpyHostToDevice);
 	
 	/* Copy the total number of tracks into constant memory on the GPU */
-	cudaMemcpyToSymbol(_tot_num_tracks, (void*)&_tot_num_tracks,
+	cudaMemcpyToSymbol(tot_num_tracks, (void*)&_tot_num_tracks,
 			   sizeof(int), 0, cudaMemcpyHostToDevice);
     }
 
@@ -1154,7 +1194,7 @@ void GPUSolver::initializeTracks() {
  */
 void GPUSolver::initializeFluxArrays() {
 
-    log_printf(INFO, "Initializing flux arrays on the device...");
+    log_printf(INFO, "Initializing flux arrays on the GPU...");
 
     /* Delete old flux arrays if they exist */
     if (_boundary_flux != NULL)
@@ -1187,7 +1227,7 @@ void GPUSolver::initializeFluxArrays() {
  */
 void GPUSolver::initializeSourceArrays() {
 
-    log_printf(INFO, "Initializing source arrays on the device...");
+    log_printf(INFO, "Initializing source arrays on the GPU...");
 
     /* Delete old sources arrays if they exist */
     if (_source != NULL)
@@ -1221,7 +1261,7 @@ void GPUSolver::initializeSourceArrays() {
  */
 void GPUSolver::initializeThrustVectors() {
 
-    log_printf(INFO, "Initializing thrust vectors on the device...");
+    log_printf(INFO, "Initializing thrust vectors on the GPU...");
 
     /* Delete old vectors if they exist */
     if (_fission_source != NULL) {
@@ -1315,13 +1355,13 @@ void GPUSolver::precomputePrefactors(){
 
     /* Set size of prefactor array */
     int num_array_values = 10 * sqrt(1. / (8. * _source_convergence_thresh));
-    FP_PRECISION prefactor_spacing = 10. / num_array_values;
-    FP_PRECISION inverse_prefactor_spacing = 1.0 / prefactor_spacing;
-    int prefactor_array_size = _two_times_num_polar * num_array_values;
-    int prefactor_max_index = prefactor_array_size - _two_times_num_polar - 1;
+    _prefactor_spacing = 10. / num_array_values;
+    _inverse_prefactor_spacing = 1.0 / _prefactor_spacing;
+    _prefactor_array_size = _two_times_num_polar * num_array_values;
+    _prefactor_max_index = _prefactor_array_size - _two_times_num_polar - 1;
     
     /* allocate arrays */
-    FP_PRECISION* prefactor_array = new FP_PRECISION[prefactor_array_size];
+    FP_PRECISION* prefactor_array = new FP_PRECISION[_prefactor_array_size];
     
     FP_PRECISION expon;
     FP_PRECISION intercept;
@@ -1331,9 +1371,9 @@ void GPUSolver::precomputePrefactors(){
     /* Create prefactor array */
     for (int i = 0; i < num_array_values; i ++){
         for (int p = 0; p < _num_polar; p++){
-	    expon = exp(- (i * prefactor_spacing) / _quad->getSinTheta(p));
+	    expon = exp(- (i * _prefactor_spacing) / _quad->getSinTheta(p));
 	    slope = - expon / _quad->getSinTheta(p);
-	    intercept = expon * (1 + (i * prefactor_spacing) /
+	    intercept = expon * (1 + (i * _prefactor_spacing) /
 				 _quad->getSinTheta(p));
 	    prefactor_array[_two_times_num_polar * i + 2 * p] = slope;
 	    prefactor_array[_two_times_num_polar * i + 2 * p + 1] = intercept;
@@ -1342,22 +1382,22 @@ void GPUSolver::precomputePrefactors(){
 
     /* Allocate memory for the prefactor array on the device */
     cudaMalloc((void**)&_prefactor_array, 
-	       prefactor_array_size * sizeof(FP_PRECISION));
+	       _prefactor_array_size * sizeof(FP_PRECISION));
 
     /* Copy prefactor array to the device */
     cudaMemcpy((void*)_prefactor_array, (void*)prefactor_array, 
-	       prefactor_array_size * sizeof(FP_PRECISION),
+	       _prefactor_array_size * sizeof(FP_PRECISION),
 	       cudaMemcpyHostToDevice);
 
     /* Copy prefactor array size and spacing to constant memory on the device */
-    cudaMemcpyToSymbol(_prefactor_spacing, (void*)&prefactor_spacing, 
+    cudaMemcpyToSymbol(prefactor_spacing, (void*)&_prefactor_spacing, 
 		       sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
-    cudaMemcpyToSymbol(_inverse_prefactor_spacing, 
-		       (void*)&inverse_prefactor_spacing, 
+    cudaMemcpyToSymbol(inverse_prefactor_spacing, 
+		       (void*)&_inverse_prefactor_spacing, 
 		       sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
-    cudaMemcpyToSymbol(_prefactor_max_index, (void*)&prefactor_max_index,
+    cudaMemcpyToSymbol(prefactor_max_index, (void*)&_prefactor_max_index,
 		       sizeof(int), 0, cudaMemcpyHostToDevice);
 
     free(prefactor_array);

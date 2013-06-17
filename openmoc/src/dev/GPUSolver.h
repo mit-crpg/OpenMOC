@@ -21,13 +21,13 @@
 #include "DeviceMaterial.h"
 
 
-#define scalar_flux(tid,e) (scalar_flux[(tid)*(*_num_groups) + (e)])
-#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*_num_groups) + (e)])
-#define source(tid,e) (source[(tid)*(*_num_groups) + (e)])
-#define old_source(tid,e) (old_source[(tid)*(*_num_groups) + (e)])
-#define ratios(tid,e) (ratios[(tid)*(*_num_groups) + (e)])
-#define polar_weights(i,p) (polar_weights[(i)*(*_num_polar) + (p)])
-#define boundary_flux(tid,pe2) (boundary_flux[2*(tid)*(*_polar_times_groups)+(pe2)])
+#define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
+#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*num_groups) + (e)])
+#define source(tid,e) (source[(tid)*(*num_groups) + (e)])
+#define old_source(tid,e) (old_source[(tid)*(*num_groups) + (e)])
+#define ratios(tid,e) (ratios[(tid)*(*num_groups) + (e)])
+#define polar_weights(i,p) (polar_weights[(i)*(*num_polar) + (p)])
+#define boundary_flux(tid,pe2) (boundary_flux[2*(tid)*(*polar_times_groups)+(pe2)])
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
