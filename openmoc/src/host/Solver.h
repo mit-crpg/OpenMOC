@@ -11,11 +11,10 @@
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <omp.h>
-#include "../host/Quadrature.h"
-#include "../host/TrackGenerator.h"
-#include "../host/FlatSourceRegion.h"
-#include "../host/pairwise_sum.h"
+#include "Quadrature.h"
+#include "TrackGenerator.h"
+#include "FlatSourceRegion.h"
+#include "pairwise_sum.h"
 #endif
 
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
@@ -26,7 +25,6 @@
 #define _polar_weights(i,p) (_polar_weights[(i)*_num_polar + (p)])
 #define _boundary_flux(i,pe2) (_boundary_flux[2*(i)*_polar_times_groups+(pe2)])
 #define _fission_source(r,e) (_fission_source[(r)*_num_groups + (e)])
-#define thread_flux(t,r,e) (thread_flux[(t)*_num_FSRs*_num_groups + (r)*_num_groups + (e)])
 #define source_residuals(r,e) (source_residuals[(r)*_num_groups + (e)])
 
 #define prefactor(index,p,sigma_t_l) (1. - (_prefactor_array[index+2 * p] * sigma_t_l + _prefactor_array[index + 2 * p +1]))
@@ -44,10 +42,7 @@
  */
 class Solver {
 
-private:
-    /** The number of shared memory OpenMP threads */
-    int _num_threads;
-
+protected:
     /** The number of azimuthal angles */
     int _num_azim;
 
@@ -161,43 +156,41 @@ private:
     /** The inverse spacing for the exponential prefactor array */
     FP_PRECISION _inverse_prefactor_spacing;
 
-    void initializeFluxArrays();
-    void initializeSourceArrays();
-    void initializePowerArrays();
-    void initializePolarQuadrature();
-    void precomputePrefactors();
-    void initializeFSRs();
-    void checkTrackSpacing();
-    void zeroTrackFluxes();
-    void flattenFSRFluxes(FP_PRECISION value);
-    void flattenFSRSources(FP_PRECISION value);
+    virtual void initializeFluxArrays() =0;
+    virtual void initializeSourceArrays() =0;
+    virtual void initializePowerArrays() =0;
+    virtual void initializePolarQuadrature() =0;
+    virtual void precomputePrefactors() =0;
+    virtual void initializeFSRs() =0;
+    virtual void checkTrackSpacing();
 
-    void normalizeFluxes();
-    FP_PRECISION computeFSRSources();
-    void computeKeff();
-    bool isScalarFluxConverged();
+    virtual void zeroTrackFluxes() =0;
+    virtual void flattenFSRFluxes(FP_PRECISION value) =0;
+    virtual void flattenFSRSources(FP_PRECISION value) =0;
+    virtual void normalizeFluxes() =0;
+    virtual FP_PRECISION computeFSRSources() =0;
+    virtual void computeKeff() =0;
+    virtual bool isScalarFluxConverged() =0;
+    virtual void transportSweep(int max_iterations) =0;
+
     int computePrefactorIndex(FP_PRECISION sigma_t_l);
-    void transportSweep(int max_iterations);
 
 public:
-    Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL, 
-	   int num_threads=1);
+    Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
     virtual ~Solver();
 
     Geometry* getGeometry();
     TrackGenerator* getTrackGenerator();
-    int getNumThreads();
     int getNumPolarAngles();
     quadratureType getPolarQuadratureType();
     int getNumIterations();
     FP_PRECISION getSourceConvergenceThreshold();
     FP_PRECISION getFluxConvergenceThreshold();
-    FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
-    FP_PRECISION* getFSRScalarFluxes();
-    FP_PRECISION* getFSRPowers();
-    FP_PRECISION* getFSRPinPowers();
+    virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group) =0;
+    virtual FP_PRECISION* getFSRScalarFluxes() =0;
+    virtual FP_PRECISION* getFSRPowers() =0;
+    virtual FP_PRECISION* getFSRPinPowers() =0;
 
-    void setNumThreads(int num_threads);
     void setGeometry(Geometry* geometry);
     void setTrackGenerator(TrackGenerator* track_generator);
     void setPolarQuadratureType(quadratureType quadrature_type);
@@ -206,7 +199,7 @@ public:
     void setFluxConvergenceThreshold(FP_PRECISION flux_thresh);
 
     FP_PRECISION convergeSource(int max_iterations);
-    void computePinPowers();
+    virtual void computePinPowers() =0;
 };
 
 

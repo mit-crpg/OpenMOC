@@ -11,6 +11,7 @@
     #include "src/host/Point.h"
     #include "src/host/Quadrature.h"
     #include "src/host/Solver.h"
+    #include "src/host/CPUSolver.h"
     #include "src/host/Surface.h"
     #include "src/host/Timer.h"
     #include "src/host/Track.h" 
@@ -83,6 +84,7 @@
 %include src/host/Point.h
 %include src/host/Quadrature.h
 %include src/host/Solver.h
+%include src/host/CPUSolver.h
 %include src/host/Surface.h
 %include src/host/Timer.h
 %include src/host/Track.h

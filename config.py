@@ -22,7 +22,7 @@ with_ccache = True
 debug_mode = False
 
 # Use CUDA set to True or False
-with_cuda = True
+with_cuda = False
 
 
 
@@ -42,6 +42,7 @@ sources['c++'] = ['openmoc/openmoc.i',
                   'openmoc/src/host/Point.cpp',
                   'openmoc/src/host/Quadrature.cpp',
                   'openmoc/src/host/Solver.cpp',
+                  'openmoc/src/host/CPUSolver.cpp',
                   'openmoc/src/host/Surface.cpp',
                   'openmoc/src/host/Timer.cpp',
                   'openmoc/src/host/Track.cpp',
@@ -207,7 +208,4 @@ macros['nvcc']['single'] = [('FP_PRECISION', 'float'),
 macros['nvcc']['double'] = [('FP_PRECISION', 'double'), 
                             ('DOUBLE', None),
                             ('CUDA', None),
-                            ('CCACHE_CC', 'nvcc'),
-                            ('CCACHE_HARDLINK', None),
-                            ('CC', 'nvcc'),
-                            ('CCACHE_CPP2', None)]
+                            ('CCACHE_CC', 'nvcc')]

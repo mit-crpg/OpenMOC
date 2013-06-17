@@ -3,7 +3,6 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-import openmoc.cuda as cuda
 
 
 ###############################################################################
@@ -109,7 +108,7 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-solver = Solver(geometry, track_generator)
+solver = CPUSolver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
@@ -119,12 +118,19 @@ solver.convergeSource(max_iters)
 #                            Allocating Data on GPU
 ###############################################################################
 
-log.py_printf('NORMAL', 'Initializing solver on the GPU...')
 
-device_solver = cuda.DeviceSolver(geometry, track_generator)
-device_solver.setSourceConvergenceThreshold(tolerance)
-device_solver.convergeSource(max_iters)
+if 'cuda' in dir(openmoc):
 
+    import openmoc.cuda as cuda
+
+    if cuda.machineContainsGPU():
+
+        log.py_printf('NORMAL', 'Initializing solver on the GPU...')
+        
+        device_solver = cuda.DeviceSolver(geometry, track_generator)
+        device_solver.setSourceConvergenceThreshold(tolerance)
+        device_solver.convergeSource(max_iters)
+    
 
 
 ###############################################################################
