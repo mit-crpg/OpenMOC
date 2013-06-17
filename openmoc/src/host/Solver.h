@@ -58,6 +58,9 @@ protected:
     /** A pointer to a geometry with initialized flat source region maps */
     Geometry* _geometry;
 
+    /** The number of materials */
+    int _num_materials;
+
     /** A pointer to a polar quadrature */
     Quadrature* _quad;
 
@@ -119,8 +122,8 @@ protected:
     FP_PRECISION* _ratios;
 
     //TODO: What are these guys for???
-    FP_PRECISION* _FSR_to_power;
-    FP_PRECISION* _FSR_to_pin_power;
+    FP_PRECISION* _FSRs_to_powers;
+    FP_PRECISION* _FSRs_to_pin_powers;
 
     /** The current iteration's approximation to k-effective */
     FP_PRECISION _k_eff; 
@@ -156,12 +159,12 @@ protected:
     /** The inverse spacing for the exponential prefactor array */
     FP_PRECISION _inverse_prefactor_spacing;
 
+    virtual void initializePolarQuadrature() =0;
+    virtual void initializeFSRs() =0;
     virtual void initializeFluxArrays() =0;
     virtual void initializeSourceArrays() =0;
     virtual void initializePowerArrays() =0;
-    virtual void initializePolarQuadrature() =0;
     virtual void precomputePrefactors() =0;
-    virtual void initializeFSRs() =0;
     virtual void checkTrackSpacing();
 
     virtual void zeroTrackFluxes() =0;
@@ -191,12 +194,12 @@ public:
     virtual FP_PRECISION* getFSRPowers() =0;
     virtual FP_PRECISION* getFSRPinPowers() =0;
 
-    void setGeometry(Geometry* geometry);
-    void setTrackGenerator(TrackGenerator* track_generator);
+    virtual void setGeometry(Geometry* geometry);
+    virtual void setTrackGenerator(TrackGenerator* track_generator);
     void setPolarQuadratureType(quadratureType quadrature_type);
     void setNumPolarAngles(int num_polar);
-    void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
-    void setFluxConvergenceThreshold(FP_PRECISION flux_thresh);
+    virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
+    virtual void setFluxConvergenceThreshold(FP_PRECISION flux_thresh);
 
     FP_PRECISION convergeSource(int max_iterations);
     virtual void computePinPowers() =0;

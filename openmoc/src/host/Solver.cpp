@@ -16,6 +16,7 @@
 Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
 
     /* Default values */
+    _num_materials = 0;
     _num_groups = 0;
     _num_azim = 0;
     _num_FSRs = 0;
@@ -37,8 +38,8 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _source = NULL;
     _old_source = NULL;
     _ratios = NULL;
-    _FSR_to_power = NULL;
-    _FSR_to_pin_power = NULL;
+    _FSRs_to_powers = NULL;
+    _FSRs_to_pin_powers = NULL;
 
     _prefactor_array = NULL;
 
@@ -92,11 +93,11 @@ Solver::~Solver() {
     if (_ratios != NULL)
         delete [] _ratios;
 
-    if (_FSR_to_power != NULL)
-        delete [] _FSR_to_power;
+    if (_FSRs_to_powers != NULL)
+        delete [] _FSRs_to_powers;
 
-    if (_FSR_to_pin_power != NULL)
-        delete [] _FSR_to_pin_power;
+    if (_FSRs_to_pin_powers != NULL)
+        delete [] _FSRs_to_pin_powers;
 
     if (_prefactor_array != NULL)
         delete [] _prefactor_array;
@@ -197,6 +198,7 @@ void Solver::setGeometry(Geometry* geometry) {
     _num_FSRs = _geometry->getNumFSRs();
     _num_groups = _geometry->getNumEnergyGroups();
     _polar_times_groups = _num_groups * _num_polar;
+    _num_materials = _geometry->getNumMaterials();
 }
 
 

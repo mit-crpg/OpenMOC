@@ -22,7 +22,7 @@ with_ccache = True
 debug_mode = False
 
 # Use CUDA set to True or False
-with_cuda = False
+with_cuda = True
 
 
 
@@ -53,7 +53,7 @@ sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
                    'openmoc/src/dev/DeviceTrack.cu',
                    'openmoc/src/dev/DeviceMaterial.cu',
                    'openmoc/src/dev/DeviceQuery.cu',
-                   'openmoc/src/dev/DeviceSolver.cu']
+                   'openmoc/src/dev/GPUSolver.cu']
 
 
 

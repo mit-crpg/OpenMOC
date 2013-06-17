@@ -79,11 +79,11 @@ FP_PRECISION* CPUSolver::getFSRScalarFluxes() {
  * @return an array of flatsourceregion powers
  */
 FP_PRECISION* CPUSolver::getFSRPowers() {
-    if (_FSR_to_power == NULL)
+    if (_FSRs_to_powers == NULL)
         log_printf(ERROR, "Unable to returns the Solver's FSR power array "
 		 "since it has not yet been allocated in memory");
 
-    return _FSR_to_power;
+    return _FSRs_to_powers;
 }
 
 
@@ -93,11 +93,11 @@ FP_PRECISION* CPUSolver::getFSRPowers() {
  * @return an array of flatsourceregion pin powers
  */
 FP_PRECISION* CPUSolver::getFSRPinPowers() {
-    if (_FSR_to_pin_power == NULL)
+    if (_FSRs_to_pin_powers == NULL)
         log_printf(ERROR, "Unable to returns the Solver's FSR pin power array "
 		 "since it has not yet been allocated in memory");
 
-    return _FSR_to_pin_power;
+    return _FSRs_to_pin_powers;
 }
 
 
@@ -194,15 +194,15 @@ void CPUSolver::initializeSourceArrays() {
 void CPUSolver::initializePowerArrays() {
 
     /* Delete old power arrays if they exist */
-    if (_FSR_to_power != NULL)
-        delete [] _FSR_to_power;
-    if (_FSR_to_pin_power != NULL)
-        delete [] _FSR_to_pin_power;
+    if (_FSRs_to_powers != NULL)
+        delete [] _FSRs_to_powers;
+    if (_FSRs_to_pin_powers != NULL)
+        delete [] _FSRs_to_pin_powers;
 
     /* Allocate memory for FSR power and pin power arrays */
     try{
-	_FSR_to_power = new FP_PRECISION[_num_FSRs];
-	_FSR_to_pin_power = new FP_PRECISION[_num_FSRs];
+	_FSRs_to_powers = new FP_PRECISION[_num_FSRs];
+	_FSRs_to_pin_powers = new FP_PRECISION[_num_FSRs];
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's FSR "
@@ -856,19 +856,19 @@ void CPUSolver::computePinPowers() {
         sigma_f = _FSRs[r].getMaterial()->getSigmaF();
 
         for (int e=0; e < _num_groups; e++)
-	    _FSR_to_power[r] += sigma_f[e] * _scalar_flux(r,e);
+	    _FSRs_to_powers[r] += sigma_f[e] * _scalar_flux(r,e);
     }
 
     /* Compute the pin powers by adding up the powers of FSRs in each
      * lattice cell, saving lattice cell powers to files, and saving the
      * pin power corresponding to each FSR id in FS_to_pin_power */
-    _geometry->computePinPowers(_FSR_to_power, _FSR_to_pin_power);
+    _geometry->computePinPowers(_FSRs_to_powers, _FSRs_to_pin_powers);
 
 
     /* Compute the total power based by accumulating the power of each unique
      * pin with a nonzero power */
     for (int r=0; r < _num_FSRs; r++) {
-        curr_pin_power = _FSR_to_pin_power[r];
+        curr_pin_power = _FSRs_to_pin_powers[r];
 
 	/* If this pin power is unique and nozero (doesn't match the previous
 	 * pin's power), then tally it */
@@ -885,7 +885,7 @@ void CPUSolver::computePinPowers() {
     /* Normalize each pin power to the average non-zero pin power */
     #pragma omp parallel for
     for (int r=0; r < _num_FSRs; r++)
-        _FSR_to_pin_power[r] /= avg_pin_power;
+        _FSRs_to_pin_powers[r] /= avg_pin_power;
 
     return;
 }
