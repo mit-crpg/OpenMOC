@@ -6,7 +6,8 @@
     #include "../../src/dev/DeviceFlatSourceRegion.h"
     #include "../../src/dev/DeviceTrack.h"
     #include "../../src/dev/DeviceQuery.h"
-    #include "../../src/dev/DeviceSolver.h"
+    #include "../../src/host/Solver.h"
+    #include "../../src/dev/GPUSolver.h"
 
 
     /* Exception helpers */
@@ -53,7 +54,8 @@
 %include ../../src/dev/DeviceFlatSourceRegion.h
 %include ../../src/dev/DeviceTrack.h
 %include ../../src/dev/DeviceQuery.h
-%include ../../src/dev/DeviceSolver.h
+%include ../../src/host/Solver.h
+%include ../../src/dev/GPUSolver.h
 
 typedef double FP_PRECISION;
 
