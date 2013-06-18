@@ -1,14 +1,14 @@
-#include "DeviceMaterial.h"
+#include "clone.h"
 
 
 /**
  * @brief Given a pointer to a material on the host and a material on the 
- *        device, copy all of the properties from the material on the host 
- *        to the device.
+ *        GPU, copy all of the properties from the material on the host 
+ *        to the GPU.
  * @param material_h pointer to a material on the host
- * @param material_d pointer to a material on the device
+ * @param material_d pointer to a material on the GPU
  */
-void cloneOnDevice(Material* material_h, dev_material* material_d) {
+void cloneMaterialOnGPU(Material* material_h, dev_material* material_d) {
 
     /* Copy over the material's id and uid */
     int id = material_h->getId();
@@ -63,6 +63,51 @@ void cloneOnDevice(Material* material_h, dev_material* material_d) {
                 sizeof(double*), cudaMemcpyHostToDevice);
     cudaMemcpy((void*)&material_d->_chi, (void*)&chi, sizeof(double*), 
                 cudaMemcpyHostToDevice);
+
+    return;
+}
+
+
+/**
+ * @brief Given a pointer to a track on the host and a track on the GPU,
+ *        copy all of the properties and segments from the track on the host 
+ *        to the GPU.
+ * @param track_h pointer to a track on the host
+ * @param track_d pointer to a track on the GPU
+ */
+void cloneTrackOnGPU(Track* track_h, dev_track* track_d) {
+
+    dev_segment* dev_segments;
+    dev_segment* host_segments = new dev_segment[track_h->getNumSegments()];
+    dev_track new_track;
+
+    new_track._uid = track_h->getUid();
+    new_track._num_segments = track_h->getNumSegments();
+    new_track._azim_angle_index = track_h->getAzimAngleIndex();
+
+    new_track._refl_in = track_h->isReflIn();
+    new_track._refl_out = track_h->isReflOut();
+    new_track._bc_in = track_h->getBCIn();
+    new_track._bc_out = track_h->getBCOut();
+
+    cudaMalloc((void**)&dev_segments,
+	       track_h->getNumSegments() * sizeof(dev_segment));
+    new_track._segments = dev_segments;
+
+    for (int s=0; s < track_h->getNumSegments(); s++) {
+        segment* curr = track_h->getSegment(s);
+	host_segments[s]._length = curr->_length;
+	host_segments[s]._region_uid = curr->_region_id;
+	host_segments[s]._material_uid = curr->_material->getUid();
+    }
+
+    cudaMemcpy((void*)dev_segments, (void*)host_segments,
+	       track_h->getNumSegments() * sizeof(dev_segment), 
+	       cudaMemcpyHostToDevice);
+    cudaMemcpy((void*)track_d, (void*)&new_track, sizeof(dev_track), 
+	       cudaMemcpyHostToDevice);
+
+    delete [] host_segments;
 
     return;
 }

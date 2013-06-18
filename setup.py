@@ -73,6 +73,22 @@ if config.with_cuda:
     config.sources['cuda'].remove('openmoc/cuda/openmoc_cuda.i')
 
 
+# An Intel MIC extension if the user requested it
+if config.with_mic:
+    extensions.append(Extension(name = '_openmoc_mic', 
+                        sources = config.sources['mic'], 
+                        library_dirs = config.library_directories['icpc'], 
+                        libraries = config.shared_libraries['icpc'],
+                        extra_link_args = config.linker_flags['mic'], 
+                        include_dirs = config.include_directories['icpc'],
+                        define_macros = config.macros['icpc'][fp],
+                        swig_opts = config.swig_flags,
+                        export_symbols = ['init_openmoc']))
+                      
+    config.sources['mic'].remove('openmoc/mic/openmoc_mic.i')
+
+
+
 # Loop over the compilers and floating point precision levels to create
 # extension modules for each (ie, openmoc.icpc.double, openmoc.cuda.single, etc)
 for fp in config.fp_precision:
@@ -208,7 +224,7 @@ def customize_linker(self):
                 objects.remove(obj)
 
         # If the filename for the extension contains intel, use icpc to link
-        if 'intel' in output_filename:
+        if 'intel' in output_filename or 'mic' in output_filename:
             self.set_executable('linker_so', 'icpc')
             self.set_executable('linker_exe', 'icpc')
 

@@ -1,4 +1,4 @@
-#include "CPUSolver.h"
+#include "MICSolver.h"
 
 
 /**
@@ -12,10 +12,20 @@
  * @param geometry an optional pointer to the geometry
  * @param track_generator an optional pointer to the trackgenerator
  */
-CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
+MICSolver::MICSolver(Geometry* geom, TrackGenerator* track_generator) :
   Solver(geom, track_generator) {
 
     setNumThreads(1);
+
+    _materials = NULL;
+    _dev_tracks = NULL;
+    _track_index_offsets = NULL;
+
+    if (track_generator != NULL)
+        setTrackGenerator(track_generator);
+
+    if (geom != NULL)
+        setGeometry(geom);
 }
 
 
@@ -23,19 +33,35 @@ CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
  * @brief Destructor deletes arrays of boundary angular flux for all tracks,
  *        scalar flux and source for each flatsourceregion.
  */
-CPUSolver::~CPUSolver() { }
+MICSolver::~MICSolver() { 
+
+    if (_materials != NULL) {
+        delete [] _materials;
+	_materials = NULL;
+    }
+
+    if (_dev_tracks != NULL) {
+        delete [] _dev_tracks;
+	_dev_tracks = NULL;
+    }
+
+    if (_track_index_offsets != NULL) {
+        delete [] _track_index_offsets;
+	_track_index_offsets = NULL;
+    }
+}
 
 
 /**
  * @brief Returns the number of shared memory OpenMP threads in use.
  * @return the number of threads
  */
-int CPUSolver::getNumThreads() {
+int MICSolver::getNumThreads() {
     return _num_threads;
 }
 
 
-FP_PRECISION CPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
+FP_PRECISION MICSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
 
     /* Error checking */
     if (fsr_id >= _num_FSRs)
@@ -64,7 +90,7 @@ FP_PRECISION CPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
  *        which contains the corresponding fluxes for each flatsourceregion.
  * @return a 2D array of flatsourceregion scalar fluxes
  */
-FP_PRECISION* CPUSolver::getFSRScalarFluxes() {
+FP_PRECISION* MICSolver::getFSRScalarFluxes() {
     if (_scalar_flux == NULL)
         log_printf(ERROR, "Unable to returns the Solver's scalar flux array "
 		 "since it has not yet been allocated in memory");
@@ -78,7 +104,7 @@ FP_PRECISION* CPUSolver::getFSRScalarFluxes() {
  *        corresponding flatsourceregion power.
  * @return an array of flatsourceregion powers
  */
-FP_PRECISION* CPUSolver::getFSRPowers() {
+FP_PRECISION* MICSolver::getFSRPowers() {
     if (_FSRs_to_powers == NULL)
         log_printf(ERROR, "Unable to returns the Solver's FSR power array "
 		 "since it has not yet been allocated in memory");
@@ -92,7 +118,7 @@ FP_PRECISION* CPUSolver::getFSRPowers() {
  *        corresponding pin cell power.
  * @return an array of flatsourceregion pin powers
  */
-FP_PRECISION* CPUSolver::getFSRPinPowers() {
+FP_PRECISION* MICSolver::getFSRPinPowers() {
     if (_FSRs_to_pin_powers == NULL)
         log_printf(ERROR, "Unable to returns the Solver's FSR pin power array "
 		 "since it has not yet been allocated in memory");
@@ -109,7 +135,7 @@ FP_PRECISION* CPUSolver::getFSRPinPowers() {
  *          cyclical tracks - since that is how OpenMOC parallizes loops.
  * @param num_threads the number of threads
  */
-void CPUSolver::setNumThreads(int num_threads) {
+void MICSolver::setNumThreads(int num_threads) {
     if (num_threads <= 0)
         log_printf(ERROR, "Unable to set the number of threads for the Solver "
 		   "to %d since it is less than or equal to 0", num_threads);
@@ -127,12 +153,127 @@ void CPUSolver::setNumThreads(int num_threads) {
 
 
 /**
+ * @brief Sets the geometry for the solver.
+ * @details The geometry must already have initialized flat source region maps
+ *          and segmentized the trackgenerator's tracks.
+ * @param geometry a pointer to a geometry
+ */
+void MICSolver::setGeometry(Geometry* geometry) {
+    Solver::setGeometry(geometry);
+    initializeMaterials();
+}
+
+
+/**
+ * @brief Sets the trackgenerator with characteristic tracks for the solver.
+ * @details The trackgenerator must already have generated tracks and have
+ *          segmentized them using the geometry.
+ * @param track_generator a pointer to a trackgenerator
+ */
+void MICSolver::setTrackGenerator(TrackGenerator* track_generator) {
+    Solver::setTrackGenerator(track_generator);
+    initializeTracks();
+}
+
+
+/**
+ * @brief
+ * @details
+ */
+void MICSolver::initializeMaterials() {
+
+    log_printf(INFO, "Initializing materials on the MIC...");
+
+    /* Delete old materials array if it exists */
+    if (_materials != NULL)
+        delete[] _materials;
+
+    /* Allocate memory for all tracks and track offset indices on the device */
+    try{
+
+	std::map<short int, Material*> host_materials=_geometry->getMaterials();
+	std::map<short int, Material*>::iterator iter;
+
+	/* Allocate memory for the array of materials */
+        _materials = new dev_material[_num_materials];
+
+        /* Iterate through all materials and clone them into structures */
+	for (iter=host_materials.begin(); iter != host_materials.end(); ++iter)
+        
+	    cloneMaterialOnMIC(iter->second, &_materials[iter->second->getUid()]);
+    }
+    catch(std::exception &e) {
+        log_printf(ERROR, "Could not allocate memory for the MIC solver's "
+		   "materials. Backtrace:%s", e.what());
+    }
+}
+
+
+/**
+ * @brief
+ * @details
+ */
+void MICSolver::initializeTracks() {
+
+    log_printf(INFO, "Initializing tracks on the MIC...");
+
+    /* Delete old tracks array if it exists */
+    if (_dev_tracks != NULL)
+        delete [] _dev_tracks;
+
+    /* Delete old track index offsets array if it exists */
+    if (_track_index_offsets != NULL)
+        delete [] _track_index_offsets;
+
+    /* Allocate array of tracks and memory for track index offsets */
+    _dev_tracks = new dev_track[_tot_num_tracks];
+    _track_index_offsets = new int[_num_azim+1];
+
+    /* Allocate memory for all tracks and track offset indices on the device */
+    try{
+
+        /* Iterate through all tracks and clone them on the device */
+        int counter = 0;
+	int index;
+	for (int i=0; i < _num_azim; i++) {
+
+            _track_index_offsets[i] = counter;
+
+	    for (int j=0; j < _num_tracks[i]; j++) {
+
+	        /* Clone this track on the device */
+	        cloneTrackOnMIC(&_tracks[i][j], &_dev_tracks[counter]);
+
+		/* Make track reflective */
+		index = computeScalarTrackIndex(_tracks[i][j].getTrackInI(),
+					       _tracks[i][j].getTrackInJ());
+		_dev_tracks[counter]._track_in = index;
+
+		index = computeScalarTrackIndex(_tracks[i][j].getTrackOutI(), 
+						_tracks[i][j].getTrackOutJ());
+		_dev_tracks[counter]._track_out = index;
+
+		counter++;
+	    }
+	}
+
+	_track_index_offsets[_num_azim] = counter;
+    }
+
+    catch(std::exception &e) {
+        log_printf(ERROR, "Could not allocate memory for the solver's tracks "
+		   "on the MIC. Backtrace:%s", e.what());
+    }
+}
+
+
+/**
  * @brief Allocates memory for track boundary angular fluxes and 
  *        flatsourceregion scalar fluxes.
  * @details Deletes memory for old flux arrays if they were allocated from
  *          previous simulation.
  */
-void CPUSolver::initializeFluxArrays() {
+void MICSolver::initializeFluxArrays() {
 
     /* Delete old flux arrays if they exist */
     if (_boundary_flux != NULL)
@@ -160,7 +301,7 @@ void CPUSolver::initializeFluxArrays() {
  * @details Deletes memory for old source arrays if they were allocated from
  *          previous simulation.
  */
-void CPUSolver::initializeSourceArrays() {
+void MICSolver::initializeSourceArrays() {
 
     /* Delete old sources arrays if they exist */
     if (_fission_source != NULL)
@@ -191,7 +332,7 @@ void CPUSolver::initializeSourceArrays() {
  * @details Deletes memory for power arrays if they were allocated from
  *          previous simulation.
  */
-void CPUSolver::initializePowerArrays() {
+void MICSolver::initializePowerArrays() {
 
     /* Delete old power arrays if they exist */
     if (_FSRs_to_powers != NULL)
@@ -214,13 +355,41 @@ void CPUSolver::initializePowerArrays() {
 /**
  * @brief Creates a polar quadrature object for the solver.
  */
-void CPUSolver::initializePolarQuadrature() {
+void MICSolver::initializePolarQuadrature() {
     /* Deletes the old quadrature if one existed */
     if (_quad != NULL)
         delete _quad;
 
     _quad = new Quadrature(_quadrature_type, _num_polar);
     _polar_times_groups = _num_groups * _num_polar;
+}
+
+
+/**
+ * @brief This method computes the index for the jth track at azimuthal angle i.
+ * @details This method is necessary since the array of tracks on the device 
+ *          is a 1D array which needs a one-to-one mapping from the 2D jagged 
+ *          array of tracks on the host.
+ * @param i azimuthal angle number
+ * @param j the jth track at angle i
+ * @return an index into the device track array
+ */
+int MICSolver::computeScalarTrackIndex(int i, int j) {
+
+    int index =0;
+    int p = 0;
+
+    /* Iterate over each azimuthal angle and increment index by the number of
+       tracks at each angle */
+    while (p < i) {
+        index += _num_tracks[p];
+	p++;
+    }
+
+    /* Update index for this track since it is the jth track at angle i */
+    index += j;
+    
+    return index;
 }
 
  
@@ -230,7 +399,7 @@ void CPUSolver::initializePolarQuadrature() {
  * @details This method will generate a hashmap which contains values of the 
  *          pre-factor for specific segment lengths (the keys into the hashmap).
  */
-void CPUSolver::precomputePrefactors() {
+void MICSolver::precomputePrefactors() {
 
     /* Build exponential prefactor array based on table look up with linear 
      * interpolation */
@@ -292,7 +461,7 @@ void CPUSolver::precomputePrefactors() {
  *          assigns a volume based on the cumulative length of all of the 
  *          segments inside the flatsourceregion.
  */
-void CPUSolver::initializeFSRs() {
+void MICSolver::initializeFSRs() {
 
     log_printf(INFO, "Initializing flat source regions...");
 
@@ -355,7 +524,7 @@ void CPUSolver::initializeFSRs() {
  * @brief Zero each track's boundary fluxes for each energy group and polar
  *        angle in the "forward" and "reverse" directions.
  */
-void CPUSolver::zeroTrackFluxes() {
+void MICSolver::zeroTrackFluxes() {
 
     /* Loop over azimuthal angle, track, polar angle, energy group
      * and set each track's incoming and outgoing flux to zero */
@@ -374,7 +543,7 @@ void CPUSolver::zeroTrackFluxes() {
  *        flatsourceregion to a constant value.
  * @param value the value to assign to each flat source region flux
  */
-void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
+void MICSolver::flattenFSRFluxes(FP_PRECISION value) {
 
     /* Loop over all FSRs and energy groups */
     #pragma omp parallel for
@@ -394,7 +563,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
  *        to a constant value.
  * @param value the value to assign to each flat source region source
  */
-void CPUSolver::flattenFSRSources(FP_PRECISION value) {
+void MICSolver::flattenFSRSources(FP_PRECISION value) {
 
     /* Loop over all FSRs and energy groups */
     #pragma omp parallel for
@@ -413,7 +582,7 @@ void CPUSolver::flattenFSRSources(FP_PRECISION value) {
  * @brief Normalizes all flatsourceregion scalar fluxes and track boundary
  *        angular fluxes to the total fission source (times nu).
  */
-void CPUSolver::normalizeFluxes() {
+void MICSolver::normalizeFluxes() {
 
     double* nu_sigma_f;
     FP_PRECISION volume;
@@ -472,7 +641,7 @@ void CPUSolver::normalizeFluxes() {
  *
  * @return the residual between this source and the previous source
  */
-FP_PRECISION CPUSolver::computeFSRSources() {
+FP_PRECISION MICSolver::computeFSRSources() {
 
     FP_PRECISION scatter_source;
     FP_PRECISION fission_source;
@@ -556,7 +725,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
  *                        \Sigma_f \Phi V}{\displaystyle\sum 
  *                        \displaystyle\sum \Sigma_a \Phi V} \f$
  */
-void CPUSolver::computeKeff() {
+void MICSolver::computeKeff() {
 
     Material* material;
     double* sigma_a;
@@ -602,7 +771,7 @@ void CPUSolver::computeKeff() {
  * @brief Checks if scalar flux has converged within the threshold.
  * @return true if converged, false otherwise
  */
-bool CPUSolver::isScalarFluxConverged() {
+bool MICSolver::isScalarFluxConverged() {
 
     bool converged = true;
 
@@ -629,7 +798,7 @@ bool CPUSolver::isScalarFluxConverged() {
  * flat source region
  * @param max_iterations the maximum number of iterations allowed
  */
-void CPUSolver::transportSweep(int max_iterations) {
+void MICSolver::transportSweep(int max_iterations) {
 
     bool converged = false;
     int thread_id;
@@ -846,7 +1015,7 @@ void CPUSolver::transportSweep(int max_iterations) {
  * @brief Compute the fission rates in each flatsourceregion and stores them 
  *        in an array indexed by flatsourceregion ID.
  */
-void CPUSolver::computePinPowers() {
+void MICSolver::computePinPowers() {
 
     log_printf(INFO, "Computing FSR pin powers...");
 

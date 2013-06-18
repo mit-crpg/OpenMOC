@@ -1,10 +1,10 @@
-%module openmoc_cuda_double
+%module openmoc_mic_double
 
 %{
     #define SWIG_FILE_WITH_INIT
     #include "../../../src/Solver.h"
-    #include "../../../src/dev/gpu/GPUSolver.h"
-    #include "../../../src/dev/gpu/GPUQuery.h"
+    #include "../../../src/dev/mic/MICSolver.h"
+    #include "../../../src/dev/mic/MICQuery.h"
 
 
     /* Exception helpers */
@@ -48,8 +48,8 @@
 
 %include <exception.i>
 %include ../../../src/Solver.h
-%include ../../../src/dev/gpu/GPUSolver.h
-%include ../../../src/dev/gpu/GPUQuery.h
+%include ../../../src/dev/mic/MICSolver.h
+%include ../../../src/dev/mic/MICQuery.h
 
 typedef double FP_PRECISION;
 

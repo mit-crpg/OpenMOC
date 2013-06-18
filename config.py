@@ -6,14 +6,14 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = ['all']
+cpp_compilers = ['icpc']
 
 default_cc = 'gcc'
 
 # Supported floating point precision: 'single', 'double', 'all'
-fp_precision = ['all']
+fp_precision = ['single']
 
-default_fp = 'double'
+default_fp = 'single'
 
 # Compile using ccache (most relevant for developers)
 with_ccache = True
@@ -23,6 +23,9 @@ debug_mode = False
 
 # Use CUDA set to True or False
 with_cuda = True
+
+# Compile module for the Intel Xeon Phi (MIC)
+with_mic = True
 
 
 
@@ -49,10 +52,15 @@ sources['c++'] = ['openmoc/openmoc.i',
                   'src/Universe.cpp']
 
 sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
-                   'src/dev/DeviceTrack.cu',
-                   'src/dev/DeviceMaterial.cu',
+                   'src/dev/gpu/clone.cu',
                    'src/dev/gpu/GPUQuery.cu',
                    'src/dev/gpu/GPUSolver.cu']
+
+sources['mic'] =  ['openmoc/mic/openmoc_mic.i',
+                   'src/dev/mic/clone.cpp',
+                   'src/dev/mic/MICQuery.cpp',
+                   'src/dev/mic/MICSolver.cpp']
+
 
 
 
@@ -84,16 +92,16 @@ compiler_flags['gcc'] = ['-c',
                          '-fpic']
 
 compiler_flags['icpc'] =['-c', 
-                          '-O3', 
-                          '--ccache-skip',
-                          '-openmp', 
-                          '--ccache-skip',
-                          '-xhost', 
-                          '-std=c++0x', 
-                          '-fpic',
-                          '--ccache-skip',
-                          '-openmp-report', 
-                          '-vec-report']
+                         '-O3', 
+                         '--ccache-skip',
+                         '-openmp', 
+                         '--ccache-skip',
+                         '-xhost', 
+                         '-std=c++0x', 
+                         '-fpic',
+                         '--ccache-skip',
+                         '-openmp-report', 
+                         '-vec-report']
 
 compiler_flags['nvcc'] =  ['-c', 
                            '-O3',
@@ -112,10 +120,10 @@ compiler_flags['nvcc'] =  ['-c',
 linker_flags = {}
 
 linker_flags['gcc'] = ['-lstdc++', 
-                      '-lgomp', 
-                      '-fopenmp', 
-                      '-shared', 
-                      '-Wl,-soname,_openmoc.so']
+                       '-lgomp', 
+                       '-fopenmp', 
+                       '-shared', 
+                       '-Wl,-soname,_openmoc.so']
 
 linker_flags['icpc'] = ['-lstdc++', 
                         '-openmp', 
@@ -128,8 +136,21 @@ linker_flags['icpc'] = ['-lstdc++',
                         '-Xlinker',
                         '-soname=_openmoc.so']
 
+linker_flags['mic'] = ['-lstdc++', 
+                       '-openmp', 
+                       '-liomp5', 
+                       '-lpthread', 
+                       '-lirc', 
+                       '-limf', 
+                       '-lrt',
+                       '-shared',
+                       'build/lib.linux-x86_64-2.7/_openmoc.so',
+                       '-Xlinker',
+                       '-soname=_openmoc.so',
+                       '-loffload']
+
 linker_flags['nvcc'] = ['-shared', 
-                       'build/lib.linux-x86_64-2.7/_openmoc.so']
+                        'build/lib.linux-x86_64-2.7/_openmoc.so']
 
 
 
