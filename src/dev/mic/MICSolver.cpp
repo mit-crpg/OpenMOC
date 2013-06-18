@@ -140,12 +140,7 @@ void MICSolver::setNumThreads(int num_threads) {
         log_printf(ERROR, "Unable to set the number of threads for the Solver "
 		   "to %d since it is less than or equal to 0", num_threads);
 
-    /* Set the number of threads to be no larger than half the number of 
-     * azimuthal angles if the trackgenerator has been set */
-    if (_num_azim == 0 || num_threads < _num_azim / 2)
-      _num_threads = num_threads;
-    else
-        _num_threads = _num_azim / 2;
+    _num_threads = num_threads;
 
     /* Set the number of threads for OpenMP */
     omp_set_num_threads(_num_threads);
@@ -801,22 +796,28 @@ bool MICSolver::isScalarFluxConverged() {
 void MICSolver::transportSweep(int max_iterations) {
 
     bool converged = false;
+
     int thread_id;
-    int track_id;
-    int track_out_id;
-    bool bc;
     int fsr_id;
-    std::vector<segment*> segments;
-    std::vector<segment*>::iterator iter;
-    std::vector<segment*>::reverse_iterator riter;
-    double* sigma_t;
+    int track_out_id;
+
     FP_PRECISION fsr_flux;
-    FP_PRECISION delta;
     FP_PRECISION volume;
+
     FP_PRECISION sigma_t_l;
     int index;
+
+    bool bc;
+    int start;
     int pe;
-    int max_num_threads = _num_azim / 2;
+
+    dev_track* curr_track;
+    dev_segment* curr_segment;
+    dev_material* curr_material;
+    int num_segments;
+    FP_PRECISION delta;
+
+    double* sigma_t;
 
     /* Allocate memory for each thread's FSR scalar fluxes and leakages */
     FP_PRECISION* thread_flux = new FP_PRECISION[_num_threads * _num_FSRs * 
@@ -829,10 +830,13 @@ void MICSolver::transportSweep(int max_iterations) {
     memset(thread_leakage, FP_PRECISION(0.), 
             2*_tot_num_tracks*sizeof(FP_PRECISION));
 
-    int start;
-
     log_printf(DEBUG, "Transport sweep with max_iterations = %d and "
 	       "# threads = %d", max_iterations, _num_threads);
+
+
+    int tid_max[2] = { _track_index_offsets[_num_azim / 2], 
+		       _track_index_offsets[_num_azim]    };
+    int tid_min[2] = {0, _track_index_offsets[_num_azim / 2] };
 
     /* Loop for until converged or max_iterations is reached */
     for (int i=0; i < max_iterations; i++) {
@@ -848,127 +852,113 @@ void MICSolver::transportSweep(int max_iterations) {
 	 * separate threads for each pair of complementary  
 	 * azimuthal angles - angles which wrap into cycles */
 	/* Loop over each thread */
-        #pragma omp parallel for private(track_id, track_out_id, bc, fsr_id, \
-	          segments, iter, riter, sigma_t, fsr_flux, delta, volume, \
-	          pe, sigma_t_l, index, thread_id, start)
-	for (int t=0; t < max_num_threads; t++) {
+	for (int t=0; t < 2; t++) {
+	  
+            #pragma omp parallel for private(track_out_id, bc, fsr_id,	\
+	      curr_track, curr_segment, num_segments, curr_material, \
+	      sigma_t, fsr_flux, delta, pe, sigma_t_l, index, thread_id, start)
+	    for (int track_id=tid_min[t]; track_id < tid_max[t]; track_id++) {
+	        
+	        thread_id = omp_get_thread_num();
+		
+		/* Initialize local pointers to important data structures */
+		curr_track = &_dev_tracks[track_id];
+		num_segments = curr_track->_num_segments;
 
-            thread_id = omp_get_thread_num();
+		/* Loop over each segment in forward direction */
+		for (int s=0; s < num_segments; s++) {
 
-            /* Loop over the pair of azimuthal angles for this thread */
-	    int j = t;
-	    while (j < _num_azim) {
+		    curr_segment = &curr_track->_segments[s];
+		    fsr_id = curr_segment->_region_uid;
+		    curr_material = &_materials[curr_segment->_material_uid];
+		    sigma_t = curr_material->_sigma_t;		    
 
-	        /* Loop over all tracks for this azimuthal angles */
-	        for (int k=0; k < _num_tracks[j]; k++) {
-
-		    /* Initialize local pointers to important data structures */
-  		    track_id = _tracks[j][k].getUid();
-		    segments = _tracks[j][k].getSegments();
-
-		    /* Loop over each segment in forward direction */
-                    for (iter=segments.begin(); iter!=segments.end(); ++iter) {
-                        fsr_id = (*iter)->_region_id;
-
-			/* Initialize polar angle and energy group counter */
-			pe = 0;
-			sigma_t = (*iter)->_material->getSigmaT();
-
-			/* Loop over energy groups */
-			for (int e=0; e < _num_groups; e++) {
-			    fsr_flux = 0.;
-			    sigma_t_l = sigma_t[e] * (*iter)->_length;
-			    index = computePrefactorIndex(sigma_t_l);
-			    
-			    /* Loop over polar angles */
-			    for (int p=0; p < _num_polar; p++){
-			        delta = (_boundary_flux(track_id,pe) - 
-					_ratios(fsr_id,e)) * 
-				        prefactor(index,p,sigma_t_l);
-				fsr_flux += delta * _polar_weights[p];
-				_boundary_flux(track_id,pe) -= delta;
-				pe++;
-			    }
-
-			    /* Increment the scalar flux for this thread' copy
-			     * of this flat source region */
-  		            thread_flux(thread_id,fsr_id,e) += fsr_flux;
-			}			    
-		    }
-
-		    /* Transfer flux to outgoing track */
-		    track_out_id = _tracks[j][k].getTrackOut()->getUid();
-		    bc = _tracks[j][k].getBCOut();
-		    start = _tracks[j][k].isReflOut() * _polar_times_groups;
-
-		    for (pe=0; pe < _polar_times_groups; pe++) {
-		        _boundary_flux(track_out_id,start+pe) = 
-			    _boundary_flux(track_id,pe) * bc;
-
-			thread_leakage[2*track_id] += 
-			  _boundary_flux(track_id,pe) 
-			  * _polar_weights[pe%_num_polar] * (!bc);
-		    }
-
-
-		    /* Loop over each segment in reverse direction */
-		    for (riter=segments.rbegin(); riter != segments.rend(); 
-                                                                      ++riter){
-
-                        fsr_id = (*riter)->_region_id;
-
-			/* Initialize polar angle and energy group counter */
-			pe = _polar_times_groups;
-			sigma_t = (*riter)->_material->getSigmaT();
-			
-			/* Loop over energy groups */
-			for (int e=0; e < _num_groups; e++) {
-			    fsr_flux = 0.;
-			    sigma_t_l = sigma_t[e] * (*riter)->_length;
-			    index = computePrefactorIndex(sigma_t_l);
-
-			    /* Loop over polar angles */
-			    for (int p=0; p < _num_polar; p++){
-			        delta = (_boundary_flux(track_id,pe) - 
-					 _ratios(fsr_id,e)) * 
-				         prefactor(index,p,sigma_t_l);
-				fsr_flux += delta * _polar_weights[p];
-				_boundary_flux(track_id,pe) -= delta;
-				pe++;
-			    }
-
-			    /* Increment the scalar flux for this thread' copy
-			     * of this flat source region */
-  		            thread_flux(thread_id,fsr_id,e) += fsr_flux;
+		    /* Initialize polar angle and energy group counter */
+		    pe = 0;
+		    
+		    /* Loop over energy groups */
+		    for (int e=0; e < _num_groups; e++) {
+		        fsr_flux = 0.;
+		        sigma_t_l = sigma_t[e] * curr_segment->_length;
+		        index = computePrefactorIndex(sigma_t_l);
+		      
+			/* Loop over polar angles */
+		        for (int p=0; p < _num_polar; p++){
+			    delta = (_boundary_flux(track_id,pe) - 
+				     _ratios(fsr_id,e)) * 
+			             prefactor(index,p,sigma_t_l);
+			    fsr_flux += delta * _polar_weights[p];
+			    _boundary_flux(track_id,pe) -= delta;
+			    pe++;
 			}
-		    }
 
-		    /* Transfer flux to outgoing track */
-		    track_out_id = _tracks[j][k].getTrackIn()->getUid();
-		    bc = _tracks[j][k].getBCIn();
-		    start = _tracks[j][k].isReflIn() * _polar_times_groups;
-
-		    for (pe=0; pe < _polar_times_groups; pe++) {
-		        _boundary_flux(track_out_id,start+pe) = 
-			   _boundary_flux(track_id,_polar_times_groups+pe) * bc;
-
-			thread_leakage[2*track_id+1] += 
-			    _boundary_flux(track_id,_polar_times_groups+pe) 
-			    * _polar_weights[pe%_num_polar] * (!bc);
-		    }
+			/* Increment the scalar flux for this thread' copy
+			 * of this flat source region */
+			thread_flux(thread_id,fsr_id,e) += fsr_flux;
+		    }			    
 		}
 
-		/* Update the azimuthal angle index for this thread
-		 * such that the next azimuthal angle is the one that reflects
-		 * out of the current one. If instead this is the 2nd (final)
-		 * angle to be used by this thread, break loop */
-		if (j < max_num_threads)
-		    j = _num_azim - j - 1;
-		else
-		    break;
-		
-	    }
-			
+		/* Transfer flux to outgoing track */
+		track_out_id = curr_track->_track_out;
+		bc = curr_track->_bc_out;
+		start = curr_track->_refl_out * _polar_times_groups;
+
+		for (pe=0; pe < _polar_times_groups; pe++) {
+		    _boundary_flux(track_out_id,start+pe) = 
+		          _boundary_flux(track_id,pe) * bc;
+		  
+		    thread_leakage[2*track_id] += _boundary_flux(track_id,pe) 
+		          * _polar_weights[pe%_num_polar] * (!bc);
+		}
+
+
+		/* Loop over each segment in reverse direction */
+		for (int s=num_segments-1; s > -1; s--) {
+
+		    curr_segment = &curr_track->_segments[s];
+		    fsr_id = curr_segment->_region_uid;
+		    curr_material = &_materials[curr_segment->_material_uid];
+		    sigma_t = curr_material->_sigma_t;		    
+
+		    /* Initialize polar angle and energy group counter */
+		    pe = _polar_times_groups;
+		    
+		    /* Loop over energy groups */
+		    for (int e=0; e < _num_groups; e++) {
+		        fsr_flux = 0.;
+		        sigma_t_l = sigma_t[e] * curr_segment->_length;
+		        index = computePrefactorIndex(sigma_t_l);
+		      
+			/* Loop over polar angles */
+		        for (int p=0; p < _num_polar; p++){
+			    delta = (_boundary_flux(track_id,pe) - 
+				     _ratios(fsr_id,e)) * 
+			             prefactor(index,p,sigma_t_l);
+			    fsr_flux += delta * _polar_weights[p];
+			    _boundary_flux(track_id,pe) -= delta;
+			    pe++;
+			}
+
+			/* Increment the scalar flux for this thread' copy
+			 * of this flat source region */
+			thread_flux(thread_id,fsr_id,e) += fsr_flux;
+		    }			    
+		}
+
+		/* Transfer flux to outgoing track */
+		track_out_id = curr_track->_track_in;
+		bc = curr_track->_bc_in;
+		start = curr_track->_refl_in * _polar_times_groups;
+
+		for (pe=0; pe < _polar_times_groups; pe++) {
+		    _boundary_flux(track_out_id,start+pe) = 
+		          _boundary_flux(track_id,_polar_times_groups+pe) * bc;
+		  
+		    thread_leakage[2*track_id+1] += 
+		          _boundary_flux(track_id,_polar_times_groups+pe) 
+		          * _polar_weights[pe%_num_polar] * (!bc);
+		}
+	    }   
 	}
 
         /** Reduce leakage across threads */
