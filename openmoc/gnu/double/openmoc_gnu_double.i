@@ -2,19 +2,21 @@
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "../../src/host/Cell.h"
-    #include "../../src/host/Geometry.h"
-    #include "../../src/host/LocalCoords.h"
-    #include "../../src/host/log.h"
-    #include "../../src/host/Material.h"
-    #include "../../src/host/Point.h"
-    #include "../../src/host/Quadrature.h"
-    #include "../../src/host/Solver.h"
-    #include "../../src/host/Surface.h"
-    #include "../../src/host/Timer.h"
-    #include "../../src/host/Track.h" 
-    #include "../../src/host/TrackGenerator.h"
-    #include "../../src/host/Universe.h"
+    #include "../../../src/Cell.h"
+    #include "../../../src/Geometry.h"
+    #include "../../../src/LocalCoords.h"
+    #include "../../../src/log.h"
+    #include "../../../src/Material.h"
+    #include "../../../src/Point.h"
+    #include "../../../src/Quadrature.h"
+    #include "../../../src/CPUSolver.h"
+    #include "../../../src/Solver.h"
+    #include "../../../src/Surface.h"
+    #include "../../../src/Timer.h"
+    #include "../../../src/Track.h" 
+    #include "../../../src/TrackGenerator.h"
+    #include "../../../src/Universe.h"
+
     /* Exception helpers */
     static int swig_c_error_num = 0;
     static char swig_c_err_msg[512];
@@ -72,20 +74,20 @@
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
 
 %include <exception.i> 
-%include ../../src/host/Cell.h
-%include ../../src/host/FlatSourceRegion.h
-%include ../../src/host/Geometry.h
-%include ../../src/host/LocalCoords.h
-%include ../../src/host/log.h
-%include ../../src/host/Material.h
-%include ../../src/host/Point.h
-%include ../../src/host/Quadrature.h
-%include ../../src/host/Solver.h
-%include ../../src/host/Surface.h
-%include ../../src/host/Timer.h
-%include ../../src/host/Track.h
-%include ../../src/host/TrackGenerator.h
-%include ../../src/host/Universe.h
+%include ../../../src/Cell.h
+%include ../../../src/Geometry.h
+%include ../../../src/LocalCoords.h
+%include ../../../src/log.h
+%include ../../../src/Material.h
+%include ../../../src/Point.h
+%include ../../../src/Quadrature.h
+%include ../../../src/Solver.h
+%include ../../../src/CPUSolver.h
+%include ../../../src/Surface.h
+%include ../../../src/Timer.h
+%include ../../../src/Track.h
+%include ../../../src/TrackGenerator.h
+%include ../../../src/Universe.h
 
 typedef double FP_PRECISION;
 

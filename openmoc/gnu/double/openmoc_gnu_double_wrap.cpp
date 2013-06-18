@@ -2955,11 +2955,11 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 
 /* -------- TYPES TABLE (BEGIN) -------- */
 
-#define SWIGTYPE_p_Cell swig_types[0]
-#define SWIGTYPE_p_CellBasic swig_types[1]
-#define SWIGTYPE_p_CellFill swig_types[2]
-#define SWIGTYPE_p_Circle swig_types[3]
-#define SWIGTYPE_p_FlatSourceRegion swig_types[4]
+#define SWIGTYPE_p_CPUSolver swig_types[0]
+#define SWIGTYPE_p_Cell swig_types[1]
+#define SWIGTYPE_p_CellBasic swig_types[2]
+#define SWIGTYPE_p_CellFill swig_types[3]
+#define SWIGTYPE_p_Circle swig_types[4]
 #define SWIGTYPE_p_Geometry swig_types[5]
 #define SWIGTYPE_p_Lattice swig_types[6]
 #define SWIGTYPE_p_LocalCoords swig_types[7]
@@ -3089,20 +3089,21 @@ namespace swig {
 
 
     #define SWIG_FILE_WITH_INIT
-    #include "../../src/host/Cell.h"
-    #include "../../src/host/FlatSourceRegion.h"
-    #include "../../src/host/Geometry.h"
-    #include "../../src/host/LocalCoords.h"
-    #include "../../src/host/log.h"
-    #include "../../src/host/Material.h"
-    #include "../../src/host/Point.h"
-    #include "../../src/host/Quadrature.h"
-    #include "../../src/host/Solver.h"
-    #include "../../src/host/Surface.h"
-    #include "../../src/host/Timer.h"
-    #include "../../src/host/Track.h" 
-    #include "../../src/host/TrackGenerator.h"
-    #include "../../src/host/Universe.h"
+    #include "../../../src/Cell.h"
+    #include "../../../src/Geometry.h"
+    #include "../../../src/LocalCoords.h"
+    #include "../../../src/log.h"
+    #include "../../../src/Material.h"
+    #include "../../../src/Point.h"
+    #include "../../../src/Quadrature.h"
+    #include "../../../src/CPUSolver.h"
+    #include "../../../src/Solver.h"
+    #include "../../../src/Surface.h"
+    #include "../../../src/Timer.h"
+    #include "../../../src/Track.h" 
+    #include "../../../src/TrackGenerator.h"
+    #include "../../../src/Universe.h"
+
     /* Exception helpers */
     static int swig_c_error_num = 0;
     static char swig_c_err_msg[512];
@@ -5264,284 +5265,6 @@ SWIGINTERN PyObject *CellFill_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObj
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
   SWIG_TypeNewClientData(SWIGTYPE_p_CellFill, SWIG_NewClientData(obj));
-  return SWIG_Py_Void();
-}
-
-SWIGINTERN PyObject *_wrap_new_FlatSourceRegion(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  FlatSourceRegion *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)":new_FlatSourceRegion")) SWIG_fail;
-  {
-    try {
-      result = (FlatSourceRegion *)new FlatSourceRegion();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_FlatSourceRegion, SWIG_POINTER_NEW |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_delete_FlatSourceRegion(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  FlatSourceRegion *arg1 = (FlatSourceRegion *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:delete_FlatSourceRegion",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_FlatSourceRegion, SWIG_POINTER_DISOWN |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_FlatSourceRegion" "', argument " "1"" of type '" "FlatSourceRegion *""'"); 
-  }
-  arg1 = reinterpret_cast< FlatSourceRegion * >(argp1);
-  {
-    try {
-      delete arg1;
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_FlatSourceRegion_getUid(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  FlatSourceRegion *arg1 = (FlatSourceRegion *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  int result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:FlatSourceRegion_getUid",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_FlatSourceRegion, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FlatSourceRegion_getUid" "', argument " "1"" of type '" "FlatSourceRegion const *""'"); 
-  }
-  arg1 = reinterpret_cast< FlatSourceRegion * >(argp1);
-  {
-    try {
-      result = (int)((FlatSourceRegion const *)arg1)->getUid();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_From_int(static_cast< int >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_FlatSourceRegion_getMaterial(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  FlatSourceRegion *arg1 = (FlatSourceRegion *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  Material *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:FlatSourceRegion_getMaterial",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_FlatSourceRegion, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FlatSourceRegion_getMaterial" "', argument " "1"" of type '" "FlatSourceRegion *""'"); 
-  }
-  arg1 = reinterpret_cast< FlatSourceRegion * >(argp1);
-  {
-    try {
-      result = (Material *)(arg1)->getMaterial();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Material, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_FlatSourceRegion_getVolume(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  FlatSourceRegion *arg1 = (FlatSourceRegion *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  FP_PRECISION result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:FlatSourceRegion_getVolume",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_FlatSourceRegion, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FlatSourceRegion_getVolume" "', argument " "1"" of type '" "FlatSourceRegion const *""'"); 
-  }
-  arg1 = reinterpret_cast< FlatSourceRegion * >(argp1);
-  {
-    try {
-      result = (FP_PRECISION)((FlatSourceRegion const *)arg1)->getVolume();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_From_double(static_cast< double >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_FlatSourceRegion_setMaterial(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
-  PyObject *resultobj = 0;
-  FlatSourceRegion *arg1 = (FlatSourceRegion *) 0 ;
-  Material *arg2 = (Material *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  char *  kwnames[] = {
-    (char *) "self",(char *) "material", NULL 
-  };
-  
-  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:FlatSourceRegion_setMaterial",kwnames,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_FlatSourceRegion, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FlatSourceRegion_setMaterial" "', argument " "1"" of type '" "FlatSourceRegion *""'"); 
-  }
-  arg1 = reinterpret_cast< FlatSourceRegion * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Material, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "FlatSourceRegion_setMaterial" "', argument " "2"" of type '" "Material *""'"); 
-  }
-  arg2 = reinterpret_cast< Material * >(argp2);
-  {
-    try {
-      (arg1)->setMaterial(arg2);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_FlatSourceRegion_setVolume(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
-  PyObject *resultobj = 0;
-  FlatSourceRegion *arg1 = (FlatSourceRegion *) 0 ;
-  FP_PRECISION arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  char *  kwnames[] = {
-    (char *) "self",(char *) "volume", NULL 
-  };
-  
-  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:FlatSourceRegion_setVolume",kwnames,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_FlatSourceRegion, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FlatSourceRegion_setVolume" "', argument " "1"" of type '" "FlatSourceRegion *""'"); 
-  }
-  arg1 = reinterpret_cast< FlatSourceRegion * >(argp1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "FlatSourceRegion_setVolume" "', argument " "2"" of type '" "FP_PRECISION""'");
-  } 
-  arg2 = static_cast< FP_PRECISION >(val2);
-  {
-    try {
-      (arg1)->setVolume(arg2);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_FlatSourceRegion_incrementVolume(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
-  PyObject *resultobj = 0;
-  FlatSourceRegion *arg1 = (FlatSourceRegion *) 0 ;
-  FP_PRECISION arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  char *  kwnames[] = {
-    (char *) "self",(char *) "volume", NULL 
-  };
-  
-  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:FlatSourceRegion_incrementVolume",kwnames,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_FlatSourceRegion, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "FlatSourceRegion_incrementVolume" "', argument " "1"" of type '" "FlatSourceRegion *""'"); 
-  }
-  arg1 = reinterpret_cast< FlatSourceRegion * >(argp1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "FlatSourceRegion_incrementVolume" "', argument " "2"" of type '" "FP_PRECISION""'");
-  } 
-  arg2 = static_cast< FP_PRECISION >(val2);
-  {
-    try {
-      (arg1)->incrementVolume(arg2);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *FlatSourceRegion_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *obj;
-  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-  SWIG_TypeNewClientData(SWIGTYPE_p_FlatSourceRegion, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
 
@@ -10297,64 +10020,6 @@ SWIGINTERN PyObject *Quadrature_swigregister(PyObject *SWIGUNUSEDPARM(self), PyO
   return SWIG_Py_Void();
 }
 
-SWIGINTERN PyObject *_wrap_new_Solver(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
-  PyObject *resultobj = 0;
-  Geometry *arg1 = (Geometry *) NULL ;
-  TrackGenerator *arg2 = (TrackGenerator *) NULL ;
-  int arg3 = (int) 1 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  char *  kwnames[] = {
-    (char *) "geom",(char *) "track_generator",(char *) "num_threads", NULL 
-  };
-  Solver *result = 0 ;
-  
-  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"|OOO:new_Solver",kwnames,&obj0,&obj1,&obj2)) SWIG_fail;
-  if (obj0) {
-    res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
-    if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_Solver" "', argument " "1"" of type '" "Geometry *""'"); 
-    }
-    arg1 = reinterpret_cast< Geometry * >(argp1);
-  }
-  if (obj1) {
-    res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_TrackGenerator, 0 |  0 );
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_Solver" "', argument " "2"" of type '" "TrackGenerator *""'"); 
-    }
-    arg2 = reinterpret_cast< TrackGenerator * >(argp2);
-  }
-  if (obj2) {
-    ecode3 = SWIG_AsVal_int(obj2, &val3);
-    if (!SWIG_IsOK(ecode3)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_Solver" "', argument " "3"" of type '" "int""'");
-    } 
-    arg3 = static_cast< int >(val3);
-  }
-  {
-    try {
-      result = (Solver *)new Solver(arg1,arg2,arg3);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Solver, SWIG_POINTER_NEW |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_delete_Solver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Solver *arg1 = (Solver *) 0 ;
@@ -10441,37 +10106,6 @@ SWIGINTERN PyObject *_wrap_Solver_getTrackGenerator(PyObject *SWIGUNUSEDPARM(sel
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_TrackGenerator, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Solver_getNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Solver *arg1 = (Solver *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  int result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:Solver_getNumThreads",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_getNumThreads" "', argument " "1"" of type '" "Solver *""'"); 
-  }
-  arg1 = reinterpret_cast< Solver * >(argp1);
-  {
-    try {
-      result = (int)(arg1)->getNumThreads();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -10772,48 +10406,6 @@ SWIGINTERN PyObject *_wrap_Solver_getFSRPinPowers(PyObject *SWIGUNUSEDPARM(self)
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_double, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Solver_setNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
-  PyObject *resultobj = 0;
-  Solver *arg1 = (Solver *) 0 ;
-  int arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  char *  kwnames[] = {
-    (char *) "self",(char *) "num_threads", NULL 
-  };
-  
-  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Solver_setNumThreads",kwnames,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_setNumThreads" "', argument " "1"" of type '" "Solver *""'"); 
-  }
-  arg1 = reinterpret_cast< Solver * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Solver_setNumThreads" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = static_cast< int >(val2);
-  {
-    try {
-      (arg1)->setNumThreads(arg2);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
   return NULL;
@@ -11149,6 +10741,338 @@ SWIGINTERN PyObject *Solver_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
   SWIG_TypeNewClientData(SWIGTYPE_p_Solver, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_new_CPUSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Geometry *arg1 = (Geometry *) NULL ;
+  TrackGenerator *arg2 = (TrackGenerator *) NULL ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "geom",(char *) "track_generator", NULL 
+  };
+  CPUSolver *result = 0 ;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"|OO:new_CPUSolver",kwnames,&obj0,&obj1)) SWIG_fail;
+  if (obj0) {
+    res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_CPUSolver" "', argument " "1"" of type '" "Geometry *""'"); 
+    }
+    arg1 = reinterpret_cast< Geometry * >(argp1);
+  }
+  if (obj1) {
+    res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_TrackGenerator, 0 |  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_CPUSolver" "', argument " "2"" of type '" "TrackGenerator *""'"); 
+    }
+    arg2 = reinterpret_cast< TrackGenerator * >(argp2);
+  }
+  {
+    try {
+      result = (CPUSolver *)new CPUSolver(arg1,arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_CPUSolver, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_CPUSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_CPUSolver",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_CPUSolver" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  {
+    try {
+      delete arg1;
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CPUSolver_getFSRScalarFlux(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "fsr_id",(char *) "energy_group", NULL 
+  };
+  FP_PRECISION result;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OOO:CPUSolver_getFSRScalarFlux",kwnames,&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_getFSRScalarFlux" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CPUSolver_getFSRScalarFlux" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "CPUSolver_getFSRScalarFlux" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  {
+    try {
+      result = (FP_PRECISION)(arg1)->getFSRScalarFlux(arg2,arg3);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CPUSolver_getFSRScalarFluxes(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  FP_PRECISION *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_getFSRScalarFluxes",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_getFSRScalarFluxes" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  {
+    try {
+      result = (FP_PRECISION *)(arg1)->getFSRScalarFluxes();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_double, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CPUSolver_getFSRPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  FP_PRECISION *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_getFSRPowers",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_getFSRPowers" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  {
+    try {
+      result = (FP_PRECISION *)(arg1)->getFSRPowers();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_double, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CPUSolver_getFSRPinPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  FP_PRECISION *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_getFSRPinPowers",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_getFSRPinPowers" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  {
+    try {
+      result = (FP_PRECISION *)(arg1)->getFSRPinPowers();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_double, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CPUSolver_getNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_getNumThreads",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_getNumThreads" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  {
+    try {
+      result = (int)(arg1)->getNumThreads();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CPUSolver_setNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "num_threads", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:CPUSolver_setNumThreads",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_setNumThreads" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CPUSolver_setNumThreads" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    try {
+      (arg1)->setNumThreads(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CPUSolver_computePinPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_computePinPowers",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_computePinPowers" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  {
+    try {
+      (arg1)->computePinPowers();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *CPUSolver_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_CPUSolver, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
 
@@ -17737,15 +17661,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"CellFill_printString", _wrap_CellFill_printString, METH_VARARGS, NULL},
 	 { (char *)"delete_CellFill", _wrap_delete_CellFill, METH_VARARGS, NULL},
 	 { (char *)"CellFill_swigregister", CellFill_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_FlatSourceRegion", _wrap_new_FlatSourceRegion, METH_VARARGS, NULL},
-	 { (char *)"delete_FlatSourceRegion", _wrap_delete_FlatSourceRegion, METH_VARARGS, NULL},
-	 { (char *)"FlatSourceRegion_getUid", _wrap_FlatSourceRegion_getUid, METH_VARARGS, NULL},
-	 { (char *)"FlatSourceRegion_getMaterial", _wrap_FlatSourceRegion_getMaterial, METH_VARARGS, NULL},
-	 { (char *)"FlatSourceRegion_getVolume", _wrap_FlatSourceRegion_getVolume, METH_VARARGS, NULL},
-	 { (char *)"FlatSourceRegion_setMaterial", (PyCFunction) _wrap_FlatSourceRegion_setMaterial, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"FlatSourceRegion_setVolume", (PyCFunction) _wrap_FlatSourceRegion_setVolume, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"FlatSourceRegion_incrementVolume", (PyCFunction) _wrap_FlatSourceRegion_incrementVolume, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"FlatSourceRegion_swigregister", FlatSourceRegion_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_Geometry", _wrap_new_Geometry, METH_VARARGS, NULL},
 	 { (char *)"delete_Geometry", _wrap_delete_Geometry, METH_VARARGS, NULL},
 	 { (char *)"Geometry_getWidth", _wrap_Geometry_getWidth, METH_VARARGS, NULL},
@@ -17880,11 +17795,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Quadrature_getMultiples", _wrap_Quadrature_getMultiples, METH_VARARGS, NULL},
 	 { (char *)"Quadrature_toString", _wrap_Quadrature_toString, METH_VARARGS, NULL},
 	 { (char *)"Quadrature_swigregister", Quadrature_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_Solver", (PyCFunction) _wrap_new_Solver, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"delete_Solver", _wrap_delete_Solver, METH_VARARGS, NULL},
 	 { (char *)"Solver_getGeometry", _wrap_Solver_getGeometry, METH_VARARGS, NULL},
 	 { (char *)"Solver_getTrackGenerator", _wrap_Solver_getTrackGenerator, METH_VARARGS, NULL},
-	 { (char *)"Solver_getNumThreads", _wrap_Solver_getNumThreads, METH_VARARGS, NULL},
 	 { (char *)"Solver_getNumPolarAngles", _wrap_Solver_getNumPolarAngles, METH_VARARGS, NULL},
 	 { (char *)"Solver_getPolarQuadratureType", _wrap_Solver_getPolarQuadratureType, METH_VARARGS, NULL},
 	 { (char *)"Solver_getNumIterations", _wrap_Solver_getNumIterations, METH_VARARGS, NULL},
@@ -17894,7 +17807,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Solver_getFSRScalarFluxes", _wrap_Solver_getFSRScalarFluxes, METH_VARARGS, NULL},
 	 { (char *)"Solver_getFSRPowers", _wrap_Solver_getFSRPowers, METH_VARARGS, NULL},
 	 { (char *)"Solver_getFSRPinPowers", _wrap_Solver_getFSRPinPowers, METH_VARARGS, NULL},
-	 { (char *)"Solver_setNumThreads", (PyCFunction) _wrap_Solver_setNumThreads, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_setGeometry", (PyCFunction) _wrap_Solver_setGeometry, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_setTrackGenerator", (PyCFunction) _wrap_Solver_setTrackGenerator, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_setPolarQuadratureType", (PyCFunction) _wrap_Solver_setPolarQuadratureType, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -17904,6 +17816,16 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Solver_convergeSource", (PyCFunction) _wrap_Solver_convergeSource, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_computePinPowers", _wrap_Solver_computePinPowers, METH_VARARGS, NULL},
 	 { (char *)"Solver_swigregister", Solver_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_CPUSolver", (PyCFunction) _wrap_new_CPUSolver, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"delete_CPUSolver", _wrap_delete_CPUSolver, METH_VARARGS, NULL},
+	 { (char *)"CPUSolver_getFSRScalarFlux", (PyCFunction) _wrap_CPUSolver_getFSRScalarFlux, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"CPUSolver_getFSRScalarFluxes", _wrap_CPUSolver_getFSRScalarFluxes, METH_VARARGS, NULL},
+	 { (char *)"CPUSolver_getFSRPowers", _wrap_CPUSolver_getFSRPowers, METH_VARARGS, NULL},
+	 { (char *)"CPUSolver_getFSRPinPowers", _wrap_CPUSolver_getFSRPinPowers, METH_VARARGS, NULL},
+	 { (char *)"CPUSolver_getNumThreads", _wrap_CPUSolver_getNumThreads, METH_VARARGS, NULL},
+	 { (char *)"CPUSolver_setNumThreads", (PyCFunction) _wrap_CPUSolver_setNumThreads, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"CPUSolver_computePinPowers", _wrap_CPUSolver_computePinPowers, METH_VARARGS, NULL},
+	 { (char *)"CPUSolver_swigregister", CPUSolver_swigregister, METH_VARARGS, NULL},
 	 { (char *)"surf_id", _wrap_surf_id, METH_VARARGS, NULL},
 	 { (char *)"delete_Surface", _wrap_delete_Surface, METH_VARARGS, NULL},
 	 { (char *)"Surface_getUid", _wrap_Surface_getUid, METH_VARARGS, NULL},
@@ -18127,6 +18049,9 @@ static void *_p_CircleTo_p_Surface(void *x, int *SWIGUNUSEDPARM(newmemory)) {
 static void *_p_LatticeTo_p_Universe(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Universe *)  ((Lattice *) x));
 }
+static void *_p_CPUSolverTo_p_Solver(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Solver *)  ((CPUSolver *) x));
+}
 static void *_p_XPlaneTo_p_Plane(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Plane *)  ((XPlane *) x));
 }
@@ -18136,11 +18061,11 @@ static void *_p_YPlaneTo_p_Plane(void *x, int *SWIGUNUSEDPARM(newmemory)) {
 static void *_p_ZPlaneTo_p_Plane(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Plane *)  ((ZPlane *) x));
 }
+static swig_type_info _swigt__p_CPUSolver = {"_p_CPUSolver", "CPUSolver *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Cell = {"_p_Cell", "Cell *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_CellBasic = {"_p_CellBasic", "CellBasic *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_CellFill = {"_p_CellFill", "CellFill *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Circle = {"_p_Circle", "Circle *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_FlatSourceRegion = {"_p_FlatSourceRegion", "FlatSourceRegion *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Geometry = {"_p_Geometry", "Geometry *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Lattice = {"_p_Lattice", "Lattice *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_LocalCoords = {"_p_LocalCoords", "LocalCoords *", 0, 0, (void*)0, 0};
@@ -18173,11 +18098,11 @@ static swig_type_info _swigt__p_std__vectorT_segment_p_t = {"_p_std__vectorT_seg
 static swig_type_info _swigt__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t = {"_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t", "std::vector< std::vector< std::pair< short,Universe * > > > *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
+  &_swigt__p_CPUSolver,
   &_swigt__p_Cell,
   &_swigt__p_CellBasic,
   &_swigt__p_CellFill,
   &_swigt__p_Circle,
-  &_swigt__p_FlatSourceRegion,
   &_swigt__p_Geometry,
   &_swigt__p_Lattice,
   &_swigt__p_LocalCoords,
@@ -18210,11 +18135,11 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t,
 };
 
+static swig_cast_info _swigc__p_CPUSolver[] = {  {&_swigt__p_CPUSolver, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Cell[] = {  {&_swigt__p_CellBasic, _p_CellBasicTo_p_Cell, 0, 0},  {&_swigt__p_CellFill, _p_CellFillTo_p_Cell, 0, 0},  {&_swigt__p_Cell, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_CellBasic[] = {  {&_swigt__p_CellBasic, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_CellFill[] = {  {&_swigt__p_CellFill, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Circle[] = {  {&_swigt__p_Circle, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_FlatSourceRegion[] = {  {&_swigt__p_FlatSourceRegion, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Geometry[] = {  {&_swigt__p_Geometry, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Lattice[] = {  {&_swigt__p_Lattice, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_LocalCoords[] = {  {&_swigt__p_LocalCoords, 0, 0, 0},{0, 0, 0, 0}};
@@ -18222,7 +18147,7 @@ static swig_cast_info _swigc__p_Material[] = {  {&_swigt__p_Material, 0, 0, 0},{
 static swig_cast_info _swigc__p_Plane[] = {  {&_swigt__p_Plane, 0, 0, 0},  {&_swigt__p_XPlane, _p_XPlaneTo_p_Plane, 0, 0},  {&_swigt__p_YPlane, _p_YPlaneTo_p_Plane, 0, 0},  {&_swigt__p_ZPlane, _p_ZPlaneTo_p_Plane, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Point[] = {  {&_swigt__p_Point, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Quadrature[] = {  {&_swigt__p_Quadrature, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_Solver[] = {  {&_swigt__p_Solver, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Solver[] = {  {&_swigt__p_Solver, 0, 0, 0},  {&_swigt__p_CPUSolver, _p_CPUSolverTo_p_Solver, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Surface[] = {  {&_swigt__p_Plane, _p_PlaneTo_p_Surface, 0, 0},  {&_swigt__p_XPlane, _p_XPlaneTo_p_Surface, 0, 0},  {&_swigt__p_Surface, 0, 0, 0},  {&_swigt__p_YPlane, _p_YPlaneTo_p_Surface, 0, 0},  {&_swigt__p_ZPlane, _p_ZPlaneTo_p_Surface, 0, 0},  {&_swigt__p_Circle, _p_CircleTo_p_Surface, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Timer[] = {  {&_swigt__p_Timer, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Track[] = {  {&_swigt__p_Track, 0, 0, 0},{0, 0, 0, 0}};
@@ -18247,11 +18172,11 @@ static swig_cast_info _swigc__p_std__vectorT_segment_p_t[] = {  {&_swigt__p_std_
 static swig_cast_info _swigc__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t[] = {  {&_swigt__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
+  _swigc__p_CPUSolver,
   _swigc__p_Cell,
   _swigc__p_CellBasic,
   _swigc__p_CellFill,
   _swigc__p_Circle,
-  _swigc__p_FlatSourceRegion,
   _swigc__p_Geometry,
   _swigc__p_Lattice,
   _swigc__p_LocalCoords,

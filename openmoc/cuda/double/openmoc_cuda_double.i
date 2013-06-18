@@ -2,11 +2,11 @@
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "../../src/dev/DeviceMaterial.h"
-    #include "../../src/dev/DeviceTrack.h"
-    #include "../../src/dev/DeviceQuery.h"
-    #include "../../src/host/Solver.h"
-    #include "../../src/dev/GPUSolver.h"
+    #include "../../../src/dev/DeviceMaterial.h"
+    #include "../../../src/dev/DeviceTrack.h"
+    #include "../../../src/dev/gpu/GPUQuery.h"
+    #include "../../../src/Solver.h"
+    #include "../../../src/dev/gpu/GPUSolver.h"
 
 
     /* Exception helpers */
@@ -49,11 +49,11 @@
 
 
 %include <exception.i>
-%include ../../src/dev/DeviceMaterial.h
-%include ../../src/dev/DeviceTrack.h
-%include ../../src/dev/DeviceQuery.h
-%include ../../src/host/Solver.h
-%include ../../src/dev/GPUSolver.h
+%include ../../../src/dev/DeviceMaterial.h
+%include ../../../src/dev/DeviceTrack.h
+%include ../../../src/dev/gpu/GPUQuery.h
+%include ../../../src/Solver.h
+%include ../../../src/dev/gpu/GPUSolver.h
 
 typedef double FP_PRECISION;
 
