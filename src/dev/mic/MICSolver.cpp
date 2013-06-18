@@ -85,6 +85,7 @@ FP_PRECISION MICSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
     return _scalar_flux(fsr_id,energy_group);
 }
 
+
 /**
  * @brief Return a 2D array indexed by flatsourceregion IDs and energy groups 
  *        which contains the corresponding fluxes for each flatsourceregion.
@@ -523,8 +524,11 @@ void MICSolver::zeroTrackFluxes() {
 
     /* Loop over azimuthal angle, track, polar angle, energy group
      * and set each track's incoming and outgoing flux to zero */
+
+    #pragma offload target(mic)	\
+      inout(_boundary_flux:length(2*_tot_num_tracks*_polar_times_groups))
     #pragma omp parallel for
-    for (int i=0; i < _track_generator->getNumTracks(); i++) {
+    for (int i=0; i < _tot_num_tracks; i++) {
         for (int pe2=0; pe2 < 2*_polar_times_groups; pe2++)
     	    _boundary_flux(i,pe2) = 0.0;
     }

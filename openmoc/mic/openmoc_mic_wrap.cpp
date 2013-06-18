@@ -4521,6 +4521,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_amIRunningOnMIC(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":amIRunningOnMIC")) SWIG_fail;
+  {
+    try {
+      result = (bool)amIRunningOnMIC();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"delete_Solver", _wrap_delete_Solver, METH_VARARGS, NULL},
@@ -4559,6 +4581,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"MICSolver_swigregister", MICSolver_swigregister, METH_VARARGS, NULL},
 	 { (char *)"machineContainsMIC", _wrap_machineContainsMIC, METH_VARARGS, NULL},
 	 { (char *)"machineContainsHowManyMICs", _wrap_machineContainsHowManyMICs, METH_VARARGS, NULL},
+	 { (char *)"amIRunningOnMIC", _wrap_amIRunningOnMIC, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

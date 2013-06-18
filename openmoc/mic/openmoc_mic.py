@@ -135,6 +135,10 @@ machineContainsMIC = _openmoc_mic.machineContainsMIC
 def machineContainsHowManyMICs():
   return _openmoc_mic.machineContainsHowManyMICs()
 machineContainsHowManyMICs = _openmoc_mic.machineContainsHowManyMICs
+
+def amIRunningOnMIC():
+  return _openmoc_mic.amIRunningOnMIC()
+amIRunningOnMIC = _openmoc_mic.amIRunningOnMIC
 # This file is compatible with both classic and new-style classes.
 
 

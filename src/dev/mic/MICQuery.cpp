@@ -26,3 +26,15 @@ int machineContainsHowManyMICs() {
 
     return num_devices;
 }
+
+
+bool amIRunningOnMIC() {
+
+    bool ret = false;
+
+    #ifdef __MIC__
+    ret = true;
+    #endif
+
+    return ret;
+}

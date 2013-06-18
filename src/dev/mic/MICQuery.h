@@ -17,6 +17,7 @@
 
 bool machineContainsMIC();
 int machineContainsHowManyMICs();
+bool amIRunningOnMIC();
 
 
 #endif /* MICQUERY_H_ */

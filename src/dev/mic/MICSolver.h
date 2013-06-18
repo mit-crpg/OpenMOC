@@ -8,10 +8,18 @@
 #ifndef MICSOLVER_H_
 #define MICSOLVER_H_
 
+#ifdef SWIG
+#define MIC_ATTRIBUTE
+#else
+#define MIC_ATTRIBUTE __attribute__((target(mic)))
+#endif
+
+
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <omp.h>
+#include <offload.h>
 #include "../../Solver.h"
 #include "clone.h"
 #endif
@@ -26,6 +34,12 @@
 class MICSolver : public Solver {
 
 private:
+
+    /** The angular fluxes for each track for all energy groups, polar angles,
+     *  and azimuthal angles. This array stores the boundary fluxes for a
+     *  a track along both "forward" and "reverse" directions. */
+  //    FP_PRECISION* _boundary_flux;
+
     /** The number of shared memory OpenMP threads */
     int _num_threads;
 
