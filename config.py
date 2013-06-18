@@ -6,20 +6,20 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = []
+cpp_compilers = ['all']
 
 default_cc = 'gcc'
 
 # Supported floating point precision: 'single', 'double', 'all'
-fp_precision = []
+fp_precision = ['all']
 
-default_fp = 'single'
+default_fp = 'double'
 
 # Compile using ccache (most relevant for developers)
 with_ccache = True
 
 # Compile with debug flags
-debug_mode = True
+debug_mode = False
 
 # Use CUDA set to True or False
 with_cuda = True
@@ -33,26 +33,26 @@ with_cuda = True
 sources = {}
 
 sources['c++'] = ['openmoc/openmoc.i',
-                  'openmoc/src/host/Cell.cpp',
-                  'openmoc/src/host/Geometry.cpp',
-                  'openmoc/src/host/LocalCoords.cpp',
-                  'openmoc/src/host/log.cpp',
-                  'openmoc/src/host/Material.cpp',
-                  'openmoc/src/host/Point.cpp',
-                  'openmoc/src/host/Quadrature.cpp',
-                  'openmoc/src/host/Solver.cpp',
-                  'openmoc/src/host/CPUSolver.cpp',
-                  'openmoc/src/host/Surface.cpp',
-                  'openmoc/src/host/Timer.cpp',
-                  'openmoc/src/host/Track.cpp',
-                  'openmoc/src/host/TrackGenerator.cpp',
-                  'openmoc/src/host/Universe.cpp']
+                  'src/Cell.cpp',
+                  'src/Geometry.cpp',
+                  'src/LocalCoords.cpp',
+                  'src/log.cpp',
+                  'src/Material.cpp',
+                  'src/Point.cpp',
+                  'src/Quadrature.cpp',
+                  'src/Solver.cpp',
+                  'src/CPUSolver.cpp',
+                  'src/Surface.cpp',
+                  'src/Timer.cpp',
+                  'src/Track.cpp',
+                  'src/TrackGenerator.cpp',
+                  'src/Universe.cpp']
 
 sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
-                   'openmoc/src/dev/DeviceTrack.cu',
-                   'openmoc/src/dev/DeviceMaterial.cu',
-                   'openmoc/src/dev/DeviceQuery.cu',
-                   'openmoc/src/dev/GPUSolver.cu']
+                   'src/dev/DeviceTrack.cu',
+                   'src/dev/DeviceMaterial.cu',
+                   'src/dev/gpu/GPUQuery.cu',
+                   'src/dev/gpu/GPUSolver.cu']
 
 
 

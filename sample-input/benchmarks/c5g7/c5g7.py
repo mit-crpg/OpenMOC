@@ -1,11 +1,10 @@
 import numpy
-import matplotlib.pyplot as plt
-from openmoc import *
+from openmoc.intel.double import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 import openmoc.process as process
-import openmoc.cuda as cuda
+import openmoc.cuda.double as cuda
 
 
 ###############################################################################
@@ -363,13 +362,13 @@ Timer.printSplits()
 log.py_printf('NORMAL', 'Initializing solver on the GPU...')
 
 cuda.attachGPU(0)
-#cuda.printBasicDeviceInfo()
-#device_solver = cuda.GPUSolver(geometry, track_generator)
-#device_solver.setSourceConvergenceThreshold(tolerance)
+cuda.printBasicGPUInfo()
+device_solver = cuda.GPUSolver(geometry, track_generator)
+device_solver.setSourceConvergenceThreshold(tolerance)
 
 Timer.resetTimer()
 Timer.startTimer()
-#device_solver.convergeSource(max_iters)
+device_solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Converging the source on the GPU')
 Timer.printSplits()
