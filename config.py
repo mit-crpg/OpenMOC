@@ -19,10 +19,10 @@ default_fp = 'single'
 with_ccache = True
 
 # Compile with debug flags
-debug_mode = False
+debug_mode = True
 
 # Use CUDA set to True or False
-with_cuda = True
+with_cuda = False
 
 # Compile module for the Intel Xeon Phi (MIC)
 with_mic = True

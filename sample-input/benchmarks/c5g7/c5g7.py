@@ -5,18 +5,18 @@ import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 import openmoc.process as process
-import openmoc.cuda as cuda
+#import openmoc.cuda as cuda
 
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 4
+num_threads = 1
 track_spacing = 0.1
-num_azim = 8
+num_azim = 4
 tolerance = 1E-4
-max_iters = 10
+max_iters = 3
 gridsize = 500
 
 setOutputDirectory('C5G7')
@@ -371,7 +371,8 @@ Timer.printSplits()
 #                            Allocating Data on GPU
 ###############################################################################
 
-if cuda.machineContainsGPU():
+if 0:
+#if cuda.machineContainsGPU():
 
     log.py_printf('NORMAL', 'Initializing solver on the GPU...')
 
