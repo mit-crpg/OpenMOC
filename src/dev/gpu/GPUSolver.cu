@@ -649,8 +649,11 @@ GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
     _source_residual = NULL;
     _leakage = NULL;
 
-    setTrackGenerator(track_generator);
-    setGeometry(geom);
+    if (track_generator != NULL)
+        setTrackGenerator(track_generator);
+
+    if (geom != NULL)
+        setGeometry(geom);
 }
 
 
@@ -678,6 +681,11 @@ GPUSolver::~GPUSolver() {
     if (_dev_tracks != NULL) {
         cudaFree(_dev_tracks);
 	_dev_tracks = NULL;
+    }
+
+    if (_track_index_offsets != NULL) {
+        cudaFree(_track_index_offsets);
+	_track_index_offsets = NULL;
     }
 
     if (_boundary_flux != NULL) {
@@ -1083,7 +1091,7 @@ void GPUSolver::initializeMaterials() {
         /* Iterate through all materials and clone them on the device */
         cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
 	for (iter = host_materials.begin(); iter != host_materials.end(); ++iter)
-	    cloneOnDevice(iter->second, &_materials[iter->second->getUid()]);
+	    cloneMaterialOnGPU(iter->second, &_materials[iter->second->getUid()]);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the device solver's "
@@ -1126,7 +1134,7 @@ void GPUSolver::initializeTracks() {
 	    for (int j=0; j < _num_tracks[i]; j++) {
 
 	        /* Clone this track on the device */
-	        cloneTrack(&_tracks[i][j], &_dev_tracks[counter]);
+	        cloneTrackOnGPU(&_tracks[i][j], &_dev_tracks[counter]);
 
 		/* Make track reflective */
 		index = computeScalarTrackIndex(_tracks[i][j].getTrackInI(),

@@ -2,11 +2,9 @@
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "../../../src/dev/DeviceMaterial.h"
-    #include "../../../src/dev/DeviceTrack.h"
-    #include "../../../src/dev/gpu/GPUQuery.h"
     #include "../../../src/Solver.h"
     #include "../../../src/dev/gpu/GPUSolver.h"
+    #include "../../../src/dev/gpu/GPUQuery.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -48,11 +46,9 @@
 
 
 %include <exception.i> 
-%include ../../../src/dev/DeviceMaterial.h
-%include ../../../src/dev/DeviceTrack.h
-%include ../../../src/dev/gpu/GPUQuery.h
 %include ../../../src/Solver.h
- %include ../../../src/dev/gpu/GPUSolver.h
+%include ../../../src/dev/gpu/GPUSolver.h
+%include ../../../src/dev/gpu/GPUQuery.h
 
 typedef float FP_PRECISION;
 

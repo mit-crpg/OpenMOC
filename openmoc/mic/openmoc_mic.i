@@ -1,11 +1,10 @@
-%module openmoc_cuda_double
+%module openmoc_mic
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "../../../src/Solver.h"
-    #include "../../../src/dev/gpu/GPUSolver.h"
-    #include "../../../src/dev/gpu/GPUQuery.h"
-
+    #include "../../src/Solver.h"
+    #include "../../src/dev/mic/MICSolver.h"
+    #include "../../src/dev/mic/MICQuery.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -38,18 +37,17 @@
 }
 
 
-%include "../../numpy.i"
+%include "../numpy.i"
 
 
 %init %{
      import_array();
 %}
 
+%include <exception.i> 
+%include ../../src/Solver.h
+%include ../../src/dev/mic/MICSolver.h
+%include ../../src/dev/mic/MICQuery.h
 
-%include <exception.i>
-%include ../../../src/Solver.h
-%include ../../../src/dev/gpu/GPUSolver.h
-%include ../../../src/dev/gpu/GPUQuery.h
-
-typedef double FP_PRECISION;
+typedef float FP_PRECISION;
 

@@ -21,6 +21,7 @@
  * @details The dev_segment is intended for use on the GPU.
  */
 struct dev_segment {
+
     /** The length of the segment (cm) */
     FP_PRECISION _length;
 
@@ -40,6 +41,7 @@ struct dev_segment {
  *          is intended for use on the GPU.
  */ 
 struct dev_track {
+
     /** A monotonically increasing unique ID for each track created */
     int _uid;
 
@@ -81,9 +83,6 @@ struct dev_track {
      *  conditions. */
     bool _bc_out;
 };
-
-
-void cloneTrack(Track* track_h, dev_track* track_d);
 
 
 #endif /* DEVICETRACK_H_ */

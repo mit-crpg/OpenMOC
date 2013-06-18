@@ -16,8 +16,7 @@
 #include <thrust/device_vector.h>
 #include <sm_13_double_functions.h>
 #include <sm_20_atomic_functions.h>
-#include "../DeviceTrack.h"
-#include "../DeviceMaterial.h"
+#include "clone.h"
 
 
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
