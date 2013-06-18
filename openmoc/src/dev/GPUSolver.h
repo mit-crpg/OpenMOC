@@ -16,7 +16,6 @@
 #include <thrust/device_vector.h>
 #include <sm_13_double_functions.h>
 #include <sm_20_atomic_functions.h>
-#include "DeviceFlatSourceRegion.h"
 #include "DeviceTrack.h"
 #include "DeviceMaterial.h"
 
@@ -65,8 +64,7 @@ private:
     /*                           Data on the device                           */
     /**************************************************************************/
 
-    /** A pointer to an array of the flat source regions on the device */
-    dev_flatsourceregion* _FSRs;
+    int* _FSR_materials;
 
     /** A pointer to an array of the materials on the device */
     dev_material* _materials;
