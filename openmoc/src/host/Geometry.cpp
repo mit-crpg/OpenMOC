@@ -343,6 +343,7 @@ void Geometry::addMaterial(Material* material) {
     if (material->getNumEnergyGroups() == 0)
         log_printf(ERROR, "Unable to add material %d since it does not "
 		 "contain any nuclear data", material->getId());
+
     if (_num_groups == 0)
         _num_groups = material->getNumEnergyGroups();
     else if (_num_groups != material->getNumEnergyGroups())

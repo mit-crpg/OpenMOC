@@ -34,7 +34,6 @@ sources = {}
 
 sources['c++'] = ['openmoc/openmoc.i',
                   'openmoc/src/host/Cell.cpp',
-                  'openmoc/src/host/FlatSourceRegion.cpp',
                   'openmoc/src/host/Geometry.cpp',
                   'openmoc/src/host/LocalCoords.cpp',
                   'openmoc/src/host/log.cpp',

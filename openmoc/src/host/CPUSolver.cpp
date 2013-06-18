@@ -297,10 +297,14 @@ void CPUSolver::initializeFSRs() {
     log_printf(INFO, "Initializing flat source regions...");
 
     /* Delete old FSRs array if it exists */
-    if (_FSRs != NULL)
-        delete [] _FSRs;
+    if (_FSR_volumes != NULL)
+        delete [] _FSR_volumes;
 
-    _FSRs = new FlatSourceRegion[_num_FSRs];
+    if (_FSR_materials != NULL)
+        delete [] _FSR_materials;
+
+    _FSR_volumes = new FP_PRECISION[_num_FSRs];
+    _FSR_materials = new Material*[_num_FSRs];
 
     std::vector<segment*> segments;
     std::vector<segment*>::iterator iter;
@@ -308,6 +312,9 @@ void CPUSolver::initializeFSRs() {
     CellBasic* cell;
     Material* material;
     Universe* univ_zero = _geometry->getUniverse(0);
+
+    /* Initialize the FSR volumes to zero */
+    memset(_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
 
     /* Set each FSR's volume by accumulating the total length of all tracks
      * inside the FSR. Loop over azimuthal angle, track and segment. 
@@ -319,7 +326,7 @@ void CPUSolver::initializeFSRs() {
 
             for (iter=segments.begin(); iter != segments.end(); ++iter) {
 	        volume = (*iter)->_length * _azim_weights[i];
-		_FSRs[(*iter)->_region_id].incrementVolume(volume);
+		_FSR_volumes[(*iter)->_region_id] += volume;
 	    }
 	}
     }
@@ -333,11 +340,11 @@ void CPUSolver::initializeFSRs() {
 
 	/* Get the cell's material and assign it to the FSR */
 	material = _geometry->getMaterial(cell->getMaterial());
-	_FSRs[r].setMaterial(material);
+	_FSR_materials[r] = material;
 
 	log_printf(DEBUG, "FSR id = %d has cell id = %d and material id = %d "
-		   "and volume = %f", r, cell->getId(), material->getId(),
-		   _FSRs[r].getVolume());
+                  "and volume = %f", r, cell->getId(), 
+                   _FSR_materials[r]->getUid(), _FSR_volumes[r]);
     }
 
     return;
@@ -419,8 +426,8 @@ void CPUSolver::normalizeFluxes() {
     for (int r=0; r < _num_FSRs; r++) {
 
         /* Get pointers to important data structures */
-	nu_sigma_f = _FSRs[r].getMaterial()->getNuSigmaF();
-	volume = _FSRs[r].getVolume();
+	nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
+	volume = _FSR_volumes[r];
 
 	for (int e=0; e < _num_groups; e++)
 	    _fission_source(r,e) = nu_sigma_f[e] * _scalar_flux(r,e) * volume;
@@ -488,7 +495,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
         FP_PRECISION* scatter_sources = new FP_PRECISION[_num_groups];
         FP_PRECISION* fission_sources = new FP_PRECISION[_num_groups];
 
-        material = _FSRs[r].getMaterial();
+        material = _FSR_materials[r];
 	nu_sigma_f = material->getNuSigmaF();
 	chi = material->getChi();
 	sigma_s = material->getSigmaS();
@@ -506,7 +513,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
             scatter_source = 0;
 
 	    for (int g=0; g < _num_groups; g++)
-	        scatter_sources[g] = sigma_s[G*_num_groups+g] * _scalar_flux(r,g);
+                scatter_sources[g] = sigma_s[G*_num_groups+g] * _scalar_flux(r,g);
 
 	    scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
                                                         _num_groups);
@@ -565,8 +572,8 @@ void CPUSolver::computeKeff() {
     #pragma omp parallel for private(volume, material, sigma_a, nu_sigma_f)
     for (int r=0; r < _num_FSRs; r++) {
 
-        volume = _FSRs[r].getVolume();
-	material = _FSRs[r].getMaterial();
+        volume = _FSR_volumes[r];
+	material = _FSR_materials[r];
 	sigma_a = material->getSigmaA();
 	nu_sigma_f = material->getNuSigmaF();
 
@@ -803,8 +810,8 @@ void CPUSolver::transportSweep(int max_iterations) {
 	/* Loop over flat source regions, energy groups */
         #pragma omp parallel for private(volume, sigma_t)
 	for (int r=0; r < _num_FSRs; r++) {
-	    volume = _FSRs[r].getVolume();
-	    sigma_t = _FSRs[r].getMaterial()->getSigmaT();
+	    volume = _FSR_volumes[r];
+	    sigma_t = _FSR_materials[r]->getSigmaT();
 
 	    for (int e=0; e < _num_groups; e++) {
 	      
@@ -853,7 +860,7 @@ void CPUSolver::computePinPowers() {
     /* Loop over all FSRs and compute the fission rate*/
     #pragma omp parallel for private (sigma_f)
     for (int r=0; r < _num_FSRs; r++) {
-        sigma_f = _FSRs[r].getMaterial()->getSigmaF();
+        sigma_f = _FSR_materials[r]->getSigmaF();
 
         for (int e=0; e < _num_groups; e++)
 	    _FSRs_to_powers[r] += sigma_f[e] * _scalar_flux(r,e);

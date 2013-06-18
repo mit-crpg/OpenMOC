@@ -3,7 +3,6 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "../../src/dev/DeviceMaterial.h"
-    #include "../../src/dev/DeviceFlatSourceRegion.h"
     #include "../../src/dev/DeviceTrack.h"
     #include "../../src/dev/DeviceQuery.h"
     #include "../../src/host/Solver.h"
@@ -50,7 +49,6 @@
 
 %include <exception.i> 
 %include ../../src/dev/DeviceMaterial.h
-%include ../../src/dev/DeviceFlatSourceRegion.h
 %include ../../src/dev/DeviceTrack.h
 %include ../../src/dev/DeviceQuery.h
 %include ../../src/host/Solver.h

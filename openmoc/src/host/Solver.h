@@ -13,7 +13,6 @@
 #include <math.h>
 #include "Quadrature.h"
 #include "TrackGenerator.h"
-#include "FlatSourceRegion.h"
 #include "pairwise_sum.h"
 #endif
 
@@ -51,6 +50,12 @@ protected:
 
     /** The number of flat source regions */
     int _num_FSRs;
+
+    /** The flat source region volumes (ie, areas) */
+    FP_PRECISION* _FSR_volumes;
+
+    /** The flat source region material uids */
+    Material** _FSR_materials;
 
     /** A pointer to a trackgenerator which contains tracks */
     TrackGenerator* _track_generator;
@@ -95,9 +100,6 @@ protected:
      *  and azimuthal angles. This array stores the boundary fluxes for a
      *  a track along both "forward" and "reverse" directions. */
     FP_PRECISION* _boundary_flux;
-
-    /** A pointer to an array of the flat source regions */
-    FlatSourceRegion* _FSRs;
 
     /* Flat source regions */
     /** The scalar flux for each energy group in each flat source region */

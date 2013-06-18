@@ -19,8 +19,11 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _num_materials = 0;
     _num_groups = 0;
     _num_azim = 0;
-    _num_FSRs = 0;
     _polar_times_groups = 0;
+
+    _num_FSRs = 0;
+    _FSR_volumes = NULL;
+    _FSR_materials = NULL;
 
     _quad = NULL;
     _track_generator = NULL;
@@ -31,7 +34,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _polar_weights = NULL;
     _boundary_flux = NULL;
 
-    _FSRs = NULL;
     _scalar_flux = NULL;
     _old_scalar_flux = NULL;
     _fission_source = NULL;
@@ -72,8 +74,11 @@ Solver::~Solver() {
     if (_boundary_flux != NULL)
         delete [] _boundary_flux;
 
-    if (_FSRs != NULL)
-        delete [] _FSRs;
+    if (_FSR_volumes != NULL)
+        delete [] _FSR_volumes;
+
+    if (_FSR_materials != NULL)
+        delete [] _FSR_materials;
 
     if (_scalar_flux != NULL)
         delete [] _scalar_flux;

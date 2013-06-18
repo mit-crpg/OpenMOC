@@ -3,7 +3,6 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "../../src/host/Cell.h"
-    #include "../../src/host/FlatSourceRegion.h"
     #include "../../src/host/Geometry.h"
     #include "../../src/host/LocalCoords.h"
     #include "../../src/host/log.h"
