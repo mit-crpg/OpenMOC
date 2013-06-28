@@ -116,7 +116,7 @@ solver.convergeSource(max_iters)
 
 mic_solver = mic.MICSolver(geometry, track_generator)
 mic_solver.setNumThreads(num_threads)
-mic_solver.setSourceConvergenceThreshold(tolerance)
+#mic_solver.setSourceConvergenceThreshold(tolerance)
 mic_solver.convergeSource(max_iters)
 
 
