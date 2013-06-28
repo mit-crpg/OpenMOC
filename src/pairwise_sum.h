@@ -6,7 +6,9 @@
  * @date June 13, 2013
  */
 
-
+#ifdef MIC
+#pragma offload_attribute(push, target(mic))
+#endif
 template <typename T>
 inline T pairwise_sum(T* vector, int length) {
 
@@ -28,3 +30,6 @@ inline T pairwise_sum(T* vector, int length) {
 
     return sum;
 }
+#ifdef MIC
+#pragma offload_attribute(pop)
+#endif

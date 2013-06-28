@@ -20,6 +20,9 @@
  *        region along a track.
  * @details The dev_segment is intended for use on the GPU.
  */
+#ifdef MIC
+#pragma offload_attribute(push, target(mic))
+#endif
 struct dev_segment {
 
     /** The length of the segment (cm) */
@@ -31,6 +34,9 @@ struct dev_segment {
     /** The ID for flat source region in which this segment resides */
     int _region_uid;
 };
+#ifdef MIC
+#pragma offload_attribute(pop)
+#endif
 
 
 /**
@@ -40,6 +46,9 @@ struct dev_segment {
  *          boundaries of the geometry and an azimuthal angle. The dev_track
  *          is intended for use on the GPU.
  */ 
+#ifdef MIC
+#pragma offload_attribute(push, target(mic))
+#endif
 struct dev_track {
 
     /** A monotonically increasing unique ID for each track created */
@@ -83,6 +92,9 @@ struct dev_track {
      *  conditions. */
     bool _bc_out;
 };
+#ifdef MIC
+#pragma offload_attribute(pop)
+#endif
 
 
 #endif /* DEVICETRACK_H_ */

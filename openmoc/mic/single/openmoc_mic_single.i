@@ -1,10 +1,9 @@
-%module openmoc_mic_single
+%module openmoc_mic
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "../../../src/Solver.h"
-    #include "../../../src/dev/mic/MICSolver.h"
-    #include "../../../src/dev/mic/MICQuery.h"
+    #include "../../src/dev/mic/MICQuery.h"
+    #include "../../src/dev/mic/MICSolver.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -37,7 +36,7 @@
 }
 
 
-%include "../../numpy.i"
+%include "../numpy.i"
 
 
 %init %{
@@ -46,9 +45,7 @@
 
 
 %include <exception.i> 
-%include ../../../src/Solver.h
-%include ../../../src/dev/mic/MICSolver.h
-%include ../../../src/dev/mic/MICQuery.h
+%include ../../src/dev/mic/MICSolver.h
+%include ../../src/dev/mic/MICQuery.h
 
 typedef float FP_PRECISION;
-

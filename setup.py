@@ -19,7 +19,7 @@ if config.cpp_compilers == ['all']:
 
 # If the user did not select a supported default C++ compiler, choose GCC
 if config.default_cc not in ['gcc', 'icpc']:
-    config.default_cc = 'gcc'
+    config.default_cc = 'icpc'
 
 # If the user selected 'all' FP precision levels, enumerate them
 if config.fp_precision == ['all']:
@@ -77,11 +77,11 @@ if config.with_cuda:
 if config.with_mic:
     extensions.append(Extension(name = '_openmoc_mic', 
                         sources = config.sources['mic'], 
-                        library_dirs = config.library_directories['icpc'], 
-                        libraries = config.shared_libraries['icpc'],
+                        library_dirs = config.library_directories['mic'], 
+                        libraries = config.shared_libraries['mic'],
                         extra_link_args = config.linker_flags['mic'], 
-                        include_dirs = config.include_directories['icpc'],
-                        define_macros = config.macros['icpc'][fp],
+                        include_dirs = config.include_directories['mic'],
+                        define_macros = config.macros['mic'][fp],
                         swig_opts = config.swig_flags,
                         export_symbols = ['init_openmoc']))
                       
@@ -162,6 +162,14 @@ def customize_compiler(self):
             else:
                 self.set_executable('compiler_so', 'icpc')
             postargs = config.compiler_flags['icpc']
+
+        # If MIC is a defined macro and the source is C++, use icpc
+        elif '-DMIC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+#            if config.with_ccache:
+#                self.set_executable('compiler_so', 'ccache icpc')
+#            else:
+            self.set_executable('compiler_so', 'icpc')
+            postargs = config.compiler_flags['mic']
 
         # If CUDA is a defined macro and the source is C++, compile SWIG-wrapped
         # CUDA code with gcc
