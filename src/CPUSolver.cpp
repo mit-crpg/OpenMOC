@@ -360,7 +360,7 @@ void CPUSolver::zeroTrackFluxes() {
     /* Loop over azimuthal angle, track, polar angle, energy group
      * and set each track's incoming and outgoing flux to zero */
     #pragma omp parallel for
-    for (int i=0; i < _track_generator->getNumTracks(); i++) {
+    for (int i=0; i < _tot_num_tracks; i++) {
         for (int pe2=0; pe2 < 2*_polar_times_groups; pe2++)
     	    _boundary_flux(i,pe2) = 0.0;
     }

@@ -1156,6 +1156,9 @@ void MICSolver::computeKeff() {
  * @brief Checks if scalar flux has converged within the threshold.
  * @return true if converged, false otherwise
  */
+#ifdef MIC
+#pragma offload_attribute(push, target(mic))
+#endif
 bool MICSolver::isScalarFluxConverged() {
 
     bool converged = true;
@@ -1183,6 +1186,9 @@ bool MICSolver::isScalarFluxConverged() {
 
     return converged;
 }
+#ifdef MIC
+#pragma offload_attribute(pop)
+#endif
 
 
 /**
@@ -1224,7 +1230,7 @@ void MICSolver::transportSweep(int max_iterations) {
 	    FP_PRECISION* thread_flux = new FP_PRECISION[_num_threads * 
 							 _num_FSRs * 
 							 _num_groups];
-
+	    
 	    FP_PRECISION* thread_leakage = new FP_PRECISION[2*_tot_num_tracks];
 
 	    /* Initialize thread fluxes and leakages to zero */
