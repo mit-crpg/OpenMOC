@@ -19,6 +19,7 @@
  * @struct dev_material
  * @brief A material's nuclear data to be stored on a GPU.
  */
+#pragma offload_attribute(push, target(mic))
 typedef struct dev_material {
     /** A monotonically increasing unique ID for each material created */
     int _uid;
@@ -71,8 +72,7 @@ typedef struct dev_material {
     }
 
 } dev_material;
+#pragma offload_attribute(pop)
 
-
-void cloneOnDevice(Material* material_h, dev_material* material_d);
 
 #endif /* MATERIAL_H_ */

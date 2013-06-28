@@ -57,7 +57,7 @@ def py_printf(level, my_str, *args):
     elif level == 'UNITTEST':
         openmoc.log_printf(openmoc.UNITTEST, my_str % args)
     elif level == 'ERROR':
-        openmoc.log_print(openmoc.ERROR, my_str % args)
+        openmoc.log_printf(openmoc.ERROR, my_str % args)
 
 
 ##

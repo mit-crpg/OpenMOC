@@ -10,6 +10,14 @@
 #ifndef MICQUERY_H_
 #define MICQUERY_H_
 
+
+#ifdef SWIG
+#define MIC_ATTRIBUTE
+#else
+#define MIC_ATTRIBUTE __attribute__((target(mic)))
+#endif
+
+
 #ifdef __cplusplus
 #include <offload.h>
 #include "../../log.h"
@@ -17,6 +25,7 @@
 
 bool machineContainsMIC();
 int machineContainsHowManyMICs();
+MIC_ATTRIBUTE bool amIRunningOnMIC();
 
 
 #endif /* MICQUERY_H_ */
