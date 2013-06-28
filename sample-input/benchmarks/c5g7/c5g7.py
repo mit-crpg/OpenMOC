@@ -5,7 +5,6 @@ import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 import openmoc.process as process
-#import openmoc.cuda as cuda
 
 
 ###############################################################################
@@ -16,7 +15,7 @@ num_threads = 1
 track_spacing = 0.1
 num_azim = 4
 tolerance = 1E-4
-max_iters = 3
+max_iters = 1000
 gridsize = 500
 
 setOutputDirectory('C5G7')
@@ -357,8 +356,8 @@ Timer.printSplits()
 
 
 solver = MICSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
+#solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(60)
 
 Timer.startTimer()
 solver.convergeSource(max_iters)

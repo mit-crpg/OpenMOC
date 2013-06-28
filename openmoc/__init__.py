@@ -4,8 +4,6 @@ import os
 import random
 import datetime
 
-print 'import openmoc'
-
 # Set a log file name using a date and time
 now = datetime.datetime.now()
 current_time = str(now.month) + '-' + str(now.day) + '-' + str(now.year) + '--' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second)
