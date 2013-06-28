@@ -165,9 +165,7 @@ def customize_compiler(self):
 
         # If MIC is a defined macro and the source is C++, use icpc
         elif '-DMIC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
-#            if config.with_ccache:
-#                self.set_executable('compiler_so', 'ccache icpc')
-#            else:
+            # CCache is not currently working with the MIC module
             self.set_executable('compiler_so', 'icpc')
             postargs = config.compiler_flags['mic']
 
