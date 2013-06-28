@@ -1,21 +1,22 @@
 import numpy
-from openmoc.intel.double import *
+from openmoc import *
+from openmoc.mic import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 import openmoc.process as process
-import openmoc.cuda.double as cuda
+#import openmoc.cuda as cuda
 
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 4
+num_threads = 1
 track_spacing = 0.1
 num_azim = 4
 tolerance = 1E-4
-max_iters = 1000
+max_iters = 3
 gridsize = 500
 
 setOutputDirectory('C5G7')
@@ -355,23 +356,36 @@ Timer.recordSplit('Converging the source on the CPU')
 Timer.printSplits()
 
 
+solver = MICSolver(geometry, track_generator)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
+
+Timer.startTimer()
+solver.convergeSource(max_iters)
+Timer.stopTimer()
+Timer.recordSplit('Converging the source on the MIC')
+Timer.printSplits()
+
+
 ###############################################################################
 #                            Allocating Data on GPU
 ###############################################################################
 
-log.py_printf('NORMAL', 'Initializing solver on the GPU...')
+if 0:
+#if cuda.machineContainsGPU():
 
-cuda.attachGPU(0)
-cuda.printBasicGPUInfo()
-device_solver = cuda.GPUSolver(geometry, track_generator)
-device_solver.setSourceConvergenceThreshold(tolerance)
+    log.py_printf('NORMAL', 'Initializing solver on the GPU...')
 
-Timer.resetTimer()
-Timer.startTimer()
-device_solver.convergeSource(max_iters)
-Timer.stopTimer()
-Timer.recordSplit('Converging the source on the GPU')
-Timer.printSplits()
+    cuda.printBasicGPUInfo()
+    device_solver = cuda.GPUSolver(geometry, track_generator)
+    device_solver.setSourceConvergenceThreshold(tolerance)
+    
+    Timer.resetTimer()
+    Timer.startTimer()
+    device_solver.convergeSource(max_iters)
+    Timer.stopTimer()
+    Timer.recordSplit('Converging the source on the GPU')
+    Timer.printSplits()
 
 
 ###############################################################################

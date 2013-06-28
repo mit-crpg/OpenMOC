@@ -22,6 +22,9 @@ dist/*
 openmoc/openmoc.py
 openmoc/openmoc_wrap.cpp
 
+openmoc/mic/openmoc_mic.py
+openmoc/mic/openmoc_mic_wrap.cpp
+
 # output files
 log
 log/*
