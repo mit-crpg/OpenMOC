@@ -9,7 +9,7 @@ import openmoc.mic as mic
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 1
+num_threads = 120
 track_spacing = 0.1
 num_azim = 4
 tolerance = 1E-4

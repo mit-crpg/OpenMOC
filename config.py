@@ -25,7 +25,7 @@ debug_mode = False
 with_cuda = False
 
 # Compile module for the Intel Xeon Phi (MIC)
-with_mic = False
+with_mic = True
 
 
 
@@ -119,7 +119,6 @@ compiler_flags['mic'] = ['-c',
                          '-fpic',
                          '-openmp-report',
                          '-vec-report',
-                         '-no-offload',
                          '-offload-option,mic,compiler,-Wl,"-zdefs"']
 
 
@@ -154,7 +153,7 @@ linker_flags['mic'] = ['-lstdc++',
                        '-limf', 
                        '-lrt',
                        '-shared',
-                       '/home/wboyd/OpenMOC/build/lib.linux-x86_64-2.7/_openmoc.so',
+                       '/home/wboyd/OpenMOC/build/lib.linux-x86_64-2.6/_openmoc.so',
                        '-Xlinker',
                        '-soname=_openmoc.so',
                        '-loffload',
