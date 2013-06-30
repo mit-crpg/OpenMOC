@@ -9,7 +9,8 @@ import openmoc.cuda as cuda
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 4
+num_blocks = 64
+num_threads = 64
 track_spacing = 0.1
 num_azim = 16
 tolerance = 1E-3
@@ -139,7 +140,8 @@ Timer.resetTimer()
 Timer.startTimer()
 
 solver = cuda.GPUSolver(geometry, track_generator)
-solver.setNumThreads(num_threads)
+solver.setNumThreadBlocks(num_blocks)
+solver.setNumThreadsPerBlock(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 
