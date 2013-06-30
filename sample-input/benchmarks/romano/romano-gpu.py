@@ -1,7 +1,7 @@
 import numpy
 from openmoc import *
 import openmoc.log as log
-import openmoc.plotter as plotter
+import openmo.cuda as cuda
 
 
 ###############################################################################
@@ -11,29 +11,40 @@ import openmoc.plotter as plotter
 num_threads = 4
 track_spacing = 0.1
 num_azim = 16
-tolerance = 1E-5
+tolerance = 1E-3
 max_iters = 1000
+gridsize = 500
 
 log.setLogLevel('NORMAL')
 
-log.py_printf('TITLE', 'Simulating a one group homogeneous infinite medium...')
-log.py_printf('HEADER', 'The reference keff = 1.43...')
+log.py_printf('TITLE', 'Simulating HW3 from Fall 2010 22.212...')
 
 
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+###########################   Creating Materials   ############################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating materials...')
 
-infinite_medium = Material(1)
-infinite_medium.setNumEnergyGroups(1)
-infinite_medium.setSigmaA(numpy.array([0.069389522]))
-infinite_medium.setSigmaF(numpy.array([0.0414198575]))
-infinite_medium.setNuSigmaF(numpy.array([0.0994076580]))
-infinite_medium.setSigmaS(numpy.array([0.383259177]))
-infinite_medium.setChi(numpy.array([1.0]))
-infinite_medium.setSigmaT(numpy.array([0.452648699]))
+fuel = Material(1)
+moderator = Material(2)
+
+fuel.setNumEnergyGroups(1)
+moderator.setNumEnergyGroups(1)
+
+fuel.setSigmaA(numpy.array([0.069389522]))
+fuel.setSigmaT(numpy.array([0.452648699]))
+fuel.setSigmaF(numpy.array([0.0414198575]))
+fuel.setNuSigmaF(numpy.array([0.0994076580]))
+fuel.setSigmaS(numpy.array([0.38259177]))
+fuel.setChi(numpy.array([1.0]))
+
+moderator.setSigmaA(numpy.array([0.003751099]))
+moderator.setSigmaT(numpy.array([0.841545641]))
+moderator.setSigmaF(numpy.array([0.0]))
+moderator.setNuSigmaF(numpy.array([0.0]))
+moderator.setSigmaS(numpy.array([0.837794542]))
+moderator.setChi(numpy.array([1.0]))
 
 
 ###############################################################################
@@ -42,11 +53,11 @@ infinite_medium.setSigmaT(numpy.array([0.452648699]))
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(x=0.0, y=0.0, radius=10.0)
-left = XPlane(x=-100.0)
-right = XPlane(x=100.0)
-top = YPlane(y=100.0)
-bottom = YPlane(y=-100.0)
+circle = Circle(x=0.0, y=0.0, radius=0.4)
+left = XPlane(x=-0.635)
+right = XPlane(x=0.635)
+top = YPlane(y=0.635)
+bottom = YPlane(y=-0.635)
 
 left.setBoundaryType(REFLECTIVE)
 right.setBoundaryType(REFLECTIVE)
@@ -61,8 +72,8 @@ bottom.setBoundaryType(REFLECTIVE)
 log.py_printf('NORMAL', 'Creating cells...')
 
 cells = []
-cells.append(CellBasic(universe=1, material=1, rings=2, sectors=4))
 cells.append(CellBasic(universe=1, material=1))
+cells.append(CellBasic(universe=1, material=2))
 cells.append(CellFill(universe=0, universe_fill=2))
 
 cells[0].addSurface(halfspace=-1, surface=circle)
@@ -79,7 +90,7 @@ cells[2].addSurface(halfspace=-1, surface=top)
 
 log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
 
-lattice = Lattice(id=2, width_x=200.0, width_y=200.0)
+lattice = Lattice(id=2, width_x=1.27, width_y=1.27)
 lattice.setLatticeCells([[1]])
 
 
@@ -92,7 +103,8 @@ log.py_printf('NORMAL', 'Creating geometry...')
 Timer.startTimer()
 
 geometry = Geometry()
-geometry.addMaterial(infinite_medium)
+geometry.addMaterial(fuel)
+geometry.addMaterial(moderator)
 geometry.addCell(cells[0])
 geometry.addCell(cells[1])
 geometry.addCell(cells[2])
@@ -127,13 +139,13 @@ Timer.resetTimer()
 
 Timer.startTimer()
 
-solver = CPUSolver(geometry, track_generator)
+solver = cuda.GPUSolver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 
 Timer.stopTimer()
-Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
+Timer.recordSplit('Converging the source on the GPU')
 Timer.resetTimer()
 Timer.printSplits()
 
