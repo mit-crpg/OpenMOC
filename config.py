@@ -22,7 +22,7 @@ with_ccache = True
 debug_mode = False
 
 # Use CUDA set to True or False
-with_cuda = False
+with_cuda = True
 
 # Compile module for the Intel Xeon Phi (MIC)
 with_mic = True
