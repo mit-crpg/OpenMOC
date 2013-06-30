@@ -1,8 +1,6 @@
 import numpy
 from openmoc import *
 import openmoc.log as log
-import openmoc.plotter as plotter
-import openmoc.cuda as cuda
 
 
 ###############################################################################
@@ -16,7 +14,7 @@ tolerance = 1E-3
 max_iters = 1000
 gridsize = 500
 
-log.setLogLevel('INFO')
+log.setLogLevel('NORMAL')
 
 log.py_printf('TITLE', 'Simulating HW3 from Fall 2010 22.212...')
 
@@ -101,6 +99,8 @@ lattice.setLatticeCells([[1]])
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
+Timer.startTimer()
+
 geometry = Geometry()
 geometry.addMaterial(fuel)
 geometry.addMaterial(moderator)
@@ -111,6 +111,10 @@ geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
 
+Timer.stopTimer()
+Timer.recordSplit('Iniitilializing the geometry')
+Timer.resetTimer()
+
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -118,19 +122,30 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
+Timer.startTimer()
+
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
+
+Timer.stopTimer()
+Timer.recordSplit('Ray tracing across the geometry')
+Timer.resetTimer()
 
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = Solver(geometry, track_generator)
+Timer.startTimer()
+
+solver = CPUSolver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 
-device_solver = cuda.DeviceSolver(geometry, track_generator)
-device_solver.setSourceConvergenceThreshold(tolerance)
-device_solver.convergeSource(max_iters)
+Timer.stopTimer()
+Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
+Timer.resetTimer()
+Timer.printSplits()
+
+log.py_printf('TITLE', 'Finished')

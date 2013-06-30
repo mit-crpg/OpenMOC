@@ -1,24 +1,24 @@
-import numpy
 from openmoc import *
 import openmoc.log as log
+import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-import openmoc.process as process
+import openmoc.cuda as cuda
 
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = numpy.linspace(1,12,12)
-compiler = 'all'
-precision = 'all'
-num_azim = 8
-
-setOutputDirectory('Full-Core-Weak-Scaling')
+num_threads = 4
+track_spacing = 0.1
+num_azim = 4
+tolerance = 1E-3
+max_iters = 5
+gridsize = 1000
 
 log.setLogLevel('NORMAL')
 
-log.py_printf('TITLE', 'Weak Scaling a Mock Full Core PWR...')
+log.py_printf('TITLE', 'Simulating a Mock Full Core PWR...')
 
 
 ###############################################################################
@@ -306,6 +306,8 @@ lattices[-1].setLatticeCells(
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
+Timer.startTimer()
+
 geometry = Geometry()
 
 for material in materials.values(): geometry.addMaterial(material)
@@ -314,14 +316,60 @@ for lattice in lattices: geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
 
+Timer.stopTimer()
+Timer.recordSplit('Iniitilializing the geometry')
+Timer.resetTimer()
+
 
 ###############################################################################
-###############################   Weak Scaling   ##############################
+########################   Creating the TrackGenerator   ######################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Running a weak scaling study...')
+log.py_printf('NORMAL', 'Initializing the track generator...')
 
-process.weakScalingStudy(geometry, num_azim=num_azim, precision=precision, 
-                           compiler=compiler, num_threads=num_threads)
+Timer.startTimer()
+
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.generateTracks()
+
+Timer.stopTimer()
+Timer.recordSplit('Ray tracing across the geometry')
+Timer.resetTimer()
+
+
+###############################################################################
+###########################   Running a Simulation   ##########################
+###############################################################################
+
+Timer.startTimer()
+
+solver = cuda.GPUSolver(geometry, track_generator)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
+
+Timer.stopTimer()
+Timer.recordSplit('Converging the source on the GPU')
+Timer.resetTimer()
+
+
+###############################################################################
+############################   Generating Plots   #############################
+###############################################################################
+
+log.py_printf('NORMAL', 'Plotting data...')
+
+Timer.startTimer()
+
+#plotter.plotTracks(track_generator)
+#plotter.plotMaterials(geometry, gridsize)
+#plotter.plotCells(geometry, gridsize)
+#plotter.plotFlatSourceRegions(geometry, gridsize)
+#plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+
+Timer.stopTimer()
+Timer.recordSplit('Generating visualizations')
+Timer.resetTimer()
+Timer.printSplits()
 
 log.py_printf('TITLE', 'Finished')

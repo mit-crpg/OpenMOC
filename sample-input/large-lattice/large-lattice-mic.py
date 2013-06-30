@@ -2,6 +2,7 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
+import openmoc.mic as mic
 
 
 ###############################################################################
@@ -36,16 +37,16 @@ water_id = materials['Water'].getId()
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(x=0.0, y=0.0, radius=1.0)
-left = XPlane(x=-2.0)
-right = XPlane(x=2.0)
-top = YPlane(y=2.0)
-bottom = YPlane(y=-2.0)
-
-left.setBoundaryType(REFLECTIVE)
-right.setBoundaryType(REFLECTIVE)
-top.setBoundaryType(REFLECTIVE)
-bottom.setBoundaryType(REFLECTIVE)
+circles = []
+planes = []
+planes.append(XPlane(x=-2.0))
+planes.append(XPlane(x=2.0))
+planes.append(YPlane(y=-2.0))
+planes.append(YPlane(y=2.0))
+circles.append(Circle(x=0.0, y=0.0, radius=0.4))
+circles.append(Circle(x=0.0, y=0.0, radius=0.3))
+circles.append(Circle(x=0.0, y=0.0, radius=0.2))
+for plane in planes: plane.setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
@@ -57,24 +58,39 @@ log.py_printf('NORMAL', 'Creating cells...')
 cells = []
 cells.append(CellBasic(universe=1, material=uo2_id))
 cells.append(CellBasic(universe=1, material=water_id))
-cells.append(CellFill(universe=0, universe_fill=2))
+cells.append(CellBasic(universe=2, material=uo2_id))
+cells.append(CellBasic(universe=2, material=water_id))
+cells.append(CellBasic(universe=3, material=uo2_id))
+cells.append(CellBasic(universe=3, material=water_id))
+cells.append(CellFill(universe=5, universe_fill=4))
+cells.append(CellFill(universe=0, universe_fill=6))
 
-cells[0].addSurface(halfspace=-1, surface=circle)
-cells[1].addSurface(halfspace=+1, surface=circle)
-cells[2].addSurface(halfspace=+1, surface=left)
-cells[2].addSurface(halfspace=-1, surface=right)
-cells[2].addSurface(halfspace=+1, surface=bottom)
-cells[2].addSurface(halfspace=-1, surface=top)
+cells[0].addSurface(halfspace=-1, surface=circles[0])
+cells[1].addSurface(halfspace=+1, surface=circles[0])
+cells[2].addSurface(halfspace=-1, surface=circles[1])
+cells[3].addSurface(halfspace=+1, surface=circles[1])
+cells[4].addSurface(halfspace=-1, surface=circles[2])
+cells[5].addSurface(halfspace=+1, surface=circles[2])
+
+cells[7].addSurface(halfspace=+1, surface=planes[0])
+cells[7].addSurface(halfspace=-1, surface=planes[1])
+cells[7].addSurface(halfspace=+1, surface=planes[2])
+cells[7].addSurface(halfspace=-1, surface=planes[3])
 
 
 ###############################################################################
 ###########################   Creating Lattices   #############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
+log.py_printf('NORMAL', 'Creating 16 x 16 lattice...')
 
-lattice = Lattice(id=2, width_x=4.0, width_y=4.0)
-lattice.setLatticeCells([[1]])
+# 2x2 assembly
+assembly = Lattice(id=4, width_x=1.0, width_y=1.0)
+assembly.setLatticeCells([[1, 2], [1, 3]])
+
+# 2x2 core
+core = Lattice(id=6, width_x=2.0, width_y=2.0)
+core.setLatticeCells([[5, 5], [5, 5]])
 
 
 ###############################################################################
@@ -88,7 +104,8 @@ Timer.startTimer()
 geometry = Geometry()
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
-geometry.addLattice(lattice)
+geometry.addLattice(assembly)
+geometry.addLattice(core)
 
 geometry.initializeFlatSourceRegions()
 
@@ -103,7 +120,9 @@ Timer.resetTimer()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-Timer.startTimer()
+Timer.stopTimer()
+Timer.recordSplit('Iniitilializing the geometry')
+Timer.resetTimer()
 
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
@@ -119,14 +138,15 @@ Timer.resetTimer()
 
 Timer.startTimer()
 
-solver = CPUSolver(geometry, track_generator)
+solver = mic.MICSolver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 
 Timer.stopTimer()
-Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
+Timer.recordSplit('Converging the source with %d MIC threads' % (num_threads))
 Timer.resetTimer()
+
 
 ###############################################################################
 ############################   Generating Plots   #############################

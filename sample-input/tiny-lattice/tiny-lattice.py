@@ -1,9 +1,7 @@
-import numpy
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-import openmoc.mic as mic
 
 
 ###############################################################################
@@ -19,7 +17,7 @@ gridsize = 500
 
 setOutputDirectory('Tiny-Lattice')
 
-log.setLogLevel('INFO')
+log.setLogLevel('NORMAL')
 
 
 ###############################################################################
@@ -70,6 +68,7 @@ cells[2].addSurface(halfspace=-1, surface=right)
 cells[2].addSurface(halfspace=+1, surface=bottom)
 cells[2].addSurface(halfspace=-1, surface=top)
 
+
 ###############################################################################
 #                             Creating Lattices
 ###############################################################################
@@ -86,6 +85,8 @@ lattice.setLatticeCells([[1, 1], [1, 1]])
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
+Timer.startTimer()
+
 geometry = Geometry()
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
@@ -93,6 +94,9 @@ geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
 
+Timer.stopTimer()
+Timer.recordSplit('Iniitilializing the geometry')
+Timer.resetTimer()
 
 
 ###############################################################################
@@ -101,24 +105,30 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
+Timer.startTimer()
+
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
+
+Timer.stopTimer()
+Timer.recordSplit('Ray tracing across the geometry')
+Timer.resetTimer()
 
 
 ###############################################################################
 #                            Running a Simulation
 ###############################################################################
 
+Timer.startTimer()
+
 solver = CPUSolver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 
-mic_solver = mic.MICSolver(geometry, track_generator)
-mic_solver.setNumThreads(num_threads)
-#mic_solver.setSourceConvergenceThreshold(tolerance)
-mic_solver.convergeSource(max_iters)
-
+Timer.stopTimer()
+Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
+Timer.resetTimer()
 
 
 ###############################################################################
@@ -127,11 +137,18 @@ mic_solver.convergeSource(max_iters)
 
 log.py_printf('NORMAL', 'Plotting data...')
 
+Timer.startTimer()
+
 #plotter.plotTracks(track_generator)
+#plotter.plotSegments(track_generator)
 #plotter.plotMaterials(geometry, gridsize=50)
 #plotter.plotCells(geometry, gridsize=50)
 #plotter.plotFlatSourceRegions(geometry, gridsize=50)
-#plotter.plotSegments(track_generator)
 #plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+
+Timer.stopTimer()
+Timer.recordSplit('Generating visualizations')
+Timer.resetTimer()
+Timer.printSplits()
 
 log.py_printf('TITLE', 'Finished')

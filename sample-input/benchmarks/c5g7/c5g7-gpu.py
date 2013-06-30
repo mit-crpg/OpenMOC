@@ -1,24 +1,24 @@
-import numpy
 from openmoc import *
 import openmoc.log as log
+import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-import openmoc.process as process
+import openmoc.cuda as cuda
 
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = numpy.linspace(1,12,12)
-compiler = 'all'
-precision = 'all'
-num_azim = 8
-
-setOutputDirectory('Full-Core-Weak-Scaling')
+num_threads = 1
+track_spacing = 0.1
+num_azim = 4
+tolerance = 1E-4
+max_iters = 1000
+gridsize = 500
 
 log.setLogLevel('NORMAL')
 
-log.py_printf('TITLE', 'Weak Scaling a Mock Full Core PWR...')
+log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
 
 ###############################################################################
@@ -27,7 +27,7 @@ log.py_printf('TITLE', 'Weak Scaling a Mock Full Core PWR...')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../c5g7-materials.hdf5')
+materials = materialize.materialize('../../c5g7-materials.hdf5')
 
 uo2_id = materials['UO2'].getId()
 mox43_id = materials['MOX-4.3%'].getId()
@@ -46,17 +46,17 @@ log.py_printf('NORMAL', 'Creating surfaces...')
 
 circles = []
 planes = []
-planes.append(XPlane(x=-224.91))
-planes.append(XPlane(x=224.91))
-planes.append(YPlane(y=-224.91))
-planes.append(YPlane(y=224.91))
+planes.append(XPlane(x=-32.13))
+planes.append(XPlane(x=32.13))
+planes.append(YPlane(y=-32.13))
+planes.append(YPlane(y=32.13))
 circles.append(Circle(x=0., y=0., radius=0.54))
 circles.append(Circle(x=0., y=0., radius=0.58))
 circles.append(Circle(x=0., y=0., radius=0.62))
-planes[0].setBoundaryType(VACUUM)
+planes[0].setBoundaryType(REFLECTIVE)
 planes[1].setBoundaryType(VACUUM)
 planes[2].setBoundaryType(VACUUM)
-planes[3].setBoundaryType(VACUUM)
+planes[3].setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
@@ -151,14 +151,17 @@ cells.append(CellFill(universe=10, universe_fill=20))
 # Top right, bottom left lattice
 cells.append(CellFill(universe=11, universe_fill=21))
 
-# Moderator lattice - very finely spaced
-cells.append(CellFill(universe=12, universe_fill=22))
-
 # Moderator lattice - semi-finely spaced
-cells.append(CellFill(universe=13, universe_fill=23))
+cells.append(CellFill(universe=12, universe_fill=23))
 
-#Moderator lattice - coarsely spaced
-cells.append(CellFill(universe=14, universe_fill=24))
+# Moderator lattice - bottom of geometry
+cells.append(CellFill(universe=13, universe_fill=24))
+
+# Moderator lattice - bottom corner of geometry
+cells.append(CellFill(universe=14, universe_fill=25))
+
+# Moderator lattice right side of geometry
+cells.append(CellFill(universe=15, universe_fill=26))
 
 # Full geometry
 cells.append(CellFill(universe=0, universe_fill=30))
@@ -220,84 +223,92 @@ lattices[-1].setLatticeCells(
      [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]])
 
 
-# Sliced up water cells - very finely spaced
-lattices.append(Lattice(id=22, width_x=0.252, width_y=0.252))
+# Sliced up water cells - semi finely spaced
+lattices.append(Lattice(id=23, width_x=0.126, width_y=0.126))
 lattices[-1].setLatticeCells(
-    [[7, 7, 7, 7, 7],
-     [7, 7, 7, 7, 7],
-     [7, 7, 7, 7, 7],
-     [7, 7, 7, 7, 7],
-     [7, 7, 7, 7, 7]])
+    [[7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7]])
 
 
-# Semi-Finely spaced water lattice (0.063 cm x 0.063 cm)
-lattices.append(Lattice(id=23, width_x=1.26, width_y=1.26))
+# Sliced up water cells - right side of geometry
+lattices.append(Lattice(id=26, width_x=1.26, width_y=1.26))
 lattices[-1].setLatticeCells(
-    [[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]])
+    [[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7]])
 
 
-# Coarsely spaced water lattice (1.26 cm x 1.26 cm)
+# Sliced up water cells for bottom corner of geometry
+lattices.append(Lattice(id=25, width_x=1.26, width_y=1.26))
+lattices[-1].setLatticeCells(
+    [[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]])
+
+
+# Sliced up water cells for bottom of geometry
 lattices.append(Lattice(id=24, width_x=1.26, width_y=1.26))
 lattices[-1].setLatticeCells(
-        [[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]])
+    [[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+     [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]])
 
 
-# 21 x 21 core to represent two bundles and water
+# 4 x 4 core to represent two bundles and water
 lattices.append(Lattice(id=30, width_x=21.42, width_y=21.42))
-lattices[-1].setLatticeCells(
-            [[13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13],
-             [13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13],
-             [13, 13, 13, 13, 14, 14, 14, 10, 11, 10, 11, 10, 11, 10, 14, 14, 13, 13, 13, 13, 13],
-             [13, 13, 13, 14, 14, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 14, 13, 13, 13, 13],
-             [13, 13, 14, 14, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 14, 14, 13, 13],
-             [13, 13, 14, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 14, 13, 13],
-             [13, 14, 14, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 14, 13, 13],
-             [13, 14, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 14, 13],
-             [13, 14, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 14, 13],
-             [13, 14, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 14, 13],
-             [13, 14, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 14, 13],
-             [13, 14, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 14, 13],
-             [13, 14, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 14, 13],
-             [13, 14, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 14, 13],
-             [13, 14, 14, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 14, 13, 13],
-             [13, 13, 14, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 14, 13, 13],
-             [13, 13, 14, 14, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 14, 13, 13, 13],
-             [13, 13, 13, 14, 14, 11, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 14, 13, 13, 13, 13],
-             [13, 13, 13, 13, 14, 14, 14, 10, 11, 10, 11, 10, 11, 10, 14, 14, 13, 13, 13, 13, 13],
-             [13, 13, 14, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 13, 13, 13, 13, 13, 13, 13],
-             [13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13]])
+lattices[-1].setLatticeCells([[10, 11, 15],
+                             [11, 10, 15],
+                             [13, 13, 14]])
 
 
 ###############################################################################
@@ -306,22 +317,69 @@ lattices[-1].setLatticeCells(
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry()
+Timer.startTimer()
 
+geometry = Geometry()
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 for lattice in lattices: geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
 
+Timer.stopTimer()
+Timer.recordSplit('Iniitilializing the geometry')
+Timer.resetTimer()
+
 
 ###############################################################################
-###############################   Weak Scaling   ##############################
+########################   Creating the TrackGenerator   ######################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Running a weak scaling study...')
+log.py_printf('NORMAL', 'Initializing the track generator...')
 
-process.weakScalingStudy(geometry, num_azim=num_azim, precision=precision, 
-                           compiler=compiler, num_threads=num_threads)
+Timer.startTimer()
+
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.generateTracks()
+
+Timer.stopTimer()
+Timer.recordSplit('Ray tracing across the geometry')
+Timer.resetTimer()
+
+
+###############################################################################
+###########################   Running a Simulation   ##########################
+###############################################################################
+
+Timer.startTimer()
+
+solver = cuda.GPUSolver(geometry, track_generator)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
+
+Timer.stopTimer()
+Timer.recordSplit('Converging the source on the GPU')
+Timer.resetTimer()
+
+
+###############################################################################
+############################   Generating Plots   #############################
+###############################################################################
+
+log.py_printf('NORMAL', 'Plotting data...')
+
+Timer.startTimer()
+
+#plotter.plotTracks(track_generator)
+#plotter.plotMaterials(geometry, gridsize)
+#plotter.plotCells(geometry, gridsize)
+#plotter.plotFlatSourceRegions(geometry, gridsize)
+#plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+
+Timer.stopTimer()
+Timer.recordSplit('Generating visualizations')
+Timer.resetTimer()
+Timer.printSplits()
 
 log.py_printf('TITLE', 'Finished')

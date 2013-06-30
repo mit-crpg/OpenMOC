@@ -1,9 +1,8 @@
-import numpy
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-import openmoc.cuda as cuda
+import openmoc.cuda
 
 
 ###############################################################################
@@ -77,6 +76,7 @@ cells[6].addSurface(halfspace=-1, surface=planes[1])
 cells[6].addSurface(halfspace=+1, surface=planes[2])
 cells[6].addSurface(halfspace=-1, surface=planes[3])
 
+
 ###############################################################################
 ###########################   Creating Lattices   #############################
 ###############################################################################
@@ -96,10 +96,16 @@ lattice.setLatticeCells([[1, 2, 1, 2],
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
+Timer.startTimer()
+
 geometry = Geometry()
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 geometry.addLattice(lattice)
+
+Timer.stopTimer()
+Timer.recordSplit('Iniitilializing the geometry')
+Timer.resetTimer()
 
 geometry.initializeFlatSourceRegions()
 
@@ -110,41 +116,30 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
+Timer.startTimer()
+
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
+
+Timer.stopTimer()
+Timer.recordSplit('Ray tracing across the geometry')
+Timer.resetTimer()
 
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = Solver(geometry, track_generator)
+Timer.startTimer()
+
+solver = cuda.GPUSolver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
-
-Timer.startTimer()
 solver.convergeSource(max_iters)
-Timer.stopTimer()
-Timer.recordSplit('Fixed source iteration')
-Timer.printSplits()
 
-
-###############################################################################
-#                            Allocating Data on GPU
-###############################################################################
-
-log.py_printf('NORMAL', 'Initializing solver on the GPU...')
-
-device_solver = cuda.DeviceSolver(geometry, track_generator)
-device_solver.setSourceConvergenceThreshold(tolerance)
-
-Timer.resetTimer()
-Timer.startTimer()
-device_solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Converging the source on the GPU')
-Timer.printSplits()
-
+Timer.resetTimer()
 
 
 ###############################################################################
@@ -153,10 +148,18 @@ Timer.printSplits()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
+Timer.startTimer()
+
 #plotter.plotTracks(track_generator)
+#plotter.plotSegments(track_generator)
 #plotter.plotMaterials(geometry, gridsize)
 #plotter.plotCells(geometry, gridsize)
 #plotter.plotFlatSourceRegions(geometry, gridsize)
 #plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+
+Timer.stopTimer()
+Timer.recordSplit('Generating visualizations')
+Timer.resetTimer()
+Timer.printSplits()
 
 log.py_printf('TITLE', 'Finished')

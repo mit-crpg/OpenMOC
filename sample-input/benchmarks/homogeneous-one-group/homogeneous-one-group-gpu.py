@@ -2,6 +2,7 @@ import numpy
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
+import openmoc.cuda as cuda
 
 
 ###############################################################################
@@ -127,13 +128,13 @@ Timer.resetTimer()
 
 Timer.startTimer()
 
-solver = CPUSolver(geometry, track_generator)
+solver = cuda.GPUSolver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 
 Timer.stopTimer()
-Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
+Timer.recordSplit('Converging the source on the GPU')
 Timer.resetTimer()
 Timer.printSplits()
 

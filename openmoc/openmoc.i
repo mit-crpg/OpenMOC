@@ -17,6 +17,8 @@
     #include "../src/TrackGenerator.h"
     #include "../src/Universe.h"
 
+    #define printf PySys_WriteStdout
+
     /* Exception helpers */
     static int swig_c_error_num = 0;
     static char swig_c_err_msg[512];
