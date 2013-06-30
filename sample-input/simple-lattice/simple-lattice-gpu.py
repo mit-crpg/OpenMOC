@@ -2,7 +2,7 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-import openmoc.cuda
+import openmoc.cuda as cuda
 
 
 ###############################################################################

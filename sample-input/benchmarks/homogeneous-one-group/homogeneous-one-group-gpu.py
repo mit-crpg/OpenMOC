@@ -9,7 +9,7 @@ import openmoc.cuda as cuda
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_blocsk = 64
+num_blocks = 64
 num_threads = 64
 track_spacing = 0.1
 num_azim = 16
