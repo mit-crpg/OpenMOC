@@ -1,7 +1,7 @@
 import numpy
 from openmoc import *
 import openmoc.log as log
-import openmo.cuda as cuda
+import openmoc.cuda as cuda
 
 
 ###############################################################################
