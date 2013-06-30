@@ -55,7 +55,7 @@ extensions.append(Extension(name = '_openmoc',
                     define_macros = config.macros[cc][fp],
                     swig_opts = config.swig_flags))
 
-config.sources['c++'].remove('openmoc/openmoc.i')
+#config.sources['c++'].remove('openmoc/openmoc.i')
 
 
 # A CUDA extension if the user requested it
