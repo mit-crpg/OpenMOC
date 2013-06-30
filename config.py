@@ -6,12 +6,12 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = []
+cpp_compilers = ['all']
 
 default_cc = 'gcc'
 
 # Supported floating point precision: 'single', 'double', 'all'
-fp_precision = ['single']
+fp_precision = ['all']
 
 default_fp = 'single'
 
@@ -19,13 +19,13 @@ default_fp = 'single'
 with_ccache = True
 
 # Compile with debug flags
-debug_mode = True
+debug_mode = False
 
 # Use CUDA set to True or False
 with_cuda = False
 
 # Compile module for the Intel Xeon Phi (MIC)
-with_mic = True
+with_mic = False
 
 
 
@@ -119,6 +119,7 @@ compiler_flags['mic'] = ['-c',
                          '-fpic',
                          '-openmp-report',
                          '-vec-report',
+                         '-no-offload',
                          '-offload-option,mic,compiler,-Wl,"-zdefs"']
 
 
@@ -153,7 +154,7 @@ linker_flags['mic'] = ['-lstdc++',
                        '-limf', 
                        '-lrt',
                        '-shared',
-                       '/home/wboyd/OpenMOC/build/lib.linux-x86_64-2.6/_openmoc.so',
+                       '/home/wboyd/OpenMOC/build/lib.linux-x86_64-2.7/_openmoc.so',
                        '-Xlinker',
                        '-soname=_openmoc.so',
                        '-loffload',
