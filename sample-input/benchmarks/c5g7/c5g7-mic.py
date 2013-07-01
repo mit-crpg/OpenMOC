@@ -352,16 +352,16 @@ Timer.resetTimer()
 ###############################################################################
 
 
-#Timer.startTimer()
+Timer.startTimer()
 
-#solver = CPUSolver(geometry, track_generator)
-#solver.setSourceConvergenceThreshold(tolerance)
-#solver.setNumThreads(num_threads)
-#solver.convergeSource(max_iters)
+solver = CPUSolver(geometry, track_generator)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
 
-#Timer.stopTimer()
-#Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
-#Timer.resetTimer()
+Timer.stopTimer()
+Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
+Timer.resetTimer()
 
 
 
