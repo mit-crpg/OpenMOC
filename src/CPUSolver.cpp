@@ -588,6 +588,9 @@ void CPUSolver::computeKeff() {
     
     _k_eff = tot_fission / (tot_abs + _leakage);
 
+    printf("abs = %1.15f, fiss = %1.15f, leak = %1.15f, keff = %1.15f\n", 
+	   tot_abs, tot_fission, _leakage, _k_eff);
+
     log_printf(DEBUG, "tot_abs = %f, tot_fission = %f, leakage = %f, "
 	       "k_eff = %f", tot_abs, tot_fission, _leakage, _k_eff);
 
