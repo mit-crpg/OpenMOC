@@ -1,4 +1,5 @@
 from openmoc import *
+import openmoc.intel.single as intel
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -12,7 +13,7 @@ num_threads = 4
 track_spacing = 0.1
 num_azim = 4
 tolerance = 1E-5
-max_iters = 1000
+max_iters = 10
 gridsize = 500
 
 log.setLogLevel('NORMAL')
@@ -360,6 +361,19 @@ solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
 Timer.resetTimer()
+
+
+Timer.startTimer()
+
+solver = intel.CPUSolver(geometry, track_generator)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
+
+Timer.stopTimer()
+Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
+Timer.resetTimer()
+
 
 
 ###############################################################################
