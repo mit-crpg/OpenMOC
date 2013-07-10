@@ -26,6 +26,18 @@ CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
 CPUSolver::~CPUSolver() { 
 
   /* Vector alignment memory deallocation */
+  if (_FSR_materials != NULL) {
+      _mm_free(_FSR_materials);
+      _FSR_materials = NULL;
+  }
+
+  /* Vector alignment memory deallocation */
+  if (_FSR_volumes != NULL) {
+      _mm_free(_FSR_volumes);
+      _FSR_volumes = NULL;
+  }
+
+  /* Vector alignment memory deallocation */
   if (_scalar_flux != NULL) {
       _mm_free(_scalar_flux);
       _scalar_flux = NULL;
@@ -174,6 +186,13 @@ void CPUSolver::setNumThreads(int num_threads) {
 }
 
 
+void CPUSolver::setGeometry(Geometry* geometry) {
+    Solver::setGeometry(geometry);
+    _num_groups_vec = ceil(_num_groups / VEC_LENGTH);
+    printf("num_groups_vec = %d\n", _num_groups_vec);
+}
+
+
 /**
  * @brief Allocates memory for track boundary angular fluxes and 
  *        flatsourceregion scalar fluxes.
@@ -259,6 +278,7 @@ void CPUSolver::initializePowerArrays() {
     /* Delete old power arrays if they exist */
     if (_FSRs_to_powers != NULL)
         delete [] _FSRs_to_powers;
+
     if (_FSRs_to_pin_powers != NULL)
         delete [] _FSRs_to_pin_powers;
 
@@ -361,13 +381,16 @@ void CPUSolver::initializeFSRs() {
 
     /* Delete old FSRs array if it exists */
     if (_FSR_volumes != NULL)
-        delete [] _FSR_volumes;
+        _mm_free(_FSR_volumes);
 
     if (_FSR_materials != NULL)
-        delete [] _FSR_materials;
+        _mm_free(_FSR_materials);
 
-    _FSR_volumes = new FP_PRECISION[_num_FSRs];
-    _FSR_materials = new Material*[_num_FSRs];
+    int size = _num_FSRs * sizeof(FP_PRECISION);
+    _FSR_volumes = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+
+    size = _num_FSRs * sizeof(Material*);
+    _FSR_materials = (Material**)_mm_malloc(size, VEC_ALIGNMENT);
 
     std::vector<segment*> segments;
     std::vector<segment*>::iterator iter;

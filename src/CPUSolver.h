@@ -65,6 +65,7 @@ public:
     FP_PRECISION* getFSRPinPowers();
 
     void setNumThreads(int num_threads);
+    void setGeometry(Geometry* geometry);
     void computePinPowers();
 };
 
