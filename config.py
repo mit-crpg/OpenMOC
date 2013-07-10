@@ -92,7 +92,7 @@ compiler_flags['gcc'] = ['-c',
                          '-fpic']
 
 compiler_flags['icpc'] =['-c', 
-                         '-O3', 
+                         '-O0', 
                          '--ccache-skip',
                          '-openmp', 
                          '--ccache-skip',
@@ -101,6 +101,7 @@ compiler_flags['icpc'] =['-c',
                          '-fpic',
                          '--ccache-skip',
                          '-openmp-report', 
+                         '-no-vec',
                          '-vec-report']
 
 compiler_flags['nvcc'] =  ['-c', 

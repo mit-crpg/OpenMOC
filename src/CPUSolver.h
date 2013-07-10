@@ -75,7 +75,9 @@ public:
 			 double* sigma_t, FP_PRECISION length, 
 			 FP_PRECISION* track_flux,
 			 FP_PRECISION* fsr_flux);
-
+    void transferBoundaryFlux(int j, int k, int track_id, 
+			      bool direction,
+			      FP_PRECISION* track_flux);
     void normalizeFluxToVolume();
 
     void setNumThreads(int num_threads);

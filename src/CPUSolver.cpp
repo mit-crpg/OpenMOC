@@ -829,21 +829,7 @@ void CPUSolver::transportSweep(int max_iterations) {
                     }
 
 		    /* Transfer flux to outgoing track */
-		    track_out_id = _tracks[j][k].getTrackOut()->getUid();
-		    bc = _tracks[j][k].getBCOut();
-		    start = _tracks[j][k].isReflOut() * _polar_times_groups;
-		    track_out_flux = &_boundary_flux(track_out_id,start);
-		    track_leakage = &_boundary_leakage(track_id,0);
-
-		    #pragma novector
-		    for (int p=0; p < _num_polar; p++) {
-                        #pragma novector
-                        for (int e=0; e < _num_groups; e++) {
-                            track_out_flux(p,e) = track_flux(p,e) * bc;
-			    track_leakage(p,e) = track_flux(p,e) * 
-			                         _polar_weights[p] * (!bc);
-                        }
-                    }
+		    transferBoundaryFlux(j, k, track_id, true, track_flux);
 
 		    /* Loop over each segment in reverse direction */
 		    track_flux += _polar_times_groups;
@@ -859,22 +845,10 @@ void CPUSolver::transportSweep(int max_iterations) {
 		    }
 
 		    /* Transfer flux to outgoing track */
-		    track_out_id = _tracks[j][k].getTrackIn()->getUid();
-		    bc = _tracks[j][k].getBCIn();
-		    start = _tracks[j][k].isReflIn() * _polar_times_groups;
-		    track_out_flux = &_boundary_flux(track_out_id,start);
-		    track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
+		    transferBoundaryFlux(j, k, track_id, false, track_flux);
 
-		    #pragma novector
-		    for (int p=0; p < _num_polar; p++) {
-                        #pragma novector
-                        for (int e=0; e < _num_groups; e++) {
-                            track_out_flux(p,e) = track_flux(p,e) * bc;
-			    track_leakage(p,e) = track_flux(p,e) * 
-			                         _polar_weights[p] * (!bc);
-                        }
-                    }
 		}
+
 		/* Update the azimuthal angle index for this thread
 		 * such that the next azimuthal angle is the one that reflects
 		 * out of the current one. If instead this is the 2nd (final)
@@ -934,6 +908,7 @@ void CPUSolver::scalarFluxTally(int thread_id, int fsr_id,
 	index = computePrefactorIndex(sigma_t_l);
 	  
 	/* Loop over polar angles */
+	#pragma novector
 	for (int p=0; p < _num_polar; p++){
 	    delta = (track_flux(p,e) - 
 	    _ratios(fsr_id,e)) * 
@@ -953,6 +928,45 @@ void CPUSolver::scalarFluxTally(int thread_id, int fsr_id,
     omp_unset_lock(&_FSR_locks[fsr_id]);
 
     return;
+}
+
+
+void CPUSolver::transferBoundaryFlux(int j, int k, int track_id, 
+				     bool direction,
+				     FP_PRECISION* track_flux) {
+    int start;
+    bool bc;
+    FP_PRECISION* track_leakage;
+    int track_out_id;
+
+    if (direction) {
+        start = _tracks[j][k].isReflOut() * _polar_times_groups;
+        bc = _tracks[j][k].getBCOut();
+        track_leakage = &_boundary_leakage(track_id,0);
+        track_out_id = _tracks[j][k].getTrackOut()->getUid();
+    }
+    else {
+        start = _tracks[j][k].isReflIn() * _polar_times_groups;
+        bc = _tracks[j][k].getBCIn();
+        track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
+        track_out_id = _tracks[j][k].getTrackIn()->getUid();
+    }
+
+    FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,start);
+
+    if (track_id == 0)
+        printf("here\n");
+
+    #pragma novector
+    for (int p=0; p < _num_polar; p++) {
+        #pragma novector
+        for (int e=0; e < _num_groups; e++) {
+	    track_out_flux(p,e) = track_flux(p,e) * bc;
+	    track_leakage(p,e) = track_flux(p,e) * 
+	      _polar_weights[p] * (!bc);
+	}
+    }
+
 }
 
 
