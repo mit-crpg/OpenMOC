@@ -809,14 +809,17 @@ void CPUSolver::transportSweep(int max_iterations) {
 		    for (int p=0; p < _num_polar; p++) {
                         for (int e=0; e < _num_groups; e++) {
                             track_out_flux(p,e) = track_flux(p,e) * bc;
+			    //			    track_flux(p,e) *= _polar_weights[p] * (!bc);
                         }
                     }
 
-		    for (pe=0; pe < _polar_times_groups; pe++) {
-			thread_leakage[2*track_id] += 
-			  _boundary_flux(track_id,pe) 
-			  * _polar_weights[pe%_num_polar] * (!bc);
-		    }
+		    for (int p=0; p < _num_polar; p++) {
+                        for (int e=0; e < _num_groups; e++) {
+                            thread_leakage[2*track_id] += track_flux(p,e) * 
+			                           _polar_weights[p] * (!bc);
+			    track_flux(p,e) *= _polar_weights[p] * (!bc);
+                        }
+                    }
 
 		    /* Loop over each segment in reverse direction */
 		    track_flux += _polar_times_groups;
@@ -840,14 +843,17 @@ void CPUSolver::transportSweep(int max_iterations) {
 		    for (int p=0; p < _num_polar; p++) {
                         for (int e=0; e < _num_groups; e++) {
                             track_out_flux(p,e) = track_flux(p,e) * bc;
+			    //	    track_flux(p,e) *= _polar_weights[p] * (!bc);
                         }
                     }
 
-		    for (pe=0; pe < _polar_times_groups; pe++) {
-			thread_leakage[2*track_id+1] += 
-			    _boundary_flux(track_id,_polar_times_groups+pe) 
-			    * _polar_weights[pe%_num_polar] * (!bc);
-		    }
+		    for (int p=0; p < _num_polar; p++) {
+                        for (int e=0; e < _num_groups; e++) {
+                            thread_leakage[2*track_id+1] += track_flux(p,e) * 
+			                           _polar_weights[p] * (!bc);
+			    track_flux(p,e) *= _polar_weights[p] * (!bc);
+                        }
+                    }
 		}
 
 		/* Update the azimuthal angle index for this thread
@@ -864,7 +870,10 @@ void CPUSolver::transportSweep(int max_iterations) {
 	}
 
         /** Reduce leakage across threads */
+
 	_leakage = pairwise_sum<FP_PRECISION>(thread_leakage, 2*_tot_num_tracks) * 0.5;
+	//	_leakage = pairwise_sum<FP_PRECISION>(_boundary_flux, 
+	//	2*_tot_num_tracks*_num_polar*_num_groups) * 0.5;
 
 	/* Reduce scalar fluxes across threads from transport sweep and
 	 * add in source term and normalize flux to volume for each region */
