@@ -1145,6 +1145,9 @@ void MICSolver::computeKeff() {
 
     _k_eff = tot_fission / (tot_abs + _leakage);
 
+    printf("abs = %1.15f, fiss = %1.15f, leak = %1.15f, keff = %1.15f\n", 
+	   tot_abs, tot_fission, _leakage, _k_eff);
+
     log_printf(DEBUG, "tot_abs = %f, tot_fission = %f, leakage = %f, "
 	       "k_eff = %f", tot_abs, tot_fission, _leakage, _k_eff);
 
@@ -1384,11 +1387,11 @@ void MICSolver::transportSweep(int max_iterations) {
 			  * _polar_weights[pe%_num_polar] * (!bc);
 		    }
 		}       
-
-		/** Reduce leakage across threads */
-		leakage += pairwise_sum<FP_PRECISION>(thread_leakage, 
-							 _tot_num_tracks);
 	    }
+
+	    /** Reduce leakage across threads */
+	    leakage = pairwise_sum<FP_PRECISION>(thread_leakage, 
+						 2*_tot_num_tracks);
 
 	    /* Reduce scalar fluxes across threads from transport sweep and
 	     * add in source term and normalize flux to volume for each region */
