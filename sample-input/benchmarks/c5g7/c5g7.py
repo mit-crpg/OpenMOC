@@ -1,5 +1,4 @@
 from openmoc import *
-import openmoc.intel.single as intel
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -9,9 +8,9 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 3
+num_threads = 1
 track_spacing = 0.1
-num_azim = 12
+num_azim = 4
 tolerance = 1E-5
 max_iters = 10
 gridsize = 500
@@ -361,19 +360,6 @@ solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
 Timer.resetTimer()
-
-
-Timer.startTimer()
-
-solver = intel.CPUSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-
-Timer.stopTimer()
-Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
-Timer.resetTimer()
-
 
 
 ###############################################################################
