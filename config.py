@@ -16,7 +16,7 @@ fp_precision = []
 default_fp = 'single'
 
 # Compile using ccache (most relevant for developers)
-with_ccache = True
+with_ccache = False
 
 # Compile with debug flags
 debug_mode = False
