@@ -16,10 +16,10 @@ fp_precision = ['single']
 default_fp = 'single'
 
 # Compile using ccache (most relevant for developers)
-with_ccache = False
+with_ccache = True
 
 # Compile with debug flags
-debug_mode = False
+debug_mode = True
 
 # Use CUDA set to True or False
 with_cuda = False
