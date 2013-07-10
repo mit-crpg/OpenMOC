@@ -6,12 +6,12 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = []
+cpp_compilers = ['icpc']
 
 default_cc = 'gcc'
 
 # Supported floating point precision levels: 'single', 'double', 'all'
-fp_precision = []
+fp_precision = ['single']
 
 default_fp = 'single'
 
