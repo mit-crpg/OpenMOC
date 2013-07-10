@@ -1,4 +1,4 @@
-###############################################################################
+1###############################################################################
 #                                 User Options
 ###############################################################################
 
@@ -6,17 +6,17 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = []
+cpp_compilers = ['icpc']
 
 default_cc = 'gcc'
 
 # Supported floating point precision levels: 'single', 'double', 'all'
-fp_precision = []
+fp_precision = ['single']
 
 default_fp = 'single'
 
 # Compile using ccache (most relevant for developers)
-with_ccache = False
+with_ccache = True
 
 # Compile with debug flags
 debug_mode = False

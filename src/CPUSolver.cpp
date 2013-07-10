@@ -23,7 +23,44 @@ CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
  * @brief Destructor deletes arrays of boundary angular flux for all tracks,
  *        scalar flux and source for each flatsourceregion.
  */
-CPUSolver::~CPUSolver() { }
+CPUSolver::~CPUSolver() { 
+
+  /* Vector alignment memory deallocation */
+  if (_scalar_flux != NULL) {
+      _mm_free(_scalar_flux);
+      _scalar_flux = NULL;
+  }
+
+  if (_old_scalar_flux != NULL) {
+      _mm_free(_old_scalar_flux);
+      _old_scalar_flux = NULL;
+  }
+
+  if (_old_scalar_flux != NULL) {
+      _mm_free(_old_scalar_flux);
+      _old_scalar_flux = NULL;
+  }
+
+  if (_fission_source != NULL) {
+      _mm_free(_fission_source);
+      _fission_source = NULL;
+  }
+
+  if (_source != NULL) {
+      _mm_free(_source);
+      _source = NULL;
+  }
+
+  if (_old_source != NULL) {
+      _mm_free(_old_source);
+      _old_source = NULL;
+  }
+
+  if (_ratios != NULL) {
+      _mm_free(_ratios);
+      _ratios = NULL;
+  }
+}
 
 
 /**
@@ -32,6 +69,17 @@ CPUSolver::~CPUSolver() { }
  */
 int CPUSolver::getNumThreads() {
     return _num_threads;
+}
+
+
+/**
+ * @brief Returns the number of energy groups divided by the vector width
+ * @details The vector width is defined by VEC_LENGTH and is used to 
+ *          for alignment of data structures for SIMD vector instructions.
+ * @return the number energy groups divided by the ector width
+ */
+int CPUSolver::getNumGroupVectorWidths() {
+    return _num_groups_vec;
 }
 
 
@@ -133,20 +181,29 @@ void CPUSolver::setNumThreads(int num_threads) {
  *          previous simulation.
  */
 void CPUSolver::initializeFluxArrays() {
-
+   
     /* Delete old flux arrays if they exist */
     if (_boundary_flux != NULL)
-        delete [] _boundary_flux;
-    if (_scalar_flux != NULL)
-        delete [] _scalar_flux;
-    if (_old_scalar_flux != NULL)
-        delete [] _old_scalar_flux;
+        _mm_free(_boundary_flux);
 
-    /* Allocate memory for all flux arrays */
+    if (_scalar_flux != NULL)
+        _mm_free(_scalar_flux);
+
+    if (_old_scalar_flux != NULL)
+        _mm_free(_old_scalar_flux);
+
+    int size;
+
+    /* Allocate aligned memory for all flux arrays */
     try{
-        _boundary_flux = new FP_PRECISION[2*_tot_num_tracks*_polar_times_groups];
-	_scalar_flux = new FP_PRECISION[_num_FSRs*_num_groups];
-	_old_scalar_flux = new FP_PRECISION[_num_FSRs*_num_groups];
+
+        size = 2 * _tot_num_tracks * _polar_times_groups 
+	        * sizeof(FP_PRECISION);
+	_boundary_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+
+	size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+	_scalar_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_old_scalar_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "
@@ -164,20 +221,26 @@ void CPUSolver::initializeSourceArrays() {
 
     /* Delete old sources arrays if they exist */
     if (_fission_source != NULL)
-        delete [] _fission_source;
-    if (_source != NULL)
-        delete [] _source;
-    if (_old_source != NULL)
-        delete [] _old_source;
-    if (_ratios != NULL)
-        delete [] _ratios;
+        _mm_free(_fission_source);
 
-    /* Allocate memory for all source arrays */
+    if (_source != NULL)
+        _mm_free(_source);
+
+    if (_old_source != NULL)
+        _mm_free(_old_source);
+
+    if (_ratios != NULL)
+        _mm_free(_ratios);
+
+    int size;
+
+    /* Allocate aligned memory for all source arrays */
     try{
-	_fission_source = new FP_PRECISION[_num_FSRs*_num_groups];
-	_source = new FP_PRECISION[_num_FSRs*_num_groups];
-	_old_source = new FP_PRECISION[_num_FSRs*_num_groups];
-	_ratios = new FP_PRECISION[_num_FSRs*_num_groups];
+        size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+	_fission_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_old_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_ratios = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's flat "
@@ -380,8 +443,8 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
     #pragma omp parallel for
     for (int r=0; r < _num_FSRs; r++) {
         for (int e=0; e < _num_groups; e++) {
-            _scalar_flux(r,e) = value;
-  	    _old_scalar_flux(r,e) = value;
+	    _scalar_flux(r,e) = value;
+	    _old_scalar_flux(r,e) = value;
          }
      }
 
@@ -633,7 +696,7 @@ bool CPUSolver::isScalarFluxConverged() {
  * @param max_iterations the maximum number of iterations allowed
  */
 void CPUSolver::transportSweep(int max_iterations) {
-
+  
     bool converged = false;
     int thread_id;
     int track_id;
