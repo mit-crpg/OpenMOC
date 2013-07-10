@@ -23,6 +23,7 @@
 #define _ratios(r,e) (_ratios[(r)*_num_groups + (e)])
 #define _polar_weights(i,p) (_polar_weights[(i)*_num_polar + (p)])
 #define _boundary_flux(i,pe2) (_boundary_flux[2*(i)*_polar_times_groups+(pe2)])
+#define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_polar_times_groups+(pe2)])
 #define _fission_source(r,e) (_fission_source[(r)*_num_groups + (e)])
 #define source_residuals(r,e) (source_residuals[(r)*_num_groups + (e)])
 
@@ -100,6 +101,11 @@ protected:
      *  and azimuthal angles. This array stores the boundary fluxes for a
      *  a track along both "forward" and "reverse" directions. */
     FP_PRECISION* _boundary_flux;
+
+    /** The angular leakages for each track for all energy groups, polar angles,
+     *  and azimuthal angles. This array stores the weighted outgoing fluxes 
+     *  for a track along both "forward" and "reverse" directions. */
+    FP_PRECISION* _boundary_leakage;
 
     /* Flat source regions */
     /** The scalar flux for each energy group in each flat source region */
