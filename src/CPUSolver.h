@@ -21,7 +21,7 @@
 #include "Solver.h"
 #endif
 
-#define thread_flux(t,r,e) (thread_flux[(t)*_num_FSRs*_num_groups + (r)*_num_groups + (e)])
+#define track_flux(p,e) (track_flux[(e)*_num_polar + (p)])
 
 
 /**
@@ -31,10 +31,14 @@
 class CPUSolver : public Solver {
 
 private:
+
+    /** OpenMP locks for atomic scalar flux updates */
+    omp_lock_t* _FSR_locks;
+
     /** The number of shared memory OpenMP threads */
     int _num_threads;
 
-    /* Number of energy groups divided by vector widths (VEC_LENGTH) */
+    /** Number of energy groups divided by vector widths (VEC_LENGTH) */
     int _num_groups_vec;
 
     void initializeFluxArrays();
@@ -63,6 +67,13 @@ public:
     FP_PRECISION* getFSRScalarFluxes();
     FP_PRECISION* getFSRPowers();
     FP_PRECISION* getFSRPinPowers();
+
+    void scalarFluxTally(int thread_id, int fsr_id, 
+			 double* sigma_t, FP_PRECISION length, 
+			 FP_PRECISION* track_flux,
+			 FP_PRECISION* fsr_flux);
+
+    void normalizeFluxToVolume();
 
     void setNumThreads(int num_threads);
     void setGeometry(Geometry* geometry);
