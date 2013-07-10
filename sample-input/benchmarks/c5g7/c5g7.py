@@ -9,9 +9,9 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 4
+num_threads = 3
 track_spacing = 0.1
-num_azim = 4
+num_azim = 12
 tolerance = 1E-5
 max_iters = 10
 gridsize = 500
