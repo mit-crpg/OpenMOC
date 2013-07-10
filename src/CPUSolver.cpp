@@ -741,6 +741,7 @@ void CPUSolver::transportSweep(int max_iterations) {
     int max_num_threads = _num_azim / 2;
 
     FP_PRECISION* track_flux;
+    FP_PRECISION* track_out_flux;
 
     /* Allocate memory for each thread's FSR scalar fluxes and leakages */
     FP_PRECISION* thread_leakage = new FP_PRECISION[2*_tot_num_tracks];
@@ -803,11 +804,15 @@ void CPUSolver::transportSweep(int max_iterations) {
 		    track_out_id = _tracks[j][k].getTrackOut()->getUid();
 		    bc = _tracks[j][k].getBCOut();
 		    start = _tracks[j][k].isReflOut() * _polar_times_groups;
+		    track_out_flux = &_boundary_flux(track_out_id,start);
+
+		    for (int p=0; p < _num_polar; p++) {
+                        for (int e=0; e < _num_groups; e++) {
+                            track_out_flux(p,e) = track_flux(p,e) * bc;
+                        }
+                    }
 
 		    for (pe=0; pe < _polar_times_groups; pe++) {
-		        _boundary_flux(track_out_id,start+pe) = 
-			  _boundary_flux(track_id,pe) * bc;
-
 			thread_leakage[2*track_id] += 
 			  _boundary_flux(track_id,pe) 
 			  * _polar_weights[pe%_num_polar] * (!bc);
@@ -830,11 +835,15 @@ void CPUSolver::transportSweep(int max_iterations) {
 		    track_out_id = _tracks[j][k].getTrackIn()->getUid();
 		    bc = _tracks[j][k].getBCIn();
 		    start = _tracks[j][k].isReflIn() * _polar_times_groups;
+		    track_out_flux = &_boundary_flux(track_out_id,start);
+
+		    for (int p=0; p < _num_polar; p++) {
+                        for (int e=0; e < _num_groups; e++) {
+                            track_out_flux(p,e) = track_flux(p,e) * bc;
+                        }
+                    }
 
 		    for (pe=0; pe < _polar_times_groups; pe++) {
-		        _boundary_flux(track_out_id,start+pe) = 
-			   _boundary_flux(track_id,_polar_times_groups+pe) * bc;
-
 			thread_leakage[2*track_id+1] += 
 			    _boundary_flux(track_id,_polar_times_groups+pe) 
 			    * _polar_weights[pe%_num_polar] * (!bc);

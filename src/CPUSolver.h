@@ -22,6 +22,7 @@
 #endif
 
 #define track_flux(p,e) (track_flux[(e)*_num_polar + (p)])
+#define track_out_flux(p,e) (track_out_flux[(e)*_num_polar + (p)])
 
 
 /**
