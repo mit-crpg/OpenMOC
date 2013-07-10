@@ -10,7 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 #from openmoc import *
 from log import *
-import scipy.integrate as integrate
 import numpy
 import os
 
