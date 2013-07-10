@@ -23,6 +23,7 @@
 
 #define track_flux(p,e) (track_flux[(e)*_num_polar + (p)])
 #define track_out_flux(p,e) (track_out_flux[(e)*_num_polar + (p)])
+#define track_leakage(p,e) (track_leakage[(e)*_num_polar + (p)])
 
 
 /**
@@ -50,6 +51,7 @@ private:
     void initializeFSRs();
 
     void zeroTrackFluxes();
+    void zeroTrackLeakages();
     void flattenFSRFluxes(FP_PRECISION value);
     void flattenFSRSources(FP_PRECISION value);
     void normalizeFluxes();
