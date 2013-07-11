@@ -71,8 +71,8 @@ public:
     FP_PRECISION* getFSRPowers();
     FP_PRECISION* getFSRPinPowers();
 
-    void scalarFluxTally(int thread_id, int fsr_id, 
-			 double* sigma_t, FP_PRECISION length, 
+    void scalarFluxTally(int fsr_id, double* sigma_t, 
+			 FP_PRECISION length, 
 			 FP_PRECISION* track_flux,
 			 FP_PRECISION* fsr_flux);
     void transferBoundaryFlux(int j, int k, int track_id, 
