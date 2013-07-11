@@ -25,16 +25,6 @@ CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
  */
 CPUSolver::~CPUSolver() { 
 
-  if (_FSR_materials != NULL) {
-      _mm_free(_FSR_materials);
-      _FSR_materials = NULL;
-  }
-
-  if (_FSR_volumes != NULL) {
-      _mm_free(_FSR_volumes);
-      _FSR_volumes = NULL;
-  }
-
   if (_FSR_locks != NULL)
       delete [] _FSR_locks;
 
@@ -394,17 +384,13 @@ void CPUSolver::initializeFSRs() {
 
     /* Delete old FSRs array if it exists */
     if (_FSR_volumes != NULL)
-        _mm_free(_FSR_volumes);
+        delete [] _FSR_volumes;
 
     if (_FSR_materials != NULL)
-        _mm_free(_FSR_materials);
+        delete [] _FSR_materials;
 
-    int size = _num_FSRs * sizeof(FP_PRECISION);
-    _FSR_volumes = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-
-    size = _num_FSRs * sizeof(Material*);
-    _FSR_materials = (Material**)_mm_malloc(size, VEC_ALIGNMENT);
-
+    _FSR_volumes = new FP_PRECISION[_num_FSRs];
+    _FSR_materials = new Material*[_num_FSRs];
     _FSR_locks = new omp_lock_t[_num_FSRs];
 
     std::vector<segment*> segments;
@@ -421,14 +407,14 @@ void CPUSolver::initializeFSRs() {
      * inside the FSR. Loop over azimuthal angle, track and segment. 
      * Note: this code region cannot be parallelized without a mutex lock
      * on FSR volume due to race conditions. */
-    for (int i=0; i < _num_azim; i++) {
-        for (int j=0; j < _num_tracks[i]; j++) {
-  	    segments = _tracks[i][j].getSegments();
-
-            for (iter=segments.begin(); iter != segments.end(); ++iter) {
-	        volume = (*iter)->_length * _azim_weights[i];
-		_FSR_volumes[(*iter)->_region_id] += volume;
-	    }
+    for (int i=0; i < _tot_num_tracks; i++) {
+        
+        int azim_index = _tracks[i]->getAzimAngleIndex();
+        segments = _tracks[i]->getSegments();
+	
+	for (iter=segments.begin(); iter != segments.end(); ++iter) {
+	    volume = (*iter)->_length * _azim_weights[azim_index];
+	    _FSR_volumes[(*iter)->_region_id] += volume;
 	}
     }
 
@@ -469,24 +455,6 @@ void CPUSolver::zeroTrackFluxes() {
     for (int i=0; i < _tot_num_tracks; i++) {
         for (int pe2=0; pe2 < 2*_polar_times_groups; pe2++)
     	    _boundary_flux(i,pe2) = 0.0;
-    }
-
-    return;
-}
-
-
-/**
- * @brief Zero each track's boundary fluxes for each energy group and polar
- *        angle in the "forward" and "reverse" directions.
- */
-void CPUSolver::zeroTrackLeakages() {
-
-    /* Loop over azimuthal angle, track, polar angle, energy group
-     * and set each track's incoming and outgoing flux to zero */
-    #pragma omp parallel for
-    for (int i=0; i < _tot_num_tracks; i++) {
-        for (int pe2=0; pe2 < 2*_polar_times_groups; pe2++)
-	    _boundary_leakage(i,pe2) = 0.0;
     }
 
     return;
@@ -544,6 +512,8 @@ void CPUSolver::normalizeFluxes() {
     FP_PRECISION tot_fission_source;
     FP_PRECISION norm_factor;
 
+    memset(_fission_source, 0, _num_FSRs * _num_groups);
+
     /* Compute total fission source for each region, energy group */
     #pragma omp parallel for private(volume, nu_sigma_f) \
       reduction(+:tot_fission_source)
@@ -560,7 +530,6 @@ void CPUSolver::normalizeFluxes() {
     /* Compute the total fission source */
     tot_fission_source = pairwise_sum<FP_PRECISION>(_fission_source, 
 						    _num_FSRs*_num_groups);
-
     /* Normalize scalar fluxes in each region */
     norm_factor = 1.0 / tot_fission_source;
 
@@ -569,7 +538,7 @@ void CPUSolver::normalizeFluxes() {
     #pragma omp parallel for
     for (int r=0; r < _num_FSRs; r++) {
         for (int e=0; e < _num_groups; e++)
-	  _scalar_flux(r,e) *= norm_factor;
+	    _scalar_flux(r,e) *= norm_factor;
     }
 
     /* Normalize angular boundary fluxes for each track */
@@ -646,6 +615,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 	    _source(r,G) = ((1.0 / _k_eff) * fission_source *
                            chi[G] + scatter_source) * ONE_OVER_FOUR_PI;
 	
+
 	    _ratios(r,G) = _source(r,G) / sigma_t[G];
 
 	    /* Compute the norm of residual of the source in this region, group */
@@ -758,21 +728,14 @@ bool CPUSolver::isScalarFluxConverged() {
  */
 void CPUSolver::transportSweep(int max_iterations) {
   
-    bool converged = false;
-    int track_id;
     int fsr_id;
     std::vector<segment*> segments;
     std::vector<segment*>::iterator iter;
     std::vector<segment*>::reverse_iterator riter;
     double* sigma_t;
-    int max_num_threads = _num_azim / 2;
 
     FP_PRECISION* track_flux;
     FP_PRECISION* track_leakage;
-
-    zeroTrackLeakages();
-
-    int start;
 
     log_printf(DEBUG, "Transport sweep with max_iterations = %d and "
 	       "# threads = %d", max_iterations, _num_threads);
@@ -780,92 +743,67 @@ void CPUSolver::transportSweep(int max_iterations) {
     /* Loop for until converged or max_iterations is reached */
     for (int i=0; i < max_iterations; i++) {
 
-        /* Initialize the global total leakage tally to zero */
-        _leakage = 0.0;
-
         /* Initialize flux in each region to zero */
         flattenFSRFluxes(0.0);
 
-	/* Loop over each thread and azimuthal angle.
-	 * If we are using more than 1 thread then we create 
-	 * separate threads for each pair of complementary  
-	 * azimuthal angles - angles which wrap into cycles */
-	/* Loop over each thread */
-        #pragma omp parallel for private(track_id, fsr_id, \
-	  segments, iter, riter, sigma_t, \
-	  start, track_flux, track_leakage)
-	for (int t=0; t < max_num_threads; t++) {
+	/* Loop over azimuthal angle halfspaces */
+	for (int i=0; i < 2; i++) {
 
-	    FP_PRECISION* fsr_flux = (FP_PRECISION*)_mm_malloc(_num_FSRs * sizeof(FP_PRECISION), VEC_ALIGNMENT);
+            int min = i * (_tot_num_tracks / 2);
+	    int max = (i + 1) * (_tot_num_tracks / 2);
 
-            /* Loop over the pair of azimuthal angles for this thread */
-	    int j = t;
-	    while (j < _num_azim) {
+	    /* Loop over each thread and azimuthal angle.
+	     * If we are using more than 1 thread then we create 
+	     * separate threads for each pair of complementary  
+	     * azimuthal angles - angles which wrap into cycles */
+            #pragma omp parallel for private(fsr_id, segments, iter, \
+	      riter, sigma_t, track_flux, track_leakage)
+	    for (int track_id=min; track_id < max; track_id++) {
 
-	        /* Loop over all tracks for this azimuthal angles */
-	        for (int k=0; k < _num_tracks[j]; k++) {
+	        int size = _num_FSRs * sizeof(FP_PRECISION);
+	        FP_PRECISION* fsr_flux = (FP_PRECISION*)_mm_malloc(size,
+								VEC_ALIGNMENT);
+		/* Initialize local pointers to important data structures */
+		segments = _tracks[track_id]->getSegments();
+		track_flux = &_boundary_flux(track_id,0);
 
-		    /* Initialize local pointers to important data structures */
-  		    track_id = _tracks[j][k].getUid();
-		    segments = _tracks[j][k].getSegments();
-		    track_flux = &_boundary_flux(track_id,0);
+		/* Loop over each segment in forward direction */
+		for (iter=segments.begin(); iter!=segments.end(); ++iter) {
 
-		    /* Loop over each segment in forward direction */
-                    for (iter=segments.begin(); iter!=segments.end(); ++iter) {
+		    fsr_id = (*iter)->_region_id;
+		    sigma_t = (*iter)->_material->getSigmaT();
 
-                        fsr_id = (*iter)->_region_id;
-			sigma_t = (*iter)->_material->getSigmaT();
-
-			scalarFluxTally(fsr_id, sigma_t, (*iter)->_length, 
-                                        track_flux, fsr_flux);
-                    }
-
-		    /* Transfer flux to outgoing track */
-		    transferBoundaryFlux(j, k, track_id, true, track_flux);
-
-		    /* Loop over each segment in reverse direction */
-		    track_flux += _polar_times_groups;
-
-		    for (riter=segments.rbegin(); riter != segments.rend(); 
-                                                                      ++riter){
-                        fsr_id = (*riter)->_region_id;
-			sigma_t = (*riter)->_material->getSigmaT();
-
-			scalarFluxTally(fsr_id, sigma_t, (*riter)->_length, 
-                                        track_flux, fsr_flux);
-		    }
-
-		    /* Transfer flux to outgoing track */
-		    transferBoundaryFlux(j, k, track_id, false, track_flux);
-
+		    scalarFluxTally(fsr_id, sigma_t, (*iter)->_length, 
+				    track_flux, fsr_flux);
 		}
 
-		/* Update the azimuthal angle index for this thread
-		 * such that the next azimuthal angle is the one that reflects
-		 * out of the current one. If instead this is the 2nd (final)
-		 * angle to be used by this thread, break loop */
-		if (j < max_num_threads)
-		    j = _num_azim - j - 1;
-		else
-		    break;
-		
+		/* Transfer flux to outgoing track */
+		transferBoundaryFlux(track_id, true, track_flux);
+
+		/* Loop over each segment in reverse direction */
+		track_flux += _polar_times_groups;
+
+		for (riter=segments.rbegin(); riter != segments.rend(); 
+                                                                      ++riter){
+		    fsr_id = (*riter)->_region_id;
+		    sigma_t = (*riter)->_material->getSigmaT();
+
+		    scalarFluxTally(fsr_id, sigma_t, (*riter)->_length, 
+				    track_flux, fsr_flux);
+		}
+
+		/* Transfer flux to outgoing track */
+		transferBoundaryFlux(track_id, false, track_flux);
 	    }
-			
 	}
-
-        /** Reduce leakage array across tracks, energy groups, polar angles */
-	_leakage = pairwise_sum<FP_PRECISION>(_boundary_leakage, 
-			2*_tot_num_tracks*_num_polar*_num_groups) * 0.5;
-
-	normalizeFluxToVolume();
-
-	/* Check for convergence if max_iterations > 1 */
-	if (max_iterations == 1 || isScalarFluxConverged())
-            return;
     }
 
-    log_printf(WARNING, "Scalar flux did not converge after %d iterations",
-	                                                   max_iterations);
+        /** Reduce leakage array across tracks, energy groups, polar angles */
+    _leakage = pairwise_sum<FP_PRECISION>(_boundary_leakage, 
+					  2*_tot_num_tracks*_polar_times_groups);
+    _leakage *= 0.5;
+    
+    normalizeFluxToVolume();
 
     return;
 }
@@ -885,7 +823,7 @@ void CPUSolver::scalarFluxTally(int fsr_id, double* sigma_t,
         fsr_flux[e] = 0.;
 	sigma_t_l = sigma_t[e] * length;
 	index = computePrefactorIndex(sigma_t_l);
-	  
+
 	/* Loop over polar angles */
 	#pragma novector
 	for (int p=0; p < _num_polar; p++){
@@ -910,8 +848,7 @@ void CPUSolver::scalarFluxTally(int fsr_id, double* sigma_t,
 }
 
 
-void CPUSolver::transferBoundaryFlux(int j, int k, int track_id, 
-				     bool direction,
+void CPUSolver::transferBoundaryFlux(int track_id, bool direction,
 				     FP_PRECISION* track_flux) {
     int start;
     bool bc;
@@ -919,16 +856,16 @@ void CPUSolver::transferBoundaryFlux(int j, int k, int track_id,
     int track_out_id;
 
     if (direction) {
-        start = _tracks[j][k].isReflOut() * _polar_times_groups;
-        bc = _tracks[j][k].getBCOut();
+        start = _tracks[track_id]->isReflOut() * _polar_times_groups;
+        bc = _tracks[track_id]->getBCOut();
         track_leakage = &_boundary_leakage(track_id,0);
-        track_out_id = _tracks[j][k].getTrackOut()->getUid();
+        track_out_id = _tracks[track_id]->getTrackOut()->getUid();
     }
     else {
-        start = _tracks[j][k].isReflIn() * _polar_times_groups;
-        bc = _tracks[j][k].getBCIn();
+        start = _tracks[track_id]->isReflIn() * _polar_times_groups;
+        bc = _tracks[track_id]->getBCIn();
         track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
-        track_out_id = _tracks[j][k].getTrackIn()->getUid();
+        track_out_id = _tracks[track_id]->getTrackIn()->getUid();
     }
 
     FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,start);
