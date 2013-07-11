@@ -174,12 +174,7 @@ void CPUSolver::setNumThreads(int num_threads) {
         log_printf(ERROR, "Unable to set the number of threads for the Solver "
 		   "to %d since it is less than or equal to 0", num_threads);
 
-    /* Set the number of threads to be no larger than half the number of 
-     * azimuthal angles if the trackgenerator has been set */
-    if (_num_azim == 0 || num_threads < _num_azim / 2)
-      _num_threads = num_threads;
-    else
-        _num_threads = _num_azim / 2;
+    _num_threads = num_threads;
 
     /* Set the number of threads for OpenMP */
     omp_set_num_threads(_num_threads);
