@@ -722,15 +722,14 @@ bool CPUSolver::isScalarFluxConverged() {
  * @param max_iterations the maximum number of iterations allowed
  */
 void CPUSolver::transportSweep(int max_iterations) {
-  
-    int fsr_id;
-    std::vector<segment*> segments;
-    std::vector<segment*>::iterator iter;
-    std::vector<segment*>::reverse_iterator riter;
-    double* sigma_t;
 
+    Track* curr_track;
+    int num_segments;
+    segment* curr_segment;    
+    FP_PRECISION length;
+    int fsr_id;
+    double* sigma_t;
     FP_PRECISION* track_flux;
-    FP_PRECISION* track_leakage;
 
     log_printf(DEBUG, "Transport sweep with max_iterations = %d and "
 	       "# threads = %d", max_iterations, _num_threads);
@@ -747,28 +746,27 @@ void CPUSolver::transportSweep(int max_iterations) {
             int min = i * (_tot_num_tracks / 2);
 	    int max = (i + 1) * (_tot_num_tracks / 2);
 
-	    /* Loop over each thread and azimuthal angle.
-	     * If we are using more than 1 thread then we create 
-	     * separate threads for each pair of complementary  
-	     * azimuthal angles - angles which wrap into cycles */
-            #pragma omp parallel for private(fsr_id, segments, iter, \
-	      riter, sigma_t, track_flux, track_leakage)
+	    /* Loop over each thread within this azimuthal angle halfspace */
+            #pragma omp parallel for private(curr_track, num_segments, \
+	      curr_segment, length, fsr_id, sigma_t, track_flux)
 	    for (int track_id=min; track_id < max; track_id++) {
 
+	        /* TODO: Allocate this up front */
 	        int size = _num_FSRs * sizeof(FP_PRECISION);
 	        FP_PRECISION* fsr_flux = (FP_PRECISION*)_mm_malloc(size,
 								VEC_ALIGNMENT);
-		/* Initialize local pointers to important data structures */
-		segments = _tracks[track_id]->getSegments();
+		/* Initialize local pointers to important data structures */	
+		curr_track = _tracks[track_id];
+		num_segments = curr_track->getNumSegments();
 		track_flux = &_boundary_flux(track_id,0);
 
 		/* Loop over each segment in forward direction */
-		for (iter=segments.begin(); iter!=segments.end(); ++iter) {
-
-		    fsr_id = (*iter)->_region_id;
-		    sigma_t = (*iter)->_material->getSigmaT();
-
-		    scalarFluxTally(fsr_id, sigma_t, (*iter)->_length, 
+		for (int s=0; s < num_segments; s++) {
+	            curr_segment = curr_track->getSegment(s);
+		    fsr_id = curr_segment->_region_id;
+		    length = curr_segment->_length;
+		    sigma_t = curr_segment->_material->getSigmaT();
+		    scalarFluxTally(fsr_id, sigma_t, length, 
 				    track_flux, fsr_flux);
 		}
 
@@ -778,12 +776,12 @@ void CPUSolver::transportSweep(int max_iterations) {
 		/* Loop over each segment in reverse direction */
 		track_flux += _polar_times_groups;
 
-		for (riter=segments.rbegin(); riter != segments.rend(); 
-                                                                      ++riter){
-		    fsr_id = (*riter)->_region_id;
-		    sigma_t = (*riter)->_material->getSigmaT();
-
-		    scalarFluxTally(fsr_id, sigma_t, (*riter)->_length, 
+		for (int s=num_segments-1; s > -1; s--) {
+	            curr_segment = curr_track->getSegment(s);
+		    fsr_id = curr_segment->_region_id;
+		    length = curr_segment->_length;
+		    sigma_t = curr_segment->_material->getSigmaT();
+		    scalarFluxTally(fsr_id, sigma_t, length, 
 				    track_flux, fsr_flux);
 		}
 
@@ -793,7 +791,7 @@ void CPUSolver::transportSweep(int max_iterations) {
 	}
     }
 
-        /** Reduce leakage array across tracks, energy groups, polar angles */
+    /** Reduce leakage array across tracks, energy groups, polar angles */
     _leakage = pairwise_sum<FP_PRECISION>(_boundary_leakage, 
 					  2*_tot_num_tracks*_polar_times_groups);
     _leakage *= 0.5;
