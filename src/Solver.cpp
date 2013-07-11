@@ -33,6 +33,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _azim_weights = NULL;
     _polar_weights = NULL;
     _boundary_flux = NULL;
+    _boundary_leakage = NULL;
 
     _scalar_flux = NULL;
     _old_scalar_flux = NULL;
@@ -220,10 +221,20 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
     _track_generator = track_generator;
     _num_azim = _track_generator->getNumAzim() / 2;
-    _tracks = _track_generator->getTracks();
     _num_tracks = _track_generator->getNumTracksArray();
     _tot_num_tracks = _track_generator->getNumTracks();
     _azim_weights = _track_generator->getAzimWeights();
+    _tracks = new Track*[_tot_num_tracks];
+
+    /* Initialize the tracks array */
+    int counter = 0;
+
+    for (int i=0; i < _num_azim; i++) {
+        for (int j=0; j < _num_tracks[i]; j++) {
+	  _tracks[counter] = &_track_generator->getTracks()[i][j];
+	  counter++;
+	}
+    }
 }
 
 
@@ -307,13 +318,12 @@ void Solver::checkTrackSpacing() {
     /* Iterate over all azimuthal angles, all tracks, and all segments
      * and tally each segment in the corresponding FSR */
     #pragma omp parallel for private (segments, iter)
-    for (int i=0; i < _num_azim; i++) {
-        for (int j=0; j < _num_tracks[i]; j++) {
-	    segments = _tracks[i][j].getSegments();
+    for (int i=0; i < _tot_num_tracks; i++) {
+     
+        segments = _tracks[i]->getSegments();
 
-            for (iter=segments.begin(); iter != segments.end(); ++iter)
-	        FSR_segment_tallies[(*iter)->_region_id]++;
-	}
+	for (iter=segments.begin(); iter != segments.end(); ++iter)
+	    FSR_segment_tallies[(*iter)->_region_id]++;
     }
 
     /* Loop over all FSRs and if one FSR does not have tracks in it, print
