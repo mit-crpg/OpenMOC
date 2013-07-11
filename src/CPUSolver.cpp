@@ -759,21 +759,15 @@ bool CPUSolver::isScalarFluxConverged() {
 void CPUSolver::transportSweep(int max_iterations) {
   
     bool converged = false;
-    int thread_id;
     int track_id;
-    int track_out_id;
-    bool bc;
     int fsr_id;
     std::vector<segment*> segments;
     std::vector<segment*>::iterator iter;
     std::vector<segment*>::reverse_iterator riter;
     double* sigma_t;
-    FP_PRECISION volume;
-    int pe;
     int max_num_threads = _num_azim / 2;
 
     FP_PRECISION* track_flux;
-    FP_PRECISION* track_out_flux;
     FP_PRECISION* track_leakage;
 
     zeroTrackLeakages();
@@ -797,12 +791,11 @@ void CPUSolver::transportSweep(int max_iterations) {
 	 * separate threads for each pair of complementary  
 	 * azimuthal angles - angles which wrap into cycles */
 	/* Loop over each thread */
-        #pragma omp parallel for private(track_id, track_out_id, bc, fsr_id, \
-	  segments, iter, riter, sigma_t, volume, \
-	  pe, thread_id, start, track_flux, track_out_flux, track_leakage)
+        #pragma omp parallel for private(track_id, fsr_id, \
+	  segments, iter, riter, sigma_t, \
+	  start, track_flux, track_leakage)
 	for (int t=0; t < max_num_threads; t++) {
 
-            thread_id = omp_get_thread_num();
 	    FP_PRECISION* fsr_flux = (FP_PRECISION*)_mm_malloc(_num_FSRs * sizeof(FP_PRECISION), VEC_ALIGNMENT);
 
             /* Loop over the pair of azimuthal angles for this thread */
@@ -823,9 +816,8 @@ void CPUSolver::transportSweep(int max_iterations) {
                         fsr_id = (*iter)->_region_id;
 			sigma_t = (*iter)->_material->getSigmaT();
 
-			scalarFluxTally(thread_id, fsr_id, sigma_t, 
-	                                (*iter)->_length, track_flux,
-					fsr_flux);
+			scalarFluxTally(fsr_id, sigma_t, (*iter)->_length, 
+                                        track_flux, fsr_flux);
                     }
 
 		    /* Transfer flux to outgoing track */
@@ -839,9 +831,8 @@ void CPUSolver::transportSweep(int max_iterations) {
                         fsr_id = (*riter)->_region_id;
 			sigma_t = (*riter)->_material->getSigmaT();
 
-			scalarFluxTally(thread_id, fsr_id, sigma_t, 
-	                                (*riter)->_length, track_flux, 
-					fsr_flux);
+			scalarFluxTally(fsr_id, sigma_t, (*riter)->_length, 
+                                        track_flux, fsr_flux);
 		    }
 
 		    /* Transfer flux to outgoing track */
@@ -866,19 +857,7 @@ void CPUSolver::transportSweep(int max_iterations) {
 	_leakage = pairwise_sum<FP_PRECISION>(_boundary_leakage, 
 			2*_tot_num_tracks*_num_polar*_num_groups) * 0.5;
 
-	/* Add in source term and normalize flux to volume for each region */
-	/* Loop over flat source regions, energy groups */
-        #pragma omp parallel for private(volume, sigma_t)
-	for (int r=0; r < _num_FSRs; r++) {
-	    volume = _FSR_volumes[r];
-	    sigma_t = _FSR_materials[r]->getSigmaT();
-
-	    for (int e=0; e < _num_groups; e++) {
-	        _scalar_flux(r,e) *= 0.5;
-	        _scalar_flux(r,e) = FOUR_PI * _ratios(r,e) + 
-		  (_scalar_flux(r,e) / (sigma_t[e] * volume));
-	    }
-	}
+	normalizeFluxToVolume();
 
 	/* Check for convergence if max_iterations > 1 */
 	if (max_iterations == 1 || isScalarFluxConverged())
@@ -892,10 +871,10 @@ void CPUSolver::transportSweep(int max_iterations) {
 }
 
 
-void CPUSolver::scalarFluxTally(int thread_id, int fsr_id, 
-				       double* sigma_t, FP_PRECISION length, 
-				       FP_PRECISION* track_flux,
-                                       FP_PRECISION* fsr_flux){
+void CPUSolver::scalarFluxTally(int fsr_id, double* sigma_t, 
+                                FP_PRECISION length, 
+                                FP_PRECISION* track_flux,
+                                FP_PRECISION* fsr_flux){
 
     FP_PRECISION delta;
     FP_PRECISION sigma_t_l;
@@ -954,9 +933,6 @@ void CPUSolver::transferBoundaryFlux(int j, int k, int track_id,
 
     FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,start);
 
-    if (track_id == 0)
-        printf("here\n");
-
     #pragma novector
     for (int p=0; p < _num_polar; p++) {
         #pragma novector
@@ -966,11 +942,29 @@ void CPUSolver::transferBoundaryFlux(int j, int k, int track_id,
 	      _polar_weights[p] * (!bc);
 	}
     }
-
 }
 
 
 void CPUSolver::normalizeFluxToVolume() {
+
+    FP_PRECISION volume;
+    double* sigma_t;
+
+    /* Add in source term and normalize flux to volume for each region */
+    /* Loop over flat source regions, energy groups */
+    #pragma omp parallel for private(volume, sigma_t)
+    for (int r=0; r < _num_FSRs; r++) {
+        volume = _FSR_volumes[r];
+	sigma_t = _FSR_materials[r]->getSigmaT();
+
+	for (int e=0; e < _num_groups; e++) {
+            _scalar_flux(r,e) *= 0.5;
+	    _scalar_flux(r,e) = FOUR_PI * _ratios(r,e) + 
+	      (_scalar_flux(r,e) / (sigma_t[e] * volume));
+        }
+    }
+    
+    return;
 }
 
  
