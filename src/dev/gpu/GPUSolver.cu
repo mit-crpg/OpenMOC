@@ -444,12 +444,15 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 				       int tid_offset,
 				       int tid_max) {
 
+    /* Shared memory buffer for each thread's angular flux */
+    extern __shared__ FP_PRECISION temp_flux[];
+
     int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
 
     int index_offset = threadIdx.x * (*two_times_num_polar);
     int energy_group = tid % (*num_groups);
     int energy_angle_index = energy_group * (*num_polar);
-    int track_flux_index;
+    int track_flux_index = index_offset;
 
     int track_id = int(tid / *num_groups);
     int pe;
@@ -460,15 +463,14 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     dev_segment* curr_segment;
     int num_segments;
 
-    /* temporary flux for track and fsr fluxes */
-    extern __shared__ FP_PRECISION temp_flux[];
-
     /* Iterate over track with azimuthal angles in (0, pi/2) */
     while (track_id < tid_max) {
 
         /* Initialize local registers with important data */
         curr_track = &tracks[track_id];
       	num_segments = curr_track->_num_segments;
+
+	track_flux = &temp_flux[track_flux_index];
       
 	/* Put track's flux in the shared memory temporary flux array */
       	for (int p=0; p < *num_polar; p++) {
@@ -482,9 +484,6 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	    temp_flux[index_offset + *num_polar + p] = 
 	    boundary_flux(track_id,pe);
       	}
-
-      	track_flux_index = index_offset;
-	track_flux = &temp_flux[track_flux_index];
       
 	/* Loop over each segment in forward direction */
 	for (int i=0; i < num_segments; i++) {
@@ -500,8 +499,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 			     polar_weights, energy_angle_index, true);
 
 	/* Loop over each segment in reverse direction */
-	track_flux_index = index_offset + (*num_polar);
-	track_flux = &temp_flux[track_flux_index];
+	track_flux = &temp_flux[track_flux_index + (*num_polar)];
 
 	for (int i=num_segments-1; i > -1; i--) {
 	    curr_segment = &curr_track->_segments[i];
