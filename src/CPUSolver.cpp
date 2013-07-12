@@ -45,7 +45,7 @@ int CPUSolver::getNumThreads() {
 
 
 /**
- * @brief Returns the scalar flux for some energy group for a flat source region.
+ * @brief Returns the scalar flux for some energy group for a flat source region
  * @param fsr_id the ID for the FSR of interest
  * @param energy_group the energy group of interest
  */
@@ -804,7 +804,6 @@ void CPUSolver::transferBoundaryFlux(int track_id, bool direction,
 /**
  * @brief Add the source term contribution in the transport equation to 
  *        the flat source region scalar flux
- *
  */
 void CPUSolver::addSourceToScalarFlux() {
 
