@@ -377,7 +377,20 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
 }
 
 
-
+/**
+ * @brief Updates the boundary flux for a track given boundary conditions.
+ * @details For reflective boundary conditions, the outgoing boundary flux
+ *          for the track is given to the reflecting track. For vacuum
+ *          boundary conditions, the outgoing flux tallied as leakage.
+ *          NOTE: Only one energy group is transferred by this routine.
+ * @param curr_track a pointer to the track of interest
+ * @param track_flux an array of the outgoing track flux
+ * @param boundary_flux an array of all angular fluxes
+ * @param leakage an array of leakages for each CUDA thread
+ * @param polar_weights an array of polar quadrature weights
+ * @param energy_angle_index the energy group index
+ * @param direction the track direction (forward - true, reverse - false)
+ */
 __device__ void transferBoundaryFlux(dev_track* curr_track,
 				     FP_PRECISION* track_flux, 
 				     FP_PRECISION* boundary_flux, 
@@ -450,13 +463,11 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
     int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
 
-    int index_offset = threadIdx.x * (*two_times_num_polar);
+    int track_flux_index = threadIdx.x * (*two_times_num_polar);
     int energy_group = tid % (*num_groups);
     int energy_angle_index = energy_group * (*num_polar);
-    int track_flux_index = index_offset;
 
     int track_id = int(tid / *num_groups);
-//    int pe;
 
     dev_track* curr_track;
     dev_segment* curr_segment;
@@ -475,11 +486,9 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
       	for (int p=0; p < *num_polar; p++) {
 	
 	    /* Forward flux along this track */
-//      	    pe = energy_angle_index + p;
 	    track_flux[p] = boundary_flux(track_id,p+energy_angle_index);
 
 	    /* Reverse flux along this track */
-//      	    pe = (*polar_times_groups) + energy_angle_index + p;
 	    track_flux[(*num_polar) + p] = boundary_flux(track_id,p+energy_angle_index+(*polar_times_groups));
       	}
       
