@@ -414,7 +414,7 @@ void CPUSolver::zeroTrackFluxes() {
  */
 void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
     int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-    memset(_scalar_flux, value, size);
+    memset(_scalar_flux, FP_PRECISION(value), size);
     return;
 }
 
@@ -711,7 +711,8 @@ void CPUSolver::transportSweep() {
  * @param track_flux a pointer to the track's angular flux
  * @param fsr_flux a pointer to the temporary flat source region flux buffer
  */
-void CPUSolver::scalarFluxTally(segment* curr_segment, FP_PRECISION* track_flux,
+void CPUSolver::scalarFluxTally(segment* curr_segment, 
+				FP_PRECISION* track_flux,
 	                        FP_PRECISION* fsr_flux){
 
     FP_PRECISION delta;
@@ -729,7 +730,6 @@ void CPUSolver::scalarFluxTally(segment* curr_segment, FP_PRECISION* track_flux,
 	index = prefactorindex(sigma_t_l);
 
 	/* Loop over polar angles */
-	#pragma novector
 	for (int p=0; p < _num_polar; p++){
 	    delta = (track_flux(p,e) - 
 	    _ratios(fsr_id,e)) * 

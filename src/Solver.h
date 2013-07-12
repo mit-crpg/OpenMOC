@@ -47,7 +47,8 @@
 
 /**
  * @class Solver Solver.h "openmoc/src/host/Solver.h"
- * @brief
+ * @brief This is an abstract base class from which different types of Solvers subclass for
+ *        different architectures or using different algorithms.
  */
 class Solver {
 

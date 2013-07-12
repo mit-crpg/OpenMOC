@@ -29,11 +29,12 @@
 
 /**
  * @class CPUSolver CPUSolver.h "openmoc/src/host/CPUSolver.h"
- * @brief
+ * @brief This a subclass of the Solver class for multi-core CPUs using 
+ *        OpenMP multi-threading.
  */
 class CPUSolver : public Solver {
 
-private:
+protected:
 
     /** The number of shared memory OpenMP threads */
     int _num_threads;
@@ -57,8 +58,9 @@ private:
     void flattenFSRSources(FP_PRECISION value);
     void normalizeFluxes();
     FP_PRECISION computeFSRSources();
-    void scalarFluxTally(segment* curr_segment, FP_PRECISION* track_flux,
-			 FP_PRECISION* fsr_flux);
+    virtual void scalarFluxTally(segment* curr_segment, 
+				 FP_PRECISION* track_flux,
+				 FP_PRECISION* fsr_flux);
     void transferBoundaryFlux(int track_id, bool direction,
 			      FP_PRECISION* track_flux);
     void addSourceToScalarFlux();
