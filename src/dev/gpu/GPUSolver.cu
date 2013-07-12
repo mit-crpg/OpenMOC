@@ -321,6 +321,21 @@ __device__ double atomicAdd(double* address, double val) {
 }
 
 
+/**
+ * @brief Computes the contribution to the flat source region scalar flux
+ *        from a single track segment and a single energy group.
+ * @details This method integrates the angular flux for a track segment across
+ *        energy groups and polar angles, and tallies it into the flat
+ *        source region scalar flux, and updates the track's angular flux.
+ * @param curr_segment a pointer to the segment of interest
+ * @param energy_group the energy group of interest
+ * @param materials the array of materials
+ * @param track_flux a pointer to the track's angular flux
+ * @param ratios the array of flat source region sources / total xs
+ * @param polar_weights the array of polar quadrature weights
+ * @param _prefactor_array the exponential prefactor interpolation table
+ * @param scalar_flux the array of flat source region scalar fluxes
+ */
 __device__ void scalarFluxTally(dev_segment* curr_segment, 
 				int energy_group,
 				dev_material* materials,
@@ -358,8 +373,47 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
     }
 
     /* Atomically increment the scalar flux for this flat source region */
-    atomicAdd(&scalar_flux(fsr_id,energy_group), 
-	      fsr_flux);
+    atomicAdd(&scalar_flux(fsr_id,energy_group), fsr_flux);
+}
+
+
+
+__device__ void transferBoundaryFlux(dev_track* curr_track,
+				     FP_PRECISION* track_flux, 
+				     FP_PRECISION* boundary_flux, 
+				     FP_PRECISION* leakage,
+				     FP_PRECISION* polar_weights,
+				     int energy_angle_index,
+				     bool direction) {
+
+    int start;
+    bool bc;
+    int track_out_id;
+
+    /* Extract boundary conditions for this track and the pointer to the
+     * outgoing reflective track, and index into the leakage array */
+
+    /* For the "forward" direction */
+    if (direction) {
+        bc = curr_track->_bc_out;
+	track_out_id = curr_track->_track_out;
+	start = curr_track->_refl_out * (*polar_times_groups);
+    }
+
+    /* For the "reverse" direction */
+    else {
+        bc = curr_track->_bc_in;
+	track_out_id = curr_track->_track_in;
+        start = curr_track->_refl_in * (*polar_times_groups);
+    }
+    
+    FP_PRECISION* track_out_flux = &boundary_flux(track_out_id,start);
+
+    /* Put track's flux in the shared memory temporary flux array */
+    for (int p=0; p < *num_polar; p++) {
+	track_out_flux[p] = track_flux[p] * bc;
+	leakage[0] += track_flux[p] * polar_weights[p] * (!bc);
+    }
 }
 
 
@@ -395,32 +449,22 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     int index_offset = threadIdx.x * (*two_times_num_polar + 1);
     int energy_group = tid % (*num_groups);
     int energy_angle_index = energy_group * (*num_polar);
-    //    int fsr_flux_index = index_offset + (*two_times_num_polar);
     int track_flux_index;
 
-    //    int fsr_id;
     int track_id = int(tid / *num_groups);
-    int track_out_id;
-    bool bc;
-    int start;
+    // int track_out_id;
+    //   bool bc;
+    //    int start;
     int pe;
-
+    
     FP_PRECISION* track_flux;
 
     dev_track* curr_track;
     dev_segment* curr_segment;
-    //    dev_material* curr_material;
     int num_segments;
-    //    FP_PRECISION delta;
-    
-    //    double* sigma_t;
 
     /* temporary flux for track and fsr fluxes */
     extern __shared__ FP_PRECISION temp_flux[];
-
-    /* Indices for exponential prefactor hashtable */
-    //    FP_PRECISION sigma_t_l;
-    //    int index;
 
     /* Iterate over track with azimuthal angles in (0, pi/2) */
     while (track_id < tid_max) {
@@ -447,112 +491,66 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
       
 	/* Loop over each segment in forward direction */
 	for (int i=0; i < num_segments; i++) {
-
 	    curr_segment = &curr_track->_segments[i];
 	    scalarFluxTally(curr_segment, energy_group, materials,
 			    track_flux, ratios, polar_weights,
 			    _prefactor_array, scalar_flux);
-
-	    //	    fsr_id = curr_segment->_region_uid;
-	    //	    curr_material = &materials[curr_segment->_material_uid];
-	    //	    sigma_t = curr_material->_sigma_t;
-
-	    /* Zero the FSR scalar flux contribution from this segment 
-	     * and energy group */
-	    //	    temp_flux[fsr_flux_index] = 0.0;
-
-	    /* Compute the exponential prefactor hashtable index */
-	    //	    sigma_t_l = sigma_t[energy_group] * curr_segment->_length;
-	    //	    index = computePrefactorIndex(sigma_t_l);
-	
-	    /* Loop over polar angles */
-	    //	    for (int p=0; p < *num_polar; p++) {
-	    //  delta = (temp_flux[track_flux_index+p] - 
-	    //	             ratios(fsr_id,energy_group)) * 
-	    //        	      prefactor(index,p,sigma_t_l);
-	    //		temp_flux[fsr_flux_index] += delta * polar_weights[p];
-	    //	temp_flux[track_flux_index+p] -= delta;
-	    // 	    }
-
-
-	    /* Increment the scalar flux for this flat source region */
-	    //	    atomicAdd(&scalar_flux(fsr_id,energy_group), 
-	    //	      temp_flux[fsr_flux_index]);
 	}
-      
+
+
+	transferBoundaryFlux(curr_track, track_flux, boundary_flux, 
+			     &leakage[threadIdx.x + blockIdx.x * blockDim.x], 
+			     polar_weights, energy_angle_index, true);
+
 	/* Transfer flux to outgoing track */
-	track_out_id = curr_track->_track_out;
-	bc = curr_track->_bc_out;
-	start = curr_track->_refl_out * (*polar_times_groups);
+	//	track_out_id = curr_track->_track_out;
+	//	bc = curr_track->_bc_out;
+	//	start = curr_track->_refl_out * (*polar_times_groups);
 
 	/* Put track's flux in the shared memory temporary flux array */
-      	for (int p=0; p < *num_polar; p++) {
+	//      	for (int p=0; p < *num_polar; p++) {
 	
 	    /* Forward flux along this track */
-      	    pe = energy_angle_index + p;
-	    boundary_flux(track_out_id,start+pe) = 
-	        temp_flux[track_flux_index+p] * bc;
-	    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
-	        temp_flux[track_flux_index+p] * 
-	        polar_weights[pe % (*num_polar)] * (!bc);
-      	}
+	//      	    pe = energy_angle_index + p;
+	//	    boundary_flux(track_out_id,start+pe) = 
+	//	        temp_flux[track_flux_index+p] * bc;
+	//	    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
+	//	        temp_flux[track_flux_index+p] * 
+	//	        polar_weights[pe % (*num_polar)] * (!bc);
+	//      	}
 
 	/* Loop over each segment in reverse direction */
 	track_flux_index = index_offset + (*num_polar);
 	track_flux = &temp_flux[track_flux_index];
 
 	for (int i=num_segments-1; i > -1; i--) {
-
 	    curr_segment = &curr_track->_segments[i];
-
 	    scalarFluxTally(curr_segment, energy_group, materials,
 			    track_flux, ratios, polar_weights,
 			    _prefactor_array, scalar_flux);
-	    
-
-	       //	    fsr_id = curr_segment->_region_uid;
-	     //	    curr_material = &materials[curr_segment->_material_uid];
-	       //	    sigma_t = curr_material->_sigma_t;
-
-	    /* Zero the FSR scalar flux contribution from this segment 
-	     * and energy group */
-	       //	    temp_flux[fsr_flux_index] = 0.0;
-
-	    /* Compute the exponential prefactor hashtable index */
-	       //	    sigma_t_l = sigma_t[energy_group] * curr_segment->_length;
-	       //	    index = computePrefactorIndex(sigma_t_l);
-	
-	    /* Loop over polar angles */
-	       //	    for (int p=0; p < *num_polar; p++) {
-	       //	        delta = (temp_flux[track_flux_index+p] - 
-	       //	    		 ratios(fsr_id,energy_group)) * 
-	       //		         prefactor(index,p,sigma_t_l);
-
-	       //		temp_flux[fsr_flux_index] += delta * polar_weights[p];
-	       //	    	temp_flux[track_flux_index+p] -= delta;
-	     //	    }
-
-	    /* Increment the scalar flux for this flat source region */
-	     //	    atomicAdd(&scalar_flux(fsr_id,energy_group), 
-	     //		      temp_flux[fsr_flux_index]);
 	}
+
+	transferBoundaryFlux(curr_track, track_flux, boundary_flux, 
+			     &leakage[threadIdx.x + blockIdx.x * blockDim.x], 
+			     polar_weights, energy_angle_index, false);
+
       
 	/* Transfer flux to outgoing track */
-	track_out_id = curr_track->_track_in;
-	bc = curr_track->_bc_in;
-	start = curr_track->_refl_in * (*polar_times_groups);
+	//	track_out_id = curr_track->_track_in;
+	//	bc = curr_track->_bc_in;
+	//	start = curr_track->_refl_in * (*polar_times_groups);
 
 	/* Put track's flux in the shared memory temporary flux array */
-      	for (int p=0; p < *num_polar; p++) {
+	//      	for (int p=0; p < *num_polar; p++) {
 	
 	    /* Forward flux along this track */
-      	    pe = energy_angle_index + p;
-	    boundary_flux(track_out_id,start+pe) = 
-	      temp_flux[track_flux_index+p] * bc;
-	    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
-	      temp_flux[track_flux_index+p] * 
-	        polar_weights[pe % (*num_polar)] * (!bc);
-      	}
+	//      	    pe = energy_angle_index + p;
+	//    boundary_flux(track_out_id,start+pe) = 
+	//      temp_flux[track_flux_index+p] * bc;
+	//    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
+	//      temp_flux[track_flux_index+p] * 
+	//        polar_weights[pe % (*num_polar)] * (!bc);
+	//      	}
 
 	tid += blockDim.x * gridDim.x;
         track_id = int(tid / *num_groups);
