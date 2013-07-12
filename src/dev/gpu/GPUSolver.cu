@@ -641,7 +641,6 @@ GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
 
     _materials = NULL;
     _dev_tracks = NULL;
-    _track_index_offsets = NULL;
 
     _fission_source = NULL;
     _tot_absorption = NULL;
@@ -681,11 +680,6 @@ GPUSolver::~GPUSolver() {
     if (_dev_tracks != NULL) {
         cudaFree(_dev_tracks);
 	_dev_tracks = NULL;
-    }
-
-    if (_track_index_offsets != NULL) {
-        cudaFree(_track_index_offsets);
-	_track_index_offsets = NULL;
     }
 
     if (_boundary_flux != NULL) {
@@ -1112,52 +1106,30 @@ void GPUSolver::initializeTracks() {
     if (_dev_tracks != NULL)
         cudaFree(_dev_tracks);
 
-    /* Delete old track index offsets array if it exists */
-    if (_track_index_offsets != NULL)
-        delete [] _track_index_offsets;
-
-    /* Allocate array of tracks */
-    cudaMalloc((void**)&_dev_tracks, _tot_num_tracks * sizeof(dev_track));
-
-    _track_index_offsets = new int[_num_azim+1];
-
     /* Allocate memory for all tracks and track offset indices on the device */
     try{
 
+        /* Allocate array of tracks */
+    	cudaMalloc((void**)&_dev_tracks, _tot_num_tracks * sizeof(dev_track));
+
         /* Iterate through all tracks and clone them on the device */
-        int counter = 0;
 	int index;
-	for (int i=0; i < _num_azim; i++) {
 
-            _track_index_offsets[i] = counter;
+	for (int i=0; i < _tot_num_tracks; i++) {
 
-	    for (int j=0; j < _num_tracks[i]; j++) {
+	    cloneTrackOnGPU(_tracks[i], &_dev_tracks[i]);
 
-	        /* Clone this track on the device */
-	        cloneTrackOnGPU(&_tracks[i][j], &_dev_tracks[counter]);
+	    /* Make track reflective */
+	    index = computeScalarTrackIndex(_tracks[i]->getTrackInI(),
+		        		       _tracks[i]->getTrackInJ());
+	    cudaMemcpy((void*)&_dev_tracks[i]._track_in,
+		   (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
 
-		/* Make track reflective */
-		index = computeScalarTrackIndex(_tracks[i][j].getTrackInI(),
-					       _tracks[i][j].getTrackInJ());
-		cudaMemcpy((void*)&_dev_tracks[counter]._track_in,
-			   (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
-
-		index = computeScalarTrackIndex(_tracks[i][j].getTrackOutI(), 
-						_tracks[i][j].getTrackOutJ());
-		cudaMemcpy((void*)&_dev_tracks[counter]._track_out, 
-			   (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
-
-		counter++;
-	    }
-	}
-
-	_track_index_offsets[_num_azim] = counter;
-
-	/* Copy the cumulative index offset for the current azimuthal angle 
-	 * into constant memory on the GPU */
-	cudaMemcpyToSymbol(track_index_offsets, (void*)_track_index_offsets, 
-			   (_num_azim+1) * sizeof(int), 0, 
-			   cudaMemcpyHostToDevice);
+	    index = computeScalarTrackIndex(_tracks[i]->getTrackOutI(), 
+						_tracks[i]->getTrackOutJ());
+	    cudaMemcpy((void*)&_dev_tracks[i]._track_out, 
+	    	   (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
+        }
 
 	/* Copy the array of number of tracks for each azimuthal angles into 
 	 * constant memory on the GPU */
@@ -1500,7 +1472,7 @@ void GPUSolver::transportSweep(int max_iterations) {
 
        /* Initialize flux in each region to zero */
 	tid_offset = 0;
-	tid_max = _track_index_offsets[_num_azim / 2];
+	tid_max = (_tot_num_tracks / 2);
 
         flattenFSRFluxesOnDevice<<<_B, _T>>>(_scalar_flux, 
 					     _old_scalar_flux, 0.0);
@@ -1512,8 +1484,8 @@ void GPUSolver::transportSweep(int max_iterations) {
 						       _prefactor_array, 
 						       tid_offset, tid_max);
 
-	tid_offset = _track_index_offsets[_num_azim / 2] * _num_groups;
-	tid_max = _track_index_offsets[_num_azim];
+	tid_offset = tid_max * _num_groups;
+	tid_max = _tot_num_tracks;
 
         transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux,
 						       _boundary_flux,
