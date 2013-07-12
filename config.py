@@ -22,7 +22,7 @@ with_ccache = True
 debug_mode = True
 
 # Use CUDA set to True or False
-with_cuda = True
+with_cuda = False
 
 # Compile module for the Intel Xeon Phi (MIC)
 with_mic = False
@@ -45,6 +45,7 @@ sources['c++'] = ['openmoc/openmoc.i',
                   'src/Quadrature.cpp',
                   'src/Solver.cpp',
                   'src/CPUSolver.cpp',
+                  'src/ThreadPrivateSolver.cpp',
                   'src/Surface.cpp',
                   'src/Timer.cpp',
                   'src/Track.cpp',
