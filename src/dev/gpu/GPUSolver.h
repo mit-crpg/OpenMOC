@@ -30,6 +30,9 @@
 
 #define boundary_flux(tid,pe2) (boundary_flux[2*(tid)*(*polar_times_groups)+(pe2)])
 
+#define prefactorindex(sigma_t_l) (int(sigma_t_l * _inverse_prefactor_spacing) * _two_times_num_polar)
+
+
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
 

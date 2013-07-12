@@ -28,9 +28,6 @@ __constant__ int num_tracks[MAX_AZIM_ANGLES/2];
 /** The total number of tracks */
 __constant__ int tot_num_tracks[1];
 
-/** An array of the cumulative number of tracks for each azimuthal angle */
-__constant__ int track_index_offsets[MAX_AZIM_ANGLES/2];
-
 /** The maximum index of the exponential prefactor array */
 __constant__ int prefactor_max_index[1];
 
@@ -324,6 +321,48 @@ __device__ double atomicAdd(double* address, double val) {
 }
 
 
+__device__ void scalarFluxTally(dev_segment* curr_segment, 
+				int energy_group,
+				dev_material* materials,
+				FP_PRECISION* track_flux,
+				FP_PRECISION* ratios,
+				FP_PRECISION* polar_weights,
+				FP_PRECISION* _prefactor_array,
+				FP_PRECISION* scalar_flux) {
+
+    FP_PRECISION fsr_flux;
+    FP_PRECISION delta;
+    FP_PRECISION sigma_t_l;
+    int index;
+
+    int fsr_id = curr_segment->_region_uid;
+    int length = curr_segment->_length;
+    dev_material* curr_material = &materials[curr_segment->_material_uid];
+    double *sigma_t = curr_material->_sigma_t;
+
+    /* Zero the FSR scalar flux contribution from this segment 
+     * and energy group */
+    fsr_flux = 0.0;
+    
+    /* Compute the exponential prefactor hashtable index */
+    sigma_t_l = sigma_t[energy_group] * length;
+    index = computePrefactorIndex(sigma_t_l);
+    
+    /* Loop over polar angles */
+    for (int p=0; p < *num_polar; p++) {
+        delta = (track_flux[p] - 
+		 ratios(fsr_id,energy_group)) * 
+	         prefactor(index,p,sigma_t_l);
+	fsr_flux += delta * polar_weights[p];
+	track_flux[p] -= delta;
+    }
+
+    /* Atomically increment the scalar flux for this flat source region */
+    atomicAdd(&scalar_flux(fsr_id,energy_group), 
+	      fsr_flux);
+}
+
+
 /**
  * @brief This method performs one transport sweep of one halfspace of all 
  *        azimuthal angles, tracks, segments, polar angles and energy groups.
@@ -356,30 +395,32 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     int index_offset = threadIdx.x * (*two_times_num_polar + 1);
     int energy_group = tid % (*num_groups);
     int energy_angle_index = energy_group * (*num_polar);
-    int fsr_flux_index = index_offset + (*two_times_num_polar);
+    //    int fsr_flux_index = index_offset + (*two_times_num_polar);
     int track_flux_index;
 
-    int fsr_id;
+    //    int fsr_id;
     int track_id = int(tid / *num_groups);
     int track_out_id;
     bool bc;
     int start;
     int pe;
 
+    FP_PRECISION* track_flux;
+
     dev_track* curr_track;
     dev_segment* curr_segment;
-    dev_material* curr_material;
+    //    dev_material* curr_material;
     int num_segments;
-    FP_PRECISION delta;
+    //    FP_PRECISION delta;
     
-    double* sigma_t;
+    //    double* sigma_t;
 
     /* temporary flux for track and fsr fluxes */
     extern __shared__ FP_PRECISION temp_flux[];
 
     /* Indices for exponential prefactor hashtable */
-    FP_PRECISION sigma_t_l;
-    int index;
+    //    FP_PRECISION sigma_t_l;
+    //    int index;
 
     /* Iterate over track with azimuthal angles in (0, pi/2) */
     while (track_id < tid_max) {
@@ -402,36 +443,41 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
       	}
 
       	track_flux_index = index_offset;
+	track_flux = &temp_flux[track_flux_index];
       
 	/* Loop over each segment in forward direction */
 	for (int i=0; i < num_segments; i++) {
 
 	    curr_segment = &curr_track->_segments[i];
-	    fsr_id = curr_segment->_region_uid;
-	    curr_material = &materials[curr_segment->_material_uid];
-	    sigma_t = curr_material->_sigma_t;
+	    scalarFluxTally(curr_segment, energy_group, materials,
+			    track_flux, ratios, polar_weights,
+			    _prefactor_array, scalar_flux);
+
+	    //	    fsr_id = curr_segment->_region_uid;
+	    //	    curr_material = &materials[curr_segment->_material_uid];
+	    //	    sigma_t = curr_material->_sigma_t;
 
 	    /* Zero the FSR scalar flux contribution from this segment 
 	     * and energy group */
-	    temp_flux[fsr_flux_index] = 0.0;
+	    //	    temp_flux[fsr_flux_index] = 0.0;
 
 	    /* Compute the exponential prefactor hashtable index */
-	    sigma_t_l = sigma_t[energy_group] * curr_segment->_length;
-	    index = computePrefactorIndex(sigma_t_l);
+	    //	    sigma_t_l = sigma_t[energy_group] * curr_segment->_length;
+	    //	    index = computePrefactorIndex(sigma_t_l);
 	
 	    /* Loop over polar angles */
-	    for (int p=0; p < *num_polar; p++) {
-	        delta = (temp_flux[track_flux_index+p] - 
-		             ratios(fsr_id,energy_group)) * 
-	              	      prefactor(index,p,sigma_t_l);
-		temp_flux[fsr_flux_index] += delta * polar_weights[p];
-	    	temp_flux[track_flux_index+p] -= delta;
- 	    }
+	    //	    for (int p=0; p < *num_polar; p++) {
+	    //  delta = (temp_flux[track_flux_index+p] - 
+	    //	             ratios(fsr_id,energy_group)) * 
+	    //        	      prefactor(index,p,sigma_t_l);
+	    //		temp_flux[fsr_flux_index] += delta * polar_weights[p];
+	    //	temp_flux[track_flux_index+p] -= delta;
+	    // 	    }
 
 
 	    /* Increment the scalar flux for this flat source region */
-	    atomicAdd(&scalar_flux(fsr_id,energy_group), 
-	  	      temp_flux[fsr_flux_index]);
+	    //	    atomicAdd(&scalar_flux(fsr_id,energy_group), 
+	    //	      temp_flux[fsr_flux_index]);
 	}
       
 	/* Transfer flux to outgoing track */
@@ -453,35 +499,42 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
 	/* Loop over each segment in reverse direction */
 	track_flux_index = index_offset + (*num_polar);
+	track_flux = &temp_flux[track_flux_index];
 
 	for (int i=num_segments-1; i > -1; i--) {
 
 	    curr_segment = &curr_track->_segments[i];
-	    fsr_id = curr_segment->_region_uid;
-	    curr_material = &materials[curr_segment->_material_uid];
-	    sigma_t = curr_material->_sigma_t;
+
+	    scalarFluxTally(curr_segment, energy_group, materials,
+			    track_flux, ratios, polar_weights,
+			    _prefactor_array, scalar_flux);
+	    
+
+	       //	    fsr_id = curr_segment->_region_uid;
+	     //	    curr_material = &materials[curr_segment->_material_uid];
+	       //	    sigma_t = curr_material->_sigma_t;
 
 	    /* Zero the FSR scalar flux contribution from this segment 
 	     * and energy group */
-	    temp_flux[fsr_flux_index] = 0.0;
+	       //	    temp_flux[fsr_flux_index] = 0.0;
 
 	    /* Compute the exponential prefactor hashtable index */
-	    sigma_t_l = sigma_t[energy_group] * curr_segment->_length;
-	    index = computePrefactorIndex(sigma_t_l);
+	       //	    sigma_t_l = sigma_t[energy_group] * curr_segment->_length;
+	       //	    index = computePrefactorIndex(sigma_t_l);
 	
 	    /* Loop over polar angles */
-	    for (int p=0; p < *num_polar; p++) {
-	        delta = (temp_flux[track_flux_index+p] - 
-	    		 ratios(fsr_id,energy_group)) * 
-		         prefactor(index,p,sigma_t_l);
+	       //	    for (int p=0; p < *num_polar; p++) {
+	       //	        delta = (temp_flux[track_flux_index+p] - 
+	       //	    		 ratios(fsr_id,energy_group)) * 
+	       //		         prefactor(index,p,sigma_t_l);
 
-		temp_flux[fsr_flux_index] += delta * polar_weights[p];
-	    	temp_flux[track_flux_index+p] -= delta;
-	    }
+	       //		temp_flux[fsr_flux_index] += delta * polar_weights[p];
+	       //	    	temp_flux[track_flux_index+p] -= delta;
+	     //	    }
 
 	    /* Increment the scalar flux for this flat source region */
-	    atomicAdd(&scalar_flux(fsr_id,energy_group), 
-		      temp_flux[fsr_flux_index]);
+	     //	    atomicAdd(&scalar_flux(fsr_id,energy_group), 
+	     //		      temp_flux[fsr_flux_index]);
 	}
       
 	/* Transfer flux to outgoing track */
@@ -509,7 +562,6 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
     return;
 }
-
 
 
 /**
