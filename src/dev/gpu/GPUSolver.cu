@@ -452,9 +452,6 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     int track_flux_index;
 
     int track_id = int(tid / *num_groups);
-    // int track_out_id;
-    //   bool bc;
-    //    int start;
     int pe;
     
     FP_PRECISION* track_flux;
@@ -497,27 +494,10 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 			    _prefactor_array, scalar_flux);
 	}
 
-
+	/* Transfer flux to outgoing track */
 	transferBoundaryFlux(curr_track, track_flux, boundary_flux, 
 			     &leakage[threadIdx.x + blockIdx.x * blockDim.x], 
 			     polar_weights, energy_angle_index, true);
-
-	/* Transfer flux to outgoing track */
-	//	track_out_id = curr_track->_track_out;
-	//	bc = curr_track->_bc_out;
-	//	start = curr_track->_refl_out * (*polar_times_groups);
-
-	/* Put track's flux in the shared memory temporary flux array */
-	//      	for (int p=0; p < *num_polar; p++) {
-	
-	    /* Forward flux along this track */
-	//      	    pe = energy_angle_index + p;
-	//	    boundary_flux(track_out_id,start+pe) = 
-	//	        temp_flux[track_flux_index+p] * bc;
-	//	    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
-	//	        temp_flux[track_flux_index+p] * 
-	//	        polar_weights[pe % (*num_polar)] * (!bc);
-	//      	}
 
 	/* Loop over each segment in reverse direction */
 	track_flux_index = index_offset + (*num_polar);
@@ -530,28 +510,11 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 			    _prefactor_array, scalar_flux);
 	}
 
+	/* Transfer flux to outgoing track */
 	transferBoundaryFlux(curr_track, track_flux, boundary_flux, 
 			     &leakage[threadIdx.x + blockIdx.x * blockDim.x], 
 			     polar_weights, energy_angle_index, false);
-
       
-	/* Transfer flux to outgoing track */
-	//	track_out_id = curr_track->_track_in;
-	//	bc = curr_track->_bc_in;
-	//	start = curr_track->_refl_in * (*polar_times_groups);
-
-	/* Put track's flux in the shared memory temporary flux array */
-	//      	for (int p=0; p < *num_polar; p++) {
-	
-	    /* Forward flux along this track */
-	//      	    pe = energy_angle_index + p;
-	//    boundary_flux(track_out_id,start+pe) = 
-	//      temp_flux[track_flux_index+p] * bc;
-	//    leakage[threadIdx.x + blockIdx.x * blockDim.x] +=
-	//      temp_flux[track_flux_index+p] * 
-	//        polar_weights[pe % (*num_polar)] * (!bc);
-	//      	}
-
 	tid += blockDim.x * gridDim.x;
         track_id = int(tid / *num_groups);
 	energy_group = tid % (*num_groups);
