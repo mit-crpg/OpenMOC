@@ -463,11 +463,10 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
     int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
 
+    int track_id = int(tid / *num_groups);
     int track_flux_index = threadIdx.x * (*two_times_num_polar);
     int energy_group = tid % (*num_groups);
     int energy_angle_index = energy_group * (*num_polar);
-
-    int track_id = int(tid / *num_groups);
 
     dev_track* curr_track;
     dev_segment* curr_segment;
@@ -480,6 +479,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
         curr_track = &tracks[track_id];
       	num_segments = curr_track->_num_segments;
 
+	/* Retrieve a pointer to this thread's shared memory buffer for angular flux */
 	track_flux = &temp_flux[track_flux_index];
       
 	/* Put track's flux in the shared memory temporary flux array */
@@ -519,7 +519,8 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	transferBoundaryFlux(curr_track, track_flux, boundary_flux, 
 			     &leakage[threadIdx.x + blockIdx.x * blockDim.x], 
 			     polar_weights, energy_angle_index, false);
-      
+
+        /* Update the indices for this thread to the next track, energy group */
 	tid += blockDim.x * gridDim.x;
         track_id = int(tid / *num_groups);
 	energy_group = tid % (*num_groups);
