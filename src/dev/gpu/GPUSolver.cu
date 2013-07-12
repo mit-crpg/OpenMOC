@@ -446,7 +446,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
     int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
 
-    int index_offset = threadIdx.x * (*two_times_num_polar + 1);
+    int index_offset = threadIdx.x * (*two_times_num_polar);
     int energy_group = tid % (*num_groups);
     int energy_angle_index = energy_group * (*num_polar);
     int track_flux_index;
@@ -1399,7 +1399,7 @@ FP_PRECISION GPUSolver::computeFSRSources() {
 
 void GPUSolver::transportSweep() {
 
-    int shared_mem = sizeof(FP_PRECISION) * _T * (2*_num_polar + 1);
+    int shared_mem = _T * _two_times_num_polar * sizeof(FP_PRECISION);
     int tid_offset, tid_max;
 
     log_printf(DEBUG, "Transport sweep on device with %d blocks" 
