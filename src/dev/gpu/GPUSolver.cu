@@ -40,97 +40,26 @@ __constant__ FP_PRECISION prefactor_spacing[1];
 /** The inverse spacing for the exponential prefactor array */
 __constant__ FP_PRECISION inverse_prefactor_spacing[1];
 
-__constant__ bool converged_flux[1];
-
-__constant__ FP_PRECISION flux_convergence_thresh[1];
 
 
 /**
- * @brief Set the scalar flux for each energy group inside each 
- *        dev_flatsourceregion to a constant value.
- * @param value the value to assign to each flat source region flux
+ * @brief Compute the total fission source from all flat source regions.
+ * @param FSR_volumes an array of flat source region volumes
+ * @param FSR_materials an array of flat source region materials
+ * @param materials an array of materials on the device
+ * @param fission_source array of fission sources in each flat source region
  */
-__global__ void flattenFSRFluxesOnDevice(FP_PRECISION* scalar_flux, 
-					 FP_PRECISION* old_scalar_flux,
-					 FP_PRECISION value) {
-
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-
-    /* Loop over all FSRs and energy groups */
-    while (tid < *num_FSRs) {
-        for (int e=0; e < *num_groups; e++) {
-            scalar_flux(tid,e) = value;
-  	    old_scalar_flux(tid,e) = value;
-         }
-
-	tid += blockDim.x * gridDim.x;
-     }
-
-    return;
-}
-
-
-/**
- * @brief Set the source for each energy group inside each dev_flatsourceregion
- *        to a constant value.
- * @param value the value to assign to each flat source region source
- */
-__global__ void flattenFSRSourcesOnDevice(FP_PRECISION* source, 
-					  FP_PRECISION* old_source,
-					  FP_PRECISION value) {
-
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-
-    while (tid < *num_FSRs) {
-        for (int e=0; e < *num_groups; e++) {
-	    source(tid,e) = value;
-	    old_source(tid,e) = value;
-	}
-
-	tid += blockDim.x * gridDim.x;
-    }
-
-    return;
-}
-
-
-/**
- * @brief Zero each track's boundary fluxes for each energy group and polar
- *        angle in the "forward" and "reverse" directions.
- * @param boundary_flux array of angular fluxes for each track and energy group
- */
-__global__ void zeroTrackFluxesOnDevice(FP_PRECISION* boundary_flux) {
-
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-
-    /* Loop over all tracks and energy groups and set each track's 
-     * incoming and outgoing flux to zero */
-    while(tid < *tot_num_tracks) {
-        for (int pe2=0; pe2 < 2*(*polar_times_groups); pe2++)
-    	    boundary_flux(tid,pe2) = 0.0;
-
-	tid += blockDim.x * gridDim.x;
-    }
-
-    return;
-}
-
-
-/**
-* Compute the total fission source from all flat source regions
-* @param num_FSRs pointer to an int of the number of flat source regions
-* @param materials pointer an array of materials on the device
-* @param fission_source pointer to the value for the total fission source
-*/
 __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
 					      int* FSR_materials,
 					      dev_material* materials,
 					      FP_PRECISION* scalar_flux,
 					      FP_PRECISION* fission_source) {
 
+    /* Use a shared memory buffer for each thread's fission source */
+    extern __shared__ FP_PRECISION shared_fission_source[];
+
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
-    extern __shared__ FP_PRECISION shared_fission_source[];
     dev_material* curr_material;
     double* nu_sigma_f;
     FP_PRECISION volume;
@@ -167,7 +96,10 @@ __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
 
 /**
  * @brief Normalizes all flatsourceregion scalar fluxes and track boundary
- *        angular fluxes to the total fission source (times nu).
+ *        angular fluxes to the total fission source (times $\nu$).
+ * @param scalar_flux an array of the flat source region scalar fluxes
+ * @param boundary_flux an array of the boundary fluxes
+ * @param norm_factor the normalization factor
  */
 __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux, 
 					FP_PRECISION* boundary_flux, 
@@ -176,10 +108,10 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
     
     /* Normalize scalar fluxes for each flat source region */
-    
     while(tid < *num_FSRs) {
+
         for (int e=0; e < *num_groups; e++)
-	  scalar_flux(tid,e) *= norm_factor;
+	    scalar_flux(tid,e) *= norm_factor;
 
 	tid += blockDim.x * gridDim.x;
     }
@@ -209,6 +141,13 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
  *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum 
  *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}} \f$
  *
+ * @param FSR_materials an array of flat source region material UIDs
+ * @param materials an array of material pointers
+ * @param scalar_flux an array of flat source region scalar fluxes
+ * @param source an array of flat source region sources
+ * @param ratios an array of flat source region sources / total xs
+ * @param inverse_k_eff the inverse of keff
+ * @param an array of the source residuals 
  * @return the residual between this source and the previous source
  */
 __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
@@ -284,41 +223,18 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 }
 
 
-__global__ void isScalarFluxConvergedOnDevice(FP_PRECISION* scalar_flux,
-					      FP_PRECISION* old_scalar_flux,
-					      bool converged_flux) {
-
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-
-    while (tid < *num_FSRs) {
-
-        for (int e=0; e < *num_groups; e++) {
-
-	    /* If one scalar flux is not converged, break the loop */
-	    if (!converged_flux)
-	        break;
-
-	    if (fabs((scalar_flux(tid,e) - old_scalar_flux(tid,e)) /
-		     old_scalar_flux(tid,e)) > *flux_convergence_thresh)
-	        converged_flux = false;
-
-	    /* Update old scalar flux */
-	    old_scalar_flux(tid,e) = scalar_flux(tid,e);
-	}
-
-	tid += blockDim.x * gridDim.x;
-    }
-}
 
 
 
 /**
-* Compute the total fission source from all flat source regions
-* @param FSRs pointer to the flat source region array on the device
-* @param num_FSRs pointer to an int of the number of flat source regions
-* @param materials pointer an array of materials on the device
-* @param fission_source pointer to the value for the total fission source
-*/
+ * @brief Compute the total fission source from all flat source regions.
+ * @param FSR_volumes an array of the flat source region volumes
+ * @param FSR_materials an array of the flat source region material UIDs
+ * @param materials an array of the material pointers
+ * @param scalar_flux an array of flat source region scalar fluxes
+ * @param tot_absorption an array of flat source region absorption rates
+ * @param tot_fission an array of flat source region fission rates
+ */
 __global__ void computeFissionAndAbsorption(FP_PRECISION* FSR_volumes,
 					    int* FSR_materials,
 					    dev_material* materials,
@@ -344,18 +260,18 @@ __global__ void computeFissionAndAbsorption(FP_PRECISION* FSR_volumes,
 	sigma_a = curr_material->_sigma_a;
 	volume = FSR_volumes[tid];
 
-	double part_abs = 0.;
-	double part_fission = 0.;
+	double curr_abs = 0.;
+	double curr_fission = 0.;
 
 	/* Iterate over all energy groups and update
 	 * fission and absorption rates for this block */
 	for (int e=0; e < *num_groups; e++) {
-	    part_abs += sigma_a[e] * scalar_flux(tid,e);
-	    part_fission += nu_sigma_f[e] * scalar_flux(tid,e);
+	    curr_abs += sigma_a[e] * scalar_flux(tid,e);
+	    curr_fission += nu_sigma_f[e] * scalar_flux(tid,e);
 	}
 
-	absorption += part_abs * volume;
-	fission += part_fission * volume;
+	absorption += curr_abs * volume;
+	fission += curr_fission * volume;
 
 	/* Increment thread id */
 	tid += blockDim.x * gridDim.x;
@@ -385,6 +301,14 @@ __device__ int computePrefactorIndex(FP_PRECISION sigma_t_l) {
 }
 
 
+/**
+ * @brief Perform an atomic addition in double precision to an array address.
+ * @details This method is straight out of CUDA C Developers Guide (cc 2013)
+ * @param address the array memory address
+ * @param value the value to add to the array 
+ * @return the atomically added array value and input value
+ *
+ */
 __device__ double atomicAdd(double* address, double val) {
 
     unsigned long long int* address_as_ull = (unsigned long long int*)address;
@@ -400,13 +324,23 @@ __device__ double atomicAdd(double* address, double val) {
 }
 
 
-
 /**
-* This kernel integrates the neutron transport equation in the "forward"
-* direction along each track in the geometry using exponential prefactors
-* which are precomputed and stored in a hash table for O(1) lookup and
-* interpolation
-*/
+ * @brief This method performs one transport sweep of one halfspace of all 
+ *        azimuthal angles, tracks, segments, polar angles and energy groups.
+ * @details The method integrates the flux along each track and updates the 
+ *          boundary fluxes for the corresponding output track, while updating 
+ *          the scalar flux in each flat source region
+ * @param scalar_flux an array of flat source region scalar fluxes
+ * @param boundary_flux an array of boundary fluxes
+ * @param ratios an array of flat source region sources / total xs
+ * @param leakage an array of angular flux leakaages
+ * @param materials an array of material pointers
+ * @param tracks an array of tracks
+ * @param _prefactor_array an array for the exponential prefactor table
+ * @param tid_offset the track offset for azimuthal angle halfspace
+ * @param tid_max the upper bound on the track IDs for this azimuthal 
+ *                angle halfspace
+ */
 __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 				       FP_PRECISION* boundary_flux,
 				       FP_PRECISION* ratios,
@@ -579,15 +513,20 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
 
 /**
-* Normalizes the flux to the volume of each FSR and adds in the source term
-* computed and stored in the ratios attribute for each FSR
-*/
-__global__ void normalizeFluxToVolumeOnDevice(FP_PRECISION* scalar_flux,
+ * @brief Add the source term contribution in the transport equation to 
+ *        the flat source region scalar flux
+ * @param scalar_flux an array of flat source region scalar fluxes
+ * @param ratios an array of flat source region sources / total xs
+ * @param FSR_volumes an array of flat source region volumes
+ * @param FSR_materials an array of flat source region material UIDs
+ * @param materials an array of material pointers
+ */
+__global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
 					      FP_PRECISION* ratios,
 					      FP_PRECISION* FSR_volumes,
 					      int* FSR_materials,
 					      dev_material* materials) {
-
+  
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
     FP_PRECISION volume;
     
@@ -658,7 +597,8 @@ GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
 
 
 /**
- * Solver destructor frees all memory on the device
+ * @brief Solver destructor frees all memory on the device, including arrays
+ *        for the fluxes and sources.
  */
 GPUSolver::~GPUSolver() {
 
@@ -690,11 +630,6 @@ GPUSolver::~GPUSolver() {
     if (_scalar_flux != NULL) {
         cudaFree(_scalar_flux);
 	_scalar_flux = NULL;
-    }
-
-    if (_old_scalar_flux != NULL) {
-        cudaFree(_old_scalar_flux);
-	_old_scalar_flux = NULL;
     }
 
     if (_source != NULL) {
@@ -755,8 +690,9 @@ GPUSolver::~GPUSolver() {
 
 
 /**
- * @brief
- * @details
+ * @brief Returns the scalar flux for some energy group for a flat source region
+ * @param fsr_id the ID for the FSR of interest
+ * @param energy_group the energy group of interest
  */
 FP_PRECISION GPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
 
@@ -793,9 +729,9 @@ FP_PRECISION GPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
 
 
 /**
- * @brief Return a 2D array indexed by flatsourceregion IDs and energy groups 
- *        which contains the corresponding fluxes for each flatsourceregion.
- * @return a 2D array of dev_flatsourceregion scalar fluxes
+ * @brief Return an array indexed by flat source region IDs and energy groups 
+ *        which contains the corresponding fluxes for each flat source region.
+ * @return an array of flat source region scalar fluxes
  */
 FP_PRECISION* GPUSolver::getFSRScalarFluxes() {
 
@@ -814,9 +750,9 @@ FP_PRECISION* GPUSolver::getFSRScalarFluxes() {
 
 
 /**
- * @brief Return an array indexed by flatsourceregion IDs with the
- *        corresponding flatsourceregion power.
- * @return an array of flatsourceregion powers
+ * @brief Return an array indexed by flat source region IDs with the
+ *        corresponding flat source region power.
+ * @return an array of flat source region powers
  */
 FP_PRECISION* GPUSolver::getFSRPowers() {
     if (_FSRs_to_powers == NULL)
@@ -828,9 +764,9 @@ FP_PRECISION* GPUSolver::getFSRPowers() {
 
 
 /**
- * @brief Return an array indexed by flatsourceregion IDs with the
+ * @brief Return an array indexed by flat source region IDs with the
  *        corresponding pin cell power.
- * @return an array of flatsourceregion pin powers
+ * @return an array of flat source region pin powers
  */
 FP_PRECISION* GPUSolver::getFSRPinPowers() {
     if (_FSRs_to_pin_powers == NULL)
@@ -886,9 +822,9 @@ void GPUSolver::setGeometry(Geometry* geometry) {
 
 
 /**
- * @brief Sets the trackgenerator with characteristic tracks for the solver.
- * @details The trackgenerator must already have generated tracks and have
- *          segmentized them using the geometry.
+ * @brief Sets the track generator with characteristic tracks for the solver.
+ * @details The track generator must already have generated tracks and have
+ *          segmentized them across the geometry.
  * @param track_generator a pointer to a trackgenerator
  */
 void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
@@ -897,24 +833,12 @@ void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
 }
 
 
-void GPUSolver::setFluxConvergenceThreshold(FP_PRECISION flux_thresh) {
-    Solver::setFluxConvergenceThreshold(flux_thresh);
-
-    /* Copy the flux convergence threshold to constant memory on the GPU */
-    cudaMemcpyToSymbol(flux_convergence_thresh, 
-		       (void*)&_flux_convergence_thresh,
-		       sizeof(FP_PRECISION), 0, 
-		       cudaMemcpyHostToDevice);
-}
-
-
-
 /**
  * @brief Creates a polar quadrature object for the solver.
  */
 void GPUSolver::initializePolarQuadrature() {
 
-     log_printf(INFO, "Initializing polar quadrature on the GPU...");
+    log_printf(INFO, "Initializing polar quadrature on the GPU...");
 
     /* Deletes the old quadrature if one existed */
     if (_quad != NULL)
@@ -935,7 +859,6 @@ void GPUSolver::initializePolarQuadrature() {
      * on the GPU */
     cudaMemcpyToSymbol(polar_times_groups, (void*)&_polar_times_groups, 
 		       sizeof(int), 0, cudaMemcpyHostToDevice);
-
 
     /* Compute polar times azimuthal angle weights */
     if (_polar_weights != NULL)
@@ -960,7 +883,7 @@ void GPUSolver::initializePolarQuadrature() {
 
 
 /**
- * @brief Allocates memory for flatsourceregion power arrays.
+ * @brief Allocates memory for flat source region power arrays.
  * @details Deletes memory for power arrays if they were allocated from
  *          previous simulation.
  */
@@ -971,6 +894,7 @@ void GPUSolver::initializePowerArrays() {
     /* Delete old power arrays if they exist */
     if (_FSRs_to_powers != NULL)
         delete [] _FSRs_to_powers;
+
     if (_FSRs_to_pin_powers != NULL)
         delete [] _FSRs_to_pin_powers;
 
@@ -987,10 +911,12 @@ void GPUSolver::initializePowerArrays() {
 
 
 /**
- * This is a helper method for the allocateDeviceMemory method. It
- * initializes an array of dev_flatsourceregion structs on the host
- * with the appropriate values (volume, region uid, and material uid)
- * so that allocateDeviceMemory can copy the array in full to the device.
+ * @brief Initializes each of the flat source region objects inside the solver's
+ *        array of flatsourceregions. 
+ * @details This method assigns each flat source region a unique, monotonically
+ *          increasing ID, sets the material for each flat source region, and 
+ *          assigns a volume based on the cumulative length of all of the 
+ *          segments inside the flat source region.
  */
 void GPUSolver::initializeFSRs() {
 
@@ -1065,8 +991,7 @@ void GPUSolver::initializeFSRs() {
 
 
 /**
- * @brief
- * @details
+ * @brief Allocates data on the GPU for all materials data.
  */
 void GPUSolver::initializeMaterials() {
 
@@ -1084,7 +1009,7 @@ void GPUSolver::initializeMaterials() {
 
         /* Iterate through all materials and clone them on the device */
         cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
-	for (iter = host_materials.begin(); iter != host_materials.end(); ++iter)
+	for (iter=host_materials.begin(); iter != host_materials.end(); ++iter)
 	    cloneMaterialOnGPU(iter->second, &_materials[iter->second->getUid()]);
     }
     catch(std::exception &e) {
@@ -1095,8 +1020,7 @@ void GPUSolver::initializeMaterials() {
 
 
 /**
- * @brief
- * @details
+ * @brief Allocates memory on the GPU for all tracks in the simulation.
  */
 void GPUSolver::initializeTracks() {
 
@@ -1106,62 +1030,50 @@ void GPUSolver::initializeTracks() {
     if (_dev_tracks != NULL)
         cudaFree(_dev_tracks);
 
-    /* Allocate array of tracks */
-    cudaMalloc((void**)&_dev_tracks, _tot_num_tracks * sizeof(dev_track));
-
     /* Allocate memory for all tracks and track offset indices on the device */
     try{
 
+        /* Allocate array of tracks */
+    	cudaMalloc((void**)&_dev_tracks, _tot_num_tracks * sizeof(dev_track));
+
         /* Iterate through all tracks and clone them on the device */
-        int counter = 0;
 	int index;
-	for (int i=0; i < _num_azim; i++) {
 
-	    for (int j=0; j < _num_tracks[i]; j++) {
+	for (int i=0; i < _tot_num_tracks; i++) {
 
-	        /* Clone this track on the device */
-	        cloneTrackOnGPU(&_tracks[i][j], &_dev_tracks[counter]);
+	    cloneTrackOnGPU(_tracks[i], &_dev_tracks[i]);
 
-		/* Make track reflective */
-		index = computeScalarTrackIndex(_tracks[i][j].getTrackInI(),
-					       _tracks[i][j].getTrackInJ());
-		cudaMemcpy((void*)&_dev_tracks[counter]._track_in,
-			   (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
+	    /* Make track reflective */
+	    index = computeScalarTrackIndex(_tracks[i]->getTrackInI(),
+		        		       _tracks[i]->getTrackInJ());
+	    cudaMemcpy((void*)&_dev_tracks[i]._track_in,
+		   (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
 
-		index = computeScalarTrackIndex(_tracks[i][j].getTrackOutI(), 
-						_tracks[i][j].getTrackOutJ());
-		cudaMemcpy((void*)&_dev_tracks[counter]._track_out, 
-			   (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
-
-		counter++;
-	    }
+	    index = computeScalarTrackIndex(_tracks[i]->getTrackOutI(),
+		        		       _tracks[i]->getTrackOutJ());
+	    cudaMemcpy((void*)&_dev_tracks[i]._track_out,
+		   (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
 	}
 
-	/* Copy the cumulative index offset for the current azimuthal angle 
-	 * into constant memory on the GPU */
-	cudaMemcpyToSymbol(track_index_offsets, (void*)_track_index_offsets, 
-			   (_num_azim+1) * sizeof(int), 0, 
-			   cudaMemcpyHostToDevice);
-
 	/* Copy the array of number of tracks for each azimuthal angles into 
-	 * constant memory on the GPU */
+	 * constant memory on GPU */
 	cudaMemcpyToSymbol(num_tracks, (void*)_num_tracks, 
 			   _num_azim * sizeof(int), 0, cudaMemcpyHostToDevice);
     
-	/* Copy the total number of tracks into constant memory on the GPU */
+	/* Copy the total number of tracks into constant memory on GPU */
 	cudaMemcpyToSymbol(tot_num_tracks, (void*)&_tot_num_tracks,
 			   sizeof(int), 0, cudaMemcpyHostToDevice);
 
-	/* Copy the number of azimuthal angles into constant memory on the GPU */
+	/* Copy the number of azimuthal angles into constant memory on GPU */
 	cudaMemcpyToSymbol(num_azim, (void*)&_num_azim, sizeof(int), 0, 
 			   cudaMemcpyHostToDevice);
 	
 	/* Copy the array of number of tracks for each azimuthal angles into 
-	 * constant memory on the GPU */
+	 * constant memory on GPU */
 	cudaMemcpyToSymbol(num_tracks, (void*)_num_tracks, 
 			   _num_azim * sizeof(int), 0, cudaMemcpyHostToDevice);
 	
-	/* Copy the total number of tracks into constant memory on the GPU */
+	/* Copy the total number of tracks into constant memory on GPU */
 	cudaMemcpyToSymbol(tot_num_tracks, (void*)&_tot_num_tracks,
 			   sizeof(int), 0, cudaMemcpyHostToDevice);
     }
@@ -1174,8 +1086,8 @@ void GPUSolver::initializeTracks() {
 
 
 /**
- * @brief Allocates memory for track boundary angular fluxes and 
- *        flatsourceregion scalar fluxes on the device.
+ * @brief Allocates memory for track boundary angular fluxes and leakages
+ *        flat source region scalar fluxes.
  * @details Deletes memory for old flux arrays if they were allocated from
  *          previous simulation.
  */
@@ -1186,18 +1098,15 @@ void GPUSolver::initializeFluxArrays() {
     /* Delete old flux arrays if they exist */
     if (_boundary_flux != NULL)
         cudaFree(_boundary_flux);
+
     if (_scalar_flux != NULL)
         cudaFree(_scalar_flux);
-    if (_old_scalar_flux != NULL)
-        cudaFree(_old_scalar_flux);
 
     /* Allocate memory for all flux arrays on the device */
     try{
         cudaMalloc((void**)&_boundary_flux,
 		   2*_tot_num_tracks * _polar_times_groups*sizeof(FP_PRECISION));
         cudaMalloc((void**)&_scalar_flux, 
-		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
-        cudaMalloc((void**)&_old_scalar_flux, 
 		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
     }
     catch(std::exception &e) {
@@ -1208,7 +1117,7 @@ void GPUSolver::initializeFluxArrays() {
 
 
 /**
- * @brief Allocates memory for flatsourceregion source arrays on the device.
+ * @brief Allocates memory for flat source region source arrays.
  * @details Deletes memory for old source arrays if they were allocated from
  *          previous simulation.
  */
@@ -1219,8 +1128,10 @@ void GPUSolver::initializeSourceArrays() {
     /* Delete old sources arrays if they exist */
     if (_source != NULL)
         cudaFree(_source);
+
     if (_old_source != NULL)
         cudaFree(_old_source);
+
     if (_ratios != NULL)
         cudaFree(_ratios);
 
@@ -1229,8 +1140,10 @@ void GPUSolver::initializeSourceArrays() {
 
         cudaMalloc((void**)&_source, 
 		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
+
 	cudaMalloc((void**)&_old_source,
 		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
+
 	cudaMalloc((void**)&_ratios,
 		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
     }
@@ -1243,8 +1156,8 @@ void GPUSolver::initializeSourceArrays() {
 
 
 /**
- * @brief
- * @details
+ * @brief Initialize Thrust vectors for the fission and absorption rates,
+ *        source residuals, leakage and fission sources.
  */
 void GPUSolver::initializeThrustVectors() {
 
@@ -1255,18 +1168,22 @@ void GPUSolver::initializeThrustVectors() {
         _fission_source = NULL;
         _fission_source_vec.clear();
     }
+
     if (_tot_absorption != NULL) {
         _tot_absorption = NULL;
         _tot_absorption_vec.clear();
     }
+
     if (_tot_fission != NULL) {
         _tot_fission = NULL;
         _tot_fission_vec.clear();
     }
+
     if (_source_residual != NULL) {
         _source_residual = NULL;
         _source_residual_vec.clear();
     }
+
     if (_leakage != NULL) {
         _leakage = NULL;
         _leakage_vec.clear();
@@ -1332,9 +1249,9 @@ int GPUSolver::computeScalarTrackIndex(int i, int j) {
 
 /**
  * @brief Pre-computes exponential pre-factors for each segment of each track 
- *        for each polar angle and copies the table to the device. 
+ *        for each polar angle. 
  * @details This method will generate a hashmap which contains values of the 
- *          pre-factor for specific segment lengths (the keys into the hashmap).
+ *          prefactor for specific segment lengths (the keys into the hashmap).
  */
 void GPUSolver::precomputePrefactors(){
 
@@ -1353,7 +1270,6 @@ void GPUSolver::precomputePrefactors(){
     FP_PRECISION expon;
     FP_PRECISION intercept;
     FP_PRECISION slope;
-
 
     /* Create prefactor array */
     for (int i = 0; i < num_array_values; i ++){
@@ -1393,21 +1309,47 @@ void GPUSolver::precomputePrefactors(){
 }
 
 
+/**
+ * @brief Zero each track's boundary fluxes for each energy group and polar
+ *        angle in the "forward" and "reverse" directions.
+ */
 void GPUSolver::zeroTrackFluxes() {
-    zeroTrackFluxesOnDevice<<<_B, _T>>>(_boundary_flux);
+    int size = 2 * _tot_num_tracks * _num_polar * _num_groups;
+    size *= sizeof(FP_PRECISION);
+    cudaMemset(_boundary_flux, 0.0, size);
+    return;
 }
 
 
+/**
+ * @brief Set the scalar flux for each energy group inside each flat source 
+ *        region to a constant value.
+ * @param value the value to assign to each flat source region flux
+ */
 void GPUSolver::flattenFSRFluxes(FP_PRECISION value) {
-    flattenFSRFluxesOnDevice<<<_B, _T>>>(_scalar_flux, _old_scalar_flux, value);
+    int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+    cudaMemset(_scalar_flux, value, size);
+    return;
 }
 
 
+/**
+ * @brief Set the source for each energy group inside each flat source region
+ *        to a constant value.
+ * @param value the value to assign to each flat source region source
+ */
 void GPUSolver::flattenFSRSources(FP_PRECISION value) {
-    flattenFSRSourcesOnDevice<<<_B, _T>>>(_source, _old_source, value);
+    int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+    cudaMemset(_source, value, size);
+    cudaMemset(_old_source, value, size);
+    return;
 }
 
 
+/**
+ * @brief Normalizes all flat source region scalar fluxes and track boundary
+ *        angular fluxes to the total fission source (times $\nu$).
+ */
 void GPUSolver::normalizeFluxes() {
 
     int shared_mem = sizeof(FP_PRECISION) * _T;
@@ -1420,9 +1362,6 @@ void GPUSolver::normalizeFluxes() {
 
     FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_source_vec.begin(),
 						    _fission_source_vec.end());
-
-    FP_PRECISION denom = thrust::reduce(_fission_source_vec.begin(),
-					_fission_source_vec.end());
 
     normalizeFluxesOnDevice<<<_B, _T>>>(_scalar_flux, _boundary_flux, 
 					norm_factor);
@@ -1444,28 +1383,6 @@ FP_PRECISION GPUSolver::computeFSRSources() {
 }
 
 
-/**
- * @brief Checks if scalar flux has converged within the threshold.
- * @return true if converged, false otherwise
- */
-bool GPUSolver::isScalarFluxConverged() {
-
-    bool converged_host = true;
-    bool* converged_dev;
-    cudaMalloc((void**)&converged_dev, sizeof(bool));
-    cudaMemcpy((void*)converged_dev, (void*)converged_host, 
-	       sizeof(bool), cudaMemcpyHostToDevice);
-
-    isScalarFluxConvergedOnDevice<<<_B,_T>>>(_scalar_flux, 
-					     _old_scalar_flux, 
-					     converged_dev);
-
-    cudaMemcpy((void*)converged_host, (void*)converged_dev, 
-	       sizeof(bool), cudaMemcpyDeviceToHost);
-
-    return converged_host;
-}
-
 
 void GPUSolver::transportSweep(int max_iterations) {
 
@@ -1482,12 +1399,12 @@ void GPUSolver::transportSweep(int max_iterations) {
         /* Initialize leakage to zero */
         thrust::fill(_leakage_vec.begin(), _leakage_vec.end(), 0.0);
 
-       /* Initialize flux in each region to zero */
-	tid_offset = 0;
-	tid_max = _track_index_offsets[_num_azim / 2];
+	/* Initialize flux in each region to zero */
+        flattenFSRFluxes(0.0);
 
-        flattenFSRFluxesOnDevice<<<_B, _T>>>(_scalar_flux, 
-					     _old_scalar_flux, 0.0);
+	/* Sweep the first halfspace of azimuthal angle space */
+	tid_offset = 0;
+	tid_max = (_tot_num_tracks / 2);
 
 	transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, 
 						       _boundary_flux,
@@ -1496,8 +1413,9 @@ void GPUSolver::transportSweep(int max_iterations) {
 						       _prefactor_array, 
 						       tid_offset, tid_max);
 
-	tid_offset = _track_index_offsets[_num_azim / 2] * _num_groups;
-	tid_max = _track_index_offsets[_num_azim];
+	/* Sweep the second halfspace of azimuthal angle space */
+	tid_offset = tid_max * _num_groups;
+	tid_max = _tot_num_tracks;
 
         transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux,
 						       _boundary_flux,
@@ -1505,15 +1423,30 @@ void GPUSolver::transportSweep(int max_iterations) {
 						       _materials, _dev_tracks,
 						       _prefactor_array,
 						       tid_offset, tid_max);
-
-	/* Add in source term, normalize fluxes to volume and save old flux */
-	normalizeFluxToVolumeOnDevice<<<_B, _T>>>(_scalar_flux, _ratios, 
-						  _FSR_volumes, _FSR_materials,
-						  _materials);
     }
 }
 
 
+/**
+ * @brief Add the source term contribution in the transport equation to 
+ *        the flat source region scalar flux
+ */
+void GPUSolver::addSourceToScalarFlux() {
+
+    addSourceToScalarFluxOnDevice<<<_B,_T>>>(_scalar_flux, _ratios,
+					     _FSR_volumes, _FSR_materials,
+					     _materials);
+}
+
+
+/**
+ * @brief Compute \f$ k_{eff} \f$ from the total fission and absorption rates.
+ * @details This method computes the current approximation to the 
+ *          multiplication factor on this iteration as follows:
+ *          \f$ k_{eff} = \frac{\displaystyle\sum \displaystyle\sum \nu
+ *                        \Sigma_f \Phi V}{\displaystyle\sum 
+ *                        \displaystyle\sum \Sigma_a \Phi V} \f$
+ */
 void GPUSolver::computeKeff() {
 
     FP_PRECISION tot_absorption;
@@ -1539,7 +1472,6 @@ void GPUSolver::computeKeff() {
     tot_fission = thrust::reduce(_tot_fission_vec.begin(),
 				 _tot_fission_vec.end());
 
-    FP_PRECISION* fiss = new FP_PRECISION[_B*_T];
     cudaMemcpy((void*)&tot_fission, (void*)_tot_fission, 
 	       _B * _T * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
 

@@ -20,8 +20,6 @@
 
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
 
-#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*num_groups) + (e)])
-
 #define source(tid,e) (source[(tid)*(*num_groups) + (e)])
 
 #define old_source(tid,e) (old_source[(tid)*(*num_groups) + (e)])
@@ -125,6 +123,7 @@ private:
     void flattenFSRSources(FP_PRECISION value);
     void normalizeFluxes();
     FP_PRECISION computeFSRSources();
+    void addSourceToScalarFlux();
     void computeKeff();
     void transportSweep(int max_iterations);
 
