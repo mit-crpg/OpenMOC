@@ -33,7 +33,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _boundary_leakage = NULL;
 
     _scalar_flux = NULL;
-    _old_scalar_flux = NULL;
     _fission_source = NULL;
     _source = NULL;
     _old_source = NULL;
@@ -84,9 +83,6 @@ Solver::~Solver() {
 
     if (_scalar_flux != NULL)
         delete [] _scalar_flux;
-
-    if (_old_scalar_flux != NULL)
-        delete [] _old_scalar_flux;
 
     if (_fission_source != NULL)
         delete [] _fission_source;

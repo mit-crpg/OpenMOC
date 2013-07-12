@@ -18,8 +18,6 @@
 
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
 
-#define _old_scalar_flux(r,e) (_old_scalar_flux[(r)*_num_groups + (e)])
-
 #define _source(r,e) (_source[(r)*_num_groups + (e)])
 
 #define _old_source(r,e) (_old_source[(r)*_num_groups + (e)])
@@ -122,10 +120,6 @@ protected:
     /* Flat source regions */
     /** The scalar flux for each energy group in each flat source region */
     FP_PRECISION* _scalar_flux;
-
-    /** The scalar flux for each energy group in each flat source region from
-     *  the previous iteration */
-    FP_PRECISION* _old_scalar_flux;
 
     /** The fission source in each energy group in each flat source region */
     FP_PRECISION* _fission_source;
