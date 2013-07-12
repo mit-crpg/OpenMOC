@@ -351,7 +351,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
     int index;
 
     int fsr_id = curr_segment->_region_uid;
-    int length = curr_segment->_length;
+    FP_PRECISION length = curr_segment->_length;
     dev_material* curr_material = &materials[curr_segment->_material_uid];
     double *sigma_t = curr_material->_sigma_t;
 
@@ -386,7 +386,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
 				     int energy_angle_index,
 				     bool direction) {
 
-    int start;
+    int start = energy_angle_index;
     bool bc;
     int track_out_id;
 
@@ -397,14 +397,14 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
     if (direction) {
         bc = curr_track->_bc_out;
 	track_out_id = curr_track->_track_out;
-	start = curr_track->_refl_out * (*polar_times_groups);
+	start += curr_track->_refl_out * (*polar_times_groups);
     }
 
     /* For the "reverse" direction */
     else {
         bc = curr_track->_bc_in;
 	track_out_id = curr_track->_track_in;
-        start = curr_track->_refl_in * (*polar_times_groups);
+        start += curr_track->_refl_in * (*polar_times_groups);
     }
     
     FP_PRECISION* track_out_flux = &boundary_flux(track_out_id,start);
