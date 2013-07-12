@@ -2,16 +2,13 @@
 
 
 /**
- * @brief Constructor initializes empty arrays for source, flux, etc.
+ * @brief Constructor initializes array pointers for tracks and materials.
  * @details The construcor retrieves the number of energy groups and flat
  *          source regions and azimuthal angles from the geometry and track
- *          generator, and uses this to initialie empty arrays for the 
- *          flat source regions, boundary angular fluxes, scalar flatsourcergion
- *          fluxes, flatsourceregion sources and flatsourceregion powers. The 
- *          constructor initalizes the number of threads to a default of 1.
+ *          generator. The constructor initalizes the number of threads to a 
+ *          default of 1.
  * @param geometry an optional pointer to the geometry
  * @param track_generator an optional pointer to the trackgenerator
- * @param num_threads an optional number of threads
  */
 Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
 
@@ -41,6 +38,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _source = NULL;
     _old_source = NULL;
     _ratios = NULL;
+
     _FSRs_to_powers = NULL;
     _FSRs_to_pin_powers = NULL;
 
@@ -48,6 +46,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
 
     if (geometry != NULL)
         setGeometry(geometry);
+
     if (track_generator != NULL)
         setTrackGenerator(track_generator);
 
@@ -58,28 +57,30 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
 
     _num_iterations = 0;
     _source_convergence_thresh = 1E-3;
-    _flux_convergence_thresh = 1E-5;
     _converged_source = false;
 }
 
 
 /**
- * @brief Destructor deletes arrays of boundary angular flux for all tracks,
- *        scalar flux and source for each flatsourceregion.
+ * @brief Destructor deletes arrays of boundary angular fluxes,
+ *        scalar fluxes and sources for each flat source region.
+ * @details Deallocates memory for all arrays allocated for the Solver,
+ *          including fluxes, sources, quadrature weights, and exponential
+ *          prefactor interpolation table.
  */
 Solver::~Solver() {
-
-    if (_polar_weights != NULL)
-        delete [] _polar_weights;
-
-    if (_boundary_flux != NULL)
-        delete [] _boundary_flux;
 
     if (_FSR_volumes != NULL)
         delete [] _FSR_volumes;
 
     if (_FSR_materials != NULL)
         delete [] _FSR_materials;
+
+    if (_polar_weights != NULL)
+        delete [] _polar_weights;
+
+    if (_boundary_flux != NULL)
+        delete [] _boundary_flux;
 
     if (_scalar_flux != NULL)
         delete [] _scalar_flux;
@@ -114,10 +115,11 @@ Solver::~Solver() {
 
 
 /**
- * @brief Returns a pointer to the geometry for this solver.
+ * @brief Returns a pointer to the geometry.
  * @return a pointer to the geometry
  */
 Geometry* Solver::getGeometry() {
+
     if (_geometry == NULL)
         log_printf(ERROR, "Unable to return the solver's geometry since it "
 		 "has not yet been set");
@@ -127,10 +129,11 @@ Geometry* Solver::getGeometry() {
 
 
 /**
- * @brief Returns a pointer to the geometry for this solver.
+ * @brief Returns a pointer to the track generator.
  * @return a pointer to the geometry
  */
 TrackGenerator* Solver::getTrackGenerator() {
+
     if (_track_generator == NULL)
         log_printf(ERROR, "Unable to return the solver's track genetrator "
 		   "since it has not yet been set");
@@ -176,26 +179,18 @@ FP_PRECISION Solver::getSourceConvergenceThreshold() {
 
 
 /**
- * @brief Returns the threshold for flux convergence in fixed source iteration
- *        after the source has converged.
- * @return the threshold for flux convergence
- */
-FP_PRECISION Solver::getFluxConvergenceThreshold() {
-    return _flux_convergence_thresh;
-}
-
-
-/**
  * @brief Sets the geometry for the solver.
  * @details The geometry must already have initialized flat source region maps
- *          and segmentized the trackgenerator's tracks.
+ *          and segmentized the track generator's tracks.
  * @param geometry a pointer to a geometry
  */
 void Solver::setGeometry(Geometry* geometry) {
+
     if (geometry->getNumFSRs() == 0)
         log_printf(ERROR, "Unable to set the Geometry for the Solver "
 		 "since the Geometry has not yet initialized flat "
 		 "source regions");
+
     if (geometry->getNumEnergyGroups() == 0)
         log_printf(ERROR, "Unable to set the Geometry for the Solver "
 		 "since the Geometry does noet contain any materials");
@@ -209,12 +204,13 @@ void Solver::setGeometry(Geometry* geometry) {
 
 
 /**
- * @brief Sets the trackgenerator with characteristic tracks for the solver.
- * @details The trackgenerator must already have generated tracks and have
- *          segmentized them using the geometry.
+ * @brief Sets the track generator with characteristic tracks for the solver.
+ * @details The track generator must already have generated tracks and have
+ *          segmentized them across the geometry.
  * @param track_generator a pointer to a trackgenerator
  */
 void Solver::setTrackGenerator(TrackGenerator* track_generator) {
+
     if (!track_generator->containsTracks())
         log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
 		 "since the TrackGenerator has not yet generated tracks");
@@ -275,6 +271,7 @@ void Solver::setNumPolarAngles(int num_polar) {
  * @param source_thresh the threshold for source convergence
  */
 void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
+
     if (source_thresh <= 0.0)
         log_printf(ERROR, "Unable to set the source convergence threshold to "
 	       "%f since the threshold must be a positive number",
@@ -285,29 +282,14 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 
 
 /**
- * @brief Sets the threshold for flux convergence (>0) in fixed source
- *        iteration after the source has converged.
- * @param source_thresh the threshold for flux convergence
- */
-void Solver::setFluxConvergenceThreshold(FP_PRECISION flux_thresh) {
-    if (flux_thresh <= 0.0)
-        log_printf(ERROR, "Unable to set the flux convergence threshold to "
-	       "%f since the threshold must be a positive number",
-	       flux_thresh);
-
-    _flux_convergence_thresh = flux_thresh;
-}
-
-
-/**
  * @brief Checks that each flat source region has at least one segment within 
- *        it and if not, throw an exception and prints an error message.
+ *        it and if not, throws an exception and prints an error message.
  */
 void Solver::checkTrackSpacing() {
 
     int* FSR_segment_tallies = new int[_num_FSRs];
-    std::vector<segment*> segments;
-    std::vector<segment*>::iterator iter;
+    int num_segments;
+    segment* curr_segment;
     Cell* cell;
 
     /* Set each tally to zero to begin with */
@@ -317,13 +299,15 @@ void Solver::checkTrackSpacing() {
 
     /* Iterate over all azimuthal angles, all tracks, and all segments
      * and tally each segment in the corresponding FSR */
-    #pragma omp parallel for private (segments, iter)
+    #pragma omp parallel for private (num_segments, curr_segment)
     for (int i=0; i < _tot_num_tracks; i++) {
      
-        segments = _tracks[i]->getSegments();
+        num_segments = _tracks[i]->getNumSegments();
 
-	for (iter=segments.begin(); iter != segments.end(); ++iter)
-	    FSR_segment_tallies[(*iter)->_region_id]++;
+	for (int s=0; s < num_segments; s++) {
+	    curr_segment = _tracks[i]->getSegment(s);
+	    FSR_segment_tallies[curr_segment->_region_id]++;
+	}
     }
 
     /* Loop over all FSRs and if one FSR does not have tracks in it, print
@@ -344,9 +328,12 @@ void Solver::checkTrackSpacing() {
 
 
 /**
- * Computes keff on the by performing a series of fixed source
- * iterations and updating the fission and scattering sources in each
- * flat source region of the geometry
+ * @brief Computes keff by performing a series of transport sweep and 
+ *        source updates.
+ * @details This is the main method exposed to the user through the Python
+ *          interface to run a simulation. The method makes an initial guess
+ *          for the scalar and boundary fluxes and peforms transport sweeps
+ *          and source updates until convergence.
  * @param max_iterations the maximum number of iterations allowed
  * @return the value of keff computed
  */
@@ -356,6 +343,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     if (_geometry == NULL)
         log_printf(ERROR, "The Solver is unable to converge the source "
 		   "since it does not contain a Geometry");
+
     if (_track_generator == NULL)
         log_printf(ERROR, "The Solver is unable to converge the source "
 		   "since it does not contain a TrackGenerator");
@@ -395,14 +383,14 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 
 	normalizeFluxes();
 	residual = computeFSRSources();
-	transportSweep(1);
+	transportSweep();	
+	addSourceToScalarFlux();
 	computeKeff();
 	_num_iterations++;
 
-	if (i > 1 && residual < _source_convergence_thresh){
-	  //	    transportSweep(1000);
+	/* Check for convergence of the fission source distribution */
+	if (i > 1 && residual < _source_convergence_thresh)
 	    return _k_eff;
-	}
     }
 
     log_printf(WARNING, "Unable to converge the source after %d iterations",

@@ -398,7 +398,7 @@ void CPUSolver::initializeFSRs() {
     /* Initialize the FSR volumes to zero */
     memset(_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
 
-    /* Set each FSR's volume by accumulating the total length of all tracks
+    /* Set each FSR's "volume" by accumulating the total length of all tracks
      * inside the FSR. Loop over azimuthal angle, track and segment. 
      * Note: this code region cannot be parallelized without a mutex lock
      * on FSR volume due to race conditions. */
@@ -413,7 +413,7 @@ void CPUSolver::initializeFSRs() {
 	}
     }
 
-    /* Loop over all FSRs */
+    /* Loop over all FSRs to extract FSR material pointers */
     #pragma omp parallel for private(cell, material)
     for (int r=0; r < _num_FSRs; r++) {
 
@@ -672,9 +672,16 @@ void CPUSolver::computeKeff() {
         }
     }
 
+    /* Reduce absorptoin and fission rates across FSRs, energy groups */
     tot_abs = pairwise_sum<FP_PRECISION>(absorption_rates, _num_FSRs*_num_groups);
     tot_fission = pairwise_sum<FP_PRECISION>(fission_rates, _num_FSRs*_num_groups);
+
+    /** Reduce leakage array across tracks, energy groups, polar angles */
+    _leakage = pairwise_sum<FP_PRECISION>(_boundary_leakage, 
+					  2*_tot_num_tracks*_polar_times_groups);
+    _leakage *= 0.5;
     
+
     _k_eff = tot_fission / (tot_abs + _leakage);
 
     //    printf("abs = %1.15f, fiss = %1.15f, leak = %1.15f, keff = %1.15f\n", 
@@ -691,119 +698,71 @@ void CPUSolver::computeKeff() {
 
 
 /**
- * @brief Checks if scalar flux has converged within the threshold.
- * @return true if converged, false otherwise
- */
-bool CPUSolver::isScalarFluxConverged() {
-
-    bool converged = true;
-
-    #pragma omp parallel for
-    for (int r=0; r < _num_FSRs; r++) {
-        for (int e=0; e < _num_groups; e++) {
-	    if (fabs((_scalar_flux(r,e) - _old_scalar_flux(r,e)) /
-		     _old_scalar_flux(r,e)) > _flux_convergence_thresh)
-	      converged = false;
-
-	    /* Update old scalar flux */
-	    _old_scalar_flux(r,e) = _scalar_flux(r,e);
-	}
-    }
-
-    return converged;
-}
-
-
-/**
  * This method performs on or more fixed source iterations by integrating
  * the flux along each track and updating the boundary fluxes for the
  * corresponding output track, while updating the scalar flux in each
  * flat source region
  * @param max_iterations the maximum number of iterations allowed
  */
-void CPUSolver::transportSweep(int max_iterations) {
+void CPUSolver::transportSweep() {
 
     Track* curr_track;
     int num_segments;
     segment* curr_segment;    
-    FP_PRECISION length;
-    int fsr_id;
-    double* sigma_t;
     FP_PRECISION* track_flux;
 
-    log_printf(DEBUG, "Transport sweep with max_iterations = %d and "
-	       "# threads = %d", max_iterations, _num_threads);
+    log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
-    /* Loop for until converged or max_iterations is reached */
-    for (int i=0; i < max_iterations; i++) {
+    /* Initialize flux in each region to zero */
+    flattenFSRFluxes(0.0);
 
-        /* Initialize flux in each region to zero */
-        flattenFSRFluxes(0.0);
+    /* Loop over azimuthal angle halfspaces */
+    for (int i=0; i < 2; i++) {
 
-	/* Loop over azimuthal angle halfspaces */
-	for (int i=0; i < 2; i++) {
+        int min = i * (_tot_num_tracks / 2);
+	int max = (i + 1) * (_tot_num_tracks / 2);
+	
+	/* Loop over each thread within this azimuthal angle halfspace */
+        #pragma omp parallel for private(curr_track, num_segments, \
+	  curr_segment, track_flux)
+	for (int track_id=min; track_id < max; track_id++) {
 
-            int min = i * (_tot_num_tracks / 2);
-	    int max = (i + 1) * (_tot_num_tracks / 2);
+	    /* TODO: Allocate this up front */
+	    int size = _num_FSRs * sizeof(FP_PRECISION);
+	    FP_PRECISION* fsr_flux = (FP_PRECISION*)_mm_malloc(size,
+							       VEC_ALIGNMENT);
+	    /* Initialize local pointers to important data structures */	
+	    curr_track = _tracks[track_id];
+	    num_segments = curr_track->getNumSegments();
+	    track_flux = &_boundary_flux(track_id,0);
 
-	    /* Loop over each thread within this azimuthal angle halfspace */
-            #pragma omp parallel for private(curr_track, num_segments, \
-	      curr_segment, length, fsr_id, sigma_t, track_flux)
-	    for (int track_id=min; track_id < max; track_id++) {
-
-	        /* TODO: Allocate this up front */
-	        int size = _num_FSRs * sizeof(FP_PRECISION);
-	        FP_PRECISION* fsr_flux = (FP_PRECISION*)_mm_malloc(size,
-								VEC_ALIGNMENT);
-		/* Initialize local pointers to important data structures */	
-		curr_track = _tracks[track_id];
-		num_segments = curr_track->getNumSegments();
-		track_flux = &_boundary_flux(track_id,0);
-
-		/* Loop over each segment in forward direction */
-		for (int s=0; s < num_segments; s++) {
-	            curr_segment = curr_track->getSegment(s);
-		    fsr_id = curr_segment->_region_id;
-		    length = curr_segment->_length;
-		    sigma_t = curr_segment->_material->getSigmaT();
-		    scalarFluxTally(fsr_id, sigma_t, length, 
-				    track_flux, fsr_flux);
-		}
-
-		/* Transfer flux to outgoing track */
-		transferBoundaryFlux(track_id, true, track_flux);
-
-		/* Loop over each segment in reverse direction */
-		track_flux += _polar_times_groups;
-
-		for (int s=num_segments-1; s > -1; s--) {
-	            curr_segment = curr_track->getSegment(s);
-		    fsr_id = curr_segment->_region_id;
-		    length = curr_segment->_length;
-		    sigma_t = curr_segment->_material->getSigmaT();
-		    scalarFluxTally(fsr_id, sigma_t, length, 
-				    track_flux, fsr_flux);
-		}
-
-		/* Transfer flux to outgoing track */
-		transferBoundaryFlux(track_id, false, track_flux);
+	    /* Loop over each segment in forward direction */
+	    for (int s=0; s < num_segments; s++) {
+	        curr_segment = curr_track->getSegment(s);
+		scalarFluxTally(curr_segment, track_flux, fsr_flux);
 	    }
+
+	    /* Transfer flux to outgoing track */
+	    transferBoundaryFlux(track_id, true, track_flux);
+	    
+	    /* Loop over each segment in reverse direction */
+	    track_flux += _polar_times_groups;
+	    
+	    for (int s=num_segments-1; s > -1; s--) {
+	        curr_segment = curr_track->getSegment(s);
+		scalarFluxTally(curr_segment, track_flux, fsr_flux);
+	    }
+	    
+	    /* Transfer flux to outgoing track */
+	    transferBoundaryFlux(track_id, false, track_flux);
 	}
     }
-
-    /** Reduce leakage array across tracks, energy groups, polar angles */
-    _leakage = pairwise_sum<FP_PRECISION>(_boundary_leakage, 
-					  2*_tot_num_tracks*_polar_times_groups);
-    _leakage *= 0.5;
-    
-    normalizeFluxToVolume();
 
     return;
 }
 
 
-void CPUSolver::scalarFluxTally(int fsr_id, double* sigma_t, 
-                                FP_PRECISION length, 
+void CPUSolver::scalarFluxTally(segment* curr_segment,
                                 FP_PRECISION* track_flux,
                                 FP_PRECISION* fsr_flux){
 
@@ -811,11 +770,15 @@ void CPUSolver::scalarFluxTally(int fsr_id, double* sigma_t,
     FP_PRECISION sigma_t_l;
     int index;
 
+    int fsr_id = curr_segment->_region_id;
+    FP_PRECISION length = curr_segment->_length;
+    double* sigma_t = curr_segment->_material->getSigmaT();
+
     /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
         fsr_flux[e] = 0.;
 	sigma_t_l = sigma_t[e] * length;
-	index = computePrefactorIndex(sigma_t_l);
+	index = prefactorindex(sigma_t_l);
 
 	/* Loop over polar angles */
 	#pragma novector
@@ -875,7 +838,7 @@ void CPUSolver::transferBoundaryFlux(int track_id, bool direction,
 }
 
 
-void CPUSolver::normalizeFluxToVolume() {
+void CPUSolver::addSourceToScalarFlux() {
 
     FP_PRECISION volume;
     double* sigma_t;
@@ -926,7 +889,7 @@ void CPUSolver::computePinPowers() {
 
     /* Compute the pin powers by adding up the powers of FSRs in each
      * lattice cell, saving lattice cell powers to files, and saving the
-     * pin power corresponding to each FSR id in FS_to_pin_power */
+     * pin power corresponding to each FSR id in FSR_to_pin_powers */
     _geometry->computePinPowers(_FSRs_to_powers, _FSRs_to_pin_powers);
 
 
