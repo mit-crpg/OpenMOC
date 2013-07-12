@@ -1,13 +1,13 @@
 /**
  * @file CPUSolver.h
  * @brief The CPUSolver class.
- * @date February 7, 2012
+ * @date May 28, 2013
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
  */
 
+
 #ifndef CPUSOLVER_H_
 #define CPUSOLVER_H_
-
 
 #define VEC_LENGTH 8
 #define VEC_ALIGNMENT 16
@@ -56,9 +56,13 @@ private:
     void flattenFSRSources(FP_PRECISION value);
     void normalizeFluxes();
     FP_PRECISION computeFSRSources();
+    void scalarFluxTally(segment* curr_segment, FP_PRECISION* track_flux,
+			 FP_PRECISION* fsr_flux);
+    void transferBoundaryFlux(int track_id, bool direction,
+			      FP_PRECISION* track_flux);
+    void addSourceToScalarFlux();
     void computeKeff();
-    bool isScalarFluxConverged();
-    void transportSweep(int max_iterations);
+    void transportSweep();
 
 public:
     CPUSolver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
@@ -70,14 +74,6 @@ public:
     FP_PRECISION* getFSRScalarFluxes();
     FP_PRECISION* getFSRPowers();
     FP_PRECISION* getFSRPinPowers();
-
-    void scalarFluxTally(int fsr_id, double* sigma_t, 
-			 FP_PRECISION length, 
-			 FP_PRECISION* track_flux,
-			 FP_PRECISION* fsr_flux);
-    void transferBoundaryFlux(int track_id, bool direction,
-			      FP_PRECISION* track_flux);
-    void normalizeFluxToVolume();
 
     void setNumThreads(int num_threads);
     void setGeometry(Geometry* geometry);
