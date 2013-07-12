@@ -125,7 +125,7 @@ private:
     FP_PRECISION computeFSRSources();
     void addSourceToScalarFlux();
     void computeKeff();
-    void transportSweep(int max_iterations);
+    void transportSweep();
 
 public:
 
@@ -141,7 +141,6 @@ public:
     void setNumThreadsPerBlock(int num_threads);
     void setGeometry(Geometry* geometry);
     void setTrackGenerator(TrackGenerator* track_generator);
-    void setFluxConvergenceThreshold(FP_PRECISION flux_thresh);
 
     int computeScalarTrackIndex(int i, int j);
     void computePinPowers();
