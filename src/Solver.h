@@ -62,10 +62,10 @@ protected:
     /** The number of flat source regions */
     int _num_FSRs;
 
-    /** The flat source region volumes (ie, areas) */
+    /** The flat source region "volumes" (ie, areas) index by FSR UID */
     FP_PRECISION* _FSR_volumes;
 
-    /** The flat source region material uids */
+    /** The flat source region material pointers index by FSR UID */
     Material** _FSR_materials;
 
     /** A pointer to a trackgenerator which contains tracks */

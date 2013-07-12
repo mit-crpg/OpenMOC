@@ -641,7 +641,6 @@ GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
 
     _materials = NULL;
     _dev_tracks = NULL;
-    _track_index_offsets = NULL;
 
     _fission_source = NULL;
     _tot_absorption = NULL;
@@ -681,11 +680,6 @@ GPUSolver::~GPUSolver() {
     if (_dev_tracks != NULL) {
         cudaFree(_dev_tracks);
 	_dev_tracks = NULL;
-    }
-
-    if (_track_index_offsets != NULL) {
-        cudaFree(_track_index_offsets);
-	_track_index_offsets = NULL;
     }
 
     if (_boundary_flux != NULL) {
@@ -1112,14 +1106,8 @@ void GPUSolver::initializeTracks() {
     if (_dev_tracks != NULL)
         cudaFree(_dev_tracks);
 
-    /* Delete old track index offsets array if it exists */
-    if (_track_index_offsets != NULL)
-        delete [] _track_index_offsets;
-
     /* Allocate array of tracks */
     cudaMalloc((void**)&_dev_tracks, _tot_num_tracks * sizeof(dev_track));
-
-    _track_index_offsets = new int[_num_azim+1];
 
     /* Allocate memory for all tracks and track offset indices on the device */
     try{
@@ -1128,8 +1116,6 @@ void GPUSolver::initializeTracks() {
         int counter = 0;
 	int index;
 	for (int i=0; i < _num_azim; i++) {
-
-            _track_index_offsets[i] = counter;
 
 	    for (int j=0; j < _num_tracks[i]; j++) {
 
@@ -1150,8 +1136,6 @@ void GPUSolver::initializeTracks() {
 		counter++;
 	    }
 	}
-
-	_track_index_offsets[_num_azim] = counter;
 
 	/* Copy the cumulative index offset for the current azimuthal angle 
 	 * into constant memory on the GPU */

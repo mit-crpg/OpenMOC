@@ -17,6 +17,7 @@
 #include "Solver.h"
 #endif
 
+
 #define _thread_fsr_flux(tid) (_thread_fsr_flux[tid*_num_groups])
 
 #define track_flux(p,e) (track_flux[(e)*_num_polar + (p)])
