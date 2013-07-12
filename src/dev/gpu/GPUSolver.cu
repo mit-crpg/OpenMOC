@@ -1384,46 +1384,41 @@ FP_PRECISION GPUSolver::computeFSRSources() {
 
 
 
-void GPUSolver::transportSweep(int max_iterations) {
+void GPUSolver::transportSweep() {
 
     int shared_mem = sizeof(FP_PRECISION) * _T * (2*_num_polar + 1);
     int tid_offset, tid_max;
 
-    log_printf(DEBUG, "Transport sweep on device with max_iterations = %d "
-	       " and # blocks = %d, # threads = %d", 
-	       max_iterations, _B, _T);
+    log_printf(DEBUG, "Transport sweep on device with %d blocks" 
+                      " and %d threads", _B, _T);
 
-    /* Loop for until converged or max_iterations is reached */
-    for (int i=0; i < max_iterations; i++) {
+    /* Initialize leakage to zero */
+    thrust::fill(_leakage_vec.begin(), _leakage_vec.end(), 0.0);
+    
+    /* Initialize flux in each region to zero */
+    flattenFSRFluxes(0.0);
+    
+    /* Sweep the first halfspace of azimuthal angle space */
+    tid_offset = 0;
+    tid_max = (_tot_num_tracks / 2);
 
-        /* Initialize leakage to zero */
-        thrust::fill(_leakage_vec.begin(), _leakage_vec.end(), 0.0);
+    transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, 
+						   _boundary_flux,
+						   _ratios, _leakage,
+						   _materials, _dev_tracks,
+						   _prefactor_array, 
+						   tid_offset, tid_max);
 
-	/* Initialize flux in each region to zero */
-        flattenFSRFluxes(0.0);
+    /* Sweep the second halfspace of azimuthal angle space */
+    tid_offset = tid_max * _num_groups;
+    tid_max = _tot_num_tracks;
 
-	/* Sweep the first halfspace of azimuthal angle space */
-	tid_offset = 0;
-	tid_max = (_tot_num_tracks / 2);
-
-	transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, 
-						       _boundary_flux,
-						       _ratios, _leakage,
-						       _materials, _dev_tracks,
-						       _prefactor_array, 
-						       tid_offset, tid_max);
-
-	/* Sweep the second halfspace of azimuthal angle space */
-	tid_offset = tid_max * _num_groups;
-	tid_max = _tot_num_tracks;
-
-        transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux,
-						       _boundary_flux,
-						       _ratios, _leakage,
-						       _materials, _dev_tracks,
-						       _prefactor_array,
-						       tid_offset, tid_max);
-    }
+    transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux,
+						   _boundary_flux,
+						   _ratios, _leakage,
+						   _materials, _dev_tracks,
+						   _prefactor_array,
+						   tid_offset, tid_max);
 }
 
 
