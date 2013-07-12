@@ -135,8 +135,11 @@ protected:
      *  flat source region */
     FP_PRECISION* _ratios;
 
-    //TODO: What are these guys for???
+    /** The normalized power in each flat source region */
     FP_PRECISION* _FSRs_to_powers;
+
+    /** The normalized power corresponding to the pin which each flat source
+     * region is within (0 for all moderator cells) */
     FP_PRECISION* _FSRs_to_pin_powers;
 
     /** The current iteration's approximation to k-effective */
