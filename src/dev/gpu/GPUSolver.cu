@@ -456,7 +456,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     int track_flux_index = index_offset;
 
     int track_id = int(tid / *num_groups);
-    int pe;
+//    int pe;
 
     dev_track* curr_track;
     dev_segment* curr_segment;
@@ -475,12 +475,12 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
       	for (int p=0; p < *num_polar; p++) {
 	
 	    /* Forward flux along this track */
-      	    pe = energy_angle_index + p;
-	    track_flux[p] = boundary_flux(track_id,pe);
-	
+//      	    pe = energy_angle_index + p;
+	    track_flux[p] = boundary_flux(track_id,p+energy_angle_index);
+
 	    /* Reverse flux along this track */
-      	    pe = (*polar_times_groups) + energy_angle_index + p;
-	    track_flux[(*num_polar) + p] = boundary_flux(track_id,pe);
+//      	    pe = (*polar_times_groups) + energy_angle_index + p;
+	    track_flux[(*num_polar) + p] = boundary_flux(track_id,p+energy_angle_index+(*polar_times_groups));
       	}
       
 	/* Loop over each segment in forward direction */
