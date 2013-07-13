@@ -13,7 +13,7 @@ num_threads = 4
 track_spacing = 0.1
 num_azim = 12
 tolerance = 1E-5
-max_iters = 1000
+max_iters = 10
 gridsize = 500
 
 log.setLogLevel('NORMAL')
@@ -377,7 +377,7 @@ Timer.resetTimer()
 
 Timer.startTimer()
 
-solver = ThreadPrivateSolver(geometry, track_generator)
+solver = VectorizedSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
