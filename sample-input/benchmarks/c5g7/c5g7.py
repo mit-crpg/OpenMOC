@@ -9,7 +9,7 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 4
+num_threads = 1
 track_spacing = 0.1
 num_azim = 12
 tolerance = 1E-5
@@ -365,10 +365,10 @@ Timer.resetTimer()
 
 Timer.startTimer()
 
-solver = intel.CPUSolver(geometry, track_generator)
+solver = intel.ThreadPrivateSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
-#solver.convergeSource(max_iters)
+solver.convergeSource(max_iters)
 
 Timer.stopTimer()
 Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
