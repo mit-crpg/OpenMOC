@@ -11,7 +11,7 @@
  * @param track_generator an optional pointer to the trackgenerator
  */
 CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
-  Solver(geom, track_generator) {
+    Solver(geom, track_generator) {
 
     setNumThreads(1);
 
@@ -402,7 +402,7 @@ void CPUSolver::initializeFSRs() {
  */
 void CPUSolver::zeroTrackFluxes() {
     int size = 2 * _tot_num_tracks * _polar_times_groups * sizeof(FP_PRECISION);
-    memset(_boundary_flux, 0., size);
+    memset(_boundary_flux, FP_PRECISION(0.), size);
     return;
 }
 
@@ -446,7 +446,7 @@ void CPUSolver::normalizeFluxes() {
     memset(_fission_source, 0, _num_FSRs * _num_groups);
 
     /* Compute total fission source for each region, energy group */
-    #pragma omp parallel for private(volume, nu_sigma_f) \
+    #pragma omp parallel for private(volume, nu_sigma_f)	\
       reduction(+:tot_fission_source)
     for (int r=0; r < _num_FSRs; r++) {
 
@@ -464,7 +464,8 @@ void CPUSolver::normalizeFluxes() {
     /* Normalize scalar fluxes in each region */
     norm_factor = 1.0 / tot_fission_source;
 
-    log_printf(DEBUG, "Normalization factor = %f", norm_factor);
+    log_printf(DEBUG, "tot fiss src = %f, Normalization factor = %f", 
+               tot_fission_source, norm_factor);
 
     #pragma omp parallel for
     for (int r=0; r < _num_FSRs; r++) {
@@ -474,9 +475,14 @@ void CPUSolver::normalizeFluxes() {
 
     /* Normalize angular boundary fluxes for each track */
     #pragma omp parallel for
-    for (int i=0; i < _track_generator->getNumTracks(); i++) {
-        for (int pe2=0; pe2 < 2*_polar_times_groups; pe2++)
-	    _boundary_flux(i,pe2) *= norm_factor;
+    for (int i=0; i < _tot_num_tracks; i++) {
+        for (int j=0; j < 2; j++) {
+	    for (int p=0; p < _num_polar; p++) {
+	        for (int e=0; e < _num_groups; e++) {
+		    _boundary_flux(i,j,p,e) *= norm_factor;
+		}
+	    }
+	}
     }
 
     return;
@@ -512,7 +518,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
     /* For all regions, find the source */
     //TODO: This can be parallelized! Need to privatize some variable and
     //      reduce the residual at the end
-    #pragma omp parallel for private(material, nu_sigma_f, chi, \
+    #pragma omp parallel for private(material, nu_sigma_f, chi,	\
       sigma_s, sigma_t, fission_source, scatter_source)
     for (int r=0; r < _num_FSRs; r++) {
 
@@ -531,7 +537,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 
 	fission_source = pairwise_sum<FP_PRECISION>(fission_sources, 
 						    _num_groups);
-	
+
 	/* Compute total scattering source for group G */
         for (int G=0; G < _num_groups; G++) {
             scatter_source = 0;
@@ -545,7 +551,6 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 	    /* Set the total source for region r in group G */
 	    _source(r,G) = ((1.0 / _k_eff) * fission_source *
                            chi[G] + scatter_source) * ONE_OVER_FOUR_PI;
-	
 
 	    _ratios(r,G) = _source(r,G) / sigma_t[G];
 
@@ -648,6 +653,21 @@ void CPUSolver::transportSweep() {
     segment* curr_segment;    
     FP_PRECISION* track_flux;
 
+    /* Normalize angular boundary fluxes for each track */
+    #pragma omp parallel for
+    for (int i=0; i < _tot_num_tracks; i++) {
+        for (int j=0; j < 2; j++) {
+	    for (int p=0; p < _num_polar; p++) {
+	        for (int e=0; e < _num_groups; e++) {
+		    if (isnan(_boundary_flux(i,j,p,e)))
+		        printf("_boundary_flux = %f\n", _boundary_flux(i,j,p,e));
+		}
+	    }
+	}
+    }
+
+
+
     log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
     /* Initialize flux in each region to zero */
@@ -662,7 +682,7 @@ void CPUSolver::transportSweep() {
 	int max = (i + 1) * (_tot_num_tracks / 2);
 	
 	/* Loop over each thread within this azimuthal angle halfspace */
-        #pragma omp parallel for private(curr_track, num_segments, \
+	#pragma omp parallel for private(curr_track, num_segments, \
 	  curr_segment, track_flux, tid )
 	for (int track_id=min; track_id < max; track_id++) {
 
@@ -671,13 +691,13 @@ void CPUSolver::transportSweep() {
 	    /* Initialize local pointers to important data structures */	
 	    curr_track = _tracks[track_id];
 	    num_segments = curr_track->getNumSegments();
-	    track_flux = &_boundary_flux(track_id,0);
+	    track_flux = &_boundary_flux(track_id,0,0,0);
 
 	    /* Loop over each segment in forward direction */
 	    for (int s=0; s < num_segments; s++) {
 	        curr_segment = curr_track->getSegment(s);
 		scalarFluxTally(curr_segment, track_flux, 
-				&_thread_fsr_flux(tid));
+	                        &_thread_fsr_flux(tid));
 	    }
 
 	    /* Transfer flux to outgoing track */
@@ -711,8 +731,8 @@ void CPUSolver::transportSweep() {
  * @param track_flux a pointer to the track's angular flux
  * @param fsr_flux a pointer to the temporary flat source region flux buffer
  */
-void CPUSolver::scalarFluxTally(segment* curr_segment, 
-				FP_PRECISION* track_flux,
+void CPUSolver::scalarFluxTally(segment* curr_segment,
+   	                        FP_PRECISION* track_flux,
 	                        FP_PRECISION* fsr_flux){
 
     FP_PRECISION delta;
@@ -728,23 +748,21 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
         fsr_flux[e] = 0.;
 	sigma_t_l = sigma_t[e] * length;
 	index = prefactorindex(sigma_t_l);
-
 	/* Loop over polar angles */
 	for (int p=0; p < _num_polar; p++){
 	    delta = (track_flux(p,e) - 
 	    _ratios(fsr_id,e)) * 
 	      prefactor(index,p,sigma_t_l);
 	    fsr_flux[e] += delta * _polar_weights[p];
-	    track_flux(p,e) -= delta;
+	    track_flux(p,e) -= delta;	    
 	}
     }
 
     /* Atomically increment the FSR scalar flux from the temporary array */
     omp_set_lock(&_FSR_locks[fsr_id]);
     {
-        for (int e=0; e < _num_groups; e++) {
+        for (int e=0; e < _num_groups; e++)
 	    _scalar_flux(fsr_id,e) += fsr_flux[e];
-	}
     }
     omp_unset_lock(&_FSR_locks[fsr_id]);
 
@@ -787,7 +805,7 @@ void CPUSolver::transferBoundaryFlux(int track_id, bool direction,
         track_out_id = _tracks[track_id]->getTrackIn()->getUid();
     }
 
-    FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,start);
+    FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
 
     /* Loop over polar angles and energy groups */
     for (int p=0; p < _num_polar; p++) {

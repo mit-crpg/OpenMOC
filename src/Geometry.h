@@ -30,50 +30,69 @@
 class Geometry {
 
 private:
+
     /** The minimum point along the x-axis contained by geometry in cm */
     double _x_min;
+
     /** The maximum point along the x-axis contained by geometry in cm */    
     double _y_min;
+
     /** The minimum point along the y-axis contained by geometry in cm */
     double _x_max;
+
     /** The maximum point along the y-axis contained by geometry in cm */
     double _y_max;
+
     /** The boundary conditions at the top of the bounding box containing
      *  the geometry. False is for vacuum and true is for reflective boundary
      *  conditions */
     bool _top_bc;
+
     /** The boundary conditions at the top of the bounding box containing
      *  the geometry. False is for vacuum and true is for reflective boundary
      *  conditions */
     bool _bottom_bc;
+
     /** The boundary conditions at the top of the bounding box containing
      *  the geometry. False is for vacuum and true is for reflective boundary
      *  conditions */   
     bool _left_bc;
+
     /** The boundary conditions at the top of the bounding box containing
      *  the geometry. False is for vacuum and true is for reflective boundary
      *  conditions */   
     bool _right_bc;
+
     /** The total number of flat source regions in the geometry */
     int _num_FSRs;
+
     /** The number of energy groups for each material's nuclear data */
     int _num_groups;
+
     /** An array of cell IDs indexed by flat source region IDs */
     int* _FSRs_to_cells;
+
     /** An array of material IDs indexed by flat source region IDs */
     int* _FSRs_to_materials;
+
     /** The maximum track segment length in the geometry */
     double _max_seg_length;
+
     /** The minimum track segment length in the geometry */
     double _min_seg_length;
+
     /** A map of material IDs (keys) to material pointers (values) */
     std::map<short int, Material*> _materials;
+
     /** A map of surface IDs (keys) to surface pointers (values) */
     std::map<short int, Surface*> _surfaces;
+
     /** A map of cell IDs (keys) to cell pointers (values) */
     std::map<short int, Cell*> _cells;
+
     /** A map of universe IDs (keys) to universe pointers (values) */
     std::map<short int, Universe*> _universes;
+
     /** A map of lattice IDs (keys) to lattice pointers (values) */
     std::map<short int, Lattice*> _lattices;
 

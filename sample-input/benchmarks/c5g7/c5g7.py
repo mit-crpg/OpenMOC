@@ -9,11 +9,11 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 2
+num_threads = 1
 track_spacing = 0.1
 num_azim = 12
 tolerance = 1E-5
-max_iters = 3
+max_iters = 10
 gridsize = 500
 
 log.setLogLevel('NORMAL')
@@ -360,7 +360,7 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 
 Timer.stopTimer()
-Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
+Timer.recordSplit('Converging the source without vectorization')
 Timer.resetTimer()
 
 Timer.startTimer()
@@ -371,22 +371,8 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 
 Timer.stopTimer()
-Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
+Timer.recordSplit('Converging the source with vectorization')
 Timer.resetTimer()
-
-
-
-Timer.startTimer()
-
-#solver = intel.VectorizedSolver(geometry, track_generator)
-#solver.setSourceConvergenceThreshold(tolerance)
-#solver.setNumThreads(num_threads)
-#solver.convergeSource(max_iters)
-
-Timer.stopTimer()
-Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
-Timer.resetTimer()
-
 
 
 ###############################################################################

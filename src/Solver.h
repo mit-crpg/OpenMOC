@@ -26,7 +26,7 @@
 
 #define _polar_weights(i,p) (_polar_weights[(i)*_num_polar + (p)])
 
-#define _boundary_flux(i,pe2) (_boundary_flux[2*(i)*_polar_times_groups+(pe2)])
+#define _boundary_flux(i,j,p,e) (_boundary_flux[(i)*2*_num_polar*_num_groups + (j)*_num_polar*_num_groups + (p)*_num_groups + (e)])
 
 #define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_polar_times_groups+(pe2)])
 

@@ -113,7 +113,7 @@ void ThreadPrivateSolver::transportSweep() {
 	    /* Initialize local pointers to important data structures */	
 	    curr_track = _tracks[track_id];
 	    num_segments = curr_track->getNumSegments();
-	    track_flux = &_boundary_flux(track_id,0);
+	    track_flux = &_boundary_flux(track_id,0,0,0);
 
 	    /* Loop over each segment in forward direction */
 	    for (int s=0; s < num_segments; s++) {

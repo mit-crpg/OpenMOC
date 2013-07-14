@@ -1,16 +1,13 @@
 /**
- * @file CPUSolver.h
- * @brief The CPUSolver class.
+ * @file VectorizedSolver.h
+ * @brief The VectorizedSolver class.
  * @date May 28, 2013
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
  */
 
 
-#ifndef CPUSOLVER_H_
-#define CPUSOLVER_H_
-
-#define VEC_LENGTH 8
-#define VEC_ALIGNMENT 16
+#ifndef VECTORIZEDSOLVER_H_
+#define VECTORIZEDSOLVER_H_
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
@@ -18,45 +15,38 @@
 #include <omp.h>
 #include <stdlib.h>
 #include <mm_malloc.h>
-#include "Solver.h"
+#include <mkl.h>
+#include "CPUSolver.h"
 #endif
 
-#define track_flux(p,e) (track_flux[(e)*_num_polar + (p)])
-#define track_out_flux(p,e) (track_out_flux[(e)*_num_polar + (p)])
-#define track_leakage(p,e) (track_leakage[(e)*_num_polar + (p)])
+#define VEC_LENGTH 8
 
 
 /**
- * @class CPUSolver CPUSolver.h "openmoc/src/host/CPUSolver.h"
- * @brief
+ * @class VectorizedSolver VectorizedSolver.h "openmoc/src/host/VectorizedSolver.h"
+ * @brief This is a subclass of the CPUSolver class which uses memory-aligned
+ *        data structures and Intel's auto-vectorization.
  */
-class CPUSolver : public Solver {
+class VectorizedSolver : public CPUSolver {
 
 private:
 
-    /** OpenMP locks for atomic scalar flux updates */
-    omp_lock_t* _FSR_locks;
+    /** The vector length for vector aligned data arrays */
+    int _vector_length;
 
-    /** The number of shared memory OpenMP threads */
-    int _num_threads;
+    /** The vector alignment (power of 2) for aligned data arrays */
+    int _vector_alignment;
 
     /** Number of energy groups divided by vector widths (VEC_LENGTH) */
-    int _num_groups_vec;
+    int _num_vector_lengths;
 
     void initializeFluxArrays();
     void initializeSourceArrays();
-    void initializePowerArrays();
-    void initializePolarQuadrature();
-    void precomputePrefactors();
-    void initializeFSRs();
 
-    void zeroTrackFluxes();
-    void zeroTrackLeakages();
-    void flattenFSRFluxes(FP_PRECISION value);
-    void flattenFSRSources(FP_PRECISION value);
     void normalizeFluxes();
     FP_PRECISION computeFSRSources();
-    void scalarFluxTally(segment* curr_segment, FP_PRECISION* track_flux,
+    void scalarFluxTally(segment* curr_segment, 
+			 FP_PRECISION* track_flux,
 			 FP_PRECISION* fsr_flux);
     void transferBoundaryFlux(int track_id, bool direction,
 			      FP_PRECISION* track_flux);
@@ -65,20 +55,16 @@ private:
     void transportSweep();
 
 public:
-    CPUSolver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
-    virtual ~CPUSolver();
+    VectorizedSolver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
+    virtual ~VectorizedSolver();
  
-    int getNumThreads();
-    int getNumGroupVectorWidths();
-    FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
-    FP_PRECISION* getFSRScalarFluxes();
-    FP_PRECISION* getFSRPowers();
-    FP_PRECISION* getFSRPinPowers();
+    int getVectorLength();
+    int getVectorAlignment();
+    int getNumVectorWidths();
 
-    void setNumThreads(int num_threads);
     void setGeometry(Geometry* geometry);
-    void computePinPowers();
+    //    void computePinPowers();
 };
 
 
-#endif /* CPUSOLVER_H_ */
+#endif /* VECTORIZEDSOLVER_H_ */
