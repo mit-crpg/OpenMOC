@@ -46,6 +46,7 @@ sources['c++'] = ['openmoc/openmoc.i',
                   'src/Solver.cpp',
                   'src/CPUSolver.cpp',
                   'src/ThreadPrivateSolver.cpp',
+                  'src/VectorizedSolver.cpp',
                   'src/Surface.cpp',
                   'src/Timer.cpp',
                   'src/Track.cpp',
@@ -131,8 +132,12 @@ linker_flags = {}
 
 linker_flags['gcc'] = ['-lstdc++', 
                        '-lgomp', 
-                       '-fopenmp', 
+                       '-fopenmp',
                        '-shared', 
+                       '-lmkl_rt',
+                       '-ldl',
+                       '-lpthread',
+                       '-lm',
                        '-Wl,-soname,_openmoc.so']
 
 linker_flags['icpc'] = ['-lstdc++', 
@@ -143,8 +148,11 @@ linker_flags['icpc'] = ['-lstdc++',
                         '-limf', 
                         '-lrt', 
                         '-shared',
+                        '-lmkl_rt',
+                        '-lm',
                         '-Xlinker',
                         '-soname=_openmoc.so']
+
 
 linker_flags['mic'] = ['-lstdc++', 
                        '-openmp', 
@@ -184,7 +192,7 @@ shared_libraries['mic'] = []
 
 library_directories = {}
 
-library_directories['gcc'] = []
+library_directories['gcc'] = [path_to_icpc + 'mkl/lib/intel64']
 library_directories['icpc'] = [path_to_icpc + 'compiler/lib/intel64']
 library_directories['nvcc'] = [path_to_nvcc + 'lib64']
 library_directories['mic'] = [path_to_icpc + 'compiler/lib/intel64']
@@ -224,17 +232,20 @@ macros['mic'] = {}
 
 macros['gcc']['single']= [('FP_PRECISION', 'float'), 
                           ('SINGLE', None),
-                          ('GNU', None)]
+                          ('GNU', None),
+                          ('MKL_ILP64', None)]
 macros['icpc']['single']= [('FP_PRECISION', 'float'), 
                            ('SINGLE', None),
-                           ('INTEL', None)]
-
+                           ('INTEL', None),
+                           ('MKL_ILP64', None)]
 macros['gcc']['double'] = [('FP_PRECISION', 'double'), 
                            ('DOUBLE', None),
-                           ('GNU', None)]
+                           ('GNU', None),
+                           ('MKL_ILP64', None)]
 macros['icpc']['double'] = [('FP_PRECISION', 'double'), 
                             ('DOUBLE', None),
-                            ('INTEL', None)]
+                            ('INTEL', None),
+                            ('MKL_ILP64', None)]
 
 macros['nvcc']['single'] = [('FP_PRECISION', 'float'), 
                             ('SINGLE', None),

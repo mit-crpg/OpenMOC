@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <mm_malloc.h>
 #include "log.h"
 #endif
 
@@ -34,28 +35,51 @@ int material_id();
 class Material {
 
 private:
+
     /** A static counter for the number of materials in a simulation */
     static int _n;
+
     /** A monotonically increasing unique ID for each material created */
     int _uid;
+
     /** A user-defined ID for each material created */
     short int _id;
+
     /** The number of energy groups */
-    int _num_energy_groups;
+    int _num_groups;
+
     /** An array of the total cross-sections for each energy group */
     double* _sigma_t;
+
     /** An array of the absorption cross-sections for each energy group */
     double* _sigma_a;
+
     /** A 2D array of the scattering cross-section matrix. The first index is 
      *  row number and second index is column number */
     double* _sigma_s; 
+
     /** An array of the fission cross-sections for each energy group */
     double* _sigma_f;
+
     /** An array of the fission cross-sections multiplied by nu \f$ \nu \f$ 
      *  for each energy group */
     double* _nu_sigma_f;
+
     /** An array of the chi \f$ \chi \f$ values for each energy group */
     double* _chi;
+
+    /** A boolean to indicate whether or not the data has been 
+     * allocated to be vector aligned for SIMD instructions */
+    bool _data_aligned;
+
+    /** The vector length for vector aligned data arrays */
+    int _vector_length;
+
+    /** The vector alignment (power of 2) for aligned data arrays */
+    int _vector_alignment;
+
+    /** The number of vector widths needed to fit all energy groups */
+    int _num_vector_groups;
 
 public:
     Material(short int id);
@@ -70,18 +94,24 @@ public:
     double* getSigmaF();
     double* getNuSigmaF();
     double* getChi();
+    bool isDataAligned();
+    int getVectorLength();
+    int getVectorAlignment();
+    int getNumVectorGroups();
 
-    void setNumEnergyGroups(const int num_energy_groups);    
-    void setSigmaT(double* sigma_t, int num_energy_groups);
-    void setSigmaA(double* sigma_a, int num_energy_groups);
-    void setSigmaS(double* sigma_s, int num_energy_groups);
-    void setSigmaF(double* sigma_f, int num_energy_groups);
-    void setNuSigmaF(double* nu_sigma_f, int num_energy_groups);
-    void setChi(double* chi, int num_energy_groups);
+    void setNumEnergyGroups(const int num_groups);    
+    void setSigmaT(double* sigma_t, int num_groups);
+    void setSigmaA(double* sigma_a, int num_groups);
+    void setSigmaS(double* sigma_s, int num_groups);
+    void setSigmaF(double* sigma_f, int num_groups);
+    void setNuSigmaF(double* nu_sigma_f, int num_groups);
+    void setChi(double* chi, int num_groups);
 
     void checkSigmaT();
     std::string toString();
     void printString();
+
+    void alignData(int vector_length=8, int vector_alignment=16);
 };
 
 
