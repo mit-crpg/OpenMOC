@@ -34,6 +34,9 @@ CPUSolver::~CPUSolver() {
 
     if (_thread_fsr_flux != NULL)
         delete [] _thread_fsr_flux;
+
+    if (_exponentials != NULL)
+        delete [] _exponentials;
 }
 
 
@@ -761,7 +764,7 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
 
-    FP_PRECISION* exponentials = new FP_PRECISION[_num_groups*_num_polar];
+    FP_PRECISION* exponentials = &_exponentials[omp_get_thread_num() * _polar_times_groups];
     computeExponentials(curr_segment, exponentials);
 
     /* Set the flat source region flux buffer to zero */
@@ -772,8 +775,7 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 
 	/* Loop over polar angles */
 	for (int p=0; p < _num_polar; p++){
-            psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * 
-	            exponentials[e*_num_polar+p];
+	    psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponentials(p,e);
 	    fsr_flux[e] += psibar * _polar_weights[p];
 	    track_flux(p,e) -= psibar;
 	}
@@ -786,8 +788,6 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 	    _scalar_flux(fsr_id,e) += fsr_flux[e];
     }
     omp_unset_lock(&_FSR_locks[fsr_id]);
-
-    delete [] exponentials;
 
     return;
 }
@@ -809,7 +809,7 @@ void CPUSolver::computeExponentials(segment* curr_segment,
 	    index = prefactorindex(sigma_t_l);
 
 	    for (int p=0; p < _num_polar; p++)
-	        exponentials[e*_num_polar+p] = prefactor(index,p,sigma_t_l);
+	        exponentials(p,e) = prefactor(index,p,sigma_t_l);
         }
     }
     else {
@@ -819,8 +819,7 @@ void CPUSolver::computeExponentials(segment* curr_segment,
 	for (int e=0; e < _num_groups; e++) {
 
             for (int p=0; p < _num_polar; p++)
-	        exponentials[e*_num_polar+p] = 
-		  1.0 - exp(-sigma_t[e] * length / sinthetas[p]);
+	        exponentials(p,e) = 1.0 - exp(-sigma_t[e] * length / sinthetas[p]);
         }
     }
 
