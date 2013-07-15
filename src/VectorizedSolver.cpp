@@ -648,10 +648,29 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
 
         FP_PRECISION* sinthetas = _quad->getSinThetas();
 
+	FP_PRECISION* taus = new FP_PRECISION[_polar_times_groups];
+
 	for (int p=0; p < _num_polar; p++) {
-            for (int e=0; e < _num_groups; e++) 
-	        exponentials(p,e) = 1.0 - exp(-sigma_t[e] * length / sinthetas[p]);
+
+	    for (int v=0; v < _num_vector_lengths; v++) {
+	        
+	      //                #pragma simd vectorlength(VEC_LENGTH)
+	        for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) 
+		    taus[p*_num_groups+e] = -sigma_t[e] * length / sinthetas[p];
+	    }
+	}
+
+	for (int p=0; p < _num_polar; p++) {
+
+	    for (int v=0; v < _num_vector_lengths; v++) {
+	        
+                #pragma simd vectorlength(VEC_LENGTH)
+	        for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
+	            exponentials(p,e) = 1.0 - exp(taus[p*_num_groups+e]);
+	    }
         }
+
+	delete [] taus;
     }
 
 }

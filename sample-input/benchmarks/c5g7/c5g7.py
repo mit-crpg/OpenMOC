@@ -399,6 +399,18 @@ Timer.stopTimer()
 Timer.recordSplit('Converging the source with vectorization')
 Timer.resetTimer()
 
+Timer.startTimer()
+
+solver.useExponentialIntrinsic()
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
+
+Timer.stopTimer()
+Timer.recordSplit('Converging the source with vectors and exp')
+Timer.resetTimer()
+
+
 
 ###############################################################################
 ############################   Generating Plots   #############################
