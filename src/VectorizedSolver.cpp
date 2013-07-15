@@ -15,6 +15,8 @@
 VectorizedSolver::VectorizedSolver(Geometry* geom, 
 				   TrackGenerator* track_generator) :
   CPUSolver(geom, track_generator) { 
+  
+    _thread_taus = NULL;
 
     /* Default values */
     _vector_length = 8;
@@ -67,6 +69,11 @@ VectorizedSolver::~VectorizedSolver() {
     if (_ratios != NULL) {
         _mm_free(_ratios);
 	_ratios = NULL;
+    }
+
+    if (_thread_taus != NULL) {
+        _mm_free(_thread_taus);
+        _thread_taus = NULL;
     }
 }
 
@@ -146,6 +153,9 @@ void VectorizedSolver::initializeFluxArrays() {
     if (_scalar_flux != NULL)
         _mm_free(_scalar_flux);
 
+    if (_thread_taus != NULL)
+        _mm_free(_thread_taus);
+
     int size;
 
     /* Allocate aligned memory for all flux arrays */
@@ -158,6 +168,9 @@ void VectorizedSolver::initializeFluxArrays() {
 
 	size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
 	_scalar_flux = (FP_PRECISION*)_mm_malloc(size, _vector_alignment);
+
+	size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
+	_thread_taus = (FP_PRECISION*)_mm_malloc(size, _vector_alignment);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "
@@ -575,7 +588,6 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
 
-
     /* Set the flat source region flux buffer to zero */
     memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
@@ -646,31 +658,41 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
     /* Evalute the exponentials using the intrinsic exp function */
     else {
 
+	int tid = omp_get_thread_num();
+
         FP_PRECISION* sinthetas = _quad->getSinThetas();
+	FP_PRECISION* taus = &_thread_taus[tid*_polar_times_groups];
 
-	FP_PRECISION* taus = new FP_PRECISION[_polar_times_groups];
-
-	for (int p=0; p < _num_polar; p++) {
-
-	    for (int v=0; v < _num_vector_lengths; v++) {
-	        
-	      //                #pragma simd vectorlength(VEC_LENGTH)
-	        for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) 
-		    taus[p*_num_groups+e] = -sigma_t[e] * length / sinthetas[p];
-	    }
-	}
-
+	/* Initialize the tau argument for the exponentials */
 	for (int p=0; p < _num_polar; p++) {
 
 	    for (int v=0; v < _num_vector_lengths; v++) {
 	        
                 #pragma simd vectorlength(VEC_LENGTH)
-	        for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-	            exponentials(p,e) = 1.0 - exp(taus[p*_num_groups+e]);
+	        for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) 
+		    taus(p,e) = -sigma_t[e] * length / sinthetas[p];
 	    }
-        }
+	}
 
-	delete [] taus;
+        /* Evaluate the negative of the exponentials using Intel's MKL */
+        #ifdef SINGLE
+	vsExp(_polar_times_groups, taus, exponentials);
+	cblas_sscal(_polar_times_groups, -1.0, exponentials, 1);
+	#else
+	vdExp(_polar_times_groups, taus, exponentials);
+        cblas_dscal(_polar_times_groups, -1.0, exponentials, 1);
+	#endif
+
+	/* Compute one minus the exponentials */
+	for (int p=0; p < _num_polar; p++) {
+
+	    for (int v=0; v < _num_vector_lengths; v++) {
+	        
+                #pragma simd vectorlength(VEC_LENGTH)
+	        for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) 
+		    exponentials(p,e) += 1.0;
+	    }
+	}
     }
 
 }
