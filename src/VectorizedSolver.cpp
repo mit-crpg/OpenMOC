@@ -567,7 +567,7 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
 
-    FP_PRECISION sigma_t_l;
+    FP_PRECISION tau;
     int index;
 
     int fsr_id = curr_segment->_region_id;
@@ -585,13 +585,13 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
         for (int v=1; v <= _num_vector_lengths; v++) {
 
 	    /* Loop over energy groups within this vector */
-            #pragma simd vectorlength(VEC_LENGTH) private(psibar, index, sigma_t_l)
+            #pragma simd vectorlength(VEC_LENGTH) private(psibar, index, tau)
 	    for (int e=0; e < v*VEC_LENGTH; e++) {
-	        sigma_t_l = sigma_t[e] * length;
-		index = prefactorindex(sigma_t_l);
+	        tau = sigma_t[e] * length;
+		index = prefactorindex(tau);
 	        psibar = (track_flux(p,e) - 
 			    _ratios(fsr_id,e)) * 
-		           prefactor(index,p,sigma_t_l);
+		           prefactor(index,p,tau);
 	        fsr_flux[e] += psibar * _polar_weights[p];
 		track_flux(p,e) -= psibar;
 	    }

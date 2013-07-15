@@ -291,8 +291,8 @@ __global__ void computeFissionAndAbsorption(FP_PRECISION* FSR_volumes,
  * @param sigm_t_l the cross-section multiplied by segment length
  * @return the hasthable index
  */ 
-__device__ int computePrefactorIndex(FP_PRECISION sigma_t_l) {
-    int index = sigma_t_l * *inverse_prefactor_spacing;
+__device__ int computePrefactorIndex(FP_PRECISION tau) {
+    int index = tau * *inverse_prefactor_spacing;
     index *= *two_times_num_polar;
     return index;
 }
@@ -346,7 +346,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
 				FP_PRECISION* scalar_flux) {
 
     FP_PRECISION fsr_flux;
-    FP_PRECISION sigma_t_l;
+    FP_PRECISION tau;
     int index;
 
     /* The average flux long this segment in this flat source region */
@@ -363,14 +363,14 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
     fsr_flux = 0.0;
     
     /* Compute the exponential prefactor hashtable index */
-    sigma_t_l = sigma_t[energy_group] * length;
-    index = computePrefactorIndex(sigma_t_l);
+    tau = sigma_t[energy_group] * length;
+    index = computePrefactorIndex(tau);
     
     /* Loop over polar angles */
     for (int p=0; p < *num_polar; p++) {
         psibar = (track_flux[p] - 
 		 ratios(fsr_id,energy_group)) * 
-	         prefactor(index,p,sigma_t_l);
+	         prefactor(index,p,tau);
 	fsr_flux += psibar * polar_weights[p];
 	track_flux[p] -= psibar;
     }
