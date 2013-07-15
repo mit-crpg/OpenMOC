@@ -771,11 +771,11 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
     /* Set the flat source region flux buffer to zero */
     memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
-    /* Loop over energy groups */
-    for (int e=0; e < _num_groups; e++) {
+    /* Loop over polar angles */
+    for (int p=0; p < _num_polar; p++){
 
-	/* Loop over polar angles */
-	for (int p=0; p < _num_polar; p++){
+        /* Loop over energy groups */
+        for (int e=0; e < _num_groups; e++) {
 	    psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponentials(p,e);
 	    fsr_flux[e] += psibar * _polar_weights[p];
 	    track_flux(p,e) -= psibar;
@@ -800,26 +800,30 @@ void CPUSolver::computeExponentials(segment* curr_segment,
     FP_PRECISION length = curr_segment->_length;
     double* sigma_t = curr_segment->_material->getSigmaT();
 
+    /* Evaluate the exponentials using the lookup table - linear interpolation */
     if (_interpolate_exponent) {
         FP_PRECISION tau;
         int index;
 
-        for (int e=0; e < _num_groups; e++) {
+	for (int p=0; p < _num_polar; p++) {
 
-            tau = sigma_t[e] * length;
-	    index = prefactorindex(tau);
-
-	    for (int p=0; p < _num_polar; p++)
-	        exponentials(p,e) = prefactor(index,p,tau);
+	    for (int e=0; e < _num_groups; e++) {
+                tau = sigma_t[e] * length;
+	        index = int(tau * _inverse_prefactor_spacing) * _two_times_num_polar;
+		exponentials(p,e) = (1. - 
+	                  (_prefactor_array[index+2 * p] * tau + 
+	                   _prefactor_array[index + 2 * p +1]));
+            }
         }
     }
+
+    /* Evalute the exponentials using the intrinsic exp function */
     else {
 
         FP_PRECISION* sinthetas = _quad->getSinThetas();
 
-	for (int e=0; e < _num_groups; e++) {
-
-            for (int p=0; p < _num_polar; p++)
+	for (int p=0; p < _num_polar; p++) {
+            for (int e=0; e < _num_groups; e++) 
 	        exponentials(p,e) = 1.0 - exp(-sigma_t[e] * length / sinthetas[p]);
         }
     }
