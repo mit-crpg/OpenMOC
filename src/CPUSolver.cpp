@@ -17,6 +17,8 @@ CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
 
     _FSR_locks = NULL;
     _thread_fsr_flux = NULL;
+
+    _interpolate_exponent = true;
 }
 
 
@@ -137,6 +139,24 @@ void CPUSolver::setNumThreads(int num_threads) {
 
     /* Set the number of threads for OpenMP */
     omp_set_num_threads(_num_threads);
+}
+
+
+/**
+ * @brief Sets the solver to use linear interpolation to compute the exponential
+ *        in the transport equation
+ */
+void CPUSolver::useExponentialInterpolation() {
+    _interpolate_exponent = true;
+}
+
+
+/**
+ * @brief Sets the solver to use the exponential intrinsic function to 
+ *        compute the exponential in the transport equation
+ */
+void CPUSolver::useExponentialIntrinsic() {
+    _interpolate_exponent = false;
 }
 
 
@@ -743,18 +763,28 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
     FP_PRECISION length = curr_segment->_length;
     double* sigma_t = curr_segment->_material->getSigmaT();
 
+    FP_PRECISION* sintheta = _quad->getSinThetas();
+
+    FP_PRECISION* exponentials = new FP_PRECISION[_num_groups*_num_polar];
+    computeExponentials(curr_segment, exponentials);
+
     /* Loop over energy groups */
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _num_groups; e++)
         fsr_flux[e] = 0.;
-	sigma_t_l = sigma_t[e] * length;
-	index = prefactorindex(sigma_t_l);
+	//	sigma_t_l = sigma_t[e] * length;
+	//	index = prefactorindex(sigma_t_l);
+
+    for (int e=0; e < _num_groups; e++) {
+
 	/* Loop over polar angles */
 	for (int p=0; p < _num_polar; p++){
-	    delta = (track_flux(p,e) - 
-	    _ratios(fsr_id,e)) * 
-	      prefactor(index,p,sigma_t_l);
+      delta = (track_flux(p,e) - _ratios(fsr_id,e)) * exponentials[e*_num_polar+p];
+
+      //	    delta = (track_flux(p,e) - 
+      //	             _ratios(fsr_id,e)) * (1.0 - exp(-sigma_t[e] * length / _quad->getSinTheta(p)));
+	      //	             prefactor(index,p,sigma_t_l);
 	    fsr_flux[e] += delta * _polar_weights[p];
-	    track_flux(p,e) -= delta;	    
+	    track_flux(p,e) -= delta;
 	}
     }
 
@@ -767,6 +797,40 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
     omp_unset_lock(&_FSR_locks[fsr_id]);
 
     return;
+}
+
+
+void CPUSolver::computeExponentials(segment* curr_segment, 
+				    FP_PRECISION* exponentials) {
+
+    FP_PRECISION length = curr_segment->_length;
+    double* sigma_t = curr_segment->_material->getSigmaT();
+
+    if (_interpolate_exponent) {
+        FP_PRECISION sigma_t_l;
+        int index;
+
+        for (int e=0; e < _num_groups; e++) {
+
+            sigma_t_l = sigma_t[e] * length;
+	    index = prefactorindex(sigma_t_l);
+
+	    for (int p=0; p < _num_polar; p++)
+	        exponentials[e*_num_polar+p] = prefactor(index,p,sigma_t_l);
+        }
+    }
+    else {
+
+        FP_PRECISION* sinthetas = _quad->getSinThetas();
+
+	for (int e=0; e < _num_groups; e++) {
+
+            for (int p=0; p < _num_polar; p++)
+	        exponentials[e*_num_polar+p] = 
+		  1.0 - exp(-sigma_t[e] * length / sinthetas[p]);
+        }
+    }
+
 }
 
 

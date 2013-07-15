@@ -63,7 +63,6 @@ public:
     int getNumVectorWidths();
 
     void setGeometry(Geometry* geometry);
-    //    void computePinPowers();
 };
 
 
