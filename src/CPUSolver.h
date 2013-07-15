@@ -28,6 +28,8 @@
 
 #define track_leakage(p,e) (track_leakage[(e)*_num_polar + (p)])
 
+#define exponentials(p,e) (exponentials[(e)*_num_polar + (p)])
+
 
 /**
  * @class CPUSolver CPUSolver.h "openmoc/src/host/CPUSolver.h"
