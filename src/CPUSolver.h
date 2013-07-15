@@ -51,6 +51,8 @@ protected:
      *  to comptue the exponential in the transport equation */
     bool _interpolate_exponent;
 
+    FP_PRECISION* _exponentials;
+
     void initializeFluxArrays();
     void initializeSourceArrays();
     void initializePowerArrays();

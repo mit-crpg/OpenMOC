@@ -159,8 +159,10 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
 	                           FP_PRECISION* track_flux,
 	                           FP_PRECISION* fsr_flux){
 
-    FP_PRECISION delta;
     int fsr_id = curr_segment->_region_id;
+
+    /* The average flux along this segment in the flat source region */
+    FP_PRECISION psibar;
 
     FP_PRECISION* exponentials = new FP_PRECISION[_num_groups*_num_polar];
     computeExponentials(curr_segment, exponentials);
@@ -170,10 +172,10 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
 
 	/* Loop over polar angles */
 	for (int p=0; p < _num_polar; p++){
-            delta = (track_flux(p,e) - _ratios(fsr_id,e)) * 
+            psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * 
 	            exponentials[e*_num_polar+p];
-	    fsr_flux[e] += delta * _polar_weights[p];
-	    track_flux(p,e) -= delta;
+	    fsr_flux[e] += psibar * _polar_weights[p];
+	    track_flux(p,e) -= psibar;
 	}
     }
 

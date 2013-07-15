@@ -346,9 +346,12 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
 				FP_PRECISION* scalar_flux) {
 
     FP_PRECISION fsr_flux;
-    FP_PRECISION delta;
     FP_PRECISION sigma_t_l;
     int index;
+
+    /* The average flux long this segment in this flat source region */
+    FP_PRECISION psibar;
+
 
     int fsr_id = curr_segment->_region_uid;
     FP_PRECISION length = curr_segment->_length;
@@ -365,11 +368,11 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
     
     /* Loop over polar angles */
     for (int p=0; p < *num_polar; p++) {
-        delta = (track_flux[p] - 
+        psibar = (track_flux[p] - 
 		 ratios(fsr_id,energy_group)) * 
 	         prefactor(index,p,sigma_t_l);
-	fsr_flux += delta * polar_weights[p];
-	track_flux[p] -= delta;
+	fsr_flux += psibar * polar_weights[p];
+	track_flux[p] -= psibar;
     }
 
     /* Atomically increment the scalar flux for this flat source region */
