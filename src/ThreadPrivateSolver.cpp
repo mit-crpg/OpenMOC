@@ -160,27 +160,24 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
 	                           FP_PRECISION* fsr_flux){
 
     FP_PRECISION delta;
-    FP_PRECISION sigma_t_l;
-    int index;
-
     int fsr_id = curr_segment->_region_id;
-    FP_PRECISION length = curr_segment->_length;
-    double* sigma_t = curr_segment->_material->getSigmaT();
+
+    FP_PRECISION* exponentials = new FP_PRECISION[_num_groups*_num_polar];
+    computeExponentials(curr_segment, exponentials);
 
     /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
-	sigma_t_l = sigma_t[e] * length;
-	index = prefactorindex(sigma_t_l);
 
 	/* Loop over polar angles */
 	for (int p=0; p < _num_polar; p++){
-	    delta = (track_flux(p,e) - 
-	    _ratios(fsr_id,e)) * 
-	      prefactor(index,p,sigma_t_l);
+            delta = (track_flux(p,e) - _ratios(fsr_id,e)) * 
+	            exponentials[e*_num_polar+p];
 	    fsr_flux[e] += delta * _polar_weights[p];
 	    track_flux(p,e) -= delta;
 	}
     }
+
+    delete [] exponentials;
 
     return;
 }

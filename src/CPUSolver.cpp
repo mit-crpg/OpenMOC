@@ -756,33 +756,21 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 	                        FP_PRECISION* fsr_flux){
 
     FP_PRECISION delta;
-    FP_PRECISION sigma_t_l;
-    int index;
-
     int fsr_id = curr_segment->_region_id;
-    FP_PRECISION length = curr_segment->_length;
-    double* sigma_t = curr_segment->_material->getSigmaT();
-
-    FP_PRECISION* sintheta = _quad->getSinThetas();
 
     FP_PRECISION* exponentials = new FP_PRECISION[_num_groups*_num_polar];
     computeExponentials(curr_segment, exponentials);
 
-    /* Loop over energy groups */
-    for (int e=0; e < _num_groups; e++)
-        fsr_flux[e] = 0.;
-	//	sigma_t_l = sigma_t[e] * length;
-	//	index = prefactorindex(sigma_t_l);
+    /* Set the flat source region flux buffer to zero */
+    memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
+    /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
 
 	/* Loop over polar angles */
 	for (int p=0; p < _num_polar; p++){
-      delta = (track_flux(p,e) - _ratios(fsr_id,e)) * exponentials[e*_num_polar+p];
-
-      //	    delta = (track_flux(p,e) - 
-      //	             _ratios(fsr_id,e)) * (1.0 - exp(-sigma_t[e] * length / _quad->getSinTheta(p)));
-	      //	             prefactor(index,p,sigma_t_l);
+            delta = (track_flux(p,e) - _ratios(fsr_id,e)) * 
+	            exponentials[e*_num_polar+p];
 	    fsr_flux[e] += delta * _polar_weights[p];
 	    track_flux(p,e) -= delta;
 	}
@@ -795,6 +783,8 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 	    _scalar_flux(fsr_id,e) += fsr_flux[e];
     }
     omp_unset_lock(&_FSR_locks[fsr_id]);
+
+    delete [] exponentials;
 
     return;
 }
