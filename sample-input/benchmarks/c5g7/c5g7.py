@@ -9,11 +9,11 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 1
+num_threads = 2
 track_spacing = 0.1
 num_azim = 4
 tolerance = 1E-5
-max_iters = 100
+max_iters = 3
 gridsize = 500
 
 log.setLogLevel('NORMAL')
@@ -373,6 +373,19 @@ solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Converging the source with exp intrinsic')
 Timer.resetTimer()
+
+
+Timer.startTimer()
+
+solver = ThreadPrivateSolver(geometry, track_generator)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
+
+Timer.stopTimer()
+Timer.recordSplit('Converging the source with thread privatization')
+Timer.resetTimer()
+
 
 
 Timer.startTimer()
