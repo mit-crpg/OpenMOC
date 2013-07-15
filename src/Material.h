@@ -72,12 +72,6 @@ private:
      * allocated to be vector aligned for SIMD instructions */
     bool _data_aligned;
 
-    /** The vector length for vector aligned data arrays */
-    int _vector_length;
-
-    /** The vector alignment (power of 2) for aligned data arrays */
-    int _vector_alignment;
-
     /** The number of vector widths needed to fit all energy groups */
     int _num_vector_groups;
 
@@ -95,8 +89,6 @@ public:
     double* getNuSigmaF();
     double* getChi();
     bool isDataAligned();
-    int getVectorLength();
-    int getVectorAlignment();
     int getNumVectorGroups();
 
     void setNumEnergyGroups(const int num_groups);    
@@ -111,7 +103,7 @@ public:
     std::string toString();
     void printString();
 
-    void alignData(int vector_length=8, int vector_alignment=16);
+    void alignData();
 };
 
 

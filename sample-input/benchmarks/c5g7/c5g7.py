@@ -1,5 +1,4 @@
-from openmoc import *
-import openmoc.intel.single as intel
+from openmoc.intel.double import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -390,7 +389,7 @@ Timer.resetTimer()
 
 Timer.startTimer()
 
-solver = intel.VectorizedSolver(geometry, track_generator)
+solver = VectorizedSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)

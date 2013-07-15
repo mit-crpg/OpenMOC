@@ -8,10 +8,11 @@ package_name = 'openmoc'
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
 cpp_compilers = ['icpc']
 
+# Only supports GCC as the default compiler right now
 default_cc = 'gcc'
 
 # Supported floating point precision levels: 'single', 'double', 'all'
-fp_precision = ['single']
+fp_precision = ['double']
 
 default_fp = 'single'
 
@@ -27,6 +28,14 @@ with_cuda = False
 # Compile module for the Intel Xeon Phi (MIC)
 with_mic = False
 
+# The vector length used for the VectorizedSolver class. This will used
+# SIMD vector instructions. The number of energy groups will be fit to
+# a multiple of this value
+vector_length = 4
+
+# The vector alignment used in the VectorizedSolver class when allocating
+# aligned data structures 
+vector_alignment = 16
 
 
 ###############################################################################
@@ -35,7 +44,24 @@ with_mic = False
 
 sources = {}
 
-sources['c++'] = ['openmoc/openmoc.i',
+sources['gcc'] = ['openmoc/openmoc.i',
+                  'src/Cell.cpp',
+                  'src/Geometry.cpp',
+                  'src/LocalCoords.cpp',
+                  'src/log.cpp',
+                  'src/Material.cpp',
+                  'src/Point.cpp',
+                  'src/Quadrature.cpp',
+                  'src/Solver.cpp',
+                  'src/CPUSolver.cpp',
+                  'src/ThreadPrivateSolver.cpp',
+                  'src/Surface.cpp',
+                  'src/Timer.cpp',
+                  'src/Track.cpp',
+                  'src/TrackGenerator.cpp',
+                  'src/Universe.cpp']
+
+sources['icpc'] = ['openmoc/openmoc.i',
                   'src/Cell.cpp',
                   'src/Geometry.cpp',
                   'src/LocalCoords.cpp',
@@ -53,7 +79,7 @@ sources['c++'] = ['openmoc/openmoc.i',
                   'src/TrackGenerator.cpp',
                   'src/Universe.cpp']
 
-sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
+sources['nvcc'] = ['openmoc/cuda/openmoc_cuda.i',
                    'src/dev/gpu/clone.cu',
                    'src/dev/gpu/GPUQuery.cu',
                    'src/dev/gpu/GPUSolver.cu']
@@ -233,19 +259,26 @@ macros['mic'] = {}
 macros['gcc']['single']= [('FP_PRECISION', 'float'), 
                           ('SINGLE', None),
                           ('GNU', None),
-                          ('MKL_ILP64', None)]
+                          ('VEC_LENGTH', vector_length),
+                          ('VEC_ALIGNMENT', vector_alignment)]
 macros['icpc']['single']= [('FP_PRECISION', 'float'), 
                            ('SINGLE', None),
                            ('INTEL', None),
-                           ('MKL_ILP64', None)]
+                           ('MKL_ILP64', None),
+                           ('VEC_LENGTH', vector_length),
+                           ('VEC_ALIGNMENT', vector_alignment)]
+
 macros['gcc']['double'] = [('FP_PRECISION', 'double'), 
                            ('DOUBLE', None),
                            ('GNU', None),
-                           ('MKL_ILP64', None)]
+                           ('VEC_LENGTH', vector_length),
+                           ('VEC_ALIGNMENT', vector_alignment)]
 macros['icpc']['double'] = [('FP_PRECISION', 'double'), 
                             ('DOUBLE', None),
                             ('INTEL', None),
-                            ('MKL_ILP64', None)]
+                            ('MKL_ILP64', None),
+                            ('VEC_LENGTH', vector_length),
+                            ('VEC_ALIGNMENT', vector_alignment)]
 
 macros['nvcc']['single'] = [('FP_PRECISION', 'float'), 
                             ('SINGLE', None),

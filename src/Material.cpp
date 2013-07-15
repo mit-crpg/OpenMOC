@@ -40,8 +40,6 @@ Material::Material(short int id) {
     _chi = NULL;
 
     _data_aligned = false;
-    _vector_alignment = 0;
-    _vector_length = 0;
 
     return;
 }
@@ -208,26 +206,6 @@ double* Material::getChi() {
  */
 bool Material::isDataAligned() {
     return _data_aligned;
-}
-
-
-/**
- * @brief Returns the vector length (factor of 2), or 0 if the data is not
- *        vector aligned.
- * @return The vector length 
- */
-int Material::getVectorLength() {
-    return _vector_length;
-}
-
-
-/**
- * @brief Returns the vector alignment (power of 2), or 0 if the data is
- *        not vector aligned.
- * @return The vector alignment
- */
-int Material::getVectorAlignment() {
-    return _vector_alignment;
 }
 
 
@@ -493,56 +471,45 @@ void Material::printString() {
 
 
 /**
- * @brief
- * @param vector_length
- * @param vector_alignment
+ * @brief Aligns the cross-section data structures 
  */
-void Material::alignData(int vector_length, int vector_alignment) {
+void Material::alignData() {
+
+    if (_data_aligned)
+        return;
 
     if (_num_groups <= 0)
-      log_printf(ERROR, "Unable to align material %d data since the "
-		 "cross-sections have not yet been set\n", _uid);
+        log_printf(ERROR, "Unable to align material %d data since the "
+		   "cross-sections have not yet been set\n", _uid);
 
-    if (vector_alignment <= 0)
-      log_printf(ERROR, "Unable to align material %d data since the vector "
-		 "alignment requested is %d but it must be positive\n", 
-		 _uid, vector_alignment);
+    _num_vector_groups = (_num_groups / VEC_LENGTH) + 1;
 
-    if (vector_length <= 0)
-      log_printf(ERROR, "Unable to align material %d data since the vector "
-		 "length requested is %d but it must be positive\n", 
-		 _uid, vector_length);
-
-    _vector_length = vector_length;
-    _vector_alignment = vector_alignment;
-    _num_vector_groups = (_vector_length + 1) / _num_groups;
-    
     /* Allocate memory for the new aligned xs data */
-    int size = _num_vector_groups * _vector_length * sizeof(double);
+    int size = _num_vector_groups * VEC_LENGTH * sizeof(double);
 
-    double* new_sigma_t = (double*)_mm_malloc(size, _vector_alignment);
-    double* new_sigma_a = (double*)_mm_malloc(size, _vector_alignment);
-    double* new_sigma_f = (double*)_mm_malloc(size, _vector_alignment);
-    double* new_nu_sigma_f = (double*)_mm_malloc(size, _vector_alignment);
-    double* new_chi = (double*)_mm_malloc(size, _vector_alignment);
+    double* new_sigma_t = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    double* new_sigma_a = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    double* new_sigma_f = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    double* new_nu_sigma_f = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    double* new_chi = (double*)_mm_malloc(size, VEC_ALIGNMENT);
 	
     /* The scattering matrix will be the number of vector groups 
      * wide (SIMD) and the actual number of groups long since 
      * instructions are not SIMD in this dimension */
-    size *= _num_vector_groups * _vector_length;
-    double* new_sigma_s = (double*)_mm_malloc(size, _vector_alignment);
+    size *= _num_vector_groups * VEC_LENGTH;
+    double* new_sigma_s = (double*)_mm_malloc(size, VEC_ALIGNMENT);
     
     /* Initialize data structures to ones for sigma_t since it is used to
      * divide the source in the solver, and zeroes for everything else */
-    size = _num_vector_groups * _vector_length * sizeof(double);
-    for (int i=0; i < _num_vector_groups * _vector_length; i++) {
+    size = _num_vector_groups * VEC_LENGTH * sizeof(double);
+    for (int i=0; i < _num_vector_groups * VEC_LENGTH; i++) {
         new_sigma_t[i] = 1.0;
 	new_sigma_a[i] = 0.0;
 	new_sigma_f[i] = 0.0;
 	new_nu_sigma_f[i] = 0.0;
     }
     
-    size *= _num_vector_groups * _vector_length;
+    size *= _num_vector_groups * VEC_LENGTH;
     memset(new_sigma_s, 0.0, size);
     
     /* Copy materials data from unaligned arrays into new aligned arrays */
@@ -555,14 +522,14 @@ void Material::alignData(int vector_length, int vector_alignment) {
 
     for (int e=0; e < _num_groups; e++) {
         memcpy(new_sigma_s, _sigma_s, size);
-	new_sigma_s += _num_vector_groups * _vector_length;
+	new_sigma_s += _num_vector_groups * VEC_LENGTH;
 	_sigma_s += _num_groups;
     }
 
     _sigma_s -= _num_groups * _num_groups;
     
     /* Reset the new scattering cross section array pointer */
-    new_sigma_s -= _num_vector_groups * _vector_length * _num_groups;
+    new_sigma_s -= _num_vector_groups * VEC_LENGTH * _num_groups;
 
     /* Delete the old unaligned arrays */
     delete [] _sigma_t;

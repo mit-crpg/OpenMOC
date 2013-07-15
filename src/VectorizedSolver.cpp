@@ -18,10 +18,6 @@ VectorizedSolver::VectorizedSolver(Geometry* geom,
   
     _thread_taus = NULL;
 
-    /* Default values */
-    _vector_length = 8;
-    _vector_alignment = 16;
-
     if (geom != NULL)
         setGeometry(geom);
 
@@ -79,26 +75,6 @@ VectorizedSolver::~VectorizedSolver() {
 
 
 /**
- * @brief Returns the vector length (factor of 2), or 0 if the data is not
- *        vector aligned.
- * @return The vector length 
- */
-int VectorizedSolver::getVectorLength() {
-    return _vector_length;
-}
-
-
-/**
- * @brief Returns the vector alignment (power of 2), or 0 if the data is
- *        not vector aligned.
- * @return The vector alignment
- */
-int VectorizedSolver::getVectorAlignment() {
-    return _vector_alignment;
-}
-
-
-/**
  * @brief Returns the number of vector lengths required to fit the number
  *        of energy groups.
  * @return The number of vector widths
@@ -117,11 +93,11 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
     CPUSolver::setGeometry(geometry);
 
     /* Compute the number of SIMD vector widths needed to fit energy groups */
-    _num_vector_lengths = (_num_groups + 1) / _vector_length;
+    _num_vector_lengths = (_num_groups / VEC_LENGTH) + 1;
 
     /* Reset the number of energy groups by rounding up for the number
      * of vector widths needed to accomodate the energy groups */
-    _num_groups = _num_vector_lengths * _vector_length;
+    _num_groups = _num_vector_lengths * VEC_LENGTH;
 
     _polar_times_groups = _num_groups * _num_polar;
 
@@ -131,7 +107,7 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
     /* Iterate over each material and replace it's xs with a new one 
      * array that is a multiple of VEC_LENGTH long */
     for (iter=materials.begin(); iter != materials.end(); ++iter)
-        (*iter).second->alignData(_vector_length, _vector_alignment);
+        (*iter).second->alignData();
 }
 
 
@@ -163,14 +139,14 @@ void VectorizedSolver::initializeFluxArrays() {
 
         size = 2 * _tot_num_tracks * _num_groups * _num_polar;
 	size *= sizeof(FP_PRECISION);
-	_boundary_flux = (FP_PRECISION*)_mm_malloc(size, _vector_alignment);
-	_boundary_leakage = (FP_PRECISION*)_mm_malloc(size, _vector_alignment);
+	_boundary_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_boundary_leakage = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 
 	size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-	_scalar_flux = (FP_PRECISION*)_mm_malloc(size, _vector_alignment);
+	_scalar_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 
 	size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
-	_thread_taus = (FP_PRECISION*)_mm_malloc(size, _vector_alignment);
+	_thread_taus = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "
@@ -204,10 +180,10 @@ void VectorizedSolver::initializeSourceArrays() {
     /* Allocate aligned memory for all source arrays */
     try{
         size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-	_fission_source = (FP_PRECISION*)_mm_malloc(size, _vector_alignment);
-	_source = (FP_PRECISION*)_mm_malloc(size, _vector_alignment);
-	_old_source = (FP_PRECISION*)_mm_malloc(size, _vector_alignment);
-	_ratios = (FP_PRECISION*)_mm_malloc(size, _vector_alignment);
+	_fission_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_old_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_ratios = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's flat "
@@ -486,7 +462,7 @@ void VectorizedSolver::computeKeff() {
     #ifdef SINGLE
     _leakage = cblas_sasum(size, _boundary_leakage, 1) * 0.5;
     #else
-    _leakage = cblas_sasum(size, _boundary_leakage, 1) * 0.5;
+    _leakage = cblas_dasum(size, _boundary_leakage, 1) * 0.5;
     #endif
 
     _k_eff = tot_fission / (tot_abs + _leakage);
@@ -534,8 +510,7 @@ void VectorizedSolver::transportSweep() {
 
 	    /* TODO: Allocate this up front */
 	    int size = _num_FSRs * sizeof(FP_PRECISION);
-	    FP_PRECISION* fsr_flux = (FP_PRECISION*)_mm_malloc(size,
-							     _vector_alignment);
+	    FP_PRECISION* fsr_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 	    /* Initialize local pointers to important data structures */	
 	    curr_track = _tracks[track_id];
 	    num_segments = curr_track->getNumSegments();
