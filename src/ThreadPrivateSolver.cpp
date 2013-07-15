@@ -159,12 +159,13 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
 	                           FP_PRECISION* track_flux,
 	                           FP_PRECISION* fsr_flux){
 
+    int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
 
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
 
-    FP_PRECISION* exponentials = new FP_PRECISION[_num_groups*_num_polar];
+    FP_PRECISION* exponentials = &_exponentials[tid * _polar_times_groups];
     computeExponentials(curr_segment, exponentials);
 
     /* Loop over energy groups */
@@ -172,14 +173,11 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
 
 	/* Loop over polar angles */
 	for (int p=0; p < _num_polar; p++){
-            psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * 
-	            exponentials[e*_num_polar+p];
+            psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponentials(p,e);
 	    fsr_flux[e] += psibar * _polar_weights[p];
 	    track_flux(p,e) -= psibar;
 	}
     }
-
-    delete [] exponentials;
 
     return;
 }

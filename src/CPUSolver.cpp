@@ -759,12 +759,13 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
    	                        FP_PRECISION* track_flux,
 	                        FP_PRECISION* fsr_flux){
 
+    int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
 
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
 
-    FP_PRECISION* exponentials = &_exponentials[omp_get_thread_num() * _polar_times_groups];
+    FP_PRECISION* exponentials = &_exponentials[tid * _polar_times_groups];
     computeExponentials(curr_segment, exponentials);
 
     /* Set the flat source region flux buffer to zero */
