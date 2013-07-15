@@ -21,6 +21,8 @@
 
 #define VEC_LENGTH 8
 
+#define taus(p,e) (taus[(p)*_num_groups + (e)])
+
 
 /**
  * @class VectorizedSolver VectorizedSolver.h "openmoc/src/host/VectorizedSolver.h"
@@ -39,6 +41,9 @@ private:
 
     /** Number of energy groups divided by vector widths (VEC_LENGTH) */
     int _num_vector_lengths;
+    
+    /** An array for the optical length for each thread in each energy group */
+    FP_PRECISION* _thread_taus;
 
     void initializeFluxArrays();
     void initializeSourceArrays();

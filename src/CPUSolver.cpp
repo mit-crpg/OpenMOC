@@ -17,6 +17,7 @@ CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
 
     _FSR_locks = NULL;
     _thread_fsr_flux = NULL;
+    _exponentials = NULL;
 
     _interpolate_exponent = true;
 }
@@ -869,9 +870,8 @@ void CPUSolver::transferBoundaryFlux(int track_id, bool direction,
     FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
 
     /* Loop over polar angles and energy groups */
-    for (int p=0; p < _num_polar; p++) {
-
-        for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _num_groups; e++) {
+        for (int p=0; p < _num_polar; p++) {
 	    track_out_flux(p,e) = track_flux(p,e) * bc;
 	    track_leakage(p,e) = track_flux(p,e) * 
 	      _polar_weights[p] * (!bc);
