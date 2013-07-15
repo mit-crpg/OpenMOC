@@ -226,11 +226,11 @@ void VectorizedSolver::normalizeFluxes() {
 	volume = _FSR_volumes[r];
 
 	/* Loop over energy group vector lengths */
-	for (int v=1; v <= _num_vector_lengths; v++) {
+	for (int v=0; v < _num_vector_lengths; v++) {
 
             /* Loop over each energy group within this vector */
             #pragma simd vectorlength(VEC_LENGTH)
-            for (int e=0; e < v*VEC_LENGTH; e++) {
+            for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
 	        _fission_source(r,e) = nu_sigma_f[e] * _scalar_flux(r,e);
 	        _fission_source(r,e) *= volume;
             }
@@ -311,10 +311,13 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
 	sigma_s = material->getSigmaS();
         sigma_t = material->getSigmaT();
 
-	/* Compute fission source for each group */
-        #pragma simd vectorlength(VEC_LENGTH)
-	for (int e=0; e < _num_groups; e++)
-	    fission_sources[e] = _scalar_flux(r,e) * nu_sigma_f[e];
+	for (int v=0; v < _num_vector_lengths; v++) {
+
+	    /* Compute fission source for each group */
+            #pragma simd vectorlength(VEC_LENGTH)
+            for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
+	        fission_sources[e] = _scalar_flux(r,e) * nu_sigma_f[e];
+        }
 
         #ifdef SINGLE
 	fission_source = cblas_sasum(_num_groups, fission_sources, 1);
@@ -326,9 +329,12 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
         for (int G=0; G < _num_groups; G++) {
             scatter_source = 0;
 
-            #pragma simd vectorlength(VEC_LENGTH)
-	    for (int g=0; g < _num_groups; g++)
-                scatter_sources[g] = sigma_s[G*_num_groups+g]*_scalar_flux(r,g);
+	    for (int v=0; v < _num_vector_lengths; v++) {
+
+                #pragma simd vectorlength(VEC_LENGTH)
+                for (int g=v*VEC_LENGTH; g < (v+1)*VEC_LENGTH; g++)
+                    scatter_sources[g] = sigma_s[G*_num_groups+g]*_scalar_flux(r,g);
+            }
 
             #ifdef SINGLE
 	    scatter_source = cblas_sasum(_num_groups, scatter_sources, 1);
@@ -389,11 +395,11 @@ void VectorizedSolver::addSourceToScalarFlux() {
 	sigma_t = _FSR_materials[r]->getSigmaT();
 
 	/* Loop over each energy group vector length */
-	for (int v=1; v <= _num_vector_lengths; v++) {
+	for (int v=0; v < _num_vector_lengths; v++) {
 
 	    /* Loop over energy groups within this vector */
             #pragma simd vectorlength(VEC_LENGTH)
-	    for (int e=0; e < v*VEC_LENGTH; e++) {
+            for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
                 _scalar_flux(r,e) *= 0.5;
 		_scalar_flux(r,e) = FOUR_PI * _ratios(r,e) + 
 		  (_scalar_flux(r,e) / (sigma_t[e] * volume));
@@ -437,11 +443,11 @@ void VectorizedSolver::computeKeff() {
 	nu_sigma_f = material->getNuSigmaF();
 
 	/* Loop over each energy group vector length */
-	for (int v=1; v <= _num_vector_lengths; v++) {
+	for (int v=0; v < _num_vector_lengths; v++) {
 
 	    /* Loop over energy groups within this vector */
             #pragma simd vectorlength(VEC_LENGTH)
-	    for (int e=0; e < v*VEC_LENGTH; e++) {
+	    for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
 	        absorption_rates[r*_num_groups+e] = sigma_a[e] * _scalar_flux(r,e);
 		fission_rates[r*_num_groups+e] = nu_sigma_f[e] * _scalar_flux(r,e);
 		absorption_rates[r*_num_groups+e] *= volume;
@@ -582,11 +588,11 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
     for (int p=0; p < _num_polar; p++){
 
         /* Loop over each energy group vector length */
-        for (int v=1; v <= _num_vector_lengths; v++) {
+        for (int v=0; v < _num_vector_lengths; v++) {
 
 	    /* Loop over energy groups within this vector */
             #pragma simd vectorlength(VEC_LENGTH) private(psibar, index, tau)
-	    for (int e=0; e < v*VEC_LENGTH; e++) {
+            for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
 	        tau = sigma_t[e] * length;
 		index = prefactorindex(tau);
 	        psibar = (track_flux(p,e) - 
@@ -612,6 +618,39 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
     omp_unset_lock(&_FSR_locks[fsr_id]);
 
     return;
+}
+
+
+void VectorizedSolver::computeExponentials(segment* curr_segment, 
+				     FP_PRECISION* exponentials) {
+
+    FP_PRECISION length = curr_segment->_length;
+    double* sigma_t = curr_segment->_material->getSigmaT();
+
+    if (_interpolate_exponent) {
+        FP_PRECISION tau;
+        int index;
+
+        for (int e=0; e < _num_groups; e++) {
+
+            tau = sigma_t[e] * length;
+	    index = prefactorindex(tau);
+
+	    for (int p=0; p < _num_polar; p++)
+	        exponentials(p,e) = prefactor(index,p,tau);
+        }
+    }
+    else {
+
+        FP_PRECISION* sinthetas = _quad->getSinThetas();
+
+	for (int e=0; e < _num_groups; e++) {
+
+            for (int p=0; p < _num_polar; p++)
+	        exponentials(p,e) = 1.0 - exp(-sigma_t[e] * length / sinthetas[p]);
+        }
+    }
+
 }
 
 
@@ -657,11 +696,11 @@ void VectorizedSolver::transferBoundaryFlux(int track_id,
     for (int p=0; p < _num_polar; p++) {
 
         /* Loop over each energy group vector length */
-        for (int v=1; v <= _num_vector_lengths; v++) {
+        for (int v=0; v < _num_vector_lengths; v++) {
 
 	    /* Loop over energy groups within this vector */
             #pragma simd vectorlength(VEC_LENGTH)
-            for (int e=0; e < v*VEC_LENGTH; e++) {
+	    for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
 	        track_out_flux(p,e) = track_flux(p,e) * bc;
 		track_leakage(p,e) = track_flux(p,e) * 
 		                     _polar_weights[p] * (!bc);
