@@ -569,19 +569,18 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
    	                               FP_PRECISION* track_flux,
 	                               FP_PRECISION* fsr_flux){
 
+    int tid = omp_get_thread_num();
+    int fsr_id = curr_segment->_region_id;
 
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
 
-    FP_PRECISION tau;
-    int index;
-
-    int fsr_id = curr_segment->_region_id;
-    FP_PRECISION length = curr_segment->_length;
-    double* sigma_t = curr_segment->_material->getSigmaT();
 
     /* Set the flat source region flux buffer to zero */
     memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
+
+    FP_PRECISION* exponentials = &_exponentials[tid * _polar_times_groups];
+    computeExponentials(curr_segment, exponentials);
 
     /* Tally the flux contribution from segment to FSR's scalar flux */
     /* Loop over polar angles */
@@ -591,13 +590,9 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
         for (int v=0; v < _num_vector_lengths; v++) {
 
 	    /* Loop over energy groups within this vector */
-            #pragma simd vectorlength(VEC_LENGTH) private(psibar, index, tau)
+            #pragma simd vectorlength(VEC_LENGTH) private(psibar)
             for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
-	        tau = sigma_t[e] * length;
-		index = prefactorindex(tau);
-	        psibar = (track_flux(p,e) - 
-			    _ratios(fsr_id,e)) * 
-		           prefactor(index,p,tau);
+	        psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponentials(p,e);
 	        fsr_flux[e] += psibar * _polar_weights[p];
 		track_flux(p,e) -= psibar;
 	    }
