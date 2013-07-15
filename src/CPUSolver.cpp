@@ -673,25 +673,11 @@ void CPUSolver::computeKeff() {
 void CPUSolver::transportSweep() {
 
     int tid;
+    int min_track, max_track;
     Track* curr_track;
     int num_segments;
     segment* curr_segment;    
     FP_PRECISION* track_flux;
-
-    /* Normalize angular boundary fluxes for each track */
-    #pragma omp parallel for
-    for (int i=0; i < _tot_num_tracks; i++) {
-        for (int j=0; j < 2; j++) {
-	    for (int p=0; p < _num_polar; p++) {
-	        for (int e=0; e < _num_groups; e++) {
-		    if (isnan(_boundary_flux(i,j,p,e)))
-		        printf("_boundary_flux = %f\n", _boundary_flux(i,j,p,e));
-		}
-	    }
-	}
-    }
-
-
 
     log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
@@ -703,13 +689,13 @@ void CPUSolver::transportSweep() {
 
         /* Compute the minimum and maximum track IDs corresponding to 
          * this azimuthal angular halfspace */
-        int min = i * (_tot_num_tracks / 2);
-	int max = (i + 1) * (_tot_num_tracks / 2);
+        min_track = i * (_tot_num_tracks / 2);
+	max_track = (i + 1) * (_tot_num_tracks / 2);
 	
 	/* Loop over each thread within this azimuthal angle halfspace */
 	#pragma omp parallel for private(curr_track, num_segments, \
 	  curr_segment, track_flux, tid )
-	for (int track_id=min; track_id < max; track_id++) {
+	for (int track_id=min_track; track_id < max_track; track_id++) {
 
 	    tid = omp_get_thread_num();
 
