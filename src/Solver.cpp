@@ -57,6 +57,8 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _num_iterations = 0;
     _source_convergence_thresh = 1E-3;
     _converged_source = false;
+
+    _timer = new Timer();
 }
 
 
@@ -346,6 +348,12 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 
     log_printf(NORMAL, "Converging the source...");
 
+    /* Clear all timing data from a previous simulation run */
+    clearTimerSplits();
+
+    /* Start the timer to record the total time to converge the source */
+    _timer->startTimer();
+
     /* Counter for the number of iterations to converge the source */
     _num_iterations = 0;
 
@@ -377,11 +385,31 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
         log_printf(NORMAL, "Iteration %d: \tk_eff = %1.6f"
 		 "\tres = %1.3E", i, _k_eff, residual);
 
+	_timer->startTimer();
 	normalizeFluxes();
+	_timer->stopTimer();
+	_timer->recordSplit("Normalizing the flux");
+
+	_timer->startTimer();
 	residual = computeFSRSources();
+	_timer->stopTimer();
+	_timer->recordSplit("Computing FSR sources");
+
+	_timer->startTimer();
 	transportSweep();	
+	_timer->stopTimer();
+	_timer->recordSplit("Transport sweep across the geometry");
+
+	_timer->startTimer();
 	addSourceToScalarFlux();
+	_timer->stopTimer();
+	_timer->recordSplit("Adding the source term to the flux");
+
+	_timer->startTimer();
 	computeKeff();
+	_timer->stopTimer();
+	_timer->recordSplit("Computing reaction rates and keff");
+
 	_num_iterations++;
 
 	/* Check for convergence of the fission source distribution */
@@ -389,8 +417,46 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 	    return _k_eff;
     }
 
+
+    _timer->stopTimer();
+    _timer->recordSplit("Total");
+
     log_printf(WARNING, "Unable to converge the source after %d iterations",
 	       max_iterations);
 
     return _k_eff;
+}
+
+
+/**
+ * @brief Deletes the Timer's timing entries for each timed code section
+ *        code in the source convergence loop
+ */
+void Solver::clearTimerSplits() {
+    _timer->clearSplit("Normalizing the flux");
+    _timer->clearSplit("Computing FSR sources");
+    _timer->clearSplit("Transport sweep across the geometry");
+    _timer->clearSplit("Adding the source term to the flux");
+    _timer->clearSplit("Computing reaction rates and keff");
+    _timer->clearSplit("Total");
+}
+
+
+/**
+ * @brief Prints the a report of the timing statistics to the console
+ */
+void Solver::printTimerReport() {
+    _timer->printSplits();
+
+    double tot_time = _timer->getSplit("Total");
+    double time_per_iter = tot_time / _num_iterations;
+
+    log_printf(RESULT, "Seconds / iteration: \t\t\t%f", time_per_iter);
+
+    int num_segments = _track_generator->getNumSegments();
+    
+    double time_per_segment = (time_per_iter / num_segments) * 1E9;
+    log_printf(RESULT, "Nanoseconds / track segment: %.0f", time_per_segment);
+
+    
 }

@@ -33,32 +33,45 @@ class TrackGenerator {
 private:
     /** Number of azimuthal angles in \f$ [0, \pi] \f$ */
     int _num_azim;
+
     /** The user-specified track spacing (cm) */
     double _spacing;
+
     /** An array of the number of tracks for each azimuthal angle */
     int* _num_tracks;
+
     /** The total number of tracks */
     int _tot_num_tracks;
+
     /** An array of the number of track segments per track */
     int* _num_segments;
+
     /** The total number of track segments */
     int _tot_num_segments;
+
     /** An array of the number of tracks starting on the x-axis for each
      *  azimuthal angle */
     int* _num_x;
+
     /** An array of the number of tracks starting on the y-axis for each
      *  azimuthal angle */
     int* _num_y;
+
     /** An array of the weights for each azimuthal angle */
     double* _azim_weights;
+
     /** A 2D ragged array of tracks */
     Track** _tracks;
+
     /** Pointer to the geometry */
     Geometry* _geometry;
+
     /** Boolean or whether to use track input file (true) or not (false) */
     bool _use_input_file;
+
     /** Filename for the *.tracks input / output file */
     std::string _tracks_filename;
+
     /** Boolean whether the tracks have been generated (true) or not (false) */
     bool _contains_tracks;
 

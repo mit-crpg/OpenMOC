@@ -8,7 +8,7 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 2
+num_threads = 1
 track_spacing = 0.1
 num_azim = 12
 tolerance = 1E-5
@@ -327,7 +327,6 @@ geometry.initializeFlatSourceRegions()
 
 Timer.stopTimer()
 Timer.recordSplit('Iniitilializing the geometry')
-Timer.resetTimer()
 
 
 ###############################################################################
@@ -343,7 +342,6 @@ track_generator.generateTracks()
 
 Timer.stopTimer()
 Timer.recordSplit('Ray tracing across the geometry')
-Timer.resetTimer()
 
 
 ###############################################################################
@@ -357,10 +355,10 @@ solver = CPUSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
+solver.printTimerReport()
 
 Timer.stopTimer()
 Timer.recordSplit('Converging the source without vectorization')
-Timer.resetTimer()
 
 Timer.startTimer()
 
@@ -368,10 +366,10 @@ solver.useExponentialIntrinsic()
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
+solver.printTimerReport()
 
 Timer.stopTimer()
 Timer.recordSplit('Converging the source with exp intrinsic')
-Timer.resetTimer()
 
 
 Timer.startTimer()
@@ -380,11 +378,10 @@ solver = ThreadPrivateSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
+solver.printTimerReport()
 
 Timer.stopTimer()
 Timer.recordSplit('Converging the source with thread privatization')
-Timer.resetTimer()
-
 
 
 Timer.startTimer()
@@ -393,10 +390,11 @@ solver = VectorizedSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
+solver.printTimerReport()
 
 Timer.stopTimer()
 Timer.recordSplit('Converging the source with vectorization')
-Timer.resetTimer()
+
 
 Timer.startTimer()
 
@@ -404,10 +402,10 @@ solver.useExponentialIntrinsic()
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
+solver.printTimerReport()
 
 Timer.stopTimer()
 Timer.recordSplit('Converging the source with vectors and exp')
-Timer.resetTimer()
 
 
 
@@ -427,7 +425,6 @@ Timer.startTimer()
 
 Timer.stopTimer()
 Timer.recordSplit('Generating visualizations')
-Timer.resetTimer()
 Timer.printSplits()
 
 log.py_printf('TITLE', 'Finished')
