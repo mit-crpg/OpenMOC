@@ -19,7 +19,7 @@ if config.cpp_compilers == ['all']:
 
 # If the user did not select a supported default C++ compiler, choose GCC
 if config.default_cc not in ['gcc', 'icpc']:
-    config.default_cc = 'icpc'
+    config.default_cc = 'gcc'
 
 # If the user selected 'all' FP precision levels, enumerate them
 if config.fp_precision == ['all']:
@@ -47,7 +47,7 @@ fp = config.default_fp
 
 # The main extension will be openmoc compiled with gcc and double precision
 extensions.append(Extension(name = '_openmoc', 
-                    sources = config.sources['c++'], 
+                    sources = config.sources['gcc'], 
                     library_dirs = config.library_directories[cc], 
                     libraries = config.shared_libraries[cc],
                     extra_link_args = config.linker_flags[cc], 
@@ -61,7 +61,7 @@ extensions.append(Extension(name = '_openmoc',
 # A CUDA extension if the user requested it
 if config.with_cuda:
     extensions.append(Extension(name = '_openmoc_cuda', 
-                        sources = config.sources['cuda'], 
+                        sources = config.sources['nvcc'], 
                         library_dirs = config.library_directories['nvcc'], 
                         libraries = config.shared_libraries['nvcc'],
                         extra_link_args = config.linker_flags['nvcc'], 
@@ -70,7 +70,7 @@ if config.with_cuda:
                         swig_opts = config.swig_flags,
                         export_symbols = ['init_openmoc']))
                       
-    config.sources['cuda'].remove('openmoc/cuda/openmoc_cuda.i')
+    config.sources['nvcc'].remove('openmoc/cuda/openmoc_cuda.i')
 
 
 # An Intel MIC extension if the user requested it
@@ -98,21 +98,21 @@ for fp in config.fp_precision:
             ext_name = '_openmoc_cuda_' + fp
             swig_interface_file = 'openmoc/cuda/' + fp
             swig_interface_file += '/openmoc_cuda_' + fp + '.i'
-            sources = config.sources['cuda']
+            sources = config.sources['nvcc']
             sources.append(swig_interface_file)
 
         elif cc == 'gcc':
             ext_name = '_openmoc_gnu_' + fp
             swig_interface_file = 'openmoc/gnu/' + fp
             swig_interface_file += '/openmoc_gnu_' + fp + '.i'
-            sources = config.sources['c++']
+            sources = config.sources['gcc']
             sources.append(swig_interface_file)
 
         elif cc == 'icpc':
             ext_name = '_openmoc_intel_' + fp
             swig_interface_file = 'openmoc/intel/' + fp
             swig_interface_file += '/openmoc_intel_' + fp + '.i'
-            sources = config.sources['c++']
+            sources = config.sources['icpc']
             sources.append(swig_interface_file)
 
         else:

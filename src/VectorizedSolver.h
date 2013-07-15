@@ -19,8 +19,6 @@
 #include "CPUSolver.h"
 #endif
 
-#define VEC_LENGTH 8
-
 #define taus(p,e) (taus[(p)*_num_groups + (e)])
 
 
@@ -32,12 +30,6 @@
 class VectorizedSolver : public CPUSolver {
 
 private:
-
-    /** The vector length for vector aligned data arrays */
-    int _vector_length;
-
-    /** The vector alignment (power of 2) for aligned data arrays */
-    int _vector_alignment;
 
     /** Number of energy groups divided by vector widths (VEC_LENGTH) */
     int _num_vector_lengths;
@@ -66,8 +58,6 @@ public:
     VectorizedSolver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
     virtual ~VectorizedSolver();
  
-    int getVectorLength();
-    int getVectorAlignment();
     int getNumVectorWidths();
 
     void setGeometry(Geometry* geometry);
