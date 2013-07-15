@@ -448,15 +448,19 @@ void Solver::clearTimerSplits() {
 void Solver::printTimerReport() {
     _timer->printSplits();
 
+    /* Get the total runtime */
     double tot_time = _timer->getSplit("Total");
-    double time_per_iter = tot_time / _num_iterations;
 
+    /* Time per unknown */
+    double time_per_unknown = tot_time / (_num_FSRs * _num_groups) * 1E9;
+    log_printf(RESULT, "Nanoseconds / unknown: %.0f", time_per_unknown);
+
+    /* Time per iteration */
+    double time_per_iter = tot_time / _num_iterations;
     log_printf(RESULT, "Seconds / iteration: \t\t\t%f", time_per_iter);
 
+    /* Time per segment */
     int num_segments = _track_generator->getNumSegments();
-    
     double time_per_segment = (time_per_iter / num_segments) * 1E9;
     log_printf(RESULT, "Nanoseconds / track segment: %.0f", time_per_segment);
-
-    
 }
