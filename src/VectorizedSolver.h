@@ -54,6 +54,9 @@ private:
     void computeKeff();
     void transportSweep();
 
+    void computeExponentials(segment* curr_segment, 
+			     FP_PRECISION* exponentials);
+
 public:
     VectorizedSolver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
     virtual ~VectorizedSolver();

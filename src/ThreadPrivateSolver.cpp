@@ -119,7 +119,8 @@ void ThreadPrivateSolver::transportSweep() {
 	    for (int s=0; s < num_segments; s++) {
 	        curr_segment = curr_track->getSegment(s);
 		fsr_id = curr_segment->_region_id;
-		scalarFluxTally(curr_segment, track_flux, &_thread_flux(tid,fsr_id,0));
+		scalarFluxTally(curr_segment, track_flux, 
+	                        &_thread_flux(tid,fsr_id,0));
 	    }
 
 	    /* Transfer flux to outgoing track */
@@ -131,7 +132,8 @@ void ThreadPrivateSolver::transportSweep() {
 	    for (int s=num_segments-1; s > -1; s--) {
 	        curr_segment = curr_track->getSegment(s);
 		fsr_id = curr_segment->_region_id;
-		scalarFluxTally(curr_segment, track_flux, &_thread_flux(tid,fsr_id,0));
+		scalarFluxTally(curr_segment, track_flux, 
+	                        &_thread_flux(tid,fsr_id,0));
 	    }
 	    
 	    /* Transfer flux to outgoing track */
