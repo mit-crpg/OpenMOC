@@ -47,6 +47,11 @@ VectorizedSolver::~VectorizedSolver() {
 	_scalar_flux = NULL;
     }
 
+    if (_thread_fsr_flux != NULL) {
+        _mm_free(_thread_fsr_flux);
+        _thread_fsr_flux = NULL;
+    }
+
     if (_fission_source != NULL) {
         _mm_free(_fission_source);
 	_fission_source = NULL;
@@ -129,6 +134,9 @@ void VectorizedSolver::initializeFluxArrays() {
     if (_scalar_flux != NULL)
         _mm_free(_scalar_flux);
 
+    if (_thread_fsr_flux != NULL)
+        _mm_free(_thread_fsr_flux);
+
     if (_thread_taus != NULL)
         _mm_free(_thread_taus);
 
@@ -144,6 +152,9 @@ void VectorizedSolver::initializeFluxArrays() {
 
 	size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
 	_scalar_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+
+	size = _num_threads * _num_groups * sizeof(FP_PRECISION);
+	_thread_fsr_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 
 	size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
 	_thread_taus = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
@@ -472,71 +483,6 @@ void VectorizedSolver::computeKeff() {
 
     delete [] absorption_rates;
     delete [] fission_rates;
-
-    return;
-}
-
-
-
-/**
- * This method performs on or more fixed source iterations by integrating
- * the flux along each track and updating the boundary fluxes for the
- * corresponding output track, while updating the scalar flux in each
- * flat source region
- * @param max_iterations the maximum number of iterations allowed
- */
-void VectorizedSolver::transportSweep() {
-
-    Track* curr_track;
-    int num_segments;
-    segment* curr_segment;    
-    FP_PRECISION* track_flux;
-
-    log_printf(INFO, "Transport sweep with %d OpenMP threads", _num_threads);
-
-    /* Initialize flux in each region to zero */
-    flattenFSRFluxes(0.0);
-
-    /* Loop over azimuthal angle halfspaces */
-    for (int i=0; i < 2; i++) {
-
-        int min = i * (_tot_num_tracks / 2);
-	int max = (i + 1) * (_tot_num_tracks / 2);
-	
-	/* Loop over each thread within this azimuthal angle halfspace */
-        #pragma omp parallel for private(curr_track, num_segments, \
-	  curr_segment, track_flux)
-	for (int track_id=min; track_id < max; track_id++) {
-
-	    /* TODO: Allocate this up front */
-	    int size = _num_FSRs * sizeof(FP_PRECISION);
-	    FP_PRECISION* fsr_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-	    /* Initialize local pointers to important data structures */	
-	    curr_track = _tracks[track_id];
-	    num_segments = curr_track->getNumSegments();
-	    track_flux = &_boundary_flux(track_id,0,0,0);
-
-	    /* Loop over each segment in forward direction */
-	    for (int s=0; s < num_segments; s++) {
-	        curr_segment = curr_track->getSegment(s);
-		scalarFluxTally(curr_segment, track_flux, fsr_flux);
-	    }
-
-	    /* Transfer flux to outgoing track */
-	    transferBoundaryFlux(track_id, true, track_flux);
-	    
-	    /* Loop over each segment in reverse direction */
-	    track_flux += _polar_times_groups;
-	    
-	    for (int s=num_segments-1; s > -1; s--) {
-	        curr_segment = curr_track->getSegment(s);
-		scalarFluxTally(curr_segment, track_flux, fsr_flux);
-	    }
-	    
-	    /* Transfer flux to outgoing track */
-	    transferBoundaryFlux(track_id, false, track_flux);
-	}
-    }
 
     return;
 }

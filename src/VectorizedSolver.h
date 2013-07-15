@@ -49,7 +49,6 @@ private:
 			      FP_PRECISION* track_flux);
     void addSourceToScalarFlux();
     void computeKeff();
-    void transportSweep();
 
     void computeExponentials(segment* curr_segment, 
 			     FP_PRECISION* exponentials);
