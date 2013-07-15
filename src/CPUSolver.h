@@ -22,13 +22,13 @@
 
 #define _thread_fsr_flux(tid) (_thread_fsr_flux[tid*_num_groups])
 
-#define track_flux(p,e) (track_flux[(e)*_num_polar + (p)])
+#define track_flux(p,e) (track_flux[(p)*_num_groups + (e)])
 
-#define track_out_flux(p,e) (track_out_flux[(e)*_num_polar + (p)])
+#define track_out_flux(p,e) (track_out_flux[(p)*_num_groups + (e)])
 
-#define track_leakage(p,e) (track_leakage[(e)*_num_polar + (p)])
+#define track_leakage(p,e) (track_leakage[(p)*_num_groups + (e)])
 
-#define exponentials(p,e) (exponentials[(e)*_num_polar + (p)])
+#define exponentials(p,e) (exponentials[(p)*_num_groups + (e)])
 
 
 /**

@@ -622,26 +622,34 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
     FP_PRECISION length = curr_segment->_length;
     double* sigma_t = curr_segment->_material->getSigmaT();
 
+    /* Evaluate the exponentials using the lookup table - linear interpolation */
     if (_interpolate_exponent) {
         FP_PRECISION tau;
         int index;
 
-        for (int e=0; e < _num_groups; e++) {
+	for (int p=0; p < _num_polar; p++) {
 
-            tau = sigma_t[e] * length;
-	    index = prefactorindex(tau);
+	    for (int v=0; v < _num_vector_lengths; v++) {
 
-	    for (int p=0; p < _num_polar; p++)
-	        exponentials(p,e) = prefactor(index,p,tau);
+                #pragma simd vectorlength(VEC_LENGTH) private(tau, index)
+	        for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
+                    tau = sigma_t[e] * length;
+		    index = int(tau * _inverse_prefactor_spacing) * _two_times_num_polar;
+		    exponentials(p,e) = (1. - 
+					 (_prefactor_array[index+2 * p] * tau + 
+					  _prefactor_array[index + 2 * p +1]));
+		}
+	    }
         }
     }
+
+    /* Evalute the exponentials using the intrinsic exp function */
     else {
 
         FP_PRECISION* sinthetas = _quad->getSinThetas();
 
-	for (int e=0; e < _num_groups; e++) {
-
-            for (int p=0; p < _num_polar; p++)
+	for (int p=0; p < _num_polar; p++) {
+            for (int e=0; e < _num_groups; e++) 
 	        exponentials(p,e) = 1.0 - exp(-sigma_t[e] * length / sinthetas[p]);
         }
     }
