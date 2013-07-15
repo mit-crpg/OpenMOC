@@ -11,9 +11,9 @@ import openmoc.materialize as materialize
 
 num_threads = 1
 track_spacing = 0.1
-num_azim = 12
+num_azim = 4
 tolerance = 1E-5
-max_iters = 10
+max_iters = 100
 gridsize = 500
 
 log.setLogLevel('NORMAL')
@@ -362,6 +362,18 @@ solver.convergeSource(max_iters)
 Timer.stopTimer()
 Timer.recordSplit('Converging the source without vectorization')
 Timer.resetTimer()
+
+Timer.startTimer()
+
+solver.useExponentialIntrinsic()
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
+
+Timer.stopTimer()
+Timer.recordSplit('Converging the source with exp intrinsic')
+Timer.resetTimer()
+
 
 Timer.startTimer()
 

@@ -17,6 +17,8 @@
 #include "Solver.h"
 #endif
 
+#define INTERP_EXPONENT
+
 
 #define _thread_fsr_flux(tid) (_thread_fsr_flux[tid*_num_groups])
 
@@ -44,6 +46,10 @@ protected:
 
     /** A buffer for temporary scalar flux updates for each thread */
     FP_PRECISION* _thread_fsr_flux;
+    
+    /** A boolean indicating whether or not to use linear interpolation 
+     *  to comptue the exponential in the transport equation */
+    bool _interpolate_exponent;
 
     void initializeFluxArrays();
     void initializeSourceArrays();
@@ -61,11 +67,14 @@ protected:
     virtual void scalarFluxTally(segment* curr_segment, 
 				 FP_PRECISION* track_flux,
 				 FP_PRECISION* fsr_flux);
-    void transferBoundaryFlux(int track_id, bool direction,
-			      FP_PRECISION* track_flux);
+    virtual void transferBoundaryFlux(int track_id, bool direction,
+				      FP_PRECISION* track_flux);
     void addSourceToScalarFlux();
     void computeKeff();
     void transportSweep();
+
+    void computeExponentials(segment* curr_segment, 
+			     FP_PRECISION* exponentials);
 
 public:
     CPUSolver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
@@ -78,6 +87,9 @@ public:
     FP_PRECISION* getFSRPinPowers();
 
     void setNumThreads(int num_threads);
+    
+    void useExponentialInterpolation();
+    void useExponentialIntrinsic();
 
     void computePinPowers();
 };
