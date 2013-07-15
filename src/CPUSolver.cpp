@@ -800,16 +800,16 @@ void CPUSolver::computeExponentials(segment* curr_segment,
     double* sigma_t = curr_segment->_material->getSigmaT();
 
     if (_interpolate_exponent) {
-        FP_PRECISION sigma_t_l;
+        FP_PRECISION tau;
         int index;
 
         for (int e=0; e < _num_groups; e++) {
 
-            sigma_t_l = sigma_t[e] * length;
-	    index = prefactorindex(sigma_t_l);
+            tau = sigma_t[e] * length;
+	    index = prefactorindex(tau);
 
 	    for (int p=0; p < _num_polar; p++)
-	        exponentials(p,e) = prefactor(index,p,sigma_t_l);
+	        exponentials(p,e) = prefactor(index,p,tau);
         }
     }
     else {

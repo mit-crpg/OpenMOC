@@ -34,9 +34,9 @@
 
 #define source_residuals(r,e) (source_residuals[(r)*_num_groups + (e)])
 
-#define prefactorindex(sigma_t_l) (int(sigma_t_l * _inverse_prefactor_spacing) * _two_times_num_polar)
+#define prefactorindex(tau) (int(tau * _inverse_prefactor_spacing) * _two_times_num_polar)
 
-#define prefactor(index,p,sigma_t_l) (1. - (_prefactor_array[index+2 * p] * sigma_t_l + _prefactor_array[index + 2 * p +1]))
+#define prefactor(index,p,tau) (1. - (_prefactor_array[index+2 * p] * tau + _prefactor_array[index + 2 * p +1]))
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
