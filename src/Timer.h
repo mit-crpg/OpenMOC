@@ -16,6 +16,7 @@
 #include <iomanip>
 #include <utility>
 #include <map>
+#include <vector>
 #include <string>
 #include "log.h"
 #endif
@@ -34,14 +35,17 @@
 class Timer {
 
 private:
-    /** A timespec struct with the current split's start time */
-    timespec _start_time;
-    /** A timespec struct with the current split's end time */
-    timespec _end_time;
+
+    /** A vector of timespec struct pointers for the start time at
+     *  each recursive level at which we are timing */
+    static std::vector<timespec*> _start_times;
+
     /** The time elapsed (seconds) for the current split */
     float _elapsed_time;
+
     /** Whether or not the timer is running for the current split */
     bool _running;
+
     /** A vector of the times and messages for each split */
     static std::map<std::string, double> _timer_splits;
 
@@ -69,12 +73,10 @@ public:
         _elapsed_time = 0;
     }
 
-
     /**
      * @brief Destructor
      */
     virtual ~Timer() { }
-
 
     /**
      * @brief Returns a static instance of the Timer class.
@@ -87,12 +89,11 @@ public:
 
     void startTimer();
     void stopTimer();
-    void resetTimer();
-    void restartTimer();
     void recordSplit(const char* msg);
     double getTime();
     double getSplit(const char* msg);
     void printSplits();
+    void clearSplit(const char* msg);
     void clearSplits();
 };
 

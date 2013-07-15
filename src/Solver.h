@@ -11,6 +11,7 @@
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "Timer.h"
 #include "Quadrature.h"
 #include "TrackGenerator.h"
 #include "pairwise_sum.h"
@@ -174,6 +175,9 @@ protected:
     /** The inverse spacing for the exponential prefactor array */
     FP_PRECISION _inverse_prefactor_spacing;
 
+    /** A timer to record timing data for a simulation */
+    Timer* _timer;
+
     virtual void initializePolarQuadrature() =0;
     virtual void initializeFSRs() =0;
     virtual void initializeFluxArrays() =0;
@@ -190,6 +194,8 @@ protected:
     virtual void computeKeff() =0;
     virtual void addSourceToScalarFlux() =0;
     virtual void transportSweep() =0;
+
+    void clearTimerSplits();
 
 public:
     Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
@@ -214,6 +220,8 @@ public:
 
     virtual FP_PRECISION convergeSource(int max_iterations);
     virtual void computePinPowers() =0;
+
+    void printTimerReport();
 };
 
 

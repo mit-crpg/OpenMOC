@@ -14,7 +14,7 @@
  */
 VectorizedSolver::VectorizedSolver(Geometry* geom, 
 				   TrackGenerator* track_generator) :
-  CPUSolver(geom, track_generator) { 
+    CPUSolver(geom, track_generator) { 
   
     _thread_taus = NULL;
 
@@ -30,7 +30,7 @@ VectorizedSolver::VectorizedSolver(Geometry* geom,
  * @brief Destructor deletes arrays of boundary angular flux for all tracks,
  *        scalar flux and source for each flat source region.
  */
-VectorizedSolver::~VectorizedSolver() { 
+VectorizedSolver::~VectorizedSolver() {
 
     if (_boundary_flux != NULL) {
         _mm_free(_boundary_flux);
@@ -90,7 +90,8 @@ int VectorizedSolver::getNumVectorWidths() {
 
 
 /**
- * @brief 
+ * @brief Sets the geometry for the solver and aligns all material cross-section
+ *        data for SIMD vector instructions.
  * @param geometry a pointer to the geometry
  */
 void VectorizedSolver::setGeometry(Geometry* geometry) {
@@ -549,6 +550,13 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
 }
 
 
+/**
+ * @brief Computes an array of the exponential in the transport equation,
+ *        $exp(-\frac{\Sigma_t * l}{sin(\theta)})$, for each energy group
+ *        and polar angle for a given segment.
+ * @param curr_segment pointer to the segment of interest
+ * @param exponentials the array to store the exponential values
+ */
 void VectorizedSolver::computeExponentials(segment* curr_segment, 
 				     FP_PRECISION* exponentials) {
 
