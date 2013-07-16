@@ -66,9 +66,14 @@ void ThreadPrivateSolver::flattenFSRFluxes(FP_PRECISION value) {
     CPUSolver::flattenFSRFluxes(value);
     
     /* Flatten the thread private flat source region scalar flux array */
-    int size = _num_FSRs * _num_groups * _num_threads;
-    size *= sizeof(FP_PRECISION);
-    memset(_thread_flux, FP_PRECISION(value), size);
+    #pragma omp parallel for
+    for (int tid=0; tid < _num_threads; tid++) {
+        for (int r=0; r < _num_FSRs; r++) {
+	    for (int e=0; e < _num_groups; e++) {
+	      _thread_flux(tid,r,e) = 0.0;
+	    }
+        }
+    }
 
     return;
 }

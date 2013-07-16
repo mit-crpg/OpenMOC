@@ -366,7 +366,7 @@ void CPUSolver::initializeFSRs() {
     if (_FSR_materials != NULL)
         delete [] _FSR_materials;
 
-    _FSR_volumes = new FP_PRECISION[_num_FSRs];
+    _FSR_volumes = (FP_PRECISION*)calloc(_num_FSRs, sizeof(FP_PRECISION));
     _FSR_materials = new Material*[_num_FSRs];
     _FSR_locks = new omp_lock_t[_num_FSRs];
 
@@ -376,9 +376,6 @@ void CPUSolver::initializeFSRs() {
     CellBasic* cell;
     Material* material;
     Universe* univ_zero = _geometry->getUniverse(0);
-
-    /* Initialize the FSR volumes to zero */
-    memset(_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
 
     /* Set each FSR's "volume" by accumulating the total length of all tracks
      * inside the FSR. Loop over azimuthal angle, track and segment. 
@@ -426,9 +423,19 @@ void CPUSolver::initializeFSRs() {
  *        angle in the "forward" and "reverse" directions.
  */
 void CPUSolver::zeroTrackFluxes() {
-    int size = 2 * _tot_num_tracks * _polar_times_groups * sizeof(FP_PRECISION);
-    memset(_boundary_flux, FP_PRECISION(0.), size);
-    return;
+
+    #pragma omp parallel for
+    for (int t=0; t < _tot_num_tracks; t++) {
+        for (int d=0; d < 2; d++) {
+            for (int p=0; p < _num_polar; p++) {
+	        for (int e=0; e < _num_groups; e++) {
+		    _boundary_flux(t,d,p,e) = 0.0;
+	        }  
+	    }
+        }
+    }
+
+  return;
 }
 
 
@@ -438,8 +445,13 @@ void CPUSolver::zeroTrackFluxes() {
  * @param value the value to assign to each flat source region flux
  */
 void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
-    int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-    memset(_scalar_flux, FP_PRECISION(value), size);
+
+    #pragma omp parallel for
+    for (int r=0; r < _num_FSRs; r++) {
+        for (int e=0; e < _num_groups; e++)
+	    _scalar_flux(r,e) = value;
+    }
+
     return;
 }
 
@@ -450,9 +462,15 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
  * @param value the value to assign to each flat source region source
  */
 void CPUSolver::flattenFSRSources(FP_PRECISION value) {
-    int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-    memset(_source, value, size);
-    memset(_old_source, value, size);
+
+    #pragma omp parallel for
+    for (int r=0; r < _num_FSRs; r++) {
+        for (int e=0; e < _num_groups; e++) {
+	    _source(r,e) = 0.0;
+	    _old_source(r,e) = 0.0;
+        }
+    }
+
     return;
 }
 
@@ -467,8 +485,6 @@ void CPUSolver::normalizeFluxes() {
     FP_PRECISION volume;
     FP_PRECISION tot_fission_source;
     FP_PRECISION norm_factor;
-
-    memset(_fission_source, 0, _num_FSRs * _num_groups);
 
     /* Compute total fission source for each region, energy group */
     #pragma omp parallel for private(volume, nu_sigma_f)	\
@@ -486,6 +502,7 @@ void CPUSolver::normalizeFluxes() {
     /* Compute the total fission source */
     tot_fission_source = pairwise_sum<FP_PRECISION>(_fission_source, 
 						    _num_FSRs*_num_groups);
+
     /* Normalize scalar fluxes in each region */
     norm_factor = 1.0 / tot_fission_source;
 

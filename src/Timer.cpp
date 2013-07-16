@@ -115,7 +115,6 @@ void Timer::printSplits() {
 
     std::string curr_msg;
     double curr_split;
-    int msg_length, num_whitespaces;
     std::map<std::string, double>::iterator iter;
 
     for (iter = _timer_splits.begin(); iter != _timer_splits.end(); ++iter) {
@@ -124,20 +123,12 @@ void Timer::printSplits() {
 
         curr_msg = (*iter).first;
         curr_split = (*iter).second;
-        msg_length = curr_msg.length();
 
-        /* Num whitespaces for formatting is:
-         * 80 max char - 13 char for logger - 13 for time - msg length */
-        num_whitespaces = 80 - 13 - 11 - msg_length -3;
+	curr_msg.resize(53, '.');
+	formatted_msg << curr_msg;
 
-        formatted_msg << curr_msg;
-
-        /* Add periods to format message to 80 characters length */
-        for (int i=0; i < num_whitespaces; i++)
-            formatted_msg << ".";
-
-        log_printf(RESULT, "%s%.7f sec", formatted_msg.str().c_str(),
-                   curr_split);
+        log_printf(RESULT, "%s%1.4E sec", formatted_msg.str().c_str(), 
+		   curr_split);
     }
 }
 

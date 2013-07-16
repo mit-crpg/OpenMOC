@@ -42,7 +42,7 @@ static bool logging = false;
  * @var separator_char
  * @brief The character to use for SEPARATOR log messages. The default is "-".
  */
-static char separator_char = '-';
+static char separator_char = '*';
 
 /**
  * @var header_char

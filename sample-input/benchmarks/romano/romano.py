@@ -7,10 +7,10 @@ import openmoc.log as log
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 4
-track_spacing = 0.1
-num_azim = 16
-tolerance = 1E-3
+num_threads = 1
+track_spacing = 0.01
+num_azim = 32
+tolerance = 1E-5
 max_iters = 1000
 gridsize = 500
 
@@ -99,8 +99,6 @@ lattice.setLatticeCells([[1]])
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-Timer.startTimer()
-
 geometry = Geometry()
 geometry.addMaterial(fuel)
 geometry.addMaterial(moderator)
@@ -111,10 +109,6 @@ geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
 
-Timer.stopTimer()
-Timer.recordSplit('Iniitilializing the geometry')
-Timer.resetTimer()
-
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -122,30 +116,16 @@ Timer.resetTimer()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-Timer.startTimer()
-
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
-
-Timer.stopTimer()
-Timer.recordSplit('Ray tracing across the geometry')
-Timer.resetTimer()
 
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-Timer.startTimer()
-
 solver = CPUSolver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
-
-Timer.stopTimer()
-Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
-Timer.resetTimer()
-Timer.printSplits()
-
-log.py_printf('TITLE', 'Finished')
+solver.printTimerReport()

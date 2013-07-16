@@ -91,8 +91,6 @@ lattice.setLatticeCells([[1]])
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-Timer.startTimer()
-
 geometry = Geometry()
 geometry.addMaterial(infinite_medium)
 geometry.addCell(cells[0])
@@ -102,10 +100,6 @@ geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
 
-Timer.stopTimer()
-Timer.recordSplit('Iniitilializing the geometry')
-Timer.resetTimer()
-
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -113,31 +107,19 @@ Timer.resetTimer()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-Timer.startTimer()
-
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
-
-Timer.stopTimer()
-Timer.recordSplit('Ray tracing across the geometry')
-Timer.resetTimer()
 
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-Timer.startTimer()
-
 solver = cuda.GPUSolver(geometry, track_generator)
 solver.setNumThreadBlocks(num_blocks)
 solver.setNumThreadsPerBlock(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
-
-Timer.stopTimer()
-Timer.recordSplit('Converging the source on the GPU')
-Timer.resetTimer()
-Timer.printSplits()
+solver.printTimerReport()
 
 log.py_printf('TITLE', 'Finished')
