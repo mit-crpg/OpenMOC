@@ -20,7 +20,7 @@ default_fp = 'single'
 with_ccache = True
 
 # Compile with debug flags
-debug_mode = True
+debug_mode = False
 
 # Use CUDA set to True or False
 with_cuda = False
