@@ -180,7 +180,7 @@ shared_libraries['nvcc'] = ['cudart']
 
 library_directories = {}
 
-library_directories['gcc'] = [path_to_icpc + 'mkl/lib/intel64']
+library_directories['gcc'] = []
 library_directories['icpc'] = [path_to_icpc + 'compiler/lib/intel64']
 library_directories['nvcc'] = [path_to_nvcc + 'lib64']
 
