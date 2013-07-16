@@ -8,11 +8,11 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 2
+num_threads = 4
 track_spacing = 0.1
 num_azim = 12
 tolerance = 1E-5
-max_iters = 3
+max_iters = 4
 gridsize = 500
 
 log.setLogLevel('NORMAL')
@@ -360,28 +360,28 @@ solver.printTimerReport()
 Timer.stopTimer()
 Timer.recordSplit('Converging the source without vectorization')
 
-Timer.startTimer()
+#Timer.startTimer()
 
-solver.useExponentialIntrinsic()
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
+#solver.useExponentialIntrinsic()
+#solver.setSourceConvergenceThreshold(tolerance)
+#solver.setNumThreads(num_threads)
+#solver.convergeSource(max_iters)
+#solver.printTimerReport()
 
-Timer.stopTimer()
-Timer.recordSplit('Converging the source with exp intrinsic')
+#Timer.stopTimer()
+#Timer.recordSplit('Converging the source with exp intrinsic')
 
 
-Timer.startTimer()
+#Timer.startTimer()
 
-solver = ThreadPrivateSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
+#solver = ThreadPrivateSolver(geometry, track_generator)
+#solver.setSourceConvergenceThreshold(tolerance)
+#solver.setNumThreads(num_threads)
+#solver.convergeSource(max_iters)
+#solver.printTimerReport()
 
-Timer.stopTimer()
-Timer.recordSplit('Converging the source with thread privatization')
+#Timer.stopTimer()
+#Timer.recordSplit('Converging the source with thread privatization')
 
 
 Timer.startTimer()
@@ -396,16 +396,16 @@ Timer.stopTimer()
 Timer.recordSplit('Converging the source with vectorization')
 
 
-Timer.startTimer()
+#Timer.startTimer()
 
-solver.useExponentialIntrinsic()
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
+#solver.useExponentialIntrinsic()
+#solver.setSourceConvergenceThreshold(tolerance)
+#solver.setNumThreads(num_threads)
+#solver.convergeSource(max_iters)
+#solver.printTimerReport()
 
-Timer.stopTimer()
-Timer.recordSplit('Converging the source with vectors and exp')
+#Timer.stopTimer()
+#Timer.recordSplit('Converging the source with vectors and exp')
 
 
 
