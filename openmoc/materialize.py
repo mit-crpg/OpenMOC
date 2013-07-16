@@ -61,13 +61,28 @@ def materialize(filename):
         nu_sigma_f = f[name]['Nu Fission XS'][...]
         chi = f[name]['Chi'][...]
 
+        # Setting the cross-sections from numpy arrays was not working properly on BGQ
+
         # Load the cross-section data into the material object
-        new_material.setSigmaT(sigma_t)
-        new_material.setSigmaA(sigma_a)
-        new_material.setSigmaS(sigma_s)
-        new_material.setSigmaF(sigma_f)
-        new_material.setNuSigmaF(nu_sigma_f)
-        new_material.setChi(chi)
+#        new_material.setSigmaT(sigma_t)
+#        new_material.setSigmaA(sigma_a)
+#        new_material.setSigmaS(sigma_s)
+#        new_material.setSigmaF(sigma_f)
+#        new_material.setNuSigmaF(nu_sigma_f)
+#        new_material.setChi(chi)
+
+
+        for e in range(int(num_groups)):
+            new_material.setSigmaT(sigma_t[e], e)
+            new_material.setSigmaA(sigma_a[e], e)
+            new_material.setSigmaF(sigma_f[e], e)
+            new_material.setNuSigmaF(nu_sigma_f[e], e)
+            new_material.setChi(chi[e], e)
+
+            for e2 in range(int(num_groups)):
+
+                new_material.setSigmaS(sigma_s[e*num_groups+e2], e2, e)
+            
 
         # Add this material to the list
         materials[name] = new_material
