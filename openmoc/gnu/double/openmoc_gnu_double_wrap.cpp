@@ -2969,29 +2969,30 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 #define SWIGTYPE_p_Quadrature swig_types[11]
 #define SWIGTYPE_p_Solver swig_types[12]
 #define SWIGTYPE_p_Surface swig_types[13]
-#define SWIGTYPE_p_Timer swig_types[14]
-#define SWIGTYPE_p_Track swig_types[15]
-#define SWIGTYPE_p_TrackGenerator swig_types[16]
-#define SWIGTYPE_p_Universe swig_types[17]
-#define SWIGTYPE_p_XPlane swig_types[18]
-#define SWIGTYPE_p_YPlane swig_types[19]
-#define SWIGTYPE_p_ZPlane swig_types[20]
-#define SWIGTYPE_p_char swig_types[21]
-#define SWIGTYPE_p_double swig_types[22]
-#define SWIGTYPE_p_int swig_types[23]
-#define SWIGTYPE_p_logLevels swig_types[24]
-#define SWIGTYPE_p_p_Track swig_types[25]
-#define SWIGTYPE_p_segment swig_types[26]
-#define SWIGTYPE_p_std__mapT_short_Cell_p_t swig_types[27]
-#define SWIGTYPE_p_std__mapT_short_Material_p_t swig_types[28]
-#define SWIGTYPE_p_std__mapT_short_Surface_p_t swig_types[29]
-#define SWIGTYPE_p_std__mapT_short_Universe_p_t swig_types[30]
-#define SWIGTYPE_p_std__string swig_types[31]
-#define SWIGTYPE_p_std__vectorT_CellBasic_p_t swig_types[32]
-#define SWIGTYPE_p_std__vectorT_segment_p_t swig_types[33]
-#define SWIGTYPE_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t swig_types[34]
-static swig_type_info *swig_types[36];
-static swig_module_info swig_module = {swig_types, 35, 0, 0, 0, 0};
+#define SWIGTYPE_p_ThreadPrivateSolver swig_types[14]
+#define SWIGTYPE_p_Timer swig_types[15]
+#define SWIGTYPE_p_Track swig_types[16]
+#define SWIGTYPE_p_TrackGenerator swig_types[17]
+#define SWIGTYPE_p_Universe swig_types[18]
+#define SWIGTYPE_p_XPlane swig_types[19]
+#define SWIGTYPE_p_YPlane swig_types[20]
+#define SWIGTYPE_p_ZPlane swig_types[21]
+#define SWIGTYPE_p_char swig_types[22]
+#define SWIGTYPE_p_double swig_types[23]
+#define SWIGTYPE_p_int swig_types[24]
+#define SWIGTYPE_p_logLevels swig_types[25]
+#define SWIGTYPE_p_p_Track swig_types[26]
+#define SWIGTYPE_p_segment swig_types[27]
+#define SWIGTYPE_p_std__mapT_short_Cell_p_t swig_types[28]
+#define SWIGTYPE_p_std__mapT_short_Material_p_t swig_types[29]
+#define SWIGTYPE_p_std__mapT_short_Surface_p_t swig_types[30]
+#define SWIGTYPE_p_std__mapT_short_Universe_p_t swig_types[31]
+#define SWIGTYPE_p_std__string swig_types[32]
+#define SWIGTYPE_p_std__vectorT_CellBasic_p_t swig_types[33]
+#define SWIGTYPE_p_std__vectorT_segment_p_t swig_types[34]
+#define SWIGTYPE_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t swig_types[35]
+static swig_type_info *swig_types[37];
+static swig_module_info swig_module = {swig_types, 36, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -3097,6 +3098,7 @@ namespace swig {
     #include "../../../src/Point.h"
     #include "../../../src/Quadrature.h"
     #include "../../../src/CPUSolver.h"
+    #include "../../../src/ThreadPrivateSolver.h"
     #include "../../../src/Solver.h"
     #include "../../../src/Surface.h"
     #include "../../../src/Timer.h"
@@ -8733,6 +8735,68 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Material_isDataAligned(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Material *arg1 = (Material *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Material_isDataAligned",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_isDataAligned" "', argument " "1"" of type '" "Material *""'"); 
+  }
+  arg1 = reinterpret_cast< Material * >(argp1);
+  {
+    try {
+      result = (bool)(arg1)->isDataAligned();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Material_getNumVectorGroups(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Material *arg1 = (Material *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Material_getNumVectorGroups",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_getNumVectorGroups" "', argument " "1"" of type '" "Material *""'"); 
+  }
+  arg1 = reinterpret_cast< Material * >(argp1);
+  {
+    try {
+      result = (int)(arg1)->getNumVectorGroups();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Material_setNumEnergyGroups(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Material *arg1 = (Material *) 0 ;
@@ -8744,7 +8808,7 @@ SWIGINTERN PyObject *_wrap_Material_setNumEnergyGroups(PyObject *SWIGUNUSEDPARM(
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   char *  kwnames[] = {
-    (char *) "self",(char *) "num_energy_groups", NULL 
+    (char *) "self",(char *) "num_groups", NULL 
   };
   
   if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Material_setNumEnergyGroups",kwnames,&obj0,&obj1)) SWIG_fail;
@@ -9218,6 +9282,36 @@ SWIGINTERN PyObject *_wrap_Material_printString(PyObject *SWIGUNUSEDPARM(self), 
   {
     try {
       (arg1)->printString();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Material_alignData(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Material *arg1 = (Material *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Material_alignData",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_alignData" "', argument " "1"" of type '" "Material *""'"); 
+  }
+  arg1 = reinterpret_cast< Material * >(argp1);
+  {
+    try {
+      (arg1)->alignData();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -10236,37 +10330,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Solver_getFluxConvergenceThreshold(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Solver *arg1 = (Solver *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  FP_PRECISION result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:Solver_getFluxConvergenceThreshold",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_getFluxConvergenceThreshold" "', argument " "1"" of type '" "Solver *""'"); 
-  }
-  arg1 = reinterpret_cast< Solver * >(argp1);
-  {
-    try {
-      result = (FP_PRECISION)(arg1)->getFluxConvergenceThreshold();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_From_double(static_cast< double >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_Solver_getFSRScalarFlux(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Solver *arg1 = (Solver *) 0 ;
@@ -10622,48 +10685,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Solver_setFluxConvergenceThreshold(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
-  PyObject *resultobj = 0;
-  Solver *arg1 = (Solver *) 0 ;
-  FP_PRECISION arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  char *  kwnames[] = {
-    (char *) "self",(char *) "flux_thresh", NULL 
-  };
-  
-  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Solver_setFluxConvergenceThreshold",kwnames,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_setFluxConvergenceThreshold" "', argument " "1"" of type '" "Solver *""'"); 
-  }
-  arg1 = reinterpret_cast< Solver * >(argp1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Solver_setFluxConvergenceThreshold" "', argument " "2"" of type '" "FP_PRECISION""'");
-  } 
-  arg2 = static_cast< FP_PRECISION >(val2);
-  {
-    try {
-      (arg1)->setFluxConvergenceThreshold(arg2);
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_Solver_convergeSource(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Solver *arg1 = (Solver *) 0 ;
@@ -10723,6 +10744,36 @@ SWIGINTERN PyObject *_wrap_Solver_computePinPowers(PyObject *SWIGUNUSEDPARM(self
   {
     try {
       (arg1)->computePinPowers();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Solver_printTimerReport(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Solver *arg1 = (Solver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Solver_printTimerReport",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_printTimerReport" "', argument " "1"" of type '" "Solver *""'"); 
+  }
+  arg1 = reinterpret_cast< Solver * >(argp1);
+  {
+    try {
+      (arg1)->printTimerReport();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -10815,6 +10866,37 @@ SWIGINTERN PyObject *_wrap_delete_CPUSolver(PyObject *SWIGUNUSEDPARM(self), PyOb
     }
   }
   resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CPUSolver_getNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_getNumThreads",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_getNumThreads" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  {
+    try {
+      result = (int)(arg1)->getNumThreads();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -10966,37 +11048,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_CPUSolver_getNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  CPUSolver *arg1 = (CPUSolver *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  int result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_getNumThreads",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_getNumThreads" "', argument " "1"" of type '" "CPUSolver *""'"); 
-  }
-  arg1 = reinterpret_cast< CPUSolver * >(argp1);
-  {
-    try {
-      result = (int)(arg1)->getNumThreads();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_From_int(static_cast< int >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_CPUSolver_setNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   CPUSolver *arg1 = (CPUSolver *) 0 ;
@@ -11025,6 +11076,66 @@ SWIGINTERN PyObject *_wrap_CPUSolver_setNumThreads(PyObject *SWIGUNUSEDPARM(self
   {
     try {
       (arg1)->setNumThreads(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CPUSolver_useExponentialInterpolation(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_useExponentialInterpolation",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_useExponentialInterpolation" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  {
+    try {
+      (arg1)->useExponentialInterpolation();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_CPUSolver_useExponentialIntrinsic(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  CPUSolver *arg1 = (CPUSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_useExponentialIntrinsic",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_useExponentialIntrinsic" "', argument " "1"" of type '" "CPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< CPUSolver * >(argp1);
+  {
+    try {
+      (arg1)->useExponentialIntrinsic();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -11073,6 +11184,90 @@ SWIGINTERN PyObject *CPUSolver_swigregister(PyObject *SWIGUNUSEDPARM(self), PyOb
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
   SWIG_TypeNewClientData(SWIGTYPE_p_CPUSolver, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_new_ThreadPrivateSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Geometry *arg1 = (Geometry *) NULL ;
+  TrackGenerator *arg2 = (TrackGenerator *) NULL ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "geom",(char *) "track_generator", NULL 
+  };
+  ThreadPrivateSolver *result = 0 ;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"|OO:new_ThreadPrivateSolver",kwnames,&obj0,&obj1)) SWIG_fail;
+  if (obj0) {
+    res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_ThreadPrivateSolver" "', argument " "1"" of type '" "Geometry *""'"); 
+    }
+    arg1 = reinterpret_cast< Geometry * >(argp1);
+  }
+  if (obj1) {
+    res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_TrackGenerator, 0 |  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_ThreadPrivateSolver" "', argument " "2"" of type '" "TrackGenerator *""'"); 
+    }
+    arg2 = reinterpret_cast< TrackGenerator * >(argp2);
+  }
+  {
+    try {
+      result = (ThreadPrivateSolver *)new ThreadPrivateSolver(arg1,arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_ThreadPrivateSolver, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_ThreadPrivateSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ThreadPrivateSolver *arg1 = (ThreadPrivateSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_ThreadPrivateSolver",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_ThreadPrivateSolver, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_ThreadPrivateSolver" "', argument " "1"" of type '" "ThreadPrivateSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< ThreadPrivateSolver * >(argp1);
+  {
+    try {
+      delete arg1;
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *ThreadPrivateSolver_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_ThreadPrivateSolver, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
 
@@ -13732,66 +13927,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Timer_resetTimer(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Timer *arg1 = (Timer *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:Timer_resetTimer",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Timer, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Timer_resetTimer" "', argument " "1"" of type '" "Timer *""'"); 
-  }
-  arg1 = reinterpret_cast< Timer * >(argp1);
-  {
-    try {
-      (arg1)->resetTimer();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Timer_restartTimer(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Timer *arg1 = (Timer *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:Timer_restartTimer",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Timer, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Timer_restartTimer" "', argument " "1"" of type '" "Timer *""'"); 
-  }
-  arg1 = reinterpret_cast< Timer * >(argp1);
-  {
-    try {
-      (arg1)->restartTimer();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_Timer_recordSplit(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Timer *arg1 = (Timer *) 0 ;
@@ -13940,6 +14075,51 @@ SWIGINTERN PyObject *_wrap_Timer_printSplits(PyObject *SWIGUNUSEDPARM(self), PyO
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Timer_clearSplit(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Timer *arg1 = (Timer *) 0 ;
+  char *arg2 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "msg", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Timer_clearSplit",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Timer, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Timer_clearSplit" "', argument " "1"" of type '" "Timer *""'"); 
+  }
+  arg1 = reinterpret_cast< Timer * >(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Timer_clearSplit" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  {
+    try {
+      (arg1)->clearSplit((char const *)arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return NULL;
 }
 
@@ -17761,6 +17941,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Material_getSigmaF", _wrap_Material_getSigmaF, METH_VARARGS, NULL},
 	 { (char *)"Material_getNuSigmaF", _wrap_Material_getNuSigmaF, METH_VARARGS, NULL},
 	 { (char *)"Material_getChi", _wrap_Material_getChi, METH_VARARGS, NULL},
+	 { (char *)"Material_isDataAligned", _wrap_Material_isDataAligned, METH_VARARGS, NULL},
+	 { (char *)"Material_getNumVectorGroups", _wrap_Material_getNumVectorGroups, METH_VARARGS, NULL},
 	 { (char *)"Material_setNumEnergyGroups", (PyCFunction) _wrap_Material_setNumEnergyGroups, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Material_setSigmaT", (PyCFunction) _wrap_Material_setSigmaT, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Material_setSigmaA", (PyCFunction) _wrap_Material_setSigmaA, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -17771,6 +17953,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Material_checkSigmaT", _wrap_Material_checkSigmaT, METH_VARARGS, NULL},
 	 { (char *)"Material_toString", _wrap_Material_toString, METH_VARARGS, NULL},
 	 { (char *)"Material_printString", _wrap_Material_printString, METH_VARARGS, NULL},
+	 { (char *)"Material_alignData", _wrap_Material_alignData, METH_VARARGS, NULL},
 	 { (char *)"Material_swigregister", Material_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_Point", _wrap_new_Point, METH_VARARGS, NULL},
 	 { (char *)"delete_Point", _wrap_delete_Point, METH_VARARGS, NULL},
@@ -17802,7 +17985,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Solver_getPolarQuadratureType", _wrap_Solver_getPolarQuadratureType, METH_VARARGS, NULL},
 	 { (char *)"Solver_getNumIterations", _wrap_Solver_getNumIterations, METH_VARARGS, NULL},
 	 { (char *)"Solver_getSourceConvergenceThreshold", _wrap_Solver_getSourceConvergenceThreshold, METH_VARARGS, NULL},
-	 { (char *)"Solver_getFluxConvergenceThreshold", _wrap_Solver_getFluxConvergenceThreshold, METH_VARARGS, NULL},
 	 { (char *)"Solver_getFSRScalarFlux", (PyCFunction) _wrap_Solver_getFSRScalarFlux, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_getFSRScalarFluxes", _wrap_Solver_getFSRScalarFluxes, METH_VARARGS, NULL},
 	 { (char *)"Solver_getFSRPowers", _wrap_Solver_getFSRPowers, METH_VARARGS, NULL},
@@ -17812,20 +17994,25 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Solver_setPolarQuadratureType", (PyCFunction) _wrap_Solver_setPolarQuadratureType, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_setNumPolarAngles", (PyCFunction) _wrap_Solver_setNumPolarAngles, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_setSourceConvergenceThreshold", (PyCFunction) _wrap_Solver_setSourceConvergenceThreshold, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"Solver_setFluxConvergenceThreshold", (PyCFunction) _wrap_Solver_setFluxConvergenceThreshold, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_convergeSource", (PyCFunction) _wrap_Solver_convergeSource, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_computePinPowers", _wrap_Solver_computePinPowers, METH_VARARGS, NULL},
+	 { (char *)"Solver_printTimerReport", _wrap_Solver_printTimerReport, METH_VARARGS, NULL},
 	 { (char *)"Solver_swigregister", Solver_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_CPUSolver", (PyCFunction) _wrap_new_CPUSolver, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"delete_CPUSolver", _wrap_delete_CPUSolver, METH_VARARGS, NULL},
+	 { (char *)"CPUSolver_getNumThreads", _wrap_CPUSolver_getNumThreads, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_getFSRScalarFlux", (PyCFunction) _wrap_CPUSolver_getFSRScalarFlux, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"CPUSolver_getFSRScalarFluxes", _wrap_CPUSolver_getFSRScalarFluxes, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_getFSRPowers", _wrap_CPUSolver_getFSRPowers, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_getFSRPinPowers", _wrap_CPUSolver_getFSRPinPowers, METH_VARARGS, NULL},
-	 { (char *)"CPUSolver_getNumThreads", _wrap_CPUSolver_getNumThreads, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_setNumThreads", (PyCFunction) _wrap_CPUSolver_setNumThreads, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"CPUSolver_useExponentialInterpolation", _wrap_CPUSolver_useExponentialInterpolation, METH_VARARGS, NULL},
+	 { (char *)"CPUSolver_useExponentialIntrinsic", _wrap_CPUSolver_useExponentialIntrinsic, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_computePinPowers", _wrap_CPUSolver_computePinPowers, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_swigregister", CPUSolver_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_ThreadPrivateSolver", (PyCFunction) _wrap_new_ThreadPrivateSolver, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"delete_ThreadPrivateSolver", _wrap_delete_ThreadPrivateSolver, METH_VARARGS, NULL},
+	 { (char *)"ThreadPrivateSolver_swigregister", ThreadPrivateSolver_swigregister, METH_VARARGS, NULL},
 	 { (char *)"surf_id", _wrap_surf_id, METH_VARARGS, NULL},
 	 { (char *)"delete_Surface", _wrap_delete_Surface, METH_VARARGS, NULL},
 	 { (char *)"Surface_getUid", _wrap_Surface_getUid, METH_VARARGS, NULL},
@@ -17907,12 +18094,11 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Timer_Get", _wrap_Timer_Get, METH_VARARGS, NULL},
 	 { (char *)"Timer_startTimer", _wrap_Timer_startTimer, METH_VARARGS, NULL},
 	 { (char *)"Timer_stopTimer", _wrap_Timer_stopTimer, METH_VARARGS, NULL},
-	 { (char *)"Timer_resetTimer", _wrap_Timer_resetTimer, METH_VARARGS, NULL},
-	 { (char *)"Timer_restartTimer", _wrap_Timer_restartTimer, METH_VARARGS, NULL},
 	 { (char *)"Timer_recordSplit", (PyCFunction) _wrap_Timer_recordSplit, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Timer_getTime", _wrap_Timer_getTime, METH_VARARGS, NULL},
 	 { (char *)"Timer_getSplit", (PyCFunction) _wrap_Timer_getSplit, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Timer_printSplits", _wrap_Timer_printSplits, METH_VARARGS, NULL},
+	 { (char *)"Timer_clearSplit", (PyCFunction) _wrap_Timer_clearSplit, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Timer_clearSplits", _wrap_Timer_clearSplits, METH_VARARGS, NULL},
 	 { (char *)"Timer_swigregister", Timer_swigregister, METH_VARARGS, NULL},
 	 { (char *)"segment__length_set", _wrap_segment__length_set, METH_VARARGS, NULL},
@@ -18052,6 +18238,9 @@ static void *_p_LatticeTo_p_Universe(void *x, int *SWIGUNUSEDPARM(newmemory)) {
 static void *_p_CPUSolverTo_p_Solver(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Solver *)  ((CPUSolver *) x));
 }
+static void *_p_ThreadPrivateSolverTo_p_Solver(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((Solver *) (CPUSolver *) ((ThreadPrivateSolver *) x));
+}
 static void *_p_XPlaneTo_p_Plane(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Plane *)  ((XPlane *) x));
 }
@@ -18060,6 +18249,9 @@ static void *_p_YPlaneTo_p_Plane(void *x, int *SWIGUNUSEDPARM(newmemory)) {
 }
 static void *_p_ZPlaneTo_p_Plane(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((Plane *)  ((ZPlane *) x));
+}
+static void *_p_ThreadPrivateSolverTo_p_CPUSolver(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((CPUSolver *)  ((ThreadPrivateSolver *) x));
 }
 static swig_type_info _swigt__p_CPUSolver = {"_p_CPUSolver", "CPUSolver *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Cell = {"_p_Cell", "Cell *", 0, 0, (void*)0, 0};
@@ -18075,6 +18267,7 @@ static swig_type_info _swigt__p_Point = {"_p_Point", "Point *", 0, 0, (void*)0, 
 static swig_type_info _swigt__p_Quadrature = {"_p_Quadrature", "Quadrature *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Solver = {"_p_Solver", "Solver *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Surface = {"_p_Surface", "Surface *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_ThreadPrivateSolver = {"_p_ThreadPrivateSolver", "ThreadPrivateSolver *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Timer = {"_p_Timer", "Timer *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_Track = {"_p_Track", "Track *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_TrackGenerator = {"_p_TrackGenerator", "TrackGenerator *", 0, 0, (void*)0, 0};
@@ -18112,6 +18305,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Quadrature,
   &_swigt__p_Solver,
   &_swigt__p_Surface,
+  &_swigt__p_ThreadPrivateSolver,
   &_swigt__p_Timer,
   &_swigt__p_Track,
   &_swigt__p_TrackGenerator,
@@ -18135,7 +18329,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t,
 };
 
-static swig_cast_info _swigc__p_CPUSolver[] = {  {&_swigt__p_CPUSolver, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_CPUSolver[] = {  {&_swigt__p_CPUSolver, 0, 0, 0},  {&_swigt__p_ThreadPrivateSolver, _p_ThreadPrivateSolverTo_p_CPUSolver, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Cell[] = {  {&_swigt__p_CellBasic, _p_CellBasicTo_p_Cell, 0, 0},  {&_swigt__p_CellFill, _p_CellFillTo_p_Cell, 0, 0},  {&_swigt__p_Cell, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_CellBasic[] = {  {&_swigt__p_CellBasic, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_CellFill[] = {  {&_swigt__p_CellFill, 0, 0, 0},{0, 0, 0, 0}};
@@ -18147,8 +18341,9 @@ static swig_cast_info _swigc__p_Material[] = {  {&_swigt__p_Material, 0, 0, 0},{
 static swig_cast_info _swigc__p_Plane[] = {  {&_swigt__p_Plane, 0, 0, 0},  {&_swigt__p_XPlane, _p_XPlaneTo_p_Plane, 0, 0},  {&_swigt__p_YPlane, _p_YPlaneTo_p_Plane, 0, 0},  {&_swigt__p_ZPlane, _p_ZPlaneTo_p_Plane, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Point[] = {  {&_swigt__p_Point, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Quadrature[] = {  {&_swigt__p_Quadrature, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_Solver[] = {  {&_swigt__p_Solver, 0, 0, 0},  {&_swigt__p_CPUSolver, _p_CPUSolverTo_p_Solver, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_Solver[] = {  {&_swigt__p_Solver, 0, 0, 0},  {&_swigt__p_CPUSolver, _p_CPUSolverTo_p_Solver, 0, 0},  {&_swigt__p_ThreadPrivateSolver, _p_ThreadPrivateSolverTo_p_Solver, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Surface[] = {  {&_swigt__p_Plane, _p_PlaneTo_p_Surface, 0, 0},  {&_swigt__p_XPlane, _p_XPlaneTo_p_Surface, 0, 0},  {&_swigt__p_Surface, 0, 0, 0},  {&_swigt__p_YPlane, _p_YPlaneTo_p_Surface, 0, 0},  {&_swigt__p_ZPlane, _p_ZPlaneTo_p_Surface, 0, 0},  {&_swigt__p_Circle, _p_CircleTo_p_Surface, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_ThreadPrivateSolver[] = {  {&_swigt__p_ThreadPrivateSolver, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Timer[] = {  {&_swigt__p_Timer, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Track[] = {  {&_swigt__p_Track, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_TrackGenerator[] = {  {&_swigt__p_TrackGenerator, 0, 0, 0},{0, 0, 0, 0}};
@@ -18186,6 +18381,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Quadrature,
   _swigc__p_Solver,
   _swigc__p_Surface,
+  _swigc__p_ThreadPrivateSolver,
   _swigc__p_Timer,
   _swigc__p_Track,
   _swigc__p_TrackGenerator,
