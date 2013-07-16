@@ -47,7 +47,7 @@ fp = config.default_fp
 
 # The main extension will be openmoc compiled with gcc and double precision
 extensions.append(Extension(name = '_openmoc', 
-                    sources = config.sources['gcc'], 
+                    sources = config.sources[cc], 
                     library_dirs = config.library_directories[cc], 
                     libraries = config.shared_libraries[cc],
                     extra_link_args = config.linker_flags[cc], 
@@ -72,6 +72,38 @@ if config.with_cuda:
                       
     config.sources['nvcc'].remove('openmoc/cuda/openmoc_cuda.i')
 
+
+# An Intel MIC extension if the user requested it
+if config.with_mic:
+    extensions.append(Extension(name = '_openmoc_mic', 
+                        sources = config.sources['mic'], 
+                        library_dirs = config.library_directories['mic'], 
+                        libraries = config.shared_libraries['mic'],
+                        extra_link_args = config.linker_flags['mic'], 
+                        include_dirs = config.include_directories['mic'],
+                        define_macros = config.macros['mic'][fp],
+                        swig_opts = config.swig_flags,
+                        export_symbols = ['init_openmoc']))
+                      
+    config.sources['mic'].remove('openmoc/mic/openmoc_mic.i')
+
+
+
+# A MIC extension if the user requested it
+if config.with_mic:
+#    config.linker_flags['gcc'] = config.linker_flags.append('-Wl,-soname,_openmoc.so')
+    extensions.append(Extension(name = '_openmoc_mic', 
+                        sources = config.sources['mic'], 
+                        library_dirs = config.library_directories['icpc'], 
+                        libraries = config.shared_libraries['icpc'],
+                        extra_link_args = config.linker_flags['icpc'], 
+                        include_dirs = config.include_directories['icpc'],
+                        define_macros = config.macros['icpc'][config.default_fp],
+                        swig_opts = config.swig_flags,
+                        export_symbols = ['init_openmoc']))
+                      
+    config.sources['mic'].remove('openmoc/mic/openmoc_mic.i')
+#    config.linker_flags[' = config.linker_flags.remove('-Wl,-soname,_openmoc.so')
 
 
 # Loop over the compilers and floating point precision levels to create
@@ -148,6 +180,12 @@ def customize_compiler(self):
                 self.set_executable('compiler_so', 'icpc')
             postargs = config.compiler_flags['icpc']
 
+        # If MIC is a defined macro and the source is C++, use icpc
+        elif '-DMIC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+            # CCache is not currently working with the MIC module
+            self.set_executable('compiler_so', 'icpc')
+            postargs = config.compiler_flags['mic']
+
         # If CUDA is a defined macro and the source is C++, compile SWIG-wrapped
         # CUDA code with gcc
         elif '-DCUDA' in pp_opts and os.path.splitext(src)[1] == '.cpp':
@@ -221,8 +259,18 @@ def customize_linker(self):
                 elif 'double' not in output_filename and 'double' in obj:
                     objects = [o for o in objects if o is not obj]
 
+#            print 'obj = %s and outputfilename = %s' % (obj, output_filename)
+#            if '_intel' in obj and '_intel' not in output_filename:
+#                objects.remove(obj)
+#            elif '_gnu' in obj and '_gnu' not in output_filename:
+#                objects.remove(obj)
+#            elif '_single' in obj and '_single' not in output_filename:
+#                objects.remove(obj)
+#            elif '_double' in obj and '_double' not in output_filename:
+#                objects.remove(obj)
+
         # If the filename for the extension contains intel, use icpc to link
-        if 'intel' in output_filename:
+        if 'intel' in output_filename or 'mic' in output_filename:
             self.set_executable('linker_so', 'icpc')
             self.set_executable('linker_exe', 'icpc')
 
