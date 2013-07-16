@@ -11,6 +11,7 @@
     #include "../src/Quadrature.h"
     #include "../src/Solver.h"
     #include "../src/CPUSolver.h"
+    #include "../src/ThreadPrivateSolver.h"
     #include "../src/Surface.h"
     #include "../src/Timer.h"
     #include "../src/Track.h" 
@@ -60,18 +61,18 @@
 
 
 %apply (int DIM1, int DIM2, short* IN_ARRAY2) {(int num_x, int num_y, short* universes)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_t, int num_energy_groups)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_a, int num_energy_groups)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_s, int num_energy_groups)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_f, int num_energy_groups)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* nu_sigma_f, int num_energy_groups)}
-%apply (double* IN_ARRAY1, int DIM1) {(double* chi, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_t, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_a, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_s, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_f, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* nu_sigma_f, int num_energy_groups)}
-%apply (float* IN_ARRAY1, int DIM1) {(float* chi, int num_energy_groups)}
+%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_t, int num_groups)}
+%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_a, int num_groups)}
+%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_s, int num_groups)}
+%apply (double* IN_ARRAY1, int DIM1) {(double* sigma_f, int num_groups)}
+%apply (double* IN_ARRAY1, int DIM1) {(double* nu_sigma_f, int num_groups)}
+%apply (double* IN_ARRAY1, int DIM1) {(double* chi, int num_groups)}
+%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_t, int num_groups)}
+%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_a, int num_groups)}
+%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_s, int num_groups)}
+%apply (float* IN_ARRAY1, int DIM1) {(float* sigma_f, int num_groups)}
+%apply (float* IN_ARRAY1, int DIM1) {(float* nu_sigma_f, int num_groups)}
+%apply (float* IN_ARRAY1, int DIM1) {(float* chi, int num_groups)}
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
 
@@ -85,6 +86,7 @@
 %include ../src/Quadrature.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
+%include ../src/ThreadPrivateSolver.h
 %include ../src/Surface.h
 %include ../src/Timer.h
 %include ../src/Track.h

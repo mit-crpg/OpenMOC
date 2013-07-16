@@ -2,6 +2,7 @@
 
 
 std::map<std::string, double> Timer::_timer_splits;
+std::vector<timespec*> Timer::_start_times;
 
 
 /**
@@ -10,14 +11,15 @@ std::map<std::string, double> Timer::_timer_splits;
  */
 void Timer::startTimer() {
 
-    if (!_running) {
-        #ifdef __MACH__         /* For OSX */
-        gettimeofday(&_start_time, NULL);
-        #else                           /* For linux */
-        clock_gettime(CLOCK_MONOTONIC, &_start_time);
-        #endif
-        _running = true;
-    }
+    timespec* start_time = new timespec;
+    _start_times.push_back(start_time);	
+
+    #ifdef __MACH__         /* For OSX */
+    gettimeofday(start_time, NULL);
+    #else                           /* For linux */
+    clock_gettime(CLOCK_MONOTONIC, start_time);
+    #endif
+    _running = true;
 
     return;
 }
@@ -30,40 +32,27 @@ void Timer::startTimer() {
 void Timer::stopTimer() {
 
     if (_running) {
-        #ifdef __MACH__ /* For OSX */
-        gettimeofday(_end_time, NULL);
-        #else                   /* For linux */
-        clock_gettime(CLOCK_MONOTONIC, &_end_time);
+
+        timespec* end_time = new timespec;
+	timespec* start_time = _start_times.back();
+	
+        #ifdef __MACH__                  /* For OSX */
+        gettimeofday(end_time, NULL);
+        #else                            /* For linux */
+        clock_gettime(CLOCK_MONOTONIC, end_time);
         #endif
-        _running = false;
-        _elapsed_time += diff(_start_time, _end_time);
+
+        _elapsed_time = diff(*start_time, *end_time);
+
+	if (_start_times.empty())
+	    _running = false;
+
+	_start_times.pop_back();
+	delete start_time;
+	delete end_time;
     }
 
     return;
-}
-
-
-/**
- * @brief Resets the timer.
- * @details This method is similar to resetting a stopwatch.
- */
-void Timer::resetTimer() {
-    _elapsed_time = 0;
-    _running = false;
-}
-
-
-/**
- * @brief Restarts the timer
- * @details The elapsed time will accumulate along with the previous time(s) 
- *           the timer was running. If the timer was already running this 
- *           function does nothing.
- */
-void Timer::restartTimer() {
-    if (!_running) {
-        _elapsed_time += diff(_start_time, _end_time);
-        startTimer();
-    }
 }
 
 
@@ -82,43 +71,20 @@ void Timer::recordSplit(const char* msg) {
     if (_timer_splits.find(msg_string) != _timer_splits.end())
         _timer_splits[msg_string] += time;
     else
-      _timer_splits.insert(std::pair<std::string, double>(msg_string, time));
+        _timer_splits.insert(std::pair<std::string, double>(msg_string, time));
 }
 
 
 /**
  * @brief Returns the amount of time elapsed from startTimer to stopTimer. 
- * @details If the timer is currently running, returns the time spent running
- *          relative to the present time.
- * @return the elapsed time
+ * @return the elapsed time in seconds
  */
 double Timer::getTime() {
-    /* If the timer is not running */
-    if (!_running) {
-        #ifdef __MACH__         /* For OSX */
-        return _elapsed_time * 1.0E-6;
-        #else                           /* For Linux */
-        return _elapsed_time * 1.0E-9;
-        #endif
-    }
-
-    /* If the timer is currently running */
-    else {
-        timespec temp;
-        #ifdef __MACH__         /* For OSX */
-        gettimeofday(&temp, NULL);
-        #else                           /* For Linux */
-        clock_gettime(CLOCK_MONOTONIC, &temp);
-        #endif
-
-        _elapsed_time += diff(_start_time, temp);
-
-        #ifdef __MACH__         /* For OSX */
-        return _elapsed_time * 1.0E-6;
-        #else                           /* For Linux */
-        return _elapsed_time * 1.0E-9;
-        #endif
-    }
+    #ifdef __MACH__                  /* For OSX */
+    return _elapsed_time * 1.0E-6;
+    #else                           /* For Linux */
+    return _elapsed_time * 1.0E-9;
+    #endif
 }
 
 
@@ -149,7 +115,6 @@ void Timer::printSplits() {
 
     std::string curr_msg;
     double curr_split;
-    int msg_length, num_whitespaces;
     std::map<std::string, double>::iterator iter;
 
     for (iter = _timer_splits.begin(); iter != _timer_splits.end(); ++iter) {
@@ -158,21 +123,29 @@ void Timer::printSplits() {
 
         curr_msg = (*iter).first;
         curr_split = (*iter).second;
-        msg_length = curr_msg.length();
 
-        /* Num whitespaces for formatting is:
-         * 80 max char - 13 char for logger - 13 for time - msg length */
-        num_whitespaces = 80 - 13 - 11 - msg_length -3;
+	curr_msg.resize(53, '.');
+	formatted_msg << curr_msg;
 
-        formatted_msg << curr_msg;
-
-        /* Add periods to format message to 80 characters length */
-        for (int i=0; i < num_whitespaces; i++)
-            formatted_msg << ".";
-
-        log_printf(RESULT, "%s%.7f sec", formatted_msg.str().c_str(),
-                   curr_split);
+        log_printf(RESULT, "%s%1.4E sec", formatted_msg.str().c_str(), 
+		   curr_split);
     }
+}
+
+
+/**
+ * @brief Clears the time split for this message and deletes 
+ *        the message's entry in the Timer's splits log
+ * @param msg the message tag for the split
+ */
+void Timer::clearSplit(const char* msg) {
+
+    std::string msg_string = std::string(msg);
+  
+    if (_timer_splits.find(msg_string) == _timer_splits.end())
+        return;
+    else
+        _timer_splits.erase(msg_string);
 }
 
 

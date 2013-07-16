@@ -18,14 +18,20 @@
 #include <sm_20_atomic_functions.h>
 #include "clone.h"
 
-
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
-#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*num_groups) + (e)])
+
 #define source(tid,e) (source[(tid)*(*num_groups) + (e)])
+
 #define old_source(tid,e) (old_source[(tid)*(*num_groups) + (e)])
+
 #define ratios(tid,e) (ratios[(tid)*(*num_groups) + (e)])
+
 #define polar_weights(i,p) (polar_weights[(i)*(*num_polar) + (p)])
+
 #define boundary_flux(tid,pe2) (boundary_flux[2*(tid)*(*polar_times_groups)+(pe2)])
+
+#define prefactorindex(tau) (int(tau * _inverse_prefactor_spacing) * _two_times_num_polar)
+
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
@@ -63,6 +69,7 @@ private:
     /*                           Data on the device                           */
     /**************************************************************************/
 
+    /** The flat source region material pointers index by FSR UID */
     int* _FSR_materials;
 
     /** A pointer to an array of the materials on the device */
@@ -74,15 +81,34 @@ private:
     /** An array of the cumulative number of tracks for each azimuthal angle */
     int* _track_index_offsets;
 
+    /** A pointer to the Thrust vector of fission sources in each FSR */
     FP_PRECISION* _fission_source;
+
+    /** A pointer to the Thrust vector of absorption rates in each FSR */
     FP_PRECISION* _tot_absorption;
+
+    /** A pointer to the Thrust vector of fission rates in each FSR */
     FP_PRECISION* _tot_fission;
+
+    /** A pointer to the Thrust vector of source residuals in each FSR  */
     FP_PRECISION* _source_residual;
+
+    /** A pointer to the Thrust vector of leakages for each track */
     FP_PRECISION* _leakage;
+
+    /** Thrust vector of fission sources in each FSR */
     thrust::device_vector<FP_PRECISION> _fission_source_vec;
-    thrust::device_vector<FP_PRECISION> _tot_absorption_vec;
+
+    /** Thrust vector of fission rates in each FSR */
     thrust::device_vector<FP_PRECISION> _tot_fission_vec;
+
+    /** Thrust vector of absorption rates in each FSR */
+    thrust::device_vector<FP_PRECISION> _tot_absorption_vec;
+
+    /** Thrust vector of source residuals in each FSR */
     thrust::device_vector<FP_PRECISION> _source_residual_vec;
+
+    /** Thrust vector of leakages for each track */
     thrust::device_vector<FP_PRECISION> _leakage_vec;
 
     void initializePolarQuadrature();
@@ -100,9 +126,9 @@ private:
     void flattenFSRSources(FP_PRECISION value);
     void normalizeFluxes();
     FP_PRECISION computeFSRSources();
+    void addSourceToScalarFlux();
     void computeKeff();
-    bool isScalarFluxConverged();
-    void transportSweep(int max_iterations);
+    void transportSweep();
 
 public:
 
@@ -118,7 +144,6 @@ public:
     void setNumThreadsPerBlock(int num_threads);
     void setGeometry(Geometry* geometry);
     void setTrackGenerator(TrackGenerator* track_generator);
-    void setFluxConvergenceThreshold(FP_PRECISION flux_thresh);
 
     int computeScalarTrackIndex(int i, int j);
     void computePinPowers();

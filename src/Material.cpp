@@ -39,6 +39,8 @@ Material::Material(short int id) {
     _nu_sigma_f = NULL;
     _chi = NULL;
 
+    _data_aligned = false;
+
     return;
 }
 
@@ -48,20 +50,47 @@ Material::Material(short int id) {
  */
 Material::~Material() { 
 
-   /* This assumes that if the number of energy groups has been set, all 
-    * cross-sections have been set */
-    if (_sigma_t != NULL)
-        delete [] _sigma_t;
-    if (_sigma_a != NULL)
-        delete [] _sigma_a;
-    if (_sigma_s != NULL)
-        delete [] _sigma_s;
-    if (_sigma_f != NULL)
-        delete [] _sigma_f;
-    if (_nu_sigma_f != NULL)
-        delete [] _nu_sigma_f;
-    if (_chi != NULL)
-        delete [] _chi;
+    /* If data is vector aligned */
+    if (_data_aligned) {
+        if (_sigma_t != NULL)
+	    _mm_free(_sigma_t);
+
+	if (_sigma_a != NULL)
+	    _mm_free(_sigma_a);
+
+	if (_sigma_s != NULL)
+	    _mm_free(_sigma_s);
+	
+	if (_sigma_f != NULL)
+	    _mm_free(_sigma_f);
+	
+	if (_nu_sigma_f != NULL)
+	    _mm_free(_nu_sigma_f);
+	
+	if (_chi != NULL)
+	    _mm_free(_chi);
+    }
+
+    /* Data is not vector aligned */
+    else {
+        if (_sigma_t != NULL)
+	    delete [] _sigma_t;
+
+	if (_sigma_a != NULL)
+	    delete [] _sigma_a;
+
+	if (_sigma_s != NULL)
+	    delete [] _sigma_s;
+	
+	if (_sigma_f != NULL)
+	    delete [] _sigma_f;
+	
+	if (_nu_sigma_f != NULL)
+	    delete [] _nu_sigma_f;
+	
+	if (_chi != NULL)
+	    delete [] _chi;
+    }
 }
 
 
@@ -87,7 +116,7 @@ short int Material::getId() const {
  * @return the number of energy groups
  */
 int Material::getNumEnergyGroups() const {
-    return _num_energy_groups;
+    return _num_groups;
 }
 
 
@@ -172,31 +201,51 @@ double* Material::getChi() {
 
 
 /**
- * @brief Set the number of energy groups for this material.
- * @param num_energy_groups the number of energy groups.
+ * @brief Returns true if the data is vector aligned, false otherwise (default).
+ * @return Whether or not the materials data is vector aligned
  */
-void Material::setNumEnergyGroups(const int num_energy_groups) {
-    if (num_energy_groups < 0)
-        log_printf(ERROR, "Unable to set the number of energy groups for "
-                   "material %d to %d", num_energy_groups);
+bool Material::isDataAligned() {
+    return _data_aligned;
+}
 
-    _num_energy_groups = num_energy_groups;
+
+/**
+ * @brief Returns the rounded up number of energy groups to fill an integral
+ *        number of vector lengths
+ * @return The number of vector-aligned energy groups
+ */
+int Material::getNumVectorGroups() {
+    return _num_vector_groups;
+}
+
+
+
+/**
+ * @brief Set the number of energy groups for this material.
+ * @param num_groups the number of energy groups.
+ */
+void Material::setNumEnergyGroups(const int num_groups) {
+    if (num_groups < 0)
+        log_printf(ERROR, "Unable to set the number of energy groups for "
+                   "material %d to %d", _num_groups);
+
+    _num_groups = num_groups;
 }
 
 /**
  * @brief Set the material's array of total cross-sections.
  * @param sigma_t the array of total cross-sections
- * @param num_energy_groups the number of energy groups
+ * @param num_groups the number of energy groups
  */
-void Material::setSigmaT(double* sigma_t, int num_energy_groups) {
-    if (_num_energy_groups != num_energy_groups)
+void Material::setSigmaT(double* sigma_t, int num_groups) {
+    if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set sigma_t with %d groups for material "
-                 "%d which contains %d energy groups", num_energy_groups,
-                 _num_energy_groups);
+                 "%d which contains %d energy groups", num_groups,
+                 _num_groups);
 
-    _sigma_t = new double[_num_energy_groups];
+    _sigma_t = new double[_num_groups];
 
-    for (int i=0; i < _num_energy_groups; i++)
+    for (int i=0; i < _num_groups; i++)
         _sigma_t[i] = sigma_t[i];
 }
 
@@ -205,17 +254,17 @@ void Material::setSigmaT(double* sigma_t, int num_energy_groups) {
  * @brief Set the material's array of absorption scattering cross-sections.
  * @details This method is intended to be called from 
  * @param sigma_a the array of absorption scattering cross-sections
- * @param num_energy_groups the number of energy groups
+ * @param num_groups the number of energy groups
  */
-void Material::setSigmaA(double* sigma_a, int num_energy_groups) {
-    if (_num_energy_groups != num_energy_groups)
+void Material::setSigmaA(double* sigma_a, int num_groups) {
+    if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set sigma_a with %d groups for material "
-                 "%d which contains %d energy groups", num_energy_groups,
-                 _num_energy_groups);
+                 "%d which contains %d energy groups", num_groups,
+                 _num_groups);
 
-    _sigma_a = new double[_num_energy_groups];
+    _sigma_a = new double[_num_groups];
 
-    for (int i=0; i < _num_energy_groups; i++)
+    for (int i=0; i < _num_groups; i++)
         _sigma_a[i] = sigma_a[i];
 }
 
@@ -229,20 +278,20 @@ void Material::setSigmaA(double* sigma_a, int num_energy_groups) {
  *          source iteration, the matrix transpose is what is actually stored 
  *          in the material
  * @param sigma_s the array of scattering cross-sections
- * @param num_energy_groups_squared the number of energy groups squared
+ * @param num_groups_squared the number of energy groups squared
  */
-void Material::setSigmaS(double* sigma_s, int num_energy_groups_squared) {
+void Material::setSigmaS(double* sigma_s, int num_groups_squared) {
  
-    if (_num_energy_groups*_num_energy_groups != num_energy_groups_squared)
+    if (_num_groups*_num_groups != num_groups_squared)
         log_printf(ERROR, "Unable to set sigma_s with %f groups for material "
 		   "%d which contains %d energy groups", 
-		   float(sqrt(num_energy_groups_squared)), _num_energy_groups);
+		   float(sqrt(num_groups_squared)), _num_groups);
 
-    _sigma_s = new double[_num_energy_groups*_num_energy_groups];
+    _sigma_s = new double[_num_groups*_num_groups];
 
-    for (int i=0; i < _num_energy_groups; i++) {
-        for (int j=0; j < _num_energy_groups; j++)
-            _sigma_s[j*_num_energy_groups+i] = sigma_s[i*_num_energy_groups+j];
+    for (int i=0; i < _num_groups; i++) {
+        for (int j=0; j < _num_groups; j++)
+            _sigma_s[j*_num_groups+i] = sigma_s[i*_num_groups+j];
     }
     
 }
@@ -251,17 +300,17 @@ void Material::setSigmaS(double* sigma_s, int num_energy_groups_squared) {
 /**
  * @brief Set the material's array of fission cross-sections.
  * @param sigma_f the array of fission cross-sections
- * @param num_energy_groups the number of energy groups
+ * @param num_groups the number of energy groups
  */
-void Material::setSigmaF(double* sigma_f, int num_energy_groups) {
-    if (_num_energy_groups != num_energy_groups)
+void Material::setSigmaF(double* sigma_f, int num_groups) {
+    if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set sigma_f with %d groups for material "
-                 "%d which contains %d energy groups", num_energy_groups,
-                 _num_energy_groups);
+                 "%d which contains %d energy groups", num_groups,
+                 _num_groups);
 
-    _sigma_f = new double[_num_energy_groups];
+    _sigma_f = new double[_num_groups];
 
-    for (int i=0; i < _num_energy_groups; i++)
+    for (int i=0; i < _num_groups; i++)
         _sigma_f[i] = sigma_f[i];
 }
 
@@ -271,17 +320,17 @@ void Material::setSigmaF(double* sigma_f, int num_energy_groups) {
  *         \f$ \nu \f$
  * @param nu_sigma_f the array of fission cross-sections multiplied by nu 
  *        \f$ \nu \f$
- * @param num_energy_groups the number of energy groups 
+ * @param num_groups the number of energy groups 
 */
-void Material::setNuSigmaF(double* nu_sigma_f, int num_energy_groups) {
-    if (_num_energy_groups != num_energy_groups)
+void Material::setNuSigmaF(double* nu_sigma_f, int num_groups) {
+    if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set nu_sigma_f with %d groups for material "
-                 "%d which contains %d energy groups", num_energy_groups,
-                 _num_energy_groups);
+                 "%d which contains %d energy groups", num_groups,
+                 _num_groups);
 
-    _nu_sigma_f = new double[_num_energy_groups];
+    _nu_sigma_f = new double[_num_groups];
 
-    for (int i=0; i < _num_energy_groups; i++)
+    for (int i=0; i < _num_groups; i++)
         _nu_sigma_f[i] = nu_sigma_f[i];
 }
 
@@ -289,18 +338,18 @@ void Material::setNuSigmaF(double* nu_sigma_f, int num_energy_groups) {
 /**
  * @brief Set the material's array of \f$ \chi \f$ values.
  * @param chi the array of chi \f$ \chi \f$ values
- * @param num_energy_groups the number of energy groups 
+ * @param num_groups the number of energy groups 
  */
-void Material::setChi(double* chi, int num_energy_groups) {
+void Material::setChi(double* chi, int num_groups) {
 
-    if (_num_energy_groups != num_energy_groups)
+    if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set chi with %d groups for material "
-                 "%d which contains %d energy groups", num_energy_groups,
-                 _num_energy_groups);
+                 "%d which contains %d energy groups", num_groups,
+                 _num_groups);
 
-    _chi = new double[_num_energy_groups];
+    _chi = new double[_num_groups];
 
-    for (int i=0; i < _num_energy_groups; i++)
+    for (int i=0; i < _num_groups; i++)
         _chi[i] = chi[i];
 }
 
@@ -314,7 +363,7 @@ void Material::setChi(double* chi, int num_energy_groups) {
  */
 void Material::checkSigmaT() {
 
-    if (_num_energy_groups == 0)
+    if (_num_groups == 0)
         log_printf(ERROR, "Unable to verify material %d's total cross-section "
                 "since the number of energy groups has not been set", _id);
     if (_sigma_t == NULL) 
@@ -330,14 +379,14 @@ void Material::checkSigmaT() {
     double calc_sigma_t;
 
     /* Loop over all energy groups */
-    for (int i=0; i < _num_energy_groups; i++) {
+    for (int i=0; i < _num_groups; i++) {
 
         /* Initialize the calculated total xs to the absorption xs */
         calc_sigma_t = _sigma_a[i];
 
         /* Increment calculated total xs by scatter xs for each energy group */
-        for (int j=0; j < _num_energy_groups; j++)
-            calc_sigma_t += _sigma_s[i+j*_num_energy_groups];
+        for (int j=0; j < _num_groups; j++)
+            calc_sigma_t += _sigma_s[i+j*_num_groups];
 
         /* Check if the calculated and total match up to certain threshold */
         if (fabs(calc_sigma_t - _sigma_t[i]) > SIGMA_T_THRESH) {
@@ -370,41 +419,41 @@ std::string Material::toString() {
 
     if (_sigma_a != NULL) {
         string << "\n\t\tSigma_a = ";
-        for (int e = 0; e < _num_energy_groups; e++)
+        for (int e = 0; e < _num_groups; e++)
             string << _sigma_a[e] << ", ";
     }
 
     if (_sigma_t != NULL) {
         string << "\n\t\tSigma_t = ";
-        for (int e = 0; e < _num_energy_groups; e++)
+        for (int e = 0; e < _num_groups; e++)
             string << _sigma_t[e] << ", ";
     }
 
     if (_sigma_f != NULL) {
         string << "\n\t\tSigma_f = ";
-        for (int e = 0; e < _num_energy_groups; e++)
+        for (int e = 0; e < _num_groups; e++)
             string << _sigma_f[e] << ", ";
     }
 
 
     if (_nu_sigma_f != NULL) {
         string << "\n\t\tnu_sigma_f = ";
-        for (int e = 0; e < _num_energy_groups; e++)
+        for (int e = 0; e < _num_groups; e++)
             string << _nu_sigma_f[e] << ", ";
     }
 
     if (_sigma_s != NULL) {
         string << "\n\t\tSigma_s = \n\t\t";
-        for (int G = 0; G < _num_energy_groups; G++) {
-  	    for (int g = 0; g < _num_energy_groups; g++)
-                string << _sigma_s[G+g*_num_energy_groups] << "\t\t ";
+        for (int G = 0; G < _num_groups; G++) {
+  	    for (int g = 0; g < _num_groups; g++)
+                string << _sigma_s[G+g*_num_groups] << "\t\t ";
             string << "\n\t\t";
         }
     }
 
     if (_chi != NULL) {
         string << "Chi = ";
-        for (int e = 0; e < _num_energy_groups; e++)
+        for (int e = 0; e < _num_groups; e++)
             string << _chi[e] << ", ";
     }
 
@@ -419,3 +468,88 @@ std::string Material::toString() {
 void Material::printString() {
     printf("%s", toString().c_str());
 }
+
+
+/**
+ * @brief Aligns the cross-section data structures 
+ */
+void Material::alignData() {
+
+    if (_data_aligned)
+        return;
+
+    if (_num_groups <= 0)
+        log_printf(ERROR, "Unable to align material %d data since the "
+		   "cross-sections have not yet been set\n", _uid);
+
+    _num_vector_groups = (_num_groups / VEC_LENGTH) + 1;
+
+    /* Allocate memory for the new aligned xs data */
+    int size = _num_vector_groups * VEC_LENGTH * sizeof(double);
+
+    double* new_sigma_t = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    double* new_sigma_a = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    double* new_sigma_f = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    double* new_nu_sigma_f = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    double* new_chi = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+	
+    /* The scattering matrix will be the number of vector groups 
+     * wide (SIMD) and the actual number of groups long since 
+     * instructions are not SIMD in this dimension */
+    size *= _num_vector_groups * VEC_LENGTH;
+    double* new_sigma_s = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    
+    /* Initialize data structures to ones for sigma_t since it is used to
+     * divide the source in the solver, and zeroes for everything else */
+    size = _num_vector_groups * VEC_LENGTH * sizeof(double);
+    for (int i=0; i < _num_vector_groups * VEC_LENGTH; i++) {
+        new_sigma_t[i] = 1.0;
+	new_sigma_a[i] = 0.0;
+	new_sigma_f[i] = 0.0;
+	new_nu_sigma_f[i] = 0.0;
+	new_chi[i] = 0.0;
+    }
+    
+    size *= _num_vector_groups * VEC_LENGTH;
+    memset(new_sigma_s, 0.0, size);
+    
+    /* Copy materials data from unaligned arrays into new aligned arrays */
+    size = _num_groups * sizeof(double);
+    memcpy(new_sigma_t, _sigma_t, size);
+    memcpy(new_sigma_a, _sigma_a, size);
+    memcpy(new_sigma_f, _sigma_f, size);
+    memcpy(new_nu_sigma_f, _nu_sigma_f, size);
+    memcpy(new_chi, _chi, size);
+
+    for (int e=0; e < _num_groups; e++) {
+        memcpy(new_sigma_s, _sigma_s, size);
+	new_sigma_s += _num_vector_groups * VEC_LENGTH;
+	_sigma_s += _num_groups;
+    }
+
+    _sigma_s -= _num_groups * _num_groups;
+    
+    /* Reset the new scattering cross section array pointer */
+    new_sigma_s -= _num_vector_groups * VEC_LENGTH * _num_groups;
+
+    /* Delete the old unaligned arrays */
+    delete [] _sigma_t;
+    delete [] _sigma_a;
+    delete [] _sigma_f;
+    delete [] _nu_sigma_f;
+    delete [] _chi;
+    delete [] _sigma_s;
+	
+    /* Set the material's array pointers to the new aligned arrays */
+    _sigma_t = new_sigma_t;
+    _sigma_a = new_sigma_a;
+    _sigma_f = new_sigma_f;
+    _nu_sigma_f = new_nu_sigma_f;
+    _chi = new_chi;
+    _sigma_s = new_sigma_s;    
+
+    _data_aligned = true;
+
+    return;
+}
+
