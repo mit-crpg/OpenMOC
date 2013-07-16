@@ -2,6 +2,7 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
+import openmoc.process as process
 
 
 ###############################################################################
@@ -343,7 +344,13 @@ solver = CPUSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
+<<<<<<< HEAD
 solver.printTimerReport()
+=======
+Timer.stopTimer()
+Timer.recordSplit('Converging the source on the CPU')
+Timer.printSplits()
+>>>>>>> 21a05535250e8d56ae008d246fbb4d4002bd9ec8
 
 
 ###############################################################################
@@ -355,7 +362,7 @@ log.py_printf('NORMAL', 'Plotting data...')
 #plotter.plotTracks(track_generator)
 #plotter.plotMaterials(geometry, gridsize)
 #plotter.plotCells(geometry, gridsize)
-#plotter.plotFlatSourceRegions(geometry, gridsize)
+plotter.plotFlatSourceRegions(geometry, gridsize)
 #plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')

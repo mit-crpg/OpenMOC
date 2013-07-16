@@ -47,7 +47,7 @@ fp = config.default_fp
 
 # The main extension will be openmoc compiled with gcc and double precision
 extensions.append(Extension(name = '_openmoc', 
-                    sources = config.sources['gcc'], 
+                    sources = config.sources[cc], 
                     library_dirs = config.library_directories[cc], 
                     libraries = config.shared_libraries[cc],
                     extra_link_args = config.linker_flags[cc], 
@@ -87,6 +87,23 @@ if config.with_mic:
                       
     config.sources['mic'].remove('openmoc/mic/openmoc_mic.i')
 
+
+
+# A MIC extension if the user requested it
+if config.with_mic:
+#    config.linker_flags['gcc'] = config.linker_flags.append('-Wl,-soname,_openmoc.so')
+    extensions.append(Extension(name = '_openmoc_mic', 
+                        sources = config.sources['mic'], 
+                        library_dirs = config.library_directories['icpc'], 
+                        libraries = config.shared_libraries['icpc'],
+                        extra_link_args = config.linker_flags['icpc'], 
+                        include_dirs = config.include_directories['icpc'],
+                        define_macros = config.macros['icpc'][config.default_fp],
+                        swig_opts = config.swig_flags,
+                        export_symbols = ['init_openmoc']))
+                      
+    config.sources['mic'].remove('openmoc/mic/openmoc_mic.i')
+#    config.linker_flags[' = config.linker_flags.remove('-Wl,-soname,_openmoc.so')
 
 
 # Loop over the compilers and floating point precision levels to create

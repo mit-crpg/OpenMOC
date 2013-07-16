@@ -2,9 +2,9 @@
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "../../src/Solver.h"
-    #include "../../src/dev/mic/MICQuery.h"
-    #include "../../src/dev/mic/MICSolver.h"
+    #include "../src/mic/MICQuery.h"
+    #include "../src/mic/MICSolver.h"
+
     /* Exception helpers */
     static int swig_c_error_num = 0;
     static char swig_c_err_msg[512];
@@ -36,13 +36,15 @@
 }
 
 
-%include <exception.i> 
-%include ../../src/Solver.h
-%include ../../src/dev/mic/MICSolver.h
-%include ../../src/dev/mic/MICQuery.h
+%include "../numpy.i"
 
-#ifdef DOUBLE
-typedef double FP_PRECISION
-#else
+
+%init %{
+     import_array();
+%}
+
+%include <exception.i> 
+%include ../src/mic/MICQuery.h
+%include ../src/mic/MICSolver.h
+
 typedef float FP_PRECISION;
-#endif

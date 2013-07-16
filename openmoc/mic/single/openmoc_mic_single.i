@@ -1,9 +1,9 @@
-%module openmoc_mic
+%module openmoc_mic_single
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "../../src/dev/mic/MICQuery.h"
-    #include "../../src/dev/mic/MICSolver.h"
+    #include "../../src/mic/MICQuery.h"
+    #include "../../src/mic/MICSolver.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -36,7 +36,7 @@
 }
 
 
-%include "../numpy.i"
+%include "../../numpy.i"
 
 
 %init %{

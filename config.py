@@ -1,4 +1,4 @@
-1###############################################################################
+##############################################################################
 #                                 User Options
 ###############################################################################
 
@@ -15,6 +15,9 @@ default_cc = 'gcc'
 fp_precision = ['double']
 
 default_fp = 'single'
+
+# Default floating point precision to use for main openmoc module
+default_fp = 'double'
 
 # Compile using ccache (most relevant for developers)
 with_ccache = True
@@ -90,8 +93,6 @@ sources['mic'] =  ['openmoc/mic/openmoc_mic.i',
                    'src/dev/mic/MICSolver.cpp']
 
 
-
-
 ###############################################################################
 #                                Compiler Paths
 ###############################################################################
@@ -136,8 +137,7 @@ compiler_flags['nvcc'] =  ['-c',
                            '--compiler-options', 
                            '-fpic',
                            '-gencode=arch=compute_20,code=sm_20',
-                           '-gencode=arch=compute_30,code=sm_30',
-                           '--ptxas-options=-v']
+                           '-gencode=arch=compute_30,code=sm_30']
 
 compiler_flags['mic'] = ['-c',
                          '-O3',
@@ -176,8 +176,10 @@ linker_flags['icpc'] = ['-lstdc++',
                         '-shared',
                         '-lmkl_rt',
                         '-lm',
+                        'build/lib.linux-x86_64-2.6/_openmoc.so',
                         '-Xlinker',
-                        '-soname=_openmoc.so']
+                        '-soname=_openmoc.so',
+                        '-loffload']
 
 
 linker_flags['mic'] = ['-lstdc++', 
