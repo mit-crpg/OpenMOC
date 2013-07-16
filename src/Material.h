@@ -13,8 +13,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include <mm_malloc.h>
 #include "log.h"
+#endif
+
+#if HOSTNAME==vestalac1
+#define _mm_free(array) free(array)
+#define _mm_malloc(size,alignment) malloc(size)
+#else
+#include <mm_malloc.h>
 #endif
 
 /** Error threshold for determining how close the sum of \f$ \Sigma_a \f$ 
@@ -98,6 +104,14 @@ public:
     void setSigmaF(double* sigma_f, int num_groups);
     void setNuSigmaF(double* nu_sigma_f, int num_groups);
     void setChi(double* chi, int num_groups);
+    
+    void setSigmaT(double sigma_t, int group);
+    void setSigmaA(double sigma_a, int group);
+    void setSigmaF(double sigma_f, int group);
+    void setNuSigmaF(double nu_sigma_f, int group);
+    void setSigmaS(double sigma_s, int group1, int group2);
+    void setChi(double chi, int group);
+
 
     void checkSigmaT();
     std::string toString();
