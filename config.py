@@ -6,7 +6,7 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = ['all']
+cpp_compilers = ['gcc']
 
 # Only supports GCC as the default compiler right now
 default_cc = 'gcc'
