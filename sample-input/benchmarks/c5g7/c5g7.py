@@ -10,9 +10,9 @@ import openmoc.materialize as materialize
 
 num_threads = 4
 track_spacing = 0.1
-num_azim = 12
+num_azim = 4
 tolerance = 1E-5
-max_iters = 4
+max_iters = 1000
 gridsize = 500
 
 log.setLogLevel('NORMAL')
@@ -344,35 +344,6 @@ solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
-
-
-solver.useExponentialIntrinsic()
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
-
-solver = ThreadPrivateSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
-
-solver = VectorizedSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
-
-solver.useExponentialIntrinsic()
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
 
 
 ###############################################################################
