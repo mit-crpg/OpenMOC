@@ -395,6 +395,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 	_timer->stopTimer();
 	_timer->recordSplit("Computing FSR sources");
 
+
 	_timer->startTimer();
 	transportSweep();	
 	_timer->stopTimer();
@@ -413,13 +414,15 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 	_num_iterations++;
 
 	/* Check for convergence of the fission source distribution */
-	if (i > 1 && residual < _source_convergence_thresh)
+	if (i > 1 && residual < _source_convergence_thresh) {
+	    _timer->stopTimer();
+	    _timer->recordSplit("Total time to converge the source");
 	    return _k_eff;
+	}
     }
 
-
     _timer->stopTimer();
-    _timer->recordSplit("Total");
+    _timer->recordSplit("Total time to converge the source");
 
     log_printf(WARNING, "Unable to converge the source after %d iterations",
 	       max_iterations);
@@ -438,29 +441,46 @@ void Solver::clearTimerSplits() {
     _timer->clearSplit("Transport sweep across the geometry");
     _timer->clearSplit("Adding the source term to the flux");
     _timer->clearSplit("Computing reaction rates and keff");
-    _timer->clearSplit("Total");
+    _timer->clearSplit("Total time to converge the source");
 }
 
 
 /**
- * @brief Prints the a report of the timing statistics to the console
+ * @brief Prints a report of the timing statistics to the console
  */
 void Solver::printTimerReport() {
-    _timer->printSplits();
+
+    std::string msg_string;
+    
+
+    log_printf(TITLE, "TIMING REPORT");
 
     /* Get the total runtime */
-    double tot_time = _timer->getSplit("Total");
+    double tot_time = _timer->getSplit("Total time to converge the source");
+    msg_string = "Total time to solution";
+    msg_string.resize(53, '.');
+    log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
 
     /* Time per unknown */
-    double time_per_unknown = tot_time / (_num_FSRs * _num_groups) * 1E9;
-    log_printf(RESULT, "Nanoseconds / unknown: %.0f", time_per_unknown);
+    double time_per_unknown = tot_time / (_num_FSRs * _num_groups);
+    msg_string = "Solution time per unknown";
+    msg_string.resize(53, '.');
+    log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_unknown);
 
     /* Time per iteration */
     double time_per_iter = tot_time / _num_iterations;
-    log_printf(RESULT, "Seconds / iteration: \t\t\t%f", time_per_iter);
+    msg_string = "Solution time per iteration";
+    msg_string.resize(53, '.');
+    log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_iter);
 
     /* Time per segment */
     int num_segments = _track_generator->getNumSegments();
-    double time_per_segment = (time_per_iter / num_segments) * 1E9;
-    log_printf(RESULT, "Nanoseconds / track segment: %.0f", time_per_segment);
+    double time_per_segment = (time_per_iter / num_segments);
+    msg_string = "Integration time per track segment";
+    msg_string.resize(53, '.');
+    log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_segment);
+
+    _timer->printSplits();
+
+    log_printf(SEPARATOR, "*");
 }

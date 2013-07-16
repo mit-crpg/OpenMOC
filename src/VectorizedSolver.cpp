@@ -215,8 +215,6 @@ void VectorizedSolver::normalizeFluxes() {
     FP_PRECISION tot_fission_source;
     FP_PRECISION norm_factor;
 
-    memset(_fission_source, 0, _num_FSRs * _num_groups);
-
     /* Compute total fission source for each region, energy group */
     #pragma omp parallel for private(volume, nu_sigma_f) \
       reduction(+:tot_fission_source)
