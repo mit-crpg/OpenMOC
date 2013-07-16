@@ -31,7 +31,7 @@ with_mic = False
 # The vector length used for the VectorizedSolver class. This will used
 # SIMD vector instructions. The number of energy groups will be fit to
 # a multiple of this value
-vector_length = 4
+vector_length = 8
 
 # The vector alignment used in the VectorizedSolver class when allocating
 # aligned data structures 

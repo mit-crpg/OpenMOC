@@ -507,6 +507,7 @@ void Material::alignData() {
 	new_sigma_a[i] = 0.0;
 	new_sigma_f[i] = 0.0;
 	new_nu_sigma_f[i] = 0.0;
+	new_chi[i] = 0.0;
     }
     
     size *= _num_vector_groups * VEC_LENGTH;

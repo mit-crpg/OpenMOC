@@ -653,7 +653,7 @@ void CPUSolver::computeKeff() {
 
     _k_eff = tot_fission / (tot_abs + _leakage);
 
-    log_printf(DEBUG, "tot_abs = %f, tot_fission = %f, leakage = %f, "
+    log_printf(DEBUG, "abs = %f, fission = %f, leakage = %f, "
 	       "k_eff = %f", tot_abs, tot_fission, _leakage, _k_eff);
 
     delete [] absorption_rates;
