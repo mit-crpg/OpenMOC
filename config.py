@@ -6,13 +6,13 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = ['all']
+cpp_compilers = ['icpc']
 
 # Only supports GCC as the default compiler right now
 default_cc = 'gcc'
 
 # Supported floating point precision levels: 'single', 'double', 'all'
-fp_precision = ['all']
+fp_precision = ['double']
 
 default_fp = 'single'
 
@@ -24,6 +24,9 @@ debug_mode = False
 
 # Use CUDA set to True or False
 with_cuda = False
+
+# Compile module for the Intel Xeon Phi (MIC)
+with_mic = False
 
 # The vector length used for the VectorizedSolver class. This will used
 # SIMD vector instructions. The number of energy groups will be fit to
@@ -81,6 +84,12 @@ sources['nvcc'] = ['openmoc/cuda/openmoc_cuda.i',
                    'src/dev/gpu/GPUQuery.cu',
                    'src/dev/gpu/GPUSolver.cu']
 
+sources['mic'] =  ['openmoc/mic/openmoc_mic.i',
+                   'src/dev/mic/clone.cpp',
+                   'src/dev/mic/MICQuery.cpp',
+                   'src/dev/mic/MICSolver.cpp']
+
+
 
 
 ###############################################################################
@@ -127,7 +136,18 @@ compiler_flags['nvcc'] =  ['-c',
                            '--compiler-options', 
                            '-fpic',
                            '-gencode=arch=compute_20,code=sm_20',
-                           '-gencode=arch=compute_30,code=sm_30']
+                           '-gencode=arch=compute_30,code=sm_30',
+                           '--ptxas-options=-v']
+
+compiler_flags['mic'] = ['-c',
+                         '-O3',
+                         '-openmp',
+                         '-xhost',
+                         '-std=c++0x',
+                         '-fpic',
+                         '-openmp-report',
+                         '-vec-report',
+                         '-offload-option,mic,compiler,-Wl,"-zdefs"']
 
 
 ###############################################################################
@@ -159,6 +179,21 @@ linker_flags['icpc'] = ['-lstdc++',
                         '-Xlinker',
                         '-soname=_openmoc.so']
 
+
+linker_flags['mic'] = ['-lstdc++', 
+                       '-openmp', 
+                       '-liomp5', 
+                       '-lpthread', 
+                       '-lirc', 
+                       '-limf', 
+                       '-lrt',
+                       '-shared',
+                       '/home/wboyd/OpenMOC/build/lib.linux-x86_64-2.6/_openmoc.so',
+                       '-Xlinker',
+                       '-soname=_openmoc.so',
+                       '-loffload',
+                       '-offload-option,mic,ld,"-zdefs"']
+
 linker_flags['nvcc'] = ['-shared', 
                         'build/lib.linux-x86_64-2.7/_openmoc.so']
 
@@ -173,6 +208,8 @@ shared_libraries = {}
 shared_libraries['gcc'] = []
 shared_libraries['icpc'] = []
 shared_libraries['nvcc'] = ['cudart']
+shared_libraries['mic'] = []
+
 
 
 ###############################################################################
@@ -184,6 +221,8 @@ library_directories = {}
 library_directories['gcc'] = [path_to_icpc + 'mkl/lib/intel64']
 library_directories['icpc'] = [path_to_icpc + 'compiler/lib/intel64']
 library_directories['nvcc'] = [path_to_nvcc + 'lib64']
+library_directories['mic'] = [path_to_icpc + 'compiler/lib/intel64']
+
 
 
 ###############################################################################
@@ -195,6 +234,8 @@ include_directories = {}
 include_directories['gcc'] = []
 include_directories['icpc'] =[path_to_icpc + 'compiler/include']
 include_directories['nvcc'] = [path_to_nvcc + 'include']
+include_directories['mic'] =[path_to_icpc + 'compiler/include']
+
 
 
 ###############################################################################
@@ -202,6 +243,7 @@ include_directories['nvcc'] = [path_to_nvcc + 'include']
 ###############################################################################
 
 swig_flags = ['-c++', '-keyword']
+
 
 
 ###############################################################################
@@ -212,6 +254,7 @@ macros = {}
 macros['gcc'] = {}
 macros['icpc'] = {}
 macros['nvcc'] = {}
+macros['mic'] = {}
 
 macros['gcc']['single']= [('FP_PRECISION', 'float'), 
                           ('SINGLE', None),
@@ -245,3 +288,10 @@ macros['nvcc']['double'] = [('FP_PRECISION', 'double'),
                             ('DOUBLE', None),
                             ('CUDA', None),
                             ('CCACHE_CC', 'nvcc')]
+
+macros['mic']['single'] = [('FP_PRECISION', 'float'), 
+                            ('SINGLE', None),
+                            ('MIC', None)]
+macros['mic']['double'] = [('FP_PRECISION', 'double'), 
+                            ('DOUBLE', None),
+                            ('MIC', None)]
