@@ -101,5 +101,3 @@ log.py_printf('NORMAL', 'Running a strong scaling study...')
 
 process.strongScalingStudy(geometry, precision='all', compiler='all',
                            num_threads=numpy.linspace(1,24,24))
-process.weakScalingStudy(geometry, precision='all', compiler='all',
-                           num_threads=numpy.linspace(1,24,24))

@@ -6,17 +6,18 @@
 package_name = 'openmoc'
 
 # Supported C++ compilers: 'gcc', 'icpc', 'all'
-cpp_compilers = []
+cpp_compilers = ['icpc']
 
+# Only supports GCC as the default compiler right now
 default_cc = 'gcc'
 
 # Supported floating point precision levels: 'single', 'double', 'all'
-fp_precision = []
+fp_precision = ['double']
 
 default_fp = 'single'
 
 # Compile using ccache (most relevant for developers)
-with_ccache = False
+with_ccache = True
 
 # Compile with debug flags
 debug_mode = False
@@ -27,6 +28,14 @@ with_cuda = False
 # Compile module for the Intel Xeon Phi (MIC)
 with_mic = False
 
+# The vector length used for the VectorizedSolver class. This will used
+# SIMD vector instructions. The number of energy groups will be fit to
+# a multiple of this value
+vector_length = 8
+
+# The vector alignment used in the VectorizedSolver class when allocating
+# aligned data structures 
+vector_alignment = 16
 
 
 ###############################################################################
@@ -35,7 +44,7 @@ with_mic = False
 
 sources = {}
 
-sources['c++'] = ['openmoc/openmoc.i',
+sources['gcc'] = ['openmoc/openmoc.i',
                   'src/Cell.cpp',
                   'src/Geometry.cpp',
                   'src/LocalCoords.cpp',
@@ -45,13 +54,32 @@ sources['c++'] = ['openmoc/openmoc.i',
                   'src/Quadrature.cpp',
                   'src/Solver.cpp',
                   'src/CPUSolver.cpp',
+                  'src/ThreadPrivateSolver.cpp',
                   'src/Surface.cpp',
                   'src/Timer.cpp',
                   'src/Track.cpp',
                   'src/TrackGenerator.cpp',
                   'src/Universe.cpp']
 
-sources['cuda'] = ['openmoc/cuda/openmoc_cuda.i',
+sources['icpc'] = ['openmoc/openmoc.i',
+                  'src/Cell.cpp',
+                  'src/Geometry.cpp',
+                  'src/LocalCoords.cpp',
+                  'src/log.cpp',
+                  'src/Material.cpp',
+                  'src/Point.cpp',
+                  'src/Quadrature.cpp',
+                  'src/Solver.cpp',
+                  'src/CPUSolver.cpp',
+                  'src/ThreadPrivateSolver.cpp',
+                  'src/VectorizedSolver.cpp',
+                  'src/Surface.cpp',
+                  'src/Timer.cpp',
+                  'src/Track.cpp',
+                  'src/TrackGenerator.cpp',
+                  'src/Universe.cpp']
+
+sources['nvcc'] = ['openmoc/cuda/openmoc_cuda.i',
                    'src/dev/gpu/clone.cu',
                    'src/dev/gpu/GPUQuery.cu',
                    'src/dev/gpu/GPUSolver.cu']
@@ -130,8 +158,12 @@ linker_flags = {}
 
 linker_flags['gcc'] = ['-lstdc++', 
                        '-lgomp', 
-                       '-fopenmp', 
+                       '-fopenmp',
                        '-shared', 
+                       '-lmkl_rt',
+                       '-ldl',
+                       '-lpthread',
+                       '-lm',
                        '-Wl,-soname,_openmoc.so']
 
 linker_flags['icpc'] = ['-lstdc++', 
@@ -142,8 +174,11 @@ linker_flags['icpc'] = ['-lstdc++',
                         '-limf', 
                         '-lrt', 
                         '-shared',
+                        '-lmkl_rt',
+                        '-lm',
                         '-Xlinker',
                         '-soname=_openmoc.so']
+
 
 linker_flags['mic'] = ['-lstdc++', 
                        '-openmp', 
@@ -183,7 +218,7 @@ shared_libraries['mic'] = []
 
 library_directories = {}
 
-library_directories['gcc'] = []
+library_directories['gcc'] = [path_to_icpc + 'mkl/lib/intel64']
 library_directories['icpc'] = [path_to_icpc + 'compiler/lib/intel64']
 library_directories['nvcc'] = [path_to_nvcc + 'lib64']
 library_directories['mic'] = [path_to_icpc + 'compiler/lib/intel64']
@@ -223,17 +258,27 @@ macros['mic'] = {}
 
 macros['gcc']['single']= [('FP_PRECISION', 'float'), 
                           ('SINGLE', None),
-                          ('GNU', None)]
+                          ('GNU', None),
+                          ('VEC_LENGTH', vector_length),
+                          ('VEC_ALIGNMENT', vector_alignment)]
 macros['icpc']['single']= [('FP_PRECISION', 'float'), 
                            ('SINGLE', None),
-                           ('INTEL', None)]
+                           ('INTEL', None),
+                           ('MKL_ILP64', None),
+                           ('VEC_LENGTH', vector_length),
+                           ('VEC_ALIGNMENT', vector_alignment)]
 
 macros['gcc']['double'] = [('FP_PRECISION', 'double'), 
                            ('DOUBLE', None),
-                           ('GNU', None)]
+                           ('GNU', None),
+                           ('VEC_LENGTH', vector_length),
+                           ('VEC_ALIGNMENT', vector_alignment)]
 macros['icpc']['double'] = [('FP_PRECISION', 'double'), 
                             ('DOUBLE', None),
-                            ('INTEL', None)]
+                            ('INTEL', None),
+                            ('MKL_ILP64', None),
+                            ('VEC_LENGTH', vector_length),
+                            ('VEC_ALIGNMENT', vector_alignment)]
 
 macros['nvcc']['single'] = [('FP_PRECISION', 'float'), 
                             ('SINGLE', None),

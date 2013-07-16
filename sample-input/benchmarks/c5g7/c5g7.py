@@ -8,11 +8,11 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 1
+num_threads = 4
 track_spacing = 0.1
 num_azim = 4
 tolerance = 1E-5
-max_iters = 10
+max_iters = 1000
 gridsize = 500
 
 log.setLogLevel('NORMAL')
@@ -316,18 +316,12 @@ lattices[-1].setLatticeCells([[10, 11, 15],
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-Timer.startTimer()
-
 geometry = Geometry()
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 for lattice in lattices: geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
-
-Timer.stopTimer()
-Timer.recordSplit('Iniitilializing the geometry')
-Timer.resetTimer()
 
 
 ###############################################################################
@@ -336,30 +330,20 @@ Timer.resetTimer()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-Timer.startTimer()
-
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
-
-Timer.stopTimer()
-Timer.recordSplit('Ray tracing across the geometry')
-Timer.resetTimer()
 
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-Timer.startTimer()
 
 solver = CPUSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
-
-Timer.stopTimer()
-Timer.recordSplit('Converging the source with %d CPU threads' % (num_threads))
-Timer.resetTimer()
+solver.printTimerReport()
 
 
 ###############################################################################
@@ -368,17 +352,10 @@ Timer.resetTimer()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-Timer.startTimer()
-
 #plotter.plotTracks(track_generator)
 #plotter.plotMaterials(geometry, gridsize)
 #plotter.plotCells(geometry, gridsize)
 #plotter.plotFlatSourceRegions(geometry, gridsize)
 #plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
-
-Timer.stopTimer()
-Timer.recordSplit('Generating visualizations')
-Timer.resetTimer()
-Timer.printSplits()
 
 log.py_printf('TITLE', 'Finished')
