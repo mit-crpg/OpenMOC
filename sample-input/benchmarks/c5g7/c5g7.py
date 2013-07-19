@@ -346,18 +346,15 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
-solver.useExponentialIntrinsic()
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
 solver = ThreadPrivateSolver(geometry, track_generator)
-solver.useExponentialIntrinsic()
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
-solver.useExponentialIntrinsic()
+solver = intel.VectorizedSolver(geometry, track_generator)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
@@ -368,7 +365,9 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
-solver.useExponentialIntrinsic()
+solver = intel.VectorizedPrivateSolver(geometry, track_generator)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
@@ -379,9 +378,6 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
-solver.useExponentialIntrinsic()
-solver.convergeSource(max_iters)
-solver.printTimerReport()
 
 
 ###############################################################################
