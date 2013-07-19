@@ -67,9 +67,9 @@ VectorizedSolver::~VectorizedSolver() {
 	_old_source = NULL;
     }
 
-    if (_ratios != NULL) {
-        _mm_free(_ratios);
-	_ratios = NULL;
+    if (_reduced_source != NULL) {
+        _mm_free(_reduced_source);
+	_reduced_source = NULL;
     }
 
     if (_thread_taus != NULL) {
@@ -184,8 +184,8 @@ void VectorizedSolver::initializeSourceArrays() {
     if (_old_source != NULL)
         _mm_free(_old_source);
 
-    if (_ratios != NULL)
-        _mm_free(_ratios);
+    if (_reduced_source != NULL)
+        _mm_free(_reduced_source);
 
     int size;
 
@@ -195,7 +195,7 @@ void VectorizedSolver::initializeSourceArrays() {
 	_fission_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 	_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 	_old_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-	_ratios = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_reduced_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's flat "
@@ -345,7 +345,7 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
 	    _source(r,G) = ((1.0 / _k_eff) * fission_source *
                            chi[G] + scatter_source) * ONE_OVER_FOUR_PI;
 
-	    _ratios(r,G) = _source(r,G) / sigma_t[G];
+	    _reduced_source(r,G) = _source(r,G) / sigma_t[G];
 
 	    /* Compute the norm of residual of the source in the region, group */
 	    if (fabs(_source(r,G)) > 1E-10)
@@ -400,7 +400,7 @@ void VectorizedSolver::addSourceToScalarFlux() {
             #pragma simd vectorlength(VEC_LENGTH)
             for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
                 _scalar_flux(r,e) *= 0.5;
-		_scalar_flux(r,e) = FOUR_PI * _ratios(r,e) + 
+		_scalar_flux(r,e) = FOUR_PI * _reduced_source(r,e) + 
 		  (_scalar_flux(r,e) / (sigma_t[e] * volume));
 	    }
         }
@@ -525,7 +525,7 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
 	    /* Loop over energy groups within this vector */
             #pragma simd vectorlength(VEC_LENGTH) private(psibar)
             for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
-	        psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponentials(p,e);
+	        psibar = (track_flux(p,e) - _reduced_source(fsr_id,e)) * exponentials(p,e);
 	        fsr_flux[e] += psibar * _polar_weights[p];
 		track_flux(p,e) -= psibar;
 	    }

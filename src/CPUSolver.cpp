@@ -226,8 +226,8 @@ void CPUSolver::initializeSourceArrays() {
     if (_old_source != NULL)
         delete [] _old_source;
 
-    if (_ratios != NULL)
-        delete [] _ratios;
+    if (_reduced_source != NULL)
+        delete [] _reduced_source;
 
     int size;
 
@@ -237,7 +237,7 @@ void CPUSolver::initializeSourceArrays() {
 	_fission_source = new FP_PRECISION[size];
 	_source = new FP_PRECISION[size];
 	_old_source = new FP_PRECISION[size];
-	_ratios = new FP_PRECISION[size];
+	_reduced_source = new FP_PRECISION[size];
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's flat "
@@ -592,7 +592,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 	    _source(r,G) = ((1.0 / _k_eff) * fission_source *
                            chi[G] + scatter_source) * ONE_OVER_FOUR_PI;
 
-	    _ratios(r,G) = _source(r,G) / sigma_t[G];
+	    _reduced_source(r,G) = _source(r,G) / sigma_t[G];
 
 	    /* Compute the norm of residual of the source in the region, group */
 	    if (fabs(_source(r,G)) > 1E-10)
@@ -780,7 +780,7 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
         /* Loop over energy groups */
         for (int e=0; e < _num_groups; e++) {
 	    exponential = computeExponential(sigma_t[e], length, p);
-	    psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponential;
+	    psibar = (track_flux(p,e) - _reduced_source(fsr_id,e)) * exponential;
 	    fsr_flux[e] += psibar * _polar_weights[p];
 	    track_flux(p,e) -= psibar;
 	}
@@ -891,7 +891,7 @@ void CPUSolver::addSourceToScalarFlux() {
 
 	for (int e=0; e < _num_groups; e++) {
             _scalar_flux(r,e) *= 0.5;
-	    _scalar_flux(r,e) = FOUR_PI * _ratios(r,e) + 
+	    _scalar_flux(r,e) = FOUR_PI * _reduced_source(r,e) + 
 	      (_scalar_flux(r,e) / (sigma_t[e] * volume));
         }
     }
