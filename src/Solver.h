@@ -17,6 +17,9 @@
 #include "pairwise_sum.h"
 #endif
 
+#define INTERP_EXPONENT
+
+
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
 
 #define _source(r,e) (_source[(r)*_num_groups + (e)])
@@ -164,6 +167,10 @@ protected:
     /** The tolerance for converging the source */
     FP_PRECISION _source_convergence_thresh;
 
+    /** A boolean indicating whether or not to use linear interpolation 
+     *  to comptue the exponential in the transport equation */
+    bool _interpolate_exponential;
+
     /* Exponential pre-factor hash table */
     /** The hashtable of exponential prefactors from the transport equation */
     FP_PRECISION* _prefactor_array;
@@ -222,6 +229,9 @@ public:
     virtual void setPolarQuadratureType(quadratureType quadrature_type);
     virtual void setNumPolarAngles(int num_polar);
     virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
+
+    void useExponentialInterpolation();
+    void useExponentialIntrinsic();
 
     virtual FP_PRECISION convergeSource(int max_iterations);
     virtual void computePinPowers() =0;

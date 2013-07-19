@@ -43,6 +43,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _FSRs_to_powers = NULL;
     _FSRs_to_pin_powers = NULL;
 
+    _interpolate_exponential = true;
     _prefactor_array = NULL;
 
     if (geometry != NULL)
@@ -284,6 +285,24 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 	       source_thresh);
 
     _source_convergence_thresh = source_thresh;
+}
+
+
+/**
+ * @brief Sets the solver to use linear interpolation to compute the exponential
+ *        in the transport equation
+ */
+void Solver::useExponentialInterpolation() {
+    _interpolate_exponential = true;
+}
+
+
+/**
+ * @brief Sets the solver to use the exponential intrinsic function to 
+ *        compute the exponential in the transport equation
+ */
+void Solver::useExponentialIntrinsic() {
+    _interpolate_exponential = false;
 }
 
 

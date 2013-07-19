@@ -10,7 +10,7 @@ import openmoc.materialize as materialize
 
 num_threads = 4
 track_spacing = 0.1
-num_azim = 16
+num_azim = 4
 tolerance = 1E-5
 max_iters = 1000
 gridsize = 500
