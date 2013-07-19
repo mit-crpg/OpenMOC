@@ -17,8 +17,6 @@ CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
 
     _FSR_locks = NULL;
     _thread_fsr_flux = NULL;
-
-    _interpolate_exponent = true;
 }
 
 
@@ -139,24 +137,6 @@ void CPUSolver::setNumThreads(int num_threads) {
 
     /* Set the number of threads for OpenMP */
     omp_set_num_threads(_num_threads);
-}
-
-
-/**
- * @brief Sets the solver to use linear interpolation to compute the exponential
- *        in the transport equation
- */
-void CPUSolver::useExponentialInterpolation() {
-    _interpolate_exponent = true;
-}
-
-
-/**
- * @brief Sets the solver to use the exponential intrinsic function to 
- *        compute the exponential in the transport equation
- */
-void CPUSolver::useExponentialIntrinsic() {
-    _interpolate_exponent = false;
 }
 
 
@@ -813,26 +793,25 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
 					   FP_PRECISION length, int p) {
 
-    FP_PRECISION exponent;
+    FP_PRECISION exponential;
+    FP_PRECISION tau = sigma_t * length;
 
     /* Evaluate the exponential using the lookup table - linear interpolation */
-    if (_interpolate_exponent) {
-        FP_PRECISION tau;
+    if (_interpolate_exponential) {
         int index;
 
-	tau = sigma_t * length;
 	index = int(tau * _inverse_prefactor_spacing) * _two_times_num_polar;
-	exponent = (1. - (_prefactor_array[index+2 * p] * tau + 
+	exponential = (1. - (_prefactor_array[index+2 * p] * tau + 
 			  _prefactor_array[index + 2 * p +1]));
     }
 
     /* Evalute the exponential using the intrinsic exp function */
     else {
         FP_PRECISION sintheta = _quad->getSinTheta(p);
-	exponent = 1.0 - exp(sigma_t * length / sintheta);
+	exponential = 1.0 - exp(- tau / sintheta);
     }
 
-    return exponent;
+    return exponential;
 }
 
 

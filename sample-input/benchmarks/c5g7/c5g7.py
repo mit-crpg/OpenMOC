@@ -9,9 +9,9 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 2
+num_threads = 1
 track_spacing = 0.1
-num_azim = 16
+num_azim = 8
 tolerance = 1E-5
 max_iters = 10
 gridsize = 500
@@ -346,21 +346,40 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
+solver.useExponentialIntrinsic()
+solver.convergeSource(max_iters)
+solver.printTimerReport()
+
 solver = ThreadPrivateSolver(geometry, track_generator)
+solver.useExponentialIntrinsic()
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
+solver.printTimerReport()
+
+solver.useExponentialIntrinsic()
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
 solver = intel.VectorizedSolver(geometry, track_generator)
+solver.useExponentialIntrinsic()
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
+solver.useExponentialIntrinsic()
+solver.convergeSource(max_iters)
+solver.printTimerReport()
+
 solver = intel.VectorizedPrivateSolver(geometry, track_generator)
+solver.useExponentialIntrinsic()
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
+solver.printTimerReport()
+
+solver.useExponentialIntrinsic()
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 

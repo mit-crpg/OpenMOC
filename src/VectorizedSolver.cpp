@@ -598,7 +598,7 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
     double* sigma_t = curr_segment->_material->getSigmaT();
 
     /* Evaluate the exponentials using the lookup table - linear interpolation */
-    if (_interpolate_exponent) {
+    if (_interpolate_exponential) {
         FP_PRECISION tau;
         int index;
 

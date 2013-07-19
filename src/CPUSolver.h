@@ -17,9 +17,6 @@
 #include "Solver.h"
 #endif
 
-#define INTERP_EXPONENT
-
-
 #define _thread_fsr_flux(tid) (_thread_fsr_flux[tid*_num_groups])
 
 #define track_flux(p,e) (track_flux[(p)*_num_groups + (e)])
@@ -47,10 +44,6 @@ protected:
     /** A buffer for temporary scalar flux updates for each thread */
     FP_PRECISION* _thread_fsr_flux;
     
-    /** A boolean indicating whether or not to use linear interpolation 
-     *  to comptue the exponential in the transport equation */
-    bool _interpolate_exponent;
-
     void initializeFluxArrays();
     void initializeSourceArrays();
     void initializePowerArrays();
@@ -87,9 +80,6 @@ public:
 
     void setNumThreads(int num_threads);
     
-    void useExponentialInterpolation();
-    void useExponentialIntrinsic();
-
     void computePinPowers();
 };
 
