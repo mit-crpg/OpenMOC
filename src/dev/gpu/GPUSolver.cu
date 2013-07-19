@@ -19,6 +19,9 @@ __constant__ int two_times_num_polar[1];
 /** The number of polar angles times energy groups */
 __constant__ int polar_times_groups[1];
 
+/** An array for the sines of the polar angle in the polar quadrature set */
+__constant__ FP_PRECISION sinthetas[MAX_POLAR_ANGLES];
+
 /** An array of the weights for the polar angles from the quadrature set */
 __constant__ FP_PRECISION polar_weights[MAX_POLAR_ANGLES*MAX_AZIM_ANGLES];
 
@@ -27,6 +30,8 @@ __constant__ int num_tracks[MAX_AZIM_ANGLES/2];
 
 /** The total number of tracks */
 __constant__ int tot_num_tracks[1];
+
+__constant__ bool interpolate_exponential[1];
 
 /** The maximum index of the exponential prefactor array */
 __constant__ int prefactor_max_index[1];
@@ -321,6 +326,33 @@ __device__ double atomicAdd(double* address, double val) {
 }
 
 
+__device__ FP_PRECISION computeExponential(FP_PRECISION sigma_t, 
+					   FP_PRECISION length,
+					   FP_PRECISION* prefactor_array,
+					   int p) {
+
+    FP_PRECISION exponential;
+    FP_PRECISION tau = sigma_t * length;
+
+    /* Evaluate the exponential using the lookup table - linear interpolation */
+    if (interpolate_exponential) {
+        int index;
+
+	index = int(tau * (*inverse_prefactor_spacing)) * (*two_times_num_polar);
+	exponential = (1. - (prefactor_array[index+2 * p] * tau + 
+			  prefactor_array[index + 2 * p +1]));
+    }
+
+    /* Evalute the exponential using the intrinsic exp function */
+    else {
+        FP_PRECISION sintheta = sinthetas[p];
+	exponential = 1.0 - exp(- tau / sintheta);
+    }
+
+    return exponential;
+}
+
+
 /**
  * @brief Computes the contribution to the flat source region scalar flux
  *        from a single track segment and a single energy group.
@@ -345,32 +377,35 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
 				FP_PRECISION* _prefactor_array,
 				FP_PRECISION* scalar_flux) {
 
-    FP_PRECISION fsr_flux;
-    FP_PRECISION tau;
-    int index;
-
-    /* The average flux long this segment in this flat source region */
-    FP_PRECISION psibar;
-
+    //    FP_PRECISION tau;
+    //    int index;
 
     int fsr_id = curr_segment->_region_uid;
     FP_PRECISION length = curr_segment->_length;
     dev_material* curr_material = &materials[curr_segment->_material_uid];
     double *sigma_t = curr_material->_sigma_t;
 
+    /* The average flux long this segment in this flat source region */
+    FP_PRECISION psibar;
+    FP_PRECISION exponential;
+
     /* Zero the FSR scalar flux contribution from this segment 
      * and energy group */
-    fsr_flux = 0.0;
+    FP_PRECISION fsr_flux = 0.0;
     
     /* Compute the exponential prefactor hashtable index */
-    tau = sigma_t[energy_group] * length;
-    index = computePrefactorIndex(tau);
+    //    tau = sigma_t[energy_group] * length;
+    //    index = computePrefactorIndex(tau);
     
     /* Loop over polar angles */
     for (int p=0; p < *num_polar; p++) {
-        psibar = (track_flux[p] - 
-		 reduced_source(fsr_id,energy_group)) * 
-	         prefactor(index,p,tau);
+        exponential = computeExponential(sigma_t[energy_group], 
+					 length, _prefactor_array, p);
+        psibar = (track_flux[p] - reduced_source(fsr_id,energy_group)) * 
+	         exponential;
+	//        psibar = (track_flux[p] - 
+	//	 reduced_source(fsr_id,energy_group)) * 
+	//       prefactor(index,p,tau);
 	fsr_flux += psibar * polar_weights[p];
 	track_flux[p] -= psibar;
     }
@@ -1281,6 +1316,18 @@ int GPUSolver::computeScalarTrackIndex(int i, int j) {
 void GPUSolver::precomputePrefactors(){
 
     log_printf(INFO, "Building exponential prefactor hashtable on device...");
+
+    /* Copy a boolean indicating whether or not to use the linear interpolation
+     * table or the exp intrinsic function */
+    cudaMemcpyToSymbol(interpolate_exponential, 
+		       (void*)&_interpolate_exponential, 
+		       sizeof(bool), 0, cudaMemcpyHostToDevice);
+
+    /* Copy the sines of the polar angles which is needed if the user
+     * requested the use of the exp intrinsic to evaluate exponentials */
+    cudaMemcpyToSymbol(sinthetas, (void*)_quad->getSinThetas(),
+		       _num_polar * sizeof(FP_PRECISION), 0, 
+		       cudaMemcpyHostToDevice);
 
     /* Set size of prefactor array */
     int num_array_values = 10 * sqrt(1. / (8. * _source_convergence_thresh));
