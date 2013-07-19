@@ -30,9 +30,9 @@
 
 #define boundary_flux(tid,pe2) (boundary_flux[2*(tid)*(*polar_times_groups)+(pe2)])
 
-#define prefactorindex(tau) (int(tau * _inverse_prefactor_spacing) * _two_times_num_polar)
+//#define prefactorindex(tau) (int(tau * _inverse_prefactor_spacing) * _two_times_num_polar)
 
-#define prefactor(index,p,tau) (1. - (_prefactor_array[index+2 * p] * tau + _prefactor_array[index + 2 * p +1]))
+//#define prefactor(index,p,tau) (1. - (_prefactor_array[index+2 * p] * tau + _prefactor_array[index + 2 * p +1]))
 
 
 /** The value of 4pi: \f$ 4\pi \f$ */
