@@ -163,24 +163,25 @@ void ThreadPrivateSolver::transportSweep() {
  * @param fsr_flux a pointer to the temporary flat source region flux buffer
  */
 void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment, 
-	                           FP_PRECISION* track_flux,
-	                           FP_PRECISION* fsr_flux){
+					  FP_PRECISION* track_flux,
+					  FP_PRECISION* fsr_flux){
 
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
+    FP_PRECISION length = curr_segment->_length;
+    double* sigma_t = curr_segment->_material->getSigmaT();
 
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
-
-    FP_PRECISION* exponentials = &_exponentials[tid * _polar_times_groups];
-    computeExponentials(curr_segment, exponentials);
+    FP_PRECISION exponential;
 
     /* Loop over energy groups */
     for (int p=0; p < _num_polar; p++){
 
 	/* Loop over polar angles */
-    for (int e=0; e < _num_groups; e++) {
-            psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponentials(p,e);
+        for (int e=0; e < _num_groups; e++) {
+            exponential = computeExponential(sigma_t[e], length, p);
+            psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponential;
 	    fsr_flux[e] += psibar * _polar_weights[p];
 	    track_flux(p,e) -= psibar;
 	}

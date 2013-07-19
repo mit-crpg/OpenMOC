@@ -765,12 +765,12 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
+    FP_PRECISION length = curr_segment->_length;
+    double* sigma_t = curr_segment->_material->getSigmaT();
 
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
-
-    FP_PRECISION* exponentials = &_exponentials[tid * _polar_times_groups];
-    computeExponentials(curr_segment, exponentials);
+    FP_PRECISION exponential;
 
     /* Set the flat source region flux buffer to zero */
     memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
@@ -780,7 +780,8 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 
         /* Loop over energy groups */
         for (int e=0; e < _num_groups; e++) {
-	    psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponentials(p,e);
+	    exponential = computeExponential(sigma_t[e], length, p);
+	    psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponential;
 	    fsr_flux[e] += psibar * _polar_weights[p];
 	    track_flux(p,e) -= psibar;
 	}
@@ -798,40 +799,29 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 }
 
 
-void CPUSolver::computeExponentials(segment* curr_segment, 
-				    FP_PRECISION* exponentials) {
+FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
+					   FP_PRECISION length, int p) {
 
-    FP_PRECISION length = curr_segment->_length;
-    double* sigma_t = curr_segment->_material->getSigmaT();
+    FP_PRECISION exponent;
 
     /* Evaluate the exponentials using the lookup table - linear interpolation */
     if (_interpolate_exponent) {
         FP_PRECISION tau;
         int index;
 
-	for (int p=0; p < _num_polar; p++) {
-
-	    for (int e=0; e < _num_groups; e++) {
-                tau = sigma_t[e] * length;
-	        index = int(tau * _inverse_prefactor_spacing) * _two_times_num_polar;
-		exponentials(p,e) = (1. - 
-	                  (_prefactor_array[index+2 * p] * tau + 
-	                   _prefactor_array[index + 2 * p +1]));
-            }
-        }
+	tau = sigma_t * length;
+	index = int(tau * _inverse_prefactor_spacing) * _two_times_num_polar;
+	exponent = (1. - (_prefactor_array[index+2 * p] * tau + 
+			  _prefactor_array[index + 2 * p +1]));
     }
 
     /* Evalute the exponentials using the intrinsic exp function */
     else {
-
-        FP_PRECISION* sinthetas = _quad->getSinThetas();
-
-	for (int p=0; p < _num_polar; p++) {
-            for (int e=0; e < _num_groups; e++) 
-	        exponentials(p,e) = 1.0 - exp(-sigma_t[e] * length / sinthetas[p]);
-        }
+        FP_PRECISION sintheta = _quad->getSinTheta(p);
+	exponent = 1.0 - exp(sigma_t * length / sintheta);
     }
 
+    return exponent;
 }
 
 

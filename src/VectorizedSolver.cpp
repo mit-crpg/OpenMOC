@@ -556,7 +556,7 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
  * @param exponentials the array to store the exponential values
  */
 void VectorizedSolver::computeExponentials(segment* curr_segment, 
-				     FP_PRECISION* exponentials) {
+	                                   FP_PRECISION* exponentials) {
 
     FP_PRECISION length = curr_segment->_length;
     double* sigma_t = curr_segment->_material->getSigmaT();
