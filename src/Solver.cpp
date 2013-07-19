@@ -295,7 +295,8 @@ void Solver::checkTrackSpacing() {
 
     int* FSR_segment_tallies = new int[_num_FSRs];
     int num_segments;
-    segment* curr_segment;
+    segment* curr_segment; 
+    segment* segments;
     Cell* cell;
 
     /* Set each tally to zero to begin with */
@@ -309,9 +310,10 @@ void Solver::checkTrackSpacing() {
     for (int i=0; i < _tot_num_tracks; i++) {
      
         num_segments = _tracks[i]->getNumSegments();
+	segments = _tracks[i]->getSegments();
 
 	for (int s=0; s < num_segments; s++) {
-	    curr_segment = _tracks[i]->getSegment(s);
+	    curr_segment = &segments[s];
 	    FSR_segment_tallies[curr_segment->_region_id]++;
 	}
     }
