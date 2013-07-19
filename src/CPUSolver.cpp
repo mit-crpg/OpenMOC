@@ -229,6 +229,9 @@ void CPUSolver::initializeSourceArrays() {
     if (_reduced_source != NULL)
         delete [] _reduced_source;
 
+    if (_source_residuals != NULL)
+        delete [] _source_residuals;
+
     int size;
 
     /* Allocate memory for all source arrays */
@@ -238,6 +241,7 @@ void CPUSolver::initializeSourceArrays() {
 	_source = new FP_PRECISION[size];
 	_old_source = new FP_PRECISION[size];
 	_reduced_source = new FP_PRECISION[size];
+	_source_residuals = new FP_PRECISION[size];
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's flat "
@@ -554,7 +558,6 @@ FP_PRECISION CPUSolver::computeFSRSources() {
     double* chi;
     Material* material;
 
-    FP_PRECISION* source_residuals = new FP_PRECISION[_num_groups*_num_FSRs];
     FP_PRECISION source_residual = 0.0;
 
     /* For all regions, find the source */
@@ -596,7 +599,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 
 	    /* Compute the norm of residual of the source in the region, group */
 	    if (fabs(_source(r,G)) > 1E-10)
-	        source_residuals(r,G) = pow((_source(r,G) - _old_source(r,G)) 
+	        _source_residuals(r,G) = pow((_source(r,G) - _old_source(r,G)) 
 					    / _source(r,G), 2);
 	    
 	    /* Update the old source */
@@ -608,11 +611,9 @@ FP_PRECISION CPUSolver::computeFSRSources() {
     }
 
     /* Sum up the residuals from each group and in each region */
-    source_residual = pairwise_sum<FP_PRECISION>(source_residuals, 
+    source_residual = pairwise_sum<FP_PRECISION>(_source_residuals, 
                                                  _num_FSRs*_num_groups);
     source_residual = sqrt(source_residual / _num_FSRs);
-
-    delete [] source_residuals;
 
     return source_residual;
 }

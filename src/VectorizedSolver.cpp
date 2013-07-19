@@ -187,6 +187,9 @@ void VectorizedSolver::initializeSourceArrays() {
     if (_reduced_source != NULL)
         _mm_free(_reduced_source);
 
+    if (_source_residuals != NULL)
+        _mm_free(_source_residuals);
+
     int size;
 
     /* Allocate aligned memory for all source arrays */
@@ -196,6 +199,7 @@ void VectorizedSolver::initializeSourceArrays() {
 	_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 	_old_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 	_reduced_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_source_residuals = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's flat "
@@ -293,7 +297,6 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
     double* chi;
     Material* material;
 
-    FP_PRECISION* source_residuals = new FP_PRECISION[_num_groups*_num_FSRs];
     FP_PRECISION source_residual = 0.0;
 
     /* For all regions, find the source */
@@ -349,7 +352,7 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
 
 	    /* Compute the norm of residual of the source in the region, group */
 	    if (fabs(_source(r,G)) > 1E-10)
-	        source_residuals(r,G) = pow((_source(r,G) - _old_source(r,G)) 
+	        _source_residuals(r,G) = pow((_source(r,G) - _old_source(r,G)) 
 					    / _source(r,G), 2);
 	    
 	    /* Update the old source */
@@ -362,14 +365,12 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
 
     /* Sum up the residuals from each group and in each region */
     #ifdef SINGLE
-    source_residual = cblas_sasum(_num_FSRs * _num_groups, source_residuals, 1);
+    source_residual = cblas_sasum(_num_FSRs * _num_groups, _source_residuals, 1);
     #else
-    source_residual = cblas_dasum(_num_FSRs * _num_groups, source_residuals, 1);
+    source_residual = cblas_dasum(_num_FSRs * _num_groups, _source_residuals, 1);
     #endif
 
     source_residual = sqrt(source_residual / _num_FSRs);
-
-    delete [] source_residuals;
 
     return source_residual;
 }
