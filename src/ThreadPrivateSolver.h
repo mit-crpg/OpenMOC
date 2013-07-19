@@ -30,7 +30,7 @@
  */
 class ThreadPrivateSolver : public CPUSolver {
 
-private:
+protected:
 
     /** An array for the flat source region scalar fluxes for each thread */
     FP_PRECISION* _thread_flux;
@@ -38,7 +38,8 @@ private:
     void initializeFluxArrays();
 
     void flattenFSRFluxes(FP_PRECISION value);
-    void scalarFluxTally(segment* curr_segment, FP_PRECISION* track_flux,
+    void scalarFluxTally(segment* curr_segment, 
+			 FP_PRECISION* track_flux,
 			 FP_PRECISION* fsr_flux);
     void reduceThreadScalarFluxes();
     void transportSweep();
