@@ -1,4 +1,5 @@
 from openmoc import *
+import openmoc.intel.single as intel
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -10,7 +11,7 @@ import openmoc.materialize as materialize
 
 num_threads = 4
 track_spacing = 0.1
-num_azim = 4
+num_azim = 8
 tolerance = 1E-5
 max_iters = 10
 gridsize = 500
@@ -346,6 +347,12 @@ solver.convergeSource(max_iters)
 solver.printTimerReport()
 
 solver = ThreadPrivateSolver(geometry, track_generator)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
+solver.printTimerReport()
+
+solver = intel.VectorizedSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
