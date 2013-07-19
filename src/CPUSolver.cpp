@@ -17,7 +17,6 @@ CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
 
     _FSR_locks = NULL;
     _thread_fsr_flux = NULL;
-    _exponentials = NULL;
 
     _interpolate_exponent = true;
 }
@@ -35,9 +34,6 @@ CPUSolver::~CPUSolver() {
 
     if (_thread_fsr_flux != NULL)
         delete [] _thread_fsr_flux;
-
-    if (_exponentials != NULL)
-        delete [] _exponentials;
 }
 
 
@@ -309,7 +305,6 @@ void CPUSolver::precomputePrefactors() {
     FP_PRECISION azim_weight;
 
     _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
-    _exponentials = new FP_PRECISION[_num_threads * _polar_times_groups];
 
     /* Precompute the total azimuthal weight for tracks at each polar angle */
     #pragma omp parallel for private (azim_weight) schedule(guided)
@@ -803,12 +798,24 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 }
 
 
+/**
+ * @brief Computes the exponential term in the transport equation for a
+ *        track segment.
+ * @details This method computes $1 - exp(-l\Sigma^T_g/sin(\theta_p))$ 
+ *          for a segment with total group cross-section and for
+ *          some polar angle.
+ * @brief sigma_t the total group cross-section at this energy
+ * @brief length the length of the line segment projected in the xy-plane
+ * @brief p the polar angle index
+ * @return the evaluated exponential
+ *
+ */
 FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
 					   FP_PRECISION length, int p) {
 
     FP_PRECISION exponent;
 
-    /* Evaluate the exponentials using the lookup table - linear interpolation */
+    /* Evaluate the exponential using the lookup table - linear interpolation */
     if (_interpolate_exponent) {
         FP_PRECISION tau;
         int index;
@@ -819,7 +826,7 @@ FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
 			  _prefactor_array[index + 2 * p +1]));
     }
 
-    /* Evalute the exponentials using the intrinsic exp function */
+    /* Evalute the exponential using the intrinsic exp function */
     else {
         FP_PRECISION sintheta = _quad->getSinTheta(p);
 	exponent = 1.0 - exp(sigma_t * length / sintheta);

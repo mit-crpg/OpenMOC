@@ -17,6 +17,7 @@ VectorizedSolver::VectorizedSolver(Geometry* geom,
     CPUSolver(geom, track_generator) { 
   
     _thread_taus = NULL;
+    _thread_exponentials = NULL;
 
     if (geom != NULL)
         setGeometry(geom);
@@ -81,6 +82,12 @@ VectorizedSolver::~VectorizedSolver() {
         _mm_free(_thread_taus);
         _thread_taus = NULL;
     }
+
+    if (_thread_exponentials != NULL) {
+        _mm_free(_thread_exponentials);
+        _thread_exponentials = NULL;
+    }
+
 }
 
 
@@ -120,6 +127,28 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
     for (iter=materials.begin(); iter != materials.end(); ++iter)
         (*iter).second->alignData();
 }
+
+
+/**
+ * @brief Allocates memory for the exponential prefactor table
+ */
+void VectorizedSolver::precomputePrefactors() {
+
+    CPUSolver::precomputePrefactors();
+
+    /* Deallocates memory for the exponentials if it was allocated for a
+     * previous simulation */
+    if (_thread_exponentials != NULL)
+        _mm_free(_thread_exponentials);
+
+    /* Allocates memory for an array of exponential values for each thread
+     * - this is not used by default, but can be to allow for vectorized
+     * evaluation of the exponentials. Unfortunately this does not appear
+     * to give any performance boost. */
+    int size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
+    _thread_exponentials = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+}
+
 
 
 /**
@@ -509,15 +538,15 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
 
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
+    FP_PRECISION length = curr_segment->_length;
+    double* sigma_t = curr_segment->_material->getSigmaT();
 
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
+    FP_PRECISION exponential;
 
     /* Set the flat source region flux buffer to zero */
     memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
-
-    FP_PRECISION* exponentials = &_exponentials[tid * _polar_times_groups];
-    computeExponentials(curr_segment, exponentials);
 
     /* Tally the flux contribution from segment to FSR's scalar flux */
     /* Loop over polar angles */
@@ -527,10 +556,11 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
         for (int v=0; v < _num_vector_lengths; v++) {
 
 	    /* Loop over energy groups within this vector */
-            #pragma simd vectorlength(VEC_LENGTH) private(psibar)
+            #pragma simd vectorlength(VEC_LENGTH) private(psibar, exponential)
             for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
+	        exponential = computeExponential(sigma_t[e], length, p);
 	        psibar = (track_flux(p,e) - _reduced_source(fsr_id,e)) * 
-		         exponentials(p,e);
+		                                             exponential;
 	        fsr_flux[e] += psibar * _polar_weights[p];
 		track_flux(p,e) -= psibar;
 	    }
@@ -627,7 +657,6 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
 	    }
 	}
     }
-
 }
 
 
