@@ -217,7 +217,7 @@ void VectorizedSolver::normalizeFluxes() {
 
     /* Compute total fission source for each region, energy group */
     #pragma omp parallel for private(volume, nu_sigma_f) \
-      reduction(+:tot_fission_source)
+      reduction(+:tot_fission_source) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
         /* Get pointers to important data structures */
@@ -298,7 +298,7 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
 
     /* For all regions, find the source */
     #pragma omp parallel for private(material, nu_sigma_f, chi,	\
-      sigma_s, sigma_t, fission_source, scatter_source)
+      sigma_s, sigma_t, fission_source, scatter_source) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
         FP_PRECISION* scatter_sources = new FP_PRECISION[_num_groups];
@@ -387,7 +387,7 @@ void VectorizedSolver::addSourceToScalarFlux() {
 
     /* Add in source term and normalize flux to volume for each region */
     /* Loop over flat source regions, energy groups */
-    #pragma omp parallel for private(volume, sigma_t)
+    #pragma omp parallel for private(volume, sigma_t) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
         volume = _FSR_volumes[r];
@@ -433,7 +433,8 @@ void VectorizedSolver::computeKeff() {
 
     /* Loop over all flat source regions and compute the volume-weighted
      * fission and absorption rates */
-    #pragma omp parallel for private(volume, material, sigma_a, nu_sigma_f)
+    #pragma omp parallel for private(volume, material, \
+      sigma_a, nu_sigma_f) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
         volume = _FSR_volumes[r];
