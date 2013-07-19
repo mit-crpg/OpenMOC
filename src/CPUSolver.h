@@ -77,9 +77,8 @@ protected:
     void computeKeff();
     void transportSweep();
 
-    void computeExponentials(segment* curr_segment, 
-			     FP_PRECISION* exponentials);
-
+    FP_PRECISION computeExponential(FP_PRECISION sigma_t, 
+				    FP_PRECISION length, int p); 
 public:
     CPUSolver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
     virtual ~CPUSolver();
