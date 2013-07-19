@@ -31,7 +31,9 @@
 
 #define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_polar_times_groups+(pe2)])
 
-#define _fission_source(r,e) (_fission_source[(r)*_num_groups + (e)])
+#define _fission_sources(r,e) (_fission_sources[(r)*_num_groups + (e)])
+
+#define _scatter_sources(r,e) (_scatter_sources[(r)*_num_groups + (e)])
 
 #define _source_residuals(r,e) (_source_residuals[(r)*_num_groups + (e)])
 
@@ -120,7 +122,10 @@ protected:
     FP_PRECISION* _scalar_flux;
 
     /** The fission source in each energy group in each flat source region */
-    FP_PRECISION* _fission_source;
+    FP_PRECISION* _fission_sources;
+
+    /** The in-scatter source in each energy group in each flat source region */
+    FP_PRECISION* _scatter_sources;
 
     /** The source in each energy group in each flat source region */
     FP_PRECISION* _source;

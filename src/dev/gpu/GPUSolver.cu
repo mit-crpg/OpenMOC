@@ -44,13 +44,13 @@ __constant__ FP_PRECISION inverse_prefactor_spacing[1];
  * @param FSR_volumes an array of flat source region volumes
  * @param FSR_materials an array of flat source region materials
  * @param materials an array of materials on the device
- * @param fission_source array of fission sources in each flat source region
+ * @param fission_sources array of fission sources in each flat source region
  */
 __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
 					      int* FSR_materials,
 					      dev_material* materials,
 					      FP_PRECISION* scalar_flux,
-					      FP_PRECISION* fission_source) {
+					      FP_PRECISION* fission_sources) {
 
     /* Use a shared memory buffer for each thread's fission source */
     extern __shared__ FP_PRECISION shared_fission_source[];
@@ -85,7 +85,7 @@ __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
 
     /* Copy this threads fission source to global memory */
     tid = threadIdx.x + blockIdx.x * blockDim.x;
-    fission_source[tid] = shared_fission_source[threadIdx.x];
+    fission_sources[tid] = shared_fission_source[threadIdx.x];
     
     return;
 }
@@ -603,7 +603,6 @@ GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
     _materials = NULL;
     _dev_tracks = NULL;
 
-    _fission_source = NULL;
     _tot_absorption = NULL;
     _tot_fission = NULL;
     _leakage = NULL;
@@ -678,9 +677,9 @@ GPUSolver::~GPUSolver() {
     	_FSRs_to_pin_powers = NULL;
     }
 
-    if (_fission_source != NULL) {
-        _fission_source_vec.clear();
-	_fission_source = NULL;
+    if (_fission_sources != NULL) {
+        _fission_sources_vec.clear();
+	_fission_sources = NULL;
     }
 
     if (_tot_absorption != NULL) {
@@ -1185,9 +1184,9 @@ void GPUSolver::initializeThrustVectors() {
     log_printf(INFO, "Initializing thrust vectors on the GPU...");
 
     /* Delete old vectors if they exist */
-    if (_fission_source != NULL) {
-        _fission_source = NULL;
-        _fission_source_vec.clear();
+    if (_fission_sources != NULL) {
+        _fission_sources = NULL;
+        _fission_sources_vec.clear();
     }
 
     if (_tot_absorption != NULL) {
@@ -1214,8 +1213,8 @@ void GPUSolver::initializeThrustVectors() {
     /* Allocate memory for fission, absorption and source vectors on device */
     try{
         /* Allocate fission source array on device */
-        _fission_source_vec.resize(_B * _T);
-	_fission_source = thrust::raw_pointer_cast(&_fission_source_vec[0]);
+        _fission_sources_vec.resize(_B * _T);
+	_fission_sources = thrust::raw_pointer_cast(&_fission_sources_vec[0]);
       
 	/* Allocate total absorption reaction rate array on device */
 	_tot_absorption_vec.resize(_B * _T);
@@ -1379,10 +1378,10 @@ void GPUSolver::normalizeFluxes() {
 							  _FSR_materials,
 							  _materials, 
 							  _scalar_flux, 
-							  _fission_source);
+							  _fission_sources);
 
-    FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_source_vec.begin(),
-						    _fission_source_vec.end());
+    FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_sources_vec.begin(),
+						    _fission_sources_vec.end());
 
     normalizeFluxesOnDevice<<<_B, _T>>>(_scalar_flux, _boundary_flux, 
 					norm_factor);
