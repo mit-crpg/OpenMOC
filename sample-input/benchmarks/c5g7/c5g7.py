@@ -1,5 +1,4 @@
 from openmoc import *
-import openmoc.intel.single as intel
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -9,11 +8,11 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 1
+num_threads = 4
 track_spacing = 0.1
-num_azim = 8
+num_azim = 4
 tolerance = 1E-5
-max_iters = 10
+max_iters = 1000
 gridsize = 500
 
 log.setLogLevel('NORMAL')
@@ -339,45 +338,11 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-
-solver = CPUSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
 solver = ThreadPrivateSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
-
-solver = intel.VectorizedSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
-solver = intel.VectorizedSolver(geometry, track_generator)
-solver.useExponentialIntrinsic()
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
-solver = intel.VectorizedPrivateSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
-solver = intel.VectorizedPrivateSolver(geometry, track_generator)
-solver.useExponentialIntrinsic()
-solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
 
 
 ###############################################################################
