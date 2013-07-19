@@ -23,7 +23,7 @@
 
 #define _old_source(r,e) (_old_source[(r)*_num_groups + (e)])
 
-#define _ratios(r,e) (_ratios[(r)*_num_groups + (e)])
+#define _reduced_source(r,e) (_reduced_source[(r)*_num_groups + (e)])
 
 #define _polar_weights(i,p) (_polar_weights[(i)*_num_polar + (p)])
 
@@ -34,10 +34,6 @@
 #define _fission_source(r,e) (_fission_source[(r)*_num_groups + (e)])
 
 #define source_residuals(r,e) (source_residuals[(r)*_num_groups + (e)])
-
-//#define prefactorindex(tau) (int(tau * _inverse_prefactor_spacing) * _two_times_num_polar)
-
-//#define prefactor(index,p,tau) (1. - (_prefactor_array[index+2 * p] * tau + _prefactor_array[index + 2 * p +1]))
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
@@ -133,9 +129,9 @@ protected:
      *  previous iteration */
     FP_PRECISION* _old_source;
 
-    /** Pre-computed Ratio of source / sigma_t for each energy group in each
+    /** Pre-computed ratio of source / sigma_t for each energy group in each
      *  flat source region */
-    FP_PRECISION* _ratios;
+    FP_PRECISION* _reduced_source;
 
     /** The normalized power in each flat source region */
     FP_PRECISION* _FSRs_to_powers;

@@ -23,7 +23,7 @@ with_ccache = True
 debug_mode = False
 
 # Use CUDA set to True or False
-with_cuda = False
+with_cuda = True
 
 # The vector length used for the VectorizedSolver class. This will used
 # SIMD vector instructions. The number of energy groups will be fit to

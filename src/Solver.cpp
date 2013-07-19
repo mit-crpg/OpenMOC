@@ -36,7 +36,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _fission_source = NULL;
     _source = NULL;
     _old_source = NULL;
-    _ratios = NULL;
+    _reduced_source = NULL;
 
     _FSRs_to_powers = NULL;
     _FSRs_to_pin_powers = NULL;
@@ -95,8 +95,8 @@ Solver::~Solver() {
     if (_old_source != NULL)
         delete [] _old_source;
 
-    if (_ratios != NULL)
-        delete [] _ratios;
+    if (_reduced_source != NULL)
+        delete [] _reduced_source;
 
     if (_FSRs_to_powers != NULL)
         delete [] _FSRs_to_powers;

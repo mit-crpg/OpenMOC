@@ -142,7 +142,7 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
  * @param materials an array of material pointers
  * @param scalar_flux an array of flat source region scalar fluxes
  * @param source an array of flat source region sources
- * @param ratios an array of flat source region sources / total xs
+ * @param reduced_source an array of flat source region sources / total xs
  * @param inverse_k_eff the inverse of keff
  * @param an array of the source residuals 
  * @return the residual between this source and the previous source
@@ -152,7 +152,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 					  FP_PRECISION* scalar_flux,
 					  FP_PRECISION* source,
 					  FP_PRECISION* old_source,
-					  FP_PRECISION* ratios,
+					  FP_PRECISION* reduced_source,
 					  FP_PRECISION inverse_k_eff,
 					  FP_PRECISION* source_residual) {
 
@@ -200,7 +200,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 	    source(tid,G) = (inverse_k_eff * fission_source * chi[G] +
 			     scatter_source) * ONE_OVER_FOUR_PI;
 
-	    ratios(tid,G) = __fdividef(source(tid,G), sigma_t[G]);
+	    reduced_source(tid,G) = __fdividef(source(tid,G), sigma_t[G]);
 
 	    /* Compute the norm of residuals of the sources for convergence */
 	    if (fabs(source(tid,G)) > 1E-10)
@@ -331,7 +331,7 @@ __device__ double atomicAdd(double* address, double val) {
  * @param energy_group the energy group of interest
  * @param materials the array of materials
  * @param track_flux a pointer to the track's angular flux
- * @param ratios the array of flat source region sources / total xs
+ * @param reduced_source the array of flat source region sources / total xs
  * @param polar_weights the array of polar quadrature weights
  * @param _prefactor_array the exponential prefactor interpolation table
  * @param scalar_flux the array of flat source region scalar fluxes
@@ -340,7 +340,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
 				int energy_group,
 				dev_material* materials,
 				FP_PRECISION* track_flux,
-				FP_PRECISION* ratios,
+				FP_PRECISION* reduced_source,
 				FP_PRECISION* polar_weights,
 				FP_PRECISION* _prefactor_array,
 				FP_PRECISION* scalar_flux) {
@@ -369,7 +369,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
     /* Loop over polar angles */
     for (int p=0; p < *num_polar; p++) {
         psibar = (track_flux[p] - 
-		 ratios(fsr_id,energy_group)) * 
+		 reduced_source(fsr_id,energy_group)) * 
 	         prefactor(index,p,tau);
 	fsr_flux += psibar * polar_weights[p];
 	track_flux[p] -= psibar;
@@ -441,7 +441,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
  *          the scalar flux in each flat source region
  * @param scalar_flux an array of flat source region scalar fluxes
  * @param boundary_flux an array of boundary fluxes
- * @param ratios an array of flat source region sources / total xs
+ * @param reduced_source an array of flat source region sources / total xs
  * @param leakage an array of angular flux leakaages
  * @param materials an array of material pointers
  * @param tracks an array of tracks
@@ -452,7 +452,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
  */
 __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 				       FP_PRECISION* boundary_flux,
-				       FP_PRECISION* ratios,
+				       FP_PRECISION* reduced_source,
 				       FP_PRECISION* leakage,
 				       dev_material* materials,
 				       dev_track* tracks,
@@ -499,7 +499,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	for (int i=0; i < num_segments; i++) {
 	    curr_segment = &curr_track->_segments[i];
 	    scalarFluxTally(curr_segment, energy_group, materials,
-			    track_flux, ratios, polar_weights,
+			    track_flux, reduced_source, polar_weights,
 			    _prefactor_array, scalar_flux);
 	}
 
@@ -514,7 +514,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	for (int i=num_segments-1; i > -1; i--) {
 	    curr_segment = &curr_track->_segments[i];
 	    scalarFluxTally(curr_segment, energy_group, materials,
-			    track_flux, ratios, polar_weights,
+			    track_flux, reduced_source, polar_weights,
 			    _prefactor_array, scalar_flux);
 	}
 
@@ -538,13 +538,13 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
  * @brief Add the source term contribution in the transport equation to 
  *        the flat source region scalar flux
  * @param scalar_flux an array of flat source region scalar fluxes
- * @param ratios an array of flat source region sources / total xs
+ * @param reduced_source an array of flat source region sources / total xs
  * @param FSR_volumes an array of flat source region volumes
  * @param FSR_materials an array of flat source region material UIDs
  * @param materials an array of material pointers
  */
 __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
-					      FP_PRECISION* ratios,
+					      FP_PRECISION* reduced_source,
 					      FP_PRECISION* FSR_volumes,
 					      int* FSR_materials,
 					      dev_material* materials) {
@@ -565,7 +565,7 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
 	/* Iterate over all energy groups */
 	for (int i=0; i < *num_groups; i++) {
 	    scalar_flux(tid,i) *= 0.5;
-	    scalar_flux(tid,i) = FOUR_PI * ratios(tid,i) + 
+	    scalar_flux(tid,i) = FOUR_PI * reduced_source(tid,i) + 
 	      __fdividef(scalar_flux(tid,i), (sigma_t[i] * volume));
 	}
 
@@ -664,9 +664,9 @@ GPUSolver::~GPUSolver() {
 	_old_source = NULL;
     }
 
-    if (_ratios != NULL) {
-        cudaFree(_ratios);
-	_ratios = NULL;
+    if (_reduced_source != NULL) {
+        cudaFree(_reduced_source);
+	_reduced_source = NULL;
     }
 
     if (_FSRs_to_powers != NULL) {
@@ -1154,8 +1154,8 @@ void GPUSolver::initializeSourceArrays() {
     if (_old_source != NULL)
         cudaFree(_old_source);
 
-    if (_ratios != NULL)
-        cudaFree(_ratios);
+    if (_reduced_source != NULL)
+        cudaFree(_reduced_source);
 
     /* Allocate memory for all source arrays on the device */
     try{
@@ -1166,7 +1166,7 @@ void GPUSolver::initializeSourceArrays() {
 	cudaMalloc((void**)&_old_source,
 		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
 
-	cudaMalloc((void**)&_ratios,
+	cudaMalloc((void**)&_reduced_source,
 		   _num_FSRs * _num_groups * sizeof(FP_PRECISION));
     }
     catch(std::exception &e) {
@@ -1394,7 +1394,7 @@ FP_PRECISION GPUSolver::computeFSRSources() {
     
     computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials, 
 					  _scalar_flux, _source, 
-					  _old_source, _ratios,
+					  _old_source, _reduced_source,
 					  1.0 / _k_eff, _source_residual);
 
     FP_PRECISION residual = thrust::reduce(_source_residual_vec.begin(), 
@@ -1426,7 +1426,7 @@ void GPUSolver::transportSweep() {
 
     transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, 
 						   _boundary_flux,
-						   _ratios, _leakage,
+						   _reduced_source, _leakage,
 						   _materials, _dev_tracks,
 						   _prefactor_array, 
 						   tid_offset, tid_max);
@@ -1437,7 +1437,7 @@ void GPUSolver::transportSweep() {
 
     transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux,
 						   _boundary_flux,
-						   _ratios, _leakage,
+						   _reduced_source, _leakage,
 						   _materials, _dev_tracks,
 						   _prefactor_array,
 						   tid_offset, tid_max);
@@ -1450,7 +1450,7 @@ void GPUSolver::transportSweep() {
  */
 void GPUSolver::addSourceToScalarFlux() {
 
-    addSourceToScalarFluxOnDevice<<<_B,_T>>>(_scalar_flux, _ratios,
+    addSourceToScalarFluxOnDevice<<<_B,_T>>>(_scalar_flux, _reduced_source,
 					     _FSR_volumes, _FSR_materials,
 					     _materials);
 }

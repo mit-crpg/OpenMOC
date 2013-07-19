@@ -181,7 +181,7 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
 	/* Loop over polar angles */
         for (int e=0; e < _num_groups; e++) {
             exponential = computeExponential(sigma_t[e], length, p);
-            psibar = (track_flux(p,e) - _ratios(fsr_id,e)) * exponential;
+            psibar = (track_flux(p,e) - _reduced_source(fsr_id,e)) * exponential;
 	    fsr_flux[e] += psibar * _polar_weights[p];
 	    track_flux(p,e) -= psibar;
 	}
