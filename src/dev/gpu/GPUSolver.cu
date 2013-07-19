@@ -472,8 +472,8 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     int energy_angle_index = energy_group * (*num_polar);
 
     dev_track* curr_track;
-    dev_segment* curr_segment;
     int num_segments;
+    dev_segment* curr_segment;
 
     /* Iterate over track with azimuthal angles in (0, pi/2) */
     while (track_id < tid_max) {
@@ -967,7 +967,9 @@ void GPUSolver::initializeFSRs() {
 	       _num_FSRs*sizeof(FP_PRECISION));
 
 	Track* track;
-	segment* seg;
+	int num_segments;
+	segment* curr_segment;
+	segment* segments;
 	FP_PRECISION volume;
 
 	double* azim_weights = _track_generator->getAzimWeights();
@@ -976,13 +978,16 @@ void GPUSolver::initializeFSRs() {
 	   tracks inside the FSR. Iterate over azimuthal angle, track, segment*/
 	for (int i=0; i < _num_azim; i++) {
 	    for (int j=0; j < _num_tracks[i]; j++) {
+
 	        track = &_track_generator->getTracks()[i][j];
+		num_segments = track->getNumSegments();
+		segments = track->getSegments();
 
 		/* Iterate over the track's segments to update FSR volumes */
-		for (int s = 0; s < track->getNumSegments(); s++) {
-		    seg = track->getSegment(s);
-		    volume = seg->_length * azim_weights[i];
-		    temp_FSR_volumes[seg->_region_id] += volume;
+		for (int s = 0; s < num_segments; s++) {
+		    curr_segment = &segments[s];
+		    volume = curr_segment->_length * azim_weights[i];
+		    temp_FSR_volumes[curr_segment->_region_id] += volume;
 		}
 	    }
 	}

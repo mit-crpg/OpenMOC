@@ -93,6 +93,7 @@ void ThreadPrivateSolver::transportSweep() {
     Track* curr_track;
     int num_segments;
     segment* curr_segment;    
+    segment* segments;
     FP_PRECISION* track_flux;
 
     log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
@@ -110,7 +111,7 @@ void ThreadPrivateSolver::transportSweep() {
 	
 	/* Loop over each thread within this azimuthal angle halfspace */
         #pragma omp parallel for private(tid, fsr_id, curr_track, \
-          num_segments,	curr_segment, track_flux) schedule(guided)
+	  num_segments, segments, curr_segment, track_flux) schedule(guided)
 	for (int track_id=min; track_id < max; track_id++) {
 
 	    tid = omp_get_thread_num();
@@ -118,11 +119,12 @@ void ThreadPrivateSolver::transportSweep() {
 	    /* Initialize local pointers to important data structures */	
 	    curr_track = _tracks[track_id];
 	    num_segments = curr_track->getNumSegments();
+	    segments = curr_track->getSegments();
 	    track_flux = &_boundary_flux(track_id,0,0,0);
 
 	    /* Loop over each segment in forward direction */
 	    for (int s=0; s < num_segments; s++) {
-	        curr_segment = curr_track->getSegment(s);
+	        curr_segment = &segments[s];
 		fsr_id = curr_segment->_region_id;
 		scalarFluxTally(curr_segment, track_flux, 
 	                        &_thread_flux(tid,fsr_id,0));
@@ -135,7 +137,7 @@ void ThreadPrivateSolver::transportSweep() {
 	    track_flux += _polar_times_groups;
 	    
 	    for (int s=num_segments-1; s > -1; s--) {
-	        curr_segment = curr_track->getSegment(s);
+	        curr_segment = &segments[s];
 		fsr_id = curr_segment->_region_id;
 		scalarFluxTally(curr_segment, track_flux, 
 	                        &_thread_flux(tid,fsr_id,0));

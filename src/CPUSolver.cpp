@@ -380,6 +380,7 @@ void CPUSolver::initializeFSRs() {
 
     int num_segments;
     segment* curr_segment;
+    segment* segments;
     FP_PRECISION volume;
     CellBasic* cell;
     Material* material;
@@ -393,9 +394,10 @@ void CPUSolver::initializeFSRs() {
         
         int azim_index = _tracks[i]->getAzimAngleIndex();
 	num_segments = _tracks[i]->getNumSegments();
+	segments = _tracks[i]->getSegments();
 
 	for (int s=0; s < num_segments; s++) {
-            curr_segment = _tracks[i]->getSegment(s);
+            curr_segment = &segments[s];
 	    volume = curr_segment->_length * _azim_weights[azim_index];
 	    _FSR_volumes[curr_segment->_region_id] += volume;
 	}
@@ -693,7 +695,8 @@ void CPUSolver::transportSweep() {
     int min_track, max_track;
     Track* curr_track;
     int num_segments;
-    segment* curr_segment;    
+    segment* curr_segment;
+    segment* segments;
     FP_PRECISION* track_flux;
 
     log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
@@ -711,7 +714,7 @@ void CPUSolver::transportSweep() {
 	
 	/* Loop over each thread within this azimuthal angle halfspace */
 	#pragma omp parallel for private(curr_track, num_segments, \
-          curr_segment, track_flux, tid) schedule(guided)
+          curr_segment, segments, track_flux, tid) schedule(guided)
 	for (int track_id=min_track; track_id < max_track; track_id++) {
 
 	    tid = omp_get_thread_num();
@@ -719,11 +722,12 @@ void CPUSolver::transportSweep() {
 	    /* Initialize local pointers to important data structures */	
 	    curr_track = _tracks[track_id];
 	    num_segments = curr_track->getNumSegments();
+	    segments = curr_track->getSegments();
 	    track_flux = &_boundary_flux(track_id,0,0,0);
 
 	    /* Loop over each segment in forward direction */
 	    for (int s=0; s < num_segments; s++) {
-	        curr_segment = curr_track->getSegment(s);
+	        curr_segment = &segments[s];
 		scalarFluxTally(curr_segment, track_flux, 
 	                        &_thread_fsr_flux(tid));
 	    }
@@ -735,7 +739,7 @@ void CPUSolver::transportSweep() {
 	    track_flux += _polar_times_groups;
 	    
 	    for (int s=num_segments-1; s > -1; s--) {
-	        curr_segment = curr_track->getSegment(s);
+	        curr_segment = &segments[s];
 		scalarFluxTally(curr_segment, track_flux, 
 				&_thread_fsr_flux(tid));
 	    }
