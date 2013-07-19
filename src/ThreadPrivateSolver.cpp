@@ -22,7 +22,13 @@ ThreadPrivateSolver::ThreadPrivateSolver(Geometry* geom,
  * @brief Destructor calls Solver subclass destructor to deletes arrays
  *        for fluxes and sources.
  */
-ThreadPrivateSolver::~ThreadPrivateSolver() { }
+ThreadPrivateSolver::~ThreadPrivateSolver() { 
+
+    if (_thread_flux != NULL) {
+        delete [] _thread_flux;
+	_thread_flux = NULL;
+    }
+}
 
 
 /**
@@ -64,13 +70,13 @@ void ThreadPrivateSolver::initializeFluxArrays() {
 void ThreadPrivateSolver::flattenFSRFluxes(FP_PRECISION value) {
 
     CPUSolver::flattenFSRFluxes(value);
-    
+
     /* Flatten the thread private flat source region scalar flux array */
     #pragma omp parallel for schedule(guided)
     for (int tid=0; tid < _num_threads; tid++) {
         for (int r=0; r < _num_FSRs; r++) {
 	    for (int e=0; e < _num_groups; e++) {
-	      _thread_flux(tid,r,e) = 0.0;
+	        _thread_flux(tid,r,e) = 0.0;
 	    }
         }
     }

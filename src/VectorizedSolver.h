@@ -29,7 +29,7 @@
  */
 class VectorizedSolver : public CPUSolver {
 
-private:
+protected:
 
     /** Number of energy groups divided by vector widths (VEC_LENGTH) */
     int _num_vector_lengths;

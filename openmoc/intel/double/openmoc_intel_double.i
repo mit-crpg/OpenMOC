@@ -13,6 +13,7 @@
     #include "../../../src/CPUSolver.h"
     #include "../../../src/ThreadPrivateSolver.h"
     #include "../../../src/VectorizedSolver.h"
+    #include "../../../src/VectorizedPrivateSolver.h"
     #include "../../../src/Surface.h"
     #include "../../../src/Timer.h"
     #include "../../../src/Track.h" 
@@ -87,6 +88,7 @@
 %include ../../../src/CPUSolver.h
 %include ../../../src/ThreadPrivateSolver.h
 %include ../../../src/VectorizedSolver.h
+%include ../../../src/VectorizedPrivateSolver.h
 %include ../../../src/Surface.h
 %include ../../../src/Timer.h
 %include ../../../src/Track.h

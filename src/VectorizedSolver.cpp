@@ -529,7 +529,8 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
 	    /* Loop over energy groups within this vector */
             #pragma simd vectorlength(VEC_LENGTH) private(psibar)
             for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
-	        psibar = (track_flux(p,e) - _reduced_source(fsr_id,e)) * exponentials(p,e);
+	        psibar = (track_flux(p,e) - _reduced_source(fsr_id,e)) * 
+		         exponentials(p,e);
 	        fsr_flux[e] += psibar * _polar_weights[p];
 		track_flux(p,e) -= psibar;
 	    }
