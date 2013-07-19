@@ -73,7 +73,7 @@ void Track::setAzimAngleIndex(const int index) {
 void Track::addSegment(segment* segment) {
 
     try {
-        _segments.push_back(segment);
+        _segments.push_back(*segment);
     }
     catch (std::exception &e) {
         log_printf(ERROR, "Unable to add a segment to track. Backtrace:"
@@ -371,10 +371,6 @@ bool Track::contains(Point* point) {
  * @brief Deletes each of this track's segments.
  */
 void Track::clearSegments() {
-
-    for (int i=0; i < (int)_segments.size(); i++)
-        delete _segments.at(i);
-
     _segments.clear();
 }
 
