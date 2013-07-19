@@ -52,9 +52,14 @@ VectorizedSolver::~VectorizedSolver() {
         _thread_fsr_flux = NULL;
     }
 
-    if (_fission_source != NULL) {
-        _mm_free(_fission_source);
-	_fission_source = NULL;
+    if (_fission_sources != NULL) {
+        _mm_free(_fission_sources);
+	_fission_sources = NULL;
+    }
+
+    if (_scatter_sources != NULL) {
+        _mm_free(_scatter_sources);
+	_scatter_sources = NULL;
     }
 
     if (_source != NULL) {
@@ -175,8 +180,11 @@ void VectorizedSolver::initializeFluxArrays() {
 void VectorizedSolver::initializeSourceArrays() {
 
     /* Delete old sources arrays if they exist */
-    if (_fission_source != NULL)
-        _mm_free(_fission_source);
+    if (_fission_sources != NULL)
+        _mm_free(_fission_sources);
+
+    if (_scatter_sources != NULL)
+        _mm_free(_scatter_sources);
 
     if (_source != NULL)
         _mm_free(_source);
@@ -195,7 +203,8 @@ void VectorizedSolver::initializeSourceArrays() {
     /* Allocate aligned memory for all source arrays */
     try{
         size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-	_fission_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_fission_sources = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_scatter_sources = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 	_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 	_old_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 	_reduced_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
@@ -234,8 +243,8 @@ void VectorizedSolver::normalizeFluxes() {
             /* Loop over each energy group within this vector */
             #pragma simd vectorlength(VEC_LENGTH)
             for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
-	        _fission_source(r,e) = nu_sigma_f[e] * _scalar_flux(r,e);
-	        _fission_source(r,e) *= volume;
+	        _fission_sources(r,e) = nu_sigma_f[e] * _scalar_flux(r,e);
+	        _fission_sources(r,e) *= volume;
             }
         }
     }
@@ -243,9 +252,9 @@ void VectorizedSolver::normalizeFluxes() {
     /* Compute the total fission source */
     int size = _num_FSRs * _num_groups;
     #ifdef SINGLE
-    tot_fission_source = cblas_sasum(size, _fission_source, 1);
+    tot_fission_source = cblas_sasum(size, _fission_sources, 1);
     #else
-    tot_fission_source = cblas_dasum(size, _fission_source, 1);
+    tot_fission_source = cblas_dasum(size, _fission_sources, 1);
     #endif
 
     /* Compute the normalization factor */
@@ -304,9 +313,6 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
       sigma_s, sigma_t, fission_source, scatter_source) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
-        FP_PRECISION* scatter_sources = new FP_PRECISION[_num_groups];
-        FP_PRECISION* fission_sources = new FP_PRECISION[_num_groups];
-
         material = _FSR_materials[r];
 	nu_sigma_f = material->getNuSigmaF();
 	chi = material->getChi();
@@ -318,13 +324,13 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
 	    /* Compute fission source for each group */
             #pragma simd vectorlength(VEC_LENGTH)
             for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-	        fission_sources[e] = _scalar_flux(r,e) * nu_sigma_f[e];
+	        _fission_sources(r,e) = _scalar_flux(r,e) * nu_sigma_f[e];
         }
 
         #ifdef SINGLE
-	fission_source = cblas_sasum(_num_groups, fission_sources, 1);
+        fission_source = cblas_sasum(_num_groups, &_fission_sources(r,0), 1);
         #else
-	fission_source = cblas_dasum(_num_groups, fission_sources, 1);
+        fission_source = cblas_dasum(_num_groups, &_fission_sources(r,0), 1);
         #endif
 
 	/* Compute total scattering source for group G */
@@ -335,13 +341,13 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
 
                 #pragma simd vectorlength(VEC_LENGTH)
                 for (int g=v*VEC_LENGTH; g < (v+1)*VEC_LENGTH; g++)
-                    scatter_sources[g] = sigma_s[G*_num_groups+g]*_scalar_flux(r,g);
+		    _scatter_sources(r,g) = sigma_s[G*_num_groups+g]*_scalar_flux(r,g);
             }
 
             #ifdef SINGLE
-	    scatter_source = cblas_sasum(_num_groups, scatter_sources, 1);
+	    scatter_source = cblas_sasum(_num_groups, &_scatter_sources(r,0), 1);
             #else
- 	    scatter_source = cblas_dasum(_num_groups, scatter_sources, 1);
+	    scatter_source = cblas_dasum(_num_groups, &_scatter_sources(r,0), 1);
             #endif
 
 	    /* Set the total source for region r in group G */
@@ -358,9 +364,6 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
 	    /* Update the old source */
 	    _old_source(r,G) = _source(r,G);
         }
-
-	delete [] scatter_sources;
-	delete [] fission_sources;
     }
 
     /* Sum up the residuals from each group and in each region */

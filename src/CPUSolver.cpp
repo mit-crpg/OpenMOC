@@ -217,8 +217,11 @@ void CPUSolver::initializeFluxArrays() {
 void CPUSolver::initializeSourceArrays() {
 
     /* Delete old sources arrays if they exist */
-    if (_fission_source != NULL)
-        delete [] _fission_source;
+    if (_fission_sources != NULL)
+        delete [] _fission_sources;
+
+    if (_scatter_sources != NULL)
+        delete [] _scatter_sources;
 
     if (_source != NULL)
         delete [] _source;
@@ -237,7 +240,8 @@ void CPUSolver::initializeSourceArrays() {
     /* Allocate memory for all source arrays */
     try{
         size = _num_FSRs * _num_groups;
-	_fission_source = new FP_PRECISION[size];
+	_fission_sources = new FP_PRECISION[size];
+	_scatter_sources = new FP_PRECISION[size];
 	_source = new FP_PRECISION[size];
 	_old_source = new FP_PRECISION[size];
 	_reduced_source = new FP_PRECISION[size];
@@ -500,11 +504,11 @@ void CPUSolver::normalizeFluxes() {
 	volume = _FSR_volumes[r];
 
 	for (int e=0; e < _num_groups; e++)
-	    _fission_source(r,e) = nu_sigma_f[e] * _scalar_flux(r,e) * volume;
+	    _fission_sources(r,e) = nu_sigma_f[e] * _scalar_flux(r,e) * volume;
     }
 
     /* Compute the total fission source */
-    tot_fission_source = pairwise_sum<FP_PRECISION>(_fission_source, 
+    tot_fission_source = pairwise_sum<FP_PRECISION>(_fission_sources, 
 						    _num_FSRs*_num_groups);
 
     /* Normalize scalar fluxes in each region */
@@ -550,6 +554,7 @@ void CPUSolver::normalizeFluxes() {
  */
 FP_PRECISION CPUSolver::computeFSRSources() {
 
+    int tid;
     FP_PRECISION scatter_source;
     FP_PRECISION fission_source;
     double* nu_sigma_f;
@@ -565,9 +570,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
       sigma_s, sigma_t, fission_source, scatter_source) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
-        FP_PRECISION* scatter_sources = new FP_PRECISION[_num_groups];
-        FP_PRECISION* fission_sources = new FP_PRECISION[_num_groups];
-
+        tid = omp_get_thread_num();
         material = _FSR_materials[r];
 	nu_sigma_f = material->getNuSigmaF();
 	chi = material->getChi();
@@ -576,9 +579,9 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 
 	/* Compute fission source for each group */
 	for (int e=0; e < _num_groups; e++)
-	    fission_sources[e] = _scalar_flux(r,e) * nu_sigma_f[e];
+	    _fission_sources(r,e) = _scalar_flux(r,e) * nu_sigma_f[e];
 
-	fission_source = pairwise_sum<FP_PRECISION>(fission_sources, 
+	fission_source = pairwise_sum<FP_PRECISION>(&_fission_sources(r,0), 
 						    _num_groups);
 
 	/* Compute total scattering source for group G */
@@ -586,10 +589,10 @@ FP_PRECISION CPUSolver::computeFSRSources() {
             scatter_source = 0;
 
 	    for (int g=0; g < _num_groups; g++)
-                scatter_sources[g] = sigma_s[G*_num_groups+g]*_scalar_flux(r,g);
+	        _scatter_sources(r,g) = sigma_s[G*_num_groups+g]*_scalar_flux(r,g);
 
-	    scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
-                                                        _num_groups);
+	    scatter_source = pairwise_sum<FP_PRECISION>(&_scatter_sources(r,0),
+							_num_groups);
 
 	    /* Set the total source for region r in group G */
 	    _source(r,G) = ((1.0 / _k_eff) * fission_source *
@@ -605,9 +608,6 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 	    /* Update the old source */
 	    _old_source(r,G) = _source(r,G);
         }
-
-	delete [] scatter_sources;
-	delete [] fission_sources;
     }
 
     /* Sum up the residuals from each group and in each region */
