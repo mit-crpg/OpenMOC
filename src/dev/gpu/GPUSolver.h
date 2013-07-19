@@ -92,9 +92,6 @@ private:
     /** A pointer to the Thrust vector of fission rates in each FSR */
     FP_PRECISION* _tot_fission;
 
-    /** A pointer to the Thrust vector of source residuals in each FSR  */
-    FP_PRECISION* _source_residual;
-
     /** A pointer to the Thrust vector of leakages for each track */
     FP_PRECISION* _leakage;
 
@@ -108,7 +105,7 @@ private:
     thrust::device_vector<FP_PRECISION> _tot_absorption_vec;
 
     /** Thrust vector of source residuals in each FSR */
-    thrust::device_vector<FP_PRECISION> _source_residual_vec;
+    thrust::device_vector<FP_PRECISION> _source_residuals_vec;
 
     /** Thrust vector of leakages for each track */
     thrust::device_vector<FP_PRECISION> _leakage_vec;

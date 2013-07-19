@@ -37,6 +37,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _source = NULL;
     _old_source = NULL;
     _reduced_source = NULL;
+    _source_residuals = NULL;
 
     _FSRs_to_powers = NULL;
     _FSRs_to_pin_powers = NULL;
@@ -97,6 +98,9 @@ Solver::~Solver() {
 
     if (_reduced_source != NULL)
         delete [] _reduced_source;
+
+    if (_source_residuals != NULL)
+        delete [] _source_residuals;
 
     if (_FSRs_to_powers != NULL)
         delete [] _FSRs_to_powers;

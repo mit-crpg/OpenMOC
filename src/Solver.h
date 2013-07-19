@@ -33,7 +33,7 @@
 
 #define _fission_source(r,e) (_fission_source[(r)*_num_groups + (e)])
 
-#define source_residuals(r,e) (source_residuals[(r)*_num_groups + (e)])
+#define _source_residuals(r,e) (_source_residuals[(r)*_num_groups + (e)])
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
@@ -132,6 +132,10 @@ protected:
     /** Pre-computed ratio of source / sigma_t for each energy group in each
      *  flat source region */
     FP_PRECISION* _reduced_source;
+
+    /** An array of the residuals between the old source and the new source
+     *  on each iteration in each flat source region and energy group */
+    FP_PRECISION* _source_residuals;
 
     /** The normalized power in each flat source region */
     FP_PRECISION* _FSRs_to_powers;

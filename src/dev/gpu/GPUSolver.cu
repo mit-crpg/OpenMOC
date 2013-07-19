@@ -154,12 +154,12 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 					  FP_PRECISION* old_source,
 					  FP_PRECISION* reduced_source,
 					  FP_PRECISION inverse_k_eff,
-					  FP_PRECISION* source_residual) {
+					  FP_PRECISION* source_residuals) {
 
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
     /* Reset the residual for the old and new fission sources to zero */
-    source_residual[threadIdx.x + blockIdx.x * blockDim.x] = 0.0;
+    source_residuals[threadIdx.x + blockIdx.x * blockDim.x] = 0.0;
 
     FP_PRECISION fission_source;
     FP_PRECISION scatter_source;
@@ -204,7 +204,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 
 	    /* Compute the norm of residuals of the sources for convergence */
 	    if (fabs(source(tid,G)) > 1E-10)
-	        source_residual[threadIdx.x + blockIdx.x * blockDim.x] +=
+	        source_residuals[threadIdx.x + blockIdx.x * blockDim.x] +=
 		    pow((source(tid,G) - old_source(tid,G)) /
 		         source(tid,G), 2);
 
@@ -606,7 +606,6 @@ GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
     _fission_source = NULL;
     _tot_absorption = NULL;
     _tot_fission = NULL;
-    _source_residual = NULL;
     _leakage = NULL;
 
     if (track_generator != NULL)
@@ -694,9 +693,9 @@ GPUSolver::~GPUSolver() {
 	_tot_fission = NULL;
     }
 
-    if (_source_residual != NULL) {
-        _source_residual_vec.clear();
-	_source_residual = NULL;
+    if (_source_residuals != NULL) {
+        _source_residuals_vec.clear();
+	_source_residuals = NULL;
     }
 
     if (_leakage != NULL) {
@@ -1201,9 +1200,9 @@ void GPUSolver::initializeThrustVectors() {
         _tot_fission_vec.clear();
     }
 
-    if (_source_residual != NULL) {
-        _source_residual = NULL;
-        _source_residual_vec.clear();
+    if (_source_residuals != NULL) {
+        _source_residuals = NULL;
+        _source_residuals_vec.clear();
     }
 
     if (_leakage != NULL) {
@@ -1227,8 +1226,8 @@ void GPUSolver::initializeThrustVectors() {
 	_tot_fission = thrust::raw_pointer_cast(&_tot_fission_vec[0]);
 
 	/* Allocate source residual array on device */
-	_source_residual_vec.resize(_B * _T);
-	_source_residual = thrust::raw_pointer_cast(&_source_residual_vec[0]);
+	_source_residuals_vec.resize(_B * _T);
+	_source_residuals = thrust::raw_pointer_cast(&_source_residuals_vec[0]);
 
 	/* Allocate leakage array on device */
 	_leakage_vec.resize(_B * _T);
@@ -1395,10 +1394,10 @@ FP_PRECISION GPUSolver::computeFSRSources() {
     computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials, 
 					  _scalar_flux, _source, 
 					  _old_source, _reduced_source,
-					  1.0 / _k_eff, _source_residual);
+					  1.0 / _k_eff, _source_residuals);
 
-    FP_PRECISION residual = thrust::reduce(_source_residual_vec.begin(), 
-					   _source_residual_vec.end());
+    FP_PRECISION residual = thrust::reduce(_source_residuals_vec.begin(), 
+					   _source_residuals_vec.end());
     residual = sqrt(residual / _num_FSRs);
 
     return residual;
