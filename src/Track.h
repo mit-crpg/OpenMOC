@@ -56,7 +56,7 @@ private:
     int _azim_angle_index;
 
     /** A dynamically sized vector of segments making up this track */
-    std::vector<segment*> _segments;
+    std::vector<segment> _segments;
 
     /** The track which reflects out of this track along its "forward"
      * direction for reflective boundary conditions. */
@@ -133,7 +133,7 @@ public:
     double getPhi() const;
     int getAzimAngleIndex() const;
     segment* getSegment(int s);
-    std::vector<segment*> getSegments();
+    segment* getSegments();
     int getNumSegments();
     Track *getTrackIn() const;
     Track *getTrackOut() const;
@@ -194,7 +194,7 @@ inline segment* Track::getSegment(int segment) {
         log_printf(ERROR, "Attempted to retrieve segment s = %d but track only"
                    "has %d segments", segment, _segments.size());
 
-    return _segments.at(segment);
+    return &_segments[segment];
 }
 
 
@@ -203,8 +203,8 @@ inline segment* Track::getSegment(int segment) {
  * @brief Returns a vector of pointers to the track's segments.
  * @return vector of segment pointers
  */
-inline std::vector<segment*> Track::getSegments() {
-    return _segments;
+inline segment* Track::getSegments() {
+    return &_segments[0];
 }
 
 

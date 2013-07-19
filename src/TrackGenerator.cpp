@@ -211,7 +211,7 @@ void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          segments. Although this method appears to require two arguments,
- *          in reality it only requires on due to SWIG and would be called
+ *          in reality it only requires one due to SWIG and would be called
  *          from within Python as follows:
  *
  * @code
@@ -230,11 +230,10 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
                    "coordinates but an array of length %d was input", 
                    getNumSegments(), 5*getNumSegments(), num_segments);
 
-    segment* curr = NULL;
+    segment* curr_segment = NULL;
     double x0, x1, y0, y1;
     double phi;
-    std::vector<segment*> segments;
-    std::vector<segment*>::iterator iter;
+    segment* segments;    
 
     int counter = 0;
 
@@ -247,16 +246,16 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
 
             segments = _tracks[i][j].getSegments();
 
-            for (iter = segments.begin(); iter != segments.end(); ++iter) {
-                curr = (*iter);
+	    for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+	        curr_segment = &segments[s];
 
-                coords[counter] = (*iter)->_region_id;
+                coords[counter] = curr_segment->_region_id;
 
                 coords[counter+1] = x0;
                 coords[counter+2] = y0;
 
-                x1 = x0 + cos(phi)*curr->_length;
-                y1 = y0 + sin(phi)*curr->_length;
+                x1 = x0 + cos(phi) * curr_segment->_length;
+                y1 = y0 + sin(phi) * curr_segment->_length;
 
                 coords[counter+3] = x1;
                 coords[counter+4] = y1;
