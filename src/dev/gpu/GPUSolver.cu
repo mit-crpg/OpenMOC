@@ -326,27 +326,43 @@ __device__ double atomicAdd(double* address, double val) {
 }
 
 
+/**
+ * @brief Computes the exponential term in the transport equation for a
+ *        track segment.
+ * @details This method computes $1 - exp(-l\Sigma^T_g/sin(\theta_p))$ 
+ *          for a segment with total group cross-section and for
+ *          some polar angle.
+ * @brief sigma_t the total group cross-section at this energy
+ * @brief length the length of the line segment projected in the xy-plane
+ * @param _prefactor_array the exponential prefactor interpolation table
+ * @brief p the polar angle index
+ * @return the evaluated exponential
+ */
 __device__ FP_PRECISION computeExponential(FP_PRECISION sigma_t, 
 					   FP_PRECISION length,
-					   FP_PRECISION* prefactor_array,
+					   FP_PRECISION* _prefactor_array,
 					   int p) {
 
     FP_PRECISION exponential;
     FP_PRECISION tau = sigma_t * length;
 
     /* Evaluate the exponential using the lookup table - linear interpolation */
-    if (interpolate_exponential) {
+    if (*interpolate_exponential) {
         int index;
 
 	index = int(tau * (*inverse_prefactor_spacing)) * (*two_times_num_polar);
-	exponential = (1. - (prefactor_array[index+2 * p] * tau + 
-			  prefactor_array[index + 2 * p +1]));
+	exponential = (1. - (_prefactor_array[index+2 * p] * tau + 
+			  _prefactor_array[index + 2 * p +1]));
     }
 
     /* Evalute the exponential using the intrinsic exp function */
     else {
         FP_PRECISION sintheta = sinthetas[p];
+	#ifdef SINGLE
+	exponential = 1.0 - __expf(- tau / sintheta);
+	#else
 	exponential = 1.0 - exp(- tau / sintheta);
+	#endif
     }
 
     return exponential;
@@ -377,9 +393,6 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
 				FP_PRECISION* _prefactor_array,
 				FP_PRECISION* scalar_flux) {
 
-    //    FP_PRECISION tau;
-    //    int index;
-
     int fsr_id = curr_segment->_region_uid;
     FP_PRECISION length = curr_segment->_length;
     dev_material* curr_material = &materials[curr_segment->_material_uid];
@@ -394,8 +407,6 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
     FP_PRECISION fsr_flux = 0.0;
     
     /* Compute the exponential prefactor hashtable index */
-    //    tau = sigma_t[energy_group] * length;
-    //    index = computePrefactorIndex(tau);
     
     /* Loop over polar angles */
     for (int p=0; p < *num_polar; p++) {
@@ -403,9 +414,6 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
 					 length, _prefactor_array, p);
         psibar = (track_flux[p] - reduced_source(fsr_id,energy_group)) * 
 	         exponential;
-	//        psibar = (track_flux[p] - 
-	//	 reduced_source(fsr_id,energy_group)) * 
-	//       prefactor(index,p,tau);
 	fsr_flux += psibar * polar_weights[p];
 	track_flux[p] -= psibar;
     }

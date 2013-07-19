@@ -24,6 +24,8 @@ VectorizedSolver::VectorizedSolver(Geometry* geom,
 
     if (track_generator != NULL)
         setTrackGenerator(track_generator);
+
+    vmlSetMode(VML_EP);
 }
 
 
@@ -543,7 +545,9 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
 
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
-    FP_PRECISION exponential;
+    FP_PRECISION* exponentials = &_thread_exponentials[tid*_polar_times_groups];
+
+    computeExponentials(curr_segment, exponentials);
 
     /* Set the flat source region flux buffer to zero */
     memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
@@ -556,11 +560,10 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
         for (int v=0; v < _num_vector_lengths; v++) {
 
 	    /* Loop over energy groups within this vector */
-            #pragma simd vectorlength(VEC_LENGTH) private(psibar, exponential)
+            #pragma simd vectorlength(VEC_LENGTH) private(psibar)
             for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
-	        exponential = computeExponential(sigma_t[e], length, p);
 	        psibar = (track_flux(p,e) - _reduced_source(fsr_id,e)) * 
-		                                             exponential;
+		          exponentials(p,e);
 	        fsr_flux[e] += psibar * _polar_weights[p];
 		track_flux(p,e) -= psibar;
 	    }
@@ -602,18 +605,14 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
         FP_PRECISION tau;
         int index;
 
-	for (int p=0; p < _num_polar; p++) {
-
-	    for (int v=0; v < _num_vector_lengths; v++) {
-
-                #pragma simd vectorlength(VEC_LENGTH) private(tau, index)
-	        for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
-                    tau = sigma_t[e] * length;
-		    index = int(tau * _inverse_prefactor_spacing) * _two_times_num_polar;
-		    exponentials(p,e) = (1. - 
-					 (_prefactor_array[index+2 * p] * tau + 
-					  _prefactor_array[index + 2 * p +1]));
-		}
+	for (int e=0; e < _num_groups; e++) {
+	    for (int p=0; p < _num_polar; p++) {
+	        tau = sigma_t[e] * length;
+		index = int(tau * _inverse_prefactor_spacing) * 
+		        _two_times_num_polar;
+		exponentials(p,e) = (1. - 
+				     (_prefactor_array[index+2 * p] * tau + 
+				      _prefactor_array[index + 2 * p +1]));
 	    }
         }
     }
@@ -640,11 +639,9 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
         /* Evaluate the negative of the exponentials using Intel's MKL */
         #ifdef SINGLE
 	vsExp(_polar_times_groups, taus, exponentials);
-	cblas_sscal(_polar_times_groups, -1.0, exponentials, 1);
-	#else
+        #else
 	vdExp(_polar_times_groups, taus, exponentials);
-        cblas_dscal(_polar_times_groups, -1.0, exponentials, 1);
-	#endif
+        #endif
 
 	/* Compute one minus the exponentials */
 	for (int p=0; p < _num_polar; p++) {
@@ -653,7 +650,7 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
 	        
                 #pragma simd vectorlength(VEC_LENGTH)
 	        for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) 
-		    exponentials(p,e) += 1.0;
+		    exponentials(p,e) = 1.0 - exponentials(p,e);
 	    }
 	}
     }
