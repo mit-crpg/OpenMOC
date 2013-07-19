@@ -28,8 +28,6 @@
 
 #define track_leakage(p,e) (track_leakage[(p)*_num_groups + (e)])
 
-#define exponentials(p,e) (exponentials[(p)*_num_groups + (e)])
-
 
 /**
  * @class CPUSolver CPUSolver.h "openmoc/src/host/CPUSolver.h"
@@ -52,8 +50,6 @@ protected:
     /** A boolean indicating whether or not to use linear interpolation 
      *  to comptue the exponential in the transport equation */
     bool _interpolate_exponent;
-
-    FP_PRECISION* _exponentials;
 
     void initializeFluxArrays();
     void initializeSourceArrays();

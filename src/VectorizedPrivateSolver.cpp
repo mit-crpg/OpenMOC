@@ -105,12 +105,12 @@ void VectorizedPrivateSolver::scalarFluxTally(segment* curr_segment,
 
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
+    FP_PRECISION length = curr_segment->_length;
+    double* sigma_t = curr_segment->_material->getSigmaT();
 
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
-
-    FP_PRECISION* exponentials = &_exponentials[tid * _polar_times_groups];
-    computeExponentials(curr_segment, exponentials);
+    FP_PRECISION exponential;
 
     /* Tally the flux contribution from segment to FSR's scalar flux */
     /* Loop over polar angles */
@@ -120,10 +120,11 @@ void VectorizedPrivateSolver::scalarFluxTally(segment* curr_segment,
         for (int v=0; v < _num_vector_lengths; v++) {
 
 	    /* Loop over energy groups within this vector */
-            #pragma simd vectorlength(VEC_LENGTH) private(psibar)
+            #pragma simd vectorlength(VEC_LENGTH) private(psibar, exponential)
             for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
+	        exponential = computeExponential(sigma_t[e], length, p);
 	        psibar = (track_flux(p,e) - _reduced_source(fsr_id,e)) * 
-		          exponentials(p,e);
+		          exponential;
 	        fsr_flux[e] += psibar * _polar_weights[p];
 		track_flux(p,e) -= psibar;
 	    }

@@ -21,6 +21,7 @@
 
 #define taus(p,e) (taus[(p)*_num_groups + (e)])
 
+#define exponentials(p,e) (exponentials[(p)*_num_groups + (e)])
 
 /**
  * @class VectorizedSolver VectorizedSolver.h "openmoc/src/host/VectorizedSolver.h"
@@ -37,6 +38,11 @@ protected:
     /** An array for the optical length for each thread in each energy group */
     FP_PRECISION* _thread_taus;
 
+    /** An array for the exponential terms in the transport equation for *
+     *  each thread in each energy group and polar angle */
+    FP_PRECISION* _thread_exponentials;
+
+    void precomputePrefactors();
     void initializeFluxArrays();
     void initializeSourceArrays();
 
