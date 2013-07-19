@@ -66,7 +66,7 @@ void ThreadPrivateSolver::flattenFSRFluxes(FP_PRECISION value) {
     CPUSolver::flattenFSRFluxes(value);
     
     /* Flatten the thread private flat source region scalar flux array */
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(guided)
     for (int tid=0; tid < _num_threads; tid++) {
         for (int r=0; r < _num_FSRs; r++) {
 	    for (int e=0; e < _num_groups; e++) {
@@ -110,7 +110,7 @@ void ThreadPrivateSolver::transportSweep() {
 	
 	/* Loop over each thread within this azimuthal angle halfspace */
         #pragma omp parallel for private(tid, fsr_id, curr_track, \
-          num_segments,	curr_segment, track_flux)
+          num_segments,	curr_segment, track_flux) schedule(guided)
 	for (int track_id=min; track_id < max; track_id++) {
 
 	    tid = omp_get_thread_num();

@@ -385,31 +385,11 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
         log_printf(NORMAL, "Iteration %d: \tk_eff = %1.6f"
 		 "\tres = %1.3E", i, _k_eff, residual);
 
-	_timer->startTimer();
 	normalizeFluxes();
-	_timer->stopTimer();
-	_timer->recordSplit("Normalizing the flux");
-
-	_timer->startTimer();
 	residual = computeFSRSources();
-	_timer->stopTimer();
-	_timer->recordSplit("Computing FSR sources");
-
-
-	_timer->startTimer();
 	transportSweep();	
-	_timer->stopTimer();
-	_timer->recordSplit("Transport sweep across the geometry");
-
-	_timer->startTimer();
 	addSourceToScalarFlux();
-	_timer->stopTimer();
-	_timer->recordSplit("Adding the source term to the flux");
-
-	_timer->startTimer();
 	computeKeff();
-	_timer->stopTimer();
-	_timer->recordSplit("Computing reaction rates and keff");
 
 	_num_iterations++;
 
@@ -436,11 +416,6 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
  *        code in the source convergence loop
  */
 void Solver::clearTimerSplits() {
-    _timer->clearSplit("Normalizing the flux");
-    _timer->clearSplit("Computing FSR sources");
-    _timer->clearSplit("Transport sweep across the geometry");
-    _timer->clearSplit("Adding the source term to the flux");
-    _timer->clearSplit("Computing reaction rates and keff");
     _timer->clearSplit("Total time to converge the source");
 }
 
@@ -452,7 +427,6 @@ void Solver::printTimerReport() {
 
     std::string msg_string;
     
-
     log_printf(TITLE, "TIMING REPORT");
 
     /* Get the total runtime */
@@ -479,8 +453,6 @@ void Solver::printTimerReport() {
     msg_string = "Integration time per track segment";
     msg_string.resize(53, '.');
     log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_segment);
-
-    _timer->printSplits();
 
     log_printf(SEPARATOR, "*");
 }
