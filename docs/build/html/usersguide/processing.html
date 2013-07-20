@@ -1,0 +1,133 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4. Data Processing and Visualization &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="User’s Guide" href="index.html" />
+    <link rel="next" title="5. Troubleshooting" href="troubleshoot.html" />
+    <link rel="prev" title="3. Writing Python Input Files" href="input.html" /> 
+  </head>
+  <body>
+      <div class="header">
+        <a href="../index.html">
+          <img class="logo" src="../_static/" alt="Logo"/>
+        </a>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="input.html">3. Writing Python Input Files</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="troubleshoot.html">5. Troubleshooting</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="data-processing-and-visualization">
+<span id="usersguide-processing"></span><h1>4. Data Processing and Visualization<a class="headerlink" href="#data-processing-and-visualization" title="Permalink to this headline">¶</a></h1>
+<p>This section is intended to explain in detail the recommended procedures for
+carrying out common tasks with OpenMC. While several utilities of varying
+complexity are provided to help automate the process, in many cases it will be
+extremely beneficial to do some coding in Python to quickly obtain results.  In
+these cases, and for many of the provided utilities, it is necessary for your
+Python installation to contain:</p>
+<ul class="simple">
+<li><a class="footnote-reference" href="#id5" id="id1">[1]</a> <a class="reference external" href="http://www.numpy.org/">Numpy</a></li>
+<li><a class="footnote-reference" href="#id5" id="id2">[1]</a> <a class="reference external" href="http://www.scipy.org/">Scipy</a></li>
+<li><a class="footnote-reference" href="#id6" id="id3">[2]</a> <a class="reference external" href="http://code.google.com/p/h5py/">h5py</a></li>
+<li><a class="footnote-reference" href="#id7" id="id4">[3]</a> <a class="reference external" href="http://matplotlib.org/">Matplotlib</a></li>
+</ul>
+<p>Most of these are easily obtainable in Ubuntu through the package manager, or
+are easily installed with distutils.</p>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> Required for array-based data manipulation and processing</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td>Required only if reading HDF5 materials data files</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td>Optional for plotting utilities</td></tr>
+</tbody>
+</table>
+<p>Most of these are easily obtainable in Ubuntu through the package manager, or
+are easily installed with distutils.</p>
+<div class="section" id="geometry-visualization">
+<h2>4.1. Geometry Visualization<a class="headerlink" href="#geometry-visualization" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="flux-visualization">
+<h2>4.2. Flux Visualization<a class="headerlink" href="#flux-visualization" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="input.html">3. Writing Python Input Files</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="troubleshoot.html">5. Troubleshooting</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>
