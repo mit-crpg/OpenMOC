@@ -6,9 +6,15 @@
  * @date June 13, 2013
  */
 
-#ifdef MIC
-#pragma offload_attribute(push, target(mic))
-#endif
+/**
+ * @brief Performs a pairwise sum of an array of numbers.
+ * @details This type of summation uses a divide-and-conquer algorithm which
+ *          is necessary to bound the error for summations of large sequences
+ *          of numbers.
+ * @param vector an array of numbers
+ * @param length the length of the array
+ * @return the sum of all numbers in the array
+ */
 template <typename T>
 inline T pairwise_sum(T* vector, int length) {
 

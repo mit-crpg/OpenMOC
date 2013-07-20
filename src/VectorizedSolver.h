@@ -19,8 +19,13 @@
 #include "CPUSolver.h"
 #endif
 
+/** Indexing scheme for the optical length (\f$ l\Sigma_t \f$) for a 
+ *  given segment for each polar angle and energy group */
 #define taus(p,e) (taus[(p)*_num_groups + (e)])
 
+/** Indexing scheme for the exponentials in the neutron transport equation
+ *  (\f$ 1 - exp(-\frac{l\Sigma_t}{sin(\theta_p)}) \f$) for a given
+ *  segment for each polar angle and energy group */
 #define exponentials(p,e) (exponentials[(p)*_num_groups + (e)])
 
 /**
@@ -55,12 +60,21 @@ protected:
 			      FP_PRECISION* track_flux);
     void addSourceToScalarFlux();
     void computeKeff();
+    
 
-    void computeExponentials(segment* curr_segment, 
-			     FP_PRECISION* exponentials);
+    /**
+     * @brief Computes an array of the exponentials in the transport equation,
+     *        \f$ exp(-\frac{\Sigma_t * l}{sin(\theta)}) \f$, for each 
+     *        energy group and polar angle for a given segment.
+     * @param curr_segment pointer to the segment of interest
+     * @param exponentials the array to store the exponential values
+     */
+    virtual void computeExponentials(segment* curr_segment, 
+				     FP_PRECISION* exponentials);
 
 public:
-    VectorizedSolver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
+    VectorizedSolver(Geometry* geometry=NULL, 
+		     TrackGenerator* track_generator=NULL);
     virtual ~VectorizedSolver();
  
     int getNumVectorWidths();

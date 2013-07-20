@@ -15,6 +15,8 @@
 #endif
 
 
+/** Indexing scheme for the thread private scalar flux for each thread in
+ *  each flat source region and in each energy group */
 #define _thread_flux(tid,r,e) (_thread_flux[(tid)*_num_FSRs*_num_groups+(r)*_num_groups+(e)])
 
 
@@ -45,7 +47,7 @@ private:
     void reduceThreadScalarFluxes();
 
 public:
-    VectorizedPrivateSolver(Geometry* geom=NULL, 
+    VectorizedPrivateSolver(Geometry* geometry=NULL, 
 			    TrackGenerator* track_generator=NULL);
     virtual ~VectorizedPrivateSolver();
 };

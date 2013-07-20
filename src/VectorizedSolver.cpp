@@ -12,15 +12,15 @@
  * @param geometry an optional pointer to the geometry
  * @param track_generator an optional pointer to the trackgenerator
  */
-VectorizedSolver::VectorizedSolver(Geometry* geom, 
+VectorizedSolver::VectorizedSolver(Geometry* geometry, 
 				   TrackGenerator* track_generator) :
-    CPUSolver(geom, track_generator) { 
+    CPUSolver(geometry, track_generator) { 
   
     _thread_taus = NULL;
     _thread_exponentials = NULL;
 
-    if (geom != NULL)
-        setGeometry(geom);
+    if (geometry != NULL)
+        setGeometry(geometry);
 
     if (track_generator != NULL)
         setTrackGenerator(track_generator);
@@ -250,7 +250,7 @@ void VectorizedSolver::initializeSourceArrays() {
 
 /**
  * @brief Normalizes all flat source region scalar fluxes and track boundary
- *        angular fluxes to the total fission source (times $\nu$).
+ *        angular fluxes to the total fission source (times \f$ \nu \f$).
  */
 void VectorizedSolver::normalizeFluxes() {
 
@@ -323,7 +323,7 @@ void VectorizedSolver::normalizeFluxes() {
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
  *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum 
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}} \f$
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}}} \f$
  *
  * @return the residual between this source and the previous source
  */
@@ -589,7 +589,7 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
 
 /**
  * @brief Computes an array of the exponential in the transport equation,
- *        $exp(-\frac{\Sigma_t * l}{sin(\theta)})$, for each energy group
+ *        \f$ exp(-\frac{\Sigma_t * l}{sin(\theta)}) \f$, for each energy group
  *        and polar angle for a given segment.
  * @param curr_segment pointer to the segment of interest
  * @param exponentials the array to store the exponential values

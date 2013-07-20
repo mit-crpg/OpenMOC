@@ -360,7 +360,7 @@ EXTRACT_ALL            = NO
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
 
-EXTRACT_PRIVATE        = YES
+EXTRACT_PRIVATE        = NO
 
 # If the EXTRACT_PACKAGE tag is set to YES all members with package or internal scope will be included in the documentation.
 
@@ -369,7 +369,7 @@ EXTRACT_PACKAGE        = NO
 # If the EXTRACT_STATIC tag is set to YES all static members of a file
 # will be included in the documentation.
 
-EXTRACT_STATIC         = YES
+EXTRACT_STATIC         = NO
 
 # If the EXTRACT_LOCAL_CLASSES tag is set to YES classes (and structs)
 # defined locally in source files will be included in the documentation.
@@ -655,7 +655,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = openmoc/src/host/log.h openmoc/src/host/log.cpp openmoc/src/host/Point.h openmoc/src/host/Point.cpp openmoc/src/host/Track.h openmoc/src/host/Track.cpp openmoc/src/host/Material.h openmoc/src/host/Material.cpp openmoc/src/host/Quadrature.h openmoc/src/host/Quadrature.cpp openmoc/src/host/configurations.h openmoc/src/host/Surface.h openmoc/src/host/Surface.cpp openmoc/src/host/LocalCoords.h openmoc/src/host/LocalCoords.cpp openmoc/src/host/Universe.h openmoc/src/host/Universe.cpp openmoc/src/host/Cell.h openmoc/src/host/Cell.cpp openmoc/src/host/FlatSourceRegion.h openmoc/src/host/FlatSourceRegion.cpp openmoc/src/host/TrackGenerator.h openmoc/src/host/TrackGenerator.cpp openmoc/src/host/Geometry.h openmoc/src/host/Geometry.cpp openmoc/plotter.py openmoc/log.py
+INPUT                  = ../../src/ ../../openmoc/plotter.py ../../openmoc/log.py ../../openmoc/process.py ../../openmoc/materialize.py
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -673,7 +673,7 @@ INPUT_ENCODING         = UTF-8
 # *.hxx *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.dox *.py
 # *.f90 *.f *.for *.vhd *.vhdl
 
-FILE_PATTERNS          =
+FILE_PATTERNS          = *.cu *.cpp *.h *.py
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
 # should be searched for input files as well. Possible values are YES and NO.

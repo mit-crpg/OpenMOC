@@ -254,6 +254,10 @@ int Universe::computeFSRMaps() {
 }
 
 
+/**
+ * @brief Subdivides all of the cells within this universe into rings
+ *        and angular sectors.
+ */
 void Universe::subdivideCells() {
 
     log_printf(DEBUG, "Subdividing cells for universe %d", _id);

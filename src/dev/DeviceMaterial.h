@@ -19,8 +19,7 @@
  * @struct dev_material
  * @brief A material's nuclear data to be stored on a GPU.
  */
-#pragma offload_attribute(push, target(mic))
-typedef struct dev_material {
+struct dev_material {
     /** A monotonically increasing unique ID for each material created */
     int _uid;
 
@@ -44,7 +43,8 @@ typedef struct dev_material {
     /** An array of the chi \f$ \chi \f$ values for each energy group */
     double* _chi;
 
-    /* first index is row number; second index is column number */
+    /** An array of the group-to-group scattering cross-sections. The first 
+     *  index is row number; second index is column number */
     double* _sigma_s;
 
     dev_material() {
@@ -71,8 +71,7 @@ typedef struct dev_material {
 	    delete [] _chi;
     }
 
-} dev_material;
-#pragma offload_attribute(pop)
+};
 
 
 #endif /* MATERIAL_H_ */

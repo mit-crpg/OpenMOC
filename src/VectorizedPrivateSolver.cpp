@@ -12,10 +12,10 @@
  * @param geometry an optional pointer to the geometry
  * @param track_generator an optional pointer to the trackgenerator
  */
-VectorizedPrivateSolver::VectorizedPrivateSolver(Geometry* geom, 
+VectorizedPrivateSolver::VectorizedPrivateSolver(Geometry* geometry, 
 				   TrackGenerator* track_generator) :
 
-    VectorizedSolver(geom, track_generator) {
+    VectorizedSolver(geometry, track_generator) {
 
     _thread_flux = NULL;
 
