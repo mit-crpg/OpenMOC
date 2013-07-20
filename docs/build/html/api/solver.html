@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Solver &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="OpenMOC API" href="index.html" />
+    <link rel="next" title="CPUSolver" href="cpusolver.html" />
+    <link rel="prev" title="OpenMOC API" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header">
+        <a href="../index.html">
+          <img class="logo" src="../_static/" alt="Logo"/>
+        </a>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">OpenMOC API</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="cpusolver.html">CPUSolver</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="solver">
+<span id="id1"></span><h1>Solver<a class="headerlink" href="#solver" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line" id=""><span id="OpenMOCclassSolver"></span><em>class</em> <strong>Solver</strong></div>
+</div>
+<blockquote>
+<div><p>This is an abstract base class from which different types of Solvers subclass for different architectures or using different algorithms. </p>
+<p></p>
+<em>Public Functions</em><blockquote>
+<div><p id=""><span id="OpenMOCclassSolver_1a950a0ef510e9eb4a92984473c668c198"></span><div class="line-block">
+<div class="line"> <strong>Solver</strong>(<a class="reference internal" href="geometry.html#OpenMOCclassGeometry"><em>Geometry</em></a>  * geom geometry = NULL, <a class="reference internal" href="trackgenerator.html#OpenMOCclassTrackGenerator"><em>TrackGenerator</em></a>  * track_generator = NULL)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Constructor initializes array pointers for tracks and materials. </p>
+<p>The construcor retrieves the number of energy groups and flat source regions and azimuthal angles from the geometry and track generator. The constructor initalizes the number of threads to a default of 1. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">geometry</span></tt> - <p>an optional pointer to the geometry </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">track_generator</span></tt> - <p>an optional pointer to the trackgenerator </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1aba52d3c92fafceb6fe39f937f2d73db3"></span><div class="line-block">
+<div class="line"> <strong>~Solver</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Destructor deletes arrays of boundary angular fluxes, scalar fluxes and sources for each flat source region. </p>
+<p>Deallocates memory for all arrays allocated for the <a class="reference internal" href="#OpenMOCclassSolver"><em>Solver</em></a>, including fluxes, sources, quadrature weights, and exponential prefactor interpolation table. </p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1afd394d9603d0ceba175d96a53f54d7fa"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="geometry.html#OpenMOCclassGeometry"><em>Geometry</em></a>  * <strong>getGeometry</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a pointer to the geometry. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the geometry </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1ac47a004e88d7fde15880ab8c2b08e754"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="trackgenerator.html#OpenMOCclassTrackGenerator"><em>TrackGenerator</em></a>  * <strong>getTrackGenerator</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a pointer to the track generator. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the geometry </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1ae3012e43ec82aea38b7ff0c26a6e5003"></span><div class="line-block">
+<div class="line">int <strong>getNumPolarAngles</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the number of angles used for the polar quadrature. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the number of polar angles </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1a8810de68de50b5f4881e89e68733960a"></span><div class="line-block">
+<div class="line">quadratureType <strong>getPolarQuadratureType</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the type of polar quadrature in use (TABUCHI or LEONARD). </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the type of polar quadrature </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1a4e2f2f30ca4bae8871b30bb188a29b38"></span><div class="line-block">
+<div class="line">int <strong>getNumIterations</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the number of transport sweeps to converge the source. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the number of iterations </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1af3ec5e2776910329b6502e9fc06d533b"></span><div class="line-block">
+<div class="line">FP_PRECISION <strong>getSourceConvergenceThreshold</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the threshold for source convergence. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the threshold for source convergence </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1a14aa82ed26bb664d3dc89a19b9f13c63"></span><div class="line-block">
+<div class="line">FP_PRECISION <strong>getFSRScalarFlux</strong>(int fsr_id, int energy_group)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the scalar flux for a flat source region. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the flat source region scalar flux </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">fsr_id</span></tt> - <p>the ID for the FSR of interest </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">energy_group</span></tt> - <p>the energy group of interest </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1ac1981f25afb9ada5cc1e6c40067bc479"></span><div class="line-block">
+<div class="line">FP_PRECISION * <strong>getFSRScalarFluxes</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns an array of the scalar flux in each flat source region in each energy group. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>an array of flat source region scalar fluxes </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1a971144e2d1207ca63abdd2b16db3afa0"></span><div class="line-block">
+<div class="line">FP_PRECISION * <strong>getFSRPowers</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns an array indexed by flat source region IDs with the corresponding flat source region power. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>an array of flat source region powers </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1ab343527c6bdb72f13080c0df79e6bbea"></span><div class="line-block">
+<div class="line">FP_PRECISION * <strong>getFSRPinPowers</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return an array indexed by flat source region IDs with the corresponding pin cell power. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>an array of flat source region pin powers </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1a117012c7ecaf59b70fa6b489562acc65"></span><div class="line-block">
+<div class="line">void <strong>setGeometry</strong>(<a class="reference internal" href="geometry.html#OpenMOCclassGeometry"><em>Geometry</em></a>  * geometry)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the geometry for the solver. </p>
+<p>The geometry must already have initialized flat source region maps and segmentized the track generator&#8217;s tracks. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">geometry</span></tt> - <p>a pointer to a geometry </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1ac07cee2fe04515dc8e4d2980d567c4c5"></span><div class="line-block">
+<div class="line">void <strong>setTrackGenerator</strong>(<a class="reference internal" href="trackgenerator.html#OpenMOCclassTrackGenerator"><em>TrackGenerator</em></a>  * track_generator)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the track generator with characteristic tracks for the solver. </p>
+<p>The track generator must already have generated tracks and have segmentized them across the geometry. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">track_generator</span></tt> - <p>a pointer to a trackgenerator </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1aa602cd57f7b72f13050920f2c752815e"></span><div class="line-block">
+<div class="line">void <strong>setPolarQuadratureType</strong>(quadratureType quadrature_type)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the type of polar angle quadrature set to use (ie, TABUCHI or LEONARD). </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">quadrature_type</span></tt> - <p>the polar angle quadrature type </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1a069e8bf490a2f5de391f57cd9e7224ed"></span><div class="line-block">
+<div class="line">void <strong>setNumPolarAngles</strong>(int num_polar)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the number of polar angles to use (only 1, 2, or 3 currently supported). </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">num_polar</span></tt> - <p>the number of polar angles </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1aaace17535420183bd7c699b0a10c1e01"></span><div class="line-block">
+<div class="line">void <strong>setSourceConvergenceThreshold</strong>(FP_PRECISION source_thresh)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the threshold for source convergence (&gt;0) </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">source_thresh</span></tt> - <p>the threshold for source convergence </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1a627f677bdb8a621a632b581bc976b2a5"></span><div class="line-block">
+<div class="line">void <strong>useExponentialInterpolation</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the solver to use linear interpolation to compute the exponential in the transport equation. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1a5400c11874dac7f00ade6e7c2d573aee"></span><div class="line-block">
+<div class="line">void <strong>useExponentialIntrinsic</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the solver to use the exponential intrinsic function to compute the exponential in the transport equation. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1af8358a66a7cbd56339211f80a2365678"></span><div class="line-block">
+<div class="line">FP_PRECISION <strong>convergeSource</strong>(int max_iterations)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Computes keff by performing a series of transport sweep and source updates. </p>
+<p>This is the main method exposed to the user through the Python interface to run a simulation. The method makes an initial guess for the scalar and boundary fluxes and peforms transport sweeps and source updates until convergence. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the value of keff computed </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">max_iterations</span></tt> - <p>the maximum number of iterations allowed </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1a1a76bce692d3f35e880832234ae3c4b5"></span><div class="line-block">
+<div class="line">void <strong>computePinPowers</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Compute the fission rates in each flat source region and stores them in an array indexed by flat source region ID. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSolver_1aeec2b08ba9d6be88cf08f1fc02658500"></span><div class="line-block">
+<div class="line">void <strong>printTimerReport</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Prints a report of the timing statistics to the console. </p>
+<p></p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">OpenMOC API</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="cpusolver.html">CPUSolver</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

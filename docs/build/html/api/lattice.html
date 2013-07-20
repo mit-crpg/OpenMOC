@@ -1,0 +1,371 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Lattice &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="OpenMOC API" href="index.html" />
+    <link rel="next" title="Geometry" href="geometry.html" />
+    <link rel="prev" title="Universe" href="universe.html" /> 
+  </head>
+  <body>
+      <div class="header">
+        <a href="../index.html">
+          <img class="logo" src="../_static/" alt="Logo"/>
+        </a>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="universe.html">Universe</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="geometry.html">Geometry</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="lattice">
+<span id="id1"></span><h1>Lattice<a class="headerlink" href="#lattice" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line" id=""><span id="OpenMOCclassLattice"></span><em>class</em> <strong>Lattice</strong></div>
+</div>
+<blockquote>
+<div><p>Represents a repeating 2D lattice array of universes. </p>
+<p></p>
+<em>Public Functions</em><blockquote>
+<div><p id=""><span id="OpenMOCclassLattice_1a057db59a2a7b471ca3d9af94b41d4d6e"></span><div class="line-block">
+<div class="line"> <strong>Lattice</strong>(const short int id, const double width_x, const double width_y)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Constructor sets the user-specified and unique IDs for this lattice. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">id</span></tt> - <p>the user-specified lattice (universe) ID </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">width_x</span></tt> - <p>the width of the lattice cells along x </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">width_y</span></tt> - <p>the width of the lattice cells along y </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1a91be54ce9927b6bc53d30a2faf760780"></span><div class="line-block">
+<div class="line"> <strong>~Lattice</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Destructor clears memory for all of universes pointers. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1aa72ae9812e91b1a4a907dfc1107c0393"></span><div class="line-block">
+<div class="line">short int <strong>getNumX</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the number of lattice cells along the x-axis. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the number of lattice cells along x </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1a9f978534c7ac76cc8b98e815e271e978"></span><div class="line-block">
+<div class="line">short int <strong>getNumY</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the number of lattice cells along the y-axis. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the number of lattice cells along y </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1ac74c38894f48a1f3462178cd07b6c00b"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * <strong>getOrigin</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the origin of the lattice. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the origin of the lattice </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1ae6b84cf43026d5e4ee368bab59910cdb"></span><div class="line-block">
+<div class="line">std::vector&lt; std::vector&lt; std::pair&lt; short int,  <a class="reference internal" href="universe.html#OpenMOCclassUniverse"><em>Universe</em></a>  * &gt; &gt; &gt; <strong>getUniverses</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return a 2D vector array of the universes in the lattice. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>2D vector of universes </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1a0b1b5aa06a73064c65d08332c13f973f"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="universe.html#OpenMOCclassUniverse"><em>Universe</em></a>  * <strong>getUniverse</strong>(short int lattice_x, short int lattice_y)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a pointer to the universe within a specific lattice cell. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>pointer to a universe filling the lattice cell </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">lattice_x</span></tt> - <p>the x index to the lattice cell </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">lattice_y</span></tt> - <p>the y index to the lattice cell </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1acb5c93de94618ab65ef61f18a93e48b3"></span><div class="line-block">
+<div class="line">double <strong>getWidthX</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the width of the lattice along the x-axis. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the width of the lattice cells along x </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1ad54b31fc59330eaadf4c6b81e034a199"></span><div class="line-block">
+<div class="line">double <strong>getWidthY</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the width of the lattice along the y-axis. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the width of the lattice cells along y </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1a5c290c37b0e29a22764acf7e7e74ba22"></span><div class="line-block">
+<div class="line">int <strong>getFSR</strong>(short int lat_x, short int lat_y)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the id of a flat source region base index (smallest FSR region id within a specific lattice cell) </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the index of the base FSR </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">lat_x</span></tt> - <p>the x index of the lattice cell </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">lat_y</span></tt> - <p>the y index of the lattice cell </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1a89b07f10fdb35efdbe5701c54cfbd548"></span><div class="line-block">
+<div class="line">void <strong>setLatticeCells</strong>(int num_x, int num_y, short * universes)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the arrary of universe IDs filling each lattice cell. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">universes</span></tt> - <p>the array of universe Ids for each lattice cell </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">num_x</span></tt> - <p>the number of lattice cells along x </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">num_y</span></tt> - <p>the number of lattice cells along y </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1a9a59a806e3629135d7ea784669a6c12c"></span><div class="line-block">
+<div class="line">void <strong>setUniversePointer</strong>(<a class="reference internal" href="universe.html#OpenMOCclassUniverse"><em>Universe</em></a>  * universe)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the pointer to a universe filling one of this lattice&#8217;s lattice cells. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">universe</span></tt> - <p>pointer to the universe </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1aaa38ae681b8814661033c99f6410fadd"></span><div class="line-block">
+<div class="line">bool <strong>withinBounds</strong>(<a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * point)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Checks if a point is within the bounds of a lattice. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the point is in the bounds, false if not </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">point</span></tt> - <p>a pointer to the point of interest </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1a463e4fba851c367d6c46ed777a7de7e8"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="cell.html#OpenMOCclassCell"><em>Cell</em></a>  * <strong>findCell</strong>(LocalCoords  * coords, std::map&lt; short int,  <a class="reference internal" href="universe.html#OpenMOCclassUniverse"><em>Universe</em></a>  * &gt; universes)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Finds the cell within this lattice that a localcoords is in. </p>
+<p>This method first find the lattice cell, then searches the universe inside that lattice cell. If localcoords is outside the bounds of the lattice, this method will return NULL. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the cell this localcoord is in or NULL </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">coords</span></tt> - <p>the localcoords of interest </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">universes</span></tt> - <p>a map of all universes passed in from the geometry </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1af5b9506d18a4ebcd2bf4932c0ab6d86a"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="cell.html#OpenMOCclassCell"><em>Cell</em></a>  * <strong>findNextLatticeCell</strong>(LocalCoords  * coords, double angle, std::map&lt; short int,  <a class="reference internal" href="universe.html#OpenMOCclassUniverse"><em>Universe</em></a>  * &gt; universes)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Finds the next cell for a localcoords object along a trajectory defined by some angle (in radians from 0 to PI). </p>
+<p>The method will update the localcoords passed in as an argument to be the one at the boundary of the next cell crossed along the given trajectory. It will do this by recursively building a linked list of localcoords from the localcoords passed in as an argument down to the lowest level cell found. In the process it will set the local coordinates for each localcoords in the linked list for the lattice or universe that it is in. If the localcoords is outside the bounds of the lattice or on the boundaries this method will return NULL; otherwise it will return a pointer to the cell that the localcoords will reach next along its trajectory. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to a cell if found, NULL if no cell found </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">coords</span></tt> - <p>pointer to a localcoords object </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">angle</span></tt> - <p>the angle of the trajectory </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">universes</span></tt> - <p>a map of all of the universes passed in by the geometry </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1afc84badb58ce4b9c3946fcc944647c30"></span><div class="line-block">
+<div class="line">int <strong>computeFSRMaps</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Computes the flat source region base indices for each of the lattice cells within this <a class="reference internal" href="#OpenMOCclassLattice"><em>Lattice</em></a> (ie, the minimum id for the flat source regions within each lattice cell). Returns the number of FSRs in the lattice. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the number of FSRs </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1a85eb51407b84e29d55f300e06b29f9b4"></span><div class="line-block">
+<div class="line">std::string <strong>toString</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Converts a lattice&#8217;s attributes to a character array representation. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>character array of this lattice&#8217;s attributes </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassLattice_1ac29a8a1d0a21829843ee39eb3778fc85"></span><div class="line-block">
+<div class="line">void <strong>printString</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Prints a string representation of all of the lattice&#8217;s objects to the console. </p>
+<p></p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="universe.html">Universe</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="geometry.html">Geometry</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

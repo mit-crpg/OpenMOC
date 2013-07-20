@@ -77,3 +77,7 @@ openmoc/cuda/double/openmoc_cuda_double_wrap.cpp
 #Documentation
 docs/build
 docs/build/*
+docs/doxygen/html/*
+docs/doxygen/html/
+docs/doxygen/xml/*
+docds/doxygen/xml/

@@ -1,0 +1,381 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Log &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="OpenMOC API" href="index.html" />
+    <link rel="next" title="Pairwise Sum" href="pairwisesum.html" />
+    <link rel="prev" title="Timer" href="timer.html" /> 
+  </head>
+  <body>
+      <div class="header">
+        <a href="../index.html">
+          <img class="logo" src="../_static/" alt="Logo"/>
+        </a>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="timer.html">Timer</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="pairwisesum.html">Pairwise Sum</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="log">
+<span id="id1"></span><h1>Log<a class="headerlink" href="#log" title="Permalink to this headline">¶</a></h1>
+<p>Utility functions for writing log messages to the screen. </p>
+<p>Applies level-based logging to print formatted messages to the screen and to a log file. <dl class="docutils">
+<dt><strong>Author</strong></dt>
+<dd>William Boyd () </dd>
+<dt><strong>Date</strong></dt>
+<dd>January 22, 2012 </dd>
+</dl>
+</p>
+<em>Typedefs</em><blockquote>
+<div><p id=""><span id="OpenMOClog_8h_1a474fc5e1d06d669823896ac6258fbc0d"></span>typedef enum  <a class="reference internal" href="#OpenMOClog_8h_1a5096002e05063d13577205e0bc5f0564"><em>logLevels</em></a> <strong>logLevel</strong></p>
+<blockquote>
+<div><p>Logging levels characterize an ordered set of message types which may be printed to the screen. </p>
+<p></p>
+</div></blockquote>
+</div></blockquote>
+<em>Enums</em><blockquote>
+<div><p id=""><span id="OpenMOClog_8h_1a5096002e05063d13577205e0bc5f0564"></span><strong>logLevels enum</strong></p>
+<blockquote>
+<div><p>Logging levels characterize an ordered set of message types which may be printed to the screen. </p>
+<p></p>
+<p><em>Values:</em></p>
+<ul class="breatheenumvalues">
+<li><tt class="first docutils literal"><span class="pre">DEBUG</span></tt> - <p>A debugging message </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">INFO</span></tt> - <p>An informational but verbose message </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">NORMAL</span></tt> - <p>A brief progress update on run progress </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">SEPARATOR</span></tt> - <p>A message of a single line of characters </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">HEADER</span></tt> - <p>A message centered within a line of characters </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">TITLE</span></tt> - <p>A message sandwiched between two lines of characters </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">WARNING</span></tt> - <p>A message for to warn the user </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">CRITICAL</span></tt> - <p>A message to warn of critical program conditions </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">RESULT</span></tt> - <p>A message containing program results </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">UNITTEST</span></tt> - <p>A messsage for unit testing </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">ERROR</span></tt> - <p>A message reporting error conditions </p>
+</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<em>Functions</em><blockquote>
+<div><p id=""><span id="OpenMOClog_8h_1a940ee8efe959af1453430dfb17a69b52"></span><div class="line-block">
+<div class="line">void <strong>set_err</strong>(const char * msg)</div>
+</div>
+</p>
+<blockquote>
+<div><p>A function stub used to convert C++ exceptions into Python exceptions through SWIG. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">msg</span></tt> - <p>a character array for the exception message </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1a5ef1ed8ce52cd43ae7f8512d09971618"></span><div class="line-block">
+<div class="line">void <strong>setOutputDirectory</strong>(char * directory)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the output directory for log files. </p>
+<p>If the directory does not exist, it creates it for the user. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">directory</span></tt> - <p>a character array for the log file directory </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1ad1b5c174ca035cd931dc69347919d168"></span><div class="line-block">
+<div class="line">const char * <strong>getOutputDirectory</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the output directory for log files. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a character array for the log file directory </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1a465a60dcbab8eedbf8c943daba80d2e3"></span><div class="line-block">
+<div class="line">void <strong>setLogfileName</strong>(char * filename)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the name for the log file. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">filename</span></tt> - <p>a character array for log filename </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1a4f377faa39c40a2d692c86d1486450df"></span><div class="line-block">
+<div class="line">const char * <strong>getLogfileName</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the log filename. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a character array for the log filename </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1a280c959b5b23ffdf907c1727c690dd04"></span><div class="line-block">
+<div class="line">void <strong>setSeparatorCharacter</strong>(char c)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the character to be used when printing SEPARATOR type log messages. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">c</span></tt> - <p>the character for SEPARATOR type log messages </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1ab1cb699372f5918c22185e7ac701ab2e"></span><div class="line-block">
+<div class="line">char <strong>getSeparatorCharacter</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the character used to format SEPARATOR type log messages. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the character used for SEPARATOR type log messages </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1ad883b9386585911a94d98135f061c228"></span><div class="line-block">
+<div class="line">void <strong>setHeaderCharacter</strong>(char c)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the character to be used when printing HEADER type log messages. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">c</span></tt> - <p>the character for HEADER type log messages </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1a4b25b2953f684913f61140e12d370243"></span><div class="line-block">
+<div class="line">char <strong>getHeaderCharacter</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the character used to format HEADER type log messages. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the character used for HEADER type log messages </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1aa0c94033f57bfb548aec9f8a9a7a39f3"></span><div class="line-block">
+<div class="line">void <strong>setTitleCharacter</strong>(char c)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the character to be used when printing TITLE type log messages. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">c</span></tt> - <p>the character for TITLE type log messages </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1ada5f44d353c71cce0c57e1b496a68a7c"></span><div class="line-block">
+<div class="line">char <strong>getTitleCharacter</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the character used to format TITLE type log messages. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the character used for TITLE type log messages </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1ac3008464681b34c10540b78d408e4db6"></span><div class="line-block">
+<div class="line">void <strong>setLineLength</strong>(int length)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the maximum line length for log messages. </p>
+<p>Messages longer than this amount will be broken up into multiline messages. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">length</span></tt> - <p>the maximum log message line length in characters </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1aa9bd479824be6d1d7370f4b0e162300b"></span><div class="line-block">
+<div class="line">void <strong>setLogLevel</strong>(const char * newlevel)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the minimum log message level which will be printed to the console and to the log file. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">newlevel</span></tt> - <p>the minimum logging level </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1a4633c2e8127ec8b2668ff6c3ff38ac89"></span><div class="line-block">
+<div class="line">int <strong>getLogLevel</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the minimum level for log messages printed to the screen. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the minimum level for log messages </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1a8abbd12e44a829a8d7a041636b170fde"></span><div class="line-block">
+<div class="line">void <strong>log_printf</strong>(<a class="reference internal" href="#OpenMOClog_8h_1a474fc5e1d06d669823896ac6258fbc0d"><em>logLevel</em></a> level, const char * format, ...)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Print a formatted message to the console. </p>
+<p>If logging level is ERROR, this function will throw a runtime exception <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">level</span></tt> - <p>the logging level for this message </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">*format</span></tt> - <p>variable list of C++ formatted arguments </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOClog_8h_1ab42a0de70fdb518ab616d1c61ce7a1a0"></span><div class="line-block">
+<div class="line">std::string <strong>createMultilineMsg</strong>(std::string level, std::string message)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Breaks up a message which is too long for a single line into a multiline message. </p>
+<p>This is an internal function which is called by log_printf and should not be called directly by the user. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a string with a formatted multiline message </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">level</span></tt> - <p>a string containing log level prefix </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">message</span></tt> - <p>a string containing the log message </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="timer.html">Timer</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="pairwisesum.html">Pairwise Sum</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Plane &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="OpenMOC API" href="index.html" />
+    <link rel="next" title="XPlane" href="xplane.html" />
+    <link rel="prev" title="Surface" href="surface.html" /> 
+  </head>
+  <body>
+      <div class="header">
+        <a href="../index.html">
+          <img class="logo" src="../_static/" alt="Logo"/>
+        </a>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="surface.html">Surface</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="xplane.html">XPlane</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="plane">
+<span id="id1"></span><h1>Plane<a class="headerlink" href="#plane" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line" id=""><span id="OpenMOCclassPlane"></span><em>class</em> <strong>Plane</strong></div>
+</div>
+<blockquote>
+<div><p>Represents a plane perpendicular to the xy-plane. </p>
+<p></p>
+<em>Public Functions</em><blockquote>
+<div><p id=""><span id="OpenMOCclassPlane_1aa3494ba48672b175bb780ef18339d7f7"></span><div class="line-block">
+<div class="line"> <strong>Plane</strong>(const double A, const double B, const double C, const short int id = 0)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Constructor. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">id</span></tt> - <p>the surface id </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">A</span></tt> - <p>the first coefficient in <img class="math" src="../_images/math/9f9bf4276ae5023cbad152c4dd6009079a73f317.png" alt="A * x + B * y + C = 0"/> </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">B</span></tt> - <p>the second coefficient in <img class="math" src="../_images/math/9f9bf4276ae5023cbad152c4dd6009079a73f317.png" alt="A * x + B * y + C = 0"/> </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">C</span></tt> - <p>the third coefficient in <img class="math" src="../_images/math/9f9bf4276ae5023cbad152c4dd6009079a73f317.png" alt="A * x + B * y + C = 0"/> </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassPlane_1a39fb25d54b2b752f1598c20e2e889679"></span><div class="line-block">
+<div class="line">double <strong>getXMin</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the minimum x value of -INFINITY on this surface. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the minimum x value of -INFINITY </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassPlane_1a32318a4525e6e9224602be52c89972f1"></span><div class="line-block">
+<div class="line">double <strong>getXMax</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the maximum x value of INFINITY on this surface. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the maximum x value of INFINITY </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassPlane_1a70c9986c329d96eeaf6f2f0239f54706"></span><div class="line-block">
+<div class="line">double <strong>getYMin</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the minimum y value of -INFINITY on this surface. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the minimum y value of -INFINITY </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassPlane_1a79d802de37e2b43b689c69dd05b721ff"></span><div class="line-block">
+<div class="line">double <strong>getYMax</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the maximum y value of INFINITY on this surface. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the maximum y value of INFINITY </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassPlane_1a18dcfc28a7d08e18983d3f906943bc82"></span><div class="line-block">
+<div class="line">double <strong>evaluate</strong>(const  <a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * point)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Evaluate a point using the plane&#8217;s quadratic surface equation. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the value of point in the plane&#8217;s quadratic equation </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">point</span></tt> - <p>a pointer to the point of interest </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassPlane_1a6e1b304a38f0c6d6f7dc985d548e0304"></span><div class="line-block">
+<div class="line">int <strong>intersection</strong>(<a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * point, double angle, <a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * points)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Finds the intersection point with this plane from a given point and trajectory defined by an angle. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the number of intersection points (0 or 1) </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">point</span></tt> - <p>pointer to the point of interest </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">angle</span></tt> - <p>the angle defining the trajectory in radians </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">points</span></tt> - <p>pointer to a point to store the intersection point </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassPlane_1ae953389291ab7fff7a1745c86977a3ae"></span><div class="line-block">
+<div class="line">std::string <strong>toString</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Converts this plane&#8217;s attributes to a character array. </p>
+<p>The character array returned conatins the type of plane (ie, PLANE) and the A, B, and C coefficients in the quadratic surface equation. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a character array of this plane&#8217;s attributes </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassPlane_1a1979f3908ae8fa3dd780f0f583591da3"></span><div class="line-block">
+<div class="line">void <strong>printString</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Prints a string representation of all of the plane&#8217;s objects to the console. </p>
+<p></p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="surface.html">Surface</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="xplane.html">XPlane</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

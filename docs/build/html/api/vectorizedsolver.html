@@ -1,0 +1,157 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>VectorizedSolver &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="OpenMOC API" href="index.html" />
+    <link rel="next" title="VectorizedPrivateSolver" href="vectorizedprivatesolver.html" />
+    <link rel="prev" title="ThreadPrivateSolver" href="threadprivatesolver.html" /> 
+  </head>
+  <body>
+      <div class="header">
+        <a href="../index.html">
+          <img class="logo" src="../_static/" alt="Logo"/>
+        </a>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="threadprivatesolver.html">ThreadPrivateSolver</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="vectorizedprivatesolver.html">VectorizedPrivateSolver</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="vectorizedsolver">
+<span id="id1"></span><h1>VectorizedSolver<a class="headerlink" href="#vectorizedsolver" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line" id=""><span id="OpenMOCclassVectorizedSolver"></span><em>class</em> <strong>VectorizedSolver</strong></div>
+</div>
+<blockquote>
+<div><p>This is a subclass of the <a class="reference internal" href="cpusolver.html#OpenMOCclassCPUSolver"><em>CPUSolver</em></a> class which uses memory-aligned data structures and Intel&#8217;s auto-vectorization. </p>
+<p></p>
+<em>Public Functions</em><blockquote>
+<div><p id=""><span id="OpenMOCclassVectorizedSolver_1a8d24fe816af7f78a7404226c3fb284cd"></span><div class="line-block">
+<div class="line"> <strong>VectorizedSolver</strong>(<a class="reference internal" href="geometry.html#OpenMOCclassGeometry"><em>Geometry</em></a>  * geometry = NULL, <a class="reference internal" href="trackgenerator.html#OpenMOCclassTrackGenerator"><em>TrackGenerator</em></a>  * track_generator = NULL)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Constructor initializes empty arrays for source, flux, etc. </p>
+<p>The construcor retrieves the number of energy groups and flat source regions and azimuthal angles from the geometry and track generator, and uses this to initialie empty arrays for the flat source regions, boundary angular fluxes, scalar flatsourcergion fluxes, flatsourceregion sources and flatsourceregion powers. The constructor initalizes the number of threads to a default of 1. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">geometry</span></tt> - <p>an optional pointer to the geometry </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">track_generator</span></tt> - <p>an optional pointer to the trackgenerator </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassVectorizedSolver_1abcda5ede1c19f0e4c91e042c7d7a110d"></span><div class="line-block">
+<div class="line"> <strong>~VectorizedSolver</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Destructor deletes arrays of boundary angular flux for all tracks, scalar flux and source for each flat source region. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassVectorizedSolver_1ae95a9f13a157ecf6ddc45da9718f1367"></span><div class="line-block">
+<div class="line">int <strong>getNumVectorWidths</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the number of vector lengths required to fit the number of energy groups. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The number of vector widths </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassVectorizedSolver_1ab4a29f8b4f8cbb4dff38ce2b85a56642"></span><div class="line-block">
+<div class="line">void <strong>setGeometry</strong>(<a class="reference internal" href="geometry.html#OpenMOCclassGeometry"><em>Geometry</em></a>  * geometry)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the geometry for the solver and aligns all material cross-section data for SIMD vector instructions. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">geometry</span></tt> - <p>a pointer to the geometry </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="threadprivatesolver.html">ThreadPrivateSolver</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="vectorizedprivatesolver.html">VectorizedPrivateSolver</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>
