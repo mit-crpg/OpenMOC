@@ -72,3 +72,8 @@ openmoc/cuda/single/openmoc_cuda_single.py
 openmoc/cuda/single/openmoc_cuda_single_wrap.cpp
 openmoc/cuda/double/openmoc_cuda_double.py
 openmoc/cuda/double/openmoc_cuda_double_wrap.cpp
+
+
+#Documentation
+docs/build
+docs/build/*
