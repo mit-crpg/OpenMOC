@@ -1024,6 +1024,9 @@ int Geometry::findFSRId(LocalCoords* coords) {
 }
 
 
+/**
+ * @brief Subidivides all cells in the geometry into rings and angular sectors.
+ */
 void Geometry::subdivideCells() {
     std::map<short int, Universe*>::iterator iter;
     for (iter = _universes.begin(); iter != _universes.end(); ++iter)

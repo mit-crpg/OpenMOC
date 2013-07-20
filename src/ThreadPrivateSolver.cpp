@@ -10,9 +10,9 @@
  * @param geometry an optional pointer to the geometry
  * @param track_generator an optional pointer to the trackgenerator
  */
-ThreadPrivateSolver::ThreadPrivateSolver(Geometry* geom, 
+ThreadPrivateSolver::ThreadPrivateSolver(Geometry* geometry, 
 					 TrackGenerator* track_generator) :
-  CPUSolver(geom, track_generator) {
+  CPUSolver(geometry, track_generator) {
 
     _thread_flux = NULL;
 }

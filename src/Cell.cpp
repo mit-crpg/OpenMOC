@@ -248,9 +248,13 @@ double Cell::minSurfaceDist(Point* point, double angle,
 
 /**
  * Constructor sets the user-specified and unique IDs for this cellbasic.
- * @param id the user-specified cell ID
  * @param universe the ID for the universe within which this cellbasic resides
  * @param material the ID for the material which fills this cellbasic
+ * @param rings the number of equal volume rings to divide this cell into 
+ *        (the default is zero)
+ * @param sectors the number of angular sectors to divide this cell into
+ *        (the default is zero)
+ * @param id the user-specified cell ID
  */
 CellBasic::CellBasic(short int universe, short int material, int rings, 
 		     int sectors, short int id): Cell(universe, id) {
@@ -333,9 +337,6 @@ void CellBasic::setNumSectors(short int num_sectors) {
 
 /**
  * @brief Create a duplicate of the cellbasic.
- * @param new_id the clone's user-specified cell ID
- * @param num_rings the number of rings to put in the clone
- * @param num_sectors the number of sectors to put in the clone
  * @return a pointer to the clone
  */
 CellBasic* CellBasic::clone() {
@@ -568,6 +569,13 @@ void CellBasic::ringify() {
 }
 
 
+/**
+ * @brief Subdivides a cells into rings and sectors.
+ * @details This method uses the Cell's clone method to produce
+ *          a vector of new cells, each representing a subdivision
+ *          of this cell into rings and sectors.
+ * @return a vector of Cell pointers to the new subdivided cells
+ */
 std::vector<CellBasic*> CellBasic::subdivideCell() {
     sectorize();
     ringify();

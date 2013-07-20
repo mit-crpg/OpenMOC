@@ -29,6 +29,13 @@
 
 
 /**
+ * @enum logLevels
+ * @brief Logging levels characterize an ordered set of message types
+ *        which may be printed to the screen.
+ */
+
+
+/**
  * @var logLevel
  * @brief Logging levels characterize an ordered set of message types
  *        which may be printed to the screen.

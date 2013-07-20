@@ -49,6 +49,7 @@ __constant__ FP_PRECISION inverse_prefactor_spacing[1];
  * @param FSR_volumes an array of flat source region volumes
  * @param FSR_materials an array of flat source region materials
  * @param materials an array of materials on the device
+ * @param scalar_flux the scalar flux in each flat source region
  * @param fission_sources array of fission sources in each flat source region
  */
 __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
@@ -98,7 +99,7 @@ __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
 
 /**
  * @brief Normalizes all flatsourceregion scalar fluxes and track boundary
- *        angular fluxes to the total fission source (times $\nu$).
+ *        angular fluxes to the total fission source (times \f$ \nu \f$).
  * @param scalar_flux an array of the flat source region scalar fluxes
  * @param boundary_flux an array of the boundary fluxes
  * @param norm_factor the normalization factor
@@ -141,7 +142,7 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
  *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum 
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}} \f$
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}}} \f$
  *
  * @param FSR_materials an array of flat source region material UIDs
  * @param materials an array of material pointers
@@ -329,7 +330,7 @@ __device__ double atomicAdd(double* address, double val) {
 /**
  * @brief Computes the exponential term in the transport equation for a
  *        track segment.
- * @details This method computes $1 - exp(-l\Sigma^T_g/sin(\theta_p))$ 
+ * @details This method computes \f$ 1 - exp(-l\Sigma^T_g/sin(\theta_p)) \f$ 
  *          for a segment with total group cross-section and for
  *          some polar angle.
  * @brief sigma_t the total group cross-section at this energy
@@ -623,12 +624,16 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
 
 
 /**
- * DeviceSolver constructor
- * @param geom pointer to the geometry
- * @param track_generator pointer to the TrackGenerator on the CPU
+ * @brief Constructor initializes array pointers for tracks and materials.
+ * @details The constructor retrieves the number of energy groups and flat
+ *          source regions and azimuthal angles from the geometry and track
+ *          generator.
+ * @param geometry an optional pointer to the geometry
+ * @param track_generator an optional pointer to the track generator
  */
-GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
-    Solver(geom, track_generator) {
+GPUSolver::GPUSolver(Geometry* geometry, TrackGenerator* track_generator) :
+
+    Solver(geometry, track_generator) {
 
     /**************************************************************************/
     /*                        Host data initialization                        */
@@ -653,8 +658,8 @@ GPUSolver::GPUSolver(Geometry* geom, TrackGenerator* track_generator) :
     if (track_generator != NULL)
         setTrackGenerator(track_generator);
 
-    if (geom != NULL)
-        setGeometry(geom);
+    if (geometry != NULL)
+        setGeometry(geometry);
 }
 
 
@@ -1428,7 +1433,7 @@ void GPUSolver::flattenFSRSources(FP_PRECISION value) {
 
 /**
  * @brief Normalizes all flat source region scalar fluxes and track boundary
- *        angular fluxes to the total fission source (times $\nu$).
+ *        angular fluxes to the total fission source (times \f$ \nu \f$).
  */
 void GPUSolver::normalizeFluxes() {
 

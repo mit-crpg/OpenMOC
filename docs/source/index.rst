@@ -24,6 +24,7 @@ Contents
     methods/index
     usersguide/index
     devguide/index
+    api/index
     publications
     license
     developers

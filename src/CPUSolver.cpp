@@ -10,8 +10,8 @@
  * @param geometry an optional pointer to the geometry
  * @param track_generator an optional pointer to the trackgenerator
  */
-CPUSolver::CPUSolver(Geometry* geom, TrackGenerator* track_generator) :
-    Solver(geom, track_generator) {
+CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator) :
+    Solver(geometry, track_generator) {
 
     setNumThreads(1);
 
@@ -48,6 +48,7 @@ int CPUSolver::getNumThreads() {
  * @brief Returns the scalar flux for some energy group for a flat source region
  * @param fsr_id the ID for the FSR of interest
  * @param energy_group the energy group of interest
+ * @return the flat source region scalar flux
  */
 FP_PRECISION CPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
 
@@ -331,8 +332,8 @@ void CPUSolver::precomputePrefactors() {
 
 
 /**
- * @brief Initializes each of the flat source region objects inside the solver's
- *        array of flatsourceregions. 
+ * @brief Initializes the volumes and material arrays for each flat source 
+ *        region. 
  * @details This method assigns each flat source region a unique, monotonically
  *          increasing ID, sets the material for each flat source region, and 
  *          assigns a volume based on the cumulative length of all of the 
@@ -462,7 +463,7 @@ void CPUSolver::flattenFSRSources(FP_PRECISION value) {
 
 /**
  * @brief Normalizes all flat source region scalar fluxes and track boundary
- *        angular fluxes to the total fission source (times $\nu$).
+ *        angular fluxes to the total fission source (times \f$ \nu \f$).
  */
 void CPUSolver::normalizeFluxes() {
 
@@ -525,7 +526,7 @@ void CPUSolver::normalizeFluxes() {
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
  *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum 
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}} \f$
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{\# FSRs}}} \f$
  *
  * @return the residual between this source and the previous source
  */
@@ -781,14 +782,13 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 /**
  * @brief Computes the exponential term in the transport equation for a
  *        track segment.
- * @details This method computes $1 - exp(-l\Sigma^T_g/sin(\theta_p))$ 
+ * @details This method computes \f$ 1 - exp(-l\Sigma^T_g/sin(\theta_p)) \f$ 
  *          for a segment with total group cross-section and for
  *          some polar angle.
- * @brief sigma_t the total group cross-section at this energy
- * @brief length the length of the line segment projected in the xy-plane
- * @brief p the polar angle index
+ * @param sigma_t the total group cross-section at this energy
+ * @param length the length of the line segment projected in the xy-plane
+ * @param p the polar angle index
  * @return the evaluated exponential
- *
  */
 FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
 					   FP_PRECISION length, int p) {

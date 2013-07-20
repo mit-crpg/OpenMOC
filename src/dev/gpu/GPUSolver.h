@@ -18,22 +18,29 @@
 #include <sm_20_atomic_functions.h>
 #include "clone.h"
 
+/** Indexing macro for the scalar flux in each flat source region and 
+ *  in each energy group */
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
 
+/** Indexing macro for the total source in each flat source region and
+ *  in each energy group */
 #define source(tid,e) (source[(tid)*(*num_groups) + (e)])
 
+/** Indexing macro for the total source from the previous source iteration
+ *  in each flat source region and each energy group */
 #define old_source(tid,e) (old_source[(tid)*(*num_groups) + (e)])
 
+/** Indexing macro for the total source divided by the total cross-section,
+ *  \f$ \frac{Q}{\Sigma_t} \f$, in each flat source region and each energy
+ *  group */
 #define reduced_source(tid,e) (reduced_source[(tid)*(*num_groups) + (e)])
 
+/** Indexing macro for the azimuthal and polar weights */
 #define polar_weights(i,p) (polar_weights[(i)*(*num_polar) + (p)])
 
+/** Indexing macro for the angular fluxes for each polar angle and energy
+ *  group for a given track */ 
 #define boundary_flux(tid,pe2) (boundary_flux[2*(tid)*(*polar_times_groups)+(pe2)])
-
-//#define prefactorindex(tau) (int(tau * _inverse_prefactor_spacing) * _two_times_num_polar)
-
-//#define prefactor(index,p,tau) (1. - (_prefactor_array[index+2 * p] * tau + _prefactor_array[index + 2 * p +1]))
-
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
@@ -49,8 +56,11 @@
 
 
 /**
- * @class GPUSolver GPUSolver.h "openmoc/src/dev/GPUSolver.h"
- * @brief
+ * @class GPUSolver GPUSolver.h "openmoc/src/dev/gpu/GPUSolver.h"
+ * @brief This a subclass of the Solver class for NVIDIA Graphics
+ *        Processing Units (GPUs).
+ * @details The source code for this class includes C++ coupled with
+ *          compute intensive CUDA kernels for execution on the GPU.
  */
 class GPUSolver : public Solver {
 
@@ -128,7 +138,7 @@ private:
 
 public:
 
-    GPUSolver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
+    GPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);
     virtual ~GPUSolver();
     
     FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);

@@ -244,7 +244,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 /**
  * @brief Sets the type of polar angle quadrature set to use (ie, TABUCHI 
  *        or LEONARD).
- * @param type the polar angle quadrature type
+ * @param quadrature_type the polar angle quadrature type
  */
 void Solver::setPolarQuadratureType(quadratureType quadrature_type) {
     _quadrature_type = quadrature_type;

@@ -17,27 +17,46 @@
 #include "pairwise_sum.h"
 #endif
 
-#define INTERP_EXPONENT
-
-
+/** Indexing macro for the scalar flux in each flat source region and in
+ *  each energy group */
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
 
+/** Indexing macro for the total source in each flat source region and in
+ *  each energy group */
 #define _source(r,e) (_source[(r)*_num_groups + (e)])
 
+/** Indexing macro for the total source from the previous source iteration
+ *  in each flat source region and in each energy group */
 #define _old_source(r,e) (_old_source[(r)*_num_groups + (e)])
 
+/** Indexing macro for the total source divided by the total cross-section
+ *  (\f$ \frac{Q}{\Sigma_t} \f$) in each flat source region and in each
+ *  energy group */
 #define _reduced_source(r,e) (_reduced_source[(r)*_num_groups + (e)])
 
+/** Indexing macro for the polar quadrature weights multiplied by the 
+ *  azimuthal angle quadrature weights */
 #define _polar_weights(i,p) (_polar_weights[(i)*_num_polar + (p)])
 
+/** Indexing macro for the angular fluxes for each polar angle and energy
+ *  group for the outgoing reflective track for both the forward and
+ *  reverse direction for a given track */
 #define _boundary_flux(i,j,p,e) (_boundary_flux[(i)*2*_polar_times_groups + (j)*_polar_times_groups + (p)*_num_groups + (e)])
 
+/** Indexing macro for the leakage for each polar angle and energy group
+ *  for both the forward and reverse direction for each track */
 #define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_polar_times_groups+(pe2)])
 
+/** Indexing scheme for the total fission source (\f$ \nu\Sigma_f\Phi \f$) 
+ *  for each flat source region in each energy group */
 #define _fission_sources(r,e) (_fission_sources[(r)*_num_groups + (e)])
 
+/** Indexing scheme for the total in-scatter source (\f$ \Sigma_s\Phi \f$) 
+ *  for each flat source region in each energy group */
 #define _scatter_sources(r,e) (_scatter_sources[(r)*_num_groups + (e)])
 
+/** Indexing scheme for the residual between sources from this iteration
+ *  and the previous iteration in each flat source region and energy group */
 #define _source_residuals(r,e) (_source_residuals[(r)*_num_groups + (e)])
 
 /** The value of 4pi: \f$ 4\pi \f$ */
@@ -190,21 +209,91 @@ protected:
     /** A timer to record timing data for a simulation */
     Timer* _timer;
 
+    /**
+     * @brief Creates a polar quadrature object for the solver.
+     */
     virtual void initializePolarQuadrature() =0;
+
+    /**
+     * @brief Initializes the volumes and material arrays for each flat source 
+     *        region. 
+     */
     virtual void initializeFSRs() =0;
+
+    /**
+     * @brief Allocates memory for track boundary angular fluxes and leakages
+     *        flat source region scalar fluxes.
+     */
     virtual void initializeFluxArrays() =0;
+
+    /**
+     * @brief Allocates memory for flat source region source arrays.
+     */
     virtual void initializeSourceArrays() =0;
+
+    /**
+     * @brief Allocates memory for flat source region power arrays.
+     */
     virtual void initializePowerArrays() =0;
+
+
+    /**
+     * @brief Builds an interpolation table for the exponential prefactors 
+     *        referenced for each segment in the transport equation.
+     */
     virtual void precomputePrefactors() =0;
+
     virtual void checkTrackSpacing();
 
+    /**
+     * @brief Zero each track's boundary fluxes for each energy group and polar
+     *        angle in the "forward" and "reverse" directions.
+     */
     virtual void zeroTrackFluxes() =0;
+
+    /**
+     * @brief Set the scalar flux for each energy group inside each flat source 
+     *        region to a constant value.
+     * @param value the value to assign to each flat source region flux
+     */
     virtual void flattenFSRFluxes(FP_PRECISION value) =0;
+
+    /**
+     * @brief Set the source for each energy group in each flat source region
+     *        to a constant value.
+     * @param value the value to assign to each flat source region source
+     */
     virtual void flattenFSRSources(FP_PRECISION value) =0;
+
+    /**
+     * @brief Normalizes all flat source region scalar fluxes and track boundary
+     *        angular fluxes to the total fission source (times \f$ \nu \f$).
+     */
     virtual void normalizeFluxes() =0;
+
+    /**
+     * @brief Computes the total source (fission and scattering) in each flat 
+     *        source region.
+     *
+     * @return the residual between this source and the previous source
+     */
     virtual FP_PRECISION computeFSRSources() =0;
+
+    /**
+     * @brief Compute \f$ k_{eff} \f$ from total fission and absorption rates.
+     */
     virtual void computeKeff() =0;
+
+    /**
+     * @brief Add the source term contribution in the transport equation to 
+     *        the flat source region scalar flux
+     */
     virtual void addSourceToScalarFlux() =0;
+
+    /**
+     * @brief This method performs one transport sweep of all azimuthal angles, 
+     *        tracks, segments, polar angles and energy groups.
+     */
     virtual void transportSweep() =0;
 
     void clearTimerSplits();
@@ -219,9 +308,34 @@ public:
     quadratureType getPolarQuadratureType();
     int getNumIterations();
     FP_PRECISION getSourceConvergenceThreshold();
+
+    /**
+     * @brief Returns the scalar flux for a flat source region
+     * @param fsr_id the ID for the FSR of interest
+     * @param energy_group the energy group of interest
+     * @return the flat source region scalar flux
+     */
     virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group) =0;
+
+    /**
+     * @brief Returns an array of the scalar flux in each flat source
+     *        region in each energy group.
+     * @return an array of flat source region scalar fluxes
+     */
     virtual FP_PRECISION* getFSRScalarFluxes() =0;
+
+    /**
+     * @brief Returns an array indexed by flat source region IDs with the
+     *        corresponding flat source region power.
+     * @return an array of flat source region powers
+     */
     virtual FP_PRECISION* getFSRPowers() =0;
+
+    /**
+     * @brief Return an array indexed by flat source region IDs with the
+     *        corresponding pin cell power.
+     * @return an array of flat source region pin powers
+     */
     virtual FP_PRECISION* getFSRPinPowers() =0;
 
     virtual void setGeometry(Geometry* geometry);
@@ -234,6 +348,12 @@ public:
     void useExponentialIntrinsic();
 
     virtual FP_PRECISION convergeSource(int max_iterations);
+
+    
+    /**
+     * @brief Compute the fission rates in each flat source region and stores 
+     *        them in an array indexed by flat source region ID.
+     */
     virtual void computePinPowers() =0;
 
     void printTimerReport();
