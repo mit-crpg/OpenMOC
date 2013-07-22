@@ -1,0 +1,837 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="classGPUSolver" kind="class" prot="public">
+    <compoundname>GPUSolver</compoundname>
+    <basecompoundref refid="classSolver" prot="public" virt="non-virtual">Solver</basecompoundref>
+    <includes refid="GPUSolver_8h" local="yes">openmoc/src/dev/gpu/GPUSolver.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGPUSolver_1ab33fccdfea9dcc917b4ae68f48eb6a14" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int GPUSolver::_B</definition>
+        <argsstring></argsstring>
+        <name>_B</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The number of threadblocks </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="74" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1aafe7363d896a70ba54b3c0216a6598c6" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int GPUSolver::_T</definition>
+        <argsstring></argsstring>
+        <name>_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The number of threads per threadblock </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="77" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1a303bf5adcb85e28d16d946c3157970ed" prot="private" static="no" mutable="no">
+        <type>int *</type>
+        <definition>int* GPUSolver::_FSR_materials</definition>
+        <argsstring></argsstring>
+        <name>_FSR_materials</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The flat source region material pointers index by FSR UID </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="85" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1ab840e541e455bc323c51308a34fc54d4" prot="private" static="no" mutable="no">
+        <type><ref refid="structdev__material" kindref="compound">dev_material</ref> *</type>
+        <definition>dev_material* GPUSolver::_materials</definition>
+        <argsstring></argsstring>
+        <name>_materials</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A pointer to an array of the materials on the device </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="88" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1aceb7fc34783acfe2776300bcc5995a95" prot="private" static="no" mutable="no">
+        <type><ref refid="structdev__track" kindref="compound">dev_track</ref> *</type>
+        <definition>dev_track* GPUSolver::_dev_tracks</definition>
+        <argsstring></argsstring>
+        <name>_dev_tracks</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A pointer to the array of tracks on the device </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="91" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1a80eb14a9f2495950854b5fe48a38c6a0" prot="private" static="no" mutable="no">
+        <type>int *</type>
+        <definition>int* GPUSolver::_track_index_offsets</definition>
+        <argsstring></argsstring>
+        <name>_track_index_offsets</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the cumulative number of tracks for each azimuthal angle </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="94" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1a13dfa9b117f9018e786837c1b871eed6" prot="private" static="no" mutable="no">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION* GPUSolver::_tot_absorption</definition>
+        <argsstring></argsstring>
+        <name>_tot_absorption</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A pointer to the Thrust vector of absorption rates in each FSR </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="97" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1a310c1f16b37cdaf5f517570e7ca9a7ec" prot="private" static="no" mutable="no">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION* GPUSolver::_tot_fission</definition>
+        <argsstring></argsstring>
+        <name>_tot_fission</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A pointer to the Thrust vector of fission rates in each FSR </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="100" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1ac16aa69b6c41f7d497176059c7faf30f" prot="private" static="no" mutable="no">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION* GPUSolver::_leakage</definition>
+        <argsstring></argsstring>
+        <name>_leakage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A pointer to the Thrust vector of leakages for each track </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="103" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1a282f607acca35dd271af54a61f180724" prot="private" static="no" mutable="no">
+        <type>thrust::device_vector&lt; FP_PRECISION &gt;</type>
+        <definition>thrust::device_vector&lt;FP_PRECISION&gt; GPUSolver::_fission_sources_vec</definition>
+        <argsstring></argsstring>
+        <name>_fission_sources_vec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Thrust vector of fission sources in each FSR </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="106" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1ae93f62f4e66d0bc615fae386b388997e" prot="private" static="no" mutable="no">
+        <type>thrust::device_vector&lt; FP_PRECISION &gt;</type>
+        <definition>thrust::device_vector&lt;FP_PRECISION&gt; GPUSolver::_tot_fission_vec</definition>
+        <argsstring></argsstring>
+        <name>_tot_fission_vec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Thrust vector of fission rates in each FSR </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="109" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1a62e36914ac7e8a129f145329850b71fa" prot="private" static="no" mutable="no">
+        <type>thrust::device_vector&lt; FP_PRECISION &gt;</type>
+        <definition>thrust::device_vector&lt;FP_PRECISION&gt; GPUSolver::_tot_absorption_vec</definition>
+        <argsstring></argsstring>
+        <name>_tot_absorption_vec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Thrust vector of absorption rates in each FSR </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="112" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1a8590533a8f5149addb5b9c55cc1ed15f" prot="private" static="no" mutable="no">
+        <type>thrust::device_vector&lt; FP_PRECISION &gt;</type>
+        <definition>thrust::device_vector&lt;FP_PRECISION&gt; GPUSolver::_source_residuals_vec</definition>
+        <argsstring></argsstring>
+        <name>_source_residuals_vec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Thrust vector of source residuals in each FSR </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="115" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGPUSolver_1ae4f3d10aa7cbcc510487941aa62d0069" prot="private" static="no" mutable="no">
+        <type>thrust::device_vector&lt; FP_PRECISION &gt;</type>
+        <definition>thrust::device_vector&lt;FP_PRECISION&gt; GPUSolver::_leakage_vec</definition>
+        <argsstring></argsstring>
+        <name>_leakage_vec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Thrust vector of leakages for each track </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="118" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGPUSolver_1ab0035af3ba27d060628853b16d098cd4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::initializePolarQuadrature</definition>
+        <argsstring>()</argsstring>
+        <name>initializePolarQuadrature</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="120"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1ab3c55b3861d4ec4064630a417cf210eb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::initializeFSRs</definition>
+        <argsstring>()</argsstring>
+        <name>initializeFSRs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a71ff4c6912a17fa3620bd172b2500058" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::initializeMaterials</definition>
+        <argsstring>()</argsstring>
+        <name>initializeMaterials</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="122"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a9ff5c289b273571e4007cd260ecea67c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::initializeTracks</definition>
+        <argsstring>()</argsstring>
+        <name>initializeTracks</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="123"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a91d30ab0300fe48add4b011b0f9bec9d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::initializeFluxArrays</definition>
+        <argsstring>()</argsstring>
+        <name>initializeFluxArrays</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a59dc3efc8ba1e62143f583f1a013dfbf" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::initializeSourceArrays</definition>
+        <argsstring>()</argsstring>
+        <name>initializeSourceArrays</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a5a2bac59bf92a082d975f96b7548ce9a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::initializePowerArrays</definition>
+        <argsstring>()</argsstring>
+        <name>initializePowerArrays</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="126"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1ab5b40fecf54f0a0ba9855f41df526c74" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::initializeThrustVectors</definition>
+        <argsstring>()</argsstring>
+        <name>initializeThrustVectors</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a49a6a45692ebfa00a3d89eadbdc5250f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::precomputePrefactors</definition>
+        <argsstring>()</argsstring>
+        <name>precomputePrefactors</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="128"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a7d7da67f79c5f6fd5d1fefe70b988c4f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::zeroTrackFluxes</definition>
+        <argsstring>()</argsstring>
+        <name>zeroTrackFluxes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1ad9da754a6838a033f78023ae39fb0402" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::flattenFSRFluxes</definition>
+        <argsstring>(FP_PRECISION value)</argsstring>
+        <name>flattenFSRFluxes</name>
+        <param>
+          <type>FP_PRECISION</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1ab5d4a5c58fb77b2e631331d148b7746f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::flattenFSRSources</definition>
+        <argsstring>(FP_PRECISION value)</argsstring>
+        <name>flattenFSRSources</name>
+        <param>
+          <type>FP_PRECISION</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="132"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a1ba8df7fc9f0817676c2152a840ba8bd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::normalizeFluxes</definition>
+        <argsstring>()</argsstring>
+        <name>normalizeFluxes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="133"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1adafbaad72173aff46d256aae1943f206" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>FP_PRECISION</type>
+        <definition>FP_PRECISION GPUSolver::computeFSRSources</definition>
+        <argsstring>()</argsstring>
+        <name>computeFSRSources</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="134"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a28c2d3394b9a5f82af948dfdbfbd153f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::addSourceToScalarFlux</definition>
+        <argsstring>()</argsstring>
+        <name>addSourceToScalarFlux</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1ad23fa1c19fbc5dcc9d624e2dfb9f8b4c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::computeKeff</definition>
+        <argsstring>()</argsstring>
+        <name>computeKeff</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="136"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1ad2f08dce3f23fcaa7c1774861770b279" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::transportSweep</definition>
+        <argsstring>()</argsstring>
+        <name>transportSweep</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="137"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGPUSolver_1aa5ff8fd4f0a2901aab68ae57da1415bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>GPUSolver::GPUSolver</definition>
+        <argsstring>(Geometry *geometry=NULL, TrackGenerator *track_generator=NULL)</argsstring>
+        <name>GPUSolver</name>
+        <param>
+          <type><ref refid="classGeometry" kindref="compound">Geometry</ref> *</type>
+          <declname>geometry</declname>
+          <defval>NULL</defval>
+        </param>
+        <param>
+          <type><ref refid="classTrackGenerator" kindref="compound">TrackGenerator</ref> *</type>
+          <declname>track_generator</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="141"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1af3b7862a266466e4a005436035b55c9b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual GPUSolver::~GPUSolver</definition>
+        <argsstring>()</argsstring>
+        <name>~GPUSolver</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="142"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a7bdb08af13273639f652d0acc22eae28" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>FP_PRECISION</type>
+        <definition>FP_PRECISION GPUSolver::getFSRScalarFlux</definition>
+        <argsstring>(int fsr_id, int energy_group)</argsstring>
+        <name>getFSRScalarFlux</name>
+        <reimplements refid="classSolver_1a14aa82ed26bb664d3dc89a19b9f13c63">getFSRScalarFlux</reimplements>
+        <param>
+          <type>int</type>
+          <declname>fsr_id</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>energy_group</declname>
+        </param>
+        <briefdescription>
+<para>Returns the scalar flux for a flat source region. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fsr_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the ID for the FSR of interest </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>energy_group</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the energy group of interest </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the flat source region scalar flux </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="144"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a181b0d902129e5bb8e70375e061c3c6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION* GPUSolver::getFSRScalarFluxes</definition>
+        <argsstring>()</argsstring>
+        <name>getFSRScalarFluxes</name>
+        <reimplements refid="classSolver_1ac1981f25afb9ada5cc1e6c40067bc479">getFSRScalarFluxes</reimplements>
+        <briefdescription>
+<para>Returns an array of the scalar flux in each flat source region in each energy group. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>an array of flat source region scalar fluxes </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="145"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a063ab8d6110e315b214ec4d7ddc6225f" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION* GPUSolver::getFSRPowers</definition>
+        <argsstring>()</argsstring>
+        <name>getFSRPowers</name>
+        <reimplements refid="classSolver_1a971144e2d1207ca63abdd2b16db3afa0">getFSRPowers</reimplements>
+        <briefdescription>
+<para>Returns an array indexed by flat source region IDs with the corresponding flat source region power. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>an array of flat source region powers </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="146"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a112682552df45606ffc40f1afe35417d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION* GPUSolver::getFSRPinPowers</definition>
+        <argsstring>()</argsstring>
+        <name>getFSRPinPowers</name>
+        <reimplements refid="classSolver_1ab343527c6bdb72f13080c0df79e6bbea">getFSRPinPowers</reimplements>
+        <briefdescription>
+<para>Return an array indexed by flat source region IDs with the corresponding pin cell power. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>an array of flat source region pin powers </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="147"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a2978a7da907313d5b2b0437e27db568d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::setNumThreadBlocks</definition>
+        <argsstring>(int num_blocks)</argsstring>
+        <name>setNumThreadBlocks</name>
+        <param>
+          <type>int</type>
+          <declname>num_blocks</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="149"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1ab86b32873196013c33bac2f735a9acec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void GPUSolver::setNumThreadsPerBlock</definition>
+        <argsstring>(int num_threads)</argsstring>
+        <name>setNumThreadsPerBlock</name>
+        <param>
+          <type>int</type>
+          <declname>num_threads</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="150"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a6e6d50acc405f83a15bd24e2bc908e1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void GPUSolver::setGeometry</definition>
+        <argsstring>(Geometry *geometry)</argsstring>
+        <name>setGeometry</name>
+        <reimplements refid="classSolver_1a117012c7ecaf59b70fa6b489562acc65">setGeometry</reimplements>
+        <param>
+          <type><ref refid="classGeometry" kindref="compound">Geometry</ref> *</type>
+          <declname>geometry</declname>
+        </param>
+        <briefdescription>
+<para>Sets the geometry for the solver. </para>        </briefdescription>
+        <detaileddescription>
+<para>The geometry must already have initialized flat source region maps and segmentized the track generator&apos;s tracks. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>geometry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to a geometry </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="151"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1ab0298357c57685b183c772b6abaa88e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void GPUSolver::setTrackGenerator</definition>
+        <argsstring>(TrackGenerator *track_generator)</argsstring>
+        <name>setTrackGenerator</name>
+        <reimplements refid="classSolver_1ac07cee2fe04515dc8e4d2980d567c4c5">setTrackGenerator</reimplements>
+        <param>
+          <type><ref refid="classTrackGenerator" kindref="compound">TrackGenerator</ref> *</type>
+          <declname>track_generator</declname>
+        </param>
+        <briefdescription>
+<para>Sets the track generator with characteristic tracks for the solver. </para>        </briefdescription>
+        <detaileddescription>
+<para>The track generator must already have generated tracks and have segmentized them across the geometry. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>track_generator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to a trackgenerator </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1ab13674b177d6c094669abe852950667b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int GPUSolver::computeScalarTrackIndex</definition>
+        <argsstring>(int i, int j)</argsstring>
+        <name>computeScalarTrackIndex</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="154"/>
+      </memberdef>
+      <memberdef kind="function" id="classGPUSolver_1a15e83034faeaa5f781c79eeb99388619" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void GPUSolver::computePinPowers</definition>
+        <argsstring>()</argsstring>
+        <name>computePinPowers</name>
+        <reimplements refid="classSolver_1a1a76bce692d3f35e880832234ae3c4b5">computePinPowers</reimplements>
+        <briefdescription>
+<para>Compute the fission rates in each flat source region and stores them in an array indexed by flat source region ID. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="155"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This a subclass of the <ref refid="classSolver" kindref="compound">Solver</ref> class for NVIDIA Graphics Processing Units (GPUs). </para>    </briefdescription>
+    <detaileddescription>
+<para>The source code for this class includes C++ coupled with compute intensive CUDA kernels for execution on the GPU. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="38">
+        <label>GPUSolver</label>
+        <link refid="classGPUSolver"/>
+        <childnode refid="39" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>Solver</label>
+        <link refid="classSolver"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="40">
+        <label>GPUSolver</label>
+        <link refid="classGPUSolver"/>
+        <childnode refid="41" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>Solver</label>
+        <link refid="classSolver"/>
+        <childnode refid="42" relation="usage">
+          <edgelabel>_geometry</edgelabel>
+        </childnode>
+        <childnode refid="43" relation="usage">
+          <edgelabel>_FSR_materials</edgelabel>
+        </childnode>
+        <childnode refid="44" relation="usage">
+          <edgelabel>_tracks</edgelabel>
+        </childnode>
+        <childnode refid="45" relation="usage">
+          <edgelabel>_quad</edgelabel>
+        </childnode>
+        <childnode refid="46" relation="usage">
+          <edgelabel>_track_generator</edgelabel>
+        </childnode>
+        <childnode refid="47" relation="usage">
+          <edgelabel>_timer</edgelabel>
+        </childnode>
+      </node>
+      <node id="43">
+        <label>Material</label>
+        <link refid="classMaterial"/>
+      </node>
+      <node id="46">
+        <label>TrackGenerator</label>
+        <link refid="classTrackGenerator"/>
+      </node>
+      <node id="47">
+        <label>Timer</label>
+        <link refid="classTimer"/>
+      </node>
+      <node id="45">
+        <label>Quadrature</label>
+        <link refid="classQuadrature"/>
+      </node>
+      <node id="42">
+        <label>Geometry</label>
+        <link refid="classGeometry"/>
+      </node>
+      <node id="44">
+        <label>Track</label>
+        <link refid="classTrack"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="65" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="65" bodyend="156"/>
+    <listofallmembers>
+      <member refid="classSolver_1a02f013a25d984fa74aabc4c34f829960" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_azim_weights</name></member>
+      <member refid="classGPUSolver_1ab33fccdfea9dcc917b4ae68f48eb6a14" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_B</name></member>
+      <member refid="classSolver_1adcfcfe1758affc74780907584fc7beaf" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_boundary_flux</name></member>
+      <member refid="classSolver_1ace3972879027f76a99f24fd01618d123" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_boundary_leakage</name></member>
+      <member refid="classSolver_1a1ce60126ba4fa0b05b08943ddd7cf295" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_converged_source</name></member>
+      <member refid="classGPUSolver_1aceb7fc34783acfe2776300bcc5995a95" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_dev_tracks</name></member>
+      <member refid="classSolver_1a63b1f8d78d02dc5a0f2dc392597cc5af" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_fission_sources</name></member>
+      <member refid="classGPUSolver_1a282f607acca35dd271af54a61f180724" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_fission_sources_vec</name></member>
+      <member refid="classGPUSolver_1a303bf5adcb85e28d16d946c3157970ed" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_FSR_materials</name></member>
+      <member refid="classSolver_1a84372339d7c2b5da3f07bc8b0822f42f" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_FSR_volumes</name></member>
+      <member refid="classSolver_1a2ae997684ddbc16e2c8575cb6dcad788" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_FSRs_to_pin_powers</name></member>
+      <member refid="classSolver_1ac6de9ad9091dae955848d83a91b0f3b5" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_FSRs_to_powers</name></member>
+      <member refid="classSolver_1ae323198b6be6ddc402c53784c5a89b7f" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_geometry</name></member>
+      <member refid="classSolver_1a1263a3948d7fe87874854460a3701d82" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_interpolate_exponential</name></member>
+      <member refid="classSolver_1a4ed58ea28163beec97a5efe1c1874c02" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_inverse_prefactor_spacing</name></member>
+      <member refid="classSolver_1a3c52f5e2ecbe44ebca20e6696a09e447" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_k_eff</name></member>
+      <member refid="classGPUSolver_1ac16aa69b6c41f7d497176059c7faf30f" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_leakage</name></member>
+      <member refid="classGPUSolver_1ae4f3d10aa7cbcc510487941aa62d0069" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_leakage_vec</name></member>
+      <member refid="classGPUSolver_1ab840e541e455bc323c51308a34fc54d4" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_materials</name></member>
+      <member refid="classSolver_1a9f0fd3a842870803f27c47ed51a83039" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_num_azim</name></member>
+      <member refid="classSolver_1a2e17e8aa8a11d4300e89179984ca4347" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_num_FSRs</name></member>
+      <member refid="classSolver_1ab18db0ed64afb0dade6054a7a08ae3c4" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_num_groups</name></member>
+      <member refid="classSolver_1a06f3fd380731eb988cb2fc5232cb94b3" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_num_iterations</name></member>
+      <member refid="classSolver_1a5b17e508bd721f49a382673efcd8ae1b" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_num_materials</name></member>
+      <member refid="classSolver_1a49cc179a9f47c5ca5f6d19c954d680ad" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_num_polar</name></member>
+      <member refid="classSolver_1a564e918dc20cdc12f40e15a86fffefc2" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_num_tracks</name></member>
+      <member refid="classSolver_1ad7d3233142b6798f9aea7330b221754c" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_old_source</name></member>
+      <member refid="classSolver_1a84ce3dbf9e3c4a86773161e7c92b1da1" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_polar_times_groups</name></member>
+      <member refid="classSolver_1a8407ebcfee31a54a67e6d5ca2e3d4e6b" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_polar_weights</name></member>
+      <member refid="classSolver_1a64ce3d9a61c55fa470b91b68497dd9d6" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_prefactor_array</name></member>
+      <member refid="classSolver_1a43ee296db0a4d4cc695be82fea2e2ee5" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_prefactor_array_size</name></member>
+      <member refid="classSolver_1a1a18b47465922034d8669238fedbe176" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_prefactor_max_index</name></member>
+      <member refid="classSolver_1a354a2964b53e89ffb03d256eaccdeb47" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_prefactor_spacing</name></member>
+      <member refid="classSolver_1a4cf19c17278e367f44c6e735e437103d" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_quad</name></member>
+      <member refid="classSolver_1a3c8910d870254066e9ba89c75c3a1003" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_quadrature_type</name></member>
+      <member refid="classSolver_1aff69bb3f354f5c598e1117e2a3515f1b" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_reduced_source</name></member>
+      <member refid="classSolver_1a60df3fd1a13667c294b1519d59a00b87" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_scalar_flux</name></member>
+      <member refid="classSolver_1a524973fbca3ad3ace58b122c01b404f0" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_scatter_sources</name></member>
+      <member refid="classSolver_1a935ab1926ea3d625d0c549c5f8595c07" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_source</name></member>
+      <member refid="classSolver_1a4aa4d18f980bbb098f839835e5e2f35d" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_source_convergence_thresh</name></member>
+      <member refid="classSolver_1af2285a2a6361ea1d351e3b8c55858c92" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_source_residuals</name></member>
+      <member refid="classGPUSolver_1a8590533a8f5149addb5b9c55cc1ed15f" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_source_residuals_vec</name></member>
+      <member refid="classGPUSolver_1aafe7363d896a70ba54b3c0216a6598c6" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_T</name></member>
+      <member refid="classSolver_1a3cab54ec3cb374d796180b94201276ec" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_timer</name></member>
+      <member refid="classGPUSolver_1a13dfa9b117f9018e786837c1b871eed6" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_tot_absorption</name></member>
+      <member refid="classGPUSolver_1a62e36914ac7e8a129f145329850b71fa" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_tot_absorption_vec</name></member>
+      <member refid="classGPUSolver_1a310c1f16b37cdaf5f517570e7ca9a7ec" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_tot_fission</name></member>
+      <member refid="classGPUSolver_1ae93f62f4e66d0bc615fae386b388997e" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_tot_fission_vec</name></member>
+      <member refid="classSolver_1a817518832fb051823de9e8855319f02e" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_tot_num_tracks</name></member>
+      <member refid="classSolver_1a7f7349dc153dd9e728697c922cf7c052" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_track_generator</name></member>
+      <member refid="classGPUSolver_1a80eb14a9f2495950854b5fe48a38c6a0" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>_track_index_offsets</name></member>
+      <member refid="classSolver_1a775ed41fc1268312c8fb25ec994e1351" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_tracks</name></member>
+      <member refid="classSolver_1a5f9e45e5d2a93bc3b18ca2659b95ac6a" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>_two_times_num_polar</name></member>
+      <member refid="classGPUSolver_1a28c2d3394b9a5f82af948dfdbfbd153f" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>addSourceToScalarFlux</name></member>
+      <member refid="classSolver_1a4ab290c6ca1d74230bf885cfc7f58b7a" prot="protected" virt="virtual"><scope>GPUSolver</scope><name>checkTrackSpacing</name></member>
+      <member refid="classSolver_1a4f6e2e3069aa9404fefd62be376e8390" prot="protected" virt="non-virtual"><scope>GPUSolver</scope><name>clearTimerSplits</name></member>
+      <member refid="classGPUSolver_1adafbaad72173aff46d256aae1943f206" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>computeFSRSources</name></member>
+      <member refid="classGPUSolver_1ad23fa1c19fbc5dcc9d624e2dfb9f8b4c" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>computeKeff</name></member>
+      <member refid="classGPUSolver_1a15e83034faeaa5f781c79eeb99388619" prot="public" virt="virtual"><scope>GPUSolver</scope><name>computePinPowers</name></member>
+      <member refid="classGPUSolver_1ab13674b177d6c094669abe852950667b" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>computeScalarTrackIndex</name></member>
+      <member refid="classSolver_1af8358a66a7cbd56339211f80a2365678" prot="public" virt="virtual"><scope>GPUSolver</scope><name>convergeSource</name></member>
+      <member refid="classGPUSolver_1ad9da754a6838a033f78023ae39fb0402" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>flattenFSRFluxes</name></member>
+      <member refid="classGPUSolver_1ab5d4a5c58fb77b2e631331d148b7746f" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>flattenFSRSources</name></member>
+      <member refid="classGPUSolver_1a112682552df45606ffc40f1afe35417d" prot="public" virt="virtual"><scope>GPUSolver</scope><name>getFSRPinPowers</name></member>
+      <member refid="classGPUSolver_1a063ab8d6110e315b214ec4d7ddc6225f" prot="public" virt="virtual"><scope>GPUSolver</scope><name>getFSRPowers</name></member>
+      <member refid="classGPUSolver_1a7bdb08af13273639f652d0acc22eae28" prot="public" virt="virtual"><scope>GPUSolver</scope><name>getFSRScalarFlux</name></member>
+      <member refid="classGPUSolver_1a181b0d902129e5bb8e70375e061c3c6f" prot="public" virt="virtual"><scope>GPUSolver</scope><name>getFSRScalarFluxes</name></member>
+      <member refid="classSolver_1afd394d9603d0ceba175d96a53f54d7fa" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>getGeometry</name></member>
+      <member refid="classSolver_1a4e2f2f30ca4bae8871b30bb188a29b38" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>getNumIterations</name></member>
+      <member refid="classSolver_1ae3012e43ec82aea38b7ff0c26a6e5003" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>getNumPolarAngles</name></member>
+      <member refid="classSolver_1a8810de68de50b5f4881e89e68733960a" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>getPolarQuadratureType</name></member>
+      <member refid="classSolver_1af3ec5e2776910329b6502e9fc06d533b" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>getSourceConvergenceThreshold</name></member>
+      <member refid="classSolver_1ac47a004e88d7fde15880ab8c2b08e754" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>getTrackGenerator</name></member>
+      <member refid="classGPUSolver_1aa5ff8fd4f0a2901aab68ae57da1415bc" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>GPUSolver</name></member>
+      <member refid="classGPUSolver_1a91d30ab0300fe48add4b011b0f9bec9d" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>initializeFluxArrays</name></member>
+      <member refid="classGPUSolver_1ab3c55b3861d4ec4064630a417cf210eb" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>initializeFSRs</name></member>
+      <member refid="classGPUSolver_1a71ff4c6912a17fa3620bd172b2500058" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>initializeMaterials</name></member>
+      <member refid="classGPUSolver_1ab0035af3ba27d060628853b16d098cd4" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>initializePolarQuadrature</name></member>
+      <member refid="classGPUSolver_1a5a2bac59bf92a082d975f96b7548ce9a" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>initializePowerArrays</name></member>
+      <member refid="classGPUSolver_1a59dc3efc8ba1e62143f583f1a013dfbf" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>initializeSourceArrays</name></member>
+      <member refid="classGPUSolver_1ab5b40fecf54f0a0ba9855f41df526c74" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>initializeThrustVectors</name></member>
+      <member refid="classGPUSolver_1a9ff5c289b273571e4007cd260ecea67c" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>initializeTracks</name></member>
+      <member refid="classGPUSolver_1a1ba8df7fc9f0817676c2152a840ba8bd" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>normalizeFluxes</name></member>
+      <member refid="classGPUSolver_1a49a6a45692ebfa00a3d89eadbdc5250f" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>precomputePrefactors</name></member>
+      <member refid="classSolver_1aeec2b08ba9d6be88cf08f1fc02658500" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>printTimerReport</name></member>
+      <member refid="classGPUSolver_1a6e6d50acc405f83a15bd24e2bc908e1d" prot="public" virt="virtual"><scope>GPUSolver</scope><name>setGeometry</name></member>
+      <member refid="classSolver_1a069e8bf490a2f5de391f57cd9e7224ed" prot="public" virt="virtual"><scope>GPUSolver</scope><name>setNumPolarAngles</name></member>
+      <member refid="classGPUSolver_1a2978a7da907313d5b2b0437e27db568d" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>setNumThreadBlocks</name></member>
+      <member refid="classGPUSolver_1ab86b32873196013c33bac2f735a9acec" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>setNumThreadsPerBlock</name></member>
+      <member refid="classSolver_1aa602cd57f7b72f13050920f2c752815e" prot="public" virt="virtual"><scope>GPUSolver</scope><name>setPolarQuadratureType</name></member>
+      <member refid="classSolver_1aaace17535420183bd7c699b0a10c1e01" prot="public" virt="virtual"><scope>GPUSolver</scope><name>setSourceConvergenceThreshold</name></member>
+      <member refid="classGPUSolver_1ab0298357c57685b183c772b6abaa88e8" prot="public" virt="virtual"><scope>GPUSolver</scope><name>setTrackGenerator</name></member>
+      <member refid="classSolver_1a950a0ef510e9eb4a92984473c668c198" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>Solver</name></member>
+      <member refid="classGPUSolver_1ad2f08dce3f23fcaa7c1774861770b279" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>transportSweep</name></member>
+      <member refid="classSolver_1a627f677bdb8a621a632b581bc976b2a5" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>useExponentialInterpolation</name></member>
+      <member refid="classSolver_1a5400c11874dac7f00ade6e7c2d573aee" prot="public" virt="non-virtual"><scope>GPUSolver</scope><name>useExponentialIntrinsic</name></member>
+      <member refid="classGPUSolver_1a7d7da67f79c5f6fd5d1fefe70b988c4f" prot="private" virt="non-virtual"><scope>GPUSolver</scope><name>zeroTrackFluxes</name></member>
+      <member refid="classGPUSolver_1af3b7862a266466e4a005436035b55c9b" prot="public" virt="virtual"><scope>GPUSolver</scope><name>~GPUSolver</name></member>
+      <member refid="classSolver_1aba52d3c92fafceb6fe39f937f2d73db3" prot="public" virt="virtual"><scope>GPUSolver</scope><name>~Solver</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

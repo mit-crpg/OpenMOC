@@ -1,0 +1,730 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="classTrackGenerator" kind="class" prot="public">
+    <compoundname>TrackGenerator</compoundname>
+    <includes refid="TrackGenerator_8h" local="yes">openmoc/src/host/TrackGenerator.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classTrackGenerator_1a8b70468a0d972704554215f7f19c5957" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TrackGenerator::_num_azim</definition>
+        <argsstring></argsstring>
+        <name>_num_azim</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of azimuthal angles in <formula id="19">$ [0, \pi] $</formula> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="35" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1a024a865efb65cf29ecddb8429f8af448" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double TrackGenerator::_spacing</definition>
+        <argsstring></argsstring>
+        <name>_spacing</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The user-specified track spacing (cm) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="38" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1a1413b29f43c0e61c316a4214b8a52c87" prot="private" static="no" mutable="no">
+        <type>int *</type>
+        <definition>int* TrackGenerator::_num_tracks</definition>
+        <argsstring></argsstring>
+        <name>_num_tracks</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the number of tracks for each azimuthal angle </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="41" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1a160cd2ab9efbfb9c7ab330ae05cb4738" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TrackGenerator::_tot_num_tracks</definition>
+        <argsstring></argsstring>
+        <name>_tot_num_tracks</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The total number of tracks </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="44" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1a629b91288b63c41aeeed8e13467c2615" prot="private" static="no" mutable="no">
+        <type>int *</type>
+        <definition>int* TrackGenerator::_num_segments</definition>
+        <argsstring></argsstring>
+        <name>_num_segments</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the number of track segments per track </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="47" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1a8295f1c21c80c6c174ef7d1722be2dc4" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int TrackGenerator::_tot_num_segments</definition>
+        <argsstring></argsstring>
+        <name>_tot_num_segments</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The total number of track segments </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="50" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1abfa0ed2307b19541f3ab9e3e1dff8b64" prot="private" static="no" mutable="no">
+        <type>int *</type>
+        <definition>int* TrackGenerator::_num_x</definition>
+        <argsstring></argsstring>
+        <name>_num_x</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the number of tracks starting on the x-axis for each azimuthal angle </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="54" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1a797221706459b103886a0799587fe163" prot="private" static="no" mutable="no">
+        <type>int *</type>
+        <definition>int* TrackGenerator::_num_y</definition>
+        <argsstring></argsstring>
+        <name>_num_y</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the number of tracks starting on the y-axis for each azimuthal angle </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="58" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1acc274789b5a5423d33e94ef79681ac00" prot="private" static="no" mutable="no">
+        <type>double *</type>
+        <definition>double* TrackGenerator::_azim_weights</definition>
+        <argsstring></argsstring>
+        <name>_azim_weights</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the weights for each azimuthal angle </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="61" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1ab19e1f9e75131ba8e952ced9b9fe082c" prot="private" static="no" mutable="no">
+        <type><ref refid="classTrack" kindref="compound">Track</ref> **</type>
+        <definition>Track** TrackGenerator::_tracks</definition>
+        <argsstring></argsstring>
+        <name>_tracks</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A 2D ragged array of tracks </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="64" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1a4a851709bfd479267874c0767d73d7e7" prot="private" static="no" mutable="no">
+        <type><ref refid="classGeometry" kindref="compound">Geometry</ref> *</type>
+        <definition>Geometry* TrackGenerator::_geometry</definition>
+        <argsstring></argsstring>
+        <name>_geometry</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to the geometry </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="67" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1a5fd1a72ab20e65e65d33984753ea47ff" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TrackGenerator::_use_input_file</definition>
+        <argsstring></argsstring>
+        <name>_use_input_file</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Boolean or whether to use track input file (true) or not (false) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="70" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1a1478f5ff78d9dfba6630e5e87a415707" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string TrackGenerator::_tracks_filename</definition>
+        <argsstring></argsstring>
+        <name>_tracks_filename</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Filename for the *.tracks input / output file </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="73" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTrackGenerator_1a7b8fb9f8f5d86a99517126bb8c3f71ff" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool TrackGenerator::_contains_tracks</definition>
+        <argsstring></argsstring>
+        <name>_contains_tracks</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Boolean whether the tracks have been generated (true) or not (false) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="76" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classTrackGenerator_1a739b28d5eb4760cf2d6fa1ab046acea1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackGenerator::computeEndPoint</definition>
+        <argsstring>(Point *start, Point *end, const double phi, const double width, const double height)</argsstring>
+        <name>computeEndPoint</name>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>end</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>phi</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+<para>This helper method for <ref refid="classTrackGenerator_1a8012954f5eeeae9dfb4fd445937884ee" kindref="member">generateTracks()</ref> method finds the end point of a track with a defined start point and an angle from x-axis. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function does not return a value but instead saves the x/y coordinates of the end point directly within the track&apos;s end point. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>start</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to the track start point </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to a point to store the end point coordinates </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>phi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the azimuthal angle </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>width</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the width of the geometry (cm) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>height</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the height of the geometry (cm) </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="79" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="558" bodyend="596"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a29e8f7fda7a826abd40cba3f916e9303" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackGenerator::initializeBoundaryConditions</definition>
+        <argsstring>()</argsstring>
+        <name>initializeBoundaryConditions</name>
+        <briefdescription>
+<para>Initializes boundary conditions for each track. </para>        </briefdescription>
+        <detaileddescription>
+<para>Sets boundary conditions by setting the incoming and outgoing tracks * for each track using a special indexing scheme into the 2d jagged array of tracks </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="81" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="604" bodyend="892"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a0f75ac336708bc2355adc19575870000" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackGenerator::segmentize</definition>
+        <argsstring>()</argsstring>
+        <name>segmentize</name>
+        <briefdescription>
+<para>Generate segments for each track across the geometry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="82" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="898" bodyend="935"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1aaaab78c33638010a047b377e8dc352d2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackGenerator::dumpTracksToFile</definition>
+        <argsstring>()</argsstring>
+        <name>dumpTracksToFile</name>
+        <briefdescription>
+<para>Writes all track and segment data to a *.tracks file. </para>        </briefdescription>
+        <detaileddescription>
+<para>Storing tracks in a file saves time by eliminating segmentation for commonly simulated geometries. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="83" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="943" bodyend="1011"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1ab2c29c02bfb14d46c84c5715c98cc25b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool TrackGenerator::readTracksFromFile</definition>
+        <argsstring>()</argsstring>
+        <name>readTracksFromFile</name>
+        <briefdescription>
+<para>Reads tracks in from a file. </para>        </briefdescription>
+        <detaileddescription>
+<para>Storing tracks in a file saves time by eliminating segmentation for commonly simulated geometries. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="84" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="1019" bodyend="1127"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classTrackGenerator_1a19c16de624bb489a4757772f08c078c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>TrackGenerator::TrackGenerator</definition>
+        <argsstring>(Geometry *geometry, int num_azim, double spacing)</argsstring>
+        <name>TrackGenerator</name>
+        <param>
+          <type><ref refid="classGeometry" kindref="compound">Geometry</ref> *</type>
+          <declname>geometry</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_azim</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>spacing</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>geometry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to a geometry object </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_azim</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of azimuthal angles in <formula id="17">$ [0, 2\pi] $</formula> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>spacing</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>track spacing (cm) </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="87" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="10" bodyend="21"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a11821904ab5138800c922970585cb1e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>TrackGenerator::~TrackGenerator</definition>
+        <argsstring>()</argsstring>
+        <name>~TrackGenerator</name>
+        <briefdescription>
+<para>Destructor frees memory for all tracks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="88" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="27" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a9c9661635df90ab658b17517548e7cc2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int TrackGenerator::getNumAzim</definition>
+        <argsstring>()</argsstring>
+        <name>getNumAzim</name>
+        <briefdescription>
+<para>Return the number of azimuthal angles in <formula id="17">$ [0, 2\pi] $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the number of azimuthal angles in <formula id="18">$ 2\pi $</formula> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="90" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="49" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1aa96bffdf881ca6142007a5716077bb9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double TrackGenerator::getTrackSpacing</definition>
+        <argsstring>()</argsstring>
+        <name>getTrackSpacing</name>
+        <briefdescription>
+<para>Return the user-specified (or default) suggested track spacing (cm). </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the suggested track spacing (cm) </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="91" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a4b87173e3bc0fc075cd1cda64de1aee4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGeometry" kindref="compound">Geometry</ref> *</type>
+        <definition>Geometry * TrackGenerator::getGeometry</definition>
+        <argsstring>()</argsstring>
+        <name>getGeometry</name>
+        <briefdescription>
+<para>Return the geometry for this trackgenerator if one has been set. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a pointer to the geometry </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="92" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="68" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a078d71a343d4c245c38195491b2d024c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int TrackGenerator::getNumTracks</definition>
+        <argsstring>()</argsstring>
+        <name>getNumTracks</name>
+        <briefdescription>
+<para>Return the total number of tracks across the geometry. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the total number of tracks </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="93" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="81" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a20e00c47aa96fbee5c2eef16e8aa006c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int *</type>
+        <definition>int * TrackGenerator::getNumTracksArray</definition>
+        <argsstring>()</argsstring>
+        <name>getNumTracksArray</name>
+        <briefdescription>
+<para>Return an array of the number of tracks for each azimuthal angle. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>array with the number of tracks </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="94" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="94" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a4e377cdc26b0eec5f54d55ebc2249089" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int TrackGenerator::getNumSegments</definition>
+        <argsstring>()</argsstring>
+        <name>getNumSegments</name>
+        <briefdescription>
+<para>Return the total number of track segments across the geometry. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the total number of track segments </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="95" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="108" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a63454e90014b8e3c94091ee7fc2a94f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int *</type>
+        <definition>int * TrackGenerator::getNumSegmentsArray</definition>
+        <argsstring>()</argsstring>
+        <name>getNumSegmentsArray</name>
+        <briefdescription>
+<para>Return an array of the number of segments per track. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>array with the number of segments per track </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="96" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="121" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a293c6a25a694bfcb8187cfd679fa3639" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classTrack" kindref="compound">Track</ref> **</type>
+        <definition>Track ** TrackGenerator::getTracks</definition>
+        <argsstring>()</argsstring>
+        <name>getTracks</name>
+        <briefdescription>
+<para>Returns a 2D jagged array of the tracks. </para>        </briefdescription>
+        <detaileddescription>
+<para>The first index into the array is the azimuthal angle and the second index is the track number for a given azimuthal angle. <simplesect kind="return"><para>the 2D jagged array of tracks </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="97" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="137" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a1488db5d20339280b0e6fadf19a6d431" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double *</type>
+        <definition>double * TrackGenerator::getAzimWeights</definition>
+        <argsstring>()</argsstring>
+        <name>getAzimWeights</name>
+        <briefdescription>
+<para>Return a pointer to the array of azimuthal weights. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the array of azimuthal weights </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="98" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="150" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a5ec836ced3479a5aae51132809a3d7b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool TrackGenerator::containsTracks</definition>
+        <argsstring>()</argsstring>
+        <name>containsTracks</name>
+        <briefdescription>
+<para>Returns whether or not the trackgenerator contains track that are for its current number of azimuthal angles, track spacing and geometry. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if the trackgenerator conatains tracks; false otherwise </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="99" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="165" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a6b61a46a4dfd62aa13cab68e454ed935" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackGenerator::retrieveTrackCoords</definition>
+        <argsstring>(double *coords, int num_tracks)</argsstring>
+        <name>retrieveTrackCoords</name>
+        <param>
+          <type>double *</type>
+          <declname>coords</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_tracks</declname>
+        </param>
+        <briefdescription>
+<para>Fills an array with the x,y coordinates for each track. </para>        </briefdescription>
+        <detaileddescription>
+<para>This class method is intended to be called by the OpenMOC Python &quot;plotter&quot; module as a utility to assist in plotting tracks. Although this method appears to require two arguments, in reality it only requires on due to SWIG and would be called from within Python as follows:</para><para><programlisting><codeline><highlight class="normal">num_tracks<sp/>=<sp/>track_generator.getNumTracks()</highlight></codeline>
+<codeline><highlight class="normal">coords<sp/>=<sp/>track_generator.retrieveTrackCoords(num_tracks*4)</highlight></codeline>
+</programlisting></para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coords</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>an array of coords of length 4 times the number of tracks </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_tracks</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the total number of tracks </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="100" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="186" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1ad18b94b9307680cf9e7053d3c03e4504" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackGenerator::retrieveSegmentCoords</definition>
+        <argsstring>(double *coords, int num_segments)</argsstring>
+        <name>retrieveSegmentCoords</name>
+        <param>
+          <type>double *</type>
+          <declname>coords</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_segments</declname>
+        </param>
+        <briefdescription>
+<para>Fills an array with the x,y coordinates for each track segment. </para>        </briefdescription>
+        <detaileddescription>
+<para>This class method is intended to be called by the OpenMOC Python &quot;plotter&quot; module as a utility to assist in plotting segments. Although this method appears to require two arguments, in reality it only requires one due to SWIG and would be called from within Python as follows:</para><para><programlisting><codeline><highlight class="normal">num_segments<sp/>=<sp/>track_generator.getNumSegments()</highlight></codeline>
+<codeline><highlight class="normal">coords<sp/>=<sp/>track_generator.retrieveSegmentCoords(num_segments*4)</highlight></codeline>
+</programlisting></para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coords</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>an array of coords of length 5 times the number of segments </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_segments</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the total number of track segments </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="101" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="225" bodyend="272"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a646dd957a791ae40d9319d50d87bd596" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackGenerator::setNumAzim</definition>
+        <argsstring>(int num_azim)</argsstring>
+        <name>setNumAzim</name>
+        <param>
+          <type>int</type>
+          <declname>num_azim</declname>
+        </param>
+        <briefdescription>
+<para>Set the number of azimuthal angles in <formula id="17">$ [0, 2\pi] $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>num_azim</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number of azimuthal angles in <formula id="18">$ 2\pi $</formula> </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="103" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="279" bodyend="291"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1aa7692a0e2fab2d8cbc14c5c8b65add6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackGenerator::setTrackSpacing</definition>
+        <argsstring>(double spacing)</argsstring>
+        <name>setTrackSpacing</name>
+        <param>
+          <type>double</type>
+          <declname>spacing</declname>
+        </param>
+        <briefdescription>
+<para>Set the suggested track spacing (cm). </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>spacing</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the suggested track spacing </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="104" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="298" bodyend="309"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a79c918885a9cc3c00515b7fd6a9ffeb7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackGenerator::setGeometry</definition>
+        <argsstring>(Geometry *geometry)</argsstring>
+        <name>setGeometry</name>
+        <param>
+          <type><ref refid="classGeometry" kindref="compound">Geometry</ref> *</type>
+          <declname>geometry</declname>
+        </param>
+        <briefdescription>
+<para>Set a pointer to the geometry to use for track generation. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>geometry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to the geometry </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="105" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="316" bodyend="323"/>
+      </memberdef>
+      <memberdef kind="function" id="classTrackGenerator_1a8012954f5eeeae9dfb4fd445937884ee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void TrackGenerator::generateTracks</definition>
+        <argsstring>()</argsstring>
+        <name>generateTracks</name>
+        <briefdescription>
+<para>Generates tracks for some number of azimuthal angles and track spacing *. </para>        </briefdescription>
+        <detaileddescription>
+<para>Computes the effective angles and track spacings. Computes the number of tracks for each azimuthal angle, allocates memory for all tracks at each angle and sets each track&apos;s starting and ending points, azimuthal weight, and azimuthal angle. </para>        </detaileddescription>
+        <inbodydescription>
+<para>Create tracks directory if one does not yet exist </para>        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="107" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp" bodystart="331" bodyend="544"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The track generator is dedicated to generating tracks which cyclically wrap across the geometry. </para>    </briefdescription>
+    <detaileddescription>
+<para>The track generator creates track and initializes boundary conditions (vacuum or reflective) for each track. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="108">
+        <label>TrackGenerator</label>
+        <link refid="classTrackGenerator"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" line="31" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h" bodystart="31" bodyend="108"/>
+    <listofallmembers>
+      <member refid="classTrackGenerator_1acc274789b5a5423d33e94ef79681ac00" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_azim_weights</name></member>
+      <member refid="classTrackGenerator_1a7b8fb9f8f5d86a99517126bb8c3f71ff" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_contains_tracks</name></member>
+      <member refid="classTrackGenerator_1a4a851709bfd479267874c0767d73d7e7" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_geometry</name></member>
+      <member refid="classTrackGenerator_1a8b70468a0d972704554215f7f19c5957" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_num_azim</name></member>
+      <member refid="classTrackGenerator_1a629b91288b63c41aeeed8e13467c2615" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_num_segments</name></member>
+      <member refid="classTrackGenerator_1a1413b29f43c0e61c316a4214b8a52c87" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_num_tracks</name></member>
+      <member refid="classTrackGenerator_1abfa0ed2307b19541f3ab9e3e1dff8b64" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_num_x</name></member>
+      <member refid="classTrackGenerator_1a797221706459b103886a0799587fe163" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_num_y</name></member>
+      <member refid="classTrackGenerator_1a024a865efb65cf29ecddb8429f8af448" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_spacing</name></member>
+      <member refid="classTrackGenerator_1a8295f1c21c80c6c174ef7d1722be2dc4" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_tot_num_segments</name></member>
+      <member refid="classTrackGenerator_1a160cd2ab9efbfb9c7ab330ae05cb4738" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_tot_num_tracks</name></member>
+      <member refid="classTrackGenerator_1ab19e1f9e75131ba8e952ced9b9fe082c" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_tracks</name></member>
+      <member refid="classTrackGenerator_1a1478f5ff78d9dfba6630e5e87a415707" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_tracks_filename</name></member>
+      <member refid="classTrackGenerator_1a5fd1a72ab20e65e65d33984753ea47ff" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>_use_input_file</name></member>
+      <member refid="classTrackGenerator_1a739b28d5eb4760cf2d6fa1ab046acea1" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>computeEndPoint</name></member>
+      <member refid="classTrackGenerator_1a5ec836ced3479a5aae51132809a3d7b4" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>containsTracks</name></member>
+      <member refid="classTrackGenerator_1aaaab78c33638010a047b377e8dc352d2" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>dumpTracksToFile</name></member>
+      <member refid="classTrackGenerator_1a8012954f5eeeae9dfb4fd445937884ee" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>generateTracks</name></member>
+      <member refid="classTrackGenerator_1a1488db5d20339280b0e6fadf19a6d431" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>getAzimWeights</name></member>
+      <member refid="classTrackGenerator_1a4b87173e3bc0fc075cd1cda64de1aee4" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>getGeometry</name></member>
+      <member refid="classTrackGenerator_1a9c9661635df90ab658b17517548e7cc2" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>getNumAzim</name></member>
+      <member refid="classTrackGenerator_1a4e377cdc26b0eec5f54d55ebc2249089" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>getNumSegments</name></member>
+      <member refid="classTrackGenerator_1a63454e90014b8e3c94091ee7fc2a94f0" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>getNumSegmentsArray</name></member>
+      <member refid="classTrackGenerator_1a078d71a343d4c245c38195491b2d024c" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>getNumTracks</name></member>
+      <member refid="classTrackGenerator_1a20e00c47aa96fbee5c2eef16e8aa006c" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>getNumTracksArray</name></member>
+      <member refid="classTrackGenerator_1a293c6a25a694bfcb8187cfd679fa3639" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>getTracks</name></member>
+      <member refid="classTrackGenerator_1aa96bffdf881ca6142007a5716077bb9e" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>getTrackSpacing</name></member>
+      <member refid="classTrackGenerator_1a29e8f7fda7a826abd40cba3f916e9303" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>initializeBoundaryConditions</name></member>
+      <member refid="classTrackGenerator_1ab2c29c02bfb14d46c84c5715c98cc25b" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>readTracksFromFile</name></member>
+      <member refid="classTrackGenerator_1ad18b94b9307680cf9e7053d3c03e4504" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>retrieveSegmentCoords</name></member>
+      <member refid="classTrackGenerator_1a6b61a46a4dfd62aa13cab68e454ed935" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>retrieveTrackCoords</name></member>
+      <member refid="classTrackGenerator_1a0f75ac336708bc2355adc19575870000" prot="private" virt="non-virtual"><scope>TrackGenerator</scope><name>segmentize</name></member>
+      <member refid="classTrackGenerator_1a79c918885a9cc3c00515b7fd6a9ffeb7" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>setGeometry</name></member>
+      <member refid="classTrackGenerator_1a646dd957a791ae40d9319d50d87bd596" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>setNumAzim</name></member>
+      <member refid="classTrackGenerator_1aa7692a0e2fab2d8cbc14c5c8b65add6f" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>setTrackSpacing</name></member>
+      <member refid="classTrackGenerator_1a19c16de624bb489a4757772f08c078c3" prot="public" virt="non-virtual"><scope>TrackGenerator</scope><name>TrackGenerator</name></member>
+      <member refid="classTrackGenerator_1a11821904ab5138800c922970585cb1e4" prot="public" virt="virtual"><scope>TrackGenerator</scope><name>~TrackGenerator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,264 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="classYPlane" kind="class" prot="public">
+    <compoundname>YPlane</compoundname>
+    <basecompoundref refid="classPlane" prot="public" virt="non-virtual">Plane</basecompoundref>
+    <includes refid="Surface_8h" local="yes">openmoc/src/host/Surface.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classYPlane_1a0d3614b8aa981295b914e2aeeee80a4e" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double YPlane::_y</definition>
+        <argsstring></argsstring>
+        <name>_y</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The location of hte yplane along the y-axis </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="223" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="223" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classYPlane_1a9e04f6233f8a1ea659ad5fee27ee54c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>YPlane::YPlane</definition>
+        <argsstring>(const double y, const short int id=0)</argsstring>
+        <name>YPlane</name>
+        <param>
+          <type>const double</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>const short int</type>
+          <declname>id</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for a plane perpendicular to the y-axis. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the surface id </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the location of the plane along the y-axis </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="226" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="360" bodyend="364"/>
+      </memberdef>
+      <memberdef kind="function" id="classYPlane_1a899cafc6a3533efd3fa32dd1fdfdc3ba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void YPlane::setY</definition>
+        <argsstring>(const double y)</argsstring>
+        <name>setY</name>
+        <param>
+          <type>const double</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Set the location of this yplane on the y-axis. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the location of the yplane on the y-axis </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="228" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="371" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="function" id="classYPlane_1a238909f9532b3b06bae42903a47b9f67" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double YPlane::getY</definition>
+        <argsstring>()</argsstring>
+        <name>getY</name>
+        <briefdescription>
+<para>Returns the location of the yplane on the y-axis. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the location of the yplane on the y-axis </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="230" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="380" bodyend="382"/>
+      </memberdef>
+      <memberdef kind="function" id="classYPlane_1ac3516c324a84328918483ba4fb9ed3b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double YPlane::getXMin</definition>
+        <argsstring>()</argsstring>
+        <name>getXMin</name>
+        <reimplements refid="classPlane_1a39fb25d54b2b752f1598c20e2e889679">getXMin</reimplements>
+        <briefdescription>
+<para>Returns the minimum x value of -INFINITY on this yplane. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the minimum x value of -INFINITY </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="231" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="388" bodyend="390"/>
+      </memberdef>
+      <memberdef kind="function" id="classYPlane_1a826121aa104801c8de740bdf35b8719b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double YPlane::getXMax</definition>
+        <argsstring>()</argsstring>
+        <name>getXMax</name>
+        <reimplements refid="classPlane_1a32318a4525e6e9224602be52c89972f1">getXMax</reimplements>
+        <briefdescription>
+<para>Returns the maximum x value of INFINITY on this yplane. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the maximum x value of INFINITY </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="232" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="397" bodyend="399"/>
+      </memberdef>
+      <memberdef kind="function" id="classYPlane_1ad31d977334c0839649588b2382c6d316" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double YPlane::getYMin</definition>
+        <argsstring>()</argsstring>
+        <name>getYMin</name>
+        <reimplements refid="classPlane_1a70c9986c329d96eeaf6f2f0239f54706">getYMin</reimplements>
+        <briefdescription>
+<para>Returns the minimum y value on this yplane. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the minimum y value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="233" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="406" bodyend="408"/>
+      </memberdef>
+      <memberdef kind="function" id="classYPlane_1a68f1585c4575003ef500e95bd21475f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double YPlane::getYMax</definition>
+        <argsstring>()</argsstring>
+        <name>getYMax</name>
+        <reimplements refid="classPlane_1a79d802de37e2b43b689c69dd05b721ff">getYMax</reimplements>
+        <briefdescription>
+<para>Returns the maximum y value on this yplane. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the maximum y value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="234" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="415" bodyend="417"/>
+      </memberdef>
+      <memberdef kind="function" id="classYPlane_1a90e984e54368bc0508c82e86b05de286" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::string</type>
+        <definition>std::string YPlane::toString</definition>
+        <argsstring>()</argsstring>
+        <name>toString</name>
+        <reimplements refid="classPlane_1ae953389291ab7fff7a1745c86977a3ae">toString</reimplements>
+        <briefdescription>
+<para>Converts this yplane&apos;s attributes to a character array. </para>        </briefdescription>
+        <detaileddescription>
+<para>The character array returned conatins the type of plane (ie, YPLANE) and the A, B, and C coefficients in the quadratic surface equation and the location of the plane on the y-axis. <simplesect kind="return"><para>a character array of this yplane&apos;s attributes </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="236" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="428" bodyend="435"/>
+      </memberdef>
+      <memberdef kind="function" id="classYPlane_1a0be4dfa4623eaf137fdd0324bfe1e7ea" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void YPlane::printString</definition>
+        <argsstring>()</argsstring>
+        <name>printString</name>
+        <reimplements refid="classPlane_1a1979f3908ae8fa3dd780f0f583591da3">printString</reimplements>
+        <briefdescription>
+<para>Prints a string representation of all of the yplane&apos;s objects to the console. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="237" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="442" bodyend="444"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Represents a plane perpendicular to the y-axis. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="148">
+        <label>Surface</label>
+        <link refid="classSurface"/>
+      </node>
+      <node id="146">
+        <label>YPlane</label>
+        <link refid="classYPlane"/>
+        <childnode refid="147" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="147">
+        <label>Plane</label>
+        <link refid="classPlane"/>
+        <childnode refid="148" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="151">
+        <label>Surface</label>
+        <link refid="classSurface"/>
+      </node>
+      <node id="149">
+        <label>YPlane</label>
+        <link refid="classYPlane"/>
+        <childnode refid="150" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="150">
+        <label>Plane</label>
+        <link refid="classPlane"/>
+        <childnode refid="151" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="219" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="219" bodyend="238"/>
+    <listofallmembers>
+      <member refid="classPlane_1afd0aae8ff683f84d286e975e856df3ef" prot="protected" virt="non-virtual"><scope>YPlane</scope><name>_A</name></member>
+      <member refid="classPlane_1a2aac5aa1b6e726918a1afc87269e51f4" prot="protected" virt="non-virtual"><scope>YPlane</scope><name>_B</name></member>
+      <member refid="classSurface_1a73ff438f865a0694735877998dce0d91" prot="protected" virt="non-virtual"><scope>YPlane</scope><name>_boundary_type</name></member>
+      <member refid="classPlane_1a4797228fd9249fbe9f353a15e110b06c" prot="protected" virt="non-virtual"><scope>YPlane</scope><name>_C</name></member>
+      <member refid="classSurface_1a4c1bcbdba5c4e1e8772b4d4b28f95e39" prot="protected" virt="non-virtual"><scope>YPlane</scope><name>_id</name></member>
+      <member refid="classSurface_1a259bc52e2a2788727593176a8896754e" prot="protected" virt="non-virtual"><scope>YPlane</scope><name>_n</name></member>
+      <member refid="classSurface_1a2b8655eb5a953ea4b45abe5fab7831d0" prot="protected" virt="non-virtual"><scope>YPlane</scope><name>_surface_type</name></member>
+      <member refid="classSurface_1a8995d86060c1a792988c707abbb56ea8" prot="protected" virt="non-virtual"><scope>YPlane</scope><name>_uid</name></member>
+      <member refid="classYPlane_1a0d3614b8aa981295b914e2aeeee80a4e" prot="private" virt="non-virtual"><scope>YPlane</scope><name>_y</name></member>
+      <member refid="classPlane_1a18dcfc28a7d08e18983d3f906943bc82" prot="public" virt="virtual"><scope>YPlane</scope><name>evaluate</name></member>
+      <member refid="classSurface_1afa3ef1b6a8b18d04240ee1a3bc908780" prot="public" virt="non-virtual"><scope>YPlane</scope><name>getBoundaryType</name></member>
+      <member refid="classSurface_1a77ba5d7532f411134107c777861d23b2" prot="public" virt="non-virtual"><scope>YPlane</scope><name>getId</name></member>
+      <member refid="classSurface_1a38d24a561dd8d1e3e3a0dabc3a472634" prot="public" virt="non-virtual"><scope>YPlane</scope><name>getMinDistance</name></member>
+      <member refid="classSurface_1a0e9228606069f0540ba43960ca192327" prot="public" virt="non-virtual"><scope>YPlane</scope><name>getSurfaceType</name></member>
+      <member refid="classSurface_1a1b8e7a0a79ee5b21ad5006ec7a1380a5" prot="public" virt="non-virtual"><scope>YPlane</scope><name>getUid</name></member>
+      <member refid="classYPlane_1a826121aa104801c8de740bdf35b8719b" prot="public" virt="virtual"><scope>YPlane</scope><name>getXMax</name></member>
+      <member refid="classYPlane_1ac3516c324a84328918483ba4fb9ed3b0" prot="public" virt="virtual"><scope>YPlane</scope><name>getXMin</name></member>
+      <member refid="classYPlane_1a238909f9532b3b06bae42903a47b9f67" prot="public" virt="non-virtual"><scope>YPlane</scope><name>getY</name></member>
+      <member refid="classYPlane_1a68f1585c4575003ef500e95bd21475f1" prot="public" virt="virtual"><scope>YPlane</scope><name>getYMax</name></member>
+      <member refid="classYPlane_1ad31d977334c0839649588b2382c6d316" prot="public" virt="virtual"><scope>YPlane</scope><name>getYMin</name></member>
+      <member refid="classPlane_1a6e1b304a38f0c6d6f7dc985d548e0304" prot="public" virt="virtual"><scope>YPlane</scope><name>intersection</name></member>
+      <member refid="classSurface_1a1263b1b61154ed6f75e7079a5832d853" prot="public" virt="non-virtual"><scope>YPlane</scope><name>isCoordOnSurface</name></member>
+      <member refid="classSurface_1ad996b11e3af07e6dea8081cb11ccfe0c" prot="public" virt="non-virtual"><scope>YPlane</scope><name>isPointOnSurface</name></member>
+      <member refid="classPlane_1aa3494ba48672b175bb780ef18339d7f7" prot="public" virt="non-virtual"><scope>YPlane</scope><name>Plane</name></member>
+      <member refid="classYPlane_1a0be4dfa4623eaf137fdd0324bfe1e7ea" prot="public" virt="virtual"><scope>YPlane</scope><name>printString</name></member>
+      <member refid="classSurface_1af8921636e9779854a377f412817c3a32" prot="public" virt="non-virtual"><scope>YPlane</scope><name>setBoundaryType</name></member>
+      <member refid="classYPlane_1a899cafc6a3533efd3fa32dd1fdfdc3ba" prot="public" virt="non-virtual"><scope>YPlane</scope><name>setY</name></member>
+      <member refid="classSurface_1ad29d02e18bad0fe49e5a18d9f0cab7a2" prot="public" virt="non-virtual" ambiguityscope="Surface::"><scope>YPlane</scope><name>Surface</name></member>
+      <member refid="classYPlane_1a90e984e54368bc0508c82e86b05de286" prot="public" virt="virtual"><scope>YPlane</scope><name>toString</name></member>
+      <member refid="classYPlane_1a9e04f6233f8a1ea659ad5fee27ee54c2" prot="public" virt="non-virtual"><scope>YPlane</scope><name>YPlane</name></member>
+      <member refid="classSurface_1a89de75c95cb550d432f3ea4ed1429db0" prot="public" virt="virtual"><scope>YPlane</scope><name>~Surface</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="DeviceTrack_8h" kind="file">
+    <compoundname>DeviceTrack.h</compoundname>
+    <includedby refid="clone_8h" local="yes">/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/clone.h</includedby>
+    <invincdepgraph>
+      <node id="24">
+        <label>/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/clone.h</label>
+        <link refid="clone_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h</label>
+        <link refid="GPUSolver_8h"/>
+      </node>
+      <node id="23">
+        <label>/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceTrack.h</label>
+        <link refid="DeviceTrack.h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structdev__segment" prot="public">dev_segment</innerclass>
+    <innerclass refid="structdev__track" prot="public">dev_track</innerclass>
+    <briefdescription>
+<para>Structures for tracks and segments on a GPU. </para>    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="date"><para>June 29, 2012 </para></simplesect>
+<simplesect kind="author"><para>William Boyd, MIT, Course 22 (<ulink url="mailto:wboyd@mit.edu">wboyd@mit.edu</ulink>) </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="9"><highlight class="preprocessor">#ifndef<sp/>DEVICETRACK_H_</highlight></codeline>
+<codeline lineno="10"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>DEVICETRACK_H_</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&quot;../Track.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="16"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor">#ifdef<sp/>MIC</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#pragma<sp/>offload_attribute(push,<sp/>target(mic))</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="26" refid="structdev__segment" refkind="compound"><highlight class="preprocessor"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structdev__segment" kindref="compound" tooltip="A dev_segment represents a line segment within a single flat source region along a track...">dev_segment</ref><sp/>{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29" refid="structdev__segment_1a2aac6afa16185fef69c96c7dcb964d68" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION<sp/><ref refid="structdev__segment_1a2aac6afa16185fef69c96c7dcb964d68" kindref="member">_length</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="structdev__segment_1a0385feac05b7d6f5d25bb175a17a72dd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structdev__segment_1a0385feac05b7d6f5d25bb175a17a72dd" kindref="member">_material_uid</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="structdev__segment_1a986cb48a5ac6eb7b26791b828d363ee3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structdev__segment_1a986cb48a5ac6eb7b26791b828d363ee3" kindref="member">_region_uid</ref>;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>MIC</highlight></codeline>
+<codeline lineno="38"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#pragma<sp/>offload_attribute(pop)</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor">#ifdef<sp/>MIC</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#pragma<sp/>offload_attribute(push,<sp/>target(mic))</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="52" refid="structdev__track" refkind="compound"><highlight class="preprocessor"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structdev__track" kindref="compound" tooltip="A dev_track represents a characteristic line across the geometry.">dev_track</ref><sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="structdev__track_1a922879f6909e3ec74c40a368b34f527e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structdev__track_1a922879f6909e3ec74c40a368b34f527e" kindref="member">_uid</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="structdev__track_1a8a209d642c97a47a95ef485b9251b6f6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structdev__track_1a8a209d642c97a47a95ef485b9251b6f6" kindref="member">_azim_angle_index</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="structdev__track_1a0d80897523e45e6d3c23e6dbe94f7210" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structdev__segment" kindref="compound" tooltip="A dev_segment represents a line segment within a single flat source region along a track...">dev_segment</ref>*<sp/><ref refid="structdev__track_1a0d80897523e45e6d3c23e6dbe94f7210" kindref="member">_segments</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="structdev__track_1a257b1a4150d11de2e2a2809c2713de6c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structdev__track_1a257b1a4150d11de2e2a2809c2713de6c" kindref="member">_num_segments</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="structdev__track_1acca709c56cb665b225cfd792390ca389" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structdev__track_1acca709c56cb665b225cfd792390ca389" kindref="member">_track_in</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="structdev__track_1ae1cc4465ace9a092f14a39dfdf5092cc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structdev__track_1ae1cc4465ace9a092f14a39dfdf5092cc" kindref="member">_track_out</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="structdev__track_1a9b75926a79608ba2918268efd431b1dd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structdev__track_1a9b75926a79608ba2918268efd431b1dd" kindref="member">_refl_in</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="structdev__track_1a17fffea5df6d8c3f41a627c1395eeae1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structdev__track_1a17fffea5df6d8c3f41a627c1395eeae1" kindref="member">_refl_out</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="structdev__track_1ad7d86a84771ebc8fbed3dd65594b3576" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structdev__track_1ad7d86a84771ebc8fbed3dd65594b3576" kindref="member">_bc_in</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="structdev__track_1addb28e8a88465c66a1a9d7a9ad58f911" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structdev__track_1addb28e8a88465c66a1a9d7a9ad58f911" kindref="member">_bc_out</ref>;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>MIC</highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#pragma<sp/>offload_attribute(pop)</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="98"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>DEVICETRACK_H_<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceTrack.h"/>
+  </compounddef>
+</doxygen>

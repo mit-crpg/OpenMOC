@@ -137,8 +137,7 @@ All OpenMOC source code is hosted on GitHub_. You can download the source code
 directly from GitHub or, if you have the git_ version control software installed
 on your computer, you can use git to obtain the source code. The latter method
 has the benefit that it is easy to receive updates directly from the GitHub
-repository. GitHub has a good set of `instructions
-<http://help.github.com/set-up-git-redirect>`_ for how to set up git to work
+repository. GitHub has a good set of instructions_ for how to set up git to work
 with GitHub since this involves setting up ssh_ keys. With git installed and
 setup, the following command will download the full source code from the GitHub
 repository::
@@ -147,7 +146,7 @@ repository::
 
 .. _git: http://git-scm.com
 .. _ssh: http://en.wikipedia.org/wiki/Secure_Shell
-
+.. _instructions: http://help.github.com/set-up-git-redirect
 
 Building From Source
 --------------------

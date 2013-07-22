@@ -1,0 +1,164 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="structdev__material" kind="struct" prot="public">
+    <compoundname>dev_material</compoundname>
+    <includes refid="DeviceMaterial_8h" local="no">DeviceMaterial.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structdev__material_1ad820cbdb14d4d04533a3045f9194dbc0" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int dev_material::_uid</definition>
+        <argsstring></argsstring>
+        <name>_uid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A monotonically increasing unique ID for each material created </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="24" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdev__material_1a456560b989333fb14e63593bedf745f9" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int dev_material::_id</definition>
+        <argsstring></argsstring>
+        <name>_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A user-defined ID for each material created </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="27" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdev__material_1add13483475ff96bda102dcb7a22ed899" prot="public" static="no" mutable="no">
+        <type>double *</type>
+        <definition>double* dev_material::_sigma_t</definition>
+        <argsstring></argsstring>
+        <name>_sigma_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the total cross-sections for each energy group </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="30" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdev__material_1ada9eb4b160228c5817d3c962d3455b36" prot="public" static="no" mutable="no">
+        <type>double *</type>
+        <definition>double* dev_material::_sigma_a</definition>
+        <argsstring></argsstring>
+        <name>_sigma_a</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the absorption cross-sections for each energy group </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="33" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdev__material_1ac9ad2e49bab57a3326b2f2f2f706da7e" prot="public" static="no" mutable="no">
+        <type>double *</type>
+        <definition>double* dev_material::_sigma_f</definition>
+        <argsstring></argsstring>
+        <name>_sigma_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A 2D array of the scattering cross-section matrix. The first index is row number and second index is column number </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="37" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdev__material_1a4199413689b49b9e54a8ce13cfe75cc3" prot="public" static="no" mutable="no">
+        <type>double *</type>
+        <definition>double* dev_material::_nu_sigma_f</definition>
+        <argsstring></argsstring>
+        <name>_nu_sigma_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the fission cross-sections multiplied by nu <formula id="0">$ \nu $</formula> for each energy group </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="41" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdev__material_1a605811b8e96dfc2b8be12546c3b9e613" prot="public" static="no" mutable="no">
+        <type>double *</type>
+        <definition>double* dev_material::_chi</definition>
+        <argsstring></argsstring>
+        <name>_chi</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the chi <formula id="1">$ \chi $</formula> values for each energy group </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="44" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdev__material_1aedbce7d066c40ead18618476ffb4d0c9" prot="public" static="no" mutable="no">
+        <type>double *</type>
+        <definition>double* dev_material::_sigma_s</definition>
+        <argsstring></argsstring>
+        <name>_sigma_s</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the group-to-group scattering cross-sections. The first index is row number; second index is column number </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="48" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structdev__material_1af9f2265405224912ad9345c65df893ec" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>dev_material::dev_material</definition>
+        <argsstring>()</argsstring>
+        <name>dev_material</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="50" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="50" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="structdev__material_1ae846f8ce44173143eb64e79641e51f7c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>dev_material::~dev_material</definition>
+        <argsstring>()</argsstring>
+        <name>~dev_material</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="59" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="59" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A material&apos;s nuclear data to be stored on a GPU. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="30">
+        <label>dev_material</label>
+        <link refid="structdev__material"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" line="22" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceMaterial.h" bodystart="22" bodyend="74"/>
+    <listofallmembers>
+      <member refid="structdev__material_1a605811b8e96dfc2b8be12546c3b9e613" prot="public" virt="non-virtual"><scope>dev_material</scope><name>_chi</name></member>
+      <member refid="structdev__material_1a456560b989333fb14e63593bedf745f9" prot="public" virt="non-virtual"><scope>dev_material</scope><name>_id</name></member>
+      <member refid="structdev__material_1a4199413689b49b9e54a8ce13cfe75cc3" prot="public" virt="non-virtual"><scope>dev_material</scope><name>_nu_sigma_f</name></member>
+      <member refid="structdev__material_1ada9eb4b160228c5817d3c962d3455b36" prot="public" virt="non-virtual"><scope>dev_material</scope><name>_sigma_a</name></member>
+      <member refid="structdev__material_1ac9ad2e49bab57a3326b2f2f2f706da7e" prot="public" virt="non-virtual"><scope>dev_material</scope><name>_sigma_f</name></member>
+      <member refid="structdev__material_1aedbce7d066c40ead18618476ffb4d0c9" prot="public" virt="non-virtual"><scope>dev_material</scope><name>_sigma_s</name></member>
+      <member refid="structdev__material_1add13483475ff96bda102dcb7a22ed899" prot="public" virt="non-virtual"><scope>dev_material</scope><name>_sigma_t</name></member>
+      <member refid="structdev__material_1ad820cbdb14d4d04533a3045f9194dbc0" prot="public" virt="non-virtual"><scope>dev_material</scope><name>_uid</name></member>
+      <member refid="structdev__material_1af9f2265405224912ad9345c65df893ec" prot="public" virt="non-virtual"><scope>dev_material</scope><name>dev_material</name></member>
+      <member refid="structdev__material_1ae846f8ce44173143eb64e79641e51f7c" prot="public" virt="non-virtual"><scope>dev_material</scope><name>~dev_material</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

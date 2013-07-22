@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="namespaceopenmoc_1_1log" kind="namespace">
+    <compoundname>openmoc::log</compoundname>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceopenmoc_1_1log_1a0bfafaa584b4e7156cce255cb70943e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>def</type>
+        <definition>def openmoc.log.py_printf</definition>
+        <argsstring></argsstring>
+        <name>py_printf</name>
+        <briefdescription>
+<para>Function to print a log message to the screen. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method is a wrapper to the log_printf C++ routine. It allows for formatted messages to be printed to the screen in a similar fashion to the C/C++ printf method, but with additional formatting provided by the OpenMOC logging utilities. An example of how this might be used in a OpenMOC Python script is as follows:</para><para><programlisting><codeline><highlight class="normal">value1<sp/>=<sp/>25</highlight></codeline>
+<codeline><highlight class="normal">value2<sp/>=<sp/>26.0</highlight></codeline>
+<codeline><highlight class="normal">log.py_printf(</highlight><highlight class="stringliteral">&apos;NORMAL&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&apos;My<sp/>name<sp/>is<sp/>Will<sp/>and<sp/>I<sp/>am<sp/>%d<sp/>going<sp/>on&apos;</highlight><highlight class="normal">\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&apos;<sp/>%f<sp/>years<sp/>of<sp/>age&apos;</highlight><highlight class="normal">,<sp/>value1,<sp/>value2)</highlight></codeline>
+</programlisting></para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>level</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the logging level for this message </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>my_str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the string to print to the screen </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>*args</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a variable length list of values for the message string </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/openmoc/log.py" line="38" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/openmoc/log.py" bodystart="38" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceopenmoc_1_1log_1a3034734497d1f2c08acc8d9b1e51f8ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>def</type>
+        <definition>def openmoc.log.setLogLevel</definition>
+        <argsstring></argsstring>
+        <name>setLogLevel</name>
+        <briefdescription>
+<para>Assigns the lowest level logging message. </para>        </briefdescription>
+        <detaileddescription>
+<para>Sets the lowest level logging message to print to the screen. This controls the lowest level for both logging messages in the C++ source code as well as the user&apos;s OpenMOC Python input file. This function would be called at the beginning of the input file as follows:</para><para><programlisting><codeline><highlight class="normal">log.py_setlevel(</highlight><highlight class="stringliteral">&apos;INFO&apos;</highlight><highlight class="normal">)</highlight></codeline>
+</programlisting></para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>level</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the minimum logging level (&apos;DEBUG&apos;, &apos;INFO&apos;, etc) </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/openmoc/log.py" line="76" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/openmoc/log.py" bodystart="76" bodyend="104"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Utility functions for writing log messages to the screen. </para>    </briefdescription>
+    <detaileddescription>
+<para>This module includes a set of wrapper functions for the logging routines provided by OpenMOC&apos;s C++ source code. These Python methods provide an interface for creating formatted log messages using level-based loggin and to print them to the screen as well as a logfile. <simplesect kind="author"><para>Samuel Shaner </para></simplesect>
+<simplesect kind="date"><para>March 15, 2013 </para></simplesect>
+</para>    </detaileddescription>
+    <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/openmoc/log.py" line="1"/>
+  </compounddef>
+</doxygen>
