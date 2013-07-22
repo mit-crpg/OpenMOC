@@ -1,6 +1,6 @@
-import sys, sysconfig
+import sys
 from distutils.extension import Extension
-
+from distutils.util import get_platform
 
 
 def distutils_dir_name():
@@ -8,7 +8,7 @@ def distutils_dir_name():
     
     directory = "build/lib.{platform}-{version[0]}.{version[1]}"
     
-    return directory.format(platform=sysconfig.get_platform(),
+    return directory.format(platform=get_platform(),
                             version=sys.version_info)
 
 
