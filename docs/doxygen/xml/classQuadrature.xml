@@ -1,0 +1,318 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="classQuadrature" kind="class" prot="public">
+    <compoundname>Quadrature</compoundname>
+    <includes refid="Quadrature_8h" local="yes">openmoc/src/host/Quadrature.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classQuadrature_1a7c3372fdcd20abf9a964536f747ea78b" prot="private" static="no" mutable="no">
+        <type><ref refid="Quadrature_8h_1abaf5f877e7f8a13548058dcb876c4de1" kindref="member">quadratureType</ref></type>
+        <definition>quadratureType Quadrature::_type</definition>
+        <argsstring></argsstring>
+        <name>_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The type of polar quadrature (LEONARD or TABUCHI) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="37" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classQuadrature_1a1fadc1df1c4898d6126f19d63a7438c7" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Quadrature::_num_polar_angles</definition>
+        <argsstring></argsstring>
+        <name>_num_polar_angles</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The number of polar angles </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="39" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classQuadrature_1a46264464362eab95ef28fbfeedc21f00" prot="private" static="no" mutable="no">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION* Quadrature::_sinthetas</definition>
+        <argsstring></argsstring>
+        <name>_sinthetas</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the sine of the polar angles from the quadrature set </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="41" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classQuadrature_1ab9d78b592b9156ff79e7b8ef235671cc" prot="private" static="no" mutable="no">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION* Quadrature::_weights</definition>
+        <argsstring></argsstring>
+        <name>_weights</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the weights for the polar angles from the quadrature set </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="43" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classQuadrature_1a9ee583af8d3a486524db5d807314ac02" prot="private" static="no" mutable="no">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION* Quadrature::_multiples</definition>
+        <argsstring></argsstring>
+        <name>_multiples</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array of the sine multipled by the weight for the polar angles from the quadrature set </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="46" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classQuadrature_1a39beb5f26c5a80b2115af0821e6b7981" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Quadrature::Quadrature</definition>
+        <argsstring>(quadratureType type=TABUCHI, int num_polar_angles=3)</argsstring>
+        <name>Quadrature</name>
+        <param>
+          <type><ref refid="Quadrature_8h_1abaf5f877e7f8a13548058dcb876c4de1" kindref="member">quadratureType</ref></type>
+          <declname>type</declname>
+          <defval><ref refid="Quadrature_8h_1abaf5f877e7f8a13548058dcb876c4de1ad4a0df69114bffafe09dee44ca32d523" kindref="member">TABUCHI</ref></defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_polar_angles</declname>
+          <defval>3</defval>
+        </param>
+        <briefdescription>
+<para>Constructor initializes arrays with polar angles and weights. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the quadrature type (LEONARD or TABUCHI) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_polar_angles</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number of polar angles (1, 2, or 3) </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+<para>Initialize memory </para>        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="50" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="9" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="classQuadrature_1a1f523924a8cc88680aa77366a7d3a38e" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>Quadrature::~Quadrature</definition>
+        <argsstring>()</argsstring>
+        <name>~Quadrature</name>
+        <briefdescription>
+<para>Destructor deletes arrray of sines of the polar angles, the weights of the polar angles and the products of the sines and weights. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="51" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="103" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classQuadrature_1a4f6664557a9fe290b1d6f9ca6d847c8e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Quadrature::getNumPolarAngles</definition>
+        <argsstring>() const </argsstring>
+        <name>getNumPolarAngles</name>
+        <briefdescription>
+<para>Returns the number of polar angles (1, 2 or 3). </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the number of polar angles </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="53" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="123" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classQuadrature_1afcd83d1504f903a3a829f1c2743b08ff" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="Quadrature_8h_1abaf5f877e7f8a13548058dcb876c4de1" kindref="member">quadratureType</ref></type>
+        <definition>quadratureType Quadrature::getType</definition>
+        <argsstring>() const </argsstring>
+        <name>getType</name>
+        <briefdescription>
+<para>Returns the polar quadrature type (LEONARD or TABUCHI) </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the polar quadrature type </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="54" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="114" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="classQuadrature_1a891c96ac4127b45461832bd72cbaf364" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>FP_PRECISION</type>
+        <definition>FP_PRECISION Quadrature::getSinTheta</definition>
+        <argsstring>(const int n) const </argsstring>
+        <name>getSinTheta</name>
+        <param>
+          <type>const int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Returns the <formula id="8">$ sin(\theta)$</formula> value for a particular polar angle. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index of the polar angle of interest </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the value of <formula id="9">$ \sin(\theta) $</formula> for this polar angle </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="55" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="133" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="classQuadrature_1a7dde6379ad5b6b02cbc2aea3f5f9bce5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>FP_PRECISION</type>
+        <definition>FP_PRECISION Quadrature::getWeight</definition>
+        <argsstring>(const int n) const </argsstring>
+        <name>getWeight</name>
+        <param>
+          <type>const int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Returns the weight value for a particular polar angle. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index of the polar angle of interest </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the weight for a polar angle </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="56" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="148" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="classQuadrature_1a3f19d76860a2d1ec8406366188449a6d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>FP_PRECISION</type>
+        <definition>FP_PRECISION Quadrature::getMultiple</definition>
+        <argsstring>(const int n) const </argsstring>
+        <name>getMultiple</name>
+        <param>
+          <type>const int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Returns the multiple value for a particular polar angle. (the sine of a polar angle multiplied by its weight). </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index of the polar angle of interest </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the value of the sine of the polar angle multiplied with its weight </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="57" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="165" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="classQuadrature_1a678dfcec6a74deeff5369c42ba7748aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION * Quadrature::getSinThetas</definition>
+        <argsstring>()</argsstring>
+        <name>getSinThetas</name>
+        <briefdescription>
+<para>Returns a pointer to the quadrature&apos;s sintheta array. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a pointer to the sintheta array </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="58" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="180" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="classQuadrature_1a770430bb480b1f8381b5bf83e5f7f881" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION * Quadrature::getWeights</definition>
+        <argsstring>()</argsstring>
+        <name>getWeights</name>
+        <briefdescription>
+<para>Returns a pointer to the quadrature&apos;s polar weights array. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a pointer to the polar weights array </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="59" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="189" bodyend="191"/>
+      </memberdef>
+      <memberdef kind="function" id="classQuadrature_1abe4b4b49360a9fd5723e65fd35fb3ab9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION * Quadrature::getMultiples</definition>
+        <argsstring>()</argsstring>
+        <name>getMultiples</name>
+        <briefdescription>
+<para>Returns a pointer to the quadrature&apos;s multiples array. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a pointer to the multiples array </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="60" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="199" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="classQuadrature_1a4d80c3ca24bfe94d20cf8f0b20fbf62c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string Quadrature::toString</definition>
+        <argsstring>()</argsstring>
+        <name>toString</name>
+        <briefdescription>
+<para>Converts this quadrature to a character array of its attributes. </para>        </briefdescription>
+        <detaileddescription>
+<para>The character array includes the polar quadrature type, the number of polar angles, and the values of the sine of each polar angle, the weight of each polar angle, and the product of the sine and weight of each polar angle. <simplesect kind="return"><para>a character array of this quadrature&apos;s attributes </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="61" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.cpp" bodystart="212" bodyend="235"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Stores values for a variety of polar quadratures which may be used. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="67">
+        <label>Quadrature</label>
+        <link refid="classQuadrature"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" line="33" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Quadrature.h" bodystart="33" bodyend="63"/>
+    <listofallmembers>
+      <member refid="classQuadrature_1a9ee583af8d3a486524db5d807314ac02" prot="private" virt="non-virtual"><scope>Quadrature</scope><name>_multiples</name></member>
+      <member refid="classQuadrature_1a1fadc1df1c4898d6126f19d63a7438c7" prot="private" virt="non-virtual"><scope>Quadrature</scope><name>_num_polar_angles</name></member>
+      <member refid="classQuadrature_1a46264464362eab95ef28fbfeedc21f00" prot="private" virt="non-virtual"><scope>Quadrature</scope><name>_sinthetas</name></member>
+      <member refid="classQuadrature_1a7c3372fdcd20abf9a964536f747ea78b" prot="private" virt="non-virtual"><scope>Quadrature</scope><name>_type</name></member>
+      <member refid="classQuadrature_1ab9d78b592b9156ff79e7b8ef235671cc" prot="private" virt="non-virtual"><scope>Quadrature</scope><name>_weights</name></member>
+      <member refid="classQuadrature_1a3f19d76860a2d1ec8406366188449a6d" prot="public" virt="non-virtual"><scope>Quadrature</scope><name>getMultiple</name></member>
+      <member refid="classQuadrature_1abe4b4b49360a9fd5723e65fd35fb3ab9" prot="public" virt="non-virtual"><scope>Quadrature</scope><name>getMultiples</name></member>
+      <member refid="classQuadrature_1a4f6664557a9fe290b1d6f9ca6d847c8e" prot="public" virt="non-virtual"><scope>Quadrature</scope><name>getNumPolarAngles</name></member>
+      <member refid="classQuadrature_1a891c96ac4127b45461832bd72cbaf364" prot="public" virt="non-virtual"><scope>Quadrature</scope><name>getSinTheta</name></member>
+      <member refid="classQuadrature_1a678dfcec6a74deeff5369c42ba7748aa" prot="public" virt="non-virtual"><scope>Quadrature</scope><name>getSinThetas</name></member>
+      <member refid="classQuadrature_1afcd83d1504f903a3a829f1c2743b08ff" prot="public" virt="non-virtual"><scope>Quadrature</scope><name>getType</name></member>
+      <member refid="classQuadrature_1a7dde6379ad5b6b02cbc2aea3f5f9bce5" prot="public" virt="non-virtual"><scope>Quadrature</scope><name>getWeight</name></member>
+      <member refid="classQuadrature_1a770430bb480b1f8381b5bf83e5f7f881" prot="public" virt="non-virtual"><scope>Quadrature</scope><name>getWeights</name></member>
+      <member refid="classQuadrature_1a39beb5f26c5a80b2115af0821e6b7981" prot="public" virt="non-virtual"><scope>Quadrature</scope><name>Quadrature</name></member>
+      <member refid="classQuadrature_1a4d80c3ca24bfe94d20cf8f0b20fbf62c" prot="public" virt="non-virtual"><scope>Quadrature</scope><name>toString</name></member>
+      <member refid="classQuadrature_1a1f523924a8cc88680aa77366a7d3a38e" prot="public" virt="virtual"><scope>Quadrature</scope><name>~Quadrature</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

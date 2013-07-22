@@ -1,123 +1,215 @@
-import config
-import os
-from setuptools import setup, find_packages
-from distutils.extension import Extension
+from distutils.core import setup
 from distutils.command.build_ext import build_ext
-import numpy
+from distutils.command.install import install
+from distutils.errors import DistutilsOptionError
+import os
+import config
 
 
-# Obtain the numpy include directory
-try:
-    numpy_include = numpy.get_include()
-except AttributeError:
-    numpy_include = numpy.get_numpy_include()
+# Instantiate a configurations class for this OpenMOC build
+config = config.configuration()
 
 
-# If the user selected 'all' compilers, enumerate them
-if config.cpp_compilers == ['all']:
-    config.cpp_compilers = ['gcc', 'icpc']
+class custom_install(install):
+    """Defines the compile time options for OpenMOC.
+    
+    This class derives from the distutils.command.install class. Distutils 
+    provides a set of flags which may be invoked by the user at compile
+    time. The custom_install class adds to that list a series of options
+    which are useful in compiling a specific distribution of OpenMOC.
+    
+    To view a list of available compile time options, simply type the following
+    from a console:
 
-# If the user did not select a supported default C++ compiler, choose GCC
-if config.default_cc not in ['gcc', 'icpc']:
-    config.default_cc = 'gcc'
+    python setup.py install --help
 
-# If the user selected 'all' FP precision levels, enumerate them
-if config.fp_precision == ['all']:
-    config.fp_precision = ['double', 'single']
+    The custom_install class extracts user-defined options from the command
+    line and uses them to populate the config.configurations class. The
+    configurations class then uses these options to generate a list of
+    Python C/C++/CUDA extension objects which are delivered to the distutils
+    setup method at the end of this script.
 
-# If the user did not select a supported default FP precision, choose single
-if config.default_fp not in ['double', 'single']:
-    config.default_fp = 'single'
+    Developers wishing to extend OpenMOC's functionality with new compilation
+    options will need to extend this class and the configurations class.
+    """
 
-# If the user wishes to compile using debug mode, append the debugging flag
-if config.debug_mode:
-    for k in config.compiler_flags:
-        config.compiler_flags[k].append('-g')
+    # The user options for a customized OpenMOC build
+    user_options = [
+        ('cc=', None, "Compiler (gcc, icpc, or bgxlc) for main openmoc module"),
+        ('fp=', None, "Floating point precision (single or double) for main openmoc module"),
+        ('with-cuda', None, "Build openmoc.cuda module for NVIDIA GPUs"),
+        ('with-gcc', None, "Build openmoc.gnu modules using GNU compiler"),
+        ('with-icpc', None, "Build openmoc.intel modules using Intel compiler"),
+        ('with-bgxlc', None, "Build openmoc.bgxlc modules using IBM compiler"),
+        ('with-sp', None, "Build modules with single precision"),
+        ('with-dp', None, "Build modules with double precision"),
+        ('debug-mode', None, "Build with debugging symbols"),
+        ('with-ccache', None, "Build with ccache for rapid recompilation"),
+        ('with-papi', None, 'Build modules with PAPI instrumentation'),
+    ]
 
-# If the user wishes to compile the CUDA package, append nvcc to list of compilers
-if config.with_cuda:
-    config.cpp_compilers.append('nvcc')
+    # Include all of the default options provided by distutils for the 
+    # install command parent class
+    user_options += install.user_options
 
+    # Set some compile options to be boolean switches
+    boolean_options = ['with_cuda',
+                       'with-gcc',
+                       'with-icpc',
+                       'with-bgxlc',
+                       'with-ccache', 
+                       'with-papi', 
+                       'debug-mode',
+                       'with-sp',
+                       'with-dp']
 
-# Create list of extensions for Python modules within the openmoc Python package
-extensions = []
-
-cc = config.default_cc
-fp = config.default_fp
-
-# The main extension will be openmoc compiled with gcc and double precision
-extensions.append(Extension(name = '_openmoc', 
-                    sources = config.sources['gcc'], 
-                    library_dirs = config.library_directories[cc], 
-                    libraries = config.shared_libraries[cc],
-                    extra_link_args = config.linker_flags[cc], 
-                    include_dirs = config.include_directories[cc],
-                    define_macros = config.macros[cc][fp],
-                    swig_opts = config.swig_flags))
-
-#config.sources['c++'].remove('openmoc/openmoc.i')
-
-
-# A CUDA extension if the user requested it
-if config.with_cuda:
-    extensions.append(Extension(name = '_openmoc_cuda', 
-                        sources = config.sources['nvcc'], 
-                        library_dirs = config.library_directories['nvcc'], 
-                        libraries = config.shared_libraries['nvcc'],
-                        extra_link_args = config.linker_flags['nvcc'], 
-                        include_dirs = config.include_directories['nvcc'],
-                        define_macros = config.macros['nvcc'][fp],
-                        swig_opts = config.swig_flags,
-                        export_symbols = ['init_openmoc']))
-                      
-    config.sources['nvcc'].remove('openmoc/cuda/openmoc_cuda.i')
+    # Include all of the boolean options provided by distutils for the
+    # install command parent class
+    boolean_options += install.boolean_options
 
 
+    def initialize_options(self):
+        """Set the default OpenMOC build options
 
-# Loop over the compilers and floating point precision levels to create
-# extension modules for each (ie, openmoc.icpc.double, openmoc.cuda.single, etc)
-for fp in config.fp_precision:
-    for cc in config.cpp_compilers:
+        The default installation is invoked by following console command:
 
-        if cc == 'nvcc':
-            ext_name = '_openmoc_cuda_' + fp
-            swig_interface_file = 'openmoc/cuda/' + fp
-            swig_interface_file += '/openmoc_cuda_' + fp + '.i'
-            sources = config.sources['nvcc']
-            sources.append(swig_interface_file)
+        python setup.py install
 
-        elif cc == 'gcc':
-            ext_name = '_openmoc_gnu_' + fp
-            swig_interface_file = 'openmoc/gnu/' + fp
-            swig_interface_file += '/openmoc_gnu_' + fp + '.i'
-            sources = config.sources['gcc']
-            sources.append(swig_interface_file)
+        This will build the main openmoc C/C++ Python extension using the
+        GCC compiler with single precision. No additional modules will be
+        build with Intel or IBM compilers, or with double precision.
+        """
 
-        elif cc == 'icpc':
-            ext_name = '_openmoc_intel_' + fp
-            swig_interface_file = 'openmoc/intel/' + fp
-            swig_interface_file += '/openmoc_intel_' + fp + '.i'
-            sources = config.sources['icpc']
-            sources.append(swig_interface_file)
+        # Run the install command parent class' initialize_options method
+        install.initialize_options(self)
 
+        # Default compiler and precision level for the main openmoc module
+        self.cc = 'gcc'
+        self.fp = 'single'
+
+        # Set defaults for each of the newly defined compile time options
+        self.debug_mode = False
+        self.with_ccache = False
+        self.with_papi = False        
+
+        # By default, do not build openmoc.gnu.single, openmoc.intel.double, etc
+        # extension modules
+        self.with_gcc = False
+        self.with_icpc = False
+        self.with_bgxlc = False
+        self.with_cuda = False
+        self.with_sp = False
+        self.with_dp = False
+
+
+    def finalize_options(self):
+        """Extract options from the flags invoked by the user at compile time.
+
+        This method performs error checking of the options specified by
+        the user at compile time, and initialize the config.configurations
+        class instance. The method conclude with a call to the
+        configurations.setup_extension_modules class method which builds
+        a list of C/C++/CUDA extension modules to be passed to the distutils
+        setup method at the end of this script.
+        """
+
+        # Run the install command parent class' finalize_options method
+        install.finalize_options(self)
+
+        # Set the configuration options specified to be the default
+        # unless the corresponding flag was invoked by the user
+        config.with_cuda = self.with_cuda
+        config.debug_mode = self.debug_mode
+        config.with_ccache = self.with_ccache
+        config.with_papi = self.with_papi
+
+        # Check that the user specified a supported C++ compiler
+        if self.cc not in ['gcc', 'icpc', 'bgxlc']:
+            raise DistutilsOptionError, \
+                ("Must supply the -cc flag with one of the supported " +
+                 "C++ compilers: gcc, icpc, bgxlc")
         else:
-            raise NameError('Compiler ' + str(cc) + ' is not supported')
+            config.cc = self.cc
 
-        # Create the extension module
-        extensions.append(Extension(name = ext_name, 
-                            sources = sources, 
-                            library_dirs = config.library_directories[cc], 
-                            libraries = config.shared_libraries[cc],
-                            extra_link_args = config.linker_flags[cc], 
-                            include_dirs = config.include_directories[cc],
-                            define_macros = config.macros[cc][fp],
-                            swig_opts = config.swig_flags))
+        # Check that the user specified a supported floating point precision
+        if self.fp not in ['single', 'double']:
+            raise DistutilsOptionError, \
+                ("Must supply the -cc flag with one of the supported " +
+                 "floating point precision levels: single, double")
+        else:
+            config.fp = self.fp
+
+        # Build the openmoc.gnu.single and/or openmoc.gnu.double 
+        # extension module(s)
+        if self.with_gcc:
+            config.cpp_compilers += ['gcc']
+
+            # If a precision level was not specified, use the default
+            if not any([self.with_sp, self.with_dp]):
+                config.fp_precision += [self.fp]
+
+
+        # Build the openmoc.intel.single and/or openmoc.intel.double 
+        # extension module(s)
+        if self.with_icpc:
+            config.cpp_compilers += ['icpc']
+
+            # If a precision level was not specified, use the default
+            if not any([self.with_sp, self.with_dp]):
+               config.fp_precision += [self.fp]
+
+        # Build the openmoc.bgxlc.single and/or openmoc.bgxlc.double 
+        # extension module(s)
+        if self.with_bgxlc:
+            config.cpp_compilers += ['bgxlc']
+
+            # If a precision level was not specified, use the default
+            if not any([self.with_sp, self.with_dp]):
+                config.fp_precision += [self.fp]
+
+        # If the user requested to build extra modules (ie, openmoc.gnu.single)
+        # using single precision floating point
+        if self.with_sp:
+            
+            # If no compiler was specified, thrown an error
+            if not any([self.with_gcc, self.with_icpc, not self.with_bgxlc]):
+                raise DistutilsOptionError, \
+                    ("Must supply either with-gcc/with-icpc/with-bgxlc for " +
+                     "the with-sp option")
+            
+            # Otherwise add the single precision option
+            else:
+                config.fp_precision += ['single']
+
+
+        # If the user requested to build extra modules (ie, openmoc.gnu.single)
+        # using single precision floating point
+        if self.with_dp:
+            
+            # If no compiler was specified, thrown an error
+            if not any([self.with_gcc, self.with_icpc, not self.with_bgxlc]):
+                raise DistutilsOptionError, \
+                    ("Must supply either with-gcc/with-icpc/with-bgxlc for " +
+                     "the with-dp option")
+            
+            # Otherwise add the double precision option
+            else:
+                config.fp_precision += ['double']
+
+        # Build a list of the C/C++/CUDA extension modules to be built
+        # for this distribution
+        config.setup_extension_modules()
+
 
 
 def customize_compiler(self):
     """Inject redefined _compile method into distutils
 
-    Adapted from Robert McGibbon's CUDA distutils setup provide in open source 
+    This method enables us to choose compilers based on the macros defined
+    in the compiler flags (ie, '-DGNU', '-DCUDA', etc), or on the 
+    source extension (ie, *.cpp, *.cu, etc.).
+
+    Adapted from Robert McGibbon's CUDA distutils setup provided in open source 
     form here: https://github.com/rmcgibbo/npcuda-example
     """
     
@@ -138,7 +230,9 @@ def customize_compiler(self):
                 self.set_executable('compiler_so', 'ccache gcc')
             else:
                 self.set_executable('compiler_so', 'gcc')
+
             postargs = config.compiler_flags['gcc']
+
 
         # If INTEL is a defined macro and the source is C++, use icpc
         elif '-DINTEL' in pp_opts and os.path.splitext(src)[1] == '.cpp':
@@ -146,16 +240,20 @@ def customize_compiler(self):
                 self.set_executable('compiler_so', 'ccache icpc')
             else:
                 self.set_executable('compiler_so', 'icpc')
+
             postargs = config.compiler_flags['icpc']
 
-        # If CUDA is a defined macro and the source is C++, compile SWIG-wrapped
-        # CUDA code with gcc
+
+        # If CUDA is a defined macro and the source is C++, compile 
+        # SWIG-wrapped CUDA code with gcc
         elif '-DCUDA' in pp_opts and os.path.splitext(src)[1] == '.cpp':
             if config.with_ccache:
                 self.set_executable('compiler_so', 'ccache gcc')
             else:
                 self.set_executable('compiler_so', 'gcc')
+
             postargs = config.compiler_flags['gcc']
+
 
         # If CUDA is a defined macro and the source is CUDA, use nvcc
         elif '-DCUDA' in pp_opts and os.path.splitext(src)[1] == '.cu':
@@ -164,6 +262,7 @@ def customize_compiler(self):
             else:
                 self.set_executable('compiler_so', 'nvcc')
             postargs = config.compiler_flags['nvcc']
+
 
         # If we cannot determine how to compile this file, throw exception
         else:
@@ -179,11 +278,14 @@ def customize_compiler(self):
 def customize_linker(self):
     """Inject redefined link method into distutils
 
-    Adapted from Robert McGibbon's CUDA distutils setup provide in open source 
+    This method enables us to choose the linker based on the name
+    of the output shared library filename (ie, _openmoc_intel_single.so)
+
+    Adapted from Robert McGibbon's CUDA distutils setup provided in open source 
     form here: https://github.com/rmcgibbo/npcuda-example
     """
 
-    # save references to the default link method
+    # Save references to the default link method
     super_link = self.link
 
     # Redefine the link method. This gets executed to link each extension
@@ -197,16 +299,22 @@ def customize_linker(self):
 
         # If compiling different extensions of openmoc using different compilers
         # and/or floating point precision levels, we must remove autogenerated
-        # files from distutils for each subsequent extension
-        for obj in objects[:]:
-
-            
+        # files from distutils for each subsequent extension. If the user is 
+        # compiling multiple modules at once (ie, openmoc.gnu.single and 
+        # openmoc.intel.single) we have to ensure that only one of the objects
+        # openmoc_gnu_single.o or openmoc_intel_single.o is specified at the 
+        # link stage. Unfortunately, distutils enumerates all object files 
+        # compiled up to this point at the final linker stage which leads to 
+        # 'previously defined...' errors
+        for obj in objects[:]:        
 
             if 'openmoc' in obj:
+            
                 if 'intel' in output_filename and 'intel' not in obj:
                     objects = [o for o in objects if o is not obj]
                 elif 'intel' not in output_filename and 'intel' in obj:
                     objects = [o for o in objects if o is not obj]
+
                 if 'gnu' in output_filename and 'gnu' not in obj:  
                     objects = [o for o in objects if o is not obj]
                 elif 'gnu' not in output_filename and 'gnu' in obj:
@@ -216,25 +324,29 @@ def customize_linker(self):
                     objects = [o for o in objects if o is not obj]
                 elif 'single' not in output_filename and 'single' in obj:
                     objects = [o for o in objects if o is not obj]
+
                 if 'double' in output_filename and 'double' not in obj:
                     objects = [o for o in objects if o is not obj]
                 elif 'double' not in output_filename and 'double' in obj:
                     objects = [o for o in objects if o is not obj]
 
-        # If the filename for the extension contains intel, use icpc to link
-        if 'intel' in output_filename:
+        # If the linker receives -fopenmp as an option, then the objects
+        # are built by a GNU compiler
+        if '-fopenmp' in extra_postargs:
+            self.set_executable('linker_so', 'g++')
+            self.set_executable('linker_exe', 'g++')
+
+        # If the linker receives -openmp as an option, then the objects
+        # are built by a GNU compiler
+        if '-openmp' in extra_postargs:
             self.set_executable('linker_so', 'icpc')
             self.set_executable('linker_exe', 'icpc')
 
         # If the filename for the extension contains cuda, use g++ to link
-        elif 'cuda' in output_filename:
+        if 'cuda' in output_filename:
             self.set_executable('linker_so', 'g++')
             self.set_executable('linker_exe', 'g++')
 
-        # Otherwise, use g++ to link by default
-        else:
-            self.set_executable('linker_so', 'g++')
-            self.set_executable('linker_exe', 'g++')
         
         # Now call distutils-defined link method
         super_link(target_desc, objects,
@@ -250,26 +362,38 @@ def customize_linker(self):
 # Run the customize_compiler to inject redefined and customized _compile and 
 # link methods into distutils
 class custom_build_ext(build_ext):
+    """Customizes distutils to work with different compiler types
 
+    This class derives from the distutils.command.build_ext command class.
+    It extends build_ex by creates customized compile and link methods
+    which can accommodate different compiler types and options.
+    """
+    
     def build_extensions(self):
         customize_compiler(self.compiler)
         customize_linker(self.compiler)
         build_ext.build_extensions(self)
 
 
-# Run setuptools/distutils setup method for the complete build
-setup(name = config.package_name,
+
+# Run the distutils setup method for the complete build
+setup(name = 'openmoc',
       version = '0.1',
       description = 'An open source method of characteristics code for ' + \
-                    'solving the 2D neutron distribution in nuclear reactors]',
+                    'solving the 2D neutron distribution in nuclear reactors',
       author = 'Will Boyd',
       author_email = 'wboyd@mit.edu',
-      url = 'https://github.com/mit-crpg/OpenMOC',
-      ext_modules = extensions,
-      packages = find_packages(),
+      url = 'https://github.com/mit-crpg/OpenMOC',      
+
+      # Set the C/C++/CUDA extension modules built in setup_extension_modules()
+      # in config.py based on the user-defined flags at compile time
+      ext_modules = config.extensions,
+
+      # Extract all of the Python packages for OpenMOC
+      # (ie, openmoc.log, openmoc.materialize, etc)
+      packages = config.packages,
 
       # Inject our custom compiler and linker triggers
-      cmdclass={'build_ext': custom_build_ext},
-
-      # Since the package has C++ code, the egg cannot be zipped
-      zip_safe=False)
+      cmdclass={ 'build_ext': custom_build_ext,
+                 'install': custom_install}
+      )

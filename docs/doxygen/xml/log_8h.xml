@@ -1,0 +1,550 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="log_8h" kind="file">
+    <compoundname>log.h</compoundname>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="log_8h_1a5096002e05063d13577205e0bc5f0564" prot="public" static="no">
+        <name>logLevels</name>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564a0593585da9181e972974c1274d8f2b4f" prot="public">
+          <name>DEBUG</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A debugging message </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564a748005382152808a72b1a9177d9dc806" prot="public">
+          <name>INFO</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>An informational but verbose message </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564a50d1448013c6f17125caee18aa418af7" prot="public">
+          <name>NORMAL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A brief progress update on run progress </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564ac22e1a44f0ddbc929cfea45e49d20f84" prot="public">
+          <name>SEPARATOR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A message of a single line of characters </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564a2e57918a09d25b07a664e505d50a97f6" prot="public">
+          <name>HEADER</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A message centered within a line of characters </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564a0a041e18d712f7b239eac5375daf4a05" prot="public">
+          <name>TITLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A message sandwiched between two lines of characters </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564a984de77c680eaff141ec910e25568a81" prot="public">
+          <name>WARNING</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A message for to warn the user </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564acda21a4a072f2261f6d4ab596599f8b0" prot="public">
+          <name>CRITICAL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A message to warn of critical program conditions </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564a7186ecefe792fdae9fec0a42f105ad6b" prot="public">
+          <name>RESULT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A message containing program results </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564a7d4213bd412f92318544af232a0481e6" prot="public">
+          <name>UNITTEST</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A messsage for unit testing </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="log_8h_1a5096002e05063d13577205e0bc5f0564a2fd6f336d08340583bd620a7f5694c90" prot="public">
+          <name>ERROR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A message reporting error conditions </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Logging levels characterize an ordered set of message types which may be printed to the screen. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="43" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" bodystart="43" bodyend="76"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="log_8h_1a474fc5e1d06d669823896ac6258fbc0d" prot="public" static="no">
+        <type>enum <ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564" kindref="member">logLevels</ref></type>
+        <definition>logLevel</definition>
+        <argsstring></argsstring>
+        <name>logLevel</name>
+        <briefdescription>
+<para>Logging levels characterize an ordered set of message types which may be printed to the screen. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="76"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="log_8h_1a940ee8efe959af1453430dfb17a69b52" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void set_err</definition>
+        <argsstring>(const char *msg)</argsstring>
+        <name>set_err</name>
+        <param>
+          <type>const char *</type>
+          <declname>msg</declname>
+        </param>
+        <briefdescription>
+<para>A function stub used to convert C++ exceptions into Python exceptions through SWIG. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>msg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a character array for the exception message </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="84"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1a5ef1ed8ce52cd43ae7f8512d09971618" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void setOutputDirectory</definition>
+        <argsstring>(char *directory)</argsstring>
+        <name>setOutputDirectory</name>
+        <param>
+          <type>char *</type>
+          <declname>directory</declname>
+        </param>
+        <briefdescription>
+<para>Sets the output directory for log files. </para>        </briefdescription>
+        <detaileddescription>
+<para>If the directory does not exist, it creates it for the user. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>directory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a character array for the log file directory </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="86" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="74" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1ad1b5c174ca035cd931dc69347919d168" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* getOutputDirectory</definition>
+        <argsstring>()</argsstring>
+        <name>getOutputDirectory</name>
+        <briefdescription>
+<para>Returns the output directory for log files. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a character array for the log file directory </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="87" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="93" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1a465a60dcbab8eedbf8c943daba80d2e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void setLogfileName</definition>
+        <argsstring>(char *filename)</argsstring>
+        <name>setLogfileName</name>
+        <param>
+          <type>char *</type>
+          <declname>filename</declname>
+        </param>
+        <briefdescription>
+<para>Sets the name for the log file. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>filename</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a character array for log filename </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="88" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="102" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1a4f377faa39c40a2d692c86d1486450df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* getLogfileName</definition>
+        <argsstring>()</argsstring>
+        <name>getLogfileName</name>
+        <briefdescription>
+<para>Returns the log filename. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a character array for the log filename </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="89" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="111" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1a280c959b5b23ffdf907c1727c690dd04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void setSeparatorCharacter</definition>
+        <argsstring>(char c)</argsstring>
+        <name>setSeparatorCharacter</name>
+        <param>
+          <type>char</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Sets the character to be used when printing SEPARATOR type log messages. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the character for SEPARATOR type log messages </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="91" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="120" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1ab1cb699372f5918c22185e7ac701ab2e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>char</type>
+        <definition>char getSeparatorCharacter</definition>
+        <argsstring>()</argsstring>
+        <name>getSeparatorCharacter</name>
+        <briefdescription>
+<para>Returns the character used to format SEPARATOR type log messages. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the character used for SEPARATOR type log messages </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="92" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="129" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1ad883b9386585911a94d98135f061c228" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void setHeaderCharacter</definition>
+        <argsstring>(char c)</argsstring>
+        <name>setHeaderCharacter</name>
+        <param>
+          <type>char</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Sets the character to be used when printing HEADER type log messages. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the character for HEADER type log messages </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="93" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="137" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1a4b25b2953f684913f61140e12d370243" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>char</type>
+        <definition>char getHeaderCharacter</definition>
+        <argsstring>()</argsstring>
+        <name>getHeaderCharacter</name>
+        <briefdescription>
+<para>Returns the character used to format HEADER type log messages. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the character used for HEADER type log messages </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="94" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="146" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1aa0c94033f57bfb548aec9f8a9a7a39f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void setTitleCharacter</definition>
+        <argsstring>(char c)</argsstring>
+        <name>setTitleCharacter</name>
+        <param>
+          <type>char</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Sets the character to be used when printing TITLE type log messages. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the character for TITLE type log messages </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="95" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="155" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1ada5f44d353c71cce0c57e1b496a68a7c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>char</type>
+        <definition>char getTitleCharacter</definition>
+        <argsstring>()</argsstring>
+        <name>getTitleCharacter</name>
+        <briefdescription>
+<para>Returns the character used to format TITLE type log messages. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the character used for TITLE type log messages </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="96" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="164" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1ac3008464681b34c10540b78d408e4db6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void setLineLength</definition>
+        <argsstring>(int length)</argsstring>
+        <name>setLineLength</name>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Sets the maximum line length for log messages. </para>        </briefdescription>
+        <detaileddescription>
+<para>Messages longer than this amount will be broken up into multiline messages. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the maximum log message line length in characters </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="97" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="175" bodyend="177"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1aa9bd479824be6d1d7370f4b0e162300b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void setLogLevel</definition>
+        <argsstring>(const char *newlevel)</argsstring>
+        <name>setLogLevel</name>
+        <param>
+          <type>const char *</type>
+          <declname>newlevel</declname>
+        </param>
+        <briefdescription>
+<para>Sets the minimum log message level which will be printed to the console and to the log file. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newlevel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the minimum logging level </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="99" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="185" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1a4633c2e8127ec8b2668ff6c3ff38ac89" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int getLogLevel</definition>
+        <argsstring>()</argsstring>
+        <name>getLogLevel</name>
+        <briefdescription>
+<para>Return the minimum level for log messages printed to the screen. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the minimum level for log messages </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="100" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="240" bodyend="242"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1a8abbd12e44a829a8d7a041636b170fde" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void log_printf</definition>
+        <argsstring>(logLevel level, const char *format,...)</argsstring>
+        <name>log_printf</name>
+        <param>
+          <type><ref refid="log_8h_1a474fc5e1d06d669823896ac6258fbc0d" kindref="member">logLevel</ref></type>
+          <declname>level</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+<para>Print a formatted message to the console. </para>        </briefdescription>
+        <detaileddescription>
+<para>If logging level is ERROR, this function will throw a runtime exception <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>level</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the logging level for this message </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>*format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>variable list of C++ formatted arguments </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="102" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="252" bodyend="442"/>
+      </memberdef>
+      <memberdef kind="function" id="log_8h_1ab42a0de70fdb518ab616d1c61ce7a1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string createMultilineMsg</definition>
+        <argsstring>(std::string level, std::string message)</argsstring>
+        <name>createMultilineMsg</name>
+        <param>
+          <type>std::string</type>
+          <declname>level</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>message</declname>
+        </param>
+        <briefdescription>
+<para>Breaks up a message which is too long for a single line into a multiline message. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is an internal function which is called by log_printf and should not be called directly by the user. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>level</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a string containing log level prefix </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>message</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a string containing the log message </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a string with a formatted multiline message </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h" line="103" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.cpp" bodystart="454" bodyend="503"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Utility functions for writing log messages to the screen. </para>    </briefdescription>
+    <detaileddescription>
+<para>Applies level-based logging to print formatted messages to the screen and to a log file. <simplesect kind="author"><para>William Boyd (<ulink url="mailto:wboyd@mit.edu">wboyd@mit.edu</ulink>) </para></simplesect>
+<simplesect kind="date"><para>January 22, 2012 </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="11"><highlight class="preprocessor">#ifndef<sp/>LOG_H_</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>LOG_H_</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline lineno="15"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdarg.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;fstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iomanip&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdexcept&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;time.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/types.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/stat.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="log_8h_1a5096002e05063d13577205e0bc5f0564" refkind="member"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564" kindref="member" tooltip="Logging levels characterize an ordered set of message types which may be printed to the screen...">logLevels</ref><sp/>{</highlight></codeline>
+<codeline lineno="45" refid="log_8h_1a5096002e05063d13577205e0bc5f0564a0593585da9181e972974c1274d8f2b4f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564a0593585da9181e972974c1274d8f2b4f" kindref="member">DEBUG</ref>,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="log_8h_1a5096002e05063d13577205e0bc5f0564a748005382152808a72b1a9177d9dc806" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564a748005382152808a72b1a9177d9dc806" kindref="member">INFO</ref>,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="log_8h_1a5096002e05063d13577205e0bc5f0564a50d1448013c6f17125caee18aa418af7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564a50d1448013c6f17125caee18aa418af7" kindref="member">NORMAL</ref>,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="log_8h_1a5096002e05063d13577205e0bc5f0564ac22e1a44f0ddbc929cfea45e49d20f84" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564ac22e1a44f0ddbc929cfea45e49d20f84" kindref="member">SEPARATOR</ref>,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="log_8h_1a5096002e05063d13577205e0bc5f0564a2e57918a09d25b07a664e505d50a97f6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564a2e57918a09d25b07a664e505d50a97f6" kindref="member">HEADER</ref>,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="log_8h_1a5096002e05063d13577205e0bc5f0564a0a041e18d712f7b239eac5375daf4a05" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564a0a041e18d712f7b239eac5375daf4a05" kindref="member">TITLE</ref>,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="log_8h_1a5096002e05063d13577205e0bc5f0564a984de77c680eaff141ec910e25568a81" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564a984de77c680eaff141ec910e25568a81" kindref="member">WARNING</ref>,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="log_8h_1a5096002e05063d13577205e0bc5f0564acda21a4a072f2261f6d4ab596599f8b0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564acda21a4a072f2261f6d4ab596599f8b0" kindref="member">CRITICAL</ref>,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="log_8h_1a5096002e05063d13577205e0bc5f0564a7186ecefe792fdae9fec0a42f105ad6b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564a7186ecefe792fdae9fec0a42f105ad6b" kindref="member">RESULT</ref>,</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="log_8h_1a5096002e05063d13577205e0bc5f0564a7d4213bd412f92318544af232a0481e6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564a7d4213bd412f92318544af232a0481e6" kindref="member">UNITTEST</ref>,</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="log_8h_1a5096002e05063d13577205e0bc5f0564a2fd6f336d08340583bd620a7f5694c90" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="log_8h_1a5096002e05063d13577205e0bc5f0564a2fd6f336d08340583bd620a7f5694c90" kindref="member">ERROR</ref></highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}<sp/><ref refid="log_8h_1a474fc5e1d06d669823896ac6258fbc0d" kindref="member" tooltip="Logging levels characterize an ordered set of message types which may be printed to the screen...">logLevel</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="log_8h_1a940ee8efe959af1453430dfb17a69b52" kindref="member" tooltip="A function stub used to convert C++ exceptions into Python exceptions through SWIG.">set_err</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*msg);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setOutputDirectory(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>directory);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>getOutputDirectory();</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setLogfileName(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>filename);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>getLogfileName();</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setSeparatorCharacter(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>c);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>getSeparatorCharacter();</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setHeaderCharacter(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>c);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>getHeaderCharacter();</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setTitleCharacter(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>c);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>getTitleCharacter();</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setLineLength(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>length);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setLogLevel(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>newlevel);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>getLogLevel();</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>log_printf(<ref refid="log_8h_1a474fc5e1d06d669823896ac6258fbc0d" kindref="member" tooltip="Logging levels characterize an ordered set of message types which may be printed to the screen...">logLevel</ref><sp/>level,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>...);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">std::string<sp/>createMultilineMsg(std::string<sp/>level,<sp/>std::string<sp/>message);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>LOG_H_<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/log.h"/>
+  </compounddef>
+</doxygen>

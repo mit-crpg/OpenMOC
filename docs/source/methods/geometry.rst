@@ -45,7 +45,7 @@ surface by a combination of the unique ID of the surface and a positive/negative
 sign. The following illustration shows an example of an ellipse with unique ID 1
 dividing space into two half-spaces.
 
-.. figure:: ../../img/halfspace.svg
+.. figure:: ../../img/halfspace.png
    :align: center
    :figclass: align-center
 
@@ -60,7 +60,7 @@ half-space references whose intersection defines the region. The region is then
 assigned a material defined elsewhere. The following illustration shows an
 example of a cell defined as the intersection of an ellipse and two planes.
    
-.. figure:: ../../img/union.svg
+.. figure:: ../../img/union.png
    :align: center
    :figclass: align-center
 

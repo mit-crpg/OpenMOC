@@ -1,0 +1,540 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="classCell" kind="class" prot="public">
+    <compoundname>Cell</compoundname>
+    <derivedcompoundref refid="classCellBasic" prot="public" virt="non-virtual">CellBasic</derivedcompoundref>
+    <derivedcompoundref refid="classCellFill" prot="public" virt="non-virtual">CellFill</derivedcompoundref>
+    <includes refid="Cell_8h" local="yes">openmoc/src/host/Cell.h</includes>
+      <sectiondef kind="protected-static-attrib">
+      <memberdef kind="variable" id="classCell_1a73b3f587dfefe93c9764b9fdcc772710" prot="protected" static="yes" mutable="no">
+        <type>short int</type>
+        <definition>short int Cell::_n</definition>
+        <argsstring></argsstring>
+        <name>_n</name>
+        <initializer> 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A static counter for the number of cells in a simulation </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="44" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classCell_1aa028169032e0edead76bde80f7ff3c1f" prot="protected" static="yes" mutable="no">
+        <type>int</type>
+        <definition>int Cell::_clone_n</definition>
+        <argsstring></argsstring>
+        <name>_clone_n</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A static counter for the number of cell clones in a simulation </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="46" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classCell_1aba78515e347a8dad627832c71b8bc2fa" prot="protected" static="no" mutable="no">
+        <type>short int</type>
+        <definition>short int Cell::_uid</definition>
+        <argsstring></argsstring>
+        <name>_uid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A monotonically increasing unique ID for each cell created </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="48" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classCell_1af45cbf64248efeb49f5df298a8abaabc" prot="protected" static="no" mutable="no">
+        <type>short int</type>
+        <definition>short int Cell::_id</definition>
+        <argsstring></argsstring>
+        <name>_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A user-defined ID for each cell created </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="50" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classCell_1a479098cae5775f5070b63b9ef7abbb04" prot="protected" static="no" mutable="no">
+        <type><ref refid="Cell_8h_1a274ceed3b07859c48505f65b1fe42328" kindref="member">cellType</ref></type>
+        <definition>cellType Cell::_cell_type</definition>
+        <argsstring></argsstring>
+        <name>_cell_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The type of cell (ie MATERIAL or FILL) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="52" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classCell_1a1672521c43143394c114df1ca5e52dbc" prot="protected" static="no" mutable="no">
+        <type>short int</type>
+        <definition>short int Cell::_universe</definition>
+        <argsstring></argsstring>
+        <name>_universe</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The ID for the universe within which this cell resides </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="54" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classCell_1ac43ed5fa7607eb5ca51b71c519dc67bf" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; short int, <ref refid="classSurface" kindref="compound">Surface</ref> * &gt;</type>
+        <definition>std::map&lt;short int, Surface*&gt; Cell::_surfaces</definition>
+        <argsstring></argsstring>
+        <name>_surfaces</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Map of bounding surface ids (keys) to surface pointers (values). Keys are +/- depending on the side of surface in which this cell resides. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="59" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classCell_1a394510643e8664cf12b5efaf5cb99f71" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Cell::Cell</definition>
+        <argsstring>()</argsstring>
+        <name>Cell</name>
+        <briefdescription>
+<para>Default constructor used in rings/sectors subdivision of cells. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="62" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="28" bodyend="28"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1a42507131912fad0ec04a7c398456322a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Cell::Cell</definition>
+        <argsstring>(short int universe, short int id=0)</argsstring>
+        <name>Cell</name>
+        <param>
+          <type>short int</type>
+          <declname>universe</declname>
+        </param>
+        <param>
+          <type>short int</type>
+          <declname>id</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor sets the unique and user-specifed IDs for this cell. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the user-specified cell ID </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>universe</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the ID of the universe within which this cell resides </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="63" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="36" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1a9fa559f7a28e2b4336c6879ca09304d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>Cell::~Cell</definition>
+        <argsstring>()</argsstring>
+        <name>~Cell</name>
+        <briefdescription>
+<para>Destructor frees all surfaces making up cell. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="64" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1a27be5077c04eaf21747b1e6101495ba4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int Cell::getUid</definition>
+        <argsstring>() const </argsstring>
+        <name>getUid</name>
+        <briefdescription>
+<para>Return the cell&apos;s unique ID. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the cell&apos;s unique ID </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="65" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="67" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1a5ee7d2b6a1ed18804d207f937e3defaf" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int Cell::getId</definition>
+        <argsstring>() const </argsstring>
+        <name>getId</name>
+        <briefdescription>
+<para>Return the cell&apos;s user-specified ID. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the cell&apos;s user-specified ID </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="66" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="76" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1af0421cc4cbb034947b2b7ec18c6df7d0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="Cell_8h_1a274ceed3b07859c48505f65b1fe42328" kindref="member">cellType</ref></type>
+        <definition>cellType Cell::getType</definition>
+        <argsstring>() const </argsstring>
+        <name>getType</name>
+        <briefdescription>
+<para>Return the cell type (FILL or MATERIAL). </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the cell type </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="67" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="85" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1af4af1af3638b0c9a64d0b8f3f12f0e30" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int Cell::getUniverse</definition>
+        <argsstring>() const </argsstring>
+        <name>getUniverse</name>
+        <briefdescription>
+<para>Return the ID of the universe within which this cell resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the universe ID </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="68" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="94" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1a7c3defd6e47e454df12891d2f9c90405" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int Cell::getNumSurfaces</definition>
+        <argsstring>() const </argsstring>
+        <name>getNumSurfaces</name>
+        <briefdescription>
+<para>Return the number of surfaces in the cell. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the number of surfaces </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="69" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="103" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1a212ae4536a8da3258fcdb5b3ab36a3a0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::map&lt; short int, <ref refid="classSurface" kindref="compound">Surface</ref> * &gt;</type>
+        <definition>std::map&lt; short int, Surface * &gt; Cell::getSurfaces</definition>
+        <argsstring>() const </argsstring>
+        <name>getSurfaces</name>
+        <briefdescription>
+<para>Return the hashtable of surfaces IDs and surface pointers for all surfaces making up the cell. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>map of surface IDs and surface pointers </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="70" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="113" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1a7e47c4f454dc5ee6689e48a5f3770f43" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>int</type>
+        <definition>virtual int Cell::getNumFSRs</definition>
+        <argsstring>()=0</argsstring>
+        <name>getNumFSRs</name>
+        <reimplementedby refid="classCellBasic_1a20995e53c5742d2e27a9ee32d78f7302">getNumFSRs</reimplementedby>
+        <reimplementedby refid="classCellFill_1a42d8ee528341de4ec858731f0c35b649">getNumFSRs</reimplementedby>
+        <briefdescription>
+<para>Return the number of flat source regions in this cell. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method is used when the geometry recursively constructs flat source regions. <simplesect kind="return"><para>the number of FSRs in this cell </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="77"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1aaf4b5dcb6f7e1dc7121f6bdf5f69aa09" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Cell::setUniverse</definition>
+        <argsstring>(short int universe)</argsstring>
+        <name>setUniverse</name>
+        <param>
+          <type>short int</type>
+          <declname>universe</declname>
+        </param>
+        <briefdescription>
+<para>Set the ID for teh universe within whic this cell resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>universe</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the universe&apos;s user-specified ID </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="79" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="122" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1aa3dc5df3090ba776ea817b5a8385616b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Cell::addSurface</definition>
+        <argsstring>(short int halfspace, Surface *surface)</argsstring>
+        <name>addSurface</name>
+        <param>
+          <type>short int</type>
+          <declname>halfspace</declname>
+        </param>
+        <param>
+          <type><ref refid="classSurface" kindref="compound">Surface</ref> *</type>
+          <declname>surface</declname>
+        </param>
+        <briefdescription>
+<para>Insert the a surface into this cell&apos;s container. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>halfspace</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the surface halfspace (positive/negative for surface side) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>surface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to the surface </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="80" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="132" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1ad6a1e2e87f6708663dddb370d670a067" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Cell::setSurfacePointer</definition>
+        <argsstring>(Surface *surface)</argsstring>
+        <name>setSurfacePointer</name>
+        <param>
+          <type><ref refid="classSurface" kindref="compound">Surface</ref> *</type>
+          <declname>surface</declname>
+        </param>
+        <briefdescription>
+<para>Registers a surface pointer with the <ref refid="classCell" kindref="compound">Cell</ref>&apos;s surfaces map. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method is used by the geometry whenever a new cell is added to it. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>surface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the surface pointer </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="81" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="149" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1a7ccb9a3084719a36a170bed2cd48a593" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Cell::cellContainsPoint</definition>
+        <argsstring>(Point *point)</argsstring>
+        <name>cellContainsPoint</name>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>point</declname>
+        </param>
+        <briefdescription>
+<para>Determines whether a point is contained inside a cell. </para>        </briefdescription>
+        <detaileddescription>
+<para>Queries each surface inside the cell to determine if the point particle is on the same side of the surface. This point is only inside the cell if it is on the same side of every surface in the cell. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>point</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to a point </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="82" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="186" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1a89c95a180daff341176d78c5d573da53" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Cell::cellContainsCoords</definition>
+        <argsstring>(LocalCoords *coords)</argsstring>
+        <name>cellContainsCoords</name>
+        <param>
+          <type><ref refid="classLocalCoords" kindref="compound">LocalCoords</ref> *</type>
+          <declname>coords</declname>
+        </param>
+        <briefdescription>
+<para>Determines whether a point is contained inside a cell. </para>        </briefdescription>
+        <detaileddescription>
+<para>Queries each surface inside the cell to determine if the particle is on the same side of the surface. This particle is only inside the cell if it is on the same side of every surface in the cell. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coords</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to a localcoord </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="83" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="209" bodyend="211"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1adf41aafa99278a759d8d6ae826c7330e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double Cell::minSurfaceDist</definition>
+        <argsstring>(Point *point, double angle, Point *min_intersection)</argsstring>
+        <name>minSurfaceDist</name>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>point</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>angle</declname>
+        </param>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>min_intersection</declname>
+        </param>
+        <briefdescription>
+<para>Computes the minimum distance to a surface from a point with a given trajectory at a certain angle. </para>        </briefdescription>
+        <detaileddescription>
+<para>If the trajectory will not intersect any of the surfaces in the cell* returns INFINITY. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>point</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the point of interest </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the angle of the trajectory (in radians from 0 to 2*PI) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>min_intersection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to the intersection point that is found </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="85" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="222" bodyend="246"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1a4a84efc6a82f7abe42d9a6dc990c70e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::string</type>
+        <definition>virtual std::string Cell::toString</definition>
+        <argsstring>()=0</argsstring>
+        <name>toString</name>
+        <reimplementedby refid="classCellBasic_1a7c9a65e73c5c9004c2b75f40ab19e4b3">toString</reimplementedby>
+        <reimplementedby refid="classCellFill_1ac37b3795b89ffdd71315610e99100f8b">toString</reimplementedby>
+        <briefdescription>
+<para>Convert this cellfill&apos;s attributes to a string format. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a character array of this cell&apos;s attributes </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="90"/>
+      </memberdef>
+      <memberdef kind="function" id="classCell_1af53a3407201aaaebf593939e1b7a69fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Cell::printString</definition>
+        <argsstring>()=0</argsstring>
+        <name>printString</name>
+        <reimplementedby refid="classCellBasic_1a8a4daeca3487c62cfd7251ccb9e22847">printString</reimplementedby>
+        <reimplementedby refid="classCellFill_1a26e6c0b4accfa1aa4926dfdc47b2d985">printString</reimplementedby>
+        <briefdescription>
+<para>Prints a string representation of all of the cells&apos;s objects to the console. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="96"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Represents a cell inside of a universe. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>CellBasic</label>
+        <link refid="classCellBasic"/>
+        <childnode refid="0" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>CellFill</label>
+        <link refid="classCellFill"/>
+        <childnode refid="0" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="0">
+        <label>Cell</label>
+        <link refid="classCell"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>Cell</label>
+        <link refid="classCell"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="40" bodyfile="/home/wbinventor/NSE-CRPG-Codes/OpenMOC/src/Cell.h" bodystart="40" bodyend="97"/>
+    <listofallmembers>
+      <member refid="classCell_1a479098cae5775f5070b63b9ef7abbb04" prot="protected" virt="non-virtual"><scope>Cell</scope><name>_cell_type</name></member>
+      <member refid="classCell_1aa028169032e0edead76bde80f7ff3c1f" prot="protected" virt="non-virtual"><scope>Cell</scope><name>_clone_n</name></member>
+      <member refid="classCell_1af45cbf64248efeb49f5df298a8abaabc" prot="protected" virt="non-virtual"><scope>Cell</scope><name>_id</name></member>
+      <member refid="classCell_1a73b3f587dfefe93c9764b9fdcc772710" prot="protected" virt="non-virtual"><scope>Cell</scope><name>_n</name></member>
+      <member refid="classCell_1ac43ed5fa7607eb5ca51b71c519dc67bf" prot="protected" virt="non-virtual"><scope>Cell</scope><name>_surfaces</name></member>
+      <member refid="classCell_1aba78515e347a8dad627832c71b8bc2fa" prot="protected" virt="non-virtual"><scope>Cell</scope><name>_uid</name></member>
+      <member refid="classCell_1a1672521c43143394c114df1ca5e52dbc" prot="protected" virt="non-virtual"><scope>Cell</scope><name>_universe</name></member>
+      <member refid="classCell_1aa3dc5df3090ba776ea817b5a8385616b" prot="public" virt="non-virtual"><scope>Cell</scope><name>addSurface</name></member>
+      <member refid="classCell_1a394510643e8664cf12b5efaf5cb99f71" prot="public" virt="non-virtual"><scope>Cell</scope><name>Cell</name></member>
+      <member refid="classCell_1a42507131912fad0ec04a7c398456322a" prot="public" virt="non-virtual"><scope>Cell</scope><name>Cell</name></member>
+      <member refid="classCell_1a89c95a180daff341176d78c5d573da53" prot="public" virt="non-virtual"><scope>Cell</scope><name>cellContainsCoords</name></member>
+      <member refid="classCell_1a7ccb9a3084719a36a170bed2cd48a593" prot="public" virt="non-virtual"><scope>Cell</scope><name>cellContainsPoint</name></member>
+      <member refid="classCell_1a5ee7d2b6a1ed18804d207f937e3defaf" prot="public" virt="non-virtual"><scope>Cell</scope><name>getId</name></member>
+      <member refid="classCell_1a7e47c4f454dc5ee6689e48a5f3770f43" prot="public" virt="pure-virtual"><scope>Cell</scope><name>getNumFSRs</name></member>
+      <member refid="classCell_1a7c3defd6e47e454df12891d2f9c90405" prot="public" virt="non-virtual"><scope>Cell</scope><name>getNumSurfaces</name></member>
+      <member refid="classCell_1a212ae4536a8da3258fcdb5b3ab36a3a0" prot="public" virt="non-virtual"><scope>Cell</scope><name>getSurfaces</name></member>
+      <member refid="classCell_1af0421cc4cbb034947b2b7ec18c6df7d0" prot="public" virt="non-virtual"><scope>Cell</scope><name>getType</name></member>
+      <member refid="classCell_1a27be5077c04eaf21747b1e6101495ba4" prot="public" virt="non-virtual"><scope>Cell</scope><name>getUid</name></member>
+      <member refid="classCell_1af4af1af3638b0c9a64d0b8f3f12f0e30" prot="public" virt="non-virtual"><scope>Cell</scope><name>getUniverse</name></member>
+      <member refid="classCell_1adf41aafa99278a759d8d6ae826c7330e" prot="public" virt="non-virtual"><scope>Cell</scope><name>minSurfaceDist</name></member>
+      <member refid="classCell_1af53a3407201aaaebf593939e1b7a69fb" prot="public" virt="pure-virtual"><scope>Cell</scope><name>printString</name></member>
+      <member refid="classCell_1ad6a1e2e87f6708663dddb370d670a067" prot="public" virt="non-virtual"><scope>Cell</scope><name>setSurfacePointer</name></member>
+      <member refid="classCell_1aaf4b5dcb6f7e1dc7121f6bdf5f69aa09" prot="public" virt="non-virtual"><scope>Cell</scope><name>setUniverse</name></member>
+      <member refid="classCell_1a4a84efc6a82f7abe42d9a6dc990c70e6" prot="public" virt="pure-virtual"><scope>Cell</scope><name>toString</name></member>
+      <member refid="classCell_1a9fa559f7a28e2b4336c6879ca09304d8" prot="public" virt="virtual"><scope>Cell</scope><name>~Cell</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
