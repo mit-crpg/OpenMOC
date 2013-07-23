@@ -2,8 +2,6 @@ import sys
 from distutils.extension import Extension
 from distutils.util import get_platform
 
-
-
 def get_openmoc_object_name():
     """Returns the name of the main openmoc shared library object"""
 
@@ -19,7 +17,6 @@ def get_openmoc_object_name():
         filename = filename.format(version=sys.version_info)
 
     return filename
-
 
 
 def get_shared_object_path():
@@ -38,6 +35,14 @@ def get_shared_object_path():
         directory = 'build/lib'
 
     return directory
+
+
+#path_to_bgxlc = '/soft/compilers/ibmcmp-feb2013/vac/bg/12.1/'
+
+# Compiler binaries
+#bgxlc = path_to_bgxlc + 'bin/bgxlc'
+
+
 
 
 
@@ -159,6 +164,23 @@ class configuration:
                        'src/TrackGenerator.cpp',
                        'src/Universe.cpp']
 
+    sources['bgxlc'] = ['openmoc/openmoc.i',
+                        'src/Cell.cpp',
+                        'src/Geometry.cpp',
+                        'src/LocalCoords.cpp',
+                        'src/log.cpp',
+                        'src/Material.cpp',
+                        'src/Point.cpp',
+                        'src/Quadrature.cpp',
+                        'src/Solver.cpp',
+                        'src/CPUSolver.cpp',
+                        'src/ThreadPrivateSolver.cpp',
+                        'src/Surface.cpp',
+                        'src/Timer.cpp',
+                        'src/Track.cpp',
+                        'src/TrackGenerator.cpp',
+                        'src/Universe.cpp']
+
     sources['nvcc'] = ['openmoc/cuda/openmoc_cuda.i',
                        'src/dev/gpu/clone.cu',
                        'src/dev/gpu/GPUQuery.cu',
@@ -177,6 +199,8 @@ class configuration:
     compiler_flags['icpc'] =['-c', '-O3', '--ccache-skip', '-openmp', 
                              '-xhost', '-std=c++0x', '-fpic', '--ccache-skip', 
                              '-openmp-report', '-vec-report']
+    compiler_flags['bgxlc'] = ['-c', '-O1', '-qsmp=omp', '-qarch=qp', 
+                               '-qreport', '-qnoipa', '-qpic']
     compiler_flags['nvcc'] =  ['-c', '-O3', '--compiler-options', '-fpic',
                                '-gencode=arch=compute_20,code=sm_20',
                                '-gencode=arch=compute_30,code=sm_30']
@@ -192,10 +216,12 @@ class configuration:
 
     linker_flags['gcc'] = ['-fopenmp', '-shared', 
                            '-Wl,-soname,' + get_openmoc_object_name()]
-                           #'-Wl,-soname,_openmoc.so']
     linker_flags['icpc'] = [ '-openmp', '-shared', 
                              '-Xlinker', '-soname=' + get_openmoc_object_name()]
-    #_openmoc.so']
+    linker_flags['bgxlc'] = ['-qmkshrobj', '-shared', '-R/usr/lib64',
+                             '-R/soft/compilers/ibmcmp-feb2013/vac/bg/12.1/bglib64',
+                             '-R/soft/compilers/ibmcmp-feb2013/lib64/bg',
+                             '-Wl,-soname,' + get_openmoc_object_name()]
     linker_flags['nvcc'] = ['-shared', get_openmoc()]
 
 
@@ -211,6 +237,7 @@ class configuration:
     shared_libraries['icpc'] = ['stdc++', 'iomp5', 'pthread', 'irc', 
                                 'imf','rt', 'mkl_rt','m',]
     shared_libraries['nvcc'] = ['cudart']
+    shared_libraries['bgxlc'] = ['stdc++', 'pthread', 'm', 'gomp', 'xlsmp']
 
 
 
@@ -224,6 +251,7 @@ class configuration:
 
     library_directories['gcc'] = []
     library_directories['icpc'] = []
+    library_directories['bgxlc'] = ['/usr/lib64']
     library_directories['nvcc'] = ['/usr/local/cuda/lib64']
 
 
@@ -238,6 +266,7 @@ class configuration:
 
     include_directories['gcc'] = []
     include_directories['icpc'] =[]
+    include_directories['bgxlc'] = ['/usr/lib64/python2.6/site-packages/numpy/core/include']
     include_directories['nvcc'] = ['/usr/local/cuda/include']
 
 
@@ -260,6 +289,7 @@ class configuration:
 
     macros['gcc'] = {}
     macros['icpc'] = {}
+    macros['bgxlc'] = {}
     macros['nvcc'] = {}
 
     macros['gcc']['single']= [('FP_PRECISION', 'float'), 
@@ -274,6 +304,13 @@ class configuration:
                                ('MKL_ILP64', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment)]
+
+    macros['bgxlc']['single'] = [('FP_PRECISION', 'float'),
+                                 ('SINGLE', None),
+                                 ('BGXLC', None),
+                                 ('VEC_LENGTH', vector_length),
+                                 ('VEC_ALIGNMENT', vector_alignment),
+                                 ('CCACHE_CC', 'bgxlc++')]
 
     macros['nvcc']['single'] = [('FP_PRECISION', 'float'), 
                                 ('SINGLE', None),
@@ -292,6 +329,13 @@ class configuration:
                                 ('MKL_ILP64', None),
                                 ('VEC_LENGTH', vector_length),
                                 ('VEC_ALIGNMENT', vector_alignment)]
+
+    macros['bgxlc']['double'] = [('FP_PRECISION', 'double'),
+                                 ('DOUBLE', None),
+                                 ('BGXLC', None),
+                                 ('VEC_LENGTH', vector_length),
+                                 ('VEC_ALIGNMENT', vector_alignment),
+                                 ('CCACHE_CC', 'bgxlc++')]
 
     macros['nvcc']['double'] = [('FP_PRECISION', 'double'), 
                                 ('DOUBLE', None),

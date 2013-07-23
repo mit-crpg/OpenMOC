@@ -79,3 +79,6 @@ docs/build
 docs/build/*
 docs/doxygen/xml
 docs/doxyge/xml/*
+
+# BGQ
+*.lst
