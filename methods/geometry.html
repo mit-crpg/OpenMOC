@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,10 +9,9 @@
     
     <title>2. Geometry &mdash; OpenMOC Documentation</title>
     
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -27,32 +25,34 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" />
     <link rel="up" title="Theory and Methodology" href="index.html" />
     <link rel="next" title="3. Ray Tracing" href="ray_tracing.html" />
     <link rel="prev" title="1. Introduction" href="introduction.html" /> 
   </head>
   <body>
-      <div class="header">
-        <a href="../index.html">
-          <img class="logo" src="../_static/" alt="Logo"/>
-        </a>
-      </div>
-      <div class="topnav">
-      
-        <p>
-        «&#160;&#160;<a href="introduction.html">1. Introduction</a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="ray_tracing.html">3. Ray Tracing</a>&#160;&#160;»
-        </p>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ray_tracing.html" title="3. Ray Tracing"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="1. Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
+      </ul>
+    </div>  
 
-      </div>
-      <div class="content">
-        
-        
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
   <div class="section" id="geometry">
 <span id="methods-geometry"></span><h1>2. Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="constructive-solid-geometry">
@@ -84,7 +84,8 @@ surface by a combination of the unique ID of the surface and a positive/negative
 sign. The following illustration shows an example of an ellipse with unique ID 1
 dividing space into two half-spaces.</p>
 <div class="align-center figure align-center">
-<img src="../_images/halfspace.svg" /><p class="caption">Example of an ellipse and its associated half-spaces.</p>
+<img alt="methods/../../img/halfspace.png" src="methods/../../img/halfspace.png" />
+<p class="caption">Example of an ellipse and its associated half-spaces.</p>
 </div>
 <p>References to half-spaces created by surfaces are used to define regions of
 space of uniform composition, known as <em>cells</em>. While some codes allow regions
@@ -95,7 +96,8 @@ half-space references whose intersection defines the region. The region is then
 assigned a material defined elsewhere. The following illustration shows an
 example of a cell defined as the intersection of an ellipse and two planes.</p>
 <div class="align-center figure align-center">
-<img src="../_images/union.svg" /><p class="caption">The shaded region represents a cell bounded by three surfaces.</p>
+<img alt="methods/../../img/union.png" src="methods/../../img/union.png" />
+<p class="caption">The shaded region represents a cell bounded by three surfaces.</p>
 </div>
 <p>The ability to form regions based on bounding quadratic surfaces enables OpenMOC
 to model arbitrarily complex three-dimensional objects. In practice, one is
@@ -616,19 +618,86 @@ w' = w + \frac{2 (\bar{x}u + \bar{y}v - R^2\bar{z}w)}{R^2 (1 + R^2) \bar{z}}"/><
 </div>
 
 
+          </div>
+        </div>
       </div>
-      <div class="bottomnav">
-      
-        <p>
-        «&#160;&#160;<a href="introduction.html">1. Introduction</a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="ray_tracing.html">3. Ray Tracing</a>&#160;&#160;»
-        </p>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Geometry</a><ul>
+<li><a class="reference internal" href="#constructive-solid-geometry">2.1. Constructive Solid Geometry</a><ul>
+<li><a class="reference internal" href="#universes">2.1.1. Universes</a></li>
+<li><a class="reference internal" href="#lattices">2.1.2. Lattices</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#computing-the-distance-to-nearest-boundary">2.2. Computing the Distance to Nearest Boundary</a><ul>
+<li><a class="reference internal" href="#plane-perpendicular-to-an-axis">2.2.1. Plane Perpendicular to an Axis</a></li>
+<li><a class="reference internal" href="#generic-plane">2.2.2. Generic Plane</a></li>
+<li><a class="reference internal" href="#cylinder-parallel-to-an-axis">2.2.3. Cylinder Parallel to an Axis</a></li>
+<li><a class="reference internal" href="#sphere">2.2.4. Sphere</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#finding-a-cell-given-a-point">2.3. Finding a Cell Given a Point</a></li>
+<li><a class="reference internal" href="#determining-if-a-coordinate-is-in-a-cell">2.4. Determining if a Coordinate is in a Cell</a></li>
+<li><a class="reference internal" href="#handling-surface-crossings">2.5. Handling Surface Crossings</a></li>
+<li><a class="reference internal" href="#building-neighbor-lists">2.6. Building Neighbor Lists</a></li>
+<li><a class="reference internal" href="#reflective-boundary-conditions">2.7. Reflective Boundary Conditions</a><ul>
+<li><a class="reference internal" href="#id2">2.7.1. Plane Perpendicular to an Axis</a></li>
+<li><a class="reference internal" href="#id3">2.7.2. Generic Plane</a></li>
+<li><a class="reference internal" href="#id4">2.7.3. Cylinder Parallel to an Axis</a></li>
+<li><a class="reference internal" href="#id5">2.7.4. Sphere</a></li>
+<li><a class="reference internal" href="#cone-parallel-to-an-axis">2.7.5. Cone Parallel to an Axis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="introduction.html"
+                        title="previous chapter">1. Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ray_tracing.html"
+                        title="next chapter">3. Ray Tracing</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/methods/geometry.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
       </div>
-
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ray_tracing.html" title="3. Ray Tracing"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="1. Introduction"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
+      </ul>
+    </div>
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.

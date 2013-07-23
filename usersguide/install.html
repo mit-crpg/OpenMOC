@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,10 +9,9 @@
     
     <title>2. Installation and Configuration &mdash; OpenMOC Documentation</title>
     
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -27,91 +25,87 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" />
     <link rel="up" title="User’s Guide" href="index.html" />
     <link rel="next" title="3. Writing Python Input Files" href="input.html" />
     <link rel="prev" title="1. A Beginner’s Guide to OpenMOC" href="beginners.html" /> 
   </head>
   <body>
-      <div class="header">
-        <a href="../index.html">
-          <img class="logo" src="../_static/" alt="Logo"/>
-        </a>
-      </div>
-      <div class="topnav">
-      
-        <p>
-        «&#160;&#160;<a href="beginners.html">1. A Beginner&#8217;s Guide to OpenMOC</a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="input.html">3. Writing Python Input Files</a>&#160;&#160;»
-        </p>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="input.html" title="3. Writing Python Input Files"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="beginners.html" title="1. A Beginner’s Guide to OpenMOC"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
 
-      </div>
-      <div class="content">
-        
-        
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
   <div class="section" id="installation-and-configuration">
 <span id="usersguide-install"></span><h1>2. Installation and Configuration<a class="headerlink" href="#installation-and-configuration" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="building-from-source">
-<h2>2.1. Building from Source<a class="headerlink" href="#building-from-source" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="prerequisites">
-<h3>2.1.1. Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h3>
-<p>In addition, you need to install Python 2.6 or 2.7 and the following Python packages on your machine: <a class="reference external" href="http://www.swig.org/">swig</a>, <a class="reference external" href="https://pythonhosted.org/setuptools/index.html">setuptools</a>, <a class="reference external" href="http://www.h5py.org/">h5py</a>, <a class="reference external" href="http://www.numpy.org/">numpy</a>, and <a class="reference external" href="http://matplotlib.org/">matplotlib</a>. These packages can easily be installed using a package manager for Linux and Mac OS (see <a class="reference internal" href="#usersguide-install"><em>Installation and Configuration</em></a> for more details).</p>
-<p>These packages can be installed from the console using a package manager for Ubuntu, Fedora and Mac OS as follows:</p>
-<p>Ubuntu:</p>
-<div class="highlight-sh"><div class="highlight"><pre>sudo apt-get install swig python-setuptools python-numpy python-matplotlib python-h5py
-</pre></div>
-</div>
-<p>Fedora / Red Hat:</p>
-<div class="highlight-sh"><div class="highlight"><pre>sudo yum install swig python-setuptools numpy python-matplotlib
-sudo easy_install python-h5py
-</pre></div>
-</div>
-<p>Mac OS:</p>
-<div class="highlight-sh"><div class="highlight"><pre>sudo port install python26
-sudo port install swig-python py26-numpy py26-matplotlib
-sudo easy_install python-setuptools h5py
-</pre></div>
-</div>
+<h2>2.1. Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>There are a few prerequisites which must be installed on your machine before you will be able to build and install OpenMOC. All of the prerequisites can easily be installed using a standard package manager (such as <a class="reference external" href="http://www.apt-get.org/">apt-get</a> for Ubuntu, <a class="reference external" href="http://yum.baseurl.org/">yum</a> for Red Hat, and <a class="reference external" href="http://www.macports.org/">macports</a> for Mac OS). The following instructions detail which packages are needed, with instructions on how to install them on Ubuntu.</p>
 <div class="admonition-required admonition">
 <p class="first admonition-title">Required</p>
 <ul class="last">
-<li><p class="first">GNU&#8217;s g++ C++ Compiler</p>
-<p>In order to compile OpenMOC, you will need to have a C++ compiler
-installed on your machine. It is recommended that you build OpenMOC
-with g++ version 4.4.6 or later.</p>
+<li><p class="first">GNU&#8217;s C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a></p>
+<p>In order to compile OpenMOC, you will need to have a C++ compiler installed
+on your machine. It is recommended that you build OpenMOC with g++ version
+4.4 or later.</p>
 <p>To install g++ on Debian Linux or a Debian derivative such as Ubuntu,
 use the following command in the console:</p>
 <div class="highlight-python"><pre>sudo apt-get install build-essential</pre>
 </div>
 </li>
-<li><p class="first"><a class="reference external" href="http://git-scm.com">git</a> Version Control Software:</p>
+<li><p class="first"><a class="reference external" href="http://www.python.org/">Python</a></p>
+<p>OpenMOC extensively uses Python for rapid data processing and visualization.
+OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindings
+such that users are entirely insulated from having to write in C/C++ or CUDA, and
+can simply write a Python script with calls to OpenMOC.</p>
+<p>Nearly all common Linux distributions, as well as Mac OS, come with Python
+pre-installed. Currently, OpenMOC is only tested with Python 2.6 and 2.7 and does
+not yet support Python 3 or greater.</p>
+<p>If you are not sure whether you have Python or not, you can check in the console
+by typing the following:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">python</span> <span class="o">--</span><span class="n">version</span>
+</pre></div>
+</div>
+<p>If you do not have Python, you can easily install version 2.7 in Ubuntu as follows:</p>
+<div class="highlight-python"><pre>sudo apt-get install python2.7</pre>
+</div>
+</li>
+<li><p class="first"><a class="reference external" href="http://git-scm.com">Git</a></p>
+<p>The OpenMOC development team uses the <a class="reference external" href="http://git-scm.com">Git</a> version control software for code
+development and collaboration. To download the code from our <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a> repository,
+you must first install git. You can do so on Ubuntu as follows:</p>
 <div class="highlight-python"><pre>sudo apt-get install git</pre>
 </div>
 </li>
-<li><p class="first">Simplified Wrapper Interface Generator (<a class="reference external" href="http://www.swig.org/">swig</a>)</p>
-<p>SWIG is used to wrap the compiled C/C++ and CUDA source code and
-generate Python bindings. SWIG can be installed on Debian derivatives
-as follows:</p>
+<li><p class="first"><a class="reference external" href="http://www.swig.org/">SWIG</a></p>
+<p>The Simplified Wrapper Interface Generator (SWIG) is used to wrap the compiled
+C/C++ and CUDA source code and generate Python bindings. SWIG can be installed on
+Ubuntu as follows:</p>
 <div class="highlight-python"><pre>sudo apt-get install swig</pre>
 </div>
 </li>
-<li><p class="first">Python&#8217;s <a class="reference external" href="https://pythonhosted.org/setuptools/index.html">setuptools</a> Package</p>
-<p>Installation and configuration management is handled by the
-<a class="reference external" href="https://pythonhosted.org/setuptools/index.html">setuptools</a> Python package. To install <a class="reference external" href="https://pythonhosted.org/setuptools/index.html">setuptools</a>, use the
-following command:</p>
-<div class="highlight-python"><pre>sudo apt-get install python-setuptools</pre>
-</div>
-</li>
-<li><p class="first">Python&#8217;s <a class="reference external" href="http://www.numpy.org/">numpy</a> Package</p>
-<p>The <a class="reference external" href="http://www.numpy.org/">numpy</a> Python package is a commonly used, general purpose
-numerical array creation and manipulation. OpenMOC uses <a class="reference external" href="http://www.numpy.org/">numpy</a>
-to seamlessly transfer numerical data from a Python script to
-the C/C++ back-end compiled code. To install <a class="reference external" href="http://www.numpy.org/">numpy</a>, use the
-following command:</p>
+<li><p class="first"><a class="reference external" href="http://www.numpy.org/">NumPy</a></p>
+<p>NumPy is a commonly used, general purpose numerical array creation and
+manipulation package for Python. OpenMOC uses NumPy to seamlessly transfer
+numerical data between a Python script and the C/C++ back-end compiled code. To
+install NumPy on Ubuntu, use the following command:</p>
 <div class="highlight-python"><pre>sudo apt-get install python-numpy</pre>
 </div>
 </li>
@@ -120,52 +114,42 @@ following command:</p>
 <div class="admonition-optional admonition">
 <p class="first admonition-title">Optional</p>
 <ul class="last">
-<li><p class="first">Python&#8217;s <a class="reference external" href="http://www.h5py.org/">h5py</a> Package</p>
-<p>The <a class="reference external" href="http://www.h5py.org/">h5py</a> Python package contains tools to create, retrieve, and
-manipulate data stored using the <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> binary format. OpenMOC
-leverages the <a class="reference external" href="http://www.h5py.org/">h5py</a> functionality in its <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt>
-module which includes routines to import/export multi-group
-materials nuclear cross-section data to/from <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a>. In addition,
-the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module contains routines to import/export
-simulation and performance data to/from <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> output files.
-Although <a class="reference external" href="http://www.h5py.org/">h5py</a> and the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> and <tt class="docutils literal"><span class="pre">openmoc.process</span></tt>
-modules are not required to run OpenMOC, they can facilitate fast
-storage and access of binary data.</p>
-<p>To install <a class="reference external" href="http://www.h5py.org/">h5py</a> on a Debian derivative, issue the following command:</p>
-<div class="highlight-python"><pre>sudo apt-get install python-h5py</pre>
+<li><p class="first"><a class="reference external" href="http://matplotlib.org/">matplotlib</a></p>
+<p>The matplotlib Python package is a general purpose utility for plotting and
+visualizations. OpenMOC uses matplotlib in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module to
+generate plots, such as flux and power distributions. Although matplotlib and
+the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> modules are not required for an OpenMOC simulation,
+visualizations can be a helpful tool in debugging and input model validation.</p>
+<p>To install matplotlib in Ubuntu, issue the following command:</p>
+<div class="highlight-python"><pre>sudo apt-get install python-matplotlib</pre>
 </div>
 </li>
-<li><p class="first">Python&#8217;s <a class="reference external" href="http://matplotlib.org/">matplotlib</a> Package</p>
-<p>The <a class="reference external" href="http://matplotlib.org/">matplotlib</a> Python package is a general purpose utility for
-plotting and visualizations. OpenMOC uses <a class="reference external" href="http://matplotlib.org/">matplotlib</a> in the
-<tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module to generate plots, such as flux
-and power distributions. Although the <a class="reference external" href="http://matplotlib.org/">matplotlib</a> and the
-<tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module is not required for an OpenMOC simulation,
-visualizations can be a helpful tool in debugging and input model
-validation.</p>
-<p>To install <a class="reference external" href="http://matplotlib.org/">matplotlib</a> from Debian Linux, issue the following command
-in the terminal:</p>
-<div class="highlight-python"><pre>sudo apt-get install python-matplotlib</pre>
+<li><p class="first"><a class="reference external" href="http://www.h5py.org/">h5py</a></p>
+<p>The h5py Python package contains tools to create, retrieve, and manipulate data
+stored using the <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> binary format. OpenMOC leverages the h5py functionality
+in its <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module which includes routines to import/export
+multi-group nuclear cross-section data to/from HDF5. In addition, the
+<tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module contains routines to import/export simulation and
+performance data to/from HDF5 output files. Although h5py and the
+<tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> and <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> modules are not required to
+run OpenMOC, they can facilitate fast access and storage of binary data.</p>
+<p>To install h5py on Ubuntu, issue the following command:</p>
+<div class="highlight-python"><pre>sudo apt-get install python-h5py</pre>
 </div>
 </li>
 </ul>
 </div>
 </div>
 <div class="section" id="obtaining-the-source">
-<h3>2.1.2. Obtaining the Source<a class="headerlink" href="#obtaining-the-source" title="Permalink to this headline">¶</a></h3>
-<p>All OpenMOC source code is hosted on <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a>. You can download the source code
-directly from GitHub or, if you have the <a class="reference external" href="http://git-scm.com">git</a> version control software installed
-on your computer, you can use git to obtain the source code. The latter method
-has the benefit that it is easy to receive updates directly from the GitHub
-repository. GitHub has a good set of <a class="reference external" href="http://help.github.com/set-up-git-redirect">instructions</a> for how to set up git to work
-with GitHub since this involves setting up <a class="reference external" href="http://en.wikipedia.org/wiki/Secure_Shell">ssh</a> keys. With git installed and
-setup, the following command will download the full source code from the GitHub
-repository:</p>
+<h2>2.2. Obtaining the Source<a class="headerlink" href="#obtaining-the-source" title="Permalink to this headline">¶</a></h2>
+<p>All OpenMOC source code is hosted on <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a>. You can download the source code directly from GitHub or, if you have the <a class="reference external" href="http://git-scm.com">Git</a> version control software installed on your computer, you can use git to obtain the source code. The latter method has the benefit that it is easy to receive updates directly from the GitHub repository. GitHub has a good set of <a class="reference external" href="http://help.github.com/set-up-git-redirect">instructions</a> for how to set up git to work with GitHub since this involves setting up <a class="reference external" href="http://en.wikipedia.org/wiki/Secure_Shell">ssh</a> keys. With git installed and setup, the following command will download the full source code from the GitHub repository:</p>
 <div class="highlight-python"><pre>git clone git://github.com/mit-crpg/OpenMOC.git</pre>
 </div>
 </div>
-<div class="section" id="id2">
-<h3>2.1.3. Building From Source<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="building-from-source">
+<h2>2.3. Building From Source<a class="headerlink" href="#building-from-source" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="standard-build-configuration">
+<h3>2.3.1. Standard Build Configuration<a class="headerlink" href="#standard-build-configuration" title="Permalink to this headline">¶</a></h3>
 <p>To compile and install the code in a user local directory (recommended), simply run the following from the console:</p>
 <div class="highlight-python"><pre>python setup.py install --user</pre>
 </div>
@@ -178,23 +162,167 @@ The main OpenMOC Python package can be imported into any Python script as follow
 </pre></div>
 </div>
 </div>
+<div class="section" id="custom-build-configuration">
+<h3>2.3.2. Custom Build Configuration<a class="headerlink" href="#custom-build-configuration" title="Permalink to this headline">¶</a></h3>
+<p>OpenMOC provides a number of user options to customize what and how OpenMOC source is compiled and built on your system. OpenMOC makes use of Python&#8217;s <a class="reference external" href="http://docs.python.org/2/library/distutils.html#module-distutils">distutils</a> build configuration management module.</p>
+<p>To view a list of all of build commands supported by Python distutils, type the following in the console:</p>
+<div class="highlight-python"><pre>python setup.py --help-commands</pre>
+</div>
+<p>To install OpenMOC, we typically recommend using the <strong class="program">install</strong> command which builds and installs the code alongside other commonly referenced Python packagaes. The <strong class="program">install</strong> command includes its own set of options, some of which are defined by OpenMOC and some of which are defined by <a class="reference external" href="http://docs.python.org/2/library/distutils.html#module-distutils">distutils</a>. To view a list of these options, type the following in the console:</p>
+<div class="highlight-python"><pre>python setup.py install --help</pre>
+</div>
+<p>The following section will provide an overview of the most useful and relevant build options for OpenMOC developers.</p>
+<dl class="option">
+<dt id="cmdoption--user">
+<tt class="descname">--user</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--user" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Installs OpenMOC in a user local directory (ie, <cite>/home/username/.local/lib/pythonX.X/site-packages</cite>) where it will only be accessible to your username. Installation without this option will instead install OpenMOC in the main Python directory accessible to all users of your machine (ie, <cite>/usr/lib/pythonX.X/site-packages/</cite>). This option is highly recommended for developers as it will prevent your Python packages from being polluted with code that has not yet been validated.</p>
+<dl class="option">
+<dt id="cmdoption--prefix">
+<tt class="descname">--prefix</tt><tt class="descclassname">=&lt;path to install OpenMOC&gt;</tt><a class="headerlink" href="#cmdoption--prefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Installs OpenMOC to an explicitly defined directory. This options is generally not useful unless your directory is included in your <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">PYTHONPATH</span></tt> such that you can import <tt class="docutils literal"><span class="pre">openmoc</span></tt> into your Python scripts.</p>
+<dl class="option">
+<dt id="cmdoption--cc">
+<tt class="descname">--cc</tt><tt class="descclassname">=&lt;gcc,icpc,bgxlc&gt;</tt><a class="headerlink" href="#cmdoption--cc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Sets the C++ compiler for the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> module. Presently, GNU&#8217;s <a class="reference external" href="http://gcc.gnu.org/">gcc</a>, Intel&#8217;s <a class="reference external" href="http://software.intel.com/en-us/intel-compilers">icpc</a> and IBM&#8217;s <a class="reference external" href="http://www-03.ibm.com/software/products/us/en/ccompfami/">bgxlc</a> are all configured if the path to the binary is pointed to by by the <span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">PATH</span></tt> environment variable. The default setting is the <strong class="program">gcc</strong> compiler.</p>
+<dl class="option">
+<dt id="cmdoption--fp">
+<tt class="descname">--fp</tt><tt class="descclassname">=&lt;single,double&gt;</tt><a class="headerlink" href="#cmdoption--fp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Sets the floating point precision level for the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> module. This sets the <span class="target" id="index-2"></span><tt class="xref std std-envvar docutils literal"><span class="pre">FP_PRECISION</span></tt> macro in the source code by setting it as an environment variable at compile time. The default setting is <span class="target" id="index-3"></span><tt class="xref std std-envvar docutils literal"><span class="pre">single</span></tt>.</p>
+<dl class="option">
+<dt id="cmdoption--with-cuda">
+<tt class="descname">--with-cuda</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-cuda" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Compiles the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module using the <strong class="program">nvcc</strong> compiler. This module contains <tt class="xref cpp cpp-class docutils literal"><span class="pre">GPUSolver</span></tt> class with MOC routines for execution on NVIDIA GPUs. The default build configuration does not include the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module.</p>
+<dl class="option">
+<dt id="cmdoption--with-gcc">
+<tt class="descname">--with-gcc</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-gcc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Compiles the <tt class="docutils literal"><span class="pre">openmoc.gnu.single</span></tt> and / or <tt class="docutils literal"><span class="pre">openmoc.gnu.double</span></tt> modules using GNU&#8217;s <strong class="program">gcc</strong> C++ compiler. If one or both of <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> and <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, <tt class="docutils literal"><span class="pre">openmoc.gnu.single</span></tt> will be built by default.</p>
+<dl class="option">
+<dt id="cmdoption--with-icpc">
+<tt class="descname">--with-icpc</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-icpc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Compiles the <tt class="docutils literal"><span class="pre">openmoc.intel.single</span></tt> and / or <tt class="docutils literal"><span class="pre">openmoc.intel.double</span></tt> modules using Intel&#8217;s <strong class="program">icpc</strong> C++ compiler. If one or both of <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> and <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, <tt class="docutils literal"><span class="pre">openmoc.intel.single</span></tt> will be built by default.</p>
+<dl class="option">
+<dt id="cmdoption--with-bgxlc">
+<tt class="descname">--with-bgxlc</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-bgxlc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Compiles the <tt class="docutils literal"><span class="pre">openmoc.bgxlc.single</span></tt> and / or <tt class="docutils literal"><span class="pre">openmoc.bgxlc.double</span></tt> modules using IBM&#8217;s <strong class="program">bgxlc</strong> C++ compiler. If one or both of <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> and <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, <tt class="docutils literal"><span class="pre">openmoc.bgxlc.single</span></tt> will be built by default.</p>
+<dl class="option">
+<dt id="cmdoption--with-sp">
+<tt class="descname">--with-sp</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-sp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Specifies the <span class="target" id="index-4"></span><tt class="xref std std-envvar docutils literal"><span class="pre">single</span></tt> floating point precision level to be used for <tt class="docutils literal"><span class="pre">openmoc.gnu.single</span></tt>, <tt class="docutils literal"><span class="pre">openmoc.intel.single</span></tt>, and / or <tt class="docutils literal"><span class="pre">openmoc.bgxlc.single</span></tt> modules. Compiles This option must be used in conjunction with the <a class="reference internal" href="#cmdoption--with-gcc"><em class="xref std std-option">--with-gcc</em></a>, <a class="reference internal" href="#cmdoption--with-icpc"><em class="xref std std-option">--with-icpc</em></a>, and / or <a class="reference internal" href="#cmdoption--with-bgxlc"><em class="xref std std-option">--with-bgxlc</em></a> options.</p>
+<dl class="option">
+<dt id="cmdoption--with-dp">
+<tt class="descname">--with-dp</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-dp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Specifies the <span class="target" id="index-5"></span><tt class="xref std std-envvar docutils literal"><span class="pre">double</span></tt> floating point precision level to be used for <tt class="docutils literal"><span class="pre">openmoc.gnu.double</span></tt>, <tt class="docutils literal"><span class="pre">openmoc.intel.double</span></tt>, and / or <tt class="docutils literal"><span class="pre">openmoc.bgxlc.double</span></tt> modules. Compiles This option must be used in conjunction with the <a class="reference internal" href="#cmdoption--with-gcc"><em class="xref std std-option">--with-gcc</em></a>, <a class="reference internal" href="#cmdoption--with-icpc"><em class="xref std std-option">--with-icpc</em></a>, and / or <a class="reference internal" href="#cmdoption--with-bgxlc"><em class="xref std std-option">--with-bgxlc</em></a> options.</p>
+<dl class="option">
+<dt id="cmdoption--debug-mode">
+<tt class="descname">--debug-mode</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--debug-mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Compiles with debugging symbols and information by including the <span class="target" id="index-6"></span><tt class="xref std std-envvar docutils literal"><span class="pre">-g</span></tt> compile flag.</p>
+<dl class="option">
+<dt id="cmdoption--with-ccache">
+<tt class="descname">--with-ccache</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-ccache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Compiles using <a class="reference external" href="http://ccache.samba.org">ccache</a> which uses a cache to speedup compilation of unchanged source files with the binaries from previous compilations. This flag is only relevant for developers needing to frequently recompile the source code. The ccache program must be installed for this flag to work.</p>
+<dl class="option">
+<dt id="cmdoption--with-papi">
+<tt class="descname">--with-papi</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-papi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Compiles all <tt class="xref cpp cpp-class docutils literal"><span class="pre">Solver</span></tt> derived classes with <a class="reference external" href="http://icl.cs.utk.edu/papi/">PAPI</a> instrumentation for performance counter measurements.</p>
+</div>
+</div>
+<div class="section" id="installing-on-ubuntu-with-ppa">
+<h2>2.4. Installing on Ubuntu with PPA<a class="headerlink" href="#installing-on-ubuntu-with-ppa" title="Permalink to this headline">¶</a></h2>
+<p>A binary package for Debian Linux derivatives, such as Ubuntu, is under development. Please check back at a later time for further updates.</p>
 </div>
 </div>
 
 
+          </div>
+        </div>
       </div>
-      <div class="bottomnav">
-      
-        <p>
-        «&#160;&#160;<a href="beginners.html">1. A Beginner&#8217;s Guide to OpenMOC</a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="input.html">3. Writing Python Input Files</a>&#160;&#160;»
-        </p>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Installation and Configuration</a><ul>
+<li><a class="reference internal" href="#prerequisites">2.1. Prerequisites</a></li>
+<li><a class="reference internal" href="#obtaining-the-source">2.2. Obtaining the Source</a></li>
+<li><a class="reference internal" href="#building-from-source">2.3. Building From Source</a><ul>
+<li><a class="reference internal" href="#standard-build-configuration">2.3.1. Standard Build Configuration</a></li>
+<li><a class="reference internal" href="#custom-build-configuration">2.3.2. Custom Build Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installing-on-ubuntu-with-ppa">2.4. Installing on Ubuntu with PPA</a></li>
+</ul>
+</li>
+</ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="beginners.html"
+                        title="previous chapter">1. A Beginner&#8217;s Guide to OpenMOC</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="input.html"
+                        title="next chapter">3. Writing Python Input Files</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/usersguide/install.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
       </div>
-
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="input.html" title="3. Writing Python Input Files"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="beginners.html" title="1. A Beginner’s Guide to OpenMOC"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
