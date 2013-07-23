@@ -12,7 +12,7 @@ There are no special requirements for running the OpenMOC code. As of this
 release, OpenMOC has been tested on a variety of Linux distributions as well as
 Mac OS X. However, it has not been tested yet on any releases of Microsoft
 Windows. Memory requirements will vary depending on the size of the problem at
-hand (mostly on the number of flat source regions and the level of track discretization).
+hand (the number of flat source regions and the level of track discretization).
 
 ------------
 New Features
