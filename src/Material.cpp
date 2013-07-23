@@ -225,11 +225,65 @@ int Material::getNumVectorGroups() {
  * @param num_groups the number of energy groups.
  */
 void Material::setNumEnergyGroups(const int num_groups) {
+
     if (num_groups < 0)
         log_printf(ERROR, "Unable to set the number of energy groups for "
                    "material %d to %d", _num_groups);
 
     _num_groups = num_groups;
+
+    /* Free old memory arrays if they have already been allocated 
+     * for a previous simulation */
+    /* If data is vector aligned */
+    if (_data_aligned) {
+        if (_sigma_t != NULL)
+	    _mm_free(_sigma_t);
+
+	if (_sigma_a != NULL)
+	    _mm_free(_sigma_a);
+
+	if (_sigma_s != NULL)
+	    _mm_free(_sigma_s);
+	
+	if (_sigma_f != NULL)
+	    _mm_free(_sigma_f);
+	
+	if (_nu_sigma_f != NULL)
+	    _mm_free(_nu_sigma_f);
+	
+	if (_chi != NULL)
+	    _mm_free(_chi);
+    }
+
+    /* Data is not vector aligned */
+    else {
+        if (_sigma_t != NULL)
+	    delete [] _sigma_t;
+
+	if (_sigma_a != NULL)
+	    delete [] _sigma_a;
+
+	if (_sigma_s != NULL)
+	    delete [] _sigma_s;
+	
+	if (_sigma_f != NULL)
+	    delete [] _sigma_f;
+	
+	if (_nu_sigma_f != NULL)
+	    delete [] _nu_sigma_f;
+	
+	if (_chi != NULL)
+	    delete [] _chi;
+    }
+
+
+    _sigma_t = new double[_num_groups];
+    _sigma_a = new double[_num_groups];
+    _sigma_f = new double[_num_groups];
+    _nu_sigma_f = new double[_num_groups];
+    _chi = new double[_num_groups];
+    _sigma_s = new double[_num_groups*_num_groups];
+
 }
 
 /**
@@ -243,10 +297,18 @@ void Material::setSigmaT(double* sigma_t, int num_groups) {
                  "%d which contains %d energy groups", num_groups,
                  _num_groups);
 
-    _sigma_t = new double[_num_groups];
-
     for (int i=0; i < _num_groups; i++)
         _sigma_t[i] = sigma_t[i];
+}
+
+
+void Material::setSigmaT(double sigma_t, int group) {
+
+    if (group < 0 || group >= _num_groups)
+      log_printf(ERROR, "Unable to set sigma_t for group %d for material "
+                 "%d which contains %d energy groups", group, _uid, _num_groups);
+
+    _sigma_t[group] = sigma_t;
 }
 
 
@@ -262,11 +324,20 @@ void Material::setSigmaA(double* sigma_a, int num_groups) {
                  "%d which contains %d energy groups", num_groups,
                  _num_groups);
 
-    _sigma_a = new double[_num_groups];
-
     for (int i=0; i < _num_groups; i++)
         _sigma_a[i] = sigma_a[i];
 }
+
+
+void Material::setSigmaA(double sigma_a, int group) {
+
+    if (group < 0 || group >= _num_groups)
+      log_printf(ERROR, "Unable to set sigma_a for group %d for material "
+                 "%d which contains %d energy groups", group, _uid, _num_groups);
+
+    _sigma_a[group] = sigma_a;
+}
+
 
 
 
@@ -287,14 +358,24 @@ void Material::setSigmaS(double* sigma_s, int num_groups_squared) {
 		   "%d which contains %d energy groups", 
 		   float(sqrt(num_groups_squared)), _num_groups);
 
-    _sigma_s = new double[_num_groups*_num_groups];
-
     for (int i=0; i < _num_groups; i++) {
         for (int j=0; j < _num_groups; j++)
             _sigma_s[j*_num_groups+i] = sigma_s[i*_num_groups+j];
     }
     
 }
+
+
+void Material::setSigmaS(double sigma_s, int group1, int group2) {
+
+    if (group1 < 0 || group2 < 0 || group1 >= _num_groups || group2 >= _num_groups)
+      log_printf(ERROR, "Unable to set sigma_s for group %d,%d for material "
+                 "%d which contains %d energy groups", group1, group2, _uid,
+                 _num_groups);
+
+    _sigma_s[_num_groups*group1 + group2] = sigma_s;
+}
+
 
 
 /**
@@ -308,11 +389,20 @@ void Material::setSigmaF(double* sigma_f, int num_groups) {
                  "%d which contains %d energy groups", num_groups,
                  _num_groups);
 
-    _sigma_f = new double[_num_groups];
-
     for (int i=0; i < _num_groups; i++)
         _sigma_f[i] = sigma_f[i];
 }
+
+
+void Material::setSigmaF(double sigma_f, int group) {
+
+    if (group < 0 || group >= _num_groups)
+      log_printf(ERROR, "Unable to set sigma_f for group %d for material "
+                 "%d which contains %d energy groups", group, _uid, _num_groups);
+
+    _sigma_f[group] = sigma_f;
+}
+
 
 
 /**
@@ -323,16 +413,25 @@ void Material::setSigmaF(double* sigma_f, int num_groups) {
  * @param num_groups the number of energy groups 
 */
 void Material::setNuSigmaF(double* nu_sigma_f, int num_groups) {
+
     if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set nu_sigma_f with %d groups for material "
-                 "%d which contains %d energy groups", num_groups,
-                 _num_groups);
-
-    _nu_sigma_f = new double[_num_groups];
+                 "%d which contains %d energy groups", num_groups, _uid, _num_groups);
 
     for (int i=0; i < _num_groups; i++)
         _nu_sigma_f[i] = nu_sigma_f[i];
 }
+
+
+void Material::setNuSigmaF(double nu_sigma_f, int group) {
+
+    if (group < 0 || group >= _num_groups)
+      log_printf(ERROR, "Unable to set nu_sigma_f for group %d for material "
+                 "%d which contains %d energy groups", group, _uid);
+
+    _nu_sigma_f[group] = nu_sigma_f;
+}
+
 
 
 /**
@@ -347,11 +446,20 @@ void Material::setChi(double* chi, int num_groups) {
                  "%d which contains %d energy groups", num_groups,
                  _num_groups);
 
-    _chi = new double[_num_groups];
-
     for (int i=0; i < _num_groups; i++)
         _chi[i] = chi[i];
 }
+
+
+void Material::setChi(double chi, int group) {
+
+    if (group < 0 || group >= _num_groups)
+        log_printf(ERROR, "Unable to set chi for group %d for material "
+		   "%d which contains %d energy groups", group, _num_groups, _uid);
+
+    _chi[group] = chi;
+}
+
 
 
 /**
