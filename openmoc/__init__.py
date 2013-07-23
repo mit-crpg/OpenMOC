@@ -1,5 +1,5 @@
 import _openmoc
-import openmoc
+from openmoc import *
 import os
 import random
 import datetime
@@ -9,4 +9,4 @@ now = datetime.datetime.now()
 current_time = str(now.month) + '-' + str(now.day) + '-' + str(now.year) + '--' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second)
 setLogfileName('log/openmoc-' + current_time + '.log');
 
-Timer = openmoc.Timer()
+Timer = Timer()

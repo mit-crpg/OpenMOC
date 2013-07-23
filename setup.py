@@ -243,6 +243,14 @@ def customize_compiler(self):
 
             postargs = config.compiler_flags['icpc']
 
+        # If BGXLC is a defined macro and the source is C++, use bgxlc
+        elif '-DBGXLC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+            if config.with_ccache:
+                self.set_executable('compiler_so', 'bgxlc++')
+            else:
+                self.set_executable('compiler_so', 'bgxlc++')
+            postargs = config.compiler_flags['bgxlc']
+
 
         # If CUDA is a defined macro and the source is C++, compile 
         # SWIG-wrapped CUDA code with gcc
@@ -319,6 +327,10 @@ def customize_linker(self):
                     objects = [o for o in objects if o is not obj]
                 elif 'gnu' not in output_filename and 'gnu' in obj:
                     objects = [o for o in objects if o is not obj]
+                if 'bgxlc' in output_filename and 'bgxlc' not in obj:  
+                    objects = [o for o in objects if o is not obj]
+                elif 'bgxlc' not in output_filename and 'bgxlc' in obj:
+                    objects = [o for o in objects if o is not obj]
 
                 if 'single' in output_filename and 'single' not in obj:
                     objects = [o for o in objects if o is not obj]
@@ -342,11 +354,16 @@ def customize_linker(self):
             self.set_executable('linker_so', 'icpc')
             self.set_executable('linker_exe', 'icpc')
 
+        # If the linker receives -qmkshrobj as an option, then the objects
+        # are build by an IBM compiler
+        if '-qmkshrobj' in extra_postargs:
+            self.set_executable('linker_so', 'bgxlc++')
+            self.set_executable('linker_exe', 'bgxlc++')
+
         # If the filename for the extension contains cuda, use g++ to link
         if 'cuda' in output_filename:
             self.set_executable('linker_so', 'g++')
             self.set_executable('linker_exe', 'g++')
-
         
         # Now call distutils-defined link method
         super_link(target_desc, objects,
