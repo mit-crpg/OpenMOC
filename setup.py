@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 from distutils.command.build_ext import build_ext
 from distutils.command.install import install
 from distutils.errors import DistutilsOptionError
@@ -125,17 +125,17 @@ class custom_install(install):
 
         # Check that the user specified a supported C++ compiler
         if self.cc not in ['gcc', 'icpc', 'bgxlc']:
-            raise DistutilsOptionError, \
-                ("Must supply the -cc flag with one of the supported " +
-                 "C++ compilers: gcc, icpc, bgxlc")
+            raise DistutilsOptionError \
+                ('Must supply the -cc flag with one of the supported ' +
+                 'C++ compilers: gcc, icpc, bgxlc')
         else:
             config.cc = self.cc
 
         # Check that the user specified a supported floating point precision
         if self.fp not in ['single', 'double']:
-            raise DistutilsOptionError, \
-                ("Must supply the -cc flag with one of the supported " +
-                 "floating point precision levels: single, double")
+            raise DistutilsOptionError \
+                ('Must supply the -cc flag with one of the supported ' +
+                 'floating point precision levels: single, double')
         else:
             config.fp = self.fp
 
@@ -173,9 +173,9 @@ class custom_install(install):
             
             # If no compiler was specified, thrown an error
             if not any([self.with_gcc, self.with_icpc, not self.with_bgxlc]):
-                raise DistutilsOptionError, \
-                    ("Must supply either with-gcc/with-icpc/with-bgxlc for " +
-                     "the with-sp option")
+                raise DistutilsOptionError \
+                    ('Must supply either with-gcc/with-icpc/with-bgxlc for ' +
+                     'the with-sp option')
             
             # Otherwise add the single precision option
             else:
@@ -188,10 +188,10 @@ class custom_install(install):
             
             # If no compiler was specified, thrown an error
             if not any([self.with_gcc, self.with_icpc, not self.with_bgxlc]):
-                raise DistutilsOptionError, \
-                    ("Must supply either with-gcc/with-icpc/with-bgxlc for " +
-                     "the with-dp option")
-            
+                raise DistutilsOptionError \
+                    ('Must supply either with-gcc/with-icpc/with-bgxlc for ' +
+                     'the with-dp option')
+
             # Otherwise add the double precision option
             else:
                 config.fp_precision += ['double']

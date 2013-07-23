@@ -3,13 +3,49 @@ from distutils.extension import Extension
 from distutils.util import get_platform
 
 
-def distutils_dir_name():
+
+def get_openmoc_object_name():
+    """Returns the name of the main openmoc shared library object"""
+
+    # For Python 2.X.X
+    if (sys.version_info[0] == 2):
+        filename = '_openmoc.so'
+
+    # For Python 3.X.X
+    # NOTE: Python 3 distributions are not yet working with SWIG, but this
+    # is a stub for the future
+    elif (sys.version_info[0] == 3):
+        filename = '_openmoc.cpython-{version[0]}{version[1]}mu.so'
+        filename = filename.format(version=sys.version_info)
+
+    return filename
+
+
+
+def get_shared_object_path():
     """Returns the name of the distutils build directory"""
     
-    directory = "build/lib.{platform}-{version[0]}.{version[1]}"
-    
-    return directory.format(platform=get_platform(),
-                            version=sys.version_info)
+    # For Python 2.X.X
+    if (sys.version_info[0] == 2):
+        directory = 'build/lib.{platform}-{version[0]}.{version[1]}'
+        directory = directory.format(platform=get_platform(), 
+                                     version=sys.version_info)
+
+    # For Python 3.X.X
+    # NOTE: Python 3 distributions are not yet working with SWIG, but this is
+    # a stub for the future
+    elif (sys.version_info[0] == 3):
+        directory = 'build/lib'
+
+    return directory
+
+
+
+def get_openmoc():
+    """Returns the path and name of the main shared library object"""
+
+    return get_shared_object_path() + '/' + get_openmoc_object_name()
+
 
 
 class configuration:
@@ -154,10 +190,13 @@ class configuration:
     # A dictionary of the linker flags to use for each compiler type
     linker_flags = {}
 
-    linker_flags['gcc'] = ['-fopenmp', '-shared', '-Wl,-soname,_openmoc.so']
+    linker_flags['gcc'] = ['-fopenmp', '-shared', 
+                           '-Wl,-soname,' + get_openmoc_object_name()]
+                           #'-Wl,-soname,_openmoc.so']
     linker_flags['icpc'] = [ '-openmp', '-shared', 
-                             '-Xlinker', '-soname=_openmoc.so']
-    linker_flags['nvcc'] = ['-shared', distutils_dir_name() + '/_openmoc.so']
+                             '-Xlinker', '-soname=' + get_openmoc_object_name()]
+    #_openmoc.so']
+    linker_flags['nvcc'] = ['-shared', get_openmoc()]
 
 
 
@@ -209,7 +248,6 @@ class configuration:
 
     # A list of the flags for SWIG
     swig_flags = ['-c++', '-keyword']
-
 
 
     ###########################################################################
