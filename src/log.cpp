@@ -309,7 +309,7 @@ void log_printf(logLevel level, const char *format, ...) {
             }
 	    case (SEPARATOR):
             {
-                std::string pad = std::string(line_length, separator_char);
+	        std::string pad = std::string(line_length, separator_char);
                 std::string prefix = std::string("[SEPARATOR]  ");
                 std::stringstream ss;
                 ss << prefix << pad << "\n";
