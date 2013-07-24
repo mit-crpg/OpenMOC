@@ -73,11 +73,3 @@ class options:
 
             elif opt in ('--max-iters'):
                 self.max_iters = int(arg)
-
-        print self.num_omp_threads
-        print self.num_azim
-        print self.track_spacing
-        print self.max_iters
-        print self.tolerance
-        print self.num_gpu_threads
-        print self.num_thread_blocks
