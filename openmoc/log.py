@@ -12,7 +12,6 @@
 # @date March 15, 2013
 
 
-import numpy
 import openmoc
 
 

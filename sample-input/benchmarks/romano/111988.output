@@ -1,0 +1,34 @@
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]                Simulating HW3 from Fall 2010 22.212...              
+[  TITLE  ]  *******************************************************************
+[  NORMAL ]  Creating materials...
+[  NORMAL ]  Creating surfaces...
+[  NORMAL ]  Creating cells...
+[  NORMAL ]  Creating simple pin cell lattice...
+[  NORMAL ]  Creating geometry...
+[  NORMAL ]  Number of flat source regions: 2
+[  NORMAL ]  Initializing the track generator...
+[  NORMAL ]  Reading tracks in from file
+[  NORMAL ]  Initializing track boundary conditions...
+[  NORMAL ]  Converging the source...
+[  NORMAL ]  Iteration 0: 	k_eff = 1.000000	res = 0.000E+00
+[  NORMAL ]  Iteration 1: 	k_eff = 1.290507	res = 1.000E+00
+[  NORMAL ]  Iteration 2: 	k_eff = 1.278119	res = 6.880E-02
+[  NORMAL ]  Iteration 3: 	k_eff = 1.280846	res = 6.296E-02
+[  NORMAL ]  Iteration 4: 	k_eff = 1.280014	res = 1.425E-02
+[  NORMAL ]  Iteration 5: 	k_eff = 1.280218	res = 4.313E-03
+[  NORMAL ]  Iteration 6: 	k_eff = 1.280163	res = 1.059E-03
+[  NORMAL ]  Iteration 7: 	k_eff = 1.280183	res = 2.862E-04
+[  NORMAL ]  Iteration 8: 	k_eff = 1.280177	res = 1.011E-04
+[  NORMAL ]  Iteration 9: 	k_eff = 1.280179	res = 2.617E-05
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]                             TIMING REPORT                           
+[  TITLE  ]  *******************************************************************
+[  RESULT ]  Total time to solution...............................2.4861E+06 sec
+[  RESULT ]  Solution time per unknown............................1.2431E+06 sec
+[  RESULT ]  Solution time per iteration..........................2.4861E+05 sec
+[  RESULT ]  Integration time per track segment...................4.7958E+01 sec
+[SEPARATOR]  *******************************************************************
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]                               Finished                             
+[  TITLE  ]  *******************************************************************

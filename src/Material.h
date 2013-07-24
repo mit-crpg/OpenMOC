@@ -16,11 +16,9 @@
 #include "log.h"
 #endif
 
-#if HOSTNAME==vestalac1
+#ifndef ICPC
 #define _mm_free(array) free(array)
 #define _mm_malloc(size,alignment) malloc(size)
-#else
-#include <mm_malloc.h>
 #endif
 
 /** Error threshold for determining how close the sum of \f$ \Sigma_a \f$ 

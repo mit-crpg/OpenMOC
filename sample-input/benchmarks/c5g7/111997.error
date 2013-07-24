@@ -1,0 +1,16 @@
+2013-07-24 01:50:19.944 (INFO ) [0xfffb75eb970] 17952:ibm.runjob.AbstractOptions: using properties file /bgsys/local/etc/bg.properties
+2013-07-24 01:50:19.945 (INFO ) [0xfffb75eb970] 17952:ibm.runjob.AbstractOptions: max open file descriptors: 65536
+2013-07-24 01:50:19.945 (INFO ) [0xfffb75eb970] 17952:ibm.runjob.AbstractOptions: core file limit: 0
+2013-07-24 01:50:19.945 (INFO ) [0xfffb75eb970] 17952:tatu.runjob.client: scheduler job id is 111997
+2013-07-24 01:50:19.948 (INFO ) [0xfffb7bf3290] 17952:tatu.runjob.monitor: monitor started
+2013-07-24 01:50:19.949 (INFO ) [0xfffb75eb970] VST-22460-33571-32:17952:ibm.runjob.client.options.Parser: set local socket to runjob_mux from properties file
+2013-07-24 01:50:21.947 (INFO ) [0xfffb75eb970] VST-22460-33571-32:440655:ibm.runjob.client.Job: job 440655 started
+Unknown option: -f
+usage: /bgsys/tools/python2.6.7-20120410/bin/python [option] ... [-c cmd | -m mod | file | -] [arg] ...
+Try `python -h' for more information.
+2013-07-24 01:50:23.689 (INFO ) [0xfffb7bf3290] 17952:tatu.runjob.monitor: tracklib completed
+2013-07-24 01:50:23.867 (INFO ) [0xfffb75eb970] VST-22460-33571-32:440655:ibm.runjob.client.Job: exited with status 2
+2013-07-24 01:50:23.867 (WARN ) [0xfffb75eb970] VST-22460-33571-32:440655:ibm.runjob.client.Job: normal termination with status 2 from rank 0
+2013-07-24 01:50:23.867 (INFO ) [0xfffb75eb970] tatu.runjob.client: task exited with status 2
+2013-07-24 01:50:23.868 (INFO ) [0xfffb7bf3290] 17952:tatu.runjob.monitor: monitor terminating
+2013-07-24 01:50:23.869 (INFO ) [0xfffb75eb970] tatu.runjob.client: monitor completed

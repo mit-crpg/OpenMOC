@@ -1,0 +1,5 @@
+/usr/bin/qsub.py -A mit_openmc -n 1 --mode=c1 -t 30 --env PYTHONPATH=/gpfs/vesta-home/wboyd/.local/lib/python2.6/site-packages/openmoc-0.1-py2.6-linux-ppc64.egg/openmoc/bgxlc/double:/gpfs/vesta-home/wboyd/.local/lib/python2.6/site-packages:/gpfs/vesta-home/wboyd/.local/lib/python2.6/site-packages/openmoc-0.1-py2.6-linux-ppc64.egg /bgsys/tools/python2.6.7-20120410/bin/python c5g7-bgq.py
+
+submitted with cwd set to: /gpfs/vesta-home/wboyd/openmoc/sample-input/benchmarks/c5g7
+
+wboyd/112021: Initiating boot at location VST-22640-33731-32.

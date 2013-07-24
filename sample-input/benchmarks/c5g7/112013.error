@@ -1,0 +1,19 @@
+2013-07-24 02:22:03.566 (INFO ) [0xfffb75eb970] 17766:ibm.runjob.AbstractOptions: using properties file /bgsys/local/etc/bg.properties
+2013-07-24 02:22:03.568 (INFO ) [0xfffb75eb970] 17766:ibm.runjob.AbstractOptions: max open file descriptors: 65536
+2013-07-24 02:22:03.568 (INFO ) [0xfffb75eb970] 17766:ibm.runjob.AbstractOptions: core file limit: 0
+2013-07-24 02:22:03.568 (INFO ) [0xfffb75eb970] 17766:tatu.runjob.client: scheduler job id is 112013
+2013-07-24 02:22:03.571 (INFO ) [0xfffb7bf3290] 17766:tatu.runjob.monitor: monitor started
+2013-07-24 02:22:03.572 (INFO ) [0xfffb75eb970] VST-00660-11771-32:17766:ibm.runjob.client.options.Parser: set local socket to runjob_mux from properties file
+2013-07-24 02:22:05.566 (INFO ) [0xfffb75eb970] VST-00660-11771-32:440685:ibm.runjob.client.Job: job 440685 started
+2013-07-24 02:22:07.614 (INFO ) [0xfffb7bf3290] 17766:tatu.runjob.monitor: tracklib completed
+2013-07-24 02:51:12.199 (WARN ) [0xfffb75eb970] VST-00660-11771-32:ibm.runjob.LogSignalInfo: received signal 15
+2013-07-24 02:51:12.200 (WARN ) [0xfffb75eb970] VST-00660-11771-32:ibm.runjob.LogSignalInfo: signal sent from USER
+2013-07-24 02:51:12.200 (WARN ) [0xfffb75eb970] VST-00660-11771-32:ibm.runjob.LogSignalInfo: sent from pid 30705
+2013-07-24 02:51:12.200 (WARN ) [0xfffb75eb970] VST-00660-11771-32:ibm.runjob.LogSignalInfo: could not read /proc/30705/exe
+2013-07-24 02:51:12.200 (WARN ) [0xfffb75eb970] VST-00660-11771-32:ibm.runjob.LogSignalInfo: Permission denied
+2013-07-24 02:51:12.200 (WARN ) [0xfffb75eb970] VST-00660-11771-32:ibm.runjob.LogSignalInfo: sent from uid 0 (root)
+2013-07-24 02:51:14.062 (WARN ) [0xfffb75eb970] VST-00660-11771-32:440685:ibm.runjob.client.Job: terminated by signal 9
+2013-07-24 02:51:14.062 (WARN ) [0xfffb75eb970] VST-00660-11771-32:440685:ibm.runjob.client.Job: abnormal termination by signal 9 from rank 0
+2013-07-24 02:51:14.063 (INFO ) [0xfffb75eb970] tatu.runjob.client: task terminated by signal 9
+2013-07-24 02:51:14.063 (INFO ) [0xfffb7bf3290] 17766:tatu.runjob.monitor: monitor terminating
+2013-07-24 02:51:14.065 (INFO ) [0xfffb75eb970] tatu.runjob.client: monitor completed

@@ -94,6 +94,10 @@ class configuration:
     # Compile with PAPI instrumentation
     with_papi = False
 
+    # Compile with NumPy typemaps and the C API to allow users to pass NumPy
+    # arrays to/from the C++ source code
+    with_numpy = True
+
     # The vector length used for the VectorizedSolver class. This will used
     # as a hint for the Intel compiler to issue SIMD (ie, SSE, AVX, etc) vector 
     # instructions. This is accomplished by adding "dummy" energy groups such 
@@ -350,7 +354,7 @@ class configuration:
         Create list of extensions for Python modules within the openmoc 
         Python package based on the user-defined flags defined at compile time.
         """
-    
+
         # If the user selected 'all' compilers, enumerate them
         if self.cpp_compilers == ['all']:
             self.cpp_compilers = ['gcc', 'icpc', 'nvcc']
@@ -361,12 +365,14 @@ class configuration:
 
         # If the user wishes to compile using debug mode, append the debugging
         # flag to all lists of compiler flags for all distribution types 
-        # (ie, gcc, icpc, etc)
-        # NOTE: Developers may need to modify this  enumeration to include 
-        # compiler-specific debugging flags
         if self.debug_mode:
             for k in self.compiler_flags:
                 self.compiler_flags[k].append('-g')
+
+        # If the user passed in the --no-numpy flag, tell SWIG not to embed 
+        # NumPy typemaps in the source code
+        if not self.with_numpy:
+            self.swig_flags += ['-DNO_NUMPY']
         
         # The main openmoc extension (defaults are gcc and single precision)
         self.extensions.append(
@@ -377,7 +383,7 @@ class configuration:
                       extra_link_args = self.linker_flags[self.cc], 
                       include_dirs = self.include_directories[self.cc],
                       define_macros = self.macros[self.cc][self.fp],
-                      swig_opts = self.swig_flags))
+                      swig_opts = self.swig_flags + ['-D' + self.cc.upper()]))
 
         # Remove the main SWIG configuration file for builds of other extensions
         # (ie, openmoc.gnu.*, openmoc.intel.*, etc) 
@@ -398,7 +404,7 @@ class configuration:
                           extra_link_args = self.linker_flags['nvcc'], 
                           include_dirs = self.include_directories['nvcc'],
                           define_macros = self.macros['nvcc'][self.fp],
-                          swig_opts = self.swig_flags,
+                          swig_opts = self.swig_flags  + ['-DNVCC'],
                           export_symbols = ['init_openmoc']))
         
             # REmove the main SWIG configuration file for builds of other 
@@ -450,4 +456,4 @@ class configuration:
                               extra_link_args = self.linker_flags[cc], 
                               include_dirs = self.include_directories[cc],
                               define_macros = self.macros[cc][fp],
-                              swig_opts = self.swig_flags))
+                              swig_opts = self.swig_flags + ['-D' + cc.upper()]))
