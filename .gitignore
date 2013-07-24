@@ -81,4 +81,11 @@ docs/doxygen/xml
 docs/doxyge/xml/*
 
 # BGQ
-*.lst
+*.lst.
+
+*.cobaltlog
+*/*.cobaltlog
+*.error
+*/*.error
+*.output
+*/*.output
