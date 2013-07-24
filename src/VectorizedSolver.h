@@ -14,7 +14,6 @@
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
-#include <mm_malloc.h>
 #include <mkl.h>
 #include "CPUSolver.h"
 #endif
