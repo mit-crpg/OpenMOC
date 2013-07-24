@@ -1,0 +1,133 @@
+from openmoc import *
+import openmoc.log as log
+
+
+###############################################################################
+#######################   Main Simulation Parameters   ########################
+###############################################################################
+
+num_threads = 1
+track_spacing = 0.01
+num_azim = 32
+tolerance = 1E-5
+max_iters = 1000
+gridsize = 500
+
+log.setLogLevel('NORMAL')
+
+log.py_printf('TITLE', 'Simulating HW3 from Fall 2010 22.212...')
+
+
+###############################################################################
+###########################   Creating Materials   ############################
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating materials...')
+
+fuel = Material(1)
+moderator = Material(2)
+
+fuel.setNumEnergyGroups(1)
+moderator.setNumEnergyGroups(1)
+
+fuel.setSigmaA(0.069389522, 0)
+fuel.setSigmaT(0.452648699, 0)
+fuel.setSigmaF(0.0414198575, 0)
+fuel.setNuSigmaF(0.0994076580, 0)
+fuel.setSigmaS(0.38259177, 0, 0)
+fuel.setChi(1.0, 0)
+
+moderator.setSigmaA(0.003751099, 0) 
+moderator.setSigmaT(0.841545641, 0)
+moderator.setSigmaF(0.0, 0)
+moderator.setNuSigmaF(0.0, 0)
+moderator.setSigmaS(0.837794542, 0, 0)
+moderator.setChi(1.0, 0)
+
+
+###############################################################################
+###########################   Creating Surfaces   #############################
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating surfaces...')
+
+circle = Circle(x=0.0, y=0.0, radius=0.4)
+left = XPlane(x=-0.635)
+right = XPlane(x=0.635)
+top = YPlane(y=0.635)
+bottom = YPlane(y=-0.635)
+
+left.setBoundaryType(REFLECTIVE)
+right.setBoundaryType(REFLECTIVE)
+top.setBoundaryType(REFLECTIVE)
+bottom.setBoundaryType(REFLECTIVE)
+
+
+###############################################################################
+#############################   Creating Cells   ##############################
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating cells...')
+
+cells = []
+cells.append(CellBasic(universe=1, material=1))
+cells.append(CellBasic(universe=1, material=2))
+cells.append(CellFill(universe=0, universe_fill=2))
+
+cells[0].addSurface(halfspace=-1, surface=circle)
+cells[1].addSurface(halfspace=+1, surface=circle)
+cells[2].addSurface(halfspace=+1, surface=left)
+cells[2].addSurface(halfspace=-1, surface=right)
+cells[2].addSurface(halfspace=+1, surface=bottom)
+cells[2].addSurface(halfspace=-1, surface=top)
+
+
+###############################################################################
+###########################   Creating Lattices   #############################
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
+
+lattice = Lattice(id=2, width_x=1.27, width_y=1.27)
+lattice.setLatticeCells([[1]])
+
+
+###############################################################################
+##########################   Creating the Geometry   ##########################
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating geometry...')
+
+geometry = Geometry()
+geometry.addMaterial(fuel)
+geometry.addMaterial(moderator)
+geometry.addCell(cells[0])
+geometry.addCell(cells[1])
+geometry.addCell(cells[2])
+geometry.addLattice(lattice)
+
+geometry.initializeFlatSourceRegions()
+
+
+###############################################################################
+########################   Creating the TrackGenerator   ######################
+###############################################################################
+
+log.py_printf('NORMAL', 'Initializing the track generator...')
+
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.generateTracks()
+
+
+###############################################################################
+###########################   Running a Simulation   ##########################
+###############################################################################
+
+solver = ThreadPrivateSolver(geometry, track_generator)
+solver.setNumThreads(num_threads)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.convergeSource(max_iters)
+solver.printTimerReport()
+
+
+log.py_printf('TITLE', 'Finished')

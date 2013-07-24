@@ -36,13 +36,16 @@
     }
 }
 
-
+#ifdef NO_NUMPY
+#else
 %include "../numpy.i"
-
 
 %init %{
      import_array();
 %}
+
+#endif
+
 
 %include <exception.i> 
 %include ../../src/Solver.h

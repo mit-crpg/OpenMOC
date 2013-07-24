@@ -1,0 +1,16 @@
+2013-07-24 01:24:29.417 (INFO ) [0xfffb75eb970] 28089:ibm.runjob.AbstractOptions: using properties file /bgsys/local/etc/bg.properties
+2013-07-24 01:24:29.418 (INFO ) [0xfffb75eb970] 28089:ibm.runjob.AbstractOptions: max open file descriptors: 65536
+2013-07-24 01:24:29.418 (INFO ) [0xfffb75eb970] 28089:ibm.runjob.AbstractOptions: core file limit: 0
+2013-07-24 01:24:29.418 (INFO ) [0xfffb75eb970] 28089:tatu.runjob.client: scheduler job id is 111994
+2013-07-24 01:24:29.421 (INFO ) [0xfffb7bf3290] 28089:tatu.runjob.monitor: monitor started
+2013-07-24 01:24:29.422 (INFO ) [0xfffb75eb970] VST-00640-11751-32:28089:ibm.runjob.client.options.Parser: set local socket to runjob_mux from properties file
+2013-07-24 01:24:31.409 (INFO ) [0xfffb75eb970] VST-00640-11751-32:440632:ibm.runjob.client.Job: job 440632 started
+Python 2.6.7 (r267:88850, Apr 10 2012, 20:09:22) 
+[GCC 4.4.6] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> 
+2013-07-24 01:24:33.358 (INFO ) [0xfffb7bf3290] 28089:tatu.runjob.monitor: tracklib completed
+2013-07-24 01:24:33.695 (INFO ) [0xfffb75eb970] VST-00640-11751-32:440632:ibm.runjob.client.Job: exited with status 0
+2013-07-24 01:24:33.695 (INFO ) [0xfffb75eb970] tatu.runjob.client: task exited with status 0
+2013-07-24 01:24:33.696 (INFO ) [0xfffb7bf3290] 28089:tatu.runjob.monitor: monitor terminating
+2013-07-24 01:24:33.697 (INFO ) [0xfffb75eb970] tatu.runjob.client: monitor completed

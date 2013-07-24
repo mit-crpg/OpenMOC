@@ -1,0 +1,71 @@
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]         Simulating a one group homogeneous infinite medium...       
+[  TITLE  ]  *******************************************************************
+[  HEADER ]  *****************  The reference keff = 1.43...  ******************
+[  NORMAL ]  Creating materials...
+[  NORMAL ]  Creating surfaces...
+[  NORMAL ]  Creating cells...
+[  NORMAL ]  Creating simple pin cell lattice...
+[  NORMAL ]  Creating geometry...
+[  NORMAL ]  Number of flat source regions: 9
+[  NORMAL ]  Initializing the track generator...
+[  NORMAL ]  Reading tracks in from file
+[  NORMAL ]  Initializing track boundary conditions...
+[  NORMAL ]  Converging the source...
+[  NORMAL ]  Iteration 0: 	k_eff = 1.000000	res = 0.000E+00
+[  NORMAL ]  Iteration 1: 	k_eff = 1.432604	res = 1.000E+00
+[  NORMAL ]  Iteration 2: 	k_eff = 1.432603	res = 6.108E-02
+[  NORMAL ]  Iteration 3: 	k_eff = 1.432603	res = 7.550E-04
+[  NORMAL ]  Iteration 4: 	k_eff = 1.432604	res = 5.283E-04
+[  NORMAL ]  Iteration 5: 	k_eff = 1.432603	res = 4.170E-04
+[  NORMAL ]  Iteration 6: 	k_eff = 1.432603	res = 3.513E-04
+[  NORMAL ]  Iteration 7: 	k_eff = 1.432603	res = 3.086E-04
+[  NORMAL ]  Iteration 8: 	k_eff = 1.432604	res = 2.768E-04
+[  NORMAL ]  Iteration 9: 	k_eff = 1.432603	res = 2.514E-04
+[  NORMAL ]  Iteration 10: 	k_eff = 1.432603	res = 2.290E-04
+[  NORMAL ]  Iteration 11: 	k_eff = 1.432603	res = 2.091E-04
+[  NORMAL ]  Iteration 12: 	k_eff = 1.432603	res = 1.916E-04
+[  NORMAL ]  Iteration 13: 	k_eff = 1.432603	res = 1.754E-04
+[  NORMAL ]  Iteration 14: 	k_eff = 1.432603	res = 1.604E-04
+[  NORMAL ]  Iteration 15: 	k_eff = 1.432603	res = 1.467E-04
+[  NORMAL ]  Iteration 16: 	k_eff = 1.432603	res = 1.341E-04
+[  NORMAL ]  Iteration 17: 	k_eff = 1.432603	res = 1.230E-04
+[  NORMAL ]  Iteration 18: 	k_eff = 1.432603	res = 1.127E-04
+[  NORMAL ]  Iteration 19: 	k_eff = 1.432603	res = 1.029E-04
+[  NORMAL ]  Iteration 20: 	k_eff = 1.432603	res = 9.441E-05
+[  NORMAL ]  Iteration 21: 	k_eff = 1.432603	res = 8.634E-05
+[  NORMAL ]  Iteration 22: 	k_eff = 1.432603	res = 7.880E-05
+[  NORMAL ]  Iteration 23: 	k_eff = 1.432603	res = 7.241E-05
+[  NORMAL ]  Iteration 24: 	k_eff = 1.432603	res = 6.604E-05
+[  NORMAL ]  Iteration 25: 	k_eff = 1.432603	res = 6.060E-05
+[  NORMAL ]  Iteration 26: 	k_eff = 1.432603	res = 5.521E-05
+[  NORMAL ]  Iteration 27: 	k_eff = 1.432603	res = 5.088E-05
+[  NORMAL ]  Iteration 28: 	k_eff = 1.432603	res = 4.636E-05
+[  NORMAL ]  Iteration 29: 	k_eff = 1.432603	res = 4.256E-05
+[  NORMAL ]  Iteration 30: 	k_eff = 1.432603	res = 3.888E-05
+[  NORMAL ]  Iteration 31: 	k_eff = 1.432603	res = 3.559E-05
+[  NORMAL ]  Iteration 32: 	k_eff = 1.432603	res = 3.275E-05
+[  NORMAL ]  Iteration 33: 	k_eff = 1.432604	res = 2.942E-05
+[  NORMAL ]  Iteration 34: 	k_eff = 1.432603	res = 2.761E-05
+[  NORMAL ]  Iteration 35: 	k_eff = 1.432603	res = 2.500E-05
+[  NORMAL ]  Iteration 36: 	k_eff = 1.432603	res = 2.275E-05
+[  NORMAL ]  Iteration 37: 	k_eff = 1.432603	res = 2.084E-05
+[  NORMAL ]  Iteration 38: 	k_eff = 1.432604	res = 1.931E-05
+[  NORMAL ]  Iteration 39: 	k_eff = 1.432603	res = 1.770E-05
+[  NORMAL ]  Iteration 40: 	k_eff = 1.432603	res = 1.575E-05
+[  NORMAL ]  Iteration 41: 	k_eff = 1.432603	res = 1.473E-05
+[  NORMAL ]  Iteration 42: 	k_eff = 1.432603	res = 1.350E-05
+[  NORMAL ]  Iteration 43: 	k_eff = 1.432603	res = 1.222E-05
+[  NORMAL ]  Iteration 44: 	k_eff = 1.432603	res = 1.132E-05
+[  NORMAL ]  Iteration 45: 	k_eff = 1.432604	res = 1.036E-05
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]                             TIMING REPORT                           
+[  TITLE  ]  *******************************************************************
+[  RESULT ]  Total time to solution...............................-1.5000E+01 sec
+[  RESULT ]  Solution time per unknown............................-1.6667E+00 sec
+[  RESULT ]  Solution time per iteration..........................-3.2609E-01 sec
+[  RESULT ]  Integration time per track segment...................-2.0130E-06 sec
+[SEPARATOR]  *******************************************************************
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]                               Finished                             
+[  TITLE  ]  *******************************************************************

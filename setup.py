@@ -46,6 +46,7 @@ class custom_install(install):
         ('debug-mode', None, "Build with debugging symbols"),
         ('with-ccache', None, "Build with ccache for rapid recompilation"),
         ('with-papi', None, 'Build modules with PAPI instrumentation'),
+        ('no-numpy', None, 'Build modules without NumPy C API'),
     ]
 
     # Include all of the default options provided by distutils for the 
@@ -53,15 +54,16 @@ class custom_install(install):
     user_options += install.user_options
 
     # Set some compile options to be boolean switches
-    boolean_options = ['with_cuda',
+    boolean_options = ['with-sp',
+                       'with-dp',
+                       'with_cuda',
                        'with-gcc',
                        'with-icpc',
                        'with-bgxlc',
+                       'debug-mode',
                        'with-ccache', 
                        'with-papi', 
-                       'debug-mode',
-                       'with-sp',
-                       'with-dp']
+                       'no-numpy']
 
     # Include all of the boolean options provided by distutils for the
     # install command parent class
@@ -87,11 +89,6 @@ class custom_install(install):
         self.cc = 'gcc'
         self.fp = 'single'
 
-        # Set defaults for each of the newly defined compile time options
-        self.debug_mode = False
-        self.with_ccache = False
-        self.with_papi = False        
-
         # By default, do not build openmoc.gnu.single, openmoc.intel.double, etc
         # extension modules
         self.with_gcc = False
@@ -100,6 +97,12 @@ class custom_install(install):
         self.with_cuda = False
         self.with_sp = False
         self.with_dp = False
+
+        # Set defaults for each of the newly defined compile time options
+        self.debug_mode = False
+        self.with_ccache = False
+        self.with_papi = False        
+        self.no_numpy = False
 
 
     def finalize_options(self):
@@ -122,6 +125,7 @@ class custom_install(install):
         config.debug_mode = self.debug_mode
         config.with_ccache = self.with_ccache
         config.with_papi = self.with_papi
+        config.with_numpy = not self.no_numpy
 
         # Check that the user specified a supported C++ compiler
         if self.cc not in ['gcc', 'icpc', 'bgxlc']:
