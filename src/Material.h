@@ -95,20 +95,20 @@ public:
     bool isDataAligned();
     int getNumVectorGroups();
 
-    void setNumEnergyGroups(const int num_groups);    
-    void setSigmaT(double* sigma_t, int num_groups);
-    void setSigmaA(double* sigma_a, int num_groups);
-    void setSigmaS(double* sigma_s, int num_groups);
-    void setSigmaF(double* sigma_f, int num_groups);
-    void setNuSigmaF(double* nu_sigma_f, int num_groups);
-    void setChi(double* chi, int num_groups);
+    void setNumEnergyGroups(const int num_groups);
+    void setSigmaT(double* xs, int num_groups);
+    void setSigmaA(double* xs, int num_groups);
+    void setSigmaS(double* xs, int num_groups);
+    void setSigmaF(double* xs, int num_groups);
+    void setNuSigmaF(double* xs, int num_groups);
+    void setChi(double* xs, int num_groups);
     
-    void setSigmaT(double sigma_t, int group);
-    void setSigmaA(double sigma_a, int group);
-    void setSigmaF(double sigma_f, int group);
-    void setNuSigmaF(double nu_sigma_f, int group);
-    void setSigmaS(double sigma_s, int group1, int group2);
-    void setChi(double chi, int group);
+    void setSigmaTByGroup(double xs, int group);
+    void setSigmaAByGroup(double xs, int group);
+    void setSigmaFByGroup(double xs, int group);
+    void setNuSigmaFByGroup(double xs, int group);
+    void setSigmaSByGroup(double xs, int group1, int group2);
+    void setChiByGroup(double xs, int group);
 
 
     void checkSigmaT();

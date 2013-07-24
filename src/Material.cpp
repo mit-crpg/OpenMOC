@@ -288,54 +288,64 @@ void Material::setNumEnergyGroups(const int num_groups) {
 
 /**
  * @brief Set the material's array of total cross-sections.
- * @param sigma_t the array of total cross-sections
+ * @param xs the array of total cross-sections
  * @param num_groups the number of energy groups
  */
-void Material::setSigmaT(double* sigma_t, int num_groups) {
+void Material::setSigmaT(double* xs, int num_groups) {
     if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set sigma_t with %d groups for material "
                  "%d which contains %d energy groups", num_groups,
                  _num_groups);
 
     for (int i=0; i < _num_groups; i++)
-        _sigma_t[i] = sigma_t[i];
+        _sigma_t[i] = xs[i];
 }
 
 
-void Material::setSigmaT(double sigma_t, int group) {
+/**
+ * @brief Set the material's total cross-section for some energy group.
+ * @param xs the total cross-section (\f$ \Sigma_t [cm^1] \f$)
+ * @param group the energy group
+ */
+void Material::setSigmaTByGroup(double xs, int group) {
 
     if (group < 0 || group >= _num_groups)
       log_printf(ERROR, "Unable to set sigma_t for group %d for material "
                  "%d which contains %d energy groups", group, _uid, _num_groups);
 
-    _sigma_t[group] = sigma_t;
+    _sigma_t[group] = xs;
 }
 
 
 /**
  * @brief Set the material's array of absorption scattering cross-sections.
  * @details This method is intended to be called from 
- * @param sigma_a the array of absorption scattering cross-sections
+ * @param xs the array of absorption scattering cross-sections
  * @param num_groups the number of energy groups
  */
-void Material::setSigmaA(double* sigma_a, int num_groups) {
+void Material::setSigmaA(double* xs, int num_groups) {
     if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set sigma_a with %d groups for material "
                  "%d which contains %d energy groups", num_groups,
                  _num_groups);
 
     for (int i=0; i < _num_groups; i++)
-        _sigma_a[i] = sigma_a[i];
+        _sigma_a[i] = xs[i];
 }
 
 
-void Material::setSigmaA(double sigma_a, int group) {
+/**
+ * @brief Set the material's absorption cross-section for some energy group.
+ * @param xs the absorption cross-section (\f$ \Sigma_a [cm^1] \f$)
+ * @param group the energy group
+ */
+void Material::setSigmaAByGroup(double xs, int group) {
 
     if (group < 0 || group >= _num_groups)
       log_printf(ERROR, "Unable to set sigma_a for group %d for material "
                  "%d which contains %d energy groups", group, _uid, _num_groups);
 
-    _sigma_a[group] = sigma_a;
+    _sigma_a[group] = xs;
 }
 
 
@@ -348,10 +358,10 @@ void Material::setSigmaA(double sigma_a, int group) {
  *          efficient caching of the elements of this matrix during fixed 
  *          source iteration, the matrix transpose is what is actually stored 
  *          in the material
- * @param sigma_s the array of scattering cross-sections
+ * @param xs the array of scattering cross-sections
  * @param num_groups_squared the number of energy groups squared
  */
-void Material::setSigmaS(double* sigma_s, int num_groups_squared) {
+void Material::setSigmaS(double* xs, int num_groups_squared) {
  
     if (_num_groups*_num_groups != num_groups_squared)
         log_printf(ERROR, "Unable to set sigma_s with %f groups for material "
@@ -360,47 +370,58 @@ void Material::setSigmaS(double* sigma_s, int num_groups_squared) {
 
     for (int i=0; i < _num_groups; i++) {
         for (int j=0; j < _num_groups; j++)
-            _sigma_s[j*_num_groups+i] = sigma_s[i*_num_groups+j];
+            _sigma_s[j*_num_groups+i] = xs[i*_num_groups+j];
     }
     
 }
 
 
-void Material::setSigmaS(double sigma_s, int group1, int group2) {
+/**
+ * @brief Set the material's scattering cross-section for some energy group.
+ * @param xs the scattering cross-section (\f$ \Sigma_s [cm^1] \f$)
+ * @param group1 the row index in the scattering matrix
+ * @param group2 the column index in the scattering matrix
+ */
+void Material::setSigmaSByGroup(double xs, int group1, int group2) {
 
     if (group1 < 0 || group2 < 0 || group1 >= _num_groups || group2 >= _num_groups)
       log_printf(ERROR, "Unable to set sigma_s for group %d,%d for material "
                  "%d which contains %d energy groups", group1, group2, _uid,
                  _num_groups);
 
-    _sigma_s[_num_groups*group1 + group2] = sigma_s;
+    _sigma_s[_num_groups*group1 + group2] = xs;
 }
 
 
 
 /**
  * @brief Set the material's array of fission cross-sections.
- * @param sigma_f the array of fission cross-sections
+ * @param xs the array of fission cross-sections
  * @param num_groups the number of energy groups
  */
-void Material::setSigmaF(double* sigma_f, int num_groups) {
+void Material::setSigmaF(double* xs, int num_groups) {
     if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set sigma_f with %d groups for material "
                  "%d which contains %d energy groups", num_groups,
                  _num_groups);
 
     for (int i=0; i < _num_groups; i++)
-        _sigma_f[i] = sigma_f[i];
+        _sigma_f[i] = xs[i];
 }
 
 
-void Material::setSigmaF(double sigma_f, int group) {
+/**
+ * @brief Set the material's fission cross-section for some energy group.
+ * @param xs the fission cross-section (\f$ \Sigma_f [cm^1] \f$)
+ * @param group the energy group
+ */
+void Material::setSigmaFByGroup(double xs, int group) {
 
     if (group < 0 || group >= _num_groups)
       log_printf(ERROR, "Unable to set sigma_f for group %d for material "
                  "%d which contains %d energy groups", group, _uid, _num_groups);
 
-    _sigma_f[group] = sigma_f;
+    _sigma_f[group] = xs;
 }
 
 
@@ -408,38 +429,44 @@ void Material::setSigmaF(double sigma_f, int group) {
 /**
  * @brief Set the material's array of fission cross-sections multiplied by
  *         \f$ \nu \f$
- * @param nu_sigma_f the array of fission cross-sections multiplied by nu 
+ * @param xs the array of fission cross-sections multiplied by nu 
  *        \f$ \nu \f$
  * @param num_groups the number of energy groups 
 */
-void Material::setNuSigmaF(double* nu_sigma_f, int num_groups) {
+void Material::setNuSigmaF(double* xs, int num_groups) {
 
     if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set nu_sigma_f with %d groups for material "
                  "%d which contains %d energy groups", num_groups, _uid, _num_groups);
 
     for (int i=0; i < _num_groups; i++)
-        _nu_sigma_f[i] = nu_sigma_f[i];
+        _nu_sigma_f[i] = xs[i];
 }
 
 
-void Material::setNuSigmaF(double nu_sigma_f, int group) {
+/**
+ * @brief Set the material's fission cross-section multiplied by \f$ \nu \f$
+ *        for some energy group.
+ * @param xs the fission cross-section (\f$ \nu\Sigma_f [cm^1] \f$)
+ * @param group the energy group
+ */
+void Material::setNuSigmaFByGroup(double xs, int group) {
 
     if (group < 0 || group >= _num_groups)
       log_printf(ERROR, "Unable to set nu_sigma_f for group %d for material "
                  "%d which contains %d energy groups", group, _uid);
 
-    _nu_sigma_f[group] = nu_sigma_f;
+    _nu_sigma_f[group] = xs;
 }
 
 
 
 /**
  * @brief Set the material's array of \f$ \chi \f$ values.
- * @param chi the array of chi \f$ \chi \f$ values
+ * @param xs the array of chi \f$ \chi \f$ values
  * @param num_groups the number of energy groups 
  */
-void Material::setChi(double* chi, int num_groups) {
+void Material::setChi(double* xs, int num_groups) {
 
     if (_num_groups != num_groups)
       log_printf(ERROR, "Unable to set chi with %d groups for material "
@@ -447,17 +474,23 @@ void Material::setChi(double* chi, int num_groups) {
                  _num_groups);
 
     for (int i=0; i < _num_groups; i++)
-        _chi[i] = chi[i];
+        _chi[i] = xs[i];
 }
 
 
-void Material::setChi(double chi, int group) {
+/**
+ * @brief Set the material's chi value for some energy group.
+ * @param xs the chi value (\f$ \Chi \f$)
+ * @param group the energy group
+ */
+void Material::setChiByGroup(double xs, int group) {
 
     if (group < 0 || group >= _num_groups)
         log_printf(ERROR, "Unable to set chi for group %d for material "
-		   "%d which contains %d energy groups", group, _num_groups, _uid);
+		   "%d which contains %d energy groups", 
+		   group, _num_groups, _uid);
 
-    _chi[group] = chi;
+    _chi[group] = xs;
 }
 
 

@@ -27,25 +27,12 @@ log.py_printf('NORMAL', 'Creating materials...')
 infinite_medium = Material(1)
 infinite_medium.setNumEnergyGroups(2)
 
-infinite_medium.setSigmaA(0.0038, 0)
-infinite_medium.setSigmaA(0.184, 1)
-
-infinite_medium.setSigmaF(0.000625, 0)
-infinite_medium.setSigmaF(0.135416667, 1)
-
-infinite_medium.setNuSigmaF(0.0015, 0)
-infinite_medium.setNuSigmaF(0.325, 1)
-
-infinite_medium.setSigmaS(0.1, 0, 0)
-infinite_medium.setSigmaS(0.117, 1, 0)
-infinite_medium.setSigmaS(0.0, 0, 1)
-infinite_medium.setSigmaS(1.42, 1, 1)
-
-infinite_medium.setChi(1.0, 0)
-infinite_medium.setChi(0.0, 1)
-
-infinite_medium.setSigmaT(0.2208,0)
-infinite_medium.setSigmaT(1.604, 1)
+infinite_medium.setSigmaA([0.0038, 0.184])
+infinite_medium.setSigmaF([0.000625, 0.135416667])
+infinite_medium.setNuSigmaF([0.0015, 0.325])
+infinite_medium.setSigmaS([0.1, 0.117, 0.0, 1.42])
+infinite_medium.setChi([1.0, 0.0])
+infinite_medium.setSigmaT([0.2208, 1.604])
 
 
 ###############################################################################
