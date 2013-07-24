@@ -9,13 +9,12 @@ import openmoc.cuda as cuda
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_blocks = 64
-num_threads = 64
-track_spacing = 0.1
-num_azim = 16
-tolerance = 1E-5
-max_iters = 1000
-gridsize = 500
+num_blocks = options.num_thread_blocks
+num_threads = options.num_gpu_threads
+track_spacing = options.track_spacing
+num_azim = options.num_azim
+tolerance = options.tolerance
+max_iters = options.max_iters
 
 log.setLogLevel('NORMAL')
 
@@ -139,9 +138,9 @@ log.py_printf('NORMAL', 'Plotting data...')
 
 #plotter.plotTracks(track_generator)
 #plotter.plotSegments(track_generator)
-#plotter.plotMaterials(geometry, gridsize)
-#plotter.plotCells(geometry, gridsize)
-#plotter.plotFlatSourceRegions(geometry, gridsize)
+#plotter.plotMaterials(geometry, gridsize=500)
+#plotter.plotCells(geometry, gridsize=500)
+#plotter.plotFlatSourceRegions(geometry, gridsize=500)
 #plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')

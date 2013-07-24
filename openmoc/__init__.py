@@ -1,5 +1,6 @@
 import _openmoc
 from openmoc import *
+import options
 import os
 import random
 import datetime
@@ -10,3 +11,6 @@ current_time = str(now.month) + '-' + str(now.day) + '-' + str(now.year) + '--' 
 setLogfileName('log/openmoc-' + current_time + '.log');
 
 Timer = Timer()
+
+options = options.options()
+options.parseArguments()
