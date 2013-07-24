@@ -7,7 +7,7 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_threads = 16
+num_threads = 4
 track_spacing = 0.1
 num_azim = 4
 tolerance = 1E-5

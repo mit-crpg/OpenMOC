@@ -39,8 +39,9 @@ def materialize(filename):
 
         # Check that the file has an 'energy groups' attribute
         if not 'Energy Groups' in f.attrs:
-            py_printf('ERROR', 'Unable to materialize file %s since it does ' + \
-                          'not contain an \'Energy Groups\' attribute', filename)
+            py_printf('ERROR', 'Unable to materialize file %s since it ' + \
+                          'does not contain an \'Energy Groups\' attribute', \
+                          filename)
     
         num_groups = f.attrs['Energy Groups']
 
@@ -90,8 +91,9 @@ def materialize(filename):
 
         # Check that the file has an 'energy groups' attribute
         if not 'Energy Groups' in data.keys():
-            py_printf('ERROR', 'Unable to materialize file %s since it does ' + \
-                          'not contain an \'Energy Groups\' attribute', filename)
+            py_printf('ERROR', 'Unable to materialize file %s since it ' + \
+                      'does not contain an \'Energy Groups\' attribute', \
+                      filename)
     
         num_groups = data['Energy Groups']
 
@@ -120,18 +122,14 @@ def materialize(filename):
             nu_sigma_f = data[name]['Nu Fission XS']
             chi = data[name]['Chi']
 
-            # Setting the cross-sections on an individual value-by-value basis
-            for e in range(int(num_groups)):
-                new_material.setSigmaT(sigma_t[e], e)
-                new_material.setSigmaA(sigma_a[e], e)
-                new_material.setSigmaF(sigma_f[e], e)
-                new_material.setNuSigmaF(nu_sigma_f[e], e)
-                new_material.setChi(chi[e], e)
-                
-                for e2 in range(int(num_groups)):
+            # Setting the cross-sections for this material
+            new_material.setSigmaT(sigma_t)
+            new_material.setSigmaA(sigma_a)
+            new_material.setSigmaS(sigma_s)
+            new_material.setSigmaF(sigma_f)
+            new_material.setNuSigmaF(nu_sigma_f)
+            new_material.setChi(chi)
 
-                    new_material.setSigmaS(sigma_s[e*num_groups+e2], e2, e)            
-                    
             # Add this material to the list
             materials[name] = new_material
 
