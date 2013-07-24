@@ -1,4 +1,4 @@
-from openmoc.intel.double import *
+from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
