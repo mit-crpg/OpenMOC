@@ -9,12 +9,12 @@ import openmoc.cuda as cuda
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-num_blocks = 64
-num_threads = 64
-track_spacing = 0.1
-num_azim = 16
-tolerance = 1E-3
-max_iters = 1000
+num_blocks = options.num_thread_blocks
+num_threads = options.num_gpu_threads
+track_spacing = options.track_spacing
+num_azim = options.num_azim
+tolerance = options.tolerance
+max_iters = options.max_iters
 
 log.setLogLevel('NORMAL')
 

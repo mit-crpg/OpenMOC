@@ -6,9 +6,7 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 27, 2013
 
-import numpy as np
 import matplotlib.pyplot as plt
-#from openmoc import *
 from log import *
 import numpy
 import os
