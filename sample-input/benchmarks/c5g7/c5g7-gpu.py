@@ -13,7 +13,7 @@ num_blocks = 64
 num_threads = 64
 track_spacing = 0.1
 num_azim = 4
-tolerance = 1E-4
+tolerance = 1E-5
 max_iters = 1000
 gridsize = 500
 
