@@ -85,7 +85,7 @@
 	/* If the value is a number, cast it as an int and set the
 	 * input array value */
 	if (PyNumber_Check(o)) {
-	    $1[i] = (short int) PyFloat_AsDouble(o);
+	    $1[i] = (double) PyFloat_AsDouble(o);
 	} 
 	else {
 	  free($1);

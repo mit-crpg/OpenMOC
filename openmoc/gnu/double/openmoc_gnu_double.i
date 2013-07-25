@@ -72,8 +72,8 @@
 	return NULL;
     }
 
-    $1 = (double*) malloc($1 * * sizeof(double));  // cross-section array
     $2 = PySequence_Length($input);  // num_groups
+    $1 = (double*) malloc($2 * sizeof(double));  // cross-section array
 
     /* Loop over x */
     for (int i = 0; i < $2; i++) {
@@ -84,7 +84,7 @@
 	/* If the value is a number, cast it as an int and set the
 	 * input array value */
 	if (PyNumber_Check(o)) {
-	    $1[i] = (short int) PyFloat_AsDouble(o);
+	    $1[i] = (double) PyFloat_AsDouble(o);
 	} 
 	else {
 	  free($1);
