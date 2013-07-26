@@ -2,6 +2,7 @@ import sys
 from distutils.extension import Extension
 from distutils.util import get_platform
 
+
 def get_openmoc_object_name():
     """Returns the name of the main openmoc shared library object"""
 
@@ -35,15 +36,6 @@ def get_shared_object_path():
         directory = 'build/lib'
 
     return directory
-
-
-#path_to_bgxlc = '/soft/compilers/ibmcmp-feb2013/vac/bg/12.1/'
-
-# Compiler binaries
-#bgxlc = path_to_bgxlc + 'bin/bgxlc'
-
-
-
 
 
 def get_openmoc():
@@ -118,9 +110,10 @@ class configuration:
     # while the others will be built based on which flags are specified
     # at compile time
     packages = ['openmoc', 'openmoc.intel', 'openmoc.gnu', 
-                'openmoc.cuda', 'openmoc.intel.double', 
+                'openmoc.bgq', 'openmoc.cuda', 'openmoc.intel.double', 
                 'openmoc.intel.single', 'openmoc.gnu.double', 
-                'openmoc.gnu.single', 'openmoc.cuda.double', 
+                'openmoc.gnu.single', 'openmoc.bgq.single',
+                'openmoc.bgq.double', 'openmoc.cuda.double', 
                 'openmoc.cuda.single']
 
 
@@ -203,12 +196,13 @@ class configuration:
     compiler_flags['icpc'] =['-c', '-O3', '--ccache-skip', '-openmp', 
                              '-xhost', '-std=c++0x', '-fpic', '--ccache-skip', 
                              '-openmp-report', '-vec-report']
-    compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', 
-                               '-qreport', '-qsmp=omp', '-qnoipa', '-qpic']
+    compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', '-qreport', 
+                               '-qsimd=auto', '-qtune=qp', '-qunroll=auto',
+                               '-qsmp=omp', '-qpic']
     compiler_flags['nvcc'] =  ['-c', '-O3', '--compiler-options', '-fpic',
                                '-gencode=arch=compute_20,code=sm_20',
                                '-gencode=arch=compute_30,code=sm_30']
-    
+
 
 
     ###########################################################################
@@ -222,9 +216,8 @@ class configuration:
                            '-Wl,-soname,' + get_openmoc_object_name()]
     linker_flags['icpc'] = [ '-openmp', '-shared', 
                              '-Xlinker', '-soname=' + get_openmoc_object_name()]
-    linker_flags['bgxlc'] = ['-qmkshrobj', '-shared', '-R/usr/lib64',
-                             '-R/soft/compilers/ibmcmp-may2013/vacpp/bg/12.1/lib64',
-                             '-R/soft/compilers/ibmcmp-may2013/lib64/bg',
+    linker_flags['bgxlc'] = ['-qmkshrobj', '-shared',
+                             '-R/bgsys/drivers/ppcfloor/gnu-linux/powerpc64-bgq-linux/lib',
                              '-Wl,-soname,' + get_openmoc_object_name()]
     linker_flags['nvcc'] = ['-shared', get_openmoc()]
 
@@ -243,7 +236,7 @@ class configuration:
     shared_libraries['nvcc'] = ['cudart']
     shared_libraries['bgxlc'] = ['stdc++', 'pthread', 'm', 'xlsmp', 'rt']
 
-# 'gomp'
+
 
     ###########################################################################
     #                              Library Directories
@@ -283,6 +276,7 @@ class configuration:
     swig_flags = ['-c++', '-keyword']
 
 
+
     ###########################################################################
     #                                  Macros
     ###########################################################################
@@ -314,7 +308,7 @@ class configuration:
                                  ('BGXLC', None),
                                  ('VEC_LENGTH', vector_length),
                                  ('VEC_ALIGNMENT', vector_alignment),
-                                 ('CCACHE_CC', 'bgxlc++')]
+                                 ('CCACHE_CC', 'bgxlc++_r')]
 
     macros['nvcc']['single'] = [('FP_PRECISION', 'float'), 
                                 ('SINGLE', None),
@@ -339,7 +333,7 @@ class configuration:
                                  ('BGXLC', None),
                                  ('VEC_LENGTH', vector_length),
                                  ('VEC_ALIGNMENT', vector_alignment),
-                                 ('CCACHE_CC', 'bgxlc++')]
+                                 ('CCACHE_CC', 'bgxlc++_r')]
 
     macros['nvcc']['double'] = [('FP_PRECISION', 'double'), 
                                 ('DOUBLE', None),
@@ -441,6 +435,13 @@ class configuration:
                     swig_interface_file = 'openmoc/intel/' + fp
                     swig_interface_file += '/openmoc_intel_' + fp + '.i'
                     self.sources['icpc'].append(swig_interface_file)
+
+                # For openmoc.intel.* modules
+                elif cc == 'bgxlc':
+                    ext_name = '_openmoc_bgq_' + fp
+                    swig_interface_file = 'openmoc/bgq/' + fp
+                    swig_interface_file += '/openmoc_bgq_' + fp + '.i'
+                    self.sources['bgxlc'].append(swig_interface_file)
                     
                 # If an unsupported compiler, throw error
                 else:
