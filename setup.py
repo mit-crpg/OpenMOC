@@ -250,9 +250,9 @@ def customize_compiler(self):
         # If BGXLC is a defined macro and the source is C++, use bgxlc
         elif '-DBGXLC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
             if config.with_ccache:
-                self.set_executable('compiler_so', 'bgxlc++')
+                self.set_executable('compiler_so', 'bgxlc++_r')
             else:
-                self.set_executable('compiler_so', 'bgxlc++')
+                self.set_executable('compiler_so', 'bgxlc++_r')
             postargs = config.compiler_flags['bgxlc']
 
 

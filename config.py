@@ -203,8 +203,8 @@ class configuration:
     compiler_flags['icpc'] =['-c', '-O3', '--ccache-skip', '-openmp', 
                              '-xhost', '-std=c++0x', '-fpic', '--ccache-skip', 
                              '-openmp-report', '-vec-report']
-    compiler_flags['bgxlc'] = ['-c', '-O1', '-qsmp=omp', '-qarch=qp', 
-                               '-qreport', '-qnoipa', '-qpic']
+    compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', 
+                               '-qreport', '-qsmp=omp', '-qnoipa', '-qpic']
     compiler_flags['nvcc'] =  ['-c', '-O3', '--compiler-options', '-fpic',
                                '-gencode=arch=compute_20,code=sm_20',
                                '-gencode=arch=compute_30,code=sm_30']
@@ -223,8 +223,8 @@ class configuration:
     linker_flags['icpc'] = [ '-openmp', '-shared', 
                              '-Xlinker', '-soname=' + get_openmoc_object_name()]
     linker_flags['bgxlc'] = ['-qmkshrobj', '-shared', '-R/usr/lib64',
-                             '-R/soft/compilers/ibmcmp-feb2013/vac/bg/12.1/bglib64',
-                             '-R/soft/compilers/ibmcmp-feb2013/lib64/bg',
+                             '-R/soft/compilers/ibmcmp-may2013/vacpp/bg/12.1/lib64',
+                             '-R/soft/compilers/ibmcmp-may2013/lib64/bg',
                              '-Wl,-soname,' + get_openmoc_object_name()]
     linker_flags['nvcc'] = ['-shared', get_openmoc()]
 
@@ -241,9 +241,9 @@ class configuration:
     shared_libraries['icpc'] = ['stdc++', 'iomp5', 'pthread', 'irc', 
                                 'imf','rt', 'mkl_rt','m',]
     shared_libraries['nvcc'] = ['cudart']
-    shared_libraries['bgxlc'] = ['stdc++', 'pthread', 'm', 'gomp', 'xlsmp']
+    shared_libraries['bgxlc'] = ['stdc++', 'pthread', 'm', 'xlsmp', 'rt']
 
-
+# 'gomp'
 
     ###########################################################################
     #                              Library Directories
