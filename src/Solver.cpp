@@ -495,6 +495,7 @@ void Solver::printTimerReport() {
 
     msg_string = "           # tracks          # segments          # FSRs";
     log_printf(RESULT, "%s", msg_string.c_str());
+    log_printf(SEPARATOR, "-");
 
     int num_digits = (int) log10((double) _tot_num_tracks);
     num_digits += (int) log10((double) num_segments);
@@ -502,8 +503,6 @@ void Solver::printTimerReport() {
 
     num_digits = 67 - num_digits;
     num_digits /= 4;
-
-    log_printf(SEPARATOR, "-");
 
     std::stringstream msg;
 
@@ -519,7 +518,6 @@ void Solver::printTimerReport() {
 	    msg << _num_FSRs;
     }
 
-    log_printf(RESULT, "%s", msg.str().c_str());\
-
+    log_printf(RESULT, "%s", msg.str().c_str());
     log_printf(SEPARATOR, "-");
 }

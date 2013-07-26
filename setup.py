@@ -361,8 +361,8 @@ def customize_linker(self):
         # If the linker receives -qmkshrobj as an option, then the objects
         # are build by an IBM compiler
         if '-qmkshrobj' in extra_postargs:
-            self.set_executable('linker_so', 'bgxlc++')
-            self.set_executable('linker_exe', 'bgxlc++')
+            self.set_executable('linker_so', 'bgxlc++_r')
+            self.set_executable('linker_exe', 'bgxlc++_r')
 
         # If the filename for the extension contains cuda, use g++ to link
         if 'cuda' in output_filename:
