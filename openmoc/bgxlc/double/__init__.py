@@ -1,6 +1,6 @@
-import openmoc
-import _openmoc_gnu_single
-from openmoc_gnu_single import *
+1import openmoc
+import _openmoc_intel_double
+from openmoc_intel_double import *
 import signal
 
 # Tell Python to recognize CTRL+C and stop the C++ extension module
