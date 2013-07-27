@@ -1,0 +1,386 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="classVectorizedPrivateSolver" kind="class" prot="public">
+    <compoundname>VectorizedPrivateSolver</compoundname>
+    <basecompoundref refid="classVectorizedSolver" prot="public" virt="non-virtual">VectorizedSolver</basecompoundref>
+    <includes refid="VectorizedPrivateSolver_8h" local="yes">openmoc/src/host/VectorizedPrivateSolver.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classVectorizedPrivateSolver_1af3bb9c0d50c8d3280abc1c38a20e1807" prot="private" static="no" mutable="no">
+        <type>FP_PRECISION *</type>
+        <definition>FP_PRECISION* VectorizedPrivateSolver::_thread_flux</definition>
+        <argsstring></argsstring>
+        <name>_thread_flux</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An array for the flat source region scalar fluxes for each thread </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" line="36" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classVectorizedPrivateSolver_1a06c45fb2c69c65b84383aa9cd58be87d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VectorizedPrivateSolver::initializeFluxArrays</definition>
+        <argsstring>()</argsstring>
+        <name>initializeFluxArrays</name>
+        <briefdescription>
+<para>Allocates memory for track boundary angular fluxes and flat source region scalar fluxes and leakages. </para>        </briefdescription>
+        <detaileddescription>
+<para>Deletes memory for old flux arrays if they were allocated from previous simulation. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" line="38" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.cpp" bodystart="70" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="classVectorizedPrivateSolver_1a71e85bbc2d0a0b7874d7c76edf0feb75" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VectorizedPrivateSolver::flattenFSRFluxes</definition>
+        <argsstring>(FP_PRECISION value)</argsstring>
+        <name>flattenFSRFluxes</name>
+        <param>
+          <type>FP_PRECISION</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Set the scalar flux for each energy group inside each flat source region to a constant value. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method also flattens the thread private flat source region scalar flux array. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the value to assign to each flat source region flux </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" line="40" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.cpp" bodystart="45" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classVectorizedPrivateSolver_1ab1384f4ff9cc843533788d5afad2699a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VectorizedPrivateSolver::scalarFluxTally</definition>
+        <argsstring>(segment *curr_segment, FP_PRECISION *track_flux, FP_PRECISION *fsr_flux)</argsstring>
+        <name>scalarFluxTally</name>
+        <param>
+          <type><ref refid="structsegment" kindref="compound">segment</ref> *</type>
+          <declname>curr_segment</declname>
+        </param>
+        <param>
+          <type>FP_PRECISION *</type>
+          <declname>track_flux</declname>
+        </param>
+        <param>
+          <type>FP_PRECISION *</type>
+          <declname>fsr_flux</declname>
+        </param>
+        <briefdescription>
+<para>Computes the contribution to the flat source region scalar flux from a single track segment. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method integrates the angular flux for a track segment across energy groups and polar angles, and tallies it into the flat source region scalar flux, and updates the track&apos;s angular flux. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>curr_segment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to the segment of interest </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>track_flux</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to the track&apos;s angular flux </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fsr_flux</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to the temporary flat source region flux buffer </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" line="44" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.cpp" bodystart="102" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="classVectorizedPrivateSolver_1aa33375a7e846df590dc0ded40e574381" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VectorizedPrivateSolver::transportSweep</definition>
+        <argsstring>()</argsstring>
+        <name>transportSweep</name>
+        <briefdescription>
+<para>This method performs one transport sweep of all azimuthal angles, tracks, segments, polar angles and energy groups. </para>        </briefdescription>
+        <detaileddescription>
+<para>The method integrates the flux along each track and updates the boundary fluxes for the corresponding output track, while updating the scalar flux in each flat source region </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" line="46" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.cpp" bodystart="146" bodyend="211"/>
+      </memberdef>
+      <memberdef kind="function" id="classVectorizedPrivateSolver_1af887b637821ba538a28387eac793eff0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void VectorizedPrivateSolver::reduceThreadScalarFluxes</definition>
+        <argsstring>()</argsstring>
+        <name>reduceThreadScalarFluxes</name>
+        <briefdescription>
+<para>Reduces the flat source region scalar fluxes from private thread array to a global array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" line="47" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.cpp" bodystart="218" bodyend="229"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classVectorizedPrivateSolver_1a1de9e8c8035a2a241e76942937d09428" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>VectorizedPrivateSolver::VectorizedPrivateSolver</definition>
+        <argsstring>(Geometry *geometry=NULL, TrackGenerator *track_generator=NULL)</argsstring>
+        <name>VectorizedPrivateSolver</name>
+        <param>
+          <type><ref refid="classGeometry" kindref="compound">Geometry</ref> *</type>
+          <declname>geometry</declname>
+          <defval>NULL</defval>
+        </param>
+        <param>
+          <type><ref refid="classTrackGenerator" kindref="compound">TrackGenerator</ref> *</type>
+          <declname>track_generator</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+<para>Constructor initializes empty arrays for source, flux, etc. </para>        </briefdescription>
+        <detaileddescription>
+<para>The construcor retrieves the number of energy groups and flat source regions and azimuthal angles from the geometry and track generator, and uses this to initialie empty arrays for the flat source regions, boundary angular fluxes, scalar flatsourcergion fluxes, flatsourceregion sources and flatsourceregion powers. The constructor initalizes the number of threads to a default of 1. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>geometry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>an optional pointer to the geometry </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>track_generator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>an optional pointer to the trackgenerator </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" line="51" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.cpp" bodystart="15" bodyend="22"/>
+      </memberdef>
+      <memberdef kind="function" id="classVectorizedPrivateSolver_1a50b87b272a9188c0de0d5a09472d7c51" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>VectorizedPrivateSolver::~VectorizedPrivateSolver</definition>
+        <argsstring>()</argsstring>
+        <name>~VectorizedPrivateSolver</name>
+        <briefdescription>
+<para>Destructor deletes arrays of boundary angular flux for all tracks, scalar flux and source for each flat source region. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" line="52" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.cpp" bodystart="29" bodyend="35"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This is a subclass of the <ref refid="classVectorizedSolver" kindref="compound">VectorizedSolver</ref> class. This class uses a thread private array for flat source region scalar fluxes during each transport sweep to avoid the use of OpenMP atomics. It also uses memory-aligned data structures and Intel&apos;s auto-vectorization. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="116">
+        <label>Solver</label>
+        <link refid="classSolver"/>
+      </node>
+      <node id="115">
+        <label>CPUSolver</label>
+        <link refid="classCPUSolver"/>
+        <childnode refid="116" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="113">
+        <label>VectorizedPrivateSolver</label>
+        <link refid="classVectorizedPrivateSolver"/>
+        <childnode refid="114" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="114">
+        <label>VectorizedSolver</label>
+        <link refid="classVectorizedSolver"/>
+        <childnode refid="115" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="120">
+        <label>Solver</label>
+        <link refid="classSolver"/>
+        <childnode refid="121" relation="usage">
+          <edgelabel>_geometry</edgelabel>
+        </childnode>
+        <childnode refid="122" relation="usage">
+          <edgelabel>_FSR_materials</edgelabel>
+        </childnode>
+        <childnode refid="123" relation="usage">
+          <edgelabel>_tracks</edgelabel>
+        </childnode>
+        <childnode refid="124" relation="usage">
+          <edgelabel>_quad</edgelabel>
+        </childnode>
+        <childnode refid="125" relation="usage">
+          <edgelabel>_track_generator</edgelabel>
+        </childnode>
+        <childnode refid="126" relation="usage">
+          <edgelabel>_timer</edgelabel>
+        </childnode>
+      </node>
+      <node id="119">
+        <label>CPUSolver</label>
+        <link refid="classCPUSolver"/>
+        <childnode refid="120" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="122">
+        <label>Material</label>
+        <link refid="classMaterial"/>
+      </node>
+      <node id="125">
+        <label>TrackGenerator</label>
+        <link refid="classTrackGenerator"/>
+      </node>
+      <node id="126">
+        <label>Timer</label>
+        <link refid="classTimer"/>
+      </node>
+      <node id="124">
+        <label>Quadrature</label>
+        <link refid="classQuadrature"/>
+      </node>
+      <node id="121">
+        <label>Geometry</label>
+        <link refid="classGeometry"/>
+      </node>
+      <node id="117">
+        <label>VectorizedPrivateSolver</label>
+        <link refid="classVectorizedPrivateSolver"/>
+        <childnode refid="118" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="118">
+        <label>VectorizedSolver</label>
+        <link refid="classVectorizedSolver"/>
+        <childnode refid="119" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="123">
+        <label>Track</label>
+        <link refid="classTrack"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" line="31" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/VectorizedPrivateSolver.h" bodystart="31" bodyend="53"/>
+    <listofallmembers>
+      <member refid="classSolver_1a02f013a25d984fa74aabc4c34f829960" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_azim_weights</name></member>
+      <member refid="classSolver_1adcfcfe1758affc74780907584fc7beaf" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_boundary_flux</name></member>
+      <member refid="classSolver_1ace3972879027f76a99f24fd01618d123" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_boundary_leakage</name></member>
+      <member refid="classSolver_1a1ce60126ba4fa0b05b08943ddd7cf295" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_converged_source</name></member>
+      <member refid="classSolver_1a63b1f8d78d02dc5a0f2dc392597cc5af" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_fission_sources</name></member>
+      <member refid="classCPUSolver_1aa5e0750911999b1c6b5bb76228798195" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_FSR_locks</name></member>
+      <member refid="classSolver_1a9c124fee8429fc5e44649fbb22f930b4" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_FSR_materials</name></member>
+      <member refid="classSolver_1a84372339d7c2b5da3f07bc8b0822f42f" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_FSR_volumes</name></member>
+      <member refid="classSolver_1a2ae997684ddbc16e2c8575cb6dcad788" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_FSRs_to_pin_powers</name></member>
+      <member refid="classSolver_1ac6de9ad9091dae955848d83a91b0f3b5" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_FSRs_to_powers</name></member>
+      <member refid="classSolver_1ae323198b6be6ddc402c53784c5a89b7f" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_geometry</name></member>
+      <member refid="classSolver_1a1263a3948d7fe87874854460a3701d82" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_interpolate_exponential</name></member>
+      <member refid="classSolver_1a4ed58ea28163beec97a5efe1c1874c02" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_inverse_prefactor_spacing</name></member>
+      <member refid="classSolver_1a3c52f5e2ecbe44ebca20e6696a09e447" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_k_eff</name></member>
+      <member refid="classSolver_1ab1d00b7a1ac0cddd6e0d88cc309a97aa" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_leakage</name></member>
+      <member refid="classSolver_1a9f0fd3a842870803f27c47ed51a83039" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_num_azim</name></member>
+      <member refid="classSolver_1a2e17e8aa8a11d4300e89179984ca4347" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_num_FSRs</name></member>
+      <member refid="classSolver_1ab18db0ed64afb0dade6054a7a08ae3c4" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_num_groups</name></member>
+      <member refid="classSolver_1a06f3fd380731eb988cb2fc5232cb94b3" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_num_iterations</name></member>
+      <member refid="classSolver_1a5b17e508bd721f49a382673efcd8ae1b" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_num_materials</name></member>
+      <member refid="classSolver_1a49cc179a9f47c5ca5f6d19c954d680ad" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_num_polar</name></member>
+      <member refid="classCPUSolver_1aae4771f6912d3ea1a3a10537a791b28e" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_num_threads</name></member>
+      <member refid="classSolver_1a564e918dc20cdc12f40e15a86fffefc2" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_num_tracks</name></member>
+      <member refid="classVectorizedSolver_1adff1b20b7ea5cb791119fae7ee83fc1f" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_num_vector_lengths</name></member>
+      <member refid="classSolver_1ad7d3233142b6798f9aea7330b221754c" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_old_source</name></member>
+      <member refid="classSolver_1a84ce3dbf9e3c4a86773161e7c92b1da1" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_polar_times_groups</name></member>
+      <member refid="classSolver_1a8407ebcfee31a54a67e6d5ca2e3d4e6b" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_polar_weights</name></member>
+      <member refid="classSolver_1a64ce3d9a61c55fa470b91b68497dd9d6" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_prefactor_array</name></member>
+      <member refid="classSolver_1a43ee296db0a4d4cc695be82fea2e2ee5" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_prefactor_array_size</name></member>
+      <member refid="classSolver_1a1a18b47465922034d8669238fedbe176" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_prefactor_max_index</name></member>
+      <member refid="classSolver_1a354a2964b53e89ffb03d256eaccdeb47" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_prefactor_spacing</name></member>
+      <member refid="classSolver_1a4cf19c17278e367f44c6e735e437103d" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_quad</name></member>
+      <member refid="classSolver_1a3c8910d870254066e9ba89c75c3a1003" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_quadrature_type</name></member>
+      <member refid="classSolver_1aff69bb3f354f5c598e1117e2a3515f1b" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_reduced_source</name></member>
+      <member refid="classSolver_1a60df3fd1a13667c294b1519d59a00b87" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_scalar_flux</name></member>
+      <member refid="classSolver_1a524973fbca3ad3ace58b122c01b404f0" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_scatter_sources</name></member>
+      <member refid="classSolver_1a935ab1926ea3d625d0c549c5f8595c07" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_source</name></member>
+      <member refid="classSolver_1a4aa4d18f980bbb098f839835e5e2f35d" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_source_convergence_thresh</name></member>
+      <member refid="classSolver_1af2285a2a6361ea1d351e3b8c55858c92" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_source_residuals</name></member>
+      <member refid="classVectorizedSolver_1a5a9623683961869eef3a171c41fb6f81" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_thread_exponentials</name></member>
+      <member refid="classVectorizedPrivateSolver_1af3bb9c0d50c8d3280abc1c38a20e1807" prot="private" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_thread_flux</name></member>
+      <member refid="classCPUSolver_1a719d0a4dcd9de62e0fe1985953ce44ca" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_thread_fsr_flux</name></member>
+      <member refid="classVectorizedSolver_1a0a18af2566bcaee51cec4bd55a70e7e8" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_thread_taus</name></member>
+      <member refid="classSolver_1a3cab54ec3cb374d796180b94201276ec" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_timer</name></member>
+      <member refid="classSolver_1a817518832fb051823de9e8855319f02e" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_tot_num_tracks</name></member>
+      <member refid="classSolver_1a7f7349dc153dd9e728697c922cf7c052" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_track_generator</name></member>
+      <member refid="classSolver_1a775ed41fc1268312c8fb25ec994e1351" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_tracks</name></member>
+      <member refid="classSolver_1a5f9e45e5d2a93bc3b18ca2659b95ac6a" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>_two_times_num_polar</name></member>
+      <member refid="classVectorizedSolver_1ac079f92b22b16a7584662fe36817495b" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>addSourceToScalarFlux</name></member>
+      <member refid="classSolver_1a4ab290c6ca1d74230bf885cfc7f58b7a" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>checkTrackSpacing</name></member>
+      <member refid="classSolver_1a4f6e2e3069aa9404fefd62be376e8390" prot="protected" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>clearTimerSplits</name></member>
+      <member refid="classCPUSolver_1a15c08662bd62a5042f5054a74e23391f" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>computeExponential</name></member>
+      <member refid="classVectorizedSolver_1abba9186ad669a2eed70fd8458666eab2" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>computeExponentials</name></member>
+      <member refid="classVectorizedSolver_1a14a159d804a2b94f1442e6cb6046e4f0" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>computeFSRSources</name></member>
+      <member refid="classVectorizedSolver_1a7ab9f0df852a0afd04876f6e0ec53046" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>computeKeff</name></member>
+      <member refid="classCPUSolver_1a4a85c27ea780c422e81f1d2f59789744" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>computePinPowers</name></member>
+      <member refid="classSolver_1af8358a66a7cbd56339211f80a2365678" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>convergeSource</name></member>
+      <member refid="classCPUSolver_1a7a3a562bc1ec3f99ce834e6ee7f54fef" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>CPUSolver</name></member>
+      <member refid="classVectorizedPrivateSolver_1a71e85bbc2d0a0b7874d7c76edf0feb75" prot="private" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>flattenFSRFluxes</name></member>
+      <member refid="classCPUSolver_1a50b87bcfca1e6e3399ad75a8c9fd6337" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>flattenFSRSources</name></member>
+      <member refid="classCPUSolver_1a57ef6e1450abb4e7ba67f582228d6241" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>getFSRPinPowers</name></member>
+      <member refid="classCPUSolver_1a90dc1357f3ec10f9a85ae31cefd0bd49" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>getFSRPowers</name></member>
+      <member refid="classCPUSolver_1ac0c9152a81ce1bd13f42aeb20ee9402c" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>getFSRScalarFlux</name></member>
+      <member refid="classCPUSolver_1a281e593c8d4e75fd44a6acb8e7bf91ee" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>getFSRScalarFluxes</name></member>
+      <member refid="classSolver_1afd394d9603d0ceba175d96a53f54d7fa" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>getGeometry</name></member>
+      <member refid="classSolver_1a4e2f2f30ca4bae8871b30bb188a29b38" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>getNumIterations</name></member>
+      <member refid="classSolver_1ae3012e43ec82aea38b7ff0c26a6e5003" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>getNumPolarAngles</name></member>
+      <member refid="classCPUSolver_1af890494e4e5353fa81f41f80d6e52cb4" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>getNumThreads</name></member>
+      <member refid="classVectorizedSolver_1ae95a9f13a157ecf6ddc45da9718f1367" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>getNumVectorWidths</name></member>
+      <member refid="classSolver_1a8810de68de50b5f4881e89e68733960a" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>getPolarQuadratureType</name></member>
+      <member refid="classSolver_1af3ec5e2776910329b6502e9fc06d533b" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>getSourceConvergenceThreshold</name></member>
+      <member refid="classSolver_1ac47a004e88d7fde15880ab8c2b08e754" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>getTrackGenerator</name></member>
+      <member refid="classVectorizedPrivateSolver_1a06c45fb2c69c65b84383aa9cd58be87d" prot="private" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>initializeFluxArrays</name></member>
+      <member refid="classCPUSolver_1aafc9bf9eb416a12cbe21ddde4b5f9f1c" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>initializeFSRs</name></member>
+      <member refid="classCPUSolver_1a061a09ddde28c55cda28a8734eac4c1a" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>initializePolarQuadrature</name></member>
+      <member refid="classCPUSolver_1aea001e3d177ce6eec0d650025ec821bc" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>initializePowerArrays</name></member>
+      <member refid="classVectorizedSolver_1a7287329d44d695ca91181e9484e32bca" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>initializeSourceArrays</name></member>
+      <member refid="classVectorizedSolver_1a6c428f0706f8c8960a88404606665704" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>normalizeFluxes</name></member>
+      <member refid="classVectorizedSolver_1a1a834bd814813507db91da90de08a0d0" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>precomputePrefactors</name></member>
+      <member refid="classSolver_1aeec2b08ba9d6be88cf08f1fc02658500" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>printTimerReport</name></member>
+      <member refid="classVectorizedPrivateSolver_1af887b637821ba538a28387eac793eff0" prot="private" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>reduceThreadScalarFluxes</name></member>
+      <member refid="classVectorizedPrivateSolver_1ab1384f4ff9cc843533788d5afad2699a" prot="private" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>scalarFluxTally</name></member>
+      <member refid="classVectorizedSolver_1ab4a29f8b4f8cbb4dff38ce2b85a56642" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>setGeometry</name></member>
+      <member refid="classSolver_1a069e8bf490a2f5de391f57cd9e7224ed" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>setNumPolarAngles</name></member>
+      <member refid="classCPUSolver_1a2407bc2c3829aff938c34a990d8fbe65" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>setNumThreads</name></member>
+      <member refid="classSolver_1aa602cd57f7b72f13050920f2c752815e" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>setPolarQuadratureType</name></member>
+      <member refid="classSolver_1aaace17535420183bd7c699b0a10c1e01" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>setSourceConvergenceThreshold</name></member>
+      <member refid="classSolver_1ac07cee2fe04515dc8e4d2980d567c4c5" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>setTrackGenerator</name></member>
+      <member refid="classSolver_1a950a0ef510e9eb4a92984473c668c198" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>Solver</name></member>
+      <member refid="classVectorizedSolver_1a8312a8ee4f2b34ae52fc7a21c7085bfd" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>transferBoundaryFlux</name></member>
+      <member refid="classVectorizedPrivateSolver_1aa33375a7e846df590dc0ded40e574381" prot="private" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>transportSweep</name></member>
+      <member refid="classSolver_1a627f677bdb8a621a632b581bc976b2a5" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>useExponentialInterpolation</name></member>
+      <member refid="classSolver_1a5400c11874dac7f00ade6e7c2d573aee" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>useExponentialIntrinsic</name></member>
+      <member refid="classVectorizedPrivateSolver_1a1de9e8c8035a2a241e76942937d09428" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>VectorizedPrivateSolver</name></member>
+      <member refid="classVectorizedSolver_1a8d24fe816af7f78a7404226c3fb284cd" prot="public" virt="non-virtual"><scope>VectorizedPrivateSolver</scope><name>VectorizedSolver</name></member>
+      <member refid="classCPUSolver_1a003f1ec12b683d237d62a23c7364dd5c" prot="protected" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>zeroTrackFluxes</name></member>
+      <member refid="classCPUSolver_1a6573957b7c5ea0b6c41b773081fd49cd" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>~CPUSolver</name></member>
+      <member refid="classSolver_1aba52d3c92fafceb6fe39f937f2d73db3" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>~Solver</name></member>
+      <member refid="classVectorizedPrivateSolver_1a50b87b272a9188c0de0d5a09472d7c51" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>~VectorizedPrivateSolver</name></member>
+      <member refid="classVectorizedSolver_1abcda5ede1c19f0e4c91e042c7d7a110d" prot="public" virt="virtual"><scope>VectorizedPrivateSolver</scope><name>~VectorizedSolver</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

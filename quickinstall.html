@@ -53,17 +53,16 @@
             
   <div class="section" id="quick-install-guide">
 <span id="quickinstall"></span><h1>Quick Install Guide<a class="headerlink" href="#quick-install-guide" title="Permalink to this headline">¶</a></h1>
-<p>This quick install guide outlines the basic steps needed to install OpenMOC on
-your computer. For more detailed instructions on configuring and installing
-OpenMOC, see <a class="reference internal" href="usersguide/install.html#usersguide-install"><em>Installation and Configuration</em></a> in the User&#8217;s Manual.</p>
+<p>This quick install guide outlines the basic steps needed to install OpenMOC on your computer. For more detailed instructions on configuring and installing OpenMOC, see <a class="reference internal" href="usersguide/install.html#usersguide-install"><em>Installation and Configuration</em></a> in the User&#8217;s Manual.</p>
 <div class="section" id="installing-from-source-on-linux-or-mac-os-x">
 <h2>Installing from Source on Linux or Mac OS X<a class="headerlink" href="#installing-from-source-on-linux-or-mac-os-x" title="Permalink to this headline">¶</a></h2>
-<p>All OpenMOC source code is hosted on <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a>. To download and install OpenMOC, you need to install <a class="reference external" href="http://git-scm.com">Git</a> and the GNU C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a>. In addition, you need to install <a class="reference external" href="http://www.python.org/">Python</a> 2.6 or 2.7 and the following Python packages on your machine: <a class="reference external" href="http://www.swig.org/">SWIG</a>, <a class="reference external" href="http://www.numpy.org/">NumPy</a>, <a class="reference external" href="http://matplotlib.org/">matplotlib</a> and <a class="reference external" href="http://www.h5py.org/">h5py</a>. These packages can easily be installed using a package manager for Linux and Mac OS (see <a class="reference internal" href="usersguide/install.html#usersguide-install"><em>Installation and Configuration</em></a> for more details).</p>
+<p>All OpenMOC source code is hosted on <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a>. To download and install OpenMOC, you need to install <a class="reference external" href="http://git-scm.com">Git</a> and the GNU C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a>. In addition, you need to install <a class="reference external" href="http://www.python.org/">Python</a> 2.6 or 2.7 and the following Python packages on your machine: <a class="reference external" href="http://www.swig.org/">SWIG</a>, <a class="reference external" href="http://www.numpy.org/">NumPy</a>, <a class="reference external" href="http://matplotlib.org/">matplotlib</a>, <a class="reference external" href="http://www.h5py.org/">h5py</a> and <a class="reference external" href="http://pythonhosted.org/setuptools/">setuptools</a>. These packages can easily be installed using a package manager for Linux and Mac OS (see <a class="reference internal" href="usersguide/install.html#usersguide-install"><em>Installation and Configuration</em></a> for more details). The following command will install all required and optional dependencies on Ubuntu 12.04 or later:</p>
+<div class="highlight-python"><pre>sudo apt-get install build-essential git swig python-numpy python-matplotlib python-h5py python-setuptools</pre>
+</div>
 <p>If you have already installed each of these prerequisites, you can download and install OpenMOC by entering the following commands in the console:</p>
-<div class="highlight-sh"><div class="highlight"><pre>git clone git://github.com/mit-crpg/OpenMOC.git
-<span class="nb">cd </span>OpenMOC
-sudo python setup.py install
-</pre></div>
+<div class="highlight-python"><pre>git clone git://github.com/mit-crpg/OpenMOC.git
+cd OpenMOC
+sudo python setup.py install</pre>
 </div>
 <p>This will build a shared library accessible as a Python package named <tt class="docutils literal"><span class="pre">openmoc</span></tt> and install it (by default in /usr/local/lib/pythonX.X/dist-packages). The <tt class="docutils literal"><span class="pre">openmoc</span></tt> Python package can now be imported into any Python script as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc</span>

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="dir_68267d1309a1af8e8297ef4c3efbcdba" kind="dir">
+    <compoundname>/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/</compoundname>
+    <innerdir refid="dir_79aff18505430beab4d731f694f82366">/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/</innerdir>
+    <innerfile refid="Cell_8cpp">Cell.cpp</innerfile>
+    <innerfile refid="Cell_8h">Cell.h</innerfile>
+    <innerfile refid="CPUSolver_8cpp">CPUSolver.cpp</innerfile>
+    <innerfile refid="CPUSolver_8h">CPUSolver.h</innerfile>
+    <innerfile refid="Geometry_8cpp">Geometry.cpp</innerfile>
+    <innerfile refid="Geometry_8h">Geometry.h</innerfile>
+    <innerfile refid="LocalCoords_8cpp">LocalCoords.cpp</innerfile>
+    <innerfile refid="LocalCoords_8h">LocalCoords.h</innerfile>
+    <innerfile refid="log_8cpp">log.cpp</innerfile>
+    <innerfile refid="log_8h">log.h</innerfile>
+    <innerfile refid="Material_8cpp">Material.cpp</innerfile>
+    <innerfile refid="Material_8h">Material.h</innerfile>
+    <innerfile refid="pairwise__sum_8h">pairwise_sum.h</innerfile>
+    <innerfile refid="Point_8cpp">Point.cpp</innerfile>
+    <innerfile refid="Point_8h">Point.h</innerfile>
+    <innerfile refid="Quadrature_8cpp">Quadrature.cpp</innerfile>
+    <innerfile refid="Quadrature_8h">Quadrature.h</innerfile>
+    <innerfile refid="Solver_8cpp">Solver.cpp</innerfile>
+    <innerfile refid="Solver_8h">Solver.h</innerfile>
+    <innerfile refid="Surface_8cpp">Surface.cpp</innerfile>
+    <innerfile refid="Surface_8h">Surface.h</innerfile>
+    <innerfile refid="ThreadPrivateSolver_8cpp">ThreadPrivateSolver.cpp</innerfile>
+    <innerfile refid="ThreadPrivateSolver_8h">ThreadPrivateSolver.h</innerfile>
+    <innerfile refid="Timer_8cpp">Timer.cpp</innerfile>
+    <innerfile refid="Timer_8h">Timer.h</innerfile>
+    <innerfile refid="Track_8cpp">Track.cpp</innerfile>
+    <innerfile refid="Track_8h">Track.h</innerfile>
+    <innerfile refid="TrackGenerator_8cpp">TrackGenerator.cpp</innerfile>
+    <innerfile refid="TrackGenerator_8h">TrackGenerator.h</innerfile>
+    <innerfile refid="Universe_8cpp">Universe.cpp</innerfile>
+    <innerfile refid="Universe_8h">Universe.h</innerfile>
+    <innerfile refid="VectorizedPrivateSolver_8cpp">VectorizedPrivateSolver.cpp</innerfile>
+    <innerfile refid="VectorizedPrivateSolver_8h">VectorizedPrivateSolver.h</innerfile>
+    <innerfile refid="VectorizedSolver_8cpp">VectorizedSolver.cpp</innerfile>
+    <innerfile refid="VectorizedSolver_8h">VectorizedSolver.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/"/>
+  </compounddef>
+</doxygen>

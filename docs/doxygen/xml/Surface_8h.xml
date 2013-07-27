@@ -1,0 +1,390 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="Surface_8h" kind="file">
+    <compoundname>Surface.h</compoundname>
+    <includedby refid="Surface_8cpp" local="yes">/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp</includedby>
+    <innerclass refid="classSurface" prot="public">Surface</innerclass>
+    <innerclass refid="classPlane" prot="public">Plane</innerclass>
+    <innerclass refid="classXPlane" prot="public">XPlane</innerclass>
+    <innerclass refid="classYPlane" prot="public">YPlane</innerclass>
+    <innerclass refid="classZPlane" prot="public">ZPlane</innerclass>
+    <innerclass refid="classCircle" prot="public">Circle</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="Surface_8h_1a5ff2a7fbf6ba25f47f298c79f39dc4f8" prot="public" static="no">
+        <name>ON_SURFACE_THRESH</name>
+        <initializer>1E-12</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Error threshold for determining how close a point needs to be to a surface to be considered on it </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="20" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="20" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="Surface_8h_1a669341e8f044e9051db22e680c1b81df" prot="public" static="no">
+        <name>surfaceType</name>
+        <enumvalue id="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa67572d1492c84d8d417b61e864f13f24" prot="public">
+          <name>PLANE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A general plane perpendicular to the 2D xy plane </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="Surface_8h_1a669341e8f044e9051db22e680c1b81dfaa79c827759ea48f0735386c4b1188911" prot="public">
+          <name>CIRCLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A circle with axis parallel to the z-axis </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa1c21ef9ff004b3e547f19918ab7e7a80" prot="public">
+          <name>XPLANE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A plane perpendicular to the x-axis </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa02382f3d36c22c4fdd1544a55ac87d4a" prot="public">
+          <name>YPLANE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A plane perpendicular to the y-axis </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="Surface_8h_1a669341e8f044e9051db22e680c1b81dfab8a67003c4c98688a7ae46205a6731d4" prot="public">
+          <name>ZPLANE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A plane perpendicular to the z-axis </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa2e8d8a1445172e2e64293e1dd0558b0a" prot="public">
+          <name>QUADRATIC</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A generalized quadratic surface </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>The types of surfaces supported by OpenMOC. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="35" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="35" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="enum" id="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341" prot="public" static="no">
+        <name>boundaryType</name>
+        <enumvalue id="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341a227181ec341c2ea61382da6028f2754f" prot="public">
+          <name>VACUUM</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A vacuum boundary condition </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341a45e171c3bba46047336203d2aed3775d" prot="public">
+          <name>REFLECTIVE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A reflective boundary condition </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341a0a567d852cec14885cd940816395a13d" prot="public">
+          <name>BOUNDARY_NONE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>No boundary type (typically an interface between flat source regions) </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>The types of boundary conditions supported by OpenMOC for surfaces. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="55" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="55" bodyend="62"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="Surface_8h_1aa0ccb834fb6c557e9713707f95ee10f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int surf_id</definition>
+        <argsstring>()</argsstring>
+        <name>surf_id</name>
+        <briefdescription>
+<para>Returns an auto-generated unique surface ID. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method is intended as a utility mehtod for user&apos;s writing OpenMOC input files. The method makes use of a static surface ID which is incremented each time the method is called to enable unique generation of monotonically increasing IDs. The method&apos;s first ID begins at 10000. Hence, user-defined surface IDs greater than or equal to 10000 is prohibited. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="28" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="16" bodyend="20"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>The <ref refid="classSurface" kindref="compound">Surface</ref> class and subclasses. <simplesect kind="date"><para>January 9, 2012 </para></simplesect>
+<simplesect kind="author"><para>William Boyd, MIT, Course 22 (<ulink url="mailto:wboyd@mit.edu">wboyd@mit.edu</ulink>) </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="9"><highlight class="preprocessor">#ifndef<sp/>SURFACE_H_</highlight></codeline>
+<codeline lineno="10"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>SURFACE_H_</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&lt;limits&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="Cell_8h" kindref="compound" tooltip="The Cell class.">Cell.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="LocalCoords_8h" kindref="compound" tooltip="The LocalCoords class.">LocalCoords.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="20" refid="Surface_8h_1a5ff2a7fbf6ba25f47f298c79f39dc4f8" refkind="member"><highlight class="preprocessor">#define<sp/>ON_SURFACE_THRESH<sp/>1E-12</highlight></codeline>
+<codeline lineno="21"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Define<sp/>for<sp/>compiler<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classLocalCoords" kindref="compound" tooltip="The localcoords represents a set of local coordinates on some level of nested universes making up the...">LocalCoords</ref>;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classCell" kindref="compound" tooltip="Represents a cell inside of a universe.">Cell</ref>;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>surf_id();</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="Surface_8h_1a669341e8f044e9051db22e680c1b81df" refkind="member"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81df" kindref="member" tooltip="The types of surfaces supported by OpenMOC.">surfaceType</ref><sp/>{</highlight></codeline>
+<codeline lineno="37" refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa67572d1492c84d8d417b61e864f13f24" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa67572d1492c84d8d417b61e864f13f24" kindref="member">PLANE</ref>,</highlight></codeline>
+<codeline lineno="39" refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfaa79c827759ea48f0735386c4b1188911" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfaa79c827759ea48f0735386c4b1188911" kindref="member">CIRCLE</ref>,</highlight></codeline>
+<codeline lineno="41" refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa1c21ef9ff004b3e547f19918ab7e7a80" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa1c21ef9ff004b3e547f19918ab7e7a80" kindref="member">XPLANE</ref>,</highlight></codeline>
+<codeline lineno="43" refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa02382f3d36c22c4fdd1544a55ac87d4a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa02382f3d36c22c4fdd1544a55ac87d4a" kindref="member">YPLANE</ref>,</highlight></codeline>
+<codeline lineno="45" refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfab8a67003c4c98688a7ae46205a6731d4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfab8a67003c4c98688a7ae46205a6731d4" kindref="member">ZPLANE</ref>,</highlight></codeline>
+<codeline lineno="47" refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa2e8d8a1445172e2e64293e1dd0558b0a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81dfa2e8d8a1445172e2e64293e1dd0558b0a" kindref="member">QUADRATIC</ref></highlight></codeline>
+<codeline lineno="48"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341" refkind="member"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341" kindref="member" tooltip="The types of boundary conditions supported by OpenMOC for surfaces.">boundaryType</ref><sp/>{</highlight></codeline>
+<codeline lineno="57" refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341a227181ec341c2ea61382da6028f2754f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341a227181ec341c2ea61382da6028f2754f" kindref="member">VACUUM</ref>,</highlight></codeline>
+<codeline lineno="59" refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341a45e171c3bba46047336203d2aed3775d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341a45e171c3bba46047336203d2aed3775d" kindref="member">REFLECTIVE</ref>,</highlight></codeline>
+<codeline lineno="61" refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341a0a567d852cec14885cd940816395a13d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341a0a567d852cec14885cd940816395a13d" kindref="member">BOUNDARY_NONE</ref></highlight></codeline>
+<codeline lineno="62"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="classSurface" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classSurface" kindref="compound" tooltip="Represents a general surface in the 2D xy-plane.">Surface</ref><sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="78" refid="classSurface_1a259bc52e2a2788727593176a8896754e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a259bc52e2a2788727593176a8896754e" kindref="member">_n</ref>;</highlight></codeline>
+<codeline lineno="80" refid="classSurface_1a8995d86060c1a792988c707abbb56ea8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a8995d86060c1a792988c707abbb56ea8" kindref="member">_uid</ref>;</highlight></codeline>
+<codeline lineno="82" refid="classSurface_1a4c1bcbdba5c4e1e8772b4d4b28f95e39" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a4c1bcbdba5c4e1e8772b4d4b28f95e39" kindref="member">_id</ref>;</highlight></codeline>
+<codeline lineno="84" refid="classSurface_1a2b8655eb5a953ea4b45abe5fab7831d0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81df" kindref="member" tooltip="The types of surfaces supported by OpenMOC.">surfaceType</ref><sp/><ref refid="classSurface_1a2b8655eb5a953ea4b45abe5fab7831d0" kindref="member">_surface_type</ref>;</highlight></codeline>
+<codeline lineno="87" refid="classSurface_1a73ff438f865a0694735877998dce0d91" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341" kindref="member" tooltip="The types of boundary conditions supported by OpenMOC for surfaces.">boundaryType</ref><sp/><ref refid="classSurface_1a73ff438f865a0694735877998dce0d91" kindref="member">_boundary_type</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classSurface_1ad29d02e18bad0fe49e5a18d9f0cab7a2" kindref="member" tooltip="Constructor assigns unique ID and user-defined ID for a surface.">Surface</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">=0);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a89de75c95cb550d432f3ea4ed1429db0" kindref="member" tooltip="Destructor.">~Surface</ref>();</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a1b8e7a0a79ee5b21ad5006ec7a1380a5" kindref="member" tooltip="Return the surface&amp;#39;s unique ID.">getUid</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a77ba5d7532f411134107c777861d23b2" kindref="member" tooltip="Return the surface&amp;#39;s user-defined id.">getId</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81df" kindref="member" tooltip="The types of surfaces supported by OpenMOC.">surfaceType</ref><sp/><ref refid="classSurface_1a0e9228606069f0540ba43960ca192327" kindref="member" tooltip="Return the type of surface (ie, XPLANE, CIRCLE, etc).">getSurfaceType</ref>();</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341" kindref="member" tooltip="The types of boundary conditions supported by OpenMOC for surfaces.">boundaryType</ref><sp/><ref refid="classSurface_1afa3ef1b6a8b18d04240ee1a3bc908780" kindref="member" tooltip="Returns the type of boundary conditions for this surface (REFLECTIVE, VACUUM or BOUNDARY_NONE)">getBoundaryType</ref>();</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a3baea26cc38b6fb0d194fca014018174" kindref="member" tooltip="Returns the minimum x value on this surface.">getXMin</ref>()<sp/>=0;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classSurface_1aff659fd1b2d547d8b59df1b804d4098b" kindref="member" tooltip="Returns the maximum x value on this surface.">getXMax</ref>()<sp/>=0;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a294b8bd2f04b3b938cc7c31cc4f941f3" kindref="member" tooltip="Returns the minimum y value on this surface.">getYMin</ref>()<sp/>=0;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a1ffa35335f366974886fa7c36b564fef" kindref="member" tooltip="Returns the maximum y value on this surface.">getYMax</ref>()<sp/>=0;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classSurface_1af8921636e9779854a377f412817c3a32" kindref="member" tooltip="Sets the boundary condition type (ie, VACUUM or REFLECTIVE) for this surface.">setBoundaryType</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341" kindref="member" tooltip="The types of boundary conditions supported by OpenMOC for surfaces.">boundaryType</ref><sp/>boundary_type);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a2e0aaef635a7392806d27fb4999a9168" kindref="member" tooltip="Evaluate a point using the plane&amp;#39;s surface&amp;#39;s potential equation.">evaluate</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>=0;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a145ed967142bc6c121d43f5f2523e2e9" kindref="member" tooltip="Finds the intersection point with this surface from a given point and trajectory defined by an angle...">intersection</ref>(<ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>angle,<sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>points)<sp/>=0;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classSurface_1ad996b11e3af07e6dea8081cb11ccfe0c" kindref="member" tooltip="Return true or false if a point is on or off of a surface.">isPointOnSurface</ref>(<ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a1263b1b61154ed6f75e7079a5832d853" kindref="member" tooltip="Return true or false if a localcoord is on or off of a surface.">isCoordOnSurface</ref>(<ref refid="classLocalCoords" kindref="compound" tooltip="The localcoords represents a set of local coordinates on some level of nested universes making up the...">LocalCoords</ref>*<sp/>coord);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a38d24a561dd8d1e3e3a0dabc3a472634" kindref="member" tooltip="Finds the minimum distance to a surface.">getMinDistance</ref>(<ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>angle,<sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/><ref refid="classSurface_1a145ed967142bc6c121d43f5f2523e2e9" kindref="member" tooltip="Finds the intersection point with this surface from a given point and trajectory defined by an angle...">intersection</ref>);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::string<sp/><ref refid="classSurface_1a7275a4ce4c6d96fd90b5c1916cf9ae37" kindref="member" tooltip="Converts this surface&amp;#39;s attributes to a character array.">toString</ref>()<sp/>=0;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classSurface_1aedc2d76b05edc93b85bb63dc41c1f1b2" kindref="member" tooltip="Prints a string representation of all of the surface&amp;#39;s objects to the console.">printString</ref>()<sp/>=0;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159" refid="classPlane" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classPlane" kindref="compound" tooltip="Represents a plane perpendicular to the xy-plane.">Plane</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classSurface" kindref="compound" tooltip="Represents a general surface in the 2D xy-plane.">Surface</ref><sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="163" refid="classPlane_1afd0aae8ff683f84d286e975e856df3ef" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classPlane_1afd0aae8ff683f84d286e975e856df3ef" kindref="member">_A</ref>;</highlight></codeline>
+<codeline lineno="165" refid="classPlane_1a2aac5aa1b6e726918a1afc87269e51f4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classPlane_1a2aac5aa1b6e726918a1afc87269e51f4" kindref="member">_B</ref>;</highlight></codeline>
+<codeline lineno="167" refid="classPlane_1a4797228fd9249fbe9f353a15e110b06c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classPlane_1a4797228fd9249fbe9f353a15e110b06c" kindref="member">_C</ref>;</highlight></codeline>
+<codeline lineno="169" refid="classPlane_1a432070efb8401735ea64bc0e98feebe5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classSurface" kindref="compound" tooltip="Represents a general surface in the 2D xy-plane.">Surface</ref>;</highlight></codeline>
+<codeline lineno="171" refid="classPlane_1ab5684e0fdc711b5d83e1155fcf2427bc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classCircle" kindref="compound" tooltip="Represents a circle in the xy-plane.">Circle</ref>;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classPlane_1aa3494ba48672b175bb780ef18339d7f7" kindref="member" tooltip="Constructor.">Plane</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>A,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>B,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>C,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">=0);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classPlane_1a39fb25d54b2b752f1598c20e2e889679" kindref="member" tooltip="Returns the minimum x value of -INFINITY on this surface.">getXMin</ref>();</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classPlane_1a32318a4525e6e9224602be52c89972f1" kindref="member" tooltip="Returns the maximum x value of INFINITY on this surface.">getXMax</ref>();</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classPlane_1a70c9986c329d96eeaf6f2f0239f54706" kindref="member" tooltip="Returns the minimum y value of -INFINITY on this surface.">getYMin</ref>();</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classPlane_1a79d802de37e2b43b689c69dd05b721ff" kindref="member" tooltip="Returns the maximum y value of INFINITY on this surface.">getYMax</ref>();</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classPlane_1a18dcfc28a7d08e18983d3f906943bc82" kindref="member" tooltip="Evaluate a point using the plane&amp;#39;s quadratic surface equation.">evaluate</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classPlane_1a6e1b304a38f0c6d6f7dc985d548e0304" kindref="member" tooltip="Finds the intersection point with this plane from a given point and trajectory defined by an angle...">intersection</ref>(<ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>angle,<sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>points);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classPlane_1ae953389291ab7fff7a1745c86977a3ae" kindref="member" tooltip="Converts this plane&amp;#39;s attributes to a character array.">toString</ref>();</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classPlane_1a1979f3908ae8fa3dd780f0f583591da3" kindref="member" tooltip="Prints a string representation of all of the plane&amp;#39;s objects to the console.">printString</ref>();</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194" refid="classXPlane" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classXPlane" kindref="compound" tooltip="Represents a plane perpendicular to the x-axis.">XPlane</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classPlane" kindref="compound" tooltip="Represents a plane perpendicular to the xy-plane.">Plane</ref><sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_x;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classXPlane_1a8891db3af5be7da71e10561753f076c9" kindref="member" tooltip="Constructor for a plane perpendicular to the x-axis.">XPlane</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">=0);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classXPlane_1a1ce1e78120d2595813087a286410d984" kindref="member" tooltip="Set the location of this xplane on the x-axis.">setX</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>x);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classXPlane_1ae9e8cc70716f5ef26297de6ee0df00d9" kindref="member" tooltip="Returns the location of the xplane on the x-axis.">getX</ref>();</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classXPlane_1a44355c96a333d8061ac0281d4f3a1aa7" kindref="member" tooltip="Returns the minimum x value on the xplane.">getXMin</ref>();</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classXPlane_1ab6fadaf822a0f13c24b04eb234981f84" kindref="member" tooltip="Returns the maximum x value on the xplane.">getXMax</ref>();</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classXPlane_1a827dd3ffd7ee05c3110e0c25ff3efcfb" kindref="member" tooltip="Returns the minimum y value of -INFINITY on the xplane.">getYMin</ref>();</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classXPlane_1a12b3bab6d337755116c2a8d50b8c5810" kindref="member">getYMax</ref>();</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classXPlane_1a8f02479cb1ca1dc6e4d79d4fe1d26543" kindref="member" tooltip="Converts this xplane&amp;#39;s attributes to a character array.">toString</ref>();</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219" refid="classYPlane" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classYPlane" kindref="compound" tooltip="Represents a plane perpendicular to the y-axis.">YPlane</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classPlane" kindref="compound" tooltip="Represents a plane perpendicular to the xy-plane.">Plane</ref><sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_y;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classYPlane_1a9e04f6233f8a1ea659ad5fee27ee54c2" kindref="member" tooltip="Constructor for a plane perpendicular to the y-axis.">YPlane</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>y,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">=0);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classYPlane_1a899cafc6a3533efd3fa32dd1fdfdc3ba" kindref="member" tooltip="Set the location of this yplane on the y-axis.">setY</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>y);</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classYPlane_1a238909f9532b3b06bae42903a47b9f67" kindref="member" tooltip="Returns the location of the yplane on the y-axis.">getY</ref>();</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classYPlane_1ac3516c324a84328918483ba4fb9ed3b0" kindref="member" tooltip="Returns the minimum x value of -INFINITY on this yplane.">getXMin</ref>();</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classYPlane_1a826121aa104801c8de740bdf35b8719b" kindref="member" tooltip="Returns the maximum x value of INFINITY on this yplane.">getXMax</ref>();</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classYPlane_1ad31d977334c0839649588b2382c6d316" kindref="member" tooltip="Returns the minimum y value on this yplane.">getYMin</ref>();</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classYPlane_1a68f1585c4575003ef500e95bd21475f1" kindref="member" tooltip="Returns the maximum y value on this yplane.">getYMax</ref>();</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classYPlane_1a90e984e54368bc0508c82e86b05de286" kindref="member" tooltip="Converts this yplane&amp;#39;s attributes to a character array.">toString</ref>();</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classYPlane_1a0be4dfa4623eaf137fdd0324bfe1e7ea" kindref="member" tooltip="Prints a string representation of all of the yplane&amp;#39;s objects to the console.">printString</ref>();</highlight></codeline>
+<codeline lineno="238"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245" refid="classZPlane" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classZPlane" kindref="compound" tooltip="Represents a plane perpendicular to the z-axis.">ZPlane</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classPlane" kindref="compound" tooltip="Represents a plane perpendicular to the xy-plane.">Plane</ref><sp/>{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_z;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classZPlane_1adf8686299f24561e55dbbbdd1fd16c1d" kindref="member" tooltip="Constructor for a plane perpendicular to the z-axis.">ZPlane</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>z,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">=0);</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classZPlane_1a96d7d97847aefd832bad4d78a0ba5bd0" kindref="member" tooltip="Set the location of this zplane on the z-axis.">setZ</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>z);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classZPlane_1abd5aa541a5803dfb52af8d156c06cb6d" kindref="member" tooltip="Returns the location of the zplane on the z-axis.">getZ</ref>();</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classZPlane_1a88cf39a1b45475ca33b9c6c490a2be32" kindref="member" tooltip="Returns the minimum x value of -INFINITY on this zplane.">getXMin</ref>();</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classZPlane_1a8a5210e90bdfb46876935dbef37193ff" kindref="member" tooltip="Returns the maximum x value of INFINITY on this zplane.">getXMax</ref>();</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classZPlane_1ac8c77d7807045ce074dc76a69b93d5b6" kindref="member" tooltip="Returns the minimum y value of -INFINITY on this zplane.">getYMin</ref>();</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classZPlane_1a3c76cfa8b383fbf962589b35364ab8cf" kindref="member" tooltip="Returns the maximum y value on this zplane.">getYMax</ref>();</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classZPlane_1a7a55a5e5c3d7d1279844263e77010c40" kindref="member" tooltip="Converts this zplane&amp;#39;s attributes to a character array.">toString</ref>();</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classZPlane_1a979069fb189a567b298114bf5b24ff4a" kindref="member" tooltip="Prints a string representation of all of the zplane&amp;#39;s objects to the console.">printString</ref>();</highlight></codeline>
+<codeline lineno="264"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271" refid="classCircle" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classCircle" kindref="compound" tooltip="Represents a circle in the xy-plane.">Circle</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classSurface" kindref="compound" tooltip="Represents a general surface in the 2D xy-plane.">Surface</ref><sp/>{</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref><sp/>_center;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_radius;</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_A;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_B;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_C;</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_D;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_E;</highlight></codeline>
+<codeline lineno="289" refid="classCircle_1a432070efb8401735ea64bc0e98feebe5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classSurface" kindref="compound" tooltip="Represents a general surface in the 2D xy-plane.">Surface</ref>;</highlight></codeline>
+<codeline lineno="291" refid="classCircle_1a89c71bac3ec153ca700e1cd69900b6ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classPlane" kindref="compound" tooltip="Represents a plane perpendicular to the xy-plane.">Plane</ref>;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classCircle_1a2e16fb81ce028fc541fe3a7666cd166a" kindref="member" tooltip="constructor.">Circle</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>y,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>radius,<sp/></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">=0);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classCircle_1ad4e43556962fd45f3f45d4e2d378c7bf" kindref="member" tooltip="Return the x-coordinate of the circle&amp;#39;s center point.">getX0</ref>();</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classCircle_1ad186209f266b47ad1136a736c8fa75fc" kindref="member" tooltip="Return the y-coordinate of the circle&amp;#39;s center point.">getY0</ref>();</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classCircle_1af9fccec77d3a15d63594666dc8501437" kindref="member" tooltip="Return the radius of the circle.">getRadius</ref>();</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classCircle_1a237978476592c9e3a51408e1b9983175" kindref="member" tooltip="Returns the minimum x value on this circle.">getXMin</ref>();</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classCircle_1a85c4fc93fe17f6ec4b5255c07315400c" kindref="member" tooltip="Returns the maximum x value on this circle.">getXMax</ref>();</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classCircle_1a15a934ccb615ddf1e3b87d80a65d14c8" kindref="member" tooltip="Returns the minimum y value on this circle.">getYMin</ref>();</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classCircle_1ac468c428499a1e10ace7c16260060da9" kindref="member" tooltip="Returns ths maximum y value on this circle.">getYMax</ref>();</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classCircle_1a18f49b1f94c29760cd62d10b7e908fa9" kindref="member" tooltip="Evaluate a point using the circle&amp;#39;s quadratic surface equation.">evaluate</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classCircle_1a49e3967db73a8f068dbe6302a84370f6" kindref="member" tooltip="Finds the intersection point with this circle from a given point and trajectory defined by an angle (...">intersection</ref>(<ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>angle,<sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>points);</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classCircle_1aea2207f792f532c1a92bfba37adcee5e" kindref="member" tooltip="Converts this circle&amp;#39;s attributes to a character array.">toString</ref>();</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCircle_1a194de784b65de551eb4a05ff6bfd443b" kindref="member" tooltip="Prints a string representation of all of the circle&amp;#39;s objects to the console.">printString</ref>();</highlight></codeline>
+<codeline lineno="310"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323" refid="classSurface_1a38d24a561dd8d1e3e3a0dabc3a472634" refkind="member"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classSurface_1a38d24a561dd8d1e3e3a0dabc3a472634" kindref="member" tooltip="Finds the minimum distance to a surface.">Surface::getMinDistance</ref>(<ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>angle,</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/><ref refid="classPlane_1a6e1b304a38f0c6d6f7dc985d548e0304" kindref="member" tooltip="Finds the intersection point with this plane from a given point and trajectory defined by an angle...">intersection</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Point<sp/>array<sp/>for<sp/>intersections<sp/>with<sp/>this<sp/>surface<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref><sp/>intersections[2];</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>the<sp/>intersection<sp/>point(s)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_inters<sp/>=<sp/>this-&gt;<ref refid="classSurface_1a145ed967142bc6c121d43f5f2523e2e9" kindref="member" tooltip="Finds the intersection point with this surface from a given point and trajectory defined by an angle...">intersection</ref>(point,<sp/>angle,<sp/>intersections);</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>distance<sp/>=<sp/>INFINITY;</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>If<sp/>there<sp/>is<sp/>one<sp/>intersection<sp/>point<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(num_inters<sp/>==<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>distance<sp/>=<sp/>intersections[0].<ref refid="classPoint_1a1000c6590f93653b2d8d3b45991f60c9" kindref="member" tooltip="Compute the distance from this point to another point of interest.">distanceToPoint</ref>(point);</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>intersection-&gt;<ref refid="classPoint_1ad8bedf2cc41f2414728d83d6976fb55f" kindref="member" tooltip="Set the point&amp;#39;s x-coordinate.">setX</ref>(intersections[0].getX());</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>intersection-&gt;<ref refid="classPoint_1a91ab67528ea9e1311d408237448e16c5" kindref="member" tooltip="Set the point&amp;#39;s y-coordinate.">setY</ref>(intersections[0].getY());</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>If<sp/>there<sp/>are<sp/>two<sp/>intersection<sp/>points<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(num_inters<sp/>==<sp/>2)<sp/>{</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>dist1<sp/>=<sp/>intersections[0].<ref refid="classPoint_1a1000c6590f93653b2d8d3b45991f60c9" kindref="member" tooltip="Compute the distance from this point to another point of interest.">distanceToPoint</ref>(point);</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>dist2<sp/>=<sp/>intersections[1].<ref refid="classPoint_1a1000c6590f93653b2d8d3b45991f60c9" kindref="member" tooltip="Compute the distance from this point to another point of interest.">distanceToPoint</ref>(point);</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Determine<sp/>which<sp/>intersection<sp/>point<sp/>is<sp/>nearest<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dist1<sp/>&lt;<sp/>dist2)<sp/>{</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>distance<sp/>=<sp/>dist1;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>intersection-&gt;<ref refid="classPoint_1ad8bedf2cc41f2414728d83d6976fb55f" kindref="member" tooltip="Set the point&amp;#39;s x-coordinate.">setX</ref>(intersections[0].getX());</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>intersection-&gt;<ref refid="classPoint_1a91ab67528ea9e1311d408237448e16c5" kindref="member" tooltip="Set the point&amp;#39;s y-coordinate.">setY</ref>(intersections[0].getY());</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>distance<sp/>=<sp/>dist2;</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>intersection-&gt;<ref refid="classPoint_1ad8bedf2cc41f2414728d83d6976fb55f" kindref="member" tooltip="Set the point&amp;#39;s x-coordinate.">setX</ref>(intersections[1].getX());</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>intersection-&gt;<ref refid="classPoint_1a91ab67528ea9e1311d408237448e16c5" kindref="member" tooltip="Set the point&amp;#39;s y-coordinate.">setY</ref>(intersections[1].getY());</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"></highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>distance;</highlight></codeline>
+<codeline lineno="359"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"></highlight></codeline>
+<codeline lineno="361"><highlight class="normal"></highlight></codeline>
+<codeline lineno="367" refid="classPlane_1a18dcfc28a7d08e18983d3f906943bc82" refkind="member"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classPlane_1a18dcfc28a7d08e18983d3f906943bc82" kindref="member" tooltip="Evaluate a point using the plane&amp;#39;s quadratic surface equation.">Plane::evaluate</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>x<sp/>=<sp/>point-&gt;<ref refid="classPoint_1af52a20a376f8f31e87658837565d3812" kindref="member" tooltip="Returns this point&amp;#39;s x-coordinate.">getX</ref>();</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>y<sp/>=<sp/>point-&gt;<ref refid="classPoint_1aac5008459bf0e0053ce744a69187bae7" kindref="member" tooltip="Returns this point&amp;#39;s y-coordinate.">getY</ref>();</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//TODO:<sp/>does<sp/>not<sp/>support<sp/>z-planes</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="classPlane_1afd0aae8ff683f84d286e975e856df3ef" kindref="member">_A</ref><sp/>*<sp/>x<sp/>+<sp/><ref refid="classPlane_1a2aac5aa1b6e726918a1afc87269e51f4" kindref="member">_B</ref><sp/>*<sp/>y<sp/>+<sp/><ref refid="classPlane_1a4797228fd9249fbe9f353a15e110b06c" kindref="member">_C</ref>);</highlight></codeline>
+<codeline lineno="373"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"></highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight></codeline>
+<codeline lineno="380" refid="classCircle_1af9fccec77d3a15d63594666dc8501437" refkind="member"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classCircle_1af9fccec77d3a15d63594666dc8501437" kindref="member" tooltip="Return the radius of the circle.">Circle::getRadius</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>this-&gt;_radius;</highlight></codeline>
+<codeline lineno="382"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight></codeline>
+<codeline lineno="384"><highlight class="normal"></highlight></codeline>
+<codeline lineno="390" refid="classCircle_1a18f49b1f94c29760cd62d10b7e908fa9" refkind="member"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classCircle_1a18f49b1f94c29760cd62d10b7e908fa9" kindref="member" tooltip="Evaluate a point using the circle&amp;#39;s quadratic surface equation.">Circle::evaluate</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>x<sp/>=<sp/>point-&gt;<ref refid="classPoint_1af52a20a376f8f31e87658837565d3812" kindref="member" tooltip="Returns this point&amp;#39;s x-coordinate.">getX</ref>();</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>y<sp/>=<sp/>point-&gt;<ref refid="classPoint_1aac5008459bf0e0053ce744a69187bae7" kindref="member" tooltip="Returns this point&amp;#39;s y-coordinate.">getY</ref>();</highlight></codeline>
+<codeline lineno="393"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="classPlane_1afd0aae8ff683f84d286e975e856df3ef" kindref="member">_A</ref><sp/>*<sp/>x<sp/>*<sp/>x<sp/>+<sp/><ref refid="classPlane_1a2aac5aa1b6e726918a1afc87269e51f4" kindref="member">_B</ref><sp/>*<sp/>y<sp/>*<sp/>y<sp/>+<sp/><ref refid="classPlane_1a4797228fd9249fbe9f353a15e110b06c" kindref="member">_C</ref><sp/>*<sp/>x<sp/>+<sp/>_D<sp/>*<sp/>y<sp/>+<sp/>_E);</highlight></codeline>
+<codeline lineno="394"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"></highlight></codeline>
+<codeline lineno="396"><highlight class="normal"></highlight></codeline>
+<codeline lineno="397"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SURFACE_H_<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h"/>
+  </compounddef>
+</doxygen>
