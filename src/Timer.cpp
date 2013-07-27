@@ -2,7 +2,7 @@
 
 
 std::map<std::string, double> Timer::_timer_splits;
-std::vector<timespec*> Timer::_start_times;
+std::vector<double> Timer::_start_times;
 
 
 /**
@@ -11,14 +11,8 @@ std::vector<timespec*> Timer::_start_times;
  */
 void Timer::startTimer() {
 
-    timespec* start_time = new timespec;
+    double start_time = omp_get_wtime();
     _start_times.push_back(start_time);	
-
-    #ifdef __MACH__         /* For OSX */
-    gettimeofday(start_time, NULL);
-    #else                           /* For linux */
-    clock_gettime(CLOCK_MONOTONIC, start_time);
-    #endif
     _running = true;
 
     return;
@@ -33,23 +27,15 @@ void Timer::stopTimer() {
 
     if (_running) {
 
-        timespec* end_time = new timespec;
-	timespec* start_time = _start_times.back();
+        double end_time = omp_get_wtime();
+	double start_time = _start_times.back();
 	
-        #ifdef __MACH__                  /* For OSX */
-        gettimeofday(end_time, NULL);
-        #else                            /* For linux */
-        clock_gettime(CLOCK_MONOTONIC, end_time);
-        #endif
-
-        _elapsed_time = diff(*start_time, *end_time);
+        _elapsed_time = end_time - start_time;
 
 	if (_start_times.empty())
 	    _running = false;
 
 	_start_times.pop_back();
-	delete start_time;
-	delete end_time;
     }
 
     return;
@@ -80,11 +66,7 @@ void Timer::recordSplit(const char* msg) {
  * @return the elapsed time in seconds
  */
 double Timer::getTime() {
-    #ifdef __MACH__                  /* For OSX */
-    return _elapsed_time * 1.0E-6;
-    #else                           /* For Linux */
-    return _elapsed_time * 1.0E-9;
-    #endif
+    return _elapsed_time;
 }
 
 
@@ -154,47 +136,4 @@ void Timer::clearSplit(const char* msg) {
  */
 void Timer::clearSplits() {
     _timer_splits.clear();
-}
-
-
-/**
-* @brief Helper function which computes the time between the values of
-*        two timespec structs representing the start and end times for code.
-* @param start timespec representing the start time
-* @param end timespec representing the end time
-*/
-double Timer::diff(timespec start, timespec end) {
-
-    double sec, delta;
-    #ifdef __MACH__
-    double usec;
-    delta = end.tv_usec - startTimer.tv_usec;
-    #else
-    double nsec;
-    delta = end.tv_nsec - start.tv_nsec;
-    #endif
-
-    if (delta < 0) {
-        sec = end.tv_sec - start.tv_sec;
-        #ifdef __MACH__
-	usec = 1.0E6 + delta;
-        #else
-	nsec = 1.0E9 + delta;
-        #endif
-
-    } 
-    else {
-        sec = end.tv_sec - start.tv_sec;
-        #ifdef __MACH__
-	usec = delta;
-        #else
-	nsec = delta;
-        #endif
-    }
-
-    #ifdef __MACH__
-    return (sec * 1.0E6 + usec);
-    #else
-    return(sec*1.0E9 + nsec);
-    #endif
 }
