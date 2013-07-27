@@ -10,33 +10,25 @@ Prerequisites
 
 There are a few prerequisites which must be installed on your machine before you will be able to build and install OpenMOC. All of the prerequisites can easily be installed using a standard package manager (such as apt-get_ for Ubuntu, yum_ for Red Hat, and macports_ for Mac OS). The following instructions detail which packages are needed, with instructions on how to install them on Ubuntu.
 
+The following command will install all required and optional dependencies on Ubuntu 12.04 or later::
+
+    sudo apt-get install build-essential git swig python-numpy python-matplotlib python-h5py python-setuptools
+
+
 .. admonition:: Required
 
     * GNU's C++ compiler_
 
-      In order to compile OpenMOC, you will need to have a C++ compiler installed 
-      on your machine. It is recommended that you build OpenMOC with g++ version 
-      4.4 or later. 
-
-      To install g++ on Debian Linux or a Debian derivative such as Ubuntu, 
-      use the following command in the console::
+      In order to compile OpenMOC, you will need to have a C++ compiler installed on your machine. It is recommended that you build OpenMOC with g++ version 4.4 or later. To install g++ on Debian Linux or a Debian derivative such as Ubuntu, use the following command in the console::
 
 	sudo apt-get install build-essential
 
 
     * Python_
 
-      OpenMOC extensively uses Python for rapid data processing and visualization. 
-      OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindings 
-      such that users are entirely insulated from having to write in C/C++ or CUDA, and
-      can simply write a Python script with calls to OpenMOC.
+      OpenMOC extensively uses Python for rapid data processing and visualization. OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindingssuch that users are entirely insulated from having to write in C/C++ or CUDA, and can simply write a Python script with calls to OpenMOC.
 
-      Nearly all common Linux distributions, as well as Mac OS, come with Python 
-      pre-installed. Currently, OpenMOC is only tested with Python 2.6 and 2.7 and does
-      not yet support Python 3 or greater.
-
-      If you are not sure whether you have Python or not, you can check in the console
-      by typing the following::
+      Nearly all common Linux distributions, as well as Mac OS, come with Python pre-installed. Currently, OpenMOC is only tested with Python 2.6 and 2.7 and does not yet support Python 3. If you are not sure whether you have Python or not, you can check in the console by typing the following::
 
 	python --version
 
@@ -47,57 +39,45 @@ There are a few prerequisites which must be installed on your machine before you
 
     * Git_
 
-      The OpenMOC development team uses the Git_ version control software for code
-      development and collaboration. To download the code from our GitHub_ repository,
-      you must first install git. You can do so on Ubuntu as follows::
+      The OpenMOC development team uses the Git_ version control software for code development and collaboration. To download the code from our GitHub_ repository, you must first install git. You can do so on Ubuntu as follows::
 
 	sudo apt-get install git
 
 
     * SWIG_
 
-      The Simplified Wrapper Interface Generator (SWIG) is used to wrap the compiled 
-      C/C++ and CUDA source code and generate Python bindings. SWIG can be installed on 
-      Ubuntu as follows::
+      The Simplified Wrapper Interface Generator (SWIG) is used to wrap the compiled C/C++ and CUDA source code and generate Python bindings. SWIG can be installed on Ubuntu as follows::
 	
 	sudo apt-get install swig
 
 
     * NumPy_
 
-      NumPy is a commonly used, general purpose numerical array creation and 
-      manipulation package for Python. OpenMOC uses NumPy to seamlessly transfer 
-      numerical data between a Python script and the C/C++ back-end compiled code. To 
-      install NumPy on Ubuntu, use the following command::
+      NumPy is a commonly used, general purpose numerical array creation and manipulation package for Python. OpenMOC uses NumPy to seamlessly transfer numerical data between Python and the C/C++ back-end compiled code. To install NumPy on Ubuntu, use the following command::
 
 	sudo apt-get install python-numpy
+
+      NOTE: Although NumPy is considered a required dependency, OpenMOC can be built using the :option:`--no-numpy` compile time option. This will build an OpenMOC distribution without embedding the NumPy C API into the source code. When built in this mode, users will be unable to pass NumPy arrays from Python into OpenMOC's C++ extension modules (i.e., assigning multigroup nuclear cross-section data) or retrieve data from OpenMOC into NumPy arrays for data analysis (i.e., scalar fluxes or pin powers). The :option:`--no-numpy` mode is useful, however, on machines such as IBM's BlueGene_ supercomputers which may not have NumPy installations.
+
+    * setuptools_
+
+      Setuptools is a common Python package for building C/C++ extension modules with bindings for Python. It is as an extension to Python's standard distutils_ package, and is used for OpenMOC's build system. To install setuptools on Ubuntu,, use the following command::
+
+        sudo apt-get install python-setuptools
 
 
 .. admonition:: Optional
 
     * matplotlib_
 
-      The matplotlib Python package is a general purpose utility for plotting and 
-      visualizations. OpenMOC uses matplotlib in the ``openmoc.plotter`` module to 
-      generate plots, such as flux and power distributions. Although matplotlib and
-      the ``openmoc.plotter`` modules are not required for an OpenMOC simulation,
-      visualizations can be a helpful tool in debugging and input model validation.
-
-      To install matplotlib in Ubuntu, issue the following command::
+      The matplotlib Python package is a general purpose utility for plotting and visualizations. OpenMOC uses matplotlib in the ``openmoc.plotter`` module to generate plots, such as flux and power distributions. Although matplotlib and the ``openmoc.plotter`` modules are not required for an OpenMOC simulation, visualizations can be a helpful tool in debugging and input model validation. To install matplotlib in Ubuntu, issue the following command::
 
 	sudo apt-get install python-matplotlib
 
 
     * h5py_
 
-      The h5py Python package contains tools to create, retrieve, and manipulate data 
-      stored using the HDF5_ binary format. OpenMOC leverages the h5py functionality 
-      in its ``openmoc.materialize`` module which includes routines to import/export 
-      multi-group nuclear cross-section data to/from HDF5. In addition, the 
-      ``openmoc.process`` module contains routines to import/export simulation and 
-      performance data to/from HDF5 output files. Although h5py and the 
-      ``openmoc.materialize`` and ``openmoc.process`` modules are not required to 
-      run OpenMOC, they can facilitate fast access and storage of binary data.
+      The h5py Python package contains tools to create, retrieve, and manipulate data stored using the HDF5_ binary format. OpenMOC leverages the h5py functionality in its ``openmoc.materialize`` module which includes routines to import/export multi-group nuclear cross-section data to/from HDF5. In addition, the ``openmoc.process`` module contains routines to import/export simulation and performance data to/from HDF5 output files. Although h5py and the ``openmoc.materialize`` and ``openmoc.process`` modules are not required to run OpenMOC, they can facilitate fast access and storage of binary data.
       
       To install h5py on Ubuntu, issue the following command::
       
@@ -112,9 +92,12 @@ There are a few prerequisites which must be installed on your machine before you
 .. _Git: http://git-scm.com
 .. _SWIG: http://www.swig.org/
 .. _NumPy: http://www.numpy.org/
+.. _BlueGene: http://www-03.ibm.com/systems/technicalcomputing/solutions/bluegene/
+.. _setuptools: http://pythonhosted.org/setuptools/
 .. _matplotlib: http://matplotlib.org/
 .. _h5py: http://www.h5py.org/
 .. _HDF5: http://www.hdfgroup.org/HDF5/
+
 
 --------------------
 Obtaining the Source
@@ -166,7 +149,11 @@ To install OpenMOC, we typically recommend using the :program:`install` command 
 
   python setup.py install --help
 
-The following section will provide an overview of the most useful and relevant build options for OpenMOC developers.
+
+Build Configuration Options
+---------------------------
+
+This section section will provides an overview of the most useful and relevant build options for OpenMOC developers.
 
 .. option:: --user
 
@@ -205,17 +192,17 @@ Compiles the ``openmoc.intel.single`` and / or ``openmoc.intel.double`` modules 
 
 .. option:: --with-bgxlc
 
-Compiles the ``openmoc.bgxlc.single`` and / or ``openmoc.bgxlc.double`` modules using IBM's :program:`bgxlc` C++ compiler. If one or both of :option:`--with-sp` and :option:`--with-sp` are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, ``openmoc.bgxlc.single`` will be built by default.
+Compiles the ``openmoc.bgq.single`` and / or ``openmoc.bgq.double`` modules using IBM's :program:`bgxlc` C++ compiler. If one or both of :option:`--with-sp` and :option:`--with-sp` are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, ``openmoc.bgq.single`` will be built by default.
 
 
 .. option:: --with-sp
 
-Specifies the :envvar:`single` floating point precision level to be used for ``openmoc.gnu.single``, ``openmoc.intel.single``, and / or ``openmoc.bgxlc.single`` modules. Compiles This option must be used in conjunction with the :option:`--with-gcc`, :option:`--with-icpc`, and / or :option:`--with-bgxlc` options.
+Specifies the :envvar:`single` floating point precision level to be used for ``openmoc.gnu.single``, ``openmoc.intel.single``, and / or ``openmoc.bgq.single`` modules. This option must be used in conjunction with the :option:`--with-gcc`, :option:`--with-icpc`, and / or :option:`--with-bgxlc` options.
 
 
 .. option:: --with-dp
 
-Specifies the :envvar:`double` floating point precision level to be used for ``openmoc.gnu.double``, ``openmoc.intel.double``, and / or ``openmoc.bgxlc.double`` modules. Compiles This option must be used in conjunction with the :option:`--with-gcc`, :option:`--with-icpc`, and / or :option:`--with-bgxlc` options.
+Specifies the :envvar:`double` floating point precision level to be used for ``openmoc.gnu.double``, ``openmoc.intel.double``, and / or ``openmoc.bgq.double`` modules. This option must be used in conjunction with the :option:`--with-gcc`, :option:`--with-icpc`, and / or :option:`--with-bgxlc` options.
 
 
 .. option:: --debug-mode
@@ -223,14 +210,22 @@ Specifies the :envvar:`double` floating point precision level to be used for ``o
 Compiles with debugging symbols and information by including the :envvar:`-g` compile flag.
 
 
-.. option:: --with-ccache
+.. option:: --no-numpy
 
-Compiles using ccache_ which uses a cache to speedup compilation of unchanged source files with the binaries from previous compilations. This flag is only relevant for developers needing to frequently recompile the source code. The ccache program must be installed for this flag to work.
+Compiles OpenMOC without embedding the NumPy C API. This is severely limiting for integrating both OpenMOC source convergence calculations and data analysis into Python, but may be necessary on some machines such as IBM's BlueGene_ where NumPy is not a standard package.
 
 
 .. option:: --with-papi
 
 Compiles all :cpp:class:`Solver` derived classes with PAPI_ instrumentation for performance counter measurements.
+
+
+.. option:: --with-ccache
+
+Compiles using ccache_ which uses a cache to speedup compilation of unchanged source files with the binaries from previous compilations. This flag is only relevant for developers needing to frequently recompile the source code. The ccache program must be installed for this flag to work. The following console command will install ccache on Ubuntu::
+
+    sudo apt-get install ccache
+
 
 .. _distutils: http://docs.python.org/2/library/distutils.html#module-distutils
 .. _gcc: http://gcc.gnu.org/
