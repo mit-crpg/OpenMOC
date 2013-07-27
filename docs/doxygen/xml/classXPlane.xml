@@ -1,0 +1,250 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="classXPlane" kind="class" prot="public">
+    <compoundname>XPlane</compoundname>
+    <basecompoundref refid="classPlane" prot="public" virt="non-virtual">Plane</basecompoundref>
+    <includes refid="Surface_8h" local="yes">openmoc/src/host/Surface.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classXPlane_1a720c20e8e06acbaf916bfc9f622075f1" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double XPlane::_x</definition>
+        <argsstring></argsstring>
+        <name>_x</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The location of the xplane along the x-axis </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="198" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="198" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classXPlane_1a8891db3af5be7da71e10561753f076c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>XPlane::XPlane</definition>
+        <argsstring>(const double x, const short int id=0)</argsstring>
+        <name>XPlane</name>
+        <param>
+          <type>const double</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const short int</type>
+          <declname>id</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for a plane perpendicular to the x-axis. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the user-defined surface id </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the location of the plane along the x-axis </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="201" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="276" bodyend="280"/>
+      </memberdef>
+      <memberdef kind="function" id="classXPlane_1a1ce1e78120d2595813087a286410d984" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void XPlane::setX</definition>
+        <argsstring>(const double x)</argsstring>
+        <name>setX</name>
+        <param>
+          <type>const double</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Set the location of this xplane on the x-axis. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the location of the xplane on the x-axis </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="203" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="287" bodyend="289"/>
+      </memberdef>
+      <memberdef kind="function" id="classXPlane_1ae9e8cc70716f5ef26297de6ee0df00d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double XPlane::getX</definition>
+        <argsstring>()</argsstring>
+        <name>getX</name>
+        <briefdescription>
+<para>Returns the location of the xplane on the x-axis. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the location of the xplane on the x-axis </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="205" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="296" bodyend="298"/>
+      </memberdef>
+      <memberdef kind="function" id="classXPlane_1a44355c96a333d8061ac0281d4f3a1aa7" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double XPlane::getXMin</definition>
+        <argsstring>()</argsstring>
+        <name>getXMin</name>
+        <reimplements refid="classPlane_1a39fb25d54b2b752f1598c20e2e889679">getXMin</reimplements>
+        <briefdescription>
+<para>Returns the minimum x value on the xplane. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the minimum x value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="206" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="305" bodyend="307"/>
+      </memberdef>
+      <memberdef kind="function" id="classXPlane_1ab6fadaf822a0f13c24b04eb234981f84" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double XPlane::getXMax</definition>
+        <argsstring>()</argsstring>
+        <name>getXMax</name>
+        <reimplements refid="classPlane_1a32318a4525e6e9224602be52c89972f1">getXMax</reimplements>
+        <briefdescription>
+<para>Returns the maximum x value on the xplane. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the maximum x value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="207" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="314" bodyend="316"/>
+      </memberdef>
+      <memberdef kind="function" id="classXPlane_1a827dd3ffd7ee05c3110e0c25ff3efcfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double XPlane::getYMin</definition>
+        <argsstring>()</argsstring>
+        <name>getYMin</name>
+        <reimplements refid="classPlane_1a70c9986c329d96eeaf6f2f0239f54706">getYMin</reimplements>
+        <briefdescription>
+<para>Returns the minimum y value of -INFINITY on the xplane. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the minimum y value of -INFINITY </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="208" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="323" bodyend="325"/>
+      </memberdef>
+      <memberdef kind="function" id="classXPlane_1a12b3bab6d337755116c2a8d50b8c5810" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double XPlane::getYMax</definition>
+        <argsstring>()</argsstring>
+        <name>getYMax</name>
+        <reimplements refid="classPlane_1a79d802de37e2b43b689c69dd05b721ff">getYMax</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the maximum y value of INFINITY on this xplane. <simplesect kind="return"><para>the maximum y value of INFINITY </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="209" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="332" bodyend="334"/>
+      </memberdef>
+      <memberdef kind="function" id="classXPlane_1a8f02479cb1ca1dc6e4d79d4fe1d26543" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::string</type>
+        <definition>std::string XPlane::toString</definition>
+        <argsstring>()</argsstring>
+        <name>toString</name>
+        <reimplements refid="classPlane_1ae953389291ab7fff7a1745c86977a3ae">toString</reimplements>
+        <briefdescription>
+<para>Converts this xplane&apos;s attributes to a character array. </para>        </briefdescription>
+        <detaileddescription>
+<para>The character array returned conatins the type of plane (ie, XPLANE) and the A, B, and C coefficients in the quadratic surface equation and the location of the plane on the x-axis. <simplesect kind="return"><para>a character array of this xplane&apos;s attributes </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="211" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="345" bodyend="352"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Represents a plane perpendicular to the x-axis. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="140">
+        <label>XPlane</label>
+        <link refid="classXPlane"/>
+        <childnode refid="141" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="142">
+        <label>Surface</label>
+        <link refid="classSurface"/>
+      </node>
+      <node id="141">
+        <label>Plane</label>
+        <link refid="classPlane"/>
+        <childnode refid="142" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="143">
+        <label>XPlane</label>
+        <link refid="classXPlane"/>
+        <childnode refid="144" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="145">
+        <label>Surface</label>
+        <link refid="classSurface"/>
+      </node>
+      <node id="144">
+        <label>Plane</label>
+        <link refid="classPlane"/>
+        <childnode refid="145" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="194" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="194" bodyend="212"/>
+    <listofallmembers>
+      <member refid="classPlane_1afd0aae8ff683f84d286e975e856df3ef" prot="protected" virt="non-virtual"><scope>XPlane</scope><name>_A</name></member>
+      <member refid="classPlane_1a2aac5aa1b6e726918a1afc87269e51f4" prot="protected" virt="non-virtual"><scope>XPlane</scope><name>_B</name></member>
+      <member refid="classSurface_1a73ff438f865a0694735877998dce0d91" prot="protected" virt="non-virtual"><scope>XPlane</scope><name>_boundary_type</name></member>
+      <member refid="classPlane_1a4797228fd9249fbe9f353a15e110b06c" prot="protected" virt="non-virtual"><scope>XPlane</scope><name>_C</name></member>
+      <member refid="classSurface_1a4c1bcbdba5c4e1e8772b4d4b28f95e39" prot="protected" virt="non-virtual"><scope>XPlane</scope><name>_id</name></member>
+      <member refid="classSurface_1a259bc52e2a2788727593176a8896754e" prot="protected" virt="non-virtual"><scope>XPlane</scope><name>_n</name></member>
+      <member refid="classSurface_1a2b8655eb5a953ea4b45abe5fab7831d0" prot="protected" virt="non-virtual"><scope>XPlane</scope><name>_surface_type</name></member>
+      <member refid="classSurface_1a8995d86060c1a792988c707abbb56ea8" prot="protected" virt="non-virtual"><scope>XPlane</scope><name>_uid</name></member>
+      <member refid="classXPlane_1a720c20e8e06acbaf916bfc9f622075f1" prot="private" virt="non-virtual"><scope>XPlane</scope><name>_x</name></member>
+      <member refid="classPlane_1a18dcfc28a7d08e18983d3f906943bc82" prot="public" virt="virtual"><scope>XPlane</scope><name>evaluate</name></member>
+      <member refid="classSurface_1afa3ef1b6a8b18d04240ee1a3bc908780" prot="public" virt="non-virtual"><scope>XPlane</scope><name>getBoundaryType</name></member>
+      <member refid="classSurface_1a77ba5d7532f411134107c777861d23b2" prot="public" virt="non-virtual"><scope>XPlane</scope><name>getId</name></member>
+      <member refid="classSurface_1a38d24a561dd8d1e3e3a0dabc3a472634" prot="public" virt="non-virtual"><scope>XPlane</scope><name>getMinDistance</name></member>
+      <member refid="classSurface_1a0e9228606069f0540ba43960ca192327" prot="public" virt="non-virtual"><scope>XPlane</scope><name>getSurfaceType</name></member>
+      <member refid="classSurface_1a1b8e7a0a79ee5b21ad5006ec7a1380a5" prot="public" virt="non-virtual"><scope>XPlane</scope><name>getUid</name></member>
+      <member refid="classXPlane_1ae9e8cc70716f5ef26297de6ee0df00d9" prot="public" virt="non-virtual"><scope>XPlane</scope><name>getX</name></member>
+      <member refid="classXPlane_1ab6fadaf822a0f13c24b04eb234981f84" prot="public" virt="virtual"><scope>XPlane</scope><name>getXMax</name></member>
+      <member refid="classXPlane_1a44355c96a333d8061ac0281d4f3a1aa7" prot="public" virt="virtual"><scope>XPlane</scope><name>getXMin</name></member>
+      <member refid="classXPlane_1a12b3bab6d337755116c2a8d50b8c5810" prot="public" virt="virtual"><scope>XPlane</scope><name>getYMax</name></member>
+      <member refid="classXPlane_1a827dd3ffd7ee05c3110e0c25ff3efcfb" prot="public" virt="virtual"><scope>XPlane</scope><name>getYMin</name></member>
+      <member refid="classPlane_1a6e1b304a38f0c6d6f7dc985d548e0304" prot="public" virt="virtual"><scope>XPlane</scope><name>intersection</name></member>
+      <member refid="classSurface_1a1263b1b61154ed6f75e7079a5832d853" prot="public" virt="non-virtual"><scope>XPlane</scope><name>isCoordOnSurface</name></member>
+      <member refid="classSurface_1ad996b11e3af07e6dea8081cb11ccfe0c" prot="public" virt="non-virtual"><scope>XPlane</scope><name>isPointOnSurface</name></member>
+      <member refid="classPlane_1aa3494ba48672b175bb780ef18339d7f7" prot="public" virt="non-virtual"><scope>XPlane</scope><name>Plane</name></member>
+      <member refid="classPlane_1a1979f3908ae8fa3dd780f0f583591da3" prot="public" virt="virtual"><scope>XPlane</scope><name>printString</name></member>
+      <member refid="classSurface_1af8921636e9779854a377f412817c3a32" prot="public" virt="non-virtual"><scope>XPlane</scope><name>setBoundaryType</name></member>
+      <member refid="classXPlane_1a1ce1e78120d2595813087a286410d984" prot="public" virt="non-virtual"><scope>XPlane</scope><name>setX</name></member>
+      <member refid="classSurface_1ad29d02e18bad0fe49e5a18d9f0cab7a2" prot="public" virt="non-virtual" ambiguityscope="Surface::"><scope>XPlane</scope><name>Surface</name></member>
+      <member refid="classXPlane_1a8f02479cb1ca1dc6e4d79d4fe1d26543" prot="public" virt="virtual"><scope>XPlane</scope><name>toString</name></member>
+      <member refid="classXPlane_1a8891db3af5be7da71e10561753f076c9" prot="public" virt="non-virtual"><scope>XPlane</scope><name>XPlane</name></member>
+      <member refid="classSurface_1a89de75c95cb550d432f3ea4ed1429db0" prot="public" virt="virtual"><scope>XPlane</scope><name>~Surface</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

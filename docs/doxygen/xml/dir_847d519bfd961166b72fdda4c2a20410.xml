@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="dir_847d519bfd961166b72fdda4c2a20410" kind="dir">
+    <compoundname>/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/</compoundname>
+    <innerfile refid="clone_8cu">clone.cu</innerfile>
+    <innerfile refid="clone_8h">clone.h</innerfile>
+    <innerfile refid="GPUQuery_8cu">GPUQuery.cu</innerfile>
+    <innerfile refid="GPUQuery_8h">GPUQuery.h</innerfile>
+    <innerfile refid="GPUSolver_8cu">GPUSolver.cu</innerfile>
+    <innerfile refid="GPUSolver_8h">GPUSolver.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/"/>
+  </compounddef>
+</doxygen>

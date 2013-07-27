@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="ThreadPrivateSolver_8h" kind="file">
+    <compoundname>ThreadPrivateSolver.h</compoundname>
+    <includedby refid="ThreadPrivateSolver_8cpp" local="yes">/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/ThreadPrivateSolver.cpp</includedby>
+    <innerclass refid="classThreadPrivateSolver" prot="public">ThreadPrivateSolver</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="ThreadPrivateSolver_8h_1a96098a8f0ada349f6b315d7b1c45472f" prot="public" static="no">
+        <name>_thread_flux</name>
+        <param><defname>tid</defname></param>
+        <param><defname>r</defname></param>
+        <param><defname>e</defname></param>
+        <initializer>(_thread_flux[(tid)*_num_FSRs*_num_groups+(r)*_num_groups+(e)])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing scheme for the thread private scalar flux for each thread in each flat source region and in each energy group </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/ThreadPrivateSolver.h" line="22" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/ThreadPrivateSolver.h" bodystart="22" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="classThreadPrivateSolver" kindref="compound">ThreadPrivateSolver</ref> class. </para>    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="date"><para>May 28, 2013 </para></simplesect>
+<simplesect kind="author"><para>William Boyd, MIT, Course 22 (<ulink url="mailto:wboyd@mit.edu">wboyd@mit.edu</ulink>) </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="9"><highlight class="preprocessor">#ifndef<sp/>THREADPRIVATESOLVER_H_</highlight></codeline>
+<codeline lineno="10"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>THREADPRIVATESOLVER_H_</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>_USE_MATH_DEFINES</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;omp.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="CPUSolver_8h" kindref="compound" tooltip="The CPUSolver class.">CPUSolver.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="22" refid="ThreadPrivateSolver_8h_1a96098a8f0ada349f6b315d7b1c45472f" refkind="member"><highlight class="preprocessor">#define<sp/>_thread_flux(tid,r,e)<sp/>(_thread_flux[(tid)*_num_FSRs*_num_groups+(r)*_num_groups+(e)])</highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="32" refid="classThreadPrivateSolver" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classThreadPrivateSolver" kindref="compound" tooltip="This is a subclass of the CPUSolver which uses thread private arrays for the flat source region scala...">ThreadPrivateSolver</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver" kindref="compound" tooltip="This a subclass of the Solver class for multi-core CPUs using OpenMP multi-threading.">CPUSolver</ref><sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="classThreadPrivateSolver_1a17d86a5f763697f0f0f46e448c90d180" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="classThreadPrivateSolver_1a17d86a5f763697f0f0f46e448c90d180" kindref="member">_thread_flux</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classThreadPrivateSolver_1a916aa2e259b03848d5a35c9e3c29ac4b" kindref="member" tooltip="Allocates memory for track boundary angular fluxes and leakages flat source region scalar fluxes...">initializeFluxArrays</ref>();</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classThreadPrivateSolver_1a59774ef30af398b452a767a338e01517" kindref="member" tooltip="Set the scalar flux for each energy group inside each flat source region to a constant value...">flattenFSRFluxes</ref>(FP_PRECISION<sp/>value);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classThreadPrivateSolver_1a0c49d77f127849135aded5223448d3cf" kindref="member" tooltip="Computes the contribution to the flat source region scalar flux from a single track segment...">scalarFluxTally</ref>(<ref refid="structsegment" kindref="compound" tooltip="A segment represents a line segment within a single flat source region along a track.">segment</ref>*<sp/>curr_segment,<sp/></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="CPUSolver_8h_1a2143506339a36528e1c9d7e27501897f" kindref="member">track_flux</ref>,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/>fsr_flux);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classThreadPrivateSolver_1a09364c26764b7194e2e2b0c85d816f83" kindref="member" tooltip="Reduces the flat source region scalar fluxes from private thread array to a global array...">reduceThreadScalarFluxes</ref>();</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classThreadPrivateSolver_1ad784c540c10f88aafe54965631c139e0" kindref="member" tooltip="This method performs one transport sweep of all azimuthal angles, tracks, segments, polar angles and energy groups.">transportSweep</ref>();</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classThreadPrivateSolver_1a7621407a2e3e659ca42ace1f4d30974f" kindref="member" tooltip="Constructor initializes array pointers for tracks and materials.">ThreadPrivateSolver</ref>(<ref refid="classGeometry" kindref="compound" tooltip="The master class containing references to all geometry-related objects (surfaces, cells...">Geometry</ref>*<sp/>geometry=NULL,<sp/></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classTrackGenerator" kindref="compound" tooltip="The track generator is dedicated to generating tracks which cyclically wrap across the geometry...">TrackGenerator</ref>*<sp/>track_generator=NULL);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classThreadPrivateSolver_1a3ec19146ff0b958397cdb460b94bb9fe" kindref="member" tooltip="Destructor calls Solver subclass destructor to deletes arrays for fluxes and sources.">~ThreadPrivateSolver</ref>();</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>THREADPRIVATESOLVER_H_<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/ThreadPrivateSolver.h"/>
+  </compounddef>
+</doxygen>

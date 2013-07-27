@@ -1,0 +1,760 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="classLocalCoords" kind="class" prot="public">
+    <compoundname>LocalCoords</compoundname>
+    <includes refid="LocalCoords_8h" local="yes">openmoc/src/host/LocalCoords.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classLocalCoords_1a3726429a0bfea9b966f629ab15730392" prot="private" static="no" mutable="no">
+        <type><ref refid="LocalCoords_8h_1a9b2c6f3fe231906f231afd6ae7293871" kindref="member">coordType</ref></type>
+        <definition>coordType LocalCoords::_type</definition>
+        <argsstring></argsstring>
+        <name>_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The local coordinate type (UNIV or LAT) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="37" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classLocalCoords_1adb2fc7c1d92fc7108e6f2e47ca5cfeef" prot="private" static="no" mutable="no">
+        <type>short int</type>
+        <definition>short int LocalCoords::_universe</definition>
+        <argsstring></argsstring>
+        <name>_universe</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The id of the universe within which this localcoords resides </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="39" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classLocalCoords_1aacecfe3acc42819b153c3a1604f110fd" prot="private" static="no" mutable="no">
+        <type>short int</type>
+        <definition>short int LocalCoords::_cell</definition>
+        <argsstring></argsstring>
+        <name>_cell</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The id of the cell within which this localcoords resides </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="41" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classLocalCoords_1a447c9a4cf26750197f3f648a0e3773e3" prot="private" static="no" mutable="no">
+        <type>short int</type>
+        <definition>short int LocalCoords::_lattice</definition>
+        <argsstring></argsstring>
+        <name>_lattice</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The id of the lattice within which this localcoords resides </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="43" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classLocalCoords_1a9b7e11587dbfbde2b50a98ade1dc7a46" prot="private" static="no" mutable="no">
+        <type>short int</type>
+        <definition>short int LocalCoords::_lattice_x</definition>
+        <argsstring></argsstring>
+        <name>_lattice_x</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The first index of the lattice cell within which this localcoords resides </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="46" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classLocalCoords_1a719f2b7123cbb323a531cfb7718d3da4" prot="private" static="no" mutable="no">
+        <type>short int</type>
+        <definition>short int LocalCoords::_lattice_y</definition>
+        <argsstring></argsstring>
+        <name>_lattice_y</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The second index of the lattice cell within which this localcoords resides </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="49" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classLocalCoords_1a8c36c5b4a0cb409c64628b90b52f5a1c" prot="private" static="no" mutable="no">
+        <type><ref refid="classPoint" kindref="compound">Point</ref></type>
+        <definition>Point LocalCoords::_coords</definition>
+        <argsstring></argsstring>
+        <name>_coords</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A point representing the 2D coordinates of this localcoords </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="51" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classLocalCoords_1a3f8662e3ac55108af9d9727f27796420" prot="private" static="no" mutable="no">
+        <type><ref refid="classLocalCoords" kindref="compound">LocalCoords</ref> *</type>
+        <definition>LocalCoords* LocalCoords::_next</definition>
+        <argsstring></argsstring>
+        <name>_next</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A pointer to the localcoords at the next lower nested universe level </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="53" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classLocalCoords_1a3950a86246a5925be9d67824f553ae53" prot="private" static="no" mutable="no">
+        <type><ref refid="classLocalCoords" kindref="compound">LocalCoords</ref> *</type>
+        <definition>LocalCoords* LocalCoords::_prev</definition>
+        <argsstring></argsstring>
+        <name>_prev</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A pointer to the localcoords at the next higher nested universe level </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="55" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classLocalCoords_1ab0d2336c8312720fd28aefd09f6f7da0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>LocalCoords::LocalCoords</definition>
+        <argsstring>(double x, double y)</argsstring>
+        <name>LocalCoords</name>
+        <param>
+          <type>double</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Constructor sets the x and y coordinates. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the x-coordinate </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the y-coordinate </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="58" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="8" bodyend="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a1864bf1ab24fc1e785db20bc24185754" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>LocalCoords::~LocalCoords</definition>
+        <argsstring>()</argsstring>
+        <name>~LocalCoords</name>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="59" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="18" bodyend="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a756dbd3f1b8fa9084f584b593af2b066" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="LocalCoords_8h_1a9b2c6f3fe231906f231afd6ae7293871" kindref="member">coordType</ref></type>
+        <definition>coordType LocalCoords::getType</definition>
+        <argsstring>()</argsstring>
+        <name>getType</name>
+        <briefdescription>
+<para>Return the level (UNIV or LAT) of this localcoords. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the level (UNIV or LAT) </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="60" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="25" bodyend="27"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a305af453a198ae35cc510f903def4088" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int LocalCoords::getUniverse</definition>
+        <argsstring>() const </argsstring>
+        <name>getUniverse</name>
+        <briefdescription>
+<para>Return the id of the universe within which this localcoords resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the universe id </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="61" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="34" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a1ac27e8d751c92e8923eb8b992fa2484" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int LocalCoords::getCell</definition>
+        <argsstring>() const </argsstring>
+        <name>getCell</name>
+        <briefdescription>
+<para>Return the id of the cell within which this localcoords resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the cell id </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="62" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="43" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a46a2385e59e758d31b282ab97b0285a7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int LocalCoords::getLattice</definition>
+        <argsstring>() const </argsstring>
+        <name>getLattice</name>
+        <briefdescription>
+<para>Return the id of the lattice within which this localcoords resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the lattice id </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="63" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="52" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a98a422016cd0e5e8a791a44784a3f6ac" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int LocalCoords::getLatticeX</definition>
+        <argsstring>() const </argsstring>
+        <name>getLatticeX</name>
+        <briefdescription>
+<para>Return the first index of the lattice cell within which this localcoords resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the first lattice cell index </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="64" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="61" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a82c184c2b1327bae01e7a607bbdc07f5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int LocalCoords::getLatticeY</definition>
+        <argsstring>() const </argsstring>
+        <name>getLatticeY</name>
+        <briefdescription>
+<para>Return the second index of the lattice cell within which this localcoords resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the second lattice cell index </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="65" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="71" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a9623e05ee2de4ace57a7595a154a3764" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double LocalCoords::getX</definition>
+        <argsstring>() const </argsstring>
+        <name>getX</name>
+        <briefdescription>
+<para>Returns the x-coordinate for this localcoords location. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the x-coordinate of this localcoords location </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="66" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="80" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1ac2ca0a99b00c2aa5784ff82fba2a3618" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double LocalCoords::getY</definition>
+        <argsstring>() const </argsstring>
+        <name>getY</name>
+        <briefdescription>
+<para>Returns the y-coordinate for this localcoords location. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the y-coordinate of this localcoords location </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="67" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="89" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1aff39b0f4a6cd5de5347ab154000d349b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+        <definition>Point * LocalCoords::getPoint</definition>
+        <argsstring>()</argsstring>
+        <name>getPoint</name>
+        <briefdescription>
+<para>Returns a pointer to the point containing the coordinates for this localcoord. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>pointer to the point containing the x and y coordinates </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="68" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="99" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a2072734614ca0d7b945fd20ed59f4594" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classLocalCoords" kindref="compound">LocalCoords</ref> *</type>
+        <definition>LocalCoords * LocalCoords::getNext</definition>
+        <argsstring>() const </argsstring>
+        <name>getNext</name>
+        <briefdescription>
+<para>Return a pointer to the localcoord at the next lower nested universe level if one exists. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>pointer to the next localcoord </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="69" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="109" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a41901845738accab675e9a021185fcc5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classLocalCoords" kindref="compound">LocalCoords</ref> *</type>
+        <definition>LocalCoords * LocalCoords::getPrev</definition>
+        <argsstring>() const </argsstring>
+        <name>getPrev</name>
+        <briefdescription>
+<para>Return a pointer to the localcoord at the next higher nested universe level if one exists. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>pointer to the previous localcoord </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="70" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="119" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a5eb0104c614b60dee59177afbf5a1d09" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::setType</definition>
+        <argsstring>(coordType type)</argsstring>
+        <name>setType</name>
+        <param>
+          <type><ref refid="LocalCoords_8h_1a9b2c6f3fe231906f231afd6ae7293871" kindref="member">coordType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Set the type of localcoords (UNIV or LAT). </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the type for localcoords (UNIV or LAT) </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="72" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="128" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a74f4a16775592fd84c8e4cdccd10b486" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::setUniverse</definition>
+        <argsstring>(short int universe)</argsstring>
+        <name>setUniverse</name>
+        <param>
+          <type>short int</type>
+          <declname>universe</declname>
+        </param>
+        <briefdescription>
+<para>Set the id of the universe within which this localcoords resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>universe</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the universe id </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="73" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="137" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1aac97ca92f795081c3472b5dd219795aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::setCell</definition>
+        <argsstring>(short int cell)</argsstring>
+        <name>setCell</name>
+        <param>
+          <type>short int</type>
+          <declname>cell</declname>
+        </param>
+        <briefdescription>
+<para>Set the id of the cell within which this localcoords resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cell</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the cell id </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="74" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="146" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a61da1c8cfc72af7514c55822714e5258" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::setLattice</definition>
+        <argsstring>(short int lattice)</argsstring>
+        <name>setLattice</name>
+        <param>
+          <type>short int</type>
+          <declname>lattice</declname>
+        </param>
+        <briefdescription>
+<para>Sets the id of the lattice within which this localcoords resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lattice</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the lattice id </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="75" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="155" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a8940ee0b1d5698483dd646b8f2275f71" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::setLatticeX</definition>
+        <argsstring>(short int lattice_x)</argsstring>
+        <name>setLatticeX</name>
+        <param>
+          <type>short int</type>
+          <declname>lattice_x</declname>
+        </param>
+        <briefdescription>
+<para>Sets the first index for the lattice cell within which this localcoords resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lattice_x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the first lattice cell index </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="76" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="165" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1ac12edaa6db88e7be90a622e8fdbac244" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::setLatticeY</definition>
+        <argsstring>(short int lattice_y)</argsstring>
+        <name>setLatticeY</name>
+        <param>
+          <type>short int</type>
+          <declname>lattice_y</declname>
+        </param>
+        <briefdescription>
+<para>Sets the second index for the lattice cell within which this localcoords resides. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lattice_y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the second lattice cell index </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="77" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="175" bodyend="177"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1af00fc05471c68683e7b55274afdb68ba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::setX</definition>
+        <argsstring>(double x)</argsstring>
+        <name>setX</name>
+        <param>
+          <type>double</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Set the x-coordinate for this localcoords. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the x-coordinate </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="78" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="184" bodyend="186"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1ae7a4a2eeb8a1e17698da8b58d08c05b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::setY</definition>
+        <argsstring>(double y)</argsstring>
+        <name>setY</name>
+        <param>
+          <type>double</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Set the y-coordinate for this localcoords. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the y-coordinate </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="79" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="193" bodyend="195"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1ad0d95a64372a6b60c4a7276350380c7c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::setNext</definition>
+        <argsstring>(LocalCoords *next)</argsstring>
+        <name>setNext</name>
+        <param>
+          <type><ref refid="classLocalCoords" kindref="compound">LocalCoords</ref> *</type>
+          <declname>next</declname>
+        </param>
+        <briefdescription>
+<para>Sets the pointer to the localcoords on the next lower nested universe level. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>next</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to the next localcoords </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="80" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="203" bodyend="205"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a433a17c4bfb3f491a16a6067e05067ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::setPrev</definition>
+        <argsstring>(LocalCoords *coords)</argsstring>
+        <name>setPrev</name>
+        <param>
+          <type><ref refid="classLocalCoords" kindref="compound">LocalCoords</ref> *</type>
+          <declname>coords</declname>
+          <defname>prev</defname>
+        </param>
+        <briefdescription>
+<para>Sets the pointer to the localcoords on the next higher nested universe level. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to the previous localcoords </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="81" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="213" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a9eea7e15fe849f272854e8db1fe7268a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classLocalCoords" kindref="compound">LocalCoords</ref> *</type>
+        <definition>LocalCoords * LocalCoords::getLowestLevel</definition>
+        <argsstring>()</argsstring>
+        <name>getLowestLevel</name>
+        <briefdescription>
+<para>Find and return the last localcoords in the linked list wich represents the local coordinates on the lowest level of a geometry of nested universes. </para>        </briefdescription>
+        <detaileddescription>
+<para>Traverses a linked list of localcoords to find the one at the lowest universe level. <simplesect kind="return"><para>a pointer to the last localcoords object in the list </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="83" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="226" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a9a554dc0de187957849d1577cba7a277" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::adjustCoords</definition>
+        <argsstring>(double delta_x, double delta_y)</argsstring>
+        <name>adjustCoords</name>
+        <param>
+          <type>double</type>
+          <declname>delta_x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>delta_y</declname>
+        </param>
+        <briefdescription>
+<para>Translate all of the x,y coordinates for each localcoords object in the linked list. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method will traverse the entire linked list and apply the translation to each element. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>delta_x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>amount we wish to move x by </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>delta_y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>amount we wish to move y by </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="84" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="247" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a371080a986073525f2e0572345e438c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::updateMostLocal</definition>
+        <argsstring>(Point *point)</argsstring>
+        <name>updateMostLocal</name>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>point</declname>
+        </param>
+        <briefdescription>
+<para>Update the last element in the linked list (the one at the lowest level of nested universes) to have the same coordinates as a given point. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>point</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to a point of interest </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="85" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="274" bodyend="285"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1ab6a1654615643dabd35a19c8ed5f7dad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::prune</definition>
+        <argsstring>()</argsstring>
+        <name>prune</name>
+        <briefdescription>
+<para>Removes and frees memory for all localcoords beyond this one in the linked list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="86" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="292" bodyend="306"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a5a5ed42ca7ccf274f548134f9d56d9f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void LocalCoords::copyCoords</definition>
+        <argsstring>(LocalCoords *coords)</argsstring>
+        <name>copyCoords</name>
+        <param>
+          <type><ref refid="classLocalCoords" kindref="compound">LocalCoords</ref> *</type>
+          <declname>coords</declname>
+        </param>
+        <briefdescription>
+<para>Copies a localcoords&apos; values to this one. details Given a pointer to a localcoords, it first prunes it and then creates a copy of the linked list of localcoords in the linked list below this one to give to the input localcoords. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coords</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to the localcoords to give the linked list copy to </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="87" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="316" bodyend="357"/>
+      </memberdef>
+      <memberdef kind="function" id="classLocalCoords_1a82104907b1705c31fbc12e61deb77cf5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string LocalCoords::toString</definition>
+        <argsstring>()</argsstring>
+        <name>toString</name>
+        <briefdescription>
+<para>Converts this localcoords&apos;s attributes to a character array representation. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a character array of its member&apos;s attributes </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="88" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.cpp" bodystart="365" bodyend="399"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The localcoords represents a set of local coordinates on some level of nested universes making up the geometry. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="54">
+        <label>LocalCoords</label>
+        <link refid="classLocalCoords"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" line="33" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/LocalCoords.h" bodystart="33" bodyend="89"/>
+    <listofallmembers>
+      <member refid="classLocalCoords_1aacecfe3acc42819b153c3a1604f110fd" prot="private" virt="non-virtual"><scope>LocalCoords</scope><name>_cell</name></member>
+      <member refid="classLocalCoords_1a8c36c5b4a0cb409c64628b90b52f5a1c" prot="private" virt="non-virtual"><scope>LocalCoords</scope><name>_coords</name></member>
+      <member refid="classLocalCoords_1a447c9a4cf26750197f3f648a0e3773e3" prot="private" virt="non-virtual"><scope>LocalCoords</scope><name>_lattice</name></member>
+      <member refid="classLocalCoords_1a9b7e11587dbfbde2b50a98ade1dc7a46" prot="private" virt="non-virtual"><scope>LocalCoords</scope><name>_lattice_x</name></member>
+      <member refid="classLocalCoords_1a719f2b7123cbb323a531cfb7718d3da4" prot="private" virt="non-virtual"><scope>LocalCoords</scope><name>_lattice_y</name></member>
+      <member refid="classLocalCoords_1a3f8662e3ac55108af9d9727f27796420" prot="private" virt="non-virtual"><scope>LocalCoords</scope><name>_next</name></member>
+      <member refid="classLocalCoords_1a3950a86246a5925be9d67824f553ae53" prot="private" virt="non-virtual"><scope>LocalCoords</scope><name>_prev</name></member>
+      <member refid="classLocalCoords_1a3726429a0bfea9b966f629ab15730392" prot="private" virt="non-virtual"><scope>LocalCoords</scope><name>_type</name></member>
+      <member refid="classLocalCoords_1adb2fc7c1d92fc7108e6f2e47ca5cfeef" prot="private" virt="non-virtual"><scope>LocalCoords</scope><name>_universe</name></member>
+      <member refid="classLocalCoords_1a9a554dc0de187957849d1577cba7a277" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>adjustCoords</name></member>
+      <member refid="classLocalCoords_1a5a5ed42ca7ccf274f548134f9d56d9f8" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>copyCoords</name></member>
+      <member refid="classLocalCoords_1a1ac27e8d751c92e8923eb8b992fa2484" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getCell</name></member>
+      <member refid="classLocalCoords_1a46a2385e59e758d31b282ab97b0285a7" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getLattice</name></member>
+      <member refid="classLocalCoords_1a98a422016cd0e5e8a791a44784a3f6ac" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getLatticeX</name></member>
+      <member refid="classLocalCoords_1a82c184c2b1327bae01e7a607bbdc07f5" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getLatticeY</name></member>
+      <member refid="classLocalCoords_1a9eea7e15fe849f272854e8db1fe7268a" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getLowestLevel</name></member>
+      <member refid="classLocalCoords_1a2072734614ca0d7b945fd20ed59f4594" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getNext</name></member>
+      <member refid="classLocalCoords_1aff39b0f4a6cd5de5347ab154000d349b" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getPoint</name></member>
+      <member refid="classLocalCoords_1a41901845738accab675e9a021185fcc5" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getPrev</name></member>
+      <member refid="classLocalCoords_1a756dbd3f1b8fa9084f584b593af2b066" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getType</name></member>
+      <member refid="classLocalCoords_1a305af453a198ae35cc510f903def4088" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getUniverse</name></member>
+      <member refid="classLocalCoords_1a9623e05ee2de4ace57a7595a154a3764" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getX</name></member>
+      <member refid="classLocalCoords_1ac2ca0a99b00c2aa5784ff82fba2a3618" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>getY</name></member>
+      <member refid="classLocalCoords_1ab0d2336c8312720fd28aefd09f6f7da0" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>LocalCoords</name></member>
+      <member refid="classLocalCoords_1ab6a1654615643dabd35a19c8ed5f7dad" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>prune</name></member>
+      <member refid="classLocalCoords_1aac97ca92f795081c3472b5dd219795aa" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>setCell</name></member>
+      <member refid="classLocalCoords_1a61da1c8cfc72af7514c55822714e5258" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>setLattice</name></member>
+      <member refid="classLocalCoords_1a8940ee0b1d5698483dd646b8f2275f71" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>setLatticeX</name></member>
+      <member refid="classLocalCoords_1ac12edaa6db88e7be90a622e8fdbac244" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>setLatticeY</name></member>
+      <member refid="classLocalCoords_1ad0d95a64372a6b60c4a7276350380c7c" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>setNext</name></member>
+      <member refid="classLocalCoords_1a433a17c4bfb3f491a16a6067e05067ae" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>setPrev</name></member>
+      <member refid="classLocalCoords_1a5eb0104c614b60dee59177afbf5a1d09" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>setType</name></member>
+      <member refid="classLocalCoords_1a74f4a16775592fd84c8e4cdccd10b486" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>setUniverse</name></member>
+      <member refid="classLocalCoords_1af00fc05471c68683e7b55274afdb68ba" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>setX</name></member>
+      <member refid="classLocalCoords_1ae7a4a2eeb8a1e17698da8b58d08c05b5" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>setY</name></member>
+      <member refid="classLocalCoords_1a82104907b1705c31fbc12e61deb77cf5" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>toString</name></member>
+      <member refid="classLocalCoords_1a371080a986073525f2e0572345e438c7" prot="public" virt="non-virtual"><scope>LocalCoords</scope><name>updateMostLocal</name></member>
+      <member refid="classLocalCoords_1a1864bf1ab24fc1e785db20bc24185754" prot="public" virt="virtual"><scope>LocalCoords</scope><name>~LocalCoords</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

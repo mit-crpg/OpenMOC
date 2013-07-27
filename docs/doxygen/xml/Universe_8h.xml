@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="Universe_8h" kind="file">
+    <compoundname>Universe.h</compoundname>
+    <includedby refid="Universe_8cpp" local="yes">/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Universe.cpp</includedby>
+    <innerclass refid="classUniverse" prot="public">Universe</innerclass>
+    <innerclass refid="classLattice" prot="public">Lattice</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="Universe_8h_1ad8a93cce3a9cd77aa9fc698dd9af26e7" prot="public" static="no">
+        <name>ON_LATTICE_CELL_THRESH</name>
+        <initializer>1E-12</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Error threshold for determining how close to the boundary of a lattice cell a point needs to be to be considered on it </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Universe.h" line="20" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Universe.h" bodystart="20" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="Universe_8h_1a481c7dad5dc2bb9070235752daa421c6" prot="public" static="no">
+        <name>TINY_MOVE</name>
+        <initializer>1E-10</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Distance a point is moved to cross over a surface into a new cell during track segmentation </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Universe.h" line="24" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Universe.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="Universe_8h_1a123911615dcd5c50bea706d32683a02a" prot="public" static="no">
+        <name>universeType</name>
+        <enumvalue id="Universe_8h_1a123911615dcd5c50bea706d32683a02aa1a6b6e9893ec9e5d9710335b4c74d3f6" prot="public">
+          <name>SIMPLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A simple non-repeating universe </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="Universe_8h_1a123911615dcd5c50bea706d32683a02aa339a8cc891972f1e75bb948454f358be" prot="public">
+          <name>LATTICE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A collection of universes in a repeating lattice </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>The type of universe. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Universe.h" line="34" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Universe.h" bodystart="34" bodyend="39"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="classUniverse" kindref="compound">Universe</ref> class. </para>    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="date"><para>January 9, 2012 </para></simplesect>
+<simplesect kind="author"><para>William Boyd, MIT, Course 22 (<ulink url="mailto:wboyd@mit.edu">wboyd@mit.edu</ulink>) </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="8"><highlight class="preprocessor">#ifndef<sp/>UNIVERSE_H_</highlight></codeline>
+<codeline lineno="9"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>UNIVERSE_H_</highlight></codeline>
+<codeline lineno="10"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&lt;map&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="Cell_8h" kindref="compound" tooltip="The Cell class.">Cell.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="LocalCoords_8h" kindref="compound" tooltip="The LocalCoords class.">LocalCoords.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="20" refid="Universe_8h_1ad8a93cce3a9cd77aa9fc698dd9af26e7" refkind="member"><highlight class="preprocessor">#define<sp/>ON_LATTICE_CELL_THRESH<sp/>1E-12</highlight></codeline>
+<codeline lineno="21"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="24" refid="Universe_8h_1a481c7dad5dc2bb9070235752daa421c6" refkind="member"><highlight class="preprocessor">#define<sp/>TINY_MOVE<sp/>1E-10</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classLocalCoords" kindref="compound" tooltip="The localcoords represents a set of local coordinates on some level of nested universes making up the...">LocalCoords</ref>;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classCell" kindref="compound" tooltip="Represents a cell inside of a universe.">Cell</ref>;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="Universe_8h_1a123911615dcd5c50bea706d32683a02a" refkind="member"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="Universe_8h_1a123911615dcd5c50bea706d32683a02a" kindref="member" tooltip="The type of universe.">universeType</ref>{</highlight></codeline>
+<codeline lineno="36" refid="Universe_8h_1a123911615dcd5c50bea706d32683a02aa1a6b6e9893ec9e5d9710335b4c74d3f6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Universe_8h_1a123911615dcd5c50bea706d32683a02aa1a6b6e9893ec9e5d9710335b4c74d3f6" kindref="member">SIMPLE</ref>,</highlight></codeline>
+<codeline lineno="38" refid="Universe_8h_1a123911615dcd5c50bea706d32683a02aa339a8cc891972f1e75bb948454f358be" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Universe_8h_1a123911615dcd5c50bea706d32683a02aa339a8cc891972f1e75bb948454f358be" kindref="member">LATTICE</ref></highlight></codeline>
+<codeline lineno="39"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="classUniverse" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classUniverse" kindref="compound" tooltip="A universe represents an unbounded space in the 2D xy-plane.">Universe</ref><sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="54" refid="classUniverse_1ac243fe18b2dda0d635c4e3cb04e00dda" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1ac243fe18b2dda0d635c4e3cb04e00dda" kindref="member">_n</ref>;</highlight></codeline>
+<codeline lineno="56" refid="classUniverse_1a737f37373d846ed69fddf2de38473a87" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1a737f37373d846ed69fddf2de38473a87" kindref="member">_uid</ref>;</highlight></codeline>
+<codeline lineno="58" refid="classUniverse_1a59625074218444923fc88384f13d51bf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1a59625074218444923fc88384f13d51bf" kindref="member">_id</ref>;</highlight></codeline>
+<codeline lineno="60" refid="classUniverse_1ab982650a751c2aae8ebc26e150b71cd1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Universe_8h_1a123911615dcd5c50bea706d32683a02a" kindref="member" tooltip="The type of universe.">universeType</ref><sp/><ref refid="classUniverse_1ab982650a751c2aae8ebc26e150b71cd1" kindref="member">_type</ref>;</highlight></codeline>
+<codeline lineno="62" refid="classUniverse_1aa410d75ac7bfc487dd1194077d7cbfc1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;short<sp/>int,<sp/>Cell*&gt;<sp/><ref refid="classUniverse_1aa410d75ac7bfc487dd1194077d7cbfc1" kindref="member">_cells</ref>;</highlight></codeline>
+<codeline lineno="64" refid="classUniverse_1a1a1a80e5a8cc28b9629317edf03b9765" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref><sp/><ref refid="classUniverse_1a1a1a80e5a8cc28b9629317edf03b9765" kindref="member">_origin</ref>;</highlight></codeline>
+<codeline lineno="68" refid="classUniverse_1adca8df0b782ecddad4e1ff65d7621f68" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;int,<sp/>int&gt;<sp/><ref refid="classUniverse_1adca8df0b782ecddad4e1ff65d7621f68" kindref="member">_region_map</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classUniverse_1ad1cbe2dc504fff3eac77c89a20a5fea2" kindref="member" tooltip="Constructor assigns a unique and user-specified ID for the universe.">Universe</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1a7723438c7fa497defb4c82ac975152b2" kindref="member" tooltip="Destructor clears the cell pointers container.">~Universe</ref>();</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1af045c632c9b336f8d4f7be20c5a510a1" kindref="member" tooltip="Adds a cell to this universe.">addCell</ref>(<ref refid="classCell" kindref="compound" tooltip="Represents a cell inside of a universe.">Cell</ref>*<sp/>cell);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;short<sp/>int,<sp/>Cell*&gt;<sp/><ref refid="classUniverse_1a2c23d7adc8ea99834f4cdd0e4a26e45a" kindref="member" tooltip="Return the vector of cell pointers in this universe.">getCells</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1aa42e60aa9e1b4a8baa1b3b3b865caec4" kindref="member" tooltip="Returns the universe&amp;#39;s unique ID.">getUid</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1a4f7c4329c04e78b6a62f8977dfe3d115" kindref="member">getId</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="Universe_8h_1a123911615dcd5c50bea706d32683a02a" kindref="member" tooltip="The type of universe.">universeType</ref><sp/><ref refid="classUniverse_1a6cbde58618cfcec5f72780b2911ab97b" kindref="member" tooltip="Return the universe type (SIMPLE or LATTICE).">getType</ref>();</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1a14d0a5faf027f70526bd87298ff1e45c" kindref="member" tooltip="Return the number of cells in this universe.">getNumCells</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1ac4223b9975965ff302bd38666782985f" kindref="member" tooltip="Returns the local ID for the FSR representing a cell in this universe.">getFSR</ref>(</highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cell_id);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/><ref refid="classUniverse_1a2925eda0d8d3a5142b57f6a75974fada" kindref="member" tooltip="Return a pointer to the origin for this cell (in global coordinates).">getOrigin</ref>();</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1a9a2868fbdf186f4842db3c71c1c77373" kindref="member" tooltip="Sets the universe type to SIMPLE or LATTICE.">setType</ref>(<ref refid="Universe_8h_1a123911615dcd5c50bea706d32683a02a" kindref="member" tooltip="The type of universe.">universeType</ref><sp/>type);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1a0f832001f75c9a3e9b57ba6834d202af" kindref="member" tooltip="Set the origin in global coordinates for this universe.">setOrigin</ref>(<ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>origin);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classCell" kindref="compound" tooltip="Represents a cell inside of a universe.">Cell</ref>*<sp/><ref refid="classUniverse_1a23c055aef2533f10d524979ee8e9f46b" kindref="member" tooltip="Finds the cell for which a localcoords object resides.">findCell</ref>(<ref refid="classLocalCoords" kindref="compound" tooltip="The localcoords represents a set of local coordinates on some level of nested universes making up the...">LocalCoords</ref>*<sp/>coords,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::map&lt;short<sp/>int,<sp/>Universe*&gt;<sp/>universes);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1af76741be6456d3542a302024fd4c52e4" kindref="member" tooltip="Compute the FSR maps for this universe and return the number of FSRs inside the universe.">computeFSRMaps</ref>();</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1ae3952c88390eda788da540d421d0b139" kindref="member" tooltip="Subdivides all of the cells within this universe into rings and angular sectors.">subdivideCells</ref>();</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classUniverse_1a9bc78841d661eb12afa51ca04ae31368" kindref="member" tooltip="Convert the member attributes of this universe to a character array.">toString</ref>();</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classUniverse_1a9d7f74890c13dc3856a694b4f142f985" kindref="member" tooltip="Prints a string representation of all of the universe&amp;#39;s objects to the console.">printString</ref>();</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98" refid="classLattice" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classLattice" kindref="compound" tooltip="Represents a repeating 2D lattice array of universes.">Lattice</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classUniverse" kindref="compound" tooltip="A universe represents an unbounded space in the 2D xy-plane.">Universe</ref><sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>_num_x;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>_num_y;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_width_x;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_width_y;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;short<sp/>int,<sp/>Universe*&gt;<sp/>&gt;<sp/>&gt;<sp/>_universes;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;int,<sp/>int&gt;<sp/>&gt;<sp/>&gt;<sp/>_region_map;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classLattice_1a057db59a2a7b471ca3d9af94b41d4d6e" kindref="member" tooltip="Constructor sets the user-specified and unique IDs for this lattice.">Lattice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>width_x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>width_y);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classLattice_1a91be54ce9927b6bc53d30a2faf760780" kindref="member" tooltip="Destructor clears memory for all of universes pointers.">~Lattice</ref>();</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classLattice_1aa72ae9812e91b1a4a907dfc1107c0393" kindref="member" tooltip="Return the number of lattice cells along the x-axis.">getNumX</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classLattice_1a9f978534c7ac76cc8b98e815e271e978" kindref="member" tooltip="Return the number of lattice cells along the y-axis.">getNumY</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/><ref refid="classLattice_1ac74c38894f48a1f3462178cd07b6c00b" kindref="member" tooltip="Return the origin of the lattice.">getOrigin</ref>();</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;short<sp/>int,<sp/>Universe*&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classLattice_1ae6b84cf43026d5e4ee368bab59910cdb" kindref="member" tooltip="Return a 2D vector array of the universes in the lattice.">getUniverses</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classUniverse" kindref="compound" tooltip="A universe represents an unbounded space in the 2D xy-plane.">Universe</ref>*<sp/><ref refid="classLattice_1a0b1b5aa06a73064c65d08332c13f973f" kindref="member" tooltip="Returns a pointer to the universe within a specific lattice cell.">getUniverse</ref>(</highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lattice_x,<sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lattice_y)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classLattice_1acb5c93de94618ab65ef61f18a93e48b3" kindref="member" tooltip="Return the width of the lattice along the x-axis.">getWidthX</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classLattice_1ad54b31fc59330eaadf4c6b81e034a199" kindref="member" tooltip="Return the width of the lattice along the y-axis.">getWidthY</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classLattice_1a5c290c37b0e29a22764acf7e7e74ba22" kindref="member" tooltip="Return the id of a flat source region base index (smallest FSR region id within a specific lattice ce...">getFSR</ref>(</highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lat_x,<sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lat_y);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classLattice_1a89b07f10fdb35efdbe5701c54cfbd548" kindref="member" tooltip="Sets the arrary of universe IDs filling each lattice cell.">setLatticeCells</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_y,<sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal">*<sp/>universes);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classLattice_1a9a59a806e3629135d7ea784669a6c12c" kindref="member" tooltip="Sets the pointer to a universe filling one of this lattice&amp;#39;s lattice cells.">setUniversePointer</ref>(<ref refid="classUniverse" kindref="compound" tooltip="A universe represents an unbounded space in the 2D xy-plane.">Universe</ref>*<sp/>universe);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classLattice_1aaa38ae681b8814661033c99f6410fadd" kindref="member" tooltip="Checks if a point is within the bounds of a lattice.">withinBounds</ref>(<ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>point);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classCell" kindref="compound" tooltip="Represents a cell inside of a universe.">Cell</ref>*<sp/><ref refid="classLattice_1a463e4fba851c367d6c46ed777a7de7e8" kindref="member" tooltip="Finds the cell within this lattice that a localcoords is in.">findCell</ref>(<ref refid="classLocalCoords" kindref="compound" tooltip="The localcoords represents a set of local coordinates on some level of nested universes making up the...">LocalCoords</ref>*<sp/>coords,<sp/></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::map&lt;short<sp/>int,<sp/>Universe*&gt;<sp/>universes);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classCell" kindref="compound" tooltip="Represents a cell inside of a universe.">Cell</ref>*<sp/><ref refid="classLattice_1af5b9506d18a4ebcd2bf4932c0ab6d86a" kindref="member" tooltip="Finds the next cell for a localcoords object along a trajectory defined by some angle (in radians fro...">findNextLatticeCell</ref>(<ref refid="classLocalCoords" kindref="compound" tooltip="The localcoords represents a set of local coordinates on some level of nested universes making up the...">LocalCoords</ref>*<sp/>coords,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>angle,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::map&lt;short<sp/>int,<sp/>Universe*&gt;<sp/>universes);<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classLattice_1afc84badb58ce4b9c3946fcc944647c30" kindref="member" tooltip="Computes the flat source region base indices for each of the lattice cells within this Lattice (ie...">computeFSRMaps</ref>();</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classLattice_1a85eb51407b84e29d55f300e06b29f9b4" kindref="member" tooltip="Converts a lattice&amp;#39;s attributes to a character array representation.">toString</ref>();</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classLattice_1ac29a8a1d0a21829843ee39eb3778fc85" kindref="member" tooltip="Prints a string representation of all of the lattice&amp;#39;s objects to the console.">printString</ref>();</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>UNIVERSE_H_<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="144"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Universe.h"/>
+  </compounddef>
+</doxygen>

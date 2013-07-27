@@ -1,0 +1,267 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="classCellFill" kind="class" prot="public">
+    <compoundname>CellFill</compoundname>
+    <basecompoundref refid="classCell" prot="public" virt="non-virtual">Cell</basecompoundref>
+    <includes refid="Cell_8h" local="no">Cell.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classCellFill_1acc4cfea4c00192eae953815c8fe8642b" prot="private" static="no" mutable="no">
+        <type>std::pair&lt; short int, <ref refid="classUniverse" kindref="compound">Universe</ref> * &gt;</type>
+        <definition>std::pair&lt;short int, Universe*&gt; CellFill::_universe_fill</definition>
+        <argsstring></argsstring>
+        <name>_universe_fill</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A pair of the ID and universe pointer filling this cell </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="148" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classCellFill_1a5eeaa4ae913f761771c893c6da1e794a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>CellFill::CellFill</definition>
+        <argsstring>(short int universe, short int universe_fill, short int id=0)</argsstring>
+        <name>CellFill</name>
+        <param>
+          <type>short int</type>
+          <declname>universe</declname>
+        </param>
+        <param>
+          <type>short int</type>
+          <declname>universe_fill</declname>
+        </param>
+        <param>
+          <type>short int</type>
+          <declname>id</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para><ref refid="classCellFill" kindref="compound">CellFill</ref> constructor. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the user-specified cell ID </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>universe</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the ID of the universe within which this cell resides </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>universe_fill</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the ID of the universe filling this cell </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="151" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="625" bodyend="629"/>
+      </memberdef>
+      <memberdef kind="function" id="classCellFill_1ae657ae09fe0b6532f20d214e4b774228" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int CellFill::getUniverseFillId</definition>
+        <argsstring>() const </argsstring>
+        <name>getUniverseFillId</name>
+        <briefdescription>
+<para>Return the ID of the universe filling this cell. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the universe&apos;s id </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="153" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="636" bodyend="638"/>
+      </memberdef>
+      <memberdef kind="function" id="classCellFill_1af5debd1e98494583d628641cb5321a8c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classUniverse" kindref="compound">Universe</ref> *</type>
+        <definition>Universe * CellFill::getUniverseFill</definition>
+        <argsstring>() const </argsstring>
+        <name>getUniverseFill</name>
+        <briefdescription>
+<para>Return a pointer to the universe filling this cell. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the universe pointer </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="154" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="645" bodyend="647"/>
+      </memberdef>
+      <memberdef kind="function" id="classCellFill_1a42d8ee528341de4ec858731f0c35b649" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>int</type>
+        <definition>int CellFill::getNumFSRs</definition>
+        <argsstring>()</argsstring>
+        <name>getNumFSRs</name>
+        <reimplements refid="classCell_1a7e47c4f454dc5ee6689e48a5f3770f43">getNumFSRs</reimplements>
+        <briefdescription>
+<para>Return the number of flat source regions in this cellfill. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method is used when the geometry recursively constructs flat source regions. <simplesect kind="return"><para>the number of FSRs in this cellfill </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="155" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="656" bodyend="662"/>
+      </memberdef>
+      <memberdef kind="function" id="classCellFill_1a025f1ecb0581956ef8dbb51e9c006f87" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void CellFill::setUniverseFill</definition>
+        <argsstring>(short int universe_Fill)</argsstring>
+        <name>setUniverseFill</name>
+        <param>
+          <type>short int</type>
+          <declname>universe_Fill</declname>
+          <defname>universe_fill</defname>
+        </param>
+        <briefdescription>
+<para>Set the ID of the universe filling this cellfill. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>universe_fill</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the universe&apos;s ID </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="157" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="669" bodyend="671"/>
+      </memberdef>
+      <memberdef kind="function" id="classCellFill_1a557f647cc02f782866db15f5f7f04104" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void CellFill::setUniverseFillPointer</definition>
+        <argsstring>(Universe *universe_fill)</argsstring>
+        <name>setUniverseFillPointer</name>
+        <param>
+          <type><ref refid="classUniverse" kindref="compound">Universe</ref> *</type>
+          <declname>universe_fill</declname>
+          <defname>universe</defname>
+        </param>
+        <briefdescription>
+<para>Set a pointer to the universe filling this cellfill. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>universe</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the universe&apos;s pointer </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="158" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="678" bodyend="680"/>
+      </memberdef>
+      <memberdef kind="function" id="classCellFill_1ac37b3795b89ffdd71315610e99100f8b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::string</type>
+        <definition>std::string CellFill::toString</definition>
+        <argsstring>()</argsstring>
+        <name>toString</name>
+        <reimplements refid="classCell_1a4a84efc6a82f7abe42d9a6dc990c70e6">toString</reimplements>
+        <briefdescription>
+<para>Convert this cellfill&apos;s attributes to a string format. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a character array of this cell&apos;s attributes </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+<para>Add the IDs for the surfaces in this cell </para>        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="160" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="687" bodyend="702"/>
+      </memberdef>
+      <memberdef kind="function" id="classCellFill_1a26e6c0b4accfa1aa4926dfdc47b2d985" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void CellFill::printString</definition>
+        <argsstring>()</argsstring>
+        <name>printString</name>
+        <reimplements refid="classCell_1af53a3407201aaaebf593939e1b7a69fb">printString</reimplements>
+        <briefdescription>
+<para>Prints a string representation of all of the cellfill&apos;s objects to the console. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="161" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.cpp" bodystart="709" bodyend="711"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Represents a cell filled with a universe. </para>    </briefdescription>
+    <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>_universe_fill</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>id for the universe filling this cell </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="8">
+        <label>CellFill</label>
+        <link refid="classCellFill"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>Cell</label>
+        <link refid="classCell"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="10">
+        <label>CellFill</label>
+        <link refid="classCellFill"/>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>Cell</label>
+        <link refid="classCell"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" line="144" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Cell.h" bodystart="144" bodyend="162"/>
+    <listofallmembers>
+      <member refid="classCell_1a479098cae5775f5070b63b9ef7abbb04" prot="protected" virt="non-virtual"><scope>CellFill</scope><name>_cell_type</name></member>
+      <member refid="classCell_1aa028169032e0edead76bde80f7ff3c1f" prot="protected" virt="non-virtual"><scope>CellFill</scope><name>_clone_n</name></member>
+      <member refid="classCell_1af45cbf64248efeb49f5df298a8abaabc" prot="protected" virt="non-virtual"><scope>CellFill</scope><name>_id</name></member>
+      <member refid="classCell_1a73b3f587dfefe93c9764b9fdcc772710" prot="protected" virt="non-virtual"><scope>CellFill</scope><name>_n</name></member>
+      <member refid="classCell_1ac43ed5fa7607eb5ca51b71c519dc67bf" prot="protected" virt="non-virtual"><scope>CellFill</scope><name>_surfaces</name></member>
+      <member refid="classCell_1aba78515e347a8dad627832c71b8bc2fa" prot="protected" virt="non-virtual"><scope>CellFill</scope><name>_uid</name></member>
+      <member refid="classCell_1a1672521c43143394c114df1ca5e52dbc" prot="protected" virt="non-virtual"><scope>CellFill</scope><name>_universe</name></member>
+      <member refid="classCellFill_1acc4cfea4c00192eae953815c8fe8642b" prot="private" virt="non-virtual"><scope>CellFill</scope><name>_universe_fill</name></member>
+      <member refid="classCell_1aa3dc5df3090ba776ea817b5a8385616b" prot="public" virt="non-virtual"><scope>CellFill</scope><name>addSurface</name></member>
+      <member refid="classCell_1a394510643e8664cf12b5efaf5cb99f71" prot="public" virt="non-virtual"><scope>CellFill</scope><name>Cell</name></member>
+      <member refid="classCell_1a42507131912fad0ec04a7c398456322a" prot="public" virt="non-virtual"><scope>CellFill</scope><name>Cell</name></member>
+      <member refid="classCell_1a89c95a180daff341176d78c5d573da53" prot="public" virt="non-virtual"><scope>CellFill</scope><name>cellContainsCoords</name></member>
+      <member refid="classCell_1a7ccb9a3084719a36a170bed2cd48a593" prot="public" virt="non-virtual"><scope>CellFill</scope><name>cellContainsPoint</name></member>
+      <member refid="classCellFill_1a5eeaa4ae913f761771c893c6da1e794a" prot="public" virt="non-virtual"><scope>CellFill</scope><name>CellFill</name></member>
+      <member refid="classCell_1a5ee7d2b6a1ed18804d207f937e3defaf" prot="public" virt="non-virtual"><scope>CellFill</scope><name>getId</name></member>
+      <member refid="classCellFill_1a42d8ee528341de4ec858731f0c35b649" prot="public" virt="virtual"><scope>CellFill</scope><name>getNumFSRs</name></member>
+      <member refid="classCell_1a7c3defd6e47e454df12891d2f9c90405" prot="public" virt="non-virtual"><scope>CellFill</scope><name>getNumSurfaces</name></member>
+      <member refid="classCell_1a212ae4536a8da3258fcdb5b3ab36a3a0" prot="public" virt="non-virtual"><scope>CellFill</scope><name>getSurfaces</name></member>
+      <member refid="classCell_1af0421cc4cbb034947b2b7ec18c6df7d0" prot="public" virt="non-virtual"><scope>CellFill</scope><name>getType</name></member>
+      <member refid="classCell_1a27be5077c04eaf21747b1e6101495ba4" prot="public" virt="non-virtual"><scope>CellFill</scope><name>getUid</name></member>
+      <member refid="classCell_1af4af1af3638b0c9a64d0b8f3f12f0e30" prot="public" virt="non-virtual"><scope>CellFill</scope><name>getUniverse</name></member>
+      <member refid="classCellFill_1af5debd1e98494583d628641cb5321a8c" prot="public" virt="non-virtual"><scope>CellFill</scope><name>getUniverseFill</name></member>
+      <member refid="classCellFill_1ae657ae09fe0b6532f20d214e4b774228" prot="public" virt="non-virtual"><scope>CellFill</scope><name>getUniverseFillId</name></member>
+      <member refid="classCell_1adf41aafa99278a759d8d6ae826c7330e" prot="public" virt="non-virtual"><scope>CellFill</scope><name>minSurfaceDist</name></member>
+      <member refid="classCellFill_1a26e6c0b4accfa1aa4926dfdc47b2d985" prot="public" virt="virtual"><scope>CellFill</scope><name>printString</name></member>
+      <member refid="classCell_1ad6a1e2e87f6708663dddb370d670a067" prot="public" virt="non-virtual"><scope>CellFill</scope><name>setSurfacePointer</name></member>
+      <member refid="classCell_1aaf4b5dcb6f7e1dc7121f6bdf5f69aa09" prot="public" virt="non-virtual"><scope>CellFill</scope><name>setUniverse</name></member>
+      <member refid="classCellFill_1a025f1ecb0581956ef8dbb51e9c006f87" prot="public" virt="non-virtual"><scope>CellFill</scope><name>setUniverseFill</name></member>
+      <member refid="classCellFill_1a557f647cc02f782866db15f5f7f04104" prot="public" virt="non-virtual"><scope>CellFill</scope><name>setUniverseFillPointer</name></member>
+      <member refid="classCellFill_1ac37b3795b89ffdd71315610e99100f8b" prot="public" virt="virtual"><scope>CellFill</scope><name>toString</name></member>
+      <member refid="classCell_1a9fa559f7a28e2b4336c6879ca09304d8" prot="public" virt="virtual"><scope>CellFill</scope><name>~Cell</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

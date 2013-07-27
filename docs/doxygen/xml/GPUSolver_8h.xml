@@ -1,0 +1,306 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="GPUSolver_8h" kind="file">
+    <compoundname>GPUSolver.h</compoundname>
+    <includes local="no">thrust/reduce.h</includes>
+    <includes local="no">thrust/device_vector.h</includes>
+    <includes local="no">sm_13_double_functions.h</includes>
+    <includes local="no">sm_20_atomic_functions.h</includes>
+    <includes refid="clone_8h" local="yes">clone.h</includes>
+    <includedby refid="GPUSolver_8cu" local="yes">/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.cu</includedby>
+    <incdepgraph>
+      <node id="57">
+        <label>../DeviceMaterial.h</label>
+        <link refid="DeviceMaterial_8h"/>
+      </node>
+      <node id="56">
+        <label>clone.h</label>
+        <link refid="clone_8h_source"/>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>thrust/reduce.h</label>
+      </node>
+      <node id="54">
+        <label>sm_13_double_functions.h</label>
+      </node>
+      <node id="55">
+        <label>sm_20_atomic_functions.h</label>
+      </node>
+      <node id="53">
+        <label>thrust/device_vector.h</label>
+      </node>
+      <node id="51">
+        <label>/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h</label>
+        <link refid="GPUSolver.h"/>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>../DeviceTrack.h</label>
+        <link refid="DeviceTrack_8h"/>
+      </node>
+    </incdepgraph>
+    <innerclass refid="classGPUSolver" prot="public">GPUSolver</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="GPUSolver_8h_1a4089c9be8cf297ccf942eb8c29cca415" prot="public" static="no">
+        <name>scalar_flux</name>
+        <param><defname>tid</defname></param>
+        <param><defname>e</defname></param>
+        <initializer>(scalar_flux[(tid)*(*num_groups) + (e)])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing macro for the scalar flux in each flat source region and in each energy group </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="23" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="GPUSolver_8h_1aff1d2d6ea4da8b36276071f975850c6e" prot="public" static="no">
+        <name>source</name>
+        <param><defname>tid</defname></param>
+        <param><defname>e</defname></param>
+        <initializer>(source[(tid)*(*num_groups) + (e)])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing macro for the total source in each flat source region and in each energy group </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="27" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="GPUSolver_8h_1a1d5393f7bd91ea0ab5889ad0d57423d4" prot="public" static="no">
+        <name>old_source</name>
+        <param><defname>tid</defname></param>
+        <param><defname>e</defname></param>
+        <initializer>(old_source[(tid)*(*num_groups) + (e)])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing macro for the total source from the previous source iteration in each flat source region and each energy group </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="31" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="GPUSolver_8h_1a201104e7c4ebc64308385f741ae5143d" prot="public" static="no">
+        <name>reduced_source</name>
+        <param><defname>tid</defname></param>
+        <param><defname>e</defname></param>
+        <initializer>(reduced_source[(tid)*(*num_groups) + (e)])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing macro for the total source divided by the total cross-section, <formula id="2">$ \frac{Q}{\Sigma_t} $</formula>, in each flat source region and each energy group </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="36" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="GPUSolver_8h_1a818d2da0930d46b3fe53eff8bb60ea1f" prot="public" static="no">
+        <name>polar_weights</name>
+        <param><defname>i</defname></param>
+        <param><defname>p</defname></param>
+        <initializer>(polar_weights[(i)*(*num_polar) + (p)])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing macro for the azimuthal and polar weights </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="39" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="GPUSolver_8h_1acf77ad5d19c7d5cccf263d9a91700d2e" prot="public" static="no">
+        <name>boundary_flux</name>
+        <param><defname>tid</defname></param>
+        <param><defname>pe2</defname></param>
+        <initializer>(boundary_flux[2*(tid)*(*polar_times_groups)+(pe2)])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing macro for the angular fluxes for each polar angle and energy group for a given track </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="43" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="GPUSolver_8h_1ac6b39b7a27b735f3a62be33f38041985" prot="public" static="no">
+        <name>FOUR_PI</name>
+        <initializer>12.5663706143</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The value of 4pi: <formula id="3">$ 4\pi $</formula> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="46" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="GPUSolver_8h_1a662cb71fde841f2762641d9f82e1fbb5" prot="public" static="no">
+        <name>ONE_OVER_FOUR_PI</name>
+        <initializer>0.0795774715</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The values of 1 divided by 4pi: <formula id="4">$ \frac{1}{4\pi} $</formula> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="49" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="GPUSolver_8h_1a91b4cb58a59ec4578195cd7787dacf66" prot="public" static="no">
+        <name>MAX_POLAR_ANGLES</name>
+        <initializer>3</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The maximum number of polar angles to reserve constant memory on GPU </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="52" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="GPUSolver_8h_1a13ab74d9229f8b9544ae9decc54163da" prot="public" static="no">
+        <name>MAX_AZIM_ANGLES</name>
+        <initializer>256</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The maximum number of azimuthal angles to reserve constant memory on GPU </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" line="55" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="classGPUSolver" kindref="compound">GPUSolver</ref> class and GPU solver routines. </para>    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="date"><para>August 5, 2012 </para></simplesect>
+<simplesect kind="author"><para>William Boyd, MIT, Course 22 (<ulink url="mailto:wboyd@mit.edu">wboyd@mit.edu</ulink>) </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="8"><highlight class="preprocessor">#ifndef<sp/>GPUSOLVER_H_</highlight></codeline>
+<codeline lineno="9"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>GPUSOLVER_H_</highlight></codeline>
+<codeline lineno="10"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&quot;../../Solver.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;thrust/reduce.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;thrust/device_vector.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sm_13_double_functions.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sm_20_atomic_functions.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;clone.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23" refid="GPUSolver_8h_1a4089c9be8cf297ccf942eb8c29cca415" refkind="member"><highlight class="preprocessor">#define<sp/>scalar_flux(tid,e)<sp/>(scalar_flux[(tid)*(*num_groups)<sp/>+<sp/>(e)])</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="27" refid="GPUSolver_8h_1aff1d2d6ea4da8b36276071f975850c6e" refkind="member"><highlight class="preprocessor">#define<sp/>source(tid,e)<sp/>(source[(tid)*(*num_groups)<sp/>+<sp/>(e)])</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="31" refid="GPUSolver_8h_1a1d5393f7bd91ea0ab5889ad0d57423d4" refkind="member"><highlight class="preprocessor">#define<sp/>old_source(tid,e)<sp/>(old_source[(tid)*(*num_groups)<sp/>+<sp/>(e)])</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="36" refid="GPUSolver_8h_1a201104e7c4ebc64308385f741ae5143d" refkind="member"><highlight class="preprocessor">#define<sp/>reduced_source(tid,e)<sp/>(reduced_source[(tid)*(*num_groups)<sp/>+<sp/>(e)])</highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="39" refid="GPUSolver_8h_1a818d2da0930d46b3fe53eff8bb60ea1f" refkind="member"><highlight class="preprocessor">#define<sp/>polar_weights(i,p)<sp/>(polar_weights[(i)*(*num_polar)<sp/>+<sp/>(p)])</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="43" refid="GPUSolver_8h_1acf77ad5d19c7d5cccf263d9a91700d2e" refkind="member"><highlight class="preprocessor">#define<sp/>boundary_flux(tid,pe2)<sp/>(boundary_flux[2*(tid)*(*polar_times_groups)+(pe2)])</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="46" refid="GPUSolver_8h_1ac6b39b7a27b735f3a62be33f38041985" refkind="member"><highlight class="preprocessor">#define<sp/>FOUR_PI<sp/>12.5663706143</highlight></codeline>
+<codeline lineno="47"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="49" refid="GPUSolver_8h_1a662cb71fde841f2762641d9f82e1fbb5" refkind="member"><highlight class="preprocessor">#define<sp/>ONE_OVER_FOUR_PI<sp/>0.0795774715</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="52" refid="GPUSolver_8h_1a91b4cb58a59ec4578195cd7787dacf66" refkind="member"><highlight class="preprocessor">#define<sp/>MAX_POLAR_ANGLES<sp/>3</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="55" refid="GPUSolver_8h_1a13ab74d9229f8b9544ae9decc54163da" refkind="member"><highlight class="preprocessor">#define<sp/>MAX_AZIM_ANGLES<sp/>256</highlight></codeline>
+<codeline lineno="56"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="classGPUSolver" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGPUSolver" kindref="compound" tooltip="This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs).">GPUSolver</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classSolver" kindref="compound" tooltip="This is an abstract base class from which different types of Solvers subclass for different architect...">Solver</ref><sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/**************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Data<sp/>on<sp/>the<sp/>host<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/**************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>_B;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>_T;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/**************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Data<sp/>on<sp/>the<sp/>device<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/**************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">*<sp/>_FSR_materials;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structdev__material" kindref="compound" tooltip="A material&amp;#39;s nuclear data to be stored on a GPU.">dev_material</ref>*<sp/>_materials;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structdev__track" kindref="compound" tooltip="A dev_track represents a characteristic line across the geometry.">dev_track</ref>*<sp/>_dev_tracks;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">*<sp/>_track_index_offsets;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/>_tot_absorption;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/>_tot_fission;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/>_leakage;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>thrust::device_vector&lt;FP_PRECISION&gt;<sp/>_fission_sources_vec;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>thrust::device_vector&lt;FP_PRECISION&gt;<sp/>_tot_fission_vec;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>thrust::device_vector&lt;FP_PRECISION&gt;<sp/>_tot_absorption_vec;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>thrust::device_vector&lt;FP_PRECISION&gt;<sp/>_source_residuals_vec;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>thrust::device_vector&lt;FP_PRECISION&gt;<sp/>_leakage_vec;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>initializePolarQuadrature();</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>initializeFSRs();</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>initializeMaterials();</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>initializeTracks();</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>initializeFluxArrays();</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>initializeSourceArrays();</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>initializePowerArrays();</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>initializeThrustVectors();</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>precomputePrefactors();</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>zeroTrackFluxes();</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>flattenFSRFluxes(FP_PRECISION<sp/>value);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>flattenFSRSources(FP_PRECISION<sp/>value);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>normalizeFluxes();</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION<sp/>computeFSRSources();</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addSourceToScalarFlux();</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>computeKeff();</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>transportSweep();</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGPUSolver" kindref="compound" tooltip="This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs).">GPUSolver</ref>(<ref refid="classGeometry" kindref="compound" tooltip="The master class containing references to all geometry-related objects (surfaces, cells...">Geometry</ref>*<sp/>geometry=NULL,<sp/><ref refid="classTrackGenerator" kindref="compound" tooltip="The track generator is dedicated to generating tracks which cyclically wrap across the geometry...">TrackGenerator</ref>*<sp/>track_generator=NULL);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>~<ref refid="classGPUSolver" kindref="compound" tooltip="This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs).">GPUSolver</ref>();</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION<sp/><ref refid="classGPUSolver_1a7bdb08af13273639f652d0acc22eae28" kindref="member" tooltip="Returns the scalar flux for a flat source region.">getFSRScalarFlux</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fsr_id,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>energy_group);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="classGPUSolver_1a181b0d902129e5bb8e70375e061c3c6f" kindref="member" tooltip="Returns an array of the scalar flux in each flat source region in each energy group.">getFSRScalarFluxes</ref>();</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="classGPUSolver_1a063ab8d6110e315b214ec4d7ddc6225f" kindref="member" tooltip="Returns an array indexed by flat source region IDs with the corresponding flat source region power...">getFSRPowers</ref>();</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="classGPUSolver_1a112682552df45606ffc40f1afe35417d" kindref="member" tooltip="Return an array indexed by flat source region IDs with the corresponding pin cell power...">getFSRPinPowers</ref>();</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setNumThreadBlocks(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_blocks);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setNumThreadsPerBlock(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_threads);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGPUSolver_1a6e6d50acc405f83a15bd24e2bc908e1d" kindref="member" tooltip="Sets the geometry for the solver.">setGeometry</ref>(<ref refid="classGeometry" kindref="compound" tooltip="The master class containing references to all geometry-related objects (surfaces, cells...">Geometry</ref>*<sp/>geometry);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGPUSolver_1ab0298357c57685b183c772b6abaa88e8" kindref="member" tooltip="Sets the track generator with characteristic tracks for the solver.">setTrackGenerator</ref>(<ref refid="classTrackGenerator" kindref="compound" tooltip="The track generator is dedicated to generating tracks which cyclically wrap across the geometry...">TrackGenerator</ref>*<sp/>track_generator);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>computeScalarTrackIndex(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGPUSolver_1a15e83034faeaa5f781c79eeb99388619" kindref="member" tooltip="Compute the fission rates in each flat source region and stores them in an array indexed by flat sour...">computePinPowers</ref>();</highlight></codeline>
+<codeline lineno="156"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>GPUSOLVER_H_<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/GPUSolver.h"/>
+  </compounddef>
+</doxygen>
