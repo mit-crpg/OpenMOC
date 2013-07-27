@@ -18,6 +18,7 @@ bool machineContainsGPU();
 void attachGPU(int id=0);
 void printBasicGPUInfo();
 void printDetailedGPUInfo();
+int getNumThreadsInWarp();
 
 
 #endif /* GPUQUERY_H_ */
