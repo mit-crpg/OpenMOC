@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="structdev__segment" kind="struct" prot="public">
+    <compoundname>dev_segment</compoundname>
+    <includes refid="DeviceTrack_8h" local="no">DeviceTrack.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structdev__segment_1a2aac6afa16185fef69c96c7dcb964d68" prot="public" static="no" mutable="no">
+        <type>FP_PRECISION</type>
+        <definition>FP_PRECISION dev_segment::_length</definition>
+        <argsstring></argsstring>
+        <name>_length</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The length of the segment (cm) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceTrack.h" line="29" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceTrack.h" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdev__segment_1a0385feac05b7d6f5d25bb175a17a72dd" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int dev_segment::_material_uid</definition>
+        <argsstring></argsstring>
+        <name>_material_uid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A pointer to the material in which this segment resides </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceTrack.h" line="32" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceTrack.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdev__segment_1a986cb48a5ac6eb7b26791b828d363ee3" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int dev_segment::_region_uid</definition>
+        <argsstring></argsstring>
+        <name>_region_uid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The ID for flat source region in which this segment resides </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceTrack.h" line="35" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceTrack.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A <ref refid="structdev__segment" kindref="compound">dev_segment</ref> represents a line segment within a single flat source region along a track. </para>    </briefdescription>
+    <detaileddescription>
+<para>The <ref refid="structdev__segment" kindref="compound">dev_segment</ref> is intended for use on the GPU. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="32">
+        <label>dev_segment</label>
+        <link refid="structdev__segment"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceTrack.h" line="26" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/DeviceTrack.h" bodystart="26" bodyend="36"/>
+    <listofallmembers>
+      <member refid="structdev__segment_1a2aac6afa16185fef69c96c7dcb964d68" prot="public" virt="non-virtual"><scope>dev_segment</scope><name>_length</name></member>
+      <member refid="structdev__segment_1a0385feac05b7d6f5d25bb175a17a72dd" prot="public" virt="non-virtual"><scope>dev_segment</scope><name>_material_uid</name></member>
+      <member refid="structdev__segment_1a986cb48a5ac6eb7b26791b828d363ee3" prot="public" virt="non-virtual"><scope>dev_segment</scope><name>_region_uid</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

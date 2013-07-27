@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="TrackGenerator_8h" kind="file">
+    <compoundname>TrackGenerator.h</compoundname>
+    <includedby refid="TrackGenerator_8cpp" local="yes">/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.cpp</includedby>
+    <innerclass refid="classTrackGenerator" prot="public">TrackGenerator</innerclass>
+    <briefdescription>
+<para>The <ref refid="classTrackGenerator" kindref="compound">TrackGenerator</ref> class. </para>    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="date"><para>January 23, 2012 </para></simplesect>
+<simplesect kind="author"><para>William Boyd, MIT, Course 22 (<ulink url="mailto:wboyd@mit.edu">wboyd@mit.edu</ulink>) </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="9"><highlight class="preprocessor">#ifndef<sp/>TRACKGENERATOR_H_</highlight></codeline>
+<codeline lineno="10"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>TRACKGENERATOR_H_</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>_USE_MATH_DEFINES</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;fstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;omp.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="Track_8h" kindref="compound" tooltip="The Track class.">Track.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="Geometry_8h" kindref="compound" tooltip="The Geometry class.">Geometry.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="22"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="classTrackGenerator" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classTrackGenerator" kindref="compound" tooltip="The track generator is dedicated to generating tracks which cyclically wrap across the geometry...">TrackGenerator</ref><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>_num_azim;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_spacing;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">*<sp/>_num_tracks;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>_tot_num_tracks;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">*<sp/>_num_segments;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>_tot_num_segments;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">*<sp/>_num_x;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">*<sp/>_num_y;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/>_azim_weights;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classTrack" kindref="compound" tooltip="A track represents a characteristic line across the geometry.">Track</ref>**<sp/>_tracks;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGeometry" kindref="compound" tooltip="The master class containing references to all geometry-related objects (surfaces, cells...">Geometry</ref>*<sp/>_geometry;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>_use_input_file;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/>_tracks_filename;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>_contains_tracks;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>computeEndPoint(<ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>start,<sp/><ref refid="classPoint" kindref="compound" tooltip="Class to represent a 2D point in space.">Point</ref>*<sp/>end,<sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>phi,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>width,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>height);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>initializeBoundaryConditions();</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>segmentize();</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>dumpTracksToFile();</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>readTracksFromFile();</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classTrackGenerator_1a19c16de624bb489a4757772f08c078c3" kindref="member" tooltip="Constructor.">TrackGenerator</ref>(<ref refid="classGeometry" kindref="compound" tooltip="The master class containing references to all geometry-related objects (surfaces, cells...">Geometry</ref>*<sp/>geometry,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_azim,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>spacing);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1a11821904ab5138800c922970585cb1e4" kindref="member" tooltip="Destructor frees memory for all tracks.">~TrackGenerator</ref>();</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1a9c9661635df90ab658b17517548e7cc2" kindref="member" tooltip="Return the number of azimuthal angles in .">getNumAzim</ref>();</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1aa96bffdf881ca6142007a5716077bb9e" kindref="member" tooltip="Return the user-specified (or default) suggested track spacing (cm).">getTrackSpacing</ref>();</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGeometry" kindref="compound" tooltip="The master class containing references to all geometry-related objects (surfaces, cells...">Geometry</ref>*<sp/><ref refid="classTrackGenerator_1a4b87173e3bc0fc075cd1cda64de1aee4" kindref="member" tooltip="Return the geometry for this trackgenerator if one has been set.">getGeometry</ref>();</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1a078d71a343d4c245c38195491b2d024c" kindref="member" tooltip="Return the total number of tracks across the geometry.">getNumTracks</ref>();</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">*<sp/><ref refid="classTrackGenerator_1a20e00c47aa96fbee5c2eef16e8aa006c" kindref="member" tooltip="Return an array of the number of tracks for each azimuthal angle.">getNumTracksArray</ref>();</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1a4e377cdc26b0eec5f54d55ebc2249089" kindref="member" tooltip="Return the total number of track segments across the geometry.">getNumSegments</ref>();</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">*<sp/><ref refid="classTrackGenerator_1a63454e90014b8e3c94091ee7fc2a94f0" kindref="member" tooltip="Return an array of the number of segments per track.">getNumSegmentsArray</ref>();</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classTrack" kindref="compound" tooltip="A track represents a characteristic line across the geometry.">Track</ref>**<sp/><ref refid="classTrackGenerator_1a293c6a25a694bfcb8187cfd679fa3639" kindref="member" tooltip="Returns a 2D jagged array of the tracks.">getTracks</ref>();</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/><ref refid="classTrackGenerator_1a1488db5d20339280b0e6fadf19a6d431" kindref="member" tooltip="Return a pointer to the array of azimuthal weights.">getAzimWeights</ref>();</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1a5ec836ced3479a5aae51132809a3d7b4" kindref="member" tooltip="Returns whether or not the trackgenerator contains track that are for its current number of azimuthal...">containsTracks</ref>();</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1a6b61a46a4dfd62aa13cab68e454ed935" kindref="member" tooltip="Fills an array with the x,y coordinates for each track.">retrieveTrackCoords</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/>coords,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_tracks);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1ad18b94b9307680cf9e7053d3c03e4504" kindref="member" tooltip="Fills an array with the x,y coordinates for each track segment.">retrieveSegmentCoords</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/>coords,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_segments);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1a646dd957a791ae40d9319d50d87bd596" kindref="member" tooltip="Set the number of azimuthal angles in .">setNumAzim</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_azim);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1aa7692a0e2fab2d8cbc14c5c8b65add6f" kindref="member" tooltip="Set the suggested track spacing (cm).">setTrackSpacing</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>spacing);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1a79c918885a9cc3c00515b7fd6a9ffeb7" kindref="member" tooltip="Set a pointer to the geometry to use for track generation.">setGeometry</ref>(<ref refid="classGeometry" kindref="compound" tooltip="The master class containing references to all geometry-related objects (surfaces, cells...">Geometry</ref>*<sp/>geometry);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classTrackGenerator_1a8012954f5eeeae9dfb4fd445937884ee" kindref="member" tooltip="Generates tracks for some number of azimuthal angles and track spacing *.">generateTracks</ref>();</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TRACKGENERATOR_H_<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/TrackGenerator.h"/>
+  </compounddef>
+</doxygen>

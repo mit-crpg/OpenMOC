@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="clone_8cu" kind="file">
+    <compoundname>clone.cu</compoundname>
+    <includes refid="clone_8h" local="yes">clone.h</includes>
+    <incdepgraph>
+      <node id="28">
+        <label>../DeviceMaterial.h</label>
+        <link refid="DeviceMaterial_8h"/>
+      </node>
+      <node id="27">
+        <label>clone.h</label>
+        <link refid="clone_8h_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/clone.cu</label>
+        <link refid="clone.cu"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>../DeviceTrack.h</label>
+        <link refid="DeviceTrack_8h"/>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="clone_8cu_1a365517a6057129ebbe45d6cbf5175b91" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cloneMaterialOnGPU</definition>
+        <argsstring>(Material *material_h, dev_material *material_d)</argsstring>
+        <name>cloneMaterialOnGPU</name>
+        <param>
+          <type><ref refid="classMaterial" kindref="compound">Material</ref> *</type>
+          <declname>material_h</declname>
+        </param>
+        <param>
+          <type><ref refid="structdev__material" kindref="compound">dev_material</ref> *</type>
+          <declname>material_d</declname>
+        </param>
+        <briefdescription>
+<para>Given a pointer to a material on the host and a material on the GPU, copy all of the properties from the material on the host to the GPU. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>material_h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to a material on the host </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>material_d</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to a material on the GPU </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/clone.cu" line="11" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/clone.cu" bodystart="11" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="clone_8cu_1a3125bc8a664937676a44e336c8049820" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cloneTrackOnGPU</definition>
+        <argsstring>(Track *track_h, dev_track *track_d)</argsstring>
+        <name>cloneTrackOnGPU</name>
+        <param>
+          <type><ref refid="classTrack" kindref="compound">Track</ref> *</type>
+          <declname>track_h</declname>
+        </param>
+        <param>
+          <type><ref refid="structdev__track" kindref="compound">dev_track</ref> *</type>
+          <declname>track_d</declname>
+        </param>
+        <briefdescription>
+<para>Given a pointer to a track on the host and a track on the GPU, copy all of the properties and segments from the track on the host to the GPU. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>track_h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to a track on the host </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>track_d</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to a track on the GPU </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/clone.cu" line="78" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/clone.cu" bodystart="78" bodyend="113"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;clone.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cloneMaterialOnGPU(<ref refid="classMaterial" kindref="compound" tooltip="The material class represents a unique material and its relevant nuclear data (ie, multigroup cross-sections) for neutron transport.">Material</ref>*<sp/>material_h,<sp/><ref refid="structdev__material" kindref="compound" tooltip="A material&amp;#39;s nuclear data to be stored on a GPU.">dev_material</ref>*<sp/>material_d)<sp/>{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Copy<sp/>over<sp/>the<sp/>material&apos;s<sp/>id<sp/>and<sp/>uid<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/>=<sp/>material_h-&gt;<ref refid="classMaterial_1adf33854b14118543ec16888b33595cc9" kindref="member" tooltip="Return the material&amp;#39;s user-defined ID.">getId</ref>();</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>uid<sp/>=<sp/>material_h-&gt;<ref refid="classMaterial_1a95de130b248a20f9237793ab92e494a3" kindref="member" tooltip="Return the material&amp;#39;s unique ID.">getUid</ref>();</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_groups<sp/>=<sp/>material_h-&gt;<ref refid="classMaterial_1a50683c7b7c62f1473809c51f37af5a13" kindref="member" tooltip="Returns the number of energy groups for this material&amp;#39;s nuclear data.">getNumEnergyGroups</ref>();</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;material_d-&gt;<ref refid="structdev__material_1a456560b989333fb14e63593bedf745f9" kindref="member">_id</ref>,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;</highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">),<sp/></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;material_d-&gt;<ref refid="structdev__material_1ad820cbdb14d4d04533a3045f9194dbc0" kindref="member">_uid</ref>,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;uid,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">),<sp/></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Allocate<sp/>memory<sp/>on<sp/>the<sp/>device<sp/>for<sp/>each<sp/>material<sp/>data<sp/>array<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/>sigma_t;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/>sigma_a;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/>sigma_s;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/>sigma_f;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/>nu_sigma_f;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/>chi;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Allocate<sp/>memory<sp/>on<sp/>device<sp/>for<sp/>materials<sp/>data<sp/>arrays<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMalloc((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">**)&amp;sigma_t,<sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMalloc((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">**)&amp;sigma_a,<sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMalloc((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">**)&amp;sigma_s,<sp/>num_groups<sp/>*<sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMalloc((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">**)&amp;sigma_f,<sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMalloc((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">**)&amp;nu_sigma_f,<sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMalloc((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">**)&amp;chi,<sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Copy<sp/>materials<sp/>data<sp/>from<sp/>host<sp/>to<sp/>arrays<sp/>on<sp/>the<sp/>device<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)sigma_t,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)material_h-&gt;<ref refid="classMaterial_1a79a0abbbfb65002dd7e59e6e1d871faa" kindref="member" tooltip="Return the array of the material&amp;#39;s total cross-sections.">getSigmaT</ref>(),<sp/></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(double),<sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)sigma_a,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)material_h-&gt;<ref refid="classMaterial_1ada8e6ff3194dc56f5c9ebd6947b20418" kindref="member" tooltip="Return the array of the material&amp;#39;s absorption cross-sections.">getSigmaA</ref>(),<sp/></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(double),<sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)sigma_s,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)material_h-&gt;<ref refid="classMaterial_1a8c771a7e51ac3a9323226f91cad432a0" kindref="member" tooltip="Return the array of the material&amp;#39;s scattering cross-section matrix.">getSigmaS</ref>(),<sp/></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_groups<sp/>*<sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(double),<sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)sigma_f,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)material_h-&gt;<ref refid="classMaterial_1a36a0b94a5b3d19add9582e9dba9fce2c" kindref="member" tooltip="Return the array of the material&amp;#39;s fission cross-sections.">getSigmaF</ref>(),<sp/></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(double),<sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)nu_sigma_f,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)material_h-&gt;<ref refid="classMaterial_1ab9dfbf1074438717d8699601f5bb1339" kindref="member" tooltip="Return the array of the material&amp;#39;s fission cross-sections multiplied by nu .">getNuSigmaF</ref>(),<sp/></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(double),<sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)chi,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)material_h-&gt;<ref refid="classMaterial_1a542b94d86be7e2c63b4aec8cd4dde1cb" kindref="member" tooltip="Return the array of the material&amp;#39;s chi .">getChi</ref>(),<sp/></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_groups<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(double),<sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Copy<sp/>materials<sp/>data<sp/>pointers<sp/>to<sp/>device<sp/>material<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;material_d-&gt;<ref refid="structdev__material_1add13483475ff96bda102dcb7a22ed899" kindref="member">_sigma_t</ref>,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;sigma_t,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*),<sp/></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;material_d-&gt;<ref refid="structdev__material_1ada9eb4b160228c5817d3c962d3455b36" kindref="member">_sigma_a</ref>,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;sigma_a,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*),<sp/></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;material_d-&gt;<ref refid="structdev__material_1aedbce7d066c40ead18618476ffb4d0c9" kindref="member">_sigma_s</ref>,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;sigma_s,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*),<sp/></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;material_d-&gt;<ref refid="structdev__material_1ac9ad2e49bab57a3326b2f2f2f706da7e" kindref="member">_sigma_f</ref>,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;sigma_f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*),<sp/></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;material_d-&gt;<ref refid="structdev__material_1a4199413689b49b9e54a8ce13cfe75cc3" kindref="member">_nu_sigma_f</ref>,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;nu_sigma_f,<sp/></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*),<sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;material_d-&gt;<ref refid="structdev__material_1a605811b8e96dfc2b8be12546c3b9e613" kindref="member">_chi</ref>,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;chi,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*),<sp/></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cloneTrackOnGPU(<ref refid="classTrack" kindref="compound" tooltip="A track represents a characteristic line across the geometry.">Track</ref>*<sp/>track_h,<sp/><ref refid="structdev__track" kindref="compound" tooltip="A dev_track represents a characteristic line across the geometry.">dev_track</ref>*<sp/>track_d)<sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structdev__segment" kindref="compound" tooltip="A dev_segment represents a line segment within a single flat source region along a track...">dev_segment</ref>*<sp/>dev_segments;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structdev__segment" kindref="compound" tooltip="A dev_segment represents a line segment within a single flat source region along a track...">dev_segment</ref>*<sp/>host_segments<sp/>=<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="structdev__segment" kindref="compound" tooltip="A dev_segment represents a line segment within a single flat source region along a track...">dev_segment</ref>[track_h-&gt;<ref refid="classTrack_1a034893295ac06eed35aac0c7ed172419" kindref="member" tooltip="Return the number of segments along this track.">getNumSegments</ref>()];</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structdev__track" kindref="compound" tooltip="A dev_track represents a characteristic line across the geometry.">dev_track</ref><sp/>new_track;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>new_track.<ref refid="structdev__track_1a922879f6909e3ec74c40a368b34f527e" kindref="member">_uid</ref><sp/>=<sp/>track_h-&gt;<ref refid="classTrack_1aba38ecdfdde05c79cbefaf341715a4ec" kindref="member" tooltip="Return the track&amp;#39;s unique ID.">getUid</ref>();</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>new_track.<ref refid="structdev__track_1a257b1a4150d11de2e2a2809c2713de6c" kindref="member">_num_segments</ref><sp/>=<sp/>track_h-&gt;<ref refid="classTrack_1a034893295ac06eed35aac0c7ed172419" kindref="member" tooltip="Return the number of segments along this track.">getNumSegments</ref>();</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>new_track.<ref refid="structdev__track_1a8a209d642c97a47a95ef485b9251b6f6" kindref="member">_azim_angle_index</ref><sp/>=<sp/>track_h-&gt;<ref refid="classTrack_1ad200ad729b952101b48a99b695c81a1b" kindref="member" tooltip="Return the index for the track&amp;#39;s azimuthal angle (with respect to the x-axis).">getAzimAngleIndex</ref>();</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>new_track.<ref refid="structdev__track_1a9b75926a79608ba2918268efd431b1dd" kindref="member">_refl_in</ref><sp/>=<sp/>track_h-&gt;<ref refid="classTrack_1ac553046c3f61abb50c00d9c16ed045a0" kindref="member" tooltip="Returns whether to give the outgoing flux to the &amp;quot;forward&amp;quot; (false) or &amp;quot;reverse&amp;quot; (true) direction of t...">isReflIn</ref>();</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>new_track.<ref refid="structdev__track_1a17fffea5df6d8c3f41a627c1395eeae1" kindref="member">_refl_out</ref><sp/>=<sp/>track_h-&gt;<ref refid="classTrack_1aafdc812cdaf36e09a3341284c61b8f0b" kindref="member" tooltip="Returns whether to give the outgoing flux to the &amp;quot;forward&amp;quot; (false) or &amp;quot;reverse&amp;quot; (true) direction of t...">isReflOut</ref>();</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>new_track.<ref refid="structdev__track_1ad7d86a84771ebc8fbed3dd65594b3576" kindref="member">_bc_in</ref><sp/>=<sp/>track_h-&gt;<ref refid="classTrack_1a724c791d976b2e42b320598a496b13d4" kindref="member" tooltip="Returns the boundary condition for the flux along the track&amp;#39;s &amp;quot;forward&amp;quot; direction.">getBCIn</ref>();</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>new_track.<ref refid="structdev__track_1addb28e8a88465c66a1a9d7a9ad58f911" kindref="member">_bc_out</ref><sp/>=<sp/>track_h-&gt;<ref refid="classTrack_1af84359a4e08d94a446157fce41a0f968" kindref="member" tooltip="Returns the boundary condition for the flux along the track&amp;#39;s &amp;quot;reverse&amp;quot; direction.">getBCOut</ref>();</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMalloc((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">**)&amp;dev_segments,</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>track_h-&gt;<ref refid="classTrack_1a034893295ac06eed35aac0c7ed172419" kindref="member" tooltip="Return the number of segments along this track.">getNumSegments</ref>()<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structdev__segment" kindref="compound" tooltip="A dev_segment represents a line segment within a single flat source region along a track...">dev_segment</ref>));</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>new_track.<ref refid="structdev__track_1a0d80897523e45e6d3c23e6dbe94f7210" kindref="member">_segments</ref><sp/>=<sp/>dev_segments;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s=0;<sp/>s<sp/>&lt;<sp/>track_h-&gt;<ref refid="classTrack_1a034893295ac06eed35aac0c7ed172419" kindref="member" tooltip="Return the number of segments along this track.">getNumSegments</ref>();<sp/>s++)<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsegment" kindref="compound" tooltip="A segment represents a line segment within a single flat source region along a track.">segment</ref>*<sp/>curr<sp/>=<sp/>track_h-&gt;<ref refid="classTrack_1a9f3cf1bcb2d1f234b7029b25cf657b3d" kindref="member" tooltip="Returns a pointer to a segment with a given index.">getSegment</ref>(s);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>host_segments[s].<ref refid="structdev__segment_1a2aac6afa16185fef69c96c7dcb964d68" kindref="member">_length</ref><sp/>=<sp/>curr-&gt;<ref refid="structsegment_1a50c5a635c531d34ad3435ebcc3b6f593" kindref="member">_length</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>host_segments[s].<ref refid="structdev__segment_1a986cb48a5ac6eb7b26791b828d363ee3" kindref="member">_region_uid</ref><sp/>=<sp/>curr-&gt;<ref refid="structsegment_1ad4185c78e4df6c12a07392dfee367706" kindref="member">_region_id</ref>;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>host_segments[s].<ref refid="structdev__segment_1a0385feac05b7d6f5d25bb175a17a72dd" kindref="member">_material_uid</ref><sp/>=<sp/>curr-&gt;<ref refid="structsegment_1a0f8836fedfacd554b9fd650e7e89a4c0" kindref="member">_material</ref>-&gt;<ref refid="classMaterial_1a95de130b248a20f9237793ab92e494a3" kindref="member" tooltip="Return the material&amp;#39;s unique ID.">getUid</ref>();</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)dev_segments,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)host_segments,</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>track_h-&gt;<ref refid="classTrack_1a034893295ac06eed35aac0c7ed172419" kindref="member" tooltip="Return the number of segments along this track.">getNumSegments</ref>()<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structdev__segment" kindref="compound" tooltip="A dev_segment represents a line segment within a single flat source region along a track...">dev_segment</ref>),<sp/></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>cudaMemcpy((</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)track_d,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)&amp;new_track,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structdev__track" kindref="compound" tooltip="A dev_track represents a characteristic line across the geometry.">dev_track</ref>),<sp/></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMemcpyHostToDevice);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal"><sp/>[]<sp/>host_segments;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/dev/gpu/clone.cu"/>
+  </compounddef>
+</doxygen>

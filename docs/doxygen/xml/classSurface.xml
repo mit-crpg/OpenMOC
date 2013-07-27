@@ -1,0 +1,563 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="classSurface" kind="class" prot="public">
+    <compoundname>Surface</compoundname>
+    <derivedcompoundref refid="classCircle" prot="public" virt="non-virtual">Circle</derivedcompoundref>
+    <derivedcompoundref refid="classPlane" prot="public" virt="non-virtual">Plane</derivedcompoundref>
+    <includes refid="Surface_8h" local="yes">openmoc/src/host/Surface.h</includes>
+      <sectiondef kind="protected-static-attrib">
+      <memberdef kind="variable" id="classSurface_1a259bc52e2a2788727593176a8896754e" prot="protected" static="yes" mutable="no">
+        <type>short int</type>
+        <definition>short int Surface::_n</definition>
+        <argsstring></argsstring>
+        <name>_n</name>
+        <initializer> 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A static counter fo the number of surfaces in a simulation </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="78" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classSurface_1a8995d86060c1a792988c707abbb56ea8" prot="protected" static="no" mutable="no">
+        <type>short int</type>
+        <definition>short int Surface::_uid</definition>
+        <argsstring></argsstring>
+        <name>_uid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A monotonically increasing unique ID for each surface created </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="80" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classSurface_1a4c1bcbdba5c4e1e8772b4d4b28f95e39" prot="protected" static="no" mutable="no">
+        <type>short int</type>
+        <definition>short int Surface::_id</definition>
+        <argsstring></argsstring>
+        <name>_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A user-defined id for each surface created </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="82" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classSurface_1a2b8655eb5a953ea4b45abe5fab7831d0" prot="protected" static="no" mutable="no">
+        <type><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81df" kindref="member">surfaceType</ref></type>
+        <definition>surfaceType Surface::_surface_type</definition>
+        <argsstring></argsstring>
+        <name>_surface_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The type of surface (ie, XPLANE, CIRCLE, etc) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="84" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classSurface_1a73ff438f865a0694735877998dce0d91" prot="protected" static="no" mutable="no">
+        <type><ref refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341" kindref="member">boundaryType</ref></type>
+        <definition>boundaryType Surface::_boundary_type</definition>
+        <argsstring></argsstring>
+        <name>_boundary_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The type of boundary condition to be used for this surface (ie, VACUUM or REFLECTIVE) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="87" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classSurface_1ad29d02e18bad0fe49e5a18d9f0cab7a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Surface::Surface</definition>
+        <argsstring>(const short int id=0)</argsstring>
+        <name>Surface</name>
+        <param>
+          <type>const short int</type>
+          <declname>id</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor assigns unique ID and user-defined ID for a surface. </para>        </briefdescription>
+        <detaileddescription>
+<para>Assigns a default boundary condition for this surface to BOUNDARY_NONE. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>an optional user-defined surface id </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="90" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="29" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a89de75c95cb550d432f3ea4ed1429db0" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>Surface::~Surface</definition>
+        <argsstring>()</argsstring>
+        <name>~Surface</name>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="91" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="51" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a1b8e7a0a79ee5b21ad5006ec7a1380a5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int Surface::getUid</definition>
+        <argsstring>() const </argsstring>
+        <name>getUid</name>
+        <briefdescription>
+<para>Return the surface&apos;s unique ID. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the surface&apos;s unique ID </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="93" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a77ba5d7532f411134107c777861d23b2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>short int</type>
+        <definition>short int Surface::getId</definition>
+        <argsstring>() const </argsstring>
+        <name>getId</name>
+        <briefdescription>
+<para>Return the surface&apos;s user-defined id. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the surface&apos;s user-defined id </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="94" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="67" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a0e9228606069f0540ba43960ca192327" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="Surface_8h_1a669341e8f044e9051db22e680c1b81df" kindref="member">surfaceType</ref></type>
+        <definition>surfaceType Surface::getSurfaceType</definition>
+        <argsstring>()</argsstring>
+        <name>getSurfaceType</name>
+        <briefdescription>
+<para>Return the type of surface (ie, XPLANE, CIRCLE, etc). </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the surface type </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="95" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="76" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1afa3ef1b6a8b18d04240ee1a3bc908780" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341" kindref="member">boundaryType</ref></type>
+        <definition>boundaryType Surface::getBoundaryType</definition>
+        <argsstring>()</argsstring>
+        <name>getBoundaryType</name>
+        <briefdescription>
+<para>Returns the type of boundary conditions for this surface (REFLECTIVE, VACUUM or BOUNDARY_NONE) </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the type of boundary type for this surface </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="96" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a3baea26cc38b6fb0d194fca014018174" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double Surface::getXMin</definition>
+        <argsstring>()=0</argsstring>
+        <name>getXMin</name>
+        <reimplementedby refid="classPlane_1a39fb25d54b2b752f1598c20e2e889679">getXMin</reimplementedby>
+        <reimplementedby refid="classXPlane_1a44355c96a333d8061ac0281d4f3a1aa7">getXMin</reimplementedby>
+        <reimplementedby refid="classYPlane_1ac3516c324a84328918483ba4fb9ed3b0">getXMin</reimplementedby>
+        <reimplementedby refid="classZPlane_1a88cf39a1b45475ca33b9c6c490a2be32">getXMin</reimplementedby>
+        <reimplementedby refid="classCircle_1a237978476592c9e3a51408e1b9983175">getXMin</reimplementedby>
+        <briefdescription>
+<para>Returns the minimum x value on this surface. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the minimum x value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="101"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1aff659fd1b2d547d8b59df1b804d4098b" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double Surface::getXMax</definition>
+        <argsstring>()=0</argsstring>
+        <name>getXMax</name>
+        <reimplementedby refid="classPlane_1a32318a4525e6e9224602be52c89972f1">getXMax</reimplementedby>
+        <reimplementedby refid="classXPlane_1ab6fadaf822a0f13c24b04eb234981f84">getXMax</reimplementedby>
+        <reimplementedby refid="classYPlane_1a826121aa104801c8de740bdf35b8719b">getXMax</reimplementedby>
+        <reimplementedby refid="classZPlane_1a8a5210e90bdfb46876935dbef37193ff">getXMax</reimplementedby>
+        <reimplementedby refid="classCircle_1a85c4fc93fe17f6ec4b5255c07315400c">getXMax</reimplementedby>
+        <briefdescription>
+<para>Returns the maximum x value on this surface. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the maximum x value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="106"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a294b8bd2f04b3b938cc7c31cc4f941f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double Surface::getYMin</definition>
+        <argsstring>()=0</argsstring>
+        <name>getYMin</name>
+        <reimplementedby refid="classPlane_1a70c9986c329d96eeaf6f2f0239f54706">getYMin</reimplementedby>
+        <reimplementedby refid="classXPlane_1a827dd3ffd7ee05c3110e0c25ff3efcfb">getYMin</reimplementedby>
+        <reimplementedby refid="classYPlane_1ad31d977334c0839649588b2382c6d316">getYMin</reimplementedby>
+        <reimplementedby refid="classZPlane_1ac8c77d7807045ce074dc76a69b93d5b6">getYMin</reimplementedby>
+        <reimplementedby refid="classCircle_1a15a934ccb615ddf1e3b87d80a65d14c8">getYMin</reimplementedby>
+        <briefdescription>
+<para>Returns the minimum y value on this surface. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the minimum y value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="111"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a1ffa35335f366974886fa7c36b564fef" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double Surface::getYMax</definition>
+        <argsstring>()=0</argsstring>
+        <name>getYMax</name>
+        <reimplementedby refid="classPlane_1a79d802de37e2b43b689c69dd05b721ff">getYMax</reimplementedby>
+        <reimplementedby refid="classXPlane_1a12b3bab6d337755116c2a8d50b8c5810">getYMax</reimplementedby>
+        <reimplementedby refid="classYPlane_1a68f1585c4575003ef500e95bd21475f1">getYMax</reimplementedby>
+        <reimplementedby refid="classZPlane_1a3c76cfa8b383fbf962589b35364ab8cf">getYMax</reimplementedby>
+        <reimplementedby refid="classCircle_1ac468c428499a1e10ace7c16260060da9">getYMax</reimplementedby>
+        <briefdescription>
+<para>Returns the maximum y value on this surface. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>the maximum y value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="116"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1af8921636e9779854a377f412817c3a32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Surface::setBoundaryType</definition>
+        <argsstring>(const boundaryType boundary_type)</argsstring>
+        <name>setBoundaryType</name>
+        <param>
+          <type>const <ref refid="Surface_8h_1a94f2bdaf8e1769faec72dbd9e7486341" kindref="member">boundaryType</ref></type>
+          <declname>boundary_type</declname>
+        </param>
+        <briefdescription>
+<para>Sets the boundary condition type (ie, VACUUM or REFLECTIVE) for this surface. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>boundary_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the boundary condition forthis surface </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="118" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="96" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a2e0aaef635a7392806d27fb4999a9168" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double Surface::evaluate</definition>
+        <argsstring>(const Point *point) const =0</argsstring>
+        <name>evaluate</name>
+        <reimplementedby refid="classPlane_1a18dcfc28a7d08e18983d3f906943bc82">evaluate</reimplementedby>
+        <reimplementedby refid="classCircle_1a18f49b1f94c29760cd62d10b7e908fa9">evaluate</reimplementedby>
+        <param>
+          <type>const <ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>point</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate a point using the plane&apos;s surface&apos;s potential equation. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method returns the values <formula id="20">$ f(x,y) $</formula> for the potential function <formula id="21">$f$</formula> representing this surface. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>point</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to the point of interest </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the value of point in the plane&apos;s potential equation. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="126"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a145ed967142bc6c121d43f5f2523e2e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>int</type>
+        <definition>virtual int Surface::intersection</definition>
+        <argsstring>(Point *point, double angle, Point *points)=0</argsstring>
+        <name>intersection</name>
+        <reimplementedby refid="classPlane_1a6e1b304a38f0c6d6f7dc985d548e0304">intersection</reimplementedby>
+        <reimplementedby refid="classCircle_1a49e3967db73a8f068dbe6302a84370f6">intersection</reimplementedby>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>point</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>angle</declname>
+        </param>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>points</declname>
+        </param>
+        <briefdescription>
+<para>Finds the intersection point with this surface from a given point and trajectory defined by an angle. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>point</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to the point of interest </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the angle defining the trajectory in radians </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>points</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to a point to store the intersection point </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the number of intersection points (0 or 1) </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1ad996b11e3af07e6dea8081cb11ccfe0c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Surface::isPointOnSurface</definition>
+        <argsstring>(Point *point)</argsstring>
+        <name>isPointOnSurface</name>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>point</declname>
+        </param>
+        <briefdescription>
+<para>Return true or false if a point is on or off of a surface. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>point</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to the point of interest </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>on (true) or off (false) the surface </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="136" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="106" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a1263b1b61154ed6f75e7079a5832d853" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Surface::isCoordOnSurface</definition>
+        <argsstring>(LocalCoords *coord)</argsstring>
+        <name>isCoordOnSurface</name>
+        <param>
+          <type><ref refid="classLocalCoords" kindref="compound">LocalCoords</ref> *</type>
+          <declname>coord</declname>
+        </param>
+        <briefdescription>
+<para>Return true or false if a localcoord is on or off of a surface. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coord</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to the localcoord of interest </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>on (true) or off (false) the surface </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="137" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.cpp" bodystart="121" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a38d24a561dd8d1e3e3a0dabc3a472634" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Surface::getMinDistance</definition>
+        <argsstring>(Point *point, double angle, Point *intersection)</argsstring>
+        <name>getMinDistance</name>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>point</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>angle</declname>
+        </param>
+        <param>
+          <type><ref refid="classPoint" kindref="compound">Point</ref> *</type>
+          <declname>intersection</declname>
+        </param>
+        <briefdescription>
+<para>Finds the minimum distance to a surface. </para>        </briefdescription>
+        <detaileddescription>
+<para>Finds the miniumum distance to a surface from a point with a given trajectory defined by an angle to this surface. If the trajectory will not intersect the surface, returns INFINITY. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>point</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to the point of interest </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the angle defining the trajectory in radians </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>intersection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a pointer to a point for storing the intersection </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the minimum distance to the surface </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="138" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="323" bodyend="359"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1a7275a4ce4c6d96fd90b5c1916cf9ae37" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::string</type>
+        <definition>virtual std::string Surface::toString</definition>
+        <argsstring>()=0</argsstring>
+        <name>toString</name>
+        <reimplementedby refid="classPlane_1ae953389291ab7fff7a1745c86977a3ae">toString</reimplementedby>
+        <reimplementedby refid="classXPlane_1a8f02479cb1ca1dc6e4d79d4fe1d26543">toString</reimplementedby>
+        <reimplementedby refid="classYPlane_1a90e984e54368bc0508c82e86b05de286">toString</reimplementedby>
+        <reimplementedby refid="classZPlane_1a7a55a5e5c3d7d1279844263e77010c40">toString</reimplementedby>
+        <reimplementedby refid="classCircle_1aea2207f792f532c1a92bfba37adcee5e">toString</reimplementedby>
+        <briefdescription>
+<para>Converts this surface&apos;s attributes to a character array. </para>        </briefdescription>
+        <detaileddescription>
+<para>The character array returned conatins the type of surface (ie, PLANE) and the coefficients in the potential equation. <simplesect kind="return"><para>a character array of this surface&apos;s attributes </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="145"/>
+      </memberdef>
+      <memberdef kind="function" id="classSurface_1aedc2d76b05edc93b85bb63dc41c1f1b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Surface::printString</definition>
+        <argsstring>()=0</argsstring>
+        <name>printString</name>
+        <reimplementedby refid="classPlane_1a1979f3908ae8fa3dd780f0f583591da3">printString</reimplementedby>
+        <reimplementedby refid="classYPlane_1a0be4dfa4623eaf137fdd0324bfe1e7ea">printString</reimplementedby>
+        <reimplementedby refid="classZPlane_1a979069fb189a567b298114bf5b24ff4a">printString</reimplementedby>
+        <reimplementedby refid="classCircle_1a194de784b65de551eb4a05ff6bfd443b">printString</reimplementedby>
+        <briefdescription>
+<para>Prints a string representation of all of the surface&apos;s objects to the console. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="151"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Represents a general surface in the 2D xy-plane. </para>    </briefdescription>
+    <detaileddescription>
+<para>The surface class and its subclasses are used to define the geometry for an OpenMOC simulation using a constructive solid geometry (CSG) formalism. Surfaces are used during ray tracing of charateristic tracks across the geometry. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="89">
+        <label>ZPlane</label>
+        <link refid="classZPlane"/>
+        <childnode refid="86" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="85">
+        <label>Circle</label>
+        <link refid="classCircle"/>
+        <childnode refid="84" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="87">
+        <label>XPlane</label>
+        <link refid="classXPlane"/>
+        <childnode refid="86" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="84">
+        <label>Surface</label>
+        <link refid="classSurface"/>
+      </node>
+      <node id="88">
+        <label>YPlane</label>
+        <link refid="classYPlane"/>
+        <childnode refid="86" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="86">
+        <label>Plane</label>
+        <link refid="classPlane"/>
+        <childnode refid="84" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="90">
+        <label>Surface</label>
+        <link refid="classSurface"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" line="74" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/Surface.h" bodystart="74" bodyend="152"/>
+    <listofallmembers>
+      <member refid="classSurface_1a73ff438f865a0694735877998dce0d91" prot="protected" virt="non-virtual"><scope>Surface</scope><name>_boundary_type</name></member>
+      <member refid="classSurface_1a4c1bcbdba5c4e1e8772b4d4b28f95e39" prot="protected" virt="non-virtual"><scope>Surface</scope><name>_id</name></member>
+      <member refid="classSurface_1a259bc52e2a2788727593176a8896754e" prot="protected" virt="non-virtual"><scope>Surface</scope><name>_n</name></member>
+      <member refid="classSurface_1a2b8655eb5a953ea4b45abe5fab7831d0" prot="protected" virt="non-virtual"><scope>Surface</scope><name>_surface_type</name></member>
+      <member refid="classSurface_1a8995d86060c1a792988c707abbb56ea8" prot="protected" virt="non-virtual"><scope>Surface</scope><name>_uid</name></member>
+      <member refid="classSurface_1a2e0aaef635a7392806d27fb4999a9168" prot="public" virt="pure-virtual"><scope>Surface</scope><name>evaluate</name></member>
+      <member refid="classSurface_1afa3ef1b6a8b18d04240ee1a3bc908780" prot="public" virt="non-virtual"><scope>Surface</scope><name>getBoundaryType</name></member>
+      <member refid="classSurface_1a77ba5d7532f411134107c777861d23b2" prot="public" virt="non-virtual"><scope>Surface</scope><name>getId</name></member>
+      <member refid="classSurface_1a38d24a561dd8d1e3e3a0dabc3a472634" prot="public" virt="non-virtual"><scope>Surface</scope><name>getMinDistance</name></member>
+      <member refid="classSurface_1a0e9228606069f0540ba43960ca192327" prot="public" virt="non-virtual"><scope>Surface</scope><name>getSurfaceType</name></member>
+      <member refid="classSurface_1a1b8e7a0a79ee5b21ad5006ec7a1380a5" prot="public" virt="non-virtual"><scope>Surface</scope><name>getUid</name></member>
+      <member refid="classSurface_1aff659fd1b2d547d8b59df1b804d4098b" prot="public" virt="pure-virtual"><scope>Surface</scope><name>getXMax</name></member>
+      <member refid="classSurface_1a3baea26cc38b6fb0d194fca014018174" prot="public" virt="pure-virtual"><scope>Surface</scope><name>getXMin</name></member>
+      <member refid="classSurface_1a1ffa35335f366974886fa7c36b564fef" prot="public" virt="pure-virtual"><scope>Surface</scope><name>getYMax</name></member>
+      <member refid="classSurface_1a294b8bd2f04b3b938cc7c31cc4f941f3" prot="public" virt="pure-virtual"><scope>Surface</scope><name>getYMin</name></member>
+      <member refid="classSurface_1a145ed967142bc6c121d43f5f2523e2e9" prot="public" virt="pure-virtual"><scope>Surface</scope><name>intersection</name></member>
+      <member refid="classSurface_1a1263b1b61154ed6f75e7079a5832d853" prot="public" virt="non-virtual"><scope>Surface</scope><name>isCoordOnSurface</name></member>
+      <member refid="classSurface_1ad996b11e3af07e6dea8081cb11ccfe0c" prot="public" virt="non-virtual"><scope>Surface</scope><name>isPointOnSurface</name></member>
+      <member refid="classSurface_1aedc2d76b05edc93b85bb63dc41c1f1b2" prot="public" virt="pure-virtual"><scope>Surface</scope><name>printString</name></member>
+      <member refid="classSurface_1af8921636e9779854a377f412817c3a32" prot="public" virt="non-virtual"><scope>Surface</scope><name>setBoundaryType</name></member>
+      <member refid="classSurface_1ad29d02e18bad0fe49e5a18d9f0cab7a2" prot="public" virt="non-virtual"><scope>Surface</scope><name>Surface</name></member>
+      <member refid="classSurface_1a7275a4ce4c6d96fd90b5c1916cf9ae37" prot="public" virt="pure-virtual"><scope>Surface</scope><name>toString</name></member>
+      <member refid="classSurface_1a89de75c95cb550d432f3ea4ed1429db0" prot="public" virt="virtual"><scope>Surface</scope><name>~Surface</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

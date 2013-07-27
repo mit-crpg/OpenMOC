@@ -1,0 +1,56 @@
+Current local time and date: Sat Jul 27 01:21:27 2013
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]            Simulating the OECD's C5G7 Benchmark Problem...          
+[  TITLE  ]  *******************************************************************
+[  NORMAL ]  Importing materials data from HDF5...
+[  NORMAL ]  Creating surfaces...
+[  NORMAL ]  Creating cells...
+[  NORMAL ]  Creating lattices...
+[  NORMAL ]  Creating geometry...
+[  NORMAL ]  Number of flat source regions: 142964
+[  NORMAL ]  Initializing the track generator...
+[  NORMAL ]  Reading tracks in from file
+[  NORMAL ]  Initializing track boundary conditions...
+[  NORMAL ]  Converging the source...
+[  NORMAL ]  Iteration 0: 	k_eff = 1.000000	res = 0.000E+00
+[  NORMAL ]  Iteration 1: 	k_eff = 1.008733	res = 2.646E+00
+[  NORMAL ]  Iteration 2: 	k_eff = 1.048216	res = 1.150E+00
+[  NORMAL ]  Iteration 3: 	k_eff = 1.057277	res = 7.355E-01
+[  NORMAL ]  Iteration 4: 	k_eff = 1.046937	res = 4.202E-01
+[  NORMAL ]  Iteration 5: 	k_eff = 1.025449	res = 3.220E-01
+[  NORMAL ]  Iteration 6: 	k_eff = 0.999298	res = 2.994E-01
+[  NORMAL ]  Iteration 7: 	k_eff = 0.973379	res = 2.880E-01
+[  NORMAL ]  Iteration 8: 	k_eff = 0.950902	res = 2.748E-01
+[  NORMAL ]  Iteration 9: 	k_eff = 0.933475	res = 2.575E-01
+[  NORMAL ]  Iteration 10: 	k_eff = 0.921453	res = 2.370E-01
+[  NORMAL ]  Iteration 11: 	k_eff = 0.914399	res = 2.143E-01
+[  NORMAL ]  Iteration 12: 	k_eff = 0.911487	res = 1.903E-01
+[  NORMAL ]  Iteration 13: 	k_eff = 0.911782	res = 1.659E-01
+[  NORMAL ]  Iteration 14: 	k_eff = 0.914409	res = 1.421E-01
+[  NORMAL ]  Iteration 15: 	k_eff = 0.918628	res = 1.198E-01
+[  NORMAL ]  Iteration 16: 	k_eff = 0.923852	res = 1.000E-01
+[  NORMAL ]  Iteration 17: 	k_eff = 0.929641	res = 8.331E-02
+[  NORMAL ]  Iteration 18: 	k_eff = 0.935681	res = 6.981E-02
+[  NORMAL ]  Iteration 19: 	k_eff = 0.941756	res = 5.932E-02
+[  NORMAL ]  Iteration 20: 	k_eff = 0.947726	res = 5.138E-02
+[  NORMAL ]  Iteration 21: 	k_eff = 0.953507	res = 4.543E-02
+[  NORMAL ]  Iteration 22: 	k_eff = 0.959054	res = 4.094E-02
+[  NORMAL ]  Iteration 23: 	k_eff = 0.964349	res = 3.750E-02
+[  NORMAL ]  Iteration 24: 	k_eff = 0.969391	res = 3.480E-02
+[ WARNING ]  Unable to converge the source after 25 iterations
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]                             TIMING REPORT                           
+[  TITLE  ]  *******************************************************************
+[  RESULT ]  Total time to solution...............................6.0712E+00 sec
+[  RESULT ]  Solution time per unknown............................6.0667E-06 sec
+[  RESULT ]  Solution time per iteration..........................2.4285E-01 sec
+[  RESULT ]  Integration time per track segment...................3.5533E-07 sec
+[SEPARATOR]  -------------------------------------------------------------------
+[  RESULT ]             # tracks          # segments          # FSRs
+[SEPARATOR]  -------------------------------------------------------------------
+[  RESULT ]               1820             683443             142964             
+[SEPARATOR]  -------------------------------------------------------------------
+[  NORMAL ]  Plotting data...
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]                               Finished                             
+[  TITLE  ]  *******************************************************************

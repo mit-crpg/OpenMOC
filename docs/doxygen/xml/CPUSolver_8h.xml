@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="CPUSolver_8h" kind="file">
+    <compoundname>CPUSolver.h</compoundname>
+    <includedby refid="CPUSolver_8cpp" local="yes">/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.cpp</includedby>
+    <innerclass refid="classCPUSolver" prot="public">CPUSolver</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="CPUSolver_8h_1a85f67017ac5e1b0b02a37affc36380c4" prot="public" static="no">
+        <name>_thread_fsr_flux</name>
+        <param><defname>tid</defname></param>
+        <initializer>(_thread_fsr_flux[tid*_num_groups])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing macro for the thread private flat source region scalar fluxes </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.h" line="21" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.h" bodystart="21" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="CPUSolver_8h_1a2143506339a36528e1c9d7e27501897f" prot="public" static="no">
+        <name>track_flux</name>
+        <param><defname>p</defname></param>
+        <param><defname>e</defname></param>
+        <initializer>(track_flux[(p)*_num_groups + (e)])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing macro for the angular fluxes for each polar angle and energy group for either the forward or reverse direction for a given track </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.h" line="25" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="CPUSolver_8h_1a1ada87108681a86ec25d66c3644e04e3" prot="public" static="no">
+        <name>track_out_flux</name>
+        <param><defname>p</defname></param>
+        <param><defname>e</defname></param>
+        <initializer>(track_out_flux[(p)*_num_groups + (e)])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing macro for the angular fluxes for each polar angle and energy group for the outgoing reflective track from a given track </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.h" line="29" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.h" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="CPUSolver_8h_1a757791065f47b569864c162dc32aa8a3" prot="public" static="no">
+        <name>track_leakage</name>
+        <param><defname>p</defname></param>
+        <param><defname>e</defname></param>
+        <initializer>(track_leakage[(p)*_num_groups + (e)])</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Indexing macro for the leakage for each polar angle and energy group for either the forward or reverse direction for a given track </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.h" line="33" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The <ref refid="classCPUSolver" kindref="compound">CPUSolver</ref> class. </para>    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="date"><para>May 28, 2013 </para></simplesect>
+<simplesect kind="author"><para>William Boyd, MIT, Course 22 (<ulink url="mailto:wboyd@mit.edu">wboyd@mit.edu</ulink>) </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="9"><highlight class="preprocessor">#ifndef<sp/>CPUSOLVER_H_</highlight></codeline>
+<codeline lineno="10"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>CPUSOLVER_H_</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>_USE_MATH_DEFINES</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;omp.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="Solver_8h" kindref="compound" tooltip="The Solver class.">Solver.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="21" refid="CPUSolver_8h_1a85f67017ac5e1b0b02a37affc36380c4" refkind="member"><highlight class="preprocessor">#define<sp/>_thread_fsr_flux(tid)<sp/>(_thread_fsr_flux[tid*_num_groups])</highlight></codeline>
+<codeline lineno="22"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="25" refid="CPUSolver_8h_1a2143506339a36528e1c9d7e27501897f" refkind="member"><highlight class="preprocessor">#define<sp/>track_flux(p,e)<sp/>(track_flux[(p)*_num_groups<sp/>+<sp/>(e)])</highlight></codeline>
+<codeline lineno="26"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="29" refid="CPUSolver_8h_1a1ada87108681a86ec25d66c3644e04e3" refkind="member"><highlight class="preprocessor">#define<sp/>track_out_flux(p,e)<sp/>(track_out_flux[(p)*_num_groups<sp/>+<sp/>(e)])</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="33" refid="CPUSolver_8h_1a757791065f47b569864c162dc32aa8a3" refkind="member"><highlight class="preprocessor">#define<sp/>track_leakage(p,e)<sp/>(track_leakage[(p)*_num_groups<sp/>+<sp/>(e)])</highlight></codeline>
+<codeline lineno="34"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="classCPUSolver" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classCPUSolver" kindref="compound" tooltip="This a subclass of the Solver class for multi-core CPUs using OpenMP multi-threading.">CPUSolver</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classSolver" kindref="compound" tooltip="This is an abstract base class from which different types of Solvers subclass for different architect...">Solver</ref><sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="classCPUSolver_1aae4771f6912d3ea1a3a10537a791b28e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1aae4771f6912d3ea1a3a10537a791b28e" kindref="member">_num_threads</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="classCPUSolver_1aa5e0750911999b1c6b5bb76228798195" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>omp_lock_t*<sp/><ref refid="classCPUSolver_1aa5e0750911999b1c6b5bb76228798195" kindref="member">_FSR_locks</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="classCPUSolver_1a719d0a4dcd9de62e0fe1985953ce44ca" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="classCPUSolver_1a719d0a4dcd9de62e0fe1985953ce44ca" kindref="member">_thread_fsr_flux</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a8eac5804397c5e5f95d73b19a6e4cbfd" kindref="member" tooltip="Allocates memory for track boundary angular fluxes and leakages flat source region scalar fluxes...">initializeFluxArrays</ref>();</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a51419d540c7eea9d29c3df963cc80784" kindref="member" tooltip="Allocates memory for flat source region source arrays.">initializeSourceArrays</ref>();</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1aea001e3d177ce6eec0d650025ec821bc" kindref="member" tooltip="Allocates memory for flat source region power arrays.">initializePowerArrays</ref>();</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a061a09ddde28c55cda28a8734eac4c1a" kindref="member" tooltip="Creates a polar quadrature object for the solver.">initializePolarQuadrature</ref>();</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1ad7622d98f9b5664bcfdef86762b32f86" kindref="member" tooltip="Pre-computes exponential pre-factors for each segment of each track for each polar angle...">precomputePrefactors</ref>();</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1aafc9bf9eb416a12cbe21ddde4b5f9f1c" kindref="member" tooltip="Initializes the volumes and material arrays for each flat source region.">initializeFSRs</ref>();</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a003f1ec12b683d237d62a23c7364dd5c" kindref="member" tooltip="Zero each track&amp;#39;s boundary fluxes for each energy group and polar angle in the &amp;quot;forward&amp;quot; and &amp;quot;reverse...">zeroTrackFluxes</ref>();</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a154cbd82754abdadb2ca57068ec12102" kindref="member" tooltip="Set the scalar flux for each energy group inside each flat source region to a constant value...">flattenFSRFluxes</ref>(FP_PRECISION<sp/>value);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a50b87bcfca1e6e3399ad75a8c9fd6337" kindref="member" tooltip="Set the source for each energy group inside each flat source region to a constant value...">flattenFSRSources</ref>(FP_PRECISION<sp/>value);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1aadf42a3cc81fc4641d259aee546e48c3" kindref="member" tooltip="Normalizes all flat source region scalar fluxes and track boundary angular fluxes to the total fissio...">normalizeFluxes</ref>();</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION<sp/><ref refid="classCPUSolver_1add777a473fdeaf1bf2928c5d05168c85" kindref="member" tooltip="Computes the total source (fission and scattering) in each flat source region.">computeFSRSources</ref>();</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a33da888a1e5a9a07a66f33698f9acfc9" kindref="member" tooltip="Computes the contribution to the flat source region scalar flux from a single track segment...">scalarFluxTally</ref>(<ref refid="structsegment" kindref="compound" tooltip="A segment represents a line segment within a single flat source region along a track.">segment</ref>*<sp/>curr_segment,<sp/></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="CPUSolver_8h_1a2143506339a36528e1c9d7e27501897f" kindref="member">track_flux</ref>,</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/>fsr_flux);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1aa1a8444c76db86d149fadc19ca1ae781" kindref="member" tooltip="Updates the boundary flux for a track given boundary conditions.">transferBoundaryFlux</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>track_id,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>direction,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="CPUSolver_8h_1a2143506339a36528e1c9d7e27501897f" kindref="member">track_flux</ref>);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a92a92ed2553ba853b9a8f63114d1a844" kindref="member" tooltip="Add the source term contribution in the transport equation to the flat source region scalar flux...">addSourceToScalarFlux</ref>();</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a230b68be081a8bd573bfdf3fabc75799" kindref="member" tooltip="Compute  from total fission and absorption rates.">computeKeff</ref>();</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a9aac0098d2d8969d87212aad0cb9c54e" kindref="member" tooltip="This method performs one transport sweep of all azimuthal angles, tracks, segments, polar angles and energy groups.">transportSweep</ref>();</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>FP_PRECISION<sp/><ref refid="classCPUSolver_1a15c08662bd62a5042f5054a74e23391f" kindref="member" tooltip="Computes the exponential term in the transport equation for a track segment.">computeExponential</ref>(FP_PRECISION<sp/>sigma_t,<sp/></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FP_PRECISION<sp/>length,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>p);<sp/></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classCPUSolver_1a7a3a562bc1ec3f99ce834e6ee7f54fef" kindref="member" tooltip="Constructor initializes array pointers for tracks and materials.">CPUSolver</ref>(<ref refid="classGeometry" kindref="compound" tooltip="The master class containing references to all geometry-related objects (surfaces, cells...">Geometry</ref>*<sp/>geometry=NULL,<sp/><ref refid="classTrackGenerator" kindref="compound" tooltip="The track generator is dedicated to generating tracks which cyclically wrap across the geometry...">TrackGenerator</ref>*<sp/>track_generator=NULL);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a6573957b7c5ea0b6c41b773081fd49cd" kindref="member" tooltip="Destructor deletes array for OpenMP atomic locks for scalar flux updates, and calls Solver subclass d...">~CPUSolver</ref>();</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1af890494e4e5353fa81f41f80d6e52cb4" kindref="member" tooltip="Returns the number of shared memory OpenMP threads in use.">getNumThreads</ref>();</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION<sp/><ref refid="classCPUSolver_1ac0c9152a81ce1bd13f42aeb20ee9402c" kindref="member" tooltip="Returns the scalar flux for some energy group for a flat source region.">getFSRScalarFlux</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fsr_id,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>energy_group);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="classCPUSolver_1a281e593c8d4e75fd44a6acb8e7bf91ee" kindref="member" tooltip="Return an array indexed by flat source region IDs and energy groups which contains the corresponding ...">getFSRScalarFluxes</ref>();</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="classCPUSolver_1a90dc1357f3ec10f9a85ae31cefd0bd49" kindref="member" tooltip="Return an array indexed by flat source region IDs with the corresponding flat source region power...">getFSRPowers</ref>();</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>FP_PRECISION*<sp/><ref refid="classCPUSolver_1a57ef6e1450abb4e7ba67f582228d6241" kindref="member" tooltip="Return an array indexed by flat source region IDs with the corresponding pin cell power...">getFSRPinPowers</ref>();</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a2407bc2c3829aff938c34a990d8fbe65" kindref="member" tooltip="Sets the number of shared memory OpenMP threads to use (&amp;gt;0).">setNumThreads</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_threads);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classCPUSolver_1a4a85c27ea780c422e81f1d2f59789744" kindref="member" tooltip="Compute the fission rates in each flat source region and stores them in an array indexed by flat sour...">computePinPowers</ref>();</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>CPUSOLVER_H_<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.h"/>
+  </compounddef>
+</doxygen>

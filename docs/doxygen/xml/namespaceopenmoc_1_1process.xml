@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.1.2">
+  <compounddef id="namespaceopenmoc_1_1process" kind="namespace">
+    <compoundname>openmoc::process</compoundname>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="namespaceopenmoc_1_1process_1aae18b0af8f53d587d9cf7cec0dd62a73" prot="public" static="no" mutable="no">
+        <type>string</type>
+        <definition>string openmoc::process.subdirectory</definition>
+        <argsstring></argsstring>
+        <name>subdirectory</name>
+        <initializer>&quot;/plots/&quot;</initializer>
+        <briefdescription>
+<para>A static variable for the output directory in which to save plots. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/openmoc/process.py" line="16" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/openmoc/process.py" bodystart="16" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceopenmoc_1_1process_1a3ff159a8d9abdd89456ed423338a7d1f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>def</type>
+        <definition>def openmoc.process.strongScalingStudy</definition>
+        <argsstring></argsstring>
+        <name>strongScalingStudy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/openmoc/process.py" line="31" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/openmoc/process.py" bodystart="34" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceopenmoc_1_1process_1abef10fcafdde607b0c6f86807053d155" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>def</type>
+        <definition>def openmoc.process.weakScalingStudy</definition>
+        <argsstring></argsstring>
+        <name>weakScalingStudy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/openmoc/process.py" line="201" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/openmoc/process.py" bodystart="204" bodyend="354"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceopenmoc_1_1process_1afa0e994cf60a371c3cb3a04bcc871744" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>def</type>
+        <definition>def openmoc.process.profile</definition>
+        <argsstring></argsstring>
+        <name>profile</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/openmoc/process.py" line="355" bodyfile="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/openmoc/process.py" bodystart="355" bodyend="406"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="author"><para>William Boyd (<ulink url="mailto:wboyd@mit.edu">wboyd@mit.edu</ulink>) </para></simplesect>
+<simplesect kind="date"><para>April 27, 2013 </para></simplesect>
+</para>    </detaileddescription>
+    <location file="/home/wbinventor/Documents/NSE-CRPG-Codes/OpenMOC/openmoc/process.py" line="1"/>
+  </compounddef>
+</doxygen>
