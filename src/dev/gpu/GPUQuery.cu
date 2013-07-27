@@ -104,3 +104,25 @@ void printDetailedGPUInfo() {
     log_printf(NORMAL, "Max grid dimensions: [%d, %d, %d]", prop.maxGridSize[0],
 	       prop.maxGridSize[1], prop.maxGridSize[2]);
 }
+
+
+
+/**
+ * @brief Returns the number of threads in a CUDA warp for the attached GPU.
+ */
+int getNumThreadsInWarp() {
+
+    if (!machineContainsGPU()) {
+        log_printf(WARNING, "Unable to return the number of threads per warp "
+		   "since no GPU is attached to the machine");
+        return 0;
+    }
+
+    int dev;
+    cudaGetDevice(&dev);
+    
+    cudaDeviceProp prop;
+    cudaGetDeviceProperties(&prop, dev);
+    
+    return prop.warpSize;
+}

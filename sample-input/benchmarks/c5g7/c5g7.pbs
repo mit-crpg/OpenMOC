@@ -15,7 +15,7 @@ cd $PBS_O_WORKDIR
 PATH=$PBS_O_PATH
 
 ######################################
-# Run PINSPEC - MAKE YOUR CHANGES HERE
+# Run OpenMOC - MAKE YOUR CHANGES HERE
 ######################################
  
 #PBS -k eo
