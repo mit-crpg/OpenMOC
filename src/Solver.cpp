@@ -400,20 +400,13 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     precomputePrefactors();
     initializeFSRs();
 
-    printf("Finished initializing all arrays\n");
-
-
     /* Check that each FSR has at least one segment crossing it */
     checkTrackSpacing();
-
-    printf("checked track spacing\n");
 
     /* Set scalar flux to unity for each region */
     flattenFSRFluxes(1.0);
     flattenFSRSources(1.0);
     zeroTrackFluxes();
-
-    printf("zeroed all fluxes\n");
 
     /* Source iteration loop */
     for (int i=0; i < max_iterations; i++) {

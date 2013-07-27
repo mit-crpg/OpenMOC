@@ -10,7 +10,7 @@
 
 #ifdef __cplusplus
 #include <time.h>
-#include <sys/time.h>
+#include <omp.h>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -21,16 +21,10 @@
 #include "log.h"
 #endif
 
-#ifdef __MACH__         /* For OSX */
-#define timespec timeval
-#endif
-
 
 /**
  * @class Timer Timer.h "openmoc/src/host/Timer.cpp"
  * @brief The timer class is for timing and profiling regions of code.
- * @details The timer outputs running time in seconds but has resolution
- *          of microseconds on OSX and nanoseconds on Linux machines.
  */
 class Timer {
 
@@ -38,7 +32,7 @@ private:
 
     /** A vector of timespec struct pointers for the start time at
      *  each recursive level at which we are timing */
-    static std::vector<timespec*> _start_times;
+    static std::vector<double> _start_times;
 
     /** The time elapsed (seconds) for the current split */
     float _elapsed_time;
@@ -61,8 +55,6 @@ private:
      * @param & The Timer static reference pointer.
      */
     Timer(const Timer &) { }
-
-    double diff(timespec start, timespec end);
 
 public:
     /**

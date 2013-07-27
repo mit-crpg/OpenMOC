@@ -287,20 +287,15 @@ void CPUSolver::precomputePrefactors() {
 
     _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
 
-    printf("allocated memory for polar weights\n");
-
     /* Precompute the total azimuthal weight for tracks at each polar angle */
     #pragma omp parallel for private(azim_weight) schedule(guided)
     for (int i=0; i < _num_azim; i++) {
 
-        printf("i = %d\n", i);
         azim_weight = _azim_weights[i];
 
         for (int p=0; p < _num_polar; p++)
 	    _polar_weights(i,p) = azim_weight*_quad->getMultiple(p)*FOUR_PI;
     }
-
-    printf("finished computing azimuthal weights\n");
 
     /* Set size of prefactor array */
     int num_array_values = 10 * sqrt(1. / (8. * _source_convergence_thresh));
@@ -318,8 +313,6 @@ void CPUSolver::precomputePrefactors() {
     FP_PRECISION intercept;
     FP_PRECISION slope;
 
-    printf("Finished allocating arrays\n");
-
     /* Create prefactor array */
     for (int i=0; i < num_array_values; i ++){
         for (int p=0; p < _num_polar; p++){
@@ -331,8 +324,6 @@ void CPUSolver::precomputePrefactors() {
 	    _prefactor_array[_two_times_num_polar * i + 2 * p + 1] = intercept;
 	}
     }
-
-    printf("finished setting prefactor array\n");
 
     /* Compute the reciprocal of the prefactor spacing */
     _inverse_prefactor_spacing = 1.0 / _prefactor_spacing;
