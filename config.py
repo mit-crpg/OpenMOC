@@ -217,7 +217,7 @@ class configuration:
     linker_flags['icpc'] = [ '-openmp', '-shared', 
                              '-Xlinker', '-soname=' + get_openmoc_object_name()]
     linker_flags['bgxlc'] = ['-qmkshrobj', '-shared',
-                             '-R/bgsys/drivers/ppcfloor/gnu-linux/powerpc64-bgq-linux/lib',
+                             '-R/soft/compilers/ibmcmp-may2013/lib64/bg/bglib64',
                              '-Wl,-soname,' + get_openmoc_object_name()]
     linker_flags['nvcc'] = ['-shared', get_openmoc()]
 
@@ -248,7 +248,7 @@ class configuration:
 
     library_directories['gcc'] = []
     library_directories['icpc'] = []
-    library_directories['bgxlc'] = ['/usr/lib64']
+    library_directories['bgxlc'] = []
     library_directories['nvcc'] = ['/usr/local/cuda/lib64']
 
 
