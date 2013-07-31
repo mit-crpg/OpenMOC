@@ -36,6 +36,10 @@ The following command will install all required and optional dependencies on Ubu
 
 	sudo apt-get install python2.7
 
+      NOTE: In addition to needing the Python binaries, you also need the Python development source for OpenMOC to include and use to build and integrate the NumPy C API. Most Linux distributions include the Python source by default. If you do not have the source, you can generally install it using a package manager. In Ubuntu you can easily install the Python development source as follows::
+	
+	sudo apt-get install python-dev
+
 
     * Git_
 
