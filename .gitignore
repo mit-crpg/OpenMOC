@@ -92,3 +92,7 @@ docs/doxyge/xml/*
 
 *core*
 */core*
+
+build/*
+*/build/
+*/build/*
