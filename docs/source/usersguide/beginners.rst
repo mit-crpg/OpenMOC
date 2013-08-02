@@ -8,6 +8,9 @@ A Beginner's Guide to OpenMOC
 What does OpenMOC do?
 ---------------------
 
+-average behaviour of neutrons in a nuclear reactor
+OpenMOC 
+
 -----------------
 How does it work?
 -----------------
