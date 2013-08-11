@@ -1184,6 +1184,53 @@ void Geometry::segmentize(Track* track) {
 
 
 /**
+ * @brief
+ * @param
+ */
+void Geometry::computeFissionability(Universe* univ) {
+
+    bool fissionable = false;
+    std::vector<short int> material_ids;
+    std::vector<short int> universe_ids;
+   
+    /* If no universe was passed in as an argument, then this is the first 
+     * recursive call from a user via Python, so get the base universe */
+    if (univ == NULL)
+        univ = _universes.at(0);
+
+    material_ids = univ->getMaterialIds();
+    universe_ids = univ->getNestedUniverseIds();
+
+    /* Loop over the nested universes first to ensure that fissionability
+     * is set at each nested universe level */
+    for (int i=0; i < universe_ids.size(); i++) {
+        int universe_id = universe_ids[i];
+        Universe* universe = _universes.at(universe_id);
+
+	/* Recursively check whether this nested universe is fissionable */
+	computeFissionability(universe);
+
+	if (universe->isFissionable())
+	    fissionable = true;
+    }
+	
+    /* Loop over the materials in this universe at this level */
+    for (int i=0; i < material_ids.size(); i++) {
+        int material_id = material_ids[i];
+        Material* material = _materials.at(material_id);
+
+	/* Check whether this material is fissionable or not */
+	if (material->isFissionable())
+	    fissionable = true;
+    }
+
+    /* Set this universe's fissionability based on the nested universes
+     * and materials within it */
+    univ->setFissionability(fissionable);
+}
+
+
+/**
  * @brief This method is called from the Solver after fixed source iteration
  *        to compute the powers (fission rates) for each lattice cell.
  * @details This method computes both pin and assembly powers stored in

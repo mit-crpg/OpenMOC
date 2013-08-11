@@ -40,9 +40,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _reduced_source = NULL;
     _source_residuals = NULL;
 
-    _FSRs_to_powers = NULL;
-    _FSRs_to_pin_powers = NULL;
-
     _interpolate_exponential = true;
     _prefactor_array = NULL;
 
@@ -106,12 +103,6 @@ Solver::~Solver() {
 
     if (_source_residuals != NULL)
         delete [] _source_residuals;
-
-    if (_FSRs_to_powers != NULL)
-        delete [] _FSRs_to_powers;
-
-    if (_FSRs_to_pin_powers != NULL)
-        delete [] _FSRs_to_pin_powers;
 
     if (_prefactor_array != NULL)
         delete [] _prefactor_array;
@@ -396,7 +387,6 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     initializePolarQuadrature();
     initializeFluxArrays();
     initializeSourceArrays();
-    initializePowerArrays();
     precomputePrefactors();
     initializeFSRs();
 

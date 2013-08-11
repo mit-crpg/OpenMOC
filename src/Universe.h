@@ -32,8 +32,10 @@ class Cell;
  * @brief The type of universe
  */
 enum universeType{
+
     /** A simple non-repeating universe */
     SIMPLE,
+
     /** A collection of universes in a repeating lattice */
     LATTICE
 };
@@ -50,22 +52,33 @@ enum universeType{
 class Universe {
 
 protected:
+
     /** A static counter for the number of universes in a simulation */
     static short int _n;
+
     /** A monotonically increasing unique ID for each universe created */
     short int _uid;
+
     /** A user-defined id for each universe created */
     short int _id;
+
     /** The type of universe (ie, SIMLE or LATTICE) */
     universeType _type;
+
     /** A hash table of cell IDs and cell pointers */
     std::map<short int, Cell*> _cells;
+
     /** The coordinates of the origin for the universe */
     Point _origin;
+
     /** A hash table of cell IDs and their corresponding flat source region
      *  IDs. This helps for computing FSR IDs and building FSR maps for 
      *  plotting FSR-based quantities such as the scalar flux and pin powers. */
     std::map<int, int> _region_map;
+
+    /** A boolean representing whether or not this universe contains a material
+     *  with a non-zero fission cross-section and is fissionable */
+    bool _fissionable;
 
 public:
     Universe(const short int id);
@@ -79,11 +92,15 @@ public:
     short int getNumCells() const;
     int getFSR(short int cell_id);
     Point* getOrigin();
+    std::vector<short int> getMaterialIds();
+    std::vector<short int> getNestedUniverseIds();
+    bool isFissionable();
 
     void setType(universeType type);
     void setOrigin(Point* origin);
+    void setFissionability(bool fissionable);
     Cell* findCell(LocalCoords* coords,
-			   std::map<short int, Universe*> universes);
+		   std::map<short int, Universe*> universes);
     int computeFSRMaps();
     void subdivideCells();
     std::string toString();
@@ -98,16 +115,22 @@ public:
 class Lattice: public Universe {
 
 private:
+
     /** The number of lattice cells along the x-axis */
     short int _num_x;
+
     /** The number of lattice cells along the y-axis */
     short int _num_y;
+
     /** The width of each lattice cell (cm) along the x-axis */
     double _width_x;
+
     /** The width of each lattice cell (cm) along the y-axis */
     double _width_y;
+
     /** A container of universes ? */
     std::vector< std::vector< std::pair<short int, Universe*> > > _universes;
+
     /** A container of the number of FSRs in each lattice cell */
     std::vector< std::vector< std::pair<int, int> > > _region_map;
 
@@ -125,6 +148,7 @@ public:
     double getWidthX() const;
     double getWidthY() const;
     int getFSR(short int lat_x, short int lat_y);
+    std::vector<short int> getNestedUniverseIds();
 
     void setLatticeCells(int num_x, int num_y, short* universes);
     void setUniversePointer(Universe* universe);

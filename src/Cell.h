@@ -27,8 +27,10 @@ int cell_id();
  * @brief The type of cell.
 */
 enum cellType {
+
     /** A cell filled by a material */
     MATERIAL,
+
     /** A cell filled by a universe */
     FILL
 };
@@ -40,16 +42,22 @@ enum cellType {
 class Cell {
 
 protected:
+
     /** A static counter for the number of cells in a simulation */
     static short int _n;
+
     /** A static counter for the number of cell clones in a simulation */
     static int _clone_n;
+
     /** A monotonically increasing unique ID for each cell created */
     short int _uid;
+
     /** A user-defined ID for each cell created */
     short int _id;
+
     /** The type of cell (ie MATERIAL or FILL) */
     cellType _cell_type;
+
     /** The ID for the universe within which this cell resides */
     short int _universe;
 
@@ -68,6 +76,7 @@ public:
     short int getUniverse() const;
     short int getNumSurfaces() const;
     std::map<short int, Surface*> getSurfaces() const;
+
     /**
      * @brief Return the number of flat source regions in this cell. 
      * @details This method is used when the geometry recursively constructs 
@@ -79,6 +88,7 @@ public:
     void setUniverse(short int universe);
     void addSurface(short int halfspace, Surface* surface);
     void setSurfacePointer(Surface* surface);
+
     bool cellContainsPoint(Point* point);
     bool cellContainsCoords(LocalCoords* coords);
     double minSurfaceDist(Point* point, double angle, 
@@ -104,10 +114,13 @@ public:
 class CellBasic: public Cell {
 
 private: 
+
     /** A pointer to the material filling this cell */
     short int _material;
+
     /** The number of rings sub-dividing this cell */
     short int _num_rings;
+
     /** The number of sectors sub-dividing this cell */
     short int _num_sectors;
 

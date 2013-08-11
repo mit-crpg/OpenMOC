@@ -164,13 +164,6 @@ protected:
      *  on each iteration in each flat source region and energy group */
     FP_PRECISION* _source_residuals;
 
-    /** The normalized power in each flat source region */
-    FP_PRECISION* _FSRs_to_powers;
-
-    /** The normalized power corresponding to the pin which each flat source
-     * region is within (0 for all moderator cells) */
-    FP_PRECISION* _FSRs_to_pin_powers;
-
     /** The current iteration's approximation to k-effective */
     FP_PRECISION _k_eff; 
 
@@ -230,12 +223,6 @@ protected:
      * @brief Allocates memory for flat source region source arrays.
      */
     virtual void initializeSourceArrays() =0;
-
-    /**
-     * @brief Allocates memory for flat source region power arrays.
-     */
-    virtual void initializePowerArrays() =0;
-
 
     /**
      * @brief Builds an interpolation table for the exponential prefactors 
@@ -324,20 +311,6 @@ public:
      */
     virtual FP_PRECISION* getFSRScalarFluxes() =0;
 
-    /**
-     * @brief Returns an array indexed by flat source region IDs with the
-     *        corresponding flat source region power.
-     * @return an array of flat source region powers
-     */
-    virtual FP_PRECISION* getFSRPowers() =0;
-
-    /**
-     * @brief Return an array indexed by flat source region IDs with the
-     *        corresponding pin cell power.
-     * @return an array of flat source region pin powers
-     */
-    virtual FP_PRECISION* getFSRPinPowers() =0;
-
     virtual void setGeometry(Geometry* geometry);
     virtual void setTrackGenerator(TrackGenerator* track_generator);
     virtual void setPolarQuadratureType(quadratureType quadrature_type);
@@ -348,13 +321,14 @@ public:
     void useExponentialIntrinsic();
 
     virtual FP_PRECISION convergeSource(int max_iterations);
-
     
     /**
-     * @brief Compute the fission rates in each flat source region and stores 
-     *        them in an array indexed by flat source region ID.
+     * @brief Compute the volume-weighted fission rates in each flat source 
+     *        region and stores them in an array indexed by flat source 
+     *        region ID.
+     * @return an array of flat source region volume-weighted fission rates
      */
-    virtual void computePinPowers() =0;
+    virtual FP_PRECISION* computeFSRFissionRates() =0;
 
     void printTimerReport();
 };

@@ -123,7 +123,6 @@ private:
     void initializeTracks();
     void initializeFluxArrays();
     void initializeSourceArrays();
-    void initializePowerArrays();
     void initializeThrustVectors();
     void precomputePrefactors();
 
@@ -143,8 +142,6 @@ public:
     
     FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
     FP_PRECISION* getFSRScalarFluxes();
-    FP_PRECISION* getFSRPowers();
-    FP_PRECISION* getFSRPinPowers();
 
     void setNumThreadBlocks(int num_blocks);
     void setNumThreadsPerBlock(int num_threads);
@@ -152,7 +149,7 @@ public:
     void setTrackGenerator(TrackGenerator* track_generator);
 
     int computeScalarTrackIndex(int i, int j);
-    void computePinPowers();
+    FP_PRECISION* computeFSRFissionRates();
 };
 
 

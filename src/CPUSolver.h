@@ -53,7 +53,6 @@ protected:
     
     void initializeFluxArrays();
     void initializeSourceArrays();
-    void initializePowerArrays();
     void initializePolarQuadrature();
     void precomputePrefactors();
     void initializeFSRs();
@@ -105,12 +104,10 @@ public:
     int getNumThreads();
     FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
     FP_PRECISION* getFSRScalarFluxes();
-    FP_PRECISION* getFSRPowers();
-    FP_PRECISION* getFSRPinPowers();
 
     void setNumThreads(int num_threads);
-    
-    void computePinPowers();
+
+    FP_PRECISION* computeFSRFissionRates();
 };
 
 

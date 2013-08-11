@@ -13,6 +13,9 @@ Universe::Universe(const short int id) {
     _id = id;
     _n++;
     _type = SIMPLE;
+
+    /* By default, the universe's fissionability is unknown */
+    _fissionable = false;
 }
 
 
@@ -64,6 +67,76 @@ short int Universe::getNumCells() const {
  */
 Point* Universe::getOrigin() {
     return &_origin;
+}
+
+
+/**
+ * @brief Aggregates a list (vector) of the IDs of all materials within
+ *        the MATERIAL type cells filling this universe.
+ * @details Note that this method only searches the first level of cells
+ *          below this universe within the nested universe coordinate system.
+ * @return a vector of material IDs
+ */
+std::vector<short int> Universe::getMaterialIds() {
+    
+    std::vector<short int> material_ids;
+
+    /* Otherwise, we don't yet know whether or not this universe contains a cell
+     * with a material with a non-zero (fissionable) fission cross-section */
+    std::map<short int, Cell*>::iterator iter;
+
+    /* Loop over all cells in this universe */
+    for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+
+        Cell* cell = iter->second;
+
+	/* If this cell is filled by a material, add the material's ID
+	 * to the list */
+	if (cell->getType() == MATERIAL)
+	    material_ids.push_back(static_cast<CellBasic*>(cell)->getMaterial());
+    }
+
+    return material_ids;
+}
+
+
+/**
+ * @brief Aggregates a list (vector) of the IDs of all universes within
+ *        the FILL type cells filling this universe.
+ * @details Note that this method only searches the first level of cells
+ *          below this universe within the nested universe coordinate system.
+ * @return a vector of material IDs
+ */
+std::vector<short int> Universe::getNestedUniverseIds() {
+    
+    std::vector<short int> universe_ids;
+
+    /* Otherwise, we don't yet know whether or not this universe contains a cell
+     * with a material with a non-zero (fissionable) fission cross-section */
+    std::map<short int, Cell*>::iterator iter;
+
+    /* Loop over all cells in this universe */
+    for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+
+        Cell* cell = iter->second;
+
+	/* If this cell is filled by a material, add the material's ID
+	 * to the list */
+	if (cell->getType() == FILL)
+	    universe_ids.push_back(static_cast<CellFill*>(cell)->getUniverseFillId());
+    }
+
+    return universe_ids;
+
+}
+
+
+/**
+ * @brief
+ * @return
+ */
+bool Universe::isFissionable() {
+    return _fissionable;
 }
 
 
@@ -127,6 +200,19 @@ void Universe::setType(universeType type) {
 void Universe::setOrigin(Point* origin) {
     _origin.setX(origin->getX());
     _origin.setY(origin->getY());
+}
+
+
+/**
+ * @brief Sets whether or not this universe contains a fissionable material
+ *        with a non-zero fission cross-section.
+ * @details This method is called by the Geometry::computeFissionability()
+ *          class method.
+ * @param fissionable true if the universe contains a fissionable material;
+ *        false otherwise
+ */
+void Universe::setFissionability(bool fissionable) {
+    _fissionable = fissionable;
 }
 
 
@@ -414,6 +500,28 @@ int Lattice::getFSR(short int lat_x, short int lat_y) {
 
     return _region_map[lat_y][lat_x].second;
 }
+
+
+/**
+ * @brief Aggregates a list (vector) of the IDs of all universes within
+ *        the FILL type cells filling this universe.
+ * @details Note that this method only searches the first level of cells
+ *          below this universe within the nested universe coordinate system.
+ * @return a vector of material IDs
+ */
+std::vector<short int> Lattice::getNestedUniverseIds() {
+
+    std::vector<short int> universe_ids;
+
+    /* Loop over all lattice cells */
+    for (int i = 0; i < _num_y; i++) {
+        for (int j = 0; j< _num_x; j++)
+	    universe_ids.push_back(_universes[i][j].second->getId());
+    }
+
+    return universe_ids;
+}
+
 
 
 /**

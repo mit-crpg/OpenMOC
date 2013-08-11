@@ -39,6 +39,8 @@ Material::Material(short int id) {
     _nu_sigma_f = NULL;
     _chi = NULL;
 
+    _fissionable = false;
+
     _data_aligned = false;
 
     return;
@@ -197,6 +199,16 @@ double* Material::getChi() {
                         "since it has not yet been set", _id);
 
     return _chi;
+}
+
+
+/**
+ * @brief Returns whether or not the material contains a fissionable (non-zero)
+ *        fission cross-section.
+ * @return true if fissionable, false otherwise
+ */
+bool Material::isFissionable() {
+    return _fissionable;
 }
 
 
@@ -407,6 +419,16 @@ void Material::setSigmaF(double* xs, int num_groups) {
 
     for (int i=0; i < _num_groups; i++)
         _sigma_f[i] = xs[i];
+
+    /* Determine whether or not this material is fissionable */
+    _fissionable = false;
+
+    for (int i=0; i < _num_groups; i++) {
+        if (_sigma_f[i] > 0.0) {
+	    _fissionable = true;
+	    return;
+	}
+    }
 }
 
 
@@ -422,8 +444,17 @@ void Material::setSigmaFByGroup(double xs, int group) {
                  "%d which contains %d energy groups", group, _uid, _num_groups);
 
     _sigma_f[group] = xs;
-}
 
+    /* Determine whether or not this material is fissionable */
+    _fissionable = false;
+
+    for (int i=0; i < _num_groups; i++) {
+        if (_sigma_f[i] > 0.0) {
+	    _fissionable = true;
+	    return;
+	}
+    }
+}
 
 
 /**

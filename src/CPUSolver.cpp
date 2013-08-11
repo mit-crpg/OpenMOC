@@ -94,37 +94,6 @@ FP_PRECISION* CPUSolver::getFSRScalarFluxes() {
 
 
 /**
- * @brief Return an array indexed by flat source region IDs with the
- *        corresponding flat source region power.
- * @return an array of flat source region powers
- */
-FP_PRECISION* CPUSolver::getFSRPowers() {
-
-    if (_FSRs_to_powers == NULL)
-        log_printf(ERROR, "Unable to returns the Solver's FSR power array "
-		 "since it has not yet been allocated in memory");
-
-    return _FSRs_to_powers;
-}
-
-
-/**
- * @brief Return an array indexed by flat source region IDs with the
- *        corresponding pin cell power.
- * @return an array of flat source region pin powers
- */
-FP_PRECISION* CPUSolver::getFSRPinPowers() {
-
-    if (_FSRs_to_pin_powers == NULL)
-        log_printf(ERROR, "Unable to returns the Solver's FSR pin power array "
-		 "since it has not yet been allocated in memory");
-
-    return _FSRs_to_pin_powers;
-}
-
-
-
-/**
  * @brief Sets the number of shared memory OpenMP threads to use (>0).
  * @param num_threads the number of threads
  */
@@ -227,32 +196,6 @@ void CPUSolver::initializeSourceArrays() {
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's flat "
 		   "source region sources array. Backtrace:%s", e.what());
-    }
-}
-
-
-/**
- * @brief Allocates memory for flat source region power arrays.
- * @details Deletes memory for power arrays if they were allocated from
- *          previous simulation.
- */
-void CPUSolver::initializePowerArrays() {
-
-    /* Delete old power arrays if they exist */
-    if (_FSRs_to_powers != NULL)
-        delete [] _FSRs_to_powers;
-
-    if (_FSRs_to_pin_powers != NULL)
-        delete [] _FSRs_to_pin_powers;
-
-    /* Allocate memory for FSR power and pin power arrays */
-    try{
-	_FSRs_to_powers = new FP_PRECISION[_num_FSRs];
-	_FSRs_to_pin_powers = new FP_PRECISION[_num_FSRs];
-    }
-    catch(std::exception &e) {
-        log_printf(ERROR, "Could not allocate memory for the solver's FSR "
-		   "power arrays. Backtrace:%s", e.what());
     }
 }
 
@@ -895,56 +838,27 @@ void CPUSolver::addSourceToScalarFlux() {
 
 
 /**
- * @brief Compute the fission rates in each flat source region and stores them 
- *        in an array indexed by flat source region ID.
+ * @brief Compute the volume-weighted fission rates in each flat source 
+ *        region and stores them in an array indexed by flat source region ID.
+ * @return an array of flat source region volume-weighted fission rates
  */
-void CPUSolver::computePinPowers() {
+FP_PRECISION* CPUSolver::computeFSRFissionRates() {
 
-    log_printf(INFO, "Computing FSR pin powers...");
+    log_printf(INFO, "Computing FSR fission rates...");
 
     double* sigma_f;
-    FP_PRECISION tot_pin_power = 0.;
-    FP_PRECISION avg_pin_power = 0.;
-    FP_PRECISION num_nonzero_pins = 0.;
-    FP_PRECISION curr_pin_power = 0.;
-    FP_PRECISION prev_pin_power = 0.;
 
-    /* Loop over all FSRs and compute the fission rate*/
+    /* Allocate an array to store the fission rates */
+    FP_PRECISION* fission_rates = new FP_PRECISION[_num_groups * _num_FSRs];
+
+    /* Loop over all FSRs and compute the fission rate */
     #pragma omp parallel for private (sigma_f) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
         sigma_f = _FSR_materials[r]->getSigmaF();
 
         for (int e=0; e < _num_groups; e++)
-	    _FSRs_to_powers[r] += sigma_f[e] * _scalar_flux(r,e);
+	    fission_rates[r] += sigma_f[e] * _scalar_flux(r,e);
     }
 
-    /* Compute the pin powers by adding up the powers of FSRs in each
-     * lattice cell, saving lattice cell powers to files, and saving the
-     * pin power corresponding to each FSR id in FSR_to_pin_powers */
-    _geometry->computePinPowers(_FSRs_to_powers, _FSRs_to_pin_powers);
-
-
-    /* Compute the total power based by accumulating the power of each unique
-     * pin with a nonzero power */
-    for (int r=0; r < _num_FSRs; r++) {
-        curr_pin_power = _FSRs_to_pin_powers[r];
-
-	/* If this pin power is unique and nozero (doesn't match the previous
-	 * pin's power), then tally it */
-	if (curr_pin_power > 0. && curr_pin_power != prev_pin_power) {
-	    tot_pin_power += curr_pin_power;
-	    num_nonzero_pins++;
-	    prev_pin_power = curr_pin_power;
-	}
-    }
-
-    /* Compute the average pin power */
-    avg_pin_power = tot_pin_power / num_nonzero_pins;
-
-    /* Normalize each pin power to the average non-zero pin power */
-    #pragma omp parallel for schedule(guided)
-    for (int r=0; r < _num_FSRs; r++)
-        _FSRs_to_pin_powers[r] /= avg_pin_power;
-
-    return;
+    return fission_rates;
 }
