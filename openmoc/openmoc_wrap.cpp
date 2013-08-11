@@ -2990,9 +2990,10 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 #define SWIGTYPE_p_std__mapT_short_Universe_p_t swig_types[32]
 #define SWIGTYPE_p_std__string swig_types[33]
 #define SWIGTYPE_p_std__vectorT_CellBasic_p_t swig_types[34]
-#define SWIGTYPE_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t swig_types[35]
-static swig_type_info *swig_types[37];
-static swig_module_info swig_module = {swig_types, 36, 0, 0, 0, 0};
+#define SWIGTYPE_p_std__vectorT_short_t swig_types[35]
+#define SWIGTYPE_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t swig_types[36]
+static swig_type_info *swig_types[38];
+static swig_module_info swig_module = {swig_types, 37, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -6614,6 +6615,50 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Geometry_computeFissionability(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Geometry *arg1 = (Geometry *) 0 ;
+  Universe *arg2 = (Universe *) NULL ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "univ", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"O|O:Geometry_computeFissionability",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_computeFissionability" "', argument " "1"" of type '" "Geometry *""'"); 
+  }
+  arg1 = reinterpret_cast< Geometry * >(argp1);
+  if (obj1) {
+    res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_Universe, 0 |  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Geometry_computeFissionability" "', argument " "2"" of type '" "Universe *""'"); 
+    }
+    arg2 = reinterpret_cast< Universe * >(argp2);
+  }
+  {
+    try {
+      (arg1)->computeFissionability(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Geometry_computePinPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
@@ -8761,6 +8806,37 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Material_isFissionable(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Material *arg1 = (Material *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Material_isFissionable",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Material, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Material_isFissionable" "', argument " "1"" of type '" "Material *""'"); 
+  }
+  arg1 = reinterpret_cast< Material * >(argp1);
+  {
+    try {
+      result = (bool)(arg1)->isFissionable();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Material_isDataAligned(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Material *arg1 = (Material *) 0 ;
@@ -10754,68 +10830,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Solver_getFSRPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Solver *arg1 = (Solver *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  FP_PRECISION *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:Solver_getFSRPowers",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_getFSRPowers" "', argument " "1"" of type '" "Solver *""'"); 
-  }
-  arg1 = reinterpret_cast< Solver * >(argp1);
-  {
-    try {
-      result = (FP_PRECISION *)(arg1)->getFSRPowers();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Solver_getFSRPinPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  Solver *arg1 = (Solver *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  FP_PRECISION *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:Solver_getFSRPinPowers",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_getFSRPinPowers" "', argument " "1"" of type '" "Solver *""'"); 
-  }
-  arg1 = reinterpret_cast< Solver * >(argp1);
-  {
-    try {
-      result = (FP_PRECISION *)(arg1)->getFSRPinPowers();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_Solver_setGeometry(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Solver *arg1 = (Solver *) 0 ;
@@ -11129,22 +11143,23 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Solver_computePinPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Solver_computeFSRFissionRates(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Solver *arg1 = (Solver *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
+  FP_PRECISION *result = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:Solver_computePinPowers",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:Solver_computeFSRFissionRates",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_computePinPowers" "', argument " "1"" of type '" "Solver *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_computeFSRFissionRates" "', argument " "1"" of type '" "Solver *""'"); 
   }
   arg1 = reinterpret_cast< Solver * >(argp1);
   {
     try {
-      (arg1)->computePinPowers();
+      result = (FP_PRECISION *)(arg1)->computeFSRFissionRates();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -11152,7 +11167,7 @@ SWIGINTERN PyObject *_wrap_Solver_computePinPowers(PyObject *SWIGUNUSEDPARM(self
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_Py_Void();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -11387,68 +11402,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_CPUSolver_getFSRPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  CPUSolver *arg1 = (CPUSolver *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  FP_PRECISION *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_getFSRPowers",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_getFSRPowers" "', argument " "1"" of type '" "CPUSolver *""'"); 
-  }
-  arg1 = reinterpret_cast< CPUSolver * >(argp1);
-  {
-    try {
-      result = (FP_PRECISION *)(arg1)->getFSRPowers();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_CPUSolver_getFSRPinPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  CPUSolver *arg1 = (CPUSolver *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  FP_PRECISION *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_getFSRPinPowers",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_getFSRPinPowers" "', argument " "1"" of type '" "CPUSolver *""'"); 
-  }
-  arg1 = reinterpret_cast< CPUSolver * >(argp1);
-  {
-    try {
-      result = (FP_PRECISION *)(arg1)->getFSRPinPowers();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_CPUSolver_setNumThreads(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   CPUSolver *arg1 = (CPUSolver *) 0 ;
@@ -11491,22 +11444,23 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_CPUSolver_computePinPowers(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_CPUSolver_computeFSRFissionRates(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   CPUSolver *arg1 = (CPUSolver *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
+  FP_PRECISION *result = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_computePinPowers",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_computeFSRFissionRates",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_computePinPowers" "', argument " "1"" of type '" "CPUSolver *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_computeFSRFissionRates" "', argument " "1"" of type '" "CPUSolver *""'"); 
   }
   arg1 = reinterpret_cast< CPUSolver * >(argp1);
   {
     try {
-      (arg1)->computePinPowers();
+      result = (FP_PRECISION *)(arg1)->computeFSRFissionRates();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -11514,7 +11468,7 @@ SWIGINTERN PyObject *_wrap_CPUSolver_computePinPowers(PyObject *SWIGUNUSEDPARM(s
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_Py_Void();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -17118,6 +17072,99 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Universe_getMaterialIds(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Universe *arg1 = (Universe *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::vector< short > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Universe_getMaterialIds",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Universe_getMaterialIds" "', argument " "1"" of type '" "Universe *""'"); 
+  }
+  arg1 = reinterpret_cast< Universe * >(argp1);
+  {
+    try {
+      result = (arg1)->getMaterialIds();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new std::vector< short >(static_cast< const std::vector< short >& >(result))), SWIGTYPE_p_std__vectorT_short_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Universe_getNestedUniverseIds(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Universe *arg1 = (Universe *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::vector< short > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Universe_getNestedUniverseIds",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Universe_getNestedUniverseIds" "', argument " "1"" of type '" "Universe *""'"); 
+  }
+  arg1 = reinterpret_cast< Universe * >(argp1);
+  {
+    try {
+      result = (arg1)->getNestedUniverseIds();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new std::vector< short >(static_cast< const std::vector< short >& >(result))), SWIGTYPE_p_std__vectorT_short_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Universe_isFissionable(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Universe *arg1 = (Universe *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Universe_isFissionable",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Universe_isFissionable" "', argument " "1"" of type '" "Universe *""'"); 
+  }
+  arg1 = reinterpret_cast< Universe * >(argp1);
+  {
+    try {
+      result = (bool)(arg1)->isFissionable();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Universe_setType(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Universe *arg1 = (Universe *) 0 ;
@@ -17188,6 +17235,48 @@ SWIGINTERN PyObject *_wrap_Universe_setOrigin(PyObject *SWIGUNUSEDPARM(self), Py
   {
     try {
       (arg1)->setOrigin(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Universe_setFissionability(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Universe *arg1 = (Universe *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "fissionable", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Universe_setFissionability",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Universe_setFissionability" "', argument " "1"" of type '" "Universe *""'"); 
+  }
+  arg1 = reinterpret_cast< Universe * >(argp1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Universe_setFissionability" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  {
+    try {
+      (arg1)->setFissionability(arg2);
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -17763,6 +17852,37 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Lattice_getNestedUniverseIds(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Lattice *arg1 = (Lattice *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::vector< short > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Lattice_getNestedUniverseIds",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Lattice, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Lattice_getNestedUniverseIds" "', argument " "1"" of type '" "Lattice *""'"); 
+  }
+  arg1 = reinterpret_cast< Lattice * >(argp1);
+  {
+    try {
+      result = (arg1)->getNestedUniverseIds();
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new std::vector< short >(static_cast< const std::vector< short >& >(result))), SWIGTYPE_p_std__vectorT_short_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Lattice_setLatticeCells(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Lattice *arg1 = (Lattice *) 0 ;
@@ -18219,6 +18339,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Geometry_subdivideCells", _wrap_Geometry_subdivideCells, METH_VARARGS, NULL},
 	 { (char *)"Geometry_initializeFlatSourceRegions", _wrap_Geometry_initializeFlatSourceRegions, METH_VARARGS, NULL},
 	 { (char *)"Geometry_segmentize", (PyCFunction) _wrap_Geometry_segmentize, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Geometry_computeFissionability", (PyCFunction) _wrap_Geometry_computeFissionability, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Geometry_computePinPowers", (PyCFunction) _wrap_Geometry_computePinPowers, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Geometry_computePinPowersInUniverse", (PyCFunction) _wrap_Geometry_computePinPowersInUniverse, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Geometry_toString", _wrap_Geometry_toString, METH_VARARGS, NULL},
@@ -18282,6 +18403,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Material_getSigmaF", _wrap_Material_getSigmaF, METH_VARARGS, NULL},
 	 { (char *)"Material_getNuSigmaF", _wrap_Material_getNuSigmaF, METH_VARARGS, NULL},
 	 { (char *)"Material_getChi", _wrap_Material_getChi, METH_VARARGS, NULL},
+	 { (char *)"Material_isFissionable", _wrap_Material_isFissionable, METH_VARARGS, NULL},
 	 { (char *)"Material_isDataAligned", _wrap_Material_isDataAligned, METH_VARARGS, NULL},
 	 { (char *)"Material_getNumVectorGroups", _wrap_Material_getNumVectorGroups, METH_VARARGS, NULL},
 	 { (char *)"Material_setNumEnergyGroups", (PyCFunction) _wrap_Material_setNumEnergyGroups, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -18334,8 +18456,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Solver_getSourceConvergenceThreshold", _wrap_Solver_getSourceConvergenceThreshold, METH_VARARGS, NULL},
 	 { (char *)"Solver_getFSRScalarFlux", (PyCFunction) _wrap_Solver_getFSRScalarFlux, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_getFSRScalarFluxes", _wrap_Solver_getFSRScalarFluxes, METH_VARARGS, NULL},
-	 { (char *)"Solver_getFSRPowers", _wrap_Solver_getFSRPowers, METH_VARARGS, NULL},
-	 { (char *)"Solver_getFSRPinPowers", _wrap_Solver_getFSRPinPowers, METH_VARARGS, NULL},
 	 { (char *)"Solver_setGeometry", (PyCFunction) _wrap_Solver_setGeometry, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_setTrackGenerator", (PyCFunction) _wrap_Solver_setTrackGenerator, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_setPolarQuadratureType", (PyCFunction) _wrap_Solver_setPolarQuadratureType, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -18344,7 +18464,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Solver_useExponentialInterpolation", _wrap_Solver_useExponentialInterpolation, METH_VARARGS, NULL},
 	 { (char *)"Solver_useExponentialIntrinsic", _wrap_Solver_useExponentialIntrinsic, METH_VARARGS, NULL},
 	 { (char *)"Solver_convergeSource", (PyCFunction) _wrap_Solver_convergeSource, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"Solver_computePinPowers", _wrap_Solver_computePinPowers, METH_VARARGS, NULL},
+	 { (char *)"Solver_computeFSRFissionRates", _wrap_Solver_computeFSRFissionRates, METH_VARARGS, NULL},
 	 { (char *)"Solver_printTimerReport", _wrap_Solver_printTimerReport, METH_VARARGS, NULL},
 	 { (char *)"Solver_swigregister", Solver_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_CPUSolver", (PyCFunction) _wrap_new_CPUSolver, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -18352,10 +18472,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"CPUSolver_getNumThreads", _wrap_CPUSolver_getNumThreads, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_getFSRScalarFlux", (PyCFunction) _wrap_CPUSolver_getFSRScalarFlux, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"CPUSolver_getFSRScalarFluxes", _wrap_CPUSolver_getFSRScalarFluxes, METH_VARARGS, NULL},
-	 { (char *)"CPUSolver_getFSRPowers", _wrap_CPUSolver_getFSRPowers, METH_VARARGS, NULL},
-	 { (char *)"CPUSolver_getFSRPinPowers", _wrap_CPUSolver_getFSRPinPowers, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_setNumThreads", (PyCFunction) _wrap_CPUSolver_setNumThreads, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"CPUSolver_computePinPowers", _wrap_CPUSolver_computePinPowers, METH_VARARGS, NULL},
+	 { (char *)"CPUSolver_computeFSRFissionRates", _wrap_CPUSolver_computeFSRFissionRates, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_swigregister", CPUSolver_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_ThreadPrivateSolver", (PyCFunction) _wrap_new_ThreadPrivateSolver, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"delete_ThreadPrivateSolver", _wrap_delete_ThreadPrivateSolver, METH_VARARGS, NULL},
@@ -18525,8 +18643,12 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Universe_getNumCells", _wrap_Universe_getNumCells, METH_VARARGS, NULL},
 	 { (char *)"Universe_getFSR", (PyCFunction) _wrap_Universe_getFSR, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Universe_getOrigin", _wrap_Universe_getOrigin, METH_VARARGS, NULL},
+	 { (char *)"Universe_getMaterialIds", _wrap_Universe_getMaterialIds, METH_VARARGS, NULL},
+	 { (char *)"Universe_getNestedUniverseIds", _wrap_Universe_getNestedUniverseIds, METH_VARARGS, NULL},
+	 { (char *)"Universe_isFissionable", _wrap_Universe_isFissionable, METH_VARARGS, NULL},
 	 { (char *)"Universe_setType", (PyCFunction) _wrap_Universe_setType, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Universe_setOrigin", (PyCFunction) _wrap_Universe_setOrigin, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Universe_setFissionability", (PyCFunction) _wrap_Universe_setFissionability, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Universe_findCell", (PyCFunction) _wrap_Universe_findCell, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Universe_computeFSRMaps", _wrap_Universe_computeFSRMaps, METH_VARARGS, NULL},
 	 { (char *)"Universe_subdivideCells", _wrap_Universe_subdivideCells, METH_VARARGS, NULL},
@@ -18543,6 +18665,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Lattice_getWidthX", _wrap_Lattice_getWidthX, METH_VARARGS, NULL},
 	 { (char *)"Lattice_getWidthY", _wrap_Lattice_getWidthY, METH_VARARGS, NULL},
 	 { (char *)"Lattice_getFSR", (PyCFunction) _wrap_Lattice_getFSR, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Lattice_getNestedUniverseIds", _wrap_Lattice_getNestedUniverseIds, METH_VARARGS, NULL},
 	 { (char *)"Lattice_setLatticeCells", (PyCFunction) _wrap_Lattice_setLatticeCells, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Lattice_setUniversePointer", (PyCFunction) _wrap_Lattice_setUniversePointer, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Lattice_withinBounds", (PyCFunction) _wrap_Lattice_withinBounds, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -18635,6 +18758,7 @@ static swig_type_info _swigt__p_std__mapT_short_Surface_p_t = {"_p_std__mapT_sho
 static swig_type_info _swigt__p_std__mapT_short_Universe_p_t = {"_p_std__mapT_short_Universe_p_t", "std::map< short,Universe * > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_CellBasic_p_t = {"_p_std__vectorT_CellBasic_p_t", "std::vector< CellBasic * > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__vectorT_short_t = {"_p_std__vectorT_short_t", "std::vector< short > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t = {"_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t", "std::vector< std::vector< std::pair< short,Universe * > > > *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
@@ -18673,6 +18797,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_std__mapT_short_Universe_p_t,
   &_swigt__p_std__string,
   &_swigt__p_std__vectorT_CellBasic_p_t,
+  &_swigt__p_std__vectorT_short_t,
   &_swigt__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t,
 };
 
@@ -18711,6 +18836,7 @@ static swig_cast_info _swigc__p_std__mapT_short_Surface_p_t[] = {  {&_swigt__p_s
 static swig_cast_info _swigc__p_std__mapT_short_Universe_p_t[] = {  {&_swigt__p_std__mapT_short_Universe_p_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_CellBasic_p_t[] = {  {&_swigt__p_std__vectorT_CellBasic_p_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__vectorT_short_t[] = {  {&_swigt__p_std__vectorT_short_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t[] = {  {&_swigt__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
@@ -18749,6 +18875,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_std__mapT_short_Universe_p_t,
   _swigc__p_std__string,
   _swigc__p_std__vectorT_CellBasic_p_t,
+  _swigc__p_std__vectorT_short_t,
   _swigc__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t,
 };
 

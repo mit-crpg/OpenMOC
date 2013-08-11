@@ -143,6 +143,7 @@ public:
     void subdivideCells();
     void initializeFlatSourceRegions();
     void segmentize(Track* track);
+    void computeFissionability(Universe* univ=NULL);
     void computePinPowers(FP_PRECISION* FSRs_to_powers,
                           FP_PRECISION* FSRs_to_pin_powers);
     FP_PRECISION computePinPowersInUniverse(Universe* univ, 

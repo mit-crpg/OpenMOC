@@ -715,16 +715,6 @@ GPUSolver::~GPUSolver() {
 	_reduced_source = NULL;
     }
 
-    if (_FSRs_to_powers != NULL) {
-        cudaFree(_FSRs_to_powers);
-        _FSRs_to_powers = NULL;
-    }
-
-    if (_FSRs_to_pin_powers != NULL) {
-        cudaFree(_FSRs_to_pin_powers);
-    	_FSRs_to_pin_powers = NULL;
-    }
-
     if (_fission_sources != NULL) {
         _fission_sources_vec.clear();
 	_fission_sources = NULL;
@@ -814,34 +804,6 @@ FP_PRECISION* GPUSolver::getFSRScalarFluxes() {
 	       cudaMemcpyDeviceToHost);
 
     return fsr_scalar_fluxes;
-}
-
-
-/**
- * @brief Return an array indexed by flat source region IDs with the
- *        corresponding flat source region power.
- * @return an array of flat source region powers
- */
-FP_PRECISION* GPUSolver::getFSRPowers() {
-    if (_FSRs_to_powers == NULL)
-        log_printf(ERROR, "Unable to returns the device solver's FSR power "
-		   "array since it has not yet been allocated in memory");
-
-    return _FSRs_to_powers;
-}
-
-
-/**
- * @brief Return an array indexed by flat source region IDs with the
- *        corresponding pin cell power.
- * @return an array of flat source region pin powers
- */
-FP_PRECISION* GPUSolver::getFSRPinPowers() {
-    if (_FSRs_to_pin_powers == NULL)
-        log_printf(ERROR, "Unable to returns the device solver's FSR pin power "
-		   "array since it has not yet been allocated in memory");
-
-    return _FSRs_to_pin_powers;
 }
 
 
@@ -947,34 +909,6 @@ void GPUSolver::initializePolarQuadrature() {
     cudaMemcpyToSymbol(polar_weights, (void*)_polar_weights,
 		       _num_polar * _num_azim * sizeof(FP_PRECISION),
 		       0, cudaMemcpyHostToDevice);
-}
-
-
-/**
- * @brief Allocates memory for flat source region power arrays.
- * @details Deletes memory for power arrays if they were allocated from
- *          previous simulation.
- */
-void GPUSolver::initializePowerArrays() {
-
-     log_printf(INFO, "Initializing FSR power arrays on the GPU...");
-
-    /* Delete old power arrays if they exist */
-    if (_FSRs_to_powers != NULL)
-        delete [] _FSRs_to_powers;
-
-    if (_FSRs_to_pin_powers != NULL)
-        delete [] _FSRs_to_pin_powers;
-
-    /* Allocate memory for FSR power and pin power arrays */
-    try{
-	_FSRs_to_powers = new FP_PRECISION[_num_FSRs];
-	_FSRs_to_pin_powers = new FP_PRECISION[_num_FSRs];
-    }
-    catch(std::exception &e) {
-        log_printf(ERROR, "Could not allocate memory for the device solver's "
-		   "FSR power arrays. Backtrace:%s", e.what());
-    }
 }
 
 
@@ -1570,6 +1504,33 @@ void GPUSolver::computeKeff() {
 }
 
 
-void GPUSolver::computePinPowers() {
-    log_printf(ERROR, "Pin power computation on the GPU is not implemented!");
+/**
+ * @brief Compute the volume-weighted fission rates in each flat source 
+ *        region and stores them in an array indexed by flat source region ID.
+ * @return an array of flat source region volume-weighted fission rates
+ */
+FP_PRECISION* GPUSolver::computeFSRFissionRates() {
+
+    log_printf(INFO, "Computing FSR fission rates...");
+
+    double* sigma_f;
+    FP_PRECISION* fission_rates = new FP_PRECISION[_num_FSRs * _num_groups];
+
+    FP_PRECISION* scalar_flux = getFSRScalarFluxes();
+
+    /* Loop over all FSRs and compute the volume-weighted fission rate */
+    #pragma omp parallel for private (sigma_f) schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+        sigma_f = _FSR_materials[r]->getSigmaF();
+
+        for (int e=0; e < _num_groups; e++)
+	    _FSR_fission_rates[r] += sigma_f[e] * _scalar_flux(r,e);
+    }
+
+    /* Delete the temporary FSR scalar flux array copied to host memory
+     * from the device */
+    delete [] scalar_flux;
+
+    return _FSR_fission_rates;
+
 }

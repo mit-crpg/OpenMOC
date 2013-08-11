@@ -72,6 +72,10 @@ private:
     /** An array of the chi \f$ \chi \f$ values for each energy group */
     double* _chi;
 
+    /** A boolean representing whether or not this material contains a non-zero
+     *  fission cross-section and is fissionable */
+    bool _fissionable;
+
     /** A boolean to indicate whether or not the data has been 
      * allocated to be vector aligned for SIMD instructions */
     bool _data_aligned;
@@ -92,6 +96,7 @@ public:
     double* getSigmaF();
     double* getNuSigmaF();
     double* getChi();
+    bool isFissionable();
     bool isDataAligned();
     int getNumVectorGroups();
 

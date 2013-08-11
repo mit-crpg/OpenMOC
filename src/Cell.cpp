@@ -25,7 +25,8 @@ int cell_id() {
 /**
  * @brief Default constructor used in rings/sectors subdivision of cells.
  */
-Cell::Cell() { }
+Cell::Cell() { 
+}
 
 
 /**
@@ -48,7 +49,7 @@ Cell::Cell(short int universe, short int id) {
 
     _uid = _n;
     _n++;
-    _universe = universe;       
+    _universe = universe;
 }
 
 

@@ -343,6 +343,9 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
+solver.computeFSRFissionRates()
+geometry.computeFissionability()
+
 
 ###############################################################################
 ############################   Generating Plots   #############################
