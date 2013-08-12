@@ -86,8 +86,6 @@ class Solver(_object):
     def getSourceConvergenceThreshold(self): return _openmoc_cuda.Solver_getSourceConvergenceThreshold(self)
     def getFSRScalarFlux(self, *args, **kwargs): return _openmoc_cuda.Solver_getFSRScalarFlux(self, *args, **kwargs)
     def getFSRScalarFluxes(self): return _openmoc_cuda.Solver_getFSRScalarFluxes(self)
-    def getFSRPowers(self): return _openmoc_cuda.Solver_getFSRPowers(self)
-    def getFSRPinPowers(self): return _openmoc_cuda.Solver_getFSRPinPowers(self)
     def setGeometry(self, *args, **kwargs): return _openmoc_cuda.Solver_setGeometry(self, *args, **kwargs)
     def setTrackGenerator(self, *args, **kwargs): return _openmoc_cuda.Solver_setTrackGenerator(self, *args, **kwargs)
     def setPolarQuadratureType(self, *args, **kwargs): return _openmoc_cuda.Solver_setPolarQuadratureType(self, *args, **kwargs)
@@ -96,7 +94,7 @@ class Solver(_object):
     def useExponentialInterpolation(self): return _openmoc_cuda.Solver_useExponentialInterpolation(self)
     def useExponentialIntrinsic(self): return _openmoc_cuda.Solver_useExponentialIntrinsic(self)
     def convergeSource(self, *args, **kwargs): return _openmoc_cuda.Solver_convergeSource(self, *args, **kwargs)
-    def computePinPowers(self): return _openmoc_cuda.Solver_computePinPowers(self)
+    def computeFSRFissionRates(self, *args, **kwargs): return _openmoc_cuda.Solver_computeFSRFissionRates(self, *args, **kwargs)
     def printTimerReport(self): return _openmoc_cuda.Solver_printTimerReport(self)
 Solver_swigregister = _openmoc_cuda.Solver_swigregister
 Solver_swigregister(Solver)
@@ -119,14 +117,11 @@ class GPUSolver(Solver):
     __del__ = lambda self : None;
     def getFSRScalarFlux(self, *args, **kwargs): return _openmoc_cuda.GPUSolver_getFSRScalarFlux(self, *args, **kwargs)
     def getFSRScalarFluxes(self): return _openmoc_cuda.GPUSolver_getFSRScalarFluxes(self)
-    def getFSRPowers(self): return _openmoc_cuda.GPUSolver_getFSRPowers(self)
-    def getFSRPinPowers(self): return _openmoc_cuda.GPUSolver_getFSRPinPowers(self)
     def setNumThreadBlocks(self, *args, **kwargs): return _openmoc_cuda.GPUSolver_setNumThreadBlocks(self, *args, **kwargs)
     def setNumThreadsPerBlock(self, *args, **kwargs): return _openmoc_cuda.GPUSolver_setNumThreadsPerBlock(self, *args, **kwargs)
     def setGeometry(self, *args, **kwargs): return _openmoc_cuda.GPUSolver_setGeometry(self, *args, **kwargs)
     def setTrackGenerator(self, *args, **kwargs): return _openmoc_cuda.GPUSolver_setTrackGenerator(self, *args, **kwargs)
     def computeScalarTrackIndex(self, *args, **kwargs): return _openmoc_cuda.GPUSolver_computeScalarTrackIndex(self, *args, **kwargs)
-    def computePinPowers(self): return _openmoc_cuda.GPUSolver_computePinPowers(self)
 GPUSolver_swigregister = _openmoc_cuda.GPUSolver_swigregister
 GPUSolver_swigregister(GPUSolver)
 

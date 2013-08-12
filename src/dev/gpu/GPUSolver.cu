@@ -1011,8 +1011,8 @@ void GPUSolver::initializeMaterials() {
     /* Allocate memory for all tracks and track offset indices on the device */
     try{
 
-	std::map<short int, Material*> host_materials=_geometry->getMaterials();
-	std::map<short int, Material*>::iterator iter;
+	std::map<int, Material*> host_materials=_geometry->getMaterials();
+	std::map<int, Material*>::iterator iter;
 
         /* Iterate through all materials and clone them on the device */
         cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
