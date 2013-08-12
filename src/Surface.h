@@ -75,11 +75,11 @@ class Surface {
 
 protected:
     /** A static counter fo the number of surfaces in a simulation */
-    static short int _n;
+    static int _n;
     /** A monotonically increasing unique ID for each surface created */
-    short int _uid;
+    int _uid;
     /** A user-defined id for each surface created */
-    short int _id;
+    int _id;
     /** The type of surface (ie, XPLANE, CIRCLE, etc) */
     surfaceType _surface_type;
     /** The type of boundary condition to be used for this surface 
@@ -87,11 +87,11 @@ protected:
     boundaryType _boundary_type;
 
 public:
-    Surface(const short int id=0);
+    Surface(const int id=0);
     virtual ~Surface();
 
-    short int getUid() const;
-    short int getId() const;
+    int getUid() const;
+    int getId() const;
     surfaceType getSurfaceType();
     boundaryType getBoundaryType();
     /**
@@ -172,7 +172,7 @@ protected:
 
 public:
 
-    Plane(const double A, const double B, const double C, const short int id=0);
+    Plane(const double A, const double B, const double C, const int id=0);
 
     double getXMin();
     double getXMax();
@@ -198,7 +198,7 @@ private:
     double _x;
 
 public:
-    XPlane(const double x, const short int id=0);
+    XPlane(const double x, const int id=0);
 
     void setX(const double x);
 
@@ -223,7 +223,7 @@ private:
     double _y;
 
 public:
-    YPlane(const double y, const short int id=0);
+    YPlane(const double y, const int id=0);
 
     void setY(const double y);
 
@@ -249,7 +249,7 @@ private:
     double _z;
 
 public:
-    ZPlane(const double z, const short int id=0);
+    ZPlane(const double z, const int id=0);
 
     void setZ(const double z);
 
@@ -292,7 +292,7 @@ private:
 
 public:
     Circle(const double x, const double y, const double radius, 
-	   const short int id=0);
+	   const int id=0);
 
     double getX0();
     double getY0();

@@ -219,7 +219,7 @@ double Geometry::getMinSegmentLength() {
  * ids as keys
  * @return a map of materials in the geometry
  */
-std::map<short int, Material*> Geometry::getMaterials() {
+std::map<int, Material*> Geometry::getMaterials() {
         return _materials;
 }
 
@@ -229,7 +229,7 @@ std::map<short int, Material*> Geometry::getMaterials() {
  * @param id the user-specified material ID
  * @return a pointer to the material object
  */
-Material* Geometry::getMaterial(short int id) {
+Material* Geometry::getMaterial(int id) {
 
     Material* material = NULL;
   
@@ -250,7 +250,7 @@ Material* Geometry::getMaterial(short int id) {
  * @param id the user-specified surface ID
  * @return a pointer to the surface object
  */
-Surface* Geometry::getSurface(short int id) {
+Surface* Geometry::getSurface(int id) {
 
     Surface* surface = NULL;
 
@@ -271,7 +271,7 @@ Surface* Geometry::getSurface(short int id) {
  * @param id the user-specified cell's ID
  * @return a pointer to the cell object
  */
-Cell* Geometry::getCell(short int id) {
+Cell* Geometry::getCell(int id) {
 
     Cell* cell = NULL;
 
@@ -292,7 +292,7 @@ Cell* Geometry::getCell(short int id) {
  * @param id the user-specified universe ID
  * @return a pointer to the universe object
  */
-Universe* Geometry::getUniverse(short int id) {
+Universe* Geometry::getUniverse(int id) {
 
     Universe* universe = NULL;
 
@@ -313,7 +313,7 @@ Universe* Geometry::getUniverse(short int id) {
  * @param id the user-specified lattice (universe) ID
  * @return a pointer to the lattice object
  */
-Lattice* Geometry::getLattice(short int id) {
+Lattice* Geometry::getLattice(int id) {
 
     Lattice* lattice = NULL;
     try {
@@ -355,7 +355,7 @@ void Geometry::addMaterial(Material* material) {
         /* Check that the sum of the material's absorption and scattering
          * cross-sections equals its total cross-section */
         material->checkSigmaT();
-        _materials.insert(std::pair<short int,Material*>(material->getId(),
+        _materials.insert(std::pair<int,Material*>(material->getId(),
                                                              material));
         log_printf(INFO, "Added material with id = %d to geometry",
                        material->getId());
@@ -381,8 +381,8 @@ void Geometry::addSurface(Surface* surface) {
 
     else {
         try {
-            _surfaces.insert(std::pair<short int, Surface*>(surface->getId(),
-                                                            surface));
+            _surfaces.insert(std::pair<int, Surface*>(surface->getId(),
+						      surface));
             log_printf(INFO, "Added surface with id = %d to geometry",
                        surface->getId());
         }
@@ -473,12 +473,12 @@ void Geometry::addCell(Cell* cell) {
 
     /* Set the pointers for each of the surfaces inside the cell and also
      * checks whether the cell's surfaces exist */
-    //    std::map<short int, Surface*> cells_surfaces = cell->getSurfaces();
-    // std::map<short int, Surface*>::iterator iter;
+    //    std::map<int, Surface*> cells_surfaces = cell->getSurfaces();
+    // std::map<int, Surface*>::iterator iter;
 
     /* Loop over all surfaces in the cell */
     //    for (iter = cells_surfaces.begin(); iter != cells_surfaces.end(); ++iter) {
-    //        short int surface_id = abs(iter->first);
+    //        int surface_id = abs(iter->first);
 
         /* Prints error msg if the surface does not exist */
     //  if (_surfaces.find(surface_id) == _surfaces.end())
@@ -489,15 +489,15 @@ void Geometry::addCell(Cell* cell) {
     //  cell->setSurfacePointer(_surfaces.at(surface_id));
     //    }
 
-    std::map<short int, Surface*> cells_surfaces = cell->getSurfaces();
-    std::map<short int, Surface*>::iterator iter;
+    std::map<int, Surface*> cells_surfaces = cell->getSurfaces();
+    std::map<int, Surface*>::iterator iter;
     for (iter = cells_surfaces.begin(); iter != cells_surfaces.end(); ++iter)
         addSurface(iter->second);
 
 
     /* Insert the cell into the geometry's cell container */
     try {
-        _cells.insert(std::pair<short int, Cell*>(cell->getId(), cell));
+        _cells.insert(std::pair<int, Cell*>(cell->getId(), cell));
         log_printf(INFO, "Added cell with id = %d to geometry", cell->getId());
     }
     catch (std::exception &e) {
@@ -533,7 +533,7 @@ void Geometry::addCell(Cell* cell) {
 void Geometry::initializeCellFillPointers() {
 
     /* Checks if cellfill references this universe and sets its pointer */
-    std::map<short int, Cell*>::iterator iter;
+    std::map<int, Cell*>::iterator iter;
     CellFill* cell;
     Universe* univ;
     for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
@@ -563,7 +563,7 @@ void Geometry::addUniverse(Universe* universe) {
     /* Add the universe */
     else {
         try {
-            _universes.insert(std::pair<short int,Universe*>(universe->getId(),
+            _universes.insert(std::pair<int,Universe*>(universe->getId(),
                                                              universe));
             log_printf(INFO, "Added universe with id = %d to geometry",
                        universe->getId());
@@ -575,7 +575,7 @@ void Geometry::addUniverse(Universe* universe) {
     }
 
     /* Checks if any cellfill references this universe and sets its pointer */
-    std::map<short int, Cell*>::iterator iter;
+    std::map<int, Cell*>::iterator iter;
     for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
 
         if (iter->second->getType() == FILL) {
@@ -613,7 +613,7 @@ void Geometry::addLattice(Lattice* lattice) {
      * contains a universe which does not exist */
     for (int i = 0; i < lattice->getNumY(); i++) {
         for (int j = 0; j < lattice->getNumX(); j++) {
-            short int universe_id = lattice->getUniverses().at(i).at(j).first;
+            int universe_id = lattice->getUniverses().at(i).at(j).first;
 
             /* If the universe does not exist */
 	    if (_universes.find(universe_id) == _universes.end())
@@ -629,8 +629,7 @@ void Geometry::addLattice(Lattice* lattice) {
 
     /* Add the lattice to the geometry's lattices container */
     try {
-        _lattices.insert(std::pair<short int, 
-                         Lattice*>(lattice->getId(), lattice));
+        _lattices.insert(std::pair<int, Lattice*>(lattice->getId(), lattice));
         log_printf(INFO, "Added lattice with id = %d to geometry",
                    lattice->getId());
     }
@@ -729,8 +728,8 @@ Cell* Geometry::findCell(Universe* univ, int fsr_id) {
     /* If the universe is a SIMPLE type, then find the cell the smallest fsr map
        entry that is not larger than the fsr_id argument to this function. */
     if (univ->getType() == SIMPLE) {
-        std::map<short int, Cell*>::iterator iter;
-        std::map<short int, Cell*> cells = univ->getCells();
+        std::map<int, Cell*>::iterator iter;
+        std::map<int, Cell*> cells = univ->getCells();
         Cell* cell_min = NULL;
         int max_id = 0;
         int min_id = INT_MAX;
@@ -952,7 +951,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
                  * the next lattice cell */
                 if (curr->getType() == LAT) {
                                         
-                    short int lattice_id = curr->getLattice();
+                    int lattice_id = curr->getLattice();
                     Lattice* lattice = _lattices.at(lattice_id);
                                         
                     cell = lattice->findNextLatticeCell(curr,angle,_universes);
@@ -1028,7 +1027,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
  * @brief Subidivides all cells in the geometry into rings and angular sectors.
  */
 void Geometry::subdivideCells() {
-    std::map<short int, Universe*>::iterator iter;
+    std::map<int, Universe*>::iterator iter;
     for (iter = _universes.begin(); iter != _universes.end(); ++iter)
         (*iter).second->subdivideCells();
 }
@@ -1190,16 +1189,21 @@ void Geometry::segmentize(Track* track) {
 void Geometry::computeFissionability(Universe* univ) {
 
     bool fissionable = false;
-    std::vector<short int> material_ids;
-    std::vector<short int> universe_ids;
+    std::vector<int> material_ids;
+    std::vector<int> universe_ids;
    
     /* If no universe was passed in as an argument, then this is the first 
      * recursive call from a user via Python, so get the base universe */
     if (univ == NULL)
         univ = _universes.at(0);
 
-    material_ids = univ->getMaterialIds();
-    universe_ids = univ->getNestedUniverseIds();
+    if (univ->getType() == SIMPLE) {
+        material_ids = univ->getMaterialIds();
+	universe_ids = univ->getNestedUniverseIds();
+    }
+
+    else
+        universe_ids = static_cast<Lattice*>(univ)->getNestedUniverseIds();
 
     /* Loop over the nested universes first to ensure that fissionability
      * is set at each nested universe level */
@@ -1283,14 +1287,14 @@ FP_PRECISION Geometry::computePinPowersInUniverse(Universe* univ,
 
     /* If the universe is a SIMPLE type universe */
     if (univ->getType() == SIMPLE) {
-        std::map<short int, Cell*> cells = univ->getCells();
-        std::map<short int, short int> _region_map;
-        std::vector<short int> fsr_ids;
+        std::map<int, Cell*> cells = univ->getCells();
+        std::map<int, int> _region_map;
+        std::vector<int> fsr_ids;
         Cell* curr;
 
         /* For each of the cells inside the lattice, check if it is
          * material or fill type */
-        std::map<short int, Cell*>::iterator iter;
+        std::map<int, Cell*>::iterator iter;
         for (iter = cells.begin(); iter != cells.end(); ++iter) {
             curr = iter->second;
 
@@ -1400,11 +1404,11 @@ FP_PRECISION Geometry::computePinPowersInUniverse(Universe* univ,
 std::string Geometry::toString() {
 
     std::stringstream string;
-    std::map<short int, Material*>::iterator iter1;
-    std::map<short int, Surface*>::iterator iter2;
-    std::map<short int, Cell*>::iterator iter3;
-    std::map<short int, Universe*>::iterator iter4;
-    std::map<short int, Lattice*>::iterator iter5;
+    std::map<int, Material*>::iterator iter1;
+    std::map<int, Surface*>::iterator iter2;
+    std::map<int, Cell*>::iterator iter3;
+    std::map<int, Universe*>::iterator iter4;
+    std::map<int, Lattice*>::iterator iter5;
 
     string << "Geometry: width = " << getWidth() << ", height = " <<
         getHeight() << ", Bounding Box: ((" << _x_min << ", " <<

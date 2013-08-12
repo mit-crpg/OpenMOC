@@ -149,7 +149,6 @@ public:
     void setTrackGenerator(TrackGenerator* track_generator);
 
     int computeScalarTrackIndex(int i, int j);
-    FP_PRECISION* computeFSRFissionRates();
 };
 
 

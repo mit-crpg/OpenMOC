@@ -82,19 +82,19 @@ private:
     double _min_seg_length;
 
     /** A map of material IDs (keys) to material pointers (values) */
-    std::map<short int, Material*> _materials;
+    std::map<int, Material*> _materials;
 
     /** A map of surface IDs (keys) to surface pointers (values) */
-    std::map<short int, Surface*> _surfaces;
+    std::map<int, Surface*> _surfaces;
 
     /** A map of cell IDs (keys) to cell pointers (values) */
-    std::map<short int, Cell*> _cells;
+    std::map<int, Cell*> _cells;
 
     /** A map of universe IDs (keys) to universe pointers (values) */
-    std::map<short int, Universe*> _universes;
+    std::map<int, Universe*> _universes;
 
     /** A map of lattice IDs (keys) to lattice pointers (values) */
-    std::map<short int, Lattice*> _lattices;
+    std::map<int, Lattice*> _lattices;
 
     void initializeCellFillPointers();
 
@@ -123,12 +123,12 @@ public:
     int* getFSRtoMaterialMap();
     double getMaxSegmentLength();
     double getMinSegmentLength();
-    std::map<short int, Material*> getMaterials();
-    Material* getMaterial(short int id);
-    Surface* getSurface(short int id);
-    Cell* getCell(short int id);
-    Universe* getUniverse(short int id);
-    Lattice* getLattice(short int id);
+    std::map<int, Material*> getMaterials();
+    Material* getMaterial(int id);
+    Surface* getSurface(int id);
+    Cell* getCell(int id);
+    Universe* getUniverse(int id);
+    Lattice* getLattice(int id);
 
     void addMaterial(Material* material);
     void addSurface(Surface* surface);

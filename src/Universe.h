@@ -54,19 +54,19 @@ class Universe {
 protected:
 
     /** A static counter for the number of universes in a simulation */
-    static short int _n;
+    static int _n;
 
     /** A monotonically increasing unique ID for each universe created */
-    short int _uid;
+    int _uid;
 
     /** A user-defined id for each universe created */
-    short int _id;
+    int _id;
 
     /** The type of universe (ie, SIMLE or LATTICE) */
     universeType _type;
 
     /** A hash table of cell IDs and cell pointers */
-    std::map<short int, Cell*> _cells;
+    std::map<int, Cell*> _cells;
 
     /** The coordinates of the origin for the universe */
     Point _origin;
@@ -81,26 +81,29 @@ protected:
     bool _fissionable;
 
 public:
-    Universe(const short int id);
+    Universe(const int id);
     virtual ~Universe();
 
     void addCell(Cell* cell);
-    std::map<short int, Cell*> getCells() const;
-    short int getUid() const;
-    short int getId() const;
+    
+    Cell* getCell(int cell_id);
+    std::map<int, Cell*> getCells() const;
+    int getUid() const;
+    int getId() const;
     universeType getType();
-    short int getNumCells() const;
-    int getFSR(short int cell_id);
+    int getNumCells() const;
+    int getFSR(int cell_id);
     Point* getOrigin();
-    std::vector<short int> getMaterialIds();
-    std::vector<short int> getNestedUniverseIds();
+    std::vector<int> getMaterialIds();
+    std::vector<int> getNestedUniverseIds();
+    void getCellIds(int* cell_ids, int num_cells);
     bool isFissionable();
 
     void setType(universeType type);
     void setOrigin(Point* origin);
     void setFissionability(bool fissionable);
     Cell* findCell(LocalCoords* coords,
-		   std::map<short int, Universe*> universes);
+		   std::map<int, Universe*> universes);
     int computeFSRMaps();
     void subdivideCells();
     std::string toString();
@@ -117,10 +120,10 @@ class Lattice: public Universe {
 private:
 
     /** The number of lattice cells along the x-axis */
-    short int _num_x;
+    int _num_x;
 
     /** The number of lattice cells along the y-axis */
-    short int _num_y;
+    int _num_y;
 
     /** The width of each lattice cell (cm) along the x-axis */
     double _width_x;
@@ -129,35 +132,35 @@ private:
     double _width_y;
 
     /** A container of universes ? */
-    std::vector< std::vector< std::pair<short int, Universe*> > > _universes;
+    std::vector< std::vector< std::pair<int, Universe*> > > _universes;
 
     /** A container of the number of FSRs in each lattice cell */
     std::vector< std::vector< std::pair<int, int> > > _region_map;
 
 public:
 
-    Lattice(const short int id, const double width_x, const double width_y);
+    Lattice(const int id, const double width_x, const double width_y);
     virtual ~Lattice();
 
-    short int getNumX() const;
-    short int getNumY() const;
+    int getNumX() const;
+    int getNumY() const;
     Point* getOrigin();
-    std::vector< std::vector< std::pair<short int, Universe*> > >
-                                                         getUniverses() const;
-    Universe* getUniverse(short int lattice_x, short int lattice_y) const;
+    std::vector< std::vector< std::pair<int, Universe*> > > 
+                                           getUniverses() const;
+    Universe* getUniverse(int lattice_x, int lattice_y) const;
     double getWidthX() const;
     double getWidthY() const;
-    int getFSR(short int lat_x, short int lat_y);
-    std::vector<short int> getNestedUniverseIds();
+    int getFSR(int lat_x, int lat_y);
+    std::vector<int> getNestedUniverseIds();
 
-    void setLatticeCells(int num_x, int num_y, short* universes);
+    void setLatticeCells(int num_x, int num_y, int* universes);
     void setUniversePointer(Universe* universe);
 
     bool withinBounds(Point* point);
     Cell* findCell(LocalCoords* coords, 
-		   std::map<short int, Universe*> universes);
+		   std::map<int, Universe*> universes);
     Cell* findNextLatticeCell(LocalCoords* coords, double angle,
-			      std::map<short int, Universe*> universes);	
+			      std::map<int, Universe*> universes);	
     int computeFSRMaps();
 
     std::string toString();

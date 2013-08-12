@@ -68,6 +68,22 @@ except AttributeError:
 
 
 
+def castCellToCellFill(*args, **kwargs):
+  return _openmoc.castCellToCellFill(*args, **kwargs)
+castCellToCellFill = _openmoc.castCellToCellFill
+
+def castCellToCellBasic(*args, **kwargs):
+  return _openmoc.castCellToCellBasic(*args, **kwargs)
+castCellToCellBasic = _openmoc.castCellToCellBasic
+
+def castUniverseToLattice(*args, **kwargs):
+  return _openmoc.castUniverseToLattice(*args, **kwargs)
+castUniverseToLattice = _openmoc.castUniverseToLattice
+
+def castLatticeToUniverse(*args, **kwargs):
+  return _openmoc.castLatticeToUniverse(*args, **kwargs)
+castLatticeToUniverse = _openmoc.castLatticeToUniverse
+
 def cell_id():
   return _openmoc.cell_id()
 cell_id = _openmoc.cell_id
@@ -450,7 +466,7 @@ class Solver(_object):
     def useExponentialInterpolation(self): return _openmoc.Solver_useExponentialInterpolation(self)
     def useExponentialIntrinsic(self): return _openmoc.Solver_useExponentialIntrinsic(self)
     def convergeSource(self, *args, **kwargs): return _openmoc.Solver_convergeSource(self, *args, **kwargs)
-    def computeFSRFissionRates(self): return _openmoc.Solver_computeFSRFissionRates(self)
+    def computeFSRFissionRates(self, *args, **kwargs): return _openmoc.Solver_computeFSRFissionRates(self, *args, **kwargs)
     def printTimerReport(self): return _openmoc.Solver_printTimerReport(self)
 Solver_swigregister = _openmoc.Solver_swigregister
 Solver_swigregister(Solver)
@@ -473,7 +489,6 @@ class CPUSolver(Solver):
     def getFSRScalarFlux(self, *args, **kwargs): return _openmoc.CPUSolver_getFSRScalarFlux(self, *args, **kwargs)
     def getFSRScalarFluxes(self): return _openmoc.CPUSolver_getFSRScalarFluxes(self)
     def setNumThreads(self, *args, **kwargs): return _openmoc.CPUSolver_setNumThreads(self, *args, **kwargs)
-    def computeFSRFissionRates(self): return _openmoc.CPUSolver_computeFSRFissionRates(self)
 CPUSolver_swigregister = _openmoc.CPUSolver_swigregister
 CPUSolver_swigregister(CPUSolver)
 
@@ -815,6 +830,7 @@ class Universe(_object):
     __swig_destroy__ = _openmoc.delete_Universe
     __del__ = lambda self : None;
     def addCell(self, *args, **kwargs): return _openmoc.Universe_addCell(self, *args, **kwargs)
+    def getCell(self, *args, **kwargs): return _openmoc.Universe_getCell(self, *args, **kwargs)
     def getCells(self): return _openmoc.Universe_getCells(self)
     def getUid(self): return _openmoc.Universe_getUid(self)
     def getId(self): return _openmoc.Universe_getId(self)
@@ -824,6 +840,7 @@ class Universe(_object):
     def getOrigin(self): return _openmoc.Universe_getOrigin(self)
     def getMaterialIds(self): return _openmoc.Universe_getMaterialIds(self)
     def getNestedUniverseIds(self): return _openmoc.Universe_getNestedUniverseIds(self)
+    def getCellIds(self, *args, **kwargs): return _openmoc.Universe_getCellIds(self, *args, **kwargs)
     def isFissionable(self): return _openmoc.Universe_isFissionable(self)
     def setType(self, *args, **kwargs): return _openmoc.Universe_setType(self, *args, **kwargs)
     def setOrigin(self, *args, **kwargs): return _openmoc.Universe_setOrigin(self, *args, **kwargs)
