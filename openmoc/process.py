@@ -368,7 +368,7 @@ def computeFSRPinPowers(solver, geometry):
     geometry.computeFissionability()
 
     # Compute the volume-weighted FSR fission rates for each FSR
-    fission_rates = solver.computeFSRFissionRates(num_FSRs)
+    fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
 
     # Get the base universe in the geometry and compute pin powers for each
     # level of nested universes and lattices

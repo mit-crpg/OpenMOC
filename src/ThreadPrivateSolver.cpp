@@ -116,7 +116,7 @@ void ThreadPrivateSolver::transportSweep() {
 	int max = (i + 1) * (_tot_num_tracks / 2);
 	
 	/* Loop over each thread within this azimuthal angle halfspace */
-        #pragma omp parallel for private(tid, fsr_id, curr_track, \
+	#pragma omp parallel for private(tid, fsr_id, curr_track, \
 	  num_segments, segments, curr_segment, track_flux) schedule(guided)
 	for (int track_id=min; track_id < max; track_id++) {
 
