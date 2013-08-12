@@ -50,6 +50,26 @@
 }
 
 
+/* C++ casting helper method for openmoc.process computePinPowers routine */
+%inline %{
+    CellFill* castCellToCellFill(Cell* cell) {
+        return dynamic_cast<CellFill*>(cell);
+    }
+
+    CellBasic* castCellToCellBasic(Cell* cell) {
+        return dynamic_cast<CellBasic*>(cell);
+    }
+
+    Lattice* castUniverseToLattice(Universe* universe) {
+        return dynamic_cast<Lattice*>(universe);
+    }
+
+    Universe* castLatticeToUniverse(Lattice* lattice) {
+        return dynamic_cast<Universe*>(lattice);
+    }
+
+%}
+
 
 /* If the user uses the --no-numpy flag, then NumPy typemaps will not be used
  * and the NumPy C API will not be embedded in the source code. The NumPy
@@ -96,10 +116,10 @@
 }
 
 
-/* Typemap for Lattice::setLatticeCells(int num_x, int num_y, short* universes) 
+/* Typemap for Lattice::setLatticeCells(int num_x, int num_y, int* universes) 
  * method - allows users to pass in Python lists of Universe IDs for each 
  * lattice cell */
-%typemap(in) (int num_x, int num_y, short* universes) {
+%typemap(in) (int num_x, int num_y, int* universes) {
 
     if (!PyList_Check($input)) {
         PyErr_SetString(PyExc_ValueError,"Expected a Python list of integers "
@@ -109,7 +129,7 @@
 
     $1 = PySequence_Length($input);  // num_x
     $2 = PySequence_Length(PyList_GetItem($input,0)); // num_y
-    $3 = (short int*) malloc(($1 * $2) * sizeof(short));  // universes
+    $3 = (int*) malloc(($1 * $2) * sizeof(int));  // universes
 
     /* Loop over x */
     for (int i = 0; i < $2; i++) {
@@ -134,7 +154,7 @@
 	    /* If the value is a number, cast it as an int and set the
 	     * input array value */
 	    if (PyNumber_Check(o)) {
-	        $3[i*$1 + j] = (short int) PyInt_AS_LONG(o);
+	        $3[i*$1 + j] = (int) PyInt_AS_LONG(o);
 	    } 
 	    else {
 	        free($3);
@@ -164,7 +184,7 @@
 /* The typemape used to match the method signature for the 
  * Lattice::setLatticeCells setter method. This allows users to set the lattice
  * cells (universe IDs) using a 2D NumPy array */ 
-%apply (int DIM1, int DIM2, short* IN_ARRAY2) {(int num_x, int num_y, short* universes)}
+%apply (int DIM1, int DIM2, int* IN_ARRAY2) {(int num_x, int num_y, int* universes)}
 
 /* The typemap used to match the method signature for the Material 
  * cross-section setter methods. This allows users to set the cross-sections
@@ -180,6 +200,16 @@
  * getter methods for track segment start and end coordinates for the plotting 
  * routines in openmoc.plotter */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
+
+/* The typemap used to match the method signature for the Solver's
+ * computeFSRFissionRates method for the data processing routines in
+ * openmoc.process */
+%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* fission_rates, int num_FSRs)}
+
+
+/* The typemap used to match the method signature for the Universe's
+ * getCellIds method for the data processing routines in openmoc.process */
+%apply (int* ARGOUT_ARRAY1, int DIM1) {(int* cell_ids, int num_cells)}
 
 #endif
 

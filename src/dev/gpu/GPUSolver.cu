@@ -1502,35 +1502,3 @@ void GPUSolver::computeKeff() {
     log_printf(DEBUG, "abs = %f, fiss = %f, leak = %f, keff = %f", 
 	       tot_absorption, tot_fission, tot_leakage, _k_eff);
 }
-
-
-/**
- * @brief Compute the volume-weighted fission rates in each flat source 
- *        region and stores them in an array indexed by flat source region ID.
- * @return an array of flat source region volume-weighted fission rates
- */
-FP_PRECISION* GPUSolver::computeFSRFissionRates() {
-
-    log_printf(INFO, "Computing FSR fission rates...");
-
-    double* sigma_f;
-    FP_PRECISION* fission_rates = new FP_PRECISION[_num_FSRs * _num_groups];
-
-    FP_PRECISION* scalar_flux = getFSRScalarFluxes();
-
-    /* Loop over all FSRs and compute the volume-weighted fission rate */
-    #pragma omp parallel for private (sigma_f) schedule(guided)
-    for (int r=0; r < _num_FSRs; r++) {
-        sigma_f = _FSR_materials[r]->getSigmaF();
-
-        for (int e=0; e < _num_groups; e++)
-	    _FSR_fission_rates[r] += sigma_f[e] * _scalar_flux(r,e);
-    }
-
-    /* Delete the temporary FSR scalar flux array copied to host memory
-     * from the device */
-    delete [] scalar_flux;
-
-    return _FSR_fission_rates;
-
-}

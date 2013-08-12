@@ -2,6 +2,7 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
+import openmoc.process as process
 
 
 ###############################################################################
@@ -343,8 +344,7 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
-solver.computeFSRFissionRates()
-geometry.computeFissionability()
+process.computeFSRPinPowers(solver, geometry)
 
 
 ###############################################################################

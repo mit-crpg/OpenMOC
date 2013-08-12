@@ -322,14 +322,7 @@ public:
 
     virtual FP_PRECISION convergeSource(int max_iterations);
     
-    /**
-     * @brief Compute the volume-weighted fission rates in each flat source 
-     *        region and stores them in an array indexed by flat source 
-     *        region ID.
-     * @return an array of flat source region volume-weighted fission rates
-     */
-    virtual FP_PRECISION* computeFSRFissionRates() =0;
-
+    void computeFSRFissionRates(double* fission_rates, int num_FSRs);
     void printTimerReport();
 };
 

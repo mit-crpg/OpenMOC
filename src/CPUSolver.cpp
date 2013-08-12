@@ -833,32 +833,3 @@ void CPUSolver::addSourceToScalarFlux() {
     
     return;
 }
-
- 
-
-
-/**
- * @brief Compute the volume-weighted fission rates in each flat source 
- *        region and stores them in an array indexed by flat source region ID.
- * @return an array of flat source region volume-weighted fission rates
- */
-FP_PRECISION* CPUSolver::computeFSRFissionRates() {
-
-    log_printf(INFO, "Computing FSR fission rates...");
-
-    double* sigma_f;
-
-    /* Allocate an array to store the fission rates */
-    FP_PRECISION* fission_rates = new FP_PRECISION[_num_groups * _num_FSRs];
-
-    /* Loop over all FSRs and compute the fission rate */
-    #pragma omp parallel for private (sigma_f) schedule(guided)
-    for (int r=0; r < _num_FSRs; r++) {
-        sigma_f = _FSR_materials[r]->getSigmaF();
-
-        for (int e=0; e < _num_groups; e++)
-	    fission_rates[r] += sigma_f[e] * _scalar_flux(r,e);
-    }
-
-    return fission_rates;
-}

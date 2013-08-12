@@ -7,6 +7,7 @@
 # @date April 27, 2013
 
 import matplotlib.pyplot as plt
+import openmoc
 from log import *
 import numpy
 import os
@@ -35,7 +36,7 @@ def strongScalingStudy(geometry, num_azim=48, track_spacing=0.1,
 
     global subdirectory
 
-    directory = getOutputDirectory() + subdirectory
+    directory = openmoc.getOutputDirectory() + subdirectory
 
     # Make directory if it does not exist
     if not os.path.exists(directory):
@@ -205,7 +206,7 @@ def weakScalingStudy(geometry, num_azim=4, track_spacing=0.1,
 
     global subdirectory
 
-    directory = getOutputDirectory() + subdirectory
+    directory = openmoc.getOutputDirectory() + subdirectory
 
     # Make directory if it does not exist
     if not os.path.exists(directory):
@@ -352,53 +353,120 @@ def weakScalingStudy(geometry, num_azim=4, track_spacing=0.1,
     plt.savefig(filename3)
 
 
-def profile(solver, num_threads=4,  max_iters=25, title='', filename=''):
+##
+# @brief
+# @param
+# @param
+#
+def computeFSRPinPowers(solver, geometry):
 
-    global subdirectory
+    # Error checking of input parameters
 
-    directory = getOutputDirectory() + subdirectory
+    directory = openmoc.getOutputDirectory() + '/pin-powers/'
 
-    # Make directory if it does not exist
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    # Determine which universes and lattices contain fissionable materials
+    geometry.computeFissionability()
 
-    solver.setNumThreads(int(num_threads))
-    
-    solver.convergeSource(max_iters)
+    # Compute the volume-weighted FSR fission rates for each FSR
+    fission_rates = solver.computeFSRFissionRates(num_FSRs)
 
-    # The slices will be ordered and plotted counter-clockwise.
-    labels = ['Computing FSR sources', 'Computing k-eff', 
-              'Flattening FSR flux to zero', 'Normalizing fluxes',
-              'Reducing FSR scalar fluxes', 'Transport sweep']
+    # Get the base universe in the geometry and compute pin powers for each
+    # level of nested universes and lattices
+    universe = geometry.getUniverse(0)
+    computeUniverseFissionRate(geometry, universe, 0, fission_rates, directory)
 
-    times = numpy.zeros(3)
-    timer = Timer()
 
-    for label in labels:
-        if label == 'Transport sweep':
-            times[0] = timer.getSplit(label)
-        elif label == 'Computing FSR sources':
-            times[1] = timer.getSplit(label)
-        else:
-            times[2] += timer.getSplit(label)
+##
+# @brief
+# @param
+# @param
+# @param
+# @param
+# @param
+# @return
+#
+def computeUniverseFissionRate(geometry, universe, FSR_id, 
+                               FSR_fission_rates, directory=''):
 
-    timer.printSplits()
-    tot_time = numpy.sum(times)
-    fracs = times / tot_time
-    labels = ['Transport Sweep', 'FSR Sources', 'Other']
+    fission_rate = 0.0
 
-    # Plot a pie chart showing the break down in compute time
-    if title == '':
-        title = 'OpenMOC Compute Time Profile'
+    # If the universe is not fissionable, the fission rate within it
+    # is zero
+    if not universe.isFissionable():
+        return fission_rate
+
+    # If the universe is a fissionable SIMPLE type universe
+    elif universe.getType() is openmoc.SIMPLE:
+
+        # Create a directory/file for this universe's total fission rate
+        directory += 'universe' + str(universe.getId()) + '/'
+
+        num_cells = universe.getNumCells()
+        cell_ids = universe.getCellIds(int(num_cells))
+
+        # For each of the cells inside the universe, check if it is 
+        # MATERIAL or FILL type
+        for cell_id in cell_ids:
+        
+            cell = universe.getCell(int(cell_id))
+            
+            # If the current cell is a MATERIAL type cell, 
+            if cell.getType() is openmoc.MATERIAL:
+                cell = openmoc.castCellToCellBasic(cell)
+                fsr_id = universe.getFSR(cell.getId()) + FSR_id
+                fission_rate += FSR_fission_rates[fsr_id]
+            
+            # The current cell is a FILL type cell
+            else:
+                cell = openmoc.castCellToCellFill(cell)
+                universe_fill = cell.getUniverseFill()
+                fsr_id = universe.getFSR(cell.getId()) + FSR_id
+                fission_rate += \
+                    computeUniverseFissionRate(geometry, universe_fill, fsr_id, 
+                                               FSR_fission_rates, directory)
+
+
+    # This is a fissionable LATTICE type universe
     else:
-        title = title + ' Compute Time Profile'
 
-    if filename == '':
-        filename = directory + 'compute-time-profile.png'
-    else:
-        filename = directory + filename + '-profile.png'
-    
-    fig = plt.figure()
-    plt.pie(fracs, labels=labels, autopct='%1.1f%%', shadow=True)
-    plt.title(title)
-    plt.savefig(filename)
+        # Create a directory/file for this lattice's fission rates
+        directory += 'lattice' + str(universe.getId()) + '/'
+
+        # Make directory if it does not exist
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        lattice = openmoc.castUniverseToLattice(universe)
+        num_x = lattice.getNumX()
+        num_y = lattice.getNumY()
+
+        # TODO: Check whether output is hdf5 or not!!!
+        f = open(directory + 'fission-rate.txt', 'w')
+        
+        # Loop over all lattice cells in this lattice
+        for i in range(num_y-1, -1, -1):
+            for j in range(num_x):
+
+                # Get a pointer to the current lattice cell
+                cell_universe = lattice.getUniverse(j,i)
+                
+                # Get the FSR Id prefix for this lattice cell
+                fsr_id = lattice.getFSR(j,i) + FSR_id
+
+                new_directory = directory + 'x' + str(j) + '_y' + str(i) + '/'
+
+                # Compute the fission rate within this lattice cell
+                cell_fission_rate = \
+                    computeUniverseFissionRate(geometry, cell_universe, fsr_id, 
+                                               FSR_fission_rates, new_directory)
+
+                # Write this lattice cell's fission rate to the output file
+                f.write('%1.10f, ' % (cell_fission_rate))
+
+                fission_rate += cell_fission_rate
+
+            f.write('\n')
+
+        f.close()            
+
+    return fission_rate

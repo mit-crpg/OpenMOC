@@ -1,6 +1,6 @@
 #include "Surface.h"
 
-short int Surface::_n = 0;
+int Surface::_n = 0;
 
 static int auto_id = 10000;
 
@@ -26,7 +26,7 @@ int surf_id() {
  *          BOUNDARY_NONE.
  * @param id an optional user-defined surface id
  */
-Surface::Surface(const short int id){
+Surface::Surface(const int id){
 
     /* If the user did not define an optional ID, create one */
     if (id == 0)
@@ -55,7 +55,7 @@ Surface::~Surface() { }
  * @brief Return the surface's unique ID.
  * @return the surface's unique ID
  */
-short int Surface::getUid() const {
+int Surface::getUid() const {
     return _uid;
 }
 
@@ -64,7 +64,7 @@ short int Surface::getUid() const {
  * @brief Return the surface's user-defined id.
  * @return the surface's user-defined id
  */
-short int Surface::getId() const {
+int Surface::getId() const {
     return _id;
 }
 
@@ -130,8 +130,7 @@ bool Surface::isCoordOnSurface(LocalCoords* coord) {
  * @param B the second coefficient in \f$ A * x + B * y + C = 0 \f$
  * @param C the third coefficient in \f$ A * x + B * y + C = 0 \f$
  */
-Plane::Plane(const double A, const double B, const double C, 
-	     const short int id): 
+Plane::Plane(const double A, const double B, const double C, const int id): 
     Surface(id) {
         _surface_type = PLANE;
         _A = A;
@@ -273,7 +272,7 @@ void Plane::printString() {
  * @param id the user-defined surface id
  * @param x the location of the plane along the x-axis
  */
-XPlane::XPlane(const double x, const short int id): 
+XPlane::XPlane(const double x, const int id): 
     Plane(0, 1, -x, id) {
         _surface_type = XPLANE;
         _x = x;
@@ -357,7 +356,7 @@ std::string XPlane::toString() {
  * @param id the surface id
  * @param y the location of the plane along the y-axis
  */
-YPlane::YPlane(const double y, const short int id): 
+YPlane::YPlane(const double y, const int id): 
     Plane(1, 0, -y, id) {
         _surface_type = YPLANE;
         _y = y;
@@ -449,7 +448,7 @@ void YPlane::printString() {
  * @param id the surface id
  * @param z the location of the plane along the z-axis
  */
-ZPlane::ZPlane(const double z, const short int id): 
+ZPlane::ZPlane(const double z, const int id): 
     Plane(0, 0, -z, id) {
         _surface_type = ZPLANE;
         _z = z;
@@ -545,7 +544,7 @@ void ZPlane::printString() {
  * @param radius the radius of the circle
  */
 Circle::Circle(const double x, const double y, 
-               const double radius, const short int id): 
+	       const double radius, const int id): 
     Surface(id) {
         _surface_type = CIRCLE;
         _A = 1.;

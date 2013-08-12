@@ -2984,14 +2984,14 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 #define SWIGTYPE_p_logLevels swig_types[26]
 #define SWIGTYPE_p_p_Track swig_types[27]
 #define SWIGTYPE_p_segment swig_types[28]
-#define SWIGTYPE_p_std__mapT_short_Cell_p_t swig_types[29]
-#define SWIGTYPE_p_std__mapT_short_Material_p_t swig_types[30]
-#define SWIGTYPE_p_std__mapT_short_Surface_p_t swig_types[31]
-#define SWIGTYPE_p_std__mapT_short_Universe_p_t swig_types[32]
+#define SWIGTYPE_p_std__mapT_int_Cell_p_t swig_types[29]
+#define SWIGTYPE_p_std__mapT_int_Material_p_t swig_types[30]
+#define SWIGTYPE_p_std__mapT_int_Surface_p_t swig_types[31]
+#define SWIGTYPE_p_std__mapT_int_Universe_p_t swig_types[32]
 #define SWIGTYPE_p_std__string swig_types[33]
 #define SWIGTYPE_p_std__vectorT_CellBasic_p_t swig_types[34]
-#define SWIGTYPE_p_std__vectorT_short_t swig_types[35]
-#define SWIGTYPE_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t swig_types[36]
+#define SWIGTYPE_p_std__vectorT_int_t swig_types[35]
+#define SWIGTYPE_p_std__vectorT_std__vectorT_std__pairT_int_Universe_p_t_t_t swig_types[36]
 static swig_type_info *swig_types[38];
 static swig_module_info swig_module = {swig_types, 37, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
@@ -3128,6 +3128,24 @@ namespace swig {
 
 
 
+    CellFill* castCellToCellFill(Cell* cell) {
+        return dynamic_cast<CellFill*>(cell);
+    }
+
+    CellBasic* castCellToCellBasic(Cell* cell) {
+        return dynamic_cast<CellBasic*>(cell);
+    }
+
+    Lattice* castUniverseToLattice(Universe* universe) {
+        return dynamic_cast<Lattice*>(universe);
+    }
+
+    Universe* castLatticeToUniverse(Lattice* lattice) {
+        return dynamic_cast<Universe*>(lattice);
+    }
+
+
+
 #ifndef SWIG_FILE_WITH_INIT
 #  define NO_IMPORT_ARRAY
 #endif
@@ -3139,16 +3157,6 @@ SWIGINTERNINLINE PyObject*
   SWIG_From_int  (int value)
 {
   return PyInt_FromLong((long) value);
-}
-
-
-  #define SWIG_From_long   PyLong_FromLong 
-
-
-SWIGINTERNINLINE PyObject *
-SWIG_From_short  (short value)
-{    
-  return SWIG_From_long  (value);
 }
 
 
@@ -3282,15 +3290,15 @@ SWIG_AsVal_long (PyObject *obj, long* val)
 
 
 SWIGINTERN int
-SWIG_AsVal_short (PyObject * obj, short *val)
+SWIG_AsVal_int (PyObject * obj, int *val)
 {
   long v;
   int res = SWIG_AsVal_long (obj, &v);
   if (SWIG_IsOK(res)) {
-    if ((v < SHRT_MIN || v > SHRT_MAX)) {
+    if ((v < INT_MIN || v > INT_MAX)) {
       return SWIG_OverflowError;
     } else {
-      if (val) *val = static_cast< short >(v);
+      if (val) *val = static_cast< int >(v);
     }
   }  
   return res;
@@ -3305,22 +3313,6 @@ SWIGINTERNINLINE PyObject*
 
 
   #define SWIG_From_double   PyFloat_FromDouble 
-
-
-SWIGINTERN int
-SWIG_AsVal_int (PyObject * obj, int *val)
-{
-  long v;
-  int res = SWIG_AsVal_long (obj, &v);
-  if (SWIG_IsOK(res)) {
-    if ((v < INT_MIN || v > INT_MAX)) {
-      return SWIG_OverflowError;
-    } else {
-      if (val) *val = static_cast< int >(v);
-    }
-  }  
-  return res;
-}
 
 
 SWIGINTERN swig_type_info*
@@ -3419,6 +3411,32 @@ SWIGINTERNINLINE PyObject *
 SWIG_From_float  (float value)
 {    
   return SWIG_From_double  (value);
+}
+
+
+  #define SWIG_From_long   PyLong_FromLong 
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_From_short  (short value)
+{    
+  return SWIG_From_long  (value);
+}
+
+
+SWIGINTERN int
+SWIG_AsVal_short (PyObject * obj, short *val)
+{
+  long v;
+  int res = SWIG_AsVal_long (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v < SHRT_MIN || v > SHRT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< short >(v);
+    }
+  }  
+  return res;
 }
 
 
@@ -3905,6 +3923,142 @@ SWIG_AsVal_bool (PyObject *obj, bool *val)
 #ifdef __cplusplus
 extern "C" {
 #endif
+SWIGINTERN PyObject *_wrap_castCellToCellFill(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Cell *arg1 = (Cell *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *  kwnames[] = {
+    (char *) "cell", NULL 
+  };
+  CellFill *result = 0 ;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"O:castCellToCellFill",kwnames,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Cell, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "castCellToCellFill" "', argument " "1"" of type '" "Cell *""'"); 
+  }
+  arg1 = reinterpret_cast< Cell * >(argp1);
+  {
+    try {
+      result = (CellFill *)castCellToCellFill(arg1);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_CellFill, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_castCellToCellBasic(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Cell *arg1 = (Cell *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *  kwnames[] = {
+    (char *) "cell", NULL 
+  };
+  CellBasic *result = 0 ;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"O:castCellToCellBasic",kwnames,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Cell, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "castCellToCellBasic" "', argument " "1"" of type '" "Cell *""'"); 
+  }
+  arg1 = reinterpret_cast< Cell * >(argp1);
+  {
+    try {
+      result = (CellBasic *)castCellToCellBasic(arg1);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_CellBasic, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_castUniverseToLattice(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Universe *arg1 = (Universe *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *  kwnames[] = {
+    (char *) "universe", NULL 
+  };
+  Lattice *result = 0 ;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"O:castUniverseToLattice",kwnames,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "castUniverseToLattice" "', argument " "1"" of type '" "Universe *""'"); 
+  }
+  arg1 = reinterpret_cast< Universe * >(argp1);
+  {
+    try {
+      result = (Lattice *)castUniverseToLattice(arg1);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Lattice, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_castLatticeToUniverse(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Lattice *arg1 = (Lattice *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *  kwnames[] = {
+    (char *) "lattice", NULL 
+  };
+  Universe *result = 0 ;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"O:castLatticeToUniverse",kwnames,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Lattice, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "castLatticeToUniverse" "', argument " "1"" of type '" "Lattice *""'"); 
+  }
+  arg1 = reinterpret_cast< Lattice * >(argp1);
+  {
+    try {
+      result = (Universe *)castLatticeToUniverse(arg1);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Universe, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_cell_id(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int result;
@@ -3963,7 +4117,7 @@ SWIGINTERN PyObject *_wrap_Cell_getUid(PyObject *SWIGUNUSEDPARM(self), PyObject 
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Cell_getUid",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Cell, 0 |  0 );
@@ -3973,7 +4127,7 @@ SWIGINTERN PyObject *_wrap_Cell_getUid(PyObject *SWIGUNUSEDPARM(self), PyObject 
   arg1 = reinterpret_cast< Cell * >(argp1);
   {
     try {
-      result = (short)((Cell const *)arg1)->getUid();
+      result = (int)((Cell const *)arg1)->getUid();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -3981,7 +4135,7 @@ SWIGINTERN PyObject *_wrap_Cell_getUid(PyObject *SWIGUNUSEDPARM(self), PyObject 
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -3994,7 +4148,7 @@ SWIGINTERN PyObject *_wrap_Cell_getId(PyObject *SWIGUNUSEDPARM(self), PyObject *
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Cell_getId",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Cell, 0 |  0 );
@@ -4004,7 +4158,7 @@ SWIGINTERN PyObject *_wrap_Cell_getId(PyObject *SWIGUNUSEDPARM(self), PyObject *
   arg1 = reinterpret_cast< Cell * >(argp1);
   {
     try {
-      result = (short)((Cell const *)arg1)->getId();
+      result = (int)((Cell const *)arg1)->getId();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -4012,7 +4166,7 @@ SWIGINTERN PyObject *_wrap_Cell_getId(PyObject *SWIGUNUSEDPARM(self), PyObject *
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -4056,7 +4210,7 @@ SWIGINTERN PyObject *_wrap_Cell_getUniverse(PyObject *SWIGUNUSEDPARM(self), PyOb
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Cell_getUniverse",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Cell, 0 |  0 );
@@ -4066,7 +4220,7 @@ SWIGINTERN PyObject *_wrap_Cell_getUniverse(PyObject *SWIGUNUSEDPARM(self), PyOb
   arg1 = reinterpret_cast< Cell * >(argp1);
   {
     try {
-      result = (short)((Cell const *)arg1)->getUniverse();
+      result = (int)((Cell const *)arg1)->getUniverse();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -4074,7 +4228,7 @@ SWIGINTERN PyObject *_wrap_Cell_getUniverse(PyObject *SWIGUNUSEDPARM(self), PyOb
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -4087,7 +4241,7 @@ SWIGINTERN PyObject *_wrap_Cell_getNumSurfaces(PyObject *SWIGUNUSEDPARM(self), P
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Cell_getNumSurfaces",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Cell, 0 |  0 );
@@ -4097,7 +4251,7 @@ SWIGINTERN PyObject *_wrap_Cell_getNumSurfaces(PyObject *SWIGUNUSEDPARM(self), P
   arg1 = reinterpret_cast< Cell * >(argp1);
   {
     try {
-      result = (short)((Cell const *)arg1)->getNumSurfaces();
+      result = (int)((Cell const *)arg1)->getNumSurfaces();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -4105,7 +4259,7 @@ SWIGINTERN PyObject *_wrap_Cell_getNumSurfaces(PyObject *SWIGUNUSEDPARM(self), P
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -4118,7 +4272,7 @@ SWIGINTERN PyObject *_wrap_Cell_getSurfaces(PyObject *SWIGUNUSEDPARM(self), PyOb
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  SwigValueWrapper< std::map< short,Surface * > > result;
+  SwigValueWrapper< std::map< int,Surface * > > result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Cell_getSurfaces",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Cell, 0 |  0 );
@@ -4136,7 +4290,7 @@ SWIGINTERN PyObject *_wrap_Cell_getSurfaces(PyObject *SWIGUNUSEDPARM(self), PyOb
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_NewPointerObj((new std::map< short,Surface * >(static_cast< const std::map< short,Surface * >& >(result))), SWIGTYPE_p_std__mapT_short_Surface_p_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new std::map< int,Surface * >(static_cast< const std::map< int,Surface * >& >(result))), SWIGTYPE_p_std__mapT_int_Surface_p_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -4177,10 +4331,10 @@ fail:
 SWIGINTERN PyObject *_wrap_Cell_setUniverse(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Cell *arg1 = (Cell *) 0 ;
-  short arg2 ;
+  int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -4194,11 +4348,11 @@ SWIGINTERN PyObject *_wrap_Cell_setUniverse(PyObject *SWIGUNUSEDPARM(self), PyOb
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Cell_setUniverse" "', argument " "1"" of type '" "Cell *""'"); 
   }
   arg1 = reinterpret_cast< Cell * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Cell_setUniverse" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Cell_setUniverse" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   {
     try {
       (arg1)->setUniverse(arg2);
@@ -4219,11 +4373,11 @@ fail:
 SWIGINTERN PyObject *_wrap_Cell_addSurface(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Cell *arg1 = (Cell *) 0 ;
-  short arg2 ;
+  int arg2 ;
   Surface *arg3 = (Surface *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
@@ -4240,11 +4394,11 @@ SWIGINTERN PyObject *_wrap_Cell_addSurface(PyObject *SWIGUNUSEDPARM(self), PyObj
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Cell_addSurface" "', argument " "1"" of type '" "Cell *""'"); 
   }
   arg1 = reinterpret_cast< Cell * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Cell_addSurface" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Cell_addSurface" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_Surface, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Cell_addSurface" "', argument " "3"" of type '" "Surface *""'"); 
@@ -4526,20 +4680,20 @@ SWIGINTERN PyObject *Cell_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject 
 
 SWIGINTERN PyObject *_wrap_new_CellBasic(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
-  short arg1 ;
-  short arg2 ;
+  int arg1 ;
+  int arg2 ;
   int arg3 = (int) 0 ;
   int arg4 = (int) 0 ;
-  short arg5 = (short) 0 ;
-  short val1 ;
+  int arg5 = (int) 0 ;
+  int val1 ;
   int ecode1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
   int val4 ;
   int ecode4 = 0 ;
-  short val5 ;
+  int val5 ;
   int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -4552,16 +4706,16 @@ SWIGINTERN PyObject *_wrap_new_CellBasic(PyObject *SWIGUNUSEDPARM(self), PyObjec
   CellBasic *result = 0 ;
   
   if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO|OOO:new_CellBasic",kwnames,&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_short(obj0, &val1);
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_CellBasic" "', argument " "1"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_CellBasic" "', argument " "1"" of type '" "int""'");
   } 
-  arg1 = static_cast< short >(val1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_CellBasic" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_CellBasic" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   if (obj2) {
     ecode3 = SWIG_AsVal_int(obj2, &val3);
     if (!SWIG_IsOK(ecode3)) {
@@ -4577,11 +4731,11 @@ SWIGINTERN PyObject *_wrap_new_CellBasic(PyObject *SWIGUNUSEDPARM(self), PyObjec
     arg4 = static_cast< int >(val4);
   }
   if (obj4) {
-    ecode5 = SWIG_AsVal_short(obj4, &val5);
+    ecode5 = SWIG_AsVal_int(obj4, &val5);
     if (!SWIG_IsOK(ecode5)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "new_CellBasic" "', argument " "5"" of type '" "short""'");
+      SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "new_CellBasic" "', argument " "5"" of type '" "int""'");
     } 
-    arg5 = static_cast< short >(val5);
+    arg5 = static_cast< int >(val5);
   }
   {
     try {
@@ -4606,7 +4760,7 @@ SWIGINTERN PyObject *_wrap_CellBasic_getMaterial(PyObject *SWIGUNUSEDPARM(self),
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:CellBasic_getMaterial",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CellBasic, 0 |  0 );
@@ -4616,7 +4770,7 @@ SWIGINTERN PyObject *_wrap_CellBasic_getMaterial(PyObject *SWIGUNUSEDPARM(self),
   arg1 = reinterpret_cast< CellBasic * >(argp1);
   {
     try {
-      result = (short)((CellBasic const *)arg1)->getMaterial();
+      result = (int)((CellBasic const *)arg1)->getMaterial();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -4624,7 +4778,7 @@ SWIGINTERN PyObject *_wrap_CellBasic_getMaterial(PyObject *SWIGUNUSEDPARM(self),
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -4637,7 +4791,7 @@ SWIGINTERN PyObject *_wrap_CellBasic_getNumRings(PyObject *SWIGUNUSEDPARM(self),
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:CellBasic_getNumRings",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CellBasic, 0 |  0 );
@@ -4647,7 +4801,7 @@ SWIGINTERN PyObject *_wrap_CellBasic_getNumRings(PyObject *SWIGUNUSEDPARM(self),
   arg1 = reinterpret_cast< CellBasic * >(argp1);
   {
     try {
-      result = (short)(arg1)->getNumRings();
+      result = (int)(arg1)->getNumRings();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -4655,7 +4809,7 @@ SWIGINTERN PyObject *_wrap_CellBasic_getNumRings(PyObject *SWIGUNUSEDPARM(self),
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -4668,7 +4822,7 @@ SWIGINTERN PyObject *_wrap_CellBasic_getNumSectors(PyObject *SWIGUNUSEDPARM(self
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:CellBasic_getNumSectors",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CellBasic, 0 |  0 );
@@ -4678,7 +4832,7 @@ SWIGINTERN PyObject *_wrap_CellBasic_getNumSectors(PyObject *SWIGUNUSEDPARM(self
   arg1 = reinterpret_cast< CellBasic * >(argp1);
   {
     try {
-      result = (short)(arg1)->getNumSectors();
+      result = (int)(arg1)->getNumSectors();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -4686,7 +4840,7 @@ SWIGINTERN PyObject *_wrap_CellBasic_getNumSectors(PyObject *SWIGUNUSEDPARM(self
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -4727,10 +4881,10 @@ fail:
 SWIGINTERN PyObject *_wrap_CellBasic_setNumRings(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   CellBasic *arg1 = (CellBasic *) 0 ;
-  short arg2 ;
+  int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -4744,11 +4898,11 @@ SWIGINTERN PyObject *_wrap_CellBasic_setNumRings(PyObject *SWIGUNUSEDPARM(self),
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CellBasic_setNumRings" "', argument " "1"" of type '" "CellBasic *""'"); 
   }
   arg1 = reinterpret_cast< CellBasic * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CellBasic_setNumRings" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CellBasic_setNumRings" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   {
     try {
       (arg1)->setNumRings(arg2);
@@ -4769,10 +4923,10 @@ fail:
 SWIGINTERN PyObject *_wrap_CellBasic_setNumSectors(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   CellBasic *arg1 = (CellBasic *) 0 ;
-  short arg2 ;
+  int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -4786,11 +4940,11 @@ SWIGINTERN PyObject *_wrap_CellBasic_setNumSectors(PyObject *SWIGUNUSEDPARM(self
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CellBasic_setNumSectors" "', argument " "1"" of type '" "CellBasic *""'"); 
   }
   arg1 = reinterpret_cast< CellBasic * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CellBasic_setNumSectors" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CellBasic_setNumSectors" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   {
     try {
       (arg1)->setNumSectors(arg2);
@@ -4970,14 +5124,14 @@ SWIGINTERN PyObject *CellBasic_swigregister(PyObject *SWIGUNUSEDPARM(self), PyOb
 
 SWIGINTERN PyObject *_wrap_new_CellFill(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
-  short arg1 ;
-  short arg2 ;
-  short arg3 = (short) 0 ;
-  short val1 ;
+  int arg1 ;
+  int arg2 ;
+  int arg3 = (int) 0 ;
+  int val1 ;
   int ecode1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
-  short val3 ;
+  int val3 ;
   int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -4988,22 +5142,22 @@ SWIGINTERN PyObject *_wrap_new_CellFill(PyObject *SWIGUNUSEDPARM(self), PyObject
   CellFill *result = 0 ;
   
   if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO|O:new_CellFill",kwnames,&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_short(obj0, &val1);
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_CellFill" "', argument " "1"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_CellFill" "', argument " "1"" of type '" "int""'");
   } 
-  arg1 = static_cast< short >(val1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_CellFill" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_CellFill" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   if (obj2) {
-    ecode3 = SWIG_AsVal_short(obj2, &val3);
+    ecode3 = SWIG_AsVal_int(obj2, &val3);
     if (!SWIG_IsOK(ecode3)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_CellFill" "', argument " "3"" of type '" "short""'");
+      SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_CellFill" "', argument " "3"" of type '" "int""'");
     } 
-    arg3 = static_cast< short >(val3);
+    arg3 = static_cast< int >(val3);
   }
   {
     try {
@@ -5028,7 +5182,7 @@ SWIGINTERN PyObject *_wrap_CellFill_getUniverseFillId(PyObject *SWIGUNUSEDPARM(s
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:CellFill_getUniverseFillId",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CellFill, 0 |  0 );
@@ -5038,7 +5192,7 @@ SWIGINTERN PyObject *_wrap_CellFill_getUniverseFillId(PyObject *SWIGUNUSEDPARM(s
   arg1 = reinterpret_cast< CellFill * >(argp1);
   {
     try {
-      result = (short)((CellFill const *)arg1)->getUniverseFillId();
+      result = (int)((CellFill const *)arg1)->getUniverseFillId();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -5046,7 +5200,7 @@ SWIGINTERN PyObject *_wrap_CellFill_getUniverseFillId(PyObject *SWIGUNUSEDPARM(s
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -5118,10 +5272,10 @@ fail:
 SWIGINTERN PyObject *_wrap_CellFill_setUniverseFill(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   CellFill *arg1 = (CellFill *) 0 ;
-  short arg2 ;
+  int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -5135,11 +5289,11 @@ SWIGINTERN PyObject *_wrap_CellFill_setUniverseFill(PyObject *SWIGUNUSEDPARM(sel
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CellFill_setUniverseFill" "', argument " "1"" of type '" "CellFill *""'"); 
   }
   arg1 = reinterpret_cast< CellFill * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CellFill_setUniverseFill" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "CellFill_setUniverseFill" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   {
     try {
       (arg1)->setUniverseFill(arg2);
@@ -5882,7 +6036,7 @@ SWIGINTERN PyObject *_wrap_Geometry_getMaterials(PyObject *SWIGUNUSEDPARM(self),
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  SwigValueWrapper< std::map< short,Material * > > result;
+  SwigValueWrapper< std::map< int,Material * > > result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Geometry_getMaterials",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Geometry, 0 |  0 );
@@ -5900,7 +6054,7 @@ SWIGINTERN PyObject *_wrap_Geometry_getMaterials(PyObject *SWIGUNUSEDPARM(self),
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_NewPointerObj((new std::map< short,Material * >(static_cast< const std::map< short,Material * >& >(result))), SWIGTYPE_p_std__mapT_short_Material_p_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new std::map< int,Material * >(static_cast< const std::map< int,Material * >& >(result))), SWIGTYPE_p_std__mapT_int_Material_p_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -5910,10 +6064,10 @@ fail:
 SWIGINTERN PyObject *_wrap_Geometry_getMaterial(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
-  short arg2 ;
+  int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -5928,11 +6082,11 @@ SWIGINTERN PyObject *_wrap_Geometry_getMaterial(PyObject *SWIGUNUSEDPARM(self), 
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_getMaterial" "', argument " "1"" of type '" "Geometry *""'"); 
   }
   arg1 = reinterpret_cast< Geometry * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_getMaterial" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_getMaterial" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   {
     try {
       result = (Material *)(arg1)->getMaterial(arg2);
@@ -5953,10 +6107,10 @@ fail:
 SWIGINTERN PyObject *_wrap_Geometry_getSurface(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
-  short arg2 ;
+  int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -5971,11 +6125,11 @@ SWIGINTERN PyObject *_wrap_Geometry_getSurface(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_getSurface" "', argument " "1"" of type '" "Geometry *""'"); 
   }
   arg1 = reinterpret_cast< Geometry * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_getSurface" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_getSurface" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   {
     try {
       result = (Surface *)(arg1)->getSurface(arg2);
@@ -5996,10 +6150,10 @@ fail:
 SWIGINTERN PyObject *_wrap_Geometry_getCell(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
-  short arg2 ;
+  int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -6014,11 +6168,11 @@ SWIGINTERN PyObject *_wrap_Geometry_getCell(PyObject *SWIGUNUSEDPARM(self), PyOb
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_getCell" "', argument " "1"" of type '" "Geometry *""'"); 
   }
   arg1 = reinterpret_cast< Geometry * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_getCell" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_getCell" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   {
     try {
       result = (Cell *)(arg1)->getCell(arg2);
@@ -6039,10 +6193,10 @@ fail:
 SWIGINTERN PyObject *_wrap_Geometry_getUniverse(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
-  short arg2 ;
+  int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -6057,11 +6211,11 @@ SWIGINTERN PyObject *_wrap_Geometry_getUniverse(PyObject *SWIGUNUSEDPARM(self), 
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_getUniverse" "', argument " "1"" of type '" "Geometry *""'"); 
   }
   arg1 = reinterpret_cast< Geometry * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_getUniverse" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_getUniverse" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   {
     try {
       result = (Universe *)(arg1)->getUniverse(arg2);
@@ -6082,10 +6236,10 @@ fail:
 SWIGINTERN PyObject *_wrap_Geometry_getLattice(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Geometry *arg1 = (Geometry *) 0 ;
-  short arg2 ;
+  int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -6100,11 +6254,11 @@ SWIGINTERN PyObject *_wrap_Geometry_getLattice(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Geometry_getLattice" "', argument " "1"" of type '" "Geometry *""'"); 
   }
   arg1 = reinterpret_cast< Geometry * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_getLattice" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Geometry_getLattice" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   {
     try {
       result = (Lattice *)(arg1)->getLattice(arg2);
@@ -11143,23 +11297,45 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Solver_computeFSRFissionRates(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Solver_computeFSRFissionRates(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Solver *arg1 = (Solver *) 0 ;
+  double *arg2 = (double *) 0 ;
+  int arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
+  PyObject *array2 = NULL ;
   PyObject * obj0 = 0 ;
-  FP_PRECISION *result = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "fission_rates", NULL 
+  };
   
-  if (!PyArg_ParseTuple(args,(char *)"O:Solver_computeFSRFissionRates",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Solver_computeFSRFissionRates",kwnames,&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Solver, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Solver_computeFSRFissionRates" "', argument " "1"" of type '" "Solver *""'"); 
   }
   arg1 = reinterpret_cast< Solver * >(argp1);
   {
+    npy_intp dims[1];
+    if (!PyInt_Check(obj1))
+    {
+      const char* typestring = pytype_string(obj1);
+      PyErr_Format(PyExc_TypeError,
+        "Int dimension expected.  '%s' given.",
+        typestring);
+      SWIG_fail;
+    }
+    arg3 = (int) PyInt_AsLong(obj1);
+    dims[0] = (npy_intp) arg3;
+    array2 = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+    if (!array2) SWIG_fail;
+    arg2 = (double*) array_data(array2);
+  }
+  {
     try {
-      result = (FP_PRECISION *)(arg1)->computeFSRFissionRates();
+      (arg1)->computeFSRFissionRates(arg2,arg3);
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -11167,7 +11343,10 @@ SWIGINTERN PyObject *_wrap_Solver_computeFSRFissionRates(PyObject *SWIGUNUSEDPAR
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
+  resultobj = SWIG_Py_Void();
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj,array2);
+  }
   return resultobj;
 fail:
   return NULL;
@@ -11444,37 +11623,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_CPUSolver_computeFSRFissionRates(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  CPUSolver *arg1 = (CPUSolver *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  FP_PRECISION *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:CPUSolver_computeFSRFissionRates",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CPUSolver, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CPUSolver_computeFSRFissionRates" "', argument " "1"" of type '" "CPUSolver *""'"); 
-  }
-  arg1 = reinterpret_cast< CPUSolver * >(argp1);
-  {
-    try {
-      result = (FP_PRECISION *)(arg1)->computeFSRFissionRates();
-    } catch (const std::runtime_error &e) {
-      SWIG_exception(SWIG_RuntimeError, err_occurred());
-      return NULL;
-    } catch (const std::exception &e) {
-      SWIG_exception(SWIG_RuntimeError, e.what()); 
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *CPUSolver_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -11624,7 +11772,7 @@ SWIGINTERN PyObject *_wrap_Surface_getUid(PyObject *SWIGUNUSEDPARM(self), PyObje
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Surface_getUid",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Surface, 0 |  0 );
@@ -11634,7 +11782,7 @@ SWIGINTERN PyObject *_wrap_Surface_getUid(PyObject *SWIGUNUSEDPARM(self), PyObje
   arg1 = reinterpret_cast< Surface * >(argp1);
   {
     try {
-      result = (short)((Surface const *)arg1)->getUid();
+      result = (int)((Surface const *)arg1)->getUid();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -11642,7 +11790,7 @@ SWIGINTERN PyObject *_wrap_Surface_getUid(PyObject *SWIGUNUSEDPARM(self), PyObje
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -11655,7 +11803,7 @@ SWIGINTERN PyObject *_wrap_Surface_getId(PyObject *SWIGUNUSEDPARM(self), PyObjec
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Surface_getId",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Surface, 0 |  0 );
@@ -11665,7 +11813,7 @@ SWIGINTERN PyObject *_wrap_Surface_getId(PyObject *SWIGUNUSEDPARM(self), PyObjec
   arg1 = reinterpret_cast< Surface * >(argp1);
   {
     try {
-      result = (short)((Surface const *)arg1)->getId();
+      result = (int)((Surface const *)arg1)->getId();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -11673,7 +11821,7 @@ SWIGINTERN PyObject *_wrap_Surface_getId(PyObject *SWIGUNUSEDPARM(self), PyObjec
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -12232,14 +12380,14 @@ SWIGINTERN PyObject *_wrap_new_Plane(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   double arg1 ;
   double arg2 ;
   double arg3 ;
-  short arg4 = (short) (short)0 ;
+  int arg4 = (int) (int)0 ;
   double val1 ;
   int ecode1 = 0 ;
   double val2 ;
   int ecode2 = 0 ;
   double val3 ;
   int ecode3 = 0 ;
-  short val4 ;
+  int val4 ;
   int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -12267,11 +12415,11 @@ SWIGINTERN PyObject *_wrap_new_Plane(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   } 
   arg3 = static_cast< double >(val3);
   if (obj3) {
-    ecode4 = SWIG_AsVal_short(obj3, &val4);
+    ecode4 = SWIG_AsVal_int(obj3, &val4);
     if (!SWIG_IsOK(ecode4)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "new_Plane" "', argument " "4"" of type '" "short""'");
+      SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "new_Plane" "', argument " "4"" of type '" "int""'");
     } 
-    arg4 = static_cast< short >(val4);
+    arg4 = static_cast< int >(val4);
   }
   {
     try {
@@ -12619,10 +12767,10 @@ SWIGINTERN PyObject *Plane_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject
 SWIGINTERN PyObject *_wrap_new_XPlane(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   double arg1 ;
-  short arg2 = (short) (short)0 ;
+  int arg2 = (int) (int)0 ;
   double val1 ;
   int ecode1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -12638,11 +12786,11 @@ SWIGINTERN PyObject *_wrap_new_XPlane(PyObject *SWIGUNUSEDPARM(self), PyObject *
   } 
   arg1 = static_cast< double >(val1);
   if (obj1) {
-    ecode2 = SWIG_AsVal_short(obj1, &val2);
+    ecode2 = SWIG_AsVal_int(obj1, &val2);
     if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_XPlane" "', argument " "2"" of type '" "short""'");
+      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_XPlane" "', argument " "2"" of type '" "int""'");
     } 
-    arg2 = static_cast< short >(val2);
+    arg2 = static_cast< int >(val2);
   }
   {
     try {
@@ -12929,10 +13077,10 @@ SWIGINTERN PyObject *XPlane_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObjec
 SWIGINTERN PyObject *_wrap_new_YPlane(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   double arg1 ;
-  short arg2 = (short) (short)0 ;
+  int arg2 = (int) (int)0 ;
   double val1 ;
   int ecode1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -12948,11 +13096,11 @@ SWIGINTERN PyObject *_wrap_new_YPlane(PyObject *SWIGUNUSEDPARM(self), PyObject *
   } 
   arg1 = static_cast< double >(val1);
   if (obj1) {
-    ecode2 = SWIG_AsVal_short(obj1, &val2);
+    ecode2 = SWIG_AsVal_int(obj1, &val2);
     if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_YPlane" "', argument " "2"" of type '" "short""'");
+      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_YPlane" "', argument " "2"" of type '" "int""'");
     } 
-    arg2 = static_cast< short >(val2);
+    arg2 = static_cast< int >(val2);
   }
   {
     try {
@@ -13269,10 +13417,10 @@ SWIGINTERN PyObject *YPlane_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObjec
 SWIGINTERN PyObject *_wrap_new_ZPlane(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   double arg1 ;
-  short arg2 = (short) (short)0 ;
+  int arg2 = (int) (int)0 ;
   double val1 ;
   int ecode1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -13288,11 +13436,11 @@ SWIGINTERN PyObject *_wrap_new_ZPlane(PyObject *SWIGUNUSEDPARM(self), PyObject *
   } 
   arg1 = static_cast< double >(val1);
   if (obj1) {
-    ecode2 = SWIG_AsVal_short(obj1, &val2);
+    ecode2 = SWIG_AsVal_int(obj1, &val2);
     if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_ZPlane" "', argument " "2"" of type '" "short""'");
+      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_ZPlane" "', argument " "2"" of type '" "int""'");
     } 
-    arg2 = static_cast< short >(val2);
+    arg2 = static_cast< int >(val2);
   }
   {
     try {
@@ -13611,14 +13759,14 @@ SWIGINTERN PyObject *_wrap_new_Circle(PyObject *SWIGUNUSEDPARM(self), PyObject *
   double arg1 ;
   double arg2 ;
   double arg3 ;
-  short arg4 = (short) (short)0 ;
+  int arg4 = (int) (int)0 ;
   double val1 ;
   int ecode1 = 0 ;
   double val2 ;
   int ecode2 = 0 ;
   double val3 ;
   int ecode3 = 0 ;
-  short val4 ;
+  int val4 ;
   int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -13646,11 +13794,11 @@ SWIGINTERN PyObject *_wrap_new_Circle(PyObject *SWIGUNUSEDPARM(self), PyObject *
   } 
   arg3 = static_cast< double >(val3);
   if (obj3) {
-    ecode4 = SWIG_AsVal_short(obj3, &val4);
+    ecode4 = SWIG_AsVal_int(obj3, &val4);
     if (!SWIG_IsOK(ecode4)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "new_Circle" "', argument " "4"" of type '" "short""'");
+      SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "new_Circle" "', argument " "4"" of type '" "int""'");
     } 
-    arg4 = static_cast< short >(val4);
+    arg4 = static_cast< int >(val4);
   }
   {
     try {
@@ -16739,8 +16887,8 @@ SWIGINTERN PyObject *TrackGenerator_swigregister(PyObject *SWIGUNUSEDPARM(self),
 
 SWIGINTERN PyObject *_wrap_new_Universe(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
-  short arg1 ;
-  short val1 ;
+  int arg1 ;
+  int val1 ;
   int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   char *  kwnames[] = {
@@ -16749,11 +16897,11 @@ SWIGINTERN PyObject *_wrap_new_Universe(PyObject *SWIGUNUSEDPARM(self), PyObject
   Universe *result = 0 ;
   
   if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"O:new_Universe",kwnames,&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_short(obj0, &val1);
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Universe" "', argument " "1"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Universe" "', argument " "1"" of type '" "int""'");
   } 
-  arg1 = static_cast< short >(val1);
+  arg1 = static_cast< int >(val1);
   {
     try {
       result = (Universe *)new Universe(arg1);
@@ -16843,13 +16991,56 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Universe_getCell(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Universe *arg1 = (Universe *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "cell_id", NULL 
+  };
+  Cell *result = 0 ;
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Universe_getCell",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Universe_getCell" "', argument " "1"" of type '" "Universe *""'"); 
+  }
+  arg1 = reinterpret_cast< Universe * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Universe_getCell" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  {
+    try {
+      result = (Cell *)(arg1)->getCell(arg2);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Cell, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Universe_getCells(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Universe *arg1 = (Universe *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  SwigValueWrapper< std::map< short,Cell * > > result;
+  SwigValueWrapper< std::map< int,Cell * > > result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Universe_getCells",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
@@ -16867,7 +17058,7 @@ SWIGINTERN PyObject *_wrap_Universe_getCells(PyObject *SWIGUNUSEDPARM(self), PyO
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_NewPointerObj((new std::map< short,Cell * >(static_cast< const std::map< short,Cell * >& >(result))), SWIGTYPE_p_std__mapT_short_Cell_p_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new std::map< int,Cell * >(static_cast< const std::map< int,Cell * >& >(result))), SWIGTYPE_p_std__mapT_int_Cell_p_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -16880,7 +17071,7 @@ SWIGINTERN PyObject *_wrap_Universe_getUid(PyObject *SWIGUNUSEDPARM(self), PyObj
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Universe_getUid",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
@@ -16890,7 +17081,7 @@ SWIGINTERN PyObject *_wrap_Universe_getUid(PyObject *SWIGUNUSEDPARM(self), PyObj
   arg1 = reinterpret_cast< Universe * >(argp1);
   {
     try {
-      result = (short)((Universe const *)arg1)->getUid();
+      result = (int)((Universe const *)arg1)->getUid();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -16898,7 +17089,7 @@ SWIGINTERN PyObject *_wrap_Universe_getUid(PyObject *SWIGUNUSEDPARM(self), PyObj
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -16911,7 +17102,7 @@ SWIGINTERN PyObject *_wrap_Universe_getId(PyObject *SWIGUNUSEDPARM(self), PyObje
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Universe_getId",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
@@ -16921,7 +17112,7 @@ SWIGINTERN PyObject *_wrap_Universe_getId(PyObject *SWIGUNUSEDPARM(self), PyObje
   arg1 = reinterpret_cast< Universe * >(argp1);
   {
     try {
-      result = (short)((Universe const *)arg1)->getId();
+      result = (int)((Universe const *)arg1)->getId();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -16929,7 +17120,7 @@ SWIGINTERN PyObject *_wrap_Universe_getId(PyObject *SWIGUNUSEDPARM(self), PyObje
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -16973,7 +17164,7 @@ SWIGINTERN PyObject *_wrap_Universe_getNumCells(PyObject *SWIGUNUSEDPARM(self), 
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Universe_getNumCells",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
@@ -16983,7 +17174,7 @@ SWIGINTERN PyObject *_wrap_Universe_getNumCells(PyObject *SWIGUNUSEDPARM(self), 
   arg1 = reinterpret_cast< Universe * >(argp1);
   {
     try {
-      result = (short)((Universe const *)arg1)->getNumCells();
+      result = (int)((Universe const *)arg1)->getNumCells();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -16991,7 +17182,7 @@ SWIGINTERN PyObject *_wrap_Universe_getNumCells(PyObject *SWIGUNUSEDPARM(self), 
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -17001,10 +17192,10 @@ fail:
 SWIGINTERN PyObject *_wrap_Universe_getFSR(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Universe *arg1 = (Universe *) 0 ;
-  short arg2 ;
+  int arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -17019,11 +17210,11 @@ SWIGINTERN PyObject *_wrap_Universe_getFSR(PyObject *SWIGUNUSEDPARM(self), PyObj
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Universe_getFSR" "', argument " "1"" of type '" "Universe *""'"); 
   }
   arg1 = reinterpret_cast< Universe * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Universe_getFSR" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Universe_getFSR" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
+  arg2 = static_cast< int >(val2);
   {
     try {
       result = (int)(arg1)->getFSR(arg2);
@@ -17078,7 +17269,7 @@ SWIGINTERN PyObject *_wrap_Universe_getMaterialIds(PyObject *SWIGUNUSEDPARM(self
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  std::vector< short > result;
+  std::vector< int > result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Universe_getMaterialIds",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
@@ -17096,7 +17287,7 @@ SWIGINTERN PyObject *_wrap_Universe_getMaterialIds(PyObject *SWIGUNUSEDPARM(self
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_NewPointerObj((new std::vector< short >(static_cast< const std::vector< short >& >(result))), SWIGTYPE_p_std__vectorT_short_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new std::vector< int >(static_cast< const std::vector< int >& >(result))), SWIGTYPE_p_std__vectorT_int_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -17109,7 +17300,7 @@ SWIGINTERN PyObject *_wrap_Universe_getNestedUniverseIds(PyObject *SWIGUNUSEDPAR
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  std::vector< short > result;
+  std::vector< int > result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Universe_getNestedUniverseIds",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
@@ -17127,7 +17318,63 @@ SWIGINTERN PyObject *_wrap_Universe_getNestedUniverseIds(PyObject *SWIGUNUSEDPAR
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_NewPointerObj((new std::vector< short >(static_cast< const std::vector< short >& >(result))), SWIGTYPE_p_std__vectorT_short_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new std::vector< int >(static_cast< const std::vector< int >& >(result))), SWIGTYPE_p_std__vectorT_int_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Universe_getCellIds(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  Universe *arg1 = (Universe *) 0 ;
+  int *arg2 = (int *) 0 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *array2 = NULL ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "cell_ids", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:Universe_getCellIds",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Universe, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Universe_getCellIds" "', argument " "1"" of type '" "Universe *""'"); 
+  }
+  arg1 = reinterpret_cast< Universe * >(argp1);
+  {
+    npy_intp dims[1];
+    if (!PyInt_Check(obj1))
+    {
+      const char* typestring = pytype_string(obj1);
+      PyErr_Format(PyExc_TypeError,
+        "Int dimension expected.  '%s' given.",
+        typestring);
+      SWIG_fail;
+    }
+    arg3 = (int) PyInt_AsLong(obj1);
+    dims[0] = (npy_intp) arg3;
+    array2 = PyArray_SimpleNew(1, dims, NPY_INT);
+    if (!array2) SWIG_fail;
+    arg2 = (int*) array_data(array2);
+  }
+  {
+    try {
+      (arg1)->getCellIds(arg2,arg3);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj,array2);
+  }
   return resultobj;
 fail:
   return NULL;
@@ -17295,7 +17542,7 @@ SWIGINTERN PyObject *_wrap_Universe_findCell(PyObject *SWIGUNUSEDPARM(self), PyO
   PyObject *resultobj = 0;
   Universe *arg1 = (Universe *) 0 ;
   LocalCoords *arg2 = (LocalCoords *) 0 ;
-  SwigValueWrapper< std::map< short,Universe * > > arg3 ;
+  SwigValueWrapper< std::map< int,Universe * > > arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
@@ -17322,14 +17569,14 @@ SWIGINTERN PyObject *_wrap_Universe_findCell(PyObject *SWIGUNUSEDPARM(self), PyO
   }
   arg2 = reinterpret_cast< LocalCoords * >(argp2);
   {
-    res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_std__mapT_short_Universe_p_t,  0  | 0);
+    res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_std__mapT_int_Universe_p_t,  0  | 0);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Universe_findCell" "', argument " "3"" of type '" "std::map< short,Universe * >""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Universe_findCell" "', argument " "3"" of type '" "std::map< int,Universe * >""'"); 
     }  
     if (!argp3) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Universe_findCell" "', argument " "3"" of type '" "std::map< short,Universe * >""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Universe_findCell" "', argument " "3"" of type '" "std::map< int,Universe * >""'");
     } else {
-      std::map< short,Universe * > * temp = reinterpret_cast< std::map< short,Universe * > * >(argp3);
+      std::map< int,Universe * > * temp = reinterpret_cast< std::map< int,Universe * > * >(argp3);
       arg3 = *temp;
       if (SWIG_IsNewObj(res3)) delete temp;
     }
@@ -17482,10 +17729,10 @@ SWIGINTERN PyObject *Universe_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObj
 
 SWIGINTERN PyObject *_wrap_new_Lattice(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
-  short arg1 ;
+  int arg1 ;
   double arg2 ;
   double arg3 ;
-  short val1 ;
+  int val1 ;
   int ecode1 = 0 ;
   double val2 ;
   int ecode2 = 0 ;
@@ -17500,11 +17747,11 @@ SWIGINTERN PyObject *_wrap_new_Lattice(PyObject *SWIGUNUSEDPARM(self), PyObject 
   Lattice *result = 0 ;
   
   if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OOO:new_Lattice",kwnames,&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_short(obj0, &val1);
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Lattice" "', argument " "1"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Lattice" "', argument " "1"" of type '" "int""'");
   } 
-  arg1 = static_cast< short >(val1);
+  arg1 = static_cast< int >(val1);
   ecode2 = SWIG_AsVal_double(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_Lattice" "', argument " "2"" of type '" "double""'");
@@ -17568,7 +17815,7 @@ SWIGINTERN PyObject *_wrap_Lattice_getNumX(PyObject *SWIGUNUSEDPARM(self), PyObj
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Lattice_getNumX",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Lattice, 0 |  0 );
@@ -17578,7 +17825,7 @@ SWIGINTERN PyObject *_wrap_Lattice_getNumX(PyObject *SWIGUNUSEDPARM(self), PyObj
   arg1 = reinterpret_cast< Lattice * >(argp1);
   {
     try {
-      result = (short)((Lattice const *)arg1)->getNumX();
+      result = (int)((Lattice const *)arg1)->getNumX();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -17586,7 +17833,7 @@ SWIGINTERN PyObject *_wrap_Lattice_getNumX(PyObject *SWIGUNUSEDPARM(self), PyObj
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -17599,7 +17846,7 @@ SWIGINTERN PyObject *_wrap_Lattice_getNumY(PyObject *SWIGUNUSEDPARM(self), PyObj
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  short result;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Lattice_getNumY",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Lattice, 0 |  0 );
@@ -17609,7 +17856,7 @@ SWIGINTERN PyObject *_wrap_Lattice_getNumY(PyObject *SWIGUNUSEDPARM(self), PyObj
   arg1 = reinterpret_cast< Lattice * >(argp1);
   {
     try {
-      result = (short)((Lattice const *)arg1)->getNumY();
+      result = (int)((Lattice const *)arg1)->getNumY();
     } catch (const std::runtime_error &e) {
       SWIG_exception(SWIG_RuntimeError, err_occurred());
       return NULL;
@@ -17617,7 +17864,7 @@ SWIGINTERN PyObject *_wrap_Lattice_getNumY(PyObject *SWIGUNUSEDPARM(self), PyObj
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -17661,7 +17908,7 @@ SWIGINTERN PyObject *_wrap_Lattice_getUniverses(PyObject *SWIGUNUSEDPARM(self), 
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  SwigValueWrapper< std::vector< std::vector< std::pair< short,Universe * > > > > result;
+  SwigValueWrapper< std::vector< std::vector< std::pair< int,Universe * > > > > result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Lattice_getUniverses",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Lattice, 0 |  0 );
@@ -17679,7 +17926,7 @@ SWIGINTERN PyObject *_wrap_Lattice_getUniverses(PyObject *SWIGUNUSEDPARM(self), 
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_NewPointerObj((new std::vector< std::vector< std::pair< short,Universe * > > >(static_cast< const std::vector< std::vector< std::pair< short,Universe * > > >& >(result))), SWIGTYPE_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new std::vector< std::vector< std::pair< int,Universe * > > >(static_cast< const std::vector< std::vector< std::pair< int,Universe * > > >& >(result))), SWIGTYPE_p_std__vectorT_std__vectorT_std__pairT_int_Universe_p_t_t_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -17689,13 +17936,13 @@ fail:
 SWIGINTERN PyObject *_wrap_Lattice_getUniverse(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Lattice *arg1 = (Lattice *) 0 ;
-  short arg2 ;
-  short arg3 ;
+  int arg2 ;
+  int arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
-  short val3 ;
+  int val3 ;
   int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -17711,16 +17958,16 @@ SWIGINTERN PyObject *_wrap_Lattice_getUniverse(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Lattice_getUniverse" "', argument " "1"" of type '" "Lattice const *""'"); 
   }
   arg1 = reinterpret_cast< Lattice * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Lattice_getUniverse" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Lattice_getUniverse" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
-  ecode3 = SWIG_AsVal_short(obj2, &val3);
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
   if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Lattice_getUniverse" "', argument " "3"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Lattice_getUniverse" "', argument " "3"" of type '" "int""'");
   } 
-  arg3 = static_cast< short >(val3);
+  arg3 = static_cast< int >(val3);
   {
     try {
       result = (Universe *)((Lattice const *)arg1)->getUniverse(arg2,arg3);
@@ -17803,13 +18050,13 @@ fail:
 SWIGINTERN PyObject *_wrap_Lattice_getFSR(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
   PyObject *resultobj = 0;
   Lattice *arg1 = (Lattice *) 0 ;
-  short arg2 ;
-  short arg3 ;
+  int arg2 ;
+  int arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  short val2 ;
+  int val2 ;
   int ecode2 = 0 ;
-  short val3 ;
+  int val3 ;
   int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -17825,16 +18072,16 @@ SWIGINTERN PyObject *_wrap_Lattice_getFSR(PyObject *SWIGUNUSEDPARM(self), PyObje
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Lattice_getFSR" "', argument " "1"" of type '" "Lattice *""'"); 
   }
   arg1 = reinterpret_cast< Lattice * >(argp1);
-  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Lattice_getFSR" "', argument " "2"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Lattice_getFSR" "', argument " "2"" of type '" "int""'");
   } 
-  arg2 = static_cast< short >(val2);
-  ecode3 = SWIG_AsVal_short(obj2, &val3);
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
   if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Lattice_getFSR" "', argument " "3"" of type '" "short""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Lattice_getFSR" "', argument " "3"" of type '" "int""'");
   } 
-  arg3 = static_cast< short >(val3);
+  arg3 = static_cast< int >(val3);
   {
     try {
       result = (int)(arg1)->getFSR(arg2,arg3);
@@ -17858,7 +18105,7 @@ SWIGINTERN PyObject *_wrap_Lattice_getNestedUniverseIds(PyObject *SWIGUNUSEDPARM
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  std::vector< short > result;
+  std::vector< int > result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:Lattice_getNestedUniverseIds",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Lattice, 0 |  0 );
@@ -17876,7 +18123,7 @@ SWIGINTERN PyObject *_wrap_Lattice_getNestedUniverseIds(PyObject *SWIGUNUSEDPARM
       SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
   }
-  resultobj = SWIG_NewPointerObj((new std::vector< short >(static_cast< const std::vector< short >& >(result))), SWIGTYPE_p_std__vectorT_short_t, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new std::vector< int >(static_cast< const std::vector< int >& >(result))), SWIGTYPE_p_std__vectorT_int_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -17888,7 +18135,7 @@ SWIGINTERN PyObject *_wrap_Lattice_setLatticeCells(PyObject *SWIGUNUSEDPARM(self
   Lattice *arg1 = (Lattice *) 0 ;
   int arg2 ;
   int arg3 ;
-  short *arg4 = (short *) 0 ;
+  int *arg4 = (int *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyArrayObject *array2 = NULL ;
@@ -17909,13 +18156,13 @@ SWIGINTERN PyObject *_wrap_Lattice_setLatticeCells(PyObject *SWIGUNUSEDPARM(self
     npy_intp size[2] = {
       -1, -1 
     };
-    array2 = obj_to_array_contiguous_allow_conversion(obj1, NPY_SHORT,
+    array2 = obj_to_array_contiguous_allow_conversion(obj1, NPY_INT,
       &is_new_object2);
     if (!array2 || !require_dimensions(array2, 2) ||
       !require_size(array2, size, 2)) SWIG_fail;
     arg2 = (int) array_size(array2,0);
     arg3 = (int) array_size(array2,1);
-    arg4 = (short*) array_data(array2);
+    arg4 = (int*) array_data(array2);
   }
   {
     try {
@@ -18035,7 +18282,7 @@ SWIGINTERN PyObject *_wrap_Lattice_findCell(PyObject *SWIGUNUSEDPARM(self), PyOb
   PyObject *resultobj = 0;
   Lattice *arg1 = (Lattice *) 0 ;
   LocalCoords *arg2 = (LocalCoords *) 0 ;
-  SwigValueWrapper< std::map< short,Universe * > > arg3 ;
+  SwigValueWrapper< std::map< int,Universe * > > arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
@@ -18062,14 +18309,14 @@ SWIGINTERN PyObject *_wrap_Lattice_findCell(PyObject *SWIGUNUSEDPARM(self), PyOb
   }
   arg2 = reinterpret_cast< LocalCoords * >(argp2);
   {
-    res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_std__mapT_short_Universe_p_t,  0  | 0);
+    res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_std__mapT_int_Universe_p_t,  0  | 0);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Lattice_findCell" "', argument " "3"" of type '" "std::map< short,Universe * >""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Lattice_findCell" "', argument " "3"" of type '" "std::map< int,Universe * >""'"); 
     }  
     if (!argp3) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Lattice_findCell" "', argument " "3"" of type '" "std::map< short,Universe * >""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Lattice_findCell" "', argument " "3"" of type '" "std::map< int,Universe * >""'");
     } else {
-      std::map< short,Universe * > * temp = reinterpret_cast< std::map< short,Universe * > * >(argp3);
+      std::map< int,Universe * > * temp = reinterpret_cast< std::map< int,Universe * > * >(argp3);
       arg3 = *temp;
       if (SWIG_IsNewObj(res3)) delete temp;
     }
@@ -18096,7 +18343,7 @@ SWIGINTERN PyObject *_wrap_Lattice_findNextLatticeCell(PyObject *SWIGUNUSEDPARM(
   Lattice *arg1 = (Lattice *) 0 ;
   LocalCoords *arg2 = (LocalCoords *) 0 ;
   double arg3 ;
-  SwigValueWrapper< std::map< short,Universe * > > arg4 ;
+  SwigValueWrapper< std::map< int,Universe * > > arg4 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
@@ -18131,14 +18378,14 @@ SWIGINTERN PyObject *_wrap_Lattice_findNextLatticeCell(PyObject *SWIGUNUSEDPARM(
   } 
   arg3 = static_cast< double >(val3);
   {
-    res4 = SWIG_ConvertPtr(obj3, &argp4, SWIGTYPE_p_std__mapT_short_Universe_p_t,  0  | 0);
+    res4 = SWIG_ConvertPtr(obj3, &argp4, SWIGTYPE_p_std__mapT_int_Universe_p_t,  0  | 0);
     if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "Lattice_findNextLatticeCell" "', argument " "4"" of type '" "std::map< short,Universe * >""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "Lattice_findNextLatticeCell" "', argument " "4"" of type '" "std::map< int,Universe * >""'"); 
     }  
     if (!argp4) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Lattice_findNextLatticeCell" "', argument " "4"" of type '" "std::map< short,Universe * >""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Lattice_findNextLatticeCell" "', argument " "4"" of type '" "std::map< int,Universe * >""'");
     } else {
-      std::map< short,Universe * > * temp = reinterpret_cast< std::map< short,Universe * > * >(argp4);
+      std::map< int,Universe * > * temp = reinterpret_cast< std::map< int,Universe * > * >(argp4);
       arg4 = *temp;
       if (SWIG_IsNewObj(res4)) delete temp;
     }
@@ -18261,6 +18508,10 @@ SWIGINTERN PyObject *Lattice_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObje
 
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
+	 { (char *)"castCellToCellFill", (PyCFunction) _wrap_castCellToCellFill, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"castCellToCellBasic", (PyCFunction) _wrap_castCellToCellBasic, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"castUniverseToLattice", (PyCFunction) _wrap_castUniverseToLattice, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"castLatticeToUniverse", (PyCFunction) _wrap_castLatticeToUniverse, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"cell_id", _wrap_cell_id, METH_VARARGS, NULL},
 	 { (char *)"delete_Cell", _wrap_delete_Cell, METH_VARARGS, NULL},
 	 { (char *)"Cell_getUid", _wrap_Cell_getUid, METH_VARARGS, NULL},
@@ -18464,7 +18715,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Solver_useExponentialInterpolation", _wrap_Solver_useExponentialInterpolation, METH_VARARGS, NULL},
 	 { (char *)"Solver_useExponentialIntrinsic", _wrap_Solver_useExponentialIntrinsic, METH_VARARGS, NULL},
 	 { (char *)"Solver_convergeSource", (PyCFunction) _wrap_Solver_convergeSource, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"Solver_computeFSRFissionRates", _wrap_Solver_computeFSRFissionRates, METH_VARARGS, NULL},
+	 { (char *)"Solver_computeFSRFissionRates", (PyCFunction) _wrap_Solver_computeFSRFissionRates, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Solver_printTimerReport", _wrap_Solver_printTimerReport, METH_VARARGS, NULL},
 	 { (char *)"Solver_swigregister", Solver_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_CPUSolver", (PyCFunction) _wrap_new_CPUSolver, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -18473,7 +18724,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"CPUSolver_getFSRScalarFlux", (PyCFunction) _wrap_CPUSolver_getFSRScalarFlux, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"CPUSolver_getFSRScalarFluxes", _wrap_CPUSolver_getFSRScalarFluxes, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_setNumThreads", (PyCFunction) _wrap_CPUSolver_setNumThreads, METH_VARARGS | METH_KEYWORDS, NULL},
-	 { (char *)"CPUSolver_computeFSRFissionRates", _wrap_CPUSolver_computeFSRFissionRates, METH_VARARGS, NULL},
 	 { (char *)"CPUSolver_swigregister", CPUSolver_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_ThreadPrivateSolver", (PyCFunction) _wrap_new_ThreadPrivateSolver, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"delete_ThreadPrivateSolver", _wrap_delete_ThreadPrivateSolver, METH_VARARGS, NULL},
@@ -18636,6 +18886,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_Universe", (PyCFunction) _wrap_new_Universe, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"delete_Universe", _wrap_delete_Universe, METH_VARARGS, NULL},
 	 { (char *)"Universe_addCell", (PyCFunction) _wrap_Universe_addCell, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"Universe_getCell", (PyCFunction) _wrap_Universe_getCell, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Universe_getCells", _wrap_Universe_getCells, METH_VARARGS, NULL},
 	 { (char *)"Universe_getUid", _wrap_Universe_getUid, METH_VARARGS, NULL},
 	 { (char *)"Universe_getId", _wrap_Universe_getId, METH_VARARGS, NULL},
@@ -18645,6 +18896,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Universe_getOrigin", _wrap_Universe_getOrigin, METH_VARARGS, NULL},
 	 { (char *)"Universe_getMaterialIds", _wrap_Universe_getMaterialIds, METH_VARARGS, NULL},
 	 { (char *)"Universe_getNestedUniverseIds", _wrap_Universe_getNestedUniverseIds, METH_VARARGS, NULL},
+	 { (char *)"Universe_getCellIds", (PyCFunction) _wrap_Universe_getCellIds, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Universe_isFissionable", _wrap_Universe_isFissionable, METH_VARARGS, NULL},
 	 { (char *)"Universe_setType", (PyCFunction) _wrap_Universe_setType, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"Universe_setOrigin", (PyCFunction) _wrap_Universe_setOrigin, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -18752,14 +19004,14 @@ static swig_type_info _swigt__p_int = {"_p_int", "int *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_logLevels = {"_p_logLevels", "enum logLevels *|logLevel *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_Track = {"_p_p_Track", "Track **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_segment = {"_p_segment", "segment *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_std__mapT_short_Cell_p_t = {"_p_std__mapT_short_Cell_p_t", "std::map< short,Cell * > *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_std__mapT_short_Material_p_t = {"_p_std__mapT_short_Material_p_t", "std::map< short,Material * > *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_std__mapT_short_Surface_p_t = {"_p_std__mapT_short_Surface_p_t", "std::map< short,Surface * > *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_std__mapT_short_Universe_p_t = {"_p_std__mapT_short_Universe_p_t", "std::map< short,Universe * > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__mapT_int_Cell_p_t = {"_p_std__mapT_int_Cell_p_t", "std::map< int,Cell * > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__mapT_int_Material_p_t = {"_p_std__mapT_int_Material_p_t", "std::map< int,Material * > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__mapT_int_Surface_p_t = {"_p_std__mapT_int_Surface_p_t", "std::map< int,Surface * > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__mapT_int_Universe_p_t = {"_p_std__mapT_int_Universe_p_t", "std::map< int,Universe * > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_CellBasic_p_t = {"_p_std__vectorT_CellBasic_p_t", "std::vector< CellBasic * > *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_std__vectorT_short_t = {"_p_std__vectorT_short_t", "std::vector< short > *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t = {"_p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t", "std::vector< std::vector< std::pair< short,Universe * > > > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__vectorT_int_t = {"_p_std__vectorT_int_t", "std::vector< int > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__vectorT_std__vectorT_std__pairT_int_Universe_p_t_t_t = {"_p_std__vectorT_std__vectorT_std__pairT_int_Universe_p_t_t_t", "std::vector< std::vector< std::pair< int,Universe * > > > *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_CPUSolver,
@@ -18791,14 +19043,14 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_logLevels,
   &_swigt__p_p_Track,
   &_swigt__p_segment,
-  &_swigt__p_std__mapT_short_Cell_p_t,
-  &_swigt__p_std__mapT_short_Material_p_t,
-  &_swigt__p_std__mapT_short_Surface_p_t,
-  &_swigt__p_std__mapT_short_Universe_p_t,
+  &_swigt__p_std__mapT_int_Cell_p_t,
+  &_swigt__p_std__mapT_int_Material_p_t,
+  &_swigt__p_std__mapT_int_Surface_p_t,
+  &_swigt__p_std__mapT_int_Universe_p_t,
   &_swigt__p_std__string,
   &_swigt__p_std__vectorT_CellBasic_p_t,
-  &_swigt__p_std__vectorT_short_t,
-  &_swigt__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t,
+  &_swigt__p_std__vectorT_int_t,
+  &_swigt__p_std__vectorT_std__vectorT_std__pairT_int_Universe_p_t_t_t,
 };
 
 static swig_cast_info _swigc__p_CPUSolver[] = {  {&_swigt__p_CPUSolver, 0, 0, 0},  {&_swigt__p_ThreadPrivateSolver, _p_ThreadPrivateSolverTo_p_CPUSolver, 0, 0},{0, 0, 0, 0}};
@@ -18830,14 +19082,14 @@ static swig_cast_info _swigc__p_int[] = {  {&_swigt__p_int, 0, 0, 0},{0, 0, 0, 0
 static swig_cast_info _swigc__p_logLevels[] = {  {&_swigt__p_logLevels, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_Track[] = {  {&_swigt__p_p_Track, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_segment[] = {  {&_swigt__p_segment, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_std__mapT_short_Cell_p_t[] = {  {&_swigt__p_std__mapT_short_Cell_p_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_std__mapT_short_Material_p_t[] = {  {&_swigt__p_std__mapT_short_Material_p_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_std__mapT_short_Surface_p_t[] = {  {&_swigt__p_std__mapT_short_Surface_p_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_std__mapT_short_Universe_p_t[] = {  {&_swigt__p_std__mapT_short_Universe_p_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__mapT_int_Cell_p_t[] = {  {&_swigt__p_std__mapT_int_Cell_p_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__mapT_int_Material_p_t[] = {  {&_swigt__p_std__mapT_int_Material_p_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__mapT_int_Surface_p_t[] = {  {&_swigt__p_std__mapT_int_Surface_p_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__mapT_int_Universe_p_t[] = {  {&_swigt__p_std__mapT_int_Universe_p_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_CellBasic_p_t[] = {  {&_swigt__p_std__vectorT_CellBasic_p_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_std__vectorT_short_t[] = {  {&_swigt__p_std__vectorT_short_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t[] = {  {&_swigt__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__vectorT_int_t[] = {  {&_swigt__p_std__vectorT_int_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__vectorT_std__vectorT_std__pairT_int_Universe_p_t_t_t[] = {  {&_swigt__p_std__vectorT_std__vectorT_std__pairT_int_Universe_p_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_CPUSolver,
@@ -18869,14 +19121,14 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_logLevels,
   _swigc__p_p_Track,
   _swigc__p_segment,
-  _swigc__p_std__mapT_short_Cell_p_t,
-  _swigc__p_std__mapT_short_Material_p_t,
-  _swigc__p_std__mapT_short_Surface_p_t,
-  _swigc__p_std__mapT_short_Universe_p_t,
+  _swigc__p_std__mapT_int_Cell_p_t,
+  _swigc__p_std__mapT_int_Material_p_t,
+  _swigc__p_std__mapT_int_Surface_p_t,
+  _swigc__p_std__mapT_int_Universe_p_t,
   _swigc__p_std__string,
   _swigc__p_std__vectorT_CellBasic_p_t,
-  _swigc__p_std__vectorT_short_t,
-  _swigc__p_std__vectorT_std__vectorT_std__pairT_short_Universe_p_t_t_t,
+  _swigc__p_std__vectorT_int_t,
+  _swigc__p_std__vectorT_std__vectorT_std__pairT_int_Universe_p_t_t_t,
 };
 
 
