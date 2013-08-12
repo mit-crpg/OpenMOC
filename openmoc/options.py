@@ -106,7 +106,7 @@ class options:
             elif opt in ('i', '--max-iters'):
                 self.max_iters = int(arg)
 
-            elif opt in ('-c, --tolerance'):
+            elif opt in ('-c', '--tolerance'):
                 self.tolerance = float(arg)
 
             elif opt in ('-t', '--num-omp-threads'):
@@ -117,4 +117,3 @@ class options:
 
             elif opt in ('-g', '--num-gpu-threads'):
                 self.num_gpu_threads = int(arg)
-

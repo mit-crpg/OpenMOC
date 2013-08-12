@@ -564,7 +564,7 @@ void CPUSolver::computeKeff() {
 
     /* Loop over all flat source regions and compute the volume-weighted
      * fission and absorption rates */
-    #pragma omp parallel for private(volume, material, \
+    #pragma omp parallel for private(volume, material,	\
       sigma_a, nu_sigma_f) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
