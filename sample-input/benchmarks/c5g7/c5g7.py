@@ -344,8 +344,6 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
-process.computeFSRPinPowers(solver, geometry, use_hdf5=True)
-
 
 ###############################################################################
 ############################   Generating Plots   #############################

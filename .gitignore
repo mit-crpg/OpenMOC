@@ -38,6 +38,10 @@ plots
 plots/*
 */plots
 */plots/*
+pin-powers
+pin-powers/*
+*/pin-powers
+*/pin-powers/*
 
 *.data
 */*.data
