@@ -2,7 +2,6 @@
 # @file process.py
 # @package openmoc.process
 # @brief
-# 
 # @author William Boyd (wboyd@mit.edu)
 # @date April 27, 2013
 
@@ -358,7 +357,7 @@ def weakScalingStudy(geometry, num_azim=4, track_spacing=0.1,
 # @param
 # @param
 #
-def computeFSRPinPowers(solver, geometry):
+def computeFSRPinPowers(solver, geometry, use_hdf5=False):
 
     # Error checking of input parameters
 
@@ -370,10 +369,25 @@ def computeFSRPinPowers(solver, geometry):
     # Compute the volume-weighted FSR fission rates for each FSR
     fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
 
+    # Initialize a new HDF5 file to store the pin power data
+    if use_hdf5:
+
+        # Import h5py 
+        import h5py
+
+        # Make directory if it does not exist
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        f = h5py.File(directory + 'fission-rates.hdf5', 'w')
+        f.close()
+
+
     # Get the base universe in the geometry and compute pin powers for each
     # level of nested universes and lattices
     universe = geometry.getUniverse(0)
-    computeUniverseFissionRate(geometry, universe, 0, fission_rates, directory)
+    computeUniverseFissionRate(geometry, universe, 0, fission_rates, use_hdf5,
+                               directory=directory)
 
 
 ##
@@ -386,7 +400,8 @@ def computeFSRPinPowers(solver, geometry):
 # @return
 #
 def computeUniverseFissionRate(geometry, universe, FSR_id, 
-                               FSR_fission_rates, directory=''):
+                               FSR_fission_rates, use_hdf5=False, 
+                               attributes = [], directory=''):
 
     fission_rate = 0.0
 
@@ -399,7 +414,7 @@ def computeUniverseFissionRate(geometry, universe, FSR_id,
     elif universe.getType() is openmoc.SIMPLE:
 
         # Create a directory/file for this universe's total fission rate
-        directory += 'universe' + str(universe.getId()) + '/'
+        attributes.append('universe' + str(universe.getId()))
 
         num_cells = universe.getNumCells()
         cell_ids = universe.getCellIds(int(num_cells))
@@ -422,27 +437,31 @@ def computeUniverseFissionRate(geometry, universe, FSR_id,
                 universe_fill = cell.getUniverseFill()
                 fsr_id = universe.getFSR(cell.getId()) + FSR_id
                 fission_rate += \
-                    computeUniverseFissionRate(geometry, universe_fill, fsr_id, 
-                                               FSR_fission_rates, directory)
+                    computeUniverseFissionRate(geometry, universe_fill, 
+                                               fsr_id, FSR_fission_rates, 
+                                               use_hdf5, attributes, directory)
+
+        # Remove the subdirectory structure attribute for this universe
+        attributes.pop()
 
 
     # This is a fissionable LATTICE type universe
     else:
 
-        # Create a directory/file for this lattice's fission rates
-        directory += 'lattice' + str(universe.getId()) + '/'
+        # Add a new attribute for this lattice in the pin power hierarchy
+        attributes.append('lattice' + str(universe.getId()))
 
-        # Make directory if it does not exist
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
+        # Retrieve a pointer to this lattice and its dimensions
         lattice = openmoc.castUniverseToLattice(universe)
         num_x = lattice.getNumX()
         num_y = lattice.getNumY()
 
-        # TODO: Check whether output is hdf5 or not!!!
-        f = open(directory + 'fission-rate.txt', 'w')
-        
+        # Create a numpy array to store all of this lattice's pin powers
+        lattice_cell_powers = numpy.zeros((num_x, num_y))
+
+        attributes.append('x')
+        attributes.append('y')
+
         # Loop over all lattice cells in this lattice
         for i in range(num_y-1, -1, -1):
             for j in range(num_x):
@@ -453,20 +472,61 @@ def computeUniverseFissionRate(geometry, universe, FSR_id,
                 # Get the FSR Id prefix for this lattice cell
                 fsr_id = lattice.getFSR(j,i) + FSR_id
 
-                new_directory = directory + 'x' + str(j) + '_y' + str(i) + '/'
+                attributes[-1] = 'y' + str(i)
+                attributes[-2] = 'x' + str(j)
 
                 # Compute the fission rate within this lattice cell
-                cell_fission_rate = \
+                lattice_cell_powers[j,i] = \
                     computeUniverseFissionRate(geometry, cell_universe, fsr_id, 
-                                               FSR_fission_rates, new_directory)
+                                               FSR_fission_rates, use_hdf5,
+                                               attributes, directory)
 
-                # Write this lattice cell's fission rate to the output file
-                f.write('%1.10f, ' % (cell_fission_rate))
+                # Increment total lattice power
+                fission_rate += lattice_cell_powers[j,i]
 
-                fission_rate += cell_fission_rate
+        # Remove subdirectory attributes for x, y lattice cell indices
+        attributes.pop()
+        attributes.pop()
+        attributes.pop()
 
-            f.write('\n')
+        # Flip the x-dimension of the array so that it is indexed 
+        # starting from the top left corner as
+        lattice_cell_powers = numpy.fliplr(lattice_cell_powers)
 
-        f.close()            
 
+        #######################################################################
+        #######################  STORE PIN CELL DATA  #########################
+        #######################################################################
+
+        # If using HDF5, store data categorized by attributes in an HDF5 file
+        if use_hdf5:
+
+            # Import h5py 
+            import h5py
+            
+            # Create a h5py file handle for the file
+            f = h5py.File(directory + 'fission-rates.hdf5', 'a')
+
+            # Create the group for this lattice, universe combination
+            curr_group = f.require_group(str.join('/', attributes))
+
+            # Create a new dataset for this lattice's pin powers
+            curr_group.create_dataset('fission-rates', data=lattice_cell_powers)
+
+            f.close()
+
+
+        # If not using HDF5, store data categorized by subdirectory in txt files
+        else:
+
+            subdirectory = directory + str.join('/', attributes) + '/'
+
+            # Make directory if it does not exist
+            if not use_hdf5 and not os.path.exists(subdirectory):
+                os.makedirs(subdirectory)
+
+            numpy.savetxt(subdirectory + 'fission-rates.txt', 
+                          lattice_cell_powers, delimiter=',')
+
+    # Return the total fission rate for this lattice
     return fission_rate

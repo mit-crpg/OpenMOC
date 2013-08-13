@@ -137,3 +137,4 @@ log.py_printf('NORMAL', 'Plotting data...')
 #plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')
+
