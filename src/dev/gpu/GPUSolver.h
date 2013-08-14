@@ -149,6 +149,8 @@ public:
     void setTrackGenerator(TrackGenerator* track_generator);
 
     int computeScalarTrackIndex(int i, int j);
+
+    void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };
 
 

@@ -4747,6 +4747,62 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_GPUSolver_computeFSRFissionRates(PyObject *SWIGUNUSEDPARM(self), PyObject *args, PyObject *kwargs) {
+  PyObject *resultobj = 0;
+  GPUSolver *arg1 = (GPUSolver *) 0 ;
+  double *arg2 = (double *) 0 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *array2 = NULL ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *  kwnames[] = {
+    (char *) "self",(char *) "fission_rates", NULL 
+  };
+  
+  if (!PyArg_ParseTupleAndKeywords(args,kwargs,(char *)"OO:GPUSolver_computeFSRFissionRates",kwnames,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GPUSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "GPUSolver_computeFSRFissionRates" "', argument " "1"" of type '" "GPUSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< GPUSolver * >(argp1);
+  {
+    npy_intp dims[1];
+    if (!PyInt_Check(obj1))
+    {
+      const char* typestring = pytype_string(obj1);
+      PyErr_Format(PyExc_TypeError,
+        "Int dimension expected.  '%s' given.",
+        typestring);
+      SWIG_fail;
+    }
+    arg3 = (int) PyInt_AsLong(obj1);
+    dims[0] = (npy_intp) arg3;
+    array2 = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+    if (!array2) SWIG_fail;
+    arg2 = (double*) array_data(array2);
+  }
+  {
+    try {
+      (arg1)->computeFSRFissionRates(arg2,arg3);
+    } catch (const std::runtime_error &e) {
+      SWIG_exception(SWIG_RuntimeError, err_occurred());
+      return NULL;
+    } catch (const std::exception &e) {
+      SWIG_exception(SWIG_RuntimeError, e.what()); 
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj,array2);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *GPUSolver_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -4906,6 +4962,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"GPUSolver_setGeometry", (PyCFunction) _wrap_GPUSolver_setGeometry, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"GPUSolver_setTrackGenerator", (PyCFunction) _wrap_GPUSolver_setTrackGenerator, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"GPUSolver_computeScalarTrackIndex", (PyCFunction) _wrap_GPUSolver_computeScalarTrackIndex, METH_VARARGS | METH_KEYWORDS, NULL},
+	 { (char *)"GPUSolver_computeFSRFissionRates", (PyCFunction) _wrap_GPUSolver_computeFSRFissionRates, METH_VARARGS | METH_KEYWORDS, NULL},
 	 { (char *)"GPUSolver_swigregister", GPUSolver_swigregister, METH_VARARGS, NULL},
 	 { (char *)"machineContainsGPU", _wrap_machineContainsGPU, METH_VARARGS, NULL},
 	 { (char *)"attachGPU", (PyCFunction) _wrap_attachGPU, METH_VARARGS | METH_KEYWORDS, NULL},

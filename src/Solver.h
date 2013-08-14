@@ -322,7 +322,7 @@ public:
 
     virtual FP_PRECISION convergeSource(int max_iterations);
     
-    void computeFSRFissionRates(double* fission_rates, int num_FSRs);
+    virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) =0;
     void printTimerReport();
 };
 

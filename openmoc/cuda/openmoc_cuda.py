@@ -122,6 +122,7 @@ class GPUSolver(Solver):
     def setGeometry(self, *args, **kwargs): return _openmoc_cuda.GPUSolver_setGeometry(self, *args, **kwargs)
     def setTrackGenerator(self, *args, **kwargs): return _openmoc_cuda.GPUSolver_setTrackGenerator(self, *args, **kwargs)
     def computeScalarTrackIndex(self, *args, **kwargs): return _openmoc_cuda.GPUSolver_computeScalarTrackIndex(self, *args, **kwargs)
+    def computeFSRFissionRates(self, *args, **kwargs): return _openmoc_cuda.GPUSolver_computeFSRFissionRates(self, *args, **kwargs)
 GPUSolver_swigregister = _openmoc_cuda.GPUSolver_swigregister
 GPUSolver_swigregister(GPUSolver)
 

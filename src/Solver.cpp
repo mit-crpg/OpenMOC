@@ -430,42 +430,6 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 }
 
 
-/**
- * @brief Computes the volume-weighted, energy integrated fission rate in 
- *        each flat source region and stores them in an array indexed by 
- *        flat source region ID.
- * @param fission_rates an array to store the fission rates, passed in as a
- *        numpy array from Python
- * @param num_FSRs the number of FSRs passed in from Python
- */
-void Solver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
-
-    log_printf(INFO, "Computing FSR fission rates...");
-
-    double* sigma_f;
-
-    FP_PRECISION* scalar_flux = getFSRScalarFluxes();
-
-    /* Loop over all FSRs and compute the volume-weighted fission rate */
-    #pragma omp parallel for private (sigma_f) schedule(guided)
-    for (int r=0; r < _num_FSRs; r++) {
-        sigma_f = _FSR_materials[r]->getSigmaF();
-
-        for (int e=0; e < _num_groups; e++)
-	    fission_rates[r] += sigma_f[e] * _scalar_flux(r,e);
-    }
-
-    /* If the scalar flux array returned by getFSRScalarFluxes() does not
-     * match the memory address for the Solver's scalar flux array, then it
-     * was copied from a separate memory address (ie, device memory on a GPU)
-     * and should be deleted */
-    if (scalar_flux != _scalar_flux)
-        delete [] scalar_flux;
-
-    return;
-}
-
-
 
 /**
  * @brief Deletes the Timer's timing entries for each timed code section
