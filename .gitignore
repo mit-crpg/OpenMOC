@@ -25,6 +25,29 @@ openmoc/openmoc_wrap.cpp
 openmoc/mic/openmoc_mic.py
 openmoc/mic/openmoc_mic_wrap.cpp
 
+openmoc/intel/single/openmoc_intel_single_wrap.cpp
+openmoc/intel/single/openmoc_intel_single.py
+openmoc/intel/double/openmoc_intel_double_wrap.cpp
+openmoc/intel/double/openmoc_intel_double.py
+
+openmoc/gnu/single/openmoc_gnu_single_wrap.cpp
+openmoc/gnu/single/openmoc_gnu_single.py
+openmoc/gnu/double/openmoc_gnu_double_wrap.cpp
+openmoc/gnu/double/openmoc_gnu_double.py
+
+openmoc/bgq/single/openmoc_bgq_single_wrap.cpp
+openmoc/bgq/single/openmoc_bgq_double.py
+openmoc/bgq/double/openmoc_bgq_double_wrap.cpp
+openmoc/bgq/double/openmoc_bgq_double.py
+
+openmoc/cuda/openmoc_cuda.py
+openmoc/cuda/openmoc_cuda_wrap.cpp
+openmoc/cuda/single/openmoc_cuda_single_wrap.cpp
+openmoc/cuda/single/openmoc_cuda_single.py
+openmoc/cuda/double/openmoc_cuda_double_wrap.cpp
+openmoc/cuda/double/openmoc_cuda_double.py
+
+
 # output files
 log
 log/*
