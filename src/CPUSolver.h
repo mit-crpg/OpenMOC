@@ -106,6 +106,9 @@ public:
     FP_PRECISION* getFSRScalarFluxes();
 
     void setNumThreads(int num_threads);
+
+    void computeFSRFissionRates(double* fission_rates, int num_FSRs);
+
 };
 
 

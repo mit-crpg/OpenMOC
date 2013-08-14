@@ -621,6 +621,47 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
 }
 
 
+/**
+ * @brief Computes the volume-weighted, energy integrated fission rate in 
+ *        each flat source region and stores them in an array indexed by 
+ *        flat source region ID.
+ * @param fission_rates an array to store the fission rates, passed in as a
+ *        numpy array from Python
+ * @param fission_rates an array in which to store the flat source region fission rates
+ * @param FSR_materials an array of flat source region material UIDs
+ * @param materials an array of material pointers
+ * @param scalar_flux an array of flat source region scalar fluxes
+ */
+__global__ void computeFSRFissionRatesOnDevice(double* fission_rates,
+					       int* FSR_materials,
+					       dev_material* materials,
+					       FP_PRECISION* scalar_flux) {
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    dev_material* curr_material;
+    double* sigma_f;
+
+    /* Loop over all FSRs and compute the volume-weighted fission rate */
+    while (tid < *num_FSRs) {
+
+	curr_material = &materials[FSR_materials[tid]];
+	sigma_f = curr_material->_sigma_f;
+
+	/* Initialize the fission rate for this FSR to zero */
+	fission_rates[tid] = 0.0;
+
+        for (int i=0; i < *num_groups; i++)
+	    fission_rates[tid] += sigma_f[i] * scalar_flux(tid,i);
+
+	/* Increment thread id */
+	tid += blockDim.x * gridDim.x;
+    }
+
+    return;
+}
+					       
+
+
 
 
 /**
@@ -797,11 +838,15 @@ FP_PRECISION* GPUSolver::getFSRScalarFluxes() {
         log_printf(ERROR, "Unable to returns the device solver's scalar flux "
 		   "array since it has not yet been allocated in memory");
 
+    printf("Retrieving FSR scalar fluxes from GPU\n");
+
     /* Copy the scalar flux for all FSRs from the device */
     FP_PRECISION* fsr_scalar_fluxes = new FP_PRECISION[_num_FSRs * _num_groups];
     cudaMemcpy((void*)fsr_scalar_fluxes, (void*)_scalar_flux,
 	       _num_FSRs * _num_groups * sizeof(FP_PRECISION),
 	       cudaMemcpyDeviceToHost);
+
+    printf("Finished retrieving, returning\n");
 
     return fsr_scalar_fluxes;
 }
@@ -1501,4 +1546,37 @@ void GPUSolver::computeKeff() {
 
     log_printf(DEBUG, "abs = %f, fiss = %f, leak = %f, keff = %f", 
 	       tot_absorption, tot_fission, tot_leakage, _k_eff);
+}
+
+
+/**
+ * @brief Computes the volume-weighted, energy integrated fission rate in 
+ *        each flat source region and stores them in an array indexed by 
+ *        flat source region ID.
+ * @param fission_rates an array to store the fission rates, passed in as a
+ *        numpy array from Python
+ * @param num_FSRs the number of FSRs passed in from Python
+ */
+void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
+
+    log_printf(INFO, "Computing FSR fission rates...");
+
+    /* Allocate memory for the FSR fission rates on the device */
+    double* dev_fission_rates;
+    cudaMalloc((void**)&dev_fission_rates, _num_FSRs * sizeof(double));
+
+    /* Compute the FSR fission rates on the device */
+    computeFSRFissionRatesOnDevice<<<_B,_T>>>(dev_fission_rates, 
+					      _FSR_materials,
+					      _materials,
+					      _scalar_flux);
+
+    /* Copy the fission rate array from the device to the host */
+    cudaMemcpy((void*)fission_rates, (void*)dev_fission_rates, 
+	       _num_FSRs * sizeof(double), cudaMemcpyDeviceToHost);
+
+    /* Deallocate the memory assigned to store the fission rates on the device */
+    cudaFree(dev_fission_rates);
+
+    return;
 }

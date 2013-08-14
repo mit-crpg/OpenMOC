@@ -16,6 +16,9 @@ num_azim = options.num_azim
 tolerance = options.tolerance
 max_iters = options.max_iters
 
+setOutputDirectory('128')
+cuda.attachGPU(1)
+
 log.setLogLevel('NORMAL')
 
 log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
@@ -345,6 +348,9 @@ solver.setNumThreadsPerBlock(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
+
+import openmoc.process as process
+process.computeFSRPinPowers(solver, geometry, use_hdf5=True)
 
 
 ###############################################################################

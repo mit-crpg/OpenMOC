@@ -489,6 +489,7 @@ class CPUSolver(Solver):
     def getFSRScalarFlux(self, *args, **kwargs): return _openmoc.CPUSolver_getFSRScalarFlux(self, *args, **kwargs)
     def getFSRScalarFluxes(self): return _openmoc.CPUSolver_getFSRScalarFluxes(self)
     def setNumThreads(self, *args, **kwargs): return _openmoc.CPUSolver_setNumThreads(self, *args, **kwargs)
+    def computeFSRFissionRates(self, *args, **kwargs): return _openmoc.CPUSolver_computeFSRFissionRates(self, *args, **kwargs)
 CPUSolver_swigregister = _openmoc.CPUSolver_swigregister
 CPUSolver_swigregister(CPUSolver)
 
