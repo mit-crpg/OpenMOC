@@ -8,7 +8,17 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date March 10, 2013
 
+import matplotlib
+# force headless backend, or set 'backend' to 'Agg'
+# in your ~/.matplotlib/matplotlibrc
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
+
+# force non-interactive mode, or set 'interactive' to False
+# in your ~/.matplotlib/matplotlibrc
+plt.ioff()
+
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
 import numpy as np
