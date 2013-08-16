@@ -509,5 +509,5 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
         plt.xlim([xmin, xmax])
         plt.ylim([ymin, ymax])
         plt.title('Flat Source Region Scalar Flux in Group ' + str(group))
-        filename = directory + 'fsr-flux-group-' + str(group) + '-.png'
+        filename = directory + 'fsr-flux-group-' + str(group) + '.png'
         fig.savefig(filename)
