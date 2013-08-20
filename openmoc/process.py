@@ -134,7 +134,7 @@ def strongScalingStudy(geometry, num_azim=48, track_spacing=0.1,
     if (len(legend) > 1):
         plt.legend(legend)
     plt.grid()
-    plt.savefig(filename1)
+    plt.savefig(filename1, bbox_inches='tight')
 
     # Plot Speedup
     if title == '':
@@ -158,7 +158,7 @@ def strongScalingStudy(geometry, num_azim=48, track_spacing=0.1,
     if (len(legend) > 1):
         plt.legend(legend)
     plt.grid()
-    plt.savefig(filename2)
+    plt.savefig(filename2, bbox_inches='tight')
 
     # Plot parallel efficiency
     if title == '':
@@ -183,7 +183,7 @@ def strongScalingStudy(geometry, num_azim=48, track_spacing=0.1,
     if (len(legend) > 1):
         plt.legend(legend)
     plt.grid()
-    plt.savefig(filename3)
+    plt.savefig(filename3, bbox_inches='tight')
 
 
 #
@@ -302,7 +302,7 @@ def weakScalingStudy(geometry, num_azim=4, track_spacing=0.1,
     if (len(legend) > 1):
         plt.legend(legend)
     plt.grid()
-    plt.savefig(filename1)
+    plt.savefig(filename1, bbox_inches='tight')
 
     # Plot Speedup
     if title == '':
@@ -325,7 +325,7 @@ def weakScalingStudy(geometry, num_azim=4, track_spacing=0.1,
     plt.title(title2)
     if (len(legend) > 1):
         plt.legend(legend)
-    plt.savefig(filename2)
+    plt.savefig(filename2, bbox_inches='tight')
 
     # Plot parallel efficiency
     if title == '':
@@ -349,7 +349,7 @@ def weakScalingStudy(geometry, num_azim=4, track_spacing=0.1,
     if (len(legend) > 1):
         plt.legend(legend)
     plt.grid()
-    plt.savefig(filename3)
+    plt.savefig(filename3, bbox_inches='tight')
 
 
 ##
