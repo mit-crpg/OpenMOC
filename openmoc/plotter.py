@@ -95,7 +95,7 @@ def plotTracks(track_generator):
 
     filename = directory + 'tracks-' + str(num_azim) + '-angles-' + \
             str(spacing) + '-spacing.png'
-    fig.savefig(filename)
+    fig.savefig(filename, bbox_inches='tight')
 
 
 ##
@@ -170,7 +170,7 @@ def plotSegments(track_generator):
 
     filename = directory + 'segments-' + str(num_azim) + '-angles-' + \
             str(spacing) + '-spacing.png'
-    fig.savefig(filename)
+    fig.savefig(filename, bbox_inches='tight')
 
 
 
@@ -239,12 +239,11 @@ def plotMaterials(geometry, gridsize=250):
 
     # Plot a 2D color map of the materials
     fig = plt.figure()
-    plt.pcolor(xcoords, ycoords, surface)
-    plt.xlim([xmin, xmax])
-    plt.ylim([ymin, ymax])
+    plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
+    plt.colorbar()
     plt.title('Materials')
     filename = directory + 'materials.png'
-    fig.savefig(filename)
+    fig.savefig(filename, bbox_inches='tight')
 
 
 ##
@@ -313,9 +312,8 @@ def plotCells(geometry, gridsize=250):
 
     # Plot a 2D color map of the cells
     fig = plt.figure()
-    plt.pcolor(xcoords, ycoords, surface)
-    plt.xlim([xmin, xmax])
-    plt.ylim([ymin, ymax])
+    plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
+    plt.colorbar()
     plt.title('Cells')
     filename = directory + 'cells.png'
     fig.savefig(filename)
@@ -387,9 +385,8 @@ def plotFlatSourceRegions(geometry, gridsize=250):
 
     # Plot a 2D color map of the flat source regions
     fig = plt.figure()
-    plt.pcolor(xcoords, ycoords, surface)
-    plt.xlim([xmin, xmax])
-    plt.ylim([ymin, ymax])
+    plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
+    plt.colorbar()
     plt.title('Flat Source Regions')
     filename = directory + 'flat-source-regions.png'
     fig.savefig(filename)
@@ -473,8 +470,9 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
     if not isinstance(energy_groups, list):
         energy_groups = [energy_groups]
 
-    # Initialize a numpy array for the surface colors
-    fluxes = numpy.zeros((gridsize, gridsize))
+
+    # Initialize a numpy array for the groupwise scalar fluxes
+    fluxes = numpy.zeros((len(energy_groups), gridsize, gridsize))
 
     # Retrieve the bounding box for the geometry
     xmin = geometry.getXMin()
@@ -486,28 +484,31 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
     xcoords = np.linspace(xmin, xmax, gridsize)
     ycoords = np.linspace(ymin, ymax, gridsize)
 
-    for group in energy_groups:
+    for i in range(gridsize):
+        for j in range(gridsize):
 
-        # Find the flat source region IDs for each grid point
-        for i in range(gridsize):
-            for j in range(gridsize):
+            # Find the flat source region IDs for each grid point            
+            x = xcoords[i]
+            y = ycoords[j]
+            
+            point = LocalCoords(x, y)
+            point.setUniverse(0)
+            geometry.findCellContainingCoords(point)
+            fsr_id = geometry.findFSRId(point)
 
-                x = xcoords[i]
-                y = ycoords[j]
+            # Get the scalar flux for each energy group in this FSR
+            for index, group in enumerate(energy_groups):
+                fluxes[index,i,j] = solver.getFSRScalarFlux(fsr_id, group)
 
-                point = LocalCoords(x, y)
-                point.setUniverse(0)
-                geometry.findCellContainingCoords(point)
-                fsr_id = geometry.findFSRId(point)
-                flux = solver.getFSRScalarFlux(fsr_id, group)
-                fluxes[j][i] = flux
+
+    # Loop over all energy group and create a plot
+    for index, group in enumerate(energy_groups):
 
         # Plot a 2D color map of the flat source regions
         fig = plt.figure()
-        plt.pcolor(xcoords, ycoords, fluxes)
+        plt.imshow(np.flipud(fluxes[index,:,:]), 
+                   extent=[xmin, xmax, ymin, ymax])
         plt.colorbar()
-        plt.xlim([xmin, xmax])
-        plt.ylim([ymin, ymax])
         plt.title('Flat Source Region Scalar Flux in Group ' + str(group))
         filename = directory + 'fsr-flux-group-' + str(group) + '.png'
-        fig.savefig(filename)
+        fig.savefig(filename, bbox_inches='tight')
