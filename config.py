@@ -125,7 +125,7 @@ class configuration:
     # Dictionary of source code files to compile for each extension module
     sources = {}
 
-    sources['gcc'] = ['openmoc/openmoc.i',
+    sources['gcc'] = ['openmoc/openmoc_wrap.cpp',
                       'src/Cell.cpp',
                       'src/Geometry.cpp',
                       'src/LocalCoords.cpp',
@@ -142,7 +142,8 @@ class configuration:
                       'src/TrackGenerator.cpp',
                       'src/Universe.cpp']
 
-    sources['icpc'] = ['openmoc/openmoc.i',
+
+    sources['icpc'] = ['openmoc/openmoc_wrap.cpp',
                        'src/Cell.cpp',
                        'src/Geometry.cpp',
                        'src/LocalCoords.cpp',
@@ -161,7 +162,8 @@ class configuration:
                        'src/TrackGenerator.cpp',
                        'src/Universe.cpp']
 
-    sources['bgxlc'] = ['openmoc/openmoc.i',
+
+    sources['bgxlc'] = ['openmoc/openmoc_wrap.cpp',
                         'src/Cell.cpp',
                         'src/Geometry.cpp',
                         'src/LocalCoords.cpp',
@@ -178,7 +180,8 @@ class configuration:
                         'src/TrackGenerator.cpp',
                         'src/Universe.cpp']
 
-    sources['nvcc'] = ['openmoc/cuda/openmoc_cuda.i',
+
+    sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
                        'src/dev/gpu/clone.cu',
                        'src/dev/gpu/GPUQuery.cu',
                        'src/dev/gpu/GPUSolver.cu']
@@ -381,8 +384,8 @@ class configuration:
 
         # Remove the main SWIG configuration file for builds of other extensions
         # (ie, openmoc.gnu.*, openmoc.intel.*, etc) 
-        self.sources['gcc'].remove('openmoc/openmoc.i')
-        self.sources['icpc'].remove('openmoc/openmoc.i')
+        self.sources['gcc'].remove('openmoc/openmoc_wrap.cpp')
+        self.sources['icpc'].remove('openmoc/openmoc_wrap.cpp')
          
         # The openmoc.cuda extension if requested by the user at compile 
         # time (--with-cuda)        
@@ -403,7 +406,7 @@ class configuration:
         
             # REmove the main SWIG configuration file for builds of other 
             # extensions (ie, openmoc.cuda.single, openmoc.cuda.double)
-            self.sources['nvcc'].remove('openmoc/cuda/openmoc_cuda.i')
+            self.sources['nvcc'].remove('openmoc/cuda/openmoc_cuda_wrap.cpp')
             
         # Loop over the compilers and floating point precision levels to create
         # extension modules for each (ie, openmoc.intel.double, 
@@ -418,30 +421,30 @@ class configuration:
                 # For openmoc.cuda.* modules
                 if cc == 'nvcc':
                     ext_name = '_openmoc_cuda_' + fp
-                    swig_interface_file = 'openmoc/cuda/' + fp
-                    swig_interface_file += '/openmoc_cuda_' + fp + '.i'
-                    self.sources['nvcc'].append(swig_interface_file)
+                    swig_wrap_file = 'openmoc/cuda/' + fp
+                    swig_wrap_file += '/openmoc_cuda_' + fp + '_wrap.cpp'
+                    self.sources['nvcc'].append(swig_wrap_file)
                     
                 # For openmoc.gnu.* modules
                 elif cc == 'gcc':
                     ext_name = '_openmoc_gnu_' + fp
-                    swig_interface_file = 'openmoc/gnu/' + fp
-                    swig_interface_file += '/openmoc_gnu_' + fp + '.i'
-                    self.sources['gcc'].append(swig_interface_file)
+                    swig_wrap_file = 'openmoc/gnu/' + fp
+                    swig_wrap_file += '/openmoc_gnu_' + fp + '_wrap.cpp'
+                    self.sources['gcc'].append(swig_wrap_file)
                     
                 # For openmoc.intel.* modules
                 elif cc == 'icpc':
                     ext_name = '_openmoc_intel_' + fp
-                    swig_interface_file = 'openmoc/intel/' + fp
-                    swig_interface_file += '/openmoc_intel_' + fp + '.i'
-                    self.sources['icpc'].append(swig_interface_file)
+                    swig_wrap_file = 'openmoc/intel/' + fp
+                    swig_wrap_file += '/openmoc_intel_' + fp + '_wrap.cpp'
+                    self.sources['icpc'].append(swig_wrap_file)
 
                 # For openmoc.intel.* modules
                 elif cc == 'bgxlc':
                     ext_name = '_openmoc_bgq_' + fp
-                    swig_interface_file = 'openmoc/bgq/' + fp
-                    swig_interface_file += '/openmoc_bgq_' + fp + '.i'
-                    self.sources['bgxlc'].append(swig_interface_file)
+                    swig_wrap_file = 'openmoc/bgq/' + fp
+                    swig_wrap_file += '/openmoc_bgq_' + fp + '_wrap.cpp'
+                    self.sources['bgxlc'].append(swig_wrap_file)
                     
                 # If an unsupported compiler, throw error
                 else:

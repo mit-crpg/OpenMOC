@@ -156,11 +156,13 @@ class custom_install(install):
         # Build the openmoc.intel.single and/or openmoc.intel.double 
         # extension module(s)
         if self.with_icpc:
+
             config.cpp_compilers += ['icpc']
 
             # If a precision level was not specified, use the default
             if not any([self.with_sp, self.with_dp]):
                config.fp_precision += [self.fp]
+
 
         # Build the openmoc.bgxlc.single and/or openmoc.bgxlc.double 
         # extension module(s)
@@ -393,8 +395,56 @@ class custom_build_ext(build_ext):
     def build_extensions(self):
         customize_compiler(self.compiler)
         customize_linker(self.compiler)
-        build_ext.build_extensions(self)
 
+        os.system('swig -python -c++ -keyword -DGCC -o ' + \
+                      'openmoc/openmoc_wrap.cpp openmoc/openmoc.i')
+
+        if 'openmoc/gnu/single/openmoc_gnu_single_wrap.cpp' in config.extensions:
+            os.system('swig -python -c++ -keyword -DGCC -o ' + \
+                      'openmoc/gnu/single/openmoc_gnu_single_wrap.cpp ' + \
+                      'openmoc/gnu/single/openmoc_gnu_single.i')
+
+        if 'openmoc/gnu/double/openmoc_gnu_double_wrap.cpp' in config.extensions:
+            os.system('swig -python -c++ -keyword -DGCC -o ' + \
+                      'openmoc/gnu/double/openmoc_gnu_double_wrap.cpp ' + \
+                      'openmoc/gnu/double/openmoc_gnu_double.i')
+
+        if 'openmoc/intel/single/openmoc_intel_single_wrap.cpp' in config.extensions:
+            os.system('swig -python -c++ -keyword -DGCC -o ' + \
+                      'openmoc/intel/single/openmoc_intel_single_wrap.cpp ' + \
+                      'openmoc/intel/single/openmoc_intel_single.i')
+
+        if 'openmoc/intel/double/openmoc_intel_double_wrap.cpp' in config.extensions:
+            os.system('swig -python -c++ -keyword -DGCC -o ' + \
+                      'openmoc/intel/double/openmoc_intel_double_wrap.cpp ' + \
+                      'openmoc/intel/double/openmoc_intel_double.i')
+
+        if 'openmoc/bgq/single/openmoc_bgq_single_wrap.cpp' in config.extensions:
+            os.system('swig -python -c++ -keyword -DGCC -o ' + \
+                      'openmoc/bgq/single/openmoc_bgq_single_wrap.cpp ' + \
+                      'openmoc/bgq/single/openmoc_bgq_single.i')
+
+        if 'openmoc/bgq/double/openmoc_bgq_double_wrap.cpp' in config.extensions:
+            os.system('swig -python -c++ -keyword -DGCC -o ' + \
+                      'openmoc/bgq/double/openmoc_bgq_double_wrap.cpp ' + \
+                      'openmoc/bgq/double/openmoc_bgq_double.i')
+
+        if 'openmoc/bgq/double/openmoc_cuda_wrap.cpp' in config.extensions:
+            os.system('swig -python -c++ -keyword -DGCC -o ' + \
+                      'openmoc/cuda/openmoc_cuda_wrap.cpp ' + \
+                      'openmoc/cuda/openmoc_cuda.i')
+
+        if 'openmoc/cuda/single/openmoc_cuda_single_wrap.cpp' in config.extensions:
+            os.system('swig -python -c++ -keyword -DGCC -o ' + \
+                      'openmoc/cuda/single/openmoc_cuda_single_wrap.cpp ' + \
+                      'openmoc/cuda/single/openmoc_cuda_single.i')
+
+        if 'openmoc/cuda/double/openmoc_cuda_double_wrap.cpp' in config.extensions:
+            os.system('swig -python -c++ -keyword -DGCC -o ' + \
+                      'openmoc/cuda/double/openmoc_cuda_double_wrap.cpp ' + \
+                      'openmoc/cuda/double/openmoc_cuda_double.i')
+
+        build_ext.build_extensions(self)
 
 
 # Run the distutils setup method for the complete build

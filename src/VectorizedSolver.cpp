@@ -121,10 +121,10 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
 
     _polar_times_groups = _num_groups * _num_polar;
 
-    std::map<short int, Material*> materials = geometry->getMaterials();
-    std::map<short int, Material*>::iterator iter;
+    std::map<int, Material*> materials = geometry->getMaterials();
+    std::map<int, Material*>::iterator iter;
 
-    /* Iterate over each material and replace it's xs with a new one 
+    /* Iterate over each material and replace its xs with a new one 
      * array that is a multiple of VEC_LENGTH long */
     for (iter=materials.begin(); iter != materials.end(); ++iter)
         (*iter).second->alignData();
