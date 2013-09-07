@@ -1,0 +1,263 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Timer &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="OpenMOC API" href="index.html" />
+    <link rel="next" title="Log" href="log.html" />
+    <link rel="prev" title="Material" href="material.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="log.html" title="Log"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="material.html" title="Material"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">OpenMOC API</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="timer">
+<span id="id1"></span><h1>Timer<a class="headerlink" href="#timer" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line" id=""><span id="OpenMOCclassTimer"></span><em>class</em> <strong>Timer</strong></div>
+</div>
+<blockquote>
+<div><p>The timer class is for timing and profiling regions of code. </p>
+<p></p>
+<em>Public Functions</em><blockquote>
+<div><p id=""><span id="OpenMOCclassTimer_1a5f16e8da27d2a5a5242dead46de05d97"></span><div class="line-block">
+<div class="line"> <strong>Timer</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Constructor sets the current split elapsed time to zero. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTimer_1ad3c95ce902fce977d280256256856d64"></span><div class="line-block">
+<div class="line"> <strong>~Timer</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Destructor. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTimer_1aa8c887576ec3b0d68c10ebf4097c367c"></span><div class="line-block">
+<div class="line">void <strong>startTimer</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Starts the timer. </p>
+<p>This method is similar to starting a stopwatch. </p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTimer_1a27f97da1b1d19ad74a847703ca25c455"></span><div class="line-block">
+<div class="line">void <strong>stopTimer</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Stops the timer. </p>
+<p>This method is similar to stopping a stopwatch. </p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTimer_1a613c775ca0b0b08f7cf1a6c165a6b6f7"></span><div class="line-block">
+<div class="line">void <strong>recordSplit</strong>(const char * msg)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Records a message corresponding to a time for the current split. </p>
+<p>When this method is called it assumes that the timer has been stopped and has the current time for the process corresponding to the message. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">msg</span></tt> - <p>a msg corresponding to this time split </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTimer_1a490604efc23a4ff9bef8d1f9f418ecb2"></span><div class="line-block">
+<div class="line">double <strong>getTime</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the amount of time elapsed from startTimer to stopTimer. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the elapsed time in seconds </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTimer_1aa56c74daecc44c72c434db6c98e69178"></span><div class="line-block">
+<div class="line">double <strong>getSplit</strong>(const char * msg)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the time associated with a particular split. </p>
+<p>If the split does not exist, returns 0. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the time recorded for the split (seconds) </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">msg</span></tt> - <p>the message tag for the split </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTimer_1a38dd3a8f7acae35cc31490173c8c27f0"></span><div class="line-block">
+<div class="line">void <strong>printSplits</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Prints the times and messages for each split to the console. </p>
+<p>This method will loop through all of the <a class="reference internal" href="#OpenMOCclassTimer"><em>Timer</em></a>&#8216;s splits and print a formatted message string (80 characters in length) to the console with the message and the time corresponding to that message. </p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTimer_1a11700956fe9bcbfefc0812e84c483764"></span><div class="line-block">
+<div class="line">void <strong>clearSplit</strong>(const char * msg)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Clears the time split for this message and deletes the message&#8217;s entry in the <a class="reference internal" href="#OpenMOCclassTimer"><em>Timer</em></a>&#8216;s splits log. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">msg</span></tt> - <p>the message tag for the split </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTimer_1a7ddf22ce90eaee9c34724133300d773c"></span><div class="line-block">
+<div class="line">void <strong>clearSplits</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Clears all times split messages from the <a class="reference internal" href="#OpenMOCclassTimer"><em>Timer</em></a>. </p>
+<p></p>
+</div></blockquote>
+</div></blockquote>
+<em>Public Static Functions</em><blockquote>
+<div><p id=""><span id="OpenMOCclassTimer_1a6061d2b3296f86e722c8419206681e9a"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="#OpenMOCclassTimer"><em>Timer</em></a>  * <strong>Get</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a static instance of the <a class="reference internal" href="#OpenMOCclassTimer"><em>Timer</em></a> class. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the static <a class="reference internal" href="#OpenMOCclassTimer"><em>Timer</em></a> class </dd>
+</dl>
+</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="material.html"
+                        title="previous chapter">Material</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="log.html"
+                        title="next chapter">Log</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/timer.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="log.html" title="Log"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="material.html" title="Material"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >OpenMOC API</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

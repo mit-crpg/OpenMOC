@@ -1,0 +1,663 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Track &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="OpenMOC API" href="index.html" />
+    <link rel="next" title="Segment" href="segment.html" />
+    <link rel="prev" title="Point" href="point.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="segment.html" title="Segment"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="point.html" title="Point"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">OpenMOC API</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="track">
+<span id="id1"></span><h1>Track<a class="headerlink" href="#track" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line" id=""><span id="OpenMOCclassTrack"></span><em>class</em> <strong>Track</strong></div>
+</div>
+<blockquote>
+<div><p>A track represents a characteristic line across the geometry. </p>
+<p>A track has particular starting and ending points on the boundaries of the geometry and an azimuthal angle. </p>
+<em>Public Functions</em><blockquote>
+<div><p id=""><span id="OpenMOCclassTrack_1a11457bcda8be04595018c11173d8241c"></span><div class="line-block">
+<div class="line"> <strong>Track</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p></p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a416e75e66accc8eb9e3fafc3e8555216"></span><div class="line-block">
+<div class="line"> <strong>~Track</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Destructor clears the track segments container. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a321e6d98cba4d260b7ca787013f85186"></span><div class="line-block">
+<div class="line">void <strong>setValues</strong>(const double start_x, const double start_y, const double end_x, const double end_y, const double phi)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Set the values for the track&#8217;s start and end point and angle. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">start_x</span></tt> - <p>the x-coordinate at the starting point </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">start_y</span></tt> - <p>the y-coordinate at the starting point </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">end_x</span></tt> - <p>the x-coordinate at the ending point </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">end_y</span></tt> - <p>the y-coordinate at the ending point </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">phi</span></tt> - <p>the track&#8217;s azimuthal angle ( <span class="math">\theta \in [0, \pi]</span>) </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a3d6a4e83e7ea6b28be81b9344d6bcd92"></span><div class="line-block">
+<div class="line">void <strong>setUid</strong>(int uid)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Initializes a track&#8217;s unique ID. </p>
+<p>This is set by the trackgenerator to correspond to the track&#8217;s location in a 2D ragged array of all tracks. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">uid</span></tt> - <p>the track&#8217;s unique ID </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1ad38bbe4db23a7c2cbc399732f08b02f8"></span><div class="line-block">
+<div class="line">void <strong>setPhi</strong>(const double phi)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Set the track&#8217;s azimuthal angle. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">phi</span></tt> - <p>the azimuthal angle </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1ab80097b734478dc58bf5830d008308a8"></span><div class="line-block">
+<div class="line">void <strong>setAzimAngleIndex</strong>(const int index)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Set the index for the track&#8217;s azimuthal angle index. </p>
+<p>The azimuthal angle index corresponds to a an array of all azimuthal angles for <span class="math">\theta \in [0, \pi]</span> owned by the <a class="reference internal" href="trackgenerator.html#OpenMOCclassTrackGenerator"><em>TrackGenerator</em></a> class. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">index</span></tt> - <p>the azimuthal angle index </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a948ca2fef0728a135ffd91fe615bcdca"></span><div class="line-block">
+<div class="line">void <strong>setReflIn</strong>(const bool refl_in)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the direction in which the flux leaving this track along its &#8220;forward&#8221; direction is passed to reflective track for boundary conditions. </p>
+<p>Sets whether or not to pass the outgoing flux from this track along its &#8220;forward&#8221; direction to the &#8220;forward&#8221; direction (false) or &#8220;reverse&#8221; direction (true) of the track reflecting out of this one at the boundary. This is used for reflective boundary conditions. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">refl_in</span></tt> - <p>the &#8220;forward&#8221; (false) or &#8220;reverse (true) direction </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1aa315dce1b97391650362a4b4edb67a55"></span><div class="line-block">
+<div class="line">void <strong>setReflOut</strong>(const bool refl_out)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the direction in which the flux leaving this track along its &#8220;reverse&#8221; direction is passed to reflective track for boundary conditions. </p>
+<p>Sets whether or not to pass the outgoing flux from this track along its &#8220;reverse&#8221; direction to the &#8220;forward&#8221; direction (false) or &#8220;reverse&#8221; direction (true) of the track reflecting out of this one at the boundary. This is used for reflective boundary conditions. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">refl_out</span></tt> - <p>&#8220;forward&#8221; (false) or &#8220;reverse (true) direction </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1af4202aab1116996433d9535eede31bef"></span><div class="line-block">
+<div class="line">void <strong>setBCIn</strong>(const bool bc_in)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the boundary condition for the incoming flux along the track&#8217;s &#8220;forward&#8221; direction. </p>
+<p>The boolean represents vacuum (false) or reflective (true) boundary conditions. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">bc_in</span></tt> - <p>boundary condition for the incoming flux in the &#8220;forward&#8221; direction </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a42ec89512a31f9efd0d6d7998694665c"></span><div class="line-block">
+<div class="line">void <strong>setBCOut</strong>(const bool bc_out)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the boundary condition for the incoming flux along the track&#8217;s &#8220;reverse&#8221; direction. </p>
+<p>The boolean represents vacuum (false) or reflective (true) boundary conditions. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">bc_out</span></tt> - <p>boundary condition for the incoming flux in the &#8220;reverse&#8221; direction </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1ad0293cc00910aa44f5d5d98af66f16a3"></span><div class="line-block">
+<div class="line">void <strong>setTrackIn</strong>(<a class="reference internal" href="#OpenMOCclassTrack"><em>Track</em></a>  * track_in)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the track reflecting into this track&#8217;s &#8220;forward&#8221; direction. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">track_in</span></tt> - <p>pointer to the track reflecting into the &#8220;forward&#8221; direction </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a4303af0eaea8bb86f3faa5506b042766"></span><div class="line-block">
+<div class="line">void <strong>setTrackOut</strong>(<a class="reference internal" href="#OpenMOCclassTrack"><em>Track</em></a>  * track_out)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the track reflecting into this track&#8217;s &#8220;reverse&#8221; direction. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">track_out</span></tt> - <p>pointer to the track reflecting into the &#8220;reverse&#8221; direction </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1ac5e9ac2b3376b3d4bc6c6fca1332c88b"></span><div class="line-block">
+<div class="line">void <strong>setTrackInI</strong>(int i)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the first index of the track reflecting into this track&#8217;s &#8220;forward&#8221; direction in the 2D jagged array of tracks. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">i</span></tt> - <p>the first index of the incoming track along the &#8220;forward&#8221; direction </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a04ed887db275a1236b9d318bf723ae33"></span><div class="line-block">
+<div class="line">void <strong>setTrackInJ</strong>(int j)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the second index of the track reflecting into this track&#8217;s &#8220;forward&#8221; direction in the 2D jagged array of tracks. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">j</span></tt> - <p>the second index of the incoming track along the &#8220;forward&#8221; direction </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a0f2d82202a6c4248625902c56b785940"></span><div class="line-block">
+<div class="line">void <strong>setTrackOutI</strong>(int i)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the first index of the track reflecting into this track&#8217;s &#8220;reverse&#8221; direction in the 2D jagged array of tracks. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">i</span></tt> - <p>the first index of the incoming track along the &#8220;reverse&#8221; direction </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1abba61551453ca5cf77044807e8b281c0"></span><div class="line-block">
+<div class="line">void <strong>setTrackOutJ</strong>(int j)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the second index of the track reflecting into this track&#8217;s &#8220;reverse&#8221; direction in the 2D jagged array of tracks. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">j</span></tt> - <p>the second index of the incoming track along the &#8220;reverse&#8221; direction </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1aba38ecdfdde05c79cbefaf341715a4ec"></span><div class="line-block">
+<div class="line">int <strong>getUid</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the track&#8217;s unique ID. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the track&#8217;s unique ID </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1adecdf5c5a6905609248b4fc30af5f111"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * <strong>getEnd</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a pointer to the track&#8217;s end point. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the track&#8217;s end point </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a14cbba36e759b0191961e05debcc527c"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * <strong>getStart</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a pointer to the track&#8217;s start point. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the track&#8217;s start point </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1adc334d5a90c1204770ab180b2f39bc56"></span><div class="line-block">
+<div class="line">double <strong>getPhi</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the track&#8217;s azimuthal angle (with respect to the x-axis). </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the azimuthal angle <span class="math">\theta \in [0, \pi]</span> </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1ad200ad729b952101b48a99b695c81a1b"></span><div class="line-block">
+<div class="line">int <strong>getAzimAngleIndex</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the index for the track&#8217;s azimuthal angle (with respect to the x-axis). </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>th azimuthal angle index </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a9f3cf1bcb2d1f234b7029b25cf657b3d"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="segment.html#OpenMOCstructsegment"><em>segment</em></a>  * <strong>getSegment</strong>(int s segment)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a pointer to a segment with a given index. </p>
+<p>Returns a pointer to the segment or ends program if track does not have the requested segment. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the requested segment </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">segment</span></tt> - <p>index into the track&#8217;s segments container </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a796efa8dc12ef0f1073ba264f4074380"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="segment.html#OpenMOCstructsegment"><em>segment</em></a>  * <strong>getSegments</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a vector of pointers to the track&#8217;s segments. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>vector of segment pointers </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a034893295ac06eed35aac0c7ed172419"></span><div class="line-block">
+<div class="line">int <strong>getNumSegments</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the number of segments along this track. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the number of segments </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1acb6799f18df940fc2a1165ee59b6de19"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="#OpenMOCclassTrack"><em>Track</em></a>  * <strong>getTrackIn</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the incoming track. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the incoming track </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a87369e197bc822b7edb8a8d2fa2b0395"></span><div class="line-block">
+<div class="line"><a class="reference internal" href="#OpenMOCclassTrack"><em>Track</em></a>  * <strong>getTrackOut</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the outgoing track. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the outgoing track </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1abf0ead5df0ac9aed7f4879abf1db253f"></span><div class="line-block">
+<div class="line">int <strong>getTrackInI</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the first index of the track reflecting out of this one along its &#8220;forward&#8221; direction in the 2D jagged array of all tracks. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the first index of the reflecting track </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1ac401ab0ca9f183f671f33366c1c41108"></span><div class="line-block">
+<div class="line">int <strong>getTrackInJ</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the second index of the track reflecting out of this one along its &#8220;forward&#8221; direction in the 2D jagged array of all tracks. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the second index of the reflecting track </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1ab1f42a0cb50d3e02f3ad8f70c46f16af"></span><div class="line-block">
+<div class="line">int <strong>getTrackOutI</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the first index of the track reflecting out of this one along its &#8220;reverse&#8221; direction in the 2D jagged array of all tracks. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the first index of the reflecting track </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a2f0bf64c3a0eb37a15f68f8939a317ce"></span><div class="line-block">
+<div class="line">int <strong>getTrackOutJ</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the second index of the track reflecting out of this one along its &#8220;reverse&#8221; direction in the 2D jagged array of all tracks. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the second index of the reflecting track </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1ac553046c3f61abb50c00d9c16ed045a0"></span><div class="line-block">
+<div class="line">bool <strong>isReflIn</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns whether to give the outgoing flux to the &#8220;forward&#8221; (false) or &#8220;reverse&#8221; (true) direction of the track reflecting out of this one along its &#8220;forward&#8221; direction. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>&#8220;forward&#8221; (false) &#8220;reverse&#8221; (true) direction of outgoing track </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1aafdc812cdaf36e09a3341284c61b8f0b"></span><div class="line-block">
+<div class="line">bool <strong>isReflOut</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns whether to give the outgoing flux to the &#8220;forward&#8221; (false) or &#8220;reverse&#8221; (true) direction of the track reflecting out of this one along its &#8220;reverse&#8221; direction. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>&#8220;forward&#8221; (false) &#8220;reverse&#8221; (true) direction of outgoing track </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a724c791d976b2e42b320598a496b13d4"></span><div class="line-block">
+<div class="line">bool <strong>getBCIn</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the boundary condition for the flux along the track&#8217;s &#8220;forward&#8221; direction. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>vacuum (false) or reflective (true) reflective boundary conditions </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1af84359a4e08d94a446157fce41a0f968"></span><div class="line-block">
+<div class="line">bool <strong>getBCOut</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the boundary condition for the flux along the track&#8217;s &#8220;reverse&#8221; direction. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>vacuum (false) or reflective (true) reflective boundary conditions </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a99ae10a8b0b25640a9041f85a1acd663"></span><div class="line-block">
+<div class="line">bool <strong>contains</strong>(<a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * point)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Checks whether a point is contained along this track. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>true if the point is on the track, false otherwise </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">point</span></tt> - <p>a pointer to the point of interest </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a08af057318f555da880a391718837ea0"></span><div class="line-block">
+<div class="line">void <strong>addSegment</strong>(<a class="reference internal" href="segment.html#OpenMOCstructsegment"><em>segment</em></a>  * segment)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Adds a segment pointer to this track&#8217;s list of segments. </p>
+<p>This method assumes that segments are added in order of their starting location from the track&#8217;s start point. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">segment</span></tt> - <p>a pointer to the segment </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1a1b0805ef586042609ee71ca07f41a85c"></span><div class="line-block">
+<div class="line">void <strong>clearSegments</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Deletes each of this track&#8217;s segments. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassTrack_1abc465cc8bc4d568c7031667cb831825e"></span><div class="line-block">
+<div class="line">std::string <strong>toString</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Convert this track&#8217;s attributes to a character array. </p>
+<p>The character array returned includes the track&#8217;s starting and ending coordinates, the azimuthal angle and azimuthal weight. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a character array of this track&#8217;s attributes </dd>
+</dl>
+</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="point.html"
+                        title="previous chapter">Point</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="segment.html"
+                        title="next chapter">Segment</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/track.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="segment.html" title="Segment"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="point.html" title="Point"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >OpenMOC API</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>
