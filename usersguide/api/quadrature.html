@@ -1,0 +1,291 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quadrature &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="OpenMOC API" href="index.html" />
+    <link rel="next" title="Material" href="material.html" />
+    <link rel="prev" title="TrackGenerator" href="trackgenerator.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="material.html" title="Material"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="trackgenerator.html" title="TrackGenerator"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">OpenMOC API</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="quadrature">
+<span id="id1"></span><h1>Quadrature<a class="headerlink" href="#quadrature" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line" id=""><span id="OpenMOCclassQuadrature"></span><em>class</em> <strong>Quadrature</strong></div>
+</div>
+<blockquote>
+<div><p>Stores values for a variety of polar quadratures which may be used. </p>
+<p></p>
+<em>Public Functions</em><blockquote>
+<div><p id=""><span id="OpenMOCclassQuadrature_1a39beb5f26c5a80b2115af0821e6b7981"></span><div class="line-block">
+<div class="line"> <strong>Quadrature</strong>(quadratureType type = TABUCHI, int num_polar_angles = 3)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Constructor initializes arrays with polar angles and weights. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">type</span></tt> - <p>the quadrature type (LEONARD or TABUCHI) </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">num_polar_angles</span></tt> - <p>the number of polar angles (1, 2, or 3) </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassQuadrature_1a1f523924a8cc88680aa77366a7d3a38e"></span><div class="line-block">
+<div class="line"> <strong>~Quadrature</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Destructor deletes arrray of sines of the polar angles, the weights of the polar angles and the products of the sines and weights. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassQuadrature_1a4f6664557a9fe290b1d6f9ca6d847c8e"></span><div class="line-block">
+<div class="line">int <strong>getNumPolarAngles</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the number of polar angles (1, 2 or 3). </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the number of polar angles </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassQuadrature_1afcd83d1504f903a3a829f1c2743b08ff"></span><div class="line-block">
+<div class="line">quadratureType <strong>getType</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the polar quadrature type (LEONARD or TABUCHI) </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the polar quadrature type </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassQuadrature_1a891c96ac4127b45461832bd72cbaf364"></span><div class="line-block">
+<div class="line">FP_PRECISION <strong>getSinTheta</strong>(const int n)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the <span class="math">sin(\theta)</span> value for a particular polar angle. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the value of <span class="math">\sin(\theta)</span> for this polar angle </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">n</span></tt> - <p>index of the polar angle of interest </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassQuadrature_1a7dde6379ad5b6b02cbc2aea3f5f9bce5"></span><div class="line-block">
+<div class="line">FP_PRECISION <strong>getWeight</strong>(const int n)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the weight value for a particular polar angle. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the weight for a polar angle </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">n</span></tt> - <p>index of the polar angle of interest </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassQuadrature_1a3f19d76860a2d1ec8406366188449a6d"></span><div class="line-block">
+<div class="line">FP_PRECISION <strong>getMultiple</strong>(const int n)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the multiple value for a particular polar angle. (the sine of a polar angle multiplied by its weight). </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the value of the sine of the polar angle multiplied with its weight </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">n</span></tt> - <p>index of the polar angle of interest </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassQuadrature_1a678dfcec6a74deeff5369c42ba7748aa"></span><div class="line-block">
+<div class="line">FP_PRECISION * <strong>getSinThetas</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a pointer to the quadrature&#8217;s sintheta array. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the sintheta array </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassQuadrature_1a770430bb480b1f8381b5bf83e5f7f881"></span><div class="line-block">
+<div class="line">FP_PRECISION * <strong>getWeights</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a pointer to the quadrature&#8217;s polar weights array. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the polar weights array </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassQuadrature_1abe4b4b49360a9fd5723e65fd35fb3ab9"></span><div class="line-block">
+<div class="line">FP_PRECISION * <strong>getMultiples</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns a pointer to the quadrature&#8217;s multiples array. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a pointer to the multiples array </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassQuadrature_1a4d80c3ca24bfe94d20cf8f0b20fbf62c"></span><div class="line-block">
+<div class="line">std::string <strong>toString</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Converts this quadrature to a character array of its attributes. </p>
+<p>The character array includes the polar quadrature type, the number of polar angles, and the values of the sine of each polar angle, the weight of each polar angle, and the product of the sine and weight of each polar angle. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a character array of this quadrature&#8217;s attributes </dd>
+</dl>
+</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="trackgenerator.html"
+                        title="previous chapter">TrackGenerator</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="material.html"
+                        title="next chapter">Material</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/quadrature.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="material.html" title="Material"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="trackgenerator.html" title="TrackGenerator"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >OpenMOC API</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

@@ -59,7 +59,7 @@
 <h2>2.1. Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <p>There are a few prerequisites which must be installed on your machine before you will be able to build and install OpenMOC. All of the prerequisites can easily be installed using a standard package manager (such as <a class="reference external" href="http://www.apt-get.org/">apt-get</a> for Ubuntu, <a class="reference external" href="http://yum.baseurl.org/">yum</a> for Red Hat, and <a class="reference external" href="http://www.macports.org/">macports</a> for Mac OS). The following instructions detail which packages are needed, with instructions on how to install them on Ubuntu.</p>
 <p>The following command will install all required and optional dependencies on Ubuntu 12.04 or later:</p>
-<div class="highlight-python"><pre>sudo apt-get install build-essential git swig python-numpy python-matplotlib python-h5py python-setuptools</pre>
+<div class="highlight-python"><pre>sudo apt-get install build-essential git swig python-numpy python-matplotlib python-h5py</pre>
 </div>
 <div class="admonition-required admonition">
 <p class="first admonition-title">Required</p>
@@ -78,9 +78,6 @@
 <p>If you do not have Python, you can easily install version 2.7 in Ubuntu as follows:</p>
 <div class="highlight-python"><pre>sudo apt-get install python2.7</pre>
 </div>
-<p>NOTE: In addition to needing the Python binaries, you also need the Python development source for OpenMOC to include and use to build and integrate the NumPy C API. Most Linux distributions include the Python source by default. If you do not have the source, you can generally install it using a package manager. In Ubuntu you can easily install the Python development source as follows:</p>
-<div class="highlight-python"><pre>sudo apt-get install python-dev</pre>
-</div>
 </li>
 <li><p class="first"><a class="reference external" href="http://git-scm.com">Git</a></p>
 <p>The OpenMOC development team uses the <a class="reference external" href="http://git-scm.com">Git</a> version control software for code development and collaboration. To download the code from our <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a> repository, you must first install git. You can do so on Ubuntu as follows:</p>
@@ -97,11 +94,6 @@
 <div class="highlight-python"><pre>sudo apt-get install python-numpy</pre>
 </div>
 <p>NOTE: Although NumPy is considered a required dependency, OpenMOC can be built using the <a class="reference internal" href="#cmdoption--no-numpy"><em class="xref std std-option">--no-numpy</em></a> compile time option. This will build an OpenMOC distribution without embedding the NumPy C API into the source code. When built in this mode, users will be unable to pass NumPy arrays from Python into OpenMOC&#8217;s C++ extension modules (i.e., assigning multigroup nuclear cross-section data) or retrieve data from OpenMOC into NumPy arrays for data analysis (i.e., scalar fluxes or pin powers). The <a class="reference internal" href="#cmdoption--no-numpy"><em class="xref std std-option">--no-numpy</em></a> mode is useful, however, on machines such as IBM&#8217;s <a class="reference external" href="http://www-03.ibm.com/systems/technicalcomputing/solutions/bluegene/">BlueGene</a> supercomputers which may not have NumPy installations.</p>
-</li>
-<li><p class="first"><a class="reference external" href="http://pythonhosted.org/setuptools/">setuptools</a></p>
-<p>Setuptools is a common Python package for building C/C++ extension modules with bindings for Python. It is as an extension to Python&#8217;s standard <a class="reference external" href="http://docs.python.org/2/library/distutils.html#module-distutils">distutils</a> package, and is used for OpenMOC&#8217;s build system. To install setuptools on Ubuntu,, use the following command:</p>
-<div class="highlight-python"><pre>sudo apt-get install python-setuptools</pre>
-</div>
 </li>
 </ul>
 </div>
@@ -125,7 +117,7 @@
 <div class="section" id="obtaining-the-source">
 <h2>2.2. Obtaining the Source<a class="headerlink" href="#obtaining-the-source" title="Permalink to this headline">¶</a></h2>
 <p>All OpenMOC source code is hosted on <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a>. You can download the source code directly from GitHub or, if you have the <a class="reference external" href="http://git-scm.com">Git</a> version control software installed on your computer, you can use git to obtain the source code. The latter method has the benefit that it is easy to receive updates directly from the GitHub repository. GitHub has a good set of <a class="reference external" href="http://help.github.com/set-up-git-redirect">instructions</a> for how to set up git to work with GitHub since this involves setting up <a class="reference external" href="http://en.wikipedia.org/wiki/Secure_Shell">ssh</a> keys. With git installed and setup, the following command will download the full source code from the GitHub repository:</p>
-<div class="highlight-python"><pre>git clone git://github.com/mit-crpg/OpenMOC.git</pre>
+<div class="highlight-python"><pre>git https://github.com/mit-crpg/OpenMOC.git</pre>
 </div>
 </div>
 <div class="section" id="building-from-source">

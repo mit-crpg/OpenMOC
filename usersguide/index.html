@@ -7,42 +7,38 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>User’s Guide &mdash; OpenMOC Documentation</title>
+    <title>The OpenMOC Method of Characteristics Code &mdash; OpenMOC Documentation</title>
     
-    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/breathe.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
+        URL_ROOT:    '',
         VERSION:     '0.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="next" title="1. A Beginner’s Guide to OpenMOC" href="beginners.html" />
-    <link rel="prev" title="7. Parallelization" href="../methods/parallelization.html" /> 
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="#" />
+    <link rel="next" title="Quick Install Guide" href="quickinstall.html" /> 
   </head>
   <body>
     <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
+          <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="beginners.html" title="1. A Beginner’s Guide to OpenMOC"
+          <a href="quickinstall.html" title="Quick Install Guide"
              accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="../methods/parallelization.html" title="7. Parallelization"
-             accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
+        <li><a href="#">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -51,59 +47,30 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="user-s-guide">
-<span id="usersguide"></span><h1>User&#8217;s Guide<a class="headerlink" href="#user-s-guide" title="Permalink to this headline">¶</a></h1>
-<p>Welcome to the OpenMOC User&#8217;s Guide!  This tutorial will guide you through the
-essential aspects of using OpenMOC to perform neutronic simulations.</p>
-<p>[THIS SITE IS STILL UNDER CONSTRUCTION]</p>
+  <div class="section" id="the-openmoc-method-of-characteristics-code">
+<h1>The OpenMOC Method of Characteristics Code<a class="headerlink" href="#the-openmoc-method-of-characteristics-code" title="Permalink to this headline">¶</a></h1>
+<p>OpenMOC is a Method of Characteristics neutral particle transport code for reactor physics criticality calculations. It is capable of simulating 2D models based on constructive solid geometry with second-order surfaces. High performance parallel solvers for multi-core, many-core and GPUs are actively pursued as part of the OpenMOC project. In addition, continued development of algorithmic acceleration techniques such as coarse mesh finite difference (CMFD) acceleration, are a focus of the OpenMOC project.</p>
+<p>OpenMC was originally developed by members of the <a class="reference external" href="http://crpg.mit.edu">Computational Reactor Physics
+Group</a> at the <a class="reference external" href="http://web.mit.edu">Massachusetts Institute of Technology</a> starting
+in 2012. For more information on OpenMOC, feel free to send a message to the User&#8217;s Group <a class="reference external" href="https://groups.google.com/forum/?hl=en#!forum/openmoc-users">mailing list</a>.</p>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="beginners.html">1. A Beginner&#8217;s Guide to OpenMOC</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="beginners.html#what-does-openmoc-do">1.1. What does OpenMOC do?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="beginners.html#how-does-it-work">1.2. How does it work?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="beginners.html#what-do-i-need-to-know">1.3. What do I need to know?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickinstall.html">Quick Install Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usersguide/index.html">User&#8217;s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="devguide/index.html">Developer&#8217;s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">OpenMOC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License Agreement</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">2. Installation and Configuration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html#prerequisites">2.1. Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#obtaining-the-source">2.2. Obtaining the Source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#building-from-source">2.3. Building From Source</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="install.html#standard-build-configuration">2.3.1. Standard Build Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="install.html#custom-build-configuration">2.3.2. Custom Build Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="install.html#build-configuration-options">2.3.3. Build Configuration Options</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#installing-on-ubuntu-with-ppa">2.4. Installing on Ubuntu with PPA</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="input.html">3. Writing Python Input Files</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="input.html#overview-of-files">3.1. Overview of Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html#geometry-specification">3.2. Geometry Specification</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html#materials-specification">3.3. Materials Specification</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html#geometry-plotting-specification">3.4. Geometry Plotting Specification</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="running.html">4. Running OpenMOC</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="running.html#executing-a-python-script">4.1. Executing a Python Script</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="running.html#running-openmoc-in-the-shell">4.1.1. Running OpenMOC in the Shell</a></li>
-<li class="toctree-l3"><a class="reference internal" href="running.html#submitting-a-torque-job">4.1.2. Submitting a TORQUE Job</a></li>
-<li class="toctree-l3"><a class="reference internal" href="running.html#submitting-a-cobalt-job">4.1.3. Submitting a Cobalt Job</a></li>
-<li class="toctree-l3"><a class="reference internal" href="running.html#canceling-an-openmoc-simulation">4.1.4. Canceling an OpenMOC Simulation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="running.html#runtime-options">4.2. Runtime Options</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="processing.html">5. Data Processing and Visualization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="processing.html#geometry-visualization">5.1. Geometry Visualization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing.html#flux-visualization">5.2. Flux Visualization</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="troubleshoot.html">6. Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="troubleshoot.html#problems-with-compilation">6.1. Problems with Compilation</a></li>
-</ul>
-</li>
-</ul>
+</div>
+<div class="align-center figure align-center">
+<img alt="_images/cover.png" src="_images/cover.png" />
+</div>
 </div>
 </div>
 
@@ -113,20 +80,27 @@ essential aspects of using OpenMOC to perform neutronic simulations.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../methods/parallelization.html"
-                        title="previous chapter">7. Parallelization</a></p>
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">The OpenMOC Method of Characteristics Code</a><ul>
+<li><a class="reference internal" href="#contents">Contents</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
   <h4>Next topic</h4>
-  <p class="topless"><a href="beginners.html"
-                        title="next chapter">1. A Beginner&#8217;s Guide to OpenMOC</a></p>
+  <p class="topless"><a href="quickinstall.html"
+                        title="next chapter">Quick Install Guide</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../_sources/usersguide/index.txt"
+    <li><a href="_sources/index.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
+    <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
@@ -145,15 +119,12 @@ essential aspects of using OpenMOC to perform neutronic simulations.</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
+          <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="beginners.html" title="1. A Beginner’s Guide to OpenMOC"
+          <a href="quickinstall.html" title="Quick Install Guide"
              >next</a> |</li>
-        <li class="right" >
-          <a href="../methods/parallelization.html" title="7. Parallelization"
-             >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
+        <li><a href="#">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>
 

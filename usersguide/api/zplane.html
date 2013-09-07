@@ -1,0 +1,253 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ZPlane &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="OpenMOC API" href="index.html" />
+    <link rel="next" title="Circle" href="circle.html" />
+    <link rel="prev" title="YPlane" href="yplane.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="circle.html" title="Circle"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="yplane.html" title="YPlane"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">OpenMOC API</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="zplane">
+<span id="id1"></span><h1>ZPlane<a class="headerlink" href="#zplane" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line" id=""><span id="OpenMOCclassZPlane"></span><em>class</em> <strong>ZPlane</strong></div>
+</div>
+<blockquote>
+<div><p>Represents a plane perpendicular to the z-axis. </p>
+<p></p>
+<em>Public Functions</em><blockquote>
+<div><p id=""><span id="OpenMOCclassZPlane_1adf8686299f24561e55dbbbdd1fd16c1d"></span><div class="line-block">
+<div class="line"> <strong>ZPlane</strong>(const double z, const short int id = 0)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Constructor for a plane perpendicular to the z-axis. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">id</span></tt> - <p>the surface id </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">z</span></tt> - <p>the location of the plane along the z-axis </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassZPlane_1a96d7d97847aefd832bad4d78a0ba5bd0"></span><div class="line-block">
+<div class="line">void <strong>setZ</strong>(const double z)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Set the location of this zplane on the z-axis. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">z</span></tt> - <p>the location of the zplane on the z-axis </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassZPlane_1abd5aa541a5803dfb52af8d156c06cb6d"></span><div class="line-block">
+<div class="line">double <strong>getZ</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the location of the zplane on the z-axis. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the location of the zplane on the z-axis </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassZPlane_1a88cf39a1b45475ca33b9c6c490a2be32"></span><div class="line-block">
+<div class="line">double <strong>getXMin</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the minimum x value of -INFINITY on this zplane. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the minimum x value of -INFINITY </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassZPlane_1a8a5210e90bdfb46876935dbef37193ff"></span><div class="line-block">
+<div class="line">double <strong>getXMax</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the maximum x value of INFINITY on this zplane. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the maximum x value of INFINITY </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassZPlane_1ac8c77d7807045ce074dc76a69b93d5b6"></span><div class="line-block">
+<div class="line">double <strong>getYMin</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the minimum y value of -INFINITY on this zplane. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the minimum y value of -INFINITY </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassZPlane_1a3c76cfa8b383fbf962589b35364ab8cf"></span><div class="line-block">
+<div class="line">double <strong>getYMax</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the maximum y value on this zplane. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the maximum y value </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassZPlane_1a7a55a5e5c3d7d1279844263e77010c40"></span><div class="line-block">
+<div class="line">std::string <strong>toString</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Converts this zplane&#8217;s attributes to a character array. </p>
+<p>The character array returned conatins the type of plane (ie, ZPLANE) and the A, B, and C coefficients in the quadratic surface equation and the location of the plane along the z-axis. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a character array of this zplane&#8217;s attributes </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassZPlane_1a979069fb189a567b298114bf5b24ff4a"></span><div class="line-block">
+<div class="line">void <strong>printString</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Prints a string representation of all of the zplane&#8217;s objects to the console. </p>
+<p></p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="yplane.html"
+                        title="previous chapter">YPlane</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="circle.html"
+                        title="next chapter">Circle</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/zplane.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="circle.html" title="Circle"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="yplane.html" title="YPlane"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >OpenMOC API</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

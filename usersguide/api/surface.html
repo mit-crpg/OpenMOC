@@ -1,0 +1,393 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Surface &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="OpenMOC API" href="index.html" />
+    <link rel="next" title="Plane" href="plane.html" />
+    <link rel="prev" title="VectorizedPrivateSolver" href="vectorizedprivatesolver.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="plane.html" title="Plane"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vectorizedprivatesolver.html" title="VectorizedPrivateSolver"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">OpenMOC API</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="surface">
+<span id="id1"></span><h1>Surface<a class="headerlink" href="#surface" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line" id=""><span id="OpenMOCclassSurface"></span><em>class</em> <strong>Surface</strong></div>
+</div>
+<blockquote>
+<div><p>Represents a general surface in the 2D xy-plane. </p>
+<p>The surface class and its subclasses are used to define the geometry for an OpenMOC simulation using a constructive solid geometry (CSG) formalism. Surfaces are used during ray tracing of charateristic tracks across the geometry. </p>
+<em>Public Functions</em><blockquote>
+<div><p id=""><span id="OpenMOCclassSurface_1ad29d02e18bad0fe49e5a18d9f0cab7a2"></span><div class="line-block">
+<div class="line"> <strong>Surface</strong>(const short int id = 0)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Constructor assigns unique ID and user-defined ID for a surface. </p>
+<p>Assigns a default boundary condition for this surface to BOUNDARY_NONE. <dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">id</span></tt> - <p>an optional user-defined surface id </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a89de75c95cb550d432f3ea4ed1429db0"></span><div class="line-block">
+<div class="line"> <strong>~Surface</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Destructor. </p>
+<p></p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a1b8e7a0a79ee5b21ad5006ec7a1380a5"></span><div class="line-block">
+<div class="line">short int <strong>getUid</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the surface&#8217;s unique ID. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the surface&#8217;s unique ID </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a77ba5d7532f411134107c777861d23b2"></span><div class="line-block">
+<div class="line">short int <strong>getId</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the surface&#8217;s user-defined id. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the surface&#8217;s user-defined id </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a0e9228606069f0540ba43960ca192327"></span><div class="line-block">
+<div class="line">surfaceType <strong>getSurfaceType</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return the type of surface (ie, XPLANE, CIRCLE, etc). </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the surface type </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1afa3ef1b6a8b18d04240ee1a3bc908780"></span><div class="line-block">
+<div class="line">boundaryType <strong>getBoundaryType</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the type of boundary conditions for this surface (REFLECTIVE, VACUUM or BOUNDARY_NONE) </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the type of boundary type for this surface </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a3baea26cc38b6fb0d194fca014018174"></span><div class="line-block">
+<div class="line">double <strong>getXMin</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the minimum x value on this surface. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the minimum x value </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1aff659fd1b2d547d8b59df1b804d4098b"></span><div class="line-block">
+<div class="line">double <strong>getXMax</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the maximum x value on this surface. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the maximum x value </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a294b8bd2f04b3b938cc7c31cc4f941f3"></span><div class="line-block">
+<div class="line">double <strong>getYMin</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the minimum y value on this surface. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the minimum y value </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a1ffa35335f366974886fa7c36b564fef"></span><div class="line-block">
+<div class="line">double <strong>getYMax</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Returns the maximum y value on this surface. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the maximum y value </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1af8921636e9779854a377f412817c3a32"></span><div class="line-block">
+<div class="line">void <strong>setBoundaryType</strong>(const  boundaryType boundary_type)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Sets the boundary condition type (ie, VACUUM or REFLECTIVE) for this surface. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">boundary_type</span></tt> - <p>the boundary condition forthis surface </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a2e0aaef635a7392806d27fb4999a9168"></span><div class="line-block">
+<div class="line">double <strong>evaluate</strong>(const  <a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * point)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Evaluate a point using the plane&#8217;s surface&#8217;s potential equation. </p>
+<p>This method returns the values <span class="math">f(x,y)</span> for the potential function <span class="math">f</span> representing this surface. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the value of point in the plane&#8217;s potential equation. </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">point</span></tt> - <p>a pointer to the point of interest </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a145ed967142bc6c121d43f5f2523e2e9"></span><div class="line-block">
+<div class="line">int <strong>intersection</strong>(<a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * point, double angle, <a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * points)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Finds the intersection point with this surface from a given point and trajectory defined by an angle. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the number of intersection points (0 or 1) </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">point</span></tt> - <p>pointer to the point of interest </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">angle</span></tt> - <p>the angle defining the trajectory in radians </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">points</span></tt> - <p>pointer to a point to store the intersection point </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1ad996b11e3af07e6dea8081cb11ccfe0c"></span><div class="line-block">
+<div class="line">bool <strong>isPointOnSurface</strong>(<a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * point)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return true or false if a point is on or off of a surface. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>on (true) or off (false) the surface </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">point</span></tt> - <p>pointer to the point of interest </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a1263b1b61154ed6f75e7079a5832d853"></span><div class="line-block">
+<div class="line">bool <strong>isCoordOnSurface</strong>(LocalCoords  * coord)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Return true or false if a localcoord is on or off of a surface. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>on (true) or off (false) the surface </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">coord</span></tt> - <p>pointer to the localcoord of interest </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a38d24a561dd8d1e3e3a0dabc3a472634"></span><div class="line-block">
+<div class="line">double <strong>getMinDistance</strong>(<a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * point, double angle, <a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * intersection)</div>
+</div>
+</p>
+<blockquote>
+<div><p>Finds the minimum distance to a surface. </p>
+<p>Finds the miniumum distance to a surface from a point with a given trajectory defined by an angle to this surface. If the trajectory will not intersect the surface, returns INFINITY. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>the minimum distance to the surface </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last">
+<li><tt class="first docutils literal"><span class="pre">point</span></tt> - <p>a pointer to the point of interest </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">angle</span></tt> - <p>the angle defining the trajectory in radians </p>
+</li>
+<li><tt class="first docutils literal"><span class="pre">intersection</span></tt> - <p>a pointer to a point for storing the intersection </p>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1a7275a4ce4c6d96fd90b5c1916cf9ae37"></span><div class="line-block">
+<div class="line">std::string <strong>toString</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Converts this surface&#8217;s attributes to a character array. </p>
+<p>The character array returned conatins the type of surface (ie, PLANE) and the coefficients in the potential equation. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>a character array of this surface&#8217;s attributes </dd>
+</dl>
+</p>
+</div></blockquote>
+<p id=""><span id="OpenMOCclassSurface_1aedc2d76b05edc93b85bb63dc41c1f1b2"></span><div class="line-block">
+<div class="line">void <strong>printString</strong>()</div>
+</div>
+</p>
+<blockquote>
+<div><p>Prints a string representation of all of the surface&#8217;s objects to the console. </p>
+<p></p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="vectorizedprivatesolver.html"
+                        title="previous chapter">VectorizedPrivateSolver</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="plane.html"
+                        title="next chapter">Plane</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/surface.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="plane.html" title="Plane"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="vectorizedprivatesolver.html" title="VectorizedPrivateSolver"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >OpenMOC API</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>
