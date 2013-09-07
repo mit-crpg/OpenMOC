@@ -372,7 +372,6 @@ class configuration:
             self.swig_flags += ['-DNO_NUMPY']
         
         # The main openmoc extension (defaults are gcc and single precision)
-        print self.sources[self.cc]
         self.extensions.append(
             Extension(name = '_openmoc', 
                       sources = copy.deepcopy(self.sources[self.cc]), 
