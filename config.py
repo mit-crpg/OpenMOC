@@ -1,4 +1,4 @@
-import sys
+import sys, copy
 from distutils.extension import Extension
 from distutils.util import get_platform
 
@@ -215,7 +215,7 @@ class configuration:
     # A dictionary of the linker flags to use for each compiler type
     linker_flags = {}
 
-    linker_flags['gcc'] = ['-fopenmp', '-shared', 
+    linker_flags['gcc'] = ['-fopenmp', '-shared',
                            '-Wl,-soname,' + get_openmoc_object_name()]
     linker_flags['icpc'] = [ '-openmp', '-shared', 
                              '-Xlinker', '-soname=' + get_openmoc_object_name()]
@@ -372,9 +372,10 @@ class configuration:
             self.swig_flags += ['-DNO_NUMPY']
         
         # The main openmoc extension (defaults are gcc and single precision)
+        print self.sources[self.cc]
         self.extensions.append(
             Extension(name = '_openmoc', 
-                      sources = self.sources[self.cc], 
+                      sources = copy.deepcopy(self.sources[self.cc]), 
                       library_dirs = self.library_directories[self.cc], 
                       libraries = self.shared_libraries[self.cc],
                       extra_link_args = self.linker_flags[self.cc], 
@@ -386,6 +387,7 @@ class configuration:
         # (ie, openmoc.gnu.*, openmoc.intel.*, etc) 
         self.sources['gcc'].remove('openmoc/openmoc_wrap.cpp')
         self.sources['icpc'].remove('openmoc/openmoc_wrap.cpp')
+        self.sources['bgxlc'].remove('openmoc/openmoc_wrap.cpp')
          
         # The openmoc.cuda extension if requested by the user at compile 
         # time (--with-cuda)        
@@ -454,10 +456,14 @@ class configuration:
                 # extension modules
                 self.extensions.append(
                     Extension(name = ext_name, 
-                              sources = self.sources[cc], 
+                              sources = copy.deepcopy(self.sources[cc]), 
                               library_dirs = self.library_directories[cc], 
                               libraries = self.shared_libraries[cc],
                               extra_link_args = self.linker_flags[cc], 
                               include_dirs = self.include_directories[cc],
                               define_macros = self.macros[cc][fp],
                               swig_opts = self.swig_flags + ['-D' + cc.upper()]))
+
+                # Clean up - remove the SWIG-generated wrap file from this
+                # extension for the next extension
+                self.sources[cc].remove(swig_wrap_file)

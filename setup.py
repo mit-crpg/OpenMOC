@@ -1,4 +1,4 @@
-from setuptools import setup
+from distutils.core import setup
 from distutils.command.build_ext import build_ext
 from distutils.command.install import install
 from distutils.errors import DistutilsOptionError
@@ -399,47 +399,47 @@ class custom_build_ext(build_ext):
         os.system('swig -python -c++ -keyword -DGCC -o ' + \
                       'openmoc/openmoc_wrap.cpp openmoc/openmoc.i')
 
-        if 'openmoc/gnu/single/openmoc_gnu_single_wrap.cpp' in config.extensions:
+        if 'gcc' in config.cpp_compilers and 'single' in config.fp_precision:
             os.system('swig -python -c++ -keyword -DGCC -o ' + \
                       'openmoc/gnu/single/openmoc_gnu_single_wrap.cpp ' + \
                       'openmoc/gnu/single/openmoc_gnu_single.i')
 
-        if 'openmoc/gnu/double/openmoc_gnu_double_wrap.cpp' in config.extensions:
+        if 'gcc' in config.cpp_compilers and 'double' in config.fp_precision:
             os.system('swig -python -c++ -keyword -DGCC -o ' + \
                       'openmoc/gnu/double/openmoc_gnu_double_wrap.cpp ' + \
                       'openmoc/gnu/double/openmoc_gnu_double.i')
 
-        if 'openmoc/intel/single/openmoc_intel_single_wrap.cpp' in config.extensions:
+        if 'icpc' in config.cpp_compilers and 'single' in config.fp_precision:
             os.system('swig -python -c++ -keyword -DGCC -o ' + \
                       'openmoc/intel/single/openmoc_intel_single_wrap.cpp ' + \
                       'openmoc/intel/single/openmoc_intel_single.i')
 
-        if 'openmoc/intel/double/openmoc_intel_double_wrap.cpp' in config.extensions:
+        if 'icpc' in config.cpp_compilers and 'double' in config.fp_precision:
             os.system('swig -python -c++ -keyword -DGCC -o ' + \
                       'openmoc/intel/double/openmoc_intel_double_wrap.cpp ' + \
                       'openmoc/intel/double/openmoc_intel_double.i')
 
-        if 'openmoc/bgq/single/openmoc_bgq_single_wrap.cpp' in config.extensions:
+        if 'bgxlc' in config.cpp_compilers and 'single' in config.fp_precision:
             os.system('swig -python -c++ -keyword -DGCC -o ' + \
                       'openmoc/bgq/single/openmoc_bgq_single_wrap.cpp ' + \
                       'openmoc/bgq/single/openmoc_bgq_single.i')
 
-        if 'openmoc/bgq/double/openmoc_bgq_double_wrap.cpp' in config.extensions:
+        if 'bgxlc' in config.cpp_compilers and 'double' in config.fp_precision:
             os.system('swig -python -c++ -keyword -DGCC -o ' + \
                       'openmoc/bgq/double/openmoc_bgq_double_wrap.cpp ' + \
                       'openmoc/bgq/double/openmoc_bgq_double.i')
 
-        if 'openmoc/bgq/double/openmoc_cuda_wrap.cpp' in config.extensions:
+        if 'nvcc' in config.cpp_compilers:
             os.system('swig -python -c++ -keyword -DGCC -o ' + \
                       'openmoc/cuda/openmoc_cuda_wrap.cpp ' + \
                       'openmoc/cuda/openmoc_cuda.i')
 
-        if 'openmoc/cuda/single/openmoc_cuda_single_wrap.cpp' in config.extensions:
+        if 'nvcc' in config.cpp_compilers and 'single' in config.fp_precision:
             os.system('swig -python -c++ -keyword -DGCC -o ' + \
                       'openmoc/cuda/single/openmoc_cuda_single_wrap.cpp ' + \
                       'openmoc/cuda/single/openmoc_cuda_single.i')
 
-        if 'openmoc/cuda/double/openmoc_cuda_double_wrap.cpp' in config.extensions:
+        if 'nvcc' in config.cpp_compilers and 'double' in config.fp_precision:
             os.system('swig -python -c++ -keyword -DGCC -o ' + \
                       'openmoc/cuda/double/openmoc_cuda_double_wrap.cpp ' + \
                       'openmoc/cuda/double/openmoc_cuda_double.i')
