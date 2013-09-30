@@ -237,10 +237,13 @@ def plotMaterials(geometry, gridsize=250):
             material_id = geometry.findCellContainingFSR(fsr_id).getMaterial()
             surface[j][i] = color_map[material_id % num_colors]
 
+    # Flip the surface vertically to align NumPy row/column indices with the
+    # orientation expected by the user
+    surface = np.flipud(surface)
+
     # Plot a 2D color map of the materials
     fig = plt.figure()
     plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
-    plt.colorbar()
     plt.title('Materials')
     filename = directory + 'materials.png'
     fig.savefig(filename, bbox_inches='tight')
@@ -309,11 +312,13 @@ def plotCells(geometry, gridsize=250):
             cell_id = geometry.findCellContainingFSR(fsr_id).getId()
             surface[j][i] = color_map[cell_id % num_colors]
 
+    # Flip the surface vertically to align NumPy row/column indices with the
+    # orientation expected by the user
+    surface = np.flipud(surface)
 
     # Plot a 2D color map of the cells
     fig = plt.figure()
     plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
-    plt.colorbar()
     plt.title('Cells')
     filename = directory + 'cells.png'
     fig.savefig(filename)
@@ -382,11 +387,13 @@ def plotFlatSourceRegions(geometry, gridsize=250):
             fsr_id = geometry.findFSRId(point)
             surface[j][i] = color_map[fsr_id % num_colors]
 
+    # Flip the surface vertically to align NumPy row/column indices with the
+    # orientation expected by the user
+    surface = np.flipud(surface)
 
     # Plot a 2D color map of the flat source regions
     fig = plt.figure()
     plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
-    plt.colorbar()
     plt.title('Flat Source Regions')
     filename = directory + 'flat-source-regions.png'
     fig.savefig(filename)
@@ -498,7 +505,7 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
 
             # Get the scalar flux for each energy group in this FSR
             for index, group in enumerate(energy_groups):
-                fluxes[index,i,j] = solver.getFSRScalarFlux(fsr_id, group)
+                fluxes[index,j,i] = solver.getFSRScalarFlux(fsr_id, group)
 
 
     # Loop over all energy group and create a plot
@@ -506,8 +513,10 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
 
         # Plot a 2D color map of the flat source regions
         fig = plt.figure()
-        plt.imshow(np.flipud(fluxes[index,:,:]), 
-                   extent=[xmin, xmax, ymin, ymax])
+        plt.imshow(np.flipud(fluxes[index,:,:]), \
+                       extent=[xmin, xmax, ymin, ymax])
+#        plt.imshow(np.flipud(fluxes[index,:,:]), 
+#                   extent=[xmin, xmax, ymin, ymax])
         plt.colorbar()
         plt.title('Flat Source Region Scalar Flux in Group ' + str(group))
         filename = directory + 'fsr-flux-group-' + str(group) + '.png'
