@@ -5,6 +5,7 @@
     #include "../../../src/Solver.h"
     #include "../../../src/dev/gpu/GPUSolver.h"
     #include "../../../src/dev/gpu/GPUQuery.h"
+    #include "../../../src/dev/gpu/clone.h"
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
@@ -58,6 +59,7 @@
 %include ../../../src/Solver.h
 %include ../../../src/dev/gpu/GPUSolver.h
 %include ../../../src/dev/gpu/GPUQuery.h
+%include ../../../src/dev/gpu/clone.h
 
 typedef float FP_PRECISION;
 
