@@ -182,8 +182,8 @@ class configuration:
 
 
     sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
-                       'src/dev/gpu/clone.cu',
                        'src/dev/gpu/GPUQuery.cu',
+                       'src/dev/gpu/clone.cu',
                        'src/dev/gpu/GPUSolver.cu']
 
 
@@ -396,7 +396,7 @@ class configuration:
 
             self.extensions.append(
                 Extension(name = '_openmoc_cuda', 
-                          sources = self.sources['nvcc'], 
+                          sources = copy.deepcopy(self.sources['nvcc']), 
                           library_dirs = self.library_directories['nvcc'], 
                           libraries = self.shared_libraries['nvcc'],
                           extra_link_args = self.linker_flags['nvcc'], 

@@ -5,6 +5,7 @@
     #include "../../../src/Solver.h"
     #include "../../../src/dev/gpu/GPUSolver.h"
     #include "../../../src/dev/gpu/GPUQuery.h"
+    #include "../../../src/dev/gpu/clone.h"
 
 
     /* Exception helpers */
@@ -60,6 +61,7 @@
 %include ../../../src/Solver.h
 %include ../../../src/dev/gpu/GPUSolver.h
 %include ../../../src/dev/gpu/GPUQuery.h
+%include ../../../src/dev/gpu/clone.h
 
 typedef double FP_PRECISION;
 
