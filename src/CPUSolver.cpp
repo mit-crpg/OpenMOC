@@ -74,7 +74,7 @@ FP_PRECISION CPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
 		 "in energy group %d since energy groups are greater than 1",
 		 fsr_id, energy_group);
 
-    return _scalar_flux(fsr_id,energy_group);
+    return _scalar_flux(fsr_id,energy_group-1);
 }
 
 
