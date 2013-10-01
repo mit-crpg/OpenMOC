@@ -507,7 +507,6 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
             for index, group in enumerate(energy_groups):
                 fluxes[index,j,i] = solver.getFSRScalarFlux(fsr_id, group)
 
-
     # Loop over all energy group and create a plot
     for index, group in enumerate(energy_groups):
 
@@ -515,8 +514,6 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
         fig = plt.figure()
         plt.imshow(np.flipud(fluxes[index,:,:]), \
                        extent=[xmin, xmax, ymin, ymax])
-#        plt.imshow(np.flipud(fluxes[index,:,:]), 
-#                   extent=[xmin, xmax, ymin, ymax])
         plt.colorbar()
         plt.title('Flat Source Region Scalar Flux in Group ' + str(group))
         filename = directory + 'fsr-flux-group-' + str(group) + '.png'

@@ -819,7 +819,7 @@ FP_PRECISION GPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
 
     /* Copy the scalar flux for this FSR and energy group from the device */
     FP_PRECISION fsr_scalar_flux;
-    int flux_index = fsr_id * _num_groups + energy_group - 1;
+    int flux_index = fsr_id * _num_groups + (energy_group - 1);
     cudaMemcpy((void*)&fsr_scalar_flux, (void*)&_scalar_flux[flux_index], 
 	       sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
 
