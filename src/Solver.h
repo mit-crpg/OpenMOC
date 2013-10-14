@@ -24,7 +24,7 @@
 
 /** Indexing macro for the surface currents for each mesh surface and in
  *  each energy group */
-#define _surface_currents(r,e) (_surface_currents[(r)*_num_groups + (e)])
+#define _surface_currents(r,e) (_surface_currents[(r % _geometry->getMesh()->getNumCurrents())*_num_groups + (e)])
 
 /** Indexing macro for the total source in each flat source region and in
  *  each energy group */

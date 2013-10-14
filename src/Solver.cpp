@@ -9,6 +9,7 @@
  *          default of 1.
  * @param geometry an optional pointer to the geometry
  * @param track_generator an optional pointer to the trackgenerator
+ * @param cmfd an optional pointer to the cmfd module
  */
 Solver::Solver(Geometry* geometry, TrackGenerator* track_generator, Cmfd* cmfd) {
 

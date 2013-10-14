@@ -1202,8 +1202,8 @@ void Geometry::segmentize(Track* track) {
 
 	    /* get pointer to mesh surfaces that the segment crosses */
 	    if (_mesh->getAcceleration()){
-	    	new_segment->_mesh_surface_fwd = _mesh->findMeshSurface(new_segment->_region_id, &segment_end);
-	    	new_segment->_mesh_surface_bwd = _mesh->findMeshSurface(new_segment->_region_id, &segment_start);
+	      new_segment->_mesh_surface_fwd = _mesh->findMeshSurface(new_segment->_region_id, &segment_end, track->getAzimAngleIndex());
+	      new_segment->_mesh_surface_bwd = _mesh->findMeshSurface(new_segment->_region_id, &segment_start, track->getAzimAngleIndex());
 	    }
 
 	    /* Add the segment to the track */
@@ -1543,6 +1543,7 @@ void Geometry::initializeMesh(){
     int meshCellNum = 0;
     defineMesh(_mesh, univ, _cmfd_level, &meshCellNum, 0, true, 0);
     _mesh->setFSRBounds();
+    _mesh->setCellBounds();
     _mesh->initializeMaterials(&_materials, _FSRs_to_materials_id);
     
     return;
