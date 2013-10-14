@@ -64,7 +64,7 @@ class configuration:
     cc = 'gcc'
 
     # Default floating point for the main openmoc module is single precision
-    fp = 'single'
+    fp = 'double'
 
     # Supported C++ compilers: 'gcc', 'icpc', 'bgxlc', 'nvcc', 'all'
     cpp_compilers = []
@@ -89,6 +89,29 @@ class configuration:
     # Compile with NumPy typemaps and the C API to allow users to pass NumPy
     # arrays to/from the C++ source code
     with_numpy = True
+
+    # Compile with PETSc included and the C API to allow users to perform
+    # CMFD acceleration and solve diffusion problems
+    with_petsc = True
+    
+    if (with_petsc):
+        import petsc4py
+        petsc_cfg = petsc4py.get_include()
+        petsc_cfg_file = open(petsc_cfg[:-7] + 'lib/petsc.cfg')
+        petsc_cfg_lines = petsc_cfg_file.readlines()
+        for line in petsc_cfg_lines:
+            if line.split()[0] == 'PETSC_DIR':
+                petsc_dir = line.split()[2]
+            if line.split()[0] == 'PETSC_ARCH':
+                petsc_arch = line.split()[2]
+            
+        petsc_include = []
+        petsc_include.append('/usr/local/Cellar/valgrind/3.8.1/include')
+        petsc_include.append(petsc_dir + '/include')
+        petsc_include.append(petsc_dir + '/' + petsc_arch + '/include')
+        petsc_lib_include = []
+        petsc_lib_include.append(petsc_dir + '/' + petsc_arch + '/lib')
+
 
     # The vector length used for the VectorizedSolver class. This will used
     # as a hint for the Intel compiler to issue SIMD (ie, SSE, AVX, etc) vector 
@@ -127,10 +150,12 @@ class configuration:
 
     sources['gcc'] = ['openmoc/openmoc_wrap.cpp',
                       'src/Cell.cpp',
+                      'src/Cmfd.cpp',
                       'src/Geometry.cpp',
                       'src/LocalCoords.cpp',
                       'src/log.cpp',
                       'src/Material.cpp',
+                      'src/Mesh.cpp',
                       'src/Point.cpp',
                       'src/Quadrature.cpp',
                       'src/Solver.cpp',
@@ -239,7 +264,11 @@ class configuration:
     # A dictionary of the shared libraries to use for each compiler type
     shared_libraries = {}
 
-    shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
+    if with_petsc:
+        shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm', 'petsc']
+    else:
+        shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
+
     shared_libraries['icpc'] = ['stdc++', 'iomp5', 'pthread', 'irc', 
                                 'imf','rt', 'mkl_rt','m',]
     shared_libraries['nvcc'] = ['cudart']
@@ -260,6 +289,10 @@ class configuration:
     else:
         library_directories['gcc'] = []
 
+    if with_petsc: 
+        for i in petsc_lib_include:
+            library_directories['gcc'].append(i)
+
     library_directories['icpc'] = []
     library_directories['bgxlc'] = []
     library_directories['nvcc'] = ['/usr/local/cuda/lib64']
@@ -278,6 +311,10 @@ class configuration:
         include_directories['gcc'] = [sys.exec_prefix + '/lib/python' + str(sys.version_info[0]) + '.' + str(sys.version_info[1]) + '/site-packages/numpy/core/include']
     else:
         include_directories['gcc'] = []
+
+    if with_petsc:
+        for i in petsc_include:
+            include_directories['gcc'].append(i)
     
     include_directories['icpc'] =[]
     include_directories['bgxlc'] = ['/usr/lib64/python2.6/site-packages/numpy/core/include']

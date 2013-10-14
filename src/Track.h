@@ -28,6 +28,12 @@ struct segment {
 
     /** The id for flat source region in which this segment resides */
     int _region_id;
+
+    /** The id for the meshSurface crossed by the track end point */
+    int _mesh_surface_fwd;
+
+    /** The id for the meshSurface crossed by the track start point */
+    int _mesh_surface_bwd;
 };
 
 

@@ -11,10 +11,12 @@
  * @param track_generator an optional pointer to the trackgenerator
  */
 ThreadPrivateSolver::ThreadPrivateSolver(Geometry* geometry, 
-					 TrackGenerator* track_generator) :
-  CPUSolver(geometry, track_generator) {
+					 TrackGenerator* track_generator,
+					 Cmfd* cmfd) :
+  CPUSolver(geometry, track_generator, cmfd) {
 
     _thread_flux = NULL;
+    _thread_currents = NULL;
 }
 
 
@@ -28,6 +30,12 @@ ThreadPrivateSolver::~ThreadPrivateSolver() {
         delete [] _thread_flux;
 	_thread_flux = NULL;
     }
+
+    if (_thread_currents != NULL) {
+        delete [] _thread_currents;
+	_thread_currents = NULL;
+    }
+
 }
 
 
@@ -45,6 +53,10 @@ void ThreadPrivateSolver::initializeFluxArrays() {
     if (_thread_flux != NULL)
         delete [] _thread_flux;
 
+    /* Delete old current arrays if they exist */
+    if (_thread_currents != NULL)
+        delete [] _thread_currents;
+
     int size;
 
     /* Allocate memory for the flux and leakage arrays */
@@ -52,6 +64,10 @@ void ThreadPrivateSolver::initializeFluxArrays() {
 	/* Allocate a thread local array of FSR scalar fluxes */
 	size = _num_threads * _num_FSRs * _num_groups * sizeof(FP_PRECISION);
 	_thread_flux = new FP_PRECISION[size];
+
+	/* Allocate a thread local array of mesh cell surface currents */
+	size = _num_threads * _num_mesh_cells * 8 * _num_groups * sizeof(FP_PRECISION);
+	_thread_currents = new FP_PRECISION[size];
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "
@@ -86,6 +102,28 @@ void ThreadPrivateSolver::flattenFSRFluxes(FP_PRECISION value) {
 
 
 /**
+ * @brief Set the surface currents for each energy group inside each
+ * 			mesh cell to zero
+ */
+void ThreadPrivateSolver::zeroSurfaceCurrents() {
+
+	CPUSolver::zeroSurfaceCurrents();
+
+    #pragma omp parallel for schedule(guided)
+	for (int tid=0; tid < _num_threads; tid++){
+		for (int r=0; r < _num_mesh_cells; r++) {
+			for (int s=0; s < 8; s++) {
+				for (int e=0; e < _num_groups; e++)
+					_thread_currents(tid,r*8+s,e) = 0.0;
+			}
+		}
+	}
+
+    return;
+}
+
+
+/**
  * @brief This method performs one transport sweep of all azimuthal angles, 
  *        tracks, segments, polar angles and energy groups.
  * @details The method integrates the flux along each track and updates the 
@@ -106,6 +144,7 @@ void ThreadPrivateSolver::transportSweep() {
 
     /* Initialize flux in each region to zero */
     flattenFSRFluxes(0.0);
+    zeroSurfaceCurrents();
 
     /* Loop over azimuthal angle halfspaces */
     for (int i=0; i < 2; i++) {
@@ -133,7 +172,7 @@ void ThreadPrivateSolver::transportSweep() {
 	        curr_segment = &segments[s];
 		fsr_id = curr_segment->_region_id;
 		scalarFluxTally(curr_segment, track_flux, 
-	                        &_thread_flux(tid,fsr_id,0));
+	                        &_thread_flux(tid,fsr_id,0),true,s);
 	    }
 
 	    /* Transfer flux to outgoing track */
@@ -146,7 +185,7 @@ void ThreadPrivateSolver::transportSweep() {
 	        curr_segment = &segments[s];
 		fsr_id = curr_segment->_region_id;
 		scalarFluxTally(curr_segment, track_flux, 
-	                        &_thread_flux(tid,fsr_id,0));
+	                        &_thread_flux(tid,fsr_id,0),false,s);
 	    }
 	    
 	    /* Transfer flux to outgoing track */
@@ -155,6 +194,7 @@ void ThreadPrivateSolver::transportSweep() {
     }
 
     reduceThreadScalarFluxes();
+    reduceThreadSurfaceCurrents();
 
     return;
 }
@@ -172,7 +212,8 @@ void ThreadPrivateSolver::transportSweep() {
  */
 void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment, 
 					  FP_PRECISION* track_flux,
-					  FP_PRECISION* fsr_flux){
+					  FP_PRECISION* fsr_flux,
+					  bool fwd, int s){
 
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
@@ -182,6 +223,45 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
     FP_PRECISION exponential;
+
+    if (_cmfd->getMesh()->getAcceleration()){
+    	if (s == 0 && fwd){
+
+    		/* set polar angle * energy group to 0 */
+    		int pe = 0;
+
+    		/* loop over energy groups */
+    		for (int e = 0; e < _num_groups; e++) {
+
+    			/* loop over polar angles */
+    			for (int p = 0; p < _num_polar; p++){
+
+    				/* increment current (polar and azimuthal weighted flux, group)*/
+    				_thread_currents(tid,curr_segment->_mesh_surface_bwd,e) -= track_flux(p,e)*_polar_weights[p]/2.0;
+
+    				pe++;
+    			}
+    		}
+    	}
+    	else if (s == 0 && !fwd){
+
+    		/* set polar angle * energy group to 0 */
+    		int pe = 0;
+
+    		/* loop over energy groups */
+    		for (int e = 0; e < _num_groups; e++) {
+
+    			/* loop over polar angles */
+    			for (int p = 0; p < _num_polar; p++){
+
+    				/* increment current (polar and azimuthal weighted flux, group)*/
+    				_thread_currents(tid,curr_segment->_mesh_surface_fwd,e) -= track_flux(p,e)*_polar_weights[p]/2.0;
+
+    				pe++;
+    			}
+    		}
+    	}
+    }
 
     /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
@@ -194,6 +274,46 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
 	    track_flux(p,e) -= psibar;
 	}
     }
+
+    if (_cmfd->getMesh()->getAcceleration()){
+    	if (curr_segment->_mesh_surface_fwd != -1 && fwd){
+
+    		/* set polar angle * energy group to 0 */
+    		int pe = 0;
+
+    		/* loop over energy groups */
+    		for (int e = 0; e < _num_groups; e++) {
+
+    			/* loop over polar angles */
+    			for (int p = 0; p < _num_polar; p++){
+
+    				/* increment current (polar and azimuthal weighted flux, group)*/
+    				_thread_currents(tid,curr_segment->_mesh_surface_fwd,e) += track_flux(p,e)*_polar_weights[p]/2.0;
+
+    				pe++;
+    			}
+    		}
+    	}
+    	else if (curr_segment->_mesh_surface_bwd != -1 && !fwd){
+
+    		/* set polar angle * energy group to 0 */
+    		int pe = 0;
+
+    		/* loop over energy groups */
+    		for (int e = 0; e < _num_groups; e++) {
+
+    			/* loop over polar angles */
+    			for (int p = 0; p < _num_polar; p++){
+
+    				/* increment current (polar and azimuthal weighted flux, group)*/
+    				_thread_currents(tid,curr_segment->_mesh_surface_bwd,e) += track_flux(p,e)*_polar_weights[p]/2.0;
+
+    				pe++;
+    			}
+    		}
+    	}
+    }
+
 
     return;
 }
@@ -212,6 +332,25 @@ void ThreadPrivateSolver::reduceThreadScalarFluxes() {
             }
         }
     }
+
+    return;
+}
+
+
+/**
+ * @brief Reduces the surface currents from private thread
+ *        array to a global array.
+ */
+void ThreadPrivateSolver::reduceThreadSurfaceCurrents() {
+
+	for (int tid=0; tid < _num_threads; tid++){
+		for (int r=0; r < _num_mesh_cells; r++) {
+			for (int s=0; s < 8; s++) {
+				for (int e=0; e < _num_groups; e++)
+					_surface_currents(r*8+s,e) += _thread_currents(tid,r*8+s,e);
+			}
+		}
+	}
 
     return;
 }

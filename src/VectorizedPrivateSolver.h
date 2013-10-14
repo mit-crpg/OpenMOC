@@ -41,7 +41,8 @@ private:
 
     void scalarFluxTally(segment* curr_segment, 
 			 FP_PRECISION* track_flux,
-			 FP_PRECISION* fsr_flux);
+			 FP_PRECISION* fsr_flux,
+			 bool fwd, int s);
 
     void transportSweep();
     void reduceThreadScalarFluxes();

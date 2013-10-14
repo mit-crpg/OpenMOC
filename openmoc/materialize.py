@@ -17,7 +17,8 @@ from log import *
 def materialize(filename):
 
     xs_types = ['Total XS', 'Absorption XS', 'Scattering XS', \
-                    'Fission XS', 'Nu Fission XS', 'Chi']
+                    'Fission XS', 'Nu Fission XS', 'Chi',\
+                    'Diffusion Coefficient']
     materials = {}
 
     # Check that the filename is a string
@@ -107,31 +108,39 @@ def materialize(filename):
         material_names = data.keys()
 
         # Loop over each material and 
-        for name in material_names:
+        for mat in material_names:
 
-            py_printf('INFO', 'Importing material %s', str(name))
+            py_printf('INFO', 'Importing material %s', str(mat))
 
             new_material = Material(material_id())
             new_material.setNumEnergyGroups(int(num_groups))
+            
+            if 'Total XS' in data[mat].keys():
+                new_material.setSigmaT(data[mat]['Total XS'])
+                
+            if 'Absorption XS' in data[mat].keys():
+                new_material.setSigmaA(data[mat]['Absorption XS'])
+                    
+            if 'Scattering XS' in data[mat].keys():
+                new_material.setSigmaS(data[mat]['Scattering XS'])
 
-            # Retrieve xs data from file for this material
-            sigma_t = data[name]['Total XS']
-            sigma_a = data[name]['Absorption XS']
-            sigma_s = data[name]['Scattering XS']
-            sigma_f = data[name]['Fission XS']
-            nu_sigma_f = data[name]['Nu Fission XS']
-            chi = data[name]['Chi']
+            if 'Fission XS' in data[mat].keys():
+                new_material.setSigmaF(data[mat]['Fission XS'])
 
-            # Setting the cross-sections for this material
-            new_material.setSigmaT(sigma_t)
-            new_material.setSigmaA(sigma_a)
-            new_material.setSigmaS(sigma_s)
-            new_material.setSigmaF(sigma_f)
-            new_material.setNuSigmaF(nu_sigma_f)
-            new_material.setChi(chi)
+            if 'Nu Fission XS' in data[mat].keys():
+                new_material.setNuSigmaF(data[mat]['Nu Fission XS'])
+
+            if 'Chi' in data[mat].keys():
+                new_material.setChi(data[mat]['Chi'])
+              
+            if 'Diffusion Coefficient' in data[mat].keys():
+                new_material.setDifCoef(data[mat]['Diffusion Coefficient'])
+
+            if 'Buckling' in data[mat].keys():
+                new_material.setBuckling(data[mat]['Buckling'])
 
             # Add this material to the list
-            materials[name] = new_material
+            materials[mat] = new_material
 
 
 
