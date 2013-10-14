@@ -11,6 +11,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
                                const double spacing) {
     _geometry = geometry;
     setNumAzim(num_azim);
+    _geometry->getMesh()->setNumAzim(num_azim);
     setTrackSpacing(spacing);
     _tot_num_tracks = 0;
     _tot_num_segments = 0;
