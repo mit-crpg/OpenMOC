@@ -21,6 +21,10 @@
  *  each flat source region and in each energy group */
 #define _thread_flux(tid,r,e) (_thread_flux[(tid)*_num_FSRs*_num_groups+(r)*_num_groups+(e)])
 
+/** Indexing scheme for the thread private surface currents for each thread in
+ *  each flat source region and in each energy group */
+#define _thread_currents(tid,r,e) (_thread_currents[(tid)*_num_mesh_cells*8*_num_groups+(r)*_num_groups+(e)])
+
 /**
  * @class ThreadPrivateSolver ThreadPrivateSolver.h "openmoc/src/ThreadPrivateSolver.h"
  * @brief This is a subclass of the CPUSolver which uses thread private 
@@ -36,18 +40,24 @@ protected:
     /** An array for the flat source region scalar fluxes for each thread */
     FP_PRECISION* _thread_flux;
 
+    FP_PRECISION* _thread_currents;
+
     void initializeFluxArrays();
 
     void flattenFSRFluxes(FP_PRECISION value);
+    void zeroSurfaceCurrents();
     void scalarFluxTally(segment* curr_segment, 
 			 FP_PRECISION* track_flux,
-			 FP_PRECISION* fsr_flux);
+			 FP_PRECISION* fsr_flux,
+			 bool fwd, int s);
     void reduceThreadScalarFluxes();
+    void reduceThreadSurfaceCurrents();
     void transportSweep();
 
 public:
     ThreadPrivateSolver(Geometry* geometry=NULL, 
-			TrackGenerator* track_generator=NULL);
+			TrackGenerator* track_generator=NULL,
+			Cmfd* cmfd=NULL);
     virtual ~ThreadPrivateSolver();
 };
 

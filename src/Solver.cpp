@@ -10,7 +10,7 @@
  * @param geometry an optional pointer to the geometry
  * @param track_generator an optional pointer to the trackgenerator
  */
-Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
+Solver::Solver(Geometry* geometry, TrackGenerator* track_generator, Cmfd* cmfd) {
 
     /* Default values */
     _num_materials = 0;
@@ -19,8 +19,10 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _polar_times_groups = 0;
 
     _num_FSRs = 0;
+    _num_mesh_cells = 0;
     _FSR_volumes = NULL;
     _FSR_materials = NULL;
+    _surface_currents = NULL;
 
     _quad = NULL;
     _track_generator = NULL;
@@ -59,6 +61,11 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _converged_source = false;
 
     _timer = new Timer();
+
+    if (cmfd == NULL)
+    	_cmfd = new Cmfd(_geometry, MOC);
+    else
+    	_cmfd = cmfd;
 }
 
 
@@ -198,6 +205,7 @@ void Solver::setGeometry(Geometry* geometry) {
     _num_groups = _geometry->getNumEnergyGroups();
     _polar_times_groups = _num_groups * _num_polar;
     _num_materials = _geometry->getNumMaterials();
+    _num_mesh_cells = _geometry->getMesh()->getNumCells();
 }
 
 
@@ -397,6 +405,8 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     flattenFSRFluxes(1.0);
     flattenFSRSources(1.0);
     zeroTrackFluxes();
+    initializeCmfd();
+    FP_PRECISION cmfd_keff;
 
     /* Source iteration loop */
     for (int i=0; i < max_iterations; i++) {
@@ -408,6 +418,10 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 	residual = computeFSRSources();
 	transportSweep();	
 	addSourceToScalarFlux();
+
+	if (_cmfd->getMesh()->getAcceleration())
+	    _k_eff = _cmfd->computeKeff();
+	
 	computeKeff();
 
 	_num_iterations++;
@@ -504,4 +518,14 @@ void Solver::printTimerReport() {
 
     log_printf(RESULT, "%s", msg.str().c_str());
     log_printf(SEPARATOR, "-");
+}
+
+void Solver::initializeCmfd(){
+
+    log_printf(INFO, "initializing cmfd...");
+
+    _cmfd->setFSRVolumes(_FSR_volumes);
+    _cmfd->setFSRMaterials(_FSR_materials);
+    _cmfd->setFSRFluxes(_scalar_flux);
+    _cmfd->getMesh()->setSurfaceCurrents(_surface_currents);
 }

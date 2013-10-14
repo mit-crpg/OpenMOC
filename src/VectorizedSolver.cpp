@@ -670,7 +670,7 @@ void VectorizedSolver::transferBoundaryFlux(int track_id,
 					    bool direction,
 					    FP_PRECISION* track_flux) {
     int start;
-    bool bc;
+    int bc;
     FP_PRECISION* track_leakage;
     int track_out_id;
 
@@ -682,7 +682,7 @@ void VectorizedSolver::transferBoundaryFlux(int track_id,
         start = _tracks[track_id]->isReflOut() * _polar_times_groups;
         track_leakage = &_boundary_leakage(track_id,0);
         track_out_id = _tracks[track_id]->getTrackOut()->getUid();
-        bc = _tracks[track_id]->getBCOut();
+        bc = (int)_tracks[track_id]->getBCOut();
     }
 
     /* For the "reverse" direction */
@@ -690,7 +690,7 @@ void VectorizedSolver::transferBoundaryFlux(int track_id,
         start = _tracks[track_id]->isReflIn() * _polar_times_groups;
         track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
         track_out_id = _tracks[track_id]->getTrackIn()->getUid();
-        bc = _tracks[track_id]->getBCIn();
+        bc = (int)_tracks[track_id]->getBCIn();
     }
 
     FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);

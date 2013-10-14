@@ -1,12 +1,17 @@
 %module openmoc
 
+  //%include petsc4py/petsc4py.i
+  //%include slepc4py.i
+
 %{
     #define SWIG_FILE_WITH_INIT
     #include "../src/Cell.h"
+    #include "../src/Cmfd.h"
     #include "../src/Geometry.h"
     #include "../src/LocalCoords.h"
     #include "../src/log.h"
     #include "../src/Material.h"
+    #include "../src/Mesh.h"
     #include "../src/Point.h"
     #include "../src/Quadrature.h"
     #include "../src/Solver.h"
@@ -211,16 +216,17 @@
  * getCellIds method for the data processing routines in openmoc.process */
 %apply (int* ARGOUT_ARRAY1, int DIM1) {(int* cell_ids, int num_cells)}
 
-
 #endif
 
 
 %include <exception.i> 
 %include ../src/Cell.h
+%include ../src/Cmfd.h
 %include ../src/Geometry.h
 %include ../src/LocalCoords.h
 %include ../src/log.h
 %include ../src/Material.h
+%include ../src/Mesh.h
 %include ../src/Point.h
 %include ../src/Quadrature.h
 %include ../src/Solver.h

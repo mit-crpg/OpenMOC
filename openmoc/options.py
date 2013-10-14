@@ -32,12 +32,17 @@ class options:
     # The default number of GPU threads per threadblock
     num_gpu_threads = 64
 
+    # The default cmfd relaxation factor
+    relax_factor = 0.6
+
+    # The default acceleration flag
+    acceleration = False
 
     def parseArguments(self):
 
         try:
             opts, args = getopt.getopt(sys.argv[1:], 
-                                       'ha:s:i:c:t:b:g:',
+                                       'ha:s:i:c:t:b:g:r:f',
                                        ['help',
                                         'num-azim=',
                                         'track-spacing=',
@@ -45,7 +50,9 @@ class options:
                                         'max-iters=',
                                         'num-omp-threads=',
                                         'num-thread-blocks=', 
-                                        'num-gpu-threads='])
+                                        'num-gpu-threads=',
+                                        'relax-factor='
+                                        'acceleration='])
 
         except getopt.GetoptError as err:
             log.py_printf('WARNING', str(err))
@@ -94,6 +101,15 @@ class options:
                 num_gpu_threads = '\t{: <35}'.format('-g, --num-gpu-threads=<64>')
                 num_gpu_threads += 'The number of GPU threads per block\n'
                 print num_gpu_threads
+                
+                relax_factor = '\t{: <35}'.format('-r, --relax-factor=<0.6>')
+                relax_factor += 'The cmfd relaxation factor\n'
+                print relax_factor
+
+                acceleration = '\t{: <35}'.format('-f, --acceleration=<False>')
+                relax_factor += 'The cmfd acceleration flag\n'
+                print acceleration
+
 
                 sys.exit()
 
@@ -117,3 +133,10 @@ class options:
 
             elif opt in ('-g', '--num-gpu-threads'):
                 self.num_gpu_threads = int(arg)
+
+            elif opt in ('-r', '--relax-factor'):
+                self.relax_factor = float(arg)
+
+            elif opt in ('-f', '--acceleration'):
+                self.acceleration = True
+
