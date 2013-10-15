@@ -236,6 +236,13 @@ double* Material::getChi() {
  * @return the pointer to the material's array of diffusion coefficients
  */
 double* Material::getDifCoef() {
+
+  if (_dif_coef == NULL){
+    _dif_coef = new double[_num_groups];
+    for (int e = 0; e < _num_groups; e++)
+      _dif_coef[e] = 0.0;
+  }
+
     return _dif_coef;
 }
 
@@ -245,6 +252,14 @@ double* Material::getDifCoef() {
  * @return the pointer to the material's array of surface diffusion coefficients
  */
 double* Material::getDifHat() {
+
+  if (_dif_hat == NULL){
+    _dif_hat = new double[4*_num_groups];
+    for (int e = 0; e < 4*_num_groups; e++)
+      _dif_hat[e] = 0.0;
+  }
+
+
     return _dif_hat;
 }
 
@@ -255,6 +270,14 @@ double* Material::getDifHat() {
  * the surface diffusion coefficients
  */
 double* Material::getDifTilde() {
+
+  if (_dif_tilde == NULL){
+    _dif_tilde = new double[4*_num_groups];
+    for (int e = 0; e < 4*_num_groups; e++)
+      _dif_tilde[e] = 0.0;
+  }
+
+
     return _dif_tilde;
 }
 
@@ -266,6 +289,13 @@ double* Material::getDifTilde() {
  * the surface diffusion coefficients
  */
 double* Material::getBuckling() {
+
+  if (_buckling == NULL){
+    _buckling = new double[_num_groups];
+    for (int e = 0; e < _num_groups; e++)
+      _buckling[e] = 0.0;
+  }
+
     return _buckling;
 }
 
@@ -375,19 +405,6 @@ void Material::setNumEnergyGroups(const int num_groups) {
     _nu_sigma_f = new double[_num_groups];
     _chi = new double[_num_groups];
     _sigma_s = new double[_num_groups*_num_groups];
-    _dif_coef = new double[_num_groups];
-    _buckling = new double[_num_groups];
-    _dif_hat = new double[_num_groups*4];
-    _dif_tilde = new double[_num_groups*4];
-
-    for (int e = 0; e < _num_groups; e++){
-      _dif_coef[e] = 0.0; 
-      _buckling[e] = 0.0; 
-      for (int s = 0; s < 4; s++){
-	_dif_hat[s*_num_groups+e] = 0.0;
-	_dif_tilde[s*_num_groups+e] = 0.0;
-      }
-    }
 }
 
 
@@ -630,9 +647,13 @@ void Material::setDifCoef(double* xs, int num_groups) {
     		  "for material %d which contains %d energy groups", num_groups,
                  _num_groups);
 
+    if (_dif_coef == NULL)
+      _dif_coef = new double[_num_groups];
+
     for (int i=0; i < _num_groups; i++)
         _dif_coef[i] = xs[i];
 }
+
 
 
 /**
@@ -646,6 +667,12 @@ void Material::setDifCoefByGroup(double xs, int group) {
         log_printf(ERROR, "Unable to set diffusion coefficient for group %d"
         		" for material %d which contains %d energy groups",
 		   group, _num_groups, _uid);
+
+    if (_dif_coef == NULL){
+      _dif_coef = new double[_num_groups];
+      for (int i=0; i < _num_groups; i++)
+        _dif_coef[i] = 0.0;
+    }
 
     _dif_coef[group] = xs;
 }
@@ -662,6 +689,10 @@ void Material::setBuckling(double* xs, int num_groups) {
       log_printf(ERROR, "Unable to set diffusion coefficient with %d groups "
     		  "for material %d which contains %d energy groups", num_groups,
                  _num_groups);
+
+    if (_buckling == NULL){
+      _buckling = new double[_num_groups];
+    }
 
     for (int i=0; i < _num_groups; i++)
         _buckling[i] = xs[i];
@@ -680,6 +711,12 @@ void Material::setBucklingByGroup(double xs, int group) {
         		" for material %d which contains %d energy groups",
 		   group, _num_groups, _uid);
 
+    if (_buckling == NULL){
+      _buckling = new double[_num_groups];
+      for (int i=0; i < _num_groups; i++)
+        _buckling[i] = 0.0;
+    }
+
     _buckling[group] = xs;
 }
 
@@ -695,6 +732,9 @@ void Material::setDifHat(double* xs, int num_groups) {
       log_printf(ERROR, "Unable to set diffusion coefficient with %d groups "
     		  "for material %d which contains %d energy groups", num_groups,
                  _num_groups);
+
+    if (_dif_hat == NULL)
+      _dif_hat = new double[4*_num_groups];
 
     for (int i=0; i < _num_groups*4; i++)
         _dif_hat[i] = xs[i];
@@ -713,6 +753,12 @@ void Material::setDifHatByGroup(double xs, int group, int surface) {
         		" for material %d which contains %d energy groups",
 		   group, _num_groups, _uid);
 
+    if (_dif_hat == NULL){
+      _dif_hat = new double[4*_num_groups];
+      for (int i=0; i < _num_groups*4; i++)
+        _dif_hat[i] = 0.0;
+    }
+
     _dif_hat[surface*_num_groups + group] = xs;
 }
 
@@ -729,6 +775,10 @@ void Material::setDifTilde(double* xs, int num_groups) {
     		  "for material %d which contains %d energy groups", num_groups,
                  _num_groups);
 
+    if (_dif_tilde == NULL){
+      _dif_tilde = new double[4*_num_groups];
+    }
+
     for (int i=0; i < _num_groups*4; i++)
         _dif_tilde[i] = xs[i];
 }
@@ -742,9 +792,15 @@ void Material::setDifTilde(double* xs, int num_groups) {
 void Material::setDifTildeByGroup(double xs, int group, int surface) {
 
     if (group < 0 || group >= _num_groups)
-        log_printf(ERROR, "Unable to set diffusion coefficient for group %d"
+        log_printf(ERROR, "Unable to set diffusion coefficient correction for group %d"
         		" for material %d which contains %d energy groups",
 		   group, _num_groups, _uid);
+
+    if (_dif_tilde == NULL){
+      _dif_tilde = new double[4*_num_groups];
+      for (int i=0; i < _num_groups*4; i++)
+        _dif_tilde[i] = 0.0;
+    }
 
     _dif_tilde[surface*_num_groups + group] = xs;
 }
@@ -900,11 +956,31 @@ void Material::alignData() {
     double* new_sigma_f = (double*)_mm_malloc(size, VEC_ALIGNMENT);
     double* new_nu_sigma_f = (double*)_mm_malloc(size, VEC_ALIGNMENT);
     double* new_chi = (double*)_mm_malloc(size, VEC_ALIGNMENT);
-	
+    
+    double* new_dif_coef;
+    if (_dif_coef != NULL)
+      new_dif_coef = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+
+    double* new_buckling;
+    if (_buckling != NULL)
+      new_buckling = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+
+    double* new_dif_hat;
+    if (_dif_hat != NULL){
+      size =  4 * _num_vector_groups * VEC_LENGTH * sizeof(double);
+      new_dif_hat = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    }
+
+    double* new_dif_tilde;
+    if (_dif_tilde != NULL){
+      size =  4 * _num_vector_groups * VEC_LENGTH * sizeof(double);
+      new_dif_tilde = (double*)_mm_malloc(size, VEC_ALIGNMENT);
+    }
+
     /* The scattering matrix will be the number of vector groups 
      * wide (SIMD) and the actual number of groups long since 
      * instructions are not SIMD in this dimension */
-    size *= _num_vector_groups * VEC_LENGTH;
+    size = _num_vector_groups * VEC_LENGTH * _num_vector_groups * VEC_LENGTH * sizeof(double);
     double* new_sigma_s = (double*)_mm_malloc(size, VEC_ALIGNMENT);
     
     /* Initialize data structures to ones for sigma_t since it is used to
@@ -916,6 +992,22 @@ void Material::alignData() {
 	new_sigma_f[i] = 0.0;
 	new_nu_sigma_f[i] = 0.0;
 	new_chi[i] = 0.0;
+
+	if (_dif_coef != NULL)
+	  new_dif_coef[i] = 0.0;
+
+	if (_buckling != NULL)
+	  new_buckling[i] = 0.0;
+
+	if (_dif_hat != NULL){
+	  for (int j = 0; j < 4; j++)
+	    new_dif_hat[i*4+j] = 0.0;
+	}
+
+	if (_dif_tilde != NULL){
+	  for (int j = 0; j < 4; j++)
+	    new_dif_tilde[i*4+j] = 0.0;
+	}
     }
     
     size *= _num_vector_groups * VEC_LENGTH;
@@ -928,6 +1020,18 @@ void Material::alignData() {
     memcpy(new_sigma_f, _sigma_f, size);
     memcpy(new_nu_sigma_f, _nu_sigma_f, size);
     memcpy(new_chi, _chi, size);
+
+    if (_dif_coef != NULL)
+      memcpy(new_dif_coef, _dif_coef, size);
+
+    if (_buckling != NULL)
+      memcpy(new_buckling, _buckling, size);
+
+    if (_dif_hat != NULL)
+      memcpy(new_dif_hat, _dif_hat, size*4);
+
+    if (_dif_tilde != NULL)
+      memcpy(new_dif_tilde, _dif_tilde, size*4);
 
     for (int e=0; e < _num_groups; e++) {
         memcpy(new_sigma_s, _sigma_s, size);
@@ -947,6 +1051,18 @@ void Material::alignData() {
     delete [] _nu_sigma_f;
     delete [] _chi;
     delete [] _sigma_s;
+    
+    if (_dif_coef != NULL)
+      delete [] _dif_coef;
+
+    if (_buckling != NULL)
+      delete [] _buckling;
+
+    if (_dif_hat != NULL)
+      delete [] _dif_hat;
+
+    if (_dif_tilde != NULL)
+      delete [] _dif_tilde;
 	
     /* Set the material's array pointers to the new aligned arrays */
     _sigma_t = new_sigma_t;
@@ -954,7 +1070,19 @@ void Material::alignData() {
     _sigma_f = new_sigma_f;
     _nu_sigma_f = new_nu_sigma_f;
     _chi = new_chi;
-    _sigma_s = new_sigma_s;    
+    _sigma_s = new_sigma_s;
+    
+    if (_dif_coef != NULL)
+      _dif_coef = new_dif_coef;
+
+    if (_buckling != NULL)
+      _buckling = new_buckling;
+
+    if (_dif_hat != NULL)
+      _dif_hat = new_dif_hat;
+
+    if (_dif_tilde != NULL)
+      _dif_tilde = new_dif_tilde;
 
     _data_aligned = true;
 
@@ -972,8 +1100,19 @@ Material* Material::clone(){
   material_clone->setSigmaF(_sigma_f, _num_groups);
   material_clone->setNuSigmaF(_nu_sigma_f, _num_groups);
   material_clone->setChi(_chi, _num_groups);
-  material_clone->setDifCoef(_dif_coef, _num_groups);  
-  material_clone->setBuckling(_buckling, _num_groups);  
+  
+  if (_dif_coef != NULL)
+    material_clone->setDifCoef(_dif_coef, _num_groups);  
+  
+  if (_buckling != NULL)
+    material_clone->setBuckling(_buckling, _num_groups);  
+
+  if (_dif_hat != NULL)
+    material_clone->setDifHat(_dif_hat, _num_groups);  
+
+  if (_dif_tilde != NULL)
+    material_clone->setDifTilde(_dif_tilde, _num_groups);  
+
   copySigmaS(material_clone);
 
   return material_clone;

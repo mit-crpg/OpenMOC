@@ -562,7 +562,7 @@ boundaryType Mesh::getBoundary(int side){
  * @param group energy group
  * @return flux the scalar flux
  **/
-FP_PRECISION Mesh::getFlux(std::string flux_name, int cell_id, int group){
+FP_PRECISION Mesh::getFlux(int cell_id, int group, std::string flux_name){
   FP_PRECISION* fluxes = _fluxes.find(flux_name)->second;
   return fluxes[cell_id*_num_groups + group];
 }
@@ -575,19 +575,21 @@ FP_PRECISION Mesh::getFlux(std::string flux_name, int cell_id, int group){
 int Mesh::findCellId(LocalCoords* coord){
 
   /* initialize variables */
-  double x = coord->getX();
-  double y = coord->getY();
-  
+  double x_coord = coord->getX();
+  double y_coord = coord->getY();
+  int x,y;
+
+
   /* loop over cells in y direction */
-  for (int y = 0; y < _cells_y; y++){
-    if (y - _bounds_y[y+1] >= -1.e-8 && y - _bounds_y[y] <= 1.e-8){
+  for (y = 0; y < _cells_y; y++){
+    if (y_coord - _bounds_y[y+1] >= -1.e-8 && y_coord - _bounds_y[y] <= 1.e-8){
       break;
     }
   }
   
   /* loop over cells in y direction */
-  for (int x = 0; x < _cells_x; x++){
-    if (x - _bounds_x[x] >= -1.e-8 && x - _bounds_x[x+1] <= 1.e-8){
+  for (x = 0; x < _cells_x; x++){
+    if (x_coord - _bounds_x[x] >= -1.e-8 && x_coord - _bounds_x[x+1] <= 1.e-8){
       break;
     }
   }
@@ -778,4 +780,15 @@ void Mesh::setNumAzim(int num_azim){
  **/
 int Mesh::getNumCurrents(){
   return _num_currents;
+}
+
+
+/**
+ * @brief Initializes the surface currents
+ **/
+void Mesh::initializeSurfaceCurrents(){
+  _currents = new FP_PRECISION[8*_cells_x*_cells_y*_num_groups];
+
+  for (int i = 0; i < 8*_cells_x*_cells_y*_num_groups; i++)
+    _currents[i] = 0.0;
 }
