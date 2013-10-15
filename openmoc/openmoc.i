@@ -1,17 +1,12 @@
 %module openmoc
 
-  //%include petsc4py/petsc4py.i
-  //%include slepc4py.i
-
 %{
     #define SWIG_FILE_WITH_INIT
     #include "../src/Cell.h"
-    #include "../src/Cmfd.h"
     #include "../src/Geometry.h"
     #include "../src/LocalCoords.h"
     #include "../src/log.h"
     #include "../src/Material.h"
-    #include "../src/Mesh.h"
     #include "../src/Point.h"
     #include "../src/Quadrature.h"
     #include "../src/Solver.h"
@@ -22,6 +17,8 @@
     #include "../src/Track.h" 
     #include "../src/TrackGenerator.h"
     #include "../src/Universe.h"
+    #include "../src/Cmfd.h"
+    #include "../src/Mesh.h"
 
     #define printf PySys_WriteStdout
 
@@ -221,12 +218,10 @@
 
 %include <exception.i> 
 %include ../src/Cell.h
-%include ../src/Cmfd.h
 %include ../src/Geometry.h
 %include ../src/LocalCoords.h
 %include ../src/log.h
 %include ../src/Material.h
-%include ../src/Mesh.h
 %include ../src/Point.h
 %include ../src/Quadrature.h
 %include ../src/Solver.h
@@ -237,11 +232,17 @@
 %include ../src/Track.h
 %include ../src/TrackGenerator.h
 %include ../src/Universe.h
+%include ../src/Cmfd.h
+%include ../src/Mesh.h
 
+#ifdef CMFD
+#define CMFD true
+#else
+#define CMFD false
+#endif
 
 #ifdef DOUBLE
 typedef double FP_PRECISION;
 #else
 typedef float FP_PRECISION;
 #endif
-

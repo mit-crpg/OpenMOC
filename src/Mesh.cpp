@@ -8,18 +8,22 @@
  * @details The construcor initializes the many variables to zero,
  *          initializes cmfd acceleration to off, and initializes 
  *          the boundary conditions to REFLECTIVE
- * @param acceleration an optional boolean to turn on cmfd acceleration
+ * @param cmfd_on an optional boolean to turn on cmfd
  */
-Mesh::Mesh(bool acceleration){
+Mesh::Mesh(bool cmfd_on, double relax_factor, int cmfd_level){
 
   /* initialize variables */
-  _acceleration = acceleration;
+  _cmfd_on = cmfd_on;
+  _acceleration = cmfd_on;
   _num_groups = 0;
   _num_fsrs = 0;
   _num_azim = 0;
   _num_currents = 0;
   _cells_x = 0;
   _cells_y = 0;
+  _cmfd_level = cmfd_level;
+  _optically_thick = false; 
+  _relax_factor = relax_factor;
 
   /* initialize boundaries to be reflective */
   _boundaries = new boundaryType[4];
@@ -27,6 +31,20 @@ Mesh::Mesh(bool acceleration){
   _boundaries[1] = REFLECTIVE;
   _boundaries[2] = REFLECTIVE;
   _boundaries[3] = REFLECTIVE;
+
+  _volumes = NULL;
+  _bounds_x = NULL;
+  _bounds_y = NULL;
+  _lengths_x = NULL;
+  _lengths_y = NULL;
+
+#ifndef CMFD
+  if (cmfd_on)
+    log_printf(ERROR, "The Cmfd package was not included in this OpenMOC "
+	       "module. If you want to run a diffusion or cmfd-accelerated "
+	       "MOC simulation, please recompile with the cmfd set to cmfd-on");
+#endif
+    
 
 }
 
@@ -39,6 +57,7 @@ Mesh::Mesh(bool acceleration){
  */
 Mesh::~Mesh(){
   
+
   if (_boundaries != NULL)
     delete [] _boundaries;
 
@@ -73,12 +92,12 @@ void Mesh::initialize(){
   _volumes = new double[_cells_x*_cells_y];
   
   /* allocate memory for fluxes */
-  FP_PRECISION* new_flux;
-  FP_PRECISION* old_flux;
-  new_flux = new FP_PRECISION[_cells_x*_cells_y*_num_groups];
-  old_flux = new FP_PRECISION[_cells_x*_cells_y*_num_groups];
-  _fluxes.insert(std::pair<std::string, FP_PRECISION*>("new_flux", new_flux));
-  _fluxes.insert(std::pair<std::string, FP_PRECISION*>("old_flux", old_flux));
+  double* new_flux;
+  double* old_flux;
+  new_flux = new double[_cells_x*_cells_y*_num_groups];
+  old_flux = new double[_cells_x*_cells_y*_num_groups];
+  _fluxes.insert(std::pair<std::string, double*>("new_flux", new_flux));
+  _fluxes.insert(std::pair<std::string, double*>("old_flux", old_flux));
   
   /* allocate memory for cell widths, heights, and bounds */
   _lengths_x = new double[_cells_x];
@@ -562,8 +581,8 @@ boundaryType Mesh::getBoundary(int side){
  * @param group energy group
  * @return flux the scalar flux
  **/
-FP_PRECISION Mesh::getFlux(int cell_id, int group, std::string flux_name){
-  FP_PRECISION* fluxes = _fluxes.find(flux_name)->second;
+double Mesh::getFlux(int cell_id, int group, std::string flux_name){
+  double* fluxes = _fluxes.find(flux_name)->second;
   return fluxes[cell_id*_num_groups + group];
 }
 
@@ -602,8 +621,17 @@ int Mesh::findCellId(LocalCoords* coord){
  * @brief Set the pointer to the surface currents array
  * @param surface_currents pointer to surface currents array
  **/
-void Mesh::setSurfaceCurrents(FP_PRECISION* surface_currents){
+void Mesh::setSurfaceCurrents(double* surface_currents){
   _currents = surface_currents;
+}
+
+
+/**
+ * @brief Get the cmfd on flag
+ * @return _cmfd_on the cmfd_on flag 
+ **/
+bool Mesh::getCmfdOn(){
+  return _cmfd_on;
 }
 
 
@@ -613,6 +641,15 @@ void Mesh::setSurfaceCurrents(FP_PRECISION* surface_currents){
  **/
 bool Mesh::getAcceleration(){
   return _acceleration;
+}
+
+
+/**
+ * @brief Set the acceleration flag
+ * @parap accel the acceleration flag 
+ **/
+void Mesh::setAcceleration(bool accel){
+  _acceleration = accel;
 }
 
 
@@ -684,7 +721,7 @@ void Mesh::setVolume(double volume, int cell_num){
  * @param flux_name name of flux array
  * @return fluxes array of fluxes 
  **/
-FP_PRECISION* Mesh::getFluxes(std::string flux_name){
+double* Mesh::getFluxes(std::string flux_name){
   return _fluxes.at(flux_name);
 }
 
@@ -743,7 +780,7 @@ int Mesh::getCellNext(int cell_num, int surface_id){
  * @brief Get array of surface currents
  * @return _currents array of surface currents
  **/
-FP_PRECISION* Mesh::getCurrents(){
+double* Mesh::getCurrents(){
   return _currents;
 }
 
@@ -787,8 +824,65 @@ int Mesh::getNumCurrents(){
  * @brief Initializes the surface currents
  **/
 void Mesh::initializeSurfaceCurrents(){
-  _currents = new FP_PRECISION[8*_cells_x*_cells_y*_num_groups];
+  _currents = new double[8*_cells_x*_cells_y*_num_groups];
 
   for (int i = 0; i < 8*_cells_x*_cells_y*_num_groups; i++)
     _currents[i] = 0.0;
+}
+
+
+/**
+ * @brief Gets the cmfd level
+ * @return _cmfd_level cmfd level
+ **/
+int Mesh::getCmfdLevel(){
+  return _cmfd_level;
+}
+
+
+/**
+ * @brief Sets the cmfd level
+ * @parap cmfd_level cmfd level
+ **/
+void Mesh::setCmfdLevel(int cmfd_level){
+  _cmfd_level = cmfd_level;
+}
+
+
+/**
+ * @brief Set flag to determine whether we use
+ *        optically thick diffusion correction factor.
+ * @param thick flag to turn on correction factor.
+ */
+void Mesh::setOpticallyThick(bool thick){
+  _optically_thick = thick;
+}
+
+
+/**
+ * @brief Get flag to determine whether we use
+ *        optically thick diffusion correction factor.
+ * @return _optically_thick flag to turn on 
+ *         optically thick correction factor.
+ */
+bool Mesh::getOpticallyThick(){
+  return _optically_thick;
+}
+
+
+/**
+ * @brief Set the relaxation factor
+ * @param relax_factor the relaxation factor
+ */
+void Mesh::setRelaxFactor(double relax_factor){
+  _relax_factor = relax_factor;
+}
+
+
+/**
+ * @brief Get the relaxation factor
+ * @return _relax_factor the relaxation factor
+ */
+double Mesh::getRelaxFactor(){
+  return _relax_factor;
 }

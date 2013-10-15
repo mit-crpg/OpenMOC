@@ -64,7 +64,7 @@ class configuration:
     cc = 'gcc'
 
     # Default floating point for the main openmoc module is single precision
-    fp = 'double'
+    fp = 'single'
 
     # Supported C++ compilers: 'gcc', 'icpc', 'bgxlc', 'nvcc', 'all'
     cpp_compilers = []
@@ -91,27 +91,49 @@ class configuration:
     with_numpy = True
 
     # Compile with PETSc included and the C API to allow users to perform
-    # CMFD acceleration and solve diffusion problems
-    with_petsc = True
-    
-    if (with_petsc):
-        import petsc4py
+    # CMFD acceleration and solve diffusion problems. cmfd can be 
+    # set to 'cmfd-on' or 'cmfd-off'
+    cmfd = 'cmfd-on'
+   
+    if (cmfd == 'cmfd-on'):
+        
+        if (cc != 'gcc'):
+            print 'Exiting build - CMFD can only be used with the gcc compiler at this time'
+            sys.exit()
+
+        # import petsc4py and open config file
+        try:
+            import petsc4py
+        except ImportError:
+            print 'Could not find petsc4py module!'
+            raise
+
         petsc_cfg = petsc4py.get_include()
         petsc_cfg_file = open(petsc_cfg[:-7] + 'lib/petsc.cfg')
         petsc_cfg_lines = petsc_cfg_file.readlines()
+        
+        # get location of petsc install and arch name
         for line in petsc_cfg_lines:
             if line.split()[0] == 'PETSC_DIR':
                 petsc_dir = line.split()[2]
             if line.split()[0] == 'PETSC_ARCH':
                 petsc_arch = line.split()[2]
             
+        # create petsc include and lib paths lists
         petsc_include = []
-        petsc_include.append('/usr/local/Cellar/valgrind/3.8.1/include')
         petsc_include.append(petsc_dir + '/include')
         petsc_include.append(petsc_dir + '/' + petsc_arch + '/include')
         petsc_lib_include = []
         petsc_lib_include.append(petsc_dir + '/' + petsc_arch + '/lib')
 
+        # add location of valgrind to petsc includes
+        petsc_vars_file = open(petsc_dir + '/' + petsc_arch + '/conf/petscvariables')
+        petsc_vars_lines = petsc_vars_file.readlines()
+        for line in petsc_vars_lines:
+            if 'VALGRIND_INCLUDE' == line.split()[0]:
+                print line.split()[2][2:]
+                petsc_include.append(line.split()[2][2:])
+            
 
     # The vector length used for the VectorizedSolver class. This will used
     # as a hint for the Intel compiler to issue SIMD (ie, SSE, AVX, etc) vector 
@@ -150,12 +172,10 @@ class configuration:
 
     sources['gcc'] = ['openmoc/openmoc_wrap.cpp',
                       'src/Cell.cpp',
-                      'src/Cmfd.cpp',
                       'src/Geometry.cpp',
                       'src/LocalCoords.cpp',
                       'src/log.cpp',
                       'src/Material.cpp',
-                      'src/Mesh.cpp',
                       'src/Point.cpp',
                       'src/Quadrature.cpp',
                       'src/Solver.cpp',
@@ -165,8 +185,9 @@ class configuration:
                       'src/Timer.cpp',
                       'src/Track.cpp',
                       'src/TrackGenerator.cpp',
-                      'src/Universe.cpp']
-
+                      'src/Universe.cpp',
+                      'src/Cmfd.cpp',
+                      'src/Mesh.cpp']
 
     sources['icpc'] = ['openmoc/openmoc_wrap.cpp',
                        'src/Cell.cpp',
@@ -187,7 +208,6 @@ class configuration:
                        'src/TrackGenerator.cpp',
                        'src/Universe.cpp']
 
-
     sources['bgxlc'] = ['openmoc/openmoc_wrap.cpp',
                         'src/Cell.cpp',
                         'src/Geometry.cpp',
@@ -205,12 +225,10 @@ class configuration:
                         'src/TrackGenerator.cpp',
                         'src/Universe.cpp']
 
-
     sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
                        'src/dev/gpu/GPUQuery.cu',
                        'src/dev/gpu/clone.cu',
                        'src/dev/gpu/GPUSolver.cu']
-
 
 
     ###########################################################################
@@ -264,7 +282,7 @@ class configuration:
     # A dictionary of the shared libraries to use for each compiler type
     shared_libraries = {}
 
-    if with_petsc:
+    if (cmfd == 'cmfd-on'):
         shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm', 'petsc']
     else:
         shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
@@ -289,7 +307,7 @@ class configuration:
     else:
         library_directories['gcc'] = []
 
-    if with_petsc: 
+    if (cmfd == 'cmfd-on'): 
         for i in petsc_lib_include:
             library_directories['gcc'].append(i)
 
@@ -312,7 +330,7 @@ class configuration:
     else:
         include_directories['gcc'] = []
 
-    if with_petsc:
+    if (cmfd == 'cmfd-on'):
         for i in petsc_include:
             include_directories['gcc'].append(i)
     
@@ -342,55 +360,62 @@ class configuration:
     macros['bgxlc'] = {}
     macros['nvcc'] = {}
 
-    macros['gcc']['single']= [('FP_PRECISION', 'float'), 
-                              ('SINGLE', None),
-                              ('GNU', None),
-                              ('VEC_LENGTH', vector_length),
-                              ('VEC_ALIGNMENT', vector_alignment)]
+    macros['gcc']['single','cmfd-on']= [('FP_PRECISION', 'float'), 
+                                        ('SINGLE', None),
+                                        ('CMFD', None),
+                                        ('GNU', None),
+                                        ('VEC_LENGTH', vector_length),
+                                        ('VEC_ALIGNMENT', vector_alignment)]
+
+    macros['gcc']['single','cmfd-off']= [('FP_PRECISION', 'float'), 
+                                         ('SINGLE', None),
+                                         ('GNU', None),
+                                         ('VEC_LENGTH', vector_length),
+                                         ('VEC_ALIGNMENT', vector_alignment)]
     
-    macros['icpc']['single']= [('FP_PRECISION', 'float'), 
-                               ('SINGLE', None),
-                               ('INTEL', None),
-                               ('MKL_ILP64', None),
-                               ('VEC_LENGTH', vector_length),
-                               ('VEC_ALIGNMENT', vector_alignment)]
+    macros['icpc']['single','cmfd-off']= [('FP_PRECISION', 'float'), 
+                                          ('SINGLE', None),
+                                          ('INTEL', None),
+                                          ('MKL_ILP64', None),
+                                          ('VEC_LENGTH', vector_length),
+                                          ('VEC_ALIGNMENT', vector_alignment)]
 
-    macros['bgxlc']['single'] = [('FP_PRECISION', 'float'),
-                                 ('SINGLE', None),
-                                 ('BGXLC', None),
-                                 ('VEC_LENGTH', vector_length),
-                                 ('VEC_ALIGNMENT', vector_alignment),
-                                 ('CCACHE_CC', 'bgxlc++_r')]
+    macros['bgxlc']['single','cmfd-off'] = [('FP_PRECISION', 'float'),
+                                            ('SINGLE', None),
+                                            ('BGXLC', None),
+                                            ('VEC_LENGTH', vector_length),
+                                            ('VEC_ALIGNMENT', vector_alignment),
+                                            ('CCACHE_CC', 'bgxlc++_r')]
 
-    macros['nvcc']['single'] = [('FP_PRECISION', 'float'), 
-                                ('SINGLE', None),
-                                ('CUDA', None),
-                                ('CCACHE_CC', 'nvcc')]
+    macros['nvcc']['single','cmfd-off'] = [('FP_PRECISION', 'float'), 
+                                           ('SINGLE', None),
+                                           ('CUDA', None),
+                                           ('CCACHE_CC', 'nvcc')]
     
-    macros['gcc']['double'] = [('FP_PRECISION', 'double'), 
-                               ('DOUBLE', None),
-                               ('GNU', None),
-                               ('VEC_LENGTH', vector_length),
-                               ('VEC_ALIGNMENT', vector_alignment)]
-   
-    macros['icpc']['double'] = [('FP_PRECISION', 'double'), 
-                                ('DOUBLE', None),
-                                ('INTEL', None),
-                                ('MKL_ILP64', None),
-                                ('VEC_LENGTH', vector_length),
-                                ('VEC_ALIGNMENT', vector_alignment)]
+    macros['gcc']['double','cmfd-off'] = [('FP_PRECISION', 'double'), 
+                                          ('DOUBLE', None),
+                                          ('GNU', None),
+                                          ('VEC_LENGTH', vector_length),
+                                          ('VEC_ALIGNMENT', vector_alignment)]
+    
+    macros['icpc']['double','cmfd-off'] = [('FP_PRECISION', 'double'), 
+                                           ('DOUBLE', None),
+                                           ('INTEL', None),
+                                           ('MKL_ILP64', None),
+                                           ('VEC_LENGTH', vector_length),
+                                           ('VEC_ALIGNMENT', vector_alignment)]
+    
+    macros['bgxlc']['double','cmfd-off'] = [('FP_PRECISION', 'double'),
+                                            ('DOUBLE', None),
+                                            ('BGXLC', None),
+                                            ('VEC_LENGTH', vector_length),
+                                            ('VEC_ALIGNMENT', vector_alignment),
+                                            ('CCACHE_CC', 'bgxlc++_r')]
 
-    macros['bgxlc']['double'] = [('FP_PRECISION', 'double'),
-                                 ('DOUBLE', None),
-                                 ('BGXLC', None),
-                                 ('VEC_LENGTH', vector_length),
-                                 ('VEC_ALIGNMENT', vector_alignment),
-                                 ('CCACHE_CC', 'bgxlc++_r')]
-
-    macros['nvcc']['double'] = [('FP_PRECISION', 'double'), 
-                                ('DOUBLE', None),
-                                ('CUDA', None),
-                                ('CCACHE_CC', 'nvcc')]
+    macros['nvcc']['double','cmfd-off'] = [('FP_PRECISION', 'double'), 
+                                           ('DOUBLE', None),
+                                           ('CUDA', None),
+                                           ('CCACHE_CC', 'nvcc')]
 
 
 
@@ -428,7 +453,7 @@ class configuration:
                       libraries = self.shared_libraries[self.cc],
                       extra_link_args = self.linker_flags[self.cc], 
                       include_dirs = self.include_directories[self.cc],
-                      define_macros = self.macros[self.cc][self.fp],
+                      define_macros = self.macros[self.cc][self.fp,self.cmfd],
                       swig_opts = self.swig_flags + ['-D' + self.cc.upper()]))
 
         # Remove the main SWIG configuration file for builds of other extensions
@@ -450,7 +475,7 @@ class configuration:
                           libraries = self.shared_libraries['nvcc'],
                           extra_link_args = self.linker_flags['nvcc'], 
                           include_dirs = self.include_directories['nvcc'],
-                          define_macros = self.macros['nvcc'][self.fp],
+                          define_macros = self.macros['nvcc'][self.fp,self.cmfd],
                           swig_opts = self.swig_flags  + ['-DNVCC'],
                           export_symbols = ['init_openmoc']))
         
@@ -500,6 +525,10 @@ class configuration:
                 else:
                     raise NameError('Compiler ' + str(cc) + ' is not supported')
                 
+                if (self.cmfd == 'cmfd-on'):
+                    ext_name += '_cmfd'
+                    swig_wrap_file = swig_wrap_file[:-8] + 'cmfd_wrap.cpp'
+
                 # Create the extension module and append it to the list of all
                 # extension modules
                 self.extensions.append(
@@ -509,7 +538,7 @@ class configuration:
                               libraries = self.shared_libraries[cc],
                               extra_link_args = self.linker_flags[cc], 
                               include_dirs = self.include_directories[cc],
-                              define_macros = self.macros[cc][fp],
+                              define_macros = self.macros[cc][fp][self.cmfd],
                               swig_opts = self.swig_flags + ['-D' + cc.upper()]))
 
                 # Clean up - remove the SWIG-generated wrap file from this

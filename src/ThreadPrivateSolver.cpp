@@ -224,7 +224,8 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
     FP_PRECISION psibar;
     FP_PRECISION exponential;
 
-    if (_cmfd->getMesh()->getAcceleration()){
+#ifdef CMFD
+    if (_cmfd->getMesh()->getCmfdOn()){
     	if (s == 0 && fwd){
 
     		/* set polar angle * energy group to 0 */
@@ -262,6 +263,7 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
     		}
     	}
     }
+#endif
 
     /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
@@ -275,7 +277,8 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
 	}
     }
 
-    if (_cmfd->getMesh()->getAcceleration()){
+#ifdef CMFD
+    if (_cmfd->getMesh()->getCmfdOn()){
     	if (curr_segment->_mesh_surface_fwd != -1 && fwd){
 
     		/* set polar angle * energy group to 0 */
@@ -313,7 +316,7 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
     		}
     	}
     }
-
+#endif
 
     return;
 }
