@@ -28,6 +28,7 @@
 #include "Timer.h"
 
 /* petsc input files */
+#ifdef CMFD
 #ifdef _mm_malloc
 #undef _mm_malloc
 #undef _mm_free
@@ -35,7 +36,7 @@
 #include "petsc.h"
 #include <petscmat.h>
 #endif
-
+#endif
 
 /**
  * Solve types
@@ -70,6 +71,7 @@ private:
   /* keff */
   double _k_eff;
 
+#ifdef CMFD
   /* loss matrix */
   Mat _A;
 
@@ -90,6 +92,8 @@ private:
   Vec _snew;
   Vec _res;
 
+#endif
+
   /* l2 norm */
   double _l2_norm;
 
@@ -105,9 +109,6 @@ private:
 
   /* flag to determine whether we need to assemble M */
   bool _assemble_M;
-
-  /* relaxation factor on d_tilde */
-  double _relax_factor;
   
   /* solve method (DIFFUSION or MOC) */
   solveType _solve_method;
@@ -120,9 +121,6 @@ private:
 
   /* number of fsrs */
   int _num_fsrs;
-
-  /* bool to toggle optically thick diffusion correction factor */
-  bool _optically_thick;
   
   /* arrays for fsr parameters */
   FP_PRECISION* _FSR_volumes;
@@ -131,8 +129,7 @@ private:
   
 public:
 	
-  Cmfd(Geometry* geometry, solveType solve_method, double relax_factor=0.6,
-       double criteria=1e-8);
+  Cmfd(Geometry* geometry, solveType solve_method, double criteria=1e-8);
   virtual ~Cmfd();
 
   /* worker functions */
@@ -147,18 +144,18 @@ public:
   int rescaleFlux();
 
   /* get arrays, values, and objects */
+#ifdef CMFD
   Mat getA();
   Mat getM();
+#endif
   Mesh* getMesh();
   double getKeff();
 
   /* set parameters */
   int setMeshCellFlux();
-  void setRelaxFactor(double relax_factor);
   void assembleM(bool assembleM);
   solveType getSolveType();
   void toggleFluxType(fluxType flux_method);
-  void opticallyThick(bool thick);
 
   /* set fsr parameters */
   void setFSRMaterials(Material** FSR_materials);

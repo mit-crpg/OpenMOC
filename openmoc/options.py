@@ -38,11 +38,14 @@ class options:
     # The default acceleration flag
     acceleration = False
 
+    # The default cmfd level
+    cmfd_level = -1
+
     def parseArguments(self):
 
         try:
             opts, args = getopt.getopt(sys.argv[1:], 
-                                       'ha:s:i:c:t:b:g:r:f',
+                                       'ha:s:i:c:t:b:g:r:f:l',
                                        ['help',
                                         'num-azim=',
                                         'track-spacing=',
@@ -51,8 +54,9 @@ class options:
                                         'num-omp-threads=',
                                         'num-thread-blocks=', 
                                         'num-gpu-threads=',
-                                        'relax-factor='
-                                        'acceleration='])
+                                        'relax-factor=',
+                                        'acceleration=',
+                                        'cmfd-level='])
 
         except getopt.GetoptError as err:
             log.py_printf('WARNING', str(err))
@@ -110,6 +114,9 @@ class options:
                 relax_factor += 'The cmfd acceleration flag\n'
                 print acceleration
 
+                cmfd_level = '\t{: <35}'.format('-l, --cmfd-level=<-1>')
+                cmfd_level += 'The cmfd level\n'
+                print cmmd_level
 
                 sys.exit()
 
@@ -138,5 +145,8 @@ class options:
                 self.relax_factor = float(arg)
 
             elif opt in ('-f', '--acceleration'):
-                self.acceleration = True
+                self.acceleration = bool(arg)
+
+            elif opt in ('-l', '--cmfd-level'):
+                self.cmfd_level = int(arg)
 

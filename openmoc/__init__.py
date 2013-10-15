@@ -5,9 +5,7 @@ import os
 import random
 import datetime
 import signal
-import petsc4py
-import sys
-petsc4py.init(sys.argv)
+import imp
 
 # Tell Python to recognize CTRL+C and stop the C++ extension module
 # when this is passed in from the keyboard
@@ -22,3 +20,10 @@ Timer = Timer()
 
 options = options.options()
 options.parseArguments()
+
+try:
+    imp.find_module('petsc4py')
+    import petsc4py
+    petsc4py.init()
+except ImportError:
+    pass

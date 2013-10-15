@@ -153,7 +153,7 @@ protected:
 
     /* mesh surfaces */
     /** The surface currents for each energy group for each mesh surface */
-    FP_PRECISION* _surface_currents;
+    double* _surface_currents;
 
     /** The fission source in each energy group in each flat source region */
     FP_PRECISION* _fission_sources;

@@ -33,7 +33,6 @@ CPUSolver::~CPUSolver() {
 
     if (_mesh_surface_locks != NULL)
         delete [] _mesh_surface_locks;
-
     if (_thread_fsr_flux != NULL)
         delete [] _thread_fsr_flux;
 }
@@ -88,7 +87,7 @@ FP_PRECISION CPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
  * @param energy_group the energy group of interest
  * @return the mesh cell surface current
  */
-FP_PRECISION CPUSolver::getSurfaceCurrent(int surface_id, int energy_group) {
+double CPUSolver::getSurfaceCurrent(int surface_id, int energy_group) {
 
 	return _surface_currents(surface_id, energy_group);
 }
@@ -115,7 +114,7 @@ FP_PRECISION* CPUSolver::getFSRScalarFluxes() {
  *        for each mesh cell surface.
  * @return an array of mesh cell surface currents
  */
-FP_PRECISION* CPUSolver::getSurfaceCurrents() {
+double* CPUSolver::getSurfaceCurrents() {
 
     if (_surface_currents == NULL)
         log_printf(ERROR, "Unable to returns the Solver's surface currents "
@@ -180,8 +179,10 @@ void CPUSolver::initializeFluxArrays() {
 	_scalar_flux = new FP_PRECISION[size];
 
 	/* Allocate an array for the surface currents */
+#ifdef CMFD
 	size = _num_mesh_cells * _num_groups * 8;
-	_surface_currents = new FP_PRECISION[size];
+	_surface_currents = new double[size];
+#endif
 
 	/* Allocate a thread local local memory buffer for FSR scalar flux */
 	size = _num_groups * _num_threads * sizeof(FP_PRECISION);
@@ -336,7 +337,10 @@ void CPUSolver::initializeFSRs() {
     _FSR_volumes = (FP_PRECISION*)calloc(_num_FSRs, sizeof(FP_PRECISION));
     _FSR_materials = new Material*[_num_FSRs];
     _FSR_locks = new omp_lock_t[_num_FSRs];
+
+#ifdef CMFD
     _mesh_surface_locks = new omp_lock_t[_cmfd->getMesh()->getNumCells()*8];
+#endif
 
     int num_segments;
     segment* curr_segment;
@@ -384,11 +388,12 @@ void CPUSolver::initializeFSRs() {
     for (int r=0; r < _num_FSRs; r++)
         omp_init_lock(&_FSR_locks[r]);
 
+#ifdef CMFD
     /* Loop over all mesh cells to initialize OpenMP locks */
     #pragma omp parallel for schedule(guided)
     for (int r=0; r < _num_mesh_cells*8; r++)
         omp_init_lock(&_mesh_surface_locks[r]);
-
+#endif
 
     return;
 }
@@ -438,8 +443,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
   */
  void CPUSolver::zeroSurfaceCurrents() {
 
-     log_printf(INFO, "zeroing surface currents...");
-
+#ifdef CMFD
      #pragma omp parallel for schedule(guided)
      for (int r=0; r < _num_mesh_cells; r++) {
 	 for (int s=0; s < 8; s++) {
@@ -448,7 +452,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 	 }
      }
 
-     log_printf(INFO, "done zeroing surface currents...");
+#endif
 
      return;
  }
@@ -781,14 +785,15 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 	 }
      }
 
-     if (_cmfd->getMesh()->getAcceleration()){
+#ifdef CMFD
+     if (_cmfd->getMesh()->getCmfdOn()){
 	 if (curr_segment->_mesh_surface_fwd != -1 && fwd){
 
 		 /* set polar angle * energy group to 0 */
 		 int pe = 0;
 
 		 /* Atomically increment the meshSurface current from the temporary array */
-		 omp_set_lock(&_mesh_surface_locks[curr_segment->_mesh_surface_fwd]);
+		 omp_set_lock(&_mesh_surface_locks[curr_segment->_mesh_surface_fwd % _geometry->getMesh()->getNumCurrents()]);
 
 		 /* loop over energy groups */
 		 for (int e = 0; e < _num_groups; e++) {
@@ -804,7 +809,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 		 }
 
 		 /* Release mesh surface lock */
-	     omp_unset_lock(&_mesh_surface_locks[curr_segment->_mesh_surface_fwd]);
+	     omp_unset_lock(&_mesh_surface_locks[curr_segment->_mesh_surface_fwd % _geometry->getMesh()->getNumCurrents()]);
 
 	 }
 	 else if (curr_segment->_mesh_surface_bwd != -1 && !fwd){
@@ -813,7 +818,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 		 int pe = 0;
 
 		 /* Atomically increment the meshSurface current from the temporary array */
-		 omp_set_lock(&_mesh_surface_locks[curr_segment->_mesh_surface_bwd]);
+		 omp_set_lock(&_mesh_surface_locks[curr_segment->_mesh_surface_bwd % _geometry->getMesh()->getNumCurrents()]);
 
 		 /* loop over energy groups */
 		 for (int e = 0; e < _num_groups; e++) {
@@ -829,9 +834,10 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 		 }
 
 		 /* Release mesh surface lock */
-		 omp_unset_lock(&_mesh_surface_locks[curr_segment->_mesh_surface_bwd]);
+		 omp_unset_lock(&_mesh_surface_locks[curr_segment->_mesh_surface_bwd % _geometry->getMesh()->getNumCurrents()]);
 	 }
      }
+#endif
 
      /* Atomically increment the FSR scalar flux from the temporary array */
     omp_set_lock(&_FSR_locks[fsr_id]);

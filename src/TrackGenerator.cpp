@@ -359,10 +359,11 @@ void TrackGenerator::generateTracks() {
     struct stat buffer;
     std::stringstream test_filename;
 
-    if (_geometry->getMesh()->getAcceleration()){
+    if (_geometry->getMesh()->getCmfdOn()){
     	test_filename << directory.str() << "/tracks_"
     			<<  _num_azim*2.0 << "_angles_"
-    			<< _spacing << "_cm_spacing_cmfd.data";
+    			<< _spacing << "_cm_spacing_cmfd_"
+		      << _geometry->getMesh()->getCmfdLevel() << ".data";
     }
     else{
     	test_filename << directory.str() << "/tracks_"
@@ -1015,12 +1016,14 @@ void TrackGenerator::dumpTracksToFile() {
                 fwrite(&material_id, sizeof(int), 1, out);
                 fwrite(&region_id, sizeof(int), 1, out);
 
-                if (_geometry->getMesh()->getAcceleration()){
+#ifdef CMFD
+                if (_geometry->getMesh()->getCmfdOn()){
                 	mesh_surface_fwd = curr_segment->_mesh_surface_fwd;
                 	mesh_surface_bwd = curr_segment->_mesh_surface_bwd;
                 	fwrite(&mesh_surface_fwd, sizeof(int), 1, out);
                 	fwrite(&mesh_surface_bwd, sizeof(int), 1, out);
 		}
+#endif
             }
         }
     }
@@ -1090,8 +1093,11 @@ bool TrackGenerator::readTracksFromFile() {
     double length;
     int material_id;
     int region_id;
+
+#ifdef CMFD
     int mesh_surface_fwd;
     int mesh_surface_bwd;
+#endif
 
     for (int i=0; i < _num_azim; i++)
         _tot_num_tracks += _num_tracks[i];
@@ -1131,12 +1137,14 @@ bool TrackGenerator::readTracksFromFile() {
                 curr_segment->_material = _geometry->getMaterial(material_id);
                 curr_segment->_region_id = region_id;
 
-                if (_geometry->getMesh()->getAcceleration()){
+#ifdef CMFD
+                if (_geometry->getMesh()->getCmfdOn()){
                     ret = fread(&mesh_surface_fwd, sizeof(int), 1, in);
                     ret = fread(&mesh_surface_bwd, sizeof(int), 1, in);
                 	curr_segment->_mesh_surface_fwd = mesh_surface_fwd;
                 	curr_segment->_mesh_surface_bwd = mesh_surface_bwd;
                 }
+#endif
 
                 curr_track->addSegment(curr_segment);
             }

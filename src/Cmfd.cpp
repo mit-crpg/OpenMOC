@@ -9,9 +9,9 @@
  *          and fluxes are initialized.
  * @param geometry pointer to the geometry
  * @param solve_method enum for solve method
- * @param relax_factor optional cmfd relaxation factor
+ * @param criteria convergence criteria on keff
  */
-Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double relax_factor, double criteria) {
+Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double criteria) {
 
   /* Create objects */
   _geometry = geometry;
@@ -22,9 +22,7 @@ Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double relax_factor, doub
   _timer = new Timer();
   
   /* Boolean and Enum flags to toggle features */
-  _optically_thick = false;
   _solve_method = solve_method;
-  _relax_factor = relax_factor;
   _assemble_M = true;
   _flux_method = PRIMAL;
   
@@ -48,6 +46,7 @@ Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double relax_factor, doub
     _mesh->initializeSurfaceCurrents();
     initializeFSRs();
   }
+
 }
 
 
@@ -56,6 +55,7 @@ Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double relax_factor, doub
  */
 Cmfd::~Cmfd() {
 
+#ifdef CMFD
   if (_A_array != NULL)
     delete [] _A_array;
 
@@ -67,6 +67,7 @@ Cmfd::~Cmfd() {
 
   if (_indices_y_A != NULL)
     delete [] _indices_y_A;
+#endif
 
 }
 
@@ -81,6 +82,8 @@ int Cmfd::createAMPhi(){
   log_printf(DEBUG, "Creating AMPhi...");
   
   int petsc_err = 0;
+
+#ifdef CMFD
   PetscInt size1 = _cells_x * _cells_y * _num_groups;
   PetscInt size2 = 4 + _num_groups;
   
@@ -105,7 +108,8 @@ int Cmfd::createAMPhi(){
   petsc_err = VecCreateSeq(PETSC_COMM_WORLD, _cells_x*_cells_y*_num_groups, &_snew);
   petsc_err = VecCreateSeq(PETSC_COMM_WORLD, _cells_x*_cells_y*_num_groups, &_res);
   CHKERRQ(petsc_err);
-  
+#endif
+
   return petsc_err;
 }
 
@@ -128,7 +132,7 @@ void Cmfd::computeXS(){
   double volume, flux, abs, tot, nu_fis, chi, buckle, dif_coef;
   double* scat;
   Material** materials = _mesh->getMaterials();
-  FP_PRECISION* fluxes = _mesh->getFluxes("old_flux");
+  double* fluxes = _mesh->getFluxes("old_flux");
   
   /* initialize tallies for each parameter */
   double abs_tally, nu_fis_tally, dif_tally, rxn_tally, vol_tally, tot_tally;
@@ -221,8 +225,10 @@ void Cmfd::computeXS(){
       log_printf(DEBUG, "cell: %i, group: %i, vol: %f, siga: %f, sigt: %f, nu_sigf: %f, dif_coef: %f, flux: %f", i, e, vol_tally, abs_tally / rxn_tally, 
 		 tot_tally / rxn_tally, nu_fis_tally / rxn_tally, dif_tally / rxn_tally, rxn_tally / vol_tally);
       
-      for (int g = 0; g < _num_groups; g++)
+      for (int g = 0; g < _num_groups; g++){
 	cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e, g);
+	log_printf(DEBUG, "scattering from %i to %i: %f", e, g, scat_tally[g] / rxn_tally);
+      }
     }
   }
 }
@@ -247,10 +253,10 @@ void Cmfd::computeDs(){
   int cell, cell_next;
 
   Material** materials = _mesh->getMaterials();
-  FP_PRECISION* cell_flux = _mesh->getFluxes("old_flux");
+  double* cell_flux = _mesh->getFluxes("old_flux");
   double* lengths_y = _mesh->getLengthsY();
   double* lengths_x = _mesh->getLengthsX();
-  FP_PRECISION* currents = _mesh->getCurrents();
+  double* currents = _mesh->getCurrents();
   
   /* loop over mesh cells in y direction */
   for (int y = 0; y < _cells_y; y++){
@@ -389,7 +395,7 @@ void Cmfd::computeDs(){
 	  }  
 	  
 	  /* perform underrelaxation on d_tilde */
-	  d_tilde = materials[cell]->getDifTilde()[surface*_num_groups + e] * (1 - _relax_factor) + _relax_factor * d_tilde;
+	  d_tilde = materials[cell]->getDifTilde()[surface*_num_groups + e] * (1 - _mesh->getRelaxFactor()) + _mesh->getRelaxFactor() * d_tilde;
 
 	  /* set d_hat and d_tilde */
 	  materials[cell]->setDifHatByGroup(d_hat, e, surface);
@@ -418,6 +424,8 @@ double Cmfd::computeKeff(){
   
   /* initialize variables */
   int petsc_err = 0;
+
+#ifdef CMFD
   int max_outer, iter = 0;
   PetscScalar sumold, sumnew, scale_val;
   PetscReal rtol = 1e-10;
@@ -547,6 +555,8 @@ double Cmfd::computeKeff(){
     msg_string.resize(53, '.');
     log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
   }
+
+#endif
   
   return _k_eff;
 }
@@ -559,6 +569,8 @@ double Cmfd::computeKeff(){
 int Cmfd::rescaleFlux(){
 
   int petsc_err = 0;
+
+#ifdef CMFD
   PetscScalar sumnew, sumold, scale_val;
 
   /* rescale the new and old flux to have an avg source of 1.0 */
@@ -571,8 +583,9 @@ int Cmfd::rescaleFlux(){
   scale_val = _cells_x*_cells_y*_num_groups / sumold;
   petsc_err = VecScale(_phi_old, scale_val);
   CHKERRQ(petsc_err);
+#endif
   
-  return 0;
+  return petsc_err;
 }
 
 
@@ -584,24 +597,27 @@ int Cmfd::setMeshCellFlux(){
 
   /* initialize variables */
   int petsc_err = 0;
+
+#ifdef CMFD
   PetscScalar *old_phi;
   PetscScalar *new_phi;
-  petsc_err = VecGetArray(_phi_old, &old_phi);
   petsc_err = VecGetArray(_phi_new, &new_phi);
+  petsc_err = VecGetArray(_phi_old, &old_phi);
   CHKERRQ(petsc_err);
   
   for (int i = 0; i < _cells_x*_cells_y; i++){
     for (int e = 0; e < _num_groups; e++){
-      _mesh->getFluxes("old_flux")[i*_num_groups + e] = double(old_phi[i*_num_groups + e]);
       _mesh->getFluxes("new_flux")[i*_num_groups + e] = double(new_phi[i*_num_groups + e]);
+      _mesh->getFluxes("old_flux")[i*_num_groups + e] = double(old_phi[i*_num_groups + e]);
     }
   }
   
-  petsc_err = VecRestoreArray(_phi_old, &old_phi);
   petsc_err = VecRestoreArray(_phi_new, &new_phi);
+  petsc_err = VecRestoreArray(_phi_old, &old_phi);
   CHKERRQ(petsc_err);
+#endif
 
-  return 0;
+  return petsc_err;
 }
 
 
@@ -614,13 +630,15 @@ int Cmfd::constructMatrices(){
   
   /* initialized variables */
   int petsc_err = 0;
+
+#ifdef CMFD
   PetscInt indice_x;
   PetscScalar value, phi, b_prime = 0;
   int cell;
 
   /* get arrays */
   Material** materials = _mesh->getMaterials();
-  FP_PRECISION* old_flux = _mesh->getFluxes("old_flux");
+  double* old_flux = _mesh->getFluxes("old_flux");
   double* heights = _mesh->getLengthsY();
   double* widths = _mesh->getLengthsX();
   
@@ -774,6 +792,10 @@ int Cmfd::constructMatrices(){
 	  CHKERRQ(petsc_err);
 	}
 
+	log_printf(DEBUG, "cell: %i, group: %i, A0: %f, A1: %f, A2: %f, A3: %f, A4: %f, A5: %f", cell, e,
+		   _A_array[0], _A_array[1], _A_array[2], _A_array[3], _A_array[4], _A_array[5]);  
+
+
 	petsc_err = MatSetValues(_A,1,&indice_x,_num_groups+4,_indices_y_A,_A_array,INSERT_VALUES);
 	CHKERRQ(petsc_err);
 	
@@ -783,6 +805,8 @@ int Cmfd::constructMatrices(){
       }
     }
   }
+
+#endif
   
   log_printf(INFO,"Done constructing AMPhi...");
   
@@ -799,8 +823,8 @@ void Cmfd::updateMOCFlux(){
   
   /* initialize variables */
   std::vector<int>::iterator iter;
-  FP_PRECISION* old_flux = _mesh->getFluxes("old_flux");
-  FP_PRECISION* new_flux = _mesh->getFluxes("new_flux");
+  double* old_flux = _mesh->getFluxes("old_flux");
+  double* new_flux = _mesh->getFluxes("new_flux");
   double old_cell_flux, new_cell_flux;
   
   /* loop over mesh cells */
@@ -835,7 +859,7 @@ void Cmfd::updateMOCFlux(){
  */
 double Cmfd::computeDiffCorrect(double d, double h){
 
-  if (_optically_thick){
+  if (_mesh->getOpticallyThick() && _solve_method == MOC){
     
     /* initialize variables */
     double alpha, mu, expon;
@@ -861,6 +885,7 @@ double Cmfd::computeDiffCorrect(double d, double h){
 }
 
 
+#ifdef CMFD
 /**
  * @brief get pointer to loss matrix, A
  * @return _A pointer to loss matrix, A
@@ -877,7 +902,7 @@ Mat Cmfd::getA(){
 Mat Cmfd::getM(){
   return _M;
 }
-
+#endif
 
 /**
  * @brief get k_eff
@@ -950,14 +975,6 @@ solveType Cmfd::getSolveType(){
 
 
 /**
- * @brief Set the relaxation factor
- * @param relax_factor the relaxation factor
- */
-void Cmfd::setRelaxFactor(double relax_factor){
-  _relax_factor = relax_factor;
-}
-
-/**
  * @brief Set the fsr materials array pointer
  * @param FSR_materials pointer to fsr materials array
  */
@@ -1019,12 +1036,4 @@ void Cmfd::toggleFluxType(fluxType flux_method){
 }
 
 
-/**
- * @brief Set flag to determine whether we use
- *        optically thick diffusion correction factor.
- * @param thick flag to turn on correction factor.
- */
-void Cmfd::opticallyThick(bool thick){
-  _optically_thick = thick;
-}
 

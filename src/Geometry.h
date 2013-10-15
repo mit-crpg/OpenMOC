@@ -103,7 +103,6 @@ private:
 
     /** A CMFD mesh */
     Mesh* _mesh;
-    int _cmfd_level;
 
     void initializeCellFillPointers();
 

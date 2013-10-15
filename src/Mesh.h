@@ -28,6 +28,9 @@ private:
   double _length_x;
   double _length_y;
 
+  /* cmfd level */
+  int _cmfd_level;
+
   /* number of cells in x and y directions */
   int _cells_x;
   int _cells_y;
@@ -51,16 +54,20 @@ private:
   double* _volumes;
 
   /* array of mesh surface currents */
-  FP_PRECISION* _currents;
+  double* _currents;
 
   /* vector of vectors of fsrs in each mesh cell */
   std::vector< std::vector<int> > _cell_fsrs;
 
-  /* acceleration flag */
+  /* cmfd and acceleration flag */
+  bool _cmfd_on;
   bool _acceleration;
 
+  /* relaxation factor on d_tilde */
+  double _relax_factor;
+
   /* map of fluxes mapped onto mesh */
-  std::map<std::string, FP_PRECISION*> _fluxes;
+  std::map<std::string, double*> _fluxes;
 
   /* materials array */
   Material** _materials;
@@ -76,8 +83,11 @@ private:
   double* _bounds_x;
   double* _bounds_y;
 
+  /* bool to toggle optically thick diffusion correction factor */
+  bool _optically_thick;
+
 public:
-  Mesh(bool acceleration=false);
+  Mesh(bool cmfd_on=false, double relax_factor=0.6, int cmfd_level=-1);
   virtual ~Mesh();
   void initialize();
   void setFSRBounds();
@@ -91,15 +101,16 @@ public:
   int getNumCells();
   boundaryType getBoundary(int side);
   int getNumCurrents();
-  FP_PRECISION getFlux(int cell_id, int group, std::string flux_name="new_flux");
+  double getFlux(int cell_id, int group, std::string flux_name="new_flux");
   std::vector<std::vector<int> >* getCellFSRs();
   Material** getMaterials();
   double* getVolumes();
-  FP_PRECISION* getFluxes(std::string flux_name);
+  double* getFluxes(std::string flux_name);
   double* getLengthsX();
   double* getLengthsY();
-  FP_PRECISION* getCurrents();
-
+  double* getCurrents();
+  int getCmfdLevel();
+  
   /* set mesh parameters */
   void setLengthX(double length_x);
   void setLengthY(double length_y);
@@ -107,18 +118,25 @@ public:
   void setCellLengthY(int cell_num, double length_y);
   void setCellsX(int cells_x);
   void setCellsY(int cells_y);
-  void setSurfaceCurrents(FP_PRECISION* surface_currents);
+  void setSurfaceCurrents(double* surface_currents);
   void setVolume(double volume, int cell_num);
+  void setCmfdLevel(int cmfd_level);
 
   /* set general problem specs */
   void setNumGroups(int num_groups);
   void setNumAzim(int num_azim);
   void setNumFSRs(int num_fsrs);
-  bool getAcceleration();
-  
+  void setAcceleration(bool accel);
+  void setOpticallyThick(bool thick);
+  void setRelaxFactor(double relax_factor);
+
   /* get generation problem specs */
   int getNumGroups();
   int getNumFSRs();
+  bool getCmfdOn();
+  bool getAcceleration();
+  bool getOpticallyThick();
+  double getRelaxFactor();
 
   /* worker functions */
   int findMeshCell(double x, double y);

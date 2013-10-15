@@ -84,10 +84,10 @@ def materialize(filename):
                 new_material.setChi(f[name]['Chi'][...])
 
             if 'Diffusion Coefficient' in f[name]:
-                new_materials.setDifCoef(f[name]['Diffusion Coefficient'][...])
+                new_material.setDifCoef(f[name]['Diffusion Coefficient'][...])
 
             if 'Buckling' in f[name]:
-                new_materials.setDifCoef(f[name]['Buckling'][...])
+                new_material.setBuckling(f[name]['Buckling'][...])
 
             # Add this material to the list
             materials[name] = new_material

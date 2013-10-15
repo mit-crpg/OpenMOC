@@ -1097,7 +1097,8 @@ void Geometry::initializeFlatSourceRegions() {
         _FSRs_to_materials_id[r] = getMaterial(curr->getMaterial())->getId();
     }
 
-    initializeMesh();
+    if (_mesh->getCmfdOn())
+      initializeMesh();
 }
 
 
@@ -1201,11 +1202,12 @@ void Geometry::segmentize(Track* track) {
 	    new_segment->_region_id = fsr_id;
 
 	    /* get pointer to mesh surfaces that the segment crosses */
-	    if (_mesh->getAcceleration()){
+#ifdef CMFD
+	    if (_mesh->getCmfdOn()){
 	      new_segment->_mesh_surface_fwd = _mesh->findMeshSurface(new_segment->_region_id, &segment_end, track->getAzimAngleIndex());
 	      new_segment->_mesh_surface_bwd = _mesh->findMeshSurface(new_segment->_region_id, &segment_start, track->getAzimAngleIndex());
 	    }
-
+#endif
 	    /* Add the segment to the track */
 	    track->addSegment(new_segment);
  
@@ -1508,18 +1510,37 @@ void Geometry::initializeMesh(){
 
     Universe* univ = _universes.at(0);
     univ = _universes.at(0);
+
+    int max_cmfd_level = 0;
+    int cmfd_level = 0;
     
     /* find the mesh depth of the geometry */
-    _cmfd_level = findMeshDepth(univ, _cmfd_level);
-    log_printf(DEBUG, "Cmfd mesh depth is: %i level(s)", _cmfd_level);
+    max_cmfd_level = findMeshDepth(univ, max_cmfd_level);
+    log_printf(DEBUG, "Max cmfd mesh depth is: %i level(s)", max_cmfd_level);
+
+    /* set cmfd level to user specify value if possible */
+    if (_mesh->getCmfdLevel() == -1){
+      cmfd_level = max_cmfd_level;
+      _mesh->setCmfdLevel(cmfd_level);
+    }
+    else if (_mesh->getCmfdLevel() >= 0 && _mesh->getCmfdLevel() <= max_cmfd_level)
+      cmfd_level = _mesh->getCmfdLevel();
+    else{
+      log_printf(WARNING, "User input cmfd level was outside "
+		 "the bounds of the cmfd level range");
+      cmfd_level = max_cmfd_level;
+      _mesh->setCmfdLevel(max_cmfd_level);
+    }
+
+    log_printf(INFO, "cmfd level: %i, max cmfd level: %i", cmfd_level, max_cmfd_level);
 
     /* find cell width and height at CMFD_LEVEL lattice */
     int width = 0;
     int height = 0;
-    findMeshHeight(univ, &height, _cmfd_level);
+    findMeshHeight(univ, &height, cmfd_level);
     univ = _universes.at(0);
-    findMeshWidth(univ, &width, _cmfd_level);
-    
+    findMeshWidth(univ, &width, cmfd_level);
+
     /* set mesh boundary conditions */
     _mesh->setBoundary(0,getBCLeft());
     _mesh->setBoundary(1,getBCBottom());
@@ -1529,23 +1550,53 @@ void Geometry::initializeMesh(){
     _mesh->setNumFSRs(_num_FSRs);
     
     /* set the cell and geometric width and height of mesh */
-    _mesh->setCellsY(height);
-    _mesh->setCellsX(width);
+    if (cmfd_level > 0){
+      _mesh->setCellsY(height);
+      _mesh->setCellsX(width);
+    }
+    else{
+      _mesh->setCellsY(1);
+      _mesh->setCellsX(1);
+    }
+
+    /* set mesh dimensions and initialize mesh variables */
     _mesh->setLengthY(getHeight());
     _mesh->setLengthX(getWidth());
     _mesh->initialize();
-    
     log_printf(NORMAL, "Number of CMFD mesh cells: %i", height*width);
     log_printf(DEBUG, "mesh cell width: %i", _mesh->getCellsX());
     log_printf(DEBUG, "mesh cell height: %i", _mesh->getCellsY());
     
+    /* Decide whether cmfd acceleration is really needed for MOC acceleration */
+    if (_num_FSRs <= 1000){
+      _mesh->setAcceleration(false);
+      log_printf(INFO, "Cmfd acceleration was turned off because there are "
+		"<= 100 fsrs and CMFD is not needed for small geometries");
+    }
+
+    /* Decide whether optically thick correction factor is needed for MOC acceleration */
+    if (getHeight()*getWidth() / (height*width) >= 10.0){
+      _mesh->setOpticallyThick(true);
+      log_printf(INFO, "Optically thick correction factor turned on and for cmfd "
+		 "acceleration because the average mesh cell size is >= 10 cm^2");
+    }
+    
     /* make a vector of FSR ids in each mesh cell */
     int meshCellNum = 0;
-    defineMesh(_mesh, univ, _cmfd_level, &meshCellNum, 0, true, 0);
+    if (cmfd_level > 0)
+      defineMesh(_mesh, univ, cmfd_level, &meshCellNum, 0, true, 0);
+    else{
+      _mesh->setCellLengthX(0, getWidth());
+      _mesh->setCellLengthY(0, getHeight());
+      for (int fsr = 0; fsr < _num_FSRs; fsr++)
+	_mesh->getCellFSRs()->at(0).push_back(fsr);
+    }
+
+    /* set mesh fsr and cell bounds and initialize materials */
     _mesh->setFSRBounds();
     _mesh->setCellBounds();
     _mesh->initializeMaterials(&_materials, _FSRs_to_materials_id);
-    
+
     return;
 }
 
