@@ -93,6 +93,9 @@ private:
   /* l2 norm */
   double _l2_norm;
 
+  /* keff convergence criteria */
+  double _conv_criteria;
+
   /* num cells in x and y direction */
   int _cells_x;
   int _cells_y;
@@ -128,7 +131,8 @@ private:
   
 public:
 	
-  Cmfd(Geometry* geometry, solveType solve_method, double relax_factor=0.6);
+  Cmfd(Geometry* geometry, solveType solve_method, double relax_factor=0.6,
+       double criteria=1e-8);
   virtual ~Cmfd();
 
   /* worker functions */

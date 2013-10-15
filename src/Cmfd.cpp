@@ -11,7 +11,7 @@
  * @param solve_method enum for solve method
  * @param relax_factor optional cmfd relaxation factor
  */
-Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double relax_factor) {
+Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double relax_factor, double criteria) {
 
   /* Create objects */
   _geometry = geometry;
@@ -30,7 +30,8 @@ Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double relax_factor) {
   
   /* Global variables used in solving Cmfd problem */
   _l2_norm = 1.0;
-  
+  _conv_criteria = criteria;
+
   /* General problem parameters */
   _num_groups = _mesh->getNumGroups();
   _num_fsrs = _mesh->getNumFSRs();
@@ -44,6 +45,7 @@ Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double relax_factor) {
     _FSR_volumes = (FP_PRECISION*)calloc(_num_fsrs, sizeof(FP_PRECISION));
     _FSR_materials = new Material*[_num_fsrs];
     _FSR_fluxes = (FP_PRECISION*)calloc(_num_fsrs*_num_groups, sizeof(FP_PRECISION));
+    _mesh->initializeSurfaceCurrents();
     initializeFSRs();
   }
 }
@@ -123,7 +125,7 @@ void Cmfd::computeXS(){
     _mesh->splitCorners();
   
   /* initialize variables for FSR properties*/
-  double volume, flux, abs, tot, nu_fis, chi, buckle;
+  double volume, flux, abs, tot, nu_fis, chi, buckle, dif_coef;
   double* scat;
   Material** materials = _mesh->getMaterials();
   FP_PRECISION* fluxes = _mesh->getFluxes("old_flux");
@@ -170,23 +172,24 @@ void Cmfd::computeXS(){
 	tot = fsr_material->getSigmaT()[e];
 	scat = fsr_material->getSigmaS();
 	buckle = fsr_material->getBuckling()[e];
+	dif_coef = fsr_material->getDifCoef()[e];
 
 	/* if material has a diffusion coefficient, use it; otherwise
 	 * estimate the diffusion coefficient with 1 / (3 * sigma_t) */
-        if (fsr_material->getDifCoef()[e] > 1e-6){
+        if (fsr_material->getDifCoef()[e] > 1e-8){
 	  dif_tally += fsr_material->getDifCoef()[e] * flux * volume;
 	}
 	else
 	  dif_tally += flux * volume / (3.0 * tot);
 	
 	/* if material has a chi, use it; otherwise set to 0 */
-	if (fsr_material->getChi() != NULL)
+	if (fsr_material->getChi()[e] > 1e-10)
 	  chi = fsr_material->getChi()[e];
 	else
 	  chi = 0.0;
 	
 	/* if material has a nu_sig_f, use it; otherwise set to 0 */
-	if (fsr_material->getNuSigmaF() != NULL)
+	if (fsr_material->getNuSigmaF()[e] > 1e-8)
 	  nu_fis = fsr_material->getNuSigmaF()[e];
 	else
 	  nu_fis = 0.0;
@@ -212,7 +215,8 @@ void Cmfd::computeXS(){
       cell_material->setNuSigmaFByGroup(nu_fis_tally / rxn_tally, e);
       cell_material->setDifCoefByGroup(dif_tally / rxn_tally, e);
       fluxes[i*_num_groups+e] = rxn_tally / vol_tally;
-      cell_material->setBucklingByGroup(buckle, e);
+      cell_material->setBucklingByGroup(buckle, e);      
+      
 
       log_printf(DEBUG, "cell: %i, group: %i, vol: %f, siga: %f, sigt: %f, nu_sigf: %f, dif_coef: %f, flux: %f", i, e, vol_tally, abs_tally / rxn_tally, 
 		 tot_tally / rxn_tally, nu_fis_tally / rxn_tally, dif_tally / rxn_tally, rxn_tally / vol_tally);
@@ -373,7 +377,7 @@ void Cmfd::computeDs(){
 		/* d_tilde is positive */
 		if (1 - fabs(d_tilde)/d_tilde < 1e-8){
 		  d_hat   = - current/(2*flux_next*length);
-		d_tilde = - current/(2*flux_next*length);
+		  d_tilde = - current/(2*flux_next*length);
 		}
 		/* if d_tilde is negative */
 		else{
@@ -420,7 +424,6 @@ double Cmfd::computeKeff(){
   PetscReal atol = 1e-10;
   PetscReal eps = 0.0;
   Vec sold, snew, res;
-  float criteria = 1e-10;
   KSP ksp;
 
   /* compute the cross sections and surface 
@@ -519,7 +522,7 @@ double Cmfd::computeKeff(){
     log_printf(INFO, "CMFD iter: %i, keff: %f, error: %f", iter + 1, _k_eff, eps);
 
     /* check for convergence */
-    if (eps < criteria)
+    if (eps < _conv_criteria)
       break;
   }
 

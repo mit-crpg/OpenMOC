@@ -91,7 +91,7 @@ public:
   int getNumCells();
   boundaryType getBoundary(int side);
   int getNumCurrents();
-  FP_PRECISION getFlux(std::string flux_name, int cell_id, int group);
+  FP_PRECISION getFlux(int cell_id, int group, std::string flux_name="new_flux");
   std::vector<std::vector<int> >* getCellFSRs();
   Material** getMaterials();
   double* getVolumes();
@@ -129,6 +129,7 @@ public:
   int getCellNext(int cell_num, int surface_id);
   int findCellId(LocalCoords* coord);
   void initializeMaterials(std::map<int, Material*>* materials, int* fsrs_to_mats);
+  void initializeSurfaceCurrents();
 };
 
 #endif /* MESH_H_ */
