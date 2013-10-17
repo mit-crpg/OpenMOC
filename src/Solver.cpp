@@ -406,6 +406,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     flattenFSRFluxes(1.0);
     flattenFSRSources(1.0);
     zeroTrackFluxes();
+
 #ifdef CMFD
     initializeCmfd();
     FP_PRECISION cmfd_keff;
@@ -437,6 +438,17 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 	    _timer->recordSplit("Total time to converge the source");
 	    return _k_eff;
 	}
+
+	/* Check for divergence of the fission source distribution */
+	if (i > 10 && residual > _residual_vector.back()) {
+	  log_printf(ERROR, "The residual from iteration %i is greater "
+		     "than the source from iteration %i which indicates "
+		     "the solution is likely diverging. If CMFD "
+		     " is turned on, please run the simulation again "
+		     "with CMFD acceleration turned off.", i, i-1);
+	}
+
+	_residual_vector.push_back(residual);
     }
 
     _timer->stopTimer();
