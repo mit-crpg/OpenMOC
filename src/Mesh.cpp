@@ -8,9 +8,15 @@
  * @details The construcor initializes the many variables to zero,
  *          initializes cmfd acceleration to off, and initializes 
  *          the boundary conditions to REFLECTIVE
+ * @param solve_type solve method (MOC or DIFFUSION)
  * @param cmfd_on an optional boolean to turn on cmfd
+ * @param relax_factor relaxation factor
+ * @param cmfd_level cmfd mesh level
  */
-Mesh::Mesh(bool cmfd_on, double relax_factor, int cmfd_level){
+Mesh::Mesh(solveType solve_type, bool cmfd_on, double relax_factor, int mesh_level){
+
+  if (solve_type == DIFFUSION)
+    cmfd_on = true;
 
   /* initialize variables */
   _cmfd_on = cmfd_on;
@@ -21,9 +27,10 @@ Mesh::Mesh(bool cmfd_on, double relax_factor, int cmfd_level){
   _num_currents = 0;
   _cells_x = 0;
   _cells_y = 0;
-  _cmfd_level = cmfd_level;
+  _mesh_level = mesh_level;
   _optically_thick = false; 
   _relax_factor = relax_factor;
+  _solve_method = solve_type;
 
   /* initialize boundaries to be reflective */
   _boundaries = new boundaryType[4];
@@ -832,11 +839,11 @@ void Mesh::initializeSurfaceCurrents(){
 
 
 /**
- * @brief Gets the cmfd level
- * @return _cmfd_level cmfd level
+ * @brief Gets the mesh level
+ * @return _mesh_level mesh level
  **/
-int Mesh::getCmfdLevel(){
-  return _cmfd_level;
+int Mesh::getMeshLevel(){
+  return _mesh_level;
 }
 
 
@@ -844,8 +851,8 @@ int Mesh::getCmfdLevel(){
  * @brief Sets the cmfd level
  * @parap cmfd_level cmfd level
  **/
-void Mesh::setCmfdLevel(int cmfd_level){
-  _cmfd_level = cmfd_level;
+void Mesh::setMeshLevel(int mesh_level){
+  _mesh_level = mesh_level;
 }
 
 
@@ -885,4 +892,13 @@ void Mesh::setRelaxFactor(double relax_factor){
  */
 double Mesh::getRelaxFactor(){
   return _relax_factor;
+}
+
+
+/**
+ * @brief Get the solve type
+ * @return _solve_method the solve type
+ */
+solveType Mesh::getSolveType(){
+  return _solve_method;
 }

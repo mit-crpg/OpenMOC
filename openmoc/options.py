@@ -38,14 +38,14 @@ class options:
     # The default acceleration flag
     acceleration = False
 
-    # The default cmfd level
-    cmfd_level = -1
+    # The default mesh level
+    mesh_level = -1
 
     def parseArguments(self):
 
         try:
             opts, args = getopt.getopt(sys.argv[1:], 
-                                       'ha:s:i:c:t:b:g:r:f:l',
+                                       'ha:s:i:c:t:b:g:r:f:l:',
                                        ['help',
                                         'num-azim=',
                                         'track-spacing=',
@@ -114,8 +114,8 @@ class options:
                 relax_factor += 'The cmfd acceleration flag\n'
                 print acceleration
 
-                cmfd_level = '\t{: <35}'.format('-l, --cmfd-level=<-1>')
-                cmfd_level += 'The cmfd level\n'
+                cmfd_level = '\t{: <35}'.format('-l, --mesh-level=<-1>')
+                cmfd_level += 'The mesh level\n'
                 print cmmd_level
 
                 sys.exit()
@@ -147,6 +147,6 @@ class options:
             elif opt in ('-f', '--acceleration'):
                 self.acceleration = bool(arg)
 
-            elif opt in ('-l', '--cmfd-level'):
-                self.cmfd_level = int(arg)
+            elif opt in ('-l', '--mesh-level'):
+                self.mesh_level = int(arg)
 

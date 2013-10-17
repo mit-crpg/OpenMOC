@@ -23,7 +23,7 @@
 
 /** Indexing scheme for the thread private surface currents for each thread in
  *  each flat source region and in each energy group */
-#define _thread_currents(tid,r,e) (_thread_currents[(tid)*_num_mesh_cells*8*_num_groups+(r)*_num_groups+(e)])
+#define _thread_currents(tid,r,e) (_thread_currents[(tid)*_num_mesh_cells*8*_num_groups+(r % _geometry->getMesh()->getNumCurrents())*_num_groups+(e)])
 
 /**
  * @class ThreadPrivateSolver ThreadPrivateSolver.h "openmoc/src/ThreadPrivateSolver.h"
@@ -40,7 +40,7 @@ protected:
     /** An array for the flat source region scalar fluxes for each thread */
     FP_PRECISION* _thread_flux;
 
-    FP_PRECISION* _thread_currents;
+    double* _thread_currents;
 
     void initializeFluxArrays();
 
@@ -49,7 +49,7 @@ protected:
     void scalarFluxTally(segment* curr_segment, 
 			 FP_PRECISION* track_flux,
 			 FP_PRECISION* fsr_flux,
-			 bool fwd, int s);
+			 bool fwd);
     void reduceThreadScalarFluxes();
     void reduceThreadSurfaceCurrents();
     void transportSweep();

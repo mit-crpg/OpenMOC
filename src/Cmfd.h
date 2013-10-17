@@ -39,14 +39,6 @@
 #endif
 
 /**
- * Solve types
- */
-enum solveType {
-	DIFFUSION,
-	MOC
-};
-
-/**
  * Flux types
  */
 enum fluxType {
@@ -110,9 +102,6 @@ private:
   /* flag to determine whether we need to assemble M */
   bool _assemble_M;
   
-  /* solve method (DIFFUSION or MOC) */
-  solveType _solve_method;
-
   /* flux type (PRIMAL or ADJOINT) */
   fluxType _flux_method;
 
@@ -121,6 +110,9 @@ private:
 
   /* number of fsrs */
   int _num_fsrs;
+
+  /* solve method (DIFFUSION or MOC) */
+  solveType _solve_method;
   
   /* arrays for fsr parameters */
   FP_PRECISION* _FSR_volumes;
@@ -129,7 +121,7 @@ private:
   
 public:
 	
-  Cmfd(Geometry* geometry, solveType solve_method, double criteria=1e-8);
+  Cmfd(Geometry* geometry, double criteria=1e-8);
   virtual ~Cmfd();
 
   /* worker functions */
@@ -154,7 +146,6 @@ public:
   /* set parameters */
   int setMeshCellFlux();
   void assembleM(bool assembleM);
-  solveType getSolveType();
   void toggleFluxType(fluxType flux_method);
 
   /* set fsr parameters */
