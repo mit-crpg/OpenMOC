@@ -363,7 +363,7 @@ void TrackGenerator::generateTracks() {
     	test_filename << directory.str() << "/tracks_"
     			<<  _num_azim*2.0 << "_angles_"
     			<< _spacing << "_cm_spacing_cmfd_"
-		      << _geometry->getMesh()->getCmfdLevel() << ".data";
+		      << _geometry->getMesh()->getMeshLevel() << ".data";
     }
     else{
     	test_filename << directory.str() << "/tracks_"

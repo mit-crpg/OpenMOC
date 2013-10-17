@@ -13,8 +13,9 @@
  * @param track_generator an optional pointer to the trackgenerator
  */
 VectorizedSolver::VectorizedSolver(Geometry* geometry, 
-				   TrackGenerator* track_generator) :
-    CPUSolver(geometry, track_generator) { 
+				   TrackGenerator* track_generator,
+				   Cmfd* cmfd) :
+  CPUSolver(geometry, track_generator, cmfd) { 
   
     _thread_taus = NULL;
     _thread_exponentials = NULL;
@@ -195,6 +196,7 @@ void VectorizedSolver::initializeFluxArrays() {
 
 	size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
 	_thread_taus = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "
@@ -536,7 +538,8 @@ void VectorizedSolver::computeKeff() {
  */
 void VectorizedSolver::scalarFluxTally(segment* curr_segment,
    	                               FP_PRECISION* track_flux,
-	                               FP_PRECISION* fsr_flux){
+	                               FP_PRECISION* fsr_flux,
+				       bool fwd){
 
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;

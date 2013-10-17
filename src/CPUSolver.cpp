@@ -33,8 +33,12 @@ CPUSolver::~CPUSolver() {
 
     if (_mesh_surface_locks != NULL)
         delete [] _mesh_surface_locks;
+
     if (_thread_fsr_flux != NULL)
         delete [] _thread_fsr_flux;
+
+    if (_surface_currents != NULL)
+        delete [] _surface_currents;
 }
 
 
@@ -179,10 +183,10 @@ void CPUSolver::initializeFluxArrays() {
 	_scalar_flux = new FP_PRECISION[size];
 
 	/* Allocate an array for the surface currents */
-#ifdef CMFD
-	size = _num_mesh_cells * _num_groups * 8;
-	_surface_currents = new double[size];
-#endif
+	if (_cmfd->getMesh()->getCmfdOn()){ 
+	  size = _num_mesh_cells * _num_groups * 8 * sizeof(double);
+	  _surface_currents = new double[size];
+	}
 
 	/* Allocate a thread local local memory buffer for FSR scalar flux */
 	size = _num_groups * _num_threads * sizeof(FP_PRECISION);
@@ -338,9 +342,8 @@ void CPUSolver::initializeFSRs() {
     _FSR_materials = new Material*[_num_FSRs];
     _FSR_locks = new omp_lock_t[_num_FSRs];
 
-#ifdef CMFD
-    _mesh_surface_locks = new omp_lock_t[_cmfd->getMesh()->getNumCells()*8];
-#endif
+    if (_cmfd->getMesh()->getCmfdOn())
+      _mesh_surface_locks = new omp_lock_t[_cmfd->getMesh()->getNumCells()*8];
 
     int num_segments;
     segment* curr_segment;
@@ -388,12 +391,13 @@ void CPUSolver::initializeFSRs() {
     for (int r=0; r < _num_FSRs; r++)
         omp_init_lock(&_FSR_locks[r]);
 
-#ifdef CMFD
-    /* Loop over all mesh cells to initialize OpenMP locks */
-    #pragma omp parallel for schedule(guided)
-    for (int r=0; r < _num_mesh_cells*8; r++)
+    
+    if (_cmfd->getMesh()->getCmfdOn()){ 
+      /* Loop over all mesh cells to initialize OpenMP locks */
+      #pragma omp parallel for schedule(guided)
+      for (int r=0; r < _num_mesh_cells*8; r++)
         omp_init_lock(&_mesh_surface_locks[r]);
-#endif
+    }
 
     return;
 }
@@ -443,7 +447,6 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
   */
  void CPUSolver::zeroSurfaceCurrents() {
 
-#ifdef CMFD
      #pragma omp parallel for schedule(guided)
      for (int r=0; r < _num_mesh_cells; r++) {
 	 for (int s=0; s < 8; s++) {
@@ -451,8 +454,6 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 		     _surface_currents(r*8+s,e) = 0.0;
 	 }
      }
-
-#endif
 
      return;
  }
@@ -695,7 +696,9 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 
      /* Initialize flux in each region to zero */
      flattenFSRFluxes(0.0);
-     zeroSurfaceCurrents();
+
+     if (_cmfd->getMesh()->getCmfdOn())
+       zeroSurfaceCurrents();
 
      /* Loop over azimuthal angle halfspaces */
      for (int i=0; i < 2; i++) {

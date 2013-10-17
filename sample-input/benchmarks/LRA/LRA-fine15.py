@@ -9,7 +9,7 @@ import openmoc.materialize as materialize
 
 tolerance = options.tolerance
 relax_factor = options.relax_factor
-log.setLogLevel('INFO')
+log.setLogLevel('NORMAL')
 
 ###############################################################################
 ###########################   Creating Materials   ############################
@@ -171,7 +171,7 @@ core.setLatticeCells([[26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26],
 
 log.py_printf('NORMAL', 'Creating cmfd mesh...')
 
-mesh = Mesh()
+mesh = Mesh(DIFFUSION)
 
 
 ###############################################################################
@@ -199,7 +199,7 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Creating cmfd...')
 
-cmfd = Cmfd(geometry, DIFFUSION, relax_factor, tolerance)
+cmfd = Cmfd(geometry)
 cmfd.computeKeff()
 
 log.py_printf('NORMAL', 'k_eff = %f', cmfd.getKeff())

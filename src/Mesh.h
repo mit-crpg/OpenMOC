@@ -20,6 +20,14 @@
 #include "Surface.h"
 #include "Material.h"
 
+/**
+ * Solve types
+ */
+enum solveType {
+	DIFFUSION,
+	MOC
+};
+
 class Mesh {
 
 private:
@@ -29,7 +37,7 @@ private:
   double _length_y;
 
   /* cmfd level */
-  int _cmfd_level;
+  int _mesh_level;
 
   /* number of cells in x and y directions */
   int _cells_x;
@@ -86,8 +94,12 @@ private:
   /* bool to toggle optically thick diffusion correction factor */
   bool _optically_thick;
 
+  /* solve method (DIFFUSION or MOC) */
+  solveType _solve_method;
+
 public:
-  Mesh(bool cmfd_on=false, double relax_factor=0.6, int cmfd_level=-1);
+  Mesh(solveType solve_type=MOC, bool cmfd_on=false,
+       double relax_factor=0.6, int mesh_level=-1);
   virtual ~Mesh();
   void initialize();
   void setFSRBounds();
@@ -109,7 +121,7 @@ public:
   double* getLengthsX();
   double* getLengthsY();
   double* getCurrents();
-  int getCmfdLevel();
+  int getMeshLevel();
   
   /* set mesh parameters */
   void setLengthX(double length_x);
@@ -120,7 +132,7 @@ public:
   void setCellsY(int cells_y);
   void setSurfaceCurrents(double* surface_currents);
   void setVolume(double volume, int cell_num);
-  void setCmfdLevel(int cmfd_level);
+  void setMeshLevel(int cmfd_level);
 
   /* set general problem specs */
   void setNumGroups(int num_groups);
@@ -137,6 +149,7 @@ public:
   bool getAcceleration();
   bool getOpticallyThick();
   double getRelaxFactor();
+  solveType getSolveType();
 
   /* worker functions */
   int findMeshCell(double x, double y);

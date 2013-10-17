@@ -8,10 +8,9 @@
  *          method is diffusion theory, the fsr volumes, materials,
  *          and fluxes are initialized.
  * @param geometry pointer to the geometry
- * @param solve_method enum for solve method
  * @param criteria convergence criteria on keff
  */
-Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double criteria) {
+Cmfd::Cmfd(Geometry* geometry, double criteria) {
 
   /* Create objects */
   _geometry = geometry;
@@ -22,7 +21,7 @@ Cmfd::Cmfd(Geometry* geometry, solveType solve_method, double criteria) {
   _timer = new Timer();
   
   /* Boolean and Enum flags to toggle features */
-  _solve_method = solve_method;
+  _solve_method = _mesh->getSolveType();
   _assemble_M = true;
   _flux_method = PRIMAL;
   
@@ -962,15 +961,6 @@ void Cmfd::initializeFSRs(){
  */
 void Cmfd::assembleM(bool assemble_M){
   _assemble_M = assemble_M;
-}
-
-
-/**
- * @brief Get the solve type
- * @return _solve_method the solve type
- */
-solveType Cmfd::getSolveType(){
-  return _solve_method;
 }
 
 

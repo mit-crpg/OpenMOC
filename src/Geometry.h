@@ -169,7 +169,7 @@ public:
     int nextLatticeHeight(Universe* univ);
     void findMeshHeight(Universe* univ, int* height, int depth);
     void findMeshWidth(Universe* univ, int* width, int depth);
-    int findMeshDepth(Universe* univ, int cmfd_level);
+    int findMeshDepth(Universe* univ, int mesh_level);
     Mesh* getMesh();
 
 };

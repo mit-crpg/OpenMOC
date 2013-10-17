@@ -66,8 +66,10 @@ void ThreadPrivateSolver::initializeFluxArrays() {
 	_thread_flux = new FP_PRECISION[size];
 
 	/* Allocate a thread local array of mesh cell surface currents */
-	size = _num_threads * _num_mesh_cells * 8 * _num_groups * sizeof(FP_PRECISION);
-	_thread_currents = new FP_PRECISION[size];
+	if (_cmfd->getMesh()->getCmfdOn()){ 
+	  size = _num_threads * _num_mesh_cells * 8 * _num_groups * sizeof(double);
+	  _thread_currents = new double[size];
+	}
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "
@@ -144,7 +146,9 @@ void ThreadPrivateSolver::transportSweep() {
 
     /* Initialize flux in each region to zero */
     flattenFSRFluxes(0.0);
-    zeroSurfaceCurrents();
+
+    if (_cmfd->getMesh()->getCmfdOn()) 
+      zeroSurfaceCurrents();
 
     /* Loop over azimuthal angle halfspaces */
     for (int i=0; i < 2; i++) {
@@ -172,7 +176,7 @@ void ThreadPrivateSolver::transportSweep() {
 	        curr_segment = &segments[s];
 		fsr_id = curr_segment->_region_id;
 		scalarFluxTally(curr_segment, track_flux, 
-	                        &_thread_flux(tid,fsr_id,0),true,s);
+	                        &_thread_flux(tid,fsr_id,0),true);
 	    }
 
 	    /* Transfer flux to outgoing track */
@@ -185,7 +189,7 @@ void ThreadPrivateSolver::transportSweep() {
 	        curr_segment = &segments[s];
 		fsr_id = curr_segment->_region_id;
 		scalarFluxTally(curr_segment, track_flux, 
-	                        &_thread_flux(tid,fsr_id,0),false,s);
+	                        &_thread_flux(tid,fsr_id,0),false);
 	    }
 	    
 	    /* Transfer flux to outgoing track */
@@ -194,8 +198,10 @@ void ThreadPrivateSolver::transportSweep() {
     }
 
     reduceThreadScalarFluxes();
-    reduceThreadSurfaceCurrents();
-
+    
+    if (_cmfd->getMesh()->getCmfdOn())
+      reduceThreadSurfaceCurrents();
+    
     return;
 }
 
@@ -213,7 +219,7 @@ void ThreadPrivateSolver::transportSweep() {
 void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment, 
 					  FP_PRECISION* track_flux,
 					  FP_PRECISION* fsr_flux,
-					  bool fwd, int s){
+					  bool fwd){
 
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
@@ -223,47 +229,6 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
     /* The average flux along this segment in the flat source region */
     FP_PRECISION psibar;
     FP_PRECISION exponential;
-
-#ifdef CMFD
-    if (_cmfd->getMesh()->getCmfdOn()){
-    	if (s == 0 && fwd){
-
-    		/* set polar angle * energy group to 0 */
-    		int pe = 0;
-
-    		/* loop over energy groups */
-    		for (int e = 0; e < _num_groups; e++) {
-
-    			/* loop over polar angles */
-    			for (int p = 0; p < _num_polar; p++){
-
-    				/* increment current (polar and azimuthal weighted flux, group)*/
-    				_thread_currents(tid,curr_segment->_mesh_surface_bwd,e) -= track_flux(p,e)*_polar_weights[p]/2.0;
-
-    				pe++;
-    			}
-    		}
-    	}
-    	else if (s == 0 && !fwd){
-
-    		/* set polar angle * energy group to 0 */
-    		int pe = 0;
-
-    		/* loop over energy groups */
-    		for (int e = 0; e < _num_groups; e++) {
-
-    			/* loop over polar angles */
-    			for (int p = 0; p < _num_polar; p++){
-
-    				/* increment current (polar and azimuthal weighted flux, group)*/
-    				_thread_currents(tid,curr_segment->_mesh_surface_fwd,e) -= track_flux(p,e)*_polar_weights[p]/2.0;
-
-    				pe++;
-    			}
-    		}
-    	}
-    }
-#endif
 
     /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
