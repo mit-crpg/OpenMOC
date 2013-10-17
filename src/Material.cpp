@@ -957,26 +957,6 @@ void Material::alignData() {
     double* new_nu_sigma_f = (double*)_mm_malloc(size, VEC_ALIGNMENT);
     double* new_chi = (double*)_mm_malloc(size, VEC_ALIGNMENT);
     
-    double* new_dif_coef;
-    if (_dif_coef != NULL)
-      new_dif_coef = (double*)_mm_malloc(size, VEC_ALIGNMENT);
-
-    double* new_buckling;
-    if (_buckling != NULL)
-      new_buckling = (double*)_mm_malloc(size, VEC_ALIGNMENT);
-
-    double* new_dif_hat;
-    if (_dif_hat != NULL){
-      size =  4 * _num_vector_groups * VEC_LENGTH * sizeof(double);
-      new_dif_hat = (double*)_mm_malloc(size, VEC_ALIGNMENT);
-    }
-
-    double* new_dif_tilde;
-    if (_dif_tilde != NULL){
-      size =  4 * _num_vector_groups * VEC_LENGTH * sizeof(double);
-      new_dif_tilde = (double*)_mm_malloc(size, VEC_ALIGNMENT);
-    }
-
     /* The scattering matrix will be the number of vector groups 
      * wide (SIMD) and the actual number of groups long since 
      * instructions are not SIMD in this dimension */
@@ -992,22 +972,6 @@ void Material::alignData() {
 	new_sigma_f[i] = 0.0;
 	new_nu_sigma_f[i] = 0.0;
 	new_chi[i] = 0.0;
-
-	if (_dif_coef != NULL)
-	  new_dif_coef[i] = 0.0;
-
-	if (_buckling != NULL)
-	  new_buckling[i] = 0.0;
-
-	if (_dif_hat != NULL){
-	  for (int j = 0; j < 4; j++)
-	    new_dif_hat[i*4+j] = 0.0;
-	}
-
-	if (_dif_tilde != NULL){
-	  for (int j = 0; j < 4; j++)
-	    new_dif_tilde[i*4+j] = 0.0;
-	}
     }
     
     size *= _num_vector_groups * VEC_LENGTH;
@@ -1020,18 +984,6 @@ void Material::alignData() {
     memcpy(new_sigma_f, _sigma_f, size);
     memcpy(new_nu_sigma_f, _nu_sigma_f, size);
     memcpy(new_chi, _chi, size);
-
-    if (_dif_coef != NULL)
-      memcpy(new_dif_coef, _dif_coef, size);
-
-    if (_buckling != NULL)
-      memcpy(new_buckling, _buckling, size);
-
-    if (_dif_hat != NULL)
-      memcpy(new_dif_hat, _dif_hat, size*4);
-
-    if (_dif_tilde != NULL)
-      memcpy(new_dif_tilde, _dif_tilde, size*4);
 
     for (int e=0; e < _num_groups; e++) {
         memcpy(new_sigma_s, _sigma_s, size);
@@ -1051,19 +1003,7 @@ void Material::alignData() {
     delete [] _nu_sigma_f;
     delete [] _chi;
     delete [] _sigma_s;
-    
-    if (_dif_coef != NULL)
-      delete [] _dif_coef;
-
-    if (_buckling != NULL)
-      delete [] _buckling;
-
-    if (_dif_hat != NULL)
-      delete [] _dif_hat;
-
-    if (_dif_tilde != NULL)
-      delete [] _dif_tilde;
-	
+    	
     /* Set the material's array pointers to the new aligned arrays */
     _sigma_t = new_sigma_t;
     _sigma_a = new_sigma_a;
@@ -1072,18 +1012,6 @@ void Material::alignData() {
     _chi = new_chi;
     _sigma_s = new_sigma_s;
     
-    if (_dif_coef != NULL)
-      _dif_coef = new_dif_coef;
-
-    if (_buckling != NULL)
-      _buckling = new_buckling;
-
-    if (_dif_hat != NULL)
-      _dif_hat = new_dif_hat;
-
-    if (_dif_tilde != NULL)
-      _dif_tilde = new_dif_tilde;
-
     _data_aligned = true;
 
     return;
