@@ -15,11 +15,16 @@
 #include "Quadrature.h"
 #include "TrackGenerator.h"
 #include "pairwise_sum.h"
+#include "Cmfd.h"
 #endif
 
 /** Indexing macro for the scalar flux in each flat source region and in
  *  each energy group */
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
+
+/** Indexing macro for the surface currents for each mesh surface and in
+ *  each energy group */
+#define _surface_currents(r,e) (_surface_currents[(r % _geometry->getMesh()->getNumCurrents())*_num_groups + (e)])
 
 /** Indexing macro for the total source in each flat source region and in
  *  each energy group */
@@ -84,6 +89,9 @@ protected:
     /** The number of flat source regions */
     int _num_FSRs;
 
+    /** The number of mesh cells */
+    int _num_mesh_cells;
+
     /** The flat source region "volumes" (ie, areas) index by FSR UID */
     FP_PRECISION* _FSR_volumes;
 
@@ -143,6 +151,10 @@ protected:
     /** The scalar flux for each energy group in each flat source region */
     FP_PRECISION* _scalar_flux;
 
+    /* mesh surfaces */
+    /** The surface currents for each energy group for each mesh surface */
+    double* _surface_currents;
+
     /** The fission source in each energy group in each flat source region */
     FP_PRECISION* _fission_sources;
 
@@ -166,6 +178,9 @@ protected:
 
     /** The current iteration's approximation to k-effective */
     FP_PRECISION _k_eff; 
+
+    /** An array of k-effective at each iteration */
+    std::vector<FP_PRECISION> _residual_vector; 
 
     /** The total leakage across vacuum boundaries */
     FP_PRECISION _leakage;
@@ -201,6 +216,8 @@ protected:
 
     /** A timer to record timing data for a simulation */
     Timer* _timer;
+
+    Cmfd* _cmfd;
 
     /**
      * @brief Creates a polar quadrature object for the solver.
@@ -286,7 +303,7 @@ protected:
     void clearTimerSplits();
 
 public:
-    Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
+    Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL, Cmfd* cmfd=NULL);
     virtual ~Solver();
 
     Geometry* getGeometry();
@@ -324,6 +341,7 @@ public:
     
     virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) =0;
     void printTimerReport();
+    void initializeCmfd();
 };
 
 

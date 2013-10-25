@@ -13,9 +13,10 @@
  * @param track_generator an optional pointer to the trackgenerator
  */
 VectorizedPrivateSolver::VectorizedPrivateSolver(Geometry* geometry, 
-				   TrackGenerator* track_generator) :
+						 TrackGenerator* track_generator,
+						 Cmfd* cmfd) :
 
-    VectorizedSolver(geometry, track_generator) {
+  VectorizedSolver(geometry, track_generator, cmfd) {
 
     _thread_flux = NULL;
 
@@ -100,8 +101,8 @@ void VectorizedPrivateSolver::initializeFluxArrays() {
  * @param fsr_flux a pointer to the temporary flat source region flux buffer
  */
 void VectorizedPrivateSolver::scalarFluxTally(segment* curr_segment,
-   	                               FP_PRECISION* track_flux,
-	                               FP_PRECISION* fsr_flux){
+					      FP_PRECISION* track_flux,
+					      FP_PRECISION* fsr_flux){
 
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
@@ -227,4 +228,3 @@ void VectorizedPrivateSolver::reduceThreadScalarFluxes() {
 
     return;
 }
-

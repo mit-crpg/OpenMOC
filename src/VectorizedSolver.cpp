@@ -13,8 +13,9 @@
  * @param track_generator an optional pointer to the trackgenerator
  */
 VectorizedSolver::VectorizedSolver(Geometry* geometry, 
-				   TrackGenerator* track_generator) :
-    CPUSolver(geometry, track_generator) { 
+				   TrackGenerator* track_generator,
+				   Cmfd* cmfd) :
+  CPUSolver(geometry, track_generator, cmfd) { 
   
     _thread_taus = NULL;
     _thread_exponentials = NULL;
@@ -195,6 +196,7 @@ void VectorizedSolver::initializeFluxArrays() {
 
 	size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
 	_thread_taus = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "
@@ -536,7 +538,8 @@ void VectorizedSolver::computeKeff() {
  */
 void VectorizedSolver::scalarFluxTally(segment* curr_segment,
    	                               FP_PRECISION* track_flux,
-	                               FP_PRECISION* fsr_flux){
+	                               FP_PRECISION* fsr_flux,
+				       bool fwd){
 
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
@@ -670,7 +673,7 @@ void VectorizedSolver::transferBoundaryFlux(int track_id,
 					    bool direction,
 					    FP_PRECISION* track_flux) {
     int start;
-    bool bc;
+    int bc;
     FP_PRECISION* track_leakage;
     int track_out_id;
 
@@ -682,7 +685,7 @@ void VectorizedSolver::transferBoundaryFlux(int track_id,
         start = _tracks[track_id]->isReflOut() * _polar_times_groups;
         track_leakage = &_boundary_leakage(track_id,0);
         track_out_id = _tracks[track_id]->getTrackOut()->getUid();
-        bc = _tracks[track_id]->getBCOut();
+        bc = (int)_tracks[track_id]->getBCOut();
     }
 
     /* For the "reverse" direction */
@@ -690,7 +693,7 @@ void VectorizedSolver::transferBoundaryFlux(int track_id,
         start = _tracks[track_id]->isReflIn() * _polar_times_groups;
         track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
         track_out_id = _tracks[track_id]->getTrackIn()->getUid();
-        bc = _tracks[track_id]->getBCIn();
+        bc = (int)_tracks[track_id]->getBCIn();
     }
 
     FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);

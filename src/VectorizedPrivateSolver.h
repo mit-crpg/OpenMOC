@@ -19,7 +19,6 @@
  *  each flat source region and in each energy group */
 #define _thread_flux(tid,r,e) (_thread_flux[(tid)*_num_FSRs*_num_groups+(r)*_num_groups+(e)])
 
-
 /**
  * @class VectorizedPrivateSolver VectorizedPrivateSolver.h "openmoc/src/host/VectorizedPrivateSolver.h"
  * @brief This is a subclass of the VectorizedSolver class. This class 
@@ -46,9 +45,11 @@ private:
     void transportSweep();
     void reduceThreadScalarFluxes();
 
+
 public:
     VectorizedPrivateSolver(Geometry* geometry=NULL, 
-			    TrackGenerator* track_generator=NULL);
+			    TrackGenerator* track_generator=NULL,
+			    Cmfd* cmfd=NULL);
     virtual ~VectorizedPrivateSolver();
 };
 

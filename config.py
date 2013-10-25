@@ -64,7 +64,7 @@ class configuration:
     cc = 'gcc'
 
     # Default floating point for the main openmoc module is single precision
-    fp = 'single'
+    fp = 'double'
 
     # Supported C++ compilers: 'gcc', 'icpc', 'bgxlc', 'nvcc', 'all'
     cpp_compilers = []
@@ -140,8 +140,9 @@ class configuration:
                       'src/Timer.cpp',
                       'src/Track.cpp',
                       'src/TrackGenerator.cpp',
-                      'src/Universe.cpp']
-
+                      'src/Universe.cpp',
+                      'src/Cmfd.cpp',
+                      'src/Mesh.cpp']
 
     sources['icpc'] = ['openmoc/openmoc_wrap.cpp',
                        'src/Cell.cpp',
@@ -160,8 +161,9 @@ class configuration:
                        'src/Timer.cpp',
                        'src/Track.cpp',
                        'src/TrackGenerator.cpp',
-                       'src/Universe.cpp']
-
+                       'src/Universe.cpp',
+                       'src/Cmfd.cpp',
+                       'src/Mesh.cpp']
 
     sources['bgxlc'] = ['openmoc/openmoc_wrap.cpp',
                         'src/Cell.cpp',
@@ -178,14 +180,14 @@ class configuration:
                         'src/Timer.cpp',
                         'src/Track.cpp',
                         'src/TrackGenerator.cpp',
-                        'src/Universe.cpp']
-
+                        'src/Universe.cpp',
+                        'src/Cmfd.cpp',
+                        'src/Mesh.cpp']
 
     sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
                        'src/dev/gpu/GPUQuery.cu',
                        'src/dev/gpu/clone.cu',
                        'src/dev/gpu/GPUSolver.cu']
-
 
 
     ###########################################################################
@@ -246,7 +248,6 @@ class configuration:
     shared_libraries['bgxlc'] = ['stdc++', 'pthread', 'm', 'xlsmp', 'rt']
 
 
-
     ###########################################################################
     #                              Library Directories
     ###########################################################################
@@ -278,7 +279,7 @@ class configuration:
         include_directories['gcc'] = [sys.exec_prefix + '/lib/python' + str(sys.version_info[0]) + '.' + str(sys.version_info[1]) + '/site-packages/numpy/core/include']
     else:
         include_directories['gcc'] = []
-    
+
     include_directories['icpc'] =[]
     include_directories['bgxlc'] = ['/usr/lib64/python2.6/site-packages/numpy/core/include']
     include_directories['nvcc'] = ['/usr/local/cuda/include']
@@ -317,14 +318,14 @@ class configuration:
                                ('MKL_ILP64', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment)]
-
+    
     macros['bgxlc']['single'] = [('FP_PRECISION', 'float'),
                                  ('SINGLE', None),
                                  ('BGXLC', None),
                                  ('VEC_LENGTH', vector_length),
                                  ('VEC_ALIGNMENT', vector_alignment),
                                  ('CCACHE_CC', 'bgxlc++_r')]
-
+    
     macros['nvcc']['single'] = [('FP_PRECISION', 'float'), 
                                 ('SINGLE', None),
                                 ('CUDA', None),
@@ -335,26 +336,26 @@ class configuration:
                                ('GNU', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment)]
-   
+    
     macros['icpc']['double'] = [('FP_PRECISION', 'double'), 
                                 ('DOUBLE', None),
                                 ('INTEL', None),
                                 ('MKL_ILP64', None),
                                 ('VEC_LENGTH', vector_length),
                                 ('VEC_ALIGNMENT', vector_alignment)]
-
+    
     macros['bgxlc']['double'] = [('FP_PRECISION', 'double'),
                                  ('DOUBLE', None),
                                  ('BGXLC', None),
                                  ('VEC_LENGTH', vector_length),
                                  ('VEC_ALIGNMENT', vector_alignment),
                                  ('CCACHE_CC', 'bgxlc++_r')]
-
+    
     macros['nvcc']['double'] = [('FP_PRECISION', 'double'), 
                                 ('DOUBLE', None),
                                 ('CUDA', None),
                                 ('CCACHE_CC', 'nvcc')]
-
+    
 
 
     def setup_extension_modules(self):

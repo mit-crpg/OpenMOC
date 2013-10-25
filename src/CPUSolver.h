@@ -48,6 +48,9 @@ protected:
     /** OpenMP locks for atomic scalar flux updates */
     omp_lock_t* _FSR_locks;
 
+    /** OpenMP locks for atomic surface current updates */
+    omp_lock_t* _mesh_surface_locks;
+
     /** A buffer for temporary scalar flux updates for each thread */
     FP_PRECISION* _thread_fsr_flux;
     
@@ -59,6 +62,7 @@ protected:
 
     void zeroTrackFluxes();
     void flattenFSRFluxes(FP_PRECISION value);
+    void zeroSurfaceCurrents();
     void flattenFSRSources(FP_PRECISION value);
     void normalizeFluxes();
     FP_PRECISION computeFSRSources();
@@ -72,7 +76,8 @@ protected:
      */
     virtual void scalarFluxTally(segment* curr_segment, 
 				 FP_PRECISION* track_flux,
-				 FP_PRECISION* fsr_flux);
+				 FP_PRECISION* fsr_flux,
+				 bool fwd);
 
     /**
      * @brief Updates the boundary flux for a track given boundary conditions.
@@ -98,12 +103,14 @@ protected:
     virtual FP_PRECISION computeExponential(FP_PRECISION sigma_t, 
 					    FP_PRECISION length, int p); 
 public:
-    CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);
+    CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL, Cmfd* cmfd=NULL);
     virtual ~CPUSolver();
  
     int getNumThreads();
     FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
     FP_PRECISION* getFSRScalarFluxes();
+    double getSurfaceCurrent(int surface_id, int energy_group);
+    double* getSurfaceCurrents();
 
     void setNumThreads(int num_threads);
 

@@ -518,3 +518,124 @@ def plotFluxes(geometry, solver, energy_groups=[0], gridsize=250):
         plt.title('Flat Source Region Scalar Flux in Group ' + str(group))
         filename = directory + 'fsr-flux-group-' + str(group) + '.png'
         fig.savefig(filename, bbox_inches='tight')
+
+
+##
+# @brief This method takes in a mesh object and plots a color-coded 
+# 2D surface plot representing the mesh cell flux on the mesh.
+#
+# @code
+#         openmoc.plotter.plotMeshFluxes(mesh)
+# @endcode
+#
+# @param geometry a geometry object which has been initialized with materials,
+#        cells, universes and lattices
+# @param gridsize an optional number of grid cells for the plot
+def plotMeshFluxes(mesh, energy_groups=[1], gridsize=500):
+
+    global subdirectory
+
+    directory = getOutputDirectory() + subdirectory
+
+    # Make directory if it does not exist
+    if not os.path.exists(directory):
+            os.makedirs(directory)
+
+    # Error checking
+    if not 'Mesh' in str(type(mesh)):
+        py_printf('ERROR', 'Unable to plot the mesh scalar flux ' + \
+                  'since input did not contain a mesh class object')
+    if isinstance(energy_groups, list):
+        for group in energy_groups:
+            if not isinstance(group, int):
+                py_printf('ERROR', 'Unable to plot the mesh ' + \
+                             'scalar flux since the energy_groups list ' + \
+                             'contains %s which is not an int', str(group))
+            elif group <= 0:
+                py_printf('ERROR', 'Unable to plot the mesh ' + \
+                             'scalar flux since the energy_groups list ' + \
+                             'contains %d which is less than the index ' + \
+                             'for all energy groups', str(group))
+            elif group > mesh.getNumGroups():
+                py_printf('ERROR', 'Unable to plot the mesh ' + \
+                              'scalar flux since the energy_groups list ' + \
+                              'contains %d which is greater than the index ' + \
+                              'for all energy groups', str(group))
+    elif isinstance(energy_groups, int):
+        if energy_groups <= 0:
+            py_printf('ERROR', 'Unable to plot the mesh ' + \
+                         'scalar flux since the energy_groups argument ' + \
+                         'contains %d which is less than the index ' + \
+                         'for all energy groups', str(energy_groups))
+        elif energy_groups > mesh.getNumGroups():
+            py_printf('ERROR', 'Unable to plot the mesh ' + \
+                          'scalar flux since the energy_groups argument ' + \
+                          'contains %d which is greater than the index ' + \
+                          'for all energy groups', str(energy_groups))
+    else:
+        py_printf('ERROR', 'Unable to plot the mesh ' + \
+                      'scalar flux since the energy_groups argument ' + \
+                      'is %s which is not an energy group index or a list ' + \
+                      'of energy group indices', str(energy_groups))
+    if not isinstance(gridsize, int):
+        py_printf('ERROR', 'Unable to plot the mesh scalar ' + \
+                  'flux since since the gridsize %s is not an integer', 
+                  str(gridsize))
+    if not isinstance(energy_groups, (int, list)):
+        py_printf('ERROR', 'Unable to plot the mesh scalar ' + \
+                  'flux since the energy_groups is not an int or a list')
+    if gridsize <= 0:
+        py_printf('Error', 'Unable to plot the mesh ' + \
+                    'with a negative gridsize (%d)', gridsize)
+
+    py_printf('NORMAL', 'Plotting the mesh scalar fluxes...')
+
+    if not isinstance(energy_groups, list):
+        energy_groups = [energy_groups]
+
+
+    # Initialize a numpy array for the groupwise scalar fluxes
+    fluxes = numpy.zeros((len(energy_groups), gridsize, gridsize))
+
+    # Retrieve the bounding box for the geometry
+    xmin = -mesh.getLengthX()/2.0
+    xmax = mesh.getLengthX()/2.0
+    ymin = -mesh.getLengthY()/2.0
+    ymax = mesh.getLengthY()/2.0
+
+    # Initialize numpy arrays for the grid points
+    xcoords = np.linspace(xmin, xmax, gridsize)
+    ycoords = np.linspace(ymin, ymax, gridsize)
+
+    for i in range(gridsize):
+        for j in range(gridsize):
+
+            # Find the flat source region IDs for each grid point            
+            x = xcoords[i]
+            y = ycoords[j]
+            
+            point = LocalCoords(x, y)
+            point.setUniverse(0)
+            cell_id = mesh.findCellId(point)
+
+            # Get the scalar flux for each energy group in this FSR
+            for index, group in enumerate(energy_groups):
+                fluxes[index,i,j] = mesh.getFlux(cell_id, group-1)
+
+    # Loop over all energy group and create a plot
+    for index, group in enumerate(energy_groups):
+
+        # Plot a 2D color map of the flat source regions
+        fig = plt.figure()
+        print mesh.getSolveType()
+        if mesh.getSolveType() == 1:
+            plt.imshow(np.flipud(fluxes[index,:,:]), extent=[xmin, xmax, ymin, ymax])
+        else:
+            plt.imshow(np.fliplr(fluxes[index,:,:]), extent=[xmin, xmax, ymin, ymax])
+
+
+        plt.colorbar()
+        plt.title('Mesh Scalar Flux in Group ' + str(group))
+        filename = directory + 'mesh-flux-group-' + str(group) + '.png'
+        fig.savefig(filename, bbox_inches='tight')
+
