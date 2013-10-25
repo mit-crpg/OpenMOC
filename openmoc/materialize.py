@@ -67,10 +67,7 @@ def materialize(filename):
 
             if 'Total XS' in f[name]:
                 new_material.setSigmaT(f[name]['Total XS'][...])
-            
-            if 'Absorption XS' in f[name]:
-                new_material.setSigmaA(f[name]['Absorption XS'][...])
-            
+                        
             if 'Scattering XS' in f[name]:
                 new_material.setSigmaS(f[name]['Scattering XS'][...])
             
@@ -88,6 +85,9 @@ def materialize(filename):
 
             if 'Buckling' in f[name]:
                 new_material.setBuckling(f[name]['Buckling'][...])
+
+            if 'Absorption XS' in f[name]:
+                new_material.setSigmaA(f[name]['Absorption XS'][...])
 
             # Add this material to the list
             materials[name] = new_material
@@ -128,10 +128,7 @@ def materialize(filename):
             
             if 'Total XS' in data[name].keys():
                 new_material.setSigmaT(data[name]['Total XS'])
-                
-            if 'Absorption XS' in data[name].keys():
-                new_material.setSigmaA(data[name]['Absorption XS'])
-                    
+                                    
             if 'Scattering XS' in data[name].keys():
                 new_material.setSigmaS(data[name]['Scattering XS'])
 
@@ -149,6 +146,9 @@ def materialize(filename):
 
             if 'Buckling' in data[name].keys():
                 new_material.setBuckling(data[name]['Buckling'])
+
+            if 'Absorption XS' in data[name].keys():
+                new_material.setSigmaA(data[name]['Absorption XS'])
 
             # Add this material to the list
             materials[name] = new_material

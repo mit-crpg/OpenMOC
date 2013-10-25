@@ -64,9 +64,16 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator, Cmfd* cmfd) 
     _timer = new Timer();
 
     if (cmfd == NULL)
-    	_cmfd = new Cmfd(_geometry, MOC);
+      _cmfd = new Cmfd(_geometry, MOC);
     else
-    	_cmfd = cmfd;
+      _cmfd = cmfd;
+
+    if (_geometry->getBCTop() == ZERO_FLUX || _geometry->getBCBottom() == ZERO_FLUX 
+	|| _geometry->getBCLeft() == ZERO_FLUX || _geometry->getBCRight() == ZERO_FLUX)
+      log_printf(ERROR, "You have input a ZERO_FLUX BC for solving an MOC transport problem!"
+		 " OpenMOC only supports ZERO_FLUX BCs for solving diffusion problems."
+		 " Please set your ZERO_FLUX BCs to another BC (VACUUM or REFLECTIVE).");    
+    
 }
 
 
