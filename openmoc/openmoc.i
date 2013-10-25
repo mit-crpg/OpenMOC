@@ -235,12 +235,6 @@
 %include ../src/Cmfd.h
 %include ../src/Mesh.h
 
-#ifdef CMFD
-#define CMFD true
-#else
-#define CMFD false
-#endif
-
 #ifdef DOUBLE
 typedef double FP_PRECISION;
 #else

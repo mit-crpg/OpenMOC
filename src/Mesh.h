@@ -28,6 +28,15 @@ enum solveType {
 	MOC
 };
 
+/**
+ * Flux types
+ */
+enum fluxType {
+  PRIMAL,
+  PRIMAL_UPDATE,
+  ADJOINT	
+};
+
 class Mesh {
 
 private:
@@ -75,7 +84,7 @@ private:
   double _relax_factor;
 
   /* map of fluxes mapped onto mesh */
-  std::map<std::string, double*> _fluxes;
+  std::map<fluxType, double*> _fluxes;
 
   /* materials array */
   Material** _materials;
@@ -113,11 +122,11 @@ public:
   int getNumCells();
   boundaryType getBoundary(int side);
   int getNumCurrents();
-  double getFlux(int cell_id, int group, std::string flux_name="new_flux");
+  double getFlux(int cell_id, int group, fluxType flux_type=PRIMAL_UPDATE);
   std::vector<std::vector<int> >* getCellFSRs();
   Material** getMaterials();
   double* getVolumes();
-  double* getFluxes(std::string flux_name);
+  double* getFluxes(fluxType flux_type);
   double* getLengthsX();
   double* getLengthsY();
   double* getCurrents();

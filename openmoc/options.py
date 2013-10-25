@@ -56,7 +56,7 @@ class options:
                                         'num-gpu-threads=',
                                         'relax-factor=',
                                         'acceleration=',
-                                        'cmfd-level='])
+                                        'mesh-level='])
 
         except getopt.GetoptError as err:
             log.py_printf('WARNING', str(err))
@@ -111,12 +111,12 @@ class options:
                 print relax_factor
 
                 acceleration = '\t{: <35}'.format('-f, --acceleration=<False>')
-                relax_factor += 'The cmfd acceleration flag\n'
-                print acceleration
+                relax_factor += 'The cmfd acceleration flag\n\n'
 
-                cmfd_level = '\t{: <35}'.format('-l, --mesh-level=<-1>')
-                cmfd_level += 'The mesh level\n'
-                print cmmd_level
+
+                mesh_level = '\t{: <35}'.format('-l, --mesh-level=<-1>')
+                mesh_level += 'The mesh level\n'
+                print mesh_level
 
                 sys.exit()
 

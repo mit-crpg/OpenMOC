@@ -7,9 +7,7 @@ import openmoc.materialize as materialize
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-tolerance = options.tolerance
-relax_factor = options.relax_factor
-log.setLogLevel('NORMAL')
+log.setLogLevel('INFO')
 
 ###############################################################################
 ###########################   Creating Materials   ############################
@@ -200,6 +198,7 @@ geometry.initializeFlatSourceRegions()
 log.py_printf('NORMAL', 'Creating cmfd...')
 
 cmfd = Cmfd(geometry)
+cmfd.setOmega(1.95)
 cmfd.computeKeff()
 
 log.py_printf('NORMAL', 'k_eff = %f', cmfd.getKeff())

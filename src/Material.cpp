@@ -451,8 +451,12 @@ void Material::setSigmaA(double* xs, int num_groups) {
                  "%d which contains %d energy groups", num_groups,
                  _num_groups);
 
-    for (int i=0; i < _num_groups; i++)
+    for (int i=0; i < _num_groups; i++){
         _sigma_a[i] = xs[i];
+
+	if (_buckling != NULL & _dif_coef != NULL)
+	  _sigma_a[i] += _buckling[i] * _dif_coef[i];
+    }
 }
 
 
@@ -1024,7 +1028,6 @@ Material* Material::clone(){
   
   material_clone->setNumEnergyGroups(_num_groups);
   material_clone->setSigmaT(_sigma_t, _num_groups);
-  material_clone->setSigmaA(_sigma_a, _num_groups);
   material_clone->setSigmaF(_sigma_f, _num_groups);
   material_clone->setNuSigmaF(_nu_sigma_f, _num_groups);
   material_clone->setChi(_chi, _num_groups);
@@ -1041,6 +1044,8 @@ Material* Material::clone(){
   if (_dif_tilde != NULL)
     material_clone->setDifTilde(_dif_tilde, _num_groups);  
 
+  material_clone->setSigmaA(_sigma_a, _num_groups);
+
   copySigmaS(material_clone);
 
   return material_clone;
@@ -1056,15 +1061,4 @@ void Material::copySigmaS(Material* material){
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
 
