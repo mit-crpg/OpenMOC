@@ -253,7 +253,7 @@ cmfd.setOmega(1.75)
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator, cmfd)
+solver = ThreadPrivateSolver(geometry, track_generator, cmfd)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)

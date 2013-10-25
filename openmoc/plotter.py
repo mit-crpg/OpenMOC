@@ -627,7 +627,6 @@ def plotMeshFluxes(mesh, energy_groups=[1], gridsize=500):
 
         # Plot a 2D color map of the flat source regions
         fig = plt.figure()
-        print mesh.getSolveType()
         if mesh.getSolveType() == 1:
             plt.imshow(np.flipud(fluxes[index,:,:]), extent=[xmin, xmax, ymin, ymax])
         else:
