@@ -8,7 +8,7 @@ import openmoc.materialize as materialize
 ###############################################################################
 
 tolerance = 1E-10
-log.setLogLevel('INFO')
+log.setLogLevel('DEBUG')
 
 ###############################################################################
 ###########################   Creating Materials   ############################
@@ -16,7 +16,7 @@ log.setLogLevel('INFO')
 
 log.py_printf('NORMAL', 'Importing materials data...')
 
-materials = materialize.materialize('LRA-materials.hdf5')
+materials = materialize.materialize('LRA-materials.py')
 
 region1 = materials['region_1'].getId()
 region2 = materials['region_2'].getId()

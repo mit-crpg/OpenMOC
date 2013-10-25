@@ -20,10 +20,3 @@ Timer = Timer()
 
 options = options.options()
 options.parseArguments()
-
-try:
-    imp.find_module('petsc4py')
-    import petsc4py
-    petsc4py.init()
-except ImportError:
-    pass

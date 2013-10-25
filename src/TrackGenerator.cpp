@@ -1016,14 +1016,12 @@ void TrackGenerator::dumpTracksToFile() {
                 fwrite(&material_id, sizeof(int), 1, out);
                 fwrite(&region_id, sizeof(int), 1, out);
 
-#ifdef CMFD
                 if (_geometry->getMesh()->getCmfdOn()){
-                	mesh_surface_fwd = curr_segment->_mesh_surface_fwd;
-                	mesh_surface_bwd = curr_segment->_mesh_surface_bwd;
-                	fwrite(&mesh_surface_fwd, sizeof(int), 1, out);
-                	fwrite(&mesh_surface_bwd, sizeof(int), 1, out);
+		  mesh_surface_fwd = curr_segment->_mesh_surface_fwd;
+		  mesh_surface_bwd = curr_segment->_mesh_surface_bwd;
+		  fwrite(&mesh_surface_fwd, sizeof(int), 1, out);
+		  fwrite(&mesh_surface_bwd, sizeof(int), 1, out);
 		}
-#endif
             }
         }
     }
@@ -1094,11 +1092,9 @@ bool TrackGenerator::readTracksFromFile() {
     int material_id;
     int region_id;
 
-#ifdef CMFD
     int mesh_surface_fwd;
     int mesh_surface_bwd;
-#endif
-
+    
     for (int i=0; i < _num_azim; i++)
         _tot_num_tracks += _num_tracks[i];
     _num_segments = new int[_tot_num_tracks];
@@ -1137,15 +1133,13 @@ bool TrackGenerator::readTracksFromFile() {
                 curr_segment->_material = _geometry->getMaterial(material_id);
                 curr_segment->_region_id = region_id;
 
-#ifdef CMFD
                 if (_geometry->getMesh()->getCmfdOn()){
-                    ret = fread(&mesh_surface_fwd, sizeof(int), 1, in);
-                    ret = fread(&mesh_surface_bwd, sizeof(int), 1, in);
-                	curr_segment->_mesh_surface_fwd = mesh_surface_fwd;
-                	curr_segment->_mesh_surface_bwd = mesh_surface_bwd;
+		  ret = fread(&mesh_surface_fwd, sizeof(int), 1, in);
+		  ret = fread(&mesh_surface_bwd, sizeof(int), 1, in);
+		  curr_segment->_mesh_surface_fwd = mesh_surface_fwd;
+		  curr_segment->_mesh_surface_bwd = mesh_surface_bwd;
                 }
-#endif
-
+		
                 curr_track->addSegment(curr_segment);
             }
 

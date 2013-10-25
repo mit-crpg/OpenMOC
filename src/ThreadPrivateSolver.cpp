@@ -242,7 +242,6 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
 	}
     }
 
-#ifdef CMFD
     if (_cmfd->getMesh()->getCmfdOn()){
     	if (curr_segment->_mesh_surface_fwd != -1 && fwd){
 
@@ -281,7 +280,6 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
     		}
     	}
     }
-#endif
 
     return;
 }

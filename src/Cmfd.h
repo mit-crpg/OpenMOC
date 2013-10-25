@@ -26,26 +26,7 @@
 #include "Surface.h"
 #include "Geometry.h"
 #include "Timer.h"
-
-/* petsc input files */
-#ifdef CMFD
-#ifdef _mm_malloc
-#undef _mm_malloc
-#undef _mm_free
 #endif
-#include "petsc.h"
-#include <petscmat.h>
-#endif
-#endif
-
-/**
- * Flux types
- */
-enum fluxType {
-	PRIMAL,
-	ADJOINT
-};
-
 
 class Cmfd {
 
@@ -63,28 +44,15 @@ private:
   /* keff */
   double _k_eff;
 
-#ifdef CMFD
-  /* loss matrix */
-  Mat _A;
+  /* matrix and vector objects */
+  double* _A;
+  double* _M;
+  double* _sold;
+  double* _snew;
+  double* _phi_temp;
 
-  /* source matrix */
-  Mat _M;
-
-  /* row insertion arrays */
-  PetscScalar* _A_array;
-  PetscScalar* _M_array;
-  PetscInt* _indices_y_M;
-  PetscInt* _indices_y_A;
-
-  /* flux, source, and residual vectors */
-  Vec _phi_new;
-  Vec _phi_old;
-  Vec _source_old;
-  Vec _sold;
-  Vec _snew;
-  Vec _res;
-
-#endif
+  /* Gauss Seidel SOR factor */
+  double _omega;
 
   /* l2 norm */
   double _l2_norm;
@@ -99,11 +67,8 @@ private:
   /* pointer to timer object */
   Timer* _timer;
 
-  /* flag to determine whether we need to assemble M */
-  bool _assemble_M;
-  
   /* flux type (PRIMAL or ADJOINT) */
-  fluxType _flux_method;
+  fluxType _flux_type;
 
   /* number of groups */
   int _num_groups;
@@ -125,29 +90,34 @@ public:
   virtual ~Cmfd();
 
   /* worker functions */
-  int constructMatrices();
+  void constructMatrices();
   void computeDs();
   void computeXS();
   void updateMOCFlux();
   double computeDiffCorrect(double d, double h);
   double computeKeff();
-  int createAMPhi();
   void initializeFSRs();
-  int rescaleFlux();
+  void rescaleFlux();
+  void linearSolve(double* mat, double* vec_x, double* vec_b, double conv);
 
-  /* get arrays, values, and objects */
-#ifdef CMFD
-  Mat getA();
-  Mat getM();
-#endif
+  /* matrix and vector functions */
+  void dumpVec(double* vec, int length);
+  void matZero(double* mat, int width);
+  void vecCopy(double* vec_from, double* vec_to);
+  double vecSum(double* vec);
+  void matMult(double* mat, double* vec_x, double* vec_y);
+  void vecNormal(double* mat, double* vec);
+  void vecSet(double* vec, double val);
+  void vecScale(double* vec, double scale_val);
+      
+  /* get parameters */
   Mesh* getMesh();
   double getKeff();
 
   /* set parameters */
-  int setMeshCellFlux();
-  void assembleM(bool assembleM);
-  void toggleFluxType(fluxType flux_method);
-
+  void setOmega(double omega);
+  void setFluxType(const char* flux_type);
+  
   /* set fsr parameters */
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);

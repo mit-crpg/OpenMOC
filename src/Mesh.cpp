@@ -45,14 +45,6 @@ Mesh::Mesh(solveType solve_type, bool cmfd_on, double relax_factor, int mesh_lev
   _lengths_x = NULL;
   _lengths_y = NULL;
 
-#ifndef CMFD
-  if (cmfd_on)
-    log_printf(ERROR, "The Cmfd package was not included in this OpenMOC "
-	       "module. If you want to run a diffusion or cmfd-accelerated "
-	       "MOC simulation, please recompile with the cmfd set to cmfd-on");
-#endif
-    
-
 }
 
 
@@ -101,10 +93,13 @@ void Mesh::initialize(){
   /* allocate memory for fluxes */
   double* new_flux;
   double* old_flux;
+  double* adj_flux;
   new_flux = new double[_cells_x*_cells_y*_num_groups];
   old_flux = new double[_cells_x*_cells_y*_num_groups];
-  _fluxes.insert(std::pair<std::string, double*>("new_flux", new_flux));
-  _fluxes.insert(std::pair<std::string, double*>("old_flux", old_flux));
+  adj_flux = new double[_cells_x*_cells_y*_num_groups];
+  _fluxes.insert(std::pair<fluxType, double*>(PRIMAL, new_flux));
+  _fluxes.insert(std::pair<fluxType, double*>(PRIMAL_UPDATE, old_flux));
+  _fluxes.insert(std::pair<fluxType, double*>(ADJOINT, adj_flux));
   
   /* allocate memory for cell widths, heights, and bounds */
   _lengths_x = new double[_cells_x];
@@ -120,6 +115,7 @@ void Mesh::initialize(){
         for (int g = 0; g < _num_groups; g++){
 	    new_flux[(y*_cells_x+x)*_num_groups + g] = 1.0;
 	    old_flux[(y*_cells_x+x)*_num_groups + g] = 1.0;
+	    adj_flux[(y*_cells_x+x)*_num_groups + g] = 1.0;
 	}
       
 	/* allocate memory for fsr vector */
@@ -323,7 +319,7 @@ int Mesh::findMeshSurface(int fsr_id, LocalCoords* coord, int angle){
 	  if (fabs(x -  _bounds_x[i % _cells_x]) < 1e-6){
 	    
 	    /* check if coordinate is on left surface */
-	    if ((y - _bounds_y[i / _cells_x + 1]) > 1e-6 && (y - _bounds_y[i/_cells_x]) < -1e-6){
+	    if ((y - _bounds_y[i / _cells_x+1]) > 1e-6 && (y - _bounds_y[i/_cells_x]) < -1e-6){
 	      surface = i*8+0;
 	      break_cells = true;
 	      break;
@@ -369,7 +365,7 @@ int Mesh::findMeshSurface(int fsr_id, LocalCoords* coord, int angle){
 	    break;
 	  }
 	  /* coordinate is on bottom surface */
-	  else if (fabs(y - _bounds_y[i/_cells_x + 1]) < 1e-6){
+	  else if (fabs(y - _bounds_y[i/_cells_x+1]) < 1e-6){
 	    surface = i*8+1;
 	    break_cells = true;
 	    break;
@@ -588,8 +584,8 @@ boundaryType Mesh::getBoundary(int side){
  * @param group energy group
  * @return flux the scalar flux
  **/
-double Mesh::getFlux(int cell_id, int group, std::string flux_name){
-  double* fluxes = _fluxes.find(flux_name)->second;
+double Mesh::getFlux(int cell_id, int group, fluxType flux_type){
+  double* fluxes = _fluxes.find(flux_type)->second;
   return fluxes[cell_id*_num_groups + group];
 }
 
@@ -675,7 +671,7 @@ std::vector<std::vector<int> >* Mesh::getCellFSRs(){
 void Mesh::setCellBounds(){
 
   _bounds_x[0] = -_length_x / 2.0;
-  _bounds_y[0] =  _length_y / 2.0;  
+  _bounds_y[0] = _length_y / 2.0;  
 
   log_printf(DEBUG, "bounds x: %f", _bounds_x[0]);
 
@@ -691,6 +687,12 @@ void Mesh::setCellBounds(){
   for (int y = 1; y < _cells_y+1; y++){
     _bounds_y[y] = _bounds_y[y-1] - _lengths_y[y-1];
     log_printf(DEBUG, "bounds y: %f", _bounds_y[y]);
+  }
+
+  for (int x = 0; x < _cells_x; x++){
+    for (int y = 0; y < _cells_y; y++){
+      _volumes[y*_cells_x+x] = _lengths_x[x] * _lengths_y[x];
+    }
   }
 }
 
@@ -728,8 +730,8 @@ void Mesh::setVolume(double volume, int cell_num){
  * @param flux_name name of flux array
  * @return fluxes array of fluxes 
  **/
-double* Mesh::getFluxes(std::string flux_name){
-  return _fluxes.at(flux_name);
+double* Mesh::getFluxes(fluxType flux_type){
+  return _fluxes.at(flux_type);
 }
 
 

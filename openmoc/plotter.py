@@ -622,14 +622,18 @@ def plotMeshFluxes(mesh, energy_groups=[1], gridsize=500):
             for index, group in enumerate(energy_groups):
                 fluxes[index,i,j] = mesh.getFlux(cell_id, group-1)
 
-
     # Loop over all energy group and create a plot
     for index, group in enumerate(energy_groups):
 
         # Plot a 2D color map of the flat source regions
         fig = plt.figure()
-        plt.imshow(np.flipud(fluxes[index,:,:]), 
-                   extent=[xmin, xmax, ymin, ymax])
+        print mesh.getSolveType()
+        if mesh.getSolveType() == 1:
+            plt.imshow(np.flipud(fluxes[index,:,:]), extent=[xmin, xmax, ymin, ymax])
+        else:
+            plt.imshow(np.fliplr(fluxes[index,:,:]), extent=[xmin, xmax, ymin, ymax])
+
+
         plt.colorbar()
         plt.title('Mesh Scalar Flux in Group ' + str(group))
         filename = directory + 'mesh-flux-group-' + str(group) + '.png'

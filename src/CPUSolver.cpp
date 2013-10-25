@@ -788,7 +788,6 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 	 }
      }
 
-#ifdef CMFD
      if (_cmfd->getMesh()->getCmfdOn()){
 	 if (curr_segment->_mesh_surface_fwd != -1 && fwd){
 
@@ -840,7 +839,6 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 		 omp_unset_lock(&_mesh_surface_locks[curr_segment->_mesh_surface_bwd % _geometry->getMesh()->getNumCurrents()]);
 	 }
      }
-#endif
 
      /* Atomically increment the FSR scalar flux from the temporary array */
     omp_set_lock(&_FSR_locks[fsr_id]);
