@@ -206,7 +206,7 @@ class configuration:
                                '-qsmp=omp', '-qpic']
     compiler_flags['nvcc'] =  ['-c', '-O3', '--compiler-options', '-fpic',
                                '-gencode=arch=compute_20,code=sm_20',
-                               '-gencode=arch=compute_30,code=sm_30']
+                               '-gencode=arch=compute_30,code=sm_30', '-std=c++11']
 
 
 
