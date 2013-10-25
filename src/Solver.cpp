@@ -9,8 +9,9 @@
  *          default of 1.
  * @param geometry an optional pointer to the geometry
  * @param track_generator an optional pointer to the trackgenerator
+ * @param cmfd an optional pointer to the cmfd module
  */
-Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
+Solver::Solver(Geometry* geometry, TrackGenerator* track_generator, Cmfd* cmfd) {
 
     /* Default values */
     _num_materials = 0;
@@ -19,8 +20,10 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _polar_times_groups = 0;
 
     _num_FSRs = 0;
+    _num_mesh_cells = 0;
     _FSR_volumes = NULL;
     _FSR_materials = NULL;
+    _surface_currents = NULL;
 
     _quad = NULL;
     _track_generator = NULL;
@@ -59,6 +62,11 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     _converged_source = false;
 
     _timer = new Timer();
+
+    if (cmfd == NULL)
+    	_cmfd = new Cmfd(_geometry, MOC);
+    else
+    	_cmfd = cmfd;
 }
 
 
@@ -198,6 +206,7 @@ void Solver::setGeometry(Geometry* geometry) {
     _num_groups = _geometry->getNumEnergyGroups();
     _polar_times_groups = _num_groups * _num_polar;
     _num_materials = _geometry->getNumMaterials();
+    _num_mesh_cells = _geometry->getMesh()->getNumCells();
 }
 
 
@@ -383,6 +392,10 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     /* The residual on the source */
     FP_PRECISION residual = 0.0;
 
+    /* The old residual and k_eff */
+    FP_PRECISION residual_old = 1.0;
+    FP_PRECISION keff_old = 1.0;
+
     /* Initialize data structures */
     initializePolarQuadrature();
     initializeFluxArrays();
@@ -397,17 +410,26 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     flattenFSRFluxes(1.0);
     flattenFSRSources(1.0);
     zeroTrackFluxes();
+    
+    /* initialize cmfd */
+    if (_cmfd->getMesh()->getAcceleration())
+      initializeCmfd();
 
     /* Source iteration loop */
     for (int i=0; i < max_iterations; i++) {
 
         log_printf(NORMAL, "Iteration %d: \tk_eff = %1.6f"
-		 "\tres = %1.3E", i, _k_eff, residual);
+		   "\tres = %1.3E", i, _k_eff, residual);
 
 	normalizeFluxes();
 	residual = computeFSRSources();
 	transportSweep();	
 	addSourceToScalarFlux();
+
+	/* update the flux with cmfd */
+	if (_cmfd->getMesh()->getAcceleration())
+	    _k_eff = _cmfd->computeKeff();
+
 	computeKeff();
 
 	_num_iterations++;
@@ -418,6 +440,29 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 	    _timer->recordSplit("Total time to converge the source");
 	    return _k_eff;
 	}
+
+	/* Check for divergence of the fission source distribution 
+	 * or convergence of keff */
+	if (_cmfd->getMesh()->getAcceleration()) {
+	  if (fabs(_k_eff - keff_old) < _source_convergence_thresh*1e-3 &&
+	      fabs(residual - residual_old) < _source_convergence_thresh*1e-2){
+	    log_printf(WARNING, "Convergence was determined based of keff convergence");
+	    _timer->stopTimer();
+	    _timer->recordSplit("Total time to converge the source");
+	    return _k_eff;
+	  }
+
+	  if (i > 10 && residual > residual_old*10) 
+	    log_printf(ERROR, "The residual from iteration %i is greater "
+		     "than the source from iteration %i which indicates "
+		     "the solution is likely diverging. If CMFD "
+		     " is turned on, please run the simulation again "
+		     "with CMFD acceleration turned off.", i, i-1);
+	}
+
+	/* save the old residual and keff */
+	residual_old = residual;
+	keff_old = _k_eff;
     }
 
     _timer->stopTimer();
@@ -504,4 +549,14 @@ void Solver::printTimerReport() {
 
     log_printf(RESULT, "%s", msg.str().c_str());
     log_printf(SEPARATOR, "-");
+}
+
+void Solver::initializeCmfd(){
+
+    log_printf(INFO, "initializing cmfd...");
+
+    _cmfd->setFSRVolumes(_FSR_volumes);
+    _cmfd->setFSRMaterials(_FSR_materials);
+    _cmfd->setFSRFluxes(_scalar_flux);
+    _cmfd->getMesh()->setSurfaceCurrents(_surface_currents);
 }

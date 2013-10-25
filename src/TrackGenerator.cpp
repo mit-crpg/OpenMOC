@@ -11,6 +11,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
                                const double spacing) {
     _geometry = geometry;
     setNumAzim(num_azim);
+    _geometry->getMesh()->setNumAzim(num_azim);
     setTrackSpacing(spacing);
     _tot_num_tracks = 0;
     _tot_num_segments = 0;
@@ -357,9 +358,18 @@ void TrackGenerator::generateTracks() {
 
     struct stat buffer;
     std::stringstream test_filename;
-    test_filename << directory.str() << "/tracks_" 
-		  <<  _num_azim*2.0 << "_angles_" 
-		  << _spacing << "_cm_spacing.data";
+
+    if (_geometry->getMesh()->getCmfdOn()){
+    	test_filename << directory.str() << "/tracks_"
+    			<<  _num_azim*2.0 << "_angles_"
+    			<< _spacing << "_cm_spacing_cmfd_"
+		      << _geometry->getMesh()->getMeshLevel() << ".data";
+    }
+    else{
+    	test_filename << directory.str() << "/tracks_"
+    			<<  _num_azim*2.0 << "_angles_"
+    			<< _spacing << "_cm_spacing.data";
+    }
 
     _tracks_filename = test_filename.str();
 
@@ -974,6 +984,8 @@ void TrackGenerator::dumpTracksToFile() {
     double length;
     int material_id;
     int region_id;
+    int mesh_surface_fwd;
+    int mesh_surface_bwd;
 
     for (int i=0; i < _num_azim; i++) {
         for (int j=0; j < _num_tracks[i]; j++) {
@@ -1003,6 +1015,13 @@ void TrackGenerator::dumpTracksToFile() {
                 fwrite(&length, sizeof(double), 1, out);
                 fwrite(&material_id, sizeof(int), 1, out);
                 fwrite(&region_id, sizeof(int), 1, out);
+
+                if (_geometry->getMesh()->getCmfdOn()){
+		  mesh_surface_fwd = curr_segment->_mesh_surface_fwd;
+		  mesh_surface_bwd = curr_segment->_mesh_surface_bwd;
+		  fwrite(&mesh_surface_fwd, sizeof(int), 1, out);
+		  fwrite(&mesh_surface_bwd, sizeof(int), 1, out);
+		}
             }
         }
     }
@@ -1073,6 +1092,9 @@ bool TrackGenerator::readTracksFromFile() {
     int material_id;
     int region_id;
 
+    int mesh_surface_fwd;
+    int mesh_surface_bwd;
+    
     for (int i=0; i < _num_azim; i++)
         _tot_num_tracks += _num_tracks[i];
     _num_segments = new int[_tot_num_tracks];
@@ -1110,6 +1132,14 @@ bool TrackGenerator::readTracksFromFile() {
                 curr_segment->_length = length;
                 curr_segment->_material = _geometry->getMaterial(material_id);
                 curr_segment->_region_id = region_id;
+
+                if (_geometry->getMesh()->getCmfdOn()){
+		  ret = fread(&mesh_surface_fwd, sizeof(int), 1, in);
+		  ret = fread(&mesh_surface_bwd, sizeof(int), 1, in);
+		  curr_segment->_mesh_surface_fwd = mesh_surface_fwd;
+		  curr_segment->_mesh_surface_bwd = mesh_surface_bwd;
+                }
+		
                 curr_track->addSegment(curr_segment);
             }
 

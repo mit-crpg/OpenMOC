@@ -17,6 +17,8 @@
     #include "../src/Track.h" 
     #include "../src/TrackGenerator.h"
     #include "../src/Universe.h"
+    #include "../src/Cmfd.h"
+    #include "../src/Mesh.h"
 
     #define printf PySys_WriteStdout
 
@@ -211,7 +213,6 @@
  * getCellIds method for the data processing routines in openmoc.process */
 %apply (int* ARGOUT_ARRAY1, int DIM1) {(int* cell_ids, int num_cells)}
 
-
 #endif
 
 
@@ -231,11 +232,11 @@
 %include ../src/Track.h
 %include ../src/TrackGenerator.h
 %include ../src/Universe.h
-
+%include ../src/Cmfd.h
+%include ../src/Mesh.h
 
 #ifdef DOUBLE
 typedef double FP_PRECISION;
 #else
 typedef float FP_PRECISION;
 #endif
-

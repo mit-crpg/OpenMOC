@@ -72,6 +72,20 @@ private:
     /** An array of the chi \f$ \chi \f$ values for each energy group */
     double* _chi;
 
+    /** An array of the diffusion coefficients values for each energy group */
+    double* _dif_coef;
+
+    /** An array of the diffusion coefficients values for each energy group */
+    double* _buckling;
+
+    /** An array of the diffusion coefficient values
+     *  for each energy group for each surface */
+    double* _dif_hat;
+
+    /** An array of the CMFD correction to the diffusion coefficient values
+     *  for each energy group for each surface */
+    double* _dif_tilde;
+
     /** A boolean representing whether or not this material contains a non-zero
      *  fission cross-section and is fissionable */
     bool _fissionable;
@@ -96,6 +110,10 @@ public:
     double* getSigmaF();
     double* getNuSigmaF();
     double* getChi();
+    double* getDifCoef();
+    double* getBuckling();
+    double* getDifHat();
+    double* getDifTilde();
     bool isFissionable();
     bool isDataAligned();
     int getNumVectorGroups();
@@ -107,6 +125,10 @@ public:
     void setSigmaF(double* xs, int num_groups);
     void setNuSigmaF(double* xs, int num_groups);
     void setChi(double* xs, int num_groups);
+    void setBuckling(double* xs, int num_groups);
+    void setDifCoef(double* xs, int num_groups);
+    void setDifHat(double* xs, int num_groups);
+    void setDifTilde(double* xs, int num_groups);
     
     void setSigmaTByGroup(double xs, int group);
     void setSigmaAByGroup(double xs, int group);
@@ -114,6 +136,10 @@ public:
     void setNuSigmaFByGroup(double xs, int group);
     void setSigmaSByGroup(double xs, int group1, int group2);
     void setChiByGroup(double xs, int group);
+    void setBucklingByGroup(double xs, int group);
+    void setDifCoefByGroup(double xs, int group);
+    void setDifHatByGroup(double xs, int group, int surface);
+    void setDifTildeByGroup(double xs, int group, int surface);
 
 
     void checkSigmaT();
@@ -121,6 +147,10 @@ public:
     void printString();
 
     void alignData();
+    
+    Material* clone();
+    void copySigmaS(Material* material);
+
 };
 
 

@@ -15,6 +15,8 @@
 #include <sys/stat.h>
 #include "LocalCoords.h"
 #include "Track.h"
+#include "Mesh.h"
+#include "Surface.h"
 #endif
 
 
@@ -46,22 +48,22 @@ private:
     /** The boundary conditions at the top of the bounding box containing
      *  the geometry. False is for vacuum and true is for reflective boundary
      *  conditions */
-    bool _top_bc;
+    boundaryType _top_bc;
 
     /** The boundary conditions at the top of the bounding box containing
      *  the geometry. False is for vacuum and true is for reflective boundary
      *  conditions */
-    bool _bottom_bc;
+    boundaryType _bottom_bc;
 
     /** The boundary conditions at the top of the bounding box containing
      *  the geometry. False is for vacuum and true is for reflective boundary
      *  conditions */   
-    bool _left_bc;
+    boundaryType _left_bc;
 
     /** The boundary conditions at the top of the bounding box containing
      *  the geometry. False is for vacuum and true is for reflective boundary
      *  conditions */   
-    bool _right_bc;
+    boundaryType _right_bc;
 
     /** The total number of flat source regions in the geometry */
     int _num_FSRs;
@@ -74,6 +76,9 @@ private:
 
     /** An array of material IDs indexed by flat source region IDs */
     int* _FSRs_to_materials;
+
+    /** An array of material UIDs indexed by flat source region IDs */
+    int* _FSRs_to_materials_id;
 
     /** The maximum track segment length in the geometry */
     double _max_seg_length;
@@ -96,6 +101,9 @@ private:
     /** A map of lattice IDs (keys) to lattice pointers (values) */
     std::map<int, Lattice*> _lattices;
 
+    /** A CMFD mesh */
+    Mesh* _mesh;
+
     void initializeCellFillPointers();
 
     Cell* findFirstCell(LocalCoords* coords, double angle);
@@ -103,7 +111,7 @@ private:
 
 public:
 
-    Geometry();
+    Geometry(Mesh* mesh=NULL);
     virtual ~Geometry();
 
     double getWidth();
@@ -112,10 +120,10 @@ public:
     double getXMax();
     double getYMin();
     double getYMax();
-    bool getBCTop();
-    bool getBCBottom();
-    bool getBCLeft();
-    bool getBCRight();
+    boundaryType getBCTop();
+    boundaryType getBCBottom();
+    boundaryType getBCLeft();
+    boundaryType getBCRight();
     int getNumFSRs();
     int getNumEnergyGroups();
     int getNumMaterials();
@@ -154,6 +162,16 @@ public:
 
     std::string toString();
     void printString();
+
+    void initializeMesh();
+    void findFSRs(Universe* univ, int cell_num, int *fsr_id);
+    void defineMesh(Mesh* mesh, Universe* univ, int depth, int* meshCellNum, int row, bool base, int fsr_id);
+    int nextLatticeHeight(Universe* univ);
+    void findMeshHeight(Universe* univ, int* height, int depth);
+    void findMeshWidth(Universe* univ, int* width, int depth);
+    int findMeshDepth(Universe* univ, int mesh_level);
+    Mesh* getMesh();
+
 };
 
 #endif /* GEOMETRY_H_ */

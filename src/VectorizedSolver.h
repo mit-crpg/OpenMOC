@@ -54,7 +54,8 @@ protected:
     FP_PRECISION computeFSRSources();
     void scalarFluxTally(segment* curr_segment, 
 			 FP_PRECISION* track_flux,
-			 FP_PRECISION* fsr_flux);
+			 FP_PRECISION* fsr_flux,
+			 bool fwd);
     void transferBoundaryFlux(int track_id, bool direction,
 			      FP_PRECISION* track_flux);
     void addSourceToScalarFlux();
@@ -73,7 +74,9 @@ protected:
 
 public:
     VectorizedSolver(Geometry* geometry=NULL, 
-		     TrackGenerator* track_generator=NULL);
+		     TrackGenerator* track_generator=NULL,
+		     Cmfd* cmfd=NULL);
+
     virtual ~VectorizedSolver();
  
     int getNumVectorWidths();
