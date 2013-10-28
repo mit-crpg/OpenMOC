@@ -183,6 +183,16 @@ int Solver::getNumIterations() {
 
 
 /**
+ * @brief Returns the total time to converge the source (seconds).
+ * @return the time to converge
+ *
+ */
+double Solver::getTotalTime() { 
+    return _timer->getSplit("Total time to converge the source");
+}
+
+
+/**
  * @brief Returns the threshold for source convergence.
  * @return the threshold for source convergence
  */

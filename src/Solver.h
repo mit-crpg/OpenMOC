@@ -311,6 +311,7 @@ public:
     int getNumPolarAngles();
     quadratureType getPolarQuadratureType();
     int getNumIterations();
+    double getTotalTime();
     FP_PRECISION getSourceConvergenceThreshold();
 
     /**
