@@ -533,10 +533,12 @@ void VectorizedSolver::computeKeff() {
  *        energy groups and polar angles, and tallies it into the flat
  *        source region scalar flux, and updates the track's angular flux.
  * @param curr_segment a pointer to the segment of interest
+ * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param track_flux a pointer to the track's angular flux
  * @param fsr_flux a pointer to the temporary flat source region flux buffer
  */
-void VectorizedSolver::scalarFluxTally(segment* curr_segment,
+void VectorizedSolver::scalarFluxTally(segment* curr_segment, 
+				       int azim_index,
    	                               FP_PRECISION* track_flux,
 	                               FP_PRECISION* fsr_flux,
 				       bool fwd){
@@ -567,7 +569,7 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
             for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
 	        psibar = (track_flux(p,e) - _reduced_source(fsr_id,e)) * 
 		          exponentials(p,e);
-	        fsr_flux[e] += psibar * _polar_weights[p];
+	        fsr_flux[e] += psibar * _polar_weights(azim_index,p);
 		track_flux(p,e) -= psibar;
 	    }
 	}
@@ -666,10 +668,11 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
  *          for the track is given to the reflecting track. For vacuum
  *          boundary conditions, the outgoing flux tallied as leakage.
  * @param track_id the ID number for the track of interest
+ * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param direction the track direction (forward - true, reverse - false)
  * @param track_flux a pointer to the track's outgoing angular flux
  */
-void VectorizedSolver::transferBoundaryFlux(int track_id, 
+void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
 					    bool direction,
 					    FP_PRECISION* track_flux) {
     int start;
@@ -709,7 +712,7 @@ void VectorizedSolver::transferBoundaryFlux(int track_id,
 	    for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
 	        track_out_flux(p,e) = track_flux(p,e) * bc;
 		track_leakage(p,e) = track_flux(p,e) * 
-		                     _polar_weights[p] * (!bc);
+		  _polar_weights(azim_index,p) * (!bc);
 	    }
 	}
     }

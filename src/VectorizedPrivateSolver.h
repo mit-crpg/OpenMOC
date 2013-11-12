@@ -38,9 +38,8 @@ private:
 
     void flattenFSRFluxes(FP_PRECISION value);
 
-    void scalarFluxTally(segment* curr_segment, 
-			 FP_PRECISION* track_flux,
-			 FP_PRECISION* fsr_flux);
+    void scalarFluxTally(segment* curr_segment, int azim_index,
+			 FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
 
     void transportSweep();
     void reduceThreadScalarFluxes();

@@ -28,10 +28,11 @@
 /**
  * @class ThreadPrivateSolver ThreadPrivateSolver.h "openmoc/src/ThreadPrivateSolver.h"
  * @brief This is a subclass of the CPUSolver which uses thread private 
- *        arrays for the flat source region scalar fluxes to minimize OMP atomics.
- * @details Since this class stores a separate copy of the flat source region scalar
- *          fluxes for each OMP thread, the memory requirements are greater than for
- *          the CPUSolver.
+ *        arrays for the flat source region scalar fluxes to minimize OMP 
+ *        atomics.
+ * @details Since this class stores a separate copy of the flat source region 
+ *          scalar fluxes for each OMP thread, the memory requirements are 
+ *          greater than for the CPUSolver.
  */
 class ThreadPrivateSolver : public CPUSolver {
 
@@ -46,10 +47,9 @@ protected:
 
     void flattenFSRFluxes(FP_PRECISION value);
     void zeroSurfaceCurrents();
-    void scalarFluxTally(segment* curr_segment, 
-			 FP_PRECISION* track_flux,
-			 FP_PRECISION* fsr_flux,
-			 bool fwd);
+    void scalarFluxTally(segment* curr_segment, int azim_index,
+			 FP_PRECISION* track_flux, 
+			 FP_PRECISION* fsr_flux, bool fwd);
     void reduceThreadScalarFluxes();
     void reduceThreadSurfaceCurrents();
     void transportSweep();
