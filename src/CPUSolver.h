@@ -71,10 +71,12 @@ protected:
      * @brief Computes the contribution to the flat source region scalar flux
      *        from a single track segment.
      * @param curr_segment a pointer to the segment of interest
+     * @param azim_index a pointer to the azimuthal angle index for this segment
      * @param track_flux a pointer to the track's angular flux
      * @param fsr_flux a pointer to the temporary flat source region flux buffer
      */
     virtual void scalarFluxTally(segment* curr_segment, 
+				 int azim_index,
 				 FP_PRECISION* track_flux,
 				 FP_PRECISION* fsr_flux,
 				 bool fwd);
@@ -82,11 +84,12 @@ protected:
     /**
      * @brief Updates the boundary flux for a track given boundary conditions.
      * @param track_id the ID number for the track of interest
+     * @param azim_index a pointer to the azimuthal angle index for this segment
      * @param direction the track direction (forward - true, reverse - false)
      * @param track_flux a pointer to the track's outgoing angular flux
      */
-    virtual void transferBoundaryFlux(int track_id, bool direction,
-				      FP_PRECISION* track_flux);
+    virtual void transferBoundaryFlux(int track_id, int azim_index,
+				      bool direction, FP_PRECISION* track_flux);
 
     void addSourceToScalarFlux();
     void computeKeff();

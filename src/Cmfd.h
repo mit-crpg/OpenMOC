@@ -12,7 +12,6 @@
 #define _USE_MATH_DEFINES
 #include <utility>
 #include <math.h>
-#include <unordered_map>
 #include <limits.h>
 #include <string>
 #include <sstream>

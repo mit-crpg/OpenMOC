@@ -52,11 +52,10 @@ protected:
 
     void normalizeFluxes();
     FP_PRECISION computeFSRSources();
-    void scalarFluxTally(segment* curr_segment, 
+    void scalarFluxTally(segment* curr_segment, int azim_index,
 			 FP_PRECISION* track_flux,
-			 FP_PRECISION* fsr_flux,
-			 bool fwd);
-    void transferBoundaryFlux(int track_id, bool direction,
+			 FP_PRECISION* fsr_flux, bool fwd);
+    void transferBoundaryFlux(int track_id, int azim_index, bool direction,
 			      FP_PRECISION* track_flux);
     void addSourceToScalarFlux();
     void computeKeff();

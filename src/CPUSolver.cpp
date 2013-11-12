@@ -687,6 +687,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
      int tid;
      int min_track, max_track;
      Track* curr_track;
+     int azim_index;
      int num_segments;
      segment* curr_segment;
      segment* segments;
@@ -709,14 +710,16 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 	 max_track = (i + 1) * (_tot_num_tracks / 2);
 
 	 /* Loop over each thread within this azimuthal angle halfspace */
-	 #pragma omp parallel for private(curr_track, num_segments, \
-	   curr_segment, segments, track_flux, tid) schedule(guided)
+         #pragma omp parallel for private(curr_track, azim_index, \
+	  num_segments, curr_segment, segments, track_flux, \
+	  tid) schedule(guided)
 	 for (int track_id=min_track; track_id < max_track; track_id++) {
 
 	     tid = omp_get_thread_num();
 
 	     /* Initialize local pointers to important data structures */	
 	     curr_track = _tracks[track_id];
+	     azim_index = curr_track->getAzimAngleIndex();
 	     num_segments = curr_track->getNumSegments();
 	     segments = curr_track->getSegments();
 	     track_flux = &_boundary_flux(track_id,0,0,0);
@@ -724,24 +727,24 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 	     /* Loop over each segment in forward direction */
 	     for (int s=0; s < num_segments; s++) {
 		 curr_segment = &segments[s];
-		 scalarFluxTally(curr_segment, track_flux, 
+		 scalarFluxTally(curr_segment, azim_index, track_flux, 
 				 &_thread_fsr_flux(tid),true);
 	     }
 
 	     /* Transfer flux to outgoing track */
-	     transferBoundaryFlux(track_id, true, track_flux);
+	     transferBoundaryFlux(track_id, azim_index, true, track_flux);
 
 	     /* Loop over each segment in reverse direction */
 	     track_flux += _polar_times_groups;
 
 	     for (int s=num_segments-1; s > -1; s--) {
 		 curr_segment = &segments[s];
-		 scalarFluxTally(curr_segment, track_flux, 
+		 scalarFluxTally(curr_segment, azim_index, track_flux, 
 				 &_thread_fsr_flux(tid),false);
 	     }
 
 	     /* Transfer flux to outgoing track */
-	     transferBoundaryFlux(track_id, false, track_flux);
+	     transferBoundaryFlux(track_id, azim_index, false, track_flux);
 	 }
      }
 
@@ -756,10 +759,12 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
   *        energy groups and polar angles, and tallies it into the flat
   *        source region scalar flux, and updates the track's angular flux.
   * @param curr_segment a pointer to the segment of interest
+  * @param azim_index a pointer to the azimuthal angle index for this segment
   * @param track_flux a pointer to the track's angular flux
   * @param fsr_flux a pointer to the temporary flat source region flux buffer
   */
  void CPUSolver::scalarFluxTally(segment* curr_segment,
+	                         int azim_index,
 				 FP_PRECISION* track_flux,
 				 FP_PRECISION* fsr_flux,
 				 bool fwd){
@@ -894,11 +899,12 @@ FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
  *          for the track is given to the reflecting track. For vacuum
  *          boundary conditions, the outgoing flux tallied as leakage.
  * @param track_id the ID number for the track of interest
+ * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param direction the track direction (forward - true, reverse - false)
  * @param track_flux a pointer to the track's outgoing angular flux
  */
-void CPUSolver::transferBoundaryFlux(int track_id, bool direction,
-				     FP_PRECISION* track_flux) {
+void CPUSolver::transferBoundaryFlux(int track_id, int azim_index,
+				     bool direction, FP_PRECISION* track_flux) {
     int start;
     int bc;
     FP_PRECISION* track_leakage;
@@ -930,7 +936,7 @@ void CPUSolver::transferBoundaryFlux(int track_id, bool direction,
         for (int p=0; p < _num_polar; p++) {
 	    track_out_flux(p,e) = track_flux(p,e) * bc;
 	    track_leakage(p,e) = track_flux(p,e) * 
-	      _polar_weights[p] * (!bc);
+	      _polar_weights(azim_index,p) * (!bc);
 	}
     }
 }

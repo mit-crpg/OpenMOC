@@ -377,6 +377,7 @@ __device__ FP_PRECISION computeExponential(FP_PRECISION sigma_t,
  *        energy groups and polar angles, and tallies it into the flat
  *        source region scalar flux, and updates the track's angular flux.
  * @param curr_segment a pointer to the segment of interest
+ * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param energy_group the energy group of interest
  * @param materials the array of materials
  * @param track_flux a pointer to the track's angular flux
@@ -386,6 +387,7 @@ __device__ FP_PRECISION computeExponential(FP_PRECISION sigma_t,
  * @param scalar_flux the array of flat source region scalar fluxes
  */
 __device__ void scalarFluxTally(dev_segment* curr_segment, 
+				int azim_index,
 				int energy_group,
 				dev_material* materials,
 				FP_PRECISION* track_flux,
@@ -415,7 +417,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
 					 length, _prefactor_array, p);
         psibar = (track_flux[p] - reduced_source(fsr_id,energy_group)) * 
 	         exponential;
-	fsr_flux += psibar * polar_weights[p];
+	fsr_flux += psibar * polar_weights(azim_index,p);
 	track_flux[p] -= psibar;
     }
 
@@ -431,6 +433,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
  *          boundary conditions, the outgoing flux tallied as leakage.
  *          NOTE: Only one energy group is transferred by this routine.
  * @param curr_track a pointer to the track of interest
+ * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param track_flux an array of the outgoing track flux
  * @param boundary_flux an array of all angular fluxes
  * @param leakage an array of leakages for each CUDA thread
@@ -439,6 +442,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
  * @param direction the track direction (forward - true, reverse - false)
  */
 __device__ void transferBoundaryFlux(dev_track* curr_track,
+				     int azim_index,
 				     FP_PRECISION* track_flux, 
 				     FP_PRECISION* boundary_flux, 
 				     FP_PRECISION* leakage,
@@ -472,7 +476,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
     /* Put track's flux in the shared memory temporary flux array */
     for (int p=0; p < *num_polar; p++) {
 	track_out_flux[p] = track_flux[p] * bc;
-	leakage[0] += track_flux[p] * polar_weights[p] * (!bc);
+	leakage[0] += track_flux[p] * polar_weights(azim_index,p) * (!bc);
     }
 }
 
@@ -516,6 +520,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     int energy_angle_index = energy_group * (*num_polar);
 
     dev_track* curr_track;
+    int azim_index;
     int num_segments;
     dev_segment* curr_segment;
 
@@ -524,6 +529,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
         /* Initialize local registers with important data */
         curr_track = &tracks[track_id];
+	azim_index = curr_track->_azim_angle_index;
       	num_segments = curr_track->_num_segments;
 
 	/* Retrieve a pointer to this thread's shared memory buffer for angular flux */
@@ -542,13 +548,13 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 	/* Loop over each segment in forward direction */
 	for (int i=0; i < num_segments; i++) {
 	    curr_segment = &curr_track->_segments[i];
-	    scalarFluxTally(curr_segment, energy_group, materials,
+	    scalarFluxTally(curr_segment, azim_index, energy_group, materials,
 			    track_flux, reduced_source, polar_weights,
 			    _prefactor_array, scalar_flux);
 	}
 
 	/* Transfer flux to outgoing track */
-	transferBoundaryFlux(curr_track, track_flux, boundary_flux, 
+	transferBoundaryFlux(curr_track, azim_index, track_flux, boundary_flux, 
 			     &leakage[threadIdx.x + blockIdx.x * blockDim.x], 
 			     polar_weights, energy_angle_index, true);
 
@@ -557,13 +563,13 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
 	for (int i=num_segments-1; i > -1; i--) {
 	    curr_segment = &curr_track->_segments[i];
-	    scalarFluxTally(curr_segment, energy_group, materials,
+	    scalarFluxTally(curr_segment, azim_index, energy_group, materials,
 			    track_flux, reduced_source, polar_weights,
 			    _prefactor_array, scalar_flux);
 	}
 
 	/* Transfer flux to outgoing track */
-	transferBoundaryFlux(curr_track, track_flux, boundary_flux, 
+	transferBoundaryFlux(curr_track, azim_index, track_flux, boundary_flux, 
 			     &leakage[threadIdx.x + blockIdx.x * blockDim.x], 
 			     polar_weights, energy_angle_index, false);
 
