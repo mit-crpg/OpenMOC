@@ -339,6 +339,8 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
+cuda.attachGPU(1)
+
 solver = cuda.GPUSolver(geometry, track_generator)
 solver.setNumThreadBlocks(num_blocks)
 solver.setNumThreadsPerBlock(num_threads)

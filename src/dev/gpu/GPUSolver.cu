@@ -24,7 +24,6 @@ __constant__ FP_PRECISION sinthetas[MAX_POLAR_ANGLES];
 
 /** An array of the weights for the polar angles from the quadrature set */
 __constant__ FP_PRECISION polar_weights[MAX_POLAR_ANGLES*MAX_AZIM_ANGLES];
-
 /** A pointer to an array with the number of tracks per azimuthal angle */
 __constant__ int num_tracks[MAX_AZIM_ANGLES/2];
 
@@ -513,7 +512,6 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     FP_PRECISION* track_flux;
 
     int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
-
     int track_id = int(tid / *num_groups);
     int track_flux_index = threadIdx.x * (*two_times_num_polar);
     int energy_group = tid % (*num_groups);
@@ -581,6 +579,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     }
 
     return;
+
 }
 
 
@@ -844,15 +843,11 @@ FP_PRECISION* GPUSolver::getFSRScalarFluxes() {
         log_printf(ERROR, "Unable to returns the device solver's scalar flux "
 		   "array since it has not yet been allocated in memory");
 
-    printf("Retrieving FSR scalar fluxes from GPU\n");
-
     /* Copy the scalar flux for all FSRs from the device */
     FP_PRECISION* fsr_scalar_fluxes = new FP_PRECISION[_num_FSRs * _num_groups];
     cudaMemcpy((void*)fsr_scalar_fluxes, (void*)_scalar_flux,
 	       _num_FSRs * _num_groups * sizeof(FP_PRECISION),
 	       cudaMemcpyDeviceToHost);
-
-    printf("Finished retrieving, returning\n");
 
     return fsr_scalar_fluxes;
 }
@@ -1328,7 +1323,7 @@ void GPUSolver::precomputePrefactors(){
 		       cudaMemcpyHostToDevice);
 
     /* Set size of prefactor array */
-    int num_array_values = 10 * sqrt(1. / (8. * _source_convergence_thresh));
+    int num_array_values = 10 * sqrt(1. / (8. * _source_convergence_thresh * 1e-2));
     _prefactor_spacing = 10. / num_array_values;
     _inverse_prefactor_spacing = 1.0 / _prefactor_spacing;
     _prefactor_array_size = _two_times_num_polar * num_array_values;

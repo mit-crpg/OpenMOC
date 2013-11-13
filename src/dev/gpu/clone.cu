@@ -84,7 +84,6 @@ void cloneTrackOnGPU(Track* track_h, dev_track* track_d) {
     new_track._uid = track_h->getUid();
     new_track._num_segments = track_h->getNumSegments();
     new_track._azim_angle_index = track_h->getAzimAngleIndex();
-
     new_track._refl_in = track_h->isReflIn();
     new_track._refl_out = track_h->isReflOut();
     new_track._bc_in = track_h->getBCIn();
