@@ -184,12 +184,12 @@ void CPUSolver::initializeFluxArrays() {
 
 	/* Allocate an array for the surface currents */
 	if (_cmfd->getMesh()->getCmfdOn()){ 
-	  size = _num_mesh_cells * _num_groups * 8 * sizeof(double);
+	  size = _num_mesh_cells * _num_groups * 8;
 	  _surface_currents = new double[size];
 	}
 
 	/* Allocate a thread local local memory buffer for FSR scalar flux */
-	size = _num_groups * _num_threads * sizeof(FP_PRECISION);
+	size = _num_groups * _num_threads;
 	_thread_fsr_flux = new FP_PRECISION[size];
     }
     catch(std::exception &e) {

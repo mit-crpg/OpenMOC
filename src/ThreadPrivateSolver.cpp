@@ -62,12 +62,12 @@ void ThreadPrivateSolver::initializeFluxArrays() {
     /* Allocate memory for the flux and leakage arrays */
     try{
 	/* Allocate a thread local array of FSR scalar fluxes */
-	size = _num_threads * _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+	size = _num_threads * _num_FSRs * _num_groups;
 	_thread_flux = new FP_PRECISION[size];
 
 	/* Allocate a thread local array of mesh cell surface currents */
 	if (_cmfd->getMesh()->getCmfdOn()){ 
-	  size = _num_threads * _num_mesh_cells * 8 * _num_groups * sizeof(double);
+	  size = _num_threads * _num_mesh_cells * 8 * _num_groups;
 	  _thread_currents = new double[size];
 	}
     }
