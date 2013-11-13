@@ -312,6 +312,7 @@ public:
     quadratureType getPolarQuadratureType();
     int getNumIterations();
     double getTotalTime();
+    FP_PRECISION getKeff();
     FP_PRECISION getSourceConvergenceThreshold();
 
     /**

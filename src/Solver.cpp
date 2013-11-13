@@ -193,6 +193,15 @@ double Solver::getTotalTime() {
 
 
 /**
+ * @brief Returns the converged eigenvalue for the solver.
+ * @return the converged eigenvalue
+ */
+FP_PRECISION Solver::getKeff() {
+    return _k_eff;
+}
+
+
+/**
  * @brief Returns the threshold for source convergence.
  * @return the threshold for source convergence
  */
