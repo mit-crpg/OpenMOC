@@ -540,10 +540,11 @@ void Solver::printTimerReport() {
 
     /* Time per segment */
     int num_segments = _track_generator->getNumSegments();
-    double time_per_segment = (time_per_iter / num_segments);
-    msg_string = "Integration time per track segment";
-    msg_string.resize(53, '.');
-    log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_segment);
+    int num_integrations = 2 * _num_polar * _num_groups * num_segments;
+    double time_per_integration = (time_per_iter / num_integrations);
+    msg_string = "Integration time per segment integration";
+    msg_string.resize(53, '.'); 
+    log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
 
     setSeparatorCharacter('-');
     log_printf(SEPARATOR, "-");
