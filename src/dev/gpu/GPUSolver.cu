@@ -400,8 +400,8 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
     dev_material* curr_material = &materials[curr_segment->_material_uid];
     double *sigma_t = curr_material->_sigma_t;
 
-    /* The average flux long this segment in this flat source region */
-    FP_PRECISION psibar;
+    /* The change in angular flux long this segment in this FSR */
+    FP_PRECISION deltapsi;
     FP_PRECISION exponential;
 
     /* Zero the FSR scalar flux contribution from this segment 
@@ -414,10 +414,10 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
     for (int p=0; p < *num_polar; p++) {
         exponential = computeExponential(sigma_t[energy_group], 
 					 length, _prefactor_array, p);
-        psibar = (track_flux[p] - reduced_source(fsr_id,energy_group)) * 
+        deltapsi = (track_flux[p] - reduced_source(fsr_id,energy_group)) * 
 	         exponential;
-	fsr_flux += psibar * polar_weights(azim_index,p);
-	track_flux[p] -= psibar;
+	fsr_flux += deltapsi * polar_weights(azim_index,p);
+	track_flux[p] -= deltapsi;
     }
 
     /* Atomically increment the scalar flux for this flat source region */

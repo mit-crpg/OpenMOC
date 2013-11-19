@@ -774,8 +774,8 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
      FP_PRECISION length = curr_segment->_length;
      double* sigma_t = curr_segment->_material->getSigmaT();
 
-     /* The average flux along this segment in the flat source region */
-     FP_PRECISION psibar;
+     /* The change in angular flux along this segment in the FSR */
+     FP_PRECISION deltapsi;
      FP_PRECISION exponential;
 
      /* Set the flat source region flux buffer to zero */
@@ -787,9 +787,9 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 	 /* Loop over energy groups */
 	 for (int p=0; p < _num_polar; p++){
 	     exponential = computeExponential(sigma_t[e], length, p);
-	     psibar = (track_flux(p,e) - _reduced_source(fsr_id,e)) * exponential;
-	     fsr_flux[e] += psibar * _polar_weights[p];
-	     track_flux(p,e) -= psibar;
+	     deltapsi = (track_flux(p,e)-_reduced_source(fsr_id,e))*exponential;
+	     fsr_flux[e] += deltapsi * _polar_weights[p];
+	     track_flux(p,e) -= deltapsi;
 	 }
      }
 
