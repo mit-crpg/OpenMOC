@@ -1122,7 +1122,7 @@ void Geometry::segmentize(Track* track) {
     FP_PRECISION segment_length;
     Material* segment_material;
     int fsr_id;
-    double* sigma_t;
+    FP_PRECISION* sigma_t;
     int min_num_segments;
     int num_segments;
     

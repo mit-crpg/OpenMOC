@@ -41,7 +41,7 @@ protected:
     /** An array for the flat source region scalar fluxes for each thread */
     FP_PRECISION* _thread_flux;
 
-    double* _thread_currents;
+    FP_PRECISION* _thread_currents;
 
     void initializeFluxArrays();
 

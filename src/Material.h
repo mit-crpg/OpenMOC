@@ -53,38 +53,38 @@ private:
     int _num_groups;
 
     /** An array of the total cross-sections for each energy group */
-    double* _sigma_t;
+    FP_PRECISION* _sigma_t;
 
     /** An array of the absorption cross-sections for each energy group */
-    double* _sigma_a;
+    FP_PRECISION* _sigma_a;
 
     /** A 2D array of the scattering cross-section matrix. The first index is 
      *  row number and second index is column number */
-    double* _sigma_s; 
+    FP_PRECISION* _sigma_s; 
 
     /** An array of the fission cross-sections for each energy group */
-    double* _sigma_f;
+    FP_PRECISION* _sigma_f;
 
     /** An array of the fission cross-sections multiplied by nu \f$ \nu \f$ 
      *  for each energy group */
-    double* _nu_sigma_f;
+    FP_PRECISION* _nu_sigma_f;
 
     /** An array of the chi \f$ \chi \f$ values for each energy group */
-    double* _chi;
+    FP_PRECISION* _chi;
 
     /** An array of the diffusion coefficients values for each energy group */
-    double* _dif_coef;
+    FP_PRECISION* _dif_coef;
 
     /** An array of the diffusion coefficients values for each energy group */
-    double* _buckling;
+    FP_PRECISION* _buckling;
 
     /** An array of the diffusion coefficient values
      *  for each energy group for each surface */
-    double* _dif_hat;
+    FP_PRECISION* _dif_hat;
 
     /** An array of the CMFD correction to the diffusion coefficient values
      *  for each energy group for each surface */
-    double* _dif_tilde;
+    FP_PRECISION* _dif_tilde;
 
     /** A boolean representing whether or not this material contains a non-zero
      *  fission cross-section and is fissionable */
@@ -104,21 +104,22 @@ public:
     int getUid() const;
     short int getId() const;
     int getNumEnergyGroups() const;
-    double* getSigmaT();
-    double* getSigmaA(); 
-    double* getSigmaS();
-    double* getSigmaF();
-    double* getNuSigmaF();
-    double* getChi();
-    double* getDifCoef();
-    double* getBuckling();
-    double* getDifHat();
-    double* getDifTilde();
+    FP_PRECISION* getSigmaT();
+    FP_PRECISION* getSigmaA(); 
+    FP_PRECISION* getSigmaS();
+    FP_PRECISION* getSigmaF();
+    FP_PRECISION* getNuSigmaF();
+    FP_PRECISION* getChi();
+    FP_PRECISION* getDifCoef();
+    FP_PRECISION* getBuckling();
+    FP_PRECISION* getDifHat();
+    FP_PRECISION* getDifTilde();
     bool isFissionable();
     bool isDataAligned();
     int getNumVectorGroups();
 
     void setNumEnergyGroups(const int num_groups);
+
     void setSigmaT(double* xs, int num_groups);
     void setSigmaA(double* xs, int num_groups);
     void setSigmaS(double* xs, int num_groups);
@@ -149,8 +150,6 @@ public:
     void alignData();
     
     Material* clone();
-    void copySigmaS(Material* material);
-
 };
 
 

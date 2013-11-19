@@ -109,7 +109,7 @@ void VectorizedPrivateSolver::scalarFluxTally(segment* curr_segment,
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
     FP_PRECISION length = curr_segment->_length;
-    double* sigma_t = curr_segment->_material->getSigmaT();
+    FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
     /* The change in angular flux along this segment in the FSR */
     FP_PRECISION deltapsi;

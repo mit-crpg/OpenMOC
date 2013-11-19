@@ -80,7 +80,7 @@ void Cmfd::computeXS(){
   
   /* initialize variables for FSR properties*/
   double volume, flux, abs, tot, nu_fis, chi, dif_coef;
-  double* scat;
+  FP_PRECISION* scat;
   Material** materials = _mesh->getMaterials();
   double* fluxes = _mesh->getFluxes(PRIMAL);
   

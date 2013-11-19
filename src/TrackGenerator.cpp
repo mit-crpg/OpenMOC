@@ -148,7 +148,7 @@ Track **TrackGenerator::getTracks() {
  * @brief Return a pointer to the array of azimuthal weights.
  * @return the array of azimuthal weights
  */
-double* TrackGenerator::getAzimWeights() {
+FP_PRECISION* TrackGenerator::getAzimWeights() {
     if (!_contains_tracks)
         log_printf(ERROR, "Unable to return track azimuthal weights since "
                  "tracks have not yet been generated.");
@@ -388,7 +388,7 @@ void TrackGenerator::generateTracks() {
             _num_tracks = new int[_num_azim];
             _num_x = new int[_num_azim];
             _num_y = new int[_num_azim];
-            _azim_weights = new double[_num_azim];
+            _azim_weights = new FP_PRECISION[_num_azim];
             _tracks = new Track*[_num_azim];
         }
         catch (std::exception &e) {
@@ -971,7 +971,12 @@ void TrackGenerator::dumpTracksToFile() {
     fwrite(_num_tracks, sizeof(int), _num_azim, out);
     fwrite(_num_x, sizeof(int), _num_azim, out);
     fwrite(_num_y, sizeof(int), _num_azim, out);
-    fwrite(_azim_weights, sizeof(double), _num_azim, out);
+
+    double* azim_weights = new double[_num_azim];
+    for (int i=0; i < _num_azim; i++)
+        azim_weights[i] = _azim_weights[i];
+    fwrite(azim_weights, sizeof(double), _num_azim, out);
+    free(azim_weights);
     
     Track* curr_track;
     double x0, y0, x1, y1;
@@ -1074,13 +1079,19 @@ bool TrackGenerator::readTracksFromFile() {
     _num_tracks = new int[_num_azim];
     _num_x = new int[_num_azim];
     _num_y = new int[_num_azim];
-    _azim_weights = new double[_num_azim];
+    _azim_weights = new FP_PRECISION[_num_azim];
+    double* azim_weights = new double[_num_azim];
     _tracks = new Track*[_num_azim];
 
     ret = fread(_num_tracks, sizeof(int), _num_azim, in);
     ret = fread(_num_x, sizeof(int), _num_azim, in);
     ret = fread(_num_y, sizeof(int), _num_azim, in);
-    ret = fread(_azim_weights, sizeof(double), _num_azim, in);
+    ret = fread(azim_weights, sizeof(double), _num_azim, in);
+
+    for (int i=0; i < _num_azim; i++)
+        _azim_weights[i] = azim_weights[i];
+
+    free(azim_weights);
 
     Track* curr_track;
     double x0, y0, x1, y1;
