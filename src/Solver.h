@@ -132,7 +132,7 @@ protected:
     int _tot_num_tracks;
 
     /** The weights for each azimuthal angle */
-    double* _azim_weights;
+    FP_PRECISION* _azim_weights;
 
     /** The weights for each polar angle in the polar angle quadrature */
     FP_PRECISION* _polar_weights;

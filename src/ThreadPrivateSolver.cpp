@@ -68,7 +68,7 @@ void ThreadPrivateSolver::initializeFluxArrays() {
 	/* Allocate a thread local array of mesh cell surface currents */
 	if (_cmfd->getMesh()->getCmfdOn()){ 
 	  size = _num_threads * _num_mesh_cells * 8 * _num_groups;
-	  _thread_currents = new double[size];
+	  _thread_currents = new FP_PRECISION[size];
 	}
     }
     catch(std::exception &e) {
@@ -229,7 +229,7 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
     int tid = omp_get_thread_num();
     int fsr_id = curr_segment->_region_id;
     FP_PRECISION length = curr_segment->_length;
-    double* sigma_t = curr_segment->_material->getSigmaT();
+    FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
     /* The change in angular flux along this segment in the FSR */
     FP_PRECISION deltapsi;

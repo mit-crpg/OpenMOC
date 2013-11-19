@@ -63,7 +63,7 @@ __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
     dev_material* curr_material;
-    double* nu_sigma_f;
+    FP_PRECISION* nu_sigma_f;
     FP_PRECISION volume;
     FP_PRECISION source;
 
@@ -171,10 +171,10 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 
     dev_material* curr_material;
 
-    double* nu_sigma_f;
-    double* sigma_s;
-    double* sigma_t;
-    double* chi;
+    FP_PRECISION* nu_sigma_f;
+    FP_PRECISION* sigma_s;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION* chi;
 
     /* Iterate over all FSRs */
     while (tid < *num_FSRs) {
@@ -247,12 +247,12 @@ __global__ void computeFissionAndAbsorption(FP_PRECISION* FSR_volumes,
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
     dev_material* curr_material;
-    double* nu_sigma_f;
-    double* sigma_a;
+    FP_PRECISION* nu_sigma_f;
+    FP_PRECISION* sigma_a;
     FP_PRECISION volume;
 
-    double absorption = 0.;
-    double fission = 0.;
+    FP_PRECISION absorption = 0.;
+    FP_PRECISION fission = 0.;
 
     /* Iterate over all FSRs */
     while (tid < *num_FSRs) {
@@ -262,8 +262,8 @@ __global__ void computeFissionAndAbsorption(FP_PRECISION* FSR_volumes,
 	sigma_a = curr_material->_sigma_a;
 	volume = FSR_volumes[tid];
 
-	double curr_abs = 0.;
-	double curr_fission = 0.;
+	FP_PRECISION curr_abs = 0.;
+	FP_PRECISION curr_fission = 0.;
 
 	/* Iterate over all energy groups and update
 	 * fission and absorption rates for this block */
@@ -398,7 +398,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
     int fsr_id = curr_segment->_region_uid;
     FP_PRECISION length = curr_segment->_length;
     dev_material* curr_material = &materials[curr_segment->_material_uid];
-    double *sigma_t = curr_material->_sigma_t;
+    FP_PRECISION *sigma_t = curr_material->_sigma_t;
 
     /* The change in angular flux long this segment in this FSR */
     FP_PRECISION deltapsi;
@@ -602,7 +602,7 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
     FP_PRECISION volume;
     
     dev_material* curr_material;
-    double* sigma_t;
+    FP_PRECISION* sigma_t;
 
     /* Iterate over all FSRs */
     while (tid < *num_FSRs) {
@@ -644,7 +644,7 @@ __global__ void computeFSRFissionRatesOnDevice(double* fission_rates,
 
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
     dev_material* curr_material;
-    double* sigma_f;
+    FP_PRECISION* sigma_f;
 
     /* Loop over all FSRs and compute the volume-weighted fission rate */
     while (tid < *num_FSRs) {
@@ -944,7 +944,7 @@ void GPUSolver::initializePolarQuadrature() {
         (FP_PRECISION*)malloc(_num_polar * _num_azim * sizeof(FP_PRECISION));
 
     FP_PRECISION* multiples = _quad->getMultiples();
-    double* azim_weights = _track_generator->getAzimWeights();
+    FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
 
     for (int i=0; i < _num_azim; i++) {
         for (int j=0; j < _num_polar; j++)
@@ -1000,7 +1000,7 @@ void GPUSolver::initializeFSRs() {
 	segment* segments;
 	FP_PRECISION volume;
 
-	double* azim_weights = _track_generator->getAzimWeights();
+	FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
 
 	/* Set each FSR's volume by accumulating the total length of all
 	   tracks inside the FSR. Iterate over azimuthal angle, track, segment*/

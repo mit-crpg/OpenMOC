@@ -93,7 +93,7 @@ FP_PRECISION CPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
  */
 double CPUSolver::getSurfaceCurrent(int surface_id, int energy_group) {
 
-	return _surface_currents(surface_id, energy_group);
+    return _surface_currents(surface_id, energy_group);
 }
 
 
@@ -484,7 +484,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
   */
  void CPUSolver::normalizeFluxes() {
 
-     double* nu_sigma_f;
+     FP_PRECISION* nu_sigma_f;
      FP_PRECISION volume;
      FP_PRECISION tot_fission_source;
      FP_PRECISION norm_factor;
@@ -550,13 +550,13 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
  FP_PRECISION CPUSolver::computeFSRSources() {
 
      int tid;
+     Material* material;
      FP_PRECISION scatter_source;
      FP_PRECISION fission_source;
-     double* nu_sigma_f;
-     double* sigma_s;
-     double* sigma_t;
-     double* chi;
-     Material* material;
+     FP_PRECISION* nu_sigma_f;
+     FP_PRECISION* sigma_s;
+     FP_PRECISION* sigma_t;
+     FP_PRECISION* chi;
 
      FP_PRECISION source_residual = 0.0;
 
@@ -625,12 +625,12 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
  void CPUSolver::computeKeff() {
 
      Material* material;
-     double* sigma_a;
-     double* nu_sigma_f;
+     FP_PRECISION* sigma_a;
+     FP_PRECISION* nu_sigma_f;
      FP_PRECISION volume;
 
-     double tot_abs = 0.0;
-     double tot_fission = 0.0;
+     FP_PRECISION tot_abs = 0.0;
+     FP_PRECISION tot_fission = 0.0;
 
      FP_PRECISION* absorption_rates = new FP_PRECISION[_num_FSRs*_num_groups];
      FP_PRECISION* fission_rates = new FP_PRECISION[_num_FSRs*_num_groups];
@@ -772,7 +772,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
      int tid = omp_get_thread_num();
      int fsr_id = curr_segment->_region_id;
      FP_PRECISION length = curr_segment->_length;
-     double* sigma_t = curr_segment->_material->getSigmaT();
+     FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
      /* The change in angular flux along this segment in the FSR */
      FP_PRECISION deltapsi;
@@ -949,7 +949,7 @@ void CPUSolver::transferBoundaryFlux(int track_id, int azim_index,
 void CPUSolver::addSourceToScalarFlux() {
 
     FP_PRECISION volume;
-    double* sigma_t;
+    FP_PRECISION* sigma_t;
 
     /* Add in source term and normalize flux to volume for each region */
     /* Loop over flat source regions, energy groups */
@@ -982,7 +982,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
     log_printf(INFO, "Computing FSR fission rates...");
 
-    double* sigma_f;
+    FP_PRECISION* sigma_f;
 
     FP_PRECISION* scalar_flux = getFSRScalarFluxes();
 

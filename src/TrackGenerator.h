@@ -58,7 +58,7 @@ private:
     int* _num_y;
 
     /** An array of the weights for each azimuthal angle */
-    double* _azim_weights;
+    FP_PRECISION* _azim_weights;
 
     /** A 2D ragged array of tracks */
     Track** _tracks;
@@ -95,7 +95,7 @@ public:
     int getNumSegments();
     int* getNumSegmentsArray();
     Track** getTracks();
-    double* getAzimWeights();
+    FP_PRECISION* getAzimWeights();
     bool containsTracks();
     void retrieveTrackCoords(double* coords, int num_tracks);
     void retrieveSegmentCoords(double* coords, int num_segments);
