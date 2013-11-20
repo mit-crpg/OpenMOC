@@ -317,11 +317,12 @@ lattices[-1].setLatticeCells([[10, 11, 15],
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
+
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 for lattice in lattices: geometry.addLattice(lattice)
 
-geometry.initializeFlatSourceRegions()
+geometry.initializeFlatSourceRegions() 
 
 
 ###############################################################################

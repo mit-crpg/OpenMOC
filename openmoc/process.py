@@ -6,11 +6,25 @@
 # @date April 27, 2013
 
 import matplotlib.pyplot as plt
-import openmoc
 from log import *
 import numpy
 import os
+import sys
 
+if 'openmoc.gnu.double' in sys.modules:
+    openmoc = sys.modules['openmoc.gnu.double']
+elif 'openmoc.gnu.single' in sys.modules:
+    openmoc = sys.modules['openmoc.gnu.single']
+elif 'openmoc.icpc.double' in sys.modules:
+    openmoc = sys.modules['openmoc.icpc.double']
+elif 'openmoc.icpc.single' in sys.modules:
+    openmoc = sys.modules['openmoc.icpc.single']
+elif 'openmoc.bgxlc.double' in sys.modules:
+    openmoc = sys.modules['openmoc.bgxlc.double']
+elif 'openmoc.bgxlc.single' in sys.modules:
+    openmoc = sys.modules['openmoc.bgxlc.single']
+else:
+    from openmoc import *
 
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"

@@ -613,8 +613,8 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
 	for (int e=0; e < _num_groups; e++) {
 	    for (int p=0; p < _num_polar; p++) {
 	        tau = sigma_t[e] * length;
-		index = int(tau * _inverse_prefactor_spacing) * 
-		        _two_times_num_polar;
+		index = round_to_int(tau * _inverse_prefactor_spacing);
+		index *= _two_times_num_polar;
 		exponentials(p,e) = (1. - 
 				     (_prefactor_array[index+2 * p] * tau + 
 				      _prefactor_array[index + 2 * p +1]));

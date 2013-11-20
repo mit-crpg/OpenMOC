@@ -351,6 +351,7 @@ void Geometry::addMaterial(Material* material) {
 
     if (_num_groups == 0)
         _num_groups = material->getNumEnergyGroups();
+
     else if (_num_groups != material->getNumEnergyGroups())
         log_printf(ERROR, "Unable to add material %d with %d energy groups to "
 		   "the geometry which contains material(s) with %d energy"

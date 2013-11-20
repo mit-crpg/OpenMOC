@@ -159,6 +159,7 @@ FP_PRECISION* Material::getSigmaT() {
     if (_sigma_t == NULL)
         log_printf(ERROR, "Unable to return material %d's total "
                         "cross-section since it has not yet been set", _id);
+
     return _sigma_t;
 }
 
@@ -428,8 +429,10 @@ void Material::setSigmaT(double* xs, int num_groups) {
 		   "%d which contains %d energy groups", num_groups,
 		   _num_groups);
 
-    for (int i=0; i < _num_groups; i++)
-        _sigma_t[i] = xs[i];
+    
+
+    for (int i=0; i < _num_groups; i++) 
+        _sigma_t[i] = FP_PRECISION(xs[i]);
 }
 
 
@@ -462,10 +465,10 @@ void Material::setSigmaA(double* xs, int num_groups) {
                  _num_groups);
 
     for (int i=0; i < _num_groups; i++){
-        _sigma_a[i] = xs[i];
+        _sigma_a[i] = FP_PRECISION(xs[i]);
 
 	if (_buckling != NULL & _dif_coef != NULL)
-	    _sigma_a[i] += _buckling[i] * _dif_coef[i];
+	  _sigma_a[i] += FP_PRECISION(_buckling[i] * _dif_coef[i]);
     }
 }
 
@@ -955,6 +958,8 @@ void Material::printString() {
  * @brief Aligns the cross-section data structures 
  */
 void Material::alignData() {
+
+    printf("aligned data\n");
 
     if (_data_aligned)
         return;
