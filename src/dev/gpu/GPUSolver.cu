@@ -44,6 +44,27 @@ __constant__ FP_PRECISION inverse_prefactor_spacing[1];
 
 
 /**
+ * @brief Fast method to round a float to an integer.
+ * @param x float floating point value to round
+ * @return the rounded down integer value
+ */
+__device__ int round_to_int(float x) {
+    return __float2int_rd(x);
+}
+
+
+/**
+ * @brief Fast method to round a double to an integer.
+ * @param x double floating point value to round
+ * @return the rounded down integer value
+ */
+__device__ int round_to_int(double x) {
+    return __double2int_rd(x);
+}
+
+
+
+/**
  * @brief Compute the total fission source from all flat source regions.
  * @param FSR_volumes an array of flat source region volumes
  * @param FSR_materials an array of flat source region materials
@@ -350,7 +371,8 @@ __device__ FP_PRECISION computeExponential(FP_PRECISION sigma_t,
     if (*interpolate_exponential) {
         int index;
 
-	index = int(tau * (*inverse_prefactor_spacing)) * (*two_times_num_polar);
+	index = round_to_int(tau * (*inverse_prefactor_spacing));
+	index *= (*two_times_num_polar);
 	exponential = (1. - (_prefactor_array[index+2 * p] * tau + 
 			  _prefactor_array[index + 2 * p +1]));
     }
@@ -512,7 +534,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     FP_PRECISION* track_flux;
 
     int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
-    int track_id = int(tid / *num_groups);
+    int track_id = tid / *num_groups;
     int track_flux_index = threadIdx.x * (*two_times_num_polar);
     int energy_group = tid % (*num_groups);
     int energy_angle_index = energy_group * (*num_polar);
@@ -573,7 +595,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
         /* Update the indices for this thread to the next track, energy group */
 	tid += blockDim.x * gridDim.x;
-        track_id = int(tid / *num_groups);
+        track_id = tid / *num_groups;
 	energy_group = tid % (*num_groups);
 	energy_angle_index = energy_group * (*num_polar);
     }
