@@ -6,9 +6,23 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 23, 2013
 
-from openmoc import *
 from log import *
+import sys
 
+if 'openmoc.gnu.double' in sys.modules:
+    openmoc = sys.modules['openmoc.gnu.double']
+elif 'openmoc.gnu.single' in sys.modules:
+    openmoc = sys.modules['openmoc.gnu.single']
+elif 'openmoc.icpc.double' in sys.modules:
+    openmoc = sys.modules['openmoc.icpc.double']
+elif 'openmoc.icpc.single' in sys.modules:
+    openmoc = sys.modules['openmoc.icpc.single']
+elif 'openmoc.bgxlc.double' in sys.modules:
+    openmoc = sys.modules['openmoc.bgxlc.double']
+elif 'openmoc.bgxlc.single' in sys.modules:
+    openmoc = sys.modules['openmoc.bgxlc.single']
+else:
+    from openmoc import *
 
 ##
 # @brief
@@ -59,7 +73,7 @@ def materialize(filename):
 
             py_printf('INFO', 'Importing material %s', str(name))
 
-            new_material = Material(material_id())
+            new_material = openmoc.Material(openmoc.material_id())
             new_material.setNumEnergyGroups(int(num_groups))
 
             # Retrieve and load the cross-section data into the material object
@@ -67,7 +81,7 @@ def materialize(filename):
 
             if 'Total XS' in f[name]:
                 new_material.setSigmaT(f[name]['Total XS'][...])
-                        
+
             if 'Scattering XS' in f[name]:
                 new_material.setSigmaS(f[name]['Scattering XS'][...])
             
@@ -88,6 +102,8 @@ def materialize(filename):
 
             if 'Absorption XS' in f[name]:
                 new_material.setSigmaA(f[name]['Absorption XS'][...])
+
+            new_material.checkSigmaT()
 
             # Add this material to the list
             materials[name] = new_material
@@ -123,7 +139,7 @@ def materialize(filename):
 
             py_printf('INFO', 'Importing material %s', str(name))
 
-            new_material = Material(material_id())
+            new_material = openmoc.Material(openmoc.material_id())
             new_material.setNumEnergyGroups(int(num_groups))
             
             if 'Total XS' in data[name].keys():

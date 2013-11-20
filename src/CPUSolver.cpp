@@ -878,7 +878,8 @@ FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
     if (_interpolate_exponential) {
         int index;
 
-	index = int(tau * _inverse_prefactor_spacing) * _two_times_num_polar;
+	index = round_to_int(tau * _inverse_prefactor_spacing);
+	index *= _two_times_num_polar;
 	exponential = (1. - (_prefactor_array[index+2 * p] * tau + 
 			  _prefactor_array[index + 2 * p +1]));
     }

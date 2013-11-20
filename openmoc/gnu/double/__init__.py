@@ -7,9 +7,9 @@ import signal
 # when this is passed in from the keyboard
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-setLogLevel(str(openmoc.getLogLevel()))
-setOutputDirectory(openmoc.getOutputDirectory())
-setLogfileName(openmoc.getLogfileName())
+openmoc.setLogLevel(str(openmoc.getLogLevel()))
+openmoc.setOutputDirectory(openmoc.getOutputDirectory())
+openmoc.setLogfileName(openmoc.getLogfileName())
 
 options = openmoc.options
 Timer = openmoc.Timer

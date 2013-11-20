@@ -347,4 +347,24 @@ public:
 };
 
 
+/**
+ * @brief Rounds a float floating point value to an integer.
+ * @param x a float floating point value
+ * @brief the rounded integer value
+ */
+inline int round_to_int(float x) {
+    return lrintf(x);
+}
+
+
+/**
+ * @brief Rounds a double floating point value to an integer.
+ * @param x a double floating point value
+ * @brief the rounded integer value
+ */
+inline int round_to_int(double x) {
+    return lrint(x);
+}
+
+
 #endif /* SOLVER_H_ */

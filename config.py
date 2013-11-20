@@ -197,8 +197,8 @@ class configuration:
     # A dictionary of the compiler flags to use for each compiler type
     compiler_flags = {}
 
-    compiler_flags['gcc'] = ['-c', '-O3', '-fopenmp', '-std=c++0x', '-fpic']
-    compiler_flags['icpc'] =['-c', '-O3', '--ccache-skip', '-openmp', 
+    compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp', '-std=c++0x', '-fpic']
+    compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip', '-openmp', 
                              '-xhost', '-std=c++0x', '-fpic', '--ccache-skip', 
                              '-openmp-report', '-vec-report']
     compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', '-qreport', 
