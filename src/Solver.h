@@ -219,6 +219,9 @@ protected:
 
     Cmfd* _cmfd;
 
+    int round_to_int(float x);
+    int round_to_int(double x);
+
     /**
      * @brief Creates a polar quadrature object for the solver.
      */
@@ -352,7 +355,7 @@ public:
  * @param x a float floating point value
  * @brief the rounded integer value
  */
-inline int round_to_int(float x) {
+inline int Solver::round_to_int(float x) {
     return lrintf(x);
 }
 
@@ -362,7 +365,7 @@ inline int round_to_int(float x) {
  * @param x a double floating point value
  * @brief the rounded integer value
  */
-inline int round_to_int(double x) {
+inline int Solver::round_to_int(double x) {
     return lrint(x);
 }
 
