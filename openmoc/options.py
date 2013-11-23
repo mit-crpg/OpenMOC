@@ -126,7 +126,7 @@ class options:
             elif opt in ('-s', '--track-spacing'):
                 self.track_spacing = float(arg)
 
-            elif opt in ('i', '--max-iters'):
+            elif opt in ('-i', '--max-iters'):
                 self.max_iters = int(arg)
 
             elif opt in ('-c', '--tolerance'):
