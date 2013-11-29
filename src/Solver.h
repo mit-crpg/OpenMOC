@@ -60,10 +60,6 @@
  *  for each flat source region in each energy group */
 #define _scatter_sources(r,e) (_scatter_sources[(r)*_num_groups + (e)])
 
-/** Indexing scheme for the residual between sources from this iteration
- *  and the previous iteration in each flat source region and energy group */
-#define _source_residuals(r,e) (_source_residuals[(r)*_num_groups + (e)])
-
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
 
