@@ -426,7 +426,7 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
     source_residual = cblas_dasum(_num_FSRs,_source_residuals,1);
     #endif
 
-    source_residual = sqrt(source_residual / _num_FSRs);
+    source_residual = sqrt(source_residual / (_num_groups * _num_FSRs));
 
     return source_residual;
 }
