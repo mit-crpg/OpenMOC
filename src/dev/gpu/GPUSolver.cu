@@ -876,6 +876,46 @@ FP_PRECISION* GPUSolver::getFSRScalarFluxes() {
 
 
 /**
+ * @brief Returns the source for some energy group for a flat source region
+ * @param fsr_id the ID for the FSR of interest
+ * @param energy_group the energy group of interest
+ */
+FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int energy_group) {
+
+    /* Error checking */
+    if (fsr_id >= _num_FSRs)
+        log_printf(ERROR, "Unable to return a source for FSR id = %d "
+		 "in enery group %d since the solver only contains FSR with "
+		   "IDs greater than or equal to %d", 
+		   fsr_id, energy_group, _num_FSRs-1);
+
+    if (fsr_id < 0)
+        log_printf(ERROR, "Unable to return a source for FSR id = %d "
+		  "in energy group %d since FSRs do not have negative IDs", 
+		  fsr_id, energy_group);
+
+    if (energy_group-1 >= _num_groups)
+        log_printf(ERROR, "Unable to return a source for FSR id = %d "
+		   "in energy group %d since the solver only has %d energy "
+		   "groups", fsr_id, energy_group, _num_groups);
+
+    if (energy_group <= 0)
+        log_printf(ERROR, "Unable to return a source for FSR id = %d "
+		 "in energy group %d since energy groups are greater than 1",
+		 fsr_id, energy_group);
+
+    /* Copy the source for this FSR and energy group from the device */
+    FP_PRECISION fsr_source;
+    int flux_index = fsr_id * _num_groups + (energy_group - 1);
+    cudaMemcpy((void*)&fsr_source, (void*)&_source[flux_index], 
+	       sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
+
+    return fsr_source;
+}
+
+
+
+/**
  * @brief Sets the number of threadblocks (>0) for device kernels
  * @param num_blocks the number of threadblocks
  */

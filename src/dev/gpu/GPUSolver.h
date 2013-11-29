@@ -142,6 +142,7 @@ public:
     
     FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
     FP_PRECISION* getFSRScalarFluxes();
+    FP_PRECISION getFSRSource(int fsr_id, int energy_group);
 
     void setNumThreadBlocks(int num_blocks);
     void setNumThreadsPerBlock(int num_threads);
