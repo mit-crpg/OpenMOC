@@ -30,9 +30,14 @@ VectorizedPrivateSolver::VectorizedPrivateSolver(Geometry* geometry,
 VectorizedPrivateSolver::~VectorizedPrivateSolver() {
 
     if (_thread_flux != NULL) {
-        _mm_free(_thread_flux);
+
+        for (int t=0; t < _num_threads; t++)
+	    _mm_free(_thread_flux[t]);
+
+	delete [] _thread_flux;
 	_thread_flux = NULL;
     }
+
 }
 
 
@@ -73,15 +78,23 @@ void VectorizedPrivateSolver::initializeFluxArrays() {
     VectorizedSolver::initializeFluxArrays();
    
     /* Delete old flux arrays if they exist */
-    if (_thread_flux != NULL)
-        _mm_free(_thread_flux);
+    if (_thread_flux != NULL) {
+
+        for (int t=0; t < _num_threads; t++)
+	    _mm_free(_thread_flux[t]);
+
+	delete [] _thread_flux;
+    }
 
     int size;
 
     /* Allocate aligned memory for all flux arrays */
     try{
-        size = _num_threads * _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-	_thread_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+	_thread_flux = new FP_PRECISION*[_num_threads];
+        size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+	for (int t=0; t < _num_threads; t++)
+	    _thread_flux[t] = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "

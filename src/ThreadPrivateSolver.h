@@ -19,7 +19,7 @@
 
 /** Indexing scheme for the thread private scalar flux for each thread in
  *  each flat source region and in each energy group */
-#define _thread_flux(tid,r,e) (_thread_flux[(tid)*_num_FSRs*_num_groups+(r)*_num_groups+(e)])
+#define _thread_flux(tid,r,e) (_thread_flux[(tid)][(r)*_num_groups+(e)])
 
 /** Indexing scheme for the thread private surface currents for each thread in
  *  each flat source region and in each energy group */
@@ -39,7 +39,7 @@ class ThreadPrivateSolver : public CPUSolver {
 protected:
 
     /** An array for the flat source region scalar fluxes for each thread */
-    FP_PRECISION* _thread_flux;
+    FP_PRECISION** _thread_flux;
 
     FP_PRECISION* _thread_currents;
 
