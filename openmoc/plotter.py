@@ -23,9 +23,24 @@ import matplotlib.colors as colors
 import matplotlib.cm as cmx
 import numpy as np
 import numpy.random
-import os
-from openmoc import *
+import os, sys
 from log import *
+
+if 'openmoc.gnu.double' in sys.modules:
+    openmoc = sys.modules['openmoc.gnu.double']
+elif 'openmoc.gnu.single' in sys.modules:
+    openmoc = sys.modules['openmoc.gnu.single']
+elif 'openmoc.icpc.double' in sys.modules:
+    openmoc = sys.modules['openmoc.icpc.double']
+elif 'openmoc.icpc.single' in sys.modules:
+    openmoc = sys.modules['openmoc.icpc.single']
+elif 'openmoc.bgxlc.double' in sys.modules:
+    openmoc = sys.modules['openmoc.bgxlc.double']
+elif 'openmoc.bgxlc.single' in sys.modules:
+    openmoc = sys.modules['openmoc.bgxlc.single']
+else:
+    from openmoc import *
+
 
 
 ## A static variable for the output directory in which to save plots
@@ -321,7 +336,7 @@ def plotCells(geometry, gridsize=250):
     plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
     plt.title('Cells')
     filename = directory + 'cells.png'
-    fig.savefig(filename)
+    fig.savefig(filename, bbox_inches='tight')
 
 
 
@@ -396,7 +411,7 @@ def plotFlatSourceRegions(geometry, gridsize=250):
     plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
     plt.title('Flat Source Regions')
     filename = directory + 'flat-source-regions.png'
-    fig.savefig(filename)
+    fig.savefig(filename, bbox_inches='tight')
 
 
 ##

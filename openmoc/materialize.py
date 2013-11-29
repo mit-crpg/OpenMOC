@@ -44,7 +44,8 @@ def materialize(filename):
     ############################################################################
     #                               HDF5 DATA FILES
     ############################################################################
-    if filename.endswith('.hdf5'):
+
+    if filename.endswith('.h5') or filename.endswith('.hdf5'):
 
         import h5py
         import numpy as np
