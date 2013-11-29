@@ -59,7 +59,7 @@
 <h2>2.1. Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <p>There are a few prerequisites which must be installed on your machine before you will be able to build and install OpenMOC. All of the prerequisites can easily be installed using a standard package manager (such as <a class="reference external" href="http://www.apt-get.org/">apt-get</a> for Ubuntu, <a class="reference external" href="http://yum.baseurl.org/">yum</a> for Red Hat, and <a class="reference external" href="http://www.macports.org/">macports</a> for Mac OS). The following instructions detail which packages are needed, with instructions on how to install them on Ubuntu.</p>
 <p>The following command will install all required and optional dependencies on Ubuntu 12.04 or later:</p>
-<div class="highlight-python"><pre>sudo apt-get install build-essential git swig python-numpy python-matplotlib python-h5py</pre>
+<div class="highlight-python"><pre>sudo apt-get install build-essential git swig python-dev python-numpy python-matplotlib python-h5py</pre>
 </div>
 <div class="admonition-required admonition">
 <p class="first admonition-title">Required</p>
@@ -77,6 +77,9 @@
 </div>
 <p>If you do not have Python, you can easily install version 2.7 in Ubuntu as follows:</p>
 <div class="highlight-python"><pre>sudo apt-get install python2.7</pre>
+</div>
+<p>In addition, you must install the Python development headers:</p>
+<div class="highlight-python"><pre>sudo apt-get install python-dev</pre>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://git-scm.com">Git</a></p>
@@ -117,7 +120,7 @@
 <div class="section" id="obtaining-the-source">
 <h2>2.2. Obtaining the Source<a class="headerlink" href="#obtaining-the-source" title="Permalink to this headline">¶</a></h2>
 <p>All OpenMOC source code is hosted on <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a>. You can download the source code directly from GitHub or, if you have the <a class="reference external" href="http://git-scm.com">Git</a> version control software installed on your computer, you can use git to obtain the source code. The latter method has the benefit that it is easy to receive updates directly from the GitHub repository. GitHub has a good set of <a class="reference external" href="http://help.github.com/set-up-git-redirect">instructions</a> for how to set up git to work with GitHub since this involves setting up <a class="reference external" href="http://en.wikipedia.org/wiki/Secure_Shell">ssh</a> keys. With git installed and setup, the following command will download the full source code from the GitHub repository:</p>
-<div class="highlight-python"><pre>git https://github.com/mit-crpg/OpenMOC.git</pre>
+<div class="highlight-python"><pre>git clone https://github.com/mit-crpg/OpenMOC.git</pre>
 </div>
 </div>
 <div class="section" id="building-from-source">

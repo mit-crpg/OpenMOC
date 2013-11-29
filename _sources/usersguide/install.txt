@@ -12,7 +12,7 @@ There are a few prerequisites which must be installed on your machine before you
 
 The following command will install all required and optional dependencies on Ubuntu 12.04 or later::
 
-    sudo apt-get install build-essential git swig python-numpy python-matplotlib python-h5py
+    sudo apt-get install build-essential git swig python-dev python-numpy python-matplotlib python-h5py
 
 
 .. admonition:: Required
@@ -35,6 +35,10 @@ The following command will install all required and optional dependencies on Ubu
       If you do not have Python, you can easily install version 2.7 in Ubuntu as follows::
 
 	sudo apt-get install python2.7
+
+      In addition, you must install the Python development headers::
+	
+	sudo apt-get install python-dev
 
 
     * Git_
@@ -98,7 +102,7 @@ Obtaining the Source
 
 All OpenMOC source code is hosted on GitHub_. You can download the source code directly from GitHub or, if you have the Git_ version control software installed on your computer, you can use git to obtain the source code. The latter method has the benefit that it is easy to receive updates directly from the GitHub repository. GitHub has a good set of instructions_ for how to set up git to work with GitHub since this involves setting up ssh_ keys. With git installed and setup, the following command will download the full source code from the GitHub repository::
 
-    git https://github.com/mit-crpg/OpenMOC.git
+    git clone https://github.com/mit-crpg/OpenMOC.git
 
 .. _GitHub: https://github.com/mit-crpg/OpenMOC
 .. _Git: http://git-scm.com
