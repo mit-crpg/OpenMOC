@@ -231,11 +231,16 @@ void CPUSolver::initializeSourceArrays() {
     try{
         size = _num_FSRs * _num_groups;
 	_fission_sources = new FP_PRECISION[size];
-	_scatter_sources = new FP_PRECISION[size];
 	_source = new FP_PRECISION[size];
 	_old_source = new FP_PRECISION[size];
 	_reduced_source = new FP_PRECISION[size];
+
+	size = _num_threads * _num_groups;
+	_scatter_sources = new FP_PRECISION[size];
+
+        size = _num_FSRs;
 	_source_residuals = new FP_PRECISION[size];
+
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's flat "
@@ -547,71 +552,82 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
   *
   * @return the residual between this source and the previous source
   */
- FP_PRECISION CPUSolver::computeFSRSources() {
+FP_PRECISION CPUSolver::computeFSRSources() {
 
-     int tid;
-     Material* material;
-     FP_PRECISION scatter_source;
-     FP_PRECISION fission_source;
-     FP_PRECISION* nu_sigma_f;
-     FP_PRECISION* sigma_s;
-     FP_PRECISION* sigma_t;
-     FP_PRECISION* chi;
+    int tid;
+    Material* material;
+    FP_PRECISION scatter_source;
+    FP_PRECISION fission_source;
+    FP_PRECISION* nu_sigma_f;
+    FP_PRECISION* sigma_s;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION* chi;
 
-     FP_PRECISION source_residual = 0.0;
+    FP_PRECISION source_residual = 0.0;
+    
+    FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
 
-     /* For all regions, find the source */
-     #pragma omp parallel for private(material, nu_sigma_f, chi,	\
-       sigma_s, sigma_t, fission_source, scatter_source) schedule(guided)
-     for (int r=0; r < _num_FSRs; r++) {
+    /* For all regions, find the source */
+    #pragma omp parallel for private(tid, material, nu_sigma_f, chi,	\
+     sigma_s, sigma_t, fission_source, scatter_source) schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
 
-	 tid = omp_get_thread_num();
-	 material = _FSR_materials[r];
-	 nu_sigma_f = material->getNuSigmaF();
-	 chi = material->getChi();
-	 sigma_s = material->getSigmaS();
-	 sigma_t = material->getSigmaT();
+        tid = omp_get_thread_num();
+	material = _FSR_materials[r];
+	nu_sigma_f = material->getNuSigmaF();
+	chi = material->getChi();
+	sigma_s = material->getSigmaS();
+	sigma_t = material->getSigmaT();
 
-	 /* Compute fission source for each group */
-	 for (int e=0; e < _num_groups; e++)
-	     _fission_sources(r,e) = _scalar_flux(r,e) * nu_sigma_f[e];
+	/* Initialize the source residual to zero */
+	_source_residuals[r] = 0.;
 
-	 fission_source = pairwise_sum<FP_PRECISION>(&_fission_sources(r,0), 
-						     _num_groups);
+	/* Compute fission source for each group */
+	if (material->isFissionable()) {
+	    for (int e=0; e < _num_groups; e++)
+	        _fission_sources(r,e) = _scalar_flux(r,e) * nu_sigma_f[e];
 
-	 /* Compute total scattering source for group G */
-	 for (int G=0; G < _num_groups; G++) {
-	     scatter_source = 0;
+	    fission_source = pairwise_sum<FP_PRECISION>(&_fission_sources(r,0),
+							_num_groups);
+	    fission_source *= inverse_k_eff;
+	}
 
-	     for (int g=0; g < _num_groups; g++)
-		 _scatter_sources(r,g) = sigma_s[G*_num_groups+g]*_scalar_flux(r,g);
+	else
+	    fission_source = 0.0;	 
 
-	     scatter_source = pairwise_sum<FP_PRECISION>(&_scatter_sources(r,0),
-							 _num_groups);
+	/* Compute total scattering source for group G */
+	for (int G=0; G < _num_groups; G++) {
+	    scatter_source = 0;
 
-	     /* Set the total source for region r in group G */
-	     _source(r,G) = ((1.0 / _k_eff) * fission_source *
-			    chi[G] + scatter_source) * ONE_OVER_FOUR_PI;
+	    for (int g=0; g < _num_groups; g++)
+	        _scatter_sources(tid,g) = sigma_s[G*_num_groups+g] * 
+		                           _scalar_flux(r,g);
 
-	     _reduced_source(r,G) = _source(r,G) / sigma_t[G];
+	    scatter_source=pairwise_sum<FP_PRECISION>(&_scatter_sources(tid,0),
+						       _num_groups);
 
-	     /* Compute the norm of residual of the source in the region, group */
-	     if (fabs(_source(r,G)) > 1E-10)
-		 _source_residuals(r,G) = pow((_source(r,G) - _old_source(r,G)) 
-					     / _source(r,G), 2);
+	    /* Set the total source for region r in group G */
+	    _source(r,G) = (fission_source * chi[G] + scatter_source) * 
+	                   ONE_OVER_FOUR_PI;
 
-	     /* Update the old source */
-	     _old_source(r,G) = _source(r,G);
-	 }
-     }
+	    _reduced_source(r,G) = _source(r,G) / sigma_t[G];
 
-     /* Sum up the residuals from each group and in each region */
-     source_residual = pairwise_sum<FP_PRECISION>(_source_residuals, 
-						  _num_FSRs*_num_groups);
-     source_residual = sqrt(source_residual / _num_FSRs);
+	    /* Compute the norm of residual of the source in the region */
+	    if (fabs(_source(r,G)) > 1E-10)
+	       _source_residuals[r] += pow((_source(r,G) - _old_source(r,G)) 
+					   / _source(r,G), 2);
 
-     return source_residual;
- }
+	    /* Update the old source */
+	    _old_source(r,G) = _source(r,G);
+        }
+    }
+
+    /* Sum up the residuals from each region */
+    source_residual = pairwise_sum<FP_PRECISION>(_source_residuals, _num_FSRs);
+    source_residual = sqrt(source_residual / _num_FSRs);
+
+    return source_residual;
+}
 
 
  /**

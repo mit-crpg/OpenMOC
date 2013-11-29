@@ -1557,7 +1557,6 @@ void GPUSolver::computeKeff() {
     cudaMemcpy((void*)&tot_fission, (void*)_tot_fission, 
 	       _B * _T * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
 
-
     /* Compute the total leakage by reducing the partial leakage
      * rates compiled in the Thrust vector */
     tot_leakage = 0.5 * thrust::reduce(_leakage_vec.begin(),
