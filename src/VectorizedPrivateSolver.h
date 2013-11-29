@@ -17,7 +17,7 @@
 
 /** Indexing scheme for the thread private scalar flux for each thread in
  *  each flat source region and in each energy group */
-#define _thread_flux(tid,r,e) (_thread_flux[(tid)*_num_FSRs*_num_groups+(r)*_num_groups+(e)])
+#define _thread_flux(tid,r,e) (_thread_flux[(tid)][(r)*_num_groups+(e)])
 
 /**
  * @class VectorizedPrivateSolver VectorizedPrivateSolver.h "openmoc/src/host/VectorizedPrivateSolver.h"
@@ -32,7 +32,7 @@ class VectorizedPrivateSolver : public VectorizedSolver {
 private:
 
     /** An array for the flat source region scalar fluxes for each thread */
-    FP_PRECISION* _thread_flux;
+    FP_PRECISION** _thread_flux;
 
     void initializeFluxArrays();
 

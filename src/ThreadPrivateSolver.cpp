@@ -27,7 +27,11 @@ ThreadPrivateSolver::ThreadPrivateSolver(Geometry* geometry,
 ThreadPrivateSolver::~ThreadPrivateSolver() { 
 
     if (_thread_flux != NULL) {
-        delete [] _thread_flux;
+
+        for (int t=0; t < _num_threads; t++)
+	    delete [] _thread_flux[t];
+
+	delete [] _thread_flux;
 	_thread_flux = NULL;
     }
 
@@ -50,8 +54,12 @@ void ThreadPrivateSolver::initializeFluxArrays() {
     CPUSolver::initializeFluxArrays();
    
     /* Delete old flux arrays if they exist */
-    if (_thread_flux != NULL)
-        delete [] _thread_flux;
+    if (_thread_flux != NULL) {
+        for (int t=0; t < _num_threads; t++)
+	    delete [] _thread_flux[t];
+
+	delete [] _thread_flux;
+    }
 
     /* Delete old current arrays if they exist */
     if (_thread_currents != NULL)
@@ -61,14 +69,16 @@ void ThreadPrivateSolver::initializeFluxArrays() {
 
     /* Allocate memory for the flux and leakage arrays */
     try{
+
 	/* Allocate a thread local array of FSR scalar fluxes */
-	size = _num_threads * _num_FSRs * _num_groups;
-	_thread_flux = new FP_PRECISION[size];
+	_thread_flux = new FP_PRECISION*[_num_threads];
+	for (int t=0; t < _num_threads; t++)
+	    _thread_flux[t] = new FP_PRECISION[_num_FSRs * _num_groups];
 
 	/* Allocate a thread local array of mesh cell surface currents */
 	if (_cmfd->getMesh()->getCmfdOn()){ 
-	  size = _num_threads * _num_mesh_cells * 8 * _num_groups;
-	  _thread_currents = new FP_PRECISION[size];
+	    size = _num_threads * _num_mesh_cells * 8 * _num_groups;
+	    _thread_currents = new FP_PRECISION[size];
 	}
     }
     catch(std::exception &e) {
