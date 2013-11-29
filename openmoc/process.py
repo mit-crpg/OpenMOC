@@ -213,7 +213,7 @@ def computeUniverseFissionRate(geometry, universe, FSR_id,
 # @param solver
 # @param fluxes
 # @param filename
-def storeSimulationState(solver, fluxes=False, use_hdf5=False, 
+def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False, 
                          filename='simulation-state', note=''):
 
     import datetime
@@ -262,6 +262,18 @@ def storeSimulationState(solver, fluxes=False, use_hdf5=False,
             for j in range(num_groups):
                 scalar_fluxes[i,j] = solver.getFSRScalarFlux(i,j+1)
 
+    # If the user requested to store the FSR sources
+    if fluxes:
+
+        # Allocate array 
+        sources = np.zeros((num_FSRs, num_groups))
+
+        # Get the scalar flux for each FSR and energy group
+        for i in range(num_FSRs):
+            for j in range(num_groups):
+                sources[i,j] = solver.getFSRSource(i,j+1)
+
+
     # If using HDF5
     if use_hdf5:
 
@@ -294,6 +306,9 @@ def storeSimulationState(solver, fluxes=False, use_hdf5=False,
 
         if fluxes:
             time_group.create_dataset('FSR scalar fluxes', data=scalar_fluxes)
+
+        if sources:
+            time_group.create_dataset('FSR sources', data=sources)
 
         # Close the HDF5 file
         f.close()
@@ -341,6 +356,9 @@ def storeSimulationState(solver, fluxes=False, use_hdf5=False,
 
         if fluxes:
             state['FSR scalar fluxes'] = scalar_fluxes
+
+        if sources:
+            state['FSR sources'] = sources
 
         # Pickle the simulation states to a file
         pickle.dump(sim_states, open(filename, 'wb'))

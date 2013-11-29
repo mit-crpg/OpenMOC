@@ -329,6 +329,15 @@ public:
      */
     virtual FP_PRECISION* getFSRScalarFluxes() =0;
 
+    /**
+     * @brief Returns the source for a flat source region
+     * @param fsr_id the ID for the FSR of interest
+     * @param energy_group the energy group of interest
+     * @return the flat source region source
+     */
+    virtual FP_PRECISION getFSRSource(int fsr_id, int energy_group) =0;
+
+
     virtual void setGeometry(Geometry* geometry);
     virtual void setTrackGenerator(TrackGenerator* track_generator);
     virtual void setPolarQuadratureType(quadratureType quadrature_type);
