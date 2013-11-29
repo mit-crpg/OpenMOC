@@ -2,6 +2,7 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
+import openmoc.process as process
 
 
 ###############################################################################
@@ -23,7 +24,7 @@ log.setLogLevel('NORMAL')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../c5g7-materials.hdf5')
+materials = materialize.materialize('../c5g7-materials.h5')
 
 uo2_id = materials['UO2'].getId()
 water_id = materials['Water'].getId()
@@ -121,6 +122,8 @@ solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
+
+process.storeSimulationState(solver, fluxes=True)
 
 
 ###############################################################################

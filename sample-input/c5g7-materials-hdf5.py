@@ -13,7 +13,7 @@ import numpy
 
 
 # Create the file to store C5G7 multi-groups cross-sections
-f = h5py.File('c5g7-materials.hdf5')
+f = h5py.File('c5g7-materials.h5')
 f.attrs["Energy Groups"] = 7
 
 

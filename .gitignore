@@ -65,6 +65,10 @@ pin-powers
 pin-powers/*
 */pin-powers
 */pin-powers/*
+simulation-state*
+simulation-state/*
+*/simulation-state*
+*/simulation-state*/*
 
 *.data
 */*.data

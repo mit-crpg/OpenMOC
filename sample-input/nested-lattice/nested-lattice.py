@@ -23,7 +23,7 @@ log.setLogLevel('NORMAL')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../c5g7-materials.hdf5')
+materials = materialize.materialize('../c5g7-materials.h5')
 
 uo2_id = materials['UO2'].getId()
 water_id = materials['Water'].getId()

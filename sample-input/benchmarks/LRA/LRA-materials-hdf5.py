@@ -13,7 +13,7 @@ import numpy
 
 
 # Create the file to store LRA multi-groups cross-sections
-f = h5py.File('LRA-materials.hdf5')
+f = h5py.File('LRA-materials.h5')
 f.attrs["Energy Groups"] = 2
 
 
