@@ -959,8 +959,6 @@ void Material::printString() {
  */
 void Material::alignData() {
 
-    printf("aligned data\n");
-
     if (_data_aligned)
         return;
 

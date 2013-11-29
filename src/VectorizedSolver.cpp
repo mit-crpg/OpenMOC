@@ -457,6 +457,7 @@ void VectorizedSolver::addSourceToScalarFlux() {
  */
 void VectorizedSolver::computeKeff() {
 
+    int tid;
     Material* material;
     FP_PRECISION* sigma_a;
     FP_PRECISION* nu_sigma_f;
@@ -465,18 +466,55 @@ void VectorizedSolver::computeKeff() {
     FP_PRECISION tot_abs = 0.0;
     FP_PRECISION tot_fission = 0.0;
 
-    FP_PRECISION* absorption_rates = new FP_PRECISION[_num_FSRs*_num_groups];
-    FP_PRECISION* fission_rates = new FP_PRECISION[_num_FSRs*_num_groups];
+    int size = _num_FSRs * sizeof(FP_PRECISION);
+    FP_PRECISION* FSR_rates = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+
+    size = _num_threads * _num_groups * sizeof(FP_PRECISION);
+    FP_PRECISION* group_rates = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
 
     /* Loop over all flat source regions and compute the volume-weighted
      * fission and absorption rates */
-    #pragma omp parallel for private(volume, material, \
-      sigma_a, nu_sigma_f) schedule(guided)
+    #pragma omp parallel for private(tid, volume, \
+      material, sigma_a) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
+        tid = omp_get_thread_num() * _num_groups;
         volume = _FSR_volumes[r];
 	material = _FSR_materials[r];
 	sigma_a = material->getSigmaA();
+
+	/* Loop over each energy group vector length */
+	for (int v=0; v < _num_vector_lengths; v++) {
+
+	    /* Loop over energy groups within this vector */
+            #pragma simd vectorlength(VEC_LENGTH)
+	    for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
+	        group_rates[tid+e] = sigma_a[e] * _scalar_flux(r,e);
+        }
+
+	#ifdef SINGLE
+	FSR_rates[r] = cblas_sasum(_num_groups, &group_rates[tid], 1) * volume;
+	#else
+	FSR_rates[r] = cblas_dasum(_num_groups, &group_rates[tid], 1) * volume;
+	#endif
+    }
+
+    /* Reduce absorption and fission rates across FSRs, energy groups */
+    #ifdef SINGLE
+    tot_abs = cblas_sasum(_num_FSRs, FSR_rates, 1);
+    #else
+    tot_abs = cblas_dasum(_num_FSRs, FSR_rates, 1);
+    #endif
+
+    /* Loop over all flat source regions and compute the volume-weighted
+     * fission and absorption rates */
+    #pragma omp parallel for private(tid, volume, \
+      material, nu_sigma_f) schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+
+        tid = omp_get_thread_num() * _num_groups;
+        volume = _FSR_volumes[r];
+	material = _FSR_materials[r];
 	nu_sigma_f = material->getNuSigmaF();
 
 	/* Loop over each energy group vector length */
@@ -484,24 +522,22 @@ void VectorizedSolver::computeKeff() {
 
 	    /* Loop over energy groups within this vector */
             #pragma simd vectorlength(VEC_LENGTH)
-	    for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
-	        absorption_rates[r*_num_groups+e] = sigma_a[e] * _scalar_flux(r,e);
-		fission_rates[r*_num_groups+e] = nu_sigma_f[e] * _scalar_flux(r,e);
-		absorption_rates[r*_num_groups+e] *= volume;
-		fission_rates[r*_num_groups+e] *= volume;
-	    }
+	    for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
+	        group_rates[tid+e] = nu_sigma_f[e] * _scalar_flux(r,e);
         }
+
+	#ifdef SINGLE
+	FSR_rates[r] = cblas_sasum(_num_groups, &group_rates[tid], 1) * volume;
+	#else
+	FSR_rates[r] = cblas_dasum(_num_groups, &group_rates[tid], 1) * volume;
+	#endif
     }
-
-    /* Reduce absorption and fission rates across FSRs, energy groups */
-    int size = _num_FSRs * _num_groups;
-
+    
+    /* Reduce fission rates across FSRs */
     #ifdef SINGLE
-    tot_abs = cblas_sasum(size, absorption_rates, 1);
-    tot_fission = cblas_sasum(size, fission_rates, 1);
+    tot_fission = cblas_sasum(_num_FSRs, FSR_rates, 1);
     #else
-    tot_abs = cblas_dasum(size, absorption_rates ,1);
-    tot_fission = cblas_dasum(size, fission_rates, 1);
+    tot_fission = cblas_dasum(_num_FSRs, FSR_rates, 1);
     #endif
 
     /** Reduce leakage array across tracks, energy groups, polar angles */
@@ -518,8 +554,8 @@ void VectorizedSolver::computeKeff() {
     log_printf(DEBUG, "abs = %f, fission = %f, leakage = %f, "
 	       "k_eff = %f", tot_abs, tot_fission, _leakage, _k_eff);
 
-    delete [] absorption_rates;
-    delete [] fission_rates;
+    _mm_free(FSR_rates);
+    _mm_free(group_rates);
 
     return;
 }
