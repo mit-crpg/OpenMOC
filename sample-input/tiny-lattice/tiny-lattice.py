@@ -2,12 +2,14 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-from openmoc.options import options
+from openmoc.options import Options
 
 
 ###############################################################################
 #                           Main Simulation Parameters                        
 ###############################################################################
+
+options = Options()
 
 num_threads = options.num_omp_threads
 track_spacing = options.track_spacing
