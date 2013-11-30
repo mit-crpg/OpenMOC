@@ -13,14 +13,14 @@ if 'openmoc.gnu.double' in sys.modules:
     openmoc = sys.modules['openmoc.gnu.double']
 elif 'openmoc.gnu.single' in sys.modules:
     openmoc = sys.modules['openmoc.gnu.single']
-elif 'openmoc.icpc.double' in sys.modules:
-    openmoc = sys.modules['openmoc.icpc.double']
-elif 'openmoc.icpc.single' in sys.modules:
-    openmoc = sys.modules['openmoc.icpc.single']
-elif 'openmoc.bgxlc.double' in sys.modules:
-    openmoc = sys.modules['openmoc.bgxlc.double']
-elif 'openmoc.bgxlc.single' in sys.modules:
-    openmoc = sys.modules['openmoc.bgxlc.single']
+elif 'openmoc.intel.double' in sys.modules:
+    openmoc = sys.modules['openmoc.intel.double']
+elif 'openmoc.intel.single' in sys.modules:
+    openmoc = sys.modules['openmoc.intel.single']
+elif 'openmoc.bgq.double' in sys.modules:
+    openmoc = sys.modules['openmoc.bgq.double']
+elif 'openmoc.bgq.single' in sys.modules:
+    openmoc = sys.modules['openmoc.bgq.single']
 else:
     from openmoc import *
 
