@@ -263,7 +263,7 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
                 scalar_fluxes[i,j] = solver.getFSRScalarFlux(i,j+1)
 
     # If the user requested to store the FSR sources
-    if fluxes:
+    if sources:
 
         # Allocate array 
         sources = np.zeros((num_FSRs, num_groups))
@@ -287,7 +287,7 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
         time_group = day_group.create_group(str(hr)+':'+str(mins)+':'+str(sec))
 
         # Store a note for this simulation state
-        if not time is '':
+        if not note is '':
             time_group.attrs['note'] = note
 
         # Store simulation data to the HDF5 file
@@ -297,7 +297,7 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
         time_group.create_dataset('# tracks', data=num_tracks)
         time_group.create_dataset('# segments', data=num_segments)
         time_group.create_dataset('# azimuthal angles', data=num_azim)
-        time_group.create_dataset('# num_polar', data=num_polar)
+        time_group.create_dataset('# polar angles', data=num_polar)
         time_group.create_dataset('# iterations', data=num_iters)
         time_group.create_dataset('source residual threshold', data=thresh)
         time_group.create_dataset('# threads', data=num_threads)
@@ -337,7 +337,7 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
         state = sim_states[day][time]
 
         # Store a note for this simulation state
-        if not time is '':
+        if not note is '':
             state['note'] = note
 
         # Store simulation data to a Python dictionary
@@ -347,7 +347,7 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
         state['# tracks'] = num_tracks
         state['# segments'] = num_segments
         state['# azimuthal angles'] = num_azim
-        state['# num_polar'] = num_polar
+        state['# polar angles'] = num_polar
         state['# iterations'] = num_iters
         state['source residual threshold'] = thresh
         state['# threads'] = num_threads
@@ -362,3 +362,91 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
 
         # Pickle the simulation states to a file
         pickle.dump(sim_states, open(filename, 'wb'))
+
+
+        
+def restoreSimulationStates(filename='simulation-state.pkl', 
+                            directory='simulation-states'):
+
+    # If using HDF5
+    if '.h5' in filename or '.hdf5' in filename:
+
+        import h5py
+
+        # Create a file handle
+        f = h5py.File(directory + '/' + filename, 'r')
+
+        states = {}
+
+        for day in f.keys():
+
+            states[day] = {}
+
+            for time in f[day]:
+
+                dataset = f[day][time]
+                states[day][time] = {}
+                state = states[day][time]
+
+                num_FSRs = int(dataset['# FSRs'][...])
+                state['# FSRs'] = num_FSRs
+
+                num_materials = int(dataset['# materials'][...])
+                state['# materials'] = num_materials
+
+                num_tracks = int(dataset['# tracks'][...])
+                state['# tracks'] = num_materials
+
+                num_segments = int(dataset['# segments'][...])
+                state['# segments'] = num_segments
+
+                num_azim = int(dataset['# azimuthal angles'][...])
+                state['# azimuthal angles'] = num_azim
+
+                num_polar = int(dataset['# polar angles'][...])
+                state['# polar angles'] = num_polar
+
+                num_iters = int(dataset['# iterations'][...])
+                state['# iterations'] = num_iters
+
+                thresh = float(dataset['source residual threshold'][...])
+                state['source residual threshold'] = thresh
+
+                num_threads = int(dataset['# threads'][...])
+                state['# threads'] = num_threads
+
+                time = float(dataset['time [sec]'][...])
+                state['time [sec]'] = time
+
+                keff =  float(dataset['keff'][...])
+                state['keff'] = keff
+
+                if 'FSR scalar fluxes' in dataset:
+                    fluxes = dataset['FSR scalar fluxes'][...]
+                    state['FSR scalar fluxes'] = fluxes
+
+                if 'FSR sources' in dataset:
+                    sources = dataset['FSR sources'][...]
+                    state['FSR sources'] = sources
+
+                if 'note' in dataset:
+                    state['note'] = str(dataset['note'])
+
+        return states
+
+
+    # If using a Pickled file
+    elif '.pkl':
+
+        import pickle
+
+        # Load the dictionary from the Pickle file
+        filename = directory + '/' + filename
+        states = pickle.load(file(filename, 'rb'))
+        
+        return states
+
+    # If file does not have a recognizable extension
+    else:
+
+        return {}
