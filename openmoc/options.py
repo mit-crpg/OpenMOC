@@ -1,4 +1,4 @@
-##
+1##
 # @file options.py
 # @package openmoc.options
 # @brief
@@ -9,7 +9,7 @@
 import log
 import getopt, sys
 
-class options:
+class Options:
 
     # The default number of azimuthal angles
     num_azim = 4
@@ -43,7 +43,7 @@ class options:
 
 
     def __init__(self):
-        parseArguments()
+        self.parseArguments()
 
 
     def parseArguments(self):
@@ -66,6 +66,7 @@ class options:
         except getopt.GetoptError as err:
             log.py_printf('WARNING', str(err))
             pass
+
 
         # Parse the command line arguments - error checking will occur
         # at the setter method level in C++
@@ -154,4 +155,3 @@ class options:
 
             elif opt in ('-l', '--mesh-level'):
                 self.mesh_level = int(arg)
-
