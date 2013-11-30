@@ -11,5 +11,4 @@ openmoc.setLogLevel(str(openmoc.getLogLevel()))
 openmoc.setOutputDirectory(openmoc.getOutputDirectory())
 openmoc.setLogfileName(openmoc.getLogfileName())
 
-options = openmoc.options
 Timer = openmoc.Timer

@@ -3,6 +3,7 @@ import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 
+
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################

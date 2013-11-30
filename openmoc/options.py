@@ -41,6 +41,11 @@ class options:
     # The default mesh level
     mesh_level = -1
 
+
+    def __init__(self):
+        parseArguments()
+
+
     def parseArguments(self):
 
         try:
