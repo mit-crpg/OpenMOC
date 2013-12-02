@@ -816,6 +816,24 @@ GPUSolver::~GPUSolver() {
 
 
 /**
+ * @brief Returns the number of thread blocks to execute on the GPU.
+ * @return the number of thread blocks
+ */
+int GPUSolver::getNumThreadBlocks() {
+    return _B;
+}
+
+
+/**
+ * @brief Returns the number of threads per block to execute on the GPU.
+ * @return the number of threads per block
+ */
+int GPUSolver::getNumThreadsPerBlock() {
+    return _T;
+}
+
+
+/**
  * @brief Returns the scalar flux for some energy group for a flat source region
  * @param fsr_id the ID for the FSR of interest
  * @param energy_group the energy group of interest
