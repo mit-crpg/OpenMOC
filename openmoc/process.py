@@ -214,7 +214,7 @@ def computeUniverseFissionRate(geometry, universe, FSR_id,
 # @param fluxes
 # @param filename
 def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False, 
-                         filename='simulation-state', note=''):
+                         filename='simulation-state', append=True, note=''):
 
     import datetime
 
@@ -233,6 +233,20 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
     mins = time.minute
     sec = time.second
 
+    # Determine the solver type
+    solver_type = ''
+
+    if 'CPUSolver' in str(solver.__class__):
+        solver_type = 'CPUSolver'
+    elif 'ThreadPrivateSolver' in str(solver.__class__):
+        solver_type = 'ThreadPrivateSolver'
+    elif 'VectorizedSolver' in str(solver.__class__):
+        solver_type = 'VectorizedSolver'
+    elif 'VectorizedPrivateSolver' in str(solver.__class__):
+        solver_type = 'VectorizedPrivateSolver'
+    elif 'GPUSolver' in str(solver.__class__):
+        solver_type = 'GPUSolver'
+
     # Get the geometry and track_generator from the solver
     geometry = solver.getGeometry()
     track_generator = solver.getTrackGenerator()
@@ -247,9 +261,14 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
     num_polar = solver.getNumPolarAngles()
     num_iters = solver.getNumIterations()
     thresh = solver.getSourceConvergenceThreshold()
-    num_threads = solver.getNumThreads()
     tot_time = solver.getTotalTime()
     keff = solver.getKeff()
+    
+    if solver_type is 'GPUSolver':
+        num_threads = solver.getNumThreadsPerBlock()
+        num_blocks = solver.getNumThreadBlocks()
+    else:
+        num_threads = solver.getNumThreads()
 
     # If the user requested to store the FSR fluxes
     if fluxes:
@@ -280,7 +299,10 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
         import h5py
 
         # Create a file handle
-        f = h5py.File(directory + '/' + filename + '.h5', 'a')
+        if append:
+            f = h5py.File(directory + '/' + filename + '.h5', 'a')
+        else:
+            f = h5py.File(directory + '/' + filename + '.h5', 'w')
 
         # Create groups for the day and time in the HDF5 file
         day_group = f.require_group(str(month)+'-'+str(day)+'-'+str(year))
@@ -291,6 +313,7 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
             time_group.attrs['note'] = note
 
         # Store simulation data to the HDF5 file
+        time_group.create_dataset('solver type', data=solver_type)
         time_group.create_dataset('# FSRs', data=num_FSRs)
         time_group.create_dataset('# materials', data=num_materials)
         time_group.create_dataset('# energy groups', data=num_groups)
@@ -300,9 +323,14 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
         time_group.create_dataset('# polar angles', data=num_polar)
         time_group.create_dataset('# iterations', data=num_iters)
         time_group.create_dataset('source residual threshold', data=thresh)
-        time_group.create_dataset('# threads', data=num_threads)
         time_group.create_dataset('time [sec]', data=tot_time)
         time_group.create_dataset('keff', data=keff)
+
+        if solver_type is 'GPUSolver':
+            time_group.create_dataset('# threads per block', data=num_threads)
+            time_group.create_dataset('# thread blocks', data=num_blocks)
+        else:
+            time_group.create_dataset('# threads', data=num_threads)
 
         if fluxes:
             time_group.create_dataset('FSR scalar fluxes', data=scalar_fluxes)
@@ -320,7 +348,7 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
 
         # Load the dictionary from the Pickle file
         filename = directory + '/' + filename + '.pkl'
-        if os.path.exists(filename):
+        if os.path.exists(filename) and append:
             sim_states = pickle.load(file(filename, 'rb'))
         else:
             sim_states = {}
@@ -341,6 +369,7 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
             state['note'] = note
 
         # Store simulation data to a Python dictionary
+        state['solver type'] = solver_type
         state['# FSRs'] = num_FSRs
         state['# materials'] = num_materials
         state['# energy groups'] = num_groups
@@ -350,9 +379,14 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
         state['# polar angles'] = num_polar
         state['# iterations'] = num_iters
         state['source residual threshold'] = thresh
-        state['# threads'] = num_threads
         state['time [sec]'] = tot_time
         state['keff'] = keff
+
+        if solver_type is 'GPUSolver':
+            state['# threads per block'] = num_threads
+            state['# thread blocks'] = num_blocks
+        else:
+            state['# threads'] = num_threads
 
         if fluxes:
             state['FSR scalar fluxes'] = scalar_fluxes
@@ -388,6 +422,9 @@ def restoreSimulationStates(filename='simulation-state.pkl',
                 states[day][time] = {}
                 state = states[day][time]
 
+                solver_type = str(dataset['solver type'])
+                state['solver type'] = solver_type
+
                 num_FSRs = int(dataset['# FSRs'][...])
                 state['# FSRs'] = num_FSRs
 
@@ -412,14 +449,17 @@ def restoreSimulationStates(filename='simulation-state.pkl',
                 thresh = float(dataset['source residual threshold'][...])
                 state['source residual threshold'] = thresh
 
-                num_threads = int(dataset['# threads'][...])
-                state['# threads'] = num_threads
-
                 time = float(dataset['time [sec]'][...])
                 state['time [sec]'] = time
 
                 keff =  float(dataset['keff'][...])
                 state['keff'] = keff
+
+                if solver_type is 'GPUSolver':
+                    num_threads = int(dataset['# threads per block'])
+                    num_blocks = int(dataset['# thread blocks'])
+                else:
+                    num_threads = int(dataset['# threads'][...])
 
                 if 'FSR scalar fluxes' in dataset:
                     fluxes = dataset['FSR scalar fluxes'][...]
