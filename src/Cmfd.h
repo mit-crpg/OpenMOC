@@ -27,6 +27,15 @@
 #include "Timer.h"
 #endif
 
+/**
+ * Solve types
+ */
+enum eigenMethod {
+	POWER,
+	WIELANDT
+};
+
+
 class Cmfd {
 
 private:
@@ -46,6 +55,7 @@ private:
   /* matrix and vector objects */
   double* _A;
   double* _M;
+  double* _AM;
   double* _sold;
   double* _snew;
   double* _phi_temp;
@@ -60,8 +70,8 @@ private:
   double _conv_criteria;
 
   /* num cells in x and y direction */
-  int _cells_x;
-  int _cells_y;
+  int _cx;
+  int _cy;
 
   /* pointer to timer object */
   Timer* _timer;
@@ -70,7 +80,7 @@ private:
   fluxType _flux_type;
 
   /* number of groups */
-  int _num_groups;
+  int _ng;
 
   /* number of fsrs */
   int _num_fsrs;
@@ -83,6 +93,9 @@ private:
   Material** _FSR_materials;
   FP_PRECISION* _FSR_fluxes;
   
+  /* eigenvalue method */
+  eigenMethod _eigen_method;
+
 public:
 	
   Cmfd(Geometry* geometry, double criteria=1e-8);
@@ -97,17 +110,22 @@ public:
   double computeKeff();
   void initializeFSRs();
   void rescaleFlux();
-  void linearSolve(double* mat, double* vec_x, double* vec_b, double conv);
+  void linearSolve(double* mat, double* vec_x, double* vec_b, double conv,
+      int max_iter=10000);
 
   /* matrix and vector functions */
   void dumpVec(double* vec, int length);
   void matZero(double* mat, int width);
   void vecCopy(double* vec_from, double* vec_to);
   double vecSum(double* vec);
-  void matMult(double* mat, double* vec_x, double* vec_y);
+  void matMultM(double* mat, double* vec_x, double* vec_y);
+  void matMultA(double* mat, double* vec_x, double* vec_y);
   void vecNormal(double* mat, double* vec);
   void vecSet(double* vec, double val);
   void vecScale(double* vec, double scale_val);
+  void matSubtract(double* AM, double* A, double omega, double* M);
+  double vecMax(double* vec);
+  double rayleighQuotient(double* x, double* snew, double* sold);
       
   /* get parameters */
   Mesh* getMesh();
@@ -116,6 +134,7 @@ public:
   /* set parameters */
   void setOmega(double omega);
   void setFluxType(const char* flux_type);
+  void setEigenMethod(const char* eigen_method);
   
   /* set fsr parameters */
   void setFSRMaterials(Material** FSR_materials);

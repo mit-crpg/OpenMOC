@@ -49,20 +49,17 @@ private:
   int _mesh_level;
 
   /* number of cells in x and y directions */
-  int _cells_x;
-  int _cells_y;
+  int _cx;
+  int _cy;
 
   /* number of groups */
-  int _num_groups;
+  int _ng;
 
   /* number of surface current values */
   int _num_currents;
 
   /* number of fsrs */
   int _num_fsrs;
-
-  /* number of azim angles */
-  int _num_azim;
 
   /* array of boundary enums */
   boundaryType* _boundaries;
@@ -145,7 +142,6 @@ public:
 
   /* set general problem specs */
   void setNumGroups(int num_groups);
-  void setNumAzim(int num_azim);
   void setNumFSRs(int num_fsrs);
   void setAcceleration(bool accel);
   void setOpticallyThick(bool thick);
@@ -162,7 +158,7 @@ public:
 
   /* worker functions */
   int findMeshCell(double x, double y);
-  int findMeshSurface(int fsr_id, LocalCoords* coord, int angle);
+  int findMeshSurface(int fsr_id, LocalCoords* coord);
   void printCurrents();
   void splitCorners();
   void setBoundary(int side, boundaryType boundary);
