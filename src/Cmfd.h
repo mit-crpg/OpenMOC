@@ -53,9 +53,9 @@ private:
   double _k_eff;
 
   /* matrix and vector objects */
-  double* _A;
-  double* _M;
-  double* _AM;
+  double** _A;
+  double** _M;
+  double** _AM;
   double* _sold;
   double* _snew;
   double* _phi_temp;
@@ -110,20 +110,20 @@ public:
   double computeKeff();
   void initializeFSRs();
   void rescaleFlux();
-  void linearSolve(double* mat, double* vec_x, double* vec_b, double conv,
+  void linearSolve(double** mat, double* vec_x, double* vec_b, double conv,
       int max_iter=10000);
 
   /* matrix and vector functions */
   void dumpVec(double* vec, int length);
-  void matZero(double* mat, int width);
+  void matZero(double** mat, int width);
   void vecCopy(double* vec_from, double* vec_to);
   double vecSum(double* vec);
-  void matMultM(double* mat, double* vec_x, double* vec_y);
-  void matMultA(double* mat, double* vec_x, double* vec_y);
-  void vecNormal(double* mat, double* vec);
+  void matMultM(double** mat, double* vec_x, double* vec_y);
+  void matMultA(double** mat, double* vec_x, double* vec_y);
+  void vecNormal(double** mat, double* vec);
   void vecSet(double* vec, double val);
   void vecScale(double* vec, double scale_val);
-  void matSubtract(double* AM, double* A, double omega, double* M);
+  void matSubtract(double** AM, double** A, double omega, double** M);
   double vecMax(double* vec);
   double rayleighQuotient(double* x, double* snew, double* sold);
       

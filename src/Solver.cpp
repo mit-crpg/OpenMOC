@@ -441,8 +441,6 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     if (_cmfd->getMesh()->getAcceleration())
       initializeCmfd();
 
-    log_printf(NORMAL, "num currents: %i", _geometry->getMesh()->getNumCurrents());
-
     /* Source iteration loop */
     for (int i=0; i < max_iterations; i++) {
 

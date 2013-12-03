@@ -344,7 +344,6 @@ log.py_printf('NORMAL', 'Creating cmfd module...')
 
 cmfd = Cmfd(geometry)
 cmfd.setOmega(1.75)
-cmfd.setEigenMethod('WIELANDT')
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
