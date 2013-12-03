@@ -270,7 +270,8 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
     			for (int p = 0; p < _num_polar; p++){
 
     				/* increment current (polar and azimuthal weighted flux, group)*/
-    				_thread_currents(tid,curr_segment->_mesh_surface_fwd,e) += track_flux(p,e)*_polar_weights[p]/2.0;
+	                        _thread_currents(tid,curr_segment->_mesh_surface_fwd,e) += 
+				    track_flux(p,e)*_polar_weights(azim_index, p)/2.0;
 
     				pe++;
     			}
@@ -288,7 +289,8 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
     			for (int p = 0; p < _num_polar; p++){
 
     				/* increment current (polar and azimuthal weighted flux, group)*/
-    				_thread_currents(tid,curr_segment->_mesh_surface_bwd,e) += track_flux(p,e)*_polar_weights[p]/2.0;
+	                        _thread_currents(tid,curr_segment->_mesh_surface_bwd,e) += 
+				    track_flux(p,e)*_polar_weights(azim_index, p)/2.0;
 
     				pe++;
     			}

@@ -1204,8 +1204,8 @@ void Geometry::segmentize(Track* track) {
 
 	    /* get pointer to mesh surfaces that the segment crosses */
 	    if (_mesh->getCmfdOn()){
-	      new_segment->_mesh_surface_fwd = _mesh->findMeshSurface(new_segment->_region_id, &segment_end, track->getAzimAngleIndex());
-	      new_segment->_mesh_surface_bwd = _mesh->findMeshSurface(new_segment->_region_id, &segment_start, track->getAzimAngleIndex());
+	      new_segment->_mesh_surface_fwd = _mesh->findMeshSurface(new_segment->_region_id, &segment_end);
+	      new_segment->_mesh_surface_bwd = _mesh->findMeshSurface(new_segment->_region_id, &segment_start);
 	    }
 
 	    /* Add the segment to the track */

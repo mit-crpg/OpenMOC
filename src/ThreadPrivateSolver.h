@@ -23,7 +23,7 @@
 
 /** Indexing scheme for the thread private surface currents for each thread in
  *  each flat source region and in each energy group */
-#define _thread_currents(tid,r,e) (_thread_currents[(tid)*_num_mesh_cells*8*_num_groups+(r % _geometry->getMesh()->getNumCurrents())*_num_groups+(e)])
+#define _thread_currents(tid,r,e) (_thread_currents[(tid)*_num_mesh_cells*8*_num_groups+(r)*_num_groups+(e)])
 
 /**
  * @class ThreadPrivateSolver ThreadPrivateSolver.h "openmoc/src/ThreadPrivateSolver.h"

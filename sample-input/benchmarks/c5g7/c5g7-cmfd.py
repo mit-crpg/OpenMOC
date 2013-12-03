@@ -344,6 +344,7 @@ log.py_printf('NORMAL', 'Creating cmfd module...')
 
 cmfd = Cmfd(geometry)
 cmfd.setOmega(1.75)
+cmfd.setEigenMethod('WIELANDT')
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -376,7 +377,7 @@ log.py_printf('NORMAL', 'Plotting data...')
 #plotter.plotMaterials(geometry, gridsize=500)
 #plotter.plotCells(geometry, gridsize=500)
 #plotter.plotFlatSourceRegions(geometry, gridsize=500)
-plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
-plotter.plotMeshFluxes(mesh, energy_groups=[1,2,3,4,5,6,7])
+#plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+#plotter.plotMeshFluxes(mesh, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')
