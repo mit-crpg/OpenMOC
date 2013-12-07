@@ -449,9 +449,6 @@ double Cmfd::computeKeff(){
 
     log_printf(INFO, "Running diffusion solver...");
 
-    log_printf(NORMAL, "ncg: %i", _ncg);
-    log_printf(NORMAL, "ng : %i", _ng);
-
     /* Create matrix and vector objects */
     if (_A == NULL){
         try{
@@ -1471,10 +1468,10 @@ void Cmfd::createGroupStructure(){
 
   for (int i = 0; i < _ncg; i++){
     _group_indices[i] = i*_group_width;
-    log_printf(NORMAL, "group indices %i: %i", i, _group_indices[i]);
+    log_printf(INFO, "group indices %i: %i", i, _group_indices[i]);
   }
 
   _group_indices[_ncg] = _ng;
-  log_printf(NORMAL, "group indices %i: %i", _ncg, _group_indices[_ncg]);
-  log_printf(NORMAL, "group width: %i", _group_width);
+  log_printf(INFO, "group indices %i: %i", _ncg, _group_indices[_ncg]);
+  log_printf(INFO, "group width: %i", _group_width);
 }
