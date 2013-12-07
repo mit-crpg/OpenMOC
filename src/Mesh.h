@@ -164,7 +164,9 @@ public:
   void setBoundary(int side, boundaryType boundary);
   int getCellNext(int cell_num, int surface_id);
   int findCellId(LocalCoords* coord);
-  void initializeMaterials();
+  void initializeMaterialsMOC();
+  void initializeMaterialsDiffusion(std::map<int, Material*>* materials, 
+			   int* fsrs_to_mats);
   void initializeSurfaceCurrents();
   void initializeFlux();
 };

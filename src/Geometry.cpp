@@ -1595,6 +1595,9 @@ void Geometry::initializeMesh(){
     _mesh->setFSRBounds();
     _mesh->setCellBounds();
 
+    if (_mesh->getSolveType() == DIFFUSION)
+      _mesh->initializeMaterialsDiffusion(&_materials, _FSRs_to_materials_id);
+
     return;
 }
 

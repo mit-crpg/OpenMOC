@@ -458,9 +458,13 @@ double Cmfd::computeKeff(){
 	    _phi_temp = new double[_cx*_cy*_ncg];
 	    _sold = new double[_cx*_cy*_ncg];
 	    _snew = new double[_cx*_cy*_ncg];
+	    _mesh->setNumGroups(_ncg);
 	    createGroupStructure();
 	    _mesh->initializeFlux();
-	    _mesh->initializeMaterials();
+
+	    
+	    if (_solve_method == MOC)
+	        _mesh->initializeMaterialsMOC();
 
 	    for (int i = 0; i < _cx*_cy; i++){
 	        _M[i] = new double[_ncg*_ncg];
@@ -528,8 +532,6 @@ double Cmfd::computeKeff(){
 		    norm += pow((_snew[i] - _sold[i]) / _snew[i], 2);
 	    }
 	    
-	    //norm = pow(norm, 0.5);
-	    //norm = norm / (_cx*_cy*_ncg);
 	    norm = sqrt(norm / (_cx*_cy*_ncg));
 	    
 	    scale_val = (_cx * _cy * _ncg) / sumnew;
@@ -640,7 +642,6 @@ double Cmfd::computeKeff(){
 	    /* compute new eigenvalue */
 	    _k_eff = rayleighQuotient(phi_new, _snew, _phi_temp);
 	    
-
 	    /* compute the L2 norm of source error */
 	    norm = 0.0;
 	    for (int i = 0; i < _cx*_cy*_ncg; i++){
@@ -815,7 +816,7 @@ void Cmfd::linearSolve(double** mat, double* vec_x, double* vec_b, double conv,
 
 	iter++;
 
-	log_printf(INFO, "GS iter: %i, norm: %f", iter, norm);
+	log_printf(DEBUG, "GS iter: %i, norm: %f", iter, norm);
 
 	if (iter >= max_iter)
 	    break;
