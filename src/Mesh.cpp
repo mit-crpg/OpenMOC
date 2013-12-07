@@ -828,10 +828,8 @@ double* Mesh::getCurrents(){
 
 /**
  * @brief Initialize the mesh cell materials
- * @param materials map of fsr materials
- * @param fsrs_to_mats array of material ids indexed by fsr id 
  **/
-void Mesh::initializeMaterials(){
+void Mesh::initializeMaterialsMOC(){
 
     Material* material;
 
@@ -843,9 +841,32 @@ void Mesh::initializeMaterials(){
 	      material = new Material(y*_cx+x);
 	      material->setNumEnergyGroups(_ng);
 	      _materials[y*_cx+x] = material;
-	      //	      _materials[y*_cx+x] = materials->at
-	      //  (fsrs_to_mats[_cell_fsrs.at(y*_cx+x).at(0)])->clone();
 	    }
+	}
+    }
+    catch(std::exception &e){
+        log_printf(ERROR, "Could not allocate memory for the Mesh materials. "
+		   "Backtrace:%s", e.what());
+    }
+}
+
+
+/**
+ * @brief Initialize the mesh cell materials
+ * @param materials map of fsr materials
+ * @param fsrs_to_mats array of material ids indexed by fsr id 
+ **/
+void Mesh::initializeMaterialsDiffusion(std::map<int, Material*>* materials, 
+                               int* fsrs_to_mats){
+
+    try{
+        _materials = new Material*[_cx*_cy];
+	std::vector<int>::iterator iter;
+        
+	for (int y = 0; y < _cy; y++){
+	    for (int x = 0; x < _cx; x++)      
+	        _materials[y*_cx+x] = materials->at
+		  (fsrs_to_mats[_cell_fsrs.at(y*_cx+x).at(0)])->clone();
 	}
     }
     catch(std::exception &e){
