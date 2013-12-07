@@ -59,7 +59,7 @@ def materialize(filename):
                           'does not contain an \'Energy Groups\' attribute', \
                           filename)
     
-        num_groups = f.attrs['Energy Groups']
+        num_groups = f.attrs['Energy Groups'][0]
 
         # Check that the number of energy groups is an integer
         if not isinstance(num_groups, int):

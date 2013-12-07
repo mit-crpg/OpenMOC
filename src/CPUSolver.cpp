@@ -119,19 +119,6 @@ FP_PRECISION CPUSolver::getFSRSource(int fsr_id, int energy_group) {
 }
 
 
-
-/**
- * @brief Returns the surface current for some energy group for some surface
- * @param surface_id the ID for the mesh cell surface of interest
- * @param energy_group the energy group of interest
- * @return the mesh cell surface current
- */
-double CPUSolver::getSurfaceCurrent(int surface_id, int energy_group) {
-
-    return _surface_currents(surface_id, energy_group);
-}
-
-
 /**
  * @brief Return an array indexed by flat source region IDs and energy groups 
  *        which contains the corresponding fluxes for each flat source region.
@@ -219,7 +206,7 @@ void CPUSolver::initializeFluxArrays() {
 
 	/* Allocate an array for the surface currents */
 	if (_cmfd->getMesh()->getCmfdOn()){ 
-	  size = _num_mesh_cells * _num_groups * 8;
+	  size = _num_mesh_cells * _cmfd->getNumCmfdGroups() * 8;
 	  _surface_currents = new double[size];
 	}
 
@@ -490,7 +477,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
      #pragma omp parallel for schedule(guided)
      for (int r=0; r < _num_mesh_cells; r++) {
 	 for (int s=0; s < 8; s++) {
-		 for (int e=0; e < _num_groups; e++)
+	     for (int e=0; e < _num_groups; e++)
 		     _surface_currents(r*8+s,e) = 0.0;
 	 }
      }

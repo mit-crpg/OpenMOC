@@ -1546,7 +1546,6 @@ void Geometry::initializeMesh(){
     _mesh->setBoundary(1,getBCBottom());
     _mesh->setBoundary(2,getBCRight());
     _mesh->setBoundary(3,getBCTop());
-    _mesh->setNumGroups(_num_groups);
     _mesh->setNumFSRs(_num_FSRs);
     
     /* set the cell and geometric width and height of mesh */
@@ -1595,7 +1594,6 @@ void Geometry::initializeMesh(){
     /* set mesh fsr and cell bounds and initialize materials */
     _mesh->setFSRBounds();
     _mesh->setCellBounds();
-    _mesh->initializeMaterials(&_materials, _FSRs_to_materials_id);
 
     return;
 }

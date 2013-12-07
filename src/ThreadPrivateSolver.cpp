@@ -77,7 +77,7 @@ void ThreadPrivateSolver::initializeFluxArrays() {
 
 	/* Allocate a thread local array of mesh cell surface currents */
 	if (_cmfd->getMesh()->getCmfdOn()){ 
-	    size = _num_threads * _num_mesh_cells * 8 * _num_groups;
+	    size = _num_threads * _num_mesh_cells * 8 * _cmfd->getNumCmfdGroups();
 	    _thread_currents = new FP_PRECISION[size];
 	}
     }
@@ -119,18 +119,18 @@ void ThreadPrivateSolver::flattenFSRFluxes(FP_PRECISION value) {
  */
 void ThreadPrivateSolver::zeroSurfaceCurrents() {
 
-	CPUSolver::zeroSurfaceCurrents();
+    CPUSolver::zeroSurfaceCurrents();
 
     #pragma omp parallel for schedule(guided)
-	for (int tid=0; tid < _num_threads; tid++){
-		for (int r=0; r < _num_mesh_cells; r++) {
-			for (int s=0; s < 8; s++) {
-				for (int e=0; e < _num_groups; e++)
-					_thread_currents(tid,r*8+s,e) = 0.0;
-			}
-		}
+    for (int tid=0; tid < _num_threads; tid++){
+        for (int r=0; r < _num_mesh_cells; r++) {
+	    for (int s=0; s < 8; s++) {
+	        for (int e=0; e < _num_groups; e++)
+		    _thread_currents(tid,r*8+s,e) = 0.0;
+	    }
 	}
-
+    }
+    
     return;
 }
 
@@ -170,8 +170,8 @@ void ThreadPrivateSolver::transportSweep() {
 	int max = (i + 1) * (_tot_num_tracks / 2);
 	
 	/* Loop over each thread within this azimuthal angle halfspace */
-	#pragma omp parallel for private(tid, fsr_id, curr_track, \
-	 azim_index, num_segments, segments, curr_segment, \
+	#pragma omp parallel for private(tid, fsr_id, curr_track,	\
+	 azim_index, num_segments, segments, curr_segment,		\
 	 track_flux) schedule(guided)
 	for (int track_id=min; track_id < max; track_id++) {
 
@@ -326,14 +326,18 @@ void ThreadPrivateSolver::reduceThreadScalarFluxes() {
  */
 void ThreadPrivateSolver::reduceThreadSurfaceCurrents() {
 
-	for (int tid=0; tid < _num_threads; tid++){
-		for (int r=0; r < _num_mesh_cells; r++) {
-			for (int s=0; s < 8; s++) {
-				for (int e=0; e < _num_groups; e++)
-					_surface_currents(r*8+s,e) += _thread_currents(tid,r*8+s,e);
-			}
+    for (int tid=0; tid < _num_threads; tid++){
+        for (int r=0; r < _num_mesh_cells; r++) {
+	    for (int s=0; s < 8; s++) {
+	        for (int e=0; e < _cmfd->getNumCmfdGroups(); e++){
+		    _surface_currents[(r*8+s)*_cmfd->getNumCmfdGroups() + e] += 
+		      _thread_currents[(tid)*_num_mesh_cells*8*
+		      _cmfd->getNumCmfdGroups() + (r*8+s)*
+		      _cmfd->getNumCmfdGroups() + e];
 		}
+	    }
 	}
+    }
 
     return;
 }
