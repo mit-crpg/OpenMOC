@@ -38,7 +38,7 @@ unable to find a solution to your problem there, please
 License
 -------
 
-OpenMOC is undergoing review to be distributed under the MIT/X license_.
+OpenMOC is approved for distribution under the MIT/X license_.
 
 .. _installation instructions: https://mit-crpg.github.io/OpenMOC/quickinstall.html
 .. _FAQ: https://mit-crpg.github.io/OpenMOC/FAQ

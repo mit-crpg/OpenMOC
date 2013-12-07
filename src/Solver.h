@@ -314,6 +314,12 @@ public:
     FP_PRECISION getKeff();
     FP_PRECISION getSourceConvergenceThreshold();
 
+    bool isUsingSinglePrecision();
+    bool isUsingDoublePrecision();
+
+    bool isUsingExponentialInterpolation();
+    bool isUsingExponentialIntrinsic();
+
     /**
      * @brief Returns the scalar flux for a flat source region
      * @param fsr_id the ID for the FSR of interest

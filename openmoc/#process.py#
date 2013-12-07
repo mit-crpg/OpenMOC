@@ -256,7 +256,7 @@ def storeSimulationState(solver, fluxes=False, sources=False, use_hdf5=False,
     # Determine whether we are using the exponential intrinsic or 
     # linear interpolation for exponential evaluations
     if solver.isUsingExponentialIntrinsic():
-        method = 'exp intrinsic'
+        method = 'exponential intrinsic'
     else:
         method = 'linear interpolation'
 
