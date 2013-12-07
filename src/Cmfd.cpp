@@ -31,28 +31,17 @@ Cmfd::Cmfd(Geometry* geometry, double criteria) {
     _conv_criteria = criteria;
     
     /* General problem parameters */
-    _ng = _mesh->getNumGroups();
+    _ng = _geometry->getNumEnergyGroups();
+    _ncg = _ng;
     _num_fsrs = _mesh->getNumFSRs();
-    
-    /* Create matrix and vector objects */
-    try{
-	_AM = NULL;
-	_M = new double*[_cx*_cy];
-	_A = new double*[_cx*_cy];
-	_phi_temp = new double[_cx*_cy*_ng];
-	_sold = new double[_cx*_cy*_ng];
-	_snew = new double[_cx*_cy*_ng];
+    _group_width = 1;
 
-	for (int i = 0; i < _cx*_cy; i++){
-	    _M[i] = new double[_ng*_ng];
-	    _A[i] = new double[_ng*(_ng+4)];
-	}
-    }
-    catch(std::exception &e){
-        log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "
-		   "Backtrace:%s", e.what());
-    }
-    
+    _A = NULL;
+    _M = NULL;
+    _phi_temp = NULL;
+    _sold = NULL;
+    _snew = NULL;
+        
     /* If solving diffusion problem, create arrays for FSR parameters */
     if (_solve_method == DIFFUSION){
 	try{
@@ -128,8 +117,11 @@ void Cmfd::computeXS(){
     double* fluxes = _mesh->getFluxes(PRIMAL);
     
     /* initialize tallies for each parameter */
-    double abs_tally, nu_fis_tally, dif_tally, rxn_tally, vol_tally, tot_tally;
-    double scat_tally[_ng];
+    double abs_tally, nu_fis_tally, dif_tally, rxn_tally;
+    double vol_tally, tot_tally, neut_prod_tally;
+    double scat_tally[_ncg];
+    double chi_groups[_ncg];
+    double chi_tally[_ncg];
     
     /* interator to loop over fsrs in each mesh cell */
     std::vector<int>::iterator iter;
@@ -140,12 +132,15 @@ void Cmfd::computeXS(){
     
     /* loop over mesh cells */
     #pragma omp parallel for private(volume, flux, abs, tot, nu_fis, chi, \
-	dif_coef, scat, abs_tally, nu_fis_tally, dif_tally, rxn_tally, \
-	vol_tally, tot_tally, scat_tally, iter, fsr_material, cell_material)
+    	dif_coef, scat, abs_tally, nu_fis_tally, dif_tally, rxn_tally,	\
+      vol_tally, tot_tally, scat_tally, iter, fsr_material, cell_material, \
+    	neut_prod_tally, chi_tally, chi_groups)
     for (int i = 0; i < _cx * _cy; i++){
 	
-	/* loop over energy groups */
-	for (int e = 0; e < _ng; e++) {
+      cell_material = materials[i];
+
+	/* loop over cmfd energy groups */
+	for (int e = 0; e < _ncg; e++) {
 	    
 	    /* zero tallies for this group */
 	    abs_tally = 0;
@@ -154,58 +149,68 @@ void Cmfd::computeXS(){
 	    rxn_tally = 0;
 	    vol_tally = 0;
 	    tot_tally = 0;
-	    
+	    neut_prod_tally = 0.0;
+    
 	    /* zero each group to group scattering tally */
-	    for (int g = 0; g < _ng; g++){
+	    for (int g = 0; g < _ncg; g++){
 		scat_tally[g] = 0;
+		chi_tally[g] = 0.0;
 	    }
-	    
+
 	    /* loop over FSRs in mesh cell */
 	    for (iter = _mesh->getCellFSRs()->at(i).begin(); 
 		 iter != _mesh->getCellFSRs()->at(i).end(); ++iter){
-		
-		/* Gets FSR volume, material, and cross sections */
-		fsr_material = _FSR_materials[*iter];
-		cell_material = materials[i];
+
+	        fsr_material = _FSR_materials[*iter];
 		volume = _FSR_volumes[*iter];
-		flux = _FSR_fluxes[(*iter)*_ng+e];
-		abs = fsr_material->getSigmaA()[e];
-		tot = fsr_material->getSigmaT()[e];
 		scat = fsr_material->getSigmaS();
-		dif_coef = fsr_material->getDifCoef()[e];
-		
-		/* if material has a diffusion coefficient, use it; otherwise
-		 * estimate the diffusion coefficient with 1 / (3 * sigma_t) */
-		if (fsr_material->getDifCoef()[e] > 1e-8){
-		    dif_tally += fsr_material->getDifCoef()[e] * flux * volume;
-		}
-		else
-		    dif_tally += flux * volume / (3.0 * tot);
-		
-		/* if material has a chi, use it; otherwise set to 0 */
-		if (fsr_material->getChi()[e] > 1e-10)
-		    chi = fsr_material->getChi()[e];
-		else
-		    chi = 0.0;
-		
-		/* if material has a nu_sig_f, use it; otherwise set to 0 */
-		if (fsr_material->getNuSigmaF()[e] > 1e-8)
-		    nu_fis = fsr_material->getNuSigmaF()[e];
-		else
-		    nu_fis = 0.0;
-		
-		/* increment tallies for this group */
-		abs_tally += abs * flux * volume;
-		tot_tally += tot * flux * volume;
-		nu_fis_tally += nu_fis * flux * volume;
-		rxn_tally += flux * volume;
 		vol_tally += volume;
-		for (int g = 0; g < _ng; g++)
-		    scat_tally[g] += scat[g*_ng + e] * flux * volume;
-		
-		/* choose a chi for this group */
-		if (chi >= cell_material->getChi()[e])
-		    cell_material->setChiByGroup(chi,e);
+
+		/* chi tallies */
+		for (int b = 0; b < _ncg; b++){
+		    chi_groups[b] = 0.0;
+		    for (int h = _group_indices[b]; h < _group_indices[b+1]; h++)
+		        chi_groups[b] += fsr_material->getChi()[h];
+
+		    for (int h = 0; h < _ng; h++){
+		        chi_tally[b] += chi_groups[b] * fsr_material->getNuSigmaF()[h] * 
+			  _FSR_fluxes[(*iter)*_ng+h] * volume;
+			neut_prod_tally += chi_groups[b] * 
+			  fsr_material->getNuSigmaF()[h] * 
+			  _FSR_fluxes[(*iter)*_ng+h] * volume;
+		    }
+		}
+
+		/* loop over groups within this cmfd group */
+		for (int h = _group_indices[e]; h < _group_indices[e+1]; h++){
+		  
+		    /* Gets FSR volume, material, and cross sections */
+		    flux = _FSR_fluxes[(*iter)*_ng+h];
+		    abs = fsr_material->getSigmaA()[h];
+		    tot = fsr_material->getSigmaT()[h];
+		    dif_coef = fsr_material->getDifCoef()[h];
+		    nu_fis = fsr_material->getNuSigmaF()[h];
+		    
+		    /* if material has a diffusion coefficient, use it; otherwise
+		     * estimate the diffusion coefficient with 1 / (3 * sigma_t) */
+		    if (fsr_material->getDifCoef()[h] > 1e-8){
+		        dif_tally += fsr_material->getDifCoef()[h] * flux * volume;
+		    }
+		    else
+		        dif_tally += flux * volume / (3.0 * tot);
+		    
+		    /* increment tallies for this group */
+		    abs_tally += abs * flux * volume;
+		    tot_tally += tot * flux * volume;
+		    nu_fis_tally += nu_fis * flux * volume;
+		    rxn_tally += flux * volume;
+		    
+		    /* scattering tallies */
+		    for (int g = 0; g < _ng; g++){
+		        scat_tally[std::min(g / _group_width, _ncg-1)] += 
+			  scat[g*_ng+h] * flux * volume;
+		    }
+		}
 	    }
 	    
 	    /* set the mesh cell properties with the tallies */
@@ -214,15 +219,21 @@ void Cmfd::computeXS(){
 	    cell_material->setSigmaTByGroup(tot_tally / rxn_tally, e);
 	    cell_material->setNuSigmaFByGroup(nu_fis_tally / rxn_tally, e);
 	    cell_material->setDifCoefByGroup(dif_tally / rxn_tally, e);
-	    fluxes[i*_ng+e] = rxn_tally / vol_tally;
-	    
+	    fluxes[i*_ncg+e] = rxn_tally / vol_tally;
+
+	    /* set chi */
+	    if (neut_prod_tally != 0.0)
+	      cell_material->setChiByGroup(chi_tally[e] / neut_prod_tally,e);	    
+	    else
+	      cell_material->setChiByGroup(0.0,e);	    
+
 	    log_printf(DEBUG, "cell: %i, group: %i, vol: %f, siga: %f, sigt: %f,"
-		       " nu_sigf: %f, dif_coef: %f, flux: %f", i, e, vol_tally, 
+		       " nu_sigf: %f, dif_coef: %f, flux: %f, chi: %f", i, e, vol_tally, 
 		       abs_tally / rxn_tally, tot_tally / rxn_tally, 
 		       nu_fis_tally / rxn_tally, dif_tally / rxn_tally, 
-		       rxn_tally / vol_tally);
+		       rxn_tally / vol_tally, chi_tally[e] / (neut_prod_tally+1e-12));
 	    
-	    for (int g = 0; g < _ng; g++){
+	    for (int g = 0; g < _ncg; g++){
 		cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, g, e);
 		log_printf(DEBUG, "scattering from %i to %i: %f", e, g, 
 			   scat_tally[g] / rxn_tally);
@@ -258,8 +269,8 @@ void Cmfd::computeDs(){
     
     /* loop over mesh cells in y direction */
     #pragma omp parallel for private(d, d_next, d_hat, d_tilde, current, flux, \
-	flux_next, f, f_next, length, length_perpen, next_length_perpen, \
-	sense, next_surface, cell, cell_next)
+    	flux_next, f, f_next, length, length_perpen, next_length_perpen, \
+    	sense, next_surface, cell, cell_next)
     for (int y = 0; y < _cy; y++){
 	
 	/* loop over mesh cells in x direction */
@@ -271,11 +282,11 @@ void Cmfd::computeDs(){
 	    for (int surface = 0; surface < 4; surface++){
 		
 		/* loop over groups */
-		for (int e = 0; e < _ng; e++){
+		for (int e = 0; e < _ncg; e++){
 		    
 		    /* get diffusivity and flux for mesh cell */
 		    d = materials[cell]->getDifCoef()[e];
-		    flux = cell_flux[cell*_ng+e];
+		    flux = cell_flux[cell*_ncg+e];
 		    cell_next = _mesh->getCellNext(cell, surface);
 		    
 		    /* set sense of the surface */
@@ -301,7 +312,7 @@ void Cmfd::computeDs(){
 		    /* if surface is on a boundary, choose appropriate BCs */
 		    if (cell_next == -1){
 			
-			current = sense * currents[cell*_ng*8 + surface*_ng + e];
+			current = sense * currents[cell*_ncg*8 + surface*_ncg + e];
 
 			/* REFLECTIVE BC */
 			if (_mesh->getBoundary(surface) == REFLECTIVE){ 
@@ -355,7 +366,7 @@ void Cmfd::computeDs(){
 			/* set diffusion coefficient and flux for neighboring
 			 * cell */
 			d_next = materials[cell_next]->getDifCoef()[e];
-			flux_next = cell_flux[cell_next*_ng + e];
+			flux_next = cell_flux[cell_next*_ncg + e];
 			
 			/* get optical thickness correction term for 
 			 * meshCellNext */
@@ -366,9 +377,9 @@ void Cmfd::computeDs(){
 			        * d * f + next_length_perpen * d_next*f_next);
 			
 			/* compute net current */
-			current = sense * currents[cell*_ng*8 + surface*_ng + e]
-			    - sense * currents[cell_next*_ng*8 + 
-					       next_surface*_ng + e];
+			current = sense * currents[cell*_ncg*8 + surface*_ncg + e]
+			    - sense * currents[cell_next*_ncg*8 + 
+					       next_surface*_ncg + e];
 			
 			/* compute d_tilde */
 			if (_solve_method == MOC)
@@ -411,7 +422,7 @@ void Cmfd::computeDs(){
 		    }  
 		    
 		    /* perform underrelaxation on d_tilde */
-		    d_tilde = materials[cell]->getDifTilde()[surface*_ng + e] * 
+		    d_tilde = materials[cell]->getDifTilde()[surface*_ncg + e] * 
 			(1 - _mesh->getRelaxFactor()) + _mesh->getRelaxFactor()
 			* d_tilde;
 		    
@@ -437,6 +448,33 @@ void Cmfd::computeDs(){
 double Cmfd::computeKeff(){
 
     log_printf(INFO, "Running diffusion solver...");
+
+    log_printf(NORMAL, "ncg: %i", _ncg);
+    log_printf(NORMAL, "ng : %i", _ng);
+
+    /* Create matrix and vector objects */
+    if (_A == NULL){
+        try{
+	    _AM = NULL;
+	    _M = new double*[_cx*_cy];
+	    _A = new double*[_cx*_cy];
+	    _phi_temp = new double[_cx*_cy*_ncg];
+	    _sold = new double[_cx*_cy*_ncg];
+	    _snew = new double[_cx*_cy*_ncg];
+	    createGroupStructure();
+	    _mesh->initializeFlux();
+	    _mesh->initializeMaterials();
+
+	    for (int i = 0; i < _cx*_cy; i++){
+	        _M[i] = new double[_ncg*_ncg];
+		_A[i] = new double[_ncg*(_ncg+4)];
+	    }
+	}
+	catch(std::exception &e){
+	    log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "
+		       "Backtrace:%s", e.what());
+	}
+    }   
     
     /* if solving diffusion problem, initialize timer */
     if (_solve_method == DIFFUSION)
@@ -448,14 +486,14 @@ double Cmfd::computeKeff(){
     int row;
     double* phi_old = _mesh->getFluxes(PRIMAL);
     double* phi_new = _mesh->getFluxes(PRIMAL_UPDATE);
-    
+
     /* compute the cross sections and surface 
      * diffusion coefficients */
     if (_solve_method == MOC)
 	computeXS();
     
     computeDs();
-    
+
     /* construct matrices */
     constructMatrices();
     
@@ -464,11 +502,11 @@ double Cmfd::computeKeff(){
 	/* compute and normalize the initial source */
 	matMultM(_M, phi_old, _sold);
 	sumold = vecSum(_sold);
-	scale_val = (_cx * _cy * _ng) / sumold;
+	scale_val = (_cx * _cy * _ncg) / sumold;
 	vecScale(_sold, scale_val);
 	vecCopy(phi_old, phi_new);
 	vecScale(phi_new, scale_val);
-	sumold = _cx * _cy * _ng;
+	sumold = _cx * _cy * _ncg;
 	
 	/* power iteration diffusion solver */
 	for (int iter = 0; iter < 25000; iter++){
@@ -488,14 +526,16 @@ double Cmfd::computeKeff(){
 	    
 	    /* compute the L2 norm of source error */
 	    norm = 0.0;
-	    for (int i = 0; i < _cx*_cy*_ng; i++){
+	    for (int i = 0; i < _cx*_cy*_ncg; i++){
 		if (_snew[i] != 0.0)
 		    norm += pow((_snew[i] - _sold[i]) / _snew[i], 2);
 	    }
 	    
-	    norm = pow(norm, 0.5);
-	    norm = norm / (_cx*_cy*_ng);
-	    scale_val = (_cx * _cy * _ng) / sumnew;
+	    //norm = pow(norm, 0.5);
+	    //norm = norm / (_cx*_cy*_ncg);
+	    norm = sqrt(norm / (_cx*_cy*_ncg));
+	    
+	    scale_val = (_cx * _cy * _ncg) / sumnew;
 	    vecScale(_snew, scale_val);
 	    vecCopy(_snew, _sold);
 	    
@@ -516,7 +556,7 @@ double Cmfd::computeKeff(){
 		_AM = new double*[_cx*_cy];
 
 		for (int i = 0; i < _cx*_cy; i++){
-		    _AM[i] = new double[_ng*(_ng+4)];
+		    _AM[i] = new double[_ncg*(_ncg+4)];
 		}
 	    }
 	    catch(std::exception &e){
@@ -540,10 +580,10 @@ double Cmfd::computeKeff(){
 	/* compute and normalize the initial source */
 	matMultM(_M, phi_new, _sold);
 	sumold = vecSum(_sold);
-	scale_val = (_cx * _cy * _ng) / sumold;
+	scale_val = (_cx * _cy * _ncg) / sumold;
 	vecScale(_sold, scale_val);
 	vecScale(phi_new, scale_val);
-	sumold = _cx * _cy * _ng;
+	sumold = _cx * _cy * _ncg;
 
 	shift = 1.5;
 
@@ -559,21 +599,21 @@ double Cmfd::computeKeff(){
 	    vecScale(phi_new, vecMax(phi_new));
 	    matMultM(_M, phi_new, _snew);
 	    sumnew = vecSum(_snew);
-	    vecScale(_snew, (_cx*_cy*_ng) / sumnew);
-	    vecScale(phi_new, (_cx*_cy*_ng) / sumnew);
+	    vecScale(_snew, (_cx*_cy*_ncg) / sumnew);
+	    vecScale(phi_new, (_cx*_cy*_ncg) / sumnew);
 
 	    /* compute new eigenvalue */
 	    _k_eff = rayleighQuotient(phi_new, _snew, _phi_temp);
 
 	    /* compute the L2 norm of source error */
 	    norm = 0.0;
-	    for (int i = 0; i < _cx*_cy*_ng; i++){
+	    for (int i = 0; i < _cx*_cy*_ncg; i++){
 		if (_snew[i] != 0.0)
 		    norm += pow((_snew[i] - _sold[i]) / _snew[i], 2);
 	    }
 	    
 	    norm = pow(norm, 0.5);
-	    norm = norm / (_cx*_cy*_ng);
+	    norm = norm / (_cx*_cy*_ncg);
 	    vecCopy(_snew, _sold);
 
 	    iter++;
@@ -597,8 +637,8 @@ double Cmfd::computeKeff(){
 	    vecScale(phi_new, vecMax(phi_new));
 	    matMultM(_M, phi_new, _snew);
 	    sumnew = vecSum(_snew);
-	    vecScale(_snew, (_cx*_cy*_ng) / sumnew);
-	    vecScale(phi_new, (_cx*_cy*_ng) / sumnew);
+	    vecScale(_snew, (_cx*_cy*_ncg) / sumnew);
+	    vecScale(phi_new, (_cx*_cy*_ncg) / sumnew);
 
 	    /* compute new eigenvalue */
 	    _k_eff = rayleighQuotient(phi_new, _snew, _phi_temp);
@@ -606,13 +646,13 @@ double Cmfd::computeKeff(){
 
 	    /* compute the L2 norm of source error */
 	    norm = 0.0;
-	    for (int i = 0; i < _cx*_cy*_ng; i++){
+	    for (int i = 0; i < _cx*_cy*_ncg; i++){
 		if (_snew[i] != 0.0)
 		    norm += pow((_snew[i] - _sold[i]) / _snew[i], 2);
 	    }
 	    
 	    norm = pow(norm, 0.5);
-	    norm = norm / (_cx*_cy*_ng);
+	    norm = norm / (_cx*_cy*_ncg);
 	    vecCopy(_snew, _sold);
 
 	    iter++;
@@ -673,47 +713,47 @@ void Cmfd::linearSolve(double** mat, double* vec_x, double* vec_b, double conv,
 	vecCopy(vec_x, _phi_temp);
 
 	/* iteration over red cells */
-        #pragma omp parallel for private(row, val, cell)
+	#pragma omp parallel for private(row, val, cell)
 	for (int y = 0; y < _cy; y++){
 	    for (int x = y % 2; x < _cx; x += 2){
 		cell = y*_cx+x;
-		for (int g = 0; g < _ng; g++){
-		    row = (y*_cx+x)*_ng + g;
+		for (int g = 0; g < _ncg; g++){
+		    row = (y*_cx+x)*_ncg + g;
 		    val = 0.0;
 		    
 		    /* previous flux term */
 		    val += (1.0 - _omega) * vec_x[row];
 		    
 		    /* source term */
-		    val += _omega * vec_b[row] / mat[cell][g*(_ng+4)+g+2];
+		    val += _omega * vec_b[row] / mat[cell][g*(_ncg+4)+g+2];
 		    
 		    
 		    /* left surface */
 		    if (x != 0)
-			val -= _omega * vec_x[row - _ng] * mat[cell][g*(_ng+4)] /
-			    mat[cell][g*(_ng+4)+g+2];
+			val -= _omega * vec_x[row - _ncg] * mat[cell][g*(_ncg+4)] /
+			    mat[cell][g*(_ncg+4)+g+2];
 		    
 		    /* bottom surface */
 		    if (y != _cy - 1)
-			val -= _omega * vec_x[row + _cx * _ng] * 
-			    mat[cell][g*(_ng+4)+1] / mat[cell][g*(_ng+4)+g+2];
+			val -= _omega * vec_x[row + _cx * _ncg] * 
+			    mat[cell][g*(_ncg+4)+1] / mat[cell][g*(_ncg+4)+g+2];
 		    
 		    /* group to group */
-		    for (int e = 0; e < _ng; e++){
+		    for (int e = 0; e < _ncg; e++){
 			if (e != g)
-			    val -= _omega * vec_x[(y*_cx+x)*_ng+e] * 
-				mat[cell][g*(_ng+4)+2+e] / mat[cell][g*(_ng+4)+g+2];
+			    val -= _omega * vec_x[(y*_cx+x)*_ncg+e] * 
+				mat[cell][g*(_ncg+4)+2+e] / mat[cell][g*(_ncg+4)+g+2];
 		    }
 		    
 		    /* right surface */
 		    if (x != _cx - 1)
-			val -= _omega * vec_x[row + _ng] * 
-			    mat[cell][g*(_ng+4)+_ng+2] / mat[cell][g*(_ng+4)+g+2];
+			val -= _omega * vec_x[row + _ncg] * 
+			    mat[cell][g*(_ncg+4)+_ncg+2] / mat[cell][g*(_ncg+4)+g+2];
 		     
 		    /* top surface */
 		    if (y != 0)
-			val -= _omega * vec_x[row - _ng*_cx] * 
-			    mat[cell][g*(_ng+4)+_ng+3] / mat[cell][g*(_ng+4)+g+2];
+			val -= _omega * vec_x[row - _ncg*_cx] * 
+			    mat[cell][g*(_ncg+4)+_ncg+3] / mat[cell][g*(_ncg+4)+g+2];
 		    
 		    vec_x[row] = val;
 		}
@@ -725,43 +765,43 @@ void Cmfd::linearSolve(double** mat, double* vec_x, double* vec_b, double conv,
 	for (int y = 0; y < _cy; y++){
 	    for (int x = 1 - y % 2; x < _cx; x += 2){
 		cell = y*_cx+x;
-		for (int g = 0; g < _ng; g++){
-		    row = (y*_cx+x)*_ng + g;
+		for (int g = 0; g < _ncg; g++){
+		    row = (y*_cx+x)*_ncg + g;
 		    val = 0.0;
 		    
 		    /* previous flux term */
 		    val += (1.0 - _omega) * vec_x[row];
 		    
 		    /* source term */
-		    val += _omega * vec_b[row] / mat[cell][g*(_ng+4)+g+2];
+		    val += _omega * vec_b[row] / mat[cell][g*(_ncg+4)+g+2];
 		    
 		    
 		    /* left surface */
 		    if (x != 0)
-			val -= _omega * vec_x[row - _ng] * 
-			    mat[cell][g*(_ng+4)] / mat[cell][g*(_ng+4)+g+2];
+			val -= _omega * vec_x[row - _ncg] * 
+			    mat[cell][g*(_ncg+4)] / mat[cell][g*(_ncg+4)+g+2];
 		    
 		    /* bottom surface */
 		    if (y != _cy - 1)
-			val -= _omega * vec_x[row + _cx * _ng] * 
-			    mat[cell][g*(_ng+4)+1] / mat[cell][g*(_ng+4)+g+2];
+			val -= _omega * vec_x[row + _cx * _ncg] * 
+			    mat[cell][g*(_ncg+4)+1] / mat[cell][g*(_ncg+4)+g+2];
 		    
 		    /* group to group */
-		    for (int e = 0; e < _ng; e++){
+		    for (int e = 0; e < _ncg; e++){
 			if (e != g)
-			    val -= _omega * vec_x[(y*_cx+x)*_ng+e] * 
-				mat[cell][g*(_ng+4)+2+e] / mat[cell][g*(_ng+4)+g+2];
+			    val -= _omega * vec_x[(y*_cx+x)*_ncg+e] * 
+				mat[cell][g*(_ncg+4)+2+e] / mat[cell][g*(_ncg+4)+g+2];
 		    }
 		    
 		    /* right surface */
 		    if (x != _cx - 1)
-			val -= _omega * vec_x[row + _ng] * 
-			    mat[cell][g*(_ng+4)+_ng+2] / mat[cell][g*(_ng+4)+g+2];
+			val -= _omega * vec_x[row + _ncg] * 
+			    mat[cell][g*(_ncg+4)+_ncg+2] / mat[cell][g*(_ncg+4)+g+2];
 		    
 		    /* top surface */
 		    if (y != 0)
-			val -= _omega * vec_x[row - _ng*_cx] * 
-			    mat[cell][g*(_ng+4)+_ng+3] / mat[cell][g*(_ng+4)+g+2];
+			val -= _omega * vec_x[row - _ncg*_cx] * 
+			    mat[cell][g*(_ncg+4)+_ncg+3] / mat[cell][g*(_ncg+4)+g+2];
 		    
 		    vec_x[row] = val;
 		}
@@ -769,14 +809,16 @@ void Cmfd::linearSolve(double** mat, double* vec_x, double* vec_b, double conv,
 	}
 	
 	norm = 0.0;
-	for (int i = 0; i < _cx*_cy*_ng; i++){
+	for (int i = 0; i < _cx*_cy*_ncg; i++){
 	    if (vec_x[i] != 0.0)
 		norm += pow((vec_x[i] - _phi_temp[i]) / vec_x[i], 2);	
         }
 	
-	norm = pow(norm, 0.5) / (_cx*_cy*_ng);
+	norm = pow(norm, 0.5) / (_cx*_cy*_ncg);
 
 	iter++;
+
+	log_printf(INFO, "GS iter: %i, norm: %f", iter, norm);
 
 	if (iter >= max_iter)
 	    break;
@@ -799,11 +841,11 @@ void Cmfd::rescaleFlux(){
     /* rescale the new and old flux to have an avg source of 1.0 */
     matMultM(_M, phi_new, _snew);
     sumnew = vecSum(_snew);
-    scale_val = _cx*_cy*_ng / sumnew;
+    scale_val = _cx*_cy*_ncg / sumnew;
     vecScale(phi_new, scale_val);
     matMultM(_M, phi_old, _sold);
     sumold = vecSum(_sold);
-    scale_val = _cx*_cy*_ng / sumold;
+    scale_val = _cx*_cy*_ncg / sumold;
     vecScale(phi_old, scale_val);
 }
 
@@ -816,7 +858,7 @@ void Cmfd::rescaleFlux(){
 void Cmfd::vecScale(double* vec, double scale_val){
 
     #pragma omp parallel for
-    for (int i = 0; i < _cx*_cy*_ng; i++)
+    for (int i = 0; i < _cx*_cy*_ncg; i++)
 	vec[i] *= scale_val;
 
 }
@@ -830,7 +872,7 @@ void Cmfd::vecScale(double* vec, double scale_val){
 void Cmfd::vecSet(double* vec, double val){
 
     #pragma omp parallel for
-    for (int i = 0; i < _cx*_cy*_ng; i++)
+    for (int i = 0; i < _cx*_cy*_ncg; i++)
 	vec[i] = val;
 
 }
@@ -846,7 +888,7 @@ void Cmfd::vecNormal(double** mat, double* vec){
     double source, scale_val;
     matMultM(mat, vec, _phi_temp);
     source = vecSum(_phi_temp);
-    scale_val = (_cx*_cy*_ng) / source;
+    scale_val = (_cx*_cy*_ncg) / source;
     vecScale(vec, scale_val);
     
 }
@@ -863,9 +905,9 @@ void Cmfd::matMultM(double** mat, double* vec_x, double* vec_y){
     vecSet(vec_y, 0.0);
     
     for (int i = 0; i < _cx*_cy; i++){
-	for (int g = 0; g < _ng; g++){
-	    for (int e = 0; e < _ng; e++){
-		vec_y[i*_ng+g] += mat[i][g*_ng+e] * vec_x[i*_ng+e];
+	for (int g = 0; g < _ncg; g++){
+	    for (int e = 0; e < _ncg; e++){
+		vec_y[i*_ncg+g] += mat[i][g*_ncg+e] * vec_x[i*_ncg+e];
 	    }
 	}
     }
@@ -880,7 +922,7 @@ double Cmfd::vecSum(double* vec){
 
     double sum = 0.0;
     
-    for (int i = 0; i < _cx*_cy*_ng; i++)
+    for (int i = 0; i < _cx*_cy*_ncg; i++)
 	sum += vec[i];
     
     return sum;
@@ -895,7 +937,7 @@ double Cmfd::vecSum(double* vec){
 void Cmfd::vecCopy(double* vec_from, double* vec_to){
     
     #pragma omp parallel for
-    for (int i = 0; i < _cx*_cy*_ng; i++)
+    for (int i = 0; i < _cx*_cy*_ncg; i++)
 	vec_to[i] = vec_from[i];
 }
 
@@ -909,7 +951,7 @@ void Cmfd::matZero(double** mat, int width){
     
     #pragma omp parallel for
     for (int i = 0; i < _cx*_cy; i++){
-	for (int g = 0; g < _ng*width; g++)
+	for (int g = 0; g < _ncg*width; g++)
 	    mat[i][g] = 0.0;
     }
 }
@@ -932,8 +974,8 @@ void Cmfd::constructMatrices(){
     double* widths = _mesh->getLengthsX();
 
     /* zero _A and _M matrices */
-    matZero(_M, _ng);
-    matZero(_A, _ng+4);
+    matZero(_M, _ncg);
+    matZero(_A, _ncg+4);
     
     /* loop over cells */
     #pragma omp parallel for private(value, volume, cell, row, material)
@@ -945,32 +987,32 @@ void Cmfd::constructMatrices(){
 	    volume = _mesh->getVolumes()[cell];
 
 	    /* loop over groups */
-	    for (int e = 0; e < _ng; e++){
+	    for (int e = 0; e < _ncg; e++){
 		
-		row = cell*_ng + e;
+		row = cell*_ncg + e;
 		
 		/* absorption term */
 		value = material->getSigmaA()[e] * volume;
-		_A[cell][e*(_ng+4)+e+2] += value;
+		_A[cell][e*(_ncg+4)+e+2] += value;
 		
 		/* out (1st) and int (2nd) scattering */
 		if (_flux_type == PRIMAL){
-		    for (int g = 0; g < _ng; g++){
+		    for (int g = 0; g < _ncg; g++){
 			if (e != g){
-			    value = material->getSigmaS()[g*_ng + e] * volume;
-			    _A[cell][e*(_ng+4)+e+2] += value;
-			    value = - material->getSigmaS()[e*_ng + g] * volume;
-			    _A[cell][e*(_ng+4)+g+2] += value;
+			    value = material->getSigmaS()[g*_ncg + e] * volume;
+			    _A[cell][e*(_ncg+4)+e+2] += value;
+			    value = - material->getSigmaS()[e*_ncg + g] * volume;
+			    _A[cell][e*(_ncg+4)+g+2] += value;
 			}
 		    }
 		}
 		else{
-		    for (int g = 0; g < _ng; g++){
+		    for (int g = 0; g < _ncg; g++){
 			if (e != g){
-			    value = material->getSigmaS()[e*_ng + g] * volume;
-			    _A[cell][e*(_ng+4)+e+2] += value;
-			    value = - material->getSigmaS()[g*_ng + e] * volume;
-			    _A[cell][e*(_ng+4)+g+2] += value;
+			    value = material->getSigmaS()[e*_ncg + g] * volume;
+			    _A[cell][e*(_ncg+4)+e+2] += value;
+			    value = - material->getSigmaS()[g*_ncg + e] * volume;
+			    _A[cell][e*(_ncg+4)+g+2] += value;
 			}
 		    }
 		}
@@ -978,96 +1020,96 @@ void Cmfd::constructMatrices(){
 		/* RIGHT SURFACE */
 		
 		/* set transport term on diagonal */
-		value = (material->getDifHat()[2*_ng + e] 
-			 - material->getDifTilde()[2*_ng + e]) 
+		value = (material->getDifHat()[2*_ncg + e] 
+			 - material->getDifTilde()[2*_ncg + e]) 
 		    * heights[cell / _cx];
 		
-		_A[cell][e*(_ng+4)+e+2] += value;
+		_A[cell][e*(_ncg+4)+e+2] += value;
 		
 		/* set transport term on off diagonal */
 		if (x != _cx - 1){
-		    value = - (material->getDifHat()[2*_ng + e] 
-			       + material->getDifTilde()[2*_ng + e]) 
+		    value = - (material->getDifHat()[2*_ncg + e] 
+			       + material->getDifTilde()[2*_ncg + e]) 
 			* heights[cell / _cx];
 		    
-		    _A[cell][e*(_ng+4)+_ng+2] += value;
+		    _A[cell][e*(_ncg+4)+_ncg+2] += value;
 		}
 		
 		/* LEFT SURFACE */
 		
 		/* set transport term on diagonal */
-		value = (material->getDifHat()[0*_ng + e] 
-			 + material->getDifTilde()[0*_ng + e]) 
+		value = (material->getDifHat()[0*_ncg + e] 
+			 + material->getDifTilde()[0*_ncg + e]) 
 		    * heights[cell / _cx];
 		
-		_A[cell][e*(_ng+4)+e+2] += value;
+		_A[cell][e*(_ncg+4)+e+2] += value;
 		
 		/* set transport term on off diagonal */
 		if (x != 0){
-		    value = - (material->getDifHat()[0*_ng + e] 
-			       - material->getDifTilde()[0*_ng + e]) 
+		    value = - (material->getDifHat()[0*_ncg + e] 
+			       - material->getDifTilde()[0*_ncg + e]) 
 			* heights[cell / _cx];
 		    
-		    _A[cell][e*(_ng+4)] += value;
+		    _A[cell][e*(_ncg+4)] += value;
 		}
 		
 		/* BOTTOM SURFACE */
 		
 		/* set transport term on diagonal */
-		value = (material->getDifHat()[1*_ng + e] 
-			 - material->getDifTilde()[1*_ng + e]) 
+		value = (material->getDifHat()[1*_ncg + e] 
+			 - material->getDifTilde()[1*_ncg + e]) 
 		    * widths[cell % _cx];
 		
-		_A[cell][e*(_ng+4)+e+2] += value;
+		_A[cell][e*(_ncg+4)+e+2] += value;
 		
 		/* set transport term on off diagonal */
 		if (y != _cy - 1){
-		    value = - (material->getDifHat()[1*_ng + e] 
-			       + material->getDifTilde()[1*_ng + e]) 
+		    value = - (material->getDifHat()[1*_ncg + e] 
+			       + material->getDifTilde()[1*_ncg + e]) 
 			* widths[cell % _cx];
 		    
-		    _A[cell][e*(_ng+4)+1] += value;
+		    _A[cell][e*(_ncg+4)+1] += value;
 		}
 		
 		/* TOP SURFACE */
 		
 		/* set transport term on diagonal */
-		value = (material->getDifHat()[3*_ng + e] 
-			 + material->getDifTilde()[3*_ng + e]) 
+		value = (material->getDifHat()[3*_ncg + e] 
+			 + material->getDifTilde()[3*_ncg + e]) 
 		    * widths[cell % _cx];
 		
-		_A[cell][e*(_ng+4)+e+2] += value;
+		_A[cell][e*(_ncg+4)+e+2] += value;
 		
 		/* set transport term on off diagonal */
 		if (y != 0){
-		    value = - (material->getDifHat()[3*_ng + e] 
-		     - material->getDifTilde()[3*_ng + e]) 
+		    value = - (material->getDifHat()[3*_ncg + e] 
+		     - material->getDifTilde()[3*_ncg + e]) 
 			* widths[cell % _cx];
 		    
-		    _A[cell][e*(_ng+4)+_ng+3] += value;
+		    _A[cell][e*(_ncg+4)+_ncg+3] += value;
 		}
 		
 		/* source term */
-		for (int g = 0; g < _ng; g++){	 
+		for (int g = 0; g < _ncg; g++){	 
 		    value = material->getChi()[e] * material->getNuSigmaF()[g] 
 			* volume;
 		    
 		    if (_flux_type == PRIMAL)
-			_M[cell][e*_ng+g] += value;
+			_M[cell][e*_ncg+g] += value;
 		    else
-			_M[cell][g*_ng+e] += value;
+			_M[cell][g*_ncg+e] += value;
 		}
 		
 		log_printf(DEBUG, "cel: %i, vol; %f", cell, 
 			   _mesh->getVolumes()[cell]);
 		
-		for (int i = 0; i < _ng+4; i++)
+		for (int i = 0; i < _ncg+4; i++)
 		    log_printf(DEBUG, "i: %i, A value: %f", i, 
-			       _A[cell][e*(_ng+4)+i]);
+			       _A[cell][e*(_ncg+4)+i]);
 		
-		for (int i = 0; i < _ng; i++)
+		for (int i = 0; i < _ncg; i++)
 		    log_printf(DEBUG, "i: %i, M value: %f", i, 
-			       _M[cell][e*(_ng+4)+i]);
+			       _M[cell][e*(_ncg+4)+i]);
 		
 	    }
 	}
@@ -1095,24 +1137,27 @@ void Cmfd::updateMOCFlux(){
     #pragma omp parallel for private(iter, old_cell_flux, new_cell_flux)
     for (int i = 0; i < _cx*_cy; i++){
 	
-	/* loop over groups */
-	for (int e = 0; e < _ng; e++){
+	/* loop over cmfd groups */
+	for (int e = 0; e < _ncg; e++){
 	    
 	    /* get the old and new meshCell flux */
-	    old_cell_flux = old_flux[i*_ng + e];
-	    new_cell_flux = new_flux[i*_ng + e];
+	    old_cell_flux = old_flux[i*_ncg + e];
+	    new_cell_flux = new_flux[i*_ncg + e];
 	    
-	    /* loop over FRSs in mesh cell */
-	    for (iter = _mesh->getCellFSRs()->at(i).begin(); 
-		 iter != _mesh->getCellFSRs()->at(i).end(); ++iter) {
+	    for (int h = _group_indices[e]; h < _group_indices[e+1]; h++){
+
+	        /* loop over FRSs in mesh cell */
+	        for (iter = _mesh->getCellFSRs()->at(i).begin(); 
+		     iter != _mesh->getCellFSRs()->at(i).end(); ++iter) {
 		
-		/* set new flux in FSR */
-		_FSR_fluxes[*iter*_ng+e] = new_cell_flux / 
-		    old_cell_flux * _FSR_fluxes[*iter*_ng+e];
+		    /* set new flux in FSR */
+		    _FSR_fluxes[*iter*_ng+h] = new_cell_flux / 
+		        old_cell_flux * _FSR_fluxes[*iter*_ng+h];
 		
-		log_printf(DEBUG, "Updating flux in FSR: %i, cell: %i, group: "
-			   "%i, ratio: %f", *iter ,i, e, 
-			   new_cell_flux / old_cell_flux);
+		    log_printf(DEBUG, "Updating flux in FSR: %i, cell: %i, group: "
+			       "%i, ratio: %f", *iter ,i, h, 
+			       new_cell_flux / old_cell_flux);
+		}
 	    }
 	}
     }
@@ -1323,7 +1368,7 @@ double Cmfd::rayleighQuotient(double* x, double* snew, double* sold){
     matMultA(_A, x, sold);
     matMultM(_M, x, snew);
 
-    for (int i = 0; i < _cx*_cy*_ng; i++){
+    for (int i = 0; i < _cx*_cy*_ncg; i++){
 	numer += x[i]*snew[i];
 	denom += x[i]*sold[i];
     }
@@ -1346,28 +1391,28 @@ void Cmfd::matMultA(double** mat, double* vec_x, double* vec_y){
     for (int y = 0; y < _cy; y++){
         for (int x = 0; x < _cx; x++){
             cell = y*_cx+x;
-            for (int g = 0; g < _ng; g++){
-                row = cell*_ng + g;
+            for (int g = 0; g < _ncg; g++){
+                row = cell*_ncg + g;
                 
 		if (x != 0)
-		    vec_y[row] += mat[cell][g*(_ng+4)] * 
-			vec_x[(cell-1)*_ng+g];
+		    vec_y[row] += mat[cell][g*(_ncg+4)] * 
+			vec_x[(cell-1)*_ncg+g];
 
 		if (y != _cy - 1)
-		    vec_y[row] += mat[cell][g*(_ng+4)+1] * 
-			vec_x[(cell+_cx)*_ng+g];
+		    vec_y[row] += mat[cell][g*(_ncg+4)+1] * 
+			vec_x[(cell+_cx)*_ncg+g];
 
 		if (x != _cx - 1)
-		    vec_y[row] += mat[cell][g*(_ng+4)+_ng+2] * 
-			vec_x[(cell+1)*_ng+g];
+		    vec_y[row] += mat[cell][g*(_ncg+4)+_ncg+2] * 
+			vec_x[(cell+1)*_ncg+g];
 
 		if (y != 0)
-		    vec_y[row] += mat[cell][g*(_ng+4)+_ng+3] * 
-			vec_x[(cell-_cx)*_ng+g];
+		    vec_y[row] += mat[cell][g*(_ncg+4)+_ncg+3] * 
+			vec_x[(cell-_cx)*_ncg+g];
 
-		for (int e = 0; e < _ng; e++)
-                    vec_y[row] += mat[cell][g*(_ng+4)+2+e] * 
-			vec_x[cell*_ng+e];				    
+		for (int e = 0; e < _ncg; e++)
+                    vec_y[row] += mat[cell][g*(_ncg+4)+2+e] * 
+			vec_x[cell*_ncg+e];				    
 	    }
 	}
     }
@@ -1378,14 +1423,14 @@ void Cmfd::matSubtract(double** AM, double** A, double omega, double** M){
 
     /* copy A to AM */
     for (int i = 0; i < _cx*_cy; i++){
-	for (int g = 0; g < _ng*(_ng+4); g++)
+	for (int g = 0; g < _ncg*(_ncg+4); g++)
 	    AM[i][g] = A[i][g];
     }
 
     for (int i = 0; i < _cx*_cy; i++){
-	for (int e = 0; e < _ng; e++){
-	    for (int g = 0; g < _ng; g++)
-		AM[i][g*(_ng+4)+e+2] -= omega*M[i][g*_ng+e];
+	for (int e = 0; e < _ncg; e++){
+	    for (int g = 0; g < _ncg; g++)
+		AM[i][g*(_ncg+4)+e+2] -= omega*M[i][g*_ncg+e];
 	}
     }
 }
@@ -1395,8 +1440,41 @@ double Cmfd::vecMax(double* vec){
 
     double max = vec[0];
 
-    for (int i = 0; i < _cx*_cy*_ng; i++)
+    for (int i = 0; i < _cx*_cy*_ncg; i++)
 	max = std::max(max, vec[i]);
 
     return max;
+}
+
+
+int Cmfd::getNumCmfdGroups(){
+  return _ncg;
+}
+
+
+int Cmfd::getCmfdGroupWidth(){
+  return _group_width;
+}
+
+
+void Cmfd::setNumCmfdGroups(int num_cmfd_groups){
+  _ncg = num_cmfd_groups;
+  _mesh->setNumGroups(_ncg);
+}
+
+
+void Cmfd::createGroupStructure(){
+  
+  _group_width = _ng / _ncg;
+
+  _group_indices = new int[_ncg+1];
+
+  for (int i = 0; i < _ncg; i++){
+    _group_indices[i] = i*_group_width;
+    log_printf(NORMAL, "group indices %i: %i", i, _group_indices[i]);
+  }
+
+  _group_indices[_ncg] = _ng;
+  log_printf(NORMAL, "group indices %i: %i", _ncg, _group_indices[_ncg]);
+  log_printf(NORMAL, "group width: %i", _group_width);
 }

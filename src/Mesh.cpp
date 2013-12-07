@@ -86,31 +86,18 @@ Mesh::~Mesh(){
  */
 void Mesh::initialize(){
     
-    /* create pointers to flux arrays */
-    double* new_flux;
-    double* old_flux;
-    double* adj_flux;
-    
-    /* allocate memory for fluxes and volumes */
+    /* allocate memory for mesh properties */
     try{
 	_volumes = new double[_cx*_cy];
-	new_flux = new double[_cx*_cy*_ng];
-	old_flux = new double[_cx*_cy*_ng];
-	adj_flux = new double[_cx*_cy*_ng];
 	_lengths_x = new double[_cx];
 	_lengths_y = new double[_cy];
 	_bounds_x  = new double[_cx+1];
 	_bounds_y  = new double[_cy+1];
     }
     catch(std::exception &e){
-        log_printf(ERROR, "Could not allocate memory for the Mesh fluxes, "
-		   "lengths, and volumes. Backtrace:%s", e.what());
+        log_printf(ERROR, "Could not allocate memory for the Mesh properties"
+		   ". Backtrace:%s", e.what());
     }
-    
-    /* insert flux arrays */
-    _fluxes.insert(std::pair<fluxType, double*>(PRIMAL, new_flux));
-    _fluxes.insert(std::pair<fluxType, double*>(PRIMAL_UPDATE, old_flux));
-    _fluxes.insert(std::pair<fluxType, double*>(ADJOINT, adj_flux));
     
     /* set number of currents */
     _num_currents = _cx*_cy*8;
@@ -118,13 +105,6 @@ void Mesh::initialize(){
     /* set initial mesh cell flux to 1.0 and allocate memory for fsr vectors */
     for (int y = 0; y < _cy; y++){
 	for (int x = 0; x < _cx; x++){
-	    
-	    for (int g = 0; g < _ng; g++){
-		new_flux[(y*_cx+x)*_ng + g] = 1.0;
-		old_flux[(y*_cx+x)*_ng + g] = 1.0;
-		adj_flux[(y*_cx+x)*_ng + g] = 1.0;
-	    }
-	    
 	    /* allocate memory for fsr vector */
 	    std::vector<int> *fsrs = new std::vector<int>;
 	    _cell_fsrs.push_back(*fsrs);      
@@ -586,7 +566,7 @@ int Mesh::getNumCells(){
  * @param num_groups number of energy groups
  **/
 void Mesh::setNumGroups(int num_groups){
-    _ng = num_groups;
+  _ng = num_groups;
 }
 
 
@@ -851,17 +831,21 @@ double* Mesh::getCurrents(){
  * @param materials map of fsr materials
  * @param fsrs_to_mats array of material ids indexed by fsr id 
  **/
-void Mesh::initializeMaterials(std::map<int, Material*>* materials, 
-			       int* fsrs_to_mats){
+void Mesh::initializeMaterials(){
+
+    Material* material;
 
     try{
 	_materials = new Material*[_cx*_cy];
-	std::vector<int>::iterator iter;
 	
 	for (int y = 0; y < _cy; y++){
-	    for (int x = 0; x < _cx; x++)      
-		_materials[y*_cx+x] = materials->at
-		    (fsrs_to_mats[_cell_fsrs.at(y*_cx+x).at(0)])->clone();
+	    for (int x = 0; x < _cx; x++){
+	      material = new Material(y*_cx+x);
+	      material->setNumEnergyGroups(_ng);
+	      _materials[y*_cx+x] = material;
+	      //	      _materials[y*_cx+x] = materials->at
+	      //  (fsrs_to_mats[_cell_fsrs.at(y*_cx+x).at(0)])->clone();
+	    }
 	}
     }
     catch(std::exception &e){
@@ -886,15 +870,15 @@ int Mesh::getNumCurrents(){
 void Mesh::initializeSurfaceCurrents(){
     
     try{
-    _currents = new double[8*_cx*_cy*_ng];
+        _currents = new double[8*_cx*_cy*_ng];
     }
     catch(std::exception &e){
         log_printf(ERROR, "Could not allocate memory for the Mesh currents. "
 		   "Backtrace:%s", e.what());
     }
-
+  
     for (int i = 0; i < 8*_cx*_cy*_ng; i++)
-	_currents[i] = 0.0;
+        _currents[i] = 0.0;
 }
 
 
@@ -961,4 +945,43 @@ double Mesh::getRelaxFactor(){
  */
 solveType Mesh::getSolveType(){
     return _solve_method;
+}
+
+
+void Mesh::initializeFlux(){
+
+    /* create pointers to flux arrays */
+    double* new_flux;
+    double* old_flux;
+    double* adj_flux;
+
+    /* allocate memory for fluxes and volumes */
+    try{
+	new_flux = new double[_cx*_cy*_ng];
+	old_flux = new double[_cx*_cy*_ng];
+	adj_flux = new double[_cx*_cy*_ng];
+    }
+    catch(std::exception &e){
+        log_printf(ERROR, "Could not allocate memory for the Mesh fluxes, "
+		   "lengths, and volumes. Backtrace:%s", e.what());
+    }
+    
+    /* insert flux arrays */
+    _fluxes.insert(std::pair<fluxType, double*>(PRIMAL, new_flux));
+    _fluxes.insert(std::pair<fluxType, double*>(PRIMAL_UPDATE, old_flux));
+    _fluxes.insert(std::pair<fluxType, double*>(ADJOINT, adj_flux));
+    
+    /* set number of currents */
+    _num_currents = _cx*_cy*8;
+    
+    /* set initial mesh cell flux to 1.0 and allocate memory for fsr vectors */
+    for (int y = 0; y < _cy; y++){
+	for (int x = 0; x < _cx; x++){	    
+	    for (int g = 0; g < _ng; g++){
+		new_flux[(y*_cx+x)*_ng + g] = 1.0;
+		old_flux[(y*_cx+x)*_ng + g] = 1.0;
+		adj_flux[(y*_cx+x)*_ng + g] = 1.0;
+	    }
+	}
+    }  
 }

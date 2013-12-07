@@ -81,6 +81,9 @@ private:
 
   /* number of groups */
   int _ng;
+  int _ncg;
+  int* _group_indices;
+  int _group_width;
 
   /* number of fsrs */
   int _num_fsrs;
@@ -126,16 +129,21 @@ public:
   void matSubtract(double** AM, double** A, double omega, double** M);
   double vecMax(double* vec);
   double rayleighQuotient(double* x, double* snew, double* sold);
-      
+  void createGroupStructure();
+
   /* get parameters */
   Mesh* getMesh();
   double getKeff();
+  int getNumCmfdGroups();
+  int getCmfdGroupWidth();
+
 
   /* set parameters */
   void setOmega(double omega);
   void setFluxType(const char* flux_type);
   void setEigenMethod(const char* eigen_method);
-  
+  void setNumCmfdGroups(int num_cmfd_groups);  
+
   /* set fsr parameters */
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);

@@ -414,6 +414,11 @@ void Material::setNumEnergyGroups(const int num_groups) {
     _nu_sigma_f = new FP_PRECISION[_num_groups];
     _chi = new FP_PRECISION[_num_groups];
     _sigma_s = new FP_PRECISION[_num_groups*_num_groups];
+
+    for (int e = 0; e < _num_groups; e++){
+        _chi[e] = 0.0;
+	_nu_sigma_f[e] = 0.0;
+    }
 }
 
 

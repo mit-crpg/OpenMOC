@@ -343,7 +343,8 @@ geometry.initializeFlatSourceRegions()
 log.py_printf('NORMAL', 'Creating cmfd module...')
 
 cmfd = Cmfd(geometry)
-cmfd.setOmega(1.75)
+cmfd.setOmega(1.50)
+cmfd.setNumCmfdGroups(3)
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -359,7 +360,7 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator, cmfd)
+solver = ThreadPrivateSolver(geometry, track_generator, cmfd)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
