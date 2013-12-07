@@ -211,6 +211,53 @@ FP_PRECISION Solver::getSourceConvergenceThreshold() {
 
 
 /**
+ * @brief Returns whether the solver is using single floating point precision.
+ * @return true if so, false otherwise
+ */
+bool Solver::isUsingSinglePrecision() {
+#ifdef SINGLE
+    return true;
+#else
+    return false;
+#endif
+}
+
+
+/**
+ * @brief Returns whether the solver is using double floating point precision.
+ * @return true if so, false otherwise
+ */
+bool Solver::isUsingDoublePrecision() {
+#ifdef DOUBLE
+    return true;
+#else
+    return false;
+#endif
+}
+
+
+/**
+ * @brief Returns whether the solver is using interpolation to 
+ *        compute exponentials.
+ * @return true if so, false otherwise
+ */
+bool Solver::isUsingExponentialInterpolation() {
+    return _interpolate_exponential;
+}
+
+
+/**
+ * @brief Returns whether the solver is using the exponential intrinsic to 
+ *        compute exponentials.
+ * @return true if so, false otherwise
+ */
+bool Solver::isUsingExponentialIntrinsic() {
+    return !_interpolate_exponential;
+}
+
+
+
+/**
  * @brief Sets the geometry for the solver.
  * @details The geometry must already have initialized flat source region maps
  *          and segmentized the track generator's tracks.
