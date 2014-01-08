@@ -108,6 +108,8 @@ public:
     void subdivideCells();
     std::string toString();
     void printString();
+
+    Universe* clone();
 };
 
 
