@@ -339,15 +339,6 @@ std::string Universe::toString() {
 
 
 /**
- * @brief Prints a string representation of all of the universe's objects to
- *        the console.
- */
-void Universe::printString() {
-    log_printf(RESULT, toString().c_str());
-}
-
-
-/**
  * @brief Compute the FSR maps for this universe and return the number of
  *        FSRs inside the universe.
  * @details The FSR map is simply a hash table of the local FSR IDs for each
@@ -406,6 +397,52 @@ void Universe::subdivideCells() {
 	    }
 	}
     }
+}
+
+
+/**
+ * @brief Prints a string representation of all of the universe's objects to
+ *        the console.
+ */
+void Universe::printString() {
+    log_printf(RESULT, toString().c_str());
+}
+
+
+/**
+ * @brief Clones this universe and all of the cells within it and returns it
+ * @return a pointer to the universe clone
+ */
+Universe* Universe::clone() {
+
+    log_printf(DEBUG, "Cloning universe %d", _id);
+
+    /* Instantiate new Universe clone */
+    Universe* clone = new Universe(10000);
+
+    /* Loop over cells in Universe and clone each one */
+    std::map<int, Cell*>::iterator iter1;
+    for (iter1 = _cells.begin(); iter1 != _cells.end(); ++iter1) {
+      
+        /* If the cell is filled with a Material, clone it */
+        if ((*iter1).second->getType() == MATERIAL) {
+	    /* Clone the cell */
+	    CellBasic* parent = static_cast<CellBasic*>((*iter1).second);
+	    CellBasic* cell_clone = parent->clone();
+
+	    /* Add cell clone to the list */
+	    clone->addCell(cell_clone);
+	}
+
+	/* Throw error message if Cell is FILL type */
+	else {
+	  log_printf(ERROR, "Unable to clone Universe %d since it contains "
+		    "Cell %d which is filled with a Universe rather "
+		    "than a Material");
+	}
+    }
+
+    return clone;
 }
 
 
