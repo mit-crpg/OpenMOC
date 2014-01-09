@@ -140,6 +140,7 @@ public:
     int getNumSectors();
     int getNumFSRs();
 
+    void setMaterial(int material_id);
     void setNumRings(int num_rings);
     void setNumSectors(int num_sectors);
     CellBasic* clone();

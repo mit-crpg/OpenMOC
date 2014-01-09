@@ -337,6 +337,15 @@ void CellBasic::setNumSectors(int num_sectors) {
 
 
 /**
+ * @brief Sets the ID for the material filling this cell.
+ * @param material_id the new material filling this cell
+ */
+void CellBasic::setMaterial(int material_id) {
+    _material = material_id;
+}
+
+
+/**
  * @brief Create a duplicate of the cellbasic.
  * @return a pointer to the clone
  */
