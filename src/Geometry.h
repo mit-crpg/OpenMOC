@@ -135,6 +135,8 @@ public:
     Material* getMaterial(int id);
     Surface* getSurface(int id);
     Cell* getCell(int id);
+    CellBasic* getCellBasic(int id);
+    CellFill* getCellFill(int id);
     Universe* getUniverse(int id);
     Lattice* getLattice(int id);
 
