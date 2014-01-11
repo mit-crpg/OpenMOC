@@ -272,16 +272,19 @@ Surface* Geometry::getSurface(int id) {
 
 
 /**
- * @brief Return a pointer to a cell from the geometry.
+ * @brief Return a pointer to a cell filled by a material from the geometry.
  * @param id the user-specified cell's ID
  * @return a pointer to the cell object
  */
-Cell* Geometry::getCell(int id) {
+CellBasic* Geometry::getCellBasic(int id) {
 
-    Cell* cell = NULL;
+    CellBasic* cell = NULL;
 
     try {
-        cell = _cells.at(id);
+        cell = static_cast<CellBasic*>(_cells.at(id));
+	if (cell->getType() != MATERIAL)
+	  log_printf(WARNING, "Retrieving cell %d from the geometry, but it "
+		     "is not a MATERIAL type cell", cell->getId());
     }
     catch (std::exception & e) {
         log_printf(ERROR, "Attempted to retrieve cell with id = %d which has "
@@ -290,6 +293,31 @@ Cell* Geometry::getCell(int id) {
 
     return cell;
 }
+
+
+/**
+ * @brief Return a pointer to a cell filled by a universe from the geometry.
+ * @param id the user-specified cell's ID
+ * @return a pointer to the cell object
+ */
+CellFill* Geometry::getCellFill(int id) {
+
+    CellFill* cell = NULL;
+
+    try {
+        cell = static_cast<CellFill*>(_cells.at(id));
+	if (cell->getType() != FILL)
+	  log_printf(WARNING, "Retrieving cell %d from the geometry, but it "
+		     "is not a FILL type cell", cell->getId());
+    }
+    catch (std::exception & e) {
+        log_printf(ERROR, "Attempted to retrieve cell with id = %d which has "
+                   "not been declared. Backtrace:\n%s", id, e.what());
+    }
+
+    return cell;
+}
+
 
 
 /**
