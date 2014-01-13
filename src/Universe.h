@@ -28,6 +28,7 @@ class Cell;
 class CellFill;
 class CellBasic;
 
+int universe_id();
 
 /**
  * @enum universeType

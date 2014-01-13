@@ -3,6 +3,24 @@
 
 int Universe::_n = 0;
 
+static int auto_id = 10000;
+
+
+/**
+ * @brief Returns an auto-generated unique material ID.
+ * @details This method is intended as a utility method for user's writing
+ *          OpenMOC input files. The method makes use of a static universe
+ *          ID which is incremented each time the method is called to enable
+ *          unique generation of monotonically increasing IDs. The method's
+ *          first ID begins at 10000. Hence, user-defined material IDs greater
+ *          than or equal to 10000 is prohibited.
+ */
+int universe_id() {
+    int id = auto_id;
+    auto_id++;
+    return id;
+}
+
 
 /**
  * @brief Constructor assigns a unique and user-specified ID for the universe.
@@ -461,7 +479,7 @@ Universe* Universe::clone() {
     log_printf(DEBUG, "Cloning universe %d", _id);
 
     /* Instantiate new Universe clone */
-    Universe* clone = new Universe(10000);
+    Universe* clone = new Universe(universe_id());
 
     /* Loop over cells in Universe and clone each one */
     std::map<int, Cell*>::iterator iter1;
@@ -475,6 +493,7 @@ Universe* Universe::clone() {
 
 	    /* Add cell clone to the list */
 	    clone->addCell(cell_clone);
+        cell_clone->setUniverse(clone->getId());
 	}
 
 	/* Throw error message if Cell is FILL type */
