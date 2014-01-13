@@ -270,6 +270,27 @@ Surface* Geometry::getSurface(int id) {
     return surface;
 }
 
+/**
+ * @brief Return a pointer to a cell.
+ * @param id the user-specified cell's ID
+ * @return a pointer to the cell object
+ */
+
+Cell* Geometry::getCell(int id) {
+
+    Cell* cell = NULL;
+
+    try {
+        cell = static_cast<Cell*>(_cells.at(id));
+    }
+    catch (std::exception & e) {
+        log_printf(ERROR, "Attempted to retrieve cell with id = %d which has "
+                   "not been declared. Backtrace:\n%s", id, e.what());
+    }
+
+    return cell;
+}
+
 
 /**
  * @brief Return a pointer to a cell filled by a material from the geometry.
