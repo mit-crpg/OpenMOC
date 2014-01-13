@@ -202,8 +202,9 @@ void Universe::addCell(Cell* cell) {
 
 
 /**
- *
- *
+ * @brief Returns a Cell in this universe.
+ * @param cell_id the integer the cell_id
+ * @return Returns the cell pointer.
  */
 Cell* Universe::getCell(int cell_id) {
 
@@ -213,6 +214,48 @@ Cell* Universe::getCell(int cell_id) {
 		   "contain this cell", cell_id, _id);
     
     return _cells.at(cell_id);
+}
+
+
+/**
+ * @brief Returns a CellFill in this universe.
+ * @param cell_id the integer the cell_id
+ * @return Returns the cell fill pointer.
+ */
+CellFill* Universe::getCellFill(int cell_id) {
+
+    CellFill* cell = NULL;
+    if (_cells.find(cell_id) == _cells.end())
+            log_printf(ERROR, "Unable to return cell with id = %d from "
+		       "universe with id = %d since the universe does not "
+		       "contain this cell", cell_id, _id);
+        
+    cell = static_cast<CellFill*>(_cells.at(cell_id));
+	if (cell->getType() != FILL)
+	  log_printf(WARNING, "Retrieving cell %d from universe %d, but it "
+		     "is not a FILL type cell", cell->getId(), _id);
+    return cell;
+}
+
+
+/**
+ * @brief Returns a CellBasic in this universe.
+ * @param cell_id the integer the cell_id
+ * @return Returns the cell fill pointer.
+ */
+CellBasic* Universe::getCellBasic(int cell_id) {
+
+    CellBasic* cell = NULL;
+    if (_cells.find(cell_id) == _cells.end())
+            log_printf(ERROR, "Unable to return cell with id = %d from "
+		       "universe with id = %d since the universe does not "
+		       "contain this cell", cell_id, _id);
+        
+    cell = static_cast<CellBasic*>(_cells.at(cell_id));
+	if (cell->getType() != MATERIAL)
+	  log_printf(WARNING, "Retrieving cell %d from universe %d, but it "
+		     "is not a MATERIAL type cell", cell->getId(), _id);
+    return cell;
 }
 
 

@@ -25,6 +25,8 @@
 
 class LocalCoords;
 class Cell;
+class CellFill;
+class CellBasic;
 
 
 /**
@@ -87,6 +89,8 @@ public:
     void addCell(Cell* cell);
     
     Cell* getCell(int cell_id);
+    CellFill* getCellFill(int cell_id);
+    CellBasic* getCellBasic(int cell_id);
     std::map<int, Cell*> getCells() const;
     int getUid() const;
     int getId() const;
