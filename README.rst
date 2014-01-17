@@ -7,7 +7,7 @@ solving for the flux, power distribution, and multiplication factor
 within a nuclear reactor. The code employs the deterministic method 
 of characteristics using fixed source iteration. The OpenMOC project 
 project aims to provide a simple-to-use Python package bound to a 
-back-end of source code written in C/C+ and CUDA. It includes support 
+back-end of source code written in C/C++ and CUDA. It includes support 
 for constructive solid geometry and 2D ray tracing for fully 
 heterogeneous multi-group calculations. Development of OpenMOC began 
 at MIT in 2012 and is spearheaded by several graduate students in the 
