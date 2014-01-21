@@ -25,4 +25,6 @@ Theses
 ======
 - William R. D. Boyd III, "Massively Parallel Algorithms for Method of Characteristics Neutral Particle Transport on Shared Memory Computer Architectures." M.S. Thesis, Massachusetts Institute of Technology (2014). 
 
+- Matthew Everson, "Advanced Application of the Discrete Generalized Multigroup Method and Recondensation to Reactor Analysis." PhD Thesis, Massachusetts Institute of Technology (2014).
+
 - Lulu Li, "A Low Order Acceleration Scheme for Solving the Neutron Transport Equation." M.S. Thesis, Massachusetts Institute of Technology (2013).
