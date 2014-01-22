@@ -36,17 +36,17 @@ private:
     /** The local coordinate type (UNIV or LAT) */
     coordType _type;
     /** The id of the universe within which this localcoords resides */
-    short int _universe;
+    int _universe;
     /** The id of the cell within which this localcoords resides */
-    short int _cell;
+    int _cell;
     /** The id of the lattice within which this localcoords resides */
-    short int _lattice;
+    int _lattice;
     /** The first index of the lattice cell within which this localcoords 
      *  resides */
-    short int _lattice_x;
+    int _lattice_x;
     /** The second index of the lattice cell within which this localcoords 
      *  resides */
-    short int _lattice_y;
+    int _lattice_y;
     /** A point representing the 2D coordinates of this localcoords */
     Point _coords;
     /** A pointer to the localcoords at the next lower nested universe level */
@@ -58,11 +58,11 @@ public:
     LocalCoords(double x, double y);
     virtual ~LocalCoords();
     coordType getType();
-    short int getUniverse() const;
-    short int getCell() const;
-    short int getLattice() const;
-    short int getLatticeX() const;
-    short int getLatticeY() const;
+    int getUniverse() const;
+    int getCell() const;
+    int getLattice() const;
+    int getLatticeX() const;
+    int getLatticeY() const;
     double getX() const;
     double getY() const;
     Point* getPoint();
@@ -70,11 +70,11 @@ public:
     LocalCoords* getPrev() const;
 
     void setType(coordType type);
-    void setUniverse(short int universe);
-    void setCell(short int cell);
-    void setLattice(short int lattice);
-    void setLatticeX(short int lattice_x);
-    void setLatticeY(short int lattice_y);
+    void setUniverse(int universe);
+    void setCell(int cell);
+    void setLattice(int lattice);
+    void setLatticeX(int lattice_x);
+    void setLatticeY(int lattice_y);
     void setX(double x);
     void setY(double y);
     void setNext(LocalCoords *next);

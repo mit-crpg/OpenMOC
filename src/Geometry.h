@@ -146,6 +146,12 @@ public:
     void addUniverse(Universe* universe);
     void addLattice(Lattice* lattice);
 
+    void removeMaterial(int id);
+    void removeSurface(int id);
+    void removeCell(int id);
+    void removeUniverse(int id);
+    void removeLattice(int id);
+
     Cell* findCellContainingCoords(LocalCoords* coords);
     CellBasic* findCellContainingFSR(int fsr_id);
     Cell* findCell(Universe* univ, int fsr_id);

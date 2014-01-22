@@ -52,6 +52,29 @@ Geometry::~Geometry() {
 
 
 /**
+ * This method links together the pointers to the universes filling
+ * CellFill class objects
+ */
+void Geometry::initializeCellFillPointers() {
+
+    /* Checks if cellfill references this universe and sets its pointer */
+    std::map<int, Cell*>::iterator iter;
+    CellFill* cell;
+    Universe* univ;
+    for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+
+        if (iter->second->getType() == FILL) {
+	    cell = static_cast<CellFill*>(iter->second);
+	    univ = _universes.at(cell->getUniverseFillId());
+	    cell->setUniverseFillPointer(univ);
+	}
+    }
+
+    return;
+}
+
+
+/**
  * @brief Returns the total height (y extent) of the geometry in cm.
  * @return the total height of the geometry (cm)
  */
@@ -610,29 +633,6 @@ void Geometry::addCell(Cell* cell) {
 
 
 /**
- * This method links together the pointers to the universes filling
- * CellFill class objects
- */
-void Geometry::initializeCellFillPointers() {
-
-    /* Checks if cellfill references this universe and sets its pointer */
-    std::map<int, Cell*>::iterator iter;
-    CellFill* cell;
-    Universe* univ;
-    for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-
-        if (iter->second->getType() == FILL) {
-	    cell = static_cast<CellFill*>(iter->second);
-	    univ = _universes.at(cell->getUniverseFillId());
-	    cell->setUniverseFillPointer(univ);
-	}
-    }
-
-    return;
-}
-
-
-/**
  * @brief Add a universe to the geometry.
  * @param universe a pointer to the universe object
  */
@@ -724,6 +724,148 @@ void Geometry::addLattice(Lattice* lattice) {
     /* Add the lattice to the universes container as well */
     addUniverse(lattice);
 }
+
+
+/**
+ * @brief Removes a material from the geometry.
+ * @details Note: this method does not remove the cells filled by this material
+ *          from the geometry.
+ * @param id the material id
+ */
+void Geometry::removeMaterial(int id) {
+
+    /* Checks if the geometry contains this material */
+    if (_materials.find(id) == _materials.end())
+        log_printf(WARNING, "Cannot remove a material with id = %d from the "
+                   "geometry since it doesn't contain that material", id);
+
+    try {
+        std::map<int, Material*>::iterator iter;
+	iter = _materials.find(id);
+	_materials.erase(iter);
+        log_printf(INFO, "Removed material with id = %d from geometry", id);
+    }
+    catch (std::exception &e) {
+        log_printf(ERROR, "Unable to remove a material with id = %d. Backtrace:"
+                   "\n%s", id, e.what());
+    }
+}
+
+
+/**
+ * @brief Removes a surface from the geometry.
+ * @details Note: this method does not remove the cells containing this surface
+ *          from the geometry.
+ * @param id the surface id
+ */
+void Geometry::removeSurface(int id) {
+
+    /* Checks if the geometry contains this surface */
+    if (_surfaces.find(id) == _surfaces.end())
+        log_printf(WARNING, "Cannot remove a surface with id = %d from the "
+                   "geometry since it doesn't contain that surface", id);
+
+    try {
+        std::map<int, Surface*>::iterator iter;
+	iter = _surfaces.find(id);
+	_surfaces.erase(iter);
+        log_printf(INFO, "Removed surface with id = %d from geometry", id);
+    }
+    catch (std::exception &e) {
+        log_printf(ERROR, "Unable to remove a surface with id = %d. Backtrace:"
+                   "\n%s", id, e.what());
+    }
+}
+
+
+/**
+ * @brief Removes a cell from the geometry.
+ * @details Note: this method does not remove the universe, surface(s), or
+ *          material  contained within the cell.
+ * @param id the cell id
+ */
+void Geometry::removeCell(int id) {
+
+    printf("removing cell id = %d\n", id);
+
+    /* Checks if the geometry contains this cell */
+    if (_cells.find(id) == _cells.end())
+        log_printf(WARNING, "Cannot remove a cell with id = %d from the "
+                   "geometry since it doesn't contain that cell", id);
+
+    try {
+        std::map<int, Cell*>::iterator iter;
+	iter = _cells.find(id);
+	_cells.erase(iter);
+        log_printf(INFO, "Removed cell with id = %d from geometry", id);
+    }
+    catch (std::exception &e) {
+        log_printf(ERROR, "Unable to remove a cell with id = %d. Backtrace:"
+                   "\n%s", id, e.what());
+    }
+}
+
+
+
+/**
+ * @brief Removes a universe from the geometry.
+ * @details Note: this method does not remove the cells contained within the 
+ *          universe, or cells filled by this universe.
+ * @param id the universe id
+ */
+void Geometry::removeUniverse(int id) {
+
+    /* Checks if the geometry contains this universe */
+    if (_universes.find(id) == _universes.end())
+        log_printf(WARNING, "Cannot remove a universe with id = %d from the "
+                   "geometry since it doesn't contain that universe", id);
+
+    /* Remove the universe from the geometry */
+    else {
+        try {
+	    std::map<int, Universe*>::iterator iter;
+	    iter = _universes.find(id);
+	    _universes.erase(iter);
+            log_printf(INFO, "Removed universe with id = %d from geometry", id);
+        }
+        catch (std::exception &e) {
+            log_printf(ERROR, "Unable to remove universe with id = %d. "
+                       "Backtrace:\n%s", id, e.what());
+        }
+    }
+
+    return;
+}
+
+
+/**
+ * @brief Removes a lattice from the geometry.
+ * @details Note: this method does not remove the universes filling each
+ *          lattice cell in the lattice.
+ * @param id the lattice id
+ */
+void Geometry::removeLattice(int id) {
+
+    /* Checks if the geometry contains this universe */
+    if (_lattices.find(id) == _lattices.end())
+        log_printf(WARNING, "Cannot remove a lattice with id = %d from the "
+                   "geometry since it doesn't contain that lattice", id);
+
+    /* Remove the universe from the geometry */
+    else {
+        try {
+	    std::map<int, Lattice*>::iterator iter;
+	    iter = _lattices.find(id);
+	    _lattices.erase(iter);
+            log_printf(INFO, "Removed lattice with id = %d from geometry", id);
+        }
+        catch (std::exception &e) {
+            log_printf(ERROR, "Unable to remove lattice with id = %d. "
+                       "Backtrace:\n%s", id, e.what());
+        }
+    }
+}
+
 
 
 /**
@@ -1163,6 +1305,8 @@ void Geometry::initializeFlatSourceRegions() {
  */
 void Geometry::segmentize(Track* track) {
 
+    printf("segmentizing track...\n");
+
     /* Track starting point coordinates and azimuthal angle */
     double x0 = track->getStart()->getX();
     double y0 = track->getStart()->getY();
@@ -1196,6 +1340,11 @@ void Geometry::segmentize(Track* track) {
     while (curr != NULL) {
 
         segment_end.copyCoords(&segment_start);
+
+	log_printf(NORMAL, "segment start x = %f, y = %f, segment end "
+		       "x = %f, y = %f", segment_start.getX(), 
+		       segment_start.getY(), segment_end.getX(), 
+		       segment_end.getY());
 
         /* Find the next cell */
         prev = curr;

@@ -31,7 +31,7 @@ coordType LocalCoords::getType() {
  * @brief Return the id of the universe within which this localcoords resides.
  * @return the universe id
  */
-short int LocalCoords::getUniverse() const {
+int LocalCoords::getUniverse() const {
     return _universe;
 }
 
@@ -40,7 +40,7 @@ short int LocalCoords::getUniverse() const {
  * @brief Return the id of the cell within which this localcoords resides.
  * @return the cell id
  */
-short int LocalCoords::getCell() const {
+int LocalCoords::getCell() const {
     return _cell;
 }
 
@@ -49,7 +49,7 @@ short int LocalCoords::getCell() const {
  * @brief Return the id of the lattice within which this localcoords resides.
  * @return the lattice id
  */
-short int LocalCoords::getLattice() const {
+int LocalCoords::getLattice() const {
     return _lattice;
 }
 
@@ -58,7 +58,7 @@ short int LocalCoords::getLattice() const {
  *        localcoords resides.
  * @return the first lattice cell index
  */
-short int LocalCoords::getLatticeX() const {
+int LocalCoords::getLatticeX() const {
     return _lattice_x;
 }
 
@@ -68,7 +68,7 @@ short int LocalCoords::getLatticeX() const {
  *        localcoords resides.
  * @return the second lattice cell index
  */
-short int LocalCoords::getLatticeY() const {
+int LocalCoords::getLatticeY() const {
     return _lattice_y;
 }
 
@@ -134,7 +134,7 @@ void LocalCoords::setType(coordType type) {
  * @brief Set the id of the universe within which this localcoords resides.
  * @param universe the universe id
  */
-void LocalCoords::setUniverse(short int universe) {
+void LocalCoords::setUniverse(int universe) {
     _universe = universe;
 }
 
@@ -143,7 +143,7 @@ void LocalCoords::setUniverse(short int universe) {
  * @brief Set the id of the cell within which this localcoords resides.
  * @param cell the cell id
  */
-void LocalCoords::setCell(short int cell) {
+void LocalCoords::setCell(int cell) {
     _cell = cell;
 }
 
@@ -152,7 +152,7 @@ void LocalCoords::setCell(short int cell) {
  * @brief Sets the id of the lattice within which this localcoords resides.
  * @param lattice the lattice id
  */
-void LocalCoords::setLattice(short int lattice) {
+void LocalCoords::setLattice(int lattice) {
     _lattice = lattice;
 }
 
@@ -162,7 +162,7 @@ void LocalCoords::setLattice(short int lattice) {
  *        localcoords resides.
  * @param lattice_x the first lattice cell index
  */
-void LocalCoords::setLatticeX(short int lattice_x) {
+void LocalCoords::setLatticeX(int lattice_x) {
     _lattice_x = lattice_x;
 }
 
@@ -172,7 +172,7 @@ void LocalCoords::setLatticeX(short int lattice_x) {
  *        localcoords resides.
  * @param lattice_y the second lattice cell index
  */
-void LocalCoords::setLatticeY(short int lattice_y) {
+void LocalCoords::setLatticeY(int lattice_y) {
     _lattice_y = lattice_y;
 }
 
