@@ -786,8 +786,6 @@ void Geometry::removeSurface(int id) {
  */
 void Geometry::removeCell(int id) {
 
-    printf("removing cell id = %d\n", id);
-
     /* Checks if the geometry contains this cell */
     if (_cells.find(id) == _cells.end())
         log_printf(WARNING, "Cannot remove a cell with id = %d from the "
@@ -1305,8 +1303,6 @@ void Geometry::initializeFlatSourceRegions() {
  */
 void Geometry::segmentize(Track* track) {
 
-    printf("segmentizing track...\n");
-
     /* Track starting point coordinates and azimuthal angle */
     double x0 = track->getStart()->getX();
     double y0 = track->getStart()->getY();
@@ -1340,11 +1336,6 @@ void Geometry::segmentize(Track* track) {
     while (curr != NULL) {
 
         segment_end.copyCoords(&segment_start);
-
-	log_printf(NORMAL, "segment start x = %f, y = %f, segment end "
-		       "x = %f, y = %f", segment_start.getX(), 
-		       segment_start.getY(), segment_end.getX(), 
-		       segment_end.getY());
 
         /* Find the next cell */
         prev = curr;
