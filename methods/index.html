@@ -53,73 +53,59 @@
             
   <div class="section" id="theory-and-methodology">
 <span id="methods"></span><h1>Theory and Methodology<a class="headerlink" href="#theory-and-methodology" title="Permalink to this headline">¶</a></h1>
-<p>[THIS SITE IS STILL UNDER CONSTRUCTION]</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#overview-of-program-flow">1.1. Overview of Program Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#references">1.1. References</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html">2. Geometry</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#constructive-solid-geometry">2.1. Constructive Solid Geometry</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#universes">2.1.1. Universes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#lattices">2.1.2. Lattices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method_of_characteristics.html">2. Method of Characteristics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#introduction-to-the-boltzmann-equation">2.1. Introduction to the Boltzmann Equation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-characteristic-transformation">2.2. The Characteristic Transformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-multi-group-energy-approximation">2.3. The Multi-Group Energy Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-discrete-ordinates-approximation">2.4. The Discrete Ordinates Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-isotropic-scattering-approximation">2.5. The Isotropic Scattering Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-flat-source-region-approximation">2.6. The Flat Source Region Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-constant-cross-section-approximation">2.7. The Constant Cross-Section Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-integrating-factor-solution">2.8. The Integrating Factor Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-track-area-approximation">2.9. The Track Area Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#projection-from-the-azimuthal-plane">2.10. Projection from the Azimuthal Plane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#references">2.11. References</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#computing-the-distance-to-nearest-boundary">2.2. Computing the Distance to Nearest Boundary</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#plane-perpendicular-to-an-axis">2.2.1. Plane Perpendicular to an Axis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#generic-plane">2.2.2. Generic Plane</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#cylinder-parallel-to-an-axis">2.2.3. Cylinder Parallel to an Axis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#sphere">2.2.4. Sphere</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constructive_solid_geometry.html">3. Constructive Solid Geometry</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="constructive_solid_geometry.html#csg-formulation">3.1. CSG Formulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="constructive_solid_geometry.html#surfaces-and-halfspaces">3.1.1. Surfaces and Halfspaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="constructive_solid_geometry.html#cells">3.1.2. Cells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="constructive_solid_geometry.html#universes">3.1.3. Universes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="constructive_solid_geometry.html#lattices">3.1.4. Lattices</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#finding-a-cell-given-a-point">2.3. Finding a Cell Given a Point</a></li>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#determining-if-a-coordinate-is-in-a-cell">2.4. Determining if a Coordinate is in a Cell</a></li>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#handling-surface-crossings">2.5. Handling Surface Crossings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#building-neighbor-lists">2.6. Building Neighbor Lists</a></li>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#reflective-boundary-conditions">2.7. Reflective Boundary Conditions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#id2">2.7.1. Plane Perpendicular to an Axis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#id3">2.7.2. Generic Plane</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#id4">2.7.3. Cylinder Parallel to an Axis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#id5">2.7.4. Sphere</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geometry.html#cone-parallel-to-an-axis">2.7.5. Cone Parallel to an Axis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constructive_solid_geometry.html#references">3.2. References</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="track_generation.html">4. Track Generation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="track_generation.html#cylic-tracks">4.1. Cylic Tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="track_generation.html#azimuthal-and-polar-angle-quadrature">4.2. Azimuthal and Polar Angle Quadrature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="track_generation.html#spatial-quadrature">4.3. Spatial Quadrature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="track_generation.html#ray-tracing">4.4. Ray Tracing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="track_generation.html#universe-finding-algorithm">4.4.1. Universe-Finding Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="track_generation.html#cell-finding-algorithm">4.4.2. Cell-Finding Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="track_generation.html#distance-to-nearest-surface-algorithm">4.4.3. Distance-to-Nearest Surface Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="track_generation.html#next-intersection-point-algorithm">4.4.4. Next Intersection Point Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="track_generation.html#track-segmentation-algorithm">4.4.5. Track Segmentation Algorithm</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ray_tracing.html">3. Ray Tracing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cross_sections.html">4. Cross Section Representation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="method_of_characteristics.html">5. Method of Characteristics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#introduction-to-the-boltzmann-equation">5.1. Introduction to the Boltzmann Equation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-characteristic-transformation">5.2. The Characteristic Transformation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-multi-group-energy-approximation">5.3. The Multi-Group Energy Approximation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-discrete-ordinates-approximation">5.4. The Discrete Ordinates Approximation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-isotropic-scattering-approximation">5.5. The Isotropic Scattering Approximation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-flat-source-region-approximation">5.6. The Flat Source Region Approximation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-constant-cross-section-approximation">5.7. The Constant Cross-Section Approximation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-integrating-factor-solution">5.8. The Integrating Factor Solution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#the-track-area-approximation">5.9. The Track Area Approximation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="method_of_characteristics.html#projection-from-the-azimuthal-plane">5.10. Projection from the Azimuthal Plane</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="method_of_characteristics.html#references">5.10.1. References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="track_generation.html#references">4.5. References</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="parallelization.html">5. Parallelization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="parallelization.html#multi-core-processors">5.1. Multi-Core Processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallelization.html#graphics-processing-units-gpus">5.2. Graphics Processing Units (GPUs)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallelization.html#references">5.3. References</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="eigenvalue.html">6. Eigenvalue Calculations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="eigenvalue.html#moc-iteration-scheme">6.1. MOC Iteration Scheme</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eigenvalue.html#source-update-algorithm">6.2. Source Update Algorithm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eigenvalue.html#transport-sweep-algorithm">6.3. Transport Sweep Algorithm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eigenvalue.html#source-convergence-criterion">6.4. Source Convergence Criterion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eigenvalue.html#exponential-evaluation-method">6.5. Exponential Evaluation Method</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="eigenvalue.html#references">6.5.1. References</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="parallelization.html">7. Parallelization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="parallelization.html#references">7.1. References</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="cmfd.html">6. Coarse Mesh Finite Difference Acceleration</a></li>
 </ul>
 </div>
 </div>

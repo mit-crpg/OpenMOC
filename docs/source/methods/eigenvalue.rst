@@ -1,4 +1,4 @@
-.. _methods_algorithms:
+.. _eigenvalue_calculations:
 
 =======================
 Eigenvalue Calculations
@@ -79,7 +79,7 @@ Finally, the ratio of the :math:`L_2` norm of the area-integrated fission source
 
    k_{eff}^{(n+1)} = \frac{||\mathcal{F}\mathbf{\Phi}^{(n+1)}||_2}{||(\mathcal{A-S})\mathbf{\Phi}^{(n+1)}||_2}
 
-These equations define the iterative MOC methodology applied in the OpenMOC code. :ref:`Section 6.2 <source-update-algorithm>` presents the source update algorithm used by the outer iteration to solve :eq:`moc-source-iteration`. :ref:`Section 6.3 <transport-sweep-algorithm>` presents OpenMOC's transport sweep algorithm used for the inner fixed source iteration defined by :eq:`moc-flux-iteration`.
+These equations define the iterative MOC methodology applied in the OpenMOC code. :ref:`Section 3.2 <source-update-algorithm>` presents the source update algorithm used by the outer iteration to solve :eq:`moc-source-iteration`. :ref:`Section 3.3 <transport-sweep-algorithm>` presents OpenMOC's transport sweep algorithm used for the inner fixed source iteration defined by :eq:`moc-flux-iteration`.
 
 
 .. _source-update-algorithm:
@@ -95,6 +95,8 @@ The outer iteration updates the source according to :eq:`moc-source-iteration` f
    :align: center
    :figclass: align-center
    :width: 900px
+
+   **Algorithm 1**: FSR source update.
 
 
 .. _transport-sweep-algorithm:
@@ -117,6 +119,8 @@ A single inner iteration to compute :math:`\Phi_{g,i}` for all FSRs and energy g
    :align: center
    :figclass: align-center
    :width: 900px
+
+   **Algorithm 2**: Transport sweep algorith.
 
 :ref:`Figure 1 <figure-transport-sweep>` illustrates OpenMOC's sequential approach to sweeping across a sequence of 12 tracks for four azimuthal angles. It is noted that each track represents two azimuthal angles for both *forward* and *reverse* directions which necessarily halves the memory requirements for track storage.
 
@@ -150,6 +154,8 @@ The tolerance is generally assigned to the range :math:`tol = [10^{-6}, 10^{-4}]
    :align: center
    :figclass: align-center
    :width: 900px
+
+   **Algorithm 3**: Overal MOC iteration scheme.
 
 
 .. _exponential-evaluation:
@@ -212,6 +218,8 @@ OpenMOC modifies this process by computing array values for each polar angle qua
    :figclass: align-center
    :width: 900px
 
+   **Algorithm 4**: Exponential linear interpolation table construction.
+
 To compute a linear approximation to an exponential, the following procedure is applied in OpenMOC. First, an index into the table must be computed for a track :math:`k` with segment of length :math:`l_{k,i}` in FSR :math:`i` at energy group :math:`g` using the floor function:
 
 .. math::
@@ -239,8 +247,7 @@ Finally, the approximation to the exponential is computed using linear interpola
    e^{-\tau_{k,i,g,p}} \;\; \approx \;\; q_{n,p}\tau_{k,i,g,p} - b_{n,p}
 
 
-----------
 References
-----------
+==========
 
 .. [1] A. Yamamoto, Y. Kitamura and Y. Yamane, "Computational Efficiencies of Approximated Exponential Functions for Transport Calculations of the Characteristics Method." *Annals of Nuclear Energy*, **2**, pp. 1027-1037 (2004).

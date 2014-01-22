@@ -4,16 +4,14 @@
 Theory and Methodology
 ======================
 
-[THIS SITE IS STILL UNDER CONSTRUCTION]
-
 .. toctree::
     :numbered:
     :maxdepth: 3
 
     introduction
-    geometry
-    ray_tracing
-    cross_sections
     method_of_characteristics
-    eigenvalue
+    eigenvalue_calculations
+    constructive_solid_geometry
+    track_generation
     parallelization
+    cmfd

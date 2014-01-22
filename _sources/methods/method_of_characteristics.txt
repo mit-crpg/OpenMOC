@@ -6,17 +6,17 @@ Method of Characteristics
 
 The method of characteristics (MOC) is a widely used technique for solving partial differential equations, including the Boltzmann form of the neutron transport equation [1]_. MOC is used to solve the transport equation in 2D by discretizing both polar and azimuthal angles and integrating the multi-group characteristic form of the equation for a particular azimuthal and polar angle quadrature. The following sections detail the derivation of the characteristic form of the 2D neutron transport equation solved in the OpenMOC method of characteristics scheme [2]_.
 
-:ref:`Section 5.1 <section-boltzmann-eqn>` introduces the Boltzmann form of the neutron transport equation parametrized in 6-dimensional phase space over position, angle and energy. The following several sections introduce the various approximations made to this equation:
+:ref:`Section 2.1 <section-boltzmann-eqn>` introduces the Boltzmann form of the neutron transport equation parametrized in 6-dimensional phase space over position, angle and energy. The following several sections introduce the various approximations made to this equation:
 
-* characteristic transformation (:ref:`Section 5.2 <characteristic-transformation>`)
-* energy discretization (:ref:`Section 5.3 <multi-group-approximation>`)
-* discrete ordinates approximation (:ref:`Section 5.4 <discrete-ordinates-approximation>`)
-* isotropic scattering approximation (:ref:`Section 5.5 <isotropic-scattering-approximation>`)
-* flat source approximation (:ref:`Section 5.6 <flat-source-region-approximation>`)
-* constant cross-section approximation (:ref:`Section 5.7 <constant-xs-approximation>`)
-* integrating factor solution (:ref:`Section 5.8 <integrating-factor-solution>`)
-* track area approximation (:ref:`Section 5.9 <track-area-approximation>`)
-* azimuthal planar projection (:ref:`Section 5.10 <projection-azimuthal-plane>`)
+* characteristic transformation (:ref:`Section 2.2 <characteristic-transformation>`)
+* energy discretization (:ref:`Section 2.3 <multi-group-approximation>`)
+* discrete ordinates approximation (:ref:`Section 2.4 <discrete-ordinates-approximation>`)
+* isotropic scattering approximation (:ref:`Section 2.5 <isotropic-scattering-approximation>`)
+* flat source approximation (:ref:`Section 2.6 <flat-source-region-approximation>`)
+* constant cross-section approximation (:ref:`Section 2.7 <constant-xs-approximation>`)
+* integrating factor solution (:ref:`Section 2.8 <integrating-factor-solution>`)
+* track area approximation (:ref:`Section 2.9 <track-area-approximation>`)
+* azimuthal planar projection (:ref:`Section 2.10 <projection-azimuthal-plane>`)
 
 The final equations applied in OpenMOC to solve for the FSR source and scalar flux derived in the following sections are summarized below:
 
@@ -423,9 +423,8 @@ The final form for the scalar flux can be simplified in terms of the change in a
 This is the form of the transport equation solved by the MOC formulation used in OpenMOC.
 
 
-----------
 References
-----------
+==========
 
 .. [1] J. R. Askew, "A Characteristics Formulation of the Neutron Transport Equation in Complicated Geometries." Technical Report AAEW-M 1108, UK Atomic Energy Establishment (1972).
 

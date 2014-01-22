@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>5. Method of Characteristics &mdash; OpenMOC Documentation</title>
+    <title>2. Method of Characteristics &mdash; OpenMOC Documentation</title>
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -27,8 +27,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" />
     <link rel="up" title="Theory and Methodology" href="index.html" />
-    <link rel="next" title="6. Eigenvalue Calculations" href="eigenvalue.html" />
-    <link rel="prev" title="4. Cross Section Representation" href="cross_sections.html" /> 
+    <link rel="next" title="3. Eigenvalue Calculations" href="eigenvalue.html" />
+    <link rel="prev" title="1. Introduction" href="introduction.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,10 +38,10 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="eigenvalue.html" title="6. Eigenvalue Calculations"
+          <a href="eigenvalue.html" title="3. Eigenvalue Calculations"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="cross_sections.html" title="4. Cross Section Representation"
+          <a href="introduction.html" title="1. Introduction"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
@@ -54,19 +54,19 @@
           <div class="body">
             
   <div class="section" id="method-of-characteristics">
-<span id="id1"></span><h1>5. Method of Characteristics<a class="headerlink" href="#method-of-characteristics" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>2. Method of Characteristics<a class="headerlink" href="#method-of-characteristics" title="Permalink to this headline">¶</a></h1>
 <p>The method of characteristics (MOC) is a widely used technique for solving partial differential equations, including the Boltzmann form of the neutron transport equation <a class="footnote-reference" href="#id4" id="id2">[1]</a>. MOC is used to solve the transport equation in 2D by discretizing both polar and azimuthal angles and integrating the multi-group characteristic form of the equation for a particular azimuthal and polar angle quadrature. The following sections detail the derivation of the characteristic form of the 2D neutron transport equation solved in the OpenMOC method of characteristics scheme <a class="footnote-reference" href="#id5" id="id3">[2]</a>.</p>
-<p><a class="reference internal" href="#section-boltzmann-eqn"><em>Section 5.1</em></a> introduces the Boltzmann form of the neutron transport equation parametrized in 6-dimensional phase space over position, angle and energy. The following several sections introduce the various approximations made to this equation:</p>
+<p><a class="reference internal" href="#section-boltzmann-eqn"><em>Section 2.1</em></a> introduces the Boltzmann form of the neutron transport equation parametrized in 6-dimensional phase space over position, angle and energy. The following several sections introduce the various approximations made to this equation:</p>
 <ul class="simple">
-<li>characteristic transformation (<a class="reference internal" href="#characteristic-transformation"><em>Section 5.2</em></a>)</li>
-<li>energy discretization (<a class="reference internal" href="#multi-group-approximation"><em>Section 5.3</em></a>)</li>
-<li>discrete ordinates approximation (<a class="reference internal" href="#discrete-ordinates-approximation"><em>Section 5.4</em></a>)</li>
-<li>isotropic scattering approximation (<a class="reference internal" href="#isotropic-scattering-approximation"><em>Section 5.5</em></a>)</li>
-<li>flat source approximation (<a class="reference internal" href="#flat-source-region-approximation"><em>Section 5.6</em></a>)</li>
-<li>constant cross-section approximation (<a class="reference internal" href="#constant-xs-approximation"><em>Section 5.7</em></a>)</li>
-<li>integrating factor solution (<a class="reference internal" href="#integrating-factor-solution"><em>Section 5.8</em></a>)</li>
-<li>track area approximation (<a class="reference internal" href="#track-area-approximation"><em>Section 5.9</em></a>)</li>
-<li>azimuthal planar projection (<a class="reference internal" href="#projection-azimuthal-plane"><em>Section 5.10</em></a>)</li>
+<li>characteristic transformation (<a class="reference internal" href="#characteristic-transformation"><em>Section 2.2</em></a>)</li>
+<li>energy discretization (<a class="reference internal" href="#multi-group-approximation"><em>Section 2.3</em></a>)</li>
+<li>discrete ordinates approximation (<a class="reference internal" href="#discrete-ordinates-approximation"><em>Section 2.4</em></a>)</li>
+<li>isotropic scattering approximation (<a class="reference internal" href="#isotropic-scattering-approximation"><em>Section 2.5</em></a>)</li>
+<li>flat source approximation (<a class="reference internal" href="#flat-source-region-approximation"><em>Section 2.6</em></a>)</li>
+<li>constant cross-section approximation (<a class="reference internal" href="#constant-xs-approximation"><em>Section 2.7</em></a>)</li>
+<li>integrating factor solution (<a class="reference internal" href="#integrating-factor-solution"><em>Section 2.8</em></a>)</li>
+<li>track area approximation (<a class="reference internal" href="#track-area-approximation"><em>Section 2.9</em></a>)</li>
+<li>azimuthal planar projection (<a class="reference internal" href="#projection-azimuthal-plane"><em>Section 2.10</em></a>)</li>
 </ul>
 <p>The final equations applied in OpenMOC to solve for the FSR source and scalar flux derived in the following sections are summarized below:</p>
 <p><strong>The source in each flat source region</strong></p>
@@ -79,7 +79,7 @@
 <div class="math">
 <p><img src="../_images/math/ac657e556a92f8101105f460766c4b3a2e6ed130.png" alt="\boxed{\Phi_{i,g} = \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\displaystyle\sum\limits_{p=1}^{P}\omega_{m(k)}\omega_{p}\omega_{k}\sin\theta_{p}\Delta\Psi_{k,i,g,p}\right]}"/></p>
 </div><div class="section" id="introduction-to-the-boltzmann-equation">
-<span id="section-boltzmann-eqn"></span><h2>5.1. Introduction to the Boltzmann Equation<a class="headerlink" href="#introduction-to-the-boltzmann-equation" title="Permalink to this headline">¶</a></h2>
+<span id="section-boltzmann-eqn"></span><h2>2.1. Introduction to the Boltzmann Equation<a class="headerlink" href="#introduction-to-the-boltzmann-equation" title="Permalink to this headline">¶</a></h2>
 <p>The Boltzmann form of the steady-state neutron transport equation is given by the following:</p>
 <div class="math" id="equation-boltzmann-eqn">
 <p><span class="eqno">(1)</span><img src="../_images/math/984ed956dc0a1b95b53776fc90c1498d807087bf.png" alt="\mathbf{\Omega} \cdot \nabla \Psi(\mathbf{r},\mathbf{\Omega},E) + \Sigma^T(\mathbf{r},E)\Psi(\mathbf{r},\mathbf{\Omega},E) = \int_{0}^{\infty} \mathrm{d}E' \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Sigma^S(\mathbf{r},{\mathbf{\Omega'}\rightarrow\mathbf{\Omega}},{E'\rightarrow E}) \Psi(\mathbf{r},\mathbf{\Omega'},E') + \frac{\chi(\mathbf{r},E)}{4\pi k_{eff}} \int_{0}^{\infty} \mathrm{d}E' \nu\Sigma^F(\mathbf{r},E') \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Psi(\mathbf{r},\mathbf{\Omega'},E')"/></p>
@@ -136,7 +136,7 @@
 <p><span class="eqno">(3)</span><img src="../_images/math/530874ed7aaaf484e8519364d86ed85cee2b3fd9.png" alt="\mathbf{\Omega} \cdot \nabla \Psi(\mathbf{r},\mathbf{\Omega},E) + \Sigma^T(\mathbf{r},E)\Psi(\mathbf{r},\mathbf{\Omega},E) = Q(\mathbf{r},\mathbf{\Omega},E)"/></p>
 </div></div>
 <div class="section" id="the-characteristic-transformation">
-<span id="characteristic-transformation"></span><h2>5.2. The Characteristic Transformation<a class="headerlink" href="#the-characteristic-transformation" title="Permalink to this headline">¶</a></h2>
+<span id="characteristic-transformation"></span><h2>2.2. The Characteristic Transformation<a class="headerlink" href="#the-characteristic-transformation" title="Permalink to this headline">¶</a></h2>
 <p>The characteristic form of the Boltzmann equation is found by a change of variables by parametrizing <img class="math" src="../_images/math/523765e6f77d2ff678e47c2a1ff0a59ace2e8e36.png" alt="\mathbf{r}"/> with respect to some reference location <img class="math" src="../_images/math/455cb2cbab199b8f4576c49b4580df92cab10a83.png" alt="\mathbf{r_0}"/>:</p>
 <div class="math" id="equation-characteristics-parametrization">
 <p><span class="eqno">(4)</span><img src="../_images/math/5a522d4569741d80503731e32c42c41b8d1c9b08.png" alt="\mathbf{r} = (x(s), y(s)) = (x_0+s\mathbf{\Omega_x}, y_0+s\mathbf{\Omega_y}) = \mathbf{r_0}+s\mathbf{\Omega}"/></p>
@@ -159,7 +159,7 @@
 <p><span class="eqno">(10)</span><img src="../_images/math/20a1aa499f8317cf45133275823f8dce3a8a087c.png" alt="\Psi(s,\mathbf{\Omega},E) = \Psi(\mathbf{r_{0}},\mathbf{\Omega},E)e^{-\int_{0}^s\mathrm{d}s'\Sigma^T(s',E)} + \int_0^s\mathrm{d}s''Q(s'',\mathbf{\Omega},E)e^{-\int_{s''}^s\mathrm{d}s'\Sigma^T(s',E)}"/></p>
 </div></div>
 <div class="section" id="the-multi-group-energy-approximation">
-<span id="multi-group-approximation"></span><h2>5.3. The Multi-Group Energy Approximation<a class="headerlink" href="#the-multi-group-energy-approximation" title="Permalink to this headline">¶</a></h2>
+<span id="multi-group-approximation"></span><h2>2.3. The Multi-Group Energy Approximation<a class="headerlink" href="#the-multi-group-energy-approximation" title="Permalink to this headline">¶</a></h2>
 <p>Equation <a href="#equation-moc-eqn">(10)</a> is defined with <img class="math" src="../_images/math/866f0204648be9ca6b10e14dd72295295dd53a79.png" alt="\Psi"/>, <img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> and <img class="math" src="../_images/math/5a6812d6e0b48964f314fba17bd957c98636f91d.png" alt="\Sigma^T"/> as continuous functions of energy. The first approximation to numerically solve this equation is to discretize the energy domain into distinct <em>energy groups</em> <img class="math" src="../_images/math/bd834724c65e924aee436ce4c495b89db231546b.png" alt="g \in G = \{1, 2, ..., G\}"/> where group <img class="math" src="../_images/math/311cabda3a9b09f0dde217303ca9d1cd9201dcf6.png" alt="g"/> spans the continuous range of energies from <img class="math" src="../_images/math/1206582f990d561c6a22411fb22e3fed8c950e4f.png" alt="E_{g}"/> to <img class="math" src="../_images/math/791ff57b15eeb5ee4e9bb6c3fbcad1f69b3d9ac7.png" alt="E_{g-1}"/>. This is otherwise known as the <em>multi-group approximation</em>. The multi-group form of the Boltzmann equation is presented below:</p>
 <div class="math" id="equation-boltzmann-multigroup">
 <p><span class="eqno">(11)</span><img src="../_images/math/d73c3cd4006d6ad1e636c24e0a24740042dc0caa.png" alt="\mathbf{\Omega} \cdot \nabla \Psi_g(s,\mathbf{\mathbf{\Omega}}) + \Sigma^T_{g}(s)\Psi_g(s,\mathbf{\Omega}) = Q_g(s,\mathbf{\Omega})"/></p>
@@ -186,7 +186,7 @@
 <p><span class="eqno">(19)</span><img src="../_images/math/9c2f7ab69111fa79dacc3f502de8b50cf44d6e4c.png" alt="\chi_{g}(s) = \displaystyle\sum\limits_{g=1}^{G}\chi_{g'\rightarrow g}(s)"/></p>
 </div></div>
 <div class="section" id="the-discrete-ordinates-approximation">
-<span id="discrete-ordinates-approximation"></span><h2>5.4. The Discrete Ordinates Approximation<a class="headerlink" href="#the-discrete-ordinates-approximation" title="Permalink to this headline">¶</a></h2>
+<span id="discrete-ordinates-approximation"></span><h2>2.4. The Discrete Ordinates Approximation<a class="headerlink" href="#the-discrete-ordinates-approximation" title="Permalink to this headline">¶</a></h2>
 <p>The discrete ordinates approximation is introduced to approximate the integral over the angular domain in the source <a href="#equation-source-multigroup">(13)</a>. This is equivalent to applying quadrature rules to evaluate the integral over the angular flux using a weighted sum of fluxes at specific angles where weights <img class="math" src="../_images/math/f4823beacbe7805f3bf3ef4947845335d6c3bdc8.png" alt="w_{m}"/> are introduced for each of the quadrature points <img class="math" src="../_images/math/e32f8f2e8bebeaa4db009048e891635f094f6ea6.png" alt="\mathbf{\Omega_{m}} \; \forall \; m \in \{1, ..., M\}"/>.</p>
 <div class="math" id="equation-moc-quadrature">
 <p><span class="eqno">(20)</span><img src="../_images/math/29fc3f7c4d4ec1c57ee02b3cf873a464c8bbdb03.png" alt="\Phi_{g}(s) = \int_{4\pi}\mathrm{d}\mathbf{\Omega'}\Psi_{g}(s,\mathbf{\Omega'}) \approx \displaystyle\sum\limits_{m=1}^{M}w_{m}\Psi_{g}(s,\mathbf{\Omega_{m}})"/></p>
@@ -203,20 +203,20 @@
 <p><span class="eqno">(24)</span><img src="../_images/math/7826a614649ad76003b3feebf21adcccfad387f3.png" alt="\Psi_{m,p,g}(s) = \Psi_{m,p,g}(\mathbf{r_{0}})e^{-\int_{0}^s\mathrm{d}s'\Sigma_g^T(s')} + \int_0^s\mathrm{d}s''Q_{m,p,g}(s'')e^{-\int_{s''}^s\mathrm{d}s'\Sigma_g^T(s')}"/></p>
 </div></div>
 <div class="section" id="the-isotropic-scattering-approximation">
-<span id="isotropic-scattering-approximation"></span><h2>5.5. The Isotropic Scattering Approximation<a class="headerlink" href="#the-isotropic-scattering-approximation" title="Permalink to this headline">¶</a></h2>
+<span id="isotropic-scattering-approximation"></span><h2>2.5. The Isotropic Scattering Approximation<a class="headerlink" href="#the-isotropic-scattering-approximation" title="Permalink to this headline">¶</a></h2>
 <p>An additional approximation that is made to simplify the evaluation of the source in <a href="#equation-source-azimuthal-polar">(23)</a> is to assume that the scattering source is isotropic. This approximation allows the total source to be expressed solely in terms of the scalar flux:</p>
 <div class="math" id="equation-source-isotropic">
 <p><span class="eqno">(25)</span><img src="../_images/math/27bf6984c711ace40e32512f20541002e0aa5ec9.png" alt="Q_{g}(s) = \frac{1}{4\pi}\left(\displaystyle\sum\limits_{g'=1}^G \Sigma^S_{g'\rightarrow g}(s)\Phi_{g'}(s) + \frac{\chi_{g}(s)}{k_{eff}}\displaystyle\sum\limits_{g'=1}^G\nu\Sigma^F_{g'}(s)\Phi_{g'}(s)\right)"/></p>
 </div><p>The subscripts <img class="math" src="../_images/math/f5047d1e0cbb50ec208923a22cd517c55100fa7b.png" alt="m"/> and <img class="math" src="../_images/math/36f73fc1312ee0349b3f3a0f3bd9eb5504339011.png" alt="p"/> for the azimuthal and polar angles, respectively, have been dropped from <img class="math" src="../_images/math/a1e67e461c3715effaf4c75a0257d29f5df46acd.png" alt="Q_{g}(s)"/> since they have been embedded in the integral over angular phase space to obtain the scalar flux <img class="math" src="../_images/math/141334978d045a9230a9375abdb37248dba98644.png" alt="\Phi_{g}(s)"/>.</p>
 </div>
 <div class="section" id="the-flat-source-region-approximation">
-<span id="flat-source-region-approximation"></span><h2>5.6. The Flat Source Region Approximation<a class="headerlink" href="#the-flat-source-region-approximation" title="Permalink to this headline">¶</a></h2>
+<span id="flat-source-region-approximation"></span><h2>2.6. The Flat Source Region Approximation<a class="headerlink" href="#the-flat-source-region-approximation" title="Permalink to this headline">¶</a></h2>
 <p>Another common approximation for MOC is to assume that the source <img class="math" src="../_images/math/67f89bdb98f7b31c35601b5463d6134df565415e.png" alt="Q_g"/> is constant across discrete spatial cells termed <em>flat source regions</em> (FSRs). This implies that the source does not vary along a characteristic <img class="math" src="../_images/math/8c325612684d41304b9751c175df7bcc0f61f64f.png" alt="k"/> entering FSR <img class="math" src="../_images/math/34857b3ba74ce5cd8607f3ebd23e9015908ada71.png" alt="i"/> at <img class="math" src="../_images/math/ce7a13236c35ee1faee2e9c31c427f105a151bd1.png" alt="s'"/> and exiting at <img class="math" src="../_images/math/5b9803e629ea836d5551255904d9eb9de19ff1ba.png" alt="s''"/>:</p>
 <div class="math" id="equation-flat-source">
 <p><span class="eqno">(26)</span><img src="../_images/math/8bee5878e6f17cf14a249cab91239e8925442853.png" alt="Q_{i,g} = Q_{g}(s') = Q_{g}(s'') = Q_{g}(s) \;\;\; , \;\;\; s \in [s', s'']"/></p>
 </div></div>
 <div class="section" id="the-constant-cross-section-approximation">
-<span id="constant-xs-approximation"></span><h2>5.7. The Constant Cross-Section Approximation<a class="headerlink" href="#the-constant-cross-section-approximation" title="Permalink to this headline">¶</a></h2>
+<span id="constant-xs-approximation"></span><h2>2.7. The Constant Cross-Section Approximation<a class="headerlink" href="#the-constant-cross-section-approximation" title="Permalink to this headline">¶</a></h2>
 <p>In addition to the flat source approximation, it is assumed that the material properties are constant across each FSR. The area-averaged cross-sections for FSR <img class="math" src="../_images/math/5f2613a78fe0ce05fb41e380a3a5581b96c194a9.png" alt="i \in \{1, 2, ..., I\}"/> with area <img class="math" src="../_images/math/a4b24599915694a978e8e1b92ef6b68e3afe1859.png" alt="A_{i}"/> are defined as:</p>
 <div class="math" id="equation-area-averaged-total-xs">
 <p><span class="eqno">(27)</span><img src="../_images/math/9d1e81cb434770cddbcb79542a08863f1709dc44.png" alt="\Sigma_{i,g}^{T} = \frac{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\Sigma_{g}^T(\mathbf{r})\Phi_{g}(\mathbf{r})}{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\Phi_{g}(\mathbf{r})}"/></p>
@@ -234,7 +234,7 @@
 </div><p>The multi-group nuclear cross-sections for each FSR are an input to OpenMOC. As a result, the area-averaging integrals must be performed by some pre-processing method such as Monte Carlo.</p>
 </div>
 <div class="section" id="the-integrating-factor-solution">
-<span id="integrating-factor-solution"></span><h2>5.8. The Integrating Factor Solution<a class="headerlink" href="#the-integrating-factor-solution" title="Permalink to this headline">¶</a></h2>
+<span id="integrating-factor-solution"></span><h2>2.8. The Integrating Factor Solution<a class="headerlink" href="#the-integrating-factor-solution" title="Permalink to this headline">¶</a></h2>
 <p>Each chracteristic may be discretized into <em>segments</em> across individual FSRs. This approximation allows <a href="#equation-angular-flux-azimuthal-polar">(24)</a> to be localized to a segment of characteristic <img class="math" src="../_images/math/8c325612684d41304b9751c175df7bcc0f61f64f.png" alt="k"/> across FSR <img class="math" src="../_images/math/34857b3ba74ce5cd8607f3ebd23e9015908ada71.png" alt="i"/> from its entry point at <img class="math" src="../_images/math/ce7a13236c35ee1faee2e9c31c427f105a151bd1.png" alt="s'"/> to exit point at <img class="math" src="../_images/math/5b9803e629ea836d5551255904d9eb9de19ff1ba.png" alt="s''"/>. By defining the integrating factor in terms of the optical length <img class="math" src="../_images/math/93c18c3415bb694eb2d037c9dd265e326f649f4f.png" alt="\tau_{k,i,g} = \Sigma^T_{i,g}(s''-s')"/> one may analytically evaluate the integrals in <a href="#equation-angular-flux-azimuthal-polar">(24)</a> and express the outgoing flux along the characteristic as follows:</p>
 <div class="math" id="equation-angular-flux-fsr">
 <p><span class="eqno">(33)</span><img src="../_images/math/30ebfca653559ee8a56a0d63921c25f989574d94.png" alt="\Psi_{k,g}(s'') = \Psi_{k,g}(s')e^{-\tau_{k,i,g}} + \frac{Q_{i,g}}{\Sigma^T_{i,g}}(1 - e^{-\tau_{k,i,g}})"/></p>
@@ -243,7 +243,7 @@
 <p><span class="eqno">(34)</span><img src="../_images/math/ddd978646c1a77aed1036901b7d8392c34b48d43.png" alt="\Delta\Psi_{k,g} = \Psi_{k,g}(s') - \Psi_{k,g}(s'') = \left(\Psi_{k,g}(s') - \frac{Q_{i,g}}{\Sigma^T_{i,g}}\right)(1 - e^{-\tau_{k,i,g}})"/></p>
 </div></div>
 <div class="section" id="the-track-area-approximation">
-<span id="track-area-approximation"></span><h2>5.9. The Track Area Approximation<a class="headerlink" href="#the-track-area-approximation" title="Permalink to this headline">¶</a></h2>
+<span id="track-area-approximation"></span><h2>2.9. The Track Area Approximation<a class="headerlink" href="#the-track-area-approximation" title="Permalink to this headline">¶</a></h2>
 <p>The key quantity remaining to be determined is the integral over area for the FSR area-averaged scalar flux <img class="math" src="../_images/math/ec1d3b6d63de59d916a58b5ef4347b6671ac6cf9.png" alt="\Phi_{g,i}"/> in <a href="#equation-area-averaged-scalar-flux">(32)</a>. The track area approximation is used to compute this value numerically.</p>
 <p>First, define <img class="math" src="../_images/math/935aff063916d7c6d9e7122280be57678cab0648.png" alt="l_{k,i}=s''-s'"/> such that the average angular flux in FSR <img class="math" src="../_images/math/34857b3ba74ce5cd8607f3ebd23e9015908ada71.png" alt="i"/> along characteristic math:<cite>k</cite> is the following integral:</p>
 <div class="math" id="equation-avg-angular-flux-integral">
@@ -266,7 +266,7 @@
 <p><span class="eqno">(40)</span><img src="../_images/math/e26a2d762a534d805b6ed3040d4fed474e195ec4.png" alt="\Phi_{i,g} = \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\omega_{m(k)}\omega_{p(k)}\omega_{k}\sin\theta_{p(k)}\Delta\Psi_{k,i,g}\right]"/></p>
 </div></div>
 <div class="section" id="projection-from-the-azimuthal-plane">
-<span id="projection-azimuthal-plane"></span><h2>5.10. Projection from the Azimuthal Plane<a class="headerlink" href="#projection-from-the-azimuthal-plane" title="Permalink to this headline">¶</a></h2>
+<span id="projection-azimuthal-plane"></span><h2>2.10. Projection from the Azimuthal Plane<a class="headerlink" href="#projection-from-the-azimuthal-plane" title="Permalink to this headline">¶</a></h2>
 <p>The preceding sections used track segment lengths <img class="math" src="../_images/math/a7dd07e5817272fd952051ccc98733b87dbdfa7f.png" alt="l_{k,i}"/> in 3D. In practice, the memory footprint for storing track segment data is greatly reduced if the polar angle quadrature is replicated for each azimuthal quadrature point. Such a quadrature allows for track segments to be stored in the 2D azimuthal plane and projected into 3D for each polar angle when necessary. The projection results in some minor changes to the equations presented in the previous sections.</p>
 <p>In what follows, each track segment length <img class="math" src="../_images/math/a7dd07e5817272fd952051ccc98733b87dbdfa7f.png" alt="l_{k,i}"/> will be assumed to reside within the azimuthal plane. Likewise, the optical length <img class="math" src="../_images/math/52842a8f127e412ea1c1d1252cb05d7fd8ef2e9d.png" alt="\tau_{k,i,g} = \Sigma^T_{k,i,g}l_{k,i}"/> also resides in the azimuthal plane. For notational simplicity, the 3D projection of the track segment length for polar angle <img class="math" src="../_images/math/36f73fc1312ee0349b3f3a0f3bd9eb5504339011.png" alt="p"/> will be denoted by <img class="math" src="../_images/math/21f3423826aab8b607c96b5938dce46a02e755e7.png" alt="l_{k,i,p} = \frac{l_{k,i}}{\sin\theta_{p}}"/> and the optical length by <img class="math" src="../_images/math/82279510e62dc4d494f6a3a72b8875d1301cb56e.png" alt="\tau_{k,i,g,p} = \Sigma^T_{k,i,g}l_{k,i,p}"/>.</p>
 <p>First, the polar angle must be accounted for in the expression for the track segment average angular flux to project the segment length into the polar dimension:</p>
@@ -282,8 +282,9 @@
 <div class="math" id="equation-avg-scalar-flux-polar-final">
 <p><span class="eqno">(44)</span><img src="../_images/math/1e460843ced44cfdca1b5a6b144be70579e649be.png" alt="\Phi_{i,g} = \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\displaystyle\sum\limits_{p=1}^{P}\omega_{m(k)}\omega_{p}\omega_{k}\sin\theta_{p}\Delta\Psi_{k,i,g,p}\right]"/></p>
 </div><p>This is the form of the transport equation solved by the MOC formulation used in OpenMOC.</p>
+</div>
 <div class="section" id="references">
-<h3>5.10.1. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<h2>2.11. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <table class="docutils footnote" frame="void" id="id4" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
@@ -307,7 +308,6 @@
 </table>
 </div>
 </div>
-</div>
 
 
           </div>
@@ -317,30 +317,28 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">5. Method of Characteristics</a><ul>
-<li><a class="reference internal" href="#introduction-to-the-boltzmann-equation">5.1. Introduction to the Boltzmann Equation</a></li>
-<li><a class="reference internal" href="#the-characteristic-transformation">5.2. The Characteristic Transformation</a></li>
-<li><a class="reference internal" href="#the-multi-group-energy-approximation">5.3. The Multi-Group Energy Approximation</a></li>
-<li><a class="reference internal" href="#the-discrete-ordinates-approximation">5.4. The Discrete Ordinates Approximation</a></li>
-<li><a class="reference internal" href="#the-isotropic-scattering-approximation">5.5. The Isotropic Scattering Approximation</a></li>
-<li><a class="reference internal" href="#the-flat-source-region-approximation">5.6. The Flat Source Region Approximation</a></li>
-<li><a class="reference internal" href="#the-constant-cross-section-approximation">5.7. The Constant Cross-Section Approximation</a></li>
-<li><a class="reference internal" href="#the-integrating-factor-solution">5.8. The Integrating Factor Solution</a></li>
-<li><a class="reference internal" href="#the-track-area-approximation">5.9. The Track Area Approximation</a></li>
-<li><a class="reference internal" href="#projection-from-the-azimuthal-plane">5.10. Projection from the Azimuthal Plane</a><ul>
-<li><a class="reference internal" href="#references">5.10.1. References</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">2. Method of Characteristics</a><ul>
+<li><a class="reference internal" href="#introduction-to-the-boltzmann-equation">2.1. Introduction to the Boltzmann Equation</a></li>
+<li><a class="reference internal" href="#the-characteristic-transformation">2.2. The Characteristic Transformation</a></li>
+<li><a class="reference internal" href="#the-multi-group-energy-approximation">2.3. The Multi-Group Energy Approximation</a></li>
+<li><a class="reference internal" href="#the-discrete-ordinates-approximation">2.4. The Discrete Ordinates Approximation</a></li>
+<li><a class="reference internal" href="#the-isotropic-scattering-approximation">2.5. The Isotropic Scattering Approximation</a></li>
+<li><a class="reference internal" href="#the-flat-source-region-approximation">2.6. The Flat Source Region Approximation</a></li>
+<li><a class="reference internal" href="#the-constant-cross-section-approximation">2.7. The Constant Cross-Section Approximation</a></li>
+<li><a class="reference internal" href="#the-integrating-factor-solution">2.8. The Integrating Factor Solution</a></li>
+<li><a class="reference internal" href="#the-track-area-approximation">2.9. The Track Area Approximation</a></li>
+<li><a class="reference internal" href="#projection-from-the-azimuthal-plane">2.10. Projection from the Azimuthal Plane</a></li>
+<li><a class="reference internal" href="#references">2.11. References</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="cross_sections.html"
-                        title="previous chapter">4. Cross Section Representation</a></p>
+  <p class="topless"><a href="introduction.html"
+                        title="previous chapter">1. Introduction</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="eigenvalue.html"
-                        title="next chapter">6. Eigenvalue Calculations</a></p>
+                        title="next chapter">3. Eigenvalue Calculations</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/methods/method_of_characteristics.txt"
@@ -370,10 +368,10 @@
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="eigenvalue.html" title="6. Eigenvalue Calculations"
+          <a href="eigenvalue.html" title="3. Eigenvalue Calculations"
              >next</a> |</li>
         <li class="right" >
-          <a href="cross_sections.html" title="4. Cross Section Representation"
+          <a href="introduction.html" title="1. Introduction"
              >previous</a> |</li>
         <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
           <li><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
