@@ -332,7 +332,7 @@ Cell* Universe::findCell(LocalCoords* coords,
         Cell* cell = iter->second;
 
 	if (cell->cellContainsCoords(coords)) {
-	  
+
 	    /* Set the cell on this level */
 	    coords->setCell(cell->getId());
 

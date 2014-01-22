@@ -918,7 +918,7 @@ void TrackGenerator::segmentize() {
     if (!_use_input_file) {
 
         /* Loop over all tracks */
-        #pragma omp parallel for private(track)
+      //        #pragma omp parallel for private(track)
         for (int i=0; i < _num_azim; i++) {
             for (int j=0; j < _num_tracks[i]; j++){
                 track = &_tracks[i][j];

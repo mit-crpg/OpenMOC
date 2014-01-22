@@ -61,7 +61,7 @@ cells.append(CellBasic(universe=1, material=uo2_id))
 cells.append(CellBasic(universe=1, material=water_id))
 cells.append(CellBasic(universe=2, material=uo2_id))
 cells.append(CellBasic(universe=2, material=water_id))
-cells.append(CellBasic(universe=3, material=uo2_id))
+cells.append(CellBasic(universe=3, material=uo2_id, sectors=8))
 cells.append(CellBasic(universe=3, material=water_id))
 cells.append(CellFill(universe=0, universe_fill=5))
 
@@ -101,6 +101,9 @@ geometry = Geometry()
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 geometry.addLattice(lattice)
+
+print geometry.printString()
+
 
 geometry.initializeFlatSourceRegions()
 
