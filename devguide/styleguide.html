@@ -61,25 +61,108 @@ adding new code in OpenMC.</p>
 <div class="section" id="general-rules">
 <h2>1.1. General Rules<a class="headerlink" href="#general-rules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="c-classes">
-<h2>1.2. C++ Classes<a class="headerlink" href="#c-classes" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="subroutines-and-functions">
-<h2>1.3. Subroutines and Functions<a class="headerlink" href="#subroutines-and-functions" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="variables">
-<h2>1.4. Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="code-comments">
-<h2>1.5. Code Comments<a class="headerlink" href="#code-comments" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="source-code-syntax">
+<h2>1.2. Source Code Syntax<a class="headerlink" href="#source-code-syntax" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><ul class="simple">
-<li>Line <a href="#id1"><span class="problematic" id="id2">Length_</span></a></li>
-</ul>
-<p>For readability, source code in OpenMOC is limited to a maximum of 80 characters for each line. For your convenience in adhering to this policy, you mayupdate your text editor (gedit, vim, emacs, etc.) to display the right margin at column 80.</p>
+<div><ul>
+<li><p class="first"><strong>Class Methods</strong></p>
+</li>
+<li><p class="first"><strong>Class Attributes</strong></p>
+</li>
+<li><p class="first"><strong>Function Names</strong></p>
+</li>
+<li><p class="first"><strong>Variable Names</strong></p>
+</li>
+<li><p class="first"><strong>Code Comments</strong></p>
+<p>OpenMOC uses <a class="reference external" href="http://www.stack.nl/~dimitri/doxygen/">doxygen</a> for automated generation of Application Programming Interface (<a class="reference external" href="http://en.wikipedia.org/wiki/Application_programming_interface">API</a>) documentation based upon code comments. Please adhere to the doxygen standard for code comments in both C/C++ and Python source code. In particular,</p>
 <ul>
-<li><p class="first"><a href="#id3"><span class="problematic" id="id4">Indentation_</span></a></p>
-<p>For readability, OpenMOC uses tabs composed of 4 spaces. For your convenience in adhering to this policy, you may update your text editor (gedit, vim, emacs, etc.) preferences to use a tab width of 4 spaces and to insert spaces instead of tabs.</p>
+<li><p class="first">C/C++ functions should be preceded by doxygen-style comments as illustrated in the following code snippet:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * @brief Single precision A*X plus Y</span>
+<span class="cm"> * @details Multiplies a single precision vectors a</span>
+<span class="cm"> *          and x and adds vector y. The output</span>
+<span class="cm"> *          vector is stored in y.</span>
+<span class="cm"> * @param n the size of the vectors x and y</span>
+<span class="cm"> * @param a a single precision vector of length n</span>
+<span class="cm"> * @param x a single precision vector of length n</span>
+<span class="cm"> * @param y a single precision vector of length n</span>
+<span class="cm"> */</span>
+<span class="kt">int</span> <span class="nf">saxpy</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span> <span class="n">a</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span> <span class="n">x</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span> <span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+    <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">C/C++ class definitions in a header file should be preceded by doxygen-style comments as illustrated in the following code snippet:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * @file Person.h</span>
+<span class="cm"> * @brief The Person class.</span>
+<span class="cm"> * @data January 23, 2014.</span>
+<span class="cm"> * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)</span>
+<span class="cm"> */</span>
+
+ <span class="p">...</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * @class Person Person.h &quot;openmoc/src/Person.h&quot;</span>
+<span class="cm"> * @brief The Person class represents a generic human being.</span>
+<span class="cm"> * @details The Person class contains attributes representing</span>
+<span class="cm"> *          a generic human being, such as name and age.</span>
+<span class="cm"> */</span>
+<span class="n">class</span> <span class="n">Person</span> <span class="p">{</span>
+
+    <span class="nl">private:</span>
+        <span class="cm">/** The person&#39;s name */</span>
+        <span class="kt">char</span><span class="o">*</span> <span class="n">_name</span><span class="p">;</span>
+
+        <span class="cm">/** The person&#39;s age */</span>
+        <span class="kt">int</span> <span class="n">_age</span><span class="p">;</span>
+        <span class="p">...</span>
+
+    <span class="nl">public:</span>
+        <span class="kt">char</span><span class="o">*</span> <span class="n">getName</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">getAge</span><span class="p">();</span>
+        <span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Python functions should be preceded by doxygen-style comments as illustrated in the following code snippet:</p>
+</li>
+<li><p class="first">Python classes should be preceded by doxygen-style comments as illustrated in the following code snippet:</p>
+</li>
+</ul>
+</li>
+<li><p class="first"><strong>Line Length</strong></p>
+<p>For readability, source code in OpenMOC is limited to a maximum of 80 characters for each line. For your convenience in adhering to this policy, you mayupdate your text editor (gedit, emacs, vim, etc.) to display the right margin at column 80.</p>
+</li>
+<li><p class="first"><strong>Indentation</strong></p>
+<p>For readability, OpenMOC uses tabs composed of 4 white spaces per indentation level. For your convenience in adhering to this policy, you may update your text editor (gedit, emacs, vim, etc.) preferences to use a tab width of 4 spaces and to insert spaces instead of tabs. Emacs users should include the following line in their .emacs file:</p>
+<div class="highlight-common-lisp"><div class="highlight"><pre><span class="p">(</span><span class="nv">setq-default</span> <span class="nv">indent-tabs-mode</span> <span class="no">nil</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>vim users should include the following line in their .vimrc file:</p>
+<div class="highlight-python"><pre>set expandtab</pre>
+</div>
+</li>
+<li><p class="first"><strong>Whitespace</strong></p>
+<p>Use a single space between arguments to procedures.</p>
+<p>Avoid extraneous whitespace in the following situations:</p>
+<ul>
+<li><p class="first">In function calls:</p>
+<div class="highlight-python"><pre>Yes: myfunc(x, y(2), z)
+No: myfunc ( x, y( 2 ), z )</pre>
+</div>
+</li>
+<li><p class="first">In logical expressions, use one space around operators but nowhere else:</p>
+<div class="highlight-python"><pre>Yes: if(variable == 2) then
+No: if ( variable==2 ) then</pre>
+</div>
+</li>
+</ul>
 </li>
 </ul>
 </div></blockquote>
@@ -96,10 +179,7 @@ adding new code in OpenMC.</p>
   <ul>
 <li><a class="reference internal" href="#">1. Style Guide for OpenMOC</a><ul>
 <li><a class="reference internal" href="#general-rules">1.1. General Rules</a></li>
-<li><a class="reference internal" href="#c-classes">1.2. C++ Classes</a></li>
-<li><a class="reference internal" href="#subroutines-and-functions">1.3. Subroutines and Functions</a></li>
-<li><a class="reference internal" href="#variables">1.4. Variables</a></li>
-<li><a class="reference internal" href="#code-comments">1.5. Code Comments</a></li>
+<li><a class="reference internal" href="#source-code-syntax">1.2. Source Code Syntax</a></li>
 </ul>
 </li>
 </ul>
