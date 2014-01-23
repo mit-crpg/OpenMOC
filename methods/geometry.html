@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>2. Geometry &mdash; OpenMOC Documentation</title>
+    <title>Geometry &mdash; OpenMOC Documentation</title>
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,10 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="Theory and Methodology" href="index.html" />
-    <link rel="next" title="3. Ray Tracing" href="ray_tracing.html" />
-    <link rel="prev" title="1. Introduction" href="introduction.html" /> 
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,14 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="ray_tracing.html" title="3. Ray Tracing"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="introduction.html" title="1. Introduction"
-             accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -54,9 +44,9 @@
           <div class="body">
             
   <div class="section" id="geometry">
-<span id="methods-geometry"></span><h1>2. Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h1>
+<span id="methods-geometry"></span><h1>Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="constructive-solid-geometry">
-<h2>2.1. Constructive Solid Geometry<a class="headerlink" href="#constructive-solid-geometry" title="Permalink to this headline">¶</a></h2>
+<h2>Constructive Solid Geometry<a class="headerlink" href="#constructive-solid-geometry" title="Permalink to this headline">¶</a></h2>
 <p>OpenMOC uses a technique known as <a class="reference external" href="http://en.wikipedia.org/wiki/Constructive_solid_geometry">constructive solid geometry</a> (CSG) to build
 arbitrarily complex three-dimensional models in Euclidean space. In a CSG model,
 every unique object is described as the union, intersection, or difference of
@@ -202,7 +192,7 @@ z_0 \; R^2"/></td>
 </tbody>
 </table>
 <div class="section" id="universes">
-<span id="id1"></span><h3>2.1.1. Universes<a class="headerlink" href="#universes" title="Permalink to this headline">¶</a></h3>
+<span id="id1"></span><h3>Universes<a class="headerlink" href="#universes" title="Permalink to this headline">¶</a></h3>
 <p>OpenMOC supports universe-based geometry similar to the likes of <a class="reference external" href="http://mcnp.lanl.gov">MCNP</a> and
 <a class="reference external" href="http://montecarlo.vtt.fi">Serpent</a>. This capability enables user to model any identical repeated
 structures once and then fill them in various spots in the geometry. A
@@ -225,7 +215,7 @@ specified universe is automatically part of the <em>base universe</em> whose
 coordinates are just the normal coordinates in Euclidean space.</p>
 </div>
 <div class="section" id="lattices">
-<h3>2.1.2. Lattices<a class="headerlink" href="#lattices" title="Permalink to this headline">¶</a></h3>
+<h3>Lattices<a class="headerlink" href="#lattices" title="Permalink to this headline">¶</a></h3>
 <p>Often times, repeated structures in a geometry occur in a regular pattern such
 as a rectangular or hexagonal lattice. In such a case, it would be cumbersome
 for a user to have to define the boundaries of each of the cells to be filled
@@ -240,7 +230,7 @@ Carlo Performance benchmark</a>.</p>
 </div>
 </div>
 <div class="section" id="computing-the-distance-to-nearest-boundary">
-<h2>2.2. Computing the Distance to Nearest Boundary<a class="headerlink" href="#computing-the-distance-to-nearest-boundary" title="Permalink to this headline">¶</a></h2>
+<h2>Computing the Distance to Nearest Boundary<a class="headerlink" href="#computing-the-distance-to-nearest-boundary" title="Permalink to this headline">¶</a></h2>
 <p>One of the most basic algorithms in any Monte Carlo code is determining the
 distance to the nearest surface within a cell. Since each cell is defined by
 the surfaces that bound it, if we compute the distance to all surfaces bounding
@@ -291,7 +281,7 @@ the minimum distance found thus far, and <img class="math" src="../_images/math/
 OpenMOC, this parameter is set to <img class="math" src="../_images/math/fe73ff328f5390abe4321dedca99491e5136e5c7.png" alt="\epsilon = 10^{-14}"/> since all floating
 calculations are done on 8-byte floating point numbers.</p>
 <div class="section" id="plane-perpendicular-to-an-axis">
-<h3>2.2.1. Plane Perpendicular to an Axis<a class="headerlink" href="#plane-perpendicular-to-an-axis" title="Permalink to this headline">¶</a></h3>
+<h3>Plane Perpendicular to an Axis<a class="headerlink" href="#plane-perpendicular-to-an-axis" title="Permalink to this headline">¶</a></h3>
 <p>The equation for a plane perpendicular to, for example, the x-axis is simply
 <img class="math" src="../_images/math/006d7ad8cb8d2c3b8ad5ec7b2542af99f91bb8c6.png" alt="x - x_0 = 0"/>. As such, we need to solve <img class="math" src="../_images/math/bb3fffdb83748cc9f5ab0b8c7df6cee8dafd8f51.png" alt="x + du - x_0 = 0"/>. The
 solution for the distance is</p>
@@ -303,7 +293,7 @@ example here was for a plane perpendicular to the x-axis, the same formula can
 be applied for the surfaces <img class="math" src="../_images/math/386d08a29da93cc135285d42a82a3ed49000d5f1.png" alt="y = y_0"/> and <img class="math" src="../_images/math/c77b4a481469dbcd2486262e16623f483c16fb9d.png" alt="z = z_0"/>.</p>
 </div>
 <div class="section" id="generic-plane">
-<h3>2.2.2. Generic Plane<a class="headerlink" href="#generic-plane" title="Permalink to this headline">¶</a></h3>
+<h3>Generic Plane<a class="headerlink" href="#generic-plane" title="Permalink to this headline">¶</a></h3>
 <p>The equation for a generic plane is <img class="math" src="../_images/math/eb8661ea00d3e9e10ef23de03755960eec4b554f.png" alt="Ax + By + Cz = D"/>. Thus, we need to
 solve the equation <img class="math" src="../_images/math/c6d0eaa4590b6b777c41f96430ba714713a71498.png" alt="A(x + du) + B(y + dv) + C(z + dw) = D"/>. The solution
 to this equation for the distance is</p>
@@ -314,7 +304,7 @@ the particle&#8217;s direction of flight is parallel to the plane and it will
 therefore never hit the plane.</p>
 </div>
 <div class="section" id="cylinder-parallel-to-an-axis">
-<h3>2.2.3. Cylinder Parallel to an Axis<a class="headerlink" href="#cylinder-parallel-to-an-axis" title="Permalink to this headline">¶</a></h3>
+<h3>Cylinder Parallel to an Axis<a class="headerlink" href="#cylinder-parallel-to-an-axis" title="Permalink to this headline">¶</a></h3>
 <p>The equation for a cylinder parallel to, for example, the x-axis is <img class="math" src="../_images/math/6fdd896e948380781202b4f1b7689e5901b4d8e8.png" alt="(y -
 y_0)^2 + (z - z_0)^2 = R^2"/>. Thus, we need to solve <img class="math" src="../_images/math/01b03dce6c6a8661c94399bda49265d52cae9c72.png" alt="(y + dv - y_0)^2 +
 (z + dw - z_0)^2 = R^2"/>. Let us define <img class="math" src="../_images/math/0a00d0284d1808a4f2b2e78591f2207e848b7231.png" alt="\bar{y} = y - y_0"/> and
@@ -349,7 +339,7 @@ discriminant.</p>
 the y- or z-axis with appropriate substitution of constants.</p>
 </div>
 <div class="section" id="sphere">
-<h3>2.2.4. Sphere<a class="headerlink" href="#sphere" title="Permalink to this headline">¶</a></h3>
+<h3>Sphere<a class="headerlink" href="#sphere" title="Permalink to this headline">¶</a></h3>
 <p>The equation for a sphere is <img class="math" src="../_images/math/62a745995df775198e16354b6b1ed9887e88c8a2.png" alt="(x - x_0)^2 + (y - y_0)^2 + (z - z_0)^2 =
 R^2"/>. Thus, we need to solve the equation</p>
 <div class="math" id="equation-dist-sphere-1">
@@ -382,7 +372,7 @@ root of the discriminant.</p>
 </div>
 </div>
 <div class="section" id="finding-a-cell-given-a-point">
-<span id="find-cell"></span><h2>2.3. Finding a Cell Given a Point<a class="headerlink" href="#finding-a-cell-given-a-point" title="Permalink to this headline">¶</a></h2>
+<span id="find-cell"></span><h2>Finding a Cell Given a Point<a class="headerlink" href="#finding-a-cell-given-a-point" title="Permalink to this headline">¶</a></h2>
 <p>Another basic algorithm is to determine which cell contains a given point in the
 global coordinate system, i.e. if the particle&#8217;s position is <img class="math" src="../_images/math/c73ed093cc73a8d9a14185fa525e7067e5c3725d.png" alt="(x,y,z)"/>,
 what cell is it currently in. This is done in the following manner in
@@ -400,7 +390,7 @@ recursively searched. The search ends once a cell containing a normal material
 is found that contains the specified point.</p>
 </div>
 <div class="section" id="determining-if-a-coordinate-is-in-a-cell">
-<span id="cell-contains"></span><h2>2.4. Determining if a Coordinate is in a Cell<a class="headerlink" href="#determining-if-a-coordinate-is-in-a-cell" title="Permalink to this headline">¶</a></h2>
+<span id="cell-contains"></span><h2>Determining if a Coordinate is in a Cell<a class="headerlink" href="#determining-if-a-coordinate-is-in-a-cell" title="Permalink to this headline">¶</a></h2>
 <p>To determine which cell a particle is in given its coordinates, we need to be
 able to check whether a given cell contains a point. The algorithm for
 determining if a cell contains a point is as follows. For each surface that
@@ -433,7 +423,7 @@ coordinates into equation <a href="#equation-cell-contains-example">(14)</a>. If
 satisfied, than the point is indeed inside the cell.</p>
 </div>
 <div class="section" id="handling-surface-crossings">
-<h2>2.5. Handling Surface Crossings<a class="headerlink" href="#handling-surface-crossings" title="Permalink to this headline">¶</a></h2>
+<h2>Handling Surface Crossings<a class="headerlink" href="#handling-surface-crossings" title="Permalink to this headline">¶</a></h2>
 <p>A particle will cross a surface if the distance to the nearest surface is closer
 than the distance sampled to the next collision. A number of things happen when
 a particle hits a surface. First, we need to check if a non-transmissive
@@ -452,7 +442,7 @@ base universe, only the list of neighboring cells is searched. If this search is
 unsuccessful, then a search is done over every cell in the base universe.</p>
 </div>
 <div class="section" id="building-neighbor-lists">
-<span id="neighbor-lists"></span><h2>2.6. Building Neighbor Lists<a class="headerlink" href="#building-neighbor-lists" title="Permalink to this headline">¶</a></h2>
+<span id="neighbor-lists"></span><h2>Building Neighbor Lists<a class="headerlink" href="#building-neighbor-lists" title="Permalink to this headline">¶</a></h2>
 <p>After the geometry has been loaded and stored in memory from an input file,
 OpenMOC builds a list for each surface containing any cells that are bounded by
 that surface in order to speed up processing of surface crossings. The algorithm
@@ -465,7 +455,7 @@ the positive half-space of the surface. Another loop is performed over all cells
 and the neighbor lists are populated for each surface.</p>
 </div>
 <div class="section" id="reflective-boundary-conditions">
-<span id="reflection"></span><h2>2.7. Reflective Boundary Conditions<a class="headerlink" href="#reflective-boundary-conditions" title="Permalink to this headline">¶</a></h2>
+<span id="reflection"></span><h2>Reflective Boundary Conditions<a class="headerlink" href="#reflective-boundary-conditions" title="Permalink to this headline">¶</a></h2>
 <p>If the velocity of a particle is <img class="math" src="../_images/math/1c39926efbcdc7d77c9337f5d48dd8e1761aec2d.png" alt="\mathbf{v}"/> and it crosses a surface of
 the form <img class="math" src="../_images/math/7a618bda1847d33ede0ff905641965782665226a.png" alt="f(x,y,z) = 0"/> with a reflective boundary condition, it can be
 shown based on geometric arguments that the velocity vector will then become</p>
@@ -506,7 +496,7 @@ w' = w - \frac{2 ( \mathbf{\Omega} \cdot \nabla f )}{|| \nabla f ||^2}
 </div><p>One can then use equation <a href="#equation-reflection-system">(18)</a> to develop equations for
 transforming a particle&#8217;s direction given the equation of the surface.</p>
 <div class="section" id="id2">
-<h3>2.7.1. Plane Perpendicular to an Axis<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<h3>Plane Perpendicular to an Axis<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>For a plane that is perpendicular to an axis, the rule for reflection is almost
 so simple that no derivation is needed at all. Nevertheless, we will proceed
 with the derivation to confirm that the rules of geometry agree with our
@@ -521,7 +511,7 @@ the first tell us that</p>
 negating the directional cosine for that axis.</p>
 </div>
 <div class="section" id="id3">
-<h3>2.7.2. Generic Plane<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<h3>Generic Plane<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>A generic plane has the form <img class="math" src="../_images/math/320357accceeb2f8fc933f629b9af3ab513e9468.png" alt="f(x,y,z) = Ax + By + Cz - D = 0"/>. Thus, the
 gradient to the surface is simply <img class="math" src="../_images/math/6e5e48810a5cf01884bc6dd93293920d02fa3a4e.png" alt="\nabla f = (A,B,C)"/> whose norm squared
 is <img class="math" src="../_images/math/b8314fe89d6a6080868132447c26fdf3a41466f2.png" alt="A^2 + B^2 + C^2"/>. This implies that</p>
@@ -535,7 +525,7 @@ x-component of the reflected direction will be</p>
 <p><span class="eqno">(21)</span><img src="../_images/math/823b09cef32bbcf3b6d605a8574ae69bddc480e6.png" alt="u' = u - \frac{2A(Au + Bv + Cw)}{A^2 + B^2 + C^2}"/></p>
 </div></div>
 <div class="section" id="id4">
-<h3>2.7.3. Cylinder Parallel to an Axis<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<h3>Cylinder Parallel to an Axis<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>A cylinder parallel to, for example, the x-axis has the form <img class="math" src="../_images/math/b815ff99327142275d747ade16d9c36e05d84274.png" alt="f(x,y,z) =
 (y - y_0)^2 + (z - z_0)^2 - R^2 = 0"/>. Thus, the gradient to the surface is</p>
 <div class="math" id="equation-reflection-cylinder-grad">
@@ -560,7 +550,7 @@ and z-components of the reflected direction will be</p>
 w' = w - \frac{2 ( \bar{y}v + \bar{z}w ) \bar{z}}{R^2}"/></p>
 </div></div>
 <div class="section" id="id5">
-<h3>2.7.4. Sphere<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<h3>Sphere<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <p>The surface equation for a sphere has the form <img class="math" src="../_images/math/565a202d4c73fb023d968d521bf6059d65f51b74.png" alt="f(x,y,z) = (x - x_0)^2 +
 (y - y_0)^2 + (z - z_0)^2 - R^2 = 0"/>. Thus, the gradient to the surface is</p>
 <div class="math" id="equation-reflection-sphere-grad">
@@ -586,7 +576,7 @@ v' = v - \frac{2 ( \bar{x}u + \bar{y}v + \bar{z}w ) \bar{y} }{R^2} \\
 w' = w - \frac{2 ( \bar{x}u + \bar{y}v + \bar{z}w ) \bar{z} }{R^2}"/></p>
 </div></div>
 <div class="section" id="cone-parallel-to-an-axis">
-<h3>2.7.5. Cone Parallel to an Axis<a class="headerlink" href="#cone-parallel-to-an-axis" title="Permalink to this headline">¶</a></h3>
+<h3>Cone Parallel to an Axis<a class="headerlink" href="#cone-parallel-to-an-axis" title="Permalink to this headline">¶</a></h3>
 <p>A cone parallel to, for example, the z-axis has the form <img class="math" src="../_images/math/73a8ce22dca28b87146936a02a04e8bd04506ec0.png" alt="f(x,y,z) = (x -
 x_0)^2 + (y - y_0)^2 - R^2(z - z_0)^2 = 0"/>. Thus, the gradient to the surface is</p>
 <div class="math" id="equation-reflection-cone-grad">
@@ -625,41 +615,35 @@ w' = w + \frac{2 (\bar{x}u + \bar{y}v - R^2\bar{z}w)}{R^2 (1 + R^2) \bar{z}}"/><
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">2. Geometry</a><ul>
-<li><a class="reference internal" href="#constructive-solid-geometry">2.1. Constructive Solid Geometry</a><ul>
-<li><a class="reference internal" href="#universes">2.1.1. Universes</a></li>
-<li><a class="reference internal" href="#lattices">2.1.2. Lattices</a></li>
+<li><a class="reference internal" href="#">Geometry</a><ul>
+<li><a class="reference internal" href="#constructive-solid-geometry">Constructive Solid Geometry</a><ul>
+<li><a class="reference internal" href="#universes">Universes</a></li>
+<li><a class="reference internal" href="#lattices">Lattices</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#computing-the-distance-to-nearest-boundary">2.2. Computing the Distance to Nearest Boundary</a><ul>
-<li><a class="reference internal" href="#plane-perpendicular-to-an-axis">2.2.1. Plane Perpendicular to an Axis</a></li>
-<li><a class="reference internal" href="#generic-plane">2.2.2. Generic Plane</a></li>
-<li><a class="reference internal" href="#cylinder-parallel-to-an-axis">2.2.3. Cylinder Parallel to an Axis</a></li>
-<li><a class="reference internal" href="#sphere">2.2.4. Sphere</a></li>
+<li><a class="reference internal" href="#computing-the-distance-to-nearest-boundary">Computing the Distance to Nearest Boundary</a><ul>
+<li><a class="reference internal" href="#plane-perpendicular-to-an-axis">Plane Perpendicular to an Axis</a></li>
+<li><a class="reference internal" href="#generic-plane">Generic Plane</a></li>
+<li><a class="reference internal" href="#cylinder-parallel-to-an-axis">Cylinder Parallel to an Axis</a></li>
+<li><a class="reference internal" href="#sphere">Sphere</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#finding-a-cell-given-a-point">2.3. Finding a Cell Given a Point</a></li>
-<li><a class="reference internal" href="#determining-if-a-coordinate-is-in-a-cell">2.4. Determining if a Coordinate is in a Cell</a></li>
-<li><a class="reference internal" href="#handling-surface-crossings">2.5. Handling Surface Crossings</a></li>
-<li><a class="reference internal" href="#building-neighbor-lists">2.6. Building Neighbor Lists</a></li>
-<li><a class="reference internal" href="#reflective-boundary-conditions">2.7. Reflective Boundary Conditions</a><ul>
-<li><a class="reference internal" href="#id2">2.7.1. Plane Perpendicular to an Axis</a></li>
-<li><a class="reference internal" href="#id3">2.7.2. Generic Plane</a></li>
-<li><a class="reference internal" href="#id4">2.7.3. Cylinder Parallel to an Axis</a></li>
-<li><a class="reference internal" href="#id5">2.7.4. Sphere</a></li>
-<li><a class="reference internal" href="#cone-parallel-to-an-axis">2.7.5. Cone Parallel to an Axis</a></li>
+<li><a class="reference internal" href="#finding-a-cell-given-a-point">Finding a Cell Given a Point</a></li>
+<li><a class="reference internal" href="#determining-if-a-coordinate-is-in-a-cell">Determining if a Coordinate is in a Cell</a></li>
+<li><a class="reference internal" href="#handling-surface-crossings">Handling Surface Crossings</a></li>
+<li><a class="reference internal" href="#building-neighbor-lists">Building Neighbor Lists</a></li>
+<li><a class="reference internal" href="#reflective-boundary-conditions">Reflective Boundary Conditions</a><ul>
+<li><a class="reference internal" href="#id2">Plane Perpendicular to an Axis</a></li>
+<li><a class="reference internal" href="#id3">Generic Plane</a></li>
+<li><a class="reference internal" href="#id4">Cylinder Parallel to an Axis</a></li>
+<li><a class="reference internal" href="#id5">Sphere</a></li>
+<li><a class="reference internal" href="#cone-parallel-to-an-axis">Cone Parallel to an Axis</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="introduction.html"
-                        title="previous chapter">1. Introduction</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="ray_tracing.html"
-                        title="next chapter">3. Ray Tracing</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/methods/geometry.txt"
@@ -688,14 +672,7 @@ w' = w + \frac{2 (\bar{x}u + \bar{y}v - R^2\bar{z}w)}{R^2 (1 + R^2) \bar{z}}"/><
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="ray_tracing.html" title="3. Ray Tracing"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="introduction.html" title="1. Introduction"
-             >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>
 

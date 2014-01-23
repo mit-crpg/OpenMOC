@@ -426,7 +426,7 @@ This is the form of the transport equation solved by the MOC formulation used in
 References
 ==========
 
-.. [1] J. R. Askew, "A Characteristics Formulation of the Neutron Transport Equation in Complicated Geometries." Technical Report AAEW-M 1108, UK Atomic Energy Establishment (1972).
+.. [1] J. Askew, "A Characteristics Formulation of the Neutron Transport Equation in Complicated Geometries." Technical Report AAEW-M 1108, UK Atomic Energy Establishment (1972).
 
 .. [2] W. Boyd, "Massively Parallel Algorithms for Method of Characteristics Neutral Particle Transport on Shared Memory Computer Architectures." M.S. Thesis, Massachusetts Institute of Technology (2014). 
 

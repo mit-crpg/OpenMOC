@@ -16,11 +16,10 @@ References
 
 .. [2] K. Smith and J. D. Rhodes, "Full-Core, 2-D, LWR Core Calculations with CASMO-4E." **Proceedings of PHYSOR**, Seoul, South Korea (2002).
 
-.. [3] G. J. Wu and R. Roy, "A New Characteristics Algorithm for 3D Transport Calculations." *Annals of Nuclear Energy*, **30**, pp. 1-6 (2003).
+.. [3] G. Wu and R. Roy, "A New Characteristics Algorithm for 3D Transport Calculations." *Annals of Nuclear Energy*, **30**, pp. 1-6 (2003).
 
-.. [4] J. B. Taylor, D. Knott and A. J. Baratta, "A Method of Characteristics Solution to the OECD/NEA 3D Neutron Transport Benchmark Problem." *Proceedings of the Joint International Topical Meeting on Mathematics and Computation and Supercomputing in Nuclear Applications*, Monterey, CA, USA (2007).
+.. [4] J. Taylor, D. Knott and A. J. Baratta, "A Method of Characteristics Solution to the OECD/NEA 3D Neutron Transport Benchmark Problem." *Proceedings of the Joint International Topical Meeting on Mathematics and Computation and Supercomputing in Nuclear Applications*, Monterey, CA, USA (2007).
 
 .. [5] Z. Liu, H. Wu, L. Cao, Q. Chen, Y. Li, "A New Three-Dimensional Method of Characteristics for the Neutron Tansport Calculation." *Annals of Nuclear Energy*, **38**, pp. 447-454 (2011).
 
 .. [6] A. Talamo, "Numerical Solution of the Time Dependent Neutron Transport Equation by the Method of the Characteristics." *Journal of Computational Physics}*, **240**, pp. 248-267 (2013).
-

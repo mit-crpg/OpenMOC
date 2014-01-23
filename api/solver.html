@@ -55,14 +55,14 @@
             
   <div class="section" id="solver">
 <span id="id1"></span><h1>Solver<a class="headerlink" href="#solver" title="Permalink to this headline">¶</a></h1>
-<div class="line-block">
-<div class="line" id=""><span id="OpenMOCclassSolver"></span><em>class</em> <strong>Solver</strong></div>
+<div class="line-block" id="OpenMOCclassSolver">
+<div class="line"><em>class</em> <strong>Solver</strong></div>
 </div>
 <blockquote>
 <div><p>This is an abstract base class from which different types of Solvers subclass for different architectures or using different algorithms. </p>
 <p></p>
 <em>Public Functions</em><blockquote>
-<div><p id=""><span id="OpenMOCclassSolver_1a950a0ef510e9eb4a92984473c668c198"></span><div class="line-block">
+<div><p><span class="target" id="OpenMOCclassSolver_1a950a0ef510e9eb4a92984473c668c198"></span><div class="line-block">
 <div class="line"> <strong>Solver</strong>(<a class="reference internal" href="geometry.html#OpenMOCclassGeometry"><em>Geometry</em></a>  * geom geometry = NULL, <a class="reference internal" href="trackgenerator.html#OpenMOCclassTrackGenerator"><em>TrackGenerator</em></a>  * track_generator = NULL)</div>
 </div>
 </p>
@@ -80,7 +80,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1aba52d3c92fafceb6fe39f937f2d73db3"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1aba52d3c92fafceb6fe39f937f2d73db3"></span><div class="line-block">
 <div class="line"> <strong>~Solver</strong>()</div>
 </div>
 </p>
@@ -88,7 +88,7 @@
 <div><p>Destructor deletes arrays of boundary angular fluxes, scalar fluxes and sources for each flat source region. </p>
 <p>Deallocates memory for all arrays allocated for the <a class="reference internal" href="#OpenMOCclassSolver"><em>Solver</em></a>, including fluxes, sources, quadrature weights, and exponential prefactor interpolation table. </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1afd394d9603d0ceba175d96a53f54d7fa"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1afd394d9603d0ceba175d96a53f54d7fa"></span><div class="line-block">
 <div class="line"><a class="reference internal" href="geometry.html#OpenMOCclassGeometry"><em>Geometry</em></a>  * <strong>getGeometry</strong>()</div>
 </div>
 </p>
@@ -100,7 +100,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1ac47a004e88d7fde15880ab8c2b08e754"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1ac47a004e88d7fde15880ab8c2b08e754"></span><div class="line-block">
 <div class="line"><a class="reference internal" href="trackgenerator.html#OpenMOCclassTrackGenerator"><em>TrackGenerator</em></a>  * <strong>getTrackGenerator</strong>()</div>
 </div>
 </p>
@@ -112,7 +112,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1ae3012e43ec82aea38b7ff0c26a6e5003"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1ae3012e43ec82aea38b7ff0c26a6e5003"></span><div class="line-block">
 <div class="line">int <strong>getNumPolarAngles</strong>()</div>
 </div>
 </p>
@@ -124,7 +124,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1a8810de68de50b5f4881e89e68733960a"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1a8810de68de50b5f4881e89e68733960a"></span><div class="line-block">
 <div class="line">quadratureType <strong>getPolarQuadratureType</strong>()</div>
 </div>
 </p>
@@ -136,7 +136,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1a4e2f2f30ca4bae8871b30bb188a29b38"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1a4e2f2f30ca4bae8871b30bb188a29b38"></span><div class="line-block">
 <div class="line">int <strong>getNumIterations</strong>()</div>
 </div>
 </p>
@@ -148,7 +148,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1af3ec5e2776910329b6502e9fc06d533b"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1af3ec5e2776910329b6502e9fc06d533b"></span><div class="line-block">
 <div class="line">FP_PRECISION <strong>getSourceConvergenceThreshold</strong>()</div>
 </div>
 </p>
@@ -160,7 +160,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1a14aa82ed26bb664d3dc89a19b9f13c63"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1a14aa82ed26bb664d3dc89a19b9f13c63"></span><div class="line-block">
 <div class="line">FP_PRECISION <strong>getFSRScalarFlux</strong>(int fsr_id, int energy_group)</div>
 </div>
 </p>
@@ -180,7 +180,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1ac1981f25afb9ada5cc1e6c40067bc479"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1ac1981f25afb9ada5cc1e6c40067bc479"></span><div class="line-block">
 <div class="line">FP_PRECISION * <strong>getFSRScalarFluxes</strong>()</div>
 </div>
 </p>
@@ -192,7 +192,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1a971144e2d1207ca63abdd2b16db3afa0"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1a971144e2d1207ca63abdd2b16db3afa0"></span><div class="line-block">
 <div class="line">FP_PRECISION * <strong>getFSRPowers</strong>()</div>
 </div>
 </p>
@@ -204,7 +204,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1ab343527c6bdb72f13080c0df79e6bbea"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1ab343527c6bdb72f13080c0df79e6bbea"></span><div class="line-block">
 <div class="line">FP_PRECISION * <strong>getFSRPinPowers</strong>()</div>
 </div>
 </p>
@@ -216,7 +216,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1a117012c7ecaf59b70fa6b489562acc65"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1a117012c7ecaf59b70fa6b489562acc65"></span><div class="line-block">
 <div class="line">void <strong>setGeometry</strong>(<a class="reference internal" href="geometry.html#OpenMOCclassGeometry"><em>Geometry</em></a>  * geometry)</div>
 </div>
 </p>
@@ -232,7 +232,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1ac07cee2fe04515dc8e4d2980d567c4c5"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1ac07cee2fe04515dc8e4d2980d567c4c5"></span><div class="line-block">
 <div class="line">void <strong>setTrackGenerator</strong>(<a class="reference internal" href="trackgenerator.html#OpenMOCclassTrackGenerator"><em>TrackGenerator</em></a>  * track_generator)</div>
 </div>
 </p>
@@ -248,7 +248,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1aa602cd57f7b72f13050920f2c752815e"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1aa602cd57f7b72f13050920f2c752815e"></span><div class="line-block">
 <div class="line">void <strong>setPolarQuadratureType</strong>(quadratureType quadrature_type)</div>
 </div>
 </p>
@@ -264,7 +264,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1a069e8bf490a2f5de391f57cd9e7224ed"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1a069e8bf490a2f5de391f57cd9e7224ed"></span><div class="line-block">
 <div class="line">void <strong>setNumPolarAngles</strong>(int num_polar)</div>
 </div>
 </p>
@@ -280,7 +280,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1aaace17535420183bd7c699b0a10c1e01"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1aaace17535420183bd7c699b0a10c1e01"></span><div class="line-block">
 <div class="line">void <strong>setSourceConvergenceThreshold</strong>(FP_PRECISION source_thresh)</div>
 </div>
 </p>
@@ -296,7 +296,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1a627f677bdb8a621a632b581bc976b2a5"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1a627f677bdb8a621a632b581bc976b2a5"></span><div class="line-block">
 <div class="line">void <strong>useExponentialInterpolation</strong>()</div>
 </div>
 </p>
@@ -304,7 +304,7 @@
 <div><p>Sets the solver to use linear interpolation to compute the exponential in the transport equation. </p>
 <p></p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1a5400c11874dac7f00ade6e7c2d573aee"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1a5400c11874dac7f00ade6e7c2d573aee"></span><div class="line-block">
 <div class="line">void <strong>useExponentialIntrinsic</strong>()</div>
 </div>
 </p>
@@ -312,7 +312,7 @@
 <div><p>Sets the solver to use the exponential intrinsic function to compute the exponential in the transport equation. </p>
 <p></p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1af8358a66a7cbd56339211f80a2365678"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1af8358a66a7cbd56339211f80a2365678"></span><div class="line-block">
 <div class="line">FP_PRECISION <strong>convergeSource</strong>(int max_iterations)</div>
 </div>
 </p>
@@ -330,7 +330,7 @@
 </dl>
 </p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1a1a76bce692d3f35e880832234ae3c4b5"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1a1a76bce692d3f35e880832234ae3c4b5"></span><div class="line-block">
 <div class="line">void <strong>computePinPowers</strong>()</div>
 </div>
 </p>
@@ -338,7 +338,7 @@
 <div><p>Compute the fission rates in each flat source region and stores them in an array indexed by flat source region ID. </p>
 <p></p>
 </div></blockquote>
-<p id=""><span id="OpenMOCclassSolver_1aeec2b08ba9d6be88cf08f1fc02658500"></span><div class="line-block">
+<p><span class="target" id="OpenMOCclassSolver_1aeec2b08ba9d6be88cf08f1fc02658500"></span><div class="line-block">
 <div class="line">void <strong>printTimerReport</strong>()</div>
 </div>
 </p>
