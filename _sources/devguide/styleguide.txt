@@ -32,6 +32,11 @@ Code Comments
 -------------
 
 
------------
-Indentation
------------
+    * Line Length_
+
+    For readability, source code in OpenMOC is limited to a maximum of 80 characters for each line. For your convenience in adhering to this policy, you mayupdate your text editor (gedit, vim, emacs, etc.) to display the right margin at column 80.
+
+
+    * Indentation_
+      
+      For readability, OpenMOC uses tabs composed of 4 spaces. For your convenience in adhering to this policy, you may update your text editor (gedit, vim, emacs, etc.) preferences to use a tab width of 4 spaces and to insert spaces instead of tabs.
