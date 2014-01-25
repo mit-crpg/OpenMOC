@@ -466,7 +466,7 @@ void Universe::subdivideCells() {
  *        the console.
  */
 void Universe::printString() {
-    log_printf(RESULT, toString().c_str());
+    printf("[  RESULT ]  %s", toString().c_str());
 }
 
 
@@ -1077,6 +1077,7 @@ std::string Lattice::toString() {
 	   << _width_x << ", y width = " << _width_y;
 
     string << "\n\t\tUniverse ids within this lattice:\n\t\t";
+
     for (int i = _num_y-1; i > -1;  i--) {
         for (int j = 0; j < _num_x; j++)
 	    string << _universes.at(i).at(j).first << "  ";
@@ -1092,5 +1093,5 @@ std::string Lattice::toString() {
  *        the console.
  */
 void Lattice::printString() {
-    log_printf(RESULT, toString().c_str());
+    printf("[  RESULT ]  %s", toString().c_str());
 }

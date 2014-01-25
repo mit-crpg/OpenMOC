@@ -955,7 +955,7 @@ std::string Material::toString() {
  *        the console.
  */
 void Material::printString() {
-    printf("%s", toString().c_str());
+    printf("[  RESULT ]  %s", toString().c_str());
 }
 
 
