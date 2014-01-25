@@ -699,6 +699,13 @@ void Lattice::setUniversePointer(Universe* universe) {
  */
 void Lattice::setLatticeCells(int num_x, int num_y, int* universes) {
 
+    /* Clear any universes in the lattice (from a previous run) */
+    for (int i=0; i < _num_x; i++)
+        _universes.at(i).clear();
+
+    _universes.clear();
+
+    /* Set the lattice dimensions */
     _num_x = num_x;
     _num_y = num_y;
 
