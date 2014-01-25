@@ -1,6 +1,6 @@
 /**
- * @file Cmfd.h
- * @brief The Cmfd class.
+ * @file Mesh.h
+ * @brief The Mesh class.
  * @date October 14, 2013
  * @author Sam Shaner, MIT, Course 22 (shaner@mit.edu)
  */
@@ -24,8 +24,8 @@
  * Solve types
  */
 enum solveType {
-	DIFFUSION,
-	MOC
+  DIFFUSION,
+  MOC
 };
 
 /**
@@ -34,7 +34,7 @@ enum solveType {
 enum fluxType {
   PRIMAL,
   PRIMAL_UPDATE,
-  ADJOINT	
+  ADJOINT    
 };
 
 class Mesh {
@@ -166,7 +166,7 @@ public:
   int findCellId(LocalCoords* coord);
   void initializeMaterialsMOC();
   void initializeMaterialsDiffusion(std::map<int, Material*>* materials, 
-			   int* fsrs_to_mats);
+                                    int* fsrs_to_mats);
   void initializeSurfaceCurrents();
   void initializeFlux();
 };
