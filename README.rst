@@ -40,7 +40,7 @@ License
 
 OpenMOC is approved for distribution under the MIT/X license_.
 
-.. _installation instructions: https://mit-crpg.github.io/OpenMOC/quickinstall.html
+.. _installation instructions: https://mit-crpg.github.io/OpenMOC/usersguide/install.html
 .. _FAQ: https://mit-crpg.github.io/OpenMOC/FAQ
 .. _license: https://mit-crpg.github.io/OpenMOC/license.html
 .. _contact: https://mit-crpg.github.io/OpenMOC/developers.html
