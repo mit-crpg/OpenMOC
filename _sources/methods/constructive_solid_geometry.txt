@@ -261,7 +261,7 @@ References
 
 .. [1] Wikipedia, "Constructive Solid Geometry," http://en.wikipedia.org/wiki/Constructive_solid_geometry (2013).
 
-.. [2] P. K. Romano and B. Forget, "The OpenMC Monte Carlo Particle Transport Code." *Annals of Nuclear Energy*, **51**, pp. 274-281 (2013).
+.. [2] P. Romano and B. Forget, "The OpenMC Monte Carlo Particle Transport Code." *Annals of Nuclear Energy*, **51**, pp. 274-281 (2013).
 
 .. [3] X-5 Monte Carlo Team, "MCNP - A General Monte Carlo N-Particle Transport Code, Version 5." *Technical Report LA-UR-03-1987*, Los Alamos National Laboratory (2008).
 

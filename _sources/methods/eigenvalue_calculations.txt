@@ -225,7 +225,7 @@ To compute a linear approximation to an exponential, the following procedure is 
 .. math::
    :label: exponential-index
 
-   n = 2Pfloor\left(\frac{\Sigma^T_{i,g}l_{k,i}}{\Delta_{N}}\right)
+   n = 2P\lfloor\frac{\Sigma^T_{i,g}l_{k,i}}{\Delta_{N}}\rfloor
 
 Next, the slope and y-intercept for polar angle :math:`p` are extracted from the table: 
 

@@ -399,7 +399,7 @@ First, the polar angle must be accounted for in the expression for the track seg
 
    \overline{\Psi}_{k,i,g,p} = \frac{1}{l_{k,i,p}}\left[\frac{\Psi_{k,g,p}(s')}{\Sigma_{i,g}^T}(1 - \exp(-\tau_{k,i,g,p})) + \frac{l_{k,i,p}Q_{i,g}}{\Sigma_{i,g}^T}\left(1 - \frac{(1 - \exp(-\tau_{k,i,g,p}))}{\tau_{k,i,g,p}}\right)\right]
 
-Next, :math:`\sin\theta_{p(k)}` is dropped and a summation over polar angles is incorporated into the area-averaged scalar flux in :eq:`area-averaged-scalar-flux-quadrature`:
+Next, :math:`\sin\theta_{p(k)}` is dropped and a summation over polar angles is incorporated into the area-averaged scalar flux in :eq:`avg-scalar-flux-quadrature`:
 
 .. math::
    :label: avg-scalar-flux-quadrature-polar

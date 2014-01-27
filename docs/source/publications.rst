@@ -14,7 +14,7 @@ Conference Papers
 =================
 - William Boyd, Kord Smith, Benoit Forget, and Andrew Siegel, "Parallel Performance Results for the OpenMOC Method of Characteristics Code on Multi-Core Platforms." *Submitted to the Proceedings of PHYSOR*, Kyoto, Japan (2014).
 
-- Lulu Li, Kord Smith, and Benoit Forget, "Low Order Nonlinear Transport Acceleration Scheme forthe Method of Characteristics." *Submitted to the Proceedings of PHYSOR*, Kyoto, Japan (2014).
+- Lulu Li, Kord Smith, and Benoit Forget, "Low Order Nonlinear Transport Acceleration Scheme for the Method of Characteristics." *Submitted to the Proceedings of PHYSOR*, Kyoto, Japan (2014).
 
 - Samuel Shaner, Kord Smith, and Benoit Forget, "Sensitivity Analysis and Performance of the Adiabatic, Theta, and Multigrid Amplitude Function Kinetics Methods in 2D MOC Neutron Transport." *Submitted to the Proceedings of PHYSOR*, Kyoto, Japan (2014).
 

@@ -57,7 +57,7 @@
 <span id="id1"></span><h1>4. Constructive Solid Geometry<a class="headerlink" href="#constructive-solid-geometry" title="Permalink to this headline">¶</a></h1>
 <p>OpenMOC uses <a class="reference external" href="http://en.wikipedia.org/wiki/Constructive_solid_geometry">constructive solid geometry</a> (CSG) to represent complex reactor models in software. The constructive solid geometry formulation is the method of choice for many advanced modeling software packages, including some Computer-aided Design (CAD) implementations. CSG allows complex spatial models to be built using boolean operations - such as intersections and unions - of simple surfaces and building blocks termed <em>primitives</em>, as illustrated in <a class="reference internal" href="#figure-csg-tree"><em>Figure 1</em></a> <a class="footnote-reference" href="#id18" id="id2">[1]</a>. The constructive solid geometry approach is well suited for reactor models which typically are highly structured and contain repeating patterns. This is the case for commercial PWRs and BWRs whose cores are built out of a rectangular lattice of fuel assemblies, each of which is a rectangular lattice of fuel pins.</p>
 <div class="align-center figure align-center" id="figure-csg-tree">
-<img alt="methods/../../img/csg-tree.png" src="methods/../../img/csg-tree.png" style="width: 400px;" />
+<img alt="../_images/csg-tree.png" src="../_images/csg-tree.png" style="width: 400px;" />
 <p class="caption"><strong>Figure 1</strong>: A binary tree of CSG primitives.</p>
 </div>
 <p>There are a number of benefits to using the CSG formulation. First, CSG enables simulation codes to significantly reduce the memory footprint required to model the geometry. For example, rather than representing each fuel pin explicitly in memory, a <em>fuel pin primitive</em> is represented by a single data structure. A second major benefit to the CSG formulation is that it is a general and extensible approach which allows for ray tracing routines to be written in an abstract fashion that is independent of the primitives themselves.</p>
@@ -67,19 +67,19 @@
 <p>The constructive solid geometry formulation in OpenMOC is predicated upon the use of several key objects which allow one to construct a spatial model from simple primitives in a hierarchical fashion. The following sections describe each of these fundamental objects in order of increasing complexity. The reader should note that the CSG formulation in OpenMOC is presently only capable of describing the 2D <img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane, though an extension to 3D would be straightforward.</p>
 <p><a class="reference internal" href="#surfaces-halfspaces"><em>Section 4.1.1</em></a> develops the formulation for <em>surfaces</em> which are used to divide space into separate unique <em>halfspaces</em>. <a class="reference internal" href="#universes"><em>Section 4.1.2</em></a> describes <em>universes</em> which represent the entirety of 2D (or 3D) space and provide a &#8220;clean pallet&#8221; upon which one can build a simple structure of <em>cells</em>. <a class="reference internal" href="#cells"><em>Section 4.1.3</em></a> describes <em>cells</em> which contain one or more <em>surfaces</em> that bound a subset of space filled by either a material or a <em>universe</em>. <a class="reference internal" href="#lattices"><em>Section 4.1.4</em></a> describes <em>lattices</em> which are used to create a bounded union of universes through a series of coordinate transformations. A typical hierarchy for the way in which surfaces, universes, cells and lattices are constructed to represent a reactor model in OpenMOC is illustrated in <a class="reference internal" href="#figure-csg-primitives-hierarchy"><em>Figure 2</em></a>.</p>
 <div class="align-center figure align-center" id="figure-csg-primitives-hierarchy">
-<img alt="methods/../../img/csg-primitives-hierarchy.png" src="methods/../../img/csg-primitives-hierarchy.png" style="width: 500px;" />
+<img alt="../_images/csg-primitives-hierarchy.png" src="../_images/csg-primitives-hierarchy.png" style="width: 500px;" />
 <p class="caption"><strong>Figure 2</strong>: A hierarchy of OpenMOC primitives.</p>
 </div>
 <div class="section" id="surfaces-and-halfspaces">
 <span id="surfaces-halfspaces"></span><h3>4.1.1. Surfaces and Halfspaces<a class="headerlink" href="#surfaces-and-halfspaces" title="Permalink to this headline">¶</a></h3>
 <p>The fundamental primitive in OpenMOC is a <em>surface</em>. A 2D surface in the <img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane is defined as the set of points that satisfy <img class="math" src="../_images/math/4c98656d3e94b26764f9f77aff2e3657badbe274.png" alt="f(x,y) = 0"/> for some function <img class="math" src="../_images/math/bb2c93730dbb48558bb3c4738c956c4e8f816437.png" alt="f"/> that will henceforth be termed the <em>potential function</em> of the surface. The potential divides the <img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane into two <em>halfspaces</em>. The set of coordinates for which <img class="math" src="../_images/math/eb77fd5a562b19edb50cc42fc45c228e5aa51766.png" alt="f(x,y) &lt; 0"/> is called the <em>positive halfspace</em> while those coordinates for which <img class="math" src="../_images/math/764b90108fb37d4b75713531fce830981505d7ca.png" alt="f(x,y) &gt; 0"/> collectively form the <em>negative halfspace</em>. <a class="reference internal" href="#figure-halfspace"><em>Figure 3</em></a> illustrates the concepts of halfspaces for an arbitrary elliptical surface.</p>
 <div class="align-center figure align-center" id="figure-halfspace">
-<img alt="methods/../../img/csg-halfspace.png" src="methods/../../img/csg-halfspace.png" style="width: 300px;" />
+<img alt="../_images/csg-halfspace.png" src="../_images/csg-halfspace.png" style="width: 300px;" />
 <p class="caption"><strong>Figure 3</strong>: An elliptical surface primitive and its halfspaces.</p>
 </div>
 <p>For a surface primitive to be incorporated into the OpenMOC CSG framework, the ray tracing routines require the primitive to include a method to find the intersection point(s) on the surface along some unit trajectory vector <img class="math" src="../_images/math/e930ffe7efe383a85744beb2f211c4457a451db0.png" alt="\hat{n} = [u \; v]^T"/> originating from any point <img class="math" src="../_images/math/e53b1fe25be1c679117fb44a6a886fe1247d189a.png" alt="(x,y)"/>. A depiction of this is given in <a class="reference internal" href="#figure-surface-intersection"><em>Figure 4</em></a> for the parametrized distance <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> between <img class="math" src="../_images/math/e53b1fe25be1c679117fb44a6a886fe1247d189a.png" alt="(x,y)"/> and the surface.</p>
 <div class="align-center figure align-center" id="figure-surface-intersection">
-<img alt="methods/../../img/csg-halfspace-intersection.png" src="methods/../../img/csg-halfspace-intersection.png" style="width: 300px;" />
+<img alt="../_images/csg-halfspace-intersection.png" src="../_images/csg-halfspace-intersection.png" style="width: 300px;" />
 <p class="caption"><strong>Figure 4</strong>: A trajectory&#8217;s intersection point with a surface.</p>
 </div>
 <p>Presently, OpenMOC includes surface primitive types that are most useful for constructing LWR models. These surfaces are from a subset of potential functions called <em>quadratic surfaces</em> as discussed in the following section.</p>
@@ -177,7 +177,7 @@ to <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c
 <p>A <em>cell</em> is defined to be the region bounded by a boolean combination of surface halfspaces. Presently, OpenMOC only permits the use of halfspace intersections and does not support other boolean operations such as unions and differences. The region defined by the cell is subsequently filled by either a material or a <em>universe</em>, described in the following section.</p>
 <p><a class="reference internal" href="#figure-cells-pin-cell"><em>Figure 5</em></a> illustrates the use of five surface halfspaces to make up a simple pin cell. The halfspace for each surface is indicated by &#8220;<img class="math" src="../_images/math/77cf26be132ef93923e082ee4153b2cb0ef44a50.png" alt="+"/>&#8221; or &#8220;<img class="math" src="../_images/math/add22d9bda21e86390bc74fa4dde17730a442da7.png" alt="-"/>&#8221; symbols, while each cell is uniquely identified by a color and number. The fuel pin is described by the negative halfspace of the Circle surface, while the moderator is made up of the intersection of the positive halfspace of the Circle and positive/negative halfspaces of the left/right and bottom/top XPlanes and YPlanes, respectively.</p>
 <div class="align-center figure align-center" id="figure-cells-pin-cell">
-<img alt="methods/../../img/csg-cells-halfspace-intersection.png" src="methods/../../img/csg-cells-halfspace-intersection.png" style="width: 300px;" />
+<img alt="../_images/csg-cells-halfspace-intersection.png" src="../_images/csg-cells-halfspace-intersection.png" style="width: 300px;" />
 <p class="caption"><strong>Figure 5</strong>: Two cells representing a fuel pin cell.</p>
 </div>
 </div>
@@ -186,7 +186,7 @@ to <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c
 <p>A <em>universe</em> is a collection of one or more cells that fill the entirety of the <img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane. Each cell may be filled with a material or a separate universe. Universes allow unique structures to be created from cells, and for simple replication of that structure throughout a model by placing it in various locations throughout the geometry. The universe-based CSG formulation in OpenMOC is similar to that used in Monte Carlo neutron transport codes such as OpenMC <a class="footnote-reference" href="#id19" id="id11">[2]</a>, MCNP <a class="footnote-reference" href="#id20" id="id12">[3]</a> and Serpent <a class="footnote-reference" href="#id21" id="id13">[4]</a>.</p>
 <p>A universe of 10 cells constructed from the halfspace intersections of two XPlanes, two XPlanes and one Circle surface is depicted in <a class="reference internal" href="#figure-universe-cells"><em>Figure 6</em></a>. The halfspace for each surface is indicated by &#8220;<img class="math" src="../_images/math/77cf26be132ef93923e082ee4153b2cb0ef44a50.png" alt="+"/>&#8221; or &#8220;<img class="math" src="../_images/math/add22d9bda21e86390bc74fa4dde17730a442da7.png" alt="-"/>&#8221; symbols, while each cell is uniquely identified by a color and number.</p>
 <div class="align-center figure align-center" id="figure-universe-cells">
-<img alt="methods/../../img/surfs-cells.png" src="methods/../../img/surfs-cells.png" style="width: 300px;" />
+<img alt="../_images/surfs-cells.png" src="../_images/surfs-cells.png" style="width: 300px;" />
 <p class="caption"><strong>Figure 6</strong>: A universe composed of 10 cells.</p>
 </div>
 </div>
@@ -196,7 +196,7 @@ to <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c
 <p>OpenMOC currently only contains a single lattice implementation for 2D Cartesian arrays. Each lattice is uniquely specified by the number of array elements along the <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> and <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/> axes, the width and height of each lattice cell, and the universe to <em>fill</em> each lattice cell. The lattice specification represents a coordinate transformation such that the center of each lattice cell maps to the origin of the universe within it. This allows for a single universe to be replicated in some or all lattice cells without redundantly storing the universe many times in memory.</p>
 <p><a class="reference internal" href="#figure-lattice-cells"><em>Figure 7</em></a> illustrates a simple 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice, with each lattice cell filled by one of three different universes. Each universe contains two cells representing the moderator and a fuel pin of some diameter.</p>
 <div class="align-center figure align-center" id="figure-lattice-cells">
-<img alt="methods/../../img/csg-lattice-cells.png" src="methods/../../img/csg-lattice-cells.png" style="width: 300px;" />
+<img alt="../_images/csg-lattice-cells.png" src="../_images/csg-lattice-cells.png" style="width: 300px;" />
 <p class="caption"><strong>Figure 7</strong>: A 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice.</p>
 </div>
 </div>
@@ -213,10 +213,7 @@ to <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id11">2</a>, <a class="fn-backref" href="#id15">3</a>)</em> <ol class="last upperalpha simple" start="16">
-<li><ol class="first upperalpha" start="11">
 <li>Romano and B. Forget, &#8220;The OpenMC Monte Carlo Particle Transport Code.&#8221; <em>Annals of Nuclear Energy</em>, <strong>51</strong>, pp. 274-281 (2013).</li>
-</ol>
-</li>
 </ol>
 </td></tr>
 </tbody>
