@@ -96,7 +96,10 @@
 <p>NumPy is a commonly used, general purpose numerical array creation and manipulation package for Python. OpenMOC uses NumPy to seamlessly transfer numerical data between Python and the C/C++ back-end compiled code. To install NumPy on Ubuntu, use the following command:</p>
 <div class="highlight-python"><pre>sudo apt-get install python-numpy</pre>
 </div>
-<p>NOTE: Although NumPy is considered a required dependency, OpenMOC can be built using the <a class="reference internal" href="#cmdoption--no-numpy"><em class="xref std std-option">--no-numpy</em></a> compile time option. This will build an OpenMOC distribution without embedding the NumPy C API into the source code. When built in this mode, users will be unable to pass NumPy arrays from Python into OpenMOC&#8217;s C++ extension modules (i.e., assigning multigroup nuclear cross-section data) or retrieve data from OpenMOC into NumPy arrays for data analysis (i.e., scalar fluxes or pin powers). The <a class="reference internal" href="#cmdoption--no-numpy"><em class="xref std std-option">--no-numpy</em></a> mode is useful, however, on machines such as IBM&#8217;s <a class="reference external" href="http://www-03.ibm.com/systems/technicalcomputing/solutions/bluegene/">BlueGene</a> supercomputers which may not have NumPy installations.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Although NumPy is considered a required dependency, OpenMOC can be built using the <a class="reference internal" href="#cmdoption--no-numpy"><em class="xref std std-option">--no-numpy</em></a> compile time option. This will build an OpenMOC distribution without embedding the NumPy C API into the source code. When built in this mode, users will be unable to pass NumPy arrays from Python into OpenMOC&#8217;s C++ extension modules (i.e., assigning multigroup nuclear cross-section data) or retrieve data from OpenMOC into NumPy arrays for data analysis (i.e., scalar fluxes or pin powers). The <a class="reference internal" href="#cmdoption--no-numpy"><em class="xref std std-option">--no-numpy</em></a> mode is useful, however, on machines such as IBM&#8217;s <a class="reference external" href="http://www-03.ibm.com/systems/technicalcomputing/solutions/bluegene/">BlueGene</a> supercomputers which may not have NumPy installations.</p>
+</div>
 </li>
 </ul>
 </div>

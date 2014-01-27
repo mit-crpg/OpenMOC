@@ -72,9 +72,21 @@ adding new code in OpenMC.</p>
 <div class="section" id="class-names">
 <h3>1.2.1. Class Names<a class="headerlink" href="#class-names" title="Permalink to this headline">¶</a></h3>
 <p>Class names are <a class="reference external" href="http://en.wikipedia.org/wiki/CamelCase">CamelCase</a> starting with a <strong>capital</strong> letter and without <strong>&#8220;_&#8221;</strong> between words as illustrated in the C++ snippet below:</p>
-<div class="highlight-python"><pre>Yes: class MyClass { ... }
-No: class myClass { ... }
-No: class My_Class{ ... }</pre>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* Yes */</span>
+<span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
+  <span class="p">...</span>
+<span class="p">};</span>
+
+<span class="cm">/* No */</span>
+<span class="n">class</span> <span class="n">myClass</span> <span class="p">{</span>
+  <span class="p">...</span>
+<span class="p">};</span>
+
+<span class="cm">/* No */</span>
+<span class="n">class</span> <span class="n">My_Class</span><span class="p">{</span>
+  <span class="p">...</span>
+<span class="p">};</span>
+</pre></div>
 </div>
 </div>
 <div class="section" id="class-methods">

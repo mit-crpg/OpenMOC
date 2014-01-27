@@ -55,23 +55,153 @@
             
   <div class="section" id="writing-python-input-files">
 <span id="usersguide-input"></span><h1>3. Writing Python Input Files<a class="headerlink" href="#writing-python-input-files" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="overview-of-files">
-<h2>3.1. Overview of Files<a class="headerlink" href="#overview-of-files" title="Permalink to this headline">¶</a></h2>
+<p>OpenMOC is provided to users as a Python API. As a result, there are not strict constraints on how an input file is written for an OpenMOC simulation as there are in many other scientific simulation codes. Instead, users may write a Python script or program and import OpenMOC and simply use the classes or routines which are necessary for a particular simulation. The <tt class="file docutils literal"><span class="pre">OpenMOC/sample-input/</span></tt> directory in the OpenMOC folder includes many example scripts for simulations ranging in complexity from a simple <a class="reference external" href="https://github.com/mit-crpg/OpenMOC/tree/master/sample-input/pin-cell">pin cell</a> to the <a class="reference external" href="https://github.com/mit-crpg/OpenMOC/tree/master/sample-input/benchmarks/c5g7">C5G7 benchmark problem</a>.</p>
+<p>The following sections describe the essential portions of the OpenMOC API needed for reactor eigenvalue calculations. For more detail on the full extent of OpenMOC capabilities, users should reference the <a class="reference internal" href="../api/index.html#api"><em>OpenMOC API documentation</em></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is highly suggested that users acquire a basic understanding of Python before developing OpenMOC simulations. For users familiar with basic programming constructs such as loops and conditionals, the official <a class="reference external" href="http://docs.python.org/2/tutorial/">Python Tutorial</a> is an excellent place to learn Python basics. For users new to programming, the <a class="reference external" href="http://www.codecademy.com/tracks/python">Code Academy Python Course</a> provides an introduction to both programming essentials and the Python language.</p>
+</div>
+<div class="section" id="materials-specification">
+<h2>3.1. Materials Specification<a class="headerlink" href="#materials-specification" title="Permalink to this headline">¶</a></h2>
+<p>OpenMOC uses multi-group nuclear cross-sections prepared by some upstream processing tool such as the <a class="reference external" href="http://t2.lanl.gov/nis/njoy/title.html">NJOY</a> GROUPR module. In OpenMOC, cross-section data is encapsulated by the <tt class="docutils literal"><span class="pre">Material</span></tt> class in the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> Python module. A <tt class="docutils literal"><span class="pre">Material</span></tt> class may be instantiated in Python and cross-sections may be loaded into it using <a class="reference external" href="http://www.numpy.org/">NumPy</a> data arrays as illustrated by the following code snippet:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="c"># Initialize material cross-sections using NumPy data arrays</span>
+<span class="n">num_groups</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">sigma_a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.45</span><span class="p">,</span><span class="mf">0.5</span><span class="p">])</span>
+<span class="n">sigma_f</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">])</span>
+<span class="o">...</span>
+
+<span class="c"># Instantiate an OpenMOC Material class object</span>
+<span class="n">material</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">openmoc</span><span class="o">.</span><span class="n">material_id</span><span class="p">())</span>
+
+<span class="c"># Set the number of energy groups in the material</span>
+<span class="n">material</span><span class="o">.</span><span class="n">setNumEnergyGroups</span><span class="p">(</span><span class="n">num_groups</span><span class="p">)</span>
+
+<span class="c"># Load the cross-section data into the material</span>
+<span class="n">material</span><span class="o">.</span><span class="n">setSigmaA</span><span class="p">(</span><span class="n">sigma_a</span><span class="p">)</span>
+<span class="n">material</span><span class="o">.</span><span class="n">setSigmaT</span><span class="p">(</span><span class="n">sigma_f</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>For many simulations, defining the nuclear data cross-sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module for importing nuclear data cross-sections from an <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> or a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> binary file. The <tt class="docutils literal"><span class="pre">materialize(...)</span></tt> routine is used to import data and instantiate <tt class="docutils literal"><span class="pre">Material</span></tt> objects returned via a Python <a class="reference external" href="http://docs.python.org/2/tutorial/datastructures.html#dictionaries">dictionary</a>. The use of the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module to import HDF5 and pickle binary files is illusrated in the following snippet:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc</span>
+<span class="kn">import</span> <span class="nn">openmoc.materialize</span> <span class="kn">as</span> <span class="nn">mat</span>
+
+<span class="c"># Import cross-section data from an HDF5 file. This instantiates</span>
+<span class="c"># objects for each material and returns them in a dictionary</span>
+<span class="c"># indexed by a name string defined in the pickle file.</span>
+<span class="n">hdf5_materials</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">materialize</span><span class="p">(</span><span class="s">&#39;materials-data.h5&#39;</span><span class="p">)</span>
+
+<span class="c"># Retrieve the material called &#39;moderator&#39; in the HDF5 file</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">hdf5_materials</span><span class="p">[</span><span class="s">&#39;moderator&#39;</span><span class="p">]</span>
+
+<span class="c"># Import cross-section data from a pickle file. This instantiates</span>
+<span class="c"># objects for each material and returns them in a dictionary</span>
+<span class="c"># indexed by a name string defined in the pickle file</span>
+<span class="n">pickle_materials</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">materialize</span><span class="p">(</span><span class="s">&#39;materials-data.pkl&#39;</span><span class="p">)</span>
+
+<span class="c"># Retrieve the material called &#39;fuel&#39; in the pickle file</span>
+<span class="n">fuel</span> <span class="o">=</span> <span class="n">pickle_materials</span><span class="p">[</span><span class="s">&#39;fuel&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module defines a standard for cross-section data stored in binary files. First, each HDF5 file must end with the &#8216;.h5&#8217; or &#8216;.hdf5&#8217; extension. HDF5 files must include an <cite>Energy Groups</cite> attribute with the integer number of groups in the top level of the file data hierarchy. Finally, each material is defined as an <a class="reference external" href="http://www.hdfgroup.org/HDF5/doc/UG/UG_frame09Groups.html">HDF5 group</a> with a string name to identify the material. Finally, the material group must contain the following floating point <a class="reference external" href="http://www.hdfgroup.org/HDF5/doc/UG/10_Datasets.html">HDF5 datasets</a>:</p>
+<blockquote>
+<div><ul class="simple">
+<li>&#8216;Total XS&#8217;</li>
+<li>&#8216;Absorption XS&#8217;</li>
+<li>&#8216;Scattering XS&#8217;</li>
+<li>&#8216;Fission XS&#8217;</li>
+<li>&#8216;Nu Fission XS&#8217;</li>
+<li>&#8216;Chi&#8217;</li>
+</ul>
+</div></blockquote>
+<p>The following code snippet illustrates the use of the <a class="reference external" href="http://www.h5py.org/">h5py</a> Python HDF5 interface to write an HDF5 file with material cross-section data adhering to the standard expected by the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+
+<span class="c"># Create an HDF5 file to store multi-groups cross-sections</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s">&#39;materials-data.h5&#39;</span><span class="p">)</span>
+
+<span class="c"># Set the number of energy groups</span>
+<span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;Energy Groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c"># Material 1</span>
+
+<span class="c"># Create an HDF5 group for this material</span>
+<span class="n">material_group</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s">&#39;Material 1&#39;</span><span class="p">)</span>
+
+<span class="c"># Initialize cross-sections as NumPy data arrays</span>
+<span class="n">sigma_a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.45</span><span class="p">,</span><span class="mf">0.5</span><span class="p">])</span>
+<span class="n">sigma_f</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">])</span>
+<span class="o">...</span>
+
+<span class="c"># Create datasets for each cross-section type</span>
+<span class="n">material_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s">&#39;Absorption XS&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sigma_a</span><span class="p">)</span>
+<span class="n">material_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s">&#39;Fission XS&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sigma_f</span><span class="p">)</span>
+<span class="o">...</span>
+
+<span class="c"># Material 2</span>
+<span class="o">...</span>
+
+<span class="c"># Close and save the HDF5 file</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Alternatively, for machine withouts HDF5 and/or h5py, materials data may be imported from a <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> binary file using the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module. For pickle files, the materials data should be stored as a Python <a class="reference external" href="http://docs.python.org/2/tutorial/datastructures.html#dictionaries">dictionary</a>. The dictionary must contain a key/value pair for the number of energy groups, and sub-dictionaries for each material&#8217;s cross-sections. The following code snippet illustrates how one might populate a pickle file with material cross-section data adhering to the standard expected by the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="c"># Initialize a Python dictionary to store the materials data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="c"># Set the number of energy groups</span>
+<span class="n">data</span><span class="p">[</span><span class="s">&#39;Energy Groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c"># Material 1</span>
+
+<span class="c"># Create a sub-dictoinary for this material</span>
+<span class="n">data</span><span class="p">[</span><span class="s">&#39;Material 1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="c"># Initialize cross-sections as NumPy data arrays</span>
+<span class="n">sigma_a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.45</span><span class="p">,</span><span class="mf">0.5</span><span class="p">])</span>
+<span class="n">sigma_f</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">])</span>
+<span class="o">...</span>
+
+<span class="c"># Create datasets for each cross-section type</span>
+<span class="n">data</span><span class="p">[</span><span class="s">&#39;Material 1&#39;</span><span class="p">][</span><span class="s">&#39;Absorption XS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_a</span>
+<span class="n">data</span><span class="p">[</span><span class="s">&#39;Material 1&#39;</span><span class="p">][</span><span class="s">&#39;Fission XS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_f</span>
+<span class="o">...</span>
+
+<span class="c"># Material 2</span>
+<span class="o">...</span>
+
+<span class="c"># Dump the Python dictionary of materials data to a pickle file</span>
+<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;materials-data.pkl&#39;</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Users must ensure that the total cross-section is equal to the absorption and scattering cross-section in each group. OpenMOC will throw a runtime error will be thrown if this condition does not hold true when materials are added to the <tt class="docutils literal"><span class="pre">Geometry</span></tt> object.</p>
+</div>
 </div>
 <div class="section" id="geometry-specification">
 <h2>3.2. Geometry Specification<a class="headerlink" href="#geometry-specification" title="Permalink to this headline">¶</a></h2>
-<p>The geometry in OpenMOC is described using constructive solid geometry (CSG),
+<p>The geometry in OpenMOC is described using constructive solid geometry (<a class="reference external" href="http://en.wikipedia.org/wiki/Constructive_solid_geometry">CSG</a>),
 also sometimes referred to as combinatorial geometry. CSG allows a user to
 create complex objects using Boolean operators on a set of simpler surfaces. In
 the geometry model, each unique closed volume in defined by its bounding
-surfaces. In OpenMC, most quadratic surfaces can be modeled and used as
-bounding surfaces.</p>
+surfaces. The CSG formulation used in OpenMOC is described in more detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#constructive-solid-geometry"><em>Constructive Solid Geometry</em></a>.</p>
+<div class="section" id="cells">
+<h3>3.2.1. Cells<a class="headerlink" href="#cells" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="materials-specification">
-<h2>3.3. Materials Specification<a class="headerlink" href="#materials-specification" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="universes">
+<h3>3.2.2. Universes<a class="headerlink" href="#universes" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="geometry-plotting-specification">
-<h2>3.4. Geometry Plotting Specification<a class="headerlink" href="#geometry-plotting-specification" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="lattices">
+<h3>3.2.3. Lattices<a class="headerlink" href="#lattices" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 </div>
 
@@ -84,10 +214,13 @@ bounding surfaces.</p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">3. Writing Python Input Files</a><ul>
-<li><a class="reference internal" href="#overview-of-files">3.1. Overview of Files</a></li>
-<li><a class="reference internal" href="#geometry-specification">3.2. Geometry Specification</a></li>
-<li><a class="reference internal" href="#materials-specification">3.3. Materials Specification</a></li>
-<li><a class="reference internal" href="#geometry-plotting-specification">3.4. Geometry Plotting Specification</a></li>
+<li><a class="reference internal" href="#materials-specification">3.1. Materials Specification</a></li>
+<li><a class="reference internal" href="#geometry-specification">3.2. Geometry Specification</a><ul>
+<li><a class="reference internal" href="#cells">3.2.1. Cells</a></li>
+<li><a class="reference internal" href="#universes">3.2.2. Universes</a></li>
+<li><a class="reference internal" href="#lattices">3.2.3. Lattices</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -28,11 +28,24 @@ The following describes some of the rules for source code syntax, including the 
 
 Class Names
 -----------
-Class names are CamelCase_ starting with a **capital** letter and without **"_"** between words as illustrated in the C++ snippet below::
+Class names are CamelCase_ starting with a **capital** letter and without **"_"** between words as illustrated in the C++ snippet below:
 
-  Yes: class MyClass { ... }
-  No: class myClass { ... }
-  No: class My_Class{ ... }
+.. code-block:: c
+
+   /* Yes */
+   class MyClass { 
+     ... 
+   };
+   
+   /* No */
+   class myClass { 
+     ... 
+   };
+
+   /* No */
+   class My_Class{ 
+     ... 
+   };
 
 
 Class Methods
