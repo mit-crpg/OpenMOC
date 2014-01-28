@@ -16,6 +16,6 @@ essential aspects of using OpenMOC to perform neutronic simulations.
     beginners
     install
     input
-    running
     processing
+    running
     troubleshoot

@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>4. Running OpenMOC &mdash; OpenMOC Documentation</title>
+    <title>5. Running OpenMOC &mdash; OpenMOC Documentation</title>
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -27,8 +27,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" />
     <link rel="up" title="User’s Guide" href="index.html" />
-    <link rel="next" title="5. Data Processing and Visualization" href="processing.html" />
-    <link rel="prev" title="3. Writing Python Input Files" href="input.html" /> 
+    <link rel="next" title="6. Troubleshooting" href="troubleshoot.html" />
+    <link rel="prev" title="4. Data Processing and Visualization" href="processing.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,10 +38,10 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="processing.html" title="5. Data Processing and Visualization"
+          <a href="troubleshoot.html" title="6. Troubleshooting"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="input.html" title="3. Writing Python Input Files"
+          <a href="processing.html" title="4. Data Processing and Visualization"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
@@ -54,18 +54,18 @@
           <div class="body">
             
   <div class="section" id="running-openmoc">
-<span id="running"></span><h1>4. Running OpenMOC<a class="headerlink" href="#running-openmoc" title="Permalink to this headline">¶</a></h1>
+<span id="running"></span><h1>5. Running OpenMOC<a class="headerlink" href="#running-openmoc" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="executing-a-python-script">
-<h2>4.1. Executing a Python Script<a class="headerlink" href="#executing-a-python-script" title="Permalink to this headline">¶</a></h2>
+<h2>5.1. Executing a Python Script<a class="headerlink" href="#executing-a-python-script" title="Permalink to this headline">¶</a></h2>
 <p>Once you have created your OpenMOC Python script, it is relatively straightforward to run the code. Instructions for running directly in the shell, or on clusters using the <a class="reference external" href="http://www.adaptivecomputing.com/products/open-source/torque/">TORQUE</a> and <a class="reference external" href="https://www.alcf.anl.gov/user-guides/cobalt-job-control">Cobalt</a> job schedulers are described in the following sections.</p>
 <div class="section" id="running-openmoc-in-the-shell">
-<h3>4.1.1. Running OpenMOC in the Shell<a class="headerlink" href="#running-openmoc-in-the-shell" title="Permalink to this headline">¶</a></h3>
+<h3>5.1.1. Running OpenMOC in the Shell<a class="headerlink" href="#running-openmoc-in-the-shell" title="Permalink to this headline">¶</a></h3>
 <p>If you wish to run your code from the shell, simply type the following in the console:</p>
 <div class="highlight-python"><pre>python your-script.py &lt;option1&gt; &lt;option2&gt; ...</pre>
 </div>
 </div>
 <div class="section" id="submitting-a-torque-job">
-<h3>4.1.2. Submitting a <a class="reference external" href="http://www.adaptivecomputing.com/products/open-source/torque/">TORQUE</a> Job<a class="headerlink" href="#submitting-a-torque-job" title="Permalink to this headline">¶</a></h3>
+<h3>5.1.2. Submitting a <a class="reference external" href="http://www.adaptivecomputing.com/products/open-source/torque/">TORQUE</a> Job<a class="headerlink" href="#submitting-a-torque-job" title="Permalink to this headline">¶</a></h3>
 <p>To schedule a job to run your code on a cluster using the TORQUE job scheduler, you will need to write a submission script. This script will need to specify the desired compute resources (number of nodes and processors per node), the maximum walltime, among <a class="reference external" href="http://www.clusterresources.com/torquedocs21/2.1jobsubmission.shtml">others</a>. An example script requesting a single node with 12 cores for one hour is presented below:</p>
 <div class="highlight-guess"><div class="highlight"><pre><span class="c">#!/bin/sh</span>
 <span class="c">###################################################</span>
@@ -95,7 +95,7 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
 </div>
 </div>
 <div class="section" id="submitting-a-cobalt-job">
-<h3>4.1.3. Submitting a <a class="reference external" href="https://www.alcf.anl.gov/user-guides/cobalt-job-control">Cobalt</a> Job<a class="headerlink" href="#submitting-a-cobalt-job" title="Permalink to this headline">¶</a></h3>
+<h3>5.1.3. Submitting a <a class="reference external" href="https://www.alcf.anl.gov/user-guides/cobalt-job-control">Cobalt</a> Job<a class="headerlink" href="#submitting-a-cobalt-job" title="Permalink to this headline">¶</a></h3>
 <p>Cobalt is a job scheduler that is used on large scale machines at Argonne National Laboratory Leadership Computing Facility (<a class="reference external" href="http://www.alcf.anl.gov/">ALCF</a>), namely the IBM BlueGene machines, such as <a class="reference external" href="https://www.alcf.anl.gov/mira">Mira</a>. To schedule a job to run your code on a cluster using Cobalt, you can submit your job using <strong class="program">qsub</strong> with options to specify the desired compute resources (number of nodes and processors per node), the maximum walltime, etc.</p>
 <p>An example command to request a single node for 20 minutes is presented below:</p>
 <div class="highlight-python"><pre>qsub -A &lt;your-alcf-account&gt; -n 1 -t 20 --mode=c1 --env PYTHONPATH=&lt;path-to-_openmoc.so&gt;:&lt;path-to-any-other-openmoc-shared-library-file&gt; &lt;path-to-python&gt;/python your-script.py &lt;option1&gt; &lt;option2&gt; ...</pre>
@@ -103,12 +103,12 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
 <p>NOTE: You must specify the path to the location where OpenMOC was installed in the <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">PYTHONPATH</span></tt> environment variable. For OpenMOC ditributions built with the <a class="reference internal" href="install.html#cmdoption--user"><em class="xref std std-option">--user</em></a> option, this location will be <cite>~/.local/lib/pythonX.X/site-packages/...</cite>. In particular, the <span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">PYTHONPATH</span></tt> given to <strong class="program">qsub</strong> must include the path to all OpenMOC shared libraries (files with a <tt class="docutils literal"><span class="pre">.so</span></tt> extension) needed for your script. These may include <tt class="docutils literal"><span class="pre">_openmoc.so</span></tt> for the <tt class="docutils literal"><span class="pre">openmoc</span></tt> Python module, <tt class="docutils literal"><span class="pre">_openmoc_bgq_single.so</span></tt> for the <tt class="docutils literal"><span class="pre">openmoc.bgq.single</span></tt> Python module, etc depending on which OpenMOC modules you import into your script.</p>
 </div>
 <div class="section" id="canceling-an-openmoc-simulation">
-<h3>4.1.4. Canceling an OpenMOC Simulation<a class="headerlink" href="#canceling-an-openmoc-simulation" title="Permalink to this headline">¶</a></h3>
+<h3>5.1.4. Canceling an OpenMOC Simulation<a class="headerlink" href="#canceling-an-openmoc-simulation" title="Permalink to this headline">¶</a></h3>
 <p>To cancel an OpenMOC job running in your shell, you can use the <tt class="docutils literal"><span class="pre">CTRL+C</span></tt> keyboard combination. This will kill the Python script as well as the underlying computation running in the C/C++/CUDA shared library.</p>
 </div>
 </div>
 <div class="section" id="runtime-options">
-<span id="id1"></span><h2>4.2. Runtime Options<a class="headerlink" href="#runtime-options" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>5.2. Runtime Options<a class="headerlink" href="#runtime-options" title="Permalink to this headline">¶</a></h2>
 <p>This section provides a brief overview of each of the runtime options that are supported by OpenMOC. Each of these can be passed into your Python script as follows:</p>
 <div class="highlight-python"><pre>python your-script.py &lt;option1&gt; &lt;option2&gt; ...</pre>
 </div>
@@ -182,25 +182,25 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">4. Running OpenMOC</a><ul>
-<li><a class="reference internal" href="#executing-a-python-script">4.1. Executing a Python Script</a><ul>
-<li><a class="reference internal" href="#running-openmoc-in-the-shell">4.1.1. Running OpenMOC in the Shell</a></li>
-<li><a class="reference internal" href="#submitting-a-torque-job">4.1.2. Submitting a TORQUE Job</a></li>
-<li><a class="reference internal" href="#submitting-a-cobalt-job">4.1.3. Submitting a Cobalt Job</a></li>
-<li><a class="reference internal" href="#canceling-an-openmoc-simulation">4.1.4. Canceling an OpenMOC Simulation</a></li>
+<li><a class="reference internal" href="#">5. Running OpenMOC</a><ul>
+<li><a class="reference internal" href="#executing-a-python-script">5.1. Executing a Python Script</a><ul>
+<li><a class="reference internal" href="#running-openmoc-in-the-shell">5.1.1. Running OpenMOC in the Shell</a></li>
+<li><a class="reference internal" href="#submitting-a-torque-job">5.1.2. Submitting a TORQUE Job</a></li>
+<li><a class="reference internal" href="#submitting-a-cobalt-job">5.1.3. Submitting a Cobalt Job</a></li>
+<li><a class="reference internal" href="#canceling-an-openmoc-simulation">5.1.4. Canceling an OpenMOC Simulation</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#runtime-options">4.2. Runtime Options</a></li>
+<li><a class="reference internal" href="#runtime-options">5.2. Runtime Options</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="input.html"
-                        title="previous chapter">3. Writing Python Input Files</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="processing.html"
-                        title="next chapter">5. Data Processing and Visualization</a></p>
+                        title="previous chapter">4. Data Processing and Visualization</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="troubleshoot.html"
+                        title="next chapter">6. Troubleshooting</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/usersguide/running.txt"
@@ -230,10 +230,10 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="processing.html" title="5. Data Processing and Visualization"
+          <a href="troubleshoot.html" title="6. Troubleshooting"
              >next</a> |</li>
         <li class="right" >
-          <a href="input.html" title="3. Writing Python Input Files"
+          <a href="processing.html" title="4. Data Processing and Visualization"
              >previous</a> |</li>
         <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
           <li><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 

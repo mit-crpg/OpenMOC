@@ -61,8 +61,27 @@
 <p class="first admonition-title">Note</p>
 <p class="last">It is highly suggested that users acquire a basic understanding of Python before developing OpenMOC simulations. For users familiar with basic programming constructs such as loops and conditionals, the official <a class="reference external" href="http://docs.python.org/2/tutorial/">Python Tutorial</a> is an excellent place to learn Python basics. For users new to programming, the <a class="reference external" href="http://www.codecademy.com/tracks/python">Code Academy Python Course</a> provides an introduction to both programming essentials and the Python language.</p>
 </div>
+<div class="section" id="simulation-parameters">
+<h2>3.1. Simulation Parameters<a class="headerlink" href="#simulation-parameters" title="Permalink to this headline">¶</a></h2>
+<p>The full power of Python is available to users designing OpenMOC simulations. As a result, simulation parameters may easily be defined and redefined in a Python script for one or more simulations at a user&#8217;s discretion. However, some simulation parameters are best defined at runtime, including the number of azimuthal angles, track spacing, number of threads, etc.</p>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.options</span></tt> module provides functionality to parse arguments defined on the command line at runtime. The full list of options available in OpenMOC are itemized and described in <a class="reference internal" href="running.html#runtime-options"><em>Runtime Options</em></a>. The following code snippet illutrates how to instantiate an <tt class="docutils literal"><span class="pre">Options</span></tt> object and extract data from command line arguments.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.options</span> <span class="kn">as</span> <span class="nn">opt</span>
+
+<span class="c"># Instantiate and Options object</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">Options</span><span class="p">()</span>
+
+<span class="c"># Retrieve runtime options parsed in by the Options object</span>
+<span class="n">num_threads</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">num_omp_threads</span>
+<span class="n">track_spacing</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">track_spacing</span>
+<span class="n">num_azim</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">num_azim</span>
+<span class="n">tolerance</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">tolerance</span>
+<span class="n">max_iters</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">max_iters</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="materials-specification">
-<h2>3.1. Materials Specification<a class="headerlink" href="#materials-specification" title="Permalink to this headline">¶</a></h2>
+<h2>3.2. Materials Specification<a class="headerlink" href="#materials-specification" title="Permalink to this headline">¶</a></h2>
 <p>OpenMOC uses multi-group nuclear cross-sections prepared by some upstream processing tool such as the <a class="reference external" href="http://t2.lanl.gov/nis/njoy/title.html">NJOY</a> GROUPR module. In OpenMOC, cross-section data is encapsulated by the <tt class="docutils literal"><span class="pre">Material</span></tt> class in the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> Python module. A <tt class="docutils literal"><span class="pre">Material</span></tt> class may be instantiated in Python and cross-sections may be loaded into it using <a class="reference external" href="http://www.numpy.org/">NumPy</a> data arrays as illustrated by the following code snippet:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
@@ -188,7 +207,7 @@
 </div>
 </div>
 <div class="section" id="geometry-specification">
-<h2>3.2. Geometry Specification<a class="headerlink" href="#geometry-specification" title="Permalink to this headline">¶</a></h2>
+<h2>3.3. Geometry Specification<a class="headerlink" href="#geometry-specification" title="Permalink to this headline">¶</a></h2>
 <p>The geometry in OpenMOC is described using constructive solid geometry (<a class="reference external" href="http://en.wikipedia.org/wiki/Constructive_solid_geometry">CSG</a>),
 also sometimes referred to as combinatorial geometry. CSG allows a user to
 create complex objects using Boolean operators on a set of simpler surfaces. In
@@ -196,7 +215,7 @@ the geometry model, each unique closed volume is defined by its bounding
 surfaces. The CSG formulation used in OpenMOC is described in more detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#constructive-solid-geometry"><em>Constructive Solid Geometry</em></a>.</p>
 <p>The following sections detail how to create surfaces, cells, universes and lattices to construct a simple 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 pin cell lattice.</p>
 <div class="section" id="surfaces">
-<h3>3.2.1. Surfaces<a class="headerlink" href="#surfaces" title="Permalink to this headline">¶</a></h3>
+<h3>3.3.1. Surfaces<a class="headerlink" href="#surfaces" title="Permalink to this headline">¶</a></h3>
 <p>In most cases, the first step towards building a reactor geometry is to create the surfaces defining boundaries between distinct regions. The CSG formulation for surfaces in OpenMOC is described in detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#surfaces-halfspaces"><em>Surfaces and Halfspaces</em></a>. For LWRs, the most typical surfaces needed to model 2D rectangular lattices are the <tt class="docutils literal"><span class="pre">Circle</span></tt>, <tt class="docutils literal"><span class="pre">XPlane</span></tt>, and <tt class="docutils literal"><span class="pre">YPlane</span></tt> classes. The following code snippet illustrates how to create a circle to represent a fuel pin and reflective boundary planes to surround a 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize circular fuel pin surface</span>
 <span class="n">circle</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)</span>
@@ -216,7 +235,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 </div>
 </div>
 <div class="section" id="cells-and-universes">
-<h3>3.2.2. Cells and Universes<a class="headerlink" href="#cells-and-universes" title="Permalink to this headline">¶</a></h3>
+<h3>3.3.2. Cells and Universes<a class="headerlink" href="#cells-and-universes" title="Permalink to this headline">¶</a></h3>
 <p>The next step to create a geometry is to instantiate cells which represent unique geometric shapes and use them to construct universes. The CSG formulations for cells and universes in OpenMOC are discussed in further detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#cells"><em>Cells</em></a> and <a class="reference internal" href="../methods/constructive_solid_geometry.html#universes"><em>Universes</em></a>, respectively. OpenMOC provides the <tt class="docutils literal"><span class="pre">CellBasic</span></tt> class for cells which are filled by a material. The following code snippet illustrates how to create cells filled by the fuel and moderator materials in the universe with ID = 1. Next, the script adds the appropriate halfspace of the circle surface created in the preceding section to each cell.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Retrieve the IDs for the fuel and moderator materials</span>
 <span class="n">uo2_id</span> <span class="o">=</span> <span class="n">materials</span><span class="p">[</span><span class="s">&#39;Fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span>
@@ -248,7 +267,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 </div>
 </div>
 <div class="section" id="lattices">
-<h3>3.2.3. Lattices<a class="headerlink" href="#lattices" title="Permalink to this headline">¶</a></h3>
+<h3>3.3.3. Lattices<a class="headerlink" href="#lattices" title="Permalink to this headline">¶</a></h3>
 <p>Once the cells for the geometry have been created, OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Lattice</span></tt> class may be used to represent repeating patterns of the cells on a rectangular array. The CSG formulation for lattices is described further in <a class="reference internal" href="../methods/constructive_solid_geometry.html#lattices"><em>Lattices</em></a>. In OpenMOC, the <tt class="docutils literal"><span class="pre">Lattice</span></tt> class is a subclass of the <tt class="docutils literal"><span class="pre">Universe</span></tt> class. The following code snippet illustrates the creation of a 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice with each lattice cell filled by the universe with ID = 1. The total width and height of the lattice are defined as parameters when the lattice is initialized. The lattice dimensions are used to define the rectangular region of interest centered at the origin of each universe filling each lattice cell.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize the lattice for the geometry</span>
 <span class="n">lattice</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Lattice</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">width_x</span><span class="o">=</span><span class="mf">5.04</span><span class="p">,</span> <span class="n">width_y</span><span class="o">=</span><span class="mf">5.04</span><span class="p">)</span>
@@ -262,7 +281,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 </div>
 </div>
 <div class="section" id="geometry">
-<h3>3.2.4. Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h3>
+<h3>3.3.4. Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h3>
 <p>The final step in creating a geometry is to instantiate OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Geometry</span></tt> class. The <tt class="docutils literal"><span class="pre">Geometry</span></tt> class encapsulates all materials, surfaces, cells, universes and lattices. The following code snippet illustrates the creation of the geometry and the registration of each material, cell and lattice constructed in the preceding sections. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize an empty geometry object</span>
 <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">()</span>
@@ -287,7 +306,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 </div>
 </div>
 <div class="section" id="track-generation">
-<h2>3.3. Track Generation<a class="headerlink" href="#track-generation" title="Permalink to this headline">¶</a></h2>
+<h2>3.4. Track Generation<a class="headerlink" href="#track-generation" title="Permalink to this headline">¶</a></h2>
 <p>Once the geometry has been initialized for a simulation, the next step is to perform ray tracing for track generation. The track generation process and algorithms in OpenMOC are described in more detail in <a class="reference internal" href="../methods/track_generation.html#track-generation"><em>Track Generation</em></a>. This step requires the instantiation of a <tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> object and a function call to generate the tracks as illustrated in the following code snippet.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize the track generator after the geometry has been</span>
 <span class="c"># constructed. Use 64 azimuthal angles and 0.05 cm track spacing.</span>
@@ -300,7 +319,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 </div>
 </div>
 <div class="section" id="moc-source-iteration">
-<h2>3.4. MOC Source Iteration<a class="headerlink" href="#moc-source-iteration" title="Permalink to this headline">¶</a></h2>
+<h2>3.5. MOC Source Iteration<a class="headerlink" href="#moc-source-iteration" title="Permalink to this headline">¶</a></h2>
 <p>One of OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Solver</span></tt> subclasses may be initialized given the <tt class="docutils literal"><span class="pre">Geometry</span></tt> and <tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> objects created in the preceding sections. The most commonly used subclasses for OpenMOC simulations are itemized below:</p>
 <blockquote>
 <div><ul class="simple">
@@ -335,16 +354,17 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">3. Writing Python Input Files</a><ul>
-<li><a class="reference internal" href="#materials-specification">3.1. Materials Specification</a></li>
-<li><a class="reference internal" href="#geometry-specification">3.2. Geometry Specification</a><ul>
-<li><a class="reference internal" href="#surfaces">3.2.1. Surfaces</a></li>
-<li><a class="reference internal" href="#cells-and-universes">3.2.2. Cells and Universes</a></li>
-<li><a class="reference internal" href="#lattices">3.2.3. Lattices</a></li>
-<li><a class="reference internal" href="#geometry">3.2.4. Geometry</a></li>
+<li><a class="reference internal" href="#simulation-parameters">3.1. Simulation Parameters</a></li>
+<li><a class="reference internal" href="#materials-specification">3.2. Materials Specification</a></li>
+<li><a class="reference internal" href="#geometry-specification">3.3. Geometry Specification</a><ul>
+<li><a class="reference internal" href="#surfaces">3.3.1. Surfaces</a></li>
+<li><a class="reference internal" href="#cells-and-universes">3.3.2. Cells and Universes</a></li>
+<li><a class="reference internal" href="#lattices">3.3.3. Lattices</a></li>
+<li><a class="reference internal" href="#geometry">3.3.4. Geometry</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#track-generation">3.3. Track Generation</a></li>
-<li><a class="reference internal" href="#moc-source-iteration">3.4. MOC Source Iteration</a></li>
+<li><a class="reference internal" href="#track-generation">3.4. Track Generation</a></li>
+<li><a class="reference internal" href="#moc-source-iteration">3.5. MOC Source Iteration</a></li>
 </ul>
 </li>
 </ul>

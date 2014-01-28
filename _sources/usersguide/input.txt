@@ -10,6 +10,28 @@ The following sections describe the essential portions of the OpenMOC API needed
 
 .. note:: It is highly suggested that users acquire a basic understanding of Python before developing OpenMOC simulations. For users familiar with basic programming constructs such as loops and conditionals, the official `Python Tutorial`_ is an excellent place to learn Python basics. For users new to programming, the `Code Academy Python Course`_ provides an introduction to both programming essentials and the Python language.
 
+---------------------
+Simulation Parameters
+---------------------
+
+The full power of Python is available to users designing OpenMOC simulations. As a result, simulation parameters may easily be defined and redefined in a Python script for one or more simulations at a user's discretion. However, some simulation parameters are best defined at runtime, including the number of azimuthal angles, track spacing, number of threads, etc. 
+
+The ``openmoc.options`` module provides functionality to parse arguments defined on the command line at runtime. The full list of options available in OpenMOC are itemized and described in :ref:`Runtime Options <runtime_options>`. The following code snippet illutrates how to instantiate an ``Options`` object and extract data from command line arguments.
+
+.. code-block:: python
+
+    import openmoc.options as opt
+
+    # Instantiate and Options object
+    options = opt.Options()
+
+    # Retrieve runtime options parsed in by the Options object
+    num_threads = options.num_omp_threads
+    track_spacing = options.track_spacing
+    num_azim = options.num_azim
+    tolerance = options.tolerance
+    max_iters = options.max_iters
+    ...
 
 -----------------------
 Materials Specification
