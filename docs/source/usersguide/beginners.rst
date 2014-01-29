@@ -8,6 +8,8 @@ A Beginner's Guide to OpenMOC
 What does OpenMOC do?
 ---------------------
 
+
+
 -----------------
 How does it work?
 -----------------
@@ -17,16 +19,10 @@ interest. This could be a nuclear reactor or any other physical system with
 fissioning material. You, as the code user, will need to describe the model so
 that the code can do something with it. A basic model consists of a few things:
 
-- A description of the geometry -- the problem should be split up into regions
-  of homogeneous material.
-- For each different material in the problem, a description of what nuclides are
-  in the material and at what density.
-- Various parameters telling the code how many particles to simulate and what
-  options to use.
-- A list of different physical quantities that the code should return at the end
-  of the simulation. Remember, in a Monte Carlo simulation, if you don't ask for
-  anything, it will not give you any answers (other than a few default
-  quantities).
+- **Geometry** - A description of the geometry split into regions of homogeneous materials.
+- **Materials** - A description of the nuclear cross-sections for each material
+- **Parameters** - Various parameters for the numerical algorithm used in the simulation
+
 
 -----------------------
 What do I need to know?
@@ -62,9 +58,9 @@ technical than the Reactor Concepts Manual but still at an elementary level is
 the DOE Fundamentals Handbook on Nuclear Physics and Reactor Theory `Volume I`_
 and `Volume II`_. You may also find it helpful to review the following terms:
 
-- `Neutron cross section`_
+- `Neutron cross-section`_
 - `Effective multiplication factor`_
-- `Flux`_
+- `Neutron Flux`_
 
 .. _git: http://git-scm.com/
 .. _git tutorials: http://git-scm.com/documentation
@@ -74,6 +70,6 @@ and `Volume II`_. You may also find it helpful to review the following terms:
 .. _OpenMOC source code: https://github.com/mit-crpg/OpenMOC
 .. _GitHub: https://github.com/
 .. _bug reports: https://github.com/mit-crpg/OpenMOC/issues
-.. _Neutron cross section: http://en.wikipedia.org/wiki/Neutron_cross_section
+.. _Neutron cross-section: http://en.wikipedia.org/wiki/Neutron_cross_section
 .. _Effective multiplication factor: http://en.wikipedia.org/wiki/Effective_multiplication_factor
-.. _Flux: http://en.wikipedia.org/wiki/Neutron_flux
+.. _Neutron Flux: http://en.wikipedia.org/wiki/Neutron_flux

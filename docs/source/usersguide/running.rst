@@ -4,15 +4,10 @@
 Running OpenMOC
 ===============
 
-
--------------------------
-Executing a Python Script
--------------------------
-
 Once you have created your OpenMOC Python script, it is relatively straightforward to run the code. Instructions for running directly in the shell, or on clusters using the TORQUE_ and Cobalt_ job schedulers are described in the following sections.
 
 
-
+----------------------------
 Running OpenMOC in the Shell
 ----------------------------
 
@@ -22,6 +17,7 @@ If you wish to run your code from the shell, simply type the following in the co
 
 
 
+------------------------
 Submitting a TORQUE_ Job
 ------------------------
 
@@ -63,6 +59,7 @@ To submit this script (``my-job.pbs``) your job to TORQUE, simply use the follow
 
 
 
+------------------------
 Submitting a Cobalt_ Job
 ------------------------
 
@@ -79,13 +76,6 @@ NOTE: You must specify the path to the location where OpenMOC was installed in t
 .. _Mira: https://www.alcf.anl.gov/mira
 
 
-Canceling an OpenMOC Simulation
--------------------------------
-
-To cancel an OpenMOC job running in your shell, you can use the ``CTRL+C`` keyboard combination. This will kill the Python script as well as the underlying computation running in the C/C++/CUDA shared library.
-
-
-
 .. _runtime_options:
 
 ---------------
@@ -95,7 +85,6 @@ Runtime Options
 This section provides a brief overview of each of the runtime options that are supported by OpenMOC. Each of these can be passed into your Python script as follows::
 
     python your-script.py <option1> <option2> ...
-   
 
 .. option:: -h, --help
 
@@ -110,7 +99,6 @@ The number of azimuthal angles for ray tracing. The default is 4.
 .. option:: -s, --track-spacing=<0.1>
 
 The track spacing (in cm) for ray tracing. The default is 0.1 cm.
-
 
 .. option:: -i, --max-iters=<1000>
 
@@ -136,17 +124,24 @@ The number of CUDA threadblocks. This option only applies to scripts which use O
 
 The number of CUDA threads per threadblock. This option only applies to scripts which use OpenMOC's :cpp:class:`GPUSolver` class. This value must be a multiple of the number of threads in a CUDA warp_. At the time of this writing, nearly all NVIDIA GPUs have a warp size of 32, though this may change for future NVIDIA GPUs. If the value set for this option is not a multiple of 32, the CUDA source code will round up to the nearest multiple of 32 threads. The default is 64 threads. 
 
-NOTE: If you are unsure what the warp size is for your GPU, you can use the ``openmoc.cuda`` module to find out. The following Python code will report the warp size for your GPU to the console:
+.. note:: If you are unsure what the warp size is for your GPU, you can use the ``openmoc.cuda`` module to find out. The following Python code will report the warp size for your GPU to the console:
 
-.. code-block:: python
+     .. code-block:: python
 
-   import openmoc.cuda as cuda
+         import openmoc.cuda as cuda
    
-   if cuda.machineContainsGPU():
-       num_threads = cuda.getNumThreadsInWarp()
-       print 'This machines GPU contains %d threads per warp' % (num_threads)
+	 if cuda.machineContainsGPU():
+	   num_threads = cuda.getNumThreadsInWarp()
+	   print 'This machines GPU contains %d threads per warp' % (num_threads)
 
-   else:
-       print 'This machine does not contain an NVIDIA CUDA-enabled GPU'
+	 else:
+	   print 'This machine does not contain an NVIDIA CUDA-enabled GPU'
 
 .. _warp: http://www.pgroup.com/lit/articles/insider/v2n1a5.htm
+
+
+-------------------------------
+Canceling an OpenMOC Simulation
+-------------------------------
+
+To cancel an OpenMOC job running in your shell, you can use the ``CTRL+C`` keyboard combination. This will kill the Python script as well as the underlying computation running in the C/C++/CUDA shared library.

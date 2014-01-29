@@ -65,16 +65,9 @@ interest. This could be a nuclear reactor or any other physical system with
 fissioning material. You, as the code user, will need to describe the model so
 that the code can do something with it. A basic model consists of a few things:</p>
 <ul class="simple">
-<li>A description of the geometry &#8211; the problem should be split up into regions
-of homogeneous material.</li>
-<li>For each different material in the problem, a description of what nuclides are
-in the material and at what density.</li>
-<li>Various parameters telling the code how many particles to simulate and what
-options to use.</li>
-<li>A list of different physical quantities that the code should return at the end
-of the simulation. Remember, in a Monte Carlo simulation, if you don&#8217;t ask for
-anything, it will not give you any answers (other than a few default
-quantities).</li>
+<li><strong>Geometry</strong> - A description of the geometry split into regions of homogeneous materials.</li>
+<li><strong>Materials</strong> - A description of the nuclear cross-sections for each material</li>
+<li><strong>Parameters</strong> - Various parameters for the numerical algorithm used in the simulation</li>
 </ul>
 </div>
 <div class="section" id="what-do-i-need-to-know">
@@ -105,9 +98,9 @@ technical than the Reactor Concepts Manual but still at an elementary level is
 the DOE Fundamentals Handbook on Nuclear Physics and Reactor Theory <a class="reference external" href="http://www.hss.doe.gov/nuclearsafety/techstds/docs/handbook/h1019v1.pdf">Volume I</a>
 and <a class="reference external" href="http://www.hss.doe.gov/nuclearsafety/techstds/docs/handbook/h1019v2.pdf">Volume II</a>. You may also find it helpful to review the following terms:</p>
 <ul class="simple">
-<li><a class="reference external" href="http://en.wikipedia.org/wiki/Neutron_cross_section">Neutron cross section</a></li>
+<li><a class="reference external" href="http://en.wikipedia.org/wiki/Neutron_cross_section">Neutron cross-section</a></li>
 <li><a class="reference external" href="http://en.wikipedia.org/wiki/Effective_multiplication_factor">Effective multiplication factor</a></li>
-<li><a class="reference external" href="http://en.wikipedia.org/wiki/Neutron_flux">Flux</a></li>
+<li><a class="reference external" href="http://en.wikipedia.org/wiki/Neutron_flux">Neutron Flux</a></li>
 </ul>
 </div>
 </div>

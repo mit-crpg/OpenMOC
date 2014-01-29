@@ -68,6 +68,10 @@ python setup.py install --user</pre>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc</span>
 </pre></div>
 </div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Some Python distributions require that the code be built and installed <em>twice</em> in order to setup all of the <a class="reference external" href="http://en.wikipedia.org/wiki/Symbolic_link">symbolic links</a> correctly. This is only the case the first time OpenMOC is installed on a machine. Hence, code developers who subsequently make modifications to the source code only need to build and install the code once to have access to the modified binary.</p>
+</div>
 </div>
 </div>
 

@@ -26,6 +26,9 @@ This will build a shared library accessible as a Python package named ``openmoc`
 
     import openmoc
 
+.. warning:: Some Python distributions require that the code be built and installed *twice* in order to setup all of the `symbolic links`_ correctly. This is only the case the first time OpenMOC is installed on a machine. Hence, code developers who subsequently make modifications to the source code only need to build and install the code once to have access to the modified binary.
+
+
 
 .. _GitHub: https://github.com/mit-crpg/OpenMOC
 .. _Git: http://git-scm.com
@@ -35,3 +38,4 @@ This will build a shared library accessible as a Python package named ``openmoc`
 .. _NumPy: http://www.numpy.org/
 .. _matplotlib: http://matplotlib.org/
 .. _h5py: http://www.h5py.org/
+.. _symbolic links: http://en.wikipedia.org/wiki/Symbolic_link

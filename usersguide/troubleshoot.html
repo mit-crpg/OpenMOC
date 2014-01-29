@@ -55,10 +55,25 @@
             
   <div class="section" id="troubleshooting">
 <span id="usersguide-troubleshoot"></span><h1>6. Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="problems-with-compilation">
-<h2>6.1. Problems with Compilation<a class="headerlink" href="#problems-with-compilation" title="Permalink to this headline">¶</a></h2>
 <p>If you are experiencing problems trying to compile OpenMOC, first check if the
 error you are receiving is among the following options.</p>
+<div class="section" id="problems-with-compilation">
+<h2>6.1. Problems with Compilation<a class="headerlink" href="#problems-with-compilation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="nameerror-is-not-defined">
+<h3>6.1.1. NameError: ... is not defined<a class="headerlink" href="#nameerror-is-not-defined" title="Permalink to this headline">¶</a></h3>
+<p>In some cases, the symbolic links for the code are not established correctly and users may receive a <cite>NameError</cite>, and example of which is given below:</p>
+<div class="highlight-python"><pre>Traceback (most recent call last):
+  File "simple-lattice.py", line 1, in &lt;module&gt;
+    from openmoc import *
+  File "/home/wbinventor/.local/lib/python2.7/site-packages/openmoc/__init__.py", line 15, in &lt;module&gt;
+    setLogfileName('log/openmoc-' + current_time + '.log');
+NameError: name 'setLogfileName' is not defined</pre>
+</div>
+<p>This error is commonly seen by new users after just installing the code. As noted in the <a class="reference internal" href="install.html#usersguide-install"><em>Installation and Configuration</em></a>, some Python distributions require that OpenMOC be installed twice the first time it is installed. The recommended solution in this case would be to execute the installation command twice in sequence:</p>
+<div class="highlight-python"><pre>python setup.py install --user
+python setup.py install --user</pre>
+</div>
+</div>
 </div>
 </div>
 
@@ -71,7 +86,10 @@ error you are receiving is among the following options.</p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">6. Troubleshooting</a><ul>
-<li><a class="reference internal" href="#problems-with-compilation">6.1. Problems with Compilation</a></li>
+<li><a class="reference internal" href="#problems-with-compilation">6.1. Problems with Compilation</a><ul>
+<li><a class="reference internal" href="#nameerror-is-not-defined">6.1.1. NameError: ... is not defined</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

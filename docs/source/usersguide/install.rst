@@ -132,6 +132,8 @@ The main OpenMOC Python package can be imported into any Python script as follow
 
     import openmoc
 
+.. warning:: Some Python distributions require that the code be built and installed *twice* in order to setup all of the `symbolic links`_ correctly. This is only the case the first time OpenMOC is installed on a machine. Hence, code developers who subsequently make modifications to the source code only need to build and install the code once to have access to the modified binary.
+
 
 Custom Build Configuration
 --------------------------
@@ -231,7 +233,7 @@ Compiles using ccache_ which uses a cache to speedup compilation of unchanged so
 .. _ccache: http://ccache.samba.org
 .. _NVIDIA: http://www.nvidia.com/content/global/global.php
 .. _PAPI: http://icl.cs.utk.edu/papi/
-
+.. _symbolic links: http://en.wikipedia.org/wiki/Symbolic_link
 
 -----------------------------
 Installing on Ubuntu with PPA

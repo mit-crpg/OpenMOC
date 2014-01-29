@@ -6,7 +6,7 @@ Theory and Methodology
 
 .. toctree::
     :numbered:
-    :maxdepth: 3
+    :maxdepth: 2
 
     introduction
     method_of_characteristics
