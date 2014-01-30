@@ -388,25 +388,22 @@ The code snippet below illustrates one possible configuration of parameters to t
     # Plot the fluxes for energy groups 1 and 7 in 500 x 500 pixel images
     plot.plotFluxes(geometry, solver, energy_groups=[1,7], gridsize=500)
 
-A depiction of the fluxes for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py`) is illustrated in :ref:`Figure 6 <figure_flux_group_1>` for group 1 and :ref:`Figure 7 <figure_flux_group_7>` for group 7.
+A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py`) is illustrated in :ref:`Figure 6 <figure_fluxes>`.
 
-.. _figure_flux_group_1:
+.. _figure_fluxes:
 
-.. figure:: ../../img/flux-group-1.png
-   :align: center
-   :figclass: align-center
-   :width: 400px
+.. table:: 
 
-   **Figure 6**: The group 1 flux in the C5G7 benchmark problem.
+   +------------------------------------------+-----------------------------------------+
+   | .. _figa:                                | .. _figb:                               |
+   |                                          |                                         |
+   | .. image:: ../../img/flux-group-1.png    | .. image:: ../../img/flux-group-7.png   |
+   |   :width: 72 %                           |   :width: 75 %                          |
+   |   :align: center                         |   :align: center                        |
+   +------------------------------------------+-----------------------------------------+ 
 
-.. _figure_flux_group_7:
 
-.. figure:: ../../img/flux-group-7.png
-   :align: center
-   :figclass: align-center
-   :width: 400px
-
-   **Figure 7**: The group 7 flux in the C5G7 benchmark problem.
+**Figure 6**: The fast and thermal fluxes in the C5G7 benchmark problem.
 
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).

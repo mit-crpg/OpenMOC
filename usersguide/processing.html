@@ -674,15 +674,21 @@
 <span class="n">plot</span><span class="o">.</span><span class="n">plotFluxes</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">solver</span><span class="p">,</span> <span class="n">energy_groups</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the fluxes for the C5G7 benchmark (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py</span></tt>) is illustrated in <a class="reference internal" href="#figure-flux-group-1"><em>Figure 6</em></a> for group 1 and <a class="reference internal" href="#figure-flux-group-7"><em>Figure 7</em></a> for group 7.</p>
-<div class="align-center figure align-center" id="figure-flux-group-1">
-<img alt="../_images/flux-group-1.png" src="../_images/flux-group-1.png" style="width: 400px;" />
-<p class="caption"><strong>Figure 6</strong>: The group 1 flux in the C5G7 benchmark problem.</p>
-</div>
-<div class="align-center figure align-center" id="figure-flux-group-7">
-<img alt="../_images/flux-group-7.png" src="../_images/flux-group-7.png" style="width: 400px;" />
-<p class="caption"><strong>Figure 7</strong>: The group 7 flux in the C5G7 benchmark problem.</p>
-</div>
+<p>A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py</span></tt>) is illustrated in <a class="reference internal" href="#figure-fluxes"><em>Figure 6</em></a>.</p>
+<table border="1" class="docutils" id="figure-fluxes">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><img alt="../_images/flux-group-1.png" class="first last align-center" id="figa" src="../_images/flux-group-1.png" style="width: 72%;" />
+</td>
+<td><img alt="../_images/flux-group-7.png" class="first last align-center" id="figb" src="../_images/flux-group-7.png" style="width: 75%;" />
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Figure 6</strong>: The fast and thermal fluxes in the C5G7 benchmark problem.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>

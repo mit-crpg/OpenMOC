@@ -1,0 +1,391 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>6. Python Build System &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="Developer’s Guide" href="index.html" />
+    <link rel="next" title="OpenMOC API" href="../api/index.html" />
+    <link rel="prev" title="5. Simplified Wrapper Interface Generator (SWIG)" href="swig.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../api/index.html" title="OpenMOC API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="swig.html" title="5. Simplified Wrapper Interface Generator (SWIG)"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="python-build-system">
+<span id="devguide-build-sytem"></span><h1>6. Python Build System<a class="headerlink" href="#python-build-system" title="Permalink to this headline">¶</a></h1>
+<p>OpenMOC is built and installed using the Python <a class="reference external" href="http://docs.python.org/2/library/distutils.html">distutils</a> package, which is a standard package provided with all Python distributions. Some developers will find this to be an adjustment since this stands in contrast to the legacy <a class="reference external" href="http://www.gnu.org/software/make/">make</a> and <a class="reference external" href="http://www.cmake.org/">cmake</a> build systems used by many scientific simulation codes. The following sections will describe how a developer can interact with the build system for configuration management.</p>
+<div class="section" id="configuration-file">
+<span id="id1"></span><h2>6.1. Configuration File<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
+<p>The primary options for the build and installation of OpenMOC are defined in the <tt class="file docutils literal"><span class="pre">/OpenMOC/config.py</span></tt> file. In particular, <tt class="file docutils literal"><span class="pre">config.py</span></tt> creates the <a class="reference external" href="http://docs.python.org/2/extending/building.html">C/C++ Extensions</a> using distutils in the <tt class="docutils literal"><span class="pre">configuration</span></tt> class. The <tt class="docutils literal"><span class="pre">Extension</span></tt> class in the <tt class="docutils literal"><span class="pre">distutils.extension</span></tt> module defines all of the source code and compiler and linker options to create a <a class="reference external" href="http://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html">shared library</a> which can be imported into Python as module. The class attributes for the <tt class="docutils literal"><span class="pre">configuration</span></tt> class encapsulate the build options specified by the user at compile time (see <a class="reference internal" href="../usersguide/install.html#build-configuration-options"><em>Build Configuration Options</em></a>) and are itemized in <a class="reference internal" href="#table-configuration-attributes"><em>Table 1</em></a>.</p>
+<table border="1" class="docutils" id="table-configuration-attributes">
+<colgroup>
+<col width="27%" />
+<col width="25%" />
+<col width="48%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Class Attribute</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">cc</span></tt></td>
+<td>string</td>
+<td>&#8216;gcc&#8217;</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">fp</span></tt></td>
+<td>string</td>
+<td>&#8216;single&#8217;</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">cpp_compilers</span></tt></td>
+<td>list of strings</td>
+<td>[]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">fp_precision</span></tt></td>
+<td>list of string</td>
+<td>[]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">with_ccache</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">debug_mode</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">with_cuda</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">with_numpy</span></tt></td>
+<td>boolean</td>
+<td>True</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">sources</span></tt></td>
+<td>dictionary of strings</td>
+<td>C/C++/CUDA source files flags for eac  <tt class="docutils literal"><span class="pre">Extension</span></tt> object</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">compiler_flags</span></tt></td>
+<td>dictionary of strings</td>
+<td>Flags for each <tt class="docutils literal"><span class="pre">Extension</span></tt> object</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">linker_flags</span></tt></td>
+<td>dictionary of strings</td>
+<td>Flags for each <tt class="docutils literal"><span class="pre">Extension</span></tt> object</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">shared_libraries</span></tt></td>
+<td>dictionary of strings</td>
+<td>Libraries for each <tt class="docutils literal"><span class="pre">Extension</span></tt> object</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">library_directories</span></tt></td>
+<td>dictionary of strings</td>
+<td>Libraries for each <tt class="docutils literal"><span class="pre">Extension</span></tt> object</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">include_directories</span></tt></td>
+<td>dictionary of strings</td>
+<td>Includes for each <tt class="docutils literal"><span class="pre">Extension</span></tt> object</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">macros</span></tt></td>
+<td>dictionary of strings</td>
+<td>Macros for each <tt class="docutils literal"><span class="pre">Extension</span></tt> object</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">extensions</span></tt></td>
+<td>list of <tt class="docutils literal"><span class="pre">Extension</span></tt> objects</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 1</strong>: Attributes for the <tt class="docutils literal"><span class="pre">configuration</span></tt> class.</p>
+<p>The class attributes each have default values corresponding to the configuration needed to build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module. The <tt class="file docutils literal"><span class="pre">OpenMOC/setup.py</span></tt> file instantiates a <tt class="docutils literal"><span class="pre">configuration</span></tt> class object and redefines the class attributes based on the command line options given at runtime. This process is discussed in greater detail in the <a class="reference internal" href="#setup-file"><em>Setup File</em></a> section.</p>
+<p>Once the build options have been defined for the <tt class="docutils literal"><span class="pre">configuration</span></tt> class, the <tt class="file docutils literal"><span class="pre">setup.py</span></tt> calls the <tt class="docutils literal"><span class="pre">setup_extension_modules(...)</span></tt> class method which instantiates one or more <tt class="docutils literal"><span class="pre">Extension</span></tt> class objects for each Python module the user wishes to build and install.</p>
+<p>For example, the following command would build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module using the default compiler (gcc) and with double precision:</p>
+<div class="highlight-python"><pre>python setup.py install --user --with-dp</pre>
+</div>
+<p>Users may build and install more than one OpenMOC module at once with the appropriate command line options. For example, the following command would build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module with default compiler (gcc), as well as the <tt class="docutils literal"><span class="pre">openmoc.intel.double</span></tt> module, each with double precision:</p>
+<div class="highlight-python"><pre>python setup.py install --user --with-intel --with-dp</pre>
+</div>
+<p>Similarly, the following command would build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module with default compiler (gcc), as well was the <tt class="docutils literal"><span class="pre">openmoc.cuda.single</span></tt> module, each with single precision and <a class="reference external" href="http://en.wikipedia.org/wiki/Debug_symbol">debug symbols</a>:</p>
+<div class="highlight-python"><pre>python setup.py install --user --with-cuda --with-sp --debug-mode</pre>
+</div>
+</div>
+<div class="section" id="setup-file">
+<span id="id2"></span><h2>6.2. Setup File<a class="headerlink" href="#setup-file" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="file docutils literal"><span class="pre">/OpenMOC/setup.py</span></tt> file is used to execute the build and installation process for OpenMOC. The methodology and implementation to handle command line options, custom compilers and linkers, and the build and installation phase.</p>
+<div class="section" id="command-line-options">
+<h3>6.2.1. Command Line Options<a class="headerlink" href="#command-line-options" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="file docutils literal"><span class="pre">setup.py</span></tt> file first defines the <tt class="docutils literal"><span class="pre">custom_install</span></tt> class to override (subclass) the <tt class="docutils literal"><span class="pre">install</span></tt> class in the <tt class="docutils literal"><span class="pre">distutils.command.install</span></tt> module. In particular, the <tt class="docutils literal"><span class="pre">initialize_options(...)</span></tt> class method is used to initialize the default build options for the <tt class="docutils literal"><span class="pre">configuration</span></tt> class (see <a class="reference internal" href="#configuration-file"><em>Configuration File</em></a>). The <tt class="docutils literal"><span class="pre">finalize_options(...)</span></tt> routine extracts the command line options, initializes the corresponding <tt class="docutils literal"><span class="pre">configuration</span></tt> class attributes, and calls the <tt class="docutils literal"><span class="pre">configuration.setup_extension_modules()</span></tt> class method to create the distutils <tt class="docutils literal"><span class="pre">Extension</span></tt> object.</p>
+</div>
+<div class="section" id="custom-compilers-and-linkers">
+<h3>6.2.2. Custom Compilers and Linkers<a class="headerlink" href="#custom-compilers-and-linkers" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">customize_compiler(...)</span></tt> method is used to override the <tt class="docutils literal"><span class="pre">_compile(...)</span></tt> method in distutils to allow for compilation with a variety of toolchains (e.g., <tt class="docutils literal"><span class="pre">gcc</span></tt>, <tt class="docutils literal"><span class="pre">icpc</span></tt>, etc.). As presently implemented, the method chooses a compiler based on the macro definitions in the compile line (i.e, <tt class="docutils literal"><span class="pre">gcc</span></tt> for the macro definition <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">-DGNU</span></tt>). Likewise, the <tt class="docutils literal"><span class="pre">customize_linker(...)</span></tt> method is used to override the <tt class="docutils literal"><span class="pre">link(...)</span></tt> method in distutils to allow for linking with a variety of toolchains (e.g., <tt class="docutils literal"><span class="pre">g++</span></tt>, <tt class="docutils literal"><span class="pre">icpc</span></tt>, etc.). The method chooses an executable for linking based on the target shared library name.</p>
+<p>The <tt class="docutils literal"><span class="pre">custom_build_ext(...)</span></tt> class is used to override (subclass) the <tt class="docutils literal"><span class="pre">build_ext</span></tt> class in the <tt class="docutils literal"><span class="pre">distutils.command</span></tt> module. In particular, this class overrides the <tt class="docutils literal"><span class="pre">build_extension(...)</span></tt> method and uses it for the following:</p>
+<ul class="simple">
+<li>Inject the <tt class="docutils literal"><span class="pre">customize_compiler(...)</span></tt> and <tt class="docutils literal"><span class="pre">customize_linker(...)</span></tt> methods into the <tt class="docutils literal"><span class="pre">build_ext</span></tt> class</li>
+<li>Call SWIG to generate Python wrappers for the C/C++ source code.</li>
+</ul>
+</div>
+<div class="section" id="building-and-installation">
+<h3>6.2.3. Building and Installation<a class="headerlink" href="#building-and-installation" title="Permalink to this headline">¶</a></h3>
+<p>In the final step, the <tt class="docutils literal"><span class="pre">setup(...)</span></tt> method from the <tt class="docutils literal"><span class="pre">distutils.core</span></tt> module is called in the <tt class="docutils literal"><span class="pre">setup.py</span></tt> file. The <tt class="docutils literal"><span class="pre">setup(...)</span></tt> method receives the list of the <tt class="docutils literal"><span class="pre">Extension</span></tt> class objects and builds and installs each one as a shared library in the <tt class="file docutils literal"><span class="pre">/home/&lt;username&gt;/.local/lib/python-x.x/site-packages/</span></tt> directory. On a Unix-based machine, the shared library for the default <tt class="docutils literal"><span class="pre">openmoc</span></tt> module will be <tt class="docutils literal"><span class="pre">_openmoc.so</span></tt>. The Python modules in OpenMOC (e.g., <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt>, <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt>, etc.) will be installed in the <tt class="file docutils literal"><span class="pre">/home/&lt;username&gt;/.local/lib/python-x.x/site-packages/</span></tt> directory.</p>
+</div>
+</div>
+<div class="section" id="swig-interface-files">
+<h2>6.3. SWIG Interface Files<a class="headerlink" href="#swig-interface-files" title="Permalink to this headline">¶</a></h2>
+<p>OpenMOC uses the SWIG system (discussed in <a class="reference internal" href="swig.html#devguide-swig"><em>Simplified Wrapper Interface Generator</em></a>) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files <strong>must contain all of the class and function prototypes.</strong> Furthermore, the headers files must be exposed to SWIG through a <a class="reference external" href="http://www.swig.org/Doc2.0/SWIGDocumentation.html#Introduction_nn6">SWIG interface file</a>. The interface files are located in the <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/...</span></tt> directory and use a <tt class="docutils literal"><span class="pre">.i</span></tt> extension. There are different interface files for the different C/C++ extension modules which may be built for Python (e.g. with different compilers). <a class="reference internal" href="#table-openmoc-swig-files"><em>Table 2</em></a> tabulates all of the interface files in OpenMOC, the Python module that would be built, and the shell command that would be used to build the module.</p>
+<table border="1" class="docutils" id="table-openmoc-swig-files">
+<colgroup>
+<col width="41%" />
+<col width="16%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">File</th>
+<th class="head">Python Module</th>
+<th class="head">Shell Build Command</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/openmoc.i</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">openmoc</span></tt></td>
+<td><strong class="command">python setup.py install &#8211;user</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/gnu/single/openmoc_gnu_single.i</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">openmoc.gnu.single</span></tt></td>
+<td><strong class="command">python setup.py install &#8211;user &#8211;with-gcc -with-sp</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/gnu/double/openmoc_gnu_double.i</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">openmoc.gnu.double</span></tt></td>
+<td><strong class="command">python setup.py install &#8211;user &#8211;with-gcc &#8211;with-dp</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/intel/single/openmoc_intel_single.i</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">openmoc.intel.single</span></tt></td>
+<td><strong class="command">python setup.py install &#8211;user &#8211;with-icpc &#8211;with-sp</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/intel/double/openmoc_intel_double.i</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">openmoc.intel.double</span></tt></td>
+<td><strong class="command">python setup.py install &#8211;user &#8211;with-icpc &#8211;with-dp</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/bgq/single/openmoc_bgq_single.i</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">openmoc.bgq.single</span></tt></td>
+<td><strong class="command">python setup.py install &#8211;user &#8211;with-bgxlc &#8211;with-sp</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/bgq/double/openmoc_bgq_double.i</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">openmoc.bgq.double</span></tt></td>
+<td><strong class="command">python setup.py install &#8211;user &#8211;with-bgxlc &#8211;with-dp</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/cuda/single/openmoc_cuda.i</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt></td>
+<td><strong class="command">python setup.py install &#8211;user &#8211;with-cuda</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/penmoc/cuda/single/openmoc_cuda_single.i</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">openmoc.cuda.single</span></tt></td>
+<td><strong class="command">python setup.py install &#8211;user &#8211;with-cuda &#8211;with-sp</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/cuda/double/openmoc_cuda_double.i</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">openmoc.cuda.double</span></tt></td>
+<td><strong class="command">python setup.py install &#8211;user &#8211;with-cuda &#8211;with-dp</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2</strong>: SWIG interface files for OpenMOC modules.</p>
+<p>The <a class="reference internal" href="#add-source-file"><em>Add a C/C++ Source File</em></a> section discusses how to add new C/C++ source files and expose them to SWIG through the interface files. The interface files are useful for a variety of auxiliary purposes as well, most notably the specifications to input and retrieve <a class="reference external" href="http://www.numpy.org">NumPy</a> data from the compiled C/C++ shared library object(s) from Python (see <a class="reference internal" href="swig.html#numpy-tutorials"><em>NumPy Tutorials</em></a>).</p>
+</div>
+<div class="section" id="common-modifications">
+<h2>6.4. Common Modifications<a class="headerlink" href="#common-modifications" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="add-a-c-c-source-file">
+<span id="add-source-file"></span><h3>6.4.1. Add a C/C++ Source File<a class="headerlink" href="#add-a-c-c-source-file" title="Permalink to this headline">¶</a></h3>
+<p>There are three steps which must be taken to integrate a new source C/C++ file into the build system for OpenMOC.</p>
+<ol class="arabic simple">
+<li>Include source header file (<tt class="docutils literal"><span class="pre">.h</span></tt>) in top of SWIG interface file (e.g. <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/openmoc.i</span></tt>) using the following code syntax:</li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre><span class="c">#include &quot;../src/MyFile.h&quot;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>Include source header file (<tt class="docutils literal"><span class="pre">.h</span></tt>) in bottom of SWIG interface file (e.g. <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/openmoc.i</span></tt>) using the following code syntax:</li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre>%include ../src/MyFile.h
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li>Append the source implementation file (<tt class="docutils literal"><span class="pre">.c</span></tt>, <tt class="docutils literal"><span class="pre">.cpp</span></tt>, <tt class="docutils literal"><span class="pre">.cu</span></tt>, etc.) to the <tt class="docutils literal"><span class="pre">sources</span></tt> attribute for the <tt class="docutils literal"><span class="pre">configuration</span></tt> class in the <tt class="file docutils literal"><span class="pre">/OpenMOC/config.py</span></tt> file (see <a class="reference internal" href="#configuration-file"><em>Configuration File</em></a>).</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Changes to the C/C++ source files are not reflected until the OpenMOC has been reinstalled.</p>
+</div>
+</div>
+<div class="section" id="add-a-python-module">
+<h3>6.4.2. Add a Python Module<a class="headerlink" href="#add-a-python-module" title="Permalink to this headline">¶</a></h3>
+<p>OpenMOC includes several Python modules by default (i.e., <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt>, <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt>, etc.). These modules are Python files located in the <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc</span></tt> directory and are installed each time the C/C++ extension module(s) for OpenMOC are built and installed. For example, to create the <tt class="file docutils literal"><span class="pre">mymodule.py</span></tt> module, simply locate the file in the <tt class="file docutils literal"><span class="pre">OpenMOC/openmoc</span></tt> directory.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Changes to a Python module are not reflected until the OpenMOC has been reinstalled.</p>
+</div>
+</div>
+<div class="section" id="add-a-compiler-flag">
+<h3>6.4.3. Add a Compiler Flag<a class="headerlink" href="#add-a-compiler-flag" title="Permalink to this headline">¶</a></h3>
+<p>In order to add a new compiler flag to OpenMOC, simply append it as a Python string to the <tt class="docutils literal"><span class="pre">compiler_flags</span></tt> attribute of the <tt class="docutils literal"><span class="pre">configuration</span></tt> class in the <tt class="file docutils literal"><span class="pre">/OpenMOC/config.py</span></tt> file. The <tt class="docutils literal"><span class="pre">compiler_flags</span></tt> attribute is a Python dictionary (see <a class="reference internal" href="#configuration-file"><em>Configuration File</em></a>) with keys for each compiler supported by the build system. Simply choose which compiler the compiler flag is applicable to and append the string to the list corresponding to that key. For example, to add the <em class="xref std std-option">-falign-functions</em> flag for <tt class="docutils literal"><span class="pre">gcc</span></tt>, append &#8216;-falign-functions&#8217; to the list in <tt class="docutils literal"><span class="pre">compiler_flags</span></tt> corresponding to &#8216;gcc&#8217;.</p>
+</div>
+<div class="section" id="add-a-linker-flag">
+<h3>6.4.4. Add a Linker Flag<a class="headerlink" href="#add-a-linker-flag" title="Permalink to this headline">¶</a></h3>
+<p>In order to add a new linker flag to OpenMOC, simply append it as a Python string to the <tt class="docutils literal"><span class="pre">linker_flags</span></tt> attribute of the <tt class="docutils literal"><span class="pre">configuration</span></tt> class in the <tt class="file docutils literal"><span class="pre">/OpenMOC/config.py</span></tt> file. The <tt class="docutils literal"><span class="pre">linker_flags</span></tt> attribute is a Python dictionary (see <a class="reference internal" href="#configuration-file"><em>Configuration File</em></a>) with keys for each compiler supported by the build system. Simply choose which compiler the linker flag is applicable to and append the string to the list corresponding to that key. For example, to add the <em class="xref std std-option">-dynamiclib</em> flag for <tt class="docutils literal"><span class="pre">gcc</span></tt>, append &#8216;-dynamiclib&#8217; to the list in <tt class="docutils literal"><span class="pre">linker_flags</span></tt> corresponding to &#8216;gcc&#8217;.</p>
+</div>
+<div class="section" id="add-an-include-directory">
+<h3>6.4.5. Add an Include Directory<a class="headerlink" href="#add-an-include-directory" title="Permalink to this headline">¶</a></h3>
+<p>In order to add a new include directory to OpenMOC, simply append it as a Python string to the <tt class="docutils literal"><span class="pre">include_directories</span></tt> attribute of the <tt class="docutils literal"><span class="pre">configuration</span></tt> class in the <tt class="file docutils literal"><span class="pre">/OpenMOC/config.py</span></tt> file. The <tt class="docutils literal"><span class="pre">include_directories</span></tt> attribute is a Python dictionary (see <a class="reference internal" href="#configuration-file"><em>Configuration File</em></a>) with keys for each compiler supported by the build system. Simply choose which compiler the include directory is applicable to and append the string to the list corresponding to that key. For example, to add the <em class="xref std std-option">/usr/local/cuda/include</em> include directory for <tt class="docutils literal"><span class="pre">gcc</span></tt>, append &#8216;/usr/local/cuda/include&#8217; to the list in <tt class="docutils literal"><span class="pre">include_directories</span></tt> corresponding to &#8216;gcc&#8217;.</p>
+</div>
+<div class="section" id="link-a-shared-library">
+<h3>6.4.6. Link a Shared Library<a class="headerlink" href="#link-a-shared-library" title="Permalink to this headline">¶</a></h3>
+<p>In order to link OpenMOC to a shared library, simply append the library name as a Python string to the <tt class="docutils literal"><span class="pre">shared_libraries</span></tt> attribute of the <tt class="docutils literal"><span class="pre">configuration</span></tt> class in the <tt class="file docutils literal"><span class="pre">/OpenMOC/config.py</span></tt> file. The <tt class="docutils literal"><span class="pre">shared_libraries</span></tt> attribute is a Python dictionary (see <a class="reference internal" href="#configuration-file"><em>Configuration File</em></a>) with keys for each compiler supported by the build system. Simply choose which compiler the shared library is applicable to and append the string to the list corresponding to that key. For example, to add the <em class="xref std std-option">gomp</em> shared library for <tt class="docutils literal"><span class="pre">gcc</span></tt>, append &#8216;gomp&#8217; to the list in <tt class="docutils literal"><span class="pre">shared_libraries</span></tt> corresponding to &#8216;gcc&#8217;.</p>
+</div>
+<div class="section" id="add-a-macro-definition">
+<h3>6.4.7. Add a Macro Definition<a class="headerlink" href="#add-a-macro-definition" title="Permalink to this headline">¶</a></h3>
+<p>In order to add a C/C++ pre-processing macro option to OpenMOC, simply append the macro as a Python tuple to the <tt class="docutils literal"><span class="pre">macros</span></tt> attribute of the <tt class="docutils literal"><span class="pre">configuration</span></tt> class in the <tt class="file docutils literal"><span class="pre">/OpenMOC/config.py</span></tt> file. The <tt class="docutils literal"><span class="pre">macros</span></tt> attribute is a Python dictionary (see <a class="reference internal" href="#configuration-file"><em>Configuration File</em></a>) with keys for each compiler supported by the build system. Simply choose which compiler the macro is applicable to and append the tuple to the list corresponding to that key. For example, to add the <em class="xref std std-option">METHOD=fast</em> macro for <tt class="docutils literal"><span class="pre">gcc</span></tt>, append the <tt class="docutils literal"><span class="pre">('METHOD',</span> <span class="pre">'fast')</span></tt> tuple to the list in <tt class="docutils literal"><span class="pre">macros</span></tt> corresponding to &#8216;gcc&#8217;.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6. Python Build System</a><ul>
+<li><a class="reference internal" href="#configuration-file">6.1. Configuration File</a></li>
+<li><a class="reference internal" href="#setup-file">6.2. Setup File</a><ul>
+<li><a class="reference internal" href="#command-line-options">6.2.1. Command Line Options</a></li>
+<li><a class="reference internal" href="#custom-compilers-and-linkers">6.2.2. Custom Compilers and Linkers</a></li>
+<li><a class="reference internal" href="#building-and-installation">6.2.3. Building and Installation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#swig-interface-files">6.3. SWIG Interface Files</a></li>
+<li><a class="reference internal" href="#common-modifications">6.4. Common Modifications</a><ul>
+<li><a class="reference internal" href="#add-a-c-c-source-file">6.4.1. Add a C/C++ Source File</a></li>
+<li><a class="reference internal" href="#add-a-python-module">6.4.2. Add a Python Module</a></li>
+<li><a class="reference internal" href="#add-a-compiler-flag">6.4.3. Add a Compiler Flag</a></li>
+<li><a class="reference internal" href="#add-a-linker-flag">6.4.4. Add a Linker Flag</a></li>
+<li><a class="reference internal" href="#add-an-include-directory">6.4.5. Add an Include Directory</a></li>
+<li><a class="reference internal" href="#link-a-shared-library">6.4.6. Link a Shared Library</a></li>
+<li><a class="reference internal" href="#add-a-macro-definition">6.4.7. Add a Macro Definition</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="swig.html"
+                        title="previous chapter">5. Simplified Wrapper Interface Generator (SWIG)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../api/index.html"
+                        title="next chapter">OpenMOC API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/devguide/build_system.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../api/index.html" title="OpenMOC API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="swig.html" title="5. Simplified Wrapper Interface Generator (SWIG)"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

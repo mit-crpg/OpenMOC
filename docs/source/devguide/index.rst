@@ -14,8 +14,9 @@ such as debugging.
     :numbered:
     :maxdepth: 2
 
+    software_design
     styleguide
     structures
     workflow
     swig
-    setuptools
+    build_system

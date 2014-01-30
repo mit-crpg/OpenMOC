@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>1. Style Guide for OpenMOC &mdash; OpenMOC Documentation</title>
+    <title>2. Style Guide for OpenMOC &mdash; OpenMOC Documentation</title>
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -27,8 +27,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" />
     <link rel="up" title="Developer’s Guide" href="index.html" />
-    <link rel="next" title="2. Data Structures" href="structures.html" />
-    <link rel="prev" title="Developer’s Guide" href="index.html" /> 
+    <link rel="next" title="3. Data Structures" href="structures.html" />
+    <link rel="prev" title="1. Software Design" href="software_design.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,10 +38,10 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="structures.html" title="2. Data Structures"
+          <a href="structures.html" title="3. Data Structures"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Developer’s Guide"
+          <a href="software_design.html" title="1. Software Design"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
@@ -54,12 +54,12 @@
           <div class="body">
             
   <div class="section" id="style-guide-for-openmoc">
-<span id="devguide-styleguide"></span><h1>1. Style Guide for OpenMOC<a class="headerlink" href="#style-guide-for-openmoc" title="Permalink to this headline">¶</a></h1>
+<span id="devguide-styleguide"></span><h1>2. Style Guide for OpenMOC<a class="headerlink" href="#style-guide-for-openmoc" title="Permalink to this headline">¶</a></h1>
 <p>In order to keep the OpenMOC code base consistent in style, this guide specifies
 a number of rules which should be adhered to when modified existing code or
 adding new code in OpenMC.</p>
 <div class="section" id="general-rules">
-<h2>1.1. General Rules<a class="headerlink" href="#general-rules" title="Permalink to this headline">¶</a></h2>
+<h2>2.1. General Rules<a class="headerlink" href="#general-rules" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><strong>Compilation</strong> - Make sure code can be compiled with most common compilers, especially gcc and the Intel C++ compiler icpc.</li>
 <li><strong>Dependencies</strong> - Avoid using special extensions or libraries which add dependencies to the OpenMOC source.</li>
@@ -67,10 +67,10 @@ adding new code in OpenMC.</p>
 </ul>
 </div>
 <div class="section" id="source-code-syntax">
-<h2>1.2. Source Code Syntax<a class="headerlink" href="#source-code-syntax" title="Permalink to this headline">¶</a></h2>
+<h2>2.2. Source Code Syntax<a class="headerlink" href="#source-code-syntax" title="Permalink to this headline">¶</a></h2>
 <p>The following describes some of the rules for source code syntax, including the class naming convention, rules for class methods and attributes as well as normal routines and variables.</p>
 <div class="section" id="class-names">
-<h3>1.2.1. Class Names<a class="headerlink" href="#class-names" title="Permalink to this headline">¶</a></h3>
+<h3>2.2.1. Class Names<a class="headerlink" href="#class-names" title="Permalink to this headline">¶</a></h3>
 <p>Class names are <a class="reference external" href="http://en.wikipedia.org/wiki/CamelCase">CamelCase</a> starting with a <strong>capital</strong> letter and without <strong>&#8220;_&#8221;</strong> between words as illustrated in the C++ snippet below:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cm">/* Yes */</span>
 <span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
@@ -90,7 +90,7 @@ adding new code in OpenMC.</p>
 </div>
 </div>
 <div class="section" id="class-methods">
-<h3>1.2.2. Class Methods<a class="headerlink" href="#class-methods" title="Permalink to this headline">¶</a></h3>
+<h3>2.2.2. Class Methods<a class="headerlink" href="#class-methods" title="Permalink to this headline">¶</a></h3>
 <p>Class methods are <a class="reference external" href="http://en.wikipedia.org/wiki/CamelCase">camelCase</a> starting with a <strong>lowercase</strong> letter and without <strong>&#8220;_&#8221;</strong> between words as illustrated in the Python snippet below:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
 
@@ -109,7 +109,7 @@ adding new code in OpenMC.</p>
 </div>
 </div>
 <div class="section" id="class-attributes">
-<h3>1.2.3. Class Attributes<a class="headerlink" href="#class-attributes" title="Permalink to this headline">¶</a></h3>
+<h3>2.2.3. Class Attributes<a class="headerlink" href="#class-attributes" title="Permalink to this headline">¶</a></h3>
 <p>Class attributes are <strong>private</strong> and <strong>lowercase</strong> which start with <strong>&#8220;_&#8221;</strong> and with &#8220;_&#8221; between words as illustrated in the C++ snippet below:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
 
@@ -131,7 +131,7 @@ adding new code in OpenMC.</p>
 </div>
 </div>
 <div class="section" id="function-names">
-<h3>1.2.4. Function Names<a class="headerlink" href="#function-names" title="Permalink to this headline">¶</a></h3>
+<h3>2.2.4. Function Names<a class="headerlink" href="#function-names" title="Permalink to this headline">¶</a></h3>
 <p>Functions (not class methods) are all <strong>lowercase</strong> with <strong>&#8220;_&#8221;</strong> between words as illustrated in the Python snippet below:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Yes</span>
 <span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
@@ -148,7 +148,7 @@ adding new code in OpenMC.</p>
 </div>
 </div>
 <div class="section" id="variable-names">
-<h3>1.2.5. Variable Names<a class="headerlink" href="#variable-names" title="Permalink to this headline">¶</a></h3>
+<h3>2.2.5. Variable Names<a class="headerlink" href="#variable-names" title="Permalink to this headline">¶</a></h3>
 <p>Temporary variables (e.g. variables defined within the scope of a function) are <strong>lowercase</strong> with <strong>&#8220;_&#8221;</strong> between words as illustrated in the C/C++ snippet below:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">my_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
 
@@ -169,7 +169,7 @@ adding new code in OpenMC.</p>
 </div>
 </div>
 <div class="section" id="code-comments">
-<h2>1.3. Code Comments<a class="headerlink" href="#code-comments" title="Permalink to this headline">¶</a></h2>
+<h2>2.3. Code Comments<a class="headerlink" href="#code-comments" title="Permalink to this headline">¶</a></h2>
 <p>OpenMOC uses <a class="reference external" href="http://www.stack.nl/~dimitri/doxygen/">doxygen</a> for automated generation of Application Programming Interface (<a class="reference external" href="http://en.wikipedia.org/wiki/Application_programming_interface">API</a>) documentation based upon code comments. Please adhere to the doxygen standard for code comments in both C/C++ and Python source code. In particular,</p>
 <ul class="simple">
 <li><strong>C/C++ functions</strong> should be preceded by doxygen-style comments as illustrated in the following code snippet:</li>
@@ -299,11 +299,11 @@ adding new code in OpenMC.</p>
 </div>
 </div>
 <div class="section" id="line-length">
-<h2>1.4. Line Length<a class="headerlink" href="#line-length" title="Permalink to this headline">¶</a></h2>
+<h2>2.4. Line Length<a class="headerlink" href="#line-length" title="Permalink to this headline">¶</a></h2>
 <p>For readability, source code in OpenMOC is limited to a maximum of <strong>80 characters</strong> for each line. For your convenience in adhering to this policy, you mayupdate your text editor (gedit, emacs, vim, etc.) to display the right margin at column 80.</p>
 </div>
 <div class="section" id="indentation">
-<h2>1.5. Indentation<a class="headerlink" href="#indentation" title="Permalink to this headline">¶</a></h2>
+<h2>2.5. Indentation<a class="headerlink" href="#indentation" title="Permalink to this headline">¶</a></h2>
 <p>For readability, OpenMOC uses tabs composed of <strong>4 white spaces</strong> per indentation level. For your convenience in adhering to this policy, you may update your text editor (gedit, emacs, vim, etc.) preferences to use a tab width of 4 spaces and to insert spaces instead of tabs. Emacs users should include the following line in their .emacs file:</p>
 <div class="highlight-common-lisp"><div class="highlight"><pre><span class="p">(</span><span class="nv">setq-default</span> <span class="nv">indent-tabs-mode</span> <span class="no">nil</span><span class="p">)</span>
 </pre></div>
@@ -313,7 +313,7 @@ adding new code in OpenMC.</p>
 </div>
 </div>
 <div class="section" id="whitespace">
-<h2>1.6. Whitespace<a class="headerlink" href="#whitespace" title="Permalink to this headline">¶</a></h2>
+<h2>2.6. Whitespace<a class="headerlink" href="#whitespace" title="Permalink to this headline">¶</a></h2>
 <p>Use a <strong>single space</strong> between arguments to procedures.</p>
 <p>Avoid extraneous whitespace in the following situations:</p>
 <blockquote>
@@ -341,30 +341,30 @@ No: if ( variable==2 ) then</pre>
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">1. Style Guide for OpenMOC</a><ul>
-<li><a class="reference internal" href="#general-rules">1.1. General Rules</a></li>
-<li><a class="reference internal" href="#source-code-syntax">1.2. Source Code Syntax</a><ul>
-<li><a class="reference internal" href="#class-names">1.2.1. Class Names</a></li>
-<li><a class="reference internal" href="#class-methods">1.2.2. Class Methods</a></li>
-<li><a class="reference internal" href="#class-attributes">1.2.3. Class Attributes</a></li>
-<li><a class="reference internal" href="#function-names">1.2.4. Function Names</a></li>
-<li><a class="reference internal" href="#variable-names">1.2.5. Variable Names</a></li>
+<li><a class="reference internal" href="#">2. Style Guide for OpenMOC</a><ul>
+<li><a class="reference internal" href="#general-rules">2.1. General Rules</a></li>
+<li><a class="reference internal" href="#source-code-syntax">2.2. Source Code Syntax</a><ul>
+<li><a class="reference internal" href="#class-names">2.2.1. Class Names</a></li>
+<li><a class="reference internal" href="#class-methods">2.2.2. Class Methods</a></li>
+<li><a class="reference internal" href="#class-attributes">2.2.3. Class Attributes</a></li>
+<li><a class="reference internal" href="#function-names">2.2.4. Function Names</a></li>
+<li><a class="reference internal" href="#variable-names">2.2.5. Variable Names</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#code-comments">1.3. Code Comments</a></li>
-<li><a class="reference internal" href="#line-length">1.4. Line Length</a></li>
-<li><a class="reference internal" href="#indentation">1.5. Indentation</a></li>
-<li><a class="reference internal" href="#whitespace">1.6. Whitespace</a></li>
+<li><a class="reference internal" href="#code-comments">2.3. Code Comments</a></li>
+<li><a class="reference internal" href="#line-length">2.4. Line Length</a></li>
+<li><a class="reference internal" href="#indentation">2.5. Indentation</a></li>
+<li><a class="reference internal" href="#whitespace">2.6. Whitespace</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Developer&#8217;s Guide</a></p>
+  <p class="topless"><a href="software_design.html"
+                        title="previous chapter">1. Software Design</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="structures.html"
-                        title="next chapter">2. Data Structures</a></p>
+                        title="next chapter">3. Data Structures</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/devguide/styleguide.txt"
@@ -394,10 +394,10 @@ No: if ( variable==2 ) then</pre>
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="structures.html" title="2. Data Structures"
+          <a href="structures.html" title="3. Data Structures"
              >next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Developer’s Guide"
+          <a href="software_design.html" title="1. Software Design"
              >previous</a> |</li>
         <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
           <li><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 

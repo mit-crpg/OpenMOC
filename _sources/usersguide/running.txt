@@ -21,7 +21,7 @@ If you wish to run your code from the shell, simply type the following in the co
 Submitting a TORQUE_ Job
 ------------------------
 
-To schedule a job to run your code on a cluster using the TORQUE job scheduler, you will need to write a submission script. This script will need to specify the desired compute resources (number of nodes and processors per node), the maximum walltime, among others_. An example script requesting a single node with 12 cores for one hour is presented below:
+To schedule a job to run your code on a cluster using the TORQUE job scheduler, you will need to write a submission script. This script will need to specify the desired compute resources (number of nodes and processors per node), the maximum walltime, among `other flags`_. An example script requesting a single node with 12 cores for one hour is presented below:
 
 .. code-block:: guess 
 
@@ -55,7 +55,7 @@ To submit this script (``my-job.pbs``) your job to TORQUE, simply use the follow
 
 .. _TORQUE: http://www.adaptivecomputing.com/products/open-source/torque/
 .. _Cobalt: https://www.alcf.anl.gov/user-guides/cobalt-job-control
-.. _others: http://www.clusterresources.com/torquedocs21/2.1jobsubmission.shtml
+.. _other flags: https://www.osc.edu/supercomputing/batch-processing-at-osc/pbs-directives-summary
 
 
 

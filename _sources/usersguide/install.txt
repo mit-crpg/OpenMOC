@@ -149,6 +149,8 @@ To install OpenMOC, we typically recommend using the :program:`install` command 
   python setup.py install --help
 
 
+.. _build_configuration_options:
+
 Build Configuration Options
 ---------------------------
 

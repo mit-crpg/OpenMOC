@@ -33,6 +33,103 @@ The ``openmoc.options`` module provides functionality to parse arguments defined
     max_iters = options.max_iters
     ...
 
+-------------------
+Simulation Logfiles
+-------------------
+
+The ``openmoc.log`` module provides routines for printing output to the console as well as to logfiles. Output is reported in real-time to the console as well as stored in a persistent logfile. By default, the logfile name encapsulates a timestamp for the simulation starting time and is stored in the ``/OpenMOC/log`` directory (e.g. :file:`OpenMOC/log/openmoc-MM-DD-YYYY--HH:MM:SS.log`).
+
+The OpenMOC logging module uses **verbosity throttling** which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a **log level**, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and logfile. The log levels available in OpenMOC are presented in :ref:`Table 1 <table_log_levels>`.
+
+.. _table_log_levels:
+
+===================   ======================================================
+Log Level             Note
+===================   ======================================================
+:envvar:`DEBUG`       A debugging message
+:envvar:`INFO`        An informational but verbose message
+:envvar:`NORMAL`      A brief progress update on run progress
+:envvar:`SEPARATOR`   A message of a single line of characters
+:envvar:`HEADER`      A message centered within a single line of characters
+:envvar:`TITLE`       A message sandwiched between two lines of characters
+:envvar:`WARNING`     A message to warn the user
+:envvar:`CRITICAL`    A message to warn of critical program conditions
+:envvar:`RESULT`      A message containing program results
+:envvar:`UNITTEST`    A message for unit testing
+:envvar:`ERROR`       A message reporting error conditions
+===================   ======================================================
+
+**Table 1**: Log levels in OpenMOC in order of increasing precedence.
+
+Informative messages using the logging module are embedded into both the C/C++ and Python source code in OpenMOC. In addition, code users may add their own messages to the output stream in Python input files. The API documentation provides a detailed accounting of the routines available in the `logging module`_.
+
+The following code snippet illustrates how to import the logging module into Python, set the lowest log level set to :envvar:`DEBUG`, and print messages for each level to the screen.
+
+.. code-block:: python
+		
+    import openmoc.log as log
+
+    # Set the lowest acceptable log level to DEBUG mode
+    log.setLogLevel('DEBUG')
+
+    # Print some exaple messages to the console and logfile
+    log.py_printf('DEBUG', 'This is a DEBUG message')
+    log.py_printf('INFO', 'This is an INFO message')
+    log.py_printf('NORMAL', 'This is a NORMAL message')
+    log.py_printf('SEPARATOR', 'This is a SEPARATOR message')
+    log.py_printf('HEADER', 'This is a HEADER message')
+    log.py_printf('TITLE', 'This is a TITLE message')
+    log.py_printf('WARNING', 'This is a WARNING message')
+    log.py_printf('CRITICAL', 'This is a CRITICAL message')
+    log.py_printf('UNITTEST', 'This is a UNITTEST message')
+    log.py_printf('ERROR', 'This is an ERROR message)
+
+And the following is the output displayed to the console and recorded in the logfile::
+
+  [  DEBUG  ]  This is a DEBUG message
+  [  INFO   ]  This is an INFO message
+  [  NORMAL ]  This is a NORMAL message
+  [SEPARATOR]  *******************************************************************
+  [  HEADER ]  *******************  This is a HEADER message  ********************
+  [  TITLE  ]  *******************************************************************
+  [  TITLE  ]                        This is a TITLE message                      
+  [  TITLE  ]  *******************************************************************
+  [ WARNING ]  This is a WARNING message
+  [ CRITICAL]  This is a CRITICAL message
+  [ UNITTEST]  This is a UNITTEST message
+  Traceback (most recent call last):
+    File "<stdin>", line 1, in <module>
+    File "openmoc/log.py", line 59, in py_printf
+      openmoc.log_printf(openmoc.ERROR, my_str % args)
+  RuntimeError: This is an ERROR message
+
+It should be noted that the ``py_printf(...)`` routine in the logging module is based on the printf_ routine in C/C++ and accepts a variable number of arguments. In particular, this is intended to accept `formatted data`_ to embed formatted integers, floats, strings, etc. in the output message. An example of this feature in use is given below:
+
+.. code-block:: python
+
+    import openmoc.log as log
+
+    # Set the lowest acceptable log level to NORMAL mode
+    log.setLogLevel('NORMAL')
+
+    # Initialize some string, integer and float variables
+    name = 'Will Boyd'
+    age = 26
+    pi = 3.141593
+
+    # Print example messages using formatted output arguments 
+    # to the console and logfile 
+    log.py_printf('NORMAL', 'Hello World! My name is %s', name)
+    log.py_printf('NORMAL', 'I am %d years old. My favorite # is %f', age, pi)
+
+
+This will result in the following output messages to be printed to the console and stored to the logfile::
+
+  [  NORMAL ]  Hello World! My name is Will Boyd
+  [  NORMAL ]  I am 26 years old. My favorite # is 3.141593
+
+.. note:: By default, the logging module will split log messages into multiple lines of 80 characters or less each. Users may alternatively set a custom maximum line length for log messages may at runtime using the ``setLineLength(...)`` routine.
+
 -----------------------
 Materials Specification
 -----------------------
@@ -241,6 +338,53 @@ OpenMOC does not place a limit on the hierarchical depth - or number of nested u
     pin_cell_array.addSurface(halfspace=-1, top)
 
 
+Rings and Sectors
+-----------------
+
+The spatial discretization_ of the geometry is a key determining factor in the accuracy of OpenMOC's simulation results. This is especially important since OpenMOC presently uses the :ref:`Flat Source Region Approximation <flat-source-region-approximation>`.  The spatial discretization is most relevant in regions where the flux gradient is greatest. In LWRs composed of circular fuel pins, the flux gradient is largely determined by the distance to the center of the nearest fuel pin and the angle formed between the center of the fuel pin and the point of interest (i.e., `polar coordinates`_). As a result, discretization along the radial coordinate using circular **rings**, and along the angular coordinate using angular **sectors** is the most applicable way to discretize the geometry to capture the flux gradient. 
+
+This type of discretization is particularly useful for codes which can make use of an `unstructured mesh`_, such as OpenMOC with its general :ref:`Constructive Solid Geometry <constructive_solid_geometry>` formulation. To subdivide circular fuel pins into rings and sectors in an LWR model would require a substantial amount of work for the user to create the necessary ``Circle`` and/or ``Plane`` objects. Since this is a commonly needed feature for many users, OpenMOC includes the ability to automatically subdivide square pin cells of circular fuel pins into equal volume rings and equally spaced angular sectors. In particular, OpenMOC uses **cell cloning** to create clones (or copies) of a ``CellBasic`` object and differentiates each one with ``Circle`` or ``Plane`` objects to subdivide the pin cell.
+
+The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for a fuel pin and moderator region with optional arguments for each to the ``CellBasic`` constructor.
+
+.. code-block:: python
+		
+   # Retrieve the IDs for the fuel and moderator materials
+   uo2_id = materials['Fuel'].getId()
+   water_id = materials['Water'].getId()
+   
+   # Initialize the cells for the fuel pin and moderator
+   # Subdivide the fuel pin into 3 rings and 8 angular sectors
+   # Subdivide the moderator region into 8 angular sectors
+   fuel = openmoc.CellBasic(universe=1, material=uo2_id, rings=3, sectors=8)
+   moderator = openmoc.CellBasic(universe=1, material=water_id, sectors=8)
+   
+   # Add the circle surface to each cell
+   fuel.addSurface(halfspace=-1, surface=circle)
+   moderator.addSurface(halfspace=+1, surface=circle)
+
+A pin cell without rings/sectors is illustrated on the left below, while the same pin cell with 3 equal volume rings and 8 angular sectors is displayed on the right.
+
+.. _figure_fluxes:
+     
+.. table:: 
+   
+   +------------------------------------------+------------------------------------------+
+   | .. _figa:                                | .. _figb:                                |
+   |                                          |                                          |
+   | .. image:: ../../img/pin-cell-fsrs-1.png | .. image:: ../../img/pin-cell-fsrs-2.png |
+   |   :width: 50 %                           |   :width: 50 %                           |
+   |   :align: right                          |   :align: left                           |
+   +------------------------------------------+------------------------------------------+ 
+
+
+.. note:: Circular rings may **only** be used in ``CellBasic`` objects which form the interior of a ``Circle`` surface, such as a fuel pin.
+
+.. note:: Each subdivided region will be filled by the **same material** as the ``CellBasic`` object created by the user in the Python script.
+
+
+
+
 Lattices
 --------
 
@@ -308,9 +452,9 @@ MOC Source Iteration
 
 One of OpenMOC's ``Solver`` subclasses may be initialized given the ``Geometry`` and ``TrackGenerator`` objects created in the preceding sections. The most commonly used subclasses for OpenMOC simulations are itemized below:
 
-  * ``ThreadPrivateSolver`` - multi-core CPUs, less memory efficient, excellent parallel scaling
+  * ``ThreadPrivateSolver`` - multi-core CPUs, less memory efficient, excellent parallel scaling [1]_
   * ``CPUSolver`` - multi-core CPUs, memory efficient, poor parallel scaling
-  * ``GPUSolver`` - GPUs, 30-50:math:`\times` faster than CPUs
+  * ``GPUSolver`` - GPUs, 30-50 :math:`\times` faster than CPUs [2]_
 
 The following code snippet illustrates the instantiation of the ``ThreadPrivateSolver`` for multi-core CPUs. The code assigns runtime parameters to the solver and calls the ``convergeSource(...)`` routine to execute the :ref:`MOC Source Iteration Algorithm <figure-overall-iterative-scheme>`.
 
@@ -328,7 +472,9 @@ The following code snippet illustrates the instantiation of the ``ThreadPrivateS
     # Print a report of the time to solution
     solver.printTimerReport()
 
-
+.. _logging module: https://mit-crpg.github.io/OpenMOC/api/log.html
+.. _printf: http://www.cplusplus.com/reference/cstdio/printf/
+.. _formatted data: http://www.cplusplus.com/reference/cstdio/printf/
 .. _CSG: http://en.wikipedia.org/wiki/Constructive_solid_geometry
 .. _Python Tutorial: http://docs.python.org/2/tutorial/
 .. _Code Academy Python Course: http://www.codecademy.com/tracks/python
@@ -342,3 +488,13 @@ The following code snippet illustrates the instantiation of the ``ThreadPrivateS
 .. _h5py: http://www.h5py.org/
 .. _HDF5 group: http://www.hdfgroup.org/HDF5/doc/UG/UG_frame09Groups.html
 .. _HDF5 datasets: http://www.hdfgroup.org/HDF5/doc/UG/10_Datasets.html
+.. _discretization: http://en.wikipedia.org/wiki/Discretization
+.. _polar coordinates: http://en.wikipedia.org/wiki/Polar_coordinate_system
+.. _unstructured mesh: http://en.wikipedia.org/wiki/Unstructured_grid
+
+
+.. [1] William Boyd, Kord Smith, Benoit Forget, and Andrew Siegel, "Parallel Performance Results for the OpenMOC Method of Characteristics Code on Multi-Core Platforms." *Submitted to the Proceedings of PHYSOR*, Kyoto, Japan (2014).
+
+.. [2] William Boyd, Kord Smith, and Benoit Forget, "A Massively Parallel Method of Characteristic Neutral Particle Transport Code for GPUs." *Proc. Int'l Conf. Math. and Comp. Methods Appl. to Nucl. Sci. and Eng.*, Sun Valley, ID, USA (2013).
+
+
