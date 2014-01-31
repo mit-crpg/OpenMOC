@@ -1,0 +1,5 @@
+.. _debugging:
+
+================
+Debuggin OpenMOC
+================

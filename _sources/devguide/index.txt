@@ -15,8 +15,8 @@ such as debugging.
     :maxdepth: 2
 
     software_design
-    styleguide
-    structures
-    workflow
     swig
     build_system
+    debugging
+    style_guide
+    work_flow

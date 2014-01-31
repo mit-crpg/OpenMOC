@@ -1,4 +1,4 @@
-.. _devguide_build_sytem:
+.. _build_sytem:
 
 ===================
 Python Build System
