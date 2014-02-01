@@ -101,9 +101,6 @@ for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 geometry.addLattice(lattice)
 
-print geometry.printString()
-
-
 geometry.initializeFlatSourceRegions()
 
 

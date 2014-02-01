@@ -224,12 +224,6 @@ protected:
     virtual void initializePolarQuadrature() =0;
 
     /**
-     * @brief Initializes the volumes and material arrays for each flat source 
-     *        region. 
-     */
-    virtual void initializeFSRs() =0;
-
-    /**
      * @brief Allocates memory for track boundary angular fluxes and leakages
      *        flat source region scalar fluxes.
      */
@@ -245,6 +239,14 @@ protected:
      *        referenced for each segment in the transport equation.
      */
     virtual void precomputePrefactors() =0;
+
+    /**
+     * @brief Initializes the volumes and material arrays for each flat source 
+     *        region. 
+     */
+    virtual void initializeFSRs() =0;
+
+    virtual void initializeCmfd();
 
     virtual void checkTrackSpacing();
 
@@ -302,7 +304,8 @@ protected:
     void clearTimerSplits();
 
 public:
-    Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL, Cmfd* cmfd=NULL);
+    Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL, 
+	   Cmfd* cmfd=NULL);
     virtual ~Solver();
 
     Geometry* getGeometry();
@@ -346,6 +349,7 @@ public:
 
     virtual void setGeometry(Geometry* geometry);
     virtual void setTrackGenerator(TrackGenerator* track_generator);
+    virtual void setCmfd(Cmfd* cmfd);
     virtual void setPolarQuadratureType(quadratureType quadrature_type);
     virtual void setNumPolarAngles(int num_polar);
     virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
@@ -357,7 +361,6 @@ public:
     
     virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) =0;
     void printTimerReport();
-    void initializeCmfd();
 };
 
 

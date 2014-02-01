@@ -59,6 +59,7 @@ protected:
     void initializePolarQuadrature();
     void precomputePrefactors();
     void initializeFSRs();
+    void initializeCmfd();
 
     void zeroTrackFluxes();
     void flattenFSRFluxes(FP_PRECISION value);
@@ -106,7 +107,8 @@ protected:
     virtual FP_PRECISION computeExponential(FP_PRECISION sigma_t, 
                                             FP_PRECISION length, int p); 
 public:
-    CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL, Cmfd* cmfd=NULL);
+    CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL, 
+	      Cmfd* cmfd=NULL);
     virtual ~CPUSolver();
  
     int getNumThreads();

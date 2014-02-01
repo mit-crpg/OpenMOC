@@ -61,10 +61,6 @@ void ThreadPrivateSolver::initializeFluxArrays() {
 	delete [] _thread_flux;
     }
 
-    /* Delete old current arrays if they exist */
-    if (_thread_currents != NULL)
-        delete [] _thread_currents;
-
     int size;
 
     /* Allocate memory for the flux and leakage arrays */
@@ -74,18 +70,48 @@ void ThreadPrivateSolver::initializeFluxArrays() {
 	_thread_flux = new FP_PRECISION*[_num_threads];
 	for (int t=0; t < _num_threads; t++)
 	    _thread_flux[t] = new FP_PRECISION[_num_FSRs * _num_groups];
-
-	/* Allocate a thread local array of mesh cell surface currents */
-	if (_cmfd->getMesh()->getCmfdOn()){ 
-	    size = _num_threads * _num_mesh_cells * 8 * _cmfd->getNumCmfdGroups();
-	    _thread_currents = new FP_PRECISION[size];
-	}
-    }
+   }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "
 		   "Backtrace:%s", e.what());
     }
 }
+
+
+/** 
+ * @brief Initializes Cmfd prior to source iteration.
+ * @details Instantiates a dummy Cmfd object if one was not assigned to
+ *          the solver by the user and initializes FSRs, materials, fluxes
+ *          and the mesh. This method intializes thread private arrays
+ *          for the surface currents.
+ */
+void ThreadPrivateSolver::initializeCmfd() {
+
+  /* Call parent class method */
+  CPUSolver::initializeCmfd();
+  
+    /* Delete old thread private surface currents array it it exists */
+  if (_thread_currents != NULL)
+    delete [] _thread_currents;
+  
+  int size;
+
+  /* Allocate memory for the thread private surface currents array */
+  try{
+    /* Allocate a thread local array of mesh cell surface currents */
+    if (_cmfd->getMesh()->getCmfdOn()){ 
+      size = _num_threads * _num_mesh_cells * 8 * _cmfd->getNumCmfdGroups();
+      _thread_currents = new FP_PRECISION[size];
+    }
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "
+	       "Backtrace:%s", e.what());
+  }
+
+  return;
+}
+
 
 
 /**
