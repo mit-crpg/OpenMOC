@@ -201,8 +201,6 @@ lattices[-1].setLatticeCells(
      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
 
-lattices[-1].printString()
-
 
 # Top right, bottom left 17 x 17 assemblies 
 lattices.append(Lattice(id=21, width_x=1.26, width_y=1.26))
@@ -239,8 +237,6 @@ lattices[-1].setLatticeCells(
      [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
      [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
      [7, 7, 7, 7, 7, 7, 7, 7, 7, 7]])
-
-lattices[-1].printString()
 
 
 # Sliced up water cells - right side of geometry
@@ -285,8 +281,6 @@ lattices[-1].setLatticeCells(
      [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
      [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
      [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]])
-
-lattices[-1].printString()
 
 
 # Sliced up water cells for bottom of geometry
