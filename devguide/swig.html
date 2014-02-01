@@ -56,23 +56,29 @@
   <div class="section" id="simplified-wrapper-interface-generator-swig">
 <span id="swig"></span><h1>2. Simplified Wrapper Interface Generator (SWIG)<a class="headerlink" href="#simplified-wrapper-interface-generator-swig" title="Permalink to this headline">¶</a></h1>
 <p>[THIS SITE IS UNDER CONSTRUCTION]</p>
-<div class="section" id="swig-wrap-file">
-<h2>2.1. SWIG Wrap File<a class="headerlink" href="#swig-wrap-file" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="c-c-wrap-file">
-<h3>2.1.1. C/C++ Wrap File<a class="headerlink" href="#c-c-wrap-file" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="swig-interface-files">
+<h2>2.1. SWIG Interface Files<a class="headerlink" href="#swig-interface-files" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="python-bindings-file">
-<h3>2.1.2. Python Bindings File<a class="headerlink" href="#python-bindings-file" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="swig-output">
+<h2>2.2. SWIG Output<a class="headerlink" href="#swig-output" title="Permalink to this headline">¶</a></h2>
+<p>As discussed in the following two sections, SWIG generates a file for the wrapped C/C++ code as well as a file for the corresponding bindings in the target scripting language.</p>
+<div class="section" id="c-c-wrap-files">
+<h3>2.2.1. C/C++ Wrap Files<a class="headerlink" href="#c-c-wrap-files" title="Permalink to this headline">¶</a></h3>
+<p>One output from a <tt class="docutils literal"><span class="pre">swig</span></tt> command to wrap C/C++ source code is a new C/C++ source file which contains all of the wrapper code needed to build an extension module. For example, an input file with the name <tt class="file docutils literal"><span class="pre">openmoc.i</span></tt> is transformed into an output <tt class="file docutils literal"><span class="pre">openmoc_wrap.cpp</span></tt> file. To build the final extension module, the SWIG output file is compiled and linked with the rest of the C/C++ program to create a shared library as discussed in the following sections.</p>
+</div>
+<div class="section" id="python-bindings-files">
+<h3>2.2.2. Python Bindings Files<a class="headerlink" href="#python-bindings-files" title="Permalink to this headline">¶</a></h3>
+<p>Another output from a <tt class="docutils literal"><span class="pre">swig</span></tt> command to wrap C/C++ source code is a new file in the scripting language targeted by SWIG. In the case of OpenMOC, the target scripting language is Python and hence a Python file containing the wrapped routines is created. For example, an input interface file with the name <tt class="file docutils literal"><span class="pre">openmoc.i</span></tt> is transformed into an output <tt class="file docutils literal"><span class="pre">openmoc.py</span></tt> file. This is the file which is imported when a user imports the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module into Python and which interfaces with the shared library created for the module.</p>
 </div>
 </div>
 <div class="section" id="swig-from-the-command-line">
-<h2>2.2. SWIG from the Command Line<a class="headerlink" href="#swig-from-the-command-line" title="Permalink to this headline">¶</a></h2>
-<p>SWIG is provided as the <tt class="docutils literal"><span class="pre">swig</span></tt> executable and is called on the command line to wrap C/C++ source code given a SWIG interface file (see <em class="xref std std-ref">SWIG Interface File</em>). The call to <tt class="docutils literal"><span class="pre">swig</span></tt> produces a SWIG wrap file, which is designated following the <em class="xref std std-option">-o</em> argument. The language used for the input source files (<em>e.g.</em>, C/C++) as well as the language targeted for the bindings (<em>e.g.</em>, Python) must be specified as flags to the <tt class="docutils literal"><span class="pre">swig</span></tt> executable. An example of how one might issue a command from the shell to wrap the source code in the <tt class="file docutils literal"><span class="pre">my_module.i</span></tt> SWIG interface file could be the following:</p>
+<h2>2.3. SWIG from the Command Line<a class="headerlink" href="#swig-from-the-command-line" title="Permalink to this headline">¶</a></h2>
+<p>SWIG is provided as the <tt class="docutils literal"><span class="pre">swig</span></tt> executable and is called on the command line to wrap C/C++ source code given a SWIG interface file (see <a class="reference internal" href="build_system.html#swig-interface-file"><em>SWIG Interface File</em></a>). The call to <tt class="docutils literal"><span class="pre">swig</span></tt> produces a SWIG wrap file, which is designated following the <em class="xref std std-option">-o</em> argument. The language used for the input source files (<em>e.g.</em>, C/C++) as well as the language targeted for the bindings (<em>e.g.</em>, Python) must be specified as flags to the <tt class="docutils literal"><span class="pre">swig</span></tt> executable. An example of how one might issue a command from the shell to wrap the source code in the <tt class="file docutils literal"><span class="pre">my_module.i</span></tt> SWIG interface file could be the following:</p>
 <div class="highlight-python"><pre>swig -python -c++ -o my_module_wrap.cpp my_module.i</pre>
 </div>
 </div>
 <div class="section" id="default-parameters">
-<h2>2.3. Default Parameters<a class="headerlink" href="#default-parameters" title="Permalink to this headline">¶</a></h2>
+<h2>2.4. Default Parameters<a class="headerlink" href="#default-parameters" title="Permalink to this headline">¶</a></h2>
 <p>It is highly recommended that developers make use of <a class="reference external" href="http://www.learncpp.com/cpp-tutorial/77-default-parameters/">default parameters</a> for routines when possible. Default arguments in a C++ routine are wrapped by <tt class="docutils literal"><span class="pre">swig</span></tt> given the <em class="xref std std-option">-keyword</em> to provide <a class="reference external" href="http://en.wikipedia.org/wiki/Named_parameter">keyword arguments</a> (also known as named parameters) in the Python binding for that routine. There are several benefits for defining default arguments in the C/C++ source code:</p>
 <ul class="simple">
 <li><strong>Readability</strong> - Keyword arguments make code more readable, especially in example input files for users new to OpenMOC</li>
@@ -105,10 +111,10 @@
 </div>
 </div>
 <div class="section" id="exception-handling">
-<h2>2.4. Exception Handling<a class="headerlink" href="#exception-handling" title="Permalink to this headline">¶</a></h2>
+<h2>2.5. Exception Handling<a class="headerlink" href="#exception-handling" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="numpy-typemaps">
-<h2>2.5. NumPy Typemaps<a class="headerlink" href="#numpy-typemaps" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>2.6. NumPy Typemaps<a class="headerlink" href="#numpy-typemaps" title="Permalink to this headline">¶</a></h2>
 <p>It is often useful to input/return NumPy data structures to/from C/C++ routines. The <a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/c-api.html">NumPy C API</a> makes this functionality possibility through <strong>array conversions</strong>. In addition, it is possible to automatically <em>embed</em> the NumPy C API directly into the source code with the use of <a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/swig.interface-file.html">NumPy typemaps</a>. Typemaps are a mechanism to match <strong>function signatures</strong> through a list of of function arguments. When SWIG finds a function which matches the typemap, it will target and subsequently modify the function to include the NumPy C API in order to input/output NumPy data arrays. Two types of parameters must be specified in the C/C++ function(s) of interest in order to match a NumPy typemap:</p>
 <ul class="simple">
 <li><strong>Array Pointer</strong> - The data type and pointer to the array</li>
@@ -128,7 +134,7 @@
 </div>
 <p>The following sections overview the basic steps to utilize NumPy typemaps to input NumPy data from Python into C/C++ routines, and return data from C/C++ routines as NumPy arrays.</p>
 <div class="section" id="input-numpy-data-arrays">
-<h3>2.5.1. Input NumPy Data Arrays<a class="headerlink" href="#input-numpy-data-arrays" title="Permalink to this headline">¶</a></h3>
+<h3>2.6.1. Input NumPy Data Arrays<a class="headerlink" href="#input-numpy-data-arrays" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="file docutils literal"><span class="pre">numpy.i</span></tt> interface file provides two particular typemaps for inputting a NumPy data array into a C/C++ routine. The <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">IN_ARRAY*</span></tt> defines an array which is passed into a routine but is not modified in-place by the C/C++ function and is not returned to the user. The <span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">INPLACE_ARRAY*</span></tt> typemap defines arrays that are modified in-place. In each case, the <span class="target" id="index-2"></span><tt class="xref std std-envvar docutils literal"><span class="pre">*</span></tt> represents the number of dimensions for the input array. For example, in order to input a 3D array to be modified in-place, one would use the <span class="target" id="index-3"></span><tt class="xref std std-envvar docutils literal"><span class="pre">INPLACE_ARRAY3</span></tt> typemap. The array dimension(s) are included in each typemap through the use of the <span class="target" id="index-4"></span><tt class="xref std std-envvar docutils literal"><span class="pre">DIM*</span></tt> parameter.</p>
 <p>The following is an example C/C++ in which which we wish to wrap some function <tt class="docutils literal"><span class="pre">sum_array(...)</span></tt> with SWIG and provide the capability to input a NumPy array as a function parameter. Note that the function prototype includes a first paramter for the pointer to the input double array and a second parameter for the length of the array (which together form the function signature). The function prototype is given below in the <tt class="file docutils literal"><span class="pre">sum_array.h</span></tt> file below:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cm">/* Define function prototype to take in a NumPy array */</span>
@@ -186,7 +192,7 @@
 </div>
 </div>
 <div class="section" id="return-numpy-data-arrays">
-<h3>2.5.2. Return NumPy Data Arrays<a class="headerlink" href="#return-numpy-data-arrays" title="Permalink to this headline">¶</a></h3>
+<h3>2.6.2. Return NumPy Data Arrays<a class="headerlink" href="#return-numpy-data-arrays" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="file docutils literal"><span class="pre">numpy.i</span></tt> interface file also provides two typemaps for returning a NumPy data array from a C/C++ routine. The <span class="target" id="index-7"></span><tt class="xref std std-envvar docutils literal"><span class="pre">ARGOUT_ARRAY*</span></tt> used in situations where you would allocate an array on the heap and call the function to fill the array values. In Python, the arrays are allocated for you and returned as new array objects. As was the case for array input, the <span class="target" id="index-8"></span><tt class="xref std std-envvar docutils literal"><span class="pre">*</span></tt> represents the number of dimensions for the input array. For example, in order to input a 3D array to be modified in-place, one would use the <span class="target" id="index-9"></span><tt class="xref std std-envvar docutils literal"><span class="pre">ARGOUT_ARRAY3</span></tt> typemap. The array dimension(s) are included in each typemap through the use of the <span class="target" id="index-10"></span><tt class="xref std std-envvar docutils literal"><span class="pre">DIM*</span></tt> parameter.</p>
 <p>The following is an example C/C++ in which which we wish to wrap some function <tt class="docutils literal"><span class="pre">get_rand_array(...)</span></tt> with SWIG and provide the capability to convert a C/C++ array into an output NumPy array. Based on the function signature, it would appear that the output array is input into the function and nothing is returned. Instead, SWIG will modify the source code with the NumPy C API such that a NumPy array is initialized and input as a C/C++ array and subsequently returned as a NumPy array.</p>
 <p>The function prototype is given below in the <tt class="file docutils literal"><span class="pre">get_rand_array.h</span></tt> file below:</p>
@@ -243,12 +249,12 @@
 </div>
 </div>
 <div class="section" id="swig-typemaps">
-<h2>2.6. SWIG Typemaps<a class="headerlink" href="#swig-typemaps" title="Permalink to this headline">¶</a></h2>
+<h2>2.7. SWIG Typemaps<a class="headerlink" href="#swig-typemaps" title="Permalink to this headline">¶</a></h2>
 <p><tt class="file docutils literal"><span class="pre">typemaps.i</span></tt> which is included in the standard SWIG installation.
 <a class="reference internal" href="../usersguide/install.html#cmdoption--no-numpy"><em class="xref std std-option">--no-numpy</em></a> flag for machines where NumPy is not available.</p>
 </div>
 <div class="section" id="macros">
-<h2>2.7. Macros<a class="headerlink" href="#macros" title="Permalink to this headline">¶</a></h2>
+<h2>2.8. Macros<a class="headerlink" href="#macros" title="Permalink to this headline">¶</a></h2>
 <p>SWIG provides <a class="reference external" href="http://en.wikipedia.org/wiki/C_preprocessor">preprocessing</a> capabilities for interface files. <a class="reference external" href="http://www.swig.org/Doc1.3/Preprocessor.html#Preprocessor_nn5">Macro expansions</a> may be defined in the interface file using the traditional syntax for C/C++:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cp">#ifndef PI</span>
 <span class="cp">#define PI 3.14159</span>
@@ -258,13 +264,11 @@
 <p>SWIG also includes special <a class="reference external" href="http://www.swig.org/Doc1.3/Preprocessor.html#Preprocessor_nn6">SWIG macros</a> with more enhanced capabilities for interface files.</p>
 </div>
 <div class="section" id="typedefs">
-<h2>2.8. Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h2>
+<h2>2.9. Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h2>
 <p>SWIG provides functionality to define <a class="reference external" href="http://en.wikipedia.org/wiki/Typedef">typedefs</a> in interface files. <a class="reference external" href="http://www.swig.org/Doc1.3/SWIG.html#SWIG_nn20">SWIG typedefs</a> can be defined using the same syntax as in C/C++. As discussed in the SWIG online documentation, the typedef must be defined twice in the interface file for in order for it to be propagated to the generated wrapper file:</p>
 <div class="highlight-bash"><div class="highlight"><pre>%<span class="o">{</span>
-
   /* Include in the generated wrapper file */
   typedef unsigned int size_t;
-
 %<span class="o">}</span>
 
 /* Tell SWIG about it */
@@ -283,22 +287,23 @@ typedef unsigned int size_t;
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">2. Simplified Wrapper Interface Generator (SWIG)</a><ul>
-<li><a class="reference internal" href="#swig-wrap-file">2.1. SWIG Wrap File</a><ul>
-<li><a class="reference internal" href="#c-c-wrap-file">2.1.1. C/C++ Wrap File</a></li>
-<li><a class="reference internal" href="#python-bindings-file">2.1.2. Python Bindings File</a></li>
+<li><a class="reference internal" href="#swig-interface-files">2.1. SWIG Interface Files</a></li>
+<li><a class="reference internal" href="#swig-output">2.2. SWIG Output</a><ul>
+<li><a class="reference internal" href="#c-c-wrap-files">2.2.1. C/C++ Wrap Files</a></li>
+<li><a class="reference internal" href="#python-bindings-files">2.2.2. Python Bindings Files</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#swig-from-the-command-line">2.2. SWIG from the Command Line</a></li>
-<li><a class="reference internal" href="#default-parameters">2.3. Default Parameters</a></li>
-<li><a class="reference internal" href="#exception-handling">2.4. Exception Handling</a></li>
-<li><a class="reference internal" href="#numpy-typemaps">2.5. NumPy Typemaps</a><ul>
-<li><a class="reference internal" href="#input-numpy-data-arrays">2.5.1. Input NumPy Data Arrays</a></li>
-<li><a class="reference internal" href="#return-numpy-data-arrays">2.5.2. Return NumPy Data Arrays</a></li>
+<li><a class="reference internal" href="#swig-from-the-command-line">2.3. SWIG from the Command Line</a></li>
+<li><a class="reference internal" href="#default-parameters">2.4. Default Parameters</a></li>
+<li><a class="reference internal" href="#exception-handling">2.5. Exception Handling</a></li>
+<li><a class="reference internal" href="#numpy-typemaps">2.6. NumPy Typemaps</a><ul>
+<li><a class="reference internal" href="#input-numpy-data-arrays">2.6.1. Input NumPy Data Arrays</a></li>
+<li><a class="reference internal" href="#return-numpy-data-arrays">2.6.2. Return NumPy Data Arrays</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#swig-typemaps">2.6. SWIG Typemaps</a></li>
-<li><a class="reference internal" href="#macros">2.7. Macros</a></li>
-<li><a class="reference internal" href="#typedefs">2.8. Typedefs</a></li>
+<li><a class="reference internal" href="#swig-typemaps">2.7. SWIG Typemaps</a></li>
+<li><a class="reference internal" href="#macros">2.8. Macros</a></li>
+<li><a class="reference internal" href="#typedefs">2.9. Typedefs</a></li>
 </ul>
 </li>
 </ul>

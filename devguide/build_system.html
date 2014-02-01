@@ -27,7 +27,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" />
     <link rel="up" title="Developer’s Guide" href="index.html" />
-    <link rel="next" title="4. Debuggin OpenMOC" href="debugging.html" />
+    <link rel="next" title="4. Debugging OpenMOC" href="debugging.html" />
     <link rel="prev" title="2. Simplified Wrapper Interface Generator (SWIG)" href="swig.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="debugging.html" title="4. Debuggin OpenMOC"
+          <a href="debugging.html" title="4. Debugging OpenMOC"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="swig.html" title="2. Simplified Wrapper Interface Generator (SWIG)"
@@ -173,8 +173,8 @@
 </div>
 </div>
 <div class="section" id="swig-interface-files">
-<h2>3.3. SWIG Interface Files<a class="headerlink" href="#swig-interface-files" title="Permalink to this headline">¶</a></h2>
-<p>OpenMOC uses the SWIG system (discussed in <em class="xref std std-ref">Simplified Wrapper Interface Generator</em>) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files <strong>must contain all of the class and function prototypes.</strong> Furthermore, the headers files must be exposed to SWIG through a <a class="reference external" href="http://www.swig.org/Doc2.0/SWIGDocumentation.html#Introduction_nn6">SWIG interface file</a>. The interface files are located in the <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/...</span></tt> directory and use a <tt class="docutils literal"><span class="pre">.i</span></tt> extension. There are different interface files for the different C/C++ extension modules which may be built for Python (e.g. with different compilers). <a class="reference internal" href="#table-openmoc-swig-files"><em>Table 2</em></a> tabulates all of the interface files in OpenMOC, the Python module that would be built, and the shell command that would be used to build the module.</p>
+<span id="swig-interface-file"></span><h2>3.3. SWIG Interface Files<a class="headerlink" href="#swig-interface-files" title="Permalink to this headline">¶</a></h2>
+<p>OpenMOC uses the SWIG system (discussed in <a class="reference internal" href="swig.html#swig"><em>Simplified Wrapper Interface Generator</em></a>) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files <strong>must contain all of the class and function prototypes.</strong> Furthermore, the headers files must be exposed to SWIG through a <a class="reference external" href="http://www.swig.org/Doc2.0/SWIGDocumentation.html#Introduction_nn6">SWIG interface file</a>. The interface files are located in the <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/...</span></tt> directory and use a <tt class="docutils literal"><span class="pre">.i</span></tt> extension. There are different interface files for the different C/C++ extension modules which may be built for Python (e.g. with different compilers). <a class="reference internal" href="#table-openmoc-swig-files"><em>Table 2</em></a> tabulates all of the interface files in OpenMOC, the Python module that would be built, and the shell command that would be used to build the module.</p>
 <table border="1" class="docutils" id="table-openmoc-swig-files">
 <colgroup>
 <col width="41%" />
@@ -231,7 +231,7 @@
 </tbody>
 </table>
 <p><strong>Table 2</strong>: SWIG interface files for OpenMOC modules.</p>
-<p>The <a class="reference internal" href="#add-source-file"><em>Add a C/C++ Source File</em></a> section discusses how to add new C/C++ source files and expose them to SWIG through the interface files. The interface files are useful for a variety of auxiliary purposes as well, most notably the specifications to input and retrieve <a class="reference external" href="http://www.numpy.org">NumPy</a> data from the compiled C/C++ shared library object(s) from Python (see <em class="xref std std-ref">NumPy Tutorials</em>).</p>
+<p>The <a class="reference internal" href="#add-source-file"><em>Add a C/C++ Source File</em></a> section discusses how to add new C/C++ source files and expose them to SWIG through the interface files. The interface files are useful for a variety of auxiliary purposes as well, most notably the specifications to input and retrieve <a class="reference external" href="http://www.numpy.org">NumPy</a> data from the compiled C/C++ shared library object(s) from Python (see <a class="reference internal" href="swig.html#numpy-typemaps"><em>NumPy Typemaps</em></a>).</p>
 </div>
 <div class="section" id="common-modifications">
 <h2>3.4. Common Modifications<a class="headerlink" href="#common-modifications" title="Permalink to this headline">¶</a></h2>
@@ -290,6 +290,9 @@
 <h3>3.4.7. Add a Macro Definition<a class="headerlink" href="#add-a-macro-definition" title="Permalink to this headline">¶</a></h3>
 <p>In order to add a C/C++ pre-processing macro option to OpenMOC, simply append the macro as a Python tuple to the <tt class="docutils literal"><span class="pre">macros</span></tt> attribute of the <tt class="docutils literal"><span class="pre">configuration</span></tt> class in the <tt class="file docutils literal"><span class="pre">/OpenMOC/config.py</span></tt> file. The <tt class="docutils literal"><span class="pre">macros</span></tt> attribute is a Python dictionary (see <a class="reference internal" href="#configuration-file"><em>Configuration File</em></a>) with keys for each compiler supported by the build system. Simply choose which compiler the macro is applicable to and append the tuple to the list corresponding to that key. For example, to add the <em class="xref std std-option">METHOD=fast</em> macro for <tt class="docutils literal"><span class="pre">gcc</span></tt>, append the <tt class="docutils literal"><span class="pre">('METHOD',</span> <span class="pre">'fast')</span></tt> tuple to the list in <tt class="docutils literal"><span class="pre">macros</span></tt> corresponding to &#8216;gcc&#8217;.</p>
 </div>
+<div class="section" id="add-a-c-c-extension-module">
+<h3>3.4.8. Add a C/C++ Extension Module<a class="headerlink" href="#add-a-c-c-extension-module" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 </div>
 
@@ -318,6 +321,7 @@
 <li><a class="reference internal" href="#add-an-include-directory">3.4.5. Add an Include Directory</a></li>
 <li><a class="reference internal" href="#link-a-shared-library">3.4.6. Link a Shared Library</a></li>
 <li><a class="reference internal" href="#add-a-macro-definition">3.4.7. Add a Macro Definition</a></li>
+<li><a class="reference internal" href="#add-a-c-c-extension-module">3.4.8. Add a C/C++ Extension Module</a></li>
 </ul>
 </li>
 </ul>
@@ -329,7 +333,7 @@
                         title="previous chapter">2. Simplified Wrapper Interface Generator (SWIG)</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="debugging.html"
-                        title="next chapter">4. Debuggin OpenMOC</a></p>
+                        title="next chapter">4. Debugging OpenMOC</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/devguide/build_system.txt"
@@ -359,7 +363,7 @@
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="debugging.html" title="4. Debuggin OpenMOC"
+          <a href="debugging.html" title="4. Debugging OpenMOC"
              >next</a> |</li>
         <li class="right" >
           <a href="swig.html" title="2. Simplified Wrapper Interface Generator (SWIG)"

@@ -8,15 +8,28 @@ Simplified Wrapper Interface Generator (SWIG)
 [THIS SITE IS UNDER CONSTRUCTION]
 
 
---------------
-SWIG Wrap File
---------------
-
-C/C++ Wrap File
----------------
-
-Python Bindings File
 --------------------
+SWIG Interface Files
+--------------------
+
+
+-----------
+SWIG Output
+-----------
+
+As discussed in the following two sections, SWIG generates a file for the wrapped C/C++ code as well as a file for the corresponding bindings in the target scripting language.
+
+
+C/C++ Wrap Files
+----------------
+
+One output from a ``swig`` command to wrap C/C++ source code is a new C/C++ source file which contains all of the wrapper code needed to build an extension module. For example, an input file with the name :file:`openmoc.i` is transformed into an output :file:`openmoc_wrap.cpp` file. To build the final extension module, the SWIG output file is compiled and linked with the rest of the C/C++ program to create a shared library as discussed in the following sections.
+
+
+Python Bindings Files
+---------------------
+
+Another output from a ``swig`` command to wrap C/C++ source code is a new file in the scripting language targeted by SWIG. In the case of OpenMOC, the target scripting language is Python and hence a Python file containing the wrapped routines is created. For example, an input interface file with the name :file:`openmoc.i` is transformed into an output :file:`openmoc.py` file. This is the file which is imported when a user imports the ``openmoc`` module into Python and which interfaces with the shared library created for the module.
 
 
 --------------------------
@@ -26,6 +39,7 @@ SWIG from the Command Line
 SWIG is provided as the ``swig`` executable and is called on the command line to wrap C/C++ source code given a SWIG interface file (see :ref:`SWIG Interface File <swig_interface_file>`). The call to ``swig`` produces a SWIG wrap file, which is designated following the :option:`-o` argument. The language used for the input source files (*e.g.*, C/C++) as well as the language targeted for the bindings (*e.g.*, Python) must be specified as flags to the ``swig`` executable. An example of how one might issue a command from the shell to wrap the source code in the :file:`my_module.i` SWIG interface file could be the following::
 
   swig -python -c++ -o my_module_wrap.cpp my_module.i
+
 
 ------------------
 Default Parameters
@@ -73,6 +87,7 @@ Likewise, an example of how to define default values for function parameters - w
 Exception Handling
 ------------------
 
+.. _numpy_typemaps:
 
 --------------
 NumPy Typemaps
@@ -263,10 +278,8 @@ SWIG provides functionality to define typedefs_ in interface files. `SWIG typede
 .. code-block:: bash
 
    %{
-
      /* Include in the generated wrapper file */
      typedef unsigned int size_t;
-
    %}
 
    /* Tell SWIG about it */

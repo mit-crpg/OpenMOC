@@ -90,11 +90,13 @@ Building and Installation
 In the final step, the ``setup(...)`` method from the ``distutils.core`` module is called in the ``setup.py`` file. The ``setup(...)`` method receives the list of the ``Extension`` class objects and builds and installs each one as a shared library in the :file:`/home/<username>/.local/lib/python-x.x/site-packages/` directory. On a Unix-based machine, the shared library for the default ``openmoc`` module will be ``_openmoc.so``. The Python modules in OpenMOC (e.g., ``openmoc.materialize``, ``openmoc.plotter``, etc.) will be installed in the :file:`/home/<username>/.local/lib/python-x.x/site-packages/` directory. 
 
 
+.. _swig_interface_file:
+
 --------------------
 SWIG Interface Files
 --------------------
 
-OpenMOC uses the SWIG system (discussed in :ref:`Simplified Wrapper Interface Generator <devguide_swig>`) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files **must contain all of the class and function prototypes.** Furthermore, the headers files must be exposed to SWIG through a `SWIG interface file`_. The interface files are located in the :file:`/OpenMOC/openmoc/...` directory and use a ``.i`` extension. There are different interface files for the different C/C++ extension modules which may be built for Python (e.g. with different compilers). :ref:`Table 2 <table_openmoc_swig_files>` tabulates all of the interface files in OpenMOC, the Python module that would be built, and the shell command that would be used to build the module.
+OpenMOC uses the SWIG system (discussed in :ref:`Simplified Wrapper Interface Generator <swig>`) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files **must contain all of the class and function prototypes.** Furthermore, the headers files must be exposed to SWIG through a `SWIG interface file`_. The interface files are located in the :file:`/OpenMOC/openmoc/...` directory and use a ``.i`` extension. There are different interface files for the different C/C++ extension modules which may be built for Python (e.g. with different compilers). :ref:`Table 2 <table_openmoc_swig_files>` tabulates all of the interface files in OpenMOC, the Python module that would be built, and the shell command that would be used to build the module.
 
 .. _table_openmoc_swig_files:
 
@@ -115,7 +117,7 @@ File                                                          Python Module     
 
 **Table 2**: SWIG interface files for OpenMOC modules. 
 
-The :ref:`Add a C/C++ Source File <add_source_file>` section discusses how to add new C/C++ source files and expose them to SWIG through the interface files. The interface files are useful for a variety of auxiliary purposes as well, most notably the specifications to input and retrieve NumPy_ data from the compiled C/C++ shared library object(s) from Python (see :ref:`NumPy Tutorials <numpy_tutorials>`).
+The :ref:`Add a C/C++ Source File <add_source_file>` section discusses how to add new C/C++ source files and expose them to SWIG through the interface files. The interface files are useful for a variety of auxiliary purposes as well, most notably the specifications to input and retrieve NumPy_ data from the compiled C/C++ shared library object(s) from Python (see :ref:`NumPy Typemaps <numpy_typemaps>`).
 
 
 --------------------
@@ -185,6 +187,9 @@ Add a Macro Definition
 In order to add a C/C++ pre-processing macro option to OpenMOC, simply append the macro as a Python tuple to the ``macros`` attribute of the ``configuration`` class in the :file:`/OpenMOC/config.py` file. The ``macros`` attribute is a Python dictionary (see :ref:`Configuration File <configuration_file>`) with keys for each compiler supported by the build system. Simply choose which compiler the macro is applicable to and append the tuple to the list corresponding to that key. For example, to add the :option:`METHOD=fast` macro for ``gcc``, append the ``('METHOD', 'fast')`` tuple to the list in ``macros`` corresponding to 'gcc'.
 
 
+
+Add a C/C++ Extension Module
+----------------------------
 
 
 
