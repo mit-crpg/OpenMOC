@@ -11,7 +11,8 @@
  * @param track_generator an optional pointer to the trackgenerator
  * @param cmfd an optional pointer to the cmfd module
  */
-Solver::Solver(Geometry* geometry, TrackGenerator* track_generator, Cmfd* cmfd) {
+Solver::Solver(Geometry* geometry, TrackGenerator* track_generator, 
+	       Cmfd* cmfd) {
 
     /* Default values */
     _num_materials = 0;
@@ -28,6 +29,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator, Cmfd* cmfd) 
     _quad = NULL;
     _track_generator = NULL;
     _geometry = NULL;
+    _cmfd = NULL;
 
     _tracks = NULL;
     _azim_weights = NULL;
@@ -63,17 +65,8 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator, Cmfd* cmfd) 
 
     _timer = new Timer();
 
-    if (cmfd == NULL)
-      _cmfd = new Cmfd(_geometry, MOC);
-    else
+    if (cmfd != NULL)
       _cmfd = cmfd;
-
-    if (_geometry->getBCTop() == ZERO_FLUX || _geometry->getBCBottom() == ZERO_FLUX 
-        || _geometry->getBCLeft() == ZERO_FLUX || _geometry->getBCRight() == ZERO_FLUX)
-      log_printf(ERROR, "You have input a ZERO_FLUX BC for solving an MOC transport problem!"
-                 " OpenMOC only supports ZERO_FLUX BCs for solving diffusion problems."
-                 " Please set your ZERO_FLUX BCs to another BC (VACUUM or REFLECTIVE).");    
-    
 }
 
 
@@ -274,6 +267,15 @@ void Solver::setGeometry(Geometry* geometry) {
         log_printf(ERROR, "Unable to set the Geometry for the Solver "
                  "since the Geometry does noet contain any materials");
 
+    if (geometry->getBCTop() == ZERO_FLUX || 
+	geometry->getBCBottom() == ZERO_FLUX || 
+	geometry->getBCLeft() == ZERO_FLUX || 
+	geometry->getBCRight() == ZERO_FLUX)
+      log_printf(ERROR, "You have input a ZERO_FLUX BC for solving an MOC "
+		 "transport problem! OpenMOC only supports ZERO_FLUX BCs "
+		 "for solving diffusion problems. Please use a different "
+		 "BC (VACUUM or REFLECTIVE).");
+
     _geometry = geometry;
     _num_FSRs = _geometry->getNumFSRs();
     _num_groups = _geometry->getNumEnergyGroups();
@@ -311,6 +313,15 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
           counter++;
         }
     }
+}
+
+
+/**
+ * @brief Sets the Cmfd object for Coarse Mesh Finite Difference acceleration.
+ * @param cmfd a pointer to the Cmfd object
+ */
+void Solver::setCmfd(Cmfd* cmfd) {
+  _cmfd = cmfd;  
 }
 
 
@@ -377,6 +388,28 @@ void Solver::useExponentialInterpolation() {
 void Solver::useExponentialIntrinsic() {
     _interpolate_exponential = false;
 }
+
+
+/** 
+ * @brief Initializes Cmfd prior to source iteration.
+ * @details Instantiates a dummy Cmfd object if one was not assigned to
+ *          the solver by the user and initializes FSRs, materials, fluxes
+ *          and the mesh.
+ */
+void Solver::initializeCmfd(){
+
+    log_printf(INFO, "Initializing CMFD...");
+
+    /* Initialize a dummy CMFD object if one has not been set */
+    if (_cmfd == NULL)
+      _cmfd = new Cmfd(_geometry, MOC);
+
+    _cmfd->setFSRVolumes(_FSR_volumes);
+    _cmfd->setFSRMaterials(_FSR_materials);
+    _cmfd->setFSRFluxes(_scalar_flux);
+    _cmfd->getMesh()->setSurfaceCurrents(_surface_currents);
+}
+
 
 
 /**
@@ -475,6 +508,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     initializeSourceArrays();
     precomputePrefactors();
     initializeFSRs();
+    initializeCmfd();
 
     /* Check that each FSR has at least one segment crossing it */
     checkTrackSpacing();
@@ -600,14 +634,4 @@ void Solver::printTimerReport() {
 
     log_printf(RESULT, "%s", msg.str().c_str());
     log_printf(SEPARATOR, "-");
-}
-
-void Solver::initializeCmfd(){
-
-    log_printf(INFO, "initializing cmfd...");
-
-    _cmfd->setFSRVolumes(_FSR_volumes);
-    _cmfd->setFSRMaterials(_FSR_materials);
-    _cmfd->setFSRFluxes(_scalar_flux);
-    _cmfd->getMesh()->setSurfaceCurrents(_surface_currents);
 }

@@ -23,7 +23,7 @@ CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator,
 
 /**
  * @brief Destructor deletes array for OpenMP atomic locks for scalar flux
- *        updates, and calls Solver subclass destructor to deletes arrays
+ *        updates, and calls Solver parent class destructor to deletes arrays
  *        for fluxes and sources.
  */
 CPUSolver::~CPUSolver() { 
@@ -185,9 +185,6 @@ void CPUSolver::initializeFluxArrays() {
     if (_scalar_flux != NULL)
         delete [] _scalar_flux;
 
-    if (_surface_currents != NULL)
-        delete [] _surface_currents;
-
     if (_thread_fsr_flux != NULL)
         delete [] _thread_fsr_flux;
 
@@ -203,12 +200,6 @@ void CPUSolver::initializeFluxArrays() {
         /* Allocate an array for the scalar flux */
         size = _num_FSRs * _num_groups;
         _scalar_flux = new FP_PRECISION[size];
-
-        /* Allocate an array for the surface currents */
-        if (_cmfd->getMesh()->getCmfdOn()){ 
-          size = _num_mesh_cells * _cmfd->getNumCmfdGroups() * 8;
-          _surface_currents = new double[size];
-        }
 
         /* Allocate a thread local local memory buffer for FSR scalar flux */
         size = _num_groups * _num_threads;
@@ -369,9 +360,6 @@ void CPUSolver::initializeFSRs() {
     _FSR_materials = new Material*[_num_FSRs];
     _FSR_locks = new omp_lock_t[_num_FSRs];
 
-    if (_cmfd->getMesh()->getCmfdOn())
-      _mesh_surface_locks = new omp_lock_t[_cmfd->getMesh()->getNumCells()*8];
-
     int num_segments;
     segment* curr_segment;
     segment* segments;
@@ -417,16 +405,56 @@ void CPUSolver::initializeFSRs() {
     #pragma omp parallel for schedule(guided)
     for (int r=0; r < _num_FSRs; r++)
         omp_init_lock(&_FSR_locks[r]);
-
     
+    return;
+}
+
+
+/** 
+ * @brief Initializes Cmfd prior to source iteration.
+ * @details Instantiates a dummy Cmfd object if one was not assigned to
+ *          the solver by the user and initializes FSRs, materials, fluxes
+ *          and the mesh. This method intializes a global array for the
+ *          surface currents.
+ */
+void CPUSolver::initializeCmfd() {
+
+  /* Call parent class method */
+  Solver::initializeCmfd();
+  
+  /* Delete old surface currents array it it exists */
+  if (_surface_currents != NULL)
+    delete [] _surface_currents;
+  
+  int size;
+
+  /* Allocate memory for the surface currents array */
+  try{
+
+    /* Allocate an array for the surface currents */
     if (_cmfd->getMesh()->getCmfdOn()){ 
-      /* Loop over all mesh cells to initialize OpenMP locks */
-      #pragma omp parallel for schedule(guided)
-      for (int r=0; r < _num_mesh_cells*8; r++)
+      size = _num_mesh_cells * _cmfd->getNumCmfdGroups() * 8;
+      _surface_currents = new double[size];
+    }
+
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not allocate memory for the solver's fluxes. "
+	       "Backtrace:%s", e.what());
+  }
+
+  if (_cmfd->getMesh()->getCmfdOn()){ 
+
+    /* Initialize an array of OpenMP locks for each Cmfd mesh surface */
+    _mesh_surface_locks = new omp_lock_t[_cmfd->getMesh()->getNumCells() * 8];
+
+    /* Loop over all mesh cells to initialize OpenMP locks */
+    #pragma omp parallel for schedule(guided)
+    for (int r=0; r < _num_mesh_cells*8; r++)
         omp_init_lock(&_mesh_surface_locks[r]);
     }
 
-    return;
+  return;
 }
 
 

@@ -31,8 +31,8 @@
  * Solve types
  */
 enum eigenMethod {
-	POWER,
-	WIELANDT
+  POWER,
+  WIELANDT
 };
 
 
