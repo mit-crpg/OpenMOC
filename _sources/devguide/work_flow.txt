@@ -7,27 +7,19 @@ Development Workflow
 
 Anyone wishing to make contributions to OpenMOC should be fully acquianted and
 comfortable working with git_ and GitHub_. The primary means of modifying and
-making contributions to OpenMOC is through GitHub `pull requests`_. This is
-what's known as a fork and pull development model. The steps for this are as
+making contributions to OpenMOC is through a GitHub `pull request`_. This is
+what's known as a `fork and pull development model`_. The steps for this are as
 follows:
 
-1. Fork the main OpenMOC repository from `mit-crpg/OpenMOC`_. This will create a
-repository with the same name under your personal account. As such, you can
-commit to it as you please without disrupting other developers.
+* **Fork the Repository** -  Fork_ the main OpenMOC repository from `mit-crpg/OpenMOC`_. This will create a repository with the same name under your personal account.
 
-2. Create a branch that you want merged back to `mit-crpg/OpenMOC`_ and make
-commits that you intend to go back. If you have made other changes that should
-not be merged back, those changes should be on another branch.
+* **Create a Git Branch** - `Create a git branch`_ to your local repository and make commits that you intend to merge back into the main OpenMOC repository.
 
-3. Issue a pull request from GitHub and select the branch you want merged.
+* **Create a Pull Request** - Create a `pull request`_ from GitHub and select the branch to merge from your local repository with the appropriate branch in `mit-crpg/OpenMOC`_.
 
-4. The OpenMOC integration manager will review your pull request and make sure 
-it conforms to the :ref:`style_guide`, compiles correctly, runs in 
-parallel correctly, does not break other features in the code, etc. Any issues 
-with the pull request can be discussed directly on the pull request page itself.
+* **Merge the Pull Request** - The OpenMOC integration manager will review your pull request and make sure it compiles and runs correctly and conforms to the :ref:`style_guide`.
 
-5. After the pull request has been thoroughly vetted, it is merged back into
-`mit-crpg/OpenMOC`_.
+* **Code Integration** - After the pull request has been thoroughly vetted, the integration manager will merge it back into `mit-crpg/OpenMOC`_.
 
 While the process above depends on the fork of the OpenMOC repository being
 publicly available on GitHub, you may also wish to do development on a private
@@ -41,6 +33,9 @@ of pulling a branch from your private repository into your public fork.
 
 .. _git: http://git-scm.com/
 .. _GitHub: https://github.com/
-.. _pull requests: https://help.github.com/articles/using-pull-requests
+.. _pull request: https://help.github.com/articles/using-pull-requests
+.. _fork and pull development model: https://help.github.com/articles/using-pull-requests
+.. _Fork: https://help.github.com/articles/fork-a-repo
+.. _Create a git branch: http://git-scm.com/book/en/Git-Branching-Basic-Branching-and-Merging
 .. _mit-crpg/OpenMOC: https://github.com/mit-crpg/OpenMOC
 .. _paid plan: https://github.com/plans
