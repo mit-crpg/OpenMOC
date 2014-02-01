@@ -452,7 +452,7 @@ void Material::setSigmaTByGroup(double xs, int group) {
         log_printf(ERROR, "Unable to set sigma_t for group %d for material "
                 "%d which contains %d energy groups", group, _uid, _num_groups);
 
-    _sigma_t[group] = xs;
+    _sigma_t[group-1] = xs;
 }
 
 
@@ -489,7 +489,7 @@ void Material::setSigmaAByGroup(double xs, int group) {
         log_printf(ERROR, "Unable to set sigma_a for group %d for material "
                 "%d which contains %d energy groups", group, _uid, _num_groups);
 
-    _sigma_a[group] = xs;
+    _sigma_a[group-1] = xs;
 }
 
 
@@ -533,7 +533,7 @@ void Material::setSigmaSByGroup(double xs, int group1, int group2) {
                  "%d which contains %d energy groups", group1, group2, _uid,
                  _num_groups);
 
-    _sigma_s[_num_groups*group1 + group2] = xs;
+    _sigma_s[_num_groups*(group1-1) + (group2-1)] = xs;
 }
 
 
@@ -576,7 +576,7 @@ void Material::setSigmaFByGroup(double xs, int group) {
       log_printf(ERROR, "Unable to set sigma_f for group %d for material "
                 "%d which contains %d energy groups", group, _uid, _num_groups);
 
-    _sigma_f[group] = xs;
+    _sigma_f[group-1] = xs;
 
     /* Determine whether or not this material is fissionable */
     _fissionable = false;
@@ -620,7 +620,7 @@ void Material::setNuSigmaFByGroup(double xs, int group) {
       log_printf(ERROR, "Unable to set nu_sigma_f for group %d for material "
                  "%d which contains %d energy groups", group, _uid);
 
-    _nu_sigma_f[group] = xs;
+    _nu_sigma_f[group-1] = xs;
 }
 
 
@@ -654,7 +654,7 @@ void Material::setChiByGroup(double xs, int group) {
 		   "%d which contains %d energy groups", 
 		   group, _num_groups, _uid);
 
-    _chi[group] = xs;
+    _chi[group-1] = xs;
 }
 
 
@@ -697,7 +697,7 @@ void Material::setDifCoefByGroup(double xs, int group) {
         _dif_coef[i] = 0.0;
     }
 
-    _dif_coef[group] = xs;
+    _dif_coef[group-1] = xs;
 }
 
 
@@ -740,7 +740,7 @@ void Material::setBucklingByGroup(double xs, int group) {
         _buckling[i] = 0.0;
     }
 
-    _buckling[group] = xs;
+    _buckling[group-1] = xs;
 }
 
 
@@ -784,7 +784,7 @@ void Material::setDifHatByGroup(double xs, int group, int surface) {
 	    _dif_hat[i] = 0.0;
     }
 
-    _dif_hat[surface*_num_groups + group] = xs;
+    _dif_hat[surface*_num_groups + (group-1)] = xs;
 }
 
 
@@ -827,7 +827,7 @@ void Material::setDifTildeByGroup(double xs, int group, int surface) {
         _dif_tilde[i] = 0.0;
     }
 
-    _dif_tilde[surface*_num_groups + group] = xs;
+    _dif_tilde[surface*_num_groups + (group-1)] = xs;
 }
 
 
@@ -1050,28 +1050,29 @@ Material* Material::clone(){
     clone->setNumEnergyGroups(_num_groups);
 
     for (int i=0; i < _num_groups; i++) {
-        clone->setSigmaTByGroup((double)_sigma_t[i], i);
-	clone->setSigmaAByGroup((double)_sigma_a[i], i);
-	clone->setSigmaFByGroup((double)_sigma_f[i], i);
-	clone->setNuSigmaFByGroup((double)_nu_sigma_f[i], i);
-	clone->setChiByGroup((double)_chi[i], i);
+        clone->setSigmaTByGroup((double)_sigma_t[i], i+1);
+	clone->setSigmaAByGroup((double)_sigma_a[i], i+1);
+	clone->setSigmaFByGroup((double)_sigma_f[i], i+1);
+	clone->setNuSigmaFByGroup((double)_nu_sigma_f[i], i+1);
+	clone->setChiByGroup((double)_chi[i], i+1);
 
 	for (int j=0; j < _num_groups; j++)
-	    clone->setSigmaSByGroup((double)_sigma_s[i*_num_groups+j], i, j);
+	    clone->setSigmaSByGroup((double)_sigma_s[i*_num_groups+j],
+				    i+1, j+1);
 
 	if (_dif_coef != NULL)
-	    clone->setDifCoefByGroup((double)_dif_coef[i], i);  
+	    clone->setDifCoefByGroup((double)_dif_coef[i], i+1);  
 	    
 	if (_buckling != NULL)
-	    clone->setBucklingByGroup((double)_buckling[i], i);  
+	    clone->setBucklingByGroup((double)_buckling[i], i+1);  
 
 	for (int j=0; j < 4; j++) {
 
 	    if (_dif_hat != NULL)
-	        clone->setDifHatByGroup((double)_dif_hat[i*4+j], i, j);  
+	        clone->setDifHatByGroup((double)_dif_hat[i*4+j], i+1, j+1);  
 
 	    if (_dif_tilde != NULL)
-	        clone->setDifTildeByGroup((double)_dif_tilde[i*4+j], i, j);
+	        clone->setDifTildeByGroup((double)_dif_tilde[i*4+j], i+1, j+1);
 	}
     }  
       
