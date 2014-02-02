@@ -185,9 +185,9 @@ class configuration:
                         'src/Mesh.cpp']
 
     sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
-                       'src/dev/gpu/GPUQuery.cu',
-                       'src/dev/gpu/clone.cu',
-                       'src/dev/gpu/GPUSolver.cu']
+                       'src/accel/cuda/GPUQuery.cu',
+                       'src/accel/cuda/clone.cu',
+                       'src/accel/cuda/GPUSolver.cu']
 
 
     ###########################################################################

@@ -20,7 +20,7 @@
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
-    static char swig_c_err_msg[512];
+    static char swig_c_err_msg[1024];
 
     const char* err_occurred(void) {
         if (swig_c_error_num) {
@@ -32,7 +32,7 @@
 
     void set_err(const char *msg) {
         swig_c_error_num = 1;
-        strncpy(swig_c_err_msg, msg, 256);
+        strncpy(swig_c_err_msg, msg, 1024);
     }
 %}
 
@@ -40,10 +40,7 @@
 
 %exception {
     try {
-        $function
-    } catch (const std::runtime_error &e) {
-        SWIG_exception(SWIG_RuntimeError, err_occurred());
-        return NULL;
+      $function
     } catch (const std::exception &e) {
         SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
