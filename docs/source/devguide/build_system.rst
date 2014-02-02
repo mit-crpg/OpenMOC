@@ -90,13 +90,11 @@ Building and Installation
 In the final step, the ``setup(...)`` method from the ``distutils.core`` module is called in the ``setup.py`` file. The ``setup(...)`` method receives the list of the ``Extension`` class objects and builds and installs each one as a shared library in the :file:`/home/<username>/.local/lib/python-x.x/site-packages/` directory. On a Unix-based machine, the shared library for the default ``openmoc`` module will be ``_openmoc.so``. The Python modules in OpenMOC (e.g., ``openmoc.materialize``, ``openmoc.plotter``, etc.) will be installed in the :file:`/home/<username>/.local/lib/python-x.x/site-packages/` directory. 
 
 
-.. _swig_interface_file:
-
 --------------------
 SWIG Interface Files
 --------------------
 
-OpenMOC uses the SWIG system (discussed in :ref:`Simplified Wrapper Interface Generator <swig>`) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files **must contain all of the class and function prototypes.** Furthermore, the headers files must be exposed to SWIG through a `SWIG interface file`_. The interface files are located in the :file:`/OpenMOC/openmoc/...` directory and use a ``.i`` extension. There are different interface files for the different C/C++ extension modules which may be built for Python (e.g. with different compilers). :ref:`Table 2 <table_openmoc_swig_files>` tabulates all of the interface files in OpenMOC, the Python module that would be built, and the shell command that would be used to build the module.
+OpenMOC uses the SWIG system (discussed in :ref:`Simplified Wrapper Interface Generator <swig>`) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files **must contain all of the class and function prototypes.** Furthermore, the headers files must be exposed to SWIG through a `SWIG interface file`_ (see :ref:`SWIG Input <swig_input>`). The interface files are located in the :file:`/OpenMOC/openmoc/...` directory and use a ``.i`` extension. There are different interface files for the different C/C++ extension modules which may be built for Python (e.g. with different compilers). :ref:`Table 2 <table_openmoc_swig_files>` tabulates all of the interface files in OpenMOC, the Python module that would be built, and the shell command that would be used to build the module.
 
 .. _table_openmoc_swig_files:
 

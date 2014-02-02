@@ -12,47 +12,171 @@ OpenMOC uses SWIG to wrap C/C++ source code to create a user interface for Pytho
 * `SWIG C++ Tutorial`_
 
 
---------------------
-SWIG Interface Files
---------------------
+.. _swig_example:
 
-
-
-`SWIG interface files`_
-
------------
-SWIG Output
------------
-
-As discussed in the following two sections, SWIG generates a file for the wrapped C/C++ code as well as a file for the corresponding bindings in the target scripting language.
-
-
-C/C++ Wrap Files
-----------------
-
-One output from a ``swig`` command to wrap C/C++ source code is a new C/C++ source file which contains all of the wrapper code needed to build an extension module. For example, an input file with the name :file:`openmoc.i` is transformed into an output :file:`openmoc_wrap.cpp` file. To build the final extension module, the SWIG output file is compiled and linked with the rest of the C/C++ program to create a shared library as discussed in the following sections.
-
-
-Python Bindings Files
+---------------------
+SAXPY in SWIG Example
 ---------------------
 
-Another output from a ``swig`` command to wrap C/C++ source code is a new file in the scripting language targeted by SWIG. In the case of OpenMOC, the target scripting language is Python and hence a Python file containing the wrapped routines is created. For example, an input interface file with the name :file:`openmoc.i` is transformed into an output :file:`openmoc.py` file. This is the file which is imported when a user imports the ``openmoc`` module into Python and which interfaces with the shared library created for the module.
+This introduces SWIG through an example of "Single-Precision A :math:`\cdot` X Plus Y" ("saxpy" for for short). The example uses SWIG to wrap a C/C++ file to create a `C/C++ extension module`_ for Python.
 
 
+C/C++ Source Code
+-----------------
+
+The following is the C++ header file for the SAXPY source code (:download:`download <../../img/saxpy.h>`). The function prototypes are defined and will be wrapped by SWIG as described in the next section.
+
+.. code-block:: c
+
+    /* File saxpy.h */
+    #include <stdlib.h>
+    #include <stdio.h>
+
+    /* Define function prototypes */
+    void set_array_length(int n);
+    void initialize_data();
+    void free_data();
+    void print_data();
+    void saxpy();
+
+The corresponding function implementations for the SAXPY example are given in the C++ source file :file:`saxpy.cpp` below (:download:`download <../../img/saxpy.cpp>`).
+
+.. code-block:: c
+
+    /* File saxpy.cpp */
+    #include "saxpy.h"
+
+    /* Define global variables */
+    int length;
+    double a;
+    double* x;
+    double* y;
+
+    void set_array_length(int n) {
+      length = n;
+    }
+
+    void initialize_data() {
+
+      /* Allocate memory for arrays */
+      x = (double*)malloc(length*sizeof(double));
+      y = (double*)malloc(length*sizeof(double));
+
+      /* Initialize data with random numbers in [0,1] */
+      a = float(rand()) / RAND_MAX; 
+
+      for (int i=0; i < length; i++) {
+        x[i] = float(rand()) / RAND_MAX;
+	y[i] = float(rand()) / RAND_MAX;
+      }
+    }
+
+    void free_data() {
+      free(x);
+      free(y);
+    }
+
+    void print_data() {
+      printf("a = %f\n", a);
+
+      for (int i=0; i < length; i++)
+        printf("x[%d] = %f\ty[%d] = %f\n", i, x[i], i, y[i]);
+    }
+
+    void saxpy() {
+      for (int i=0; i < length; i++)
+        y[i] = a * x[i] + y[i];
+    }
+
+
+.. _swig_input:
+
+SWIG Interface File
+-------------------
+
+SWIG requires the use of **interface files** for input. A `SWIG interface file`_ is required for each `C/C++ extension module`_ generated for Python. The primary purpose for SWIG interface file(s) in OpenMOC is to expose the C/C++ source code to SWIG. This is done by including the header files which contain all of the function prototypes, class definitions, etc. for SWIG to wrap. In addition, the name of the module must be included at the top of the interface file. The following illustrates :file:`saxpy.i` interface file (:download:`download <../../img/saxpy.i>`) for the SAXPY example.
+
+.. code-block:: bash
+ 
+   %module saxpy
+   %{
+     #include "saxpy.h"
+   %}
+
+   %include "saxpy.h"
+
+.. note:: The reader is encouraged to reference the online documentation for the many options which may be used in SWIG interface files.
+
+
+Wrapping the C/C++ Source Code
+------------------------------
+
+SWIG is provided as the ``swig`` executable and is called on the command line to wrap C/C++ source code given a SWIG interface file. The call to ``swig`` produces a SWIG wrap file, which is designated following the :option:`-o` argument. The language used for the input source files (*e.g.*, C/C++) as well as the language targeted for the bindings (*e.g.*, Python) must be specified as flags to the ``swig`` executable. The following is an example of how to issue a command from the shell to wrap the source code in the :file:`saxpy.i` SWIG interface file:
+
+.. code-block:: bash
+
+    $ swig -python -c++ -o saxpy_wrap.cpp saxpy.i
+
+
+One output from the ``swig`` command to wrap C/C++ source code is a new C/C++ source file which contains all of the wrapper code needed to build an extension module. For example, the interface file :file:`saxpy.i` will be transformed into an output :file:`saxpy_wrap.cpp` file. To build the final extension module, the SWIG output file is compiled and linked with the rest of the C/C++ program to create a shared library as discussed in the following sections.
+
+Another output from a ``swig`` command to wrap C/C++ source code is a new file in the scripting language targeted by SWIG. In the case of OpenMOC, the target scripting language is Python and hence a Python file containing the wrapped routines is created. For example, the interface file :file:`saxpy.i` will be transformed into an output :file:`saxpy.py` file. This is the file which is imported when a user imports the ``saxpy`` module into Python and which interfaces with the shared library created for the module.
+
+
+Creating the Extension Module
+-----------------------------
+
+The next step is to compile both the the C/C++ source files as well as the wrap file generated by SWIG. The wrap file includes :file:`Python.h` which is included with the Python development package provided by most package managers (*i.e.*, ``python-dev`` for Ubuntu's ``apt-get`` package manager). The C/C++ source **MUST** be compiled with the :option:`-fpic` option to produce "position independent code" for the shared library. The following two commands may be used to compile the source ``saxpy.cpp`` and ``saxpy_wrap.cpp`` files for this example:
+
+.. code-block:: bash
+
+  $ gcc -c saxpy.cpp -o saxpy.o -fpic -std=c++0x
+  $ gcc -I/usr/include/python2.7 -c saxpy_wrap.cpp -o saxpy_wrap.o -fpic -std=c++0x
+
+The final step is to link the object files into a shared library which will serve as the extension module. It is standard practice for C/C++ extension modules to begin with an underscore "_" prefix. The object files for the SAXPY example can be linked into the :file:`_saxpy.so` shared libary file as follows:
+
+.. code-block:: bash
+
+  $ g++ saxpy_wrap.o saxpy.o -o _saxpy.so -shared -Wl,-soname,_saxpy.so
+
+
+Using the Extension Module
 --------------------------
-SWIG from the Command Line
---------------------------
 
-SWIG is provided as the ``swig`` executable and is called on the command line to wrap C/C++ source code given a SWIG interface file (see :ref:`SWIG Interface File <swig_interface_file>`). The call to ``swig`` produces a SWIG wrap file, which is designated following the :option:`-o` argument. The language used for the input source files (*e.g.*, C/C++) as well as the language targeted for the bindings (*e.g.*, Python) must be specified as flags to the ``swig`` executable. An example of how one might issue a command from the shell to wrap the source code in the :file:`my_module.i` SWIG interface file could be the following::
+Finally, the extension module shared library can be imported into Python and used as follows:
 
-  swig -python -c++ -o my_module_wrap.cpp my_module.i
+
+.. code-block:: bash
+
+    $ python
+    Python 2.7.3 (default, Sep 26 2013, 16:35:25) 
+    [GCC 4.7.2] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> import _saxpy
+    >>> import _saxpy as module
+    >>> module.set_array_length(10)
+    >>> module.initialize_data()
+    >>> module.saxpy()
+    >>> module.print_data()
+    a = 0.840188
+    x[0] = 0.394383	y[0] = 1.114455
+    x[1] = 0.798440	y[1] = 1.582487
+    x[2] = 0.197551	y[2] = 0.501203
+    x[3] = 0.768230	y[3] = 0.923232
+    x[4] = 0.553970	y[4] = 0.942836
+    x[5] = 0.628871	y[5] = 0.893154
+    x[6] = 0.513401	y[6] = 1.383583
+    x[7] = 0.916195	y[7] = 1.405488
+    x[8] = 0.717297	y[8] = 0.744267
+    x[9] = 0.606969	y[9] = 0.526268
+    >>> module.free_data()
 
 
 ------------------
 Default Parameters
 ------------------
 
-It is highly recommended that developers make use of `default parameters`_ for routines when possible. Default arguments in a C++ routine are wrapped by ``swig`` given the :option:`-keyword` to provide `keyword arguments`_ (also known as named parameters) in the Python binding for that routine. There are several benefits for defining default arguments in the C/C++ source code:
+It is highly recommended that developers make use of `default parameters`_ for routines when possible. Default arguments in a C++ routine are wrapped by ``swig`` given the :option:`-keyword` command line option to provide `keyword arguments`_ (also known as named parameters) in the Python binding for that routine. There are several benefits for defining default arguments in the C/C++ source code:
 
 * **Readability** - Keyword arguments make code more readable, especially in example input files for users new to OpenMOC
 
@@ -311,4 +435,5 @@ SWIG provides functionality to define typedefs_ in interface files. `SWIG typede
 .. _SWIG macros: http://www.swig.org/Doc1.3/Preprocessor.html#Preprocessor_nn6
 .. _typedefs: http://en.wikipedia.org/wiki/Typedef
 .. _SWIG typedefs: http://www.swig.org/Doc1.3/SWIG.html#SWIG_nn20
-.. _SWIG interface file: http://www.swig.org/Doc2.0/SWIGDocumentation.html#Introduction_nn6
+.. _SWIG interface file: http://www.swig.org/Doc2.0/SWIGDocumentation.html#SWIG_nn47
+.. _C/C++ extension module: http://docs.python.org/2/extending/extending.html
