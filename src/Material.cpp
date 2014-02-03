@@ -448,7 +448,7 @@ void Material::setSigmaT(double* xs, int num_groups) {
  */
 void Material::setSigmaTByGroup(double xs, int group) {
 
-    if (group < 0 || group >= _num_groups)
+    if (group <= 0 || group > _num_groups)
         log_printf(ERROR, "Unable to set sigma_t for group %d for material "
                 "%d which contains %d energy groups", group, _uid, _num_groups);
 
@@ -485,7 +485,7 @@ void Material::setSigmaA(double* xs, int num_groups) {
  */
 void Material::setSigmaAByGroup(double xs, int group) {
 
-    if (group < 0 || group >= _num_groups)
+    if (group <= 0 || group > _num_groups)
         log_printf(ERROR, "Unable to set sigma_a for group %d for material "
                 "%d which contains %d energy groups", group, _uid, _num_groups);
 
@@ -528,7 +528,7 @@ void Material::setSigmaS(double* xs, int num_groups_squared) {
  */
 void Material::setSigmaSByGroup(double xs, int group1, int group2) {
 
-    if (group1 < 0 || group2 < 0 || group1 >= _num_groups || group2 >= _num_groups)
+    if (group1 <= 0 || group2 <= 0 || group1 > _num_groups || group2 > _num_groups)
       log_printf(ERROR, "Unable to set sigma_s for group %d,%d for material "
                  "%d which contains %d energy groups", group1, group2, _uid,
                  _num_groups);
@@ -572,7 +572,7 @@ void Material::setSigmaF(double* xs, int num_groups) {
  */
 void Material::setSigmaFByGroup(double xs, int group) {
 
-    if (group < 0 || group >= _num_groups)
+    if (group <= 0 || group > _num_groups)
       log_printf(ERROR, "Unable to set sigma_f for group %d for material "
                 "%d which contains %d energy groups", group, _uid, _num_groups);
 
@@ -616,7 +616,7 @@ void Material::setNuSigmaF(double* xs, int num_groups) {
  */
 void Material::setNuSigmaFByGroup(double xs, int group) {
 
-    if (group < 0 || group >= _num_groups)
+    if (group <= 0 || group > _num_groups)
       log_printf(ERROR, "Unable to set nu_sigma_f for group %d for material "
                  "%d which contains %d energy groups", group, _uid);
 
@@ -649,7 +649,7 @@ void Material::setChi(double* xs, int num_groups) {
  */
 void Material::setChiByGroup(double xs, int group) {
 
-    if (group < 0 || group >= _num_groups)
+    if (group <= 0 || group > _num_groups)
         log_printf(ERROR, "Unable to set chi for group %d for material "
 		   "%d which contains %d energy groups", 
 		   group, _num_groups, _uid);
@@ -686,7 +686,7 @@ void Material::setDifCoef(double* xs, int num_groups) {
  */
 void Material::setDifCoefByGroup(double xs, int group) {
 
-    if (group < 0 || group >= _num_groups)
+    if (group <= 0 || group > _num_groups)
         log_printf(ERROR, "Unable to set diffusion coefficient for group %d"
         		" for material %d which contains %d energy groups",
 		   group, _num_groups, _uid);
@@ -729,7 +729,7 @@ void Material::setBuckling(double* xs, int num_groups) {
  */
 void Material::setBucklingByGroup(double xs, int group) {
 
-    if (group < 0 || group >= _num_groups)
+    if (group <= 0 || group > _num_groups)
         log_printf(ERROR, "Unable to set diffusion coefficient for group %d"
         		" for material %d which contains %d energy groups",
 		   group, _num_groups, _uid);
@@ -771,7 +771,7 @@ void Material::setDifHat(double* xs, int num_groups) {
  */
 void Material::setDifHatByGroup(double xs, int group, int surface) {
 
-    if (group < 0 || group >= _num_groups)
+    if (group <= 0 || group > _num_groups)
         log_printf(ERROR, "Unable to set diffusion coefficient for group %d"
         		" for material %d which contains %d energy groups",
 		   group, _num_groups, _uid);
@@ -816,7 +816,7 @@ void Material::setDifTilde(double* xs, int num_groups) {
  */
 void Material::setDifTildeByGroup(double xs, int group, int surface) {
 
-    if (group < 0 || group >= _num_groups)
+    if (group <= 0 || group > _num_groups)
         log_printf(ERROR, "Unable to set diffusion coefficient correction for group %d"
         		" for material %d which contains %d energy groups",
 		   group, _num_groups, _uid);
@@ -870,7 +870,7 @@ void Material::checkSigmaT() {
             log_printf(ERROR, "Material id = %d has a different total "
                        "cross-section than the sum of its scattering and "
                        "absorption cross-sections for group %d: "
-                       "sigma_t = %f, calc_sigma_t = %f", _id, i, _sigma_t[i],
+                       "sigma_t = %f, calc_sigma_t = %f", _id, i+1, _sigma_t[i],
                        calc_sigma_t);
         }
     }
