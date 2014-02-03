@@ -132,6 +132,7 @@
 <p>SWIG requires the use of <strong>interface files</strong> for input. A <a class="reference external" href="http://www.swig.org/Doc2.0/SWIGDocumentation.html#SWIG_nn47">SWIG interface file</a> is required for each <a class="reference external" href="http://docs.python.org/2/extending/extending.html">C/C++ extension module</a> generated for Python. The primary purpose for SWIG interface file(s) in OpenMOC is to expose the C/C++ source code to SWIG. This is done by including the header files which contain all of the function prototypes, class definitions, etc. for SWIG to wrap. In addition, the name of the module must be included at the top of the interface file. The following illustrates <tt class="file docutils literal"><span class="pre">saxpy.i</span></tt> interface file (<a class="reference download internal" href="../_downloads/saxpy.i"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>) for the SAXPY example.</p>
 <div class="highlight-bash"><div class="highlight"><pre>%module saxpy
 %<span class="o">{</span>
+  <span class="c">#include SWIG_FILE_WITH_INIT</span>
   <span class="c">#include &quot;saxpy.h&quot;</span>
 %<span class="o">}</span>
 
@@ -166,12 +167,11 @@
 </div>
 <div class="section" id="using-the-extension-module">
 <h3>2.1.5. Using the Extension Module<a class="headerlink" href="#using-the-extension-module" title="Permalink to this headline">¶</a></h3>
-<p>Finally, the extension module shared library can be imported into Python and used as follows:</p>
+<p>Finally, the shared library extension module can be imported into Python and used as follows:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python
 Python 2.7.3 <span class="o">(</span>default, Sep 26 2013, 16:35:25<span class="o">)</span>
 <span class="o">[</span>GCC 4.7.2<span class="o">]</span> on linux2
 Type <span class="s2">&quot;help&quot;</span>, <span class="s2">&quot;copyright&quot;</span>, <span class="s2">&quot;credits&quot;</span> or <span class="s2">&quot;license&quot;</span> <span class="k">for </span>more information.
-&gt;&gt;&gt; import _saxpy
 &gt;&gt;&gt; import _saxpy as module
 &gt;&gt;&gt; module.set_array_length<span class="o">(</span>10<span class="o">)</span>
 &gt;&gt;&gt; module.initialize_data<span class="o">()</span>
@@ -217,7 +217,7 @@ x<span class="o">[</span>9<span class="o">]</span> <span class="o">=</span> 0.60
 <div class="highlight-c"><div class="highlight"><pre><span class="cm">/* Define a function prototype with two arguments with default values */</span>
 <span class="kt">void</span> <span class="n">multiverseHelloWorld</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">greeting</span><span class="o">=</span><span class="s">&quot;Hello&quot;</span><span class="p">);</span>
 
-<span class="cm">/* Function implementation doesn&#39;t include default values */</span>
+<span class="cm">/* Function implementation doesn&#39;t include default values in C++ */</span>
 <span class="kt">void</span> <span class="nf">multiverseHelloWorld</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">greeting</span><span class="p">)</span> <span class="p">{</span>
 
   <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
@@ -226,22 +226,15 @@ x<span class="o">[</span>9<span class="o">]</span> <span class="o">=</span> 0.60
 </pre></div>
 </div>
 </div>
-<div class="section" id="exception-handling">
-<h2>2.3. Exception Handling<a class="headerlink" href="#exception-handling" title="Permalink to this headline">¶</a></h2>
-</div>
 <div class="section" id="numpy-typemaps">
-<span id="id1"></span><h2>2.4. NumPy Typemaps<a class="headerlink" href="#numpy-typemaps" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>2.3. NumPy Typemaps<a class="headerlink" href="#numpy-typemaps" title="Permalink to this headline">¶</a></h2>
 <p>It is often useful to input/return NumPy data structures to/from C/C++ routines. The <a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/c-api.html">NumPy C API</a> makes this functionality possibility through <strong>array conversions</strong>. In addition, it is possible to automatically <em>embed</em> the NumPy C API directly into the source code with the use of <a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/swig.interface-file.html">NumPy typemaps</a>. Typemaps are a mechanism to match <strong>function signatures</strong> through a list of of function arguments. When SWIG finds a function which matches the typemap, it will target and subsequently modify the function to include the NumPy C API in order to input/output NumPy data arrays. Two types of parameters must be specified in the C/C++ function(s) of interest in order to match a NumPy typemap:</p>
 <ul class="simple">
 <li><strong>Array Pointer</strong> - The data type and pointer to the array</li>
 <li><strong>Array Dimensions</strong> - An integer for each array dimension</li>
 </ul>
-<p>The <tt class="file docutils literal"><span class="pre">numpy.i</span></tt> interface file defines the typemaps and is shipped with OpenMOC in the <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc</span></tt> directory. In order to utilize NumPy typemaps, the following should be appended to the SWIG interface file used for the C/C++ extension module of interest:</p>
+<p>The <tt class="file docutils literal"><span class="pre">numpy.i</span></tt> interface file (<a class="reference download internal" href="../_downloads/numpy.i"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>) defines the typemaps and is shipped with OpenMOC in the <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc</span></tt> directory. In order to utilize NumPy typemaps, the following should be appended to the SWIG interface file used for the C/C++ extension module of interest:</p>
 <div class="highlight-bash"><div class="highlight"><pre>%include <span class="s2">&quot;numpy.i&quot;</span>
-
-%<span class="o">{</span>
-  <span class="c">#define SWIG_FILE_WITH_INIT</span>
-%<span class="o">}</span>
 
 %init %<span class="o">{</span>
   import_array<span class="o">()</span>;
@@ -250,15 +243,19 @@ x<span class="o">[</span>9<span class="o">]</span> <span class="o">=</span> 0.60
 </div>
 <p>The following sections overview the basic steps to utilize NumPy typemaps to input NumPy data from Python into C/C++ routines, and return data from C/C++ routines as NumPy arrays.</p>
 <div class="section" id="input-numpy-data-arrays">
-<h3>2.4.1. Input NumPy Data Arrays<a class="headerlink" href="#input-numpy-data-arrays" title="Permalink to this headline">¶</a></h3>
+<h3>2.3.1. Input NumPy Data Arrays<a class="headerlink" href="#input-numpy-data-arrays" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="file docutils literal"><span class="pre">numpy.i</span></tt> interface file provides two particular typemaps for inputting a NumPy data array into a C/C++ routine. The <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">IN_ARRAY*</span></tt> defines an array which is passed into a routine but is not modified in-place by the C/C++ function and is not returned to the user. The <span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">INPLACE_ARRAY*</span></tt> typemap defines arrays that are modified in-place. In each case, the <span class="target" id="index-2"></span><tt class="xref std std-envvar docutils literal"><span class="pre">*</span></tt> represents the number of dimensions for the input array. For example, in order to input a 3D array to be modified in-place, one would use the <span class="target" id="index-3"></span><tt class="xref std std-envvar docutils literal"><span class="pre">INPLACE_ARRAY3</span></tt> typemap. The array dimension(s) are included in each typemap through the use of the <span class="target" id="index-4"></span><tt class="xref std std-envvar docutils literal"><span class="pre">DIM*</span></tt> parameter.</p>
-<p>The following is an example C/C++ in which which we wish to wrap some function <tt class="docutils literal"><span class="pre">sum_array(...)</span></tt> with SWIG and provide the capability to input a NumPy array as a function parameter. Note that the function prototype includes a first paramter for the pointer to the input double array and a second parameter for the length of the array (which together form the function signature). The function prototype is given below in the <tt class="file docutils literal"><span class="pre">sum_array.h</span></tt> file below:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* Define function prototype to take in a NumPy array */</span>
+<p>The following is an example C/C++ in which which we wish to wrap some function <tt class="docutils literal"><span class="pre">sum_array(...)</span></tt> with SWIG and provide the capability to input a NumPy array as a function parameter. Note that the function prototype includes a first paramter for the pointer to the input double array and a second parameter for the length of the array (which together form the function signature). The function prototype is given below in the <tt class="file docutils literal"><span class="pre">sum_array.h</span></tt> file below file (<a class="reference download internal" href="../_downloads/sum_array.h"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>):</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* File sum_array.h */</span>
+
+<span class="cm">/* Define function prototype to take in a NumPy array */</span>
 <span class="kt">double</span> <span class="n">sum_array</span><span class="p">(</span><span class="kt">double</span><span class="o">*</span> <span class="n">input_array</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>One possible implementation of the <tt class="docutils literal"><span class="pre">sum_array(...)</span></tt> routine is given in the <tt class="file docutils literal"><span class="pre">sum_array.c</span></tt> file below:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* Define function implementation */</span>
+<p>One possible implementation of the <tt class="docutils literal"><span class="pre">sum_array(...)</span></tt> routine is given in the <tt class="file docutils literal"><span class="pre">sum_array.cpp</span></tt> file below (<a class="reference download internal" href="../_downloads/sum_array.cpp"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>):</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* File sum_array.cpp */</span>
+
+<span class="cm">/* Define function implementation */</span>
 <span class="kt">double</span> <span class="nf">sum_array</span><span class="p">(</span><span class="kt">double</span><span class="o">*</span> <span class="n">input_array</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span> <span class="p">{</span>
 
   <span class="cm">/* Initialize sum */</span>
@@ -272,7 +269,7 @@ x<span class="o">[</span>9<span class="o">]</span> <span class="o">=</span> 0.60
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The following would be the required SWIG interface file to wrap <tt class="file docutils literal"><span class="pre">sum_array.h</span></tt> into the <tt class="docutils literal"><span class="pre">_sum_array</span></tt> C/C++ extension module for Python. The second-to-last line defines the NumPy typemap - the first tuple is a pair of the typemap (array type and dimension) while the second is the function signature to match using that typemap.</p>
+<p>The following would be the required SWIG interface file <tt class="file docutils literal"><span class="pre">sum_array.i</span></tt> (<a class="reference download internal" href="../_downloads/sum_array.i"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>) to wrap <tt class="file docutils literal"><span class="pre">sum_array.h</span></tt> into the <tt class="docutils literal"><span class="pre">_sum_array</span></tt> C/C++ extension module for Python. The second-to-last line defines the NumPy typemap - the first tuple is a pair of the typemap (array type and dimension) while the second is the function signature to match using that typemap.</p>
 <div class="highlight-bash"><div class="highlight"><pre>%module sum_array
 
 %<span class="o">{</span>
@@ -280,26 +277,37 @@ x<span class="o">[</span>9<span class="o">]</span> <span class="o">=</span> 0.60
   <span class="c">#include &quot;sum_array.h&quot;</span>
 %<span class="o">}</span>
 
+/* Include the NumPy typemaps library */
 %include <span class="s2">&quot;numpy.i&quot;</span>
 
 %init %<span class="o">{</span>
   import_array<span class="o">()</span>;
 %<span class="o">}</span>
 
+/* Typemap <span class="k">for </span>the sum_list<span class="o">(</span>double* input_array, int length<span class="o">)</span> C/C++ routine */
 %apply <span class="o">(</span>double* IN_ARRAY1, int DIM1<span class="o">)</span> <span class="o">{(</span>double* input_array, int length<span class="o">)}</span>;
 
 %include <span class="s2">&quot;sum_array.h&quot;</span>
 </pre></div>
 </div>
-<p>After <tt class="docutils literal"><span class="pre">swig</span></tt> is used to generate the wrap file and it is compiled into the <tt class="file docutils literal"><span class="pre">_sum_array.so</span></tt> shared library, the module may be imported into Python and the routine used with a NumPy array as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">rand</span>
-<span class="kn">from</span> <span class="nn">_sum_array</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="c"># Initialize a random NumPy array</span>
-<span class="n">input_array</span> <span class="o">=</span> <span class="n">rand</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-
-<span class="c"># Sum the values in the random NumPy array</span>
-<span class="nb">sum</span> <span class="o">=</span> <span class="n">sum_array</span><span class="p">(</span><span class="n">input_array</span><span class="p">)</span>
+<p>The source code can be wrapped and compiled in similar fashion to that shown before using the following commands from the console:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>swig -python -c++ -o sum_array_wrap.cpp sum_array.i
+<span class="nv">$ </span>gcc -c sum_array.cpp -o sum_array.o -fpic -std<span class="o">=</span>c++0x
+<span class="nv">$ </span>gcc -I/usr/include/python2.7 -c sum_array_wrap.cpp -o sum_array.o -fpic -std<span class="o">=</span>c++0x
+<span class="nv">$ </span>g++ sum_array_wrap.o sum_array.o -o _sum_array.so -shared -Wl,-soname,_sum_array.so
+</pre></div>
+</div>
+<p>Finally, the shared library extension module may be imported into Python and the routine used with a NumPy array as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python
+Python 2.7.3 <span class="o">(</span>default, Sep 26 2013, 16:35:25<span class="o">)</span>
+<span class="o">[</span>GCC 4.7.2<span class="o">]</span> on linux2
+Type <span class="s2">&quot;help&quot;</span>, <span class="s2">&quot;copyright&quot;</span>, <span class="s2">&quot;credits&quot;</span> or <span class="s2">&quot;license&quot;</span> <span class="k">for </span>more information.
+&gt;&gt;&gt; from numpy.random import rand
+&gt;&gt;&gt; from _sum_array import *
+&gt;&gt;&gt; <span class="nv">input_array</span> <span class="o">=</span> rand<span class="o">(</span>5<span class="o">)</span>
+&gt;&gt;&gt; <span class="nv">sum</span> <span class="o">=</span> sum_array<span class="o">(</span>input_array<span class="o">)</span>
+&gt;&gt;&gt; print <span class="s1">&#39;The sum of the array is %d&#39;</span> % <span class="o">(</span>sum<span class="o">)</span>
+The sum of the array is 2
 </pre></div>
 </div>
 <div class="admonition note">
@@ -308,29 +316,33 @@ x<span class="o">[</span>9<span class="o">]</span> <span class="o">=</span> 0.60
 </div>
 </div>
 <div class="section" id="return-numpy-data-arrays">
-<h3>2.4.2. Return NumPy Data Arrays<a class="headerlink" href="#return-numpy-data-arrays" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="file docutils literal"><span class="pre">numpy.i</span></tt> interface file also provides two typemaps for returning a NumPy data array from a C/C++ routine. The <span class="target" id="index-7"></span><tt class="xref std std-envvar docutils literal"><span class="pre">ARGOUT_ARRAY*</span></tt> used in situations where you would allocate an array on the heap and call the function to fill the array values. In Python, the arrays are allocated for you and returned as new array objects. As was the case for array input, the <span class="target" id="index-8"></span><tt class="xref std std-envvar docutils literal"><span class="pre">*</span></tt> represents the number of dimensions for the input array. For example, in order to input a 3D array to be modified in-place, one would use the <span class="target" id="index-9"></span><tt class="xref std std-envvar docutils literal"><span class="pre">ARGOUT_ARRAY3</span></tt> typemap. The array dimension(s) are included in each typemap through the use of the <span class="target" id="index-10"></span><tt class="xref std std-envvar docutils literal"><span class="pre">DIM*</span></tt> parameter.</p>
+<h3>2.3.2. Return NumPy Data Arrays<a class="headerlink" href="#return-numpy-data-arrays" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="file docutils literal"><span class="pre">numpy.i</span></tt> interface file (<a class="reference download internal" href="../_downloads/numpy.i"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>) also provides two typemaps for returning a NumPy data array from a C/C++ routine. The <span class="target" id="index-7"></span><tt class="xref std std-envvar docutils literal"><span class="pre">ARGOUT_ARRAY*</span></tt> used in situations where you would allocate an array on the heap and call the function to fill the array values. In Python, the arrays are allocated for you and returned as new array objects. As was the case for array input, the <span class="target" id="index-8"></span><tt class="xref std std-envvar docutils literal"><span class="pre">*</span></tt> represents the number of dimensions for the input array. For example, in order to input a 3D array to be modified in-place, one would use the <span class="target" id="index-9"></span><tt class="xref std std-envvar docutils literal"><span class="pre">ARGOUT_ARRAY3</span></tt> typemap. The array dimension(s) are included in each typemap through the use of the <span class="target" id="index-10"></span><tt class="xref std std-envvar docutils literal"><span class="pre">DIM*</span></tt> parameter.</p>
 <p>The following is an example C/C++ in which which we wish to wrap some function <tt class="docutils literal"><span class="pre">get_rand_array(...)</span></tt> with SWIG and provide the capability to convert a C/C++ array into an output NumPy array. Based on the function signature, it would appear that the output array is input into the function and nothing is returned. Instead, SWIG will modify the source code with the NumPy C API such that a NumPy array is initialized and input as a C/C++ array and subsequently returned as a NumPy array.</p>
-<p>The function prototype is given below in the <tt class="file docutils literal"><span class="pre">get_rand_array.h</span></tt> file below:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include &lt;stdlib.h&gt;</span>
+<p>The function prototype is given below in the <tt class="file docutils literal"><span class="pre">get_rand_array.h</span></tt> file below (<a class="reference download internal" href="../_downloads/get_rand_array.h"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>):</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* File get_rand_array.h */</span>
+<span class="cp">#include &lt;stdlib.h&gt;</span>
 
 <span class="cm">/* Define function prototype to take in a NumPy array */</span>
 <span class="kt">void</span> <span class="n">get_rand_array</span><span class="p">(</span><span class="kt">double</span><span class="o">*</span> <span class="n">output_array</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>One possible implementation of the <tt class="docutils literal"><span class="pre">get_rand_array(...)</span></tt> routine is given in the <tt class="file docutils literal"><span class="pre">get_rand_array.c</span></tt> file below:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* Define function implementation */</span>
+<p>One possible implementation of the <tt class="docutils literal"><span class="pre">get_rand_array(...)</span></tt> routine is given in the <tt class="file docutils literal"><span class="pre">get_rand_array.c</span></tt> file below (<a class="reference download internal" href="../_downloads/get_rand_array.cpp"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>):</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* File get_rand_array.cpp */</span>
+<span class="cp">#include &quot;get_rand_array.h&quot;</span>
+
+<span class="cm">/* Define function implementation */</span>
 <span class="kt">double</span> <span class="nf">get_rand_array</span><span class="p">(</span><span class="kt">double</span><span class="o">*</span> <span class="n">output_array</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span> <span class="p">{</span>
 
   <span class="cm">/* Populate input NumPy array with random numbers */</span>
   <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
-    <span class="n">output_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rand</span><span class="p">();</span>
+    <span class="n">output_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="kt">float</span><span class="p">)</span> <span class="n">rand</span><span class="p">())</span> <span class="o">/</span> <span class="n">RAND_MAX</span><span class="p">;</span>
 
   <span class="k">return</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The following would be the required SWIG interface file to wrap <tt class="file docutils literal"><span class="pre">get_rand_array.h</span></tt> into the <tt class="docutils literal"><span class="pre">_get_rand_array</span></tt> C/C++ extension module for Python. The second-to-last line defines the NumPy typemap - the first tuple is a pair of the typemap (array type and dimension) while the second is the function signature to match using that typemap.</p>
+<p>The following would be the required SWIG interface file <tt class="file docutils literal"><span class="pre">get_rand_array.i</span></tt> (<a class="reference download internal" href="../_downloads/get_rand_array.i"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>) to wrap <tt class="file docutils literal"><span class="pre">get_rand_array.h</span></tt> into the <tt class="docutils literal"><span class="pre">_get_rand_array</span></tt> C/C++ extension module for Python. The second-to-last line defines the NumPy typemap - the first tuple is a pair of the typemap (array type and dimension) while the second is the function signature to match using that typemap.</p>
 <div class="highlight-bash"><div class="highlight"><pre>%module get_rand_array
 
 %<span class="o">{</span>
@@ -338,24 +350,38 @@ x<span class="o">[</span>9<span class="o">]</span> <span class="o">=</span> 0.60
   <span class="c">#include &quot;get_rand_array.h&quot;</span>
 %<span class="o">}</span>
 
+/* Include the NumPy typemaps library */
 %include <span class="s2">&quot;numpy.i&quot;</span>
 
 %init %<span class="o">{</span>
   import_array<span class="o">()</span>;
 %<span class="o">}</span>
 
+/* Typemap <span class="k">for </span>the get_rand_array<span class="o">(</span>double* output_array, int length<span class="o">)</span> C/C++ routine */
 %apply <span class="o">(</span>double* ARGOUT_ARRAY1, int DIM1<span class="o">)</span> <span class="o">{(</span>double* output_array, int length<span class="o">)}</span>;
 
 %include <span class="s2">&quot;get_rand_array.h&quot;</span>
 </pre></div>
 </div>
-<p>After <tt class="docutils literal"><span class="pre">swig</span></tt> is used to generate a wrap file and it is compiled into the <tt class="file docutils literal"><span class="pre">_get_rand_array.so</span></tt> shared library, the module may be imported into Python and the routine used as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">rand</span>
-<span class="kn">from</span> <span class="nn">_get_rand_array</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="c"># Sum the values in the random NumPy array</span>
-<span class="n">length</span> <span class="o">=</span> <span class="mi">100</span>
-<span class="n">output_array</span> <span class="o">=</span> <span class="n">get_rand_array</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+<p>The source code can be wrapped and compiled in similar fashion to that shown before using the following commands from the console:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>swig -python -c++ -o get_rand_array_wrap.cpp get_rand_array.i
+<span class="nv">$ </span>gcc -c get_rand_array.cpp -o get_rand_array.o -fpic -std<span class="o">=</span>c++0x
+<span class="nv">$ </span>gcc -I/usr/include/python2.7 -c get_rand_array_wrap.cpp -o get_rand_array.o -fpic -std<span class="o">=</span>c++0x
+<span class="nv">$ </span>g++ get_rand_array_wrap.o get_rand_array.o -o _get_rand_array.so -shared -Wl,-soname,_get_rand_array.so
+</pre></div>
+</div>
+<p>Finally, the shared library extension module may be imported into Python and the routine used with a NumPy array as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python
+Python 2.7.3 <span class="o">(</span>default, Sep 26 2013, 16:35:25<span class="o">)</span>
+<span class="o">[</span>GCC 4.7.2<span class="o">]</span> on linux2
+Type <span class="s2">&quot;help&quot;</span>, <span class="s2">&quot;copyright&quot;</span>, <span class="s2">&quot;credits&quot;</span> or <span class="s2">&quot;license&quot;</span> <span class="k">for </span>more information.
+&gt;&gt;&gt; from _get_rand_array import *
+&gt;&gt;&gt; <span class="nv">output_array</span> <span class="o">=</span> get_rand_array<span class="o">(</span>10<span class="o">)</span>
+&gt;&gt;&gt; print output_array
+<span class="o">[</span> 0.84018773  0.39438292  0.78309923  0.79844004  0.91164738  0.19755137
+  0.33522275  0.7682296   0.27777472  0.55396998<span class="o">]</span>
+&gt;&gt;&gt; <span class="nb">type</span><span class="o">(</span>output_array<span class="o">)</span>
+&lt;<span class="nb">type</span> <span class="s1">&#39;numpy.ndarray&#39;</span>&gt;
 </pre></div>
 </div>
 <div class="admonition note">
@@ -365,12 +391,122 @@ x<span class="o">[</span>9<span class="o">]</span> <span class="o">=</span> 0.60
 </div>
 </div>
 <div class="section" id="swig-typemaps">
-<h2>2.5. SWIG Typemaps<a class="headerlink" href="#swig-typemaps" title="Permalink to this headline">¶</a></h2>
-<p><tt class="file docutils literal"><span class="pre">typemaps.i</span></tt> which is included in the standard SWIG installation.
-<a class="reference internal" href="../usersguide/install.html#cmdoption--no-numpy"><em class="xref std std-option">--no-numpy</em></a> flag for machines where NumPy is not available.</p>
+<h2>2.4. SWIG Typemaps<a class="headerlink" href="#swig-typemaps" title="Permalink to this headline">¶</a></h2>
+<p>On some machines - such as some leadership class supercomputing clusters - NumPy may not be available. As a result it may be preferable to input/output data from Python using standard Python data structures (<em>e.g.</em>, lists, tuples). SWIG provides it&#8217;s own library of typemaps for this purpose in the <tt class="file docutils literal"><span class="pre">typemaps.i</span></tt> file which is included in the standard SWIG installation.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For machines without NumPy, OpenMOC provides the <a class="reference internal" href="../usersguide/install.html#cmdoption--no-numpy"><em class="xref std std-option">--no-numpy</em></a> build option. This option will not embed the NumPy C API into the code.</p>
+</div>
+<p>In order to utilize <a class="reference external" href="http://www.swig.org/Doc1.3/Typemaps.html">SWIG typemaps</a>, the following include should be appended to the SWIG interface file used for the C/C++ extension module of interest:</p>
+<div class="highlight-bash"><div class="highlight"><pre>%include <span class="s2">&quot;typemaps.i&quot;</span>
+</pre></div>
+</div>
+<p>The following sections overview the basic steps to utilize SWIG typemaps to input data from Python lists into C/C++ routines, and return data from C/C++ routines as Python lists.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The reader is encouraged to reference the online documentation for <a class="reference external" href="http://www.swig.org/Doc1.3/Typemaps.html">SWIG typemaps</a> for more in-depth information and examples.</p>
+</div>
+<div class="section" id="input-python-lists">
+<h3>2.4.1. Input Python Lists<a class="headerlink" href="#input-python-lists" title="Permalink to this headline">¶</a></h3>
+<p>This section introduces the SWIG typemaps for inputting Python lists into C/C++ routines with a simple example. The example uses SWIG to wrap a C/C++ file to create a routine which takes in a list of floating point data and prints it to the console.</p>
+<p>The following is the C++ header file <tt class="file docutils literal"><span class="pre">sum_list.h</span></tt> for the example code (<a class="reference download internal" href="../_downloads/sum_list.h"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>).</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* File sum_list.h */</span>
+<span class="cp">#include &lt;stdio.h&gt;</span>
+
+<span class="cm">/* Define function prototype */</span>
+<span class="kt">double</span> <span class="n">sum_list</span><span class="p">(</span><span class="kt">double</span><span class="o">*</span> <span class="n">input_list</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The corresponding function implementation for this example is given in the C++ source file <tt class="file docutils literal"><span class="pre">sum_list.cpp</span></tt> below (<a class="reference download internal" href="../_downloads/sum_list.cpp"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>).</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* File sum_list.cpp */</span>
+<span class="cp">#include &quot;sum_list.h&quot;</span>
+
+<span class="kt">double</span> <span class="nf">sum_list</span><span class="p">(</span><span class="kt">double</span><span class="o">*</span> <span class="n">input_list</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="cm">/* Initialize sum */</span>
+  <span class="kt">double</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">;</span>
+
+  <span class="cm">/* Compute sum of array elements */</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="n">sum</span> <span class="o">+=</span> <span class="n">input_list</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+  <span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The following would be the required SWIG interface file <tt class="file docutils literal"><span class="pre">sum_list.i</span></tt> (<a class="reference download internal" href="../_downloads/sum_list.i"><tt class="xref download docutils literal"><span class="pre">download</span></tt></a>) to wrap <tt class="file docutils literal"><span class="pre">sum_list.h</span></tt> into the <tt class="docutils literal"><span class="pre">_sum_list</span></tt> C/C++ extension module for Python. Writing an interface file using <a class="reference external" href="http://www.swig.org/Doc1.3/Typemaps.html">SWIG typemaps</a> is more involved than it is for NumPy typemaps and requires some familiarity with the <a class="reference external" href="http://docs.python.org/2/c-api/">Python/C API</a>.</p>
+<div class="highlight-bash"><div class="highlight"><pre>%module sum_list
+%<span class="o">{</span>
+  <span class="c">#define SWIG_FILE_WITH_INIT</span>
+  <span class="c">#include &quot;sum_list.h&quot;</span>
+%<span class="o">}</span>
+
+/* Include the SWIG typemaps library */
+%include typemaps.i
+
+/* Typemap the sum_list<span class="o">(</span>double* input_list, int length<span class="o">)</span> C/C++ routine */
+%typemap<span class="o">(</span>in<span class="o">)</span> <span class="o">(</span>double* input_list, int length<span class="o">)</span> <span class="o">{</span>
+
+  /* Check that the input is a Python list data structure */
+  <span class="k">if</span> <span class="o">(</span>!PyList_Check<span class="o">(</span><span class="nv">$input</span><span class="o">))</span> <span class="o">{</span>
+    PyErr_SetString<span class="o">(</span>PyExc_ValueError,<span class="s2">&quot;Expected a Python list of values\n&quot;</span><span class="o">)</span>;
+    <span class="k">return </span>NULL;
+  <span class="o">}</span>
+
+  /* Set the second parameter to the length of the Python list input */
+  <span class="nv">$2</span> <span class="o">=</span> PySequence_Length<span class="o">(</span><span class="nv">$input</span><span class="o">)</span>;
+
+  /* Allocate memory to convert the list into a C/C++ array */
+  <span class="nv">$1</span> <span class="o">=</span> <span class="o">(</span>double*<span class="o">)</span> malloc<span class="o">(</span><span class="nv">$2</span> * sizeof<span class="o">(</span>double<span class="o">))</span>;
+
+  /* Loop over the values in the list */
+  <span class="k">for</span> <span class="o">(</span>int <span class="nv">i</span> <span class="o">=</span> 0; i &lt; <span class="nv">$2</span>; i++<span class="o">)</span> <span class="o">{</span>
+
+    /* Extract the value from the list at this location */
+    PyObject *o <span class="o">=</span> PySequence_GetItem<span class="o">(</span><span class="nv">$input</span>,i<span class="o">)</span>;
+
+    /* If the value is a number, cast it as an int and <span class="nb">set </span>the
+     * input array value */
+    <span class="k">if</span> <span class="o">(</span>PyNumber_Check<span class="o">(</span>o<span class="o">))</span> <span class="o">{</span>
+      <span class="nv">$1</span><span class="o">[</span>i<span class="o">]</span> <span class="o">=</span> <span class="o">(</span>double<span class="o">)</span> PyFloat_AsDouble<span class="o">(</span>o<span class="o">)</span>;
+    <span class="o">}</span>
+    <span class="k">else</span> <span class="o">{</span>
+      free<span class="o">(</span><span class="nv">$1</span><span class="o">)</span>;
+      PyErr_SetString<span class="o">(</span>PyExc_ValueError,<span class="s2">&quot;Expected a list of numbers\n&quot;</span><span class="o">)</span>;
+      <span class="k">return </span>NULL;
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+%include <span class="s2">&quot;sum_list.h&quot;</span>
+</pre></div>
+</div>
+<p>The source code can be wrapped and compiled in similar fashion to that shown before using the following commands from the console:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>swig -python -c++ -o sum_list_wrap.cpp sum_list.i
+<span class="nv">$ </span>gcc -c sum_list.cpp -o sum_list.o -fpic -std<span class="o">=</span>c++0x
+<span class="nv">$ </span>gcc -I/usr/include/python2.7 -c sum_list_wrap.cpp -o sum_list_wrap.o -fpic -std<span class="o">=</span>c++0x
+<span class="nv">$ </span>g++ sum_list_wrap.o sum_list.o -o _sum_list.so -shared -Wl,-soname,_sum_list.so
+</pre></div>
+</div>
+<p>Finally, the shared library extension module can be imported into Python and used as follows:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python
+Python 2.7.3 <span class="o">(</span>default, Sep 26 2013, 16:35:25<span class="o">)</span>
+<span class="o">[</span>GCC 4.7.2<span class="o">]</span> on linux2
+Type <span class="s2">&quot;help&quot;</span>, <span class="s2">&quot;copyright&quot;</span>, <span class="s2">&quot;credits&quot;</span> or <span class="s2">&quot;license&quot;</span> <span class="k">for </span>more information.
+&gt;&gt;&gt; from _sum_list import *
+&gt;&gt;&gt; <span class="nv">input_list</span> <span class="o">=</span> <span class="o">[</span>2.,4.,8.,16.,32.<span class="o">]</span>
+&gt;&gt;&gt; <span class="nv">sum</span> <span class="o">=</span> sum_list<span class="o">(</span>input_list<span class="o">)</span>
+&gt;&gt;&gt; print <span class="s1">&#39;The sum of the array is %d&#39;</span> % <span class="o">(</span>sum<span class="o">)</span>
+The sum of the array is 62
+</pre></div>
+</div>
+</div>
+<div class="section" id="return-python-lists">
+<h3>2.4.2. Return Python Lists<a class="headerlink" href="#return-python-lists" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 <div class="section" id="macros">
-<h2>2.6. Macros<a class="headerlink" href="#macros" title="Permalink to this headline">¶</a></h2>
+<h2>2.5. Macros<a class="headerlink" href="#macros" title="Permalink to this headline">¶</a></h2>
 <p>SWIG provides <a class="reference external" href="http://en.wikipedia.org/wiki/C_preprocessor">preprocessing</a> capabilities for interface files. <a class="reference external" href="http://www.swig.org/Doc1.3/Preprocessor.html#Preprocessor_nn5">Macro expansions</a> may be defined in the interface file using the traditional syntax for C/C++:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cp">#ifndef PI</span>
 <span class="cp">#define PI 3.14159</span>
@@ -380,7 +516,7 @@ x<span class="o">[</span>9<span class="o">]</span> <span class="o">=</span> 0.60
 <p>SWIG also includes special <a class="reference external" href="http://www.swig.org/Doc1.3/Preprocessor.html#Preprocessor_nn6">SWIG macros</a> with more enhanced capabilities for interface files.</p>
 </div>
 <div class="section" id="typedefs">
-<h2>2.7. Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h2>
+<h2>2.6. Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h2>
 <p>SWIG provides functionality to define <a class="reference external" href="http://en.wikipedia.org/wiki/Typedef">typedefs</a> in interface files. <a class="reference external" href="http://www.swig.org/Doc1.3/SWIG.html#SWIG_nn20">SWIG typedefs</a> can be defined using the same syntax as in C/C++. As discussed in the SWIG online documentation, the typedef must be defined twice in the interface file for in order for it to be propagated to the generated wrapper file:</p>
 <div class="highlight-bash"><div class="highlight"><pre>%<span class="o">{</span>
   /* Include in the generated wrapper file */
@@ -412,15 +548,18 @@ typedef unsigned int size_t;
 </ul>
 </li>
 <li><a class="reference internal" href="#default-parameters">2.2. Default Parameters</a></li>
-<li><a class="reference internal" href="#exception-handling">2.3. Exception Handling</a></li>
-<li><a class="reference internal" href="#numpy-typemaps">2.4. NumPy Typemaps</a><ul>
-<li><a class="reference internal" href="#input-numpy-data-arrays">2.4.1. Input NumPy Data Arrays</a></li>
-<li><a class="reference internal" href="#return-numpy-data-arrays">2.4.2. Return NumPy Data Arrays</a></li>
+<li><a class="reference internal" href="#numpy-typemaps">2.3. NumPy Typemaps</a><ul>
+<li><a class="reference internal" href="#input-numpy-data-arrays">2.3.1. Input NumPy Data Arrays</a></li>
+<li><a class="reference internal" href="#return-numpy-data-arrays">2.3.2. Return NumPy Data Arrays</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#swig-typemaps">2.5. SWIG Typemaps</a></li>
-<li><a class="reference internal" href="#macros">2.6. Macros</a></li>
-<li><a class="reference internal" href="#typedefs">2.7. Typedefs</a></li>
+<li><a class="reference internal" href="#swig-typemaps">2.4. SWIG Typemaps</a><ul>
+<li><a class="reference internal" href="#input-python-lists">2.4.1. Input Python Lists</a></li>
+<li><a class="reference internal" href="#return-python-lists">2.4.2. Return Python Lists</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#macros">2.5. Macros</a></li>
+<li><a class="reference internal" href="#typedefs">2.6. Typedefs</a></li>
 </ul>
 </li>
 </ul>

@@ -1,4 +1,4 @@
-/* File saxpy.c */
+/* File saxpy.cpp */
 #include "saxpy.h"
 
 /* Define global variables */

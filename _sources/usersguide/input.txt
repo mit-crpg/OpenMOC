@@ -134,7 +134,7 @@ This will result in the following output messages to be printed to the console a
 Materials Specification
 -----------------------
 
-OpenMOC uses multi-group nuclear cross-sections prepared by some upstream processing tool such as the NJOY_ GROUPR module. In OpenMOC, cross-section data is encapsulated by the ``Material`` class in the main ``openmoc`` Python module. A ``Material`` class may be instantiated in Python and cross-sections may be loaded into it using NumPy_ data arrays as illustrated by the following code snippet:
+OpenMOC uses multi-group macroscopic nuclear cross-sections, provided by the user. OpenMOC does not perform self-shielding or depletion calculations, so isotropic concentrations are not used. In OpenMOC, cross-section data is encapsulated by the ``Material`` class in the main ``openmoc`` Python module. A ``Material`` class may be instantiated in Python and cross-sections may be loaded into it using NumPy_ data arrays as illustrated by the following code snippet:
 
 .. code-block:: python
 
@@ -481,7 +481,6 @@ The following code snippet illustrates the instantiation of the ``ThreadPrivateS
 .. _pin cell: https://github.com/mit-crpg/OpenMOC/tree/master/sample-input/pin-cell
 .. _C5G7 benchmark problem: https://github.com/mit-crpg/OpenMOC/tree/master/sample-input/benchmarks/c5g7
 .. _NumPy: http://www.numpy.org/
-.. _NJOY: http://t2.lanl.gov/nis/njoy/title.html
 .. _HDF5: http://www.hdfgroup.org/HDF5/
 .. _pickle: http://docs.python.org/2/library/pickle.html
 .. _dictionary: http://docs.python.org/2/tutorial/datastructures.html#dictionaries

@@ -100,6 +100,7 @@ SWIG requires the use of **interface files** for input. A `SWIG interface file`_
  
    %module saxpy
    %{
+     #include SWIG_FILE_WITH_INIT
      #include "saxpy.h"
    %}
 
@@ -143,7 +144,7 @@ The final step is to link the object files into a shared library which will serv
 Using the Extension Module
 --------------------------
 
-Finally, the extension module shared library can be imported into Python and used as follows:
+Finally, the shared library extension module can be imported into Python and used as follows:
 
 
 .. code-block:: bash
@@ -152,7 +153,6 @@ Finally, the extension module shared library can be imported into Python and use
     Python 2.7.3 (default, Sep 26 2013, 16:35:25) 
     [GCC 4.7.2] on linux2
     Type "help", "copyright", "credits" or "license" for more information.
-    >>> import _saxpy
     >>> import _saxpy as module
     >>> module.set_array_length(10)
     >>> module.initialize_data()
@@ -205,18 +205,13 @@ Likewise, an example of how to define default values for function parameters - w
     /* Define a function prototype with two arguments with default values */
     void multiverseHelloWorld(int count=5, char* greeting="Hello");
 
-    /* Function implementation doesn't include default values */
+    /* Function implementation doesn't include default values in C++ */
     void multiverseHelloWorld(int count, char* greeting) {
 
       for (int i=0; i < count; i++)
         printf("%s from World %d!", greeting, i)
     }
 
-
-
-------------------
-Exception Handling
-------------------
 
 .. _numpy_typemaps:
 
@@ -229,15 +224,11 @@ It is often useful to input/return NumPy data structures to/from C/C++ routines.
 * **Array Pointer** - The data type and pointer to the array
 * **Array Dimensions** - An integer for each array dimension
 
-The :file:`numpy.i` interface file defines the typemaps and is shipped with OpenMOC in the :file:`/OpenMOC/openmoc` directory. In order to utilize NumPy typemaps, the following should be appended to the SWIG interface file used for the C/C++ extension module of interest:
+The :file:`numpy.i` interface file (:download:`download <../../img/numpy.i>`) defines the typemaps and is shipped with OpenMOC in the :file:`/OpenMOC/openmoc` directory. In order to utilize NumPy typemaps, the following should be appended to the SWIG interface file used for the C/C++ extension module of interest:
 
 .. code-block:: bash
 
     %include "numpy.i"
-
-    %{
-      #define SWIG_FILE_WITH_INIT
-    %}
 
     %init %{
       import_array();
@@ -251,16 +242,20 @@ Input NumPy Data Arrays
 
 The :file:`numpy.i` interface file provides two particular typemaps for inputting a NumPy data array into a C/C++ routine. The :envvar:`IN_ARRAY*` defines an array which is passed into a routine but is not modified in-place by the C/C++ function and is not returned to the user. The :envvar:`INPLACE_ARRAY*` typemap defines arrays that are modified in-place. In each case, the :envvar:`*` represents the number of dimensions for the input array. For example, in order to input a 3D array to be modified in-place, one would use the :envvar:`INPLACE_ARRAY3` typemap. The array dimension(s) are included in each typemap through the use of the :envvar:`DIM*` parameter. 
 
-The following is an example C/C++ in which which we wish to wrap some function ``sum_array(...)`` with SWIG and provide the capability to input a NumPy array as a function parameter. Note that the function prototype includes a first paramter for the pointer to the input double array and a second parameter for the length of the array (which together form the function signature). The function prototype is given below in the :file:`sum_array.h` file below:
+The following is an example C/C++ in which which we wish to wrap some function ``sum_array(...)`` with SWIG and provide the capability to input a NumPy array as a function parameter. Note that the function prototype includes a first paramter for the pointer to the input double array and a second parameter for the length of the array (which together form the function signature). The function prototype is given below in the :file:`sum_array.h` file below file (:download:`download <../../img/sum_array.h>`):
 
 .. code-block:: c
+
+    /* File sum_array.h */
 
     /* Define function prototype to take in a NumPy array */
     double sum_array(double* input_array, int length);
 
-One possible implementation of the ``sum_array(...)`` routine is given in the :file:`sum_array.c` file below:
+One possible implementation of the ``sum_array(...)`` routine is given in the :file:`sum_array.cpp` file below (:download:`download <../../img/sum_array.cpp>`):
 
 .. code-block:: c
+
+    /* File sum_array.cpp */
 
     /* Define function implementation */
     double sum_array(double* input_array, int length) {
@@ -275,7 +270,7 @@ One possible implementation of the ``sum_array(...)`` routine is given in the :f
       return sum;
     }
 
-The following would be the required SWIG interface file to wrap :file:`sum_array.h` into the ``_sum_array`` C/C++ extension module for Python. The second-to-last line defines the NumPy typemap - the first tuple is a pair of the typemap (array type and dimension) while the second is the function signature to match using that typemap.
+The following would be the required SWIG interface file :file:`sum_array.i` (:download:`download <../../img/sum_array.i>`) to wrap :file:`sum_array.h` into the ``_sum_array`` C/C++ extension module for Python. The second-to-last line defines the NumPy typemap - the first tuple is a pair of the typemap (array type and dimension) while the second is the function signature to match using that typemap.
 
 .. code-block:: bash
 
@@ -286,28 +281,41 @@ The following would be the required SWIG interface file to wrap :file:`sum_array
       #include "sum_array.h"
     %}
 
+    /* Include the NumPy typemaps library */
     %include "numpy.i"
 
     %init %{
       import_array();
     %}
 
+    /* Typemap for the sum_list(double* input_array, int length) C/C++ routine */
     %apply (double* IN_ARRAY1, int DIM1) {(double* input_array, int length)};
 
     %include "sum_array.h"
 
-After ``swig`` is used to generate the wrap file and it is compiled into the :file:`_sum_array.so` shared library, the module may be imported into Python and the routine used with a NumPy array as follows:
+The source code can be wrapped and compiled in similar fashion to that shown before using the following commands from the console:
 
-.. code-block:: python
+.. code-block:: bash
 
-    from numpy.random import rand 
-    from _sum_array import *
+    $ swig -python -c++ -o sum_array_wrap.cpp sum_array.i
+    $ gcc -c sum_array.cpp -o sum_array.o -fpic -std=c++0x
+    $ gcc -I/usr/include/python2.7 -c sum_array_wrap.cpp -o sum_array.o -fpic -std=c++0x
+    $ g++ sum_array_wrap.o sum_array.o -o _sum_array.so -shared -Wl,-soname,_sum_array.so
 
-    # Initialize a random NumPy array
-    input_array = rand(5)
+Finally, the shared library extension module may be imported into Python and the routine used with a NumPy array as follows:
 
-    # Sum the values in the random NumPy array
-    sum = sum_array(input_array)
+.. code-block:: bash
+
+    $ python
+    Python 2.7.3 (default, Sep 26 2013, 16:35:25)
+    [GCC 4.7.2] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> from numpy.random import rand
+    >>> from _sum_array import *
+    >>> input_array = rand(5)
+    >>> sum = sum_array(input_array)
+    >>> print 'The sum of the array is %d' % (sum)
+    The sum of the array is 2
 
 .. note:: More detailed information on :envvar:`IN_ARRAY` and :envvar:`INPLACE_ARRAY` typemaps is provided in the official `NumPy.i`_ documetation.
 
@@ -315,34 +323,38 @@ After ``swig`` is used to generate the wrap file and it is compiled into the :fi
 Return NumPy Data Arrays
 ------------------------
 
-The :file:`numpy.i` interface file also provides two typemaps for returning a NumPy data array from a C/C++ routine. The :envvar:`ARGOUT_ARRAY*` used in situations where you would allocate an array on the heap and call the function to fill the array values. In Python, the arrays are allocated for you and returned as new array objects. As was the case for array input, the :envvar:`*` represents the number of dimensions for the input array. For example, in order to input a 3D array to be modified in-place, one would use the :envvar:`ARGOUT_ARRAY3` typemap. The array dimension(s) are included in each typemap through the use of the :envvar:`DIM*` parameter. 
+The :file:`numpy.i` interface file (:download:`download <../../img/numpy.i>`) also provides two typemaps for returning a NumPy data array from a C/C++ routine. The :envvar:`ARGOUT_ARRAY*` used in situations where you would allocate an array on the heap and call the function to fill the array values. In Python, the arrays are allocated for you and returned as new array objects. As was the case for array input, the :envvar:`*` represents the number of dimensions for the input array. For example, in order to input a 3D array to be modified in-place, one would use the :envvar:`ARGOUT_ARRAY3` typemap. The array dimension(s) are included in each typemap through the use of the :envvar:`DIM*` parameter. 
 
 The following is an example C/C++ in which which we wish to wrap some function ``get_rand_array(...)`` with SWIG and provide the capability to convert a C/C++ array into an output NumPy array. Based on the function signature, it would appear that the output array is input into the function and nothing is returned. Instead, SWIG will modify the source code with the NumPy C API such that a NumPy array is initialized and input as a C/C++ array and subsequently returned as a NumPy array.
 
-The function prototype is given below in the :file:`get_rand_array.h` file below:
+The function prototype is given below in the :file:`get_rand_array.h` file below (:download:`download <../../img/get_rand_array.h>`):
 
 .. code-block:: c
 
+    /* File get_rand_array.h */
     #include <stdlib.h>
 
     /* Define function prototype to take in a NumPy array */
     void get_rand_array(double* output_array, int length);
 
-One possible implementation of the ``get_rand_array(...)`` routine is given in the :file:`get_rand_array.c` file below:
+One possible implementation of the ``get_rand_array(...)`` routine is given in the :file:`get_rand_array.c` file below (:download:`download <../../img/get_rand_array.cpp>`):
 
 .. code-block:: c
+
+    /* File get_rand_array.cpp */
+    #include "get_rand_array.h"
 
     /* Define function implementation */
     double get_rand_array(double* output_array, int length) {
 
       /* Populate input NumPy array with random numbers */
       for (int i=0; i < length; i++)
-        output_array[i] = rand();
+        output_array[i] = ((float) rand()) / RAND_MAX;
 
       return;
     }
 
-The following would be the required SWIG interface file to wrap :file:`get_rand_array.h` into the ``_get_rand_array`` C/C++ extension module for Python. The second-to-last line defines the NumPy typemap - the first tuple is a pair of the typemap (array type and dimension) while the second is the function signature to match using that typemap.
+The following would be the required SWIG interface file :file:`get_rand_array.i` (:download:`download <../../img/get_rand_array.i>`) to wrap :file:`get_rand_array.h` into the ``_get_rand_array`` C/C++ extension module for Python. The second-to-last line defines the NumPy typemap - the first tuple is a pair of the typemap (array type and dimension) while the second is the function signature to match using that typemap.
 
 .. code-block:: bash
 
@@ -353,26 +365,43 @@ The following would be the required SWIG interface file to wrap :file:`get_rand_
       #include "get_rand_array.h"
     %}
 
+    /* Include the NumPy typemaps library */
     %include "numpy.i"
 
     %init %{
       import_array();
     %}
 
+    /* Typemap for the get_rand_array(double* output_array, int length) C/C++ routine */
     %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* output_array, int length)};
 
     %include "get_rand_array.h"
 
-After ``swig`` is used to generate a wrap file and it is compiled into the :file:`_get_rand_array.so` shared library, the module may be imported into Python and the routine used as follows:
+The source code can be wrapped and compiled in similar fashion to that shown before using the following commands from the console:
 
-.. code-block:: python
+.. code-block:: bash
 
-    from numpy.random import rand 
-    from _get_rand_array import *
+    $ swig -python -c++ -o get_rand_array_wrap.cpp get_rand_array.i
+    $ gcc -c get_rand_array.cpp -o get_rand_array.o -fpic -std=c++0x
+    $ gcc -I/usr/include/python2.7 -c get_rand_array_wrap.cpp -o get_rand_array.o -fpic -std=c++0x
+    $ g++ get_rand_array_wrap.o get_rand_array.o -o _get_rand_array.so -shared -Wl,-soname,_get_rand_array.so
 
-    # Sum the values in the random NumPy array
-    length = 100
-    output_array = get_rand_array(length)
+Finally, the shared library extension module may be imported into Python and the routine used with a NumPy array as follows:
+
+.. code-block:: bash
+
+    $ python
+    Python 2.7.3 (default, Sep 26 2013, 16:35:25) 
+    [GCC 4.7.2] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> from _get_rand_array import *
+    >>> output_array = get_rand_array(10)
+    >>> print output_array
+    [ 0.84018773  0.39438292  0.78309923  0.79844004  0.91164738  0.19755137
+      0.33522275  0.7682296   0.27777472  0.55396998]
+    >>> type(output_array)
+    <type 'numpy.ndarray'>
+
 
 .. note:: More detailed information on the :envvar:`ARGOUT_ARRAY` typemap is provided in the official `NumPy.i`_ documetation.
 
@@ -381,8 +410,134 @@ After ``swig`` is used to generate a wrap file and it is compiled into the :file
 SWIG Typemaps
 -------------
 
-:file:`typemaps.i` which is included in the standard SWIG installation.
-:option:`--no-numpy` flag for machines where NumPy is not available.
+On some machines - such as some leadership class supercomputing clusters - NumPy may not be available. As a result it may be preferable to input/output data from Python using standard Python data structures (*e.g.*, lists, tuples). SWIG provides it's own library of typemaps for this purpose in the :file:`typemaps.i` file which is included in the standard SWIG installation.
+
+.. note:: For machines without NumPy, OpenMOC provides the :option:`--no-numpy` build option. This option will not embed the NumPy C API into the code.
+
+In order to utilize `SWIG typemaps`_, the following include should be appended to the SWIG interface file used for the C/C++ extension module of interest:
+
+.. code-block:: bash
+
+    %include "typemaps.i"
+
+
+The following sections overview the basic steps to utilize SWIG typemaps to input data from Python lists into C/C++ routines, and return data from C/C++ routines as Python lists.
+
+.. note:: The reader is encouraged to reference the online documentation for `SWIG typemaps`_ for more in-depth information and examples.
+
+
+
+Input Python Lists
+------------------
+
+This section introduces the SWIG typemaps for inputting Python lists into C/C++ routines with a simple example. The example uses SWIG to wrap a C/C++ file to create a routine which takes in a list of floating point data and prints it to the console.
+
+The following is the C++ header file :file:`sum_list.h` for the example code (:download:`download <../../img/sum_list.h>`). 
+
+.. code-block:: c
+
+    /* File sum_list.h */
+    #include <stdio.h>
+
+    /* Define function prototype */
+    double sum_list(double* input_list, int length);
+
+The corresponding function implementation for this example is given in the C++ source file :file:`sum_list.cpp` below (:download:`download <../../img/sum_list.cpp>`).
+
+.. code-block:: c
+
+    /* File sum_list.cpp */
+    #include "sum_list.h"
+    
+    double sum_list(double* input_list, int length) {
+    
+      /* Initialize sum */
+      double sum = 0.;
+
+      /* Compute sum of array elements */
+      for (int i=0; i < length; i++)
+        sum += input_list[i];
+
+      return sum;
+    }
+
+
+The following would be the required SWIG interface file :file:`sum_list.i` (:download:`download <../../img/sum_list.i>`) to wrap :file:`sum_list.h` into the ``_sum_list`` C/C++ extension module for Python. Writing an interface file using `SWIG typemaps`_ is more involved than it is for NumPy typemaps and requires some familiarity with the `Python/C API`_.
+
+.. code-block:: bash
+
+    %module sum_list
+    %{
+      #define SWIG_FILE_WITH_INIT
+      #include "sum_list.h"
+    %}
+
+    /* Include the SWIG typemaps library */
+    %include typemaps.i
+
+    /* Typemap the sum_list(double* input_list, int length) C/C++ routine */
+    %typemap(in) (double* input_list, int length) {
+
+      /* Check that the input is a Python list data structure */
+      if (!PyList_Check($input)) {
+        PyErr_SetString(PyExc_ValueError,"Expected a Python list of values\n");
+        return NULL;
+      }
+
+      /* Set the second parameter to the length of the Python list input */
+      $2 = PySequence_Length($input);
+
+      /* Allocate memory to convert the list into a C/C++ array */
+      $1 = (double*) malloc($2 * sizeof(double));
+
+      /* Loop over the values in the list */
+      for (int i = 0; i < $2; i++) {
+    
+        /* Extract the value from the list at this location */
+        PyObject *o = PySequence_GetItem($input,i);
+
+        /* If the value is a number, cast it as an int and set the
+         * input array value */
+        if (PyNumber_Check(o)) {
+          $1[i] = (double) PyFloat_AsDouble(o);
+        }
+        else {
+          free($1);
+          PyErr_SetString(PyExc_ValueError,"Expected a list of numbers\n");
+          return NULL;
+        }
+      }
+    }
+
+    %include "sum_list.h"
+
+
+The source code can be wrapped and compiled in similar fashion to that shown before using the following commands from the console:
+
+.. code-block:: bash
+
+    $ swig -python -c++ -o sum_list_wrap.cpp sum_list.i
+    $ gcc -c sum_list.cpp -o sum_list.o -fpic -std=c++0x
+    $ gcc -I/usr/include/python2.7 -c sum_list_wrap.cpp -o sum_list_wrap.o -fpic -std=c++0x
+    $ g++ sum_list_wrap.o sum_list.o -o _sum_list.so -shared -Wl,-soname,_sum_list.so
+
+Finally, the shared library extension module can be imported into Python and used as follows:
+
+.. code-block:: bash
+
+    $ python
+    Python 2.7.3 (default, Sep 26 2013, 16:35:25) 
+    [GCC 4.7.2] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> from _sum_list import *
+    >>> input_list = [2.,4.,8.,16.,32.]
+    >>> sum = sum_list(input_list)
+    >>> print 'The sum of the array is %d' % (sum)
+    The sum of the array is 62
+
+
+Return Python Lists
+-------------------
 
 
 ------
@@ -418,7 +573,6 @@ SWIG provides functionality to define typedefs_ in interface files. `SWIG typede
 
 
 
-
 .. _SWIG Project: http://www.swig.org/
 .. _NumPy typemaps: http://docs.scipy.org/doc/numpy/reference/swig.interface-file.html
 .. _Numpy.i: http://docs.scipy.org/doc/numpy/reference/swig.interface-file.html
@@ -437,3 +591,5 @@ SWIG provides functionality to define typedefs_ in interface files. `SWIG typede
 .. _SWIG typedefs: http://www.swig.org/Doc1.3/SWIG.html#SWIG_nn20
 .. _SWIG interface file: http://www.swig.org/Doc2.0/SWIGDocumentation.html#SWIG_nn47
 .. _C/C++ extension module: http://docs.python.org/2/extending/extending.html
+.. _SWIG exception handling: http://www.swig.org/Doc1.1/HTML/Exceptions.html
+.. _Python/C API: http://docs.python.org/2/c-api/
