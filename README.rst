@@ -5,18 +5,18 @@ OpenMOC Neutral Particle Transport Code
 Welcome to the OpenMOC repository! OpenMOC is a simulation tool for 
 solving for the flux, power distribution, and multiplication factor 
 within a nuclear reactor. The code employs the deterministic method 
-of characteristics using fixed source iteration. The OpenMOC project 
-project aims to provide a simple-to-use Python package bound to a 
-back-end of source code written in C/C++ and CUDA. It includes support 
-for constructive solid geometry and 2D ray tracing for fully 
-heterogeneous multi-group calculations. Development of OpenMOC began 
-at MIT in 2012 and is spearheaded by several graduate students in the 
+of characteristics using source iteration. The OpenMOC project aims 
+to provide a simple-to-use Python package bound to a back-end of source 
+code written in C/C++ and CUDA. It includes support for constructive 
+solid geometry and 2D ray tracing for fully heterogeneous multi-group 
+calculations. Development of OpenMOC began at MIT in 2012 and is 
+spearheaded by several graduate students in the 
 `Nuclear Science & Engineering Department`_.
 
 Complete documentation on the usage of OpenMOC is hosted at 
-https://mit-crpg.github.io/OpenMOC/. If you plan to use OpenMOC 
-frequently and would like to contribute to the project, please 
-`contact`_ the development team.
+https://mit-crpg.github.io/OpenMOC/. If you would like to 
+contribute to the OpenMOC project, please `contact`_ the 
+development team.
 
 ------------
 Installation
