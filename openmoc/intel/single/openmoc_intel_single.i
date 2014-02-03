@@ -79,9 +79,10 @@
 
 %include typemaps.i
 
-%apply (double* IN_ARRAY1, int DIM1) {(double* xs, int num_groups)}
 
-
+/* Typemap for the Material::set_____XS(double* xs, int num_groups)
+ * method - allows users to pass in a Python list of cross-sections
+ * for each energy group */
 %typemap(in) (double* xs, int num_groups) {
 
     if (!PyList_Check($input)) {
@@ -107,7 +108,42 @@
 	else {
 	  free($1);
 	  PyErr_SetString(PyExc_ValueError,"Expected a list of numbers "
-			  "as universe IDs when constructing lattice cells\n");
+			  "for cross-section values\n");
+	  return NULL;
+	}
+    }
+}
+
+
+/* Typemap for the Material::set_____XS(float* xs, int num_groups)
+ * method - allows users to pass in a Python list of cross-sections
+ * for each energy group */
+%typemap(in) (float* xs, int num_groups) {
+
+    if (!PyList_Check($input)) {
+        PyErr_SetString(PyExc_ValueError,"Expected a Python list of values "
+			"for the cross-section array");
+	return NULL;
+    }
+
+    $2 = PySequence_Length($input);  // num_groups
+    $1 = (float*) malloc($2 * sizeof(float));  // cross-section array
+
+    /* Loop over x */
+    for (int i = 0; i < $2; i++) {
+
+	/* Extract the value from the list at this location */
+	PyObject *o = PySequence_GetItem($input,i);
+
+	/* If the value is a number, cast it as an int and set the
+	 * input array value */
+	if (PyNumber_Check(o)) {
+	    $1[i] = (float) PyFloat_AsFloat(o);
+	} 
+	else {
+	  free($1);
+	  PyErr_SetString(PyExc_ValueError,"Expected a list of numbers "
+			  "for cross-section values\n");
 	  return NULL;
 	}
     }
