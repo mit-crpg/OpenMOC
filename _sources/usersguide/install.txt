@@ -139,7 +139,7 @@ Compiles all :cpp:class:`Solver` derived classes with PAPI_ instrumentation for 
 
 .. option:: --with-ccache
 
-Compiles using ccache_ which uses a cache to speedup compilation of unchanged source files with the binaries from previous compilations. This flag is only relevant for developers needing to frequently recompile the source code. The ccache program must be installed for this flag to work. The following console command will install ccache on Ubuntu::
+Compiles using ccache_ which uses a cache to speedup compilation of unchanged source files with the binaries from previous compilations. This flag is only relevant for developers needing to frequently recompile the source code. The ccache p]rogram must be installed for this flag to work. The following console command will install ccache on Ubuntu::
 
     sudo apt-get install ccache
 
