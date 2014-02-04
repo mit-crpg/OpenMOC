@@ -17,3 +17,5 @@ essential aspects of using OpenMOC to perform neutron transport reactor physics 
     processing
     running
     troubleshoot
+    mac_prerequisites
+    ubuntu_prerequisites
