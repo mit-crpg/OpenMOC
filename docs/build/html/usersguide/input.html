@@ -1,0 +1,608 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>3. Writing Python Input Files &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="User’s Guide" href="index.html" />
+    <link rel="next" title="4. Data Processing and Visualization" href="processing.html" />
+    <link rel="prev" title="2. Installation and Configuration" href="install.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="processing.html" title="4. Data Processing and Visualization"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="2. Installation and Configuration"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="writing-python-input-files">
+<span id="usersguide-input"></span><h1>3. Writing Python Input Files<a class="headerlink" href="#writing-python-input-files" title="Permalink to this headline">¶</a></h1>
+<p>OpenMOC is provided to users as a Python API. As a result, there are not strict constraints on how an input file is written for an OpenMOC simulation as there are in many other scientific simulation codes. Instead, users may write a Python script or program and import OpenMOC and simply use the classes or routines which are necessary for a particular simulation. The <tt class="file docutils literal"><span class="pre">OpenMOC/sample-input/</span></tt> directory in the OpenMOC folder includes many example scripts for simulations ranging in complexity from a simple <a class="reference external" href="https://github.com/mit-crpg/OpenMOC/tree/master/sample-input/pin-cell">pin cell</a> to the <a class="reference external" href="https://github.com/mit-crpg/OpenMOC/tree/master/sample-input/benchmarks/c5g7">C5G7 benchmark problem</a>.</p>
+<p>The following sections describe the essential portions of the OpenMOC API needed for reactor eigenvalue calculations. For more detail on the full extent of OpenMOC capabilities, users should reference the <a class="reference internal" href="../api/index.html#api"><em>OpenMOC API documentation</em></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is highly suggested that users acquire a basic understanding of Python before developing OpenMOC simulations. For users familiar with basic programming constructs such as loops and conditionals, the official <a class="reference external" href="http://docs.python.org/2/tutorial/">Python Tutorial</a> is an excellent place to learn Python basics. For users new to programming, the <a class="reference external" href="http://www.codecademy.com/tracks/python">Code Academy Python Course</a> provides an introduction to both programming essentials and the Python language.</p>
+</div>
+<div class="section" id="simulation-parameters">
+<h2>3.1. Simulation Parameters<a class="headerlink" href="#simulation-parameters" title="Permalink to this headline">¶</a></h2>
+<p>The full power of Python is available to users designing OpenMOC simulations. As a result, simulation parameters may easily be defined and redefined in a Python script for one or more simulations at a user&#8217;s discretion. However, some simulation parameters are best defined at runtime, including the number of azimuthal angles, track spacing, number of threads, etc.</p>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.options</span></tt> module provides functionality to parse arguments defined on the command line at runtime. The full list of options available in OpenMOC are itemized and described in <a class="reference internal" href="running.html#runtime-options"><em>Runtime Options</em></a>. The following code snippet illutrates how to instantiate an <tt class="docutils literal"><span class="pre">Options</span></tt> object and extract data from command line arguments.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.options</span> <span class="kn">as</span> <span class="nn">opt</span>
+
+<span class="c"># Instantiate and Options object</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">Options</span><span class="p">()</span>
+
+<span class="c"># Retrieve runtime options parsed in by the Options object</span>
+<span class="n">num_threads</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">num_omp_threads</span>
+<span class="n">track_spacing</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">track_spacing</span>
+<span class="n">num_azim</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">num_azim</span>
+<span class="n">tolerance</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">tolerance</span>
+<span class="n">max_iters</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">max_iters</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="simulation-logfiles">
+<h2>3.2. Simulation Logfiles<a class="headerlink" href="#simulation-logfiles" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.log</span></tt> module provides routines for printing output to the console as well as to logfiles. Output is reported in real-time to the console as well as stored in a persistent logfile. By default, the logfile name encapsulates a timestamp for the simulation starting time and is stored in the <tt class="docutils literal"><span class="pre">/OpenMOC/log</span></tt> directory (e.g. <tt class="file docutils literal"><span class="pre">OpenMOC/log/openmoc-MM-DD-YYYY--HH:MM:SS.log</span></tt>).</p>
+<p>The OpenMOC logging module uses <strong>verbosity throttling</strong> which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a <strong>log level</strong>, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and logfile. The log levels available in OpenMOC are presented in <a class="reference internal" href="#table-log-levels"><em>Table 1</em></a>.</p>
+<table border="1" class="docutils" id="table-log-levels">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Log Level</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">DEBUG</span></tt></td>
+<td>A debugging message</td>
+</tr>
+<tr class="row-odd"><td><span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">INFO</span></tt></td>
+<td>An informational but verbose message</td>
+</tr>
+<tr class="row-even"><td><span class="target" id="index-2"></span><tt class="xref std std-envvar docutils literal"><span class="pre">NORMAL</span></tt></td>
+<td>A brief progress update on run progress</td>
+</tr>
+<tr class="row-odd"><td><span class="target" id="index-3"></span><tt class="xref std std-envvar docutils literal"><span class="pre">SEPARATOR</span></tt></td>
+<td>A message of a single line of characters</td>
+</tr>
+<tr class="row-even"><td><span class="target" id="index-4"></span><tt class="xref std std-envvar docutils literal"><span class="pre">HEADER</span></tt></td>
+<td>A message centered within a single line of characters</td>
+</tr>
+<tr class="row-odd"><td><span class="target" id="index-5"></span><tt class="xref std std-envvar docutils literal"><span class="pre">TITLE</span></tt></td>
+<td>A message sandwiched between two lines of characters</td>
+</tr>
+<tr class="row-even"><td><span class="target" id="index-6"></span><tt class="xref std std-envvar docutils literal"><span class="pre">WARNING</span></tt></td>
+<td>A message to warn the user</td>
+</tr>
+<tr class="row-odd"><td><span class="target" id="index-7"></span><tt class="xref std std-envvar docutils literal"><span class="pre">CRITICAL</span></tt></td>
+<td>A message to warn of critical program conditions</td>
+</tr>
+<tr class="row-even"><td><span class="target" id="index-8"></span><tt class="xref std std-envvar docutils literal"><span class="pre">RESULT</span></tt></td>
+<td>A message containing program results</td>
+</tr>
+<tr class="row-odd"><td><span class="target" id="index-9"></span><tt class="xref std std-envvar docutils literal"><span class="pre">UNITTEST</span></tt></td>
+<td>A message for unit testing</td>
+</tr>
+<tr class="row-even"><td><span class="target" id="index-10"></span><tt class="xref std std-envvar docutils literal"><span class="pre">ERROR</span></tt></td>
+<td>A message reporting error conditions</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 1</strong>: Log levels in OpenMOC in order of increasing precedence.</p>
+<p>Informative messages using the logging module are embedded into both the C/C++ and Python source code in OpenMOC. In addition, code users may add their own messages to the output stream in Python input files. The API documentation provides a detailed accounting of the routines available in the <a class="reference external" href="https://mit-crpg.github.io/OpenMOC/api/log.html">logging module</a>.</p>
+<p>The following code snippet illustrates how to import the logging module into Python, set the lowest log level set to <span class="target" id="index-11"></span><tt class="xref std std-envvar docutils literal"><span class="pre">DEBUG</span></tt>, and print messages for each level to the screen.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.log</span> <span class="kn">as</span> <span class="nn">log</span>
+
+<span class="c"># Set the lowest acceptable log level to DEBUG mode</span>
+<span class="n">log</span><span class="o">.</span><span class="n">setLogLevel</span><span class="p">(</span><span class="s">&#39;DEBUG&#39;</span><span class="p">)</span>
+
+<span class="c"># Print some exaple messages to the console and logfile</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;DEBUG&#39;</span><span class="p">,</span> <span class="s">&#39;This is a DEBUG message&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;INFO&#39;</span><span class="p">,</span> <span class="s">&#39;This is an INFO message&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;NORMAL&#39;</span><span class="p">,</span> <span class="s">&#39;This is a NORMAL message&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;SEPARATOR&#39;</span><span class="p">,</span> <span class="s">&#39;This is a SEPARATOR message&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;HEADER&#39;</span><span class="p">,</span> <span class="s">&#39;This is a HEADER message&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;TITLE&#39;</span><span class="p">,</span> <span class="s">&#39;This is a TITLE message&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;WARNING&#39;</span><span class="p">,</span> <span class="s">&#39;This is a WARNING message&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;CRITICAL&#39;</span><span class="p">,</span> <span class="s">&#39;This is a CRITICAL message&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;UNITTEST&#39;</span><span class="p">,</span> <span class="s">&#39;This is a UNITTEST message&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;ERROR&#39;</span><span class="p">,</span> <span class="s">&#39;This is an ERROR message)</span>
+</pre></div>
+</div>
+<p>And the following is the output displayed to the console and recorded in the logfile:</p>
+<div class="highlight-python"><pre>[  DEBUG  ]  This is a DEBUG message
+[  INFO   ]  This is an INFO message
+[  NORMAL ]  This is a NORMAL message
+[SEPARATOR]  *******************************************************************
+[  HEADER ]  *******************  This is a HEADER message  ********************
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]                        This is a TITLE message
+[  TITLE  ]  *******************************************************************
+[ WARNING ]  This is a WARNING message
+[ CRITICAL]  This is a CRITICAL message
+[ UNITTEST]  This is a UNITTEST message
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+  File "openmoc/log.py", line 59, in py_printf
+    openmoc.log_printf(openmoc.ERROR, my_str % args)
+RuntimeError: This is an ERROR message</pre>
+</div>
+<p>It should be noted that the <tt class="docutils literal"><span class="pre">py_printf(...)</span></tt> routine in the logging module is based on the <a class="reference external" href="http://www.cplusplus.com/reference/cstdio/printf/">printf</a> routine in C/C++ and accepts a variable number of arguments. In particular, this is intended to accept <a class="reference external" href="http://www.cplusplus.com/reference/cstdio/printf/">formatted data</a> to embed formatted integers, floats, strings, etc. in the output message. An example of this feature in use is given below:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.log</span> <span class="kn">as</span> <span class="nn">log</span>
+
+<span class="c"># Set the lowest acceptable log level to NORMAL mode</span>
+<span class="n">log</span><span class="o">.</span><span class="n">setLogLevel</span><span class="p">(</span><span class="s">&#39;NORMAL&#39;</span><span class="p">)</span>
+
+<span class="c"># Initialize some string, integer and float variables</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;Will Boyd&#39;</span>
+<span class="n">age</span> <span class="o">=</span> <span class="mi">26</span>
+<span class="n">pi</span> <span class="o">=</span> <span class="mf">3.141593</span>
+
+<span class="c"># Print example messages using formatted output arguments</span>
+<span class="c"># to the console and logfile</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;NORMAL&#39;</span><span class="p">,</span> <span class="s">&#39;Hello World! My name is </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;NORMAL&#39;</span><span class="p">,</span> <span class="s">&#39;I am </span><span class="si">%d</span><span class="s"> years old. My favorite # is </span><span class="si">%f</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">age</span><span class="p">,</span> <span class="n">pi</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will result in the following output messages to be printed to the console and stored to the logfile:</p>
+<div class="highlight-python"><pre>[  NORMAL ]  Hello World! My name is Will Boyd
+[  NORMAL ]  I am 26 years old. My favorite # is 3.141593</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">By default, the logging module will split log messages into multiple lines of 80 characters or less each. Users may alternatively set a custom maximum line length for log messages may at runtime using the <tt class="docutils literal"><span class="pre">setLineLength(...)</span></tt> routine.</p>
+</div>
+</div>
+<div class="section" id="materials-specification">
+<h2>3.3. Materials Specification<a class="headerlink" href="#materials-specification" title="Permalink to this headline">¶</a></h2>
+<p>OpenMOC uses multi-group macroscopic nuclear cross-sections, provided by the user. OpenMOC does not perform self-shielding or depletion calculations, so isotropic concentrations are not used. In OpenMOC, cross-section data is encapsulated by the <tt class="docutils literal"><span class="pre">Material</span></tt> class in the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> Python module. A <tt class="docutils literal"><span class="pre">Material</span></tt> class may be instantiated in Python and cross-sections may be loaded into it using <a class="reference external" href="http://www.numpy.org/">NumPy</a> data arrays as illustrated by the following code snippet:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="c"># Initialize material cross-sections using NumPy data arrays</span>
+<span class="n">num_groups</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">sigma_a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.45</span><span class="p">,</span><span class="mf">0.5</span><span class="p">])</span>
+<span class="n">sigma_f</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">])</span>
+<span class="o">...</span>
+
+<span class="c"># Instantiate an OpenMOC Material class object with an</span>
+<span class="c"># automatically-generated unique ID</span>
+<span class="n">material</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Material</span><span class="p">(</span><span class="n">openmoc</span><span class="o">.</span><span class="n">material_id</span><span class="p">())</span>
+
+<span class="c"># Set the number of energy groups in the material</span>
+<span class="n">material</span><span class="o">.</span><span class="n">setNumEnergyGroups</span><span class="p">(</span><span class="n">num_groups</span><span class="p">)</span>
+
+<span class="c"># Load the cross-section data into the material</span>
+<span class="n">material</span><span class="o">.</span><span class="n">setSigmaA</span><span class="p">(</span><span class="n">sigma_a</span><span class="p">)</span>
+<span class="n">material</span><span class="o">.</span><span class="n">setSigmaT</span><span class="p">(</span><span class="n">sigma_f</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>For many simulations, defining the nuclear data cross-sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module for importing nuclear data cross-sections from an <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> or a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> binary file. The <tt class="docutils literal"><span class="pre">materialize(...)</span></tt> routine is used to import data and instantiate <tt class="docutils literal"><span class="pre">Material</span></tt> objects returned via a Python <a class="reference external" href="http://docs.python.org/2/tutorial/datastructures.html#dictionaries">dictionary</a>. The use of the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module to import HDF5 and pickle binary files is illusrated in the following snippet:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc</span>
+<span class="kn">import</span> <span class="nn">openmoc.materialize</span> <span class="kn">as</span> <span class="nn">mat</span>
+
+<span class="c"># Import cross-section data from an HDF5 file. This instantiates</span>
+<span class="c"># objects for each material and returns them in a dictionary</span>
+<span class="c"># indexed by a name string defined in the pickle file.</span>
+<span class="n">hdf5_materials</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">materialize</span><span class="p">(</span><span class="s">&#39;materials-data.h5&#39;</span><span class="p">)</span>
+
+<span class="c"># Retrieve the material called &#39;moderator&#39; in the HDF5 file</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">hdf5_materials</span><span class="p">[</span><span class="s">&#39;moderator&#39;</span><span class="p">]</span>
+
+<span class="c"># Import cross-section data from a pickle file. This instantiates</span>
+<span class="c"># objects for each material and returns them in a dictionary</span>
+<span class="c"># indexed by a name string defined in the pickle file</span>
+<span class="n">pickle_materials</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">materialize</span><span class="p">(</span><span class="s">&#39;materials-data.pkl&#39;</span><span class="p">)</span>
+
+<span class="c"># Retrieve the material called &#39;fuel&#39; in the pickle file</span>
+<span class="n">fuel</span> <span class="o">=</span> <span class="n">pickle_materials</span><span class="p">[</span><span class="s">&#39;fuel&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module defines a standard for cross-section data stored in binary files. First, each HDF5 file must end with the &#8216;.h5&#8217; or &#8216;.hdf5&#8217; extension. HDF5 files must include an <cite>Energy Groups</cite> attribute with the integer number of groups in the top level of the file data hierarchy. Finally, each material is defined as an <a class="reference external" href="http://www.hdfgroup.org/HDF5/doc/UG/UG_frame09Groups.html">HDF5 group</a> with a string name to identify the material. Finally, the material group must contain the following floating point <a class="reference external" href="http://www.hdfgroup.org/HDF5/doc/UG/10_Datasets.html">HDF5 datasets</a>:</p>
+<blockquote>
+<div><ul class="simple">
+<li>&#8216;Total XS&#8217;</li>
+<li>&#8216;Absorption XS&#8217;</li>
+<li>&#8216;Scattering XS&#8217;</li>
+<li>&#8216;Fission XS&#8217;</li>
+<li>&#8216;Nu Fission XS&#8217;</li>
+<li>&#8216;Chi&#8217;</li>
+</ul>
+</div></blockquote>
+<p>The following code snippet illustrates the use of the <a class="reference external" href="http://www.h5py.org/">h5py</a> Python HDF5 interface to write an HDF5 file with material cross-section data adhering to the standard expected by the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+
+<span class="c"># Create an HDF5 file to store multi-groups cross-sections</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s">&#39;materials-data.h5&#39;</span><span class="p">)</span>
+
+<span class="c"># Set the number of energy groups</span>
+<span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;Energy Groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c"># Material 1</span>
+
+<span class="c"># Create an HDF5 group for this material</span>
+<span class="n">material_group</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s">&#39;Material 1&#39;</span><span class="p">)</span>
+
+<span class="c"># Initialize cross-sections as NumPy data arrays</span>
+<span class="n">sigma_a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.45</span><span class="p">,</span><span class="mf">0.5</span><span class="p">])</span>
+<span class="n">sigma_f</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">])</span>
+<span class="o">...</span>
+
+<span class="c"># Create datasets for each cross-section type</span>
+<span class="n">material_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s">&#39;Absorption XS&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sigma_a</span><span class="p">)</span>
+<span class="n">material_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s">&#39;Fission XS&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sigma_f</span><span class="p">)</span>
+<span class="o">...</span>
+
+<span class="c"># Material 2</span>
+<span class="o">...</span>
+
+<span class="c"># Close and save the HDF5 file</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Alternatively, for machine withouts HDF5 and/or h5py, materials data may be imported from a <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> binary file using the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module. For pickle files, the materials data should be stored as a Python <a class="reference external" href="http://docs.python.org/2/tutorial/datastructures.html#dictionaries">dictionary</a>. The dictionary must contain a key/value pair for the number of energy groups, and sub-dictionaries for each material&#8217;s cross-sections. The following code snippet illustrates how one might populate a pickle file with material cross-section data adhering to the standard expected by the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="c"># Initialize a Python dictionary to store the materials data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="c"># Set the number of energy groups</span>
+<span class="n">data</span><span class="p">[</span><span class="s">&#39;Energy Groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c"># Material 1</span>
+
+<span class="c"># Create a sub-dictoinary for this material</span>
+<span class="n">data</span><span class="p">[</span><span class="s">&#39;Material 1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<span class="c"># Initialize cross-sections as NumPy data arrays</span>
+<span class="n">sigma_a</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.45</span><span class="p">,</span><span class="mf">0.5</span><span class="p">])</span>
+<span class="n">sigma_f</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.15</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.35</span><span class="p">,</span><span class="mf">0.4</span><span class="p">])</span>
+<span class="o">...</span>
+
+<span class="c"># Create datasets for each cross-section type</span>
+<span class="n">data</span><span class="p">[</span><span class="s">&#39;Material 1&#39;</span><span class="p">][</span><span class="s">&#39;Absorption XS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_a</span>
+<span class="n">data</span><span class="p">[</span><span class="s">&#39;Material 1&#39;</span><span class="p">][</span><span class="s">&#39;Fission XS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_f</span>
+<span class="o">...</span>
+
+<span class="c"># Material 2</span>
+<span class="o">...</span>
+
+<span class="c"># Dump the Python dictionary of materials data to a pickle file</span>
+<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;materials-data.pkl&#39;</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Users must ensure that the total cross-section is equal to the absorption and scattering cross-section in each group. OpenMOC will throw a runtime error will be thrown if this condition does not hold true when materials are added to the <tt class="docutils literal"><span class="pre">Geometry</span></tt> object.</p>
+</div>
+</div>
+<div class="section" id="geometry-specification">
+<h2>3.4. Geometry Specification<a class="headerlink" href="#geometry-specification" title="Permalink to this headline">¶</a></h2>
+<p>The geometry in OpenMOC is described using constructive solid geometry (<a class="reference external" href="http://en.wikipedia.org/wiki/Constructive_solid_geometry">CSG</a>),
+also sometimes referred to as combinatorial geometry. CSG allows a user to
+create complex objects using Boolean operators on a set of simpler surfaces. In
+the geometry model, each unique closed volume is defined by its bounding
+surfaces. The CSG formulation used in OpenMOC is described in more detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#constructive-solid-geometry"><em>Constructive Solid Geometry</em></a>.</p>
+<p>The following sections detail how to create surfaces, cells, universes and lattices to construct a simple 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 pin cell lattice.</p>
+<div class="section" id="surfaces">
+<h3>3.4.1. Surfaces<a class="headerlink" href="#surfaces" title="Permalink to this headline">¶</a></h3>
+<p>In most cases, the first step towards building a reactor geometry is to create the surfaces defining boundaries between distinct regions. The CSG formulation for surfaces in OpenMOC is described in detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#surfaces-halfspaces"><em>Surfaces and Halfspaces</em></a>. For LWRs, the most typical surfaces needed to model 2D rectangular lattices are the <tt class="docutils literal"><span class="pre">Circle</span></tt>, <tt class="docutils literal"><span class="pre">XPlane</span></tt>, and <tt class="docutils literal"><span class="pre">YPlane</span></tt> classes. The following code snippet illustrates how to create a circle to represent a fuel pin and reflective boundary planes to surround a 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize circular fuel pin surface</span>
+<span class="n">circle</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)</span>
+
+<span class="c"># Initialize the planar surfaces bounding the entire geometry</span>
+<span class="n">left</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">XPlane</span><span class="p">(</span><span class="n">x</span><span class="o">=-</span><span class="mf">2.52</span><span class="p">)</span>
+<span class="n">right</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">XPlane</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">2.52</span><span class="p">)</span>
+<span class="n">bottom</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">YPlane</span><span class="p">(</span><span class="n">y</span><span class="o">=-</span><span class="mf">2.52</span><span class="p">)</span>
+<span class="n">top</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">YPlane</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">2.52</span><span class="p">)</span>
+
+<span class="c"># Set the boundary conditions for the bounding planes</span>
+<span class="n">left</span><span class="o">.</span><span class="n">setBoundaryType</span><span class="p">(</span><span class="n">REFLECTIVE</span><span class="p">)</span>
+<span class="n">right</span><span class="o">.</span><span class="n">setBoundaryType</span><span class="p">(</span><span class="n">REFLECTIVE</span><span class="p">)</span>
+<span class="n">bottom</span><span class="o">.</span><span class="n">setBoundaryType</span><span class="p">(</span><span class="n">REFLECTIVE</span><span class="p">)</span>
+<span class="n">top</span><span class="o">.</span><span class="n">setBoundaryType</span><span class="p">(</span><span class="n">REFLECTIVE</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="cells-and-universes">
+<h3>3.4.2. Cells and Universes<a class="headerlink" href="#cells-and-universes" title="Permalink to this headline">¶</a></h3>
+<p>The next step to create a geometry is to instantiate cells which represent unique geometric shapes and use them to construct universes. The CSG formulations for cells and universes in OpenMOC are discussed in further detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#cells"><em>Cells</em></a> and <a class="reference internal" href="../methods/constructive_solid_geometry.html#universes"><em>Universes</em></a>, respectively. OpenMOC provides the <tt class="docutils literal"><span class="pre">CellBasic</span></tt> class for cells which are filled by a material. The following code snippet illustrates how to create cells filled by the fuel and moderator materials in the universe with ID = 1. Next, the script adds the appropriate halfspace of the circle surface created in the preceding section to each cell.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Retrieve the IDs for the fuel and moderator materials</span>
+<span class="n">uo2_id</span> <span class="o">=</span> <span class="n">materials</span><span class="p">[</span><span class="s">&#39;Fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span>
+<span class="n">water_id</span> <span class="o">=</span> <span class="n">materials</span><span class="p">[</span><span class="s">&#39;Water&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span>
+
+<span class="c"># Initialize the cells for the fuel pin and moderator</span>
+<span class="n">fuel</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">CellBasic</span><span class="p">(</span><span class="n">universe</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">uo2_id</span><span class="p">)</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">CellBasic</span><span class="p">(</span><span class="n">universe</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">water_id</span><span class="p">)</span>
+
+<span class="c"># Add the circle surface to each cell</span>
+<span class="n">fuel</span><span class="o">.</span><span class="n">addSurface</span><span class="p">(</span><span class="n">halfspace</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">surface</span><span class="o">=</span><span class="n">circle</span><span class="p">)</span>
+<span class="n">moderator</span><span class="o">.</span><span class="n">addSurface</span><span class="p">(</span><span class="n">halfspace</span><span class="o">=+</span><span class="mi">1</span><span class="p">,</span> <span class="n">surface</span><span class="o">=</span><span class="n">circle</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In addition to cells filled with materials, OpenMOC provides the <tt class="docutils literal"><span class="pre">CellFill</span></tt> class for cells which may be filled with universes. As a result, a geometry may be constructed of a hierarchy of nested cells/universes. A hierarchichal geometry permits a simple treatment of repeating geometric structures on multiple length scales (e.g., rectangular arrays of fuel pins and fuel assemblies).</p>
+<p>OpenMOC does not place a limit on the hierarchical depth - or number of nested universe levels - that a user may define in constructing a geometry. The only limitation is that at the top of the hierarchy, a cell must be used to encapsulate the entire geometry in the universe with ID = 0. The following code snippet illustrates the creation of a <tt class="docutils literal"><span class="pre">CellFill</span></tt> which is filled by universe 10 - the lattice constructed in the next section - and which is part of universe 0. Finally, the appropriate halfspaces for the planes defined in the preceding section are added to the cell to enforce boundaries on the portion of universe 10 relevant to the geometry.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize a cell filled by the lattice universe. This cell</span>
+<span class="c"># resides within universe 0 which is designated for the top</span>
+<span class="c"># level nested universe in the geometry.</span>
+<span class="n">pin_cell_array</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">CellFill</span><span class="p">(</span><span class="n">universe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">universe_fill</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c"># Add the bounding planar surfaces to each the cell containing</span>
+<span class="c"># universe 0</span>
+<span class="n">pin_cell_array</span><span class="o">.</span><span class="n">addSurface</span><span class="p">(</span><span class="n">halfspace</span><span class="o">=+</span><span class="mi">1</span><span class="p">,</span> <span class="n">left</span><span class="p">)</span>
+<span class="n">pin_cell_array</span><span class="o">.</span><span class="n">addSurface</span><span class="p">(</span><span class="n">halfsapce</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+<span class="n">pin_cell_array</span><span class="o">.</span><span class="n">addSurface</span><span class="p">(</span><span class="n">halfspace</span><span class="o">=+</span><span class="mi">1</span><span class="p">,</span> <span class="n">bottom</span><span class="p">)</span>
+<span class="n">pin_cell_array</span><span class="o">.</span><span class="n">addSurface</span><span class="p">(</span><span class="n">halfspace</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">top</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="rings-and-sectors">
+<h3>3.4.3. Rings and Sectors<a class="headerlink" href="#rings-and-sectors" title="Permalink to this headline">¶</a></h3>
+<p>The spatial <a class="reference external" href="http://en.wikipedia.org/wiki/Discretization">discretization</a> of the geometry is a key determining factor in the accuracy of OpenMOC&#8217;s simulation results. This is especially important since OpenMOC presently uses the <a class="reference internal" href="../methods/method_of_characteristics.html#flat-source-region-approximation"><em>Flat Source Region Approximation</em></a>.  The spatial discretization is most relevant in regions where the flux gradient is greatest. In LWRs composed of circular fuel pins, the flux gradient is largely determined by the distance to the center of the nearest fuel pin and the angle formed between the center of the fuel pin and the point of interest (i.e., <a class="reference external" href="http://en.wikipedia.org/wiki/Polar_coordinate_system">polar coordinates</a>). As a result, discretization along the radial coordinate using circular <strong>rings</strong>, and along the angular coordinate using angular <strong>sectors</strong> is the most applicable way to discretize the geometry to capture the flux gradient.</p>
+<p>This type of discretization is particularly useful for codes which can make use of an <a class="reference external" href="http://en.wikipedia.org/wiki/Unstructured_grid">unstructured mesh</a>, such as OpenMOC with its general <a class="reference internal" href="../methods/constructive_solid_geometry.html#constructive-solid-geometry"><em>Constructive Solid Geometry</em></a> formulation. To subdivide circular fuel pins into rings and sectors in an LWR model would require a substantial amount of work for the user to create the necessary <tt class="docutils literal"><span class="pre">Circle</span></tt> and/or <tt class="docutils literal"><span class="pre">Plane</span></tt> objects. Since this is a commonly needed feature for many users, OpenMOC includes the ability to automatically subdivide square pin cells of circular fuel pins into equal volume rings and equally spaced angular sectors. In particular, OpenMOC uses <strong>cell cloning</strong> to create clones (or copies) of a <tt class="docutils literal"><span class="pre">CellBasic</span></tt> object and differentiates each one with <tt class="docutils literal"><span class="pre">Circle</span></tt> or <tt class="docutils literal"><span class="pre">Plane</span></tt> objects to subdivide the pin cell.</p>
+<p>The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for a fuel pin and moderator region with optional arguments for each to the <tt class="docutils literal"><span class="pre">CellBasic</span></tt> constructor.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Retrieve the IDs for the fuel and moderator materials</span>
+<span class="n">uo2_id</span> <span class="o">=</span> <span class="n">materials</span><span class="p">[</span><span class="s">&#39;Fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span>
+<span class="n">water_id</span> <span class="o">=</span> <span class="n">materials</span><span class="p">[</span><span class="s">&#39;Water&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span>
+
+<span class="c"># Initialize the cells for the fuel pin and moderator</span>
+<span class="c"># Subdivide the fuel pin into 3 rings and 8 angular sectors</span>
+<span class="c"># Subdivide the moderator region into 8 angular sectors</span>
+<span class="n">fuel</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">CellBasic</span><span class="p">(</span><span class="n">universe</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">uo2_id</span><span class="p">,</span> <span class="n">rings</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sectors</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">CellBasic</span><span class="p">(</span><span class="n">universe</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="n">water_id</span><span class="p">,</span> <span class="n">sectors</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="c"># Add the circle surface to each cell</span>
+<span class="n">fuel</span><span class="o">.</span><span class="n">addSurface</span><span class="p">(</span><span class="n">halfspace</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">surface</span><span class="o">=</span><span class="n">circle</span><span class="p">)</span>
+<span class="n">moderator</span><span class="o">.</span><span class="n">addSurface</span><span class="p">(</span><span class="n">halfspace</span><span class="o">=+</span><span class="mi">1</span><span class="p">,</span> <span class="n">surface</span><span class="o">=</span><span class="n">circle</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A pin cell without rings/sectors is illustrated on the left below, while the same pin cell with 3 equal volume rings and 8 angular sectors is displayed on the right.</p>
+<table border="1" class="docutils" id="figure-fluxes">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><img alt="../_images/pin-cell-fsrs-1.png" class="first last align-right" id="figa" src="../_images/pin-cell-fsrs-1.png" style="width: 50%;" />
+</td>
+<td><img alt="../_images/pin-cell-fsrs-2.png" class="first last align-left" id="figb" src="../_images/pin-cell-fsrs-2.png" style="width: 50%;" />
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Circular rings may <strong>only</strong> be used in <tt class="docutils literal"><span class="pre">CellBasic</span></tt> objects which form the interior of a <tt class="docutils literal"><span class="pre">Circle</span></tt> surface, such as a fuel pin.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Each subdivided region will be filled by the <strong>same material</strong> as the <tt class="docutils literal"><span class="pre">CellBasic</span></tt> object created by the user in the Python script.</p>
+</div>
+</div>
+<div class="section" id="lattices">
+<h3>3.4.4. Lattices<a class="headerlink" href="#lattices" title="Permalink to this headline">¶</a></h3>
+<p>Once the cells for the geometry have been created, OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Lattice</span></tt> class may be used to represent repeating patterns of the cells on a rectangular array. The CSG formulation for lattices is described further in <a class="reference internal" href="../methods/constructive_solid_geometry.html#lattices"><em>Lattices</em></a>. In OpenMOC, the <tt class="docutils literal"><span class="pre">Lattice</span></tt> class is a subclass of the <tt class="docutils literal"><span class="pre">Universe</span></tt> class. The following code snippet illustrates the creation of a 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice with each lattice cell filled by the universe with ID = 1. The total width and height of the lattice are defined as parameters when the lattice is initialized. The lattice dimensions are used to define the rectangular region of interest centered at the origin of each universe filling each lattice cell.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize the lattice for the geometry</span>
+<span class="n">lattice</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Lattice</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">width_x</span><span class="o">=</span><span class="mf">5.04</span><span class="p">,</span> <span class="n">width_y</span><span class="o">=</span><span class="mf">5.04</span><span class="p">)</span>
+
+<span class="c"># Assign each lattice cell a universe ID</span>
+<span class="n">lattice</span><span class="o">.</span><span class="n">setLatticeCells</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                         <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                         <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                         <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="geometry">
+<h3>3.4.5. Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h3>
+<p>The final step in creating a geometry is to instantiate OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Geometry</span></tt> class. The <tt class="docutils literal"><span class="pre">Geometry</span></tt> class encapsulates all materials, surfaces, cells, universes and lattices. The following code snippet illustrates the creation of the geometry and the registration of each material, cell and lattice constructed in the preceding sections. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize an empty geometry object</span>
+<span class="n">geometry</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">()</span>
+
+<span class="c"># Add materials to the geometry first</span>
+<span class="n">geometry</span><span class="o">.</span><span class="n">addMaterial</span><span class="p">(</span><span class="n">materials</span><span class="p">[</span><span class="s">&#39;Fuel&#39;</span><span class="p">])</span>
+<span class="n">geometry</span><span class="o">.</span><span class="n">addMaterial</span><span class="p">(</span><span class="n">materials</span><span class="p">[</span><span class="s">&#39;Water&#39;</span><span class="p">])</span>
+
+<span class="c"># Next, add all cells to the geometry</span>
+<span class="n">geometry</span><span class="o">.</span><span class="n">addCell</span><span class="p">(</span><span class="n">fuel</span><span class="p">)</span>
+<span class="n">geometry</span><span class="o">.</span><span class="n">addCell</span><span class="p">(</span><span class="n">moderator</span><span class="p">)</span>
+<span class="n">geometry</span><span class="o">.</span><span class="n">addCell</span><span class="p">(</span><span class="n">pin_cell_array</span><span class="p">)</span>
+
+<span class="c"># Next, add all lattices to the geometry</span>
+<span class="n">geometry</span><span class="o">.</span><span class="n">addLattice</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+
+<span class="c"># Next, initialize the flat source regions in the geometry after</span>
+<span class="c"># all materials, cells, and lattices have been added to it</span>
+<span class="n">geometry</span><span class="o">.</span><span class="n">initializeFlatSourceRegions</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="track-generation">
+<h2>3.5. Track Generation<a class="headerlink" href="#track-generation" title="Permalink to this headline">¶</a></h2>
+<p>Once the geometry has been initialized for a simulation, the next step is to perform ray tracing for track generation. The track generation process and algorithms in OpenMOC are described in more detail in <a class="reference internal" href="../methods/track_generation.html#track-generation"><em>Track Generation</em></a>. This step requires the instantiation of a <tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> object and a function call to generate the tracks as illustrated in the following code snippet.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize the track generator after the geometry has been</span>
+<span class="c"># constructed. Use 64 azimuthal angles and 0.05 cm track spacing.</span>
+<span class="n">track_generator</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">TrackGenerator</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">num_azim</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> \
+                                         <span class="n">spacing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+<span class="c"># Generate tracks using ray tracing across the geometry</span>
+<span class="n">track_generator</span><span class="o">.</span><span class="n">generateTracks</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="moc-source-iteration">
+<h2>3.6. MOC Source Iteration<a class="headerlink" href="#moc-source-iteration" title="Permalink to this headline">¶</a></h2>
+<p>One of OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Solver</span></tt> subclasses may be initialized given the <tt class="docutils literal"><span class="pre">Geometry</span></tt> and <tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> objects created in the preceding sections. The most commonly used subclasses for OpenMOC simulations are itemized below:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">ThreadPrivateSolver</span></tt> - multi-core CPUs, less memory efficient, excellent parallel scaling <a class="footnote-reference" href="#id3" id="id1">[1]</a></li>
+<li><tt class="docutils literal"><span class="pre">CPUSolver</span></tt> - multi-core CPUs, memory efficient, poor parallel scaling</li>
+<li><tt class="docutils literal"><span class="pre">GPUSolver</span></tt> - GPUs, 30-50 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> faster than CPUs <a class="footnote-reference" href="#id4" id="id2">[2]</a></li>
+</ul>
+</div></blockquote>
+<p>The following code snippet illustrates the instantiation of the <tt class="docutils literal"><span class="pre">ThreadPrivateSolver</span></tt> for multi-core CPUs. The code assigns runtime parameters to the solver and calls the <tt class="docutils literal"><span class="pre">convergeSource(...)</span></tt> routine to execute the <a class="reference internal" href="../methods/eigenvalue_calculations.html#figure-overall-iterative-scheme"><em>MOC Source Iteration Algorithm</em></a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize a solver for the simulation and set the number of</span>
+<span class="c"># threads and source convergence threshold</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">ThreadPrivateSolver</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">track_generator</span><span class="p">)</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">setNumThreads</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">setSourceConvergenceThreshold</span><span class="p">(</span><span class="mf">1E-5</span><span class="p">)</span>
+
+<span class="c"># Converge the source with up to a maximum of 1000 source iterations</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">convergeSource</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="c"># Print a report of the time to solution</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">printTimerReport</span><span class="p">()</span>
+</pre></div>
+</div>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>William Boyd, Kord Smith, Benoit Forget, and Andrew Siegel, &#8220;Parallel Performance Results for the OpenMOC Method of Characteristics Code on Multi-Core Platforms.&#8221; <em>Submitted to the Proceedings of PHYSOR</em>, Kyoto, Japan (2014).</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>William Boyd, Kord Smith, and Benoit Forget, &#8220;A Massively Parallel Method of Characteristic Neutral Particle Transport Code for GPUs.&#8221; <em>Proc. Int&#8217;l Conf. Math. and Comp. Methods Appl. to Nucl. Sci. and Eng.</em>, Sun Valley, ID, USA (2013).</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">3. Writing Python Input Files</a><ul>
+<li><a class="reference internal" href="#simulation-parameters">3.1. Simulation Parameters</a></li>
+<li><a class="reference internal" href="#simulation-logfiles">3.2. Simulation Logfiles</a></li>
+<li><a class="reference internal" href="#materials-specification">3.3. Materials Specification</a></li>
+<li><a class="reference internal" href="#geometry-specification">3.4. Geometry Specification</a><ul>
+<li><a class="reference internal" href="#surfaces">3.4.1. Surfaces</a></li>
+<li><a class="reference internal" href="#cells-and-universes">3.4.2. Cells and Universes</a></li>
+<li><a class="reference internal" href="#rings-and-sectors">3.4.3. Rings and Sectors</a></li>
+<li><a class="reference internal" href="#lattices">3.4.4. Lattices</a></li>
+<li><a class="reference internal" href="#geometry">3.4.5. Geometry</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#track-generation">3.5. Track Generation</a></li>
+<li><a class="reference internal" href="#moc-source-iteration">3.6. MOC Source Iteration</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">2. Installation and Configuration</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="processing.html"
+                        title="next chapter">4. Data Processing and Visualization</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/usersguide/input.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="processing.html" title="4. Data Processing and Visualization"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="2. Installation and Configuration"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

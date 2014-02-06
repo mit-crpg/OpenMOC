@@ -1,0 +1,397 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2. Method of Characteristics &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="Theory and Methodology" href="index.html" />
+    <link rel="next" title="3. Eigenvalue Calculations" href="eigenvalue_calculations.html" />
+    <link rel="prev" title="1. Introduction" href="introduction.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="eigenvalue_calculations.html" title="3. Eigenvalue Calculations"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="1. Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="method-of-characteristics">
+<span id="id1"></span><h1>2. Method of Characteristics<a class="headerlink" href="#method-of-characteristics" title="Permalink to this headline">¶</a></h1>
+<p>The method of characteristics (MOC) is a widely used technique for solving partial differential equations, including the Boltzmann form of the neutron transport equation <a class="footnote-reference" href="#id4" id="id2">[1]</a>. MOC is used to solve the transport equation in 2D by discretizing both polar and azimuthal angles and integrating the multi-group characteristic form of the equation for a particular azimuthal and polar angle quadrature. The following sections detail the derivation of the characteristic form of the 2D neutron transport equation solved in the OpenMOC method of characteristics scheme <a class="footnote-reference" href="#id5" id="id3">[2]</a>.</p>
+<p><a class="reference internal" href="#section-boltzmann-eqn"><em>Section 2.1</em></a> introduces the Boltzmann form of the neutron transport equation parametrized in 6-dimensional phase space over position, angle and energy. The following several sections introduce the various approximations made to this equation:</p>
+<ul class="simple">
+<li>characteristic transformation (<a class="reference internal" href="#characteristic-transformation"><em>Section 2.2</em></a>)</li>
+<li>energy discretization (<a class="reference internal" href="#multi-group-approximation"><em>Section 2.3</em></a>)</li>
+<li>discrete ordinates approximation (<a class="reference internal" href="#discrete-ordinates-approximation"><em>Section 2.4</em></a>)</li>
+<li>isotropic scattering approximation (<a class="reference internal" href="#isotropic-scattering-approximation"><em>Section 2.5</em></a>)</li>
+<li>flat source approximation (<a class="reference internal" href="#flat-source-region-approximation"><em>Section 2.6</em></a>)</li>
+<li>constant cross-section approximation (<a class="reference internal" href="#constant-xs-approximation"><em>Section 2.7</em></a>)</li>
+<li>integrating factor solution (<a class="reference internal" href="#integrating-factor-solution"><em>Section 2.8</em></a>)</li>
+<li>track area approximation (<a class="reference internal" href="#track-area-approximation"><em>Section 2.9</em></a>)</li>
+<li>azimuthal planar projection (<a class="reference internal" href="#projection-azimuthal-plane"><em>Section 2.10</em></a>)</li>
+</ul>
+<p>The final equations applied in OpenMOC to solve for the FSR source and scalar flux derived in the following sections are summarized below:</p>
+<p><strong>The source in each flat source region</strong></p>
+<div class="math">
+<p><img src="../_images/math/0e0ff78660a0d6b980f135c01aefee14f857eeef.png" alt="\boxed{Q_{i,g} = \frac{1}{4\pi}\left(\displaystyle\sum\limits_{g'=1}^G \Sigma^S_{i,g'\rightarrow g}\Phi_{i,g'} + \frac{\chi_{i,g}}{k_{eff}}\displaystyle\sum\limits_{g'=1}^G\nu\Sigma^F_{i,g'}\Phi_{i,g'}\right)}"/></p>
+</div><p><strong>Change in angular flux along a track segment</strong></p>
+<div class="math">
+<p><img src="../_images/math/a19eb0a6d11d09dd8826c751592924debe616101.png" alt="\boxed{\Delta\Psi_{k,i,g,p} = \Psi_{k,g,p}(s') - \Psi_{k,g,p}(s'') = \left(\Psi_{k,g,p}(s') - \frac{Q_{i,g}}{\Sigma^T_{i,g}}\right)(1 - e^{-\tau_{k,i,g,p}})}"/></p>
+</div><p><strong>Scalar flux in each flat source region</strong></p>
+<div class="math">
+<p><img src="../_images/math/ac657e556a92f8101105f460766c4b3a2e6ed130.png" alt="\boxed{\Phi_{i,g} = \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\displaystyle\sum\limits_{p=1}^{P}\omega_{m(k)}\omega_{p}\omega_{k}\sin\theta_{p}\Delta\Psi_{k,i,g,p}\right]}"/></p>
+</div><div class="section" id="introduction-to-the-boltzmann-equation">
+<span id="section-boltzmann-eqn"></span><h2>2.1. Introduction to the Boltzmann Equation<a class="headerlink" href="#introduction-to-the-boltzmann-equation" title="Permalink to this headline">¶</a></h2>
+<p>The Boltzmann form of the steady-state neutron transport equation is given by the following:</p>
+<div class="math" id="equation-boltzmann-eqn">
+<p><span class="eqno">(1)</span><img src="../_images/math/984ed956dc0a1b95b53776fc90c1498d807087bf.png" alt="\mathbf{\Omega} \cdot \nabla \Psi(\mathbf{r},\mathbf{\Omega},E) + \Sigma^T(\mathbf{r},E)\Psi(\mathbf{r},\mathbf{\Omega},E) = \int_{0}^{\infty} \mathrm{d}E' \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Sigma^S(\mathbf{r},{\mathbf{\Omega'}\rightarrow\mathbf{\Omega}},{E'\rightarrow E}) \Psi(\mathbf{r},\mathbf{\Omega'},E') + \frac{\chi(\mathbf{r},E)}{4\pi k_{eff}} \int_{0}^{\infty} \mathrm{d}E' \nu\Sigma^F(\mathbf{r},E') \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Psi(\mathbf{r},\mathbf{\Omega'},E')"/></p>
+</div><p>Each of the variables in use is defined in <a class="reference internal" href="#table-variables"><em>Table 1</em></a>. This is a balance equation between neutrons lost to transport, lost to absorption, produced or lost from scattering and those produced from fission. It should be noted that this equation assumes isotropic emission from fission.</p>
+<table border="1" class="docutils" id="table-variables">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Variable</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><img class="math" src="../_images/math/523765e6f77d2ff678e47c2a1ff0a59ace2e8e36.png" alt="\mathbf{r}"/></td>
+<td>Spatial position vector</td>
+</tr>
+<tr class="row-odd"><td><img class="math" src="../_images/math/69a9a6cbb2dab8d885dc8ef4a6c4520a30cdd69d.png" alt="\mathbf{\Omega}"/></td>
+<td>Angular direction vector</td>
+</tr>
+<tr class="row-even"><td><img class="math" src="../_images/math/fa2fa899f0afb05d6837885523503a2d4df434f9.png" alt="E"/></td>
+<td>Neutron energy</td>
+</tr>
+<tr class="row-odd"><td><img class="math" src="../_images/math/866f0204648be9ca6b10e14dd72295295dd53a79.png" alt="\Psi"/></td>
+<td>Angular neutron flux</td>
+</tr>
+<tr class="row-even"><td><img class="math" src="../_images/math/56a4ca4edce4a1ea8da11edbc5adc54ed45163b2.png" alt="k_{eff}"/></td>
+<td>Effective neutron multiplication factor</td>
+</tr>
+<tr class="row-odd"><td><img class="math" src="../_images/math/5a6812d6e0b48964f314fba17bd957c98636f91d.png" alt="\Sigma^T"/></td>
+<td>Neutron total cross-section</td>
+</tr>
+<tr class="row-even"><td><img class="math" src="../_images/math/9994e4f9ab59e95e4eab531b05462fef18f529ae.png" alt="\Sigma^S"/></td>
+<td>Neutron scattering cross-section</td>
+</tr>
+<tr class="row-odd"><td><img class="math" src="../_images/math/315df9387712635de0a6a60e804bf2506b2b13ea.png" alt="\Sigma^F"/></td>
+<td>Neutron fission cross-section</td>
+</tr>
+<tr class="row-even"><td><img class="math" src="../_images/math/6dcb9b88aaa5f14312835145edf06fb2d0823c29.png" alt="\chi"/></td>
+<td>Energy spectrum for fission neutrons</td>
+</tr>
+<tr class="row-odd"><td><img class="math" src="../_images/math/d6a7ccf879c4a4fe694033606332cb83806db296.png" alt="\nu"/></td>
+<td>Average number of neutrons emitted per fission</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 1</strong>: Variables in the Boltzmann equation.</p>
+<p>The first step is to simplify this equation by defining those quantities on the right hand side as the total neutron source <img class="math" src="../_images/math/2ac066987d30a346a742ee70a8fa2d94a785ded3.png" alt="Q(\mathbf{r},\mathbf{\Omega},E)"/>:</p>
+<div class="math" id="equation-integral-source">
+<p><span class="eqno">(2)</span><img src="../_images/math/3dc412e386e7f98a2500bdcd80be80b738253fa2.png" alt="Q(\mathbf{r},\mathbf{\Omega},E) = \int_{0}^{\infty} \mathrm{d}E' \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Sigma^S(\mathbf{r},{\mathbf{\Omega'}\rightarrow\mathbf{\Omega}},{E'\rightarrow E}) \Psi(\mathbf{r},\mathbf{\Omega'},E') + \frac{\chi(\mathbf{r},E)}{4\pi k_{eff}} \int_{0}^{\infty} \mathrm{d}E' \int_{4\pi} \mathrm{d}\mathbf{\Omega'} \nu\Sigma^F(\mathbf{r},E')\Psi(\mathbf{r},\mathbf{\Omega'},E')"/></p>
+</div><p>The transport equation can now be more concisely written as follows:</p>
+<div class="math" id="equation-transport-with-source">
+<p><span class="eqno">(3)</span><img src="../_images/math/530874ed7aaaf484e8519364d86ed85cee2b3fd9.png" alt="\mathbf{\Omega} \cdot \nabla \Psi(\mathbf{r},\mathbf{\Omega},E) + \Sigma^T(\mathbf{r},E)\Psi(\mathbf{r},\mathbf{\Omega},E) = Q(\mathbf{r},\mathbf{\Omega},E)"/></p>
+</div></div>
+<div class="section" id="the-characteristic-transformation">
+<span id="characteristic-transformation"></span><h2>2.2. The Characteristic Transformation<a class="headerlink" href="#the-characteristic-transformation" title="Permalink to this headline">¶</a></h2>
+<p>The characteristic form of the Boltzmann equation is found by a change of variables by parametrizing <img class="math" src="../_images/math/523765e6f77d2ff678e47c2a1ff0a59ace2e8e36.png" alt="\mathbf{r}"/> with respect to some reference location <img class="math" src="../_images/math/455cb2cbab199b8f4576c49b4580df92cab10a83.png" alt="\mathbf{r_0}"/>:</p>
+<div class="math" id="equation-characteristics-parametrization">
+<p><span class="eqno">(4)</span><img src="../_images/math/5a522d4569741d80503731e32c42c41b8d1c9b08.png" alt="\mathbf{r} = (x(s), y(s)) = (x_0+s\mathbf{\Omega_x}, y_0+s\mathbf{\Omega_y}) = \mathbf{r_0}+s\mathbf{\Omega}"/></p>
+</div><p>For any location <img class="math" src="../_images/math/523765e6f77d2ff678e47c2a1ff0a59ace2e8e36.png" alt="\mathbf{r}"/> of interest, each angular direction vector <img class="math" src="../_images/math/802301b7e1c91d11e4b6fbff37d42d5a2bd5651d.png" alt="\mathbf{\Omega'}"/> is matched to a corresponding reference location <img class="math" src="../_images/math/7182dab6c213d595138f55eda9aa3882a6478ccb.png" alt="\mathbf{r_{0}'}"/> defined such that <img class="math" src="../_images/math/32d263ae7c9cbf7fc80eb40dadeab07d462c2da9.png" alt="\mathbf{r} = \mathbf{r_{0}'} + s\mathbf{\Omega'}"/>. This parametrization for position may be substituted into the source and transport equations to obtain the following form for each:</p>
+<div class="math" id="equation-source-parametrization">
+<p><span class="eqno">(5)</span><img src="../_images/math/15d10eb464788ee53f34435c63a6cd2fdeaf311e.png" alt="Q(\mathbf{r},\mathbf{\Omega},E) = \int_{0}^{\infty} \mathrm{d}E' \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Sigma^S(\mathbf{r_0'}+s\mathbf{\Omega'},{\mathbf{\Omega'}\rightarrow\mathbf{\Omega}},{E'\rightarrow E}) \Psi(\mathbf{r_0'}+s\mathbf{\Omega'},\mathbf{\Omega'},E') + \frac{\chi(\mathbf{r_0}+s\mathbf{\Omega},E)}{4\pi k_{eff}} \int_{0}^{\infty} \mathrm{d}E' \nu\Sigma^F(\mathbf{r_0}+s\mathbf{\Omega},E') \int_{4\pi} \mathrm{d}\mathbf{\Omega'} \Psi(\mathbf{r_0'}+s\mathbf{\Omega'},\mathbf{\Omega'},E')"/></p>
+</div><div class="math" id="equation-boltzmann-parametrization">
+<p><span class="eqno">(6)</span><img src="../_images/math/d744620b2b53bdc6b6f94b908bbf342f98862c2f.png" alt="\mathbf{\Omega} \cdot \nabla \Psi(\mathbf{r_0}+s\mathbf{\Omega},\mathbf{\Omega},E) + \Sigma^T(\mathbf{r_0}+s\mathbf{\Omega},E)\Psi(\mathbf{r_0}+s\mathbf{\Omega},\mathbf{\Omega},E) = Q(\mathbf{r_0}+s\mathbf{\Omega},\mathbf{\Omega},E)"/></p>
+</div><p>Applying the differential operator to the angular flux in <a href="#equation-boltzmann-parametrization">(6)</a> leads to the characteristic form of the Boltzmann equation:</p>
+<div class="math" id="equation-boltzmann-differential">
+<p><span class="eqno">(7)</span><img src="../_images/math/49a9b55bfb718685d61861574c31450fd7ae6313.png" alt="\frac{d}{ds}\Psi(\mathbf{r_0}+s\mathbf{\Omega},\mathbf{\Omega},E) + \Sigma^T(\mathbf{r_0}+s\mathbf{\Omega},E)\Psi(\mathbf{r_0}+s\mathbf{\Omega},\mathbf{\Omega},E) = Q(\mathbf{r_0}+s\mathbf{\Omega},\mathbf{\Omega},E)"/></p>
+</div><p>For brevity, the remainder of this section will assume the dependence of <img class="math" src="../_images/math/f37bba504894945c07a32f5496d74299a37aa51c.png" alt="s"/> on the reference position <img class="math" src="../_images/math/455cb2cbab199b8f4576c49b4580df92cab10a83.png" alt="\mathbf{r_0}"/> and <img class="math" src="../_images/math/69a9a6cbb2dab8d885dc8ef4a6c4520a30cdd69d.png" alt="\mathbf{\Omega}"/> and will simplify this as <img class="math" src="../_images/math/1143fba5b6f43698a108fc3f48b423e1ff6b37d3.png" alt="\mathbf{r_0} + s\mathbf{\Omega} \rightarrow s"/> such that the characteristic equation can be written as the following:</p>
+<div class="math" id="equation-simple-boltzmann-differential">
+<p><span class="eqno">(8)</span><img src="../_images/math/901ca57484b0cb78c1d8d40287fba2aa7eff22d3.png" alt="\frac{d}{ds}\Psi(s,\mathbf{\Omega},E) + \Sigma^T(s,E)\Psi(s,\mathbf{\Omega},E) = Q(s,\mathbf{\Omega},E)"/></p>
+</div><p>This equation can be solved through the use of an integrating factor:</p>
+<div class="math" id="equation-integrating-factor">
+<p><span class="eqno">(9)</span><img src="../_images/math/ef56de68db5b294f5e1b0060550b214fdcbff7a9.png" alt="e^{-\int_{0}^s\mathrm{d}s'\Sigma^T(s',E)}"/></p>
+</div><p>The final analytical solution to the characteristic equation is therefore:</p>
+<div class="math" id="equation-moc-eqn">
+<p><span class="eqno">(10)</span><img src="../_images/math/20a1aa499f8317cf45133275823f8dce3a8a087c.png" alt="\Psi(s,\mathbf{\Omega},E) = \Psi(\mathbf{r_{0}},\mathbf{\Omega},E)e^{-\int_{0}^s\mathrm{d}s'\Sigma^T(s',E)} + \int_0^s\mathrm{d}s''Q(s'',\mathbf{\Omega},E)e^{-\int_{s''}^s\mathrm{d}s'\Sigma^T(s',E)}"/></p>
+</div></div>
+<div class="section" id="the-multi-group-energy-approximation">
+<span id="multi-group-approximation"></span><h2>2.3. The Multi-Group Energy Approximation<a class="headerlink" href="#the-multi-group-energy-approximation" title="Permalink to this headline">¶</a></h2>
+<p>Equation <a href="#equation-moc-eqn">(10)</a> is defined with <img class="math" src="../_images/math/866f0204648be9ca6b10e14dd72295295dd53a79.png" alt="\Psi"/>, <img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> and <img class="math" src="../_images/math/5a6812d6e0b48964f314fba17bd957c98636f91d.png" alt="\Sigma^T"/> as continuous functions of energy. The first approximation to numerically solve this equation is to discretize the energy domain into distinct <em>energy groups</em> <img class="math" src="../_images/math/bd834724c65e924aee436ce4c495b89db231546b.png" alt="g \in G = \{1, 2, ..., G\}"/> where group <img class="math" src="../_images/math/311cabda3a9b09f0dde217303ca9d1cd9201dcf6.png" alt="g"/> spans the continuous range of energies from <img class="math" src="../_images/math/1206582f990d561c6a22411fb22e3fed8c950e4f.png" alt="E_{g}"/> to <img class="math" src="../_images/math/791ff57b15eeb5ee4e9bb6c3fbcad1f69b3d9ac7.png" alt="E_{g-1}"/>. This is otherwise known as the <em>multi-group approximation</em>. The multi-group form of the Boltzmann equation is presented below:</p>
+<div class="math" id="equation-boltzmann-multigroup">
+<p><span class="eqno">(11)</span><img src="../_images/math/d73c3cd4006d6ad1e636c24e0a24740042dc0caa.png" alt="\mathbf{\Omega} \cdot \nabla \Psi_g(s,\mathbf{\mathbf{\Omega}}) + \Sigma^T_{g}(s)\Psi_g(s,\mathbf{\Omega}) = Q_g(s,\mathbf{\Omega})"/></p>
+</div><p>The characteristic form of the equation given in <a href="#equation-simple-boltzmann-differential">(8)</a> can also be written in multi-group form:</p>
+<div class="math" id="equation-characteristic-multigroup">
+<p><span class="eqno">(12)</span><img src="../_images/math/7707d854db104a928cabcddf43b5d28e506827a8.png" alt="\frac{d}{ds}\Psi_{g}(s,\mathbf{\Omega}) + \Sigma^T_{g}(s)\Psi_{g}(s,\mathbf{\Omega}) = Q_g(s,\mathbf{\Omega})"/></p>
+</div><p>Likewise, the multi-group form of the neutron source <a href="#equation-source-parametrization">(5)</a> is given by:</p>
+<div class="math" id="equation-source-multigroup">
+<p><span class="eqno">(13)</span><img src="../_images/math/4c1c34b2ee64bd0fbbed8e721104f199ae286b65.png" alt="Q_g(s,\mathbf{\Omega}) = \displaystyle\sum\limits_{g'=1}^G \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Sigma_{g'\rightarrow g}^S(s,{\mathbf{\Omega'}\rightarrow\mathbf{\Omega}}) \Psi_{g'}(s,\mathbf{\Omega'}) + \frac{\chi_{g}(s)}{4\pi k_{eff}} \displaystyle\sum\limits_{g'=1}^G \nu\Sigma_{g'}^F(s) \int_{4\pi} \mathrm{d}\mathbf{\Omega'} \Psi_{g'}(s,\mathbf{\Omega'})"/></p>
+</div><p>It directly follows from <a href="#equation-moc-eqn">(10)</a> and <a href="#equation-simple-boltzmann-differential">(8)</a> that the solution to the multi-group characteristic neutron transport equation is the following:</p>
+<div class="math" id="equation-moc-multigroup">
+<p><span class="eqno">(14)</span><img src="../_images/math/9db431c9f7294add88bd5e83e890d865068da141.png" alt="\Psi_g(s,\mathbf{\Omega}) = \Psi_g(\mathbf{r_{0}},\mathbf{\Omega})e^{-\int_{0}^s\mathrm{d}s'\Sigma_g^T(s')} + \int_0^s\mathrm{d}s''Q_g(s'',\mathbf{\Omega})e^{-\int_{s''}^s\mathrm{d}s'\Sigma_g^T(s')}"/></p>
+</div><p>Where both <a href="#equation-moc-multigroup">(14)</a> and <a href="#equation-source-multigroup">(13)</a> make use of the energy condensed cross-sections <img class="math" src="../_images/math/5a6812d6e0b48964f314fba17bd957c98636f91d.png" alt="\Sigma^T"/>, <img class="math" src="../_images/math/315df9387712635de0a6a60e804bf2506b2b13ea.png" alt="\Sigma^F"/>, <img class="math" src="../_images/math/9994e4f9ab59e95e4eab531b05462fef18f529ae.png" alt="\Sigma^S"/>, and <img class="math" src="../_images/math/6dcb9b88aaa5f14312835145edf06fb2d0823c29.png" alt="\chi"/>:</p>
+<div class="math" id="equation-condensed-total-xs">
+<p><span class="eqno">(15)</span><img src="../_images/math/aa78c791a1cd5498f74b944c21de6c9063e962fe.png" alt="\Sigma_{g}^T(s) = \frac{\int_{E_{g}}^{E_{g-1}}\mathrm{d}E'\Sigma^T(s,E')\Psi(s,\mathbf{\Omega},E')}{\int_{E_{g}}^{E_{g-1}}\mathrm{d}E'\Psi(s,\mathbf{\Omega},E')}"/></p>
+</div><div class="math" id="equation-condensed-fission-xs">
+<p><span class="eqno">(16)</span><img src="../_images/math/baf47dc4d128bd07fa316a410dc4f3e1e5a40a67.png" alt="\Sigma_{g}^F(s) = \frac{\int_{E_{g}}^{E_{g-1}}\mathrm{d}E'\Sigma^F(s,E')\Psi(s,\mathbf{\Omega},E')}{\int_{E_{g}}^{E_{g-}1}\mathrm{d}E'\Psi(s,\mathbf{\Omega},E')}"/></p>
+</div><div class="math" id="equation-condensed-scatter-xs">
+<p><span class="eqno">(17)</span><img src="../_images/math/ccf6e7222189ac69ae7c85847006894bb6463e4c.png" alt="\Sigma_{g'\rightarrow g}^S(s,\mathbf{\Omega'}\rightarrow \mathbf{\Omega}) = \frac{\int_{E_{g'}}^{E_{g'-1}}\mathrm{d}E'\int_{E_{g}}^{E_{g-1}}\mathrm{d}E''\Sigma^S(s,\mathbf{\Omega'}\rightarrow \mathbf{\Omega},E'\rightarrow E'')\Psi(s,\mathbf{\Omega'},E')}{\int_{E_{g'}}^{E_{g'-1}}\mathrm{d}E'\Psi(s,\mathbf{\Omega'},E')}"/></p>
+</div><div class="math" id="equation-condensed-chi">
+<p><span class="eqno">(18)</span><img src="../_images/math/927ef9ad5b2cc01889ad647c0428a8ddc5f0e4b6.png" alt="\chi_{g'\rightarrow g}(s) = \frac{\int_{E_{g'}}^{E_{g'-1}}\mathrm{d}E'\int_{E_{g}}^{E_{g-1}}\mathrm{d}E''\chi(s,E'\rightarrow E'')\nu\Sigma^F(s,\mathbf{\Omega},E')\Psi(s,\mathbf{\Omega'},E')}{\int_{E_{g'}}^{E_{g'-1}}\mathrm{d}E'\nu\Sigma^F(s,\mathbf{\Omega},E')\Psi(s,\mathbf{\Omega'},E')}"/></p>
+</div><p>Although <a href="#equation-condensed-chi">(18)</a> assumes a dependence of <img class="math" src="../_images/math/6dcb9b88aaa5f14312835145edf06fb2d0823c29.png" alt="\chi"/> on both the energy of the neutron causing fission <img class="math" src="../_images/math/c38477dc7fbec122368a1f9cbebeeffabd50cdc3.png" alt="g'"/> and the fission emission energy group <img class="math" src="../_images/math/311cabda3a9b09f0dde217303ca9d1cd9201dcf6.png" alt="g"/>, the former is typically summed over to simplify the multi-group <img class="math" src="../_images/math/6dcb9b88aaa5f14312835145edf06fb2d0823c29.png" alt="\chi"/> to the following approximation:</p>
+<div class="math" id="equation-condensed-chi-sum">
+<p><span class="eqno">(19)</span><img src="../_images/math/9c2f7ab69111fa79dacc3f502de8b50cf44d6e4c.png" alt="\chi_{g}(s) = \displaystyle\sum\limits_{g=1}^{G}\chi_{g'\rightarrow g}(s)"/></p>
+</div></div>
+<div class="section" id="the-discrete-ordinates-approximation">
+<span id="discrete-ordinates-approximation"></span><h2>2.4. The Discrete Ordinates Approximation<a class="headerlink" href="#the-discrete-ordinates-approximation" title="Permalink to this headline">¶</a></h2>
+<p>The discrete ordinates approximation is introduced to approximate the integral over the angular domain in the source <a href="#equation-source-multigroup">(13)</a>. This is equivalent to applying quadrature rules to evaluate the integral over the angular flux using a weighted sum of fluxes at specific angles where weights <img class="math" src="../_images/math/f4823beacbe7805f3bf3ef4947845335d6c3bdc8.png" alt="w_{m}"/> are introduced for each of the quadrature points <img class="math" src="../_images/math/e32f8f2e8bebeaa4db009048e891635f094f6ea6.png" alt="\mathbf{\Omega_{m}} \; \forall \; m \in \{1, ..., M\}"/>.</p>
+<div class="math" id="equation-moc-quadrature">
+<p><span class="eqno">(20)</span><img src="../_images/math/29fc3f7c4d4ec1c57ee02b3cf873a464c8bbdb03.png" alt="\Phi_{g}(s) = \int_{4\pi}\mathrm{d}\mathbf{\Omega'}\Psi_{g}(s,\mathbf{\Omega'}) \approx \displaystyle\sum\limits_{m=1}^{M}w_{m}\Psi_{g}(s,\mathbf{\Omega_{m}})"/></p>
+</div><p>The integrated angular flux <img class="math" src="../_images/math/141334978d045a9230a9375abdb37248dba98644.png" alt="\Phi_{g}(s)"/> is termed the <em>scalar flux</em>. Substituting this approximation to the angular flux integral into <a href="#equation-source-multigroup">(13)</a> leads to the following approximation to the source <img class="math" src="../_images/math/8c9c94380fb92f4eb462b1fa2b46fb1fde6a5429.png" alt="Q_{m,g}(s) \approx Q_{g}(s,\mathbf{\Omega_{m}})"/> at each quadrature point <img class="math" src="../_images/math/cd50d72b3ec8c378af2fc9fce55a836af9bdfd44.png" alt="\mathbf{\Omega_{m}}"/>:</p>
+<div class="math" id="equation-source-angular-quadrature">
+<p><span class="eqno">(21)</span><img src="../_images/math/bc822604735f4c7f3bc7a6e0bb05bf43b805b1c7.png" alt="Q_{m,g}(s) = \displaystyle\sum\limits_{g'=1}^G \displaystyle\sum\limits_{m'=1}^{M}w_{m'}\Sigma_{g'\rightarrow g}^S(s,{\mathbf{\Omega_{m'}}\rightarrow\mathbf{\Omega_{m}}}) \Psi_{g'}(s,\mathbf{\Omega_{m'}}) + \frac{\chi_{g}(s)}{4\pi k_{eff}} \displaystyle\sum\limits_{g'=1}^G \displaystyle\sum\limits_{m'=1}^{M}w_{m'}\nu\Sigma_{g'}^F(s)\Psi_{g'}(s,\mathbf{\Omega_{m'}})"/></p>
+</div><p>Substituting this approximation to the source into <a href="#equation-moc-multigroup">(14)</a> one obtains the characteristic solution for the angular flux <img class="math" src="../_images/math/77180693bd7c3caf99a15b7f824aad661f4e68b7.png" alt="\Psi_{m,g}(s) \approx \Psi_g(s,\mathbf{\Omega_{m}})"/> at each quadrature point <img class="math" src="../_images/math/cd50d72b3ec8c378af2fc9fce55a836af9bdfd44.png" alt="\mathbf{\Omega_{m}}"/>:</p>
+<div class="math" id="equation-angular-flux-angular-quadrature">
+<p><span class="eqno">(22)</span><img src="../_images/math/cce8b766654a6b85a03f171898f18e60789bc0fb.png" alt="\Psi_{m,g}(s) = \Psi_{m,g}(\mathbf{r_{0}})e^{-\int_{0}^{s}\mathrm{d}s'\Sigma_g^T(s')} + \int_0^{s_{m}}\mathrm{d}s''Q_{m,g}(s'')e^{-\int_{s''}^{s}\mathrm{d}s'\Sigma_g^T(s')}"/></p>
+</div><p>Equations <a href="#equation-source-angular-quadrature">(21)</a> and <a href="#equation-angular-flux-angular-quadrature">(22)</a> may be further decomposed into azimuthal and polar angle quadratures <img class="math" src="../_images/math/0e970252162b7a0e0918c7e8c1f56aba0a73fbbe.png" alt="m \in \{1, 2, ..., M\}"/> and <img class="math" src="../_images/math/000f0cf5c15b4b4ae9a8720b81a6fb627701d806.png" alt="p \in \{1, 2, ..., P\}"/> with weights <img class="math" src="../_images/math/f4823beacbe7805f3bf3ef4947845335d6c3bdc8.png" alt="w_{m}"/> and <img class="math" src="../_images/math/44131370d33f693fa292ebf4657594f54d5b4c8f.png" alt="w_{p}"/> for the azimuthal plane and axial dimension, respectively:</p>
+<div class="math" id="equation-source-azimuthal-polar">
+<p><span class="eqno">(23)</span><img src="../_images/math/f9fa593e60600317f2921a99d05c371178f15457.png" alt="Q_{m,p,g}(s) = \displaystyle\sum\limits_{g'=1}^G \displaystyle\sum\limits_{m'=1}^{M} \displaystyle\sum\limits_{p'=1}^{P} w_{m'}w_{p'}\Sigma_{g'\rightarrow g}^S(s,{\mathbf{\Omega_{m',p'}}\rightarrow\mathbf{\Omega_{m,p}}}) \Psi_{g'}(s,\mathbf{\Omega_{m',p'}}) + \frac{\chi_{g}(s)}{4\pi k_{eff}} \displaystyle\sum\limits_{g'=1}^G \displaystyle\sum\limits_{m'=1}^{M} \displaystyle\sum\limits_{p'=1}^{P} w_{m'}w_{p'} \nu\Sigma_{g'}^F(s)\Psi_{g'}(s,\mathbf{\Omega_{m',p'}})"/></p>
+</div><div class="math" id="equation-angular-flux-azimuthal-polar">
+<p><span class="eqno">(24)</span><img src="../_images/math/7826a614649ad76003b3feebf21adcccfad387f3.png" alt="\Psi_{m,p,g}(s) = \Psi_{m,p,g}(\mathbf{r_{0}})e^{-\int_{0}^s\mathrm{d}s'\Sigma_g^T(s')} + \int_0^s\mathrm{d}s''Q_{m,p,g}(s'')e^{-\int_{s''}^s\mathrm{d}s'\Sigma_g^T(s')}"/></p>
+</div></div>
+<div class="section" id="the-isotropic-scattering-approximation">
+<span id="isotropic-scattering-approximation"></span><h2>2.5. The Isotropic Scattering Approximation<a class="headerlink" href="#the-isotropic-scattering-approximation" title="Permalink to this headline">¶</a></h2>
+<p>An additional approximation that is made to simplify the evaluation of the source in <a href="#equation-source-azimuthal-polar">(23)</a> is to assume that the scattering source is isotropic. This approximation allows the total source to be expressed solely in terms of the scalar flux:</p>
+<div class="math" id="equation-source-isotropic">
+<p><span class="eqno">(25)</span><img src="../_images/math/27bf6984c711ace40e32512f20541002e0aa5ec9.png" alt="Q_{g}(s) = \frac{1}{4\pi}\left(\displaystyle\sum\limits_{g'=1}^G \Sigma^S_{g'\rightarrow g}(s)\Phi_{g'}(s) + \frac{\chi_{g}(s)}{k_{eff}}\displaystyle\sum\limits_{g'=1}^G\nu\Sigma^F_{g'}(s)\Phi_{g'}(s)\right)"/></p>
+</div><p>The subscripts <img class="math" src="../_images/math/f5047d1e0cbb50ec208923a22cd517c55100fa7b.png" alt="m"/> and <img class="math" src="../_images/math/36f73fc1312ee0349b3f3a0f3bd9eb5504339011.png" alt="p"/> for the azimuthal and polar angles, respectively, have been dropped from <img class="math" src="../_images/math/a1e67e461c3715effaf4c75a0257d29f5df46acd.png" alt="Q_{g}(s)"/> since they have been embedded in the integral over angular phase space to obtain the scalar flux <img class="math" src="../_images/math/141334978d045a9230a9375abdb37248dba98644.png" alt="\Phi_{g}(s)"/>.</p>
+</div>
+<div class="section" id="the-flat-source-region-approximation">
+<span id="flat-source-region-approximation"></span><h2>2.6. The Flat Source Region Approximation<a class="headerlink" href="#the-flat-source-region-approximation" title="Permalink to this headline">¶</a></h2>
+<p>Another common approximation for MOC is to assume that the source <img class="math" src="../_images/math/67f89bdb98f7b31c35601b5463d6134df565415e.png" alt="Q_g"/> is constant across discrete spatial cells termed <em>flat source regions</em> (FSRs). This implies that the source does not vary along a characteristic <img class="math" src="../_images/math/8c325612684d41304b9751c175df7bcc0f61f64f.png" alt="k"/> entering FSR <img class="math" src="../_images/math/34857b3ba74ce5cd8607f3ebd23e9015908ada71.png" alt="i"/> at <img class="math" src="../_images/math/ce7a13236c35ee1faee2e9c31c427f105a151bd1.png" alt="s'"/> and exiting at <img class="math" src="../_images/math/5b9803e629ea836d5551255904d9eb9de19ff1ba.png" alt="s''"/>:</p>
+<div class="math" id="equation-flat-source">
+<p><span class="eqno">(26)</span><img src="../_images/math/8bee5878e6f17cf14a249cab91239e8925442853.png" alt="Q_{i,g} = Q_{g}(s') = Q_{g}(s'') = Q_{g}(s) \;\;\; , \;\;\; s \in [s', s'']"/></p>
+</div></div>
+<div class="section" id="the-constant-cross-section-approximation">
+<span id="constant-xs-approximation"></span><h2>2.7. The Constant Cross-Section Approximation<a class="headerlink" href="#the-constant-cross-section-approximation" title="Permalink to this headline">¶</a></h2>
+<p>In addition to the flat source approximation, it is assumed that the material properties are constant across each FSR. The area-averaged cross-sections for FSR <img class="math" src="../_images/math/5f2613a78fe0ce05fb41e380a3a5581b96c194a9.png" alt="i \in \{1, 2, ..., I\}"/> with area <img class="math" src="../_images/math/a4b24599915694a978e8e1b92ef6b68e3afe1859.png" alt="A_{i}"/> are defined as:</p>
+<div class="math" id="equation-area-averaged-total-xs">
+<p><span class="eqno">(27)</span><img src="../_images/math/9d1e81cb434770cddbcb79542a08863f1709dc44.png" alt="\Sigma_{i,g}^{T} = \frac{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\Sigma_{g}^T(\mathbf{r})\Phi_{g}(\mathbf{r})}{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\Phi_{g}(\mathbf{r})}"/></p>
+</div><div class="math" id="equation-area-averaged-fission-xs">
+<p><span class="eqno">(28)</span><img src="../_images/math/69b080551cdcaa4f340daeefbcd5beccd63b6c62.png" alt="\Sigma_{i,g}^{F} = \frac{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\Sigma_{g}^F(\mathbf{r})\Phi_{g}(\mathbf{r})}{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\Phi_{g}(\mathbf{r})}"/></p>
+</div><div class="math" id="equation-area-averaged-scatter-xs">
+<p><span class="eqno">(29)</span><img src="../_images/math/3ef688ed33f6a06a15e1316bc5821d9a2e382e59.png" alt="\Sigma_{i,g'\rightarrow g}^{S} = \frac{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\Sigma_{g'\rightarrow g}^S(\mathbf{r})\Phi_{g'}(\mathbf{r})}{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\Phi_{g'}(\mathbf{r})}"/></p>
+</div><div class="math" id="equation-area-averaged-chi">
+<p><span class="eqno">(30)</span><img src="../_images/math/1177eb76495e7821e86aaf64dcc10931fa8e5365.png" alt="\chi_{i,g} = \frac{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\chi_{g}(\mathbf{r})}{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}}"/></p>
+</div><p>The flat source term <img class="math" src="../_images/math/d7740ef7c0179b16a1b7df214c5b773100d06a51.png" alt="Q_{i,g}"/> for FSR <img class="math" src="../_images/math/34857b3ba74ce5cd8607f3ebd23e9015908ada71.png" alt="i"/> with area <img class="math" src="../_images/math/2744600189f7f1df31756f2022b2d5212ef1c767.png" alt="A_i"/> is defined in terms of both fission and scattering from the area-averaged scalar flux <img class="math" src="../_images/math/ec1d3b6d63de59d916a58b5ef4347b6671ac6cf9.png" alt="\Phi_{g,i}"/> within the FSR:</p>
+<div class="math" id="equation-final-source">
+<p><span class="eqno">(31)</span><img src="../_images/math/1c9f29e0691e5857a11dc5d7fb2234d04c3398cd.png" alt="Q_{i,g} = \frac{1}{4\pi}\left(\displaystyle\sum\limits_{g'=1}^G \Sigma^S_{i,g'\rightarrow g}\Phi_{i,g'} + \frac{\chi_{i,g}}{k_{eff}}\displaystyle\sum\limits_{g'=1}^G\nu\Sigma^F_{i,g'}\Phi_{i,g'}\right)"/></p>
+</div><div class="math" id="equation-area-averaged-scalar-flux">
+<p><span class="eqno">(32)</span><img src="../_images/math/28e718100dd5eb7c988cbe3886be579c03c0298e.png" alt="\Phi_{i,g} = \frac{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\Phi_{g}(\mathbf{r})}{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}}"/></p>
+</div><p>The multi-group nuclear cross-sections for each FSR are an input to OpenMOC. As a result, the area-averaging integrals must be performed by some pre-processing method such as Monte Carlo.</p>
+</div>
+<div class="section" id="the-integrating-factor-solution">
+<span id="integrating-factor-solution"></span><h2>2.8. The Integrating Factor Solution<a class="headerlink" href="#the-integrating-factor-solution" title="Permalink to this headline">¶</a></h2>
+<p>Each chracteristic may be discretized into <em>segments</em> across individual FSRs. This approximation allows <a href="#equation-angular-flux-azimuthal-polar">(24)</a> to be localized to a segment of characteristic <img class="math" src="../_images/math/8c325612684d41304b9751c175df7bcc0f61f64f.png" alt="k"/> across FSR <img class="math" src="../_images/math/34857b3ba74ce5cd8607f3ebd23e9015908ada71.png" alt="i"/> from its entry point at <img class="math" src="../_images/math/ce7a13236c35ee1faee2e9c31c427f105a151bd1.png" alt="s'"/> to exit point at <img class="math" src="../_images/math/5b9803e629ea836d5551255904d9eb9de19ff1ba.png" alt="s''"/>. By defining the integrating factor in terms of the optical length <img class="math" src="../_images/math/93c18c3415bb694eb2d037c9dd265e326f649f4f.png" alt="\tau_{k,i,g} = \Sigma^T_{i,g}(s''-s')"/> one may analytically evaluate the integrals in <a href="#equation-angular-flux-azimuthal-polar">(24)</a> and express the outgoing flux along the characteristic as follows:</p>
+<div class="math" id="equation-angular-flux-fsr">
+<p><span class="eqno">(33)</span><img src="../_images/math/30ebfca653559ee8a56a0d63921c25f989574d94.png" alt="\Psi_{k,g}(s'') = \Psi_{k,g}(s')e^{-\tau_{k,i,g}} + \frac{Q_{i,g}}{\Sigma^T_{i,g}}(1 - e^{-\tau_{k,i,g}})"/></p>
+</div><p>With minor algebraic rearrangement, the change in angular flux along the characteristic is given by the following:</p>
+<div class="math" id="equation-delta-angular-flux-fsr">
+<p><span class="eqno">(34)</span><img src="../_images/math/ddd978646c1a77aed1036901b7d8392c34b48d43.png" alt="\Delta\Psi_{k,g} = \Psi_{k,g}(s') - \Psi_{k,g}(s'') = \left(\Psi_{k,g}(s') - \frac{Q_{i,g}}{\Sigma^T_{i,g}}\right)(1 - e^{-\tau_{k,i,g}})"/></p>
+</div></div>
+<div class="section" id="the-track-area-approximation">
+<span id="track-area-approximation"></span><h2>2.9. The Track Area Approximation<a class="headerlink" href="#the-track-area-approximation" title="Permalink to this headline">¶</a></h2>
+<p>The key quantity remaining to be determined is the integral over area for the FSR area-averaged scalar flux <img class="math" src="../_images/math/ec1d3b6d63de59d916a58b5ef4347b6671ac6cf9.png" alt="\Phi_{g,i}"/> in <a href="#equation-area-averaged-scalar-flux">(32)</a>. The track area approximation is used to compute this value numerically.</p>
+<p>First, define <img class="math" src="../_images/math/935aff063916d7c6d9e7122280be57678cab0648.png" alt="l_{k,i}=s''-s'"/> such that the average angular flux in FSR <img class="math" src="../_images/math/34857b3ba74ce5cd8607f3ebd23e9015908ada71.png" alt="i"/> along characteristic math:<cite>k</cite> is the following integral:</p>
+<div class="math" id="equation-avg-angular-flux-integral">
+<p><span class="eqno">(35)</span><img src="../_images/math/49ce3f2ed7aba3347c9781ad8974cc7665c28551.png" alt="\overline{\Psi}_{k,i,g} = \frac{1}{l_{k,i}}\int_{s'}^{s''} \Psi_{k,i,g}(s) \mathrm{d}s"/></p>
+</div><p>Upon evaluating the integral, the average angular flux along the characteristic can be reduced to the following algebraic expression:</p>
+<div class="math" id="equation-avg-angular-flux">
+<p><span class="eqno">(36)</span><img src="../_images/math/c18b74e95dccf0a0a76abd24a0354b69abc212a0.png" alt="\overline{\Psi}_{k,i,g} = \frac{1}{l_{k,i}}\left[\frac{\Psi_{k,g}(s')}{\Sigma_{i,g}^T}(1 - e^{-\tau_{k,i,g}}) + \frac{l_{k,i}Q_{i,g}}{\Sigma_{i,g}^T}\left(1 - \frac{(1 - e^{-\tau_{k,i,g}})}{\tau_{k,i,g}}\right)\right]"/></p>
+</div><p>Assuming a constant source and cross-sections in FSR <img class="math" src="../_images/math/34857b3ba74ce5cd8607f3ebd23e9015908ada71.png" alt="i"/>, the value given for the average angular flux in <a href="#equation-avg-angular-flux">(36)</a> is exact. In order to exactly compute the area-averaged scalar flux, the average angular flux from every characteristic crossing FSR <img class="math" src="../_images/math/34857b3ba74ce5cd8607f3ebd23e9015908ada71.png" alt="i"/> must be taken into account. This is numerically intractable; hence, an appropriate subset <img class="math" src="../_images/math/dfb064112b6c94470339f6571f69d07afc1c024c.png" alt="K"/> of characteristics, henceforth known as <em>tracks</em>, is chosen and the integral over the area of the FSR is performed using quadrature rules with a weight <img class="math" src="../_images/math/7c3221d5a0451b9b7652a9a94113ed5303811411.png" alt="w_{k}"/> for each track <img class="math" src="../_images/math/25ce863bb816fd618d99ea2080d85284560ce41d.png" alt="k \in K"/> crossing through the FSR <img class="math" src="../_images/math/bc61f1d175236f4e777e5e669302cb660170f571.png" alt="k \in A_{i}"/>. The contribution <img class="math" src="../_images/math/e96d4401c7ce0225ba8da85f5e4ea797226df98b.png" alt="\overline{\Psi}_{k,i,g}"/> of track <img class="math" src="../_images/math/8c325612684d41304b9751c175df7bcc0f61f64f.png" alt="k"/> with azimuthal and polar quadrature weights denoted by <img class="math" src="../_images/math/c62787f8fcc0e3542ff5dee3bbb26ac3b122561d.png" alt="w_{m(k)}"/> and <img class="math" src="../_images/math/2a7c19f53f565de75b7f4f54cf420ff8a64c5816.png" alt="w_{p(k)}"/>, respectively, is then integrated to find the area-averaged scalar flux in FSR <img class="math" src="../_images/math/34857b3ba74ce5cd8607f3ebd23e9015908ada71.png" alt="i"/> as follows:</p>
+<div class="math" id="equation-area-averaged-scalar-flux-quadrature">
+<p><span class="eqno">(37)</span><img src="../_images/math/edbf55f607d4154964e7f8f7c4b067f391f969dc.png" alt="\Phi_{i,g} = \frac{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\int_{4\pi}\mathrm{d}\mathbf{\Omega}\Psi_{g}(\mathbf{r},\mathbf{\Omega})}{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}} \approx \frac{4\pi\displaystyle\sum\limits_{k\in A_{i}}w_{m(k)}w_{p(k)}w_{k}l_{k,i}\sin\theta_{p(k)}\overline{\Psi}_{k,i,g}}{\displaystyle\sum\limits_{k\in A_{i}}w_kl_{k,i}\sin\theta_{p(k)}}"/></p>
+</div><p>In <a href="#equation-area-averaged-scalar-flux-quadrature">(37)</a>, the angle <img class="math" src="../_images/math/b360460b7367ea01cd4d794abd653aabdb83c635.png" alt="\theta_{p(k)}"/> formed by characteristic <img class="math" src="../_images/math/8c325612684d41304b9751c175df7bcc0f61f64f.png" alt="k"/> with respect to the polar axis is introduced to project the length of the characteristic segment <img class="math" src="../_images/math/a7dd07e5817272fd952051ccc98733b87dbdfa7f.png" alt="l_{k,i}"/> onto the azimuthal plane. In this application of quadrature to approximate an area integral, the weights can be thought of as the <em>effective width</em> of each track <img class="math" src="../_images/math/8c325612684d41304b9751c175df7bcc0f61f64f.png" alt="k"/>.</p>
+<p>The denominator in <a href="#equation-area-averaged-scalar-flux-quadrature">(37)</a> then simplifies to the area <img class="math" src="../_images/math/2744600189f7f1df31756f2022b2d5212ef1c767.png" alt="A_i"/>:</p>
+<div class="math" id="equation-avg-scalar-flux-quadrature">
+<p><span class="eqno">(38)</span><img src="../_images/math/35283a7f59379b6bfb4091ac712e29beb777c299.png" alt="\Phi_{i,g} \approx \frac{4\pi}{A_{i}}\displaystyle\sum\limits_{k\in A_{i}}w_{m(k)}w_{p(k)}w_{k}l_{k,i}\sin\theta_{p(k)}\overline{\Psi}_{k,i,g}"/></p>
+</div><p>The scalar flux can be found in terms of average angular fluxes from each track by substituting the expression for the average angular flux from <a href="#equation-avg-angular-flux">(36)</a> into <a href="#equation-avg-scalar-flux-quadrature">(38)</a> and rearranging:</p>
+<div class="math" id="equation-avg-scalar-flux-v2">
+<p><span class="eqno">(39)</span><img src="../_images/math/d017659ac19a9eeb34c331f0d76e1c6810ec4ca5.png" alt="\Phi_{i,g} = \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\omega_{m(k)}\omega_{p(k)}\omega_{k}\sin\theta_{p(k)}\left(\Psi_{k,i,g}(s') - \frac{Q_{i,g}}{\Sigma_{i,g}^T}\right)(1 - e^{-\tau_{k,i,g}})\right]"/></p>
+</div><p>The final form for the scalar flux can be simplified in terms of the change in angular flux <img class="math" src="../_images/math/151c6a073c58f335bea05f8d456822ca36a673f4.png" alt="\Delta\Psi_{k,i,g}"/> along each track segment as defined in <a href="#equation-delta-angular-flux-fsr">(34)</a>:</p>
+<div class="math" id="equation-avg-scalar-flux-delta-angular-flux">
+<p><span class="eqno">(40)</span><img src="../_images/math/e26a2d762a534d805b6ed3040d4fed474e195ec4.png" alt="\Phi_{i,g} = \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\omega_{m(k)}\omega_{p(k)}\omega_{k}\sin\theta_{p(k)}\Delta\Psi_{k,i,g}\right]"/></p>
+</div></div>
+<div class="section" id="projection-from-the-azimuthal-plane">
+<span id="projection-azimuthal-plane"></span><h2>2.10. Projection from the Azimuthal Plane<a class="headerlink" href="#projection-from-the-azimuthal-plane" title="Permalink to this headline">¶</a></h2>
+<p>The preceding sections used track segment lengths <img class="math" src="../_images/math/a7dd07e5817272fd952051ccc98733b87dbdfa7f.png" alt="l_{k,i}"/> in 3D. In practice, the memory footprint for storing track segment data is greatly reduced if the polar angle quadrature is replicated for each azimuthal quadrature point. Such a quadrature allows for track segments to be stored in the 2D azimuthal plane and projected into 3D for each polar angle when necessary. The projection results in some minor changes to the equations presented in the previous sections.</p>
+<p>In what follows, each track segment length <img class="math" src="../_images/math/a7dd07e5817272fd952051ccc98733b87dbdfa7f.png" alt="l_{k,i}"/> will be assumed to reside within the azimuthal plane. Likewise, the optical length <img class="math" src="../_images/math/52842a8f127e412ea1c1d1252cb05d7fd8ef2e9d.png" alt="\tau_{k,i,g} = \Sigma^T_{k,i,g}l_{k,i}"/> also resides in the azimuthal plane. For notational simplicity, the 3D projection of the track segment length for polar angle <img class="math" src="../_images/math/36f73fc1312ee0349b3f3a0f3bd9eb5504339011.png" alt="p"/> will be denoted by <img class="math" src="../_images/math/21f3423826aab8b607c96b5938dce46a02e755e7.png" alt="l_{k,i,p} = \frac{l_{k,i}}{\sin\theta_{p}}"/> and the optical length by <img class="math" src="../_images/math/82279510e62dc4d494f6a3a72b8875d1301cb56e.png" alt="\tau_{k,i,g,p} = \Sigma^T_{k,i,g}l_{k,i,p}"/>.</p>
+<p>First, the polar angle must be accounted for in the expression for the track segment average angular flux to project the segment length into the polar dimension:</p>
+<div class="math" id="equation-avg-angular-flux-polar">
+<p><span class="eqno">(41)</span><img src="../_images/math/15d3989d215523974ef745143c17b30c8ee60328.png" alt="\overline{\Psi}_{k,i,g,p} = \frac{1}{l_{k,i,p}}\left[\frac{\Psi_{k,g,p}(s')}{\Sigma_{i,g}^T}(1 - \exp(-\tau_{k,i,g,p})) + \frac{l_{k,i,p}Q_{i,g}}{\Sigma_{i,g}^T}\left(1 - \frac{(1 - \exp(-\tau_{k,i,g,p}))}{\tau_{k,i,g,p}}\right)\right]"/></p>
+</div><p>Next, <img class="math" src="../_images/math/6259d6b5b7a58747197f2641bd670ccf18e28645.png" alt="\sin\theta_{p(k)}"/> is dropped and a summation over polar angles is incorporated into the area-averaged scalar flux in <a href="#equation-avg-scalar-flux-quadrature">(38)</a>:</p>
+<div class="math" id="equation-avg-scalar-flux-quadrature-polar">
+<p><span class="eqno">(42)</span><img src="../_images/math/4f7bd4143f961caa8f0872af0d68119073b16ea0.png" alt="\Phi_{i,g} = \frac{4\pi}{A_i}\displaystyle\sum\limits_{k \in A_i}\displaystyle\sum\limits_{p=1}^{P}\omega_{m(k)}\omega_{p}\omega_{k}l_{k,i}\overline{\Psi}_{k,i,g,p}"/></p>
+</div><p>The scalar flux can be found in terms of average angular fluxes from each track by substituting the expression for the average angular flux from <a href="#equation-avg-angular-flux-polar">(41)</a> into <a href="#equation-avg-scalar-flux-quadrature-polar">(42)</a> and rearranging:</p>
+<div class="math" id="equation-avg-scalar-flux-polar">
+<p><span class="eqno">(43)</span><img src="../_images/math/64ff77096eb2fe52980e51faf780b7f1c28dc811.png" alt="\Phi_{i,g} = \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\displaystyle\sum\limits_{p=1}^{P}\omega_{m(k)}\omega_{p}\omega_{k}\sin\theta_{p}\left(\Psi_{k,i,g,p}(s') - \frac{Q_{i,g}}{\Sigma_{i,g}^T}\right)(1 - e^{-\tau_{k,i,g,p}})\right]"/></p>
+</div><p>The final form for the scalar flux can be simplified in terms of the change in angular flux <img class="math" src="../_images/math/523c3cee2dab9d8a594b3e0f00d77e9d6c524f69.png" alt="\Delta\Psi_{k,i,g,p}"/> along each track segment as defined in <a href="#equation-avg-scalar-flux-delta-angular-flux">(40)</a>:</p>
+<div class="math" id="equation-avg-scalar-flux-polar-final">
+<p><span class="eqno">(44)</span><img src="../_images/math/1e460843ced44cfdca1b5a6b144be70579e649be.png" alt="\Phi_{i,g} = \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\displaystyle\sum\limits_{p=1}^{P}\omega_{m(k)}\omega_{p}\omega_{k}\sin\theta_{p}\Delta\Psi_{k,i,g,p}\right]"/></p>
+</div><p>This is the form of the transport equation solved by the MOC formulation used in OpenMOC.</p>
+</div>
+<div class="section" id="references">
+<h2>2.11. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><ol class="first last upperalpha simple" start="10">
+<li>Askew, &#8220;A Characteristics Formulation of the Neutron Transport Equation in Complicated Geometries.&#8221; Technical Report AAEW-M 1108, UK Atomic Energy Establishment (1972).</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td><ol class="first last upperalpha simple" start="23">
+<li>Boyd, &#8220;Massively Parallel Algorithms for Method of Characteristics Neutral Particle Transport on Shared Memory Computer Architectures.&#8221; M.S. Thesis, Massachusetts Institute of Technology (2014).</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Method of Characteristics</a><ul>
+<li><a class="reference internal" href="#introduction-to-the-boltzmann-equation">2.1. Introduction to the Boltzmann Equation</a></li>
+<li><a class="reference internal" href="#the-characteristic-transformation">2.2. The Characteristic Transformation</a></li>
+<li><a class="reference internal" href="#the-multi-group-energy-approximation">2.3. The Multi-Group Energy Approximation</a></li>
+<li><a class="reference internal" href="#the-discrete-ordinates-approximation">2.4. The Discrete Ordinates Approximation</a></li>
+<li><a class="reference internal" href="#the-isotropic-scattering-approximation">2.5. The Isotropic Scattering Approximation</a></li>
+<li><a class="reference internal" href="#the-flat-source-region-approximation">2.6. The Flat Source Region Approximation</a></li>
+<li><a class="reference internal" href="#the-constant-cross-section-approximation">2.7. The Constant Cross-Section Approximation</a></li>
+<li><a class="reference internal" href="#the-integrating-factor-solution">2.8. The Integrating Factor Solution</a></li>
+<li><a class="reference internal" href="#the-track-area-approximation">2.9. The Track Area Approximation</a></li>
+<li><a class="reference internal" href="#projection-from-the-azimuthal-plane">2.10. Projection from the Azimuthal Plane</a></li>
+<li><a class="reference internal" href="#references">2.11. References</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="introduction.html"
+                        title="previous chapter">1. Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="eigenvalue_calculations.html"
+                        title="next chapter">3. Eigenvalue Calculations</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/methods/method_of_characteristics.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="eigenvalue_calculations.html" title="3. Eigenvalue Calculations"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="1. Introduction"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

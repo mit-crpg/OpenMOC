@@ -1,0 +1,331 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4. Constructive Solid Geometry &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="Theory and Methodology" href="index.html" />
+    <link rel="next" title="5. Track Generation" href="track_generation.html" />
+    <link rel="prev" title="3. Eigenvalue Calculations" href="eigenvalue_calculations.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="track_generation.html" title="5. Track Generation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="eigenvalue_calculations.html" title="3. Eigenvalue Calculations"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="constructive-solid-geometry">
+<span id="id1"></span><h1>4. Constructive Solid Geometry<a class="headerlink" href="#constructive-solid-geometry" title="Permalink to this headline">¶</a></h1>
+<p>OpenMOC uses <a class="reference external" href="http://en.wikipedia.org/wiki/Constructive_solid_geometry">constructive solid geometry</a> (CSG) to represent complex reactor models in software. The constructive solid geometry formulation is the method of choice for many advanced modeling software packages, including some Computer-aided Design (CAD) implementations. CSG allows complex spatial models to be built using boolean operations - such as intersections and unions - of simple surfaces and building blocks termed <em>primitives</em>, as illustrated in <a class="reference internal" href="#figure-csg-tree"><em>Figure 1</em></a> <a class="footnote-reference" href="#id18" id="id2">[1]</a>. The constructive solid geometry approach is well suited for reactor models which typically are highly structured and contain repeating patterns. This is the case for commercial PWRs and BWRs whose cores are built out of a rectangular lattice of fuel assemblies, each of which is a rectangular lattice of fuel pins.</p>
+<div class="align-center figure align-center" id="figure-csg-tree">
+<img alt="../_images/csg-tree.png" src="../_images/csg-tree.png" style="width: 400px;" />
+<p class="caption"><strong>Figure 1</strong>: A binary tree of CSG primitives.</p>
+</div>
+<p>There are a number of benefits to using the CSG formulation. First, CSG enables simulation codes to significantly reduce the memory footprint required to model the geometry. For example, rather than representing each fuel pin explicitly in memory, a <em>fuel pin primitive</em> is represented by a single data structure. A second major benefit to the CSG formulation is that it is a general and extensible approach which allows for ray tracing routines to be written in an abstract fashion that is independent of the primitives themselves.</p>
+<p>OpenMOC&#8217;s implementation of the routines and data structures for CSG are in large part inspired by those used in the OpenMC code <a class="footnote-reference" href="#id19" id="id3">[2]</a>. The following sections describe the primitives and algorithms used for CSG modeling in OpenMOC. autoref{sec:csg-formulation} defines the terminology and primitives used in OpenMOC. autoref{sec:csg-track-generation} discusses the track generation and quadrature weights used in OpenMOC. Finally, autoref{sec:csg-ray-tracing} develops the algorithms used for ray tracing and track segmentation.</p>
+<div class="section" id="csg-formulation">
+<span id="id4"></span><h2>4.1. CSG Formulation<a class="headerlink" href="#csg-formulation" title="Permalink to this headline">¶</a></h2>
+<p>The constructive solid geometry formulation in OpenMOC is predicated upon the use of several key objects which allow one to construct a spatial model from simple primitives in a hierarchical fashion. The following sections describe each of these fundamental objects in order of increasing complexity. The reader should note that the CSG formulation in OpenMOC is presently only capable of describing the 2D <img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane, though an extension to 3D would be straightforward.</p>
+<p><a class="reference internal" href="#surfaces-halfspaces"><em>Section 4.1.1</em></a> develops the formulation for <em>surfaces</em> which are used to divide space into separate unique <em>halfspaces</em>. <a class="reference internal" href="#universes"><em>Section 4.1.2</em></a> describes <em>universes</em> which represent the entirety of 2D (or 3D) space and provide a &#8220;clean pallet&#8221; upon which one can build a simple structure of <em>cells</em>. <a class="reference internal" href="#cells"><em>Section 4.1.3</em></a> describes <em>cells</em> which contain one or more <em>surfaces</em> that bound a subset of space filled by either a material or a <em>universe</em>. <a class="reference internal" href="#lattices"><em>Section 4.1.4</em></a> describes <em>lattices</em> which are used to create a bounded union of universes through a series of coordinate transformations. A typical hierarchy for the way in which surfaces, universes, cells and lattices are constructed to represent a reactor model in OpenMOC is illustrated in <a class="reference internal" href="#figure-csg-primitives-hierarchy"><em>Figure 2</em></a>.</p>
+<div class="align-center figure align-center" id="figure-csg-primitives-hierarchy">
+<img alt="../_images/csg-primitives-hierarchy.png" src="../_images/csg-primitives-hierarchy.png" style="width: 500px;" />
+<p class="caption"><strong>Figure 2</strong>: A hierarchy of OpenMOC primitives.</p>
+</div>
+<div class="section" id="surfaces-and-halfspaces">
+<span id="surfaces-halfspaces"></span><h3>4.1.1. Surfaces and Halfspaces<a class="headerlink" href="#surfaces-and-halfspaces" title="Permalink to this headline">¶</a></h3>
+<p>The fundamental primitive in OpenMOC is a <em>surface</em>. A 2D surface in the <img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane is defined as the set of points that satisfy <img class="math" src="../_images/math/4c98656d3e94b26764f9f77aff2e3657badbe274.png" alt="f(x,y) = 0"/> for some function <img class="math" src="../_images/math/bb2c93730dbb48558bb3c4738c956c4e8f816437.png" alt="f"/> that will henceforth be termed the <em>potential function</em> of the surface. The potential divides the <img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane into two <em>halfspaces</em>. The set of coordinates for which <img class="math" src="../_images/math/eb77fd5a562b19edb50cc42fc45c228e5aa51766.png" alt="f(x,y) &lt; 0"/> is called the <em>positive halfspace</em> while those coordinates for which <img class="math" src="../_images/math/764b90108fb37d4b75713531fce830981505d7ca.png" alt="f(x,y) &gt; 0"/> collectively form the <em>negative halfspace</em>. <a class="reference internal" href="#figure-halfspace"><em>Figure 3</em></a> illustrates the concepts of halfspaces for an arbitrary elliptical surface.</p>
+<div class="align-center figure align-center" id="figure-halfspace">
+<img alt="../_images/csg-halfspace.png" src="../_images/csg-halfspace.png" style="width: 300px;" />
+<p class="caption"><strong>Figure 3</strong>: An elliptical surface primitive and its halfspaces.</p>
+</div>
+<p>For a surface primitive to be incorporated into the OpenMOC CSG framework, the ray tracing routines require the primitive to include a method to find the intersection point(s) on the surface along some unit trajectory vector <img class="math" src="../_images/math/e930ffe7efe383a85744beb2f211c4457a451db0.png" alt="\hat{n} = [u \; v]^T"/> originating from any point <img class="math" src="../_images/math/e53b1fe25be1c679117fb44a6a886fe1247d189a.png" alt="(x,y)"/>. A depiction of this is given in <a class="reference internal" href="#figure-surface-intersection"><em>Figure 4</em></a> for the parametrized distance <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/> between <img class="math" src="../_images/math/e53b1fe25be1c679117fb44a6a886fe1247d189a.png" alt="(x,y)"/> and the surface.</p>
+<div class="align-center figure align-center" id="figure-surface-intersection">
+<img alt="../_images/csg-halfspace-intersection.png" src="../_images/csg-halfspace-intersection.png" style="width: 300px;" />
+<p class="caption"><strong>Figure 4</strong>: A trajectory&#8217;s intersection point with a surface.</p>
+</div>
+<p>Presently, OpenMOC includes surface primitive types that are most useful for constructing LWR models. These surfaces are from a subset of potential functions called <em>quadratic surfaces</em> as discussed in the following section.</p>
+<div class="section" id="quadratic-surfaces">
+<span id="csg-quadratic-surfaces"></span><h4>4.1.1.1. Quadratic Surfaces<a class="headerlink" href="#quadratic-surfaces" title="Permalink to this headline">¶</a></h4>
+<p>A generalized quadratic surface in 2D is a second order surface with following form:</p>
+<div class="math" id="equation-general-quadratic-surface">
+<p><span class="eqno">(1)</span><img src="../_images/math/a22ee3b4b287cecd61f7fe1afca83b68f9889a5c.png" alt="f(x,y) = Ax^2 + By^2 + Fxy + Px + Qy + D = 0"/></p>
+</div><p>Quadratic surfaces include planes, circles and ellipses. The quadratic surface primitives available in OpenMOC at the date of this writing are displayed in <a class="reference internal" href="#table-openmoc-surface-primitives"><em>Table 1</em></a>.</p>
+<table border="1" class="docutils" id="table-openmoc-surface-primitives">
+<colgroup>
+<col width="22%" />
+<col width="12%" />
+<col width="42%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Surface</th>
+<th class="head">Class</th>
+<th class="head">Potential Equation</th>
+<th class="head">Parameters</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Arbitrary plane</td>
+<td>Plane</td>
+<td><img class="math" src="../_images/math/83519258aba76d6faf6d44aca2be49fa17311219.png" alt="Px + Qy + D = D"/></td>
+<td><img class="math" src="../_images/math/415be918291b07572cdf92483b0970fab75388de.png" alt="{P\;Q\;D}"/></td>
+</tr>
+<tr class="row-odd"><td>Plane perpendicular
+to <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/>-axis</td>
+<td>XPlane</td>
+<td><img class="math" src="../_images/math/006d7ad8cb8d2c3b8ad5ec7b2542af99f91bb8c6.png" alt="x - x_0 = 0"/></td>
+<td><img class="math" src="../_images/math/3e7b7409103d08856860f53fd6cac3d9431993f6.png" alt="{x_0}"/></td>
+</tr>
+<tr class="row-even"><td>Plane perpendicular
+to <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/>-axis</td>
+<td>YPlane</td>
+<td><img class="math" src="../_images/math/7504077513877c4b3c31e79f054ab2a35bf8164c.png" alt="y - y_0 = 0"/></td>
+<td><img class="math" src="../_images/math/a923ee4cd49247aa352533f7f7e2d3dc0eaa5431.png" alt="{y_0}"/></td>
+</tr>
+<tr class="row-odd"><td>Circle in the
+<img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane</td>
+<td>Circle</td>
+<td><img class="math" src="../_images/math/4aac3b0165a76e1c3442981cedaf1521fbacc13e.png" alt="(x-x_0)^2 + (y-y_0)^2 - R^2 = 0"/></td>
+<td><img class="math" src="../_images/math/640718940294ce818ead1c9f0834302d0323c15b.png" alt="{x_0, y_0, R}"/></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 1</strong>: Quadratic surface primitives in OpenMOC.</p>
+<p>The following sections develop the methodology used in OpenMOC to compute the distance from any point <img class="math" src="../_images/math/e53b1fe25be1c679117fb44a6a886fe1247d189a.png" alt="(x,y)"/> in the <img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane to each of the surfaces in <a class="reference internal" href="#table-openmoc-surface-primitives"><em>Table 1</em></a>.</p>
+</div>
+<div class="section" id="arbitrary-plane">
+<span id="id5"></span><h4>4.1.1.2. Arbitrary Plane<a class="headerlink" href="#arbitrary-plane" title="Permalink to this headline">¶</a></h4>
+<p>An arbitrary plane is described by the following potential equation:</p>
+<div class="math" id="equation-arbitrary-plane-potential">
+<p><span class="eqno">(2)</span><img src="../_images/math/0498da563166d20724741ed2a06cdeae05e8aaef.png" alt="f(x,y) = Px + Qy + D = 0"/></p>
+</div><p>To find the intersection point along some trajectory with a Plane, substitute the intersection point on the surface <img class="math" src="../_images/math/9771ff02c3ccedeb6a1553e9fdc91c510890a277.png" alt="(x+du, y+dv)"/> into the potential equation and rearrange to find the following parametrized distance <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>:</p>
+<div class="math" id="equation-arbitrary-plane-distance">
+<p><span class="eqno">(3)</span><img src="../_images/math/43d1d89c700dcf4bf5103cea279f8e3d53d0f848.png" alt="f(x+du, y+dv) = P(x+du) + Q(y+dv) + D = 0 \;\;\; \Rightarrow \;\;\; d = \frac{D - Px - Qy}{Pu + Qv}"/></p>
+</div></div>
+<div class="section" id="xplane">
+<span id="id6"></span><h4>4.1.1.3. XPlane<a class="headerlink" href="#xplane" title="Permalink to this headline">¶</a></h4>
+<p>A plane perpendicular to the <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/>-axis is described by the following potential equation:</p>
+<div class="math" id="equation-xplane-potential">
+<p><span class="eqno">(4)</span><img src="../_images/math/6b9e49175bd93d0cf888e416285275a5e0f3a9b1.png" alt="f(x,y) = Px + D = 0 \;\;\; \Rightarrow \;\;\; x - x_0 = 0"/></p>
+</div><p>To find the intersection point along some trajectory with a XPlane, substitute the intersection point on the surface <img class="math" src="../_images/math/9771ff02c3ccedeb6a1553e9fdc91c510890a277.png" alt="(x+du, y+dv)"/> into the potential equation and rearrange to find the following parametrized distance <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>:</p>
+<div class="math" id="equation-xplane-distance">
+<p><span class="eqno">(5)</span><img src="../_images/math/f99e98d81b5ace2e6f67cf21b1411ded65bcf281.png" alt="f(x+du, y+dv) = (x + du) - x_0 = 0 \;\;\; \Rightarrow \;\;\; d = \frac{x-x_0}{u}"/></p>
+</div></div>
+<div class="section" id="yplane">
+<span id="id7"></span><h4>4.1.1.4. YPlane<a class="headerlink" href="#yplane" title="Permalink to this headline">¶</a></h4>
+<p>Similar to the XPlane, a plane perpendicular to the <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/>-axis is described by the following potential equation:</p>
+<div class="math" id="equation-yplane-potential">
+<p><span class="eqno">(6)</span><img src="../_images/math/1f622e085904f836ba6dca46fc691a024c8d2fc5.png" alt="f(x,y) = Qy + D = 0 \;\;\; \Rightarrow \;\;\; y - y_0 = 0"/></p>
+</div><p>To find the intersection point along some trajectory with a YPlane, substitute the intersection point on the surface <img class="math" src="../_images/math/9771ff02c3ccedeb6a1553e9fdc91c510890a277.png" alt="(x+du, y+dv)"/> into the potential equation and rearrange to find the following parametrized distance <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>:</p>
+<div class="math" id="equation-yplane-distance">
+<p><span class="eqno">(7)</span><img src="../_images/math/d660afb9c7b58982bccd4aeb4497197e271a6677.png" alt="f(x+du, y+dv) = (y + dv) - y_0 = 0 \;\;\; \Rightarrow \;\;\; d = \frac{y-y_0}{v}"/></p>
+</div></div>
+<div class="section" id="circle">
+<span id="id8"></span><h4>4.1.1.5. Circle<a class="headerlink" href="#circle" title="Permalink to this headline">¶</a></h4>
+<p>A circle in the <img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane centered at <img class="math" src="../_images/math/d3ea5ae5f5092b7024a8775d282032dc76120c9d.png" alt="(x_0, y_0)"/> with radius <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> is described by the following potential equation:</p>
+<div class="math" id="equation-circle-potential">
+<p><span class="eqno">(8)</span><img src="../_images/math/ee0dafed4733676ec2fafbfb72a2a6979a99c68c.png" alt="f(x,y) = (x-x_0)^2 + (y-y_0)^2 - R^2 = 0"/></p>
+</div><p>To find the intersection point along some trajectory with a Circle, substitute the intersection point on the surface <img class="math" src="../_images/math/9771ff02c3ccedeb6a1553e9fdc91c510890a277.png" alt="(x+du, y+dv)"/> into the potential equation, define <img class="math" src="../_images/math/cee60000fa380adbbd54d42ee5c6dafec532bbcb.png" alt="\Delta_{x} = x - x_0"/> and <img class="math" src="../_images/math/c4f8bfc30b4de05fedb621b8ae00ed9d7e0fa844.png" alt="\Delta_{y} = y - y_0"/>, and rearrange to find the following parametrized distance <img class="math" src="../_images/math/96ab646de7704969b91c76a214126b45f2b07b25.png" alt="d"/>:</p>
+<div class="math" id="equation-circle-distance">
+<p><span class="eqno">(9)</span><img src="../_images/math/8f0be10f27bcbb8bb6a6880338a71a1f22e94282.png" alt="f(x+du, y+dv) = (\Delta_{x} + du)^2 + (\Delta_{y} + dv)^2 - R^2 = 0"/></p>
+</div><div class="math" id="equation-circle-distance-2">
+<p><span class="eqno">(10)</span><img src="../_images/math/fb8370f055caa7e7483648be23b4c5ce728290a7.png" alt="d = \frac{-\Delta_{x}y - \Delta_{y}v \pm \sqrt{[-\Delta_{x}u - \Delta_{y}v]^2 - (u^2+v^2)[\Delta_{x}^2 + \Delta_{y}^2 - R^2]}}{(u^2 + v^2)}"/></p>
+</div><p>The parametrized distance is in the form of the quadratic formula, and there may be one or two real solutions, or two complex solutions. In the case of one solution, it indicates that the trajectory vector <img class="math" src="../_images/math/e30a370354cf9f53e8b5219dbc856f54d52c5a04.png" alt="\hat{n}"/> merely glances the surface of the Circle. The two solution case represents a trajectory vector that intersects the Circle surface and passes through on the opposite side. Complex solutions are unphysical and represent the fact that the trajectory may not pass through the circle at all.</p>
+</div>
+</div>
+<div class="section" id="cells">
+<span id="id9"></span><h3>4.1.2. Cells<a class="headerlink" href="#cells" title="Permalink to this headline">¶</a></h3>
+<p>A <em>cell</em> is defined to be the region bounded by a boolean combination of surface halfspaces. Presently, OpenMOC only permits the use of halfspace intersections and does not support other boolean operations such as unions and differences. The region defined by the cell is subsequently filled by either a material or a <em>universe</em>, described in the following section.</p>
+<p><a class="reference internal" href="#figure-cells-pin-cell"><em>Figure 5</em></a> illustrates the use of five surface halfspaces to make up a simple pin cell. The halfspace for each surface is indicated by &#8220;<img class="math" src="../_images/math/77cf26be132ef93923e082ee4153b2cb0ef44a50.png" alt="+"/>&#8221; or &#8220;<img class="math" src="../_images/math/add22d9bda21e86390bc74fa4dde17730a442da7.png" alt="-"/>&#8221; symbols, while each cell is uniquely identified by a color and number. The fuel pin is described by the negative halfspace of the Circle surface, while the moderator is made up of the intersection of the positive halfspace of the Circle and positive/negative halfspaces of the left/right and bottom/top XPlanes and YPlanes, respectively.</p>
+<div class="align-center figure align-center" id="figure-cells-pin-cell">
+<img alt="../_images/csg-cells-halfspace-intersection.png" src="../_images/csg-cells-halfspace-intersection.png" style="width: 300px;" />
+<p class="caption"><strong>Figure 5</strong>: Two cells representing a fuel pin cell.</p>
+</div>
+</div>
+<div class="section" id="universes">
+<span id="id10"></span><h3>4.1.3. Universes<a class="headerlink" href="#universes" title="Permalink to this headline">¶</a></h3>
+<p>A <em>universe</em> is a collection of one or more cells that fill the entirety of the <img class="math" src="../_images/math/3f79c3676b62fb47243e0d357c87115b6f3395e4.png" alt="xy"/>-plane. Each cell may be filled with a material or a separate universe. Universes allow unique structures to be created from cells, and for simple replication of that structure throughout a model by placing it in various locations throughout the geometry. The universe-based CSG formulation in OpenMOC is similar to that used in Monte Carlo neutron transport codes such as OpenMC <a class="footnote-reference" href="#id19" id="id11">[2]</a>, MCNP <a class="footnote-reference" href="#id20" id="id12">[3]</a> and Serpent <a class="footnote-reference" href="#id21" id="id13">[4]</a>.</p>
+<p>A universe of 10 cells constructed from the halfspace intersections of two XPlanes, two XPlanes and one Circle surface is depicted in <a class="reference internal" href="#figure-universe-cells"><em>Figure 6</em></a>. The halfspace for each surface is indicated by &#8220;<img class="math" src="../_images/math/77cf26be132ef93923e082ee4153b2cb0ef44a50.png" alt="+"/>&#8221; or &#8220;<img class="math" src="../_images/math/add22d9bda21e86390bc74fa4dde17730a442da7.png" alt="-"/>&#8221; symbols, while each cell is uniquely identified by a color and number.</p>
+<div class="align-center figure align-center" id="figure-universe-cells">
+<img alt="../_images/surfs-cells.png" src="../_images/surfs-cells.png" style="width: 300px;" />
+<p class="caption"><strong>Figure 6</strong>: A universe composed of 10 cells.</p>
+</div>
+</div>
+<div class="section" id="lattices">
+<span id="id14"></span><h3>4.1.4. Lattices<a class="headerlink" href="#lattices" title="Permalink to this headline">¶</a></h3>
+<p><em>Lattices</em> are an extremely useful construct for modeling regular, repeating structures. This is especially the case for reactor cores which typically contain rectangular or hexagonal arrays of fuel pins. For this reason, lattices are a common structure in many neutron transport codes, such as OpenMC <a class="footnote-reference" href="#id19" id="id15">[2]</a>, MCNP <a class="footnote-reference" href="#id20" id="id16">[3]</a> and Serpent <a class="footnote-reference" href="#id21" id="id17">[4]</a>.</p>
+<p>OpenMOC currently only contains a single lattice implementation for 2D Cartesian arrays. Each lattice is uniquely specified by the number of array elements along the <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> and <img class="math" src="../_images/math/092e364e1d9d19ad5fffb0b46ef4cc7f2da02c1c.png" alt="y"/> axes, the width and height of each lattice cell, and the universe to <em>fill</em> each lattice cell. The lattice specification represents a coordinate transformation such that the center of each lattice cell maps to the origin of the universe within it. This allows for a single universe to be replicated in some or all lattice cells without redundantly storing the universe many times in memory.</p>
+<p><a class="reference internal" href="#figure-lattice-cells"><em>Figure 7</em></a> illustrates a simple 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice, with each lattice cell filled by one of three different universes. Each universe contains two cells representing the moderator and a fuel pin of some diameter.</p>
+<div class="align-center figure align-center" id="figure-lattice-cells">
+<img alt="../_images/csg-lattice-cells.png" src="../_images/csg-lattice-cells.png" style="width: 300px;" />
+<p class="caption"><strong>Figure 7</strong>: A 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice.</p>
+</div>
+</div>
+</div>
+<div class="section" id="references">
+<h2>4.2. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils footnote" frame="void" id="id18" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>Wikipedia, &#8220;Constructive Solid Geometry,&#8221; <a class="reference external" href="http://en.wikipedia.org/wiki/Constructive_solid_geometry">http://en.wikipedia.org/wiki/Constructive_solid_geometry</a> (2013).</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id19" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id11">2</a>, <a class="fn-backref" href="#id15">3</a>)</em> <ol class="last upperalpha simple" start="16">
+<li>Romano and B. Forget, &#8220;The OpenMC Monte Carlo Particle Transport Code.&#8221; <em>Annals of Nuclear Energy</em>, <strong>51</strong>, pp. 274-281 (2013).</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id20" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id12">1</a>, <a class="fn-backref" href="#id16">2</a>)</em> X-5 Monte Carlo Team, &#8220;MCNP - A General Monte Carlo N-Particle Transport Code, Version 5.&#8221; <em>Technical Report LA-UR-03-1987</em>, Los Alamos National Laboratory (2008).</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id21" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[4]</td><td><em>(<a class="fn-backref" href="#id13">1</a>, <a class="fn-backref" href="#id17">2</a>)</em> <ol class="last upperalpha simple" start="10">
+<li>Leppanen, &#8220;Serpent - A Continuous Energy Monte Carlo Reactor Physics Burnup Calculation Code,&#8221; <a class="reference external" href="http://montecarlo.vtt.fi/download/Serpent_manual.pdf">http://montecarlo.vtt.fi/download/Serpent_manual.pdf</a> (2013).</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4. Constructive Solid Geometry</a><ul>
+<li><a class="reference internal" href="#csg-formulation">4.1. CSG Formulation</a><ul>
+<li><a class="reference internal" href="#surfaces-and-halfspaces">4.1.1. Surfaces and Halfspaces</a><ul>
+<li><a class="reference internal" href="#quadratic-surfaces">4.1.1.1. Quadratic Surfaces</a></li>
+<li><a class="reference internal" href="#arbitrary-plane">4.1.1.2. Arbitrary Plane</a></li>
+<li><a class="reference internal" href="#xplane">4.1.1.3. XPlane</a></li>
+<li><a class="reference internal" href="#yplane">4.1.1.4. YPlane</a></li>
+<li><a class="reference internal" href="#circle">4.1.1.5. Circle</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cells">4.1.2. Cells</a></li>
+<li><a class="reference internal" href="#universes">4.1.3. Universes</a></li>
+<li><a class="reference internal" href="#lattices">4.1.4. Lattices</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#references">4.2. References</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="eigenvalue_calculations.html"
+                        title="previous chapter">3. Eigenvalue Calculations</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="track_generation.html"
+                        title="next chapter">5. Track Generation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/methods/constructive_solid_geometry.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="track_generation.html" title="5. Track Generation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="eigenvalue_calculations.html" title="3. Eigenvalue Calculations"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

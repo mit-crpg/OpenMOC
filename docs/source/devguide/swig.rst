@@ -172,47 +172,6 @@ Finally, the shared library extension module can be imported into Python and use
     >>> module.free_data()
 
 
-------------------
-Default Parameters
-------------------
-
-It is highly recommended that developers make use of `default parameters`_ for routines when possible. Default arguments in a C++ routine are wrapped by ``swig`` given the :option:`-keyword` command line option to provide `keyword arguments`_ (also known as named parameters) in the Python binding for that routine. There are several benefits for defining default arguments in the C/C++ source code:
-
-* **Readability** - Keyword arguments make code more readable, especially in example input files for users new to OpenMOC
-
-* **Ordering** - Keyword arguments can be provided in any order, lessening the burden to the user to remember a specific ordering
-
-* **Flexibility** - Function parameters with useful default values are not required at runtime, making Python scripts easier to comprehend
-
-An example of function parameters with default values and the use of keyword arguments to override the default values in Python is given below:
-
-.. code-block:: python
-
-    # Define a function with two arguments with default values
-    def multiverseHelloWorld(count=5, greeting='Hello'):
-
-      for i in range(count):
-        print '%s from World %d!' % (greeting, i)
-
-    # Call routine and override default keyword arguments 
-    # The keyword arguments can be provided in any order
-    multiverseHelloWorld(greeting='Hola', count=7)
-
-Likewise, an example of how to define default values for function parameters - which will be provided through the Python interface as `SWIG default arguments`_ - in C/C++ is given below:
-
-.. code-block:: c
-
-    /* Define a function prototype with two arguments with default values */
-    void multiverseHelloWorld(int count=5, char* greeting="Hello");
-
-    /* Function implementation doesn't include default values in C++ */
-    void multiverseHelloWorld(int count, char* greeting) {
-
-      for (int i=0; i < count; i++)
-        printf("%s from World %d!", greeting, i)
-    }
-
-
 .. _numpy_typemaps:
 
 --------------
@@ -337,7 +296,7 @@ The function prototype is given below in the :file:`get_rand_array.h` file below
     /* Define function prototype to take in a NumPy array */
     void get_rand_array(double* output_array, int length);
 
-One possible implementation of the ``get_rand_array(...)`` routine is given in the :file:`get_rand_array.c` file below (:download:`download <../../img/get_rand_array.cpp>`):
+One possible implementation of the ``get_rand_array(...)`` routine is given in the :file:`get_rand_array.cpp` file below (:download:`download <../../img/get_rand_array.cpp>`):
 
 .. code-block:: c
 
@@ -345,7 +304,7 @@ One possible implementation of the ``get_rand_array(...)`` routine is given in t
     #include "get_rand_array.h"
 
     /* Define function implementation */
-    double get_rand_array(double* output_array, int length) {
+    void get_rand_array(double* output_array, int length) {
 
       /* Populate input NumPy array with random numbers */
       for (int i=0; i < length; i++)
@@ -539,6 +498,125 @@ Finally, the shared library extension module can be imported into Python and use
 Return Python Lists
 -------------------
 
+The :file:`std_vector.i` interface file provides `SWIG templates`_ for returning a Python tuple from a function returning a `C++ STL`_ ``std::vector`` data structure. The following is an example C/C++ in which we wish to wrap some function ``get_rand_list(...)`` with SWIG and provide the capability to convert a C++ ``std::vector`` into an output Python list. SWIG will modify the source code with the `Python/C API`_ such that a Python tuple is returned with the data, which will then be converted to a Python list.
+
+The function prototype is given below in the :file:`get_rand_list.h` file below (:download:`download <../../img/get_rand_list.h>`):
+
+.. code-block:: c
+
+    /* File sum_list.h */
+    #include <stdio.h>
+    #include <vector>
+
+    /* Define function prototype */
+    std::vector<double> get_rand_list(int length);
+
+One possible implementation of the ``get_rand_list(...)`` routine is given in the :file:`get_rand_list.cpp` file below (:download:`download <../../img/get_rand_list.cpp>`):
+
+.. code-block:: c
+
+    /* File get_rand_list.cpp */
+    #include "get_rand_list.h"
+
+    /* Define function implementation */
+    std::vector<double> get_rand_list(int length) {
+
+      /* Allocate memory for the C++ STL vector */
+      std::vector<double> output_list(length);
+
+      /* Populate vector with random numbers */
+      for (int i=0; i < length; i++)
+        output_list[i] = ((double) rand()) / RAND_MAX;
+
+      return output_list;
+    }
+
+The following would be the required SWIG interface file :file:`get_rand_list.i` (:download:`download <../../img/get_rand_list.i>`) to wrap :file:`get_rand_list.h` into the ``_get_rand_list`` C/C++ extension module for Python. The interface file includes the :file:`std_vector.i` file and defines a SWIG template to match C++ STL vectors.
+
+.. code-block:: none
+
+    %module get_rand_list
+    %{
+      #define SWIG_FILE_WITH_INIT
+      #include "get_rand_list.h"
+    %}
+
+    %include "std_vector.i"
+
+    /* SWIG template for get_rand_list(int length) C++ routine */
+    namespace std {
+      %template(DoubleVector) vector<double>;
+    }
+
+    %include "get_rand_list.h"
+
+The source code can be wrapped and compiled in similar fashion to that shown before using the following commands from the console:
+
+.. code-block:: none
+
+    $ swig -python -c++ -o get_rand_list_wrap.cpp get_rand_list.i
+    $ gcc -c get_rand_list.cpp -o get_rand_list.o -fpic -std=c++0x
+    $ gcc -I/usr/include/python2.7 -c get_rand_list_wrap.cpp -o get_rand_list_wrap.o -fpic -std=c++0x
+    $ g++ get_rand_list_wrap.o get_rand_list.o -o _get_rand_list.so -shared -Wl,-soname,_get_rand_list.so
+
+Finally, the shared library extension module can be imported into Python and used as follows:
+
+.. code-block:: none
+
+    wbinventor > python
+    Python 2.7.3 (default, Sep 26 2013, 16:35:25) 
+    [GCC 4.7.2] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> from _get_rand_list import *
+    >>> output_list = list(get_rand_list(10))
+    >>> print output_list
+    [0.8401877171547095, 0.39438292681909304, 0.7830992237586059, 0.7984400334760733, 
+     0.9116473579367843, 0.19755136929338396, 0.335222755714889, 0.768229594811904, 
+     0.2777747108031878, 0.5539699557954305]
+    >>> type(output_list)
+    <type 'list'>
+
+
+------------------
+Default Parameters
+------------------
+
+It is highly recommended that developers make use of `default parameters`_ for routines when possible. Default arguments in a C++ routine are wrapped by ``swig`` given the :option:`-keyword` command line option to provide `keyword arguments`_ (also known as named parameters) in the Python binding for that routine. There are several benefits for defining default arguments in the C/C++ source code:
+
+* **Readability** - Keyword arguments make code more readable, especially in example input files for users new to OpenMOC
+
+* **Ordering** - Keyword arguments can be provided in any order, lessening the burden to the user to remember a specific ordering
+
+* **Flexibility** - Function parameters with useful default values are not required at runtime, making Python scripts easier to comprehend
+
+An example of function parameters with default values and the use of keyword arguments to override the default values in Python is given below:
+
+.. code-block:: python
+
+    # Define a function with two arguments with default values
+    def multiverseHelloWorld(count=5, greeting='Hello'):
+
+      for i in range(count):
+        print '%s from World %d!' % (greeting, i)
+
+    # Call routine and override default keyword arguments 
+    # The keyword arguments can be provided in any order
+    multiverseHelloWorld(greeting='Hola', count=7)
+
+Likewise, an example of how to define default values for function parameters - which will be provided through the Python interface as `SWIG default arguments`_ - in C/C++ is given below:
+
+.. code-block:: c
+
+    /* Define a function prototype with two arguments with default values */
+    void multiverseHelloWorld(int count=5, char* greeting="Hello");
+
+    /* Function implementation doesn't include default values in C++ */
+    void multiverseHelloWorld(int count, char* greeting) {
+
+      for (int i=0; i < count; i++)
+        printf("%s from World %d!", greeting, i)
+    }
+
 
 ------
 Macros
@@ -593,3 +671,6 @@ SWIG provides functionality to define typedefs_ in interface files. `SWIG typede
 .. _C/C++ extension module: http://docs.python.org/2/extending/extending.html
 .. _SWIG exception handling: http://www.swig.org/Doc1.1/HTML/Exceptions.html
 .. _Python/C API: http://docs.python.org/2/c-api/
+.. _SWIG STL vector typemap: http://www.swig.org/Doc2.0/SWIGDocumentation.html#Library_std_vector
+.. _C++ STL: http://en.wikipedia.org/wiki/Standard_Template_Library
+.. _SWIG templates: http://www.swig.org/Doc1.3/SWIGPlus.html#SWIGPlus_nn30

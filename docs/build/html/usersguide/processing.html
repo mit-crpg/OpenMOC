@@ -1,0 +1,788 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4. Data Processing and Visualization &mdash; OpenMOC Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
+    <link rel="up" title="User’s Guide" href="index.html" />
+    <link rel="next" title="5. Running OpenMOC" href="running.html" />
+    <link rel="prev" title="3. Writing Python Input Files" href="input.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="running.html" title="5. Running OpenMOC"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="input.html" title="3. Writing Python Input Files"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="data-processing-and-visualization">
+<span id="usersguide-processing"></span><h1>4. Data Processing and Visualization<a class="headerlink" href="#data-processing-and-visualization" title="Permalink to this headline">¶</a></h1>
+<p>This section is intended to explain in detail the recommended procedures for carrying out common tasks with OpenMOC. While several utilities of varying complexity are provided to help automate the process, in many cases it will be extremely beneficial to do some coding in Python to quickly obtain results. In these cases, and for many of the provided utilities, it is necessary for your Python installation to contain:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.numpy.org/">Numpy</a> - Required for array-based data manipulation and processing</li>
+<li><a class="reference external" href="http://www.h5py.org/">h5py</a> - Required only if reading/writing HDF5 data files</li>
+<li><a class="reference external" href="http://matplotlib.org/">Matplotlib</a> - Optional for plotting utilities</li>
+</ul>
+<p>Most of these are easily obtainable in Ubuntu through the package manager.</p>
+<div class="section" id="exporting-simulation-data">
+<h2>4.1. Exporting Simulation Data<a class="headerlink" href="#exporting-simulation-data" title="Permalink to this headline">¶</a></h2>
+<p>OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module provides the <tt class="docutils literal"><span class="pre">storeSimulationState(...)</span></tt> routine to export simulation data to binary output files. The only required parameter for the routine is a <tt class="docutils literal"><span class="pre">Solver</span></tt> object. Optional parameters may be used to indicate whether to store the data in HDF5 or as a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file (default), store the fluxes, sources, pin powers and more. All of the supported parameters are listed in <a class="reference internal" href="#table-store-simulation-state"><em>Table 1</em></a>, and the output variables stored in the binary file are tabulated in <a class="reference internal" href="#table-output-variables"><em>Table 2</em></a>.</p>
+<table border="1" class="docutils" id="table-store-simulation-state">
+<colgroup>
+<col width="14%" />
+<col width="19%" />
+<col width="20%" />
+<col width="10%" />
+<col width="37%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">fluxes</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to store the FSR fluxes</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">sources</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to store the FSR sources</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">pin_powers</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to store the pin powers</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">use_hdf5</span></tt></td>
+<td>boolean</td>
+<td>False (pickle file)</td>
+<td>Yes</td>
+<td>Whether to use HDF5</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">filename</span></tt></td>
+<td>string</td>
+<td>&#8216;simulation-state&#8217;</td>
+<td>Yes</td>
+<td>The filename for storage</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">append</span></tt></td>
+<td>boolean</td>
+<td>True</td>
+<td>Yes</td>
+<td>Append to a file or create a new one</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">note</span></tt></td>
+<td>string</td>
+<td>None</td>
+<td>Yes</td>
+<td>Any comment on the simulation</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 1</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.proces.storeSimulationState(...)</span></tt> routine.</p>
+<table border="1" class="docutils" id="table-output-variables">
+<colgroup>
+<col width="31%" />
+<col width="18%" />
+<col width="51%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Output Variable</th>
+<th class="head">Type</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>solver type</td>
+<td>string</td>
+<td>&#8216;CPUSolver&#8217;, &#8216;ThreadPrivateSolver&#8217;, etc.</td>
+</tr>
+<tr class="row-odd"><td># FSRs</td>
+<td>integer</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td># materials</td>
+<td>integer</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td># energy groups</td>
+<td>integer</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td># tracks</td>
+<td>integer</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td># segments</td>
+<td>integer</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>track spacing [cm]</td>
+<td>float</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td># azimuthal angles</td>
+<td>integer</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td># polar angles</td>
+<td>integer</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td># iterations</td>
+<td>integer</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>source residual threshold</td>
+<td>float</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>exponential</td>
+<td>string</td>
+<td>&#8216;exp intrinsic&#8217; or &#8216;linear interpolation&#8217;</td>
+</tr>
+<tr class="row-even"><td>floating point</td>
+<td>string</td>
+<td>&#8216;double&#8217; or &#8216;single&#8217;</td>
+</tr>
+<tr class="row-odd"><td>time [sec]</td>
+<td>float</td>
+<td>Total time to converge the source</td>
+</tr>
+<tr class="row-even"><td>keff</td>
+<td>float</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>note</td>
+<td>string</td>
+<td>If requested by user</td>
+</tr>
+<tr class="row-even"><td># threads</td>
+<td>integer</td>
+<td>For solvers on multi-core CPUs</td>
+</tr>
+<tr class="row-odd"><td># threads per block</td>
+<td>integer</td>
+<td>For solvers on GPUs</td>
+</tr>
+<tr class="row-even"><td>FSR scalar fluxes</td>
+<td>float array</td>
+<td>If requested by user</td>
+</tr>
+<tr class="row-odd"><td>FSR sources</td>
+<td>float array</td>
+<td>If requested by user</td>
+</tr>
+<tr class="row-even"><td>fission rates</td>
+<td>float array(s)</td>
+<td>If requested by user</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2</strong>: Output variables in a binary file created by the <tt class="docutils literal"><span class="pre">openmoc.proces.storeSimulationState(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span> <span class="kn">as</span> <span class="nn">proc</span>
+
+<span class="c"># Setup and run simulation</span>
+<span class="o">...</span>
+
+<span class="c"># Export the simulation data to an output file</span>
+<span class="n">proc</span><span class="o">.</span><span class="n">storeSimulationState</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">use_hdf5</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="retrieving-simulation-data">
+<h2>4.2. Retrieving Simulation Data<a class="headerlink" href="#retrieving-simulation-data" title="Permalink to this headline">¶</a></h2>
+<p>Exporting simulation data is only useful if there is a straightforward means to retrieve it for data processing at a later time. OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">restoreSimulationStates(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module can be used for this purpose. This routine takes a binary data file created by the <tt class="docutils literal"><span class="pre">storeSimulationState(...)</span></tt> routine, parses the file and catalogues the data in a Python <a class="reference external" href="http://docs.python.org/2/library/stdtypes.html#mapping-types-dict">dictionary</a>, which it returns to the user. The parameters accepted by the routine are described in <a class="reference internal" href="#table-restore-simulation-states"><em>Table 3</em></a>, while the dictionary keys are identical to the output variables given in <a class="reference internal" href="#table-output-variables"><em>Table 2</em></a>.</p>
+<table border="1" class="docutils" id="table-restore-simulation-states">
+<colgroup>
+<col width="27%" />
+<col width="14%" />
+<col width="43%" />
+<col width="16%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">filename</span></tt></td>
+<td>string</td>
+<td>&#8216;simulation-state.pkl&#8217;</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">directory</span></tt></td>
+<td>string</td>
+<td>&#8216;simulation-states&#8217;</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 3</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.process.restoreSimulationStates(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span> <span class="kn">as</span> <span class="nn">proc</span>
+
+<span class="c"># Retrieve the simulation state(s) stored in the &#39;states.h5&#39; file</span>
+<span class="c"># and returns the data in a Python dictionary</span>
+<span class="n">simulation_state</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">restoreSimulationState</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;states.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="computing-pin-powers">
+<h2>4.3. Computing Pin Powers<a class="headerlink" href="#computing-pin-powers" title="Permalink to this headline">¶</a></h2>
+<p>In some cases, a user may wish to only compute and export the pin powers for a simulation. In this case, the <tt class="docutils literal"><span class="pre">computeFSRPinPowers(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module  may be used. The routine takes in a <tt class="docutils literal"><span class="pre">Solver</span></tt> subclass (e.g., <tt class="docutils literal"><span class="pre">ThreadPrivateSolver</span></tt>, <tt class="docutils literal"><span class="pre">GPUSolver</span></tt>, etc.) and computes the fission rate for each universe in the geometry by summing up the fission rates in each cell in the universe. In most cases, a universe is replicated in many places throughout the geometry. To account for this, the routine will separately compute the fission rates for each unique placement of that universe in the geometry. By default, the pin powers will be exported to a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file, but may alternatively be exported to an HDF5 binary file. <a class="reference internal" href="#table-pin-powers"><em>Table 4</em></a> describes the parameters accepted by the routine.</p>
+<table border="1" class="docutils" id="table-pin-powers">
+<colgroup>
+<col width="26%" />
+<col width="38%" />
+<col width="17%" />
+<col width="19%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">use_hdf5</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.process.computeFSRPinPowers(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span> <span class="kn">as</span> <span class="nn">proc</span>
+
+<span class="c"># Setup and run simulation</span>
+<span class="o">...</span>
+
+<span class="c"># Compute and export the pin powers</span>
+<span class="n">proc</span><span class="o">.</span><span class="n">computeFSRPinPowers</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">use_hdf5</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The pin powers are computed for each nested universe level in the hierarchical geometry model.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The pin powers are NOT normalized in any way - this is left to the user&#8217;s discretion during data processing.</p>
+</div>
+</div>
+<div class="section" id="geometry-visualization">
+<h2>4.4. Geometry Visualization<a class="headerlink" href="#geometry-visualization" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="plotting-tracks">
+<h3>4.4.1. Plotting Tracks<a class="headerlink" href="#plotting-tracks" title="Permalink to this headline">¶</a></h3>
+<p>To plot the tracks crossing the geometry, use the <tt class="docutils literal"><span class="pre">plotTracks(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-tracks"><em>Table 5</em></a>.</p>
+<table border="1" class="docutils" id="table-plot-tracks">
+<colgroup>
+<col width="22%" />
+<col width="29%" />
+<col width="10%" />
+<col width="10%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">track_generator</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>The tracks of interest</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plotTracks(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates the use of this routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+
+<span class="c"># Setup geometry and generate tracks</span>
+<span class="o">...</span>
+
+<span class="n">plot</span><span class="o">.</span><span class="n">plotTracks</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A depiction of the tracks for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/large-lattice.py</span></tt> example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in <a class="reference internal" href="#figure-tracks"><em>Figure 1</em></a>.</p>
+<div class="align-center figure align-center" id="figure-tracks">
+<img alt="../_images/tracks.png" src="../_images/tracks.png" style="width: 400px;" />
+<p class="caption"><strong>Figure 1</strong>: The tracks crossing a a 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The runtime required by the plotting routine scales with the number of tracks, which is proportional to the number of azimuthal angles and inversely proportional the track spacing.</p>
+</div>
+</div>
+<div class="section" id="plotting-segments">
+<h3>4.4.2. Plotting Segments<a class="headerlink" href="#plotting-segments" title="Permalink to this headline">¶</a></h3>
+<p>To plot the segments crossing the geometry color-coded by flat source region, use the <tt class="docutils literal"><span class="pre">plotSegments(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-segments"><em>Table 6</em></a>.</p>
+<table border="1" class="docutils" id="table-plot-segments">
+<colgroup>
+<col width="22%" />
+<col width="29%" />
+<col width="10%" />
+<col width="10%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">track_generator</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>The tracks of interest</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 6</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plotSegments(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates the use of this routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+
+<span class="c"># Setup geometry and generate tracks</span>
+<span class="o">...</span>
+
+<span class="n">plot</span><span class="o">.</span><span class="n">plotSegments</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A depiction of the segments for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/large-lattice.py</span></tt> example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in <a class="reference internal" href="#figure-segments"><em>Figure 2</em></a>.</p>
+<div class="align-center figure align-center" id="figure-segments">
+<img alt="../_images/segments.png" src="../_images/segments.png" style="width: 400px;" />
+<p class="caption"><strong>Figure 2</strong>: The segments crossing a a 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This routine will require a long time for large geometries or fine track discretization. In addition, the Matplotlib consumes a substantial amount of memory to plot the segments and may throw a <a class="reference external" href="http://en.wikipedia.org/wiki/Segmentation_fault">segmentation fault</a> for large geometries.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The runtime required by the plotting routine scales with the number of segments, which is proportional to the number of flat source regions and number of azimuthal angles and inversely proportional the track spacing.</p>
+</div>
+</div>
+<div class="section" id="plotting-by-material">
+<h3>4.4.3. Plotting by Material<a class="headerlink" href="#plotting-by-material" title="Permalink to this headline">¶</a></h3>
+<p>To plot the geometry color-coded by the material ID&#8217;s throughout the geometry, use the <tt class="docutils literal"><span class="pre">plotMaterials(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-materials"><em>Table 7</em></a>.</p>
+<table border="1" class="docutils" id="table-plot-materials">
+<colgroup>
+<col width="16%" />
+<col width="26%" />
+<col width="12%" />
+<col width="12%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">geometry</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Geometry</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>The geometry of interest</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
+<td>integer</td>
+<td>250</td>
+<td>Yes</td>
+<td>The pixel resolution</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 7</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plotMaterials(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+
+<span class="c"># Setup geomery</span>
+<span class="o">...</span>
+
+<span class="c"># Plot a 500 x 500 pixel image of the materials</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">plotMaterials</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A depiction of the materials for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/large-lattice.py</span></tt> example input file is illustrated in <a class="reference internal" href="#figure-materials"><em>Figure 3</em></a>.</p>
+<div class="align-center figure align-center" id="figure-materials">
+<img alt="../_images/materials.png" src="../_images/materials.png" style="width: 400px;" />
+<p class="caption"><strong>Figure 3</strong>: A 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice color-coded by material.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The routine randomly selects a colormap at runtime. As a result, the colors in the figure will vary from run to run.</p>
+</div>
+</div>
+<div class="section" id="plotting-by-cell">
+<h3>4.4.4. Plotting by Cell<a class="headerlink" href="#plotting-by-cell" title="Permalink to this headline">¶</a></h3>
+<p>To plot the geometry color-coded by the cell ID&#8217;s throughout the geometry, use the <tt class="docutils literal"><span class="pre">plotCells(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-cells"><em>Table 8</em></a>.</p>
+<table border="1" class="docutils" id="table-plot-cells">
+<colgroup>
+<col width="16%" />
+<col width="26%" />
+<col width="12%" />
+<col width="12%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">geometry</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Geometry</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>The geometry of interest</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
+<td>integer</td>
+<td>250</td>
+<td>Yes</td>
+<td>The pixel resolution</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 8</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plotCells(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+
+<span class="c"># Setup geomery</span>
+<span class="o">...</span>
+
+<span class="c"># Plot a 500 x 500 pixel image of the cells</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">plotCells</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A depiction of the cells for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/large-lattice.py</span></tt> example input file is illustrated in <a class="reference internal" href="#figure-cells"><em>Figure 4</em></a>.</p>
+<div class="align-center figure align-center" id="figure-cells">
+<img alt="../_images/cells.png" src="../_images/cells.png" style="width: 400px;" />
+<p class="caption"><strong>Figure 4</strong>: A 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice color-coded by cell.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The routine randomly selects a colormap at runtime. As a result, the colors in the figure will vary from run to run.</p>
+</div>
+</div>
+<div class="section" id="plotting-by-fsr">
+<h3>4.4.5. Plotting by FSR<a class="headerlink" href="#plotting-by-fsr" title="Permalink to this headline">¶</a></h3>
+<p>To plot the geometry color-coded by the flat source region ID&#8217;s throughout the geometry, use the <tt class="docutils literal"><span class="pre">plotFlatSourceRegions(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fsrs"><em>Table 9</em></a>.</p>
+<table border="1" class="docutils" id="table-plot-fsrs">
+<colgroup>
+<col width="16%" />
+<col width="26%" />
+<col width="12%" />
+<col width="12%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">geometry</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Geometry</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>The geometry of interest</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
+<td>integer</td>
+<td>250</td>
+<td>Yes</td>
+<td>The pixel resolution</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 9</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plotFlatSourceRegions(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+
+<span class="c"># Setup geomery</span>
+<span class="o">...</span>
+
+<span class="c"># Plot a 500 x 500 pixel image of the flat source regions</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">plotFlatSourceRegions</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A depiction of the flat source regions for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/large-lattice.py</span></tt> example input file is illustrated in <a class="reference internal" href="#figure-flat-source-regions"><em>Figure 5</em></a>.</p>
+<div class="align-center figure align-center" id="figure-flat-source-regions">
+<img alt="../_images/flat-source-regions.png" src="../_images/flat-source-regions.png" style="width: 400px;" />
+<p class="caption"><strong>Figure 5</strong>: A 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice color-coded by flat source region.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The routine randomly selects a colormap at runtime. As a result, the colors in the figure will vary from run to run.</p>
+</div>
+</div>
+</div>
+<div class="section" id="flux-visualization">
+<h2>4.5. Flux Visualization<a class="headerlink" href="#flux-visualization" title="Permalink to this headline">¶</a></h2>
+<p>To plot the flat source region scalar fluxes, use the <tt class="docutils literal"><span class="pre">plotFluxes(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fluxes"><em>Table 10</em></a>.</p>
+<table border="1" class="docutils" id="table-plot-fluxes">
+<colgroup>
+<col width="17%" />
+<col width="19%" />
+<col width="9%" />
+<col width="9%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">geometry</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Geometry</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>The geometry of interest</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>The solver used to converge the source</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">energy_groups</span></tt></td>
+<td>list</td>
+<td>[0]</td>
+<td>No</td>
+<td>Create separate plots for each energy group</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
+<td>integer</td>
+<td>250</td>
+<td>Yes</td>
+<td>The pixel resolution</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plotFluxes(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+
+<span class="c"># Setup geomery and generate tracks</span>
+<span class="o">...</span>
+
+<span class="c"># Setup solver and converge the source</span>
+<span class="o">...</span>
+
+<span class="c"># Plot the fluxes for energy groups 1 and 7 in 500 x 500 pixel images</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">plotFluxes</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">solver</span><span class="p">,</span> <span class="n">energy_groups</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py</span></tt>) is illustrated in <a class="reference internal" href="#figure-fluxes"><em>Figure 6</em></a>.</p>
+<table border="1" class="docutils" id="figure-fluxes">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><img alt="../_images/flux-group-1.png" class="first last align-center" id="figa" src="../_images/flux-group-1.png" style="width: 72%;" />
+</td>
+<td><img alt="../_images/flux-group-7.png" class="first last align-center" id="figb" src="../_images/flux-group-7.png" style="width: 75%;" />
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Figure 6</strong>: The fast and thermal fluxes in the C5G7 benchmark problem.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4. Data Processing and Visualization</a><ul>
+<li><a class="reference internal" href="#exporting-simulation-data">4.1. Exporting Simulation Data</a></li>
+<li><a class="reference internal" href="#retrieving-simulation-data">4.2. Retrieving Simulation Data</a></li>
+<li><a class="reference internal" href="#computing-pin-powers">4.3. Computing Pin Powers</a></li>
+<li><a class="reference internal" href="#geometry-visualization">4.4. Geometry Visualization</a><ul>
+<li><a class="reference internal" href="#plotting-tracks">4.4.1. Plotting Tracks</a></li>
+<li><a class="reference internal" href="#plotting-segments">4.4.2. Plotting Segments</a></li>
+<li><a class="reference internal" href="#plotting-by-material">4.4.3. Plotting by Material</a></li>
+<li><a class="reference internal" href="#plotting-by-cell">4.4.4. Plotting by Cell</a></li>
+<li><a class="reference internal" href="#plotting-by-fsr">4.4.5. Plotting by FSR</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#flux-visualization">4.5. Flux Visualization</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="input.html"
+                        title="previous chapter">3. Writing Python Input Files</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="running.html"
+                        title="next chapter">5. Running OpenMOC</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/usersguide/processing.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="running.html" title="5. Running OpenMOC"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="input.html" title="3. Writing Python Input Files"
+             >previous</a> |</li>
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-30411614-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

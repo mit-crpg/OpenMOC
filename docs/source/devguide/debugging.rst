@@ -31,7 +31,7 @@ There are a number of different ways to use to use and interact with GDB. There 
 Debugging C/C++ Source Code
 ---------------------------
 
-The majority of the compute-intensive code in OpenMOC is written in C/C++ as a compiled back-end shared library. This section overviews some of the key steps to using GDB to debug OpenMOC's C/C++ source code. By no means does this section cover all of GDB's capabilities. Advanced developers should consult one of the many outlets for GDB documentation available online:
+The majority of the compute-intensive code in OpenMOC is written in C/C++ as a compiled back-end shared library. This section overviews some of the key steps to using GDB to debug OpenMOC's C/C++ source code. By no means does this section cover all of GDB's capabilities. Advanced developers should consult one of the many outlets for GDB documentation available online, including the following
 
 * `Official GDB Documentation`_
 * `GNU GDB Debugger Command Cheat Sheet`_
@@ -359,6 +359,18 @@ The ``quit`` or ``q`` command may be used to exit the ``gdb`` debugger and retur
 Debugging Python Source Code
 ----------------------------
 
+There are a a number of resources which one may use to debug Python code. Many popular IDEs for Python include interactive visual debugging support, including `Eclipse PyDev`_, `PyCharm`_, and `Wing IDE`_. Although it is recommended that code developers use one of these IDEs for Python development and debugging, this section will introduce basics of using the official `Python debugger`_ provided through the ``pdb`` module. by no means does this section cover all of the Python debugger's capabilities. Advanced developers should consult one of the many outlets for documentation available online, including the following:
+
+* `Debugging in Python`_
+* `Interactive Debugging in Python`_
+
+
+The Python Debugger (PDB)
+-------------------------
+
+
+
+
 
 Install Python with Debug Symbols
 ---------------------------------
@@ -394,3 +406,9 @@ To manually build Python from source with debug symbols, run the following comma
 .. _Debugging with GDB: http://www.amazon.com/Debugging-GDB-The-Source-Level-Debugger/dp/1882114884
 .. _set watchpoints: https://sourceware.org/gdb/onlinedocs/gdb/Set-Watchpoints.html
 .. _segmentation faults: http://en.wikipedia.org/wiki/Segmentation_fault
+.. _Python debugger: http://docs.python.org/2/library/pdb.html
+.. _Eclipse PyDev: http://pydev.org/
+.. _Pycharm: http://www.jetbrains.com/pycharm/
+.. _Wing IDE: https://wiki.python.org/moin/Wing%20IDE 
+.. _Debugging in Python: http://pythonconquerstheuniverse.wordpress.com/2009/09/10/debugging-in-python/
+.. _Interactive Debugging in Python: http://www.onlamp.com/pub/a/python/2005/09/01/debugger.html

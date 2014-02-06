@@ -37,6 +37,8 @@ To compile and install the code in a user local directory (recommended), simply 
 
   python setup.py install --user
 
+.. warning:: The :option:`--user` flag should be used verbatim and should **NOT** be replaced with your username.
+
 To compile and install the code in the directory of all Python packages accessible to all users of your machine (not recommended), run the following command::
 
   python setup.py install

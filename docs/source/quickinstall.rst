@@ -26,8 +26,9 @@ This will build a shared library accessible as a Python package named ``openmoc`
 
     import openmoc
 
-.. warning:: Some Python distributions require that the code be built and installed *twice* in order to setup all of the `symbolic links`_ correctly. This is only the case the first time OpenMOC is installed on a machine. Hence, code developers who subsequently make modifications to the source code only need to build and install the code once to have access to the modified binary.
+.. warning:: The :option:`--user` flag should be used verbatim and should **NOT** be replaced with your username.
 
+.. warning:: Some Python distributions require that the code be built and installed *twice* in order to setup all of the `symbolic links`_ correctly. This is only the case the first time OpenMOC is installed on a machine. Hence, code developers who subsequently make modifications to the source code only need to build and install the code once to have access to the modified binary.
 
 
 .. _GitHub: https://github.com/mit-crpg/OpenMOC
