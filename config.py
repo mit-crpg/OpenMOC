@@ -395,12 +395,6 @@ class configuration:
                       define_macros = self.macros[self.cc][self.fp],
                       swig_opts = self.swig_flags + ['-D' + self.cc.upper()]))
 
-        # Remove the main SWIG configuration file for builds of other extensions
-        # (ie, openmoc.gnu.*, openmoc.intel.*, etc) 
-        self.sources['gcc'].remove('openmoc/openmoc_wrap.cpp')
-        self.sources['icpc'].remove('openmoc/openmoc_wrap.cpp')
-        self.sources['bgxlc'].remove('openmoc/openmoc_wrap.cpp')
-         
         # The openmoc.cuda extension if requested by the user at compile 
         # time (--with-cuda)        
         if self.with_cuda:
