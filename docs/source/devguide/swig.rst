@@ -563,7 +563,7 @@ Finally, the shared library extension module can be imported into Python and use
 
 .. code-block:: none
 
-    wbinventor > python
+    $ python
     Python 2.7.3 (default, Sep 26 2013, 16:35:25) 
     [GCC 4.7.2] on linux2
     Type "help", "copyright", "credits" or "license" for more information.

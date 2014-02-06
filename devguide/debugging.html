@@ -331,29 +331,22 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 </div>
 <div class="section" id="debugging-python-source-code">
 <h2>4.3. Debugging Python Source Code<a class="headerlink" href="#debugging-python-source-code" title="Permalink to this headline">¶</a></h2>
-<p>There are a a number of resources which one may use to debug Python code. Many popular IDEs for Python include interactive visual debugging support, including <a class="reference external" href="http://pydev.org/">Eclipse PyDev</a>, <a class="reference external" href="http://www.jetbrains.com/pycharm/">PyCharm</a>, and <a class="reference external" href="https://wiki.python.org/moin/Wing%20IDE">Wing IDE</a>. Although it is recommended that code developers use one of these IDEs for Python development and debugging, this section will introduce basics of using the official <a class="reference external" href="http://docs.python.org/2/library/pdb.html">Python debugger</a> provided through the <tt class="docutils literal"><span class="pre">pdb</span></tt> module. by no means does this section cover all of the Python debugger&#8217;s capabilities. Advanced developers should consult one of the many outlets for documentation available online, including the following:</p>
+<p>There are a a number of resources which one may use to debug Python code. Many popular <a href="#id2"><span class="problematic" id="id3">`Interactive Development Environments`_</span></a> (IDEs) for Python include interactive visual debugging support, including <a class="reference external" href="http://www.jetbrains.com/pycharm/">PyCharm</a>, <a class="reference external" href="http://pydev.org/">Eclipse PyDev</a>, and <a class="reference external" href="https://wiki.python.org/moin/Wing%20IDE">Wing IDE</a>. It is <strong>highly recommended</strong> that code developers use one of these IDEs for Python development and debugging. The <a class="reference external" href="http://www.jetbrains.com/pycharm/">PyCharm</a> IDE is especially recommended for OpenMOC users developing input and data processing modules in Python. Although PyCharm is a commercial product, a community version is provided for free with many of the most essential features including the following:</p>
+<ul class="simple">
+<li>Syntax highlighting</li>
+<li>Auto-indentation</li>
+<li>Code formatting</li>
+<li>Code completion</li>
+<li>Line/block commenting</li>
+<li>Refactoring</li>
+<li>Python interpreter</li>
+<li>Integrated debugger</li>
+</ul>
+<p>In addition, advanced developers should consult one of the many online outlets for documentation on debugging Python programs, including the following:</p>
 <ul class="simple">
 <li><a class="reference external" href="http://pythonconquerstheuniverse.wordpress.com/2009/09/10/debugging-in-python/">Debugging in Python</a></li>
 <li><a class="reference external" href="http://www.onlamp.com/pub/a/python/2005/09/01/debugger.html">Interactive Debugging in Python</a></li>
 </ul>
-<div class="section" id="the-python-debugger-pdb">
-<h3>4.3.1. The Python Debugger (PDB)<a class="headerlink" href="#the-python-debugger-pdb" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="install-python-with-debug-symbols">
-<h3>4.3.2. Install Python with Debug Symbols<a class="headerlink" href="#install-python-with-debug-symbols" title="Permalink to this headline">¶</a></h3>
-<p>On Ubuntu:</p>
-<div class="highlight-none"><div class="highlight"><pre>sudo apt-get install python-dbg
-</pre></div>
-</div>
-<p>On Mac OS X with MacPorts:</p>
-<div class="highlight-none"><div class="highlight"><pre>
-</pre></div>
-</div>
-<p>To manually build Python from source with debug symbols, run the following command as part of the Python build and installation process:</p>
-<div class="highlight-none"><div class="highlight"><pre>make OPT=-g&quot;
-</pre></div>
-</div>
-</div>
 </div>
 </div>
 
@@ -383,11 +376,7 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 <li><a class="reference internal" href="#exiting-gdb">4.2.13. Exiting GDB</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#debugging-python-source-code">4.3. Debugging Python Source Code</a><ul>
-<li><a class="reference internal" href="#the-python-debugger-pdb">4.3.1. The Python Debugger (PDB)</a></li>
-<li><a class="reference internal" href="#install-python-with-debug-symbols">4.3.2. Install Python with Debug Symbols</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#debugging-python-source-code">4.3. Debugging Python Source Code</a></li>
 </ul>
 </li>
 </ul>

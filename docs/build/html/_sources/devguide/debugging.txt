@@ -354,44 +354,25 @@ The ``quit`` or ``q`` command may be used to exit the ``gdb`` debugger and retur
     (gdb) quit()
 
 
-
 ----------------------------
 Debugging Python Source Code
 ----------------------------
 
-There are a a number of resources which one may use to debug Python code. Many popular IDEs for Python include interactive visual debugging support, including `Eclipse PyDev`_, `PyCharm`_, and `Wing IDE`_. Although it is recommended that code developers use one of these IDEs for Python development and debugging, this section will introduce basics of using the official `Python debugger`_ provided through the ``pdb`` module. by no means does this section cover all of the Python debugger's capabilities. Advanced developers should consult one of the many outlets for documentation available online, including the following:
+There are a a number of resources which one may use to debug Python code. Many popular `Interactive Development Environments`_ (IDEs) for Python include interactive visual debugging support, including `PyCharm`_, `Eclipse PyDev`_, and `Wing IDE`_. It is **highly recommended** that code developers use one of these IDEs for Python development and debugging. The `PyCharm`_ IDE is especially recommended for OpenMOC users developing input and data processing modules in Python. Although PyCharm is a commercial product, a community version is provided for free with many of the most essential features including the following:
+
+* Syntax highlighting
+* Auto-indentation
+* Code formatting
+* Code completion
+* Line/block commenting
+* Refactoring
+* Python interpreter
+* Integrated debugger
+
+In addition, advanced developers should consult one of the many online outlets for documentation on debugging Python programs, including the following:
 
 * `Debugging in Python`_
 * `Interactive Debugging in Python`_
-
-
-The Python Debugger (PDB)
--------------------------
-
-
-
-
-
-Install Python with Debug Symbols
----------------------------------
-
-On Ubuntu:
-
-.. code-block:: none
-
-    sudo apt-get install python-dbg
-
-
-On Mac OS X with MacPorts:
-
-.. code-block:: none
-
-To manually build Python from source with debug symbols, run the following command as part of the Python build and installation process:
-
-.. code-block:: none
-
-    make OPT=-g"
-
 
 
 .. _printf: http://www.cplusplus.com/reference/cstdio/printf/
@@ -406,9 +387,9 @@ To manually build Python from source with debug symbols, run the following comma
 .. _Debugging with GDB: http://www.amazon.com/Debugging-GDB-The-Source-Level-Debugger/dp/1882114884
 .. _set watchpoints: https://sourceware.org/gdb/onlinedocs/gdb/Set-Watchpoints.html
 .. _segmentation faults: http://en.wikipedia.org/wiki/Segmentation_fault
-.. _Python debugger: http://docs.python.org/2/library/pdb.html
-.. _Eclipse PyDev: http://pydev.org/
+.. _Integrated Development Environments: http://en.wikipedia.org/wiki/Integrated_development_environment
 .. _Pycharm: http://www.jetbrains.com/pycharm/
+.. _Eclipse PyDev: http://pydev.org/
 .. _Wing IDE: https://wiki.python.org/moin/Wing%20IDE 
 .. _Debugging in Python: http://pythonconquerstheuniverse.wordpress.com/2009/09/10/debugging-in-python/
 .. _Interactive Debugging in Python: http://www.onlamp.com/pub/a/python/2005/09/01/debugger.html
