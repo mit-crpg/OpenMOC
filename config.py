@@ -418,7 +418,7 @@ class configuration:
                           swig_opts = self.swig_flags  + ['-DNVCC'],
                           export_symbols = ['init_openmoc']))
         
-            # REmove the main SWIG configuration file for builds of other 
+            # Remove the main SWIG configuration file for builds of other 
             # extensions (ie, openmoc.cuda.single, openmoc.cuda.double)
             self.sources['nvcc'].remove('openmoc/cuda/openmoc_cuda_wrap.cpp')
             
