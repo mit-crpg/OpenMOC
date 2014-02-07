@@ -251,7 +251,7 @@ int getLogLevel(){
  */
 void log_printf(logLevel level, const char *format, ...) {
 
-    char message[512];
+    char message[1024];
     std::string msg_string;
     if (level >= log_level) {
     	va_list args;
@@ -378,7 +378,7 @@ void log_printf(logLevel level, const char *format, ...) {
 	    case (UNITTEST):
             {
                 std::string msg = std::string(message);
-                std::string level_prefix = "[ UNITTEST]  ";
+                std::string level_prefix = "[   TEST  ]  ";
 
                 /* If message is too long for a line, split into many lines */
                 if (int(msg.length()) > line_length)
@@ -392,12 +392,20 @@ void log_printf(logLevel level, const char *format, ...) {
             }
             case (ERROR):
 	    {
+	        /* Create message based on runtime error stack */
                 va_start(args, format);
                 vsprintf(message, format, args);
                 va_end(args);
-                set_err(message);
-                throw std::runtime_error(message);
-                break;
+		std::string msg = std::string(message);
+                std::string level_prefix = "[  ERROR  ]  ";
+
+                /* If message is too long for a line, split into many lines */
+                if (int(msg.length()) > line_length)
+                    msg_string = createMultilineMsg(level_prefix, msg);
+
+                /* Puts message on single line */
+                else
+                    msg_string = level_prefix + msg + "\n";
 	    }
           }
 
@@ -439,6 +447,11 @@ void log_printf(logLevel level, const char *format, ...) {
         /* Write the log message to the shell */
         std::cout << msg_string;
     }
+
+
+    /* If the message was a runtime error, exit the program */
+    if (level == ERROR)
+      exit(1);
 }
 
 

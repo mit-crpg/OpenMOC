@@ -59,6 +59,7 @@ protected:
     void initializePolarQuadrature();
     void precomputePrefactors();
     void initializeFSRs();
+    void initializeCmfd();
 
     void zeroTrackFluxes();
     void flattenFSRFluxes(FP_PRECISION value);
@@ -76,10 +77,10 @@ protected:
      * @param fsr_flux a pointer to the temporary flat source region flux buffer
      */
     virtual void scalarFluxTally(segment* curr_segment, 
-				 int azim_index,
-				 FP_PRECISION* track_flux,
-				 FP_PRECISION* fsr_flux,
-				 bool fwd);
+                                 int azim_index,
+                                 FP_PRECISION* track_flux,
+                                 FP_PRECISION* fsr_flux,
+                                 bool fwd);
 
     /**
      * @brief Updates the boundary flux for a track given boundary conditions.
@@ -89,7 +90,7 @@ protected:
      * @param track_flux a pointer to the track's outgoing angular flux
      */
     virtual void transferBoundaryFlux(int track_id, int azim_index,
-				      bool direction, FP_PRECISION* track_flux);
+                                      bool direction, FP_PRECISION* track_flux);
 
     void addSourceToScalarFlux();
     void computeKeff();
@@ -104,9 +105,10 @@ protected:
      * @return the evaluated exponential
      */
     virtual FP_PRECISION computeExponential(FP_PRECISION sigma_t, 
-					    FP_PRECISION length, int p); 
+                                            FP_PRECISION length, int p); 
 public:
-    CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL, Cmfd* cmfd=NULL);
+    CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL, 
+	      Cmfd* cmfd=NULL);
     virtual ~CPUSolver();
  
     int getNumThreads();

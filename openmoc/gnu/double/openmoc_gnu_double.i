@@ -20,7 +20,7 @@
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
-    static char swig_c_err_msg[512];
+    static char swig_c_err_msg[1024];
 
     const char* err_occurred(void) {
         if (swig_c_error_num) {
@@ -32,7 +32,7 @@
 
     void set_err(const char *msg) {
         swig_c_error_num = 1;
-        strncpy(swig_c_err_msg, msg, 256);
+        strncpy(swig_c_err_msg, msg, 1024);
     }
 %}
 
@@ -40,15 +40,12 @@
 
 %exception {
     try {
-        $function
-    } catch (const std::runtime_error &e) {
-        SWIG_exception(SWIG_RuntimeError, err_occurred());
-        return NULL;
+      $function
     } catch (const std::exception &e) {
         SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
-}
 
+}
 
 /* C++ casting helper method for openmoc.process computePinPowers routine */
 %inline %{
@@ -81,9 +78,10 @@
 
 %include typemaps.i
 
-%apply (double* IN_ARRAY1, int DIM1) {(double* xs, int num_groups)}
 
-
+/* Typemap for the Material::set_____XS(double* xs, int num_groups)
+ * method - allows users to pass in a Python list of cross-sections
+ * for each energy group */
 %typemap(in) (double* xs, int num_groups) {
 
     if (!PyList_Check($input)) {
@@ -109,7 +107,42 @@
 	else {
 	  free($1);
 	  PyErr_SetString(PyExc_ValueError,"Expected a list of numbers "
-			  "as universe IDs when constructing lattice cells\n");
+			  "for cross-section values\n");
+	  return NULL;
+	}
+    }
+}
+
+
+/* Typemap for the Material::set_____XS(float* xs, int num_groups)
+ * method - allows users to pass in a Python list of cross-sections
+ * for each energy group */
+%typemap(in) (float* xs, int num_groups) {
+
+    if (!PyList_Check($input)) {
+        PyErr_SetString(PyExc_ValueError,"Expected a Python list of values "
+			"for the cross-section array");
+	return NULL;
+    }
+
+    $2 = PySequence_Length($input);  // num_groups
+    $1 = (float*) malloc($2 * sizeof(float));  // cross-section array
+
+    /* Loop over x */
+    for (int i = 0; i < $2; i++) {
+
+	/* Extract the value from the list at this location */
+	PyObject *o = PySequence_GetItem($input,i);
+
+	/* If the value is a number, cast it as an int and set the
+	 * input array value */
+	if (PyNumber_Check(o)) {
+	    $1[i] = (float) PyFloat_AsFloat(o);
+	} 
+	else {
+	  free($1);
+	  PyErr_SetString(PyExc_ValueError,"Expected a list of numbers "
+			  "for cross-section values\n");
 	  return NULL;
 	}
     }
