@@ -127,3 +127,6 @@ docs/doxyge/xml/*
 build/*
 */build/
 */build/*
+
+.idea*
+.idea/*
