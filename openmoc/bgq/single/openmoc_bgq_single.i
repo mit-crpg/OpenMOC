@@ -20,7 +20,7 @@
 
     /* Exception helpers */
     static int swig_c_error_num = 0;
-    static char swig_c_err_msg[512];
+    static char swig_c_err_msg[1024];
 
     const char* err_occurred(void) {
         if (swig_c_error_num) {
@@ -32,7 +32,7 @@
 
     void set_err(const char *msg) {
         swig_c_error_num = 1;
-        strncpy(swig_c_err_msg, msg, 256);
+        strncpy(swig_c_err_msg, msg, 1024);
     }
 %}
 
@@ -40,15 +40,11 @@
 
 %exception {
     try {
-        $function
-    } catch (const std::runtime_error &e) {
-        SWIG_exception(SWIG_RuntimeError, err_occurred());
-        return NULL;
+      $function
     } catch (const std::exception &e) {
         SWIG_exception(SWIG_RuntimeError, e.what()); 
     }
 }
-
 
 /* C++ casting helper method for openmoc.process computePinPowers routine */
 %inline %{
@@ -81,9 +77,10 @@
 
 %include typemaps.i
 
-%apply (double* IN_ARRAY1, int DIM1) {(double* xs, int num_groups)}
 
-
+/* Typemap for the Material::set_____XS(double* xs, int num_groups)
+ * method - allows users to pass in a Python list of cross-sections
+ * for each energy group */
 %typemap(in) (double* xs, int num_groups) {
 
     if (!PyList_Check($input)) {
@@ -109,60 +106,43 @@
 	else {
 	  free($1);
 	  PyErr_SetString(PyExc_ValueError,"Expected a list of numbers "
-			  "as universe IDs when constructing lattice cells\n");
+			  "for cross-section values\n");
 	  return NULL;
 	}
     }
 }
 
 
-/* Typemap for Lattice::setLatticeCells(int num_x, int num_y, int* universes) 
- * method - allows users to pass in Python lists of Universe IDs for each 
- * lattice cell */
-%typemap(in) (int num_x, int num_y, int* universes) {
+/* Typemap for the Material::set_____XS(float* xs, int num_groups)
+ * method - allows users to pass in a Python list of cross-sections
+ * for each energy group */
+%typemap(in) (float* xs, int num_groups) {
 
     if (!PyList_Check($input)) {
-        PyErr_SetString(PyExc_ValueError,"Expected a Python list of integers "
-			"for the lattice cells");
+        PyErr_SetString(PyExc_ValueError,"Expected a Python list of values "
+			"for the cross-section array");
 	return NULL;
     }
 
-    $1 = PySequence_Length($input);  // num_x
-    $2 = PySequence_Length(PyList_GetItem($input,0)); // num_y
-    $3 = (int*) malloc(($1 * $2) * sizeof(int));  // universes
+    $2 = PySequence_Length($input);  // num_groups
+    $1 = (float*) malloc($2 * sizeof(float));  // cross-section array
 
     /* Loop over x */
     for (int i = 0; i < $2; i++) {
 
-      /* Get the inner list in the nested list for the lattice */
-        PyObject* outer_list = PySequence_GetItem($input,i);
+	/* Extract the value from the list at this location */
+	PyObject *o = PySequence_GetItem($input,i);
 
-	/* Check that the length of this list is the same as the length
-	 * of the first list */
-	if (PySequence_Length(outer_list) != $2) {
-	    PyErr_SetString(PyExc_ValueError, "Size mismatch. Expected $1 x $2 "
-			    "elements for lattice\n");
-	    return NULL;
-	}
-
-	/* Loop over y */
-        for (int j =0; j < $1; j++) {
-
-	    /* Extract the value from the list at this location */
-	    PyObject *o = PySequence_GetItem(outer_list,j);
-
-	    /* If the value is a number, cast it as an int and set the
-	     * input array value */
-	    if (PyNumber_Check(o)) {
-	        $3[i*$1 + j] = (int) PyInt_AS_LONG(o);
-	    } 
-	    else {
-	        free($3);
-	        PyErr_SetString(PyExc_ValueError,"Expected a list of numbers "
-				"as universe IDs when constructing lattice "
-				"cells\n");
-		return NULL;
-	    }
+	/* If the value is a number, cast it as an int and set the
+	 * input array value */
+	if (PyNumber_Check(o)) {
+	    $1[i] = (float) PyFloat_AsFloat(o);
+	} 
+	else {
+	  free($1);
+	  PyErr_SetString(PyExc_ValueError,"Expected a list of numbers "
+			  "for cross-section values\n");
+	  return NULL;
 	}
     }
 }

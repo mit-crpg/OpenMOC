@@ -622,7 +622,7 @@ std::string CellBasic::toString() {
  *        the console.
  */
 void CellBasic::printString() {
-    log_printf(RESULT, toString().c_str());
+    printf("[  RESULT ]  %s", toString().c_str());
 }
 
 
@@ -717,5 +717,5 @@ std::string CellFill::toString() {
  *        the console.
  */
 void CellFill::printString() {
-    log_printf(RESULT, toString().c_str());
+    printf("[  RESULT ]  %s", toString().c_str());
 }

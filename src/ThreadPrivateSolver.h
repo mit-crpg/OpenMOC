@@ -44,6 +44,7 @@ protected:
     FP_PRECISION* _thread_currents;
 
     void initializeFluxArrays();
+    void initializeCmfd();
 
     void flattenFSRFluxes(FP_PRECISION value);
     void zeroSurfaceCurrents();

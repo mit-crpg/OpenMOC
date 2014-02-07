@@ -185,9 +185,9 @@ class configuration:
                         'src/Mesh.cpp']
 
     sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
-                       'src/dev/gpu/GPUQuery.cu',
-                       'src/dev/gpu/clone.cu',
-                       'src/dev/gpu/GPUSolver.cu']
+                       'src/accel/cuda/GPUQuery.cu',
+                       'src/accel/cuda/clone.cu',
+                       'src/accel/cuda/GPUSolver.cu']
 
 
     ###########################################################################
@@ -395,12 +395,6 @@ class configuration:
                       define_macros = self.macros[self.cc][self.fp],
                       swig_opts = self.swig_flags + ['-D' + self.cc.upper()]))
 
-        # Remove the main SWIG configuration file for builds of other extensions
-        # (ie, openmoc.gnu.*, openmoc.intel.*, etc) 
-        self.sources['gcc'].remove('openmoc/openmoc_wrap.cpp')
-        self.sources['icpc'].remove('openmoc/openmoc_wrap.cpp')
-        self.sources['bgxlc'].remove('openmoc/openmoc_wrap.cpp')
-         
         # The openmoc.cuda extension if requested by the user at compile 
         # time (--with-cuda)        
         if self.with_cuda:
@@ -418,7 +412,7 @@ class configuration:
                           swig_opts = self.swig_flags  + ['-DNVCC'],
                           export_symbols = ['init_openmoc']))
         
-            # REmove the main SWIG configuration file for builds of other 
+            # Remove the main SWIG configuration file for builds of other 
             # extensions (ie, openmoc.cuda.single, openmoc.cuda.double)
             self.sources['nvcc'].remove('openmoc/cuda/openmoc_cuda_wrap.cpp')
             
