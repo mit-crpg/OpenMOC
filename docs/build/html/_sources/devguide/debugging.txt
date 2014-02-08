@@ -358,7 +358,7 @@ The ``quit`` or ``q`` command may be used to exit the ``gdb`` debugger and retur
 Debugging Python Source Code
 ----------------------------
 
-There are a a number of resources which one may use to debug Python code. Many popular `Interactive Development Environments`_ (IDEs) for Python include interactive visual debugging support, including `PyCharm`_, `Eclipse PyDev`_, and `Wing IDE`_. It is **highly recommended** that code developers use one of these IDEs for Python development and debugging. The `PyCharm`_ IDE is especially recommended for OpenMOC users developing input and data processing modules in Python. Although PyCharm is a commercial product, a community version is provided for free with many of the most essential features including the following:
+There are a a number of resources which one may use to debug Python code. Many popular `Integrated Development Environments`_ (IDEs) for Python include interactive visual debugging support, including `PyCharm`_, `Eclipse PyDev`_, and `Wing IDE`_. It is **highly recommended** that code developers use one of these IDEs for Python development and debugging. The `PyCharm`_ IDE is especially recommended for OpenMOC users developing input and data processing modules in Python. Although PyCharm is a commercial product, a community version is provided for free with many of the most essential features including the following:
 
 * Syntax highlighting
 * Auto-indentation
