@@ -26,7 +26,7 @@ CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator,
  *        updates, and calls Solver parent class destructor to deletes arrays
  *        for fluxes and sources.
  */
-CPUSolver::~CPUSolver() { 
+CPUSolver::~CPUSolver() {
 
     if (_FSR_locks != NULL)
         delete [] _FSR_locks;
