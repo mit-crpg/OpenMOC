@@ -11,37 +11,36 @@ static int auto_id = 10000;
  *          ID which is incremented each time the method is called to enable
  *          unique generation of monotonically increasing IDs. The method's
  *          first ID begins at 10000. Hence, user-defined surface IDs greater
- *          than or equal to 10000 is prohibited.
+ *          than or equal to 10000 are prohibited.
  */
 int surf_id() {
-    int id = auto_id;
-    auto_id++;
-    return id;
+  int id = auto_id;
+  auto_id++;
+  return id;
 }
 
 
 /**
- * @brief Constructor assigns unique ID and user-defined ID for a surface.
- * @details Assigns a default boundary condition for this surface to 
+ * @brief Constructor assigns unique ID and user-defined ID for a Surface.
+ * @details Assigns a default boundary condition for this Surface to
  *          BOUNDARY_NONE.
- * @param id an optional user-defined surface id
+ * @param id an optional user-defined Surface ID
  */
 Surface::Surface(const int id){
 
-    /* If the user did not define an optional ID, create one */
-    if (id == 0)
-        _id = surf_id();
-    else if (id >= surf_id())
-        log_printf(ERROR, "Unable to set the ID of a surface to %d since "
-		 "surface IDs greater than or equal to 10000 is probibited "
-		 "by OpenMOC.", id);
-    /* Use the user-defined ID */
-    else
-        _id = id;
+  /* If the user did not define an optional ID, create one */
+  if (id == 0)
+    _id = surf_id();
+  else if (id >= surf_id())
+    log_printf(ERROR, "Unable to set the ID of a surface to %d since surface "
+               "IDs greater than 10000 are probibited by OpenMOC.", id);
+  /* Use the user-defined ID */
+  else
+    _id = id;
 
-    _uid = _n;
-    _n++;
-    _boundary_type = BOUNDARY_NONE;
+  _uid = _n;
+  _n++;
+  _boundary_type = BOUNDARY_NONE;
 }
 
 
@@ -52,715 +51,720 @@ Surface::~Surface() { }
 
 
 /**
- * @brief Return the surface's unique ID.
- * @return the surface's unique ID
+ * @brief Return the Surface's unique ID.
+ * @return the Surface's unique ID
  */
 int Surface::getUid() const {
-    return _uid;
+  return _uid;
 }
 
 
 /**
- * @brief Return the surface's user-defined id.
- * @return the surface's user-defined id
+ * @brief Return the Surface's user-defined ID.
+ * @return the Surface's user-defined ID
  */
 int Surface::getId() const {
-    return _id;
+  return _id;
 }
 
 
 /**
- * @brief Return the type of surface (ie, XPLANE, CIRCLE, etc).
- * @return the surface type
+ * @brief Return the type of Surface (ie, XPLANE, CIRCLE, etc).
+ * @return the Surface type
  */
 surfaceType Surface::getSurfaceType() {
-    return _surface_type;
+  return _surface_type;
 }
 
 
 /**
- * @brief Returns the type of boundary conditions for this surface (REFLECTIVE, 
+ * @brief Returns the type of boundary conditions for this Surface (REFLECTIVE,
  *        VACUUM or BOUNDARY_NONE)
- * @return the type of boundary type for this surface
+ * @return the type of boundary condition type for this Surface
  */
 boundaryType Surface::getBoundaryType(){
-    return _boundary_type;
+  return _boundary_type;
 }
 
 
 /**
  * @brief Sets the boundary condition type (ie, VACUUM or REFLECTIVE) for this
- *        surface.
- * @param boundary_type the boundary condition forthis surface
+ *        Surface.
+ * @param boundary_type the boundary condition type for this Surface
  */
 void Surface::setBoundaryType(boundaryType boundary_type) {
-    _boundary_type = boundary_type;
+  _boundary_type = boundary_type;
 }
 
 
 /**
- * @brief Return true or false if a point is on or off of a surface.
- * @param point pointer to the point of interest
- * @return on (true) or off (false) the surface
+ * @brief Return true or false if a Point is on or off of a Surface.
+ * @param point pointer to the Point of interest
+ * @return on (true) or off (false) the Surface
  */
 bool Surface::isPointOnSurface(Point* point) {
 
-    /* Uses a threshold to determine whether the point is on the surface */
-    if (abs(evaluate(point)) < ON_SURFACE_THRESH)
-        return true;
-    else
-        return false;
+  /* Uses a threshold to determine whether the point is on the Surface */
+  if (abs(evaluate(point)) < ON_SURFACE_THRESH)
+    return true;
+  else
+    return false;
 }
 
 
 /**
- * @brief Return true or false if a localcoord is on or off of a surface.
- * @param coord pointer to the localcoord of interest
- * @return on (true) or off (false) the surface
+ * @brief Return true or false if a LocalCoord is on or off of a Surface.
+ * @param coord pointer to the LocalCoord of interest
+ * @return on (true) or off (false) the Surface
  */
 bool Surface::isCoordOnSurface(LocalCoords* coord) {
-    return isPointOnSurface(coord->getPoint());
+  return isPointOnSurface(coord->getPoint());
 }
 
 
 /**
  * @brief Constructor.
- * @param id the surface id
+ * @param id the Surface ID
  * @param A the first coefficient in \f$ A * x + B * y + C = 0 \f$
  * @param B the second coefficient in \f$ A * x + B * y + C = 0 \f$
  * @param C the third coefficient in \f$ A * x + B * y + C = 0 \f$
  */
-Plane::Plane(const double A, const double B, const double C, const int id): 
-    Surface(id) {
-        _surface_type = PLANE;
-        _A = A;
-        _B = B;
-        _C = C;
+Plane::Plane(const double A, const double B,
+             const double C, const int id):
+  Surface(id) {
+
+  _surface_type = PLANE;
+  _A = A;
+  _B = B;
+  _C = C;
 }
 
 
 /**
- * @brief Returns the minimum x value of -INFINITY on this surface.
+ * @brief Returns the minimum x value of -INFINITY on this Surface.
  * @return the minimum x value of -INFINITY
  */
 double Plane::getXMin(){
-    log_printf(ERROR, "Plane::getXMin() not yet implemented");
-    return -std::numeric_limits<double>::infinity();
+  log_printf(ERROR, "Plane::getXMin() not yet implemented");
+  return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the maximum x value of INFINITY on this surface.
+ * @brief Returns the maximum x value of INFINITY on this Surface.
  * @return the maximum x value of INFINITY
  */
 double Plane::getXMax(){
-    log_printf(ERROR, "Plane::getXMax() not yet implemented");
-    return std::numeric_limits<double>::infinity();
+  log_printf(ERROR, "Plane::getXMax() not yet implemented");
+  return std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the minimum y value of -INFINITY on this surface.
+ * @brief Returns the minimum y value of -INFINITY on this Surface.
  * @return the minimum y value of -INFINITY
  */
 double Plane::getYMin(){
-    log_printf(ERROR, "Plane::getYMin not yet implemented");
-    return -std::numeric_limits<double>::infinity();
+  log_printf(ERROR, "Plane::getYMin() not yet implemented");
+  return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the maximum y value of INFINITY on this surface.
+ * @brief Returns the maximum y value of INFINITY on this Surface.
  * @return the maximum y value of INFINITY
  */
 double Plane::getYMax(){
-    log_printf(ERROR, "Plane::getYMax not yet implemented");
-    return std::numeric_limits<double>::infinity();
+  log_printf(ERROR, "Plane::getYMax() not yet implemented");
+  return std::numeric_limits<double>::infinity();
 }
 
 
 /**
-* @brief Finds the intersection point with this plane from a given point and
+* @brief Finds the intersection Point with this Plane from a given Point and
 *        trajectory defined by an angle.
-* @param point pointer to the point of interest
+* @param point pointer to the Point of interest
 * @param angle the angle defining the trajectory in radians
-* @param points pointer to a point to store the intersection point
-* @return the number of intersection points (0 or 1)
+* @param points pointer to a Point to store the intersection Point
+* @return the number of intersection Points (0 or 1)
 */
 inline int Plane::intersection(Point* point, double angle, Point* points) {
 
-    double x0 = point->getX();
-    double y0 = point->getY();
+  double x0 = point->getX();
+  double y0 = point->getY();
 
-    int num = 0;                        /* number of intersections */
-    double xcurr, ycurr;        /* coordinates of current intersection point */
+  int num = 0;                /* number of intersections */
+  double xcurr, ycurr;        /* coordinates of current intersection point */
 
-    /* The track is vertical */
-    if ((fabs(angle - (M_PI / 2))) < 1.0e-10) {
+  /* The track is vertical */
+  if ((fabs(angle - (M_PI / 2))) < 1.0e-10) {
 
-        /* The plane is also vertical => no intersections */
-        if (_B == 0)
-            return 0;
+    /* The plane is also vertical => no intersections */
+    if (_B == 0)
+      return 0;
 
-        /* The plane is not vertical */
-        else {
-            xcurr = x0;
-            ycurr = (-_A * x0 - _C) / _B;
-            points->setCoords(xcurr, ycurr);
-        
-            /* Check that point is in same direction as angle */
-            if (angle < M_PI && ycurr > y0)
-                num++;
-            else if (angle > M_PI && ycurr < y0)
-                num++;
-            return num;
-        }
-    }
-
-    /* If the track isn't vertical */
+    /* The plane is not vertical */
     else {
-        double m = sin(angle) / cos(angle);
+      xcurr = x0;
+      ycurr = (-_A * x0 - _C) / _B;
+      points->setCoords(xcurr, ycurr);
 
-        /* The plane and track are parallel, no intersections */
-        if (fabs(-_A/_B - m) < 1e-11 && _B != 0)
-            return 0;
-
-        else {
-            xcurr = -(_B * (y0 - m * x0) + _C) / (_A + _B * m);
-            ycurr = y0 + m * (xcurr - x0);
-            points->setCoords(xcurr, ycurr);
-
-            if (angle < M_PI && ycurr > y0)
-                num++;
-            else if (angle > M_PI && ycurr < y0)
-                num++;
-            
-            return num;
-        }
+      /* Check that point is in same direction as angle */
+      if (angle < M_PI && ycurr > y0)
+        num++;
+      else if (angle > M_PI && ycurr < y0)
+        num++;
+      return num;
     }
+  }
+
+  /* If the track isn't vertical */
+  else {
+    double m = sin(angle) / cos(angle);
+
+    /* The plane and track are parallel, no intersections */
+    if (fabs(-_A/_B - m) < 1e-11 && _B != 0)
+      return 0;
+
+    else {
+      xcurr = -(_B * (y0 - m * x0) + _C) / (_A + _B * m);
+      ycurr = y0 + m * (xcurr - x0);
+      points->setCoords(xcurr, ycurr);
+
+      if (angle < M_PI && ycurr > y0)
+        num++;
+      else if (angle > M_PI && ycurr < y0)
+        num++;
+
+      return num;
+    }
+  }
 }
 
 
 /**
- * @brief Converts this plane's attributes to a character array.
- * @details The character array returned conatins the type of plane (ie,
+ * @brief Converts this Plane's attributes to a character array.
+ * @details The character array returned conatins the type of Plane (ie,
  *          PLANE) and the A, B, and C coefficients in the
- *          quadratic surface equation.
- * @return a character array of this plane's attributes
+ *          quadratic Surface equation.
+ * @return a character array of this Plane's attributes
  */
 std::string Plane::toString() {
-    std::stringstream string;
+  std::stringstream string;
 
-    string << "Surface id = " << _id << ", type = PLANE " << ", A = "
-           << _A << ", B = " << _B << ", C = " << _C;
+  string << "Surface id = " << _id << ", type = PLANE " << ", A = "
+         << _A << ", B = " << _B << ", C = " << _C;
 
-    return string.str();
+  return string.str();
 }
 
 
 /**
- * @brief Prints a string representation of all of the plane's objects to
+ * @brief Prints a string representation of all of the Plane's objects to
  *        the console.
  */
 void Plane::printString() {
-    log_printf(RESULT, toString().c_str());
+  log_printf(RESULT, toString().c_str());
 }
 
 
 /**
- * @brief Constructor for a plane perpendicular to the x-axis.
- * @param id the user-defined surface id
- * @param x the location of the plane along the x-axis
+ * @brief Constructor for a Plane perpendicular to the x-axis.
+ * @param id the user-defined Surface id
+ * @param x the location of the Plane along the x-axis
  */
-XPlane::XPlane(const double x, const int id): 
-    Plane(0, 1, -x, id) {
-        _surface_type = XPLANE;
-        _x = x;
+XPlane::XPlane(const double x, const int id):
+  Plane(0, 1, -x, id) {
+
+  _surface_type = XPLANE;
+  _x = x;
 }
 
 
 /**
- * @brief Set the location of this xplane on the x-axis.
- * @param x the location of the xplane on the x-axis
+ * @brief Set the location of this XPlane on the x-axis.
+ * @param x the location of the XPlane on the x-axis
  */
 void XPlane::setX(const double x) {
-    _x = x;
+  _x = x;
 }
 
 
 /**
- * @brief Returns the location of the xplane on the x-axis.
- * @return the location of the xplane on the x-axis
+ * @brief Returns the location of the XPlane on the x-axis.
+ * @return the location of the XPlane on the x-axis
  */
 double XPlane::getX() {
-    return _x;
+  return _x;
 }
 
 
 /**
- * @brief Returns the minimum x value on the xplane.
+ * @brief Returns the minimum x value on the XPlane.
  * @return the minimum x value
  */
 double XPlane::getXMin(){
-    return _x;
+  return _x;
 }
 
 
 /**
- * @brief Returns the maximum x value on the xplane.
+ * @brief Returns the maximum x value on the XPlane.
  * @return the maximum x value
  */
 double XPlane::getXMax(){
-    return _x;
+  return _x;
 }
 
 
 /**
- * @brief Returns the minimum y value of -INFINITY on the xplane.
+ * @brief Returns the minimum y value of -INFINITY on the XPlane.
  * @return the minimum y value of -INFINITY
  */
 double XPlane::getYMin(){
-    return -std::numeric_limits<double>::infinity();
+  return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * Returns the maximum y value of INFINITY on this xplane.
+ * Returns the maximum y value of INFINITY on this XPlane.
  * @return the maximum y value of INFINITY
  */
 double XPlane::getYMax(){
-    return std::numeric_limits<double>::infinity();
+  return std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Converts this xplane's attributes to a character array.
- * @details The character array returned conatins the type of plane (ie,
+ * @brief Converts this XPlane's attributes to a character array.
+ * @details The character array returned conatins the type of Plane (ie,
  *          XPLANE) and the A, B, and C coefficients in the
- *          quadratic surface equation and the location of the plane on
+ *          quadratic Surface equation and the location of the Plane on
  *          the x-axis.
- * @return a character array of this xplane's attributes
+ * @return a character array of this XPlane's attributes
  */
 std::string XPlane::toString() {
-    std::stringstream string;
 
-    string << "Surface id = " << _id << ", type = XPLANE " << ", A = "
-           << _A << ", B = " << _B << ", C = " << _C << ", x = " << _x;
+  std::stringstream string;
 
-    return string.str();
+  string << "Surface id = " << _id << ", type = XPLANE " << ", A = "
+         << _A << ", B = " << _B << ", C = " << _C << ", x = " << _x;
+
+  return string.str();
 }
 
 
 /**
- * @brief Constructor for a plane perpendicular to the y-axis.
+ * @brief Constructor for a Plane perpendicular to the y-axis.
  * @param id the surface id
- * @param y the location of the plane along the y-axis
+ * @param y the location of the Plane along the y-axis
  */
-YPlane::YPlane(const double y, const int id): 
-    Plane(1, 0, -y, id) {
-        _surface_type = YPLANE;
-        _y = y;
+YPlane::YPlane(const double y, const int id):
+  Plane(1, 0, -y, id) {
+
+  _surface_type = YPLANE;
+  _y = y;
 }
 
 
 /**
- * @brief Set the location of this yplane on the y-axis.
- * @param y the location of the yplane on the y-axis
+ * @brief Set the location of this YPlane on the y-axis.
+ * @param y the location of the YPlane on the y-axis
  */
 void YPlane::setY(const double y) {
-    _y = y;
+  _y = y;
 }
 
 
 /**
- * @brief Returns the location of the yplane on the y-axis.
- * @return the location of the yplane on the y-axis
+ * @brief Returns the location of the YPlane on the y-axis.
+ * @return the location of the YPlane on the y-axis
  */
 double YPlane::getY() {
-    return _y;
+  return _y;
 }
 
 /**
- * @brief Returns the minimum x value of -INFINITY on this yplane.
+ * @brief Returns the minimum x value of -INFINITY on this YPlane.
  * @return the minimum x value of -INFINITY
  */
 double YPlane::getXMin(){
-    return -std::numeric_limits<double>::infinity();
+  return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the maximum x value of INFINITY on this yplane.
+ * @brief Returns the maximum x value of INFINITY on this YPlane.
  * @return the maximum x value of INFINITY
  */
 double YPlane::getXMax(){
-    return std::numeric_limits<double>::infinity();
+  return std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the minimum y value on this yplane.
+ * @brief Returns the minimum y value on this YPlane.
  * @return the minimum y value
  */
 double YPlane::getYMin(){
-    return _y;
+  return _y;
 }
 
 
 /**
- * @brief Returns the maximum y value on this yplane.
+ * @brief Returns the maximum y value on this YPlane.
  * @return the maximum y value
  */
 double YPlane::getYMax(){
-    return _y;
+  return _y;
 }
 
 
 /**
  * @brief Converts this yplane's attributes to a character array
- * @details The character array returned conatins the type of plane (ie,
- *          YPLANE) and the A, B, and C coefficients in the
- *          quadratic surface equation and the location of the plane on
- *          the y-axis.
- * @return a character array of this yplane's attributes
+ * @details The character array returned conatins the type of Plane (ie,
+ *          YPLANE) and the A, B, and C coefficients in the quadratic
+ *          Surface equation and the location of the Plane on the y-axis.
+ * @return a character array of this YPlane's attributes
  */
 std::string YPlane::toString() {
-    std::stringstream string;
-        
-    string << "Surface id = " << _id << ", type = YPLANE " << ", A = "
-           << _A << ", B = " << _B << ", C = " << _C << ", y = " << _y;
 
-    return string.str();
+  std::stringstream string;
+
+  string << "Surface id = " << _id << ", type = YPLANE " << ", A = "
+         << _A << ", B = " << _B << ", C = " << _C << ", y = " << _y;
+
+  return string.str();
 }
 
 
 /**
- * @brief Prints a string representation of all of the yplane's objects to
+ * @brief Prints a string representation of all of the YPlane's objects to
  *        the console.
  */
 void YPlane::printString() {
-    log_printf(RESULT, toString().c_str());
+  log_printf(RESULT, toString().c_str());
 }
 
 
 /**
- * @brief Constructor for a plane perpendicular to the z-axis.
- * @param id the surface id
- * @param z the location of the plane along the z-axis
+ * @brief Constructor for a Plane perpendicular to the z-axis.
+ * @param id the surface ID
+ * @param z the location of the Plane along the z-axis
  */
-ZPlane::ZPlane(const double z, const int id): 
-    Plane(0, 0, -z, id) {
-        _surface_type = ZPLANE;
-        _z = z;
+ZPlane::ZPlane(const double z, const int id):
+  Plane(0, 0, -z, id) {
+
+  _surface_type = ZPLANE;
+  _z = z;
 }
 
 
 /**
- * @brief Set the location of this zplane on the z-axis.
- * @param z the location of the zplane on the z-axis
+ * @brief Set the location of this ZPlane on the z-axis.
+ * @param z the location of the ZPlane on the z-axis
  */
 void ZPlane::setZ(const double z) {
-    _z = z;
+  _z = z;
 }
 
 
 /**
- * @brief Returns the location of the zplane on the z-axis.
- * @return the location of the zplane on the z-axis
+ * @brief Returns the location of the ZPlane on the z-axis.
+ * @return the location of the ZPlane on the z-axis
  */
 double ZPlane::getZ() {
-    return _z;
+  return _z;
 }
 
 
 /**
- * @brief Returns the minimum x value of -INFINITY on this zplane.
+ * @brief Returns the minimum x value of -INFINITY on this ZPlane.
  * @return the minimum x value of -INFINITY
  */
 double ZPlane::getXMin(){
-    return -std::numeric_limits<double>::infinity();
-
+  return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the maximum x value of INFINITY on this zplane.
+ * @brief Returns the maximum x value of INFINITY on this ZPlane.
  * @return the maximum x value of INFINITY
  */
 double ZPlane::getXMax(){
-    return std::numeric_limits<double>::infinity();
+  return std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the minimum y value of -INFINITY on this zplane.
+ * @brief Returns the minimum x value of -INFINITY on this ZPlane.
  * @return the minimum y value of -INFINITY
  */
 double ZPlane::getYMin(){
-    return -std::numeric_limits<double>::infinity();
+  return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the maximum y value on this zplane.
+ * @brief Returns the maximum y value on this ZPlane.
  * @return the maximum y value
  */
 double ZPlane::getYMax(){
-    return std::numeric_limits<double>::infinity();
+  return std::numeric_limits<double>::infinity();
 }
 
 /**
- * @brief Converts this zplane's attributes to a character array.
- * @details The character array returned conatins the type of plane (ie,
+ * @brief Converts this ZPlane's attributes to a character array.
+ * @details The character array returned conatins the type of Plane (ie,
  *          ZPLANE) and the A, B, and C coefficients in the
- *          quadratic surface equation and the location of the plane along
+ *          quadratic Surface equation and the location of the Plane along
  *          the z-axis.
- * @return a character array of this zplane's attributes
+ * @return a character array of this ZPlane's attributes
  */
 std::string ZPlane::toString() {
-    std::stringstream string;
+  std::stringstream string;
 
-    string << "Surface id = " << _id << ", type = ZPLANE " << ", A = "
-           << _A << ", B = " << _B << ", C = " << _C << ", z = " << _z;
+  string << "Surface id = " << _id << ", type = ZPLANE " << ", A = "
+         << _A << ", B = " << _B << ", C = " << _C << ", z = " << _z;
 
-    return string.str();
+  return string.str();
 }
 
 
 /**
- * @brief Prints a string representation of all of the zplane's objects to
+ * @brief Prints a string representation of all of the ZPlane's objects to
  *        the console.
  */
 void ZPlane::printString() {
-    log_printf(RESULT, toString().c_str());
+  log_printf(RESULT, toString().c_str());
 }
 
 
 /**
  * @brief constructor.
- * @param id the surface id
- * @param x the x-coordinte of the circle center
- * @param y the y-coordinate of the circle center
- * @param radius the radius of the circle
+ * @param id the surface ID
+ * @param x the x-coordinte of the Circle center
+ * @param y the y-coordinate of the Circle center
+ * @param radius the radius of the Circle
  */
-Circle::Circle(const double x, const double y, 
-	       const double radius, const int id): 
-    Surface(id) {
-        _surface_type = CIRCLE;
-        _A = 1.;
-        _B = 1.;
-        _C = -2.*x;
-        _D = -2.*y;
-        _E = x*x + y*y - radius*radius;
-        _radius = radius;
-        _center.setX(x);
-        _center.setY(y);
+Circle::Circle(const double x, const double y,
+               const double radius, const int id):
+  Surface(id) {
+
+  _surface_type = CIRCLE;
+  _A = 1.;
+  _B = 1.;
+  _C = -2.*x;
+  _D = -2.*y;
+  _E = x*x + y*y - radius*radius;
+  _radius = radius;
+  _center.setX(x);
+  _center.setY(y);
 }
 
 
 /**
- * @brief Return the x-coordinate of the circle's center point.
- * @return the x-coordinate of the circle center
+ * @brief Return the x-coordinate of the Circle's center Point.
+ * @return the x-coordinate of the Circle center
  */
 double Circle::getX0() {
-    return _center.getX();
+  return _center.getX();
 }
 
 
 /**
- * @brief Return the y-coordinate of the circle's center point.
- * @return the y-coordinate of the circle center
+ * @brief Return the y-coordinate of the Circle's center Point.
+ * @return the y-coordinate of the Circle center
  */
 double Circle::getY0() {
-    return _center.getY();
+  return _center.getY();
 }
 
 
 /**
- * @brief Finds the intersection point with this circle from a given point and
+ * @brief Finds the intersection Point with this circle from a given Point and
  *        trajectory defined by an angle (0, 1, or 2 points).
- * @param point pointer to the point of interest
+ * @param point pointer to the Point of interest
  * @param angle the angle defining the trajectory in radians
- * @param points pointer to a an array of points to store intersection points
- * @return the number of intersection points (0 or 1)
+ * @param points pointer to a an array of Points to store intersection Points
+ * @return the number of intersection Points (0 or 1)
  */
 int Circle::intersection(Point* point, double angle, Point* points) {
 
-    double x0 = point->getX();
-    double y0 = point->getY();
-    double xcurr, ycurr;
-    int num = 0;                        /* Number of intersection points */
-    double a, b, c, q, discr;
+  double x0 = point->getX();
+  double y0 = point->getY();
+  double xcurr, ycurr;
+  int num = 0;                        /* Number of intersection Points */
+  double a, b, c, q, discr;
 
-    /* If the track is vertical */
-    if ((fabs(angle - (M_PI / 2))) < 1.0e-10) {
+  /* If the track is vertical */
+  if ((fabs(angle - (M_PI / 2))) < 1.0e-10) {
 
-        /* Solve for where the line x = x0 and the surface F(x,y) intersect
-         * Find the y where F(x0, y) = 0
-         * Substitute x0 into F(x,y) and rearrange to put in
-         * the form of the quadratic formula: ay^2 + by + c = 0
-         */
-        a = _B * _B;
-        b = _D;
-        c = _A * x0 * x0 + _C * x0 + _E;
-      
-        discr = b*b - 4*a*c;
-        
-        /* There are no intersections */
-        if (discr < 0)
-            return 0;
+    /* Solve for where the line x = x0 and the Surface F(x,y) intersect
+     * Find the y where F(x0, y) = 0
+     * Substitute x0 into F(x,y) and rearrange to put in
+     * the form of the quadratic formula: ay^2 + by + c = 0 */
+    a = _B * _B;
+    b = _D;
+    c = _A * x0 * x0 + _C * x0 + _E;
 
-        /* There is one intersection (ie on the surface) */
-        else if (discr == 0) {
-            xcurr = x0;
-            ycurr = -b / (2*a);
-            points[num].setCoords(xcurr, ycurr);
-            if (angle < M_PI && ycurr > y0)
-                num++;
-            else if (angle > M_PI && ycurr < y0)
-                num++;
-            return num;
-        }
-    
-        /* There are two intersections */
-        else {
-            xcurr = x0;
-            ycurr = (-b + sqrt(discr)) / (2 * a);
-            points[num].setCoords(xcurr, ycurr);
-            if (angle < M_PI && ycurr > y0)
-                num++;
-            else if (angle > M_PI && ycurr < y0)
-                num++;
-        
-            xcurr = x0;
-            ycurr = (-b - sqrt(discr)) / (2 * a);
-            points[num].setCoords(xcurr, ycurr);
-            if (angle < M_PI && ycurr > y0)
-                num++;
-            else if (angle > M_PI && ycurr < y0)
-                num++;
-            return num;
-        }
+    discr = b*b - 4*a*c;
+
+    /* There are no intersections */
+    if (discr < 0)
+      return 0;
+
+    /* There is one intersection (ie on the Surface) */
+    else if (discr == 0) {
+      xcurr = x0;
+      ycurr = -b / (2*a);
+      points[num].setCoords(xcurr, ycurr);
+      if (angle < M_PI && ycurr > y0)
+        num++;
+      else if (angle > M_PI && ycurr < y0)
+        num++;
+      return num;
     }
 
-    /* If the track isn't vertical */
+    /* There are two intersections */
     else {
-        /* Solve for where the line y-y0 = m*(x-x0) and the surface F(x,y) 
-         * intersect. Find the (x,y) where F(x, y0 + m*(x-x0)) = 0
-         * Substitute the point-slope formula for y into F(x,y) and 
-         * rearrange to put in the form of the quadratic formula: 
-         * ax^2 + bx + c = 0
-         */
-        double m = sin(angle) / cos(angle);
-        q = y0 - m * x0;
-        a = _A + _B * _B * m * m;
-        b = 2 * _B * m * q + _C + _D * m;
-        c = _B * q * q + _D * q + _E;
+      xcurr = x0;
+      ycurr = (-b + sqrt(discr)) / (2 * a);
+      points[num].setCoords(xcurr, ycurr);
+      if (angle < M_PI && ycurr > y0)
+        num++;
+      else if (angle > M_PI && ycurr < y0)
+        num++;
 
-        discr = b*b - 4*a*c;
-        
-        /* There are no intersections */
-        if (discr < 0)
-            return 0;
-
-        /* There is one intersection (ie on the surface) */
-        else if (discr == 0) {
-            xcurr = -b / (2*a);
-            ycurr = y0 + m * (points[0].getX() - x0);
-            points[num].setCoords(xcurr, ycurr);
-            if (angle < M_PI && ycurr > y0)
-                num++;
-            else if (angle > M_PI && ycurr < y0)
-                num++;
-            return num;
-        }
-
-        /* There are two intersections */
-        else {
-            xcurr = (-b + sqrt(discr)) / (2*a);
-            ycurr = y0 + m * (xcurr - x0);
-            points[num].setCoords(xcurr, ycurr);
-            if (angle < M_PI && ycurr > y0) {
-                num++;
-            }
-            else if (angle > M_PI && ycurr < y0) {
-                num++;
-            }
-
-            xcurr = (-b - sqrt(discr)) / (2*a);
-            ycurr = y0 + m * (xcurr - x0);
-            points[num].setCoords(xcurr, ycurr);
-            if (angle < M_PI && ycurr > y0) {
-                num++;
-            }
-            else if (angle > M_PI && ycurr < y0) {
-                num++;
-            }
-
-            return num;
-        }
+      xcurr = x0;
+      ycurr = (-b - sqrt(discr)) / (2 * a);
+      points[num].setCoords(xcurr, ycurr);
+      if (angle < M_PI && ycurr > y0)
+        num++;
+      else if (angle > M_PI && ycurr < y0)
+        num++;
+      return num;
     }
+  }
+
+  /* If the track isn't vertical */
+  else {
+    /* Solve for where the line y-y0 = m*(x-x0) and the Surface F(x,y)
+     * intersect. Find the (x,y) where F(x, y0 + m*(x-x0)) = 0
+     * Substitute the point-slope formula for y into F(x,y) and
+     * rearrange to put in the form of the quadratic formula:
+     * ax^2 + bx + c = 0
+     */
+    double m = sin(angle) / cos(angle);
+    q = y0 - m * x0;
+    a = _A + _B * _B * m * m;
+    b = 2 * _B * m * q + _C + _D * m;
+    c = _B * q * q + _D * q + _E;
+
+    discr = b*b - 4*a*c;
+
+    /* There are no intersections */
+    if (discr < 0)
+      return 0;
+
+    /* There is one intersection (ie on the Surface) */
+    else if (discr == 0) {
+      xcurr = -b / (2*a);
+      ycurr = y0 + m * (points[0].getX() - x0);
+      points[num].setCoords(xcurr, ycurr);
+      if (angle < M_PI && ycurr > y0)
+        num++;
+      else if (angle > M_PI && ycurr < y0)
+        num++;
+      return num;
+    }
+
+    /* There are two intersections */
+    else {
+      xcurr = (-b + sqrt(discr)) / (2*a);
+      ycurr = y0 + m * (xcurr - x0);
+      points[num].setCoords(xcurr, ycurr);
+      if (angle < M_PI && ycurr > y0) {
+        num++;
+      }
+      else if (angle > M_PI && ycurr < y0) {
+        num++;
+      }
+
+      xcurr = (-b - sqrt(discr)) / (2*a);
+      ycurr = y0 + m * (xcurr - x0);
+      points[num].setCoords(xcurr, ycurr);
+      if (angle < M_PI && ycurr > y0) {
+        num++;
+      }
+      else if (angle > M_PI && ycurr < y0) {
+        num++;
+      }
+
+      return num;
+    }
+  }
 }
 
 
 /**
- * @brief Converts this circle's attributes to a character array.
- * @details The character array returned conatins the type of plane (ie,
+ * @brief Converts this Circle's attributes to a character array.
+ * @details The character array returned conatins the type of Plane (ie,
  *          CIRCLE) and the A, B, C, D and E coefficients in the
- *          quadratic surface equation.
- * @return a character array of this circle's attributes
+ *          quadratic Surface equation.
+ * @return a character array of this Circle's attributes
  */
 std::string Circle::toString() {
-    std::stringstream string;
+  std::stringstream string;
 
-    string << "Surface id = " << _id << ", type = CIRCLE " << ", A = "
-           << _A << ", B = " << _B << ", C = " << _C << ", D = " << _D
-           << ", E = " << _E << ", x0 = " << _center.getX() << ", y0 = " 
-           << _center.getY() << ", radius = " << _radius;
-    
+  string << "Surface id = " << _id << ", type = CIRCLE " << ", A = "
+         << _A << ", B = " << _B << ", C = " << _C << ", D = " << _D
+         << ", E = " << _E << ", x0 = " << _center.getX() << ", y0 = "
+         << _center.getY() << ", radius = " << _radius;
+
     return string.str();
 }
 
 
 /**
- * @brief Prints a string representation of all of the circle's objects to
+ * @brief Prints a string representation of all of the Circle's attributes to
  *        the console.
  */
 void Circle::printString() {
-    log_printf(RESULT, toString().c_str());
+  log_printf(RESULT, toString().c_str());
 }
 
 
 /**
- * @brief Returns the minimum x value on this circle.
+ * @brief Returns the minimum x value on this Circle.
  * @return the minimum y value
  */
 double Circle::getXMin(){
-    return _center.getX() - _radius;
+  return _center.getX() - _radius;
 }
 
 
 /**
- * @brief Returns the maximum x value on this circle.
+ * @brief Returns the maximum x value on this Circle.
  * @return the maximum x value
  */
 double Circle::getXMax(){
-    return _center.getX() + _radius;
+  return _center.getX() + _radius;
 }
 
 /**
- * @brief Returns the minimum y value on this circle.
+ * @brief Returns the minimum y value on this Circle.
  * @return the minimum y value
  */
 double Circle::getYMin(){
-    return _center.getY() - _radius;
+  return _center.getY() - _radius;
 }
 
 
 /**
- * @brief Returns ths maximum y value on this circle.
+ * @brief Returns ths maximum y value on this Circle.
  * @return the maximum y value
  */
 double Circle::getYMax(){
-    return _center.getY() + _radius;
+  return _center.getY() + _radius;
 }
