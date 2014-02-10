@@ -58,7 +58,7 @@ def materialize(filename):
             py_printf('ERROR', 'Unable to materialize file %s since it ' + \
                           'does not contain an \'Energy Groups\' attribute', \
                           filename)
-    
+
         num_groups = f.attrs['Energy Groups']
 
         # Check that the number of energy groups is an integer
@@ -85,13 +85,13 @@ def materialize(filename):
 
             if 'Scattering XS' in f[name]:
                 new_material.setSigmaS(f[name]['Scattering XS'][...])
-            
+
             if 'Fission XS' in f[name]:
                 new_material.setSigmaF(f[name]['Fission XS'][...])
-            
+
             if 'Nu Fission XS' in f[name]:
                 new_material.setNuSigmaF(f[name]['Nu Fission XS'][...])
-            
+
             if 'Chi' in f[name]:
                 new_material.setChi(f[name]['Chi'][...])
 
