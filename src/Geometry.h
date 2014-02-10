@@ -147,7 +147,6 @@ public:
     void addLattice(Lattice* lattice);
 
     void removeMaterial(int id);
-    void removeSurface(int id);
     void removeCell(int id);
     void removeUniverse(int id);
     void removeLattice(int id);

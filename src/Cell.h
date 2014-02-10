@@ -28,151 +28,154 @@ int cell_id();
 */
 enum cellType {
 
-    /** A cell filled by a material */
-    MATERIAL,
+  /** A cell filled by a material */
+  MATERIAL,
 
-    /** A cell filled by a universe */
-    FILL
+  /** A cell filled by a universe */
+  FILL
 };
 
 /**
- * @class Cell Cell.h "openmoc/src/host/Cell.h"
- * @brief Represents a cell inside of a universe.
+ * @class Cell Cell.h "src/host/Cell.h"
+ * @brief Represents a Cell inside of a Universe.
  */
 class Cell {
 
 protected:
 
-    /** A static counter for the number of cells in a simulation */
-    static int _n;
+  /** A static counter for the number of Cells */
+  static int _n;
 
-    /** A static counter for the number of cell clones in a simulation */
-    static int _clone_n;
+  /** A static counter for the number of times this Cell has been cloned */
+  static int _num_clones;
 
-    /** A monotonically increasing unique ID for each cell created */
-    int _uid;
+  /** A monotonically increasing unique ID for each Cell created */
+  int _uid;
 
-    /** A user-defined ID for each cell created */
-    int _id;
+  /** A user-defined ID for each Cell created */
+  int _id;
 
-    /** The type of cell (ie MATERIAL or FILL) */
-    cellType _cell_type;
+  /** The type of Cell (ie MATERIAL or FILL) */
+  cellType _cell_type;
 
-    /** The ID for the universe within which this cell resides */
-    int _universe;
+  /** The ID for the Universe within which this cell resides */
+  int _universe;
 
-    /** Map of bounding surface ids (keys) to surface pointers (values). 
-     *  Keys are +/- depending on the side of surface in which this cell
-     *  resides. */
-    std::map<int, Surface*> _surfaces;
+  /** Map of bounding Surface pointers to halfspaces (+/-1) */
+  std::map<Surface*, int> _surfaces;
 
 public:
-    Cell();
-    Cell(int universe, int id=0);
-    virtual ~Cell();
-    int getUid() const;
-    int getId() const;
-    cellType getType() const;
-    int getUniverse() const;
-    int getNumSurfaces() const;
-    std::map<int, Surface*> getSurfaces() const;
+  Cell();
+  Cell(int universe, int id=0);
+  virtual ~Cell();
+  int getUid() const;
+  int getId() const;
+  cellType getType() const;
+  int getUniverseId() const;
+  int getNumSurfaces() const;
+  std::map<Surface*, int> getSurfaces() const;
 
-    /**
-     * @brief Return the number of flat source regions in this cell. 
-     * @details This method is used when the geometry recursively constructs 
-     *          flat source regions.
-     * @return the number of FSRs in this cell
-     */
-    virtual int getNumFSRs() =0;
+  /**
+   * @brief Return the number of flat source regions in this Cell.
+   * @details This method is used when the Geometry recursively constructs
+   *          flat source regions.
+   * @return the number of FSRs in this Cell
+   */
+  virtual int getNumFSRs() =0;
 
-    void setUniverse(int universe);
-    void addSurface(int halfspace, Surface* surface);
-    void setSurfacePointer(Surface* surface);
+  void setUniverse(int universe);
+  void addSurface(int halfspace, Surface* surface);
 
-    bool cellContainsPoint(Point* point);
-    bool cellContainsCoords(LocalCoords* coords);
-    double minSurfaceDist(Point* point, double angle, 
-                          Point* min_intersection);
-    /**
-     * @brief Convert this cellfill's attributes to a string format.
-     * @return a character array of this cell's attributes
-     */
-    virtual std::string toString() =0;
+  bool cellContainsPoint(Point* point);
+  bool cellContainsCoords(LocalCoords* coords);
+  double minSurfaceDist(Point* point, double angle, Point* min_intersection);
+  /**
+   * @brief Convert this CellFill's attributes to a string format.
+   * @return a character array of this Cell's attributes
+   */
+  virtual std::string toString() =0;
 
-    /**
-     * @brief Prints a string representation of all of the cells's objects to
-     *        the console.
-     */
-    virtual void printString() =0;
+  /**
+   * @brief Prints a string representation of all of the Cells's objects to
+   *        the console.
+   */
+  virtual void printString() =0;
 };
 
 
 /**
- * @class CellBasic Cell.h "openmoc/src/host/Cell.h"
- * @brief Represents a cell filled with a material.
+ * @class CellBasic Cell.h "src/host/Cell.h"
+ * @brief Represents a Cell filled with a Material.
  */
 class CellBasic: public Cell {
 
-private: 
+private:
 
-    /** A pointer to the material filling this cell */
-    int _material;
+  /** A pointer to the Material filling this Cell */
+  int _material;
 
-    /** The number of rings sub-dividing this cell */
-    int _num_rings;
+  /** The number of rings sub-dividing this Cell */
+  int _num_rings;
 
-    /** The number of sectors sub-dividing this cell */
-    int _num_sectors;
+  /** The number of sectors sub-dividing this Cell */
+  int _num_sectors;
 
-    std::vector<CellBasic*> _rings;
-    std::vector<CellBasic*> _sectors;
-    std::vector<CellBasic*> _subcells;
+  /** A container of all CellBasic clones created for rings */
+  std::vector<CellBasic*> _rings;
 
-    void ringify();
-    void sectorize();
+  /** A container of all CellBasic clones created for angular sectors */
+  std::vector<CellBasic*> _sectors;
+
+  /** A container of all CellBasic clones created for rings and sectors */
+  std::vector<CellBasic*> _subcells;
+
+  void ringify();
+  void sectorize();
 
 public:
-    CellBasic(int universe, int material,
-	      int rings=0, int sectors=0, int id=0);
+  CellBasic(int universe, int material, int rings=0, int sectors=0, int id=0);
 
-    int getMaterial() const;
-    int getNumRings();
-    int getNumSectors();
-    int getNumFSRs();
+  int getMaterial() const;
+  int getNumRings();
+  int getNumSectors();
+  int getNumFSRs();
 
-    void setMaterial(int material_id);
-    void setNumRings(int num_rings);
-    void setNumSectors(int num_sectors);
-    CellBasic* clone();
-    std::vector<CellBasic*> subdivideCell();
+  void setMaterial(int material_id);
+  void setNumRings(int num_rings);
+  void setNumSectors(int num_sectors);
+  CellBasic* clone();
+  std::vector<CellBasic*> subdivideCell();
 
-    std::string toString();
-    void printString();
+  std::string toString();
+  void printString();
 };
 
 
 /**
- * @brief Represents a cell filled with a universe.
- * @param _universe_fill id for the universe filling this cell
+ * @class CellFill CellFill.h "src/host/Cell.h"
+ * @brief Represents a Cell filled with a Universe.
  */
 class CellFill: public Cell {
 
 private:
-    /** A pair of the ID and universe pointer filling this cell */
-    std::pair<int, Universe*> _universe_fill;
+
+  /** The ID of the Universe filling this Cell */
+  int _universe_fill_id;
+
+  /** The pointer to the Universe filling this Cell */
+  Universe* _universe_fill;
 
 public:
-    CellFill(int universe, int universe_fill, int id=0);
+  CellFill(int universe, int universe_fill, int id=0);
 
-    int getUniverseFillId() const;
-    Universe* getUniverseFill() const;
-    int getNumFSRs();
+  int getUniverseFillId() const;
+  Universe* getUniverseFill() const;
+  int getNumFSRs();
 
-    void setUniverseFill(int universe_Fill);
-    void setUniverseFillPointer(Universe* universe_fill);
+  void setUniverseFillPointer(Universe* universe_fill);
 
-    std::string toString();
-    void printString();
+  std::string toString();
+  void printString();
 };
 
 #endif /* CELL_H_ */

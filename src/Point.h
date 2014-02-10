@@ -21,95 +21,96 @@
 class Point {
 
 private:
-     /** The point's x-coordinate */
-    double _x;
-    /** The point's y-coordinate */
-    double _y;
+
+  /** The Point's x-coordinate */
+  double _x;
+
+  /** The Point's y-coordinate */
+  double _y;
 
 public:
-    Point();
-    virtual ~Point();
-    void setCoords(const double x, const double y);
-    double getX() const;
-    double getY() const;
-    void setX(const double x);
-    void setY(const double y);
-    double distance(const double x, const double y) const;
-    double distanceToPoint(const Point* point);
-    std::string toString();
+  Point();
+  virtual ~Point();
+  void setCoords(const double x, const double y);
+  double getX() const;
+  double getY() const;
+  void setX(const double x);
+  void setY(const double y);
+  double distance(const double x, const double y) const;
+  double distanceToPoint(const Point* point);
+  std::string toString();
 };
 
 
 /**
- * @brief Initializes a point with two-dimensional coordinates.
+ * @brief Initializes a Point with two-dimensional coordinates.
  * @param x x-coordinate
  * @param y y-coordinate
  */
 inline void Point::setCoords(const double x, const double y) {
-    _x = x;
-    _y = y;
+  _x = x;
+  _y = y;
 }
 
 
 /**
- * @brief Returns this point's x-coordinate.
+ * @brief Returns this Point's x-coordinate.
  * @return the x-coordinate
  */
 inline double Point::getX() const {
-    return _x;
+  return _x;
 }
 
 
 /**
- * @brief Returns this point's y-coordinate.
+ * @brief Returns this Point's y-coordinate.
  * @return the y-coordinate
  */
 inline double Point::getY() const {
-    return _y;
+  return _y;
 }
 
 
 /**
- * @brief Set the point's x-coordinate.
+ * @brief Set the Point's x-coordinate.
  * @param x the new x-coordinate
  */
 inline void Point::setX(const double x) {
-    _x = x;
+  _x = x;
 }
 
 
 /**
- * @brief Set the point's y-coordinate
+ * @brief Set the Point's y-coordinate
  * @param y the new y-coordinate
  */
 inline void Point::setY(const double y) {
-    _y = y;
+  _y = y;
 }
 
 
 /**
- * @brief Compute the distance from this point to another point of interest.
- * @param x the x-coordinate of the point of interest
- * @param y the y-coordinate of the point of interest
- * @return distance to the point of interest
+ * @brief Compute the distance from this Point to another Point of interest.
+ * @param x the x-coordinate of the Point of interest
+ * @param y the y-coordinate of the Point of interest
+ * @return distance to the Point of interest
  */
 inline double Point::distance(const double x, const double y) const {
-    double deltax = _x - x;
-    double deltay = _y - y;
-    return sqrt(deltax*deltax + deltay*deltay);
+  double deltax = _x - x;
+  double deltay = _y - y;
+  return sqrt(deltax*deltax + deltay*deltay);
 }
 
 
-
 /**
- * @brief Compute the distance from this point to another point of interest.
- * @param point a pointer to the point of interest
- * @return distance to the point of interest
+ * @brief Compute the distance from this Point to another Point of interest.
+ * @param point a pointer to the Point of interest
+ * @return distance to the Point of interest
  */
 inline double Point::distanceToPoint(const Point* point) {
-    double deltax = _x - point->_x;
-    double deltay = _y - point->_y;
-    return sqrt(deltax*deltax + deltay*deltay);
+  double deltax = _x - point->_x;
+  double deltay = _y - point->_y;
+  return sqrt(deltax*deltax + deltay*deltay);
 }
 
 
