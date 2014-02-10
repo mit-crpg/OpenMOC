@@ -367,7 +367,7 @@ std::string LocalCoords::toString() {
   std::stringstream string;
   LocalCoords* curr = this;
 
-  /* Loops over all localcoords lower than this one in the list */
+  /* Loops over all LocalCoords lower than this one in the list */
   while (curr != NULL) {
     string << "LocalCoords: level = ";
 

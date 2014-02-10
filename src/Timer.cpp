@@ -6,67 +6,67 @@ std::vector<double> Timer::_start_times;
 
 
 /**
- * @brief Starts the timer.
+ * @brief Starts the Timer.
  * @details This method is similar to starting a stopwatch.
  */
 void Timer::startTimer() {
 
-    double start_time = omp_get_wtime();
-    _start_times.push_back(start_time);	
-    _running = true;
+  double start_time = omp_get_wtime();
+  _start_times.push_back(start_time);
+  _running = true;
 
-    return;
+  return;
 }
 
 
 /**
- * @brief Stops the timer.
+ * @brief Stops the Timer.
  * @details This method is similar to stopping a stopwatch.
  */
 void Timer::stopTimer() {
 
-    if (_running) {
+  if (_running) {
 
-        double end_time = omp_get_wtime();
-	double start_time = _start_times.back();
-	
-        _elapsed_time = end_time - start_time;
+    double end_time = omp_get_wtime();
+    double start_time = _start_times.back();
 
-	if (_start_times.empty())
-	    _running = false;
+    _elapsed_time = end_time - start_time;
 
-	_start_times.pop_back();
-    }
+    if (_start_times.empty())
+      _running = false;
 
-    return;
+    _start_times.pop_back();
+  }
+
+  return;
 }
 
 
 /**
  * @brief Records a message corresponding to a time for the current split.
- * @details When this method is called it assumes that the timer has been
- *          stopped and has the current time for the process corresponding 
+ * @details When this method is called it assumes that the Timer has been
+ *          stopped and has the current time for the process corresponding
  *          to the message.
  * @param msg a msg corresponding to this time split
  */
 void Timer::recordSplit(const char* msg) {
 
-    double time = getTime();
-    std::string msg_string = std::string(msg);
+  double time = getTime();
+  std::string msg_string = std::string(msg);
 
-    if (_timer_splits.find(msg_string) != _timer_splits.end())
-        _timer_splits[msg_string] += time;
-    else
-        _timer_splits.insert(std::pair<std::string, double>(msg_string, time));
+  if (_timer_splits.find(msg_string) != _timer_splits.end())
+    _timer_splits[msg_string] += time;
+  else
+    _timer_splits.insert(std::pair<std::string, double>(msg_string, time));
 }
 
 
 /**
- * @brief Returns the amount of time elapsed from startTimer to stopTimer. 
+ * @brief Returns the time elapsed from startTimer() to stopTimer().
  * @return the elapsed time in seconds
  */
 double Timer::getTime() {
-    return _elapsed_time;
+  return _elapsed_time;
 }
 
 
@@ -78,12 +78,12 @@ double Timer::getTime() {
  */
 double Timer::getSplit(const char* msg) {
 
-    std::string msg_string = std::string(msg);
-  
-    if (_timer_splits.find(msg_string) == _timer_splits.end())
-        return 0.0;
-    else
-        return _timer_splits[msg_string];
+  std::string msg_string = std::string(msg);
+
+  if (_timer_splits.find(msg_string) == _timer_splits.end())
+    return 0.0;
+  else
+    return _timer_splits[msg_string];
 }
 
 
@@ -95,39 +95,38 @@ double Timer::getSplit(const char* msg) {
  */
 void Timer::printSplits() {
 
-    std::string curr_msg;
-    double curr_split;
-    std::map<std::string, double>::iterator iter;
+  std::string curr_msg;
+  double curr_split;
+  std::map<std::string, double>::iterator iter;
 
-    for (iter = _timer_splits.begin(); iter != _timer_splits.end(); ++iter) {
+  for (iter = _timer_splits.begin(); iter != _timer_splits.end(); ++iter) {
 
-        std::stringstream formatted_msg;
+    std::stringstream formatted_msg;
 
-        curr_msg = (*iter).first;
-        curr_split = (*iter).second;
+    curr_msg = (*iter).first;
+    curr_split = (*iter).second;
 
-	curr_msg.resize(53, '.');
-	formatted_msg << curr_msg;
+    curr_msg.resize(53, '.');
+    formatted_msg << curr_msg;
 
-        log_printf(RESULT, "%s%1.4E sec", formatted_msg.str().c_str(), 
-		   curr_split);
-    }
+    log_printf(RESULT, "%s%1.4E sec", formatted_msg.str().c_str(), curr_split);
+  }
 }
 
 
 /**
- * @brief Clears the time split for this message and deletes 
- *        the message's entry in the Timer's splits log
+ * @brief Clears the time split for this message and deletes the message's
+ *        entry in the Timer's splits log.
  * @param msg the message tag for the split
  */
 void Timer::clearSplit(const char* msg) {
 
-    std::string msg_string = std::string(msg);
-  
-    if (_timer_splits.find(msg_string) == _timer_splits.end())
-        return;
-    else
-        _timer_splits.erase(msg_string);
+  std::string msg_string = std::string(msg);
+
+  if (_timer_splits.find(msg_string) == _timer_splits.end())
+    return;
+  else
+    _timer_splits.erase(msg_string);
 }
 
 
@@ -135,5 +134,5 @@ void Timer::clearSplit(const char* msg) {
  * @brief Clears all times split messages from the Timer.
  */
 void Timer::clearSplits() {
-    _timer_splits.clear();
+  _timer_splits.clear();
 }
