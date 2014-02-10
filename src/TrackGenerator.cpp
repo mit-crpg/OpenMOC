@@ -350,10 +350,10 @@ void TrackGenerator::generateTracks() {
 
     /** Create tracks directory if one does not yet exist */
     std::stringstream directory;
-    directory << getOutputDirectory() << "/tracks";
+    directory << get_output_directory() << "/tracks";
     struct stat st;
     if (!stat(directory.str().c_str(), &st) == 0)
-        mkdir(directory.str().c_str(), S_IRWXU);    
+        mkdir(directory.str().c_str(), S_IRWXU);
 
     struct stat buffer;
     std::stringstream test_filename;

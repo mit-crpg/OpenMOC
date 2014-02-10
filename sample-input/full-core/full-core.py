@@ -11,13 +11,13 @@ from openmoc.options import Options
 
 options = Options()
 
-num_threads = options.num_threads
+num_threads = options.num_omp_threads
 track_spacing = options.track_spacing
 num_azim = options.num_azim
 tolerance = options.tolerance
 max_iters = options.max_iters
 
-log.setLogLevel('NORMAL')
+log.set_log_level('NORMAL')
 
 log.py_printf('TITLE', 'Simulating a Mock Full Core PWR...')
 
