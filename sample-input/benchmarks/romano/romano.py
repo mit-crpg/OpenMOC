@@ -16,7 +16,7 @@ num_azim = options.num_azim
 tolerance = options.tolerance
 max_iters = options.max_iters
 
-log.setLogLevel('NORMAL')
+log.set_log_level('NORMAL')
 
 log.py_printf('TITLE', 'Simulating HW3 from Fall 2010 22.212...')
 
