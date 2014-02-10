@@ -33,13 +33,13 @@ The ``openmoc.options`` module provides functionality to parse arguments defined
     max_iters = options.max_iters
     ...
 
--------------------
-Simulation Logfiles
--------------------
+--------------------
+Simulation Log Files
+--------------------
 
-The ``openmoc.log`` module provides routines for printing output to the console as well as to logfiles. Output is reported in real-time to the console as well as stored in a persistent logfile. By default, the logfile name encapsulates a timestamp for the simulation starting time and is stored in the ``/OpenMOC/log`` directory (e.g. :file:`OpenMOC/log/openmoc-MM-DD-YYYY--HH:MM:SS.log`).
+The ``openmoc.log`` module provides routines for printing output to the console as well as to log files. Output is reported in real-time to the console as well as stored in a persistent log file. By default, the log file name encapsulates a timestamp for the simulation starting time and is stored in the ``/OpenMOC/log`` directory (e.g. :file:`OpenMOC/log/openmoc-MM-DD-YYYY--HH:MM:SS.log`).
 
-The OpenMOC logging module uses **verbosity throttling** which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a **log level**, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and logfile. The log levels available in OpenMOC are presented in :ref:`Table 1 <table_log_levels>`.
+The OpenMOC logging module uses **verbosity throttling** which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a **log level**, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and log file. The log levels available in OpenMOC are presented in :ref:`Table 1 <table_log_levels>`.
 
 .. _table_log_levels:
 
@@ -66,13 +66,13 @@ Informative messages using the logging module are embedded into both the C/C++ a
 The following code snippet illustrates how to import the logging module into Python, set the lowest log level set to :envvar:`DEBUG`, and print messages for each level to the screen.
 
 .. code-block:: python
-		
+
     import openmoc.log as log
 
     # Set the lowest acceptable log level to DEBUG mode
-    log.setLogLevel('DEBUG')
+    log.set_log_level('DEBUG')
 
-    # Print some exaple messages to the console and logfile
+    # Print some exaple messages to the console and log file
     log.py_printf('DEBUG', 'This is a DEBUG message')
     log.py_printf('INFO', 'This is an INFO message')
     log.py_printf('NORMAL', 'This is a NORMAL message')
@@ -84,7 +84,7 @@ The following code snippet illustrates how to import the logging module into Pyt
     log.py_printf('UNITTEST', 'This is a UNITTEST message')
     log.py_printf('ERROR', 'This is an ERROR message)
 
-And the following is the output displayed to the console and recorded in the logfile::
+And the following is the output displayed to the console and recorded in the log file::
 
   [  DEBUG  ]  This is a DEBUG message
   [  INFO   ]  This is an INFO message
@@ -110,25 +110,25 @@ It should be noted that the ``py_printf(...)`` routine in the logging module is 
     import openmoc.log as log
 
     # Set the lowest acceptable log level to NORMAL mode
-    log.setLogLevel('NORMAL')
+    log.set_log_level('NORMAL')
 
     # Initialize some string, integer and float variables
     name = 'Will Boyd'
     age = 26
     pi = 3.141593
 
-    # Print example messages using formatted output arguments 
-    # to the console and logfile 
+    # Print example messages using formatted output arguments
+    # to the console and log file
     log.py_printf('NORMAL', 'Hello World! My name is %s', name)
     log.py_printf('NORMAL', 'I am %d years old. My favorite # is %f', age, pi)
 
 
-This will result in the following output messages to be printed to the console and stored to the logfile::
+This will result in the following output messages to be printed to the console and stored to the log file::
 
   [  NORMAL ]  Hello World! My name is Will Boyd
   [  NORMAL ]  I am 26 years old. My favorite # is 3.141593
 
-.. note:: By default, the logging module will split log messages into multiple lines of 80 characters or less each. Users may alternatively set a custom maximum line length for log messages may at runtime using the ``setLineLength(...)`` routine.
+.. note:: By default, the logging module will split log messages into multiple lines of 80 characters or less each. Users may alternatively set a custom maximum line length for log messages may at runtime using the ``set_line_length(...)`` routine.
 
 -----------------------
 Materials Specification
@@ -159,6 +159,7 @@ OpenMOC uses multi-group macroscopic nuclear cross-sections, provided by the use
    material.setSigmaT(sigma_f)
    ...
 
+.. warning:: Users may not use Material IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.
 
 For many simulations, defining the nuclear data cross-sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the ``openmoc.materialize`` module for importing nuclear data cross-sections from an HDF5_ or a Python pickle_ binary file. The ``materialize(...)`` routine is used to import data and instantiate ``Material`` objects returned via a Python dictionary_. The use of the ``openmoc.materialize`` module to import HDF5 and pickle binary files is illusrated in the following snippet:
 
@@ -336,6 +337,8 @@ OpenMOC does not place a limit on the hierarchical depth - or number of nested u
     pin_cell_array.addSurface(halfsapce=-1, right)
     pin_cell_array.addSurface(halfspace=+1, bottom)
     pin_cell_array.addSurface(halfspace=-1, top)
+
+.. warning:: Users may not use Cell IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.
 
 
 Rings and Sectors

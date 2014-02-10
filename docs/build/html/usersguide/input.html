@@ -80,10 +80,10 @@
 </pre></div>
 </div>
 </div>
-<div class="section" id="simulation-logfiles">
-<h2>3.2. Simulation Logfiles<a class="headerlink" href="#simulation-logfiles" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">openmoc.log</span></tt> module provides routines for printing output to the console as well as to logfiles. Output is reported in real-time to the console as well as stored in a persistent logfile. By default, the logfile name encapsulates a timestamp for the simulation starting time and is stored in the <tt class="docutils literal"><span class="pre">/OpenMOC/log</span></tt> directory (e.g. <tt class="file docutils literal"><span class="pre">OpenMOC/log/openmoc-MM-DD-YYYY--HH:MM:SS.log</span></tt>).</p>
-<p>The OpenMOC logging module uses <strong>verbosity throttling</strong> which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a <strong>log level</strong>, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and logfile. The log levels available in OpenMOC are presented in <a class="reference internal" href="#table-log-levels"><em>Table 1</em></a>.</p>
+<div class="section" id="simulation-log-files">
+<h2>3.2. Simulation Log Files<a class="headerlink" href="#simulation-log-files" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.log</span></tt> module provides routines for printing output to the console as well as to log files. Output is reported in real-time to the console as well as stored in a persistent log file. By default, the log file name encapsulates a timestamp for the simulation starting time and is stored in the <tt class="docutils literal"><span class="pre">/OpenMOC/log</span></tt> directory (e.g. <tt class="file docutils literal"><span class="pre">OpenMOC/log/openmoc-MM-DD-YYYY--HH:MM:SS.log</span></tt>).</p>
+<p>The OpenMOC logging module uses <strong>verbosity throttling</strong> which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a <strong>log level</strong>, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and log file. The log levels available in OpenMOC are presented in <a class="reference internal" href="#table-log-levels"><em>Table 1</em></a>.</p>
 <table border="1" class="docutils" id="table-log-levels">
 <colgroup>
 <col width="26%" />
@@ -136,9 +136,9 @@
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.log</span> <span class="kn">as</span> <span class="nn">log</span>
 
 <span class="c"># Set the lowest acceptable log level to DEBUG mode</span>
-<span class="n">log</span><span class="o">.</span><span class="n">setLogLevel</span><span class="p">(</span><span class="s">&#39;DEBUG&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">set_log_level</span><span class="p">(</span><span class="s">&#39;DEBUG&#39;</span><span class="p">)</span>
 
-<span class="c"># Print some exaple messages to the console and logfile</span>
+<span class="c"># Print some exaple messages to the console and log file</span>
 <span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;DEBUG&#39;</span><span class="p">,</span> <span class="s">&#39;This is a DEBUG message&#39;</span><span class="p">)</span>
 <span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;INFO&#39;</span><span class="p">,</span> <span class="s">&#39;This is an INFO message&#39;</span><span class="p">)</span>
 <span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;NORMAL&#39;</span><span class="p">,</span> <span class="s">&#39;This is a NORMAL message&#39;</span><span class="p">)</span>
@@ -151,7 +151,7 @@
 <span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;ERROR&#39;</span><span class="p">,</span> <span class="s">&#39;This is an ERROR message)</span>
 </pre></div>
 </div>
-<p>And the following is the output displayed to the console and recorded in the logfile:</p>
+<p>And the following is the output displayed to the console and recorded in the log file:</p>
 <div class="highlight-python"><pre>[  DEBUG  ]  This is a DEBUG message
 [  INFO   ]  This is an INFO message
 [  NORMAL ]  This is a NORMAL message
@@ -173,7 +173,7 @@ RuntimeError: This is an ERROR message</pre>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.log</span> <span class="kn">as</span> <span class="nn">log</span>
 
 <span class="c"># Set the lowest acceptable log level to NORMAL mode</span>
-<span class="n">log</span><span class="o">.</span><span class="n">setLogLevel</span><span class="p">(</span><span class="s">&#39;NORMAL&#39;</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">set_log_level</span><span class="p">(</span><span class="s">&#39;NORMAL&#39;</span><span class="p">)</span>
 
 <span class="c"># Initialize some string, integer and float variables</span>
 <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;Will Boyd&#39;</span>
@@ -181,18 +181,18 @@ RuntimeError: This is an ERROR message</pre>
 <span class="n">pi</span> <span class="o">=</span> <span class="mf">3.141593</span>
 
 <span class="c"># Print example messages using formatted output arguments</span>
-<span class="c"># to the console and logfile</span>
+<span class="c"># to the console and log file</span>
 <span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;NORMAL&#39;</span><span class="p">,</span> <span class="s">&#39;Hello World! My name is </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 <span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;NORMAL&#39;</span><span class="p">,</span> <span class="s">&#39;I am </span><span class="si">%d</span><span class="s"> years old. My favorite # is </span><span class="si">%f</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">age</span><span class="p">,</span> <span class="n">pi</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This will result in the following output messages to be printed to the console and stored to the logfile:</p>
+<p>This will result in the following output messages to be printed to the console and stored to the log file:</p>
 <div class="highlight-python"><pre>[  NORMAL ]  Hello World! My name is Will Boyd
 [  NORMAL ]  I am 26 years old. My favorite # is 3.141593</pre>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">By default, the logging module will split log messages into multiple lines of 80 characters or less each. Users may alternatively set a custom maximum line length for log messages may at runtime using the <tt class="docutils literal"><span class="pre">setLineLength(...)</span></tt> routine.</p>
+<p class="last">By default, the logging module will split log messages into multiple lines of 80 characters or less each. Users may alternatively set a custom maximum line length for log messages may at runtime using the <tt class="docutils literal"><span class="pre">set_line_length(...)</span></tt> routine.</p>
 </div>
 </div>
 <div class="section" id="materials-specification">
@@ -219,6 +219,10 @@ RuntimeError: This is an ERROR message</pre>
 <span class="n">material</span><span class="o">.</span><span class="n">setSigmaT</span><span class="p">(</span><span class="n">sigma_f</span><span class="p">)</span>
 <span class="o">...</span>
 </pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Users may not use Material IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.</p>
 </div>
 <p>For many simulations, defining the nuclear data cross-sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module for importing nuclear data cross-sections from an <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> or a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> binary file. The <tt class="docutils literal"><span class="pre">materialize(...)</span></tt> routine is used to import data and instantiate <tt class="docutils literal"><span class="pre">Material</span></tt> objects returned via a Python <a class="reference external" href="http://docs.python.org/2/tutorial/datastructures.html#dictionaries">dictionary</a>. The use of the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module to import HDF5 and pickle binary files is illusrated in the following snippet:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc</span>
@@ -380,6 +384,10 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 <span class="n">pin_cell_array</span><span class="o">.</span><span class="n">addSurface</span><span class="p">(</span><span class="n">halfspace</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">top</span><span class="p">)</span>
 </pre></div>
 </div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Users may not use Cell IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.</p>
+</div>
 </div>
 <div class="section" id="rings-and-sectors">
 <h3>3.4.3. Rings and Sectors<a class="headerlink" href="#rings-and-sectors" title="Permalink to this headline">¶</a></h3>
@@ -525,7 +533,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
   <ul>
 <li><a class="reference internal" href="#">3. Writing Python Input Files</a><ul>
 <li><a class="reference internal" href="#simulation-parameters">3.1. Simulation Parameters</a></li>
-<li><a class="reference internal" href="#simulation-logfiles">3.2. Simulation Logfiles</a></li>
+<li><a class="reference internal" href="#simulation-log-files">3.2. Simulation Log Files</a></li>
 <li><a class="reference internal" href="#materials-specification">3.3. Materials Specification</a></li>
 <li><a class="reference internal" href="#geometry-specification">3.4. Geometry Specification</a><ul>
 <li><a class="reference internal" href="#surfaces">3.4.1. Surfaces</a></li>
