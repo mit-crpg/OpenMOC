@@ -7,715 +7,696 @@ static int auto_id = 10000;
 
 
 /**
- * @brief Returns an auto-generated unique cell ID.
- * @details This method is intended as a utility mehtod for user's writing
- *          OpenMOC input files. The method makes use of a static cell
+ * @brief Returns an auto-generated unique Cell ID.
+ * @details This method is intended as a utility method for users writing
+ *          OpenMOC input files. The method makes use of a static Cell
  *          ID which is incremented each time the method is called to enable
  *          unique generation of monotonically increasing IDs. The method's
- *          first ID begins at 10000. Hence, user-defined cell IDs greater
- *          than or equal to 10000 is prohibited.
+ *          first ID begins at 10000. Hence, user-defined Cell IDs greater
+ *          than or equal to 10000 are prohibited.
  */
 int cell_id() {
-    int id = auto_id;
-    auto_id++;
-    return id;
+  int id = auto_id;
+  auto_id++;
+  return id;
 }
 
 
 /**
- * @brief Default constructor used in rings/sectors subdivision of cells.
+ * @brief Default constructor used in rings/sectors subdivision of Cells.
  */
-Cell::Cell() { 
+Cell::Cell() {
 }
 
 
 /**
- * @brief Constructor sets the unique and user-specifed IDs for this cell.
- * @param id the user-specified cell ID
- * @param universe the ID of the universe within which this cell resides
+ * @brief Constructor sets the unique and user-specifed IDs for this Cell.
+ * @param id the user-specified Cell ID
+ * @param universe the ID of the Universe within which this Cell resides
  */
 Cell::Cell(int universe, int id) {
 
-    /* If the user did not define an optional ID, create one */
-    if (id == 0)
-        _id = surf_id();
-    else if (id >= surf_id())
-        log_printf(ERROR, "Unable to set the ID of a cell to %d since "
-		 "cell IDs greater than or equal to 10000 is probibited "
-		 "by OpenMOC.", id);
-    /* Use the user-defined ID */
-    else
-        _id = id;
+  /* If the user did not define an optional ID, create one */
+  if (id == 0)
+    _id = cell_id();
 
-    _uid = _n;
-    _n++;
-    _universe = universe;
+  /* If the user-defined ID is in the prohibited range, return an error */
+  else if (id >= 10000)
+    log_printf(ERROR, "Unable to set the ID of a cell to %d since cell IDs "
+               "greater than or equal to 10000 is probibited by OpenMOC.", id);
+
+  /* Use the user-defined ID */
+  else
+    _id = id;
+
+  _uid = _n;
+  _n++;
+  _universe = universe;
 }
 
 
 /**
- * @brief Destructor frees all surfaces making up cell.
+ * @brief Destructor clears vector of Surface pointers bounding the Cell.
  */
 Cell::~Cell() {
-    _surfaces.clear();
+  _surfaces.clear();
 }
 
 
 /**
- * @brief Return the cell's unique ID.
- * @return the cell's unique ID
+ * @brief Return the Cell's unique ID.
+ * @return the Cell's unique ID
  */
 int Cell::getUid() const {
-    return _uid;
+  return _uid;
 }
 
 
 /**
- * @brief Return the cell's user-specified ID.
- * @return the cell's user-specified ID
+ * @brief Return the Cell's user-specified ID.
+ * @return the Cell's user-specified ID
  */
 int Cell::getId() const {
-    return _id;
+  return _id;
 }
 
 
 /**
- * @brief Return the cell type (FILL or MATERIAL).
- * @return the cell type
+ * @brief Return the Cell type (FILL or MATERIAL).
+ * @return the Cell type
  */
 cellType Cell::getType() const {
-    return _cell_type;
+  return _cell_type;
 }
 
 
 /**
- * @brief Return the ID of the universe within which this cell resides.
- * @return the universe ID
+ * @brief Return the ID of the Universe within which this Cell resides.
+ * @return the Universe ID
  */
-int Cell::getUniverse() const {
-    return _universe;
+int Cell::getUniverseId() const {
+  return _universe;
 }
 
 
 /**
- * @brief Return the number of surfaces in the cell.
- * @return the number of surfaces
+ * @brief Return the number of Surfaces in the Cell.
+ * @return the number of Surfaces
  */
 int Cell::getNumSurfaces() const {
-    return this->_surfaces.size();
+  return _surfaces.size();
 }
 
 
 /**
- * @brief Return the hashtable of surfaces IDs and surface pointers for all 
- *        surfaces making up the cell.
- * @return map of surface IDs and surface pointers
+ * @brief Return the std::map of Surface pointers and halfspaces (+/-1) for all
+ *        surfaces bounding the Cell.
+ * @return std::map of Surface pointers and halfspaces
  */
-std::map<int,Surface*> Cell::getSurfaces() const {
-    return _surfaces;
+std::map<Surface*, int> Cell::getSurfaces() const {
+  return _surfaces;
 }
 
 
 /**
- * @brief Set the ID for teh universe within whic this cell resides.
- * @param universe the universe's user-specified ID
+ * @brief Set the ID for the Universe within which this Cell resides.
+ * @param universe the Universe's user-specified ID
  */
 void Cell::setUniverse(int universe) {
-    _universe = universe;
+  _universe = universe;
 }
 
 
 /**
- * @brief Insert the a surface into this cell's container.
- * @param halfspace the surface halfspace (positive/negative for surface side)
- * @param surface a pointer to the surface
+ * @brief Insert a Surface into this Cells container.
+ * @param halfspace the Surface halfspace (+/-1)
+ * @param surface a pointer to the Surface
  */
 void Cell::addSurface(int halfspace, Surface* surface) {
-    if (halfspace != -1 && halfspace != +1)
-        log_printf(ERROR, "Unable to add surface %d to cell %d since the "
-                    "halfspace %d is not -1 or 1", surface->getId(), 
-                                                    _id, halfspace);
 
-    _surfaces.insert(std::pair<int, Surface*>(halfspace*surface->getId(),
-                                                                     surface));
+  if (halfspace != -1 && halfspace != +1)
+    log_printf(ERROR, "Unable to add surface %d to cell %d since the halfspace"
+               " %d is not -1 or 1", surface->getId(), _id, halfspace);
+
+  _surfaces.insert(std::pair<Surface*, int>(surface, halfspace));
 }
 
 
 /**
- * @brief Registers a surface pointer with the Cell's surfaces map. 
- * @details This method is used by the geometry whenever a new cell is 
- *          added to it.
- * @param surface the surface pointer
- */
-void Cell::setSurfacePointer(Surface* surface) {
-
-    /* if _surfaces does not contain this surface id throw an error */
-    if (_surfaces.find(surface->getId()) == _surfaces.end() &&
-          _surfaces.find(-surface->getId()) == _surfaces.end())
-
-      log_printf(WARNING, "Unable to set surface pointer for cell id = %d "
-                 "for surface id = %d since cell does not contain this surface",
-                 _id, surface->getId());
-
-    try{
-        /* If the cell contains the positive side of the surface */
-        if (_surfaces.find(surface->getId()) != _surfaces.end())
-            _surfaces[surface->getId()] = surface;
-
-        /* If the cell contains the negative side of the surface */
-        else
-            _surfaces[-1*surface->getId()] = surface;
-
-        log_printf(INFO, "Set the surface pointer for cell id = %d for "
-                   "surface id = %d", _id, surface->getId());
-    }
-    catch (std::exception &e) {
-        log_printf(ERROR, "Unable to add surface with id = %d to cell with "
-		 "id = %d. Backtrace:\n%s", surface, _id, e.what());
-    }
-}
-
-
-/**
- * @brief Determines whether a point is contained inside a cell. 
- * @details Queries each surface inside the cell to determine if the point
- *          particle is on the same side of the surface. This point is 
- *          only inside the cell if it is on the same side of every surface 
- *          in the cell.
- * @param point a pointer to a point
+ * @brief Determines whether a Point is contained inside a Cell.
+ * @details Queries each Surface inside the Cell to determine if the Point
+ *          is on the same side of the Surface. This point is only inside
+ *          the Cell if it is on the same side of every Surface in the Cell.
+ * @param point a pointer to a Point
  */
 bool Cell::cellContainsPoint(Point* point) {
 
-    /* Loop over all surfaces inside the cell */
-    std::map<int, Surface*>::iterator iter;
-    for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-      
-        /* If the surface evaluated point is not the same sign as the surface
-         * or within a threshold, return false */
-        if (iter->second->evaluate(point) * iter->first < -ON_SURFACE_THRESH)
-            return false;
-    }
+  /* Loop over all Surfaces inside the Cell */
+  std::map<Surface*, int>::iterator iter;
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
-    return true;
+    /* Return false if the Point is not in the correct Surface halfspace */
+    if (iter->first->evaluate(point) * iter->second < -ON_SURFACE_THRESH)
+      return false;
+  }
+
+  /* Return true if the Point is in the correct halfspace for each Surface */
+  return true;
 }
 
 
 /**
- * @brief Determines whether a point is contained inside a cell. 
- * @details Queries each surface inside the cell to determine if the particle 
- *          is on the same side of the surface. This particle is only inside 
- *          the cell if it is on the same side of every surface in the cell.
+ * @brief Determines whether a Point is contained inside a Cell.
+ * @details Queries each Surface inside the Cell to determine if the Point
+ *          is on the same side of the Surface. This Point is only inside
+ *          the Cell if it is on the same side of every Surface in the Cell.
  * @param coords a pointer to a localcoord
  */
 bool Cell::cellContainsCoords(LocalCoords* coords) {
-    return this->cellContainsPoint(coords->getPoint());
+  return cellContainsPoint(coords->getPoint());
 }
 
 
 /**
- * @brief Computes the minimum distance to a surface from a point with a given
- *        trajectory at a certain angle. 
- * @details If the trajectory will not intersect any of the surfaces in the cell*           returns INFINITY.
- * @param point the point of interest
- * @param angle the angle of the trajectory (in radians from 0 to 2*PI)
- * @param min_intersection a pointer to the intersection point that is found
+ * @brief Computes the minimum distance to a Surface from a Point with a given
+ *        trajectory at a certain angle.
+ * @details If the trajectory will not intersect any of the Surfaces in the
+ *          Cell returns INFINITY.
+ * @param point the Point of interest
+ * @param angle the angle of the trajectory (in radians from \f$[0,2\pi]\f$)
+ * @param min_intersection a pointer to the intersection Point that is found
  */
 double Cell::minSurfaceDist(Point* point, double angle,
                             Point* min_intersection) {
 
-    double min_dist = INFINITY; 
-    double d;
-    Point intersection;
+  double min_dist = INFINITY;
+  double d;
+  Point intersection;
 
-    std::map<int, Surface*>::iterator iter;
-    
-    /* Loop over all of the cell's surfaces */
-    for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+  std::map<Surface*, int>::iterator iter;
 
-        /* Find the minimum distance from this surface to this point */
-        d = iter->second->getMinDistance(point, angle, &intersection);
+  /* Loop over all of the Cell's Surfaces */
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
-        /* If the distance to cell is less than current min distance, update */
-        if (d < min_dist) {
-            min_dist = d;
-            min_intersection->setX(intersection.getX());
-            min_intersection->setY(intersection.getY());
-        }
+    /* Find the minimum distance from this surface to this Point */
+    d = iter->first->getMinDistance(point, angle, &intersection);
+
+    /* If the distance to Cell is less than current min distance, update */
+    if (d < min_dist) {
+      min_dist = d;
+      min_intersection->setX(intersection.getX());
+      min_intersection->setY(intersection.getY());
     }
+  }
 
-    return min_dist;
+  return min_dist;
 }
 
 
 /**
- * Constructor sets the user-specified and unique IDs for this cellbasic.
- * @param universe the ID for the universe within which this cellbasic resides
- * @param material the ID for the material which fills this cellbasic
- * @param rings the number of equal volume rings to divide this cell into 
+ * Constructor sets the user-specified and unique IDs for this CellBasic.
+ * @param universe the ID for the Universe within which this CellBasic resides
+ * @param material the ID for the Material which fills this CellBasic
+ * @param rings the number of equal volume rings to divide this Cell into
  *        (the default is zero)
- * @param sectors the number of angular sectors to divide this cell into
+ * @param sectors the number of angular sectors to divide this Cell into
  *        (the default is zero)
- * @param id the user-specified cell ID
+ * @param id the user-specified Cell ID
  */
-CellBasic::CellBasic(int universe, int material, int rings, 
-		     int sectors, int id): Cell(universe, id) {
-    _cell_type = MATERIAL;
-    _material = material;
-    setNumRings(rings);
-    setNumSectors(sectors);
+CellBasic::CellBasic(int universe, int material, int rings,
+                     int sectors, int id): Cell(universe, id) {
+
+  _cell_type = MATERIAL;
+  _material = material;
+  setNumRings(rings);
+  setNumSectors(sectors);
 }
 
 
 
 /**
- * @brief Return the ID of the material filling the cellbasic.
- * @return the material's ID
+ * @brief Return the ID of the Material filling the CellBasic.
+ * @return the Material's ID
  */
 int CellBasic::getMaterial() const {
-    return _material;
+  return _material;
 }
 
 
 /**
- * @brief Return the number of rings in the cell.
+ * @brief Return the number of rings in the Cell.
  * @return the number of rings
  */
 int CellBasic::getNumRings() {
-    return this->_num_rings;
+  return _num_rings;
 }
 
 
 /**
- * @brief Return the number of sectors in the cell.
+ * @brief Return the number of sectors in the Cell.
  * @return the number of sectors
  */
 int CellBasic::getNumSectors() {
-    return this->_num_sectors;
+  return _num_sectors;
 }
 
 
 /**
- * @brief Return the number of flat source regions in this cellbasic. 
- * @details This method is used when the geometry recursively constructs flat
- *           source regions. By definition, cellbasic's are the lowest level
+ * @brief Return the number of flat source regions in this CellBasic.
+ * @details This method is used when the Geometry recursively constructs flat
+ *           source regions. By definition, CellBasics are the lowest level
  *           entity in the geometry and thus only have one flat source region
  *           within them, so this method always returns 1.
- * @return the number of FSRs in this cell
+ * @return the number of FSRs in this Cell
  */
 int CellBasic::getNumFSRs() {
-    return 1;
+  return 1;
 }
 
 
 /**
- * @brief Set the cell's number of rings.
- * @param num_rings the number of rings in this cell
+ * @brief Set the Cell's number of rings.
+ * @param num_rings the number of rings in this Cell
  */
 void CellBasic::setNumRings(int num_rings) {
-    if (num_rings < 0)
-        log_printf(ERROR, "Unable to give %d rings to cell %d since this is "
-		 "a negative number", num_rings, _id);
+  if (num_rings < 0)
+    log_printf(ERROR, "Unable to give %d rings to Cell %d since this is "
+               "a negative number", num_rings, _id);
 
-    _num_rings = num_rings;
+  _num_rings = num_rings;
 }
 
 
 /**
- * @brief Set the cell's number of sectors.
- * @param num_sectors the number of sectors in this cell
+ * @brief Set the Cell's number of sectors.
+ * @param num_sectors the number of sectors in this Cell
  */
 void CellBasic::setNumSectors(int num_sectors) {
-    if (num_sectors < 0)
-        log_printf(ERROR, "Unable to give %d sectors to cell %d since this is "
-		 "a negative number", num_sectors, _id);
+  if (num_sectors < 0)
+    log_printf(ERROR, "Unable to give %d sectors to Cell %d since this is "
+               "a negative number", num_sectors, _id);
 
-    if (num_sectors == 1)
-        _num_sectors = 0;
-    else
-        _num_sectors = num_sectors;
+  /* By default, a ring is considered to have a single sector in [0, 2*pi] */
+  if (num_sectors == 1)
+    _num_sectors = 0;
+
+  else
+    _num_sectors = num_sectors;
 }
 
 
 /**
- * @brief Sets the ID for the material filling this cell.
- * @param material_id the new material filling this cell
+ * @brief Sets the ID for the Material filling this Cell.
+ * @param material_id the new Material filling this Cell
  */
 void CellBasic::setMaterial(int material_id) {
-    _material = material_id;
+  _material = material_id;
 }
 
 
 /**
- * @brief Create a duplicate of the cellbasic.
+ * @brief Create a duplicate of the CellBasic.
  * @return a pointer to the clone
  */
 CellBasic* CellBasic::clone() {
 
-    /* Construct new cell */
-    CellBasic* new_cell = new CellBasic(_universe, _material, 
-					_num_rings, _num_sectors);
+  /* Construct new Cell */
+  CellBasic* new_cell = new CellBasic(_universe, _material,
+                                      _num_rings, _num_sectors);
 
-    /* Loop over all of this cell's surfaces and add them to the clone */
-    std::map<int, Surface*>::iterator iter;
-    int halfspace;
-    Surface* surface;
+  /* Loop over all of this Cell's Surfaces and add them to the clone */
+  std::map<Surface*, int>::iterator iter;
 
-    for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-        halfspace = iter->first / abs(iter->first);
-        surface = iter->second;
-        new_cell->addSurface(halfspace, surface);
-    }
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
+    new_cell->addSurface(iter->second, iter->first);
 
-    return new_cell;
+  return new_cell;
 }
 
 
-void CellBasic::sectorize() { 
+/**
+ * @brief Subdivides the Cell into clones for fuel pin angular sectors.
+ */
+void CellBasic::sectorize() {
 
-    if (_num_sectors == 0)
-        return;
+  /* If the user didn't request any sectors, don't make any */
+  if (_num_sectors == 0)
+    return;
 
-    /* Figure out the angle for each sector */
-    double* azim_angles = new double[_num_sectors];
-    double delta_azim = 2. * M_PI / _num_sectors;
-    double A, B;
+  double azim_angle;
+  double delta_azim = 2. * M_PI / _num_sectors;
+  double A, B;
 
-    std::vector<Plane*> planes;
-    std::vector<Plane*>::iterator iter1;
+  /* A container for each of the bouding planes for the sector Cells */
+  std::vector<Plane*> planes;
 
-    log_printf(DEBUG, "Sectorizing cell %d with %d sectors",_id, _num_sectors);
+  log_printf(DEBUG, "Sectorizing Cell %d with %d sectors",_id, _num_sectors);
 
-    for (int i=0; i < _num_sectors; i++) {
-        azim_angles[i] = i * delta_azim;
-	A = cos(azim_angles[i]);
-	B = sin(azim_angles[i]);
-	Plane* plane = new Plane(A, B, 0.);
-	planes.push_back(plane);
-	log_printf(DEBUG, "Created sector plane id = %d, angle = %f, A = %f, "
-		   "B = %f", i, azim_angles[i], A, B);
+  /* Create each of the bounding planes for the sector Cells */
+  for (int i=0; i < _num_sectors; i++) {
+
+    /* Figure out the angle for this plane */
+    azim_angle = i * delta_azim;
+
+    /* Instantiate the plane */
+    A = cos(azim_angle);
+    B = sin(azim_angle);
+    Plane* plane = new Plane(A, B, 0.);
+    planes.push_back(plane);
+
+    log_printf(DEBUG, "Created sector Plane id = %d, angle = %f, A = %f, "
+               "B = %f", i, azim_angle, A, B);
+  }
+
+  /* Create sectors using disjoint halfspaces of pairing Planes */
+  for (int i=0; i < _num_sectors; i++) {
+
+    /* Create new CellBasic clone for this sector Cell */
+    CellBasic* sector = clone();
+
+    sector->setNumSectors(0);
+    sector->setNumRings(0);
+
+    log_printf(DEBUG, "Creating a new sector Cell with %d for Cell %d",
+               sector->getId(), _id);
+
+    /* Add new bounding planar Surfaces to the clone */
+    sector->addSurface(+1, planes.at(i));
+
+    if (_num_sectors != 2) {
+      if (i+1 < _num_sectors)
+        sector->addSurface(-1, planes.at(i+1));
+      else
+        sector->addSurface(-1, planes.at(0));
     }
 
-    /* Create sectors using disjoint halfspaces of pairing planes */
-    for (int i=0; i < _num_sectors; i++) {
+    /* Store the clone in the parent Cell's container of sector Cells */
+    _sectors.push_back(sector);
+  }
 
-        /* Create new CellBasic clones */
-        CellBasic* sector = clone();
-
-        sector->setNumSectors(0);
-        sector->setNumRings(0);
-
-        log_printf(DEBUG, "Creating a new sector cell with %d for cell %d", 
-		   sector->getId(), _id);
-
-        /* Add new bounding planar surfaces to the clone */
-        sector->addSurface(+1, planes.at(i));
-
-	if (_num_sectors != 2) {
-	    if (i+1 < _num_sectors)
-	        sector->addSurface(-1, planes.at(i+1));
-	    else
-	        sector->addSurface(-1, planes.at(0));
-	}
-
-	_sectors.push_back(sector);
-    }
-
-    _subcells.clear();
-    _subcells.insert(_subcells.end(), _sectors.begin(), _sectors.end());
-
-    delete [] azim_angles;
+  /* Store all of the sectors in the parent Cell's subcells container */
+  _subcells.clear();
+  _subcells.insert(_subcells.end(), _sectors.begin(), _sectors.end());
 }
 
 
+/**
+ * @brief Subdivides the Cell into clones for fuel pin rings.
+ */
 void CellBasic::ringify() {
 
-    if (_num_rings == 0)
+  /* If the user didn't request any rings, don't make any */
+  if (_num_rings == 0)
         return;
 
-    int num_circles = 0;
-    Circle* circle1 = NULL;
-    Circle* circle2 = NULL;
-    double radius1 = 0;
-    double radius2 = 0;
-    double x1 = 0.;
-    double y1 = 0.;
-    double x2 = 0.;
-    double y2 = 0.;
-    int halfspace1 = 0;
-    int halfspace2 = 0;
-    std::vector<Circle*> circles;
+  int num_circles = 0;
+  Circle* circle1 = NULL;
+  Circle* circle2 = NULL;
+  double radius1 = 0;
+  double radius2 = 0;
+  double x1 = 0.;
+  double y1 = 0.;
+  double x2 = 0.;
+  double y2 = 0.;
+  int halfspace1 = 0;
+  int halfspace2 = 0;
+  std::vector<Circle*> circles;
 
-    /* See if the cell contains 1 or 2 surfaces */
-    std::map<int, Surface*>::iterator iter1;
-    for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
-        if ((*iter1).second->getSurfaceType() == CIRCLE) {
-	    int halfspace = (*iter1).first / (*iter1).second->getId();
-	    Circle* circle = static_cast<Circle*>((*iter1).second);
+  /* See if the Cell contains 1 or 2 CIRCLE Surfaces */
+  std::map<Surface*, int>::iterator iter1;
+  for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
 
-	    /* Outermost bounding circle */
-	    if (halfspace == -1) {
-	        halfspace1 = halfspace;
-	        circle1 = circle;
-	        radius1 = circle1->getRadius();
-		x1 = circle1->getX0();
-		y1 = circle1->getY0();                
-	    }
+    /* Determine if any of the Surfaces is a Circle */
+    if ((*iter1).first->getSurfaceType() == CIRCLE) {
+      int halfspace = (*iter1).second;
+      Circle* circle = static_cast<Circle*>((*iter1).first);
 
-	    /* Innermost bounding circle */
-	    else if (halfspace == +1) {
-	        halfspace2 = halfspace;
-	        circle2 = circle;
-	        radius2 = circle2->getRadius();
-		x2 = circle2->getX0();
-		y2 = circle2->getY0();
-	    }
-	        
-	    num_circles++;
-        }
+      /* Outermost bounding Circle */
+      if (halfspace == -1) {
+        halfspace1 = halfspace;
+        circle1 = circle;
+        radius1 = circle1->getRadius();
+        x1 = circle1->getX0();
+        y1 = circle1->getY0();
+      }
+
+      /* Innermost bounding circle */
+      else if (halfspace == +1) {
+        halfspace2 = halfspace;
+        circle2 = circle;
+        radius2 = circle2->getRadius();
+        x2 = circle2->getX0();
+        y2 = circle2->getY0();
+      }
+
+      num_circles++;
     }
+  }
 
-    /* Error checking */
-    if (num_circles == 0)
-        log_printf(ERROR, "Unable to ringify cell %d since it does not "
-		   "contain any CIRCLE type surface(s)", _id);
-    if (num_circles > 2)
-        log_printf(NORMAL, "Unable to ringify cell %d since it "
-		   "contains more than 2 CIRCLE surfaces", _id);
-    if (x1 != x2 && num_circles == 2)
-        log_printf(ERROR, "Unable to ringify cell %d since it contains "
-		 "circle %d centered at x=%f and circle %d at x=%f. "
-		   "Both circles must have the same center.", 
-		   _id, circle1->getId(), x1, circle2->getId(), x2);
-    if (y1 != y2 && num_circles == 2)
-        log_printf(ERROR, "Unable to ringify cell %d since it contains "
-		 "circle %d centered at y=%f and circle %d at y=%f. "
-		   "Both circles must have the same center.", 
-		   _id, circle1->getId(), y1, circle2->getId(), y2);
-    if (circle1 == NULL && circle2 != NULL)
-        log_printf(ERROR, "Unable to ringify cell %d since it only contains "
-		   "the positive halfpsace of circle %d. Rings can only be "
-		   "created for cells on the interior (negative halfspace) "
-		   "of a circle surface.", _id, circle2->getId());
-    if (radius1 <= radius2)
-        log_printf(ERROR, "Unable to ringify cell %d since it contains 2 "
-		 "disjoint CIRCLE surfaces: halspace %d for circle %d "
-		   "and halfspace %d for circle %d. Switch the signs of "
-		   "the 2 halfspaces for each surface.", _id, halfspace1,
-		   circle1->getId(), halfspace2, circle2->getId());
+  /* Error checking */
+  if (num_circles == 0)
+    log_printf(ERROR, "Unable to ringify Cell %d since it does not "
+              "contain any CIRCLE type Surface(s)", _id);
 
-    /* Compute the area to fill with each ring */
-    double area = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
+  if (num_circles > 2)
+    log_printf(NORMAL, "Unable to ringify Cell %d since it "
+               "contains more than 2 CIRCLE Surfaces", _id);
 
-    /* Generate successively smaller circle surfaces */
-    for (int i=0; i < _num_rings-1; i++) {
-        radius2 = sqrt(radius1*radius1 - (area / M_PI));
-	Circle* circle = new Circle(x1, y1, radius1);
-	circles.push_back(circle);
-	radius1 = radius2;
-    }
- 
-    /* Store smallest, innermost circle */
+  if (x1 != x2 && num_circles == 2)
+    log_printf(ERROR, "Unable to ringify Cell %d since it contains "
+               "Circle %d centered at x=%f and Circle %d at x=%f. "
+               "Both Circles must have the same center.",
+               _id, circle1->getId(), x1, circle2->getId(), x2);
+
+  if (y1 != y2 && num_circles == 2)
+    log_printf(ERROR, "Unable to ringify Cell %d since it contains "
+               "Circle %d centered at y=%f and Circle %d at y=%f. "
+               "Both Circles must have the same center.",
+               _id, circle1->getId(), y1, circle2->getId(), y2);
+
+  if (circle1 == NULL && circle2 != NULL)
+    log_printf(ERROR, "Unable to ringify Cell %d since it only contains "
+               "the positive halfpsace of Circle %d. Rings can only be "
+               "created for Cells on the interior (negative halfspace) "
+               "of a CIRCLE Surface.", _id, circle2->getId());
+
+  if (radius1 <= radius2)
+    log_printf(ERROR, "Unable to ringify Cell %d since it contains 2 "
+               "disjoint CIRCLE Surfaces: halfspace %d for Circle %d "
+               "and halfspace %d for Circle %d. Switch the signs of "
+               "the 2 halfspaces for each Surface.", _id, halfspace1,
+               circle1->getId(), halfspace2, circle2->getId());
+
+  /* Compute the area to fill with each equal volume ring */
+  double area = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
+
+  /* Generate successively smaller Circle Surfaces */
+  for (int i=0; i < _num_rings-1; i++) {
+    radius2 = sqrt(radius1*radius1 - (area / M_PI));
     Circle* circle = new Circle(x1, y1, radius1);
     circles.push_back(circle);
+    radius1 = radius2;
+  }
 
-    /* Loop over circles and */
-    std::vector<Circle*>::iterator iter2;
-    std::vector<CellBasic*>::iterator iter3;
+  /* Store smallest, innermost Circle */
+  Circle* circle = new Circle(x1, y1, radius1);
+  circles.push_back(circle);
 
-    for (iter2 = circles.begin(); iter2 != circles.end(); ++iter2) {
+  /* Loop over Circles and create a new Cell clone for each ring */
+  std::vector<Circle*>::iterator iter2;
+  std::vector<CellBasic*>::iterator iter3;
 
-        /* Create circles for each of the sectorized cells */
-	if (_sectors.size() != 0) {
-	    for (iter3 = _sectors.begin(); iter3 != _sectors.end(); ++iter3) {
-	        log_printf(DEBUG, "Creating a new ring in sector cell %d",
-			 (*iter3)->getId());
+  for (iter2 = circles.begin(); iter2 != circles.end(); ++iter2) {
 
-                /* Create a new CellBasic clone */
-	        CellBasic* ring = (*iter3)->clone();
-	        ring->setNumSectors(0);
-	        ring->setNumRings(0);
+    /* Create Circles for each of the sectorized Cells */
+    if (_sectors.size() != 0) {
+      for (iter3 = _sectors.begin(); iter3 != _sectors.end(); ++iter3) {
+        log_printf(DEBUG, "Creating a new ring in sector Cell %d",
+                   (*iter3)->getId());
 
-	        /* Add new bounding circle surfaces to the clone */
-	        ring->addSurface(-1, (*iter2));
+        /* Create a new CellBasic clone */
+        CellBasic* ring = (*iter3)->clone();
+        ring->setNumSectors(0);
+        ring->setNumRings(0);
 
-	        /* Look ahead and check if we have an inner circle to add */
-	        if (iter2+1 == circles.end()) {
-	            _rings.push_back(ring);
-		    continue;
-	        }
-	        else
-	            ring->addSurface(+1, *(iter2+1));
+        /* Add new bounding Circle surfaces to the clone */
+        ring->addSurface(-1, (*iter2));
 
-		_rings.push_back(ring);
-	    }
-	}
+        /* Look ahead and check if we have an inner Circle to add */
+        if (iter2+1 == circles.end()) {
+          _rings.push_back(ring);
+          continue;
+        }
+        else
+          ring->addSurface(+1, *(iter2+1));
 
-	/* Create circles for this un-sectorized cell */
-	else {
-	    log_printf(DEBUG, "Creating new ring in un-sectorized cell %d",_id);
-
-            /* Create a new CellBasic clone */
-	    CellBasic* ring = clone();
-	    ring->setNumSectors(0);
-	    ring->setNumRings(0);
-
-	    /* Add new bounding circle surfaces to the clone */
-	    ring->addSurface(-1, (*iter2));
-	    
-	    /* Look ahead and check if we have an inner circle to add */
-	    if (iter2+1 == circles.end()) {
-	        _rings.push_back(ring);
-		break;
-	    }
-	    else
-	        ring->addSurface(+1, *(iter2+1));
-
-	    _rings.push_back(ring);
-	}
+        /* Store the clone in the parent Cell's container of ring Cells */
+        _rings.push_back(ring);
+      }
     }
 
-    _subcells.clear();
-    _subcells.insert(_subcells.end(), _rings.begin(), _rings.end());
+    /* Create Circles for this un-sectorized Cell */
+    else {
+      log_printf(DEBUG, "Creating new ring in un-sectorized Cell %d",_id);
+
+      /* Create a new CellBasic clone */
+      CellBasic* ring = clone();
+      ring->setNumSectors(0);
+      ring->setNumRings(0);
+
+      /* Add new bounding Circle Surfaces to the clone */
+      ring->addSurface(-1, (*iter2));
+
+      /* Look ahead and check if we have an inner Circle to add */
+      if (iter2+1 == circles.end()) {
+        _rings.push_back(ring);
+        break;
+      }
+      else
+        ring->addSurface(+1, *(iter2+1));
+
+      /* Store the clone in the parent Cell's container of ring Cells */
+      _rings.push_back(ring);
+    }
+  }
+
+  /* Store all of the rings in the parent Cell's subcells container */
+  _subcells.clear();
+  _subcells.insert(_subcells.end(), _rings.begin(), _rings.end());
 }
 
 
 /**
- * @brief Subdivides a cells into rings and sectors.
- * @details This method uses the Cell's clone method to produce
- *          a vector of new cells, each representing a subdivision
- *          of this cell into rings and sectors.
- * @return a vector of Cell pointers to the new subdivided cells
+ * @brief Subdivides a Cell into rings and sectors.
+ * @details This method uses the Cell's clone method to produce a vector of
+ *          this Cell's subdivided ring and sector Cells.
+ * @return a vector of Cell pointers to the new subdivided Cells
  */
 std::vector<CellBasic*> CellBasic::subdivideCell() {
-    sectorize();
-    ringify();
-    return _subcells;
+  sectorize();
+  ringify();
+  return _subcells;
 }
 
 /**
- * @brief Convert this cellbasic's attributes to a string format.
- * @return a character array of this cellbasic's attributes
+ * @brief Convert this CellBasic's attributes to a string format.
+ * @return a character array of this CellBasic's attributes
  */
 std::string CellBasic::toString() {
 
-    std::stringstream string;
+  std::stringstream string;
 
-    string << "Cell id = " << _id 
-           << ", type = MATERIAL, material id = " << _material 
-           << ", universe = " << _universe  
-           << ", num_surfaces = " << getNumSurfaces() 
-           << ", num of rings = " << _num_rings 
-           << ", num of sectors = " << _num_sectors;
-    
-    /* Append each of the surface ids to the string */
-    std::map<int, Surface*>::iterator iter;
-    string << ", surface ids = ";
-    for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-        string << iter->first << ", ";
+  string << "Cell id = " << _id
+         << ", type = MATERIAL, material id = " << _material
+         << ", universe = " << _universe
+         << ", num_surfaces = " << getNumSurfaces()
+         << ", num of rings = " << _num_rings
+         << ", num of sectors = " << _num_sectors;
 
-    return string.str();
+  /* Append each of the surface ids to the string */
+  std::map<Surface*, int>::iterator iter;
+  string << ", surface ids = ";
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
+    string << iter->first->getId() << ", ";
+
+  return string.str();
 }
 
 
 /**
- * @brief Prints a string representation of all of the cellbasic's objects to
- *        the console.
+ * @brief Prints a string representation of all of the CellBasic's attributes
+ *        to the console.
  */
 void CellBasic::printString() {
-    printf("[  RESULT ]  %s", toString().c_str());
+  log_printf(NORMAL, toString().c_str());
 }
 
 
 /**
  *  @brief CellFill constructor
- *  @param id the user-specified cell ID
- *  @param universe the ID of the universe within which this cell resides
- *  @param universe_fill the ID of the universe filling this cell
+ *  @param id the user-specified Cell ID
+ *  @param universe the ID of the Universe within which this Cell resides
+ *  @param universe_fill the ID of the Universe filling this Cell
  */
 CellFill::CellFill(int universe, int universe_fill, int id):
   Cell(universe, id) {
-        _cell_type = FILL;
-        _universe_fill.first = universe_fill;
+
+  _cell_type = FILL;
+  _universe_fill_id = universe_fill;
 }
 
 
 /**
- * @brief Return the ID of the universe filling this cell.
- * @return the universe's id
+ * @brief Return the ID of the Universe filling this Cell.
+ * @return the Universe's id
  */
 int CellFill::getUniverseFillId() const {
-    return _universe_fill.first;
+  return _universe_fill_id;
 }
 
 
 /**
- * @brief Return a pointer to the universe filling this cell.
+ * @brief Return a pointer to the Universe filling this Cell.
  * @return the universe pointer
  */
 Universe* CellFill::getUniverseFill() const {
-    return _universe_fill.second;
+  return _universe_fill;
 }
 
 
 /**
- * @brief Return the number of flat source regions in this cellfill. 
+ * @brief Return the number of flat source regions in this CellFill.
  * @details This method is used when the geometry recursively constructs flat
  *          source regions.
- * @return the number of FSRs in this cellfill
+ * @return the number of FSRs in this CellFill
  */
 int CellFill::getNumFSRs() {
-    Universe *univ = getUniverseFill();
-    if (univ->getType() == SIMPLE)
-        return univ->computeFSRMaps();
-    else
-        return static_cast<Lattice*>(univ)->computeFSRMaps();
+  Universe *univ = getUniverseFill();
+
+  if (univ->getType() == SIMPLE)
+    return univ->computeFSRMaps();
+
+  else
+    return static_cast<Lattice*>(univ)->computeFSRMaps();
 }
 
 
 /**
- * @brief Set the ID of the universe filling this cellfill.
- * @param universe_fill the universe's ID
- */
-void CellFill::setUniverseFill(int universe_fill) {
-    _universe_fill.first = universe_fill;
-}
-
-
-/**
- * @brief Set a pointer to the universe filling this cellfill.
- * @param universe the universe's pointer
+ * @brief Set a pointer to the Universe filling this CellFill.
+ * @param universe the Universe's pointer
  */
 void CellFill::setUniverseFillPointer(Universe* universe) {
-    _universe_fill.second = universe;
+  _universe_fill = universe;
+  _universe_fill_id = universe->getId();
 }
 
 
 /**
- * @brief Convert this cellfill's attributes to a string format.
- * @return a character array of this cell's attributes
+ * @brief Convert this CellFill's attributes to a string format.
+ * @return a character array of this Cell's attributes
  */
 std::string CellFill::toString() {
 
-    std::stringstream string;
+  std::stringstream string;
 
-    string << "Cell id = " << _id << ", type = FILL, universe_fill = " <<
-        _universe_fill.first << ", universe = " << _universe <<
-      ", num_surfaces = " << getNumSurfaces();
+  string << "Cell id = " << _id << ", type = FILL, universe_fill = " <<
+    _universe_fill_id << ", universe = " << _universe <<
+    ", num_surfaces = " << getNumSurfaces();
 
-    /** Add the IDs for the surfaces in this cell */
-    std::map<int, Surface*>::iterator iter;
-    string << ", surface ids = ";
-    for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-        string << iter->first << ", ";
+  /** Add the IDs for the Surfaces in this Cell */
+  std::map<Surface*, int>::iterator iter;
+  string << ", surface ids = ";
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
+    string << iter->first->getId() << ", ";
 
-    return string.str();
+  return string.str();
 }
 
 
 /**
- * @brief Prints a string representation of all of the cellfill's objects to
- *        the console.
+ * @brief Prints a string representation of all of the CellFill's attributes
+ *        to the console.
  */
 void CellFill::printString() {
-    printf("[  RESULT ]  %s", toString().c_str());
+  log_printf(NORMAL, toString().c_str());
 }

@@ -497,7 +497,7 @@ void Geometry::addSurface(Surface* surface) {
             }
             break;
         case VACUUM:
-            if (surface->getXMin() < _x_min && 
+            if (surface->getXMin() < _x_min &&
                 surface->getXMin() !=-std::numeric_limits<double>::infinity()) {
                 _x_min = surface->getXMin();
                 _left_bc = VACUUM;
@@ -522,7 +522,7 @@ void Geometry::addSurface(Surface* surface) {
             }
             break;
         case ZERO_FLUX:
-            if (surface->getXMin() < _x_min && 
+            if (surface->getXMin() < _x_min &&
                 surface->getXMin() !=-std::numeric_limits<double>::infinity()) {
                 _x_min = surface->getXMin();
                 _left_bc = ZERO_FLUX;
@@ -549,7 +549,7 @@ void Geometry::addSurface(Surface* surface) {
         case BOUNDARY_NONE:
             break;
     }
-        
+
     return;
 }
 
@@ -595,10 +595,10 @@ void Geometry::addCell(Cell* cell) {
     //  cell->setSurfacePointer(_surfaces.at(surface_id));
     //    }
 
-    std::map<int, Surface*> cells_surfaces = cell->getSurfaces();
-    std::map<int, Surface*>::iterator iter;
+    std::map<Surface*, int> cells_surfaces = cell->getSurfaces();
+    std::map<Surface*, int>::iterator iter;
     for (iter = cells_surfaces.begin(); iter != cells_surfaces.end(); ++iter)
-        addSurface(iter->second);
+        addSurface(iter->first);
 
 
     /* Insert the cell into the geometry's cell container */
@@ -612,21 +612,21 @@ void Geometry::addCell(Cell* cell) {
     }
 
     /* Checks if the universe the cell in exists; if not, creates universe */
-    if (_universes.find(cell->getUniverse()) == _universes.end()) {
+    if (_universes.find(cell->getUniverseId()) == _universes.end()) {
         try {
-            Universe* univ = new Universe(cell->getUniverse());
+            Universe* univ = new Universe(cell->getUniverseId());
             addUniverse(univ);
-            log_printf(INFO, "Created universe = %d", cell->getUniverse());
+            log_printf(INFO, "Created universe = %d", cell->getUniverseId());
         }
         catch (std::exception &e) {
             log_printf(ERROR, "Unable to create a new universe with id = %d "
                        "and add it to the geometry. Backtrace:\n%s",
-                       cell->getUniverse(), e.what());
+                       cell->getUniverseId(), e.what());
         }
     }
 
     /* Adds the cell to the appropriate universe */
-    _universes.at(cell->getUniverse())->addCell(cell);
+    _universes.at(cell->getUniverseId())->addCell(cell);
                 
     return;
 }
@@ -747,32 +747,6 @@ void Geometry::removeMaterial(int id) {
     }
     catch (std::exception &e) {
         log_printf(ERROR, "Unable to remove a material with id = %d. Backtrace:"
-                   "\n%s", id, e.what());
-    }
-}
-
-
-/**
- * @brief Removes a surface from the geometry.
- * @details Note: this method does not remove the cells containing this surface
- *          from the geometry.
- * @param id the surface id
- */
-void Geometry::removeSurface(int id) {
-
-    /* Checks if the geometry contains this surface */
-    if (_surfaces.find(id) == _surfaces.end())
-        log_printf(WARNING, "Cannot remove a surface with id = %d from the "
-                   "geometry since it doesn't contain that surface", id);
-
-    try {
-        std::map<int, Surface*>::iterator iter;
-	iter = _surfaces.find(id);
-	_surfaces.erase(iter);
-        log_printf(INFO, "Removed surface with id = %d from geometry", id);
-    }
-    catch (std::exception &e) {
-        log_printf(ERROR, "Unable to remove a surface with id = %d. Backtrace:"
                    "\n%s", id, e.what());
     }
 }
