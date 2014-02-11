@@ -386,7 +386,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Users may not use Cell IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.</p>
+<p class="last">Users may not use Universe IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.</p>
 </div>
 </div>
 <div class="section" id="rings-and-sectors">
@@ -444,6 +444,14 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
                          <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
                          <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
 </pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Users may not use Lattice IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><tt class="docutils literal"><span class="pre">Lattices</span></tt> are a subclass of <tt class="docutils literal"><span class="pre">Universe</span></tt> and as a result, no <tt class="docutils literal"><span class="pre">Lattice</span></tt> may have the same ID has a normal <tt class="docutils literal"><span class="pre">Universe</span></tt>.</p>
 </div>
 </div>
 <div class="section" id="geometry">

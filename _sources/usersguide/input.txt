@@ -338,7 +338,7 @@ OpenMOC does not place a limit on the hierarchical depth - or number of nested u
     pin_cell_array.addSurface(halfspace=+1, bottom)
     pin_cell_array.addSurface(halfspace=-1, top)
 
-.. warning:: Users may not use Cell IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.
+.. warning:: Users may not use Universe IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.
 
 
 Rings and Sectors
@@ -404,6 +404,9 @@ Once the cells for the geometry have been created, OpenMOC's ``Lattice`` class m
                              [1, 1, 1, 1],
                              [1, 1, 1, 1]])
 
+.. warning:: Users may not use Lattice IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.
+
+.. warning:: ``Lattices`` are a subclass of ``Universe`` and as a result, no ``Lattice`` may have the same ID has a normal ``Universe``.
 
 Geometry
 --------
