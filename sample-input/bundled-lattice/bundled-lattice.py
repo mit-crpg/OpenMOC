@@ -1,4 +1,4 @@
-1from openmoc import *
+from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -17,7 +17,7 @@ num_azim = options.num_azim
 tolerance = options.tolerance
 max_iters = options.max_iters
 
-log.setLogLevel('NORMAL')
+log.set_log_level('NORMAL')
 
 
 ###############################################################################

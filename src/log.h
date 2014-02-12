@@ -2,7 +2,7 @@
  * @file log.h
  * @brief Utility functions for writing log messages to the screen
  * @details Applies level-based logging to print formatted messages
- *          to the screen and to a log file. 
+ *          to the screen and to a log file.
  * @author William Boyd (wboyd@mit.edu)
  * @date January 22, 2012
  *
@@ -41,66 +41,67 @@
  *        which may be printed to the screen.
  */
 typedef enum logLevels {
-    /** A debugging message */
-    DEBUG,
+  /** A debugging message */
+  DEBUG,
 
-    /** An informational but verbose message */
-    INFO,
+  /** An informational but verbose message */
+  INFO,
 
-    /** A brief progress update on run progress */
-    NORMAL,
+  /** A brief progress update on run progress */
+  NORMAL,
 
-    /** A message of a single line of characters */
-    SEPARATOR,
+  /** A message of a single line of characters */
+  SEPARATOR,
 
-    /** A message centered within a line of characters */
-    HEADER,
+  /** A message centered within a line of characters */
+  HEADER,
 
-    /** A message sandwiched between two lines of characters */
-    TITLE,
+  /** A message sandwiched between two lines of characters */
+  TITLE,
 
-    /** A message for to warn the user */
-    WARNING,
+  /** A message for to warn the user */
+  WARNING,
 
-    /** A message to warn of critical program conditions */
-    CRITICAL,
+  /** A message to warn of critical program conditions */
+  CRITICAL,
 
-    /** A message containing program results */
-    RESULT,
+  /** A message containing program results */
+  RESULT,
 
-    /** A messsage for unit testing */
-    UNITTEST,
+  /** A messsage for unit testing */
+  UNITTEST,
 
-    /** A message reporting error conditions */
-    ERROR
+  /** A message reporting error conditions */
+  ERROR
 } logLevel;
 
 
 /**
  * @brief A function stub used to convert C++ exceptions into Python exceptions
  *        through SWIG.
+ * @details This method is not defined in the C++ source. It is defined in the
+ *          SWIG inteface files (i.e., openmoc/openmoc.i)
  * @param msg a character array for the exception message
  */
 extern void set_err(const char *msg);
 
-void setOutputDirectory(char* directory);
-const char* getOutputDirectory();
-void setLogfileName(char* filename);
-const char* getLogfileName();
+void set_output_directory(char* directory);
+const char* get_output_directory();
+void set_log_filename(char* filename);
+const char* get_log_filename();
 
-void setSeparatorCharacter(char c);
-char getSeparatorCharacter();
-void setHeaderCharacter(char c);
-char getHeaderCharacter();
-void setTitleCharacter(char c);
-char getTitleCharacter();
-void setLineLength(int length);
-
-void setLogLevel(const char* newlevel);
-int getLogLevel();
+void set_separator_character(char c);
+char get_separator_character();
+void set_header_character(char c);
+char get_header_character();
+void set_title_character(char c);
+char get_title_character();
+void set_line_length(int length);
+void set_log_level(const char* new_level);
+int get_log_level();
 
 void log_printf(logLevel level, const char *format, ...);
-std::string createMultilineMsg(std::string level, std::string message);
+std::string create_multiline_msg(std::string level, std::string message);
 
 
 #endif /* LOG_H_ */
