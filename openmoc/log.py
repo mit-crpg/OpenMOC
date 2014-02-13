@@ -26,8 +26,8 @@ import openmoc
 # @code
 #          value1 = 25
 #          value2 = 26.0
-#          log.py_printf('NORMAL', 'My name is Will and I am %d going on'\
-#                               ' %f years of age', value1, value2)
+#          log.py_printf('NORMAL', 'My name is Will and I am %d going on' \
+#                        ' %f years of age', value1, value2)
 # @endcode
 #
 # @param level the logging level for this message
