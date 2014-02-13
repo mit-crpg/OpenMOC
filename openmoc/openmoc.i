@@ -218,18 +218,18 @@
      import_array();
 %}
 
-/* The typemap used to match the method signature for the 
+/* The typemap used to match the method signature for the
  * Lattice::setLatticeCells setter method. This allows users to set the lattice
- * cells (universe IDs) using a 2D NumPy array */ 
+ * cells (universe IDs) using a 2D NumPy array */
 %apply (int DIM1, int DIM2, int* IN_ARRAY2) {(int num_x, int num_y, int* universes)}
 
-/* The typemap used to match the method signature for the Material 
+/* The typemap used to match the method signature for the Material
  * cross-section setter methods. This allows users to set the cross-sections
  * using NumPy arrays */
 %apply (double* IN_ARRAY1, int DIM1) {(double* xs, int num_groups)}
 
 /* The typemap used to match the method signature for the TrackGenerator's
- * getter methods for track start and end coordinates for the plotting 
+ * getter methods for track start and end coordinates for the plotting
  * routines in openmoc.plotter */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
 
