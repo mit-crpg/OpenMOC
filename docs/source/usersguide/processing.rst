@@ -149,7 +149,7 @@ Geometry Visualization
 Plotting Tracks
 ---------------
 
-To plot the tracks crossing the geometry, use the ``plotTracks(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 5 <table_plot_tracks>`.
+To plot the tracks crossing the geometry, use the ``plot_tracks(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 5 <table_plot_tracks>`.
 
 .. _table_plot_tracks:
 
@@ -159,7 +159,7 @@ Parameter            Type                       Default    Optional   Note
 ``track_generator``  ``TrackGenerator`` object  None       No         The tracks of interest
 ===================  =========================  =========  =========  =========================
 
-**Table 5**: Parameters for the ``openmoc.plotter.plotTracks(...)`` routine.
+**Table 5**: Parameters for the ``openmoc.plotter.plot_tracks(...)`` routine.
 
 The code snippet below illustrates the use of this routine.
 
@@ -170,7 +170,7 @@ The code snippet below illustrates the use of this routine.
     # Setup geometry and generate tracks
     ...
 
-    plot.plotTracks(geometry)
+    plot.plot_tracks(geometry)
 
 A depiction of the tracks for the :file:`/OpenMOC/sample-input/large-lattice.py` example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in :ref:`Figure 1 <figure_tracks>`.
 
@@ -189,7 +189,7 @@ A depiction of the tracks for the :file:`/OpenMOC/sample-input/large-lattice.py`
 Plotting Segments
 -----------------
 
-To plot the segments crossing the geometry color-coded by flat source region, use the ``plotSegments(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 6 <table_plot_segments>`.
+To plot the segments crossing the geometry color-coded by flat source region, use the ``plot_segments(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 6 <table_plot_segments>`.
 
 .. _table_plot_segments:
 
@@ -199,7 +199,7 @@ Parameter            Type                       Default    Optional   Note
 ``track_generator``  ``TrackGenerator`` object  None       No         The tracks of interest
 ===================  =========================  =========  =========  =========================
 
-**Table 6**: Parameters for the ``openmoc.plotter.plotSegments(...)`` routine.
+**Table 6**: Parameters for the ``openmoc.plotter.plot_segments(...)`` routine.
 
 The code snippet below illustrates the use of this routine.
 
@@ -210,7 +210,7 @@ The code snippet below illustrates the use of this routine.
     # Setup geometry and generate tracks
     ...
 
-    plot.plotSegments(geometry)
+    plot.plot_segments(geometry)
 
 A depiction of the segments for the :file:`/OpenMOC/sample-input/large-lattice.py` example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in :ref:`Figure 2 <figure_segments>`.
 
@@ -230,7 +230,7 @@ A depiction of the segments for the :file:`/OpenMOC/sample-input/large-lattice.p
 Plotting by Material
 --------------------
 
-To plot the geometry color-coded by the material ID's throughout the geometry, use the ``plotMaterials(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 7 <table_plot_materials>`.
+To plot the geometry color-coded by the material ID's throughout the geometry, use the ``plot_materials(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 7 <table_plot_materials>`.
 
 .. _table_plot_materials:
 
@@ -241,7 +241,7 @@ Parameter     Type                 Default    Optional   Note
 ``gridsize``  integer              250        Yes        The pixel resolution
 ============  ===================  =========  =========  =========================
 
-**Table 7**: Parameters for the ``openmoc.plotter.plotMaterials(...)`` routine.
+**Table 7**: Parameters for the ``openmoc.plotter.plot_materials(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -253,7 +253,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     ...
 
     # Plot a 500 x 500 pixel image of the materials
-    plot.plotMaterials(geometry, gridsize=500)
+    plot.plot_materials(geometry, gridsize=500)
 
 A depiction of the materials for the :file:`/OpenMOC/sample-input/large-lattice.py` example input file is illustrated in :ref:`Figure 3 <figure_materials>`.
 
@@ -272,7 +272,7 @@ A depiction of the materials for the :file:`/OpenMOC/sample-input/large-lattice.
 
 Plotting by Cell
 ----------------
-To plot the geometry color-coded by the cell ID's throughout the geometry, use the ``plotCells(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 8 <table_plot_cells>`.
+To plot the geometry color-coded by the cell ID's throughout the geometry, use the ``plot_cells(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 8 <table_plot_cells>`.
 
 .. _table_plot_cells:
 
@@ -283,7 +283,7 @@ Parameter     Type                 Default    Optional   Note
 ``gridsize``  integer              250        Yes        The pixel resolution
 ============  ===================  =========  =========  =========================
 
-**Table 8**: Parameters for the ``openmoc.plotter.plotCells(...)`` routine.
+**Table 8**: Parameters for the ``openmoc.plotter.plot_cells(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -295,7 +295,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     ...
 
     # Plot a 500 x 500 pixel image of the cells
-    plot.plotCells(geometry, gridsize=500)
+    plot.plot_cells(geometry, gridsize=500)
 
 A depiction of the cells for the :file:`/OpenMOC/sample-input/large-lattice.py` example input file is illustrated in :ref:`Figure 4 <figure_cells>`.
 
@@ -315,7 +315,7 @@ A depiction of the cells for the :file:`/OpenMOC/sample-input/large-lattice.py` 
 Plotting by FSR
 ---------------
 
-To plot the geometry color-coded by the flat source region ID's throughout the geometry, use the ``plotFlatSourceRegions(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 9 <table_plot_fsrs>`.
+To plot the geometry color-coded by the flat source region ID's throughout the geometry, use the ``plot_flat_source_regions(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 9 <table_plot_fsrs>`.
 
 .. _table_plot_fsrs:
 
@@ -326,7 +326,7 @@ Parameter     Type                 Default    Optional   Note
 ``gridsize``  integer              250        Yes        The pixel resolution
 ============  ===================  =========  =========  =========================
 
-**Table 9**: Parameters for the ``openmoc.plotter.plotFlatSourceRegions(...)`` routine.
+**Table 9**: Parameters for the ``openmoc.plotter.plot_flat_source_regions(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -338,7 +338,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     ...
 
     # Plot a 500 x 500 pixel image of the flat source regions
-    plot.plotFlatSourceRegions(geometry, gridsize=500)
+    plot.plot_flat_source_regions(geometry, gridsize=500)
 
 A depiction of the flat source regions for the :file:`/OpenMOC/sample-input/large-lattice.py` example input file is illustrated in :ref:`Figure 5 <figure_flat_source_regions>`.
 
@@ -358,7 +358,7 @@ A depiction of the flat source regions for the :file:`/OpenMOC/sample-input/larg
 Flux Visualization
 ------------------
 
-To plot the flat source region scalar fluxes, use the ``plotFluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 10 <table_plot_fluxes>`.
+To plot the flat source region scalar fluxes, use the ``plot_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 10 <table_plot_fluxes>`.
 
 .. _table_plot_fluxes:
 
@@ -371,7 +371,7 @@ Parameter          Type                 Default    Optional   Note
 ``gridsize``       integer              250        Yes        The pixel resolution
 =================  ===================  =========  =========  ============================================
 
-**Table 10**: Parameters for the ``openmoc.plotter.plotFluxes(...)`` routine.
+**Table 10**: Parameters for the ``openmoc.plotter.plot_fluxes(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -386,7 +386,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     ...
 
     # Plot the fluxes for energy groups 1 and 7 in 500 x 500 pixel images
-    plot.plotFluxes(geometry, solver, energy_groups=[1,7], gridsize=500)
+    plot.plot_fluxes(geometry, solver, energy_groups=[1,7], gridsize=500)
 
 A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py`) is illustrated in :ref:`Figure 6 <figure_fluxes>`.
 
