@@ -20,19 +20,20 @@
  *        region along a track.
  */
 struct segment {
+
   /** The length of the segment (cm) */
   FP_PRECISION _length;
 
   /** A pointer to the material in which this segment resides */
   Material* _material;
 
-  /** The id for flat source region in which this segment resides */
+  /** The ID for flat source region in which this segment resides */
   int _region_id;
 
-  /** The id for the mesh surface crossed by the Track end point */
+  /** The ID for the mesh surface crossed by the Track end point */
   int _mesh_surface_fwd;
 
-  /** The id for the mesh surface crossed by the Track start point */
+  /** The ID for the mesh surface crossed by the Track start point */
   int _mesh_surface_bwd;
 };
 
