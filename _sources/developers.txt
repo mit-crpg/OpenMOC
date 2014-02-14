@@ -12,7 +12,7 @@ Development Team
 
 * **Samuel Shaner** (@samuelshaner) is a PhD candidate in the NSE Department working on time-dependent methods for deterministic and stochastic neutron transport simulations. As part of the initial development team, he worked on implementing coarse mesh finite difference acceleration.
 
-- **Lulu Li** (@lilulu) is a PhD candidate in MIT's NSE Department and has been involved with OpenMOC with her fellow grad students from the start. She developed physics-based multi-grid acceleration methods for OpenMOC, and is currently focusing on solving the 3D MOC problem. 
+- **Lulu Li** (@lilulu) is a PhD candidate in the NSE Department and has been involved with OpenMOC with her fellow grad students from the start. She developed physics-based multi-grid acceleration methods for OpenMOC, and is currently focusing on solving the 3D MOC problem. 
 
 * **Nathan Gibson** (@ngibson14) has been a member of the OpenMOC development team since the fall of 2013 and is a Ph.D. candidate in the NSE Department at MIT. His research focuses on using ultrafine energy discretization to account for self-shielding effects. He is implementing these methods as well as legacy self-shielding methods into OpenMOC.
 
@@ -25,7 +25,7 @@ Development Team
 `Argonne National Laboratory`_
 ------------------------------
 
-* **Tim Shuo** (@theshuo) 
+* **Tim Shuo** (@theshuo) is a predoctoral appointee with the Center for Exascale Simulation of Advanced Reactors (CESAR) at Argonne National Laboratory. He has been working with performance profiling and scaling studies of OpenMOC.
 
 - **Dr. Andrew Siegel** is a scientist in the Division of Mathematics and Computer Science at ANL and a fellow at the Computation Institute at the University of Chicago. He is the Director of the DOE's Office of Science, Center for Exascale Simulation of Advanced Reactors (CESAR), and a leading advisor for the OpenMOC development team.
 
