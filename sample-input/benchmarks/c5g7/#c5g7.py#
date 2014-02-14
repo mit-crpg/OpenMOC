@@ -4,6 +4,8 @@ import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 from openmoc.options import Options
 
+import openmoc.cuda as c
+
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -11,14 +13,11 @@ from openmoc.options import Options
 
 options = Options()
 
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
-relax_factor = options.getCmfdRelaxationFactor()
-acceleration = options.useCmfdAccleration()
-mesh_level = options.getCmfdMeshLevel()
+num_threads = options.num_omp_threads
+track_spacing = options.track_spacing
+num_azim = options.num_azim
+tolerance = options.tolerance
+max_iters = options.max_iters
 
 log.set_log_level('NORMAL')
 
@@ -29,9 +28,9 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 ###########################   Creating Materials   ############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Importing materials data from py...')
+log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../../c5g7-materials.py')
+materials = materialize.materialize('../../c5g7-materials.h5')
 
 uo2_id = materials['UO2'].getId()
 mox43_id = materials['MOX-4.3%'].getId()
@@ -316,35 +315,19 @@ lattices[-1].setLatticeCells([[10, 11, 15],
 
 
 ###############################################################################
-##########################     Creating Cmfd mesh    ##########################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating Cmfd mesh...')
-
-mesh = Mesh(MOC, acceleration, relax_factor, mesh_level)
-
-###############################################################################
 ##########################   Creating the Geometry   ##########################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry(mesh)
+geometry = Geometry()
+
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 for lattice in lattices: geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
 
-###############################################################################
-########################   Creating the Cmfd module   #########################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating cmfd module...')
-
-cmfd = Cmfd(geometry)
-cmfd.setOmega(1.50)
-cmfd.setNumCmfdGroups(3)
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -360,9 +343,9 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = ThreadPrivateSolver(geometry, track_generator, cmfd)
+solver = c.GPUSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
+#solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
@@ -378,6 +361,5 @@ log.py_printf('NORMAL', 'Plotting data...')
 #plotter.plotCells(geometry, gridsize=500)
 #plotter.plotFlatSourceRegions(geometry, gridsize=500)
 #plotter.plotFluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
-#plotter.plotMeshFluxes(mesh, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')

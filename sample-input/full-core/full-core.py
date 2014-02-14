@@ -11,11 +11,11 @@ from openmoc.options import Options
 
 options = Options()
 
-num_threads = options.num_omp_threads
-track_spacing = options.track_spacing
-num_azim = options.num_azim
-tolerance = options.tolerance
-max_iters = options.max_iters
+num_threads = options.getNumThreads()
+track_spacing = options.getTrackSpacing()
+num_azim = options.getNumAzimAngles()
+tolerance = options.getTolerance()
+max_iters = options.getMaxIterations()
 
 log.set_log_level('NORMAL')
 
