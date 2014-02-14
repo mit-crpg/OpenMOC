@@ -131,7 +131,7 @@ The number of CUDA threads per threadblock. This option only applies to scripts 
          import openmoc.cuda as cuda
    
 	 if cuda.machineContainsGPU():
-	   num_threads = cuda.getNumThreadsInWarp()
+	   num_threads = cuda.get_num_threads_per_warp()
 	   print 'This machines GPU contains %d threads per warp' % (num_threads)
 
 	 else:

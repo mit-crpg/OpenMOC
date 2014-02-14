@@ -159,7 +159,7 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
 <div class="last highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.cuda</span> <span class="kn">as</span> <span class="nn">cuda</span>
 
 <span class="k">if</span> <span class="n">cuda</span><span class="o">.</span><span class="n">machineContainsGPU</span><span class="p">():</span>
-  <span class="n">num_threads</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">getNumThreadsInWarp</span><span class="p">()</span>
+  <span class="n">num_threads</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">get_num_threads_per_warp</span><span class="p">()</span>
   <span class="k">print</span> <span class="s">&#39;This machines GPU contains </span><span class="si">%d</span><span class="s"> threads per warp&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_threads</span><span class="p">)</span>
 
 <span class="k">else</span><span class="p">:</span>
