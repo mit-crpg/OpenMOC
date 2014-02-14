@@ -68,7 +68,7 @@ def py_printf(level, my_str, *args):
 #          as follows:
 #
 # @code
-#          log.py_set_level('INFO')
+#          log.set_log_level('INFO')
 # @endcode
 #
 # @param level the minimum logging level ('DEBUG', 'INFO', etc)
