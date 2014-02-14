@@ -2,8 +2,8 @@
 # @file plotter.py
 # @package openmoc.plotter
 # @brief The plotter module provides utility functions to plot data from
-#        OpenMOCs C++ classes, in particular, the geomery, including material,
-#        cells and flat source regions, and fluxes and pin powers.
+#        OpenMOCs C++ classes, in particular, the geomery, including Material,
+#        Cells and flat source regions, and fluxes and pin powers.
 # @author William Boyd (wboyd@mit.edu)
 # @date March 10, 2013
 
@@ -26,6 +26,7 @@ import numpy.random
 import os, sys
 from log import *
 
+# Determine which OpenMOC module is being used
 if 'openmoc.gnu.double' in sys.modules:
   openmoc = sys.modules['openmoc.gnu.double']
 elif 'openmoc.gnu.single' in sys.modules:
