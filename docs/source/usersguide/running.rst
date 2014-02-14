@@ -82,7 +82,7 @@ NOTE: You must specify the path to the location where OpenMOC was installed in t
 Runtime Options
 ---------------
 
-This section provides a brief overview of each of the runtime options that are supported by OpenMOC. Each of these can be passed into your Python script as follows::
+This section provides a brief overview of each of the runtime options that are supported by OpenMOC. The runtime arguments and the method to retrieve them in a Python script are elaborated upon further in :ref:`Simulation Parameters <simulation_params>`. Each of these can be passed into your Python script as follows::
 
     python your-script.py <option1> <option2> ...
 
@@ -137,7 +137,20 @@ The number of CUDA threads per threadblock. This option only applies to scripts 
 	 else:
 	   print 'This machine does not contain an NVIDIA CUDA-enabled GPU'
 
-.. _warp: http://www.pgroup.com/lit/articles/insider/v2n1a5.htm
+
+.. option:: -f, --acceleration=<false>
+
+Whether or not to use Coarse Mesh Finite Difference Acceleration (CMFD), a nonlinear acceleration scheme implemented in OpenMOC.
+
+
+.. option:: -r, --relax-factor=<0.6>
+
+The relaxation factor to use for CMFD acceleration.
+
+
+.. option:: -l, --mesh-level=<-1>
+
+The CMFD multigrid mesh refinement level.
 
 
 -------------------------------
@@ -145,3 +158,6 @@ Canceling an OpenMOC Simulation
 -------------------------------
 
 To cancel an OpenMOC job running in your shell, you can use the ``CTRL+C`` keyboard combination. This will kill the Python script as well as the underlying computation running in the C/C++/CUDA shared library.
+
+
+.. _warp: http://www.pgroup.com/lit/articles/insider/v2n1a5.htm

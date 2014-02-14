@@ -102,7 +102,7 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
 </div>
 <div class="section" id="runtime-options">
 <span id="id1"></span><h2>5.4. Runtime Options<a class="headerlink" href="#runtime-options" title="Permalink to this headline">¶</a></h2>
-<p>This section provides a brief overview of each of the runtime options that are supported by OpenMOC. Each of these can be passed into your Python script as follows:</p>
+<p>This section provides a brief overview of each of the runtime options that are supported by OpenMOC. The runtime arguments and the method to retrieve them in a Python script are elaborated upon further in <a class="reference internal" href="input.html#simulation-params"><em>Simulation Parameters</em></a>. Each of these can be passed into your Python script as follows:</p>
 <div class="highlight-python"><pre>python your-script.py &lt;option1&gt; &lt;option2&gt; ...</pre>
 </div>
 <dl class="option">
@@ -167,6 +167,24 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
 </pre></div>
 </div>
 </div>
+<dl class="option">
+<dt id="cmdoption-f">
+<tt class="descname">-f</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--acceleration</tt><tt class="descclassname">=&lt;false&gt;</tt><a class="headerlink" href="#cmdoption-f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Whether or not to use Coarse Mesh Finite Difference Acceleration (CMFD), a nonlinear acceleration scheme implemented in OpenMOC.</p>
+<dl class="option">
+<dt id="cmdoption-r">
+<tt class="descname">-r</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--relax-factor</tt><tt class="descclassname">=&lt;0.6&gt;</tt><a class="headerlink" href="#cmdoption-r" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The relaxation factor to use for CMFD acceleration.</p>
+<dl class="option">
+<dt id="cmdoption-l">
+<tt class="descname">-l</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--mesh-level</tt><tt class="descclassname">=&lt;-1&gt;</tt><a class="headerlink" href="#cmdoption-l" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The CMFD multigrid mesh refinement level.</p>
 </div>
 <div class="section" id="canceling-an-openmoc-simulation">
 <h2>5.5. Canceling an OpenMOC Simulation<a class="headerlink" href="#canceling-an-openmoc-simulation" title="Permalink to this headline">¶</a></h2>

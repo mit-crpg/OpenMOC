@@ -10,6 +10,9 @@ The following sections describe the essential portions of the OpenMOC API needed
 
 .. note:: It is highly suggested that users acquire a basic understanding of Python before developing OpenMOC simulations. For users familiar with basic programming constructs such as loops and conditionals, the official `Python Tutorial`_ is an excellent place to learn Python basics. For users new to programming, the `Code Academy Python Course`_ provides an introduction to both programming essentials and the Python language.
 
+
+.. _simulation_params:
+
 ---------------------
 Simulation Parameters
 ---------------------
@@ -26,12 +29,35 @@ The ``openmoc.options`` module provides functionality to parse arguments defined
     options = opt.Options()
 
     # Retrieve runtime options parsed in by the Options object
-    num_threads = options.num_omp_threads
-    track_spacing = options.track_spacing
-    num_azim = options.num_azim
-    tolerance = options.tolerance
-    max_iters = options.max_iters
+    num_threads = options.getNumThreads()
+    track_spacing = options.getTrackSpacing()
+    num_azim = options.getNumAzimAngles()
+    tolerance = options.getTolerance()
+    max_iters = options.getMaxIterations()
     ...
+
+:ref:`Table 1 <table_log_levels>` below itemizes each of the runtime options and the corresponding command line arguments and getter methods for the Options class in the ``openmoc.options`` module.
+
+.. _table_runtime_options:
+
+============================  ============================================  ======================================================
+Runtime Option                Command Line Argument                         Options Class Getter Method
+============================  ============================================  ======================================================
+Help                          :option:`-h`, :option:`--help`                N/A
+No. Azimuthal Angles          :option:`-a`, :option:`--num-azim=`           getNumAzimAngles()
+Track Spacing [cm]            :option:`-s`, :option:`--track-spacing=`      getTrackSpacing()
+Max. No. Source Iterations    :option:`-i`, :option:`--max-iters=`          getMaxIterations()
+Source Convergence Tolerance  :option:`-c`, :option:`--tolerance=`          getTolerance()
+No. OpenMP Threads            :option:`-t`, :option:`--num-omp-threads=`    getNumThreads()
+No. CUDA Thread Blocks        :option:`-b`, :option:`--num-thread-blocks=`  getNumThreadBlocks()
+No. CUDA Threads per Block    :option:`-g`, :option:`--num-gpu-threads=`    getNumThreadsPerBlock()
+Use CMFD Acceleration         :option:`-f`, :option:`--acceleration`        useCmfdAcceleration()
+CMFD Relaxation Factor        :option:`-r`, :option:`--relax-factor=`       getCmfdRelaxationFactor()
+CMFD Multigrid Mesh Level     :option:`-l`, :option:`--mesh-level=`         getCmfdMeshLevel()
+============================  ============================================  ======================================================
+
+**Table 1**: Runtime options and command line arguments supported by the ``openmoc.options`` module.
+
 
 --------------------
 Simulation Log Files
@@ -39,7 +65,7 @@ Simulation Log Files
 
 The ``openmoc.log`` module provides routines for printing output to the console as well as to log files. Output is reported in real-time to the console as well as stored in a persistent log file. By default, the log file name encapsulates a timestamp for the simulation starting time and is stored in the ``/OpenMOC/log`` directory (e.g. :file:`OpenMOC/log/openmoc-MM-DD-YYYY--HH:MM:SS.log`).
 
-The OpenMOC logging module uses **verbosity throttling** which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a **log level**, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and log file. The log levels available in OpenMOC are presented in :ref:`Table 1 <table_log_levels>`.
+The OpenMOC logging module uses **verbosity throttling** which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a **log level**, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and log file. The log levels available in OpenMOC are presented in :ref:`Table 2 <table_log_levels>`.
 
 .. _table_log_levels:
 
@@ -59,7 +85,7 @@ Log Level             Note
 :envvar:`ERROR`       A message reporting error conditions
 ===================   ======================================================
 
-**Table 1**: Log levels in OpenMOC in order of increasing precedence.
+**Table 2**: Log levels in OpenMOC in order of increasing precedence.
 
 Informative messages using the logging module are embedded into both the C/C++ and Python source code in OpenMOC. In addition, code users may add their own messages to the output stream in Python input files. The API documentation provides a detailed accounting of the routines available in the `logging module`_.
 

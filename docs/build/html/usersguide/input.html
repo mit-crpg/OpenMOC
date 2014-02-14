@@ -62,7 +62,7 @@
 <p class="last">It is highly suggested that users acquire a basic understanding of Python before developing OpenMOC simulations. For users familiar with basic programming constructs such as loops and conditionals, the official <a class="reference external" href="http://docs.python.org/2/tutorial/">Python Tutorial</a> is an excellent place to learn Python basics. For users new to programming, the <a class="reference external" href="http://www.codecademy.com/tracks/python">Code Academy Python Course</a> provides an introduction to both programming essentials and the Python language.</p>
 </div>
 <div class="section" id="simulation-parameters">
-<h2>3.1. Simulation Parameters<a class="headerlink" href="#simulation-parameters" title="Permalink to this headline">¶</a></h2>
+<span id="simulation-params"></span><h2>3.1. Simulation Parameters<a class="headerlink" href="#simulation-parameters" title="Permalink to this headline">¶</a></h2>
 <p>The full power of Python is available to users designing OpenMOC simulations. As a result, simulation parameters may easily be defined and redefined in a Python script for one or more simulations at a user&#8217;s discretion. However, some simulation parameters are best defined at runtime, including the number of azimuthal angles, track spacing, number of threads, etc.</p>
 <p>The <tt class="docutils literal"><span class="pre">openmoc.options</span></tt> module provides functionality to parse arguments defined on the command line at runtime. The full list of options available in OpenMOC are itemized and described in <a class="reference internal" href="running.html#runtime-options"><em>Runtime Options</em></a>. The following code snippet illutrates how to instantiate an <tt class="docutils literal"><span class="pre">Options</span></tt> object and extract data from command line arguments.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.options</span> <span class="kn">as</span> <span class="nn">opt</span>
@@ -71,19 +71,80 @@
 <span class="n">options</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">Options</span><span class="p">()</span>
 
 <span class="c"># Retrieve runtime options parsed in by the Options object</span>
-<span class="n">num_threads</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">num_omp_threads</span>
-<span class="n">track_spacing</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">track_spacing</span>
-<span class="n">num_azim</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">num_azim</span>
-<span class="n">tolerance</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">tolerance</span>
-<span class="n">max_iters</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">max_iters</span>
+<span class="n">num_threads</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">getNumThreads</span><span class="p">()</span>
+<span class="n">track_spacing</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">getTrackSpacing</span><span class="p">()</span>
+<span class="n">num_azim</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">getNumAzimAngles</span><span class="p">()</span>
+<span class="n">tolerance</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">getTolerance</span><span class="p">()</span>
+<span class="n">max_iters</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">getMaxIterations</span><span class="p">()</span>
 <span class="o">...</span>
 </pre></div>
 </div>
+<p><a class="reference internal" href="#table-log-levels"><em>Table 1</em></a> below itemizes each of the runtime options and the corresponding command line arguments and getter methods for the Options class in the <tt class="docutils literal"><span class="pre">openmoc.options</span></tt> module.</p>
+<table border="1" class="docutils" id="table-runtime-options">
+<colgroup>
+<col width="22%" />
+<col width="35%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Runtime Option</th>
+<th class="head">Command Line Argument</th>
+<th class="head">Options Class Getter Method</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Help</td>
+<td><a class="reference internal" href="running.html#cmdoption-h"><em class="xref std std-option">-h</em></a>, <em class="xref std std-option">--help</em></td>
+<td>N/A</td>
+</tr>
+<tr class="row-odd"><td>No. Azimuthal Angles</td>
+<td><a class="reference internal" href="running.html#cmdoption-a"><em class="xref std std-option">-a</em></a>, <em class="xref std std-option">--num-azim=</em></td>
+<td>getNumAzimAngles()</td>
+</tr>
+<tr class="row-even"><td>Track Spacing [cm]</td>
+<td><a class="reference internal" href="running.html#cmdoption-s"><em class="xref std std-option">-s</em></a>, <em class="xref std std-option">--track-spacing=</em></td>
+<td>getTrackSpacing()</td>
+</tr>
+<tr class="row-odd"><td>Max. No. Source Iterations</td>
+<td><a class="reference internal" href="running.html#cmdoption-i"><em class="xref std std-option">-i</em></a>, <em class="xref std std-option">--max-iters=</em></td>
+<td>getMaxIterations()</td>
+</tr>
+<tr class="row-even"><td>Source Convergence Tolerance</td>
+<td><a class="reference internal" href="running.html#cmdoption-c"><em class="xref std std-option">-c</em></a>, <em class="xref std std-option">--tolerance=</em></td>
+<td>getTolerance()</td>
+</tr>
+<tr class="row-odd"><td>No. OpenMP Threads</td>
+<td><a class="reference internal" href="running.html#cmdoption-t"><em class="xref std std-option">-t</em></a>, <em class="xref std std-option">--num-omp-threads=</em></td>
+<td>getNumThreads()</td>
+</tr>
+<tr class="row-even"><td>No. CUDA Thread Blocks</td>
+<td><a class="reference internal" href="running.html#cmdoption-b"><em class="xref std std-option">-b</em></a>, <em class="xref std std-option">--num-thread-blocks=</em></td>
+<td>getNumThreadBlocks()</td>
+</tr>
+<tr class="row-odd"><td>No. CUDA Threads per Block</td>
+<td><a class="reference internal" href="running.html#cmdoption-g"><em class="xref std std-option">-g</em></a>, <em class="xref std std-option">--num-gpu-threads=</em></td>
+<td>getNumThreadsPerBlock()</td>
+</tr>
+<tr class="row-even"><td>Use CMFD Acceleration</td>
+<td><a class="reference internal" href="running.html#cmdoption-f"><em class="xref std std-option">-f</em></a>, <em class="xref std std-option">--acceleration</em></td>
+<td>useCmfdAcceleration()</td>
+</tr>
+<tr class="row-odd"><td>CMFD Relaxation Factor</td>
+<td><a class="reference internal" href="running.html#cmdoption-r"><em class="xref std std-option">-r</em></a>, <em class="xref std std-option">--relax-factor=</em></td>
+<td>getCmfdRelaxationFactor()</td>
+</tr>
+<tr class="row-even"><td>CMFD Multigrid Mesh Level</td>
+<td><a class="reference internal" href="running.html#cmdoption-l"><em class="xref std std-option">-l</em></a>, <em class="xref std std-option">--mesh-level=</em></td>
+<td>getCmfdMeshLevel()</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 1</strong>: Runtime options and command line arguments supported by the <tt class="docutils literal"><span class="pre">openmoc.options</span></tt> module.</p>
 </div>
 <div class="section" id="simulation-log-files">
 <h2>3.2. Simulation Log Files<a class="headerlink" href="#simulation-log-files" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">openmoc.log</span></tt> module provides routines for printing output to the console as well as to log files. Output is reported in real-time to the console as well as stored in a persistent log file. By default, the log file name encapsulates a timestamp for the simulation starting time and is stored in the <tt class="docutils literal"><span class="pre">/OpenMOC/log</span></tt> directory (e.g. <tt class="file docutils literal"><span class="pre">OpenMOC/log/openmoc-MM-DD-YYYY--HH:MM:SS.log</span></tt>).</p>
-<p>The OpenMOC logging module uses <strong>verbosity throttling</strong> which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a <strong>log level</strong>, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and log file. The log levels available in OpenMOC are presented in <a class="reference internal" href="#table-log-levels"><em>Table 1</em></a>.</p>
+<p>The OpenMOC logging module uses <strong>verbosity throttling</strong> which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a <strong>log level</strong>, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and log file. The log levels available in OpenMOC are presented in <a class="reference internal" href="#table-log-levels"><em>Table 2</em></a>.</p>
 <table border="1" class="docutils" id="table-log-levels">
 <colgroup>
 <col width="26%" />
@@ -130,7 +191,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Table 1</strong>: Log levels in OpenMOC in order of increasing precedence.</p>
+<p><strong>Table 2</strong>: Log levels in OpenMOC in order of increasing precedence.</p>
 <p>Informative messages using the logging module are embedded into both the C/C++ and Python source code in OpenMOC. In addition, code users may add their own messages to the output stream in Python input files. The API documentation provides a detailed accounting of the routines available in the <a class="reference external" href="https://mit-crpg.github.io/OpenMOC/api/log.html">logging module</a>.</p>
 <p>The following code snippet illustrates how to import the logging module into Python, set the lowest log level set to <span class="target" id="index-11"></span><tt class="xref std std-envvar docutils literal"><span class="pre">DEBUG</span></tt>, and print messages for each level to the screen.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.log</span> <span class="kn">as</span> <span class="nn">log</span>
