@@ -17,24 +17,24 @@ Most of these are easily obtainable in Ubuntu through the package manager.
 Exporting Simulation Data
 -------------------------
 
-OpenMOC's ``openmoc.process`` module provides the ``storeSimulationState(...)`` routine to export simulation data to binary output files. The only required parameter for the routine is a ``Solver`` object. Optional parameters may be used to indicate whether to store the data in HDF5 or as a Python pickle_ file (default), store the fluxes, sources, pin powers and more. All of the supported parameters are listed in :ref:`Table 1 <table_store_simulation_state>`, and the output variables stored in the binary file are tabulated in :ref:`Table 2 <table_output_variables>`.
+OpenMOC's ``openmoc.process`` module provides the ``store_simulation_state(...)`` routine to export simulation data to binary output files. The only required parameter for the routine is a ``Solver`` object. Optional parameters may be used to indicate whether to store the data in HDF5 or as a Python pickle_ file (default), store the fluxes, sources, pin powers and more. All of the supported parameters are listed in :ref:`Table 1 <table_store_simulation_state>`, and the output variables stored in the binary file are tabulated in :ref:`Table 2 <table_output_variables>`.
 
 .. _table_store_simulation_state:
 
-==============  ==================  ===================  ==========  ====================================
-Parameter       Type                Default              Optional    Note
-==============  ==================  ===================  ==========  ====================================
-``solver``      ``Solver`` object   None                 No
-``fluxes``      boolean             False                Yes         Whether to store the FSR fluxes
-``sources``     boolean             False                Yes         Whether to store the FSR sources
-``pin_powers``  boolean             False                Yes         Whether to store the pin powers
-``use_hdf5``    boolean             False (pickle file)  Yes         Whether to use HDF5 
-``filename``    string              'simulation-state'   Yes         The filename for storage
-``append``      boolean             True                 Yes         Append to a file or create a new one
-``note``        string              None                 Yes         Any comment on the simulation
-==============  ==================  ===================  ==========  ====================================
+==============  ==================  ====================  ==========  ====================================
+Parameter       Type                Default               Optional    Note
+==============  ==================  ====================  ==========  ====================================
+``solver``      ``Solver`` object   None                  No
+``fluxes``      boolean             False                 Yes         Whether to store the FSR fluxes
+``sources``     boolean             False                 Yes         Whether to store the FSR sources
+``pin_powers``  boolean             False                 Yes         Whether to store the pin powers
+``use_hdf5``    boolean             False (pickle file)   Yes         Whether to use HDF5 
+``filename``    string              'simulation-state'    Yes         The filename for storage
+``append``      boolean             True                  Yes         Append to a file or create a new one
+``note``        string              None                  Yes         Any comment on the simulation
+==============  ==================  ====================  ==========  ====================================
 
-**Table 1**: Parameters for the ``openmoc.proces.storeSimulationState(...)`` routine.
+**Table 1**: Parameters for the ``openmoc.proces.store_simulation_state(...)`` routine.
 
 .. _table_output_variables:
 
@@ -64,7 +64,7 @@ FSR sources                float array     If requested by user
 fission rates              float array(s)  If requested by user
 =========================  ==============  =========================================
 
-**Table 2**: Output variables in a binary file created by the ``openmoc.proces.storeSimulationState(...)`` routine.
+**Table 2**: Output variables in a binary file created by the ``openmoc.proces.store_simulation_state(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -76,7 +76,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     ...
 
     # Export the simulation data to an output file
-    proc.storeSimulationState(solver, use_hdf5=True)
+    proc.store_simulation_state(solver, use_hdf5=True)
 
 
 
@@ -84,7 +84,7 @@ The code snippet below illustrates one possible configuration of parameters to t
 Retrieving Simulation Data
 --------------------------
 
-Exporting simulation data is only useful if there is a straightforward means to retrieve it for data processing at a later time. OpenMOC's ``restoreSimulationStates(...)`` routine in the ``openmoc.process`` module can be used for this purpose. This routine takes a binary data file created by the ``storeSimulationState(...)`` routine, parses the file and catalogues the data in a Python dictionary_, which it returns to the user. The parameters accepted by the routine are described in :ref:`Table 3 <table_restore_simulation_states>`, while the dictionary keys are identical to the output variables given in :ref:`Table 2 <table_output_variables>`.
+Exporting simulation data is only useful if there is a straightforward means to retrieve it for data processing at a later time. OpenMOC's ``restore_simulation_state(...)`` routine in the ``openmoc.process`` module can be used for this purpose. This routine takes a binary data file created by the ``store_simulation_state(...)`` routine, parses the file and catalogues the data in a Python dictionary_, which it returns to the user. The parameters accepted by the routine are described in :ref:`Table 3 <table_restore_simulation_states>`, while the dictionary keys are identical to the output variables given in :ref:`Table 2 <table_output_variables>`.
 
 .. _table_restore_simulation_states:
 
@@ -95,7 +95,7 @@ Parameter       Type     Default                 Optional
 ``directory``   string   'simulation-states'     Yes
 ==============  =======  ======================  ========
 
-**Table 3**: Parameters for the ``openmoc.process.restoreSimulationStates(...)`` routine.
+**Table 3**: Parameters for the ``openmoc.process.restore_simulation_state(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -105,14 +105,14 @@ The code snippet below illustrates one possible configuration of parameters to t
 
     # Retrieve the simulation state(s) stored in the 'states.h5' file
     # and returns the data in a Python dictionary
-    simulation_state = proc.restoreSimulationState(filename='states.h5')
+    simulation_state = proc.restore_simulation_state(filename='states.h5')
 
 
 --------------------
 Computing Pin Powers
 --------------------
 
-In some cases, a user may wish to only compute and export the pin powers for a simulation. In this case, the ``computeFSRPinPowers(...)`` routine in the ``openmoc.process`` module  may be used. The routine takes in a ``Solver`` subclass (e.g., ``ThreadPrivateSolver``, ``GPUSolver``, etc.) and computes the fission rate for each universe in the geometry by summing up the fission rates in each cell in the universe. In most cases, a universe is replicated in many places throughout the geometry. To account for this, the routine will separately compute the fission rates for each unique placement of that universe in the geometry. By default, the pin powers will be exported to a Python pickle_ file, but may alternatively be exported to an HDF5 binary file. :ref:`Table 4 <table_pin_powers>` describes the parameters accepted by the routine.
+In some cases, a user may wish to only compute and export the pin powers for a simulation. In this case, the ``compute_pin_powers(...)`` routine in the ``openmoc.process`` module  may be used. The routine takes in a ``Solver`` subclass (e.g., ``ThreadPrivateSolver``, ``GPUSolver``, etc.) and computes the fission rate for each universe in the geometry by summing up the fission rates in each cell in the universe. In most cases, a universe is replicated in many places throughout the geometry. To account for this, the routine will separately compute the fission rates for each unique placement of that universe in the geometry. By default, the pin powers will be exported to a Python pickle_ file, but may alternatively be exported to an HDF5 binary file. :ref:`Table 4 <table_pin_powers>` describes the parameters accepted by the routine.
 
 .. _table_pin_powers:
 
@@ -123,7 +123,7 @@ Parameter     Type                Default   Optional
 ``use_hdf5``  boolean             False     Yes
 ============  ==================  ========  =========
 
-**Table 4**: Parameters for the ``openmoc.process.computeFSRPinPowers(...)`` routine.
+**Table 4**: Parameters for the ``openmoc.process.compute_pin_powers(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -135,7 +135,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     ...
 
     # Compute and export the pin powers
-    proc.computeFSRPinPowers(solver, use_hdf5=True)
+    proc.compute_pin_powers(solver, use_hdf5=True)
 
 .. note:: The pin powers are computed for each nested universe level in the hierarchical geometry model.
 .. note:: The pin powers are NOT normalized in any way - this is left to the user's discretion during data processing.

@@ -40,21 +40,21 @@ The ``openmoc.options`` module provides functionality to parse arguments defined
 
 .. _table_runtime_options:
 
-============================  ============================================  ======================================================
-Runtime Option                Command Line Argument                         Options Class Getter Method
-============================  ============================================  ======================================================
-Help                          :option:`-h`, :option:`--help`                N/A
-No. Azimuthal Angles          :option:`-a`, :option:`--num-azim=`           getNumAzimAngles()
-Track Spacing [cm]            :option:`-s`, :option:`--track-spacing=`      getTrackSpacing()
-Max. No. Source Iterations    :option:`-i`, :option:`--max-iters=`          getMaxIterations()
-Source Convergence Tolerance  :option:`-c`, :option:`--tolerance=`          getTolerance()
-No. OpenMP Threads            :option:`-t`, :option:`--num-omp-threads=`    getNumThreads()
-No. CUDA Thread Blocks        :option:`-b`, :option:`--num-thread-blocks=`  getNumThreadBlocks()
-No. CUDA Threads per Block    :option:`-g`, :option:`--num-gpu-threads=`    getNumThreadsPerBlock()
-Use CMFD Acceleration         :option:`-f`, :option:`--acceleration`        useCmfdAcceleration()
-CMFD Relaxation Factor        :option:`-r`, :option:`--relax-factor=`       getCmfdRelaxationFactor()
-CMFD Multigrid Mesh Level     :option:`-l`, :option:`--mesh-level=`         getCmfdMeshLevel()
-============================  ============================================  ======================================================
+=============================  =============================================  ======================================================
+Runtime Option                 Command Line Argument                          Options Class Getter Method
+=============================  =============================================  ======================================================
+Help                           :option:`-h`, :option:`--help`                 N/A
+No. Azimuthal Angles           :option:`-a`, :option:`--num-azim=`            getNumAzimAngles()
+Track Spacing [cm]             :option:`-s`, :option:`--track-spacing=`       getTrackSpacing()
+Max. No. Source Iterations     :option:`-i`, :option:`--max-iters=`           getMaxIterations()
+Source Convergence Tolerance   :option:`-c`, :option:`--tolerance=`           getTolerance()
+No. OpenMP Threads             :option:`-t`, :option:`--num-omp-threads=`     getNumThreads()
+No. CUDA Thread Blocks         :option:`-b`, :option:`--num-thread-blocks=`   getNumThreadBlocks()
+No. CUDA Threads per Block     :option:`-g`, :option:`--num-gpu-threads=`     getNumThreadsPerBlock()
+Use CMFD Acceleration          :option:`-f`, :option:`--acceleration`         useCmfdAcceleration()
+CMFD Relaxation Factor         :option:`-r`, :option:`--relax-factor=`        getCmfdRelaxationFactor()
+CMFD Multigrid Mesh Level      :option:`-l`, :option:`--mesh-level=`          getCmfdMeshLevel()
+=============================  =============================================  ======================================================
 
 **Table 1**: Runtime options and command line arguments supported by the ``openmoc.options`` module.
 
@@ -69,9 +69,9 @@ The OpenMOC logging module uses **verbosity throttling** which allows for coarse
 
 .. _table_log_levels:
 
-===================   ======================================================
+===================   =======================================================
 Log Level             Note
-===================   ======================================================
+===================   =======================================================
 :envvar:`DEBUG`       A debugging message
 :envvar:`INFO`        An informational but verbose message
 :envvar:`NORMAL`      A brief progress update on run progress
@@ -83,7 +83,7 @@ Log Level             Note
 :envvar:`RESULT`      A message containing program results
 :envvar:`UNITTEST`    A message for unit testing
 :envvar:`ERROR`       A message reporting error conditions
-===================   ======================================================
+===================   =======================================================
 
 **Table 2**: Log levels in OpenMOC in order of increasing precedence.
 

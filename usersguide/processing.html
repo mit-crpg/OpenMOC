@@ -64,11 +64,11 @@
 <p>Most of these are easily obtainable in Ubuntu through the package manager.</p>
 <div class="section" id="exporting-simulation-data">
 <h2>4.1. Exporting Simulation Data<a class="headerlink" href="#exporting-simulation-data" title="Permalink to this headline">¶</a></h2>
-<p>OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module provides the <tt class="docutils literal"><span class="pre">storeSimulationState(...)</span></tt> routine to export simulation data to binary output files. The only required parameter for the routine is a <tt class="docutils literal"><span class="pre">Solver</span></tt> object. Optional parameters may be used to indicate whether to store the data in HDF5 or as a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file (default), store the fluxes, sources, pin powers and more. All of the supported parameters are listed in <a class="reference internal" href="#table-store-simulation-state"><em>Table 1</em></a>, and the output variables stored in the binary file are tabulated in <a class="reference internal" href="#table-output-variables"><em>Table 2</em></a>.</p>
+<p>OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module provides the <tt class="docutils literal"><span class="pre">store_simulation_state(...)</span></tt> routine to export simulation data to binary output files. The only required parameter for the routine is a <tt class="docutils literal"><span class="pre">Solver</span></tt> object. Optional parameters may be used to indicate whether to store the data in HDF5 or as a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file (default), store the fluxes, sources, pin powers and more. All of the supported parameters are listed in <a class="reference internal" href="#table-store-simulation-state"><em>Table 1</em></a>, and the output variables stored in the binary file are tabulated in <a class="reference internal" href="#table-output-variables"><em>Table 2</em></a>.</p>
 <table border="1" class="docutils" id="table-store-simulation-state">
 <colgroup>
 <col width="14%" />
-<col width="19%" />
+<col width="18%" />
 <col width="20%" />
 <col width="10%" />
 <col width="37%" />
@@ -132,7 +132,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Table 1</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.proces.storeSimulationState(...)</span></tt> routine.</p>
+<p><strong>Table 1</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.proces.store_simulation_state(...)</span></tt> routine.</p>
 <table border="1" class="docutils" id="table-output-variables">
 <colgroup>
 <col width="31%" />
@@ -232,7 +232,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Table 2</strong>: Output variables in a binary file created by the <tt class="docutils literal"><span class="pre">openmoc.proces.storeSimulationState(...)</span></tt> routine.</p>
+<p><strong>Table 2</strong>: Output variables in a binary file created by the <tt class="docutils literal"><span class="pre">openmoc.proces.store_simulation_state(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span> <span class="kn">as</span> <span class="nn">proc</span>
 
@@ -240,13 +240,13 @@
 <span class="o">...</span>
 
 <span class="c"># Export the simulation data to an output file</span>
-<span class="n">proc</span><span class="o">.</span><span class="n">storeSimulationState</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">use_hdf5</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">proc</span><span class="o">.</span><span class="n">store_simulation_state</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">use_hdf5</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="retrieving-simulation-data">
 <h2>4.2. Retrieving Simulation Data<a class="headerlink" href="#retrieving-simulation-data" title="Permalink to this headline">¶</a></h2>
-<p>Exporting simulation data is only useful if there is a straightforward means to retrieve it for data processing at a later time. OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">restoreSimulationStates(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module can be used for this purpose. This routine takes a binary data file created by the <tt class="docutils literal"><span class="pre">storeSimulationState(...)</span></tt> routine, parses the file and catalogues the data in a Python <a class="reference external" href="http://docs.python.org/2/library/stdtypes.html#mapping-types-dict">dictionary</a>, which it returns to the user. The parameters accepted by the routine are described in <a class="reference internal" href="#table-restore-simulation-states"><em>Table 3</em></a>, while the dictionary keys are identical to the output variables given in <a class="reference internal" href="#table-output-variables"><em>Table 2</em></a>.</p>
+<p>Exporting simulation data is only useful if there is a straightforward means to retrieve it for data processing at a later time. OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">restore_simulation_state(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module can be used for this purpose. This routine takes a binary data file created by the <tt class="docutils literal"><span class="pre">store_simulation_state(...)</span></tt> routine, parses the file and catalogues the data in a Python <a class="reference external" href="http://docs.python.org/2/library/stdtypes.html#mapping-types-dict">dictionary</a>, which it returns to the user. The parameters accepted by the routine are described in <a class="reference internal" href="#table-restore-simulation-states"><em>Table 3</em></a>, while the dictionary keys are identical to the output variables given in <a class="reference internal" href="#table-output-variables"><em>Table 2</em></a>.</p>
 <table border="1" class="docutils" id="table-restore-simulation-states">
 <colgroup>
 <col width="27%" />
@@ -274,19 +274,19 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Table 3</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.process.restoreSimulationStates(...)</span></tt> routine.</p>
+<p><strong>Table 3</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.process.restore_simulation_state(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span> <span class="kn">as</span> <span class="nn">proc</span>
 
 <span class="c"># Retrieve the simulation state(s) stored in the &#39;states.h5&#39; file</span>
 <span class="c"># and returns the data in a Python dictionary</span>
-<span class="n">simulation_state</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">restoreSimulationState</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;states.h5&#39;</span><span class="p">)</span>
+<span class="n">simulation_state</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">restore_simulation_state</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;states.h5&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="computing-pin-powers">
 <h2>4.3. Computing Pin Powers<a class="headerlink" href="#computing-pin-powers" title="Permalink to this headline">¶</a></h2>
-<p>In some cases, a user may wish to only compute and export the pin powers for a simulation. In this case, the <tt class="docutils literal"><span class="pre">computeFSRPinPowers(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module  may be used. The routine takes in a <tt class="docutils literal"><span class="pre">Solver</span></tt> subclass (e.g., <tt class="docutils literal"><span class="pre">ThreadPrivateSolver</span></tt>, <tt class="docutils literal"><span class="pre">GPUSolver</span></tt>, etc.) and computes the fission rate for each universe in the geometry by summing up the fission rates in each cell in the universe. In most cases, a universe is replicated in many places throughout the geometry. To account for this, the routine will separately compute the fission rates for each unique placement of that universe in the geometry. By default, the pin powers will be exported to a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file, but may alternatively be exported to an HDF5 binary file. <a class="reference internal" href="#table-pin-powers"><em>Table 4</em></a> describes the parameters accepted by the routine.</p>
+<p>In some cases, a user may wish to only compute and export the pin powers for a simulation. In this case, the <tt class="docutils literal"><span class="pre">compute_pin_powers(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module  may be used. The routine takes in a <tt class="docutils literal"><span class="pre">Solver</span></tt> subclass (e.g., <tt class="docutils literal"><span class="pre">ThreadPrivateSolver</span></tt>, <tt class="docutils literal"><span class="pre">GPUSolver</span></tt>, etc.) and computes the fission rate for each universe in the geometry by summing up the fission rates in each cell in the universe. In most cases, a universe is replicated in many places throughout the geometry. To account for this, the routine will separately compute the fission rates for each unique placement of that universe in the geometry. By default, the pin powers will be exported to a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file, but may alternatively be exported to an HDF5 binary file. <a class="reference internal" href="#table-pin-powers"><em>Table 4</em></a> describes the parameters accepted by the routine.</p>
 <table border="1" class="docutils" id="table-pin-powers">
 <colgroup>
 <col width="26%" />
@@ -314,7 +314,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Table 4</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.process.computeFSRPinPowers(...)</span></tt> routine.</p>
+<p><strong>Table 4</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.process.compute_pin_powers(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span> <span class="kn">as</span> <span class="nn">proc</span>
 
@@ -322,7 +322,7 @@
 <span class="o">...</span>
 
 <span class="c"># Compute and export the pin powers</span>
-<span class="n">proc</span><span class="o">.</span><span class="n">computeFSRPinPowers</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">use_hdf5</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">proc</span><span class="o">.</span><span class="n">compute_pin_powers</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">use_hdf5</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
