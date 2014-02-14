@@ -1,6 +1,6 @@
 /**
  * @file DeviceTrack.h
- * @brief Structures for tracks and segments on a GPU.
+ * @brief Structures for Tracks and Track segments on a GPU.
  * @date June 29, 2012
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
  */
@@ -20,81 +20,69 @@
  *        region along a track.
  * @details The dev_segment is intended for use on the GPU.
  */
-#ifdef MIC
-#pragma offload_attribute(push, target(mic))
-#endif
 struct dev_segment {
 
-    /** The length of the segment (cm) */
-    FP_PRECISION _length;
+  /** The length of the segment (cm) */
+  FP_PRECISION _length;
 
-    /** A pointer to the material in which this segment resides */
-    int _material_uid;
+  /** A pointer to the Material in which this segment resides */
+  int _material_uid;
 
-    /** The ID for flat source region in which this segment resides */
-    int _region_uid;
+  /** The ID for flat source region in which this segment resides */
+  int _region_uid;
 };
-#ifdef MIC
-#pragma offload_attribute(pop)
-#endif
 
 
 /**
  * @struct dev_track
  * @brief A dev_track represents a characteristic line across the geometry.
- * @details A dev_track has particular starting and ending points on the 
+ * @details A dev_track has particular starting and ending points on the
  *          boundaries of the geometry and an azimuthal angle. The dev_track
  *          is intended for use on the GPU.
- */ 
-#ifdef MIC
-#pragma offload_attribute(push, target(mic))
-#endif
+ */
 struct dev_track {
 
-    /** A monotonically increasing unique ID for each track created */
-    int _uid;
+  /** A monotonically increasing unique ID for each Track created */
+  int _uid;
 
-    /** The azimuthal angle index into the global 2D ragged array of tracks */
-    int _azim_angle_index;
+  /** The azimuthal angle index into the global 2D ragged array of Tracks */
+  int _azim_angle_index;
 
-    /** A vector of segments making up this track */
-    dev_segment* _segments;
+  /** A vector of segments making up this track */
+  dev_segment* _segments;
 
-    /** The number of segments making up this track */
-    int _num_segments;
+  /** The number of segments making up this Track */
+  int _num_segments;
 
-    /** Index of the track which reflects out of this track along its "forward"
-     * direction for reflective boundary conditions. */
-    int _track_in;
+  /** Index of the Track which reflects out of this Track along its "forward"
+   * direction for reflective boundary conditions. */
+  int _track_in;
 
-    /** Index of the track which reflects out of this track along its "reverse"
-     * direction for reflective boundary conditions. */
-    int _track_out;
+  /** Index of the Track which reflects out of this Track along its "reverse"
+   * direction for reflective boundary conditions. */
+  int _track_out;
 
-    /** The first index into the global 2D ragged array of tracks for the track
-     *  that reflects out of this track along its "forward" direction for
-     *  reflective boundary conditions. */
-    bool _refl_in;
+  /** The first index into the global 2D ragged array of Tracks for the Track
+   *  that reflects out of this Track along its "forward" direction for
+   *  reflective boundary conditions. */
+  bool _refl_in;
 
-    /** A boolean to indicate whether to give the flux to the "forward" 
-     *  (false) or "reverse" (true) direction of the track reflecting out of 
-     *  this one along its "forward" direction for reflective boundary 
-     *  conditions. */
-    bool _refl_out;
+  /** A boolean to indicate whether to give the flux to the "forward"
+   *  (false) or "reverse" (true) direction of the Track reflecting out of
+   *  this one along its "forward" direction for reflective boundary
+   *  conditions. */
+  bool _refl_out;
 
-    /** A boolean to indicate whether the outgoing angular flux along this 
-     *  track's "forward" direction should be zeroed out for vacuum boundary
-     *  conditions. */
-    bool _bc_in;
+  /** A boolean to indicate whether the outgoing angular flux along this
+   *  Track's "forward" direction should be zeroed out for vacuum boundary
+   *  conditions. */
+  bool _bc_in;
 
-    /** A boolean to indicate whether the outgoing angular flux along this 
-     *  track's "reverse" direction should be zeroed out for vacuum boundary
-     *  conditions. */
-    bool _bc_out;
+  /** A boolean to indicate whether the outgoing angular flux along this
+   *  Track's "reverse" direction should be zeroed out for vacuum boundary
+   *  conditions. */
+  bool _bc_out;
 };
-#ifdef MIC
-#pragma offload_attribute(pop)
-#endif
 
 
 #endif /* DEVICETRACK_H_ */

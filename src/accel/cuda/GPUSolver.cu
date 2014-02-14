@@ -1143,7 +1143,7 @@ void GPUSolver::initializeMaterials() {
         /* Iterate through all materials and clone them on the device */
         cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
 	for (iter=host_materials.begin(); iter != host_materials.end(); ++iter)
-	    cloneMaterialOnGPU(iter->second, &_materials[iter->second->getUid()]);
+	    clone_material_on_gpu(iter->second, &_materials[iter->second->getUid()]);
     }
     catch(std::exception &e) {
         log_printf(ERROR, "Could not allocate memory for the device solver's "
@@ -1174,7 +1174,7 @@ void GPUSolver::initializeTracks() {
 
 	for (int i=0; i < _tot_num_tracks; i++) {
 
-	    cloneTrackOnGPU(_tracks[i], &_dev_tracks[i]);
+	    clone_track_on_gpu(_tracks[i], &_dev_tracks[i]);
 
 	    /* Make track reflective */
 	    index = computeScalarTrackIndex(_tracks[i]->getTrackInI(),

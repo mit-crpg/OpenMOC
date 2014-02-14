@@ -6,7 +6,7 @@ from openmoc.options import Options
 
 
 ###############################################################################
-#                           Main Simulation Parameters                        
+#                           Main Simulation Parameters 
 ###############################################################################
 
 options = Options()

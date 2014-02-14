@@ -1,7 +1,7 @@
 /**
  * @file GPUQuery.h
- * @brief Routines to check machine for an NVIDIA GPU and print GPU 
- *        characteristics to the screen.
+ * @brief Routines to check machine for an NVIDIA GPU and print GPU
+ *        and CUDA hardware characteristics to the screen.
  * @author May 30, 2013
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
  */
@@ -14,11 +14,10 @@
 #include "../../log.h"
 #endif
 
-bool machineContainsGPU();
-void attachGPU(int id=0);
-void printBasicGPUInfo();
-void printDetailedGPUInfo();
-int getNumThreadsInWarp();
-
+bool machine_contains_gpu();
+void attach_gpu(int id=0);
+void print_basic_gpu_info();
+void print_detailed_gpu_info();
+int get_num_threads_per_warp();
 
 #endif /* GPUQUERY_H_ */
