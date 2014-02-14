@@ -11,15 +11,16 @@ from openmoc.options import Options
 
 options = Options()
 
-num_threads = options.num_omp_threads
-track_spacing = options.track_spacing
-num_azim = options.num_azim
-tolerance = options.tolerance
-max_iters = options.max_iters
-relax_factor = options.relax_factor
-acceleration = options.acceleration
-mesh_level = options.mesh_level
-log.setLogLevel('NORMAL')
+num_threads = options.getNumThreads()
+track_spacing = options.getTrackSpacing()
+num_azim = options.getNumAzimAngles()
+tolerance = options.getTolerance()
+max_iters = options.getMaxIterations()
+relax_factor = options.getCmfdRelaxationFactor()
+acceleration = options.useCmfdAccleration()
+mesh_level = options.getCmfdMeshLevel()
+
+log.set_log_level('NORMAL')
 
 ###############################################################################
 ###########################   Creating Materials   ############################
