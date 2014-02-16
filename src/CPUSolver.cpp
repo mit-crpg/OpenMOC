@@ -390,7 +390,7 @@ void CPUSolver::initializeFSRs() {
     for (int r=0; r < _num_FSRs; r++) {
 
         /* Get the cell corresponding to this FSR from the geometry */
-        cell = static_cast<CellBasic*>(_geometry->findCell(univ_zero, r));
+        cell = _geometry->findCellContainingFSR(r);
 
         /* Get the cell's material and assign it to the FSR */
         material = _geometry->getMaterial(cell->getMaterial());

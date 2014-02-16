@@ -1232,7 +1232,7 @@ void Cmfd::initializeFSRs(){
 	    _FSR_fluxes[fsr_id*_ng+e] = 1.0;
 	
 	/* Get the cell corresponding to this FSR from the geometry */
-	cell = static_cast<CellBasic*>(_geometry->findCell(univ_zero, fsr_id));
+	cell = _geometry->findCellContainingFSR(fsr_id);
 	
 	/* Get the cell's material and assign it to the FSR */
 	material = _geometry->getMaterial(cell->getMaterial());
