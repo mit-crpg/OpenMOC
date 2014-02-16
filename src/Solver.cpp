@@ -448,11 +448,10 @@ void Solver::checkTrackSpacing() {
     #pragma omp parallel for private (cell)
     for (int r=0; r < _num_FSRs; r++) {
         if (FSR_segment_tallies[r] == 0) {
-            cell = _geometry->findCellContainingFSR(r);
-            log_printf(ERROR, "No tracks were tallied inside FSR id = %d which "
-                       "is cell id = %d. Please reduce your track spacing,"
-                       " increase the number of azimuthal angles, or increase "
-                       "the size of the flat source regions", r, cell->getId());
+            log_printf(ERROR, "No tracks were tallied inside FSR id = %d. "
+                       "Please reduce your track spacing, increase the "
+                       "number of azimuthal angles, or increase the size of "
+                       "the flat source regions", r, cell->getId());
         }
     }
 
