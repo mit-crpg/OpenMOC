@@ -53,11 +53,11 @@ protected:
 
     /** A buffer for temporary scalar flux updates for each thread */
     FP_PRECISION* _thread_fsr_flux;
-    
+
     void initializeFluxArrays();
     void initializeSourceArrays();
     void initializePolarQuadrature();
-    void precomputePrefactors();
+    void buildExpInterpTable();
     void initializeFSRs();
     void initializeCmfd();
 

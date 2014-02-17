@@ -46,7 +46,7 @@ protected:
      *  each thread in each energy group and polar angle */
     FP_PRECISION* _thread_exponentials;
 
-    void precomputePrefactors();
+    void buildExpInterpTable();
     void initializeFluxArrays();
     void initializeSourceArrays();
 
