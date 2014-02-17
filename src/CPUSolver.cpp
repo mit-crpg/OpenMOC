@@ -824,12 +824,13 @@ void CPUSolver::transportSweep() {
 /**
  * @brief Computes the contribution to the FSR scalar flux from a Track segment.
  * @details This method integrates the angular flux for a Track segment across
- *        energy groups and polar angles, and tallies it into the FSR
- *        scalar flux, and updates the Track's angular flux.
+ *          energy groups and polar angles, and tallies it into the FSR
+ *          scalar flux, and updates the Track's angular flux.
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param track_flux a pointer to the Track's angular flux
  * @param fsr_flux a pointer to the temporary FSR flux buffer
+ * @param fwd
  */
 void CPUSolver::scalarFluxTally(segment* curr_segment,
                                 int azim_index,
