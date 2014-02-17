@@ -282,7 +282,7 @@ void CPUSolver::initializePolarQuadrature() {
  * @details This method will generate a hashmap which contains values of the 
  *          prefactor for specific segment lengths (the keys into the hashmap).
  */
-void CPUSolver::precomputePrefactors() {
+void CPUSolver::buildExpInterpTable() {
 
     /* Build exponential prefactor array based on table look up with linear 
      * interpolation */
@@ -304,34 +304,34 @@ void CPUSolver::precomputePrefactors() {
 
     /* Set size of prefactor array */
     int num_array_values = 10 * sqrt(1. / (8. * _source_convergence_thresh * 1e-2));
-    _prefactor_spacing = 10. / num_array_values;
-    _prefactor_array_size = _two_times_num_polar * num_array_values;
-    _prefactor_max_index = _prefactor_array_size - _two_times_num_polar - 1.;
+    _exp_table_spacing = 10. / num_array_values;
+    _exp_table_size = _two_times_num_polar * num_array_values;
+    _exp_table_max_index = _exp_table_size - _two_times_num_polar - 1.;
     
-    log_printf(DEBUG, "Prefactor array size: %i, max index: %i",
-            _prefactor_array_size, _prefactor_max_index);
+    log_printf(DEBUG, "Exponential interpolation table size: %i, max index: %i",
+            _exp_table_size, _exp_table_max_index);
 
     /* allocate arrays */
-    _prefactor_array = new FP_PRECISION[_prefactor_array_size];
+    _exp_table = new FP_PRECISION[_exp_table_size];
 
     FP_PRECISION expon;
     FP_PRECISION intercept;
     FP_PRECISION slope;
 
-    /* Create prefactor array */
+    /* Create exponential linear interpolation table */
     for (int i=0; i < num_array_values; i ++){
         for (int p=0; p < _num_polar; p++){
-            expon = exp(- (i * _prefactor_spacing) / _quad->getSinTheta(p));
+            expon = exp(- (i * _exp_table_spacing) / _quad->getSinTheta(p));
             slope = - expon / _quad->getSinTheta(p);
-            intercept = expon * (1 + (i * _prefactor_spacing) /
+            intercept = expon * (1 + (i * _exp_table_spacing) /
                                  _quad->getSinTheta(p));
-            _prefactor_array[_two_times_num_polar * i + 2 * p] = slope;
-            _prefactor_array[_two_times_num_polar * i + 2 * p + 1] = intercept;
+            _exp_table[_two_times_num_polar * i + 2 * p] = slope;
+            _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
         }
     }
 
     /* Compute the reciprocal of the prefactor spacing */
-    _inverse_prefactor_spacing = 1.0 / _prefactor_spacing;
+    _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
 
     return;
 }
@@ -966,10 +966,10 @@ FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
     if (_interpolate_exponential) {
         int index;
 
-        index = round_to_int(tau * _inverse_prefactor_spacing);
+        index = round_to_int(tau * _inverse_exp_table_spacing);
         index *= _two_times_num_polar;
-        exponential = (1. - (_prefactor_array[index+2 * p] * tau + 
-                          _prefactor_array[index + 2 * p +1]));
+        exponential = (1. - (_exp_table[index+2 * p] * tau + 
+                          _exp_table[index + 2 * p +1]));
     }
 
     /* Evalute the exponential using the intrinsic exp function */
