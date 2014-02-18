@@ -21,35 +21,35 @@
 
 /**
  * @class VectorizedPrivateSolver VectorizedPrivateSolver.h "openmoc/src/host/VectorizedPrivateSolver.h"
- * @brief This is a subclass of the VectorizedSolver class. This class 
- *        uses a thread private array for flat source region scalar 
- *        fluxes during each transport sweep to avoid the use of OpenMP 
- *        atomics. It also uses memory-aligned data structures and 
- *        Intel's auto-vectorization.
+ * @brief This is a subclass of the VectorizedSolver class. This class uses a
+ *        thread private array for FSR scalar fluxes during each transport sweep
+ *        to avoid the use of OpenMP atomics, akin to the ThreadPrivateSolver
+ *        class. It also uses memory-aligned data structures and Intel's
+ *        auto-vectorization
  */
 class VectorizedPrivateSolver : public VectorizedSolver {
 
 private:
 
-    /** An array for the flat source region scalar fluxes for each thread */
-    FP_PRECISION** _thread_flux;
+  /** An array for the FSR scalar fluxes for each thread */
+  FP_PRECISION** _thread_flux;
 
-    void initializeFluxArrays();
+  void initializeFluxArrays();
 
-    void flattenFSRFluxes(FP_PRECISION value);
+  void flattenFSRFluxes(FP_PRECISION value);
 
-    void scalarFluxTally(segment* curr_segment, int azim_index,
-			 FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
+  void scalarFluxTally(segment* curr_segment, int azim_index,
+                      FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
 
-    void transportSweep();
-    void reduceThreadScalarFluxes();
+  void transportSweep();
+  void reduceThreadScalarFluxes();
 
 
 public:
-    VectorizedPrivateSolver(Geometry* geometry=NULL, 
-			    TrackGenerator* track_generator=NULL,
-			    Cmfd* cmfd=NULL);
-    virtual ~VectorizedPrivateSolver();
+  VectorizedPrivateSolver(Geometry* geometry=NULL,
+                          TrackGenerator* track_generator=NULL,
+                          Cmfd* cmfd=NULL);
+  virtual ~VectorizedPrivateSolver();
 };
 
 
