@@ -1,5 +1,6 @@
 ==========================================
-OpenMOC Neutral Particle Transport Code
+OpenMOC Neutral Particle 
+Transport Code
 ==========================================
 
 Welcome to the OpenMOC repository! OpenMOC is a simulation tool for 
