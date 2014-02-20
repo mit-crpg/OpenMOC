@@ -34,7 +34,7 @@ enum solveType {
 enum fluxType {
   PRIMAL,
   PRIMAL_UPDATE,
-  ADJOINT    
+  ADJOINT
 };
 
 class Mesh {
@@ -128,7 +128,7 @@ public:
   double* getLengthsY();
   double* getCurrents();
   int getMeshLevel();
-  
+
   /* set mesh parameters */
   void setLengthX(double length_x);
   void setLengthY(double length_y);
@@ -165,7 +165,7 @@ public:
   int getCellNext(int cell_num, int surface_id);
   int findCellId(LocalCoords* coord);
   void initializeMaterialsMOC();
-  void initializeMaterialsDiffusion(std::map<int, Material*>* materials, 
+  void initializeMaterialsDiffusion(std::map<int, Material*>* materials,
                                     int* fsrs_to_mats);
   void initializeSurfaceCurrents();
   void initializeFlux();

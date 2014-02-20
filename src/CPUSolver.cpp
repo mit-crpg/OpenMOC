@@ -1068,6 +1068,10 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   FP_PRECISION* scalar_flux = getFSRScalarFluxes();
 
+  /* Initialize fission rates to zero */
+  for (int r=0; r < _num_FSRs; r++)
+    fission_rates[r] = 0.0;
+
   /* Loop over all FSRs and compute the volume-weighted fission rate */
   #pragma omp parallel for private (sigma_f) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
