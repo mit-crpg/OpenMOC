@@ -605,7 +605,7 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
   /* The change in angular flux along this Track segment in the FSR */
-  FP_PRECISION deltapsi;
+  FP_PRECISION delta_psi;
   FP_PRECISION* exponentials = &_thread_exponentials[tid*_polar_times_groups];
 
   computeExponentials(curr_segment, exponentials);
@@ -621,12 +621,12 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
     for (int v=0; v < _num_vector_lengths; v++) {
 
       /* Loop over energy groups within this vector */
-      #pragma simd vectorlength(VEC_LENGTH) private(deltapsi)
+      #pragma simd vectorlength(VEC_LENGTH) private(delta_psi)
       for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++) {
-        deltapsi = (track_flux(p,e) - _reduced_source(fsr_id,e)) *
+        delta_psi = (track_flux(p,e) - _reduced_source(fsr_id,e)) *
                    exponentials(p,e);
-        fsr_flux[e] += deltapsi * _polar_weights(azim_index,p);
-        track_flux(p,e) -= deltapsi;
+        fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
+        track_flux(p,e) -= delta_psi;
       }
     }
   }

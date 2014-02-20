@@ -6,7 +6,7 @@
  * @details The constructor retrieves the number of energy groups and FSRs
  *          and azimuthal angles from the Geometry and TrackGenerator if
  *          passed in as parameters by the user. The constructor initalizes
- *          the number of OpenMPc threads to a default of 1.
+ *          the number of OpenMP threads to a default of 1.
  * @param geometry an optional pointer to the Geometry
  * @param track_generator an optional pointer to the TrackGenerator
  */
@@ -333,7 +333,7 @@ void CPUSolver::buildExpInterpTable() {
 
 
 /**
- * @brief Initializes the volumes and Material arrays for each FSR.
+ * @brief Initializes the FSR volumes and Materials array.
  * @details This method assigns each FSR a unique, monotonically increasing
  *          ID, sets the Material for each FSR, and assigns a volume based on
  *          the cumulative length of all of the segments inside the FSR.
@@ -844,7 +844,7 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
   /* The change in angular flux along this Track segment in the FSR */
-  FP_PRECISION deltapsi;
+  FP_PRECISION delta_psi;
   FP_PRECISION exponential;
 
   /* Set the FSR scalar flux buffer to zero */
@@ -856,9 +856,9 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
     /* Loop over polar angles */
     for (int p=0; p < _num_polar; p++){
       exponential = computeExponential(sigma_t[e], length, p);
-      deltapsi = (track_flux(p,e)-_reduced_source(fsr_id,e))*exponential;
-      fsr_flux[e] += deltapsi * _polar_weights[p];
-      track_flux(p,e) -= deltapsi;
+      delta_psi = (track_flux(p,e)-_reduced_source(fsr_id,e))*exponential;
+      fsr_flux[e] += delta_psi * _polar_weights[p];
+      track_flux(p,e) -= delta_psi;
     }
   }
 
