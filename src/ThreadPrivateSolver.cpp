@@ -264,7 +264,7 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
   /* The change in angular flux along this Track segment in the FSR */
-  FP_PRECISION deltapsi;
+  FP_PRECISION delta_psi;
   FP_PRECISION exponential;
 
   /* Loop over energy groups */
@@ -273,9 +273,9 @@ void ThreadPrivateSolver::scalarFluxTally(segment* curr_segment,
     /* Loop over polar angles */
     for (int p=0; p < _num_polar; p++){
       exponential = computeExponential(sigma_t[e], length, p);
-      deltapsi = (track_flux(p,e)-_reduced_source(fsr_id,e))*exponential;
-      fsr_flux[e] += deltapsi * _polar_weights(azim_index,p);
-      track_flux(p,e) -= deltapsi;
+      delta_psi = (track_flux(p,e)-_reduced_source(fsr_id,e))*exponential;
+      fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
+      track_flux(p,e) -= delta_psi;
     }
   }
 
