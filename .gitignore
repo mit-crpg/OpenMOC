@@ -131,3 +131,5 @@ build/*
 .idea*
 .idea/*
 .idea/*.xml
+
+sphinx/
