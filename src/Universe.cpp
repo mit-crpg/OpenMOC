@@ -165,7 +165,7 @@ std::vector<int> Universe::getNestedUniverseIds() {
  * @endcode
  *
  * @param cell_ids an array to populate with Cell IDs
- * @param the length of the array for cell_ids
+ * @param num_cells the number of Cells in the Universe
  */
 void Universe::getCellIds(int* cell_ids, int num_cells) {
 

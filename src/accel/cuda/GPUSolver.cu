@@ -166,15 +166,16 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
  *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}}} \f$
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{\# FSRs}}} \f$
  *
  * @param FSR_materials an array of FSR Material UIDs
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
- * @param source an array of FSR sources
+ * @param source an array of FSR sources from this iteration
+ * @param old_source an array of current FSR sources from previous iteration
  * @param reduced_source an array of FSR sources / total xs
  * @param inverse_k_eff the inverse of keff
- * @param an array of the FSR source residuals
+ * @param source_residuals an array of the FSR source residuals
  * @return the residual between this source and the previous source
  */
 __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
@@ -315,7 +316,7 @@ __global__ void computeFissionAndAbsorption(FP_PRECISION* FSR_volumes,
  *        on the GPU.
  * @details This method is straight out of CUDA C Developers Guide (cc 2013).
  * @param address the array memory address
- * @param value the value to add to the array
+ * @param val the value to add to the array
  * @return the atomically added array value and input value
  */
 __device__ double atomicAdd(double* address, double val) {
@@ -339,10 +340,10 @@ __device__ double atomicAdd(double* address, double val) {
  * @details This method computes \f$ 1 - exp(-l\Sigma^T_g/sin(\theta_p)) \f$
  *          for a segment with total group cross-section and for
  *          some polar angle.
- * @brief sigma_t the total group cross-section at this energy
- * @brief length the length of the line segment projected in the xy-plane
- * @param _prefa_array the exponential linear interpolation table
- * @brief _exp_table the polar angle index
+ * @param sigma_t the total group cross-section at this energy
+ * @param length the length of the line segment projected in the xy-plane
+ * @param _exp_table the exponential linear interpolation table
+ * @param p the polar angle index
  * @return the evaluated exponential
  */
 __device__ FP_PRECISION computeExponential(FP_PRECISION sigma_t,
@@ -390,7 +391,7 @@ __device__ FP_PRECISION computeExponential(FP_PRECISION sigma_t,
  * @param track_flux a pointer to the Track's angular flux
  * @param reduced_source the array of FSR sources / total xs
  * @param polar_weights the array of polar Quadrature weights
- * @param _exp_table_array the exponential interpolation table
+ * @param _exp_table the exponential interpolation table
  * @param scalar_flux the array of FSR scalar fluxes
  */
 __device__ void scalarFluxTally(dev_segment* curr_segment,
@@ -1338,7 +1339,7 @@ void GPUSolver::initializeThrustVectors() {
 
 
 /**
- * @brief This method computes the index for the jth track at azimuthal angle i.
+ * @brief This method computes the index for the Track j at azimuthal angle i.
  * @details This method is necessary since the array of dev_tracks on the device
  *          is a 1D array which needs a one-to-one mapping from the 2D jagged
  *          array of Tracks on the host.

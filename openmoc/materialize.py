@@ -14,6 +14,13 @@ import sys
 # the materialize module since it must instantiate Material objects
 # with the same floating point precision as that compiled into the
 # openmoc module used in the main Python input script to OpenMOC.
+
+
+## @var openmoc
+#  @brief The openmoc module in use in the Python script using the
+#         openmoc.materialize module.
+openmoc = ''
+
 if 'openmoc.gnu.double' in sys.modules:
   openmoc = sys.modules['openmoc.gnu.double']
 elif 'openmoc.gnu.single' in sys.modules:

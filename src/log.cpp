@@ -14,7 +14,7 @@ static logLevel log_level = NORMAL;
 
 
 /**
- * @var logfile_name
+ * @var log_filename
  * @brief The name of the output log file. By default this is an empty character
  *        array and must be set for messages to be redirected to a log file.
  */
@@ -183,7 +183,7 @@ void set_line_length(int length) {
 /**
  * @brief Sets the minimum log message level which will be printed to the
  *        console and to the log file.
- * @param newlevel the minimum logging level as a character array
+ * @param new_level the minimum logging level as a character array
  */
 void set_log_level(const char* new_level) {
 

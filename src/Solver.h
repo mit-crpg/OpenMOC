@@ -348,7 +348,24 @@ public:
 
   virtual FP_PRECISION convergeSource(int max_iterations);
 
+/**
+ * @brief Computes the volume-weighted, energy integrated fission rate in
+ *        each FSR and stores them in an array indexed by FSR ID.
+ * @details This is a helper method for SWIG to allow users to retrieve
+ *          FSR fission rates as a NumPy array. An example of how this method 
+ *          can be called from Python is as follows:
+ *
+ * @code
+ *          num_FSRs = geometry.getNumFSRs()
+ *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
+ * @endcode
+ *
+ * @param fission_rates an array to store the fission rates (implicitly passed
+ *                      in as a NumPy array from Python)
+ * @param num_FSRs the number of FSRs passed in from Python
+ */
   virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) =0;
+
   void printTimerReport();
 };
 

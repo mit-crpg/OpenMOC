@@ -26,6 +26,12 @@ import numpy.random
 import os, sys
 from log import *
 
+
+## @var openmoc
+#  @brief The openmoc module in use in the Python script using the
+#         openmoc.materialize module.
+openmoc = ''
+
 # Determine which OpenMOC module is being used
 if 'openmoc.gnu.double' in sys.modules:
   openmoc = sys.modules['openmoc.gnu.double']
@@ -568,7 +574,7 @@ def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
 #         openmoc.plotter.plotMeshFluxes(mesh)
 # @endcode
 #
-# @param geometry a Mesh object which has been initialized for CMFD.
+# @param mesh Mesh object which has been initialized for CMFD.
 # @param energy_groups a Python list of the integer energy groups to plot
 # @param gridsize an optional number of grid cells for the plot
 def plot_mesh_fluxes(mesh, energy_groups=[1], gridsize=500):

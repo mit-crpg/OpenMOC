@@ -125,20 +125,59 @@ private:
 
 public:
 
+  /**
+   * @brief Constructor initializes arrays for dev_tracks and dev_materials..
+   * @details The constructor retrieves the number of energy groups and FSRs
+   *          and azimuthal angles from the Geometry and TrackGenerator if
+   *          passed in as parameters by the user. The constructor initalizes
+   *          the number of CUDA threads and thread blocks each to a default
+   *          of 64.
+   * @param geometry an optional pointer to the Geometry
+   * @param track_generator an optional pointer to the TrackjGenerator
+   */
   GPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);
   virtual ~GPUSolver();
 
+  /**
+   * @brief Sets the number of thread blocks (>0) for CUDA kernels.
+   * @return num_blocks the number of thread blocks
+   */
   int getNumThreadBlocks();
+
+/**
+ * @brief Returns the number of threads per block to execute on the GPU.
+ * @return the number of threads per block
+ */
   int getNumThreadsPerBlock();
+
   FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
   FP_PRECISION* getFSRScalarFluxes();
   FP_PRECISION getFSRSource(int fsr_id, int energy_group);
 
+  /**
+   * @brief Sets the number of thread blocks (>0) for CUDA kernels.
+   * @param num_blocks the number of thread blocks
+   */
   void setNumThreadBlocks(int num_blocks);
+
+  /**
+   * @brief Sets the number of threads per block (>0) for CUDA kernels.
+   * @param num_threads the number of threads per block
+   */
   void setNumThreadsPerBlock(int num_threads);
+
   void setGeometry(Geometry* geometry);
   void setTrackGenerator(TrackGenerator* track_generator);
 
+  /**
+   * @brief This method computes the index for Track j at azimuthal angle i.
+   * @details This method is necessary since the array of dev_tracks on
+   *          the device is a 1D array which needs a one-to-one mapping
+   *          from the 2D jagged array of Tracks on the host.
+   * @param i azimuthal angle number
+   * @param j the jth track at angle i
+   * @return an index into the device track array
+   */
   int computeScalarTrackIndex(int i, int j);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);

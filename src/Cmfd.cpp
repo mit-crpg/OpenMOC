@@ -446,8 +446,8 @@ void Cmfd::computeDs(){
 }
 
 
-/*
- * @brief CMFD solver that solves the diffusion problem.
+
+/** @brief CMFD solver that solves the diffusion problem.
  * @return k-effective
  */
 double Cmfd::computeKeff(){
@@ -701,6 +701,7 @@ double Cmfd::computeKeff(){
  * @param vec_x pointer to x vector
  * @param vec_b pointer to b vector
  * @param conv flux convergence criteria
+ * @param max_iter the maximum number of iterations
  */
 void Cmfd::linearSolve(double** mat, double* vec_x, double* vec_b,
                        double conv, int max_iter){
@@ -947,7 +948,7 @@ double Cmfd::vecSum(double* vec){
 /**
  * @brief Copy a vector to another vector.
  * @param vec_from vector to be copied
- * @return vector to receive copy
+ * @param vec_to vector to receive copied data
  */
 void Cmfd::vecCopy(double* vec_from, double* vec_to){
 
@@ -972,7 +973,7 @@ void Cmfd::matZero(double** mat, int width){
 }
 
 
-/* @brief Fill in the values in the A matrix, M matrix, and old
+/** @brief Fill in the values in the A matrix, M matrix, and old
  *        scalar flux vector.
  */
 void Cmfd::constructMatrices(){
@@ -1335,7 +1336,7 @@ void Cmfd::setFluxType(const char* flux_type){
 
 /**
  * @brief Set the eigenvalue solution method (POWER or WIELANDT).
- * @param flux_type char string representing enum for eigen method
+ * @param eigen_method char string representing enum for eigen method
  */
 void Cmfd::setEigenMethod(const char* eigen_method){
 
@@ -1468,7 +1469,7 @@ void Cmfd::matSubtract(double** AM, double** A, double omega, double** M){
 
 
 /**
- * @param Finds and returns the maximum element in a vector.
+ * @brief Finds and returns the maximum element in a vector.
  * @param vec the vector of interest
  * @return the maximum element in the vector
  */

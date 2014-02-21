@@ -1533,9 +1533,8 @@ void Geometry::printString() {
  * @details The CMFD Mesh must be a structured Cartesian mesh and defined
  *          as a certain nested Univeres level (counting from the top). This
  *          method defines the mesh dimensions (width and height) and mesh cell
- *          dimensions (width and height). This function adds new MeshCell
- *          objects to the Mesh and defines the values in each MeshCell.
- * @param mesh a pointer to the Mesh object
+ *          dimensions (width and height). This function adds new Mesh cell
+ *          objects to the Mesh and defines the values in each Mesh cell.
  */
 void Geometry::initializeMesh(){
 
@@ -1644,9 +1643,9 @@ void Geometry::initializeMesh(){
 
 /**
  * @brief This is a recursive method which stores the IDs of all FSRs located
- *        in a MeshCell object in a std::vector owned by the MeshCell.
- * @param univ a pointer to the Universe that contains the MeshCell
- * @param cell_num the MeshCell number
+ *        in a Mesh cell object in a std::vector owned by the Mesh cell.
+ * @param univ a pointer to the Universe that contains the Mesh cell
+ * @param cell_num the Mesh cell number
  * @param fsr_id an integer pointer set to the first fsr_id in this Universe
  */
 void Geometry::findFSRs(Universe* univ, int cell_num, int* fsr_id){
@@ -1711,24 +1710,24 @@ void Geometry::findFSRs(Universe* univ, int cell_num, int* fsr_id){
 
 /**
  * @brief This is a recursive method which defines all the parameters of the
- *        the MeshCell objects in a Mesh.
+ *        the Mesh cell objects in a Mesh.
  * @details This method takes in the uppermost level Universe in the nested
  *          Universe hierarchy (with ID = 0) and recurses until it reaches the
  *          Universe level of the CMFD mesh. Then, the function loops over all
- *          the Cells in the Lattice and defines the corresponding MeshCell
+ *          the Cells in the Lattice and defines the corresponding Mesh cell
  *          object for each Lattice cell.
+ * @param mesh the CMFD Mesh object to initialize
  * @param univ a pointer to a the base Universe (ID = 0)
  * @param depth the number of Lattices that must be descended to reach the
  *              CMFD Mesh level.
  * @param meshCellNum a pointer to an integer used to store the index of the
- *                    current MeshCell object.
+ *                    current Mesh cell object.
  * @param row the current row of the parent Lattice
  * @param base boolean indicating whether the current Lattice is the highest
  *             level Lattice
  * @param fsr_id a pointer to an integer that is set to first fsr_id in this
  *               Universe
  */
-/* define the MeshCell objects (_width, _height, and _FRSs)  */
 void Geometry::defineMesh(Mesh* mesh, Universe* univ, int depth,
                           int* meshCellNum, int row, bool base, int fsr_id){
 
@@ -1768,7 +1767,7 @@ void Geometry::defineMesh(Mesh* mesh, Universe* univ, int depth,
             fsr_id = lattice->getFSR(j,i);
             log_printf(DEBUG, "Added FSR ID to counter -> fsr_id: %i", fsr_id);
 
-            /* Store fsr_ids of the FSRs in this LATTICE in a MeshCell object */
+            /* Store fsr_ids of FSRs in this LATTICE in a Mesh cell object */
             findFSRs(curr, *meshCellNum, &fsr_id);
             mesh->setCellLengthX(*meshCellNum, lattice->getWidthX());
             mesh->setCellLengthY(*meshCellNum, lattice->getWidthY());
@@ -1793,7 +1792,7 @@ void Geometry::defineMesh(Mesh* mesh, Universe* univ, int depth,
 
           log_printf(DEBUG, "Set FSr ID to: %i", fsr_id);
 
-          /* Store fsr_ids of the FSRs in this LATTICE in a MeshCell object */
+          /* Store fsr_ids of the FSRs in this LATTICE in a Mesh cell object */
           findFSRs(curr, *meshCellNum, &fsr_id);
           mesh->setCellLengthX(*meshCellNum, lattice->getWidthX());
           mesh->setCellLengthY(*meshCellNum, lattice->getWidthY());

@@ -9,6 +9,7 @@
  *          the number of OpenMP threads to a default of 1.
  * @param geometry an optional pointer to the Geometry
  * @param track_generator an optional pointer to the TrackgGenerator
+ * @param cmfd an optional pointer to a Cmfd object object
  */
 ThreadPrivateSolver::ThreadPrivateSolver(Geometry* geometry,
                                          TrackGenerator* track_generator,

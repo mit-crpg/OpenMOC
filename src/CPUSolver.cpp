@@ -9,9 +9,10 @@
  *          the number of OpenMP threads to a default of 1.
  * @param geometry an optional pointer to the Geometry
  * @param track_generator an optional pointer to the TrackGenerator
+ * @param cmfd an optional pointer to a Cmfd object object
  */
 CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator,
-  Cmfd* cmfd) : Solver(geometry, track_generator, cmfd) {
+                     Cmfd* cmfd) : Solver(geometry, track_generator, cmfd) {
 
   setNumThreads(1);
 
@@ -119,7 +120,7 @@ FP_PRECISION CPUSolver::getFSRSource(int fsr_id, int energy_group) {
 
 /**
  * @brief Return a scalar flux array indexed by FSR IDs and energy groups.
- * @detail This energy groups are the innermost index, while the FSR ID is
+ * @details This energy groups are the innermost index, while the FSR ID is
  *         the outermost index.
  * @return an array of flat source region scalar fluxes
  */
@@ -1083,4 +1084,3 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   return;
 }
-
