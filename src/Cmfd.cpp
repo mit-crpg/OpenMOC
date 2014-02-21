@@ -931,7 +931,7 @@ void Cmfd::matMultM(double** mat, double* vec_x, double* vec_y){
 /**
  * @brief Sum all elements in a vector.
  * @param vec vector to be summed
- * @return sum sum of vector elements
+ * @return sum of vector elements
  */
 double Cmfd::vecSum(double* vec){
 
@@ -947,7 +947,7 @@ double Cmfd::vecSum(double* vec){
 /**
  * @brief Copy a vector to another vector.
  * @param vec_from vector to be copied
- * @return vec_to vector to receive copy
+ * @return vector to receive copy
  */
 void Cmfd::vecCopy(double* vec_from, double* vec_to){
 
@@ -1179,7 +1179,7 @@ void Cmfd::updateMOCFlux(){
  *        coefficients in optically thick mesh cells.
  * @param d old diffusion coefficient
  * @param h height of cell
- * @return f correction factor
+ * @return correction factor
  */
 double Cmfd::computeDiffCorrect(double d, double h){
 
@@ -1211,7 +1211,7 @@ double Cmfd::computeDiffCorrect(double d, double h){
 
 /**
  * @brief Return the eigenvalue \f$ k_{eff} \f$.
- * @return _k_eff the eigenvalue \f$ k_{eff} \f$
+ * @return the eigenvalue \f$ k_{eff} \f$
  */
 double Cmfd::getKeff(){
   return _k_eff;
@@ -1310,7 +1310,7 @@ void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux){
 
 /**
  * @brief Get pointer to the Mesh object.
- * @return  pointer to mesh
+ * @return pointer to mesh
  */
 Mesh* Cmfd::getMesh(){
   return _mesh;

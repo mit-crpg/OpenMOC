@@ -15,7 +15,7 @@
 #endif
 
 /**
- * @class Point Point.h "openmoc/src/host/Point.h"
+ * @class Point Point.h "src/Point.h"
  * @brief Class to represent a 2D point in space.
  */
 class Point {

@@ -28,7 +28,7 @@
 #define exponentials(p,e) (exponentials[(p)*_num_groups + (e)])
 
 /**
- * @class VectorizedSolver VectorizedSolver.h "openmoc/src/host/VectorizedSolver.h"
+ * @class VectorizedSolver VectorizedSolver.h "src/VectorizedSolver.h"
  * @brief This is a subclass of the CPUSolver class which uses memory-aligned
  *        data structures and Intel's auto-vectorization.
  * @note This class is only compiled if the Intel compiler is used when building

@@ -35,7 +35,7 @@ int material_id();
 
 
 /**
- * @class Material Material.h "openmoc/src/host/Material.h"
+ * @class Material Material.h "src/Material.h"
  * @brief The Material class represents a unique material and its relevant
  *        nuclear data (i.e., multigroup cross-sections) for neutron transport.
  */
