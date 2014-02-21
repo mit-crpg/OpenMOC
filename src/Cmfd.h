@@ -27,84 +27,117 @@
 #include "Timer.h"
 #endif
 
+
 /**
- * Solve types
- */
+ * @enum cellType
+ * @brief Eigenvalue solution methods.
+*/
 enum eigenMethod {
+
+  /** The power iteration method */
   POWER,
+
+  /** The Wielandt iteration method */
   WIELANDT
 };
 
 
+
+/**
+ * @class Cell Cell.h "src/host/Cell.h"
+ * @brief A class for Coarse Mesh Finite Difference (CMFD) acceleration.
+ */
 class Cmfd {
 
 private:
 
-  /* pointer to quadrature object */
+  /** Pointer to polar Quadrature object */
   Quadrature* _quad;
 
-  /* pointer to geometry object */
+  /** Pointer to Geometry object */
   Geometry* _geometry;
 
-  /* pointer to mesh object */
+  /** Pointer to Mesh object */
   Mesh* _mesh;
 
-  /* keff */
+  /** Th keff eigenvalue */
   double _k_eff;
 
-  /* matrix and vector objects */
+  /** The A matrix */
   double** _A;
+
+  /** The M matrix */
   double** _M;
+
+  /** The AM matrix */
   double** _AM;
-  double* _sold;
-  double* _snew;
+
+  /** The old source vector */
+  double* _old_source;
+
+  /** The new source vector */
+  double* _new_source;
+
+  /** A temporary scalar flux vector */
   double* _phi_temp;
 
-  /* Gauss Seidel SOR factor */
+  /** Gauss-Seidel SOR factor */
   double _omega;
 
-  /* l2 norm */
+  /** L2 norm */
   double _l2_norm;
 
-  /* keff convergence criteria */
+  /** Keff convergence criteria */
   double _conv_criteria;
 
-  /* num cells in x and y direction */
+  /** Number of cells in x direction */
   int _cx;
+
+  /** Number of cells in y direction */
   int _cy;
 
-  /* pointer to timer object */
+  /** Pointer to Timer object */
   Timer* _timer;
 
-  /* flux type (PRIMAL or ADJOINT) */
+  /** Flux type (PRIMAL or ADJOINT) */
   fluxType _flux_type;
 
-  /* number of groups */
-  int _ng;
-  int _ncg;
+  /** Number of energy groups */
+  int _num_groups;
+
+  /** Number of coarse energy groups */
+  int _num_cmfd_groups;
+
+  /** Coarse energy indices for fine energy groups */
   int* _group_indices;
+
+  /** Number of fine energy groups per coarse energy group */
   int _group_width;
 
-  /* number of fsrs */
-  int _num_fsrs;
+  /** Number of FSRs */
+  int _num_FSRs;
 
-  /* solve method (DIFFUSION or MOC) */
+  /** Solution method (DIFFUSION or MOC) */
   solveType _solve_method;
-  
-  /* arrays for fsr parameters */
+
+  /** The volumes (areas) for each FSR */
   FP_PRECISION* _FSR_volumes;
+
+  /** Pointers to Materials for each FSR */
   Material** _FSR_materials;
+
+  /** The FSR scalar flux in each energy group */
   FP_PRECISION* _FSR_fluxes;
-  
-  /* eigenvalue method */
+
+  /* Eigenvalue method */
   eigenMethod _eigen_method;
 
 public:
-	
+
   Cmfd(Geometry* geometry, double criteria=1e-8);
   virtual ~Cmfd();
 
-  /* worker functions */
+  /* Worker functions */
   void constructMatrices();
   void computeDs();
   void computeXS();
@@ -113,10 +146,10 @@ public:
   double computeKeff();
   void initializeFSRs();
   void rescaleFlux();
-  void linearSolve(double** mat, double* vec_x, double* vec_b, double conv,
-      int max_iter=10000);
+  void linearSolve(double** mat, double* vec_x, double* vec_b,
+                   double conv, int max_iter=10000);
 
-  /* matrix and vector functions */
+  /* Matrix and Vector functions */
   void dumpVec(double* vec, int length);
   void matZero(double** mat, int width);
   void vecCopy(double* vec_from, double* vec_to);
@@ -131,20 +164,19 @@ public:
   double rayleighQuotient(double* x, double* snew, double* sold);
   void createGroupStructure();
 
-  /* get parameters */
+  /* Get parameters */
   Mesh* getMesh();
   double getKeff();
   int getNumCmfdGroups();
   int getCmfdGroupWidth();
 
-
-  /* set parameters */
+  /* Set parameters */
   void setOmega(double omega);
   void setFluxType(const char* flux_type);
   void setEigenMethod(const char* eigen_method);
-  void setNumCmfdGroups(int num_cmfd_groups);  
+  void setNumCmfdGroups(int num_cmfd_groups);
 
-  /* set fsr parameters */
+  /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
   void setFSRFluxes(FP_PRECISION* scalar_flux);
