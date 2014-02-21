@@ -80,10 +80,11 @@ protected:
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param track_flux a pointer to the Track's angular flux
    * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
+   * @param fwd
    */
   virtual void scalarFluxTally(segment* curr_segment, int azim_index,
                                FP_PRECISION* track_flux, FP_PRECISION* fsr_flux,
-                                bool fwd);
+                               bool fwd);
 
   /**
    * @brief Updates the boundary flux for a Track given boundary conditions.

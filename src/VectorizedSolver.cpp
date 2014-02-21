@@ -477,6 +477,7 @@ void VectorizedSolver::addSourceToScalarFlux() {
  *          \f$ k_{eff} = \frac{\displaystyle\sum \displaystyle\sum \nu
  *                        \Sigma_f \Phi V}{\displaystyle\sum
  *                        \displaystyle\sum \Sigma_a \Phi V} \f$
+ *
  */
 void VectorizedSolver::computeKeff() {
 
@@ -592,6 +593,7 @@ return;
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param track_flux a pointer to the Track's angular flux
  * @param fsr_flux a pointer to the temporary FSR flux buffer
+ * @param fwd
  */
 void VectorizedSolver::scalarFluxTally(segment* curr_segment,
                                        int azim_index,

@@ -253,8 +253,8 @@ FP_PRECISION* Material::getDifCoef() {
 
 /**
  * @brief Return the array of the Material's surface diffusion coefficients.
- * @details Returns the diffusion coefficients $\hat{D}$ for this Material
-*           on each of the four surfaces of a CMFD mesh cell.
+ * @details Returns the diffusion coefficients \f$ \hat{D} \f$ for this Material
+ *           on each of the four surfaces of a CMFD mesh cell.
  * @return the pointer to the Material's array of surface diffusion coefficients
  */
 FP_PRECISION* Material::getDifHat() {
@@ -893,6 +893,7 @@ void Material::setDifHat(double* xs, int num_groups) {
  *        some CMFD mesh cell.
  * @param xs the diffusion coefficient along some mesh cell surface
  * @param group the energy group
+ * @param surface the Surface corresponding to this coefficient
  */
 void Material::setDifHatByGroup(double xs, int group, int surface) {
 
@@ -953,6 +954,7 @@ void Material::setDifTilde(double* xs, int num_groups) {
  *        energy group.
  * @param xs the CMFD corrected diffusion coefficient
  * @param group the energy group
+ * @param surface the Surface corresponding to this coefficient
  */
 void Material::setDifTildeByGroup(double xs, int group, int surface) {
 

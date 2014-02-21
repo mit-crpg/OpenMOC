@@ -41,6 +41,7 @@ protected:
   /** An array for the FSR scalar fluxes for each thread */
   FP_PRECISION** _thread_flux;
 
+  /** An array for the CMFD Mesh surface currents for each thread */
   FP_PRECISION* _thread_currents;
 
   void initializeFluxArrays();

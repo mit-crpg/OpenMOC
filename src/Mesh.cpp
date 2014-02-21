@@ -11,7 +11,7 @@
  * @param solve_type solve method (MOC or DIFFUSION)
  * @param cmfd_on an optional boolean to turn on CMFD
  * @param relax_factor relaxation factor
- * @param cmfd_level cmfd nested universe Mesh level
+ * @param mesh_level cmfd nested universe Mesh level
  */
 Mesh::Mesh(solveType solve_type, bool cmfd_on,
            double relax_factor, int mesh_level){
@@ -422,13 +422,13 @@ void Mesh::setBoundary(int side, boundaryType boundary){
 }
 
 
-/* @brief Split the currents of the Mesh cell corners to the nearby surfaces.
- * @detail left bottom corner -> bottom surface and left surface
- *         of mesh cell below; right bottom corner -> bottom surface
- *         and right surface of mesh cell below; right top corner ->
- *         right surface and top surface of mesh cell to the right;
- *         left top corner -> left surface and top surface of mesh
- *         cell to the left.
+/** @brief Split the currents of the Mesh cell corners to the nearby surfaces.
+ * @details left bottom corner -> bottom surface and left surface
+ *          of mesh cell below; right bottom corner -> bottom surface
+ *          and right surface of mesh cell below; right top corner ->
+ *          right surface and top surface of mesh cell to the right;
+ *          left top corner -> left surface and top surface of mesh
+ *          cell to the left.
  */
 void Mesh::splitCorners(){
 
@@ -642,7 +642,7 @@ boundaryType Mesh::getBoundary(int side){
 
 /**
  * @brief Get the flux for a certain Mesh cell and energy group.
- * @param flux_name name of the flux
+ * @param flux_type type of the flux
  * @param cell_id UID of Mesh cell
  * @param group energy group
  * @return the scalar flux
@@ -788,7 +788,7 @@ void Mesh::setVolume(double volume, int cell_num){
 
 /**
  * @brief Get a Mesh cell scalar flux array.
- * @param flux_name name of flux array (PRIMAL, PRIMAL_UPDATE, ADJOINT)
+ * @param flux_type type of flux array (PRIMAL, PRIMAL_UPDATE, ADJOINT)
  * @return array of Mesh cell scalar fluxes
  */
 double* Mesh::getFluxes(fluxType flux_type){
@@ -945,7 +945,7 @@ int Mesh::getMeshLevel(){
 
 /**
  * @brief Sets the Mesh nested universe level.
- * @parap mesh_level Mesh nested universe level
+ * @param mesh_level Mesh nested universe level
  */
 void Mesh::setMeshLevel(int mesh_level){
   _mesh_level = mesh_level;

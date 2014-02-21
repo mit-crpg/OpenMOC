@@ -153,7 +153,7 @@ public:
 
 
 /**
- * @class CellFill CellFill.h "src/Cell.h"
+ * @class CellFill Cell.h "src/Cell.h"
  * @brief Represents a Cell filled with a Universe.
  */
 class CellFill: public Cell {

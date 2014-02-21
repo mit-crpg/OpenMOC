@@ -11,6 +11,7 @@
  *          initalizes the number of threads to a default of 1.
  * @param geometry an optional pointer to the Geometry
  * @param track_generator an optional pointer to the TrackGenerator
+ * @param cmfd an optional pointer to a Cmfd object object
  */
 VectorizedPrivateSolver::VectorizedPrivateSolver(Geometry* geometry,
                                                 TrackGenerator* track_generator,
