@@ -10,7 +10,8 @@ import log
 import getopt, sys
 
 
-# @class RIEff process.py "openmoc/options.py"
+##
+# @class Options process.py "openmoc/options.py"
 # @brief Command-line options for runtime configuration of OpenMOC.
 # @details This class parses, interprets and encapsulates the runtime options
 #          for OpenMOC. This class can be instantiate in any OpenMOC Python
@@ -33,6 +34,7 @@ import getopt, sys
 #          # Do something useful with command line arguments
 #          ...
 # @endcode
+#
 class Options:
 
 
