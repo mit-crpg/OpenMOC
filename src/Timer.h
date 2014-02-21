@@ -23,7 +23,7 @@
 
 
 /**
- * @class Timer Timer.h "openmoc/src/host/Timer.cpp"
+ * @class Timer Timer.h "src/Timer.cpp"
  * @brief The Timer class is for timing and profiling regions of code.
  */
 class Timer {

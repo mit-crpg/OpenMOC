@@ -39,7 +39,7 @@ struct segment {
 
 
 /**
- * @class Track Track.h "openmoc/src/host/Track.h"
+ * @class Track Track.h "src/Track.h"
  * @brief A Track represents a characteristic line across the geometry.
  * @details A Track has particular starting and ending points on the
  *          boundaries of the geometry and an azimuthal angle.

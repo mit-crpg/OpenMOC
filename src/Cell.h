@@ -35,8 +35,9 @@ enum cellType {
   FILL
 };
 
+
 /**
- * @class Cell Cell.h "src/host/Cell.h"
+ * @class Cell Cell.h "src/Cell.h"
  * @brief Represents a Cell inside of a Universe.
  */
 class Cell {
@@ -104,7 +105,7 @@ public:
 
 
 /**
- * @class CellBasic Cell.h "src/host/Cell.h"
+ * @class CellBasic Cell.h "src/Cell.h"
  * @brief Represents a Cell filled with a Material.
  */
 class CellBasic: public Cell {
@@ -152,7 +153,7 @@ public:
 
 
 /**
- * @class CellFill CellFill.h "src/host/Cell.h"
+ * @class CellFill CellFill.h "src/Cell.h"
  * @brief Represents a Cell filled with a Universe.
  */
 class CellFill: public Cell {

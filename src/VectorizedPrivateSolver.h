@@ -20,7 +20,7 @@
 #define _thread_flux(tid,r,e) (_thread_flux[(tid)][(r)*_num_groups+(e)])
 
 /**
- * @class VectorizedPrivateSolver VectorizedPrivateSolver.h "openmoc/src/host/VectorizedPrivateSolver.h"
+ * @class VectorizedPrivateSolver VectorizedPrivateSolver.h "src/VectorizedPrivateSolver.h"
  * @brief This is a subclass of the VectorizedSolver class. This class uses a
  *        thread private array for FSR scalar fluxes during each transport sweep
  *        to avoid the use of OpenMP atomics, akin to the ThreadPrivateSolver

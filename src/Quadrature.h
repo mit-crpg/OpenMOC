@@ -28,7 +28,7 @@ enum quadratureType {
 
 
 /**
- * @class Quadrature Quadrature.h "openmoc/src/host/Quadrature.h"
+ * @class Quadrature Quadrature.h "src/Quadrature.h"
  * @brief Stores values for a variety of polar quadratures which may be used.
  */
 class Quadrature {

@@ -20,98 +20,132 @@
 #include "Surface.h"
 #include "Material.h"
 
+
 /**
- * Solve types
+ * @enum solveType
+ * @brief The type of solution method.
  */
 enum solveType {
+
+  /** Diffusion method */
   DIFFUSION,
+
+  /** Method of Characteristics transport */
   MOC
 };
 
+
 /**
- * Flux types
- */
+ * @enum fluxType
+ * @brief The type of scalar flux.
+*/
 enum fluxType {
+
+  /** The primal scalar flux */
   PRIMAL,
+
+  /** The updated primal scalar flux */
   PRIMAL_UPDATE,
+
+  /** The adjoint scalar flux */
   ADJOINT
 };
 
+
+
+/**
+ * @class Mesh Mesh.h "src/Mesh.h"
+ * @brief Represents a cartesian mesh for Coarse Mesh Finite Difference
+ *        Diffusion acceleration.
+ */
 class Mesh {
 
 private:
 
-  /* physical mesh size */
+  /** The length of the Mesh along the x direction */
   double _length_x;
+
+  /** The length of the Mesh along the y direction */
   double _length_y;
 
-  /* cmfd level */
+  /** Cmfd nested universee level (>0) */
   int _mesh_level;
 
-  /* number of cells in x and y directions */
-  int _cx;
-  int _cy;
+  /** The number of cells in the x direction */
+  int _num_x;
 
-  /* number of groups */
-  int _ng;
+  /** The nu8mber of cells in the y direction */
+  int _num_y;
 
-  /* number of surface current values */
+  /** The number of groups */
+  int _num_groups;
+
+  /** The number of surface current values */
   int _num_currents;
 
-  /* number of fsrs */
+  /** The number of FSRs */
   int _num_fsrs;
 
-  /* array of boundary enums */
+  /** An array of boundaryTypes */
   boundaryType* _boundaries;
 
-  /* array of mesh cell volumes */
+  /** An array of Mesh cell volumes (areas) */
   double* _volumes;
 
-  /* array of mesh surface currents */
+  /** An array of Mesh surface currents */
   double* _currents;
 
-  /* vector of vectors of fsrs in each mesh cell */
+  /** A std::vector of std::vectors of FSR IDs in each Mesh cell */
   std::vector< std::vector<int> > _cell_fsrs;
 
-  /* cmfd and acceleration flag */
+  /** CMFD in use flag */
   bool _cmfd_on;
+
+  /** CMFD acceleration flag */
   bool _acceleration;
 
-  /* relaxation factor on d_tilde */
+  /** Relaxation factor on d_tilde */
   double _relax_factor;
 
-  /* map of fluxes mapped onto mesh */
+  /** A std::map of fluxes mapped onto the mesh */
   std::map<fluxType, double*> _fluxes;
 
-  /* materials array */
+  /** Array of Materials */
   Material** _materials;
 
-  /* array of fsr bounds */
+  /** An array of FSR bounds */
   int* _fsr_indices;
 
-  /* array of lenghts of each mesh cell in x and y directions */
+  /** An array of lengths of each Mesh cell in x direction */
   double* _lengths_x;
+
+  /** An array of lengths of each Mesh cell in y direction */
   double* _lengths_y;
 
-  /* array of cell bounds in x and y direction */
+  /** An array of cell bounds in x direction */
   double* _bounds_x;
+
+  /** An array of cell bounds in y direction */
   double* _bounds_y;
 
-  /* bool to toggle optically thick diffusion correction factor */
+  /** A switch to toggle optically thick diffusion correction factor */
   bool _optically_thick;
 
-  /* solve method (DIFFUSION or MOC) */
+  /** The solution method (DIFFUSION or MOC) */
   solveType _solve_method;
 
+
 public:
+
   Mesh(solveType solve_type=MOC, bool cmfd_on=false,
        double relax_factor=0.6, int mesh_level=-1);
   virtual ~Mesh();
+
   void initialize();
   void setFSRBounds();
   void setCellBounds();
 
-  /* get mesh parameters */
+  /* Get mesh parameters */
   double getLengthX();
   double getLengthY();
   int getCellsX();
@@ -129,7 +163,7 @@ public:
   double* getCurrents();
   int getMeshLevel();
 
-  /* set mesh parameters */
+  /* Set mesh parameters */
   void setLengthX(double length_x);
   void setLengthY(double length_y);
   void setCellLengthX(int cell_num, double length_x);
@@ -140,14 +174,14 @@ public:
   void setVolume(double volume, int cell_num);
   void setMeshLevel(int cmfd_level);
 
-  /* set general problem specs */
+  /* Set general problem specs */
   void setNumGroups(int num_groups);
   void setNumFSRs(int num_fsrs);
   void setAcceleration(bool accel);
   void setOpticallyThick(bool thick);
   void setRelaxFactor(double relax_factor);
 
-  /* get generation problem specs */
+  /* Get generation problem specs */
   int getNumGroups();
   int getNumFSRs();
   bool getCmfdOn();

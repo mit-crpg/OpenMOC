@@ -21,7 +21,7 @@
 
 
 /**
- * @class Geometry Geometry.h "openmoc/src/host/Geometry.h"
+ * @class Geometry Geometry.h "src/Geometry.h"
  * @brief The master class containing references to all geometry-related
  *        objects - Surfaces, Cells, Universes and Lattices - and Materials.
  * @details The primary purpose for the geometry is to serve as a collection

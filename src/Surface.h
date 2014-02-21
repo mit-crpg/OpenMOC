@@ -74,7 +74,7 @@ enum boundaryType {
 
 
 /**
- * @class Surface Surface.h "openmoc/src/host/Surface.h"
+ * @class Surface Surface.h "src/Surface.h"
  * @brief Represents a general surface in the 2D xy-plane
  * @details The Surface class and its subclasses are used to define the
  *          geometry for an OpenMOC simulation using a constructive solid
@@ -176,7 +176,7 @@ public:
 
 
 /**
- * @class Plane Surface.h "openmoc/src/host/Surface.h"
+ * @class Plane Surface.h "src/Surface.h"
  * @brief Represents a Plane perpendicular to the xy-plane.
  */
 class Plane: public Surface {
@@ -216,7 +216,7 @@ public:
 
 
 /**
- * @class XPlane Surface.h "openmoc/src/host/Surface.h"
+ * @class XPlane Surface.h "src/Surface.h"
  * @brief Represents a Plane perpendicular to the x-axis.
  */
 class XPlane: public Plane {
@@ -242,7 +242,7 @@ public:
 
 
 /**
- * @class YPlane Surface.h "openmoc/src/host/Surface.h"
+ * @class YPlane Surface.h "src/Surface.h"
  * @brief Represents a Plane perpendicular to the y-axis.
  */
 class YPlane: public Plane {
@@ -269,7 +269,7 @@ public:
 
 
 /**
- * @class ZPlane Surface.h "openmoc/src/host/Surface.h"
+ * @class ZPlane Surface.h "src/Surface.h"
  * @brief Represents a Plane perpendicular to the z-axis.
  */
 class ZPlane: public Plane {
@@ -296,7 +296,7 @@ public:
 
 
 /**
- * @class Circle Surface.h "openmoc/src/host/Surface.h"
+ * @class Circle Surface.h "src/Surface.h"
  * @brief Represents a Circle in the xy-plane.
  */
 class Circle: public Surface {

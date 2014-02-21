@@ -34,7 +34,7 @@
 
 
 /**
- * @class CPUSolver CPUSolver.h "openmoc/src/host/CPUSolver.h"
+ * @class CPUSolver CPUSolver.h "src/CPUSolver.h"
  * @brief This a subclass of the Solver class for multi-core CPUs using
  *        OpenMP multi-threading.
  * @details This Solver subclass uses OpenMP's multi-threading directives,

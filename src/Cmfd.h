@@ -29,7 +29,7 @@
 
 
 /**
- * @enum cellType
+ * @enum eigenMethod
  * @brief Eigenvalue solution methods.
 */
 enum eigenMethod {
@@ -44,7 +44,7 @@ enum eigenMethod {
 
 
 /**
- * @class Cell Cell.h "src/host/Cell.h"
+ * @class Cmfd Cmfd.h "src/Cmfd.h"
  * @brief A class for Coarse Mesh Finite Difference (CMFD) acceleration.
  */
 class Cmfd {
@@ -60,7 +60,7 @@ private:
   /** Pointer to Mesh object */
   Mesh* _mesh;
 
-  /** Th keff eigenvalue */
+  /** The keff eigenvalue */
   double _k_eff;
 
   /** The A matrix */

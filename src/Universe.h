@@ -50,7 +50,7 @@ enum universeType{
 
 
 /**
- * @class Universe Universe.h "openmoc/src/host/Universe.h"
+ * @class Universe Universe.h "src/Universe.h"
  * @brief A Universe represents an unbounded space in the 2D xy-plane.
  * @details A Universe contains cell which are bounded subspaces in the 2D
  *          xy-plane and which together form the Universe. Universes allow
@@ -125,7 +125,7 @@ public:
 
 
 /**
- * @class Lattice Universe.h "openmoc/src/host/Universe.h"
+ * @class Lattice Universe.h "src/Universe.h"
  * @brief Represents a repeating 2D Lattice of Universes.
  */
 class Lattice: public Universe {

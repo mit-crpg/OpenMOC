@@ -22,7 +22,7 @@
 
 
 /**
- * @class TrackGenerator TrackGenerator.h "openmoc/src/host/TrackGenerator.h"
+ * @class TrackGenerator TrackGenerator.h "src/TrackGenerator.h"
  * @brief The TrackGenerator is dedicated to generating and storing Tracks
  *        which cyclically wrap across the Geometry.
  * @details The TrackGenerator creates Track and initializes boundary

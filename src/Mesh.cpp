@@ -4,34 +4,35 @@
 
 /**
  * @brief Constructor initializes boundaries and variables that describe
- *          the mesh.
+          the Mesh.
  * @details The construcor initializes the many variables to zero,
- *          initializes cmfd acceleration to off, and initializes 
- *          the boundary conditions to REFLECTIVE
+ *          initializes cmfd acceleration to off, and initializes
+ *          the boundary conditions to REFLECTIVE.
  * @param solve_type solve method (MOC or DIFFUSION)
- * @param cmfd_on an optional boolean to turn on cmfd
+ * @param cmfd_on an optional boolean to turn on CMFD
  * @param relax_factor relaxation factor
- * @param cmfd_level cmfd mesh level
+ * @param cmfd_level cmfd nested universe Mesh level
  */
-Mesh::Mesh(solveType solve_type, bool cmfd_on, double relax_factor, int mesh_level){
+Mesh::Mesh(solveType solve_type, bool cmfd_on,
+           double relax_factor, int mesh_level){
 
   if (solve_type == DIFFUSION)
     cmfd_on = true;
 
-  /* initialize variables */
+  /* Initialize variables */
   _cmfd_on = cmfd_on;
   _acceleration = cmfd_on;
-  _ng = 0;
+  _num_groups = 0;
   _num_fsrs = 0;
   _num_currents = 0;
-  _cx = 0;
-  _cy = 0;
+  _num_x = 0;
+  _num_y = 0;
   _mesh_level = mesh_level;
-  _optically_thick = false; 
+  _optically_thick = false;
   _relax_factor = relax_factor;
   _solve_method = solve_type;
 
-  /* initialize boundaries to be reflective */
+  /* Initialize boundaries to be reflective */
   _boundaries = new boundaryType[4];
   _boundaries[0] = REFLECTIVE;
   _boundaries[1] = REFLECTIVE;
@@ -48,13 +49,11 @@ Mesh::Mesh(solveType solve_type, bool cmfd_on, double relax_factor, int mesh_lev
 
 
 /**
- * @brief Destructor deletes arrays of boundaries, volumes,
- *        lengths, and bounds
- * @details Deallocates memory for all arrays allocated by the cmfd
- *        module including boundaries, volumes, lengths, and bounds
+ * @brief Destructor deletes arrays of boundaries, volumes, lengths, and bounds.
+ * @details Deallocates memory for all arrays allocated by the CMFD class
+ *          including boundaries, volumes, lengths, and bounds.
  */
 Mesh::~Mesh(){
-  
 
   if (_boundaries != NULL)
     delete [] _boundaries;
@@ -78,931 +77,963 @@ Mesh::~Mesh(){
 
 
 /**
- * @brief Initializes the mesh by allocating memory for various arrays
+ * @brief Initializes the Mesh by allocating memory for various arrays.
  * @details This method is called by the geometry once the width of
- *          the mesh has been determined. This method allocates memory
+ *          the Mesh has been determined. This method allocates memory
  *          for the volumes, old and new flux arrays, lengths, bounds,
- *          and cell fsr vectors
+ *          and cell FSR vectors.
  */
 void Mesh::initialize(){
-    
-    /* allocate memory for mesh properties */
-    try{
-	_volumes = new double[_cx*_cy];
-	_lengths_x = new double[_cx];
-	_lengths_y = new double[_cy];
-	_bounds_x  = new double[_cx+1];
-	_bounds_y  = new double[_cy+1];
-    }
-    catch(std::exception &e){
+
+  /* Allocate memory for Mesh properties */
+  try{
+    _volumes = new double[_num_x*_num_y];
+    _lengths_x = new double[_num_x];
+    _lengths_y = new double[_num_y];
+    _bounds_x  = new double[_num_x+1];
+    _bounds_y  = new double[_num_y+1];
+  }
+  catch(std::exception &e){
         log_printf(ERROR, "Could not allocate memory for the Mesh properties"
-		   ". Backtrace:%s", e.what());
+                   ". Backtrace:%s", e.what());
+  }
+
+  /* Set number of Mesh surface currents */
+  _num_currents = _num_x*_num_y*8;
+
+  /* Set initial Mesh cell flux to 1.0 and allocate memory for FSR vectors */
+  for (int y = 0; y < _num_y; y++){
+    for (int x = 0; x < _num_x; x++){
+
+        /* Allocate memory for FSR vector */
+        std::vector<int> *fsrs = new std::vector<int>;
+        _cell_fsrs.push_back(*fsrs);
     }
-    
-    /* set number of currents */
-    _num_currents = _cx*_cy*8;
-    
-    /* set initial mesh cell flux to 1.0 and allocate memory for fsr vectors */
-    for (int y = 0; y < _cy; y++){
-	for (int x = 0; x < _cx; x++){
-	    /* allocate memory for fsr vector */
-	    std::vector<int> *fsrs = new std::vector<int>;
-	    _cell_fsrs.push_back(*fsrs);      
-	}
-    }  
+  }
 }
 
 
 /**
- * @brief Get mesh cell width
- * @return mesh cell width
+ * @brief Get Mesh cell width.
+ * @return Mesh cell width
  */
 int Mesh::getCellsX(){
-    return _cx;
+  return _num_x;
 }
 
 
 /**
- * @brief Get mesh cell height
- * @return mesh cell height
+ * @brief Get Mesh cell height.
+ * @return Mesh cell height
  */
 int Mesh::getCellsY(){
-    return _cy;
+  return _num_y;
 }
 
 
 /**
- * @brief Set the mesh cell width for a particular cell
- * @param cell_num mesh cell number
- * @param length_x width of mesh cell
+ * @brief Set the Mesh cell width for a particular cell.
+ * @param cell_num Mesh cell number
+ * @param length_x width of Mesh cell
  */
 void Mesh::setCellLengthX(int cell_num, double length_x){
-    int x = cell_num % _cx;
-    _lengths_x[x] = length_x;
+  int x = cell_num % _num_x;
+  _lengths_x[x] = length_x;
 }
 
 
 /**
- * @brief Set the mesh cell height for a particular cell
- * @param cell_num mesh cell number
- * @param length_y height of mesh cell
+ * @brief Set the Mesh cell height for a particular cell.
+ * @param cell_num Mesh cell number
+ * @param length_y height of Mesh cell
  */
 void Mesh::setCellLengthY(int cell_num, double length_y){
-    int y = cell_num / _cx;
-    _lengths_y[y] = length_y;
+  int y = cell_num / _num_x;
+  _lengths_y[y] = length_y;
 }
 
 
 /**
- * @brief Set the number of mesh cells in a row
- * @param cells_x cell width
+ * @brief Set the number of Mesh cells in a row.
+ * @param cells_x number of Mesh cells in a row
  */
 void Mesh::setCellsX(int cells_x){
-    _cx = cells_x;
+  _num_x = cells_x;
 }
 
 
 /**
- * @brief Set the number of mesh cells in a column
- * @param cells_y cell height
+ * @brief Set the number of Mesh cells in a column
+ * @param cells_y number of Mesh cells in a column
  */
 void Mesh::setCellsY(int cells_y){
-    _cy = cells_y;
+  _num_y = cells_y;
 }
 
 
 /**
- * @brief given an x,y coordinate, find what mesh cell the point is in
+ * @brief given an x,y coordinate, find what Mesh cell the point is in.
  * @param x_coord coordinate
  * @param y_coord coordinate
- * @return cell cell id
+ * @return the Mesh cell id
  */
 int Mesh::findMeshCell(double x_coord, double y_coord){
-  
-    int x = 0, y = 0;
-    
-    /* loop over cells in y direction */
-    for (y = 0; y < _cy; y++){
-	if (y_coord - _bounds_y[y+1] >= -1.e-8 && 
-	    y_coord - _bounds_y[y] <= 1.e-8){
-	    break;
-	}
+
+  int x = 0, y = 0;
+
+  /* Loop over cells in y direction */
+  for (y = 0; y < _num_y; y++){
+    if (y_coord - _bounds_y[y+1] >= -1.e-8 && y_coord - _bounds_y[y] <= 1.e-8){
+      break;
     }
-    
-    /* loop over cells in y direction */
-    for (x = 0; x < _cx; x++){
-	if (x_coord - _bounds_x[x] >= -1.e-8 && 
-	    x_coord - _bounds_x[x+1] <= 1.e-8){
-	    break;
-	}
+  }
+
+  /* Loop over cells in y direction */
+  for (x = 0; x < _num_x; x++){
+    if (x_coord - _bounds_x[x] >= -1.e-8 && x_coord - _bounds_x[x+1] <= 1.e-8){
+      break;
     }
-    
-    int cell = (y*_cx + x);
-    return cell;
+  }
+
+  int cell = (y*_num_x + x);
+  return cell;
 }
 
 
 /**
- * @brief Set mesh width
- * @param length_x physical width of mesh
+ * @brief Set Mesh width.
+ * @param length_x physical width of Mesh
  */
 void Mesh::setLengthX(double length_x){
-    _length_x = length_x;
+  _length_x = length_x;
 }
 
 
 /**
- * @brief Set mesh height
- * @param length_y physical height of mesh
+ * @brief Set Mesh height.
+ * @param length_y physical height of Mesh
  */
 void Mesh::setLengthY(double length_y){
-    _length_y = length_y;
+  _length_y = length_y;
 }
 
 
 /**
- * @brief Get mesh width
- * @return _length_x physical width of mesh
+ * @brief Get Mesh width.
+ * @return physical width of mesh
  */
 double Mesh::getLengthX(){
-    return _length_x;
+  return _length_x;
 }
 
 
 /**
  * @brief Get mesh height
- * @return _length_y physical height of mesh
+ * @return physical height of mesh
  */
 double Mesh::getLengthY(){
-    return _length_y;
+  return _length_y;
 }
 
 
 /**
- * @brief Set the fsr bounds for each mesh cell
+ * @brief Set the FSR bounds for each Mesh cell.
  */
 void Mesh::setFSRBounds(){
-  
-    /* initialize variables */
-    int min;
-    int max;
-    std::vector<int>::iterator iter;
-    
-    /* create arrays of fsr indices, cell bounds, and surfaces */
-    try{
-    _fsr_indices = new int[2 * _cx * _cy];
-    }
-    catch(std::exception &e){
-        log_printf(ERROR, "Could not allocate memory for the Mesh fsr bounds. "
-		   "Backtrace:%s", e.what());
-    }
-    
 
-    /* loop over mesh cells */
-    for (int i = 0; i < _cy * _cx; i++){
-	
-	/* set fsr min and max bounds */
-	min = _cell_fsrs.at(i).front();
-	max = _cell_fsrs.at(i).front();
-	
-	/* loop over fsrs and update min and max bounds */
-	for (iter = _cell_fsrs.at(i).begin(); 
-	     iter != _cell_fsrs.at(i).end(); ++iter) {
-	    min = std::min(*iter, min);
-	    max = std::max(*iter, max);
-	}
-	
-	/* set fsr bounds */
-	_fsr_indices[2*i] = min;
-	_fsr_indices[2*i+1] = max;
+  int min;
+  int max;
+  std::vector<int>::iterator iter;
+
+  /* Create arrays of FSR indices, cell bounds, and surfaces */
+  try{
+    _fsr_indices = new int[2 * _num_x * _num_y];
+  }
+  catch(std::exception &e){
+    log_printf(ERROR, "Could not allocate memory for the Mesh fsr bounds. "
+               "Backtrace:%s", e.what());
+  }
+
+  /* Loop over Mesh cells */
+  for (int i = 0; i < _num_y * _num_x; i++){
+
+    /* Set fsr min and max bounds */
+    min = _cell_fsrs.at(i).front();
+    max = _cell_fsrs.at(i).front();
+
+    /* Loop over FSRs and update min and max bounds */
+    for (iter = _cell_fsrs.at(i).begin();
+         iter != _cell_fsrs.at(i).end(); ++iter) {
+
+      min = std::min(*iter, min);
+      max = std::max(*iter, max);
     }
+
+    /* Set FSR bounds */
+    _fsr_indices[2*i] = min;
+    _fsr_indices[2*i+1] = max;
+  }
 }
 
 
 /**
- * @brief Using an fsr_id and coordinate, find which surface 
- *        a coordinate is on
- * @param fsr_id Uid of fsr
- * @param coord coordinate of segment on mesh surface
- * @return surface Uid representing surface
+ * @brief Using an FSR ID and coordinate, find which surface a coordinate is on.
+ * @param fsr_id the ID of the FSR of interest
+ * @param coord coordinate of segment on Mesh surface
+ * @return surface UID representing surface
  */
 int Mesh::findMeshSurface(int fsr_id, LocalCoords* coord){
-    
-    /* initialize variables */
-    int surface = -1;
-    double x = coord->getX();
-    double y = coord->getY();
-    int i;
-    bool break_cells = false;
-    
-    std::vector<int>::iterator iter;
-    
-    /* loop over mesh cells */
-    for (i = 0; i < _cx * _cy; i++){
-	
-	break_cells = false;
-	
-	/* find if fsr is within bounds of cell */
-	if (fsr_id >= _fsr_indices[2*i] && fsr_id <= _fsr_indices[2*i+1]){
-	    
-	    /* loop over fsrs in cell to see if fsr is actually in the cell 
-	     * since the fsr bounds can overlap */
-	    for (iter = _cell_fsrs.at(i).begin(); 
-		 iter < _cell_fsrs.at(i).end(); iter++){
-		
-		if (fsr_id == *iter){
-		    
-		    /* check if coordinate is on left surface, left top, or 
-		     * left bottom corner */
-		    if (fabs(x -  _bounds_x[i % _cx]) < 1e-6){
-			
-			/* check if coordinate is on left surface */
-			if ((y - _bounds_y[i / _cx+1]) > 1e-6 && 
-			    (y - _bounds_y[i/_cx]) < -1e-6){
-			    surface = i*8+0;
-			    break_cells = true;
-			    break;
-			}
-			/* check if coordinate is on left top corner */
-			else if (fabs(y - _bounds_y[i/_cx]) < 1e-6){
-			    surface = i*8+7;
-			    break_cells = true;
-			    break;
-			}
-			/* check if coordinate is on left bottom corner */
-			else{
-			    surface = i*8+4;
-			    break_cells = true;
-			    break;
-			}
-		    }
-		    /* check if coordinate is on right surface, right top 
-		     * corner, or right bottom corner */
-		    else if (fabs(x - _bounds_x[i%_cx + 1]) < 1e-6){
-			/* check if coordinate is on right surface */
-			if ((y - _bounds_y[i/_cx+1]) > 1e-6 && 
-			    (y - _bounds_y[i/_cx]) < -1e-6){
-			    surface = i*8+2;
-			    break_cells = true;
-			    break;
-			}
-			/* check if coordinate is on right top surface */
-			else if (fabs(y - _bounds_y[i/_cx]) < 1e-6){
-			    surface = i*8+6;
-			    break_cells = true;
-			    break;
-			}
-			/* coordinate is on right bottom surface */
-			else{
-			    surface = i*8+5;
-			    break_cells = true;
-			    break;
-			}
-		    }
-		    /* check if coordinate is on top surface */
-		    else if (fabs(y - _bounds_y[i/_cx]) < 1e-6){
-			surface = i*8+3;
-			break_cells = true;
-			break;
-		    }
-		    /* coordinate is on bottom surface */
-		    else if (fabs(y - _bounds_y[i/_cx+1]) < 1e-6){
-			surface = i*8+1;
-			break_cells = true;
-			break;
-		    }
-		}
-	    }
-	}
-	
-	if (break_cells)
-	    break;
+
+  int surface = -1;
+  double x = coord->getX();
+  double y = coord->getY();
+  int i;
+  bool break_cells = false;
+
+  std::vector<int>::iterator iter;
+
+  /* Loop over mesh cells */
+  for (i = 0; i < _num_x * _num_y; i++){
+
+    break_cells = false;
+
+    /* Find if FSR is within bounds of cell */
+    if (fsr_id >= _fsr_indices[2*i] && fsr_id <= _fsr_indices[2*i+1]){
+
+      /* Loop over FSRs in cell to see if FSR is actually in the cell
+       * since the FSR bounds can overlap */
+      for (iter = _cell_fsrs.at(i).begin();
+           iter < _cell_fsrs.at(i).end(); iter++){
+
+        if (fsr_id == *iter){
+
+          /* Check if coordinate is on left surface, left top, or
+           * left bottom corner */
+          if (fabs(x -  _bounds_x[i % _num_x]) < 1e-6){
+
+            /* Check if coordinate is on left surface */
+            if ((y - _bounds_y[i / _num_x+1]) > 1e-6 &&
+                (y - _bounds_y[i/_num_x]) < -1e-6){
+
+              surface = i*8+0;
+              break_cells = true;
+              break;
+            }
+
+            /* Check if coordinate is on left top corner */
+            else if (fabs(y - _bounds_y[i/_num_x]) < 1e-6){
+              surface = i*8+7;
+              break_cells = true;
+              break;
+            }
+
+            /* Check if coordinate is on left bottom corner */
+            else{
+              surface = i*8+4;
+              break_cells = true;
+              break;
+            }
+          }
+
+          /* Check if coordinate is on right surface, right top
+           * corner, or right bottom corner */
+          else if (fabs(x - _bounds_x[i%_num_x + 1]) < 1e-6){
+
+            /* Check if coordinate is on right surface */
+            if ((y - _bounds_y[i/_num_x+1]) > 1e-6 &&
+                (y - _bounds_y[i/_num_x]) < -1e-6){
+
+              surface = i*8+2;
+              break_cells = true;
+              break;
+            }
+
+            /* Check if coordinate is on right top surface */
+            else if (fabs(y - _bounds_y[i/_num_x]) < 1e-6){
+              surface = i*8+6;
+              break_cells = true;
+              break;
+            }
+
+            /* Coordinate is on right bottom surface */
+            else{
+              surface = i*8+5;
+              break_cells = true;
+              break;
+            }
+          }
+
+          /* Check if coordinate is on top surface */
+          else if (fabs(y - _bounds_y[i/_num_x]) < 1e-6){
+            surface = i*8+3;
+            break_cells = true;
+            break;
+          }
+
+          /* Coordinate is on bottom surface */
+          else if (fabs(y - _bounds_y[i/_num_x+1]) < 1e-6){
+            surface = i*8+1;
+            break_cells = true;
+            break;
+          }
+        }
+      }
     }
 
-    return surface;
+    if (break_cells)
+      break;
+  }
+
+  return surface;
 }
 
 
 /**
- * @brief Print the surface currents */
+ * @brief Print the Mesh surface currents to the console.
+ */
 void Mesh::printCurrents(){
 
-    double current;
-    
-    /* loop over cells */
-    for (int i = 0; i < _cx * _cy; i++){
-	/* loop over surfaces */
-	for (int s = 0; s < 8; s++){
-	    /* loop over groups */
-	    for (int g = 0; g < _ng; g++){
-		current = _currents[i*_ng*8 + s*_ng + g];
-		log_printf(NORMAL, "cell: %i, surface: %i, group: %i, "
-			   "current: %f", i, s, g, current);
-	    }
-	}
+  double current;
+
+  /* Loop over Mesh cells */
+  for (int i = 0; i < _num_x * _num_y; i++){
+
+    /* Loop over Mesh surfaces */
+    for (int s = 0; s < 8; s++){
+
+      /* Loop over energy groups */
+      for (int g = 0; g < _num_groups; g++){
+        current = _currents[i*_num_groups*8 + s*_num_groups + g];
+        log_printf(NORMAL, "cell: %i, surface: %i, group: %i, "
+                   "current: %f", i, s, g, current);
+      }
     }
+  }
 }
 
 
 /**
- * @brief Set the mesh boundary type for left surface
- * @param side the Uid for the mesh surface side
- * @param boundary the boundary type enum
+ * @brief Set the Mesh boundary type for left surface.
+ * @param side the Mesh surface UID
+ * @param boundary the boundaryType of the surface
  */
 void Mesh::setBoundary(int side, boundaryType boundary){
-    _boundaries[side] = boundary;
+  _boundaries[side] = boundary;
 }
 
 
-/* @brief split the currents of the mesh cell corners to the 
- *        nearby surfaces
- * @detail left bottom corner -> bottom surface and left surface 
+/* @brief Split the currents of the Mesh cell corners to the nearby surfaces.
+ * @detail left bottom corner -> bottom surface and left surface
  *         of mesh cell below; right bottom corner -> bottom surface
- *         and right surface of mesh cell below; right top corner -> 
- *         right surface and top surface of mesh cell to the right; 
- *         left top corner -> left surface and top surface of mesh 
- *         cell to the left
+ *         and right surface of mesh cell below; right top corner ->
+ *         right surface and top surface of mesh cell to the right;
+ *         left top corner -> left surface and top surface of mesh
+ *         cell to the left.
  */
 void Mesh::splitCorners(){
 
-    log_printf(INFO, "splitting corners...");
-    
-    for (int x = 0; x < _cx; x++){
-	for (int y = 0; y < _cy; y++){
-	    
-      /* split the LEFT BOTTOM CORNER */
-	    
-      /* if cell is not on left or bottom geometry edge
-       * give to bottom surface and left surface of mesh cell below */
-	    if (x > 0 && y < _cy - 1){
-		
-		for (int e = 0; e < _ng; e++){
-		    log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM "
-			       "current: %f", y*_cx+x,e, 
-			       _currents[(y*_cx+x)*_ng*8 + 4*_ng + e]);
-		    _currents[(y*_cx+x)*_ng*8 + 1*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 4*_ng + e];
-		    _currents[((y+1)*_cx+x)*_ng*8 + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 4*_ng + e];
-		}
-	    }
-	    /* if cell is on left or bottom geometry edge
-	     * give to bottom surface and left surface */
-	    else{
-		for (int e = 0; e < _ng; e++){
-		    log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM "
-			       "current: %f", y*_cx+x,e, 
-			       _currents[(y*_cx+x)*_ng*8 + 4*_ng + e]);
-		    _currents[(y*_cx+x)*_ng*8 + 1*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 4*_ng + e];
-		    _currents[(y*_cx+x)*_ng*8 + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 4*_ng + e];
-		}
-	    }
-	    
-	    /* split the RIGHT BOTTOM CORNER */
-	    
-	    /* if cell is not on right or bottom geometry edge
-	     * give to bottom surface and right surface of mesh cell below */
-	    if (x < _cx - 1 && y < _cy - 1){
-		for (int e = 0; e < _ng; e++){
-		    log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM "
-			       "current: %f", y*_cx+x,e, 
-			       _currents[(y*_cx+x)*_ng*8 + 5*_ng + e]);
-		    _currents[(y*_cx+x)*_ng*8 + 1*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 5*_ng + e];
-		    _currents[((y+1)*_cx+x)*_ng*8 + 2*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 5*_ng + e];
-		}
-	    }
-	    /* if cell is on right or bottom geometry edge
-	     * give to bottom surface and right surface */
-	    else{
-		for (int e = 0; e < _ng; e++){
-		    log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM "
-			       "current: %f", y*_cx+x,e, 
-			       _currents[(y*_cx+x)*_ng*8 + 5*_ng + e]);
-		    _currents[(y*_cx+x)*_ng*8 + 1*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 5*_ng + e];
-		    _currents[(y*_cx+x)*_ng*8 + 2*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 5*_ng + e];
-		}
-	    }
-	    
-	    /* split the RIGHT TOP CORNER */
-	    
-	    /* if cell is not on right or top geometry edge
-	     * give to right surface and top surface of mesh cell to the right */
-	    if (x < _cx - 1 && y > 0){
-		for (int e = 0; e < _ng; e++){
-		    log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP "
-			       "current: %f", y*_cx+x,e, 
-			       _currents[(y*_cx+x)*_ng*8 + 6*_ng + e]);
-		    _currents[(y*_cx+x)*_ng*8 + 2*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 6*_ng + e];
-		    _currents[(y*_cx+x+1)*_ng*8 + 3*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 6*_ng + e];
-		}
-	    }
-	    /* if cell is on right or top geometry edge
-	     * give to right surface and top surface */
-	    else{
-		for (int e = 0; e < _ng; e++){
-		    log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP "
-			       "current: %f", y*_cx+x,e, 
-			       _currents[(y*_cx+x)*_ng*8 + 6*_ng + e]);
-		    _currents[(y*_cx+x)*_ng*8 + 2*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 6*_ng + e];
-		    _currents[(y*_cx+x)*_ng*8 + 3*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 6*_ng + e];
-		}
-	    }
-	    
-	    /* split the LEFT TOP CORNER */
-	    
-	    /* if cell is not on left or top geometry edge
-	     * give to left surface and top surface of mesh cell to the left */
-	    if (x > 0 && y > 0){
-		for (int e = 0; e < _ng; e++){
-		    log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP "
-			       "current: %f", y*_cx+x,e, 
-			       _currents[(y*_cx+x)*_ng*8 + 7*_ng + e]);
-		    _currents[(y*_cx+x)*_ng*8 + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 7*_ng + e];
-		    _currents[(y*_cx+x-1)*_ng*8 + 3*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 7*_ng + e];
-		}
-	    }
-	    /* if cell is on left or top geometry edge
-	     * give to top surface and left surface */
-	    else{
-		for (int e = 0; e < _ng; e++){
-		    log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP "
-			       "current: %f", y*_cx+x,e, 
-			       _currents[(y*_cx+x)*_ng*8 + 7*_ng + e]);
-		    _currents[(y*_cx+x)*_ng*8 + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 7*_ng + e];
-		    _currents[(y*_cx+x)*_ng*8 + 3*_ng + e] += 
-			_currents[(y*_cx+x)*_ng*8 + 7*_ng + e];
-		}
-	    }
-	}
+  log_printf(INFO, "splitting corners...");
+
+  for (int x = 0; x < _num_x; x++){
+    for (int y = 0; y < _num_y; y++){
+
+      /* Split the LEFT BOTTOM CORNER */
+
+      /* If cell is not on left or bottom geometry edge, give to bottom
+       * surface and left surface of Mesh cell below */
+      if (x > 0 && y < _num_y - 1){
+
+        for (int e = 0; e < _num_groups; e++){
+
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f",
+                     y*_num_x+x,e,
+                     _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e]);
+
+          _currents[(y*_num_x+x)*_num_groups*8 + 1*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e];
+          _currents[((y+1)*_num_x+x)*_num_groups*8 + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e];
+        }
+      }
+      /* If cell is on left or bottom geometry edge, give to bottom
+       * surface and left surface */
+      else{
+
+        for (int e = 0; e < _num_groups; e++){
+
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f",
+                     y*_num_x+x,e,
+                     _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e]);
+
+          _currents[(y*_num_x+x)*_num_groups*8 + 1*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e];
+          _currents[(y*_num_x+x)*_num_groups*8 + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e];
+        }
+      }
+
+      /* Split the RIGHT BOTTOM CORNER */
+
+      /* If cell is not on right or bottom geometry edge, give to bottom
+       * surface and right surface of mesh cell below */
+      if (x < _num_x - 1 && y < _num_y - 1){
+
+        for (int e = 0; e < _num_groups; e++){
+
+          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f",
+                     y*_num_x+x,e,
+                     _currents[(y*_num_x+x)*_num_groups*8 + 5*_num_groups + e]);
+
+          _currents[(y*_num_x+x)*_num_groups*8 + 1*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 5*_num_groups + e];
+          _currents[((y+1)*_num_x+x)*_num_groups*8 + 2*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 5*_num_groups + e];
+        }
+      }
+
+      /* If cell is on right or bottom geometry edgej, give to bottom
+       * surface and right surface */
+      else{
+
+        for (int e = 0; e < _num_groups; e++){
+
+          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f",
+                     y*_num_x+x,e,
+                     _currents[(y*_num_x+x)*_num_groups*8 + 5*_num_groups + e]);
+
+          _currents[(y*_num_x+x)*_num_groups*8 + 1*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 5*_num_groups + e];
+          _currents[(y*_num_x+x)*_num_groups*8 + 2*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 5*_num_groups + e];
+        }
+      }
+
+      /* Split the RIGHT TOP CORNER */
+
+      /* If cell is not on right or top geometry edge, give to right
+       * surface and top surface of mesh cell to the right */
+      if (x < _num_x - 1 && y > 0){
+
+        for (int e = 0; e < _num_groups; e++){
+
+          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f",
+                     y*_num_x+x,e,
+                     _currents[(y*_num_x+x)*_num_groups*8 + 6*_num_groups + e]);
+
+          _currents[(y*_num_x+x)*_num_groups*8 + 2*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 6*_num_groups + e];
+          _currents[(y*_num_x+x+1)*_num_groups*8 + 3*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 6*_num_groups + e];
+        }
+      }
+
+      /* If cell is on right or top geometry edge, give to right
+       * surface and top surface */
+      else{
+
+        for (int e = 0; e < _num_groups; e++){
+
+          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f",
+                     y*_num_x+x,e,
+                     _currents[(y*_num_x+x)*_num_groups*8 + 6*_num_groups + e]);
+
+          _currents[(y*_num_x+x)*_num_groups*8 + 2*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 6*_num_groups + e];
+          _currents[(y*_num_x+x)*_num_groups*8 + 3*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 6*_num_groups + e];
+        }
+      }
+
+      /* Split the LEFT TOP CORNER */
+
+      /* If cell is not on left or top geometry edge, give to left
+       * surface and top surface of mesh cell to the left */
+      if (x > 0 && y > 0){
+
+        for (int e = 0; e < _num_groups; e++){
+
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f",
+                     y*_num_x+x,e,
+                     _currents[(y*_num_x+x)*_num_groups*8 + 7*_num_groups + e]);
+
+          _currents[(y*_num_x+x)*_num_groups*8 + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 7*_num_groups + e];
+          _currents[(y*_num_x+x-1)*_num_groups*8 + 3*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 7*_num_groups + e];
+        }
+      }
+
+      /* If cell is on left or top geometry edge, give to top
+       * surface and left surface */
+      else{
+
+        for (int e = 0; e < _num_groups; e++){
+
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f",
+                     y*_num_x+x,e,
+                     _currents[(y*_num_x+x)*_num_groups*8 + 7*_num_groups + e]);
+
+          _currents[(y*_num_x+x)*_num_groups*8 + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 7*_num_groups + e];
+          _currents[(y*_num_x+x)*_num_groups*8 + 3*_num_groups + e] +=
+            _currents[(y*_num_x+x)*_num_groups*8 + 7*_num_groups + e];
+        }
+      }
     }
+  }
 }
 
 
 /**
- * @brief Get the number of cells in the geometry
- * @return num_cells the number of cells 
- **/
+ * @brief Get the number of Mesh cells in the Geometry.
+ * @return the number of Mesh cells
+ */
 int Mesh::getNumCells(){
-    int num_cells = _cx * _cy; 
-    return num_cells;
+  int num_cells = _num_x * _num_y;
+  return num_cells;
 }
 
 
 /**
- * @brief Set the number of energy groups
+ * @brief Set the number of energy groups.
  * @param num_groups number of energy groups
- **/
+ */
 void Mesh::setNumGroups(int num_groups){
-  _ng = num_groups;
+  _num_groups = num_groups;
 }
 
 
 /**
- * @brief Get the number of energy groups
- * @return _num_cells the number of groups
- **/
+ * @brief Get the number of energy groups.
+ * @return the number of energy groups
+ */
 int Mesh::getNumGroups(){
-    return _ng;
+  return _num_groups;
 }
 
 
 /**
- * @brief Set the number of fsrs
- * @param num_fsrs the number of fsrs 
- **/
+ * @brief Set the number of FSRs in the Geometry.
+ * @param num_fsrs the number of FSRs
+ */
 void Mesh::setNumFSRs(int num_fsrs){
-    _num_fsrs = num_fsrs;
+  _num_fsrs = num_fsrs;
 }
 
 
 /**
- * @brief Get the number of fsrs
- * @return _num_fsrs the number of fsrs 
- **/
+ * @brief Get the number of FSRs in the Geometry.
+ * @return the number of FSRs
+ */
 int Mesh::getNumFSRs(){
-    return _num_fsrs;
+  return _num_fsrs;
 }
 
 
 /**
- * @brief Get the boundary type
- * @param side the surface id 
- * @return _boundaries[side] the boundary type
- **/
+ * @brief Get the boundaryType for one side of the Mesh.
+ * @param side the Mesh surface ID
+ * @return the boundaryType for the surface
+ */
 boundaryType Mesh::getBoundary(int side){
-    return _boundaries[side];
+  return _boundaries[side];
 }
 
 
 /**
- * @brief Get the flux for a certain cell and energy group
+ * @brief Get the flux for a certain Mesh cell and energy group.
  * @param flux_name name of the flux
- * @param cell_id Uid of cell
+ * @param cell_id UID of Mesh cell
  * @param group energy group
- * @return flux the scalar flux
- **/
+ * @return the scalar flux
+ */
 double Mesh::getFlux(int cell_id, int group, fluxType flux_type){
-    double* fluxes = _fluxes.find(flux_type)->second;
-    return fluxes[cell_id*_ng + group];
+  double* fluxes = _fluxes.find(flux_type)->second;
+  return fluxes[cell_id*_num_groups + group];
 }
 
 /**
- * @brief Get the cell id given a LocalCoords object
- * @param coord local coords object
- * @return num_cells the number of cells 
- **/
+ * @brief Get the Mesh Cell ID given a LocalCoords object.
+ * @param coord LocalCoords object
+ * @return the number of Mesh cells
+ */
 int Mesh::findCellId(LocalCoords* coord){
 
-    /* initialize variables */
-    double x_coord = coord->getX();
-    double y_coord = coord->getY();
-    int x,y;
-    
-    
-    /* loop over cells in y direction */
-    for (y = 0; y < _cy; y++){
-	if (y_coord - _bounds_y[y+1] >= -1.e-8 && 
-	    y_coord - _bounds_y[y] <= 1.e-8){
-	    break;
-	}
+  double x_coord = coord->getX();
+  double y_coord = coord->getY();
+  int x,y;
+
+  /* Loop over cells in y direction */
+  for (y = 0; y < _num_y; y++){
+    if (y_coord - _bounds_y[y+1] >= -1.e-8 && y_coord - _bounds_y[y] <= 1.e-8){
+      break;
     }
-    
-    /* loop over cells in y direction */
-    for (x = 0; x < _cx; x++){
-	if (x_coord - _bounds_x[x] >= -1.e-8 && 
-	    x_coord - _bounds_x[x+1] <= 1.e-8){
-	    break;
-	}
+  }
+
+  /* Loop over cells in y direction */
+  for (x = 0; x < _num_x; x++){
+    if (x_coord - _bounds_x[x] >= -1.e-8 && x_coord - _bounds_x[x+1] <= 1.e-8){
+      break;
     }
-    
-    return (y*_cx + x);
+  }
+
+  return (y*_num_x + x);
 }
 
 
 /**
- * @brief Set the pointer to the surface currents array
- * @param surface_currents pointer to surface currents array
- **/
+ * @brief Set the pointer to the Mesh surface currents array.
+ * @param surface_currents pointer to Mesh surface currents array
+ */
 void Mesh::setSurfaceCurrents(double* surface_currents){
-    _currents = surface_currents;
+  _currents = surface_currents;
 }
 
 
 /**
- * @brief Get the cmfd on flag
- * @return _cmfd_on the cmfd_on flag 
- **/
+ * @brief Return whether or not CMFD is in use.
+ * @return true if CMFD is in use and false otherwise
+ */
 bool Mesh::getCmfdOn(){
-    return _cmfd_on;
+  return _cmfd_on;
 }
 
 
 /**
- * @brief Get the acceleration flag
- * @return _acceleration the acceleration flag 
- **/
+ * @brief Return whether CMFD acceleration is in use.
+ * @return true if acceleration is in use and false otherwise
+ */
 bool Mesh::getAcceleration(){
-    return _acceleration;
+  return _acceleration;
 }
 
 
 /**
- * @brief Set the acceleration flag
- * @parap accel the acceleration flag 
- **/
+ * @brief Set the whether CMFD acceleration is being used.
+ * @param accel the CMFD acceleration flag (true or false)
+ */
 void Mesh::setAcceleration(bool accel){
-    _acceleration = accel;
+  _acceleration = accel;
 }
 
 
 /**
- * @brief Get pointer to the mesh cell fsrs
- * @return _cell_fsrs point to nested vector of cell fsrs
- **/
+ * @brief Get pointer to a std::vector of Mesh cell FSRs.
+ * @return point to nested std::vector of cell FSRs
+ */
 std::vector<std::vector<int> >* Mesh::getCellFSRs(){
-    return &_cell_fsrs;
+  return &_cell_fsrs;
 }
 
 
 /**
- * @brief Set the physical bounds of the cell
- **/
+ * @brief Compute the physical bounds of each Mesh cell.
+ */
 void Mesh::setCellBounds(){
 
-    _bounds_x[0] = -_length_x / 2.0;
-    _bounds_y[0] = _length_y / 2.0;  
-    
-    log_printf(DEBUG, "bounds x: %f", _bounds_x[0]);
-    
-    /* set x bounds */
-    for (int x = 1; x < _cx+1; x++){
-	_bounds_x[x] = _bounds_x[x-1] + _lengths_x[x-1];
-	log_printf(DEBUG, "bounds x: %f", _bounds_x[x]);
-    }  
-    
-    log_printf(DEBUG, "bounds y: %f", _bounds_y[0]);
-    
-    /* set y bounds */
-    for (int y = 1; y < _cy+1; y++){
-	_bounds_y[y] = _bounds_y[y-1] - _lengths_y[y-1];
-	log_printf(DEBUG, "bounds y: %f", _bounds_y[y]);
+  _bounds_x[0] = -_length_x / 2.0;
+  _bounds_y[0] = _length_y / 2.0;
+
+  log_printf(DEBUG, "bounds x: %f", _bounds_x[0]);
+
+  /* Set x bounds */
+  for (int x = 1; x < _num_x+1; x++){
+    _bounds_x[x] = _bounds_x[x-1] + _lengths_x[x-1];
+    log_printf(DEBUG, "bounds x: %f", _bounds_x[x]);
+  }
+
+  log_printf(DEBUG, "bounds y: %f", _bounds_y[0]);
+
+  /* Set y bounds */
+  for (int y = 1; y < _num_y+1; y++){
+    _bounds_y[y] = _bounds_y[y-1] - _lengths_y[y-1];
+    log_printf(DEBUG, "bounds y: %f", _bounds_y[y]);
+  }
+
+  for (int x = 0; x < _num_x; x++){
+    for (int y = 0; y < _num_y; y++){
+      _volumes[y*_num_x+x] = _lengths_x[x] * _lengths_y[x];
     }
-    
-    for (int x = 0; x < _cx; x++){
-	for (int y = 0; y < _cy; y++){
-	    _volumes[y*_cx+x] = _lengths_x[x] * _lengths_y[x];
-	}
-    }
+  }
 }
 
 
 /**
- * @brief Get pointer to materials array
- * @return _materials pointer to materials array 
- **/
+ * @brief Get pointer to the FSR Materials array.
+ * @return pointer to array of Materials
+ */
 Material** Mesh::getMaterials(){
-    return _materials;
+  return _materials;
 }
 
 
 /**
- * @brief Get pointer to volume array
- * @return _volumes pointer to volume array
- **/
+ * @brief Get pointer to FSR volumes array.
+ * @return pointer to array of FSR volumes
+ */
 double* Mesh::getVolumes(){
-    return _volumes;
+  return _volumes;
 }
 
 
 /**
- * @brief Set the volume of a cell
- * @param volume volume of cell
- * @param cell_num cell id
- **/
+ * @brief Set the volume of a Mesh cell.
+ * @param volume volume of Mesh cell
+ * @param cell_num Mesh cell id
+ */
 void Mesh::setVolume(double volume, int cell_num){
-    _volumes[cell_num] = volume;
+  _volumes[cell_num] = volume;
 }
 
 
 /**
- * @brief Get a flux array
- * @param flux_name name of flux array
- * @return fluxes array of fluxes 
- **/
+ * @brief Get a Mesh cell scalar flux array.
+ * @param flux_name name of flux array (PRIMAL, PRIMAL_UPDATE, ADJOINT)
+ * @return array of Mesh cell scalar fluxes
+ */
 double* Mesh::getFluxes(fluxType flux_type){
-    return _fluxes.at(flux_type);
+  return _fluxes.at(flux_type);
 }
 
 
 /**
- * @brief Get array of mesh lengths in x direction
- * @return _lengths_x array of mesh lengths in x direction
- **/
+ * @brief Get array of Mesh cell lengths in x direction.
+ * @return array of Mesh cell lengths in x direction
+ */
 double* Mesh::getLengthsX(){
-    return _lengths_x;
+  return _lengths_x;
 }
 
 
 /**
- * @brief Get array of mesh lengths in y direction
- * @return _lenghts_y array of mesh lengths in y direction
- **/
+ * @brief Get array of Mesh cell lengths in y direction.
+ * @return array of Mesh cell lengths in y direction
+ */
 double* Mesh::getLengthsY(){
-    return _lengths_y;
+  return _lengths_y;
 }
 
 
 /**
- * @brief Get the id of cell next to given cell
- * @param cell_num current cell id
- * @param surface_id surface id to look across for 
- *         neighboring cell 
- * @return cell_next cell id of neighbor cell
- **/
+ * @brief Get the ID of the Mesh cell next to given Mesh cell.
+ * @param cell_num current Mesh cell ID
+ * @param surface_id Mesh cell surface ID to look across for neighboring cell
+ * @return neighboring Mesh cell ID
+ */
 int Mesh::getCellNext(int cell_num, int surface_id){
 
-    int cell_next = -1;
-    
-    if (surface_id == 0){
-	if (cell_num % _cx != 0)
-	    cell_next = cell_num - 1;
-    }
-    else if (surface_id == 1){
-	if (cell_num / _cx != _cy - 1)
-	    cell_next = cell_num + _cx;
-    }
-    else if (surface_id == 2){
-	if (cell_num % _cx != _cx - 1)
-	    cell_next = cell_num + 1;
-    }
-    else if (surface_id == 3){
-	if (cell_num / _cx != 0)
-	    cell_next = cell_num - _cx;
-    }
-    
-    return cell_next;
+  int cell_next = -1;
+
+  if (surface_id == 0){
+    if (cell_num % _num_x != 0)
+      cell_next = cell_num - 1;
+  }
+
+  else if (surface_id == 1){
+    if (cell_num / _num_x != _num_y - 1)
+      cell_next = cell_num + _num_x;
+  }
+
+  else if (surface_id == 2){
+    if (cell_num % _num_x != _num_x - 1)
+      cell_next = cell_num + 1;
+  }
+
+  else if (surface_id == 3){
+    if (cell_num / _num_x != 0)
+      cell_next = cell_num - _num_x;
+  }
+
+  return cell_next;
 }
 
 
 /**
- * @brief Get array of surface currents
- * @return _currents array of surface currents
- **/
+ * @brief Get array of Mesh cell surface currents.
+ * @return array of Mesh cell surface currents
+ */
 double* Mesh::getCurrents(){
-    return _currents;
+  return _currents;
 }
 
 
 /**
- * @brief Initialize the mesh cell materials
- **/
+ * @brief Initialize the Mesh cell Materials.
+ */
 void Mesh::initializeMaterialsMOC(){
 
-    Material* material;
+  Material* material;
 
-    try{
-	_materials = new Material*[_cx*_cy];
-	
-	for (int y = 0; y < _cy; y++){
-	    for (int x = 0; x < _cx; x++){
-	      material = new Material(y*_cx+x);
-	      material->setNumEnergyGroups(_ng);
-	      _materials[y*_cx+x] = material;
-	    }
-	}
+  try{
+    _materials = new Material*[_num_x*_num_y];
+
+    for (int y = 0; y < _num_y; y++){
+      for (int x = 0; x < _num_x; x++){
+        material = new Material(y*_num_x+x);
+        material->setNumEnergyGroups(_num_groups);
+        _materials[y*_num_x+x] = material;
+      }
     }
-    catch(std::exception &e){
-        log_printf(ERROR, "Could not allocate memory for the Mesh materials. "
-		   "Backtrace:%s", e.what());
-    }
+  }
+  catch(std::exception &e){
+    log_printf(ERROR, "Could not allocate memory for the Mesh cell materials. "
+               "Backtrace:%s", e.what());
+  }
 }
 
 
 /**
- * @brief Initialize the mesh cell materials
- * @param materials map of fsr materials
- * @param fsrs_to_mats array of material ids indexed by fsr id 
- **/
-void Mesh::initializeMaterialsDiffusion(std::map<int, Material*>* materials, 
+ * @brief Initialize the Mesh cell Materials.
+ * @param materials std::map of FSR Materials
+ * @param fsrs_to_mats array of Material ID indexed by FSR ID
+ */
+void Mesh::initializeMaterialsDiffusion(std::map<int, Material*>* materials,
                                int* fsrs_to_mats){
 
-    try{
-        _materials = new Material*[_cx*_cy];
-	std::vector<int>::iterator iter;
-        
-	for (int y = 0; y < _cy; y++){
-	    for (int x = 0; x < _cx; x++)      
-	        _materials[y*_cx+x] = materials->at
-		  (fsrs_to_mats[_cell_fsrs.at(y*_cx+x).at(0)])->clone();
-	}
+  try{
+    _materials = new Material*[_num_x*_num_y];
+    std::vector<int>::iterator iter;
+
+    for (int y = 0; y < _num_y; y++){
+      for (int x = 0; x < _num_x; x++)
+        _materials[y*_num_x+x] = materials->at
+          (fsrs_to_mats[_cell_fsrs.at(y*_num_x+x).at(0)])->clone();
     }
-    catch(std::exception &e){
-        log_printf(ERROR, "Could not allocate memory for the Mesh materials. "
-		   "Backtrace:%s", e.what());
-    }
+  }
+  catch(std::exception &e){
+    log_printf(ERROR, "Could not allocate memory for the Mesh cell materials. "
+               "Backtrace:%s", e.what());
+  }
 }
 
 
 /**
- * @brief Get the number of surface currents
- * @return _num_currents number of surface currents
- **/
+ * @brief Get the number of Mesh surface currents.
+ * @return number of Mesh surface currents
+ */
 int Mesh::getNumCurrents(){
-    return _num_currents;
+  return _num_currents;
 }
 
 
 /**
- * @brief Initializes the surface currents
- **/
+ * @brief Initializes the Mesh surface currents.
+ */
 void Mesh::initializeSurfaceCurrents(){
-    
-    try{
-        _currents = new double[8*_cx*_cy*_ng];
-    }
-    catch(std::exception &e){
-        log_printf(ERROR, "Could not allocate memory for the Mesh currents. "
-		   "Backtrace:%s", e.what());
-    }
-  
-    for (int i = 0; i < 8*_cx*_cy*_ng; i++)
-        _currents[i] = 0.0;
+
+  try{
+    _currents = new double[8*_num_x*_num_y*_num_groups];
+  }
+  catch(std::exception &e){
+    log_printf(ERROR, "Could not allocate memory for the Mesh currents. "
+               "Backtrace:%s", e.what());
+  }
+
+  for (int i = 0; i < 8*_num_x*_num_y*_num_groups; i++)
+    _currents[i] = 0.0;
 }
 
 
 /**
- * @brief Gets the mesh level
- * @return _mesh_level mesh level
- **/
+ * @brief Gets the Mesh nested universe level.
+ * @return Mesh nested universe level
+ */
 int Mesh::getMeshLevel(){
-    return _mesh_level;
+  return _mesh_level;
 }
 
 
 /**
- * @brief Sets the cmfd level
- * @parap cmfd_level cmfd level
- **/
+ * @brief Sets the Mesh nested universe level.
+ * @parap mesh_level Mesh nested universe level
+ */
 void Mesh::setMeshLevel(int mesh_level){
-    _mesh_level = mesh_level;
+  _mesh_level = mesh_level;
 }
 
 
 /**
- * @brief Set flag to determine whether we use
- *        optically thick diffusion correction factor.
- * @param thick flag to turn on correction factor.
+ * @brief Inform whether to use optically thick diffusion correction factor.
+ * @param thick flag to turn on/off (true/false) correction factor.
  */
 void Mesh::setOpticallyThick(bool thick){
-    _optically_thick = thick;
+  _optically_thick = thick;
 }
 
 
 /**
- * @brief Get flag to determine whether we use
- *        optically thick diffusion correction factor.
- * @return _optically_thick flag to turn on 
- *         optically thick correction factor.
+ * @brief Return whether optically thick diffusion correction factor is in use.
+ * @return whether optically thick diffusion correction factor is in use
  */
 bool Mesh::getOpticallyThick(){
-    return _optically_thick;
+  return _optically_thick;
 }
 
 
 /**
- * @brief Set the relaxation factor
+ * @brief Set the relaxation factor.
  * @param relax_factor the relaxation factor
  */
 void Mesh::setRelaxFactor(double relax_factor){
-    _relax_factor = relax_factor;
+  _relax_factor = relax_factor;
 }
 
 
 /**
- * @brief Get the relaxation factor
- * @return _relax_factor the relaxation factor
+ * @brief Get the relaxation factor.
+ * @return the relaxation factor
  */
 double Mesh::getRelaxFactor(){
-    return _relax_factor;
+  return _relax_factor;
 }
 
 
 /**
- * @brief Get the solve type
- * @return _solve_method the solve type
+ * @brief Get the solution method (DIFFUSION or MOC).
+ * @return the solution method
  */
 solveType Mesh::getSolveType(){
-    return _solve_method;
+  return _solve_method;
 }
 
 
+/**
+ * @brief Initializes the Mesh cell PRIMAL, PRIMAL_UPDATE and ADJOINT fluxes.
+ */
 void Mesh::initializeFlux(){
 
-    /* create pointers to flux arrays */
-    double* new_flux;
-    double* old_flux;
-    double* adj_flux;
+  /* Create pointers to flux arrays */
+  double* new_flux;
+  double* old_flux;
+  double* adj_flux;
 
-    /* allocate memory for fluxes and volumes */
-    try{
-	new_flux = new double[_cx*_cy*_ng];
-	old_flux = new double[_cx*_cy*_ng];
-	adj_flux = new double[_cx*_cy*_ng];
+  /* Allocate memory for fluxes and volumes */
+  try{
+    new_flux = new double[_num_x*_num_y*_num_groups];
+    old_flux = new double[_num_x*_num_y*_num_groups];
+    adj_flux = new double[_num_x*_num_y*_num_groups];
+  }
+  catch(std::exception &e){
+    log_printf(ERROR, "Could not allocate memory for the Mesh cell fluxes, "
+               "lengths, and volumes. Backtrace:%s", e.what());
+  }
+
+  /* Insert flux arrays */
+  _fluxes.insert(std::pair<fluxType, double*>(PRIMAL, new_flux));
+  _fluxes.insert(std::pair<fluxType, double*>(PRIMAL_UPDATE, old_flux));
+  _fluxes.insert(std::pair<fluxType, double*>(ADJOINT, adj_flux));
+
+  /* Set number of Mesh surface currents */
+  _num_currents = _num_x*_num_y*8;
+
+  /* Set initial Mesh cell flux to 1.0 and allocate memory for FSR vectors */
+  for (int y = 0; y < _num_y; y++){
+    for (int x = 0; x < _num_x; x++){
+      for (int g = 0; g < _num_groups; g++){
+        new_flux[(y*_num_x+x)*_num_groups + g] = 1.0;
+        old_flux[(y*_num_x+x)*_num_groups + g] = 1.0;
+        adj_flux[(y*_num_x+x)*_num_groups + g] = 1.0;
+      }
     }
-    catch(std::exception &e){
-        log_printf(ERROR, "Could not allocate memory for the Mesh fluxes, "
-		   "lengths, and volumes. Backtrace:%s", e.what());
-    }
-    
-    /* insert flux arrays */
-    _fluxes.insert(std::pair<fluxType, double*>(PRIMAL, new_flux));
-    _fluxes.insert(std::pair<fluxType, double*>(PRIMAL_UPDATE, old_flux));
-    _fluxes.insert(std::pair<fluxType, double*>(ADJOINT, adj_flux));
-    
-    /* set number of currents */
-    _num_currents = _cx*_cy*8;
-    
-    /* set initial mesh cell flux to 1.0 and allocate memory for fsr vectors */
-    for (int y = 0; y < _cy; y++){
-	for (int x = 0; x < _cx; x++){	    
-	    for (int g = 0; g < _ng; g++){
-		new_flux[(y*_cx+x)*_ng + g] = 1.0;
-		old_flux[(y*_cx+x)*_ng + g] = 1.0;
-		adj_flux[(y*_cx+x)*_ng + g] = 1.0;
-	    }
-	}
-    }  
+  }
 }
