@@ -1,0 +1,5 @@
+<map id="Track::getStart" name="Track::getStart">
+<area shape="rect" id="node3" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="167,5,321,35"/>
+<area shape="rect" id="node5" href="$classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935" title="Fills an array with the x,y coordinates for each Track." alt="" coords="163,58,325,105"/>
+<area shape="rect" id="node7" href="$classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504" title="Fills an array with the x,y coordinates for each Track segment." alt="" coords="163,127,325,174"/>
+</map>

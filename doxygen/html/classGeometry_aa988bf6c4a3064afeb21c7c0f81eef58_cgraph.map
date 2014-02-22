@@ -1,0 +1,11 @@
+<map id="Geometry::findFSRs" name="Geometry::findFSRs">
+<area shape="rect" id="node3" href="$classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="212,5,340,35"/>
+<area shape="rect" id="node5" href="$classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="211,59,341,88"/>
+<area shape="rect" id="node7" href="$classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="227,112,325,141"/>
+<area shape="rect" id="node9" href="$classMesh.html#a4738244dc29a498d007bc486777f2dbd" title="Get pointer to a std::vector of Mesh cell FSRs." alt="" coords="208,165,344,195"/>
+<area shape="rect" id="node11" href="$classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="197,219,355,248"/>
+<area shape="rect" id="node13" href="$classLattice.html#a8bdf33505871fa71a8e9d86bb7efec10" title="Return the number of Lattice cells along the x&#45;axis." alt="" coords="215,272,337,301"/>
+<area shape="rect" id="node15" href="$classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="215,325,337,355"/>
+<area shape="rect" id="node17" href="$classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="207,379,345,408"/>
+<area shape="rect" id="node19" href="$classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="219,432,333,461"/>
+</map>

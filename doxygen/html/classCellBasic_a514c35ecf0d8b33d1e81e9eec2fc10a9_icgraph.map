@@ -1,0 +1,6 @@
+<map id="CellBasic::getMaterial" name="CellBasic::getMaterial">
+<area shape="rect" id="node3" href="$classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5" title="Initialize the FSRs." alt="" coords="224,5,365,35"/>
+<area shape="rect" id="node7" href="$classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="207,59,383,88"/>
+<area shape="rect" id="node9" href="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="217,111,372,158"/>
+<area shape="rect" id="node5" href="$classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="433,5,527,35"/>
+</map>

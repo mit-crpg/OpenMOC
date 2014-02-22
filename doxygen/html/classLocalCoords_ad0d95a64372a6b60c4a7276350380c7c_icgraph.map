@@ -1,0 +1,8 @@
+<map id="LocalCoords::setNext" name="LocalCoords::setNext">
+<area shape="rect" id="node3" href="$classLocalCoords.html#ab6a1654615643dabd35a19c8ed5f7dad" title="Removes and frees memory for all LocalCoords beyond this one in the linked list." alt="" coords="204,81,337,111"/>
+<area shape="rect" id="node7" href="$classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8" title="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords." alt="" coords="387,5,560,35"/>
+<area shape="rect" id="node10" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="609,159,788,188"/>
+<area shape="rect" id="node13" href="$classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="208,285,333,315"/>
+<area shape="rect" id="node16" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="417,211,529,240"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="621,32,776,61"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="openmoc.plotter.plot_fluxes" name="openmoc.plotter.plot_fluxes">
+<area shape="rect" id="node3" href="$namespaceopenmoc_1_1process.html#a20436071e0dfd32af17c67bf86636a93" title="This method restores all of the data for an OpenMOC simulation from a a binary file for downstream da..." alt="" coords="196,35,364,82"/>
+<area shape="rect" id="node5" href="$namespaceopenmoc_1_1process.html#a151286616e1ef981c7488979ffd1fe06" title="This method stores all of the data for an OpenMOC simulation to a a binary file for downstream data p..." alt="" coords="415,35,572,82"/>
+<area shape="rect" id="node7" href="$namespaceopenmoc_1_1process.html#a6115e946c5118ee95f71ffed07034df5" title="A recursive routine to compute the fission rate for all cells in a given universe, and for all universes contained within those cells." alt="" coords="621,5,800,51"/>
+<area shape="rect" id="node9" href="$namespaceopenmoc_1_1process.html#ad313c9844294d5e285b5943664389a0f" title="This routine is computes the fission rate in each flat source region, and combines the rates into pin..." alt="" coords="848,35,1027,82"/>
+</map>

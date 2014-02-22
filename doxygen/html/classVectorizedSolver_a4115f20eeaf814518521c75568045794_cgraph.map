@@ -1,0 +1,11 @@
+<map id="VectorizedSolver::VectorizedSolver" name="VectorizedSolver::VectorizedSolver">
+<area shape="rect" id="node3" href="$classVectorizedSolver.html#ab4a29f8b4f8cbb4dff38ce2b85a56642" title="Sets the Geometry for the Solver and aligns all Material cross&#45;section data for SIMD vector instructi..." alt="" coords="247,71,449,100"/>
+<area shape="rect" id="node7" href="$classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5" title="Sets the Solver&#39;s TrackGenerator with characteristic Tracks." alt="" coords="261,189,435,219"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a79583fea11962f810751c6d8668be50a" title="Return a std::map container of Material IDs (keys) with Materials pointers (values)." alt="" coords="528,5,685,35"/>
+<area shape="rect" id="node9" href="$classTrackGenerator.html#a5ec836ced3479a5aae51132809a3d7b4" title="Returns whether or not the TrackGenerator contains Track that are for its current number of azimuthal..." alt="" coords="523,58,691,105"/>
+<area shape="rect" id="node11" href="$classTrackGenerator.html#a9c9661635df90ab658b17517548e7cc2" title="Return the number of azimuthal angles in ." alt="" coords="509,128,704,157"/>
+<area shape="rect" id="node13" href="$classTrackGenerator.html#a20e00c47aa96fbee5c2eef16e8aa006c" title="Return an array of the number of Tracks for each azimuthal angle." alt="" coords="504,181,709,227"/>
+<area shape="rect" id="node15" href="$classTrackGenerator.html#a078d71a343d4c245c38195491b2d024c" title="Return the total number of Tracks across the Geometry." alt="" coords="504,251,709,280"/>
+<area shape="rect" id="node17" href="$classTrackGenerator.html#a31deadd969cddf7eba85a442729f697a" title="Return a pointer to the array of azimuthal angle quadrature weights." alt="" coords="499,304,715,333"/>
+<area shape="rect" id="node19" href="$classTrackGenerator.html#a293c6a25a694bfcb8187cfd679fa3639" title="Returns a 2D jagged array of the Tracks." alt="" coords="517,357,696,387"/>
+</map>

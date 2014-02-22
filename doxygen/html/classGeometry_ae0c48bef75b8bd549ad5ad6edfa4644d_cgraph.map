@@ -1,0 +1,8 @@
+<map id="Geometry::addSurface" name="Geometry::addSurface">
+<area shape="rect" id="node3" href="$classSurface.html#a017d43ba277780965b6d5aa928a635fc" title="Return the Surface&#39;s user&#45;defined ID." alt="" coords="245,5,349,35"/>
+<area shape="rect" id="node5" href="$classSurface.html#afa3ef1b6a8b18d04240ee1a3bc908780" title="Returns the type of boundary conditions for this Surface (REFLECTIVE, VACUUM or BOUNDARY_NONE)" alt="" coords="209,59,385,88"/>
+<area shape="rect" id="node7" href="$classSurface.html#a3baea26cc38b6fb0d194fca014018174" title="Returns the minimum x value on this Surface." alt="" coords="236,112,359,141"/>
+<area shape="rect" id="node9" href="$classSurface.html#aff659fd1b2d547d8b59df1b804d4098b" title="Returns the maximum x value on this Surface." alt="" coords="235,165,360,195"/>
+<area shape="rect" id="node11" href="$classSurface.html#a294b8bd2f04b3b938cc7c31cc4f941f3" title="Returns the minimum y value on this Surface." alt="" coords="236,219,359,248"/>
+<area shape="rect" id="node13" href="$classSurface.html#a1ffa35335f366974886fa7c36b564fef" title="Returns the maximum y value on this Surface." alt="" coords="235,272,360,301"/>
+</map>

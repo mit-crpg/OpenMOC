@@ -1,0 +1,9 @@
+<map id="TrackGenerator::retrieveSegmentCoords" name="TrackGenerator::retrieveSegmentCoords">
+<area shape="rect" id="node3" href="$classTrackGenerator.html#a4e377cdc26b0eec5f54d55ebc2249089" title="Return the total number of Track segments across the Geometry." alt="" coords="217,5,441,35"/>
+<area shape="rect" id="node5" href="$classTrack.html#a14cbba36e759b0191961e05debcc527c" title="Returns a pointer to the Track&#39;s start Point." alt="" coords="275,59,384,88"/>
+<area shape="rect" id="node7" href="$classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="287,112,372,141"/>
+<area shape="rect" id="node9" href="$classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="287,165,372,195"/>
+<area shape="rect" id="node11" href="$classTrack.html#adc334d5a90c1204770ab180b2f39bc56" title="Return the Track&#39;s azimuthal angle (with respect to the x&#45;axis)." alt="" coords="280,219,379,248"/>
+<area shape="rect" id="node13" href="$classTrack.html#a796efa8dc12ef0f1073ba264f4074380" title="Returns a vector of pointers to the Track&#39;s segments." alt="" coords="260,272,399,301"/>
+<area shape="rect" id="node15" href="$classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="245,325,413,355"/>
+</map>

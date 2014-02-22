@@ -1,0 +1,4 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classUniverse.html" title="A Universe represents an unbounded space in the 2D xy&#45;plane." alt="" coords="5,5,80,35"/>
+<area shape="rect" id="node3" href="$classLattice.html" title="Represents a repeating 2D Lattice of Universes." alt="" coords="128,5,189,35"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="Material::getSigmaS" name="Material::getSigmaS">
+<area shape="rect" id="node3" href="$clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="201,5,356,35"/>
+<area shape="rect" id="node5" href="$classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="213,59,344,88"/>
+<area shape="rect" id="node11" href="$classCmfd.html#a58613922850f0add48c8056c27dd0e83" title="Fill in the values in the A matrix, M matrix, and old scalar flux vector." alt="" coords="196,112,361,141"/>
+<area shape="rect" id="node7" href="$classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="411,85,547,115"/>
+<area shape="rect" id="node9" href="$classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="596,85,756,115"/>
+</map>

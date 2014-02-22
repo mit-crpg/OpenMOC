@@ -1,0 +1,6 @@
+<map id="Timer::getSplit" name="Timer::getSplit">
+<area shape="rect" id="node3" href="$classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="175,5,311,35"/>
+<area shape="rect" id="node7" href="$classSolver.html#a023343c843dcbe719051b3ce533294e5" title="Returns the total time to converge the source (seconds)." alt="" coords="172,59,313,88"/>
+<area shape="rect" id="node9" href="$classSolver.html#aeec2b08ba9d6be88cf08f1fc02658500" title="Prints a report of the timing statistics to the console." alt="" coords="161,112,324,141"/>
+<area shape="rect" id="node5" href="$classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="375,5,535,35"/>
+</map>

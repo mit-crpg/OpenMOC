@@ -69,7 +69,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -120,12 +120,17 @@ $(document).ready(function(){initNavTree('classUniverse.html','');});
 <div class="dynheader">
 Inheritance diagram for Universe:</div>
 <div class="dyncontent">
- <div class="center">
-  <img src="classUniverse.png" usemap="#Universe_map" alt=""/>
-  <map id="Universe_map" name="Universe_map">
-<area href="classLattice.html" title="Represents a repeating 2D Lattice of Universes." alt="Lattice" shape="rect" coords="0,56,62,80"/>
-</map>
- </div></div>
+<div class="center"><img src="classUniverse__inherit__graph.png" border="0" usemap="#Universe_inherit__map" alt="Inheritance graph"/></div>
+<map name="Universe_inherit__map" id="Universe_inherit__map">
+<area shape="rect" id="node3" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes." alt="" coords="5,435,123,693"/></map>
+</div>
+<div class="dynheader">
+Collaboration diagram for Universe:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse__coll__graph.png" border="0" usemap="#Universe_coll__map" alt="Collaboration graph"/></div>
+<map name="Universe_coll__map" id="Universe_coll__map">
+<area shape="rect" id="node2" href="classPoint.html" title="Class to represent a 2D point in space." alt="" coords="5,6,141,247"/></map>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -224,6 +229,15 @@ Static Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_acc8b0d4180e2bf76b6629e8e22ae9761_icgraph.png" border="0" usemap="#classUniverse_acc8b0d4180e2bf76b6629e8e22ae9761_icgraph" alt=""/></div>
+<map name="classUniverse_acc8b0d4180e2bf76b6629e8e22ae9761_icgraph" id="classUniverse_acc8b0d4180e2bf76b6629e8e22ae9761_icgraph">
+<area shape="rect" id="node3" href="classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90" title="Clones this Universe and all of the Cells within it and returns it." alt="" coords="191,5,303,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <h2>Member Function Documentation</h2>
@@ -250,6 +264,24 @@ Static Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_af045c632c9b336f8d4f7be20c5a510a1_cgraph.png" border="0" usemap="#classUniverse_af045c632c9b336f8d4f7be20c5a510a1_cgraph" alt=""/></div>
+<map name="classUniverse_af045c632c9b336f8d4f7be20c5a510a1_cgraph" id="classUniverse_af045c632c9b336f8d4f7be20c5a510a1_cgraph">
+<area shape="rect" id="node3" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="181,5,264,35"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_af045c632c9b336f8d4f7be20c5a510a1_icgraph.png" border="0" usemap="#classUniverse_af045c632c9b336f8d4f7be20c5a510a1_icgraph" alt=""/></div>
+<map name="classUniverse_af045c632c9b336f8d4f7be20c5a510a1_icgraph" id="classUniverse_af045c632c9b336f8d4f7be20c5a510a1_icgraph">
+<area shape="rect" id="node3" href="classUniverse.html#ae3952c88390eda788da540d421d0b139" title="Subdivides all of the Cells within this Universe into rings and angular sectors." alt="" coords="183,13,348,43"/><area shape="rect" id="node9" href="classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90" title="Clones this Universe and all of the Cells within it and returns it." alt="" coords="209,67,321,96"/><area shape="rect" id="node5" href="classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca" title="Subidivides all Cells in the Geometry into rings and angular sectors." alt="" coords="399,13,569,43"/><area shape="rect" id="node7" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="620,5,775,51"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a6f7c4480848e68b07ce2a6844b450f90"></a>
@@ -267,6 +299,15 @@ Static Protected Attributes</h2></td></tr>
 
 <p>Clones this <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> and all of the Cells within it and returns it. </p>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> clone </dd></dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a6f7c4480848e68b07ce2a6844b450f90_cgraph.png" border="0" usemap="#classUniverse_a6f7c4480848e68b07ce2a6844b450f90_cgraph" alt=""/></div>
+<map name="classUniverse_a6f7c4480848e68b07ce2a6844b450f90_cgraph" id="classUniverse_a6f7c4480848e68b07ce2a6844b450f90_cgraph">
+<area shape="rect" id="node3" href="classUniverse.html#acc8b0d4180e2bf76b6629e8e22ae9761" title="Constructor assigns a unique and user&#45;specified ID for the Universe." alt="" coords="169,59,303,88"/><area shape="rect" id="node5" href="classCellBasic.html#a11467ff4cc874cb9688ff12feef184a6" title="Create a duplicate of the CellBasic." alt="" coords="177,112,295,141"/><area shape="rect" id="node17" href="classUniverse.html#af045c632c9b336f8d4f7be20c5a510a1" title="Adds a Cell to this Universe." alt="" coords="173,165,299,195"/><area shape="rect" id="node21" href="classCell.html#ab632f6b0946cf5b78e3c2562c76736c0" title="Set the ID for the Universe within which this Cell resides." alt="" coords="175,219,297,248"/><area shape="rect" id="node23" href="classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21" title="Universe::getId" alt="" coords="181,272,291,301"/><area shape="rect" id="node7" href="classCellBasic.html#ae40a1bd96323a32693d1088bd9b9a1cc" title="CellBasic::CellBasic" alt="" coords="353,59,495,88"/><area shape="rect" id="node13" href="classCell.html#aaf1680b706b11b4b0121aef6a4a81009" title="Insert a Surface into this Cells container." alt="" coords="365,112,483,141"/><area shape="rect" id="node9" href="classCellBasic.html#aabb439fc80329f063ccca9a1aa70e5a2" title="Set the Cell&#39;s number of rings." alt="" coords="551,5,716,35"/><area shape="rect" id="node11" href="classCellBasic.html#a6387edfa5eadaf8b21dbce6b30cf7521" title="Set the Cell&#39;s number of sectors." alt="" coords="545,59,721,88"/><area shape="rect" id="node15" href="classSurface.html#a017d43ba277780965b6d5aa928a635fc" title="Return the Surface&#39;s user&#45;defined ID." alt="" coords="581,112,685,141"/><area shape="rect" id="node19" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="383,165,465,195"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -288,6 +329,15 @@ Static Protected Attributes</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>the number of FSRs in the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> </dd></dl>
 
 <p>Reimplemented in <a class="el" href="classLattice.html#afc84badb58ce4b9c3946fcc944647c30">Lattice</a>.</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_af76741be6456d3542a302024fd4c52e4_icgraph.png" border="0" usemap="#classUniverse_af76741be6456d3542a302024fd4c52e4_icgraph" alt=""/></div>
+<map name="classUniverse_af76741be6456d3542a302024fd4c52e4_icgraph" id="classUniverse_af76741be6456d3542a302024fd4c52e4_icgraph">
+<area shape="rect" id="node3" href="classCellFill.html#a42d8ee528341de4ec858731f0c35b649" title="Return the number of flat source regions in this CellFill." alt="" coords="260,5,409,35"/><area shape="rect" id="node5" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="257,58,412,105"/><area shape="rect" id="node7" href="classLattice.html#afc84badb58ce4b9c3946fcc944647c30" title="Computes the flat source region base indices for each of the Lattice cells within this Lattice (i..." alt="" coords="245,128,424,157"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -327,6 +377,24 @@ Static Protected Attributes</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>a pointer the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> where the <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> is located </dd></dl>
 
 <p>Reimplemented in <a class="el" href="classLattice.html#a106bb34948883f3695bbffa5e44bce2b">Lattice</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a70bafb1689f44b64ed98e85df1595f03_cgraph.png" border="0" usemap="#classUniverse_a70bafb1689f44b64ed98e85df1595f03_cgraph" alt=""/></div>
+<map name="classUniverse_a70bafb1689f44b64ed98e85df1595f03_cgraph" id="classUniverse_a70bafb1689f44b64ed98e85df1595f03_cgraph">
+<area shape="rect" id="node3" href="classLocalCoords.html#a5eb0104c614b60dee59177afbf5a1d09" title="Set the type of LocalCoords (UNIV or LAT)." alt="" coords="193,5,343,35"/><area shape="rect" id="node5" href="classCell.html#a89c95a180daff341176d78c5d573da53" title="Determines whether a Point is contained inside a Cell." alt="" coords="185,59,351,88"/><area shape="rect" id="node11" href="classLocalCoords.html#a459a5178aa8861a4d9504d7aea0d4a6a" title="Set the ID of the Cell within which this LocalCoords resides." alt="" coords="196,112,340,141"/><area shape="rect" id="node13" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="227,165,309,195"/><area shape="rect" id="node15" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="219,219,317,248"/><area shape="rect" id="node17" href="classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="193,272,343,301"/><area shape="rect" id="node19" href="classLocalCoords.html#a9623e05ee2de4ace57a7595a154a3764" title="Returns the x&#45;coordinate for this LocalCoords location." alt="" coords="203,325,333,355"/><area shape="rect" id="node23" href="classLocalCoords.html#ac2ca0a99b00c2aa5784ff82fba2a3618" title="Returns the y&#45;coordinate for this LocalCoords location." alt="" coords="203,379,333,408"/><area shape="rect" id="node27" href="classCellFill.html#a232ce5ae20d99af538e1db21c7b5d290" title="Return the ID of the Universe filling this Cell." alt="" coords="184,432,352,461"/><area shape="rect" id="node29" href="classLocalCoords.html#ad514c86c5d7de44b1a08b400383710a1" title="Set the ID of the Universe within which this LocalCoords resides." alt="" coords="181,485,355,515"/><area shape="rect" id="node31" href="classLocalCoords.html#ad0d95a64372a6b60c4a7276350380c7c" title="Sets the pointer to the LocalCoords on the next lower nested Universe level." alt="" coords="193,539,343,568"/><area shape="rect" id="node33" href="classLocalCoords.html#a433a17c4bfb3f491a16a6067e05067ae" title="Sets the pointer to the LocalCoords on the next higher nested Universe level." alt="" coords="195,592,341,621"/><area shape="rect" id="node35" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="204,645,332,675"/><area shape="rect" id="node7" href="classCell.html#a7ccb9a3084719a36a170bed2cd48a593" title="Determines whether a Point is contained inside a Cell." alt="" coords="403,32,557,61"/><area shape="rect" id="node9" href="classLocalCoords.html#aff39b0f4a6cd5de5347ab154000d349b" title="Returns a pointer to the Point containing the coordinates for this LocalCoord." alt="" coords="405,85,555,115"/><area shape="rect" id="node21" href="classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="437,325,523,355"/><area shape="rect" id="node25" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="437,379,523,408"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a70bafb1689f44b64ed98e85df1595f03_icgraph.png" border="0" usemap="#classUniverse_a70bafb1689f44b64ed98e85df1595f03_icgraph" alt=""/></div>
+<map name="classUniverse_a70bafb1689f44b64ed98e85df1595f03_icgraph" id="classUniverse_a70bafb1689f44b64ed98e85df1595f03_icgraph">
+<area shape="rect" id="node4" href="classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="183,29,295,59"/><area shape="rect" id="node6" href="classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="345,29,524,59"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -378,6 +446,15 @@ Static Protected Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns the <a class="el" href="classCellFill.html" title="Represents a Cell filled with a Universe.">CellFill</a> pointer. </dd></dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_abbbc6829e073e135d980c77020fc8293_cgraph.png" border="0" usemap="#classUniverse_abbbc6829e073e135d980c77020fc8293_cgraph" alt=""/></div>
+<map name="classUniverse_abbbc6829e073e135d980c77020fc8293_cgraph" id="classUniverse_abbbc6829e073e135d980c77020fc8293_cgraph">
+<area shape="rect" id="node3" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="212,5,311,35"/><area shape="rect" id="node5" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="220,59,303,88"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="afb546608a947f48e8eafb307eab0d2d8"></a>
@@ -402,6 +479,15 @@ Static Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns the <a class="el" href="classCellFill.html" title="Represents a Cell filled with a Universe.">CellFill</a> pointer. </dd></dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_afb546608a947f48e8eafb307eab0d2d8_cgraph.png" border="0" usemap="#classUniverse_afb546608a947f48e8eafb307eab0d2d8_cgraph" alt=""/></div>
+<map name="classUniverse_afb546608a947f48e8eafb307eab0d2d8_cgraph" id="classUniverse_afb546608a947f48e8eafb307eab0d2d8_cgraph">
+<area shape="rect" id="node3" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="196,5,295,35"/><area shape="rect" id="node5" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="204,59,287,88"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -443,6 +529,15 @@ Static Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a5d8cb5356f72e52bef498e2cbeb95328_cgraph.png" border="0" usemap="#classUniverse_a5d8cb5356f72e52bef498e2cbeb95328_cgraph" alt=""/></div>
+<map name="classUniverse_a5d8cb5356f72e52bef498e2cbeb95328_cgraph" id="classUniverse_a5d8cb5356f72e52bef498e2cbeb95328_cgraph">
+<area shape="rect" id="node3" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="195,5,277,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a4b0dc4bf1fcda9bb4813ab60b07c8d2f"></a>
@@ -460,6 +555,15 @@ Static Protected Attributes</h2></td></tr>
 
 <p>Return the container of <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> IDs and <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> pointers in this <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>std::map of <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> IDs </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a4b0dc4bf1fcda9bb4813ab60b07c8d2f_icgraph.png" border="0" usemap="#classUniverse_a4b0dc4bf1fcda9bb4813ab60b07c8d2f_icgraph" alt=""/></div>
+<map name="classUniverse_a4b0dc4bf1fcda9bb4813ab60b07c8d2f_icgraph" id="classUniverse_a4b0dc4bf1fcda9bb4813ab60b07c8d2f_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="208,5,349,35"/><area shape="rect" id="node5" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="433,81,588,111"/><area shape="rect" id="node12" href="classGeometry.html#affea9525ab3495c60b0abfa66780322b" title="This is a recursive method that finds the Mesh cell height of the next lowest LATTICE in a given Univ..." alt="" coords="184,109,373,139"/><area shape="rect" id="node15" href="classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="421,159,600,188"/><area shape="rect" id="node18" href="classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="424,212,597,241"/><area shape="rect" id="node21" href="classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="192,264,365,293"/><area shape="rect" id="node7" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="649,185,815,215"/><area shape="rect" id="node9" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="865,177,1020,223"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -486,6 +590,15 @@ Static Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a2545de3832105c879395d4fa6b639b55_icgraph.png" border="0" usemap="#classUniverse_a2545de3832105c879395d4fa6b639b55_icgraph" alt=""/></div>
+<map name="classUniverse_a2545de3832105c879395d4fa6b639b55_icgraph" id="classUniverse_a2545de3832105c879395d4fa6b639b55_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="181,59,328,88"/><area shape="rect" id="node5" href="classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="376,32,536,61"/><area shape="rect" id="node11" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="379,85,533,115"/><area shape="rect" id="node7" href="classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="592,5,723,35"/><area shape="rect" id="node9" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="584,59,731,88"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="ae0686929fcba2aa1580bc64c3230cb21"></a>
@@ -502,6 +615,15 @@ Static Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Return the user-specified ID for this <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the user-specified <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> ID </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_ae0686929fcba2aa1580bc64c3230cb21_icgraph.png" border="0" usemap="#classUniverse_ae0686929fcba2aa1580bc64c3230cb21_icgraph" alt=""/></div>
+<map name="classUniverse_ae0686929fcba2aa1580bc64c3230cb21_icgraph" id="classUniverse_ae0686929fcba2aa1580bc64c3230cb21_icgraph">
+<area shape="rect" id="node3" href="classCellFill.html#a557f647cc02f782866db15f5f7f04104" title="Set a pointer to the Universe filling this CellFill." alt="" coords="165,5,323,51"/><area shape="rect" id="node5" href="classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="381,72,541,101"/><area shape="rect" id="node9" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="600,125,747,155"/><area shape="rect" id="node13" href="classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90" title="Clones this Universe and all of the Cells within it and returns it." alt="" coords="188,176,300,205"/><area shape="rect" id="node15" href="classLattice.html#a9a59a806e3629135d7ea784669a6c12c" title="Sets the pointer to a Universe filling one of this Lattice&#39;s Lattice cells." alt="" coords="372,201,551,231"/><area shape="rect" id="node18" href="classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="188,280,300,309"/><area shape="rect" id="node20" href="classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="372,305,551,335"/><area shape="rect" id="node7" href="classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="608,72,739,101"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -521,6 +643,24 @@ Static Protected Attributes</h2></td></tr>
 <p>Aggregates a list (vector) of the IDs of all Materials within the MATERIAL type Cells filling this <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a>. </p>
 <p>Note that this method only searches the first level of Cells below this <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> within the nested <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> coordinate system. </p>
 <dl class="section return"><dt>Returns</dt><dd>a vector of <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a> IDs </dd></dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a190ad75ccf5c8403a309c22b18d33e5d_cgraph.png" border="0" usemap="#classUniverse_a190ad75ccf5c8403a309c22b18d33e5d_cgraph" alt=""/></div>
+<map name="classUniverse_a190ad75ccf5c8403a309c22b18d33e5d_cgraph" id="classUniverse_a190ad75ccf5c8403a309c22b18d33e5d_cgraph">
+<area shape="rect" id="node3" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="220,5,319,35"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a190ad75ccf5c8403a309c22b18d33e5d_icgraph.png" border="0" usemap="#classUniverse_a190ad75ccf5c8403a309c22b18d33e5d_icgraph" alt=""/></div>
+<map name="classUniverse_a190ad75ccf5c8403a309c22b18d33e5d_icgraph" id="classUniverse_a190ad75ccf5c8403a309c22b18d33e5d_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#aa9177c6e58e051484a24c093914b853c" title="Determines the fissionability of each Universe within this Geometry." alt="" coords="219,5,432,35"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -542,6 +682,24 @@ Static Protected Attributes</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>a vector of <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> IDs </dd></dl>
 
 <p>Reimplemented in <a class="el" href="classLattice.html#ad2dd56dd553f6021856e0ad1555c78db">Lattice</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a98bd6f494727dc21c99e9b82017f5b13_cgraph.png" border="0" usemap="#classUniverse_a98bd6f494727dc21c99e9b82017f5b13_cgraph" alt=""/></div>
+<map name="classUniverse_a98bd6f494727dc21c99e9b82017f5b13_cgraph" id="classUniverse_a98bd6f494727dc21c99e9b82017f5b13_cgraph">
+<area shape="rect" id="node3" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="268,5,367,35"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a98bd6f494727dc21c99e9b82017f5b13_icgraph.png" border="0" usemap="#classUniverse_a98bd6f494727dc21c99e9b82017f5b13_icgraph" alt=""/></div>
+<map name="classUniverse_a98bd6f494727dc21c99e9b82017f5b13_icgraph" id="classUniverse_a98bd6f494727dc21c99e9b82017f5b13_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#aa9177c6e58e051484a24c093914b853c" title="Determines the fissionability of each Universe within this Geometry." alt="" coords="267,5,480,35"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -599,6 +757,15 @@ Static Protected Attributes</h2></td></tr>
 <p>Return the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> type (SIMPLE or LATTICE). </p>
 <dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> type </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a6cbde58618cfcec5f72780b2911ab97b_icgraph.png" border="0" usemap="#classUniverse_a6cbde58618cfcec5f72780b2911ab97b_icgraph" alt=""/></div>
+<map name="classUniverse_a6cbde58618cfcec5f72780b2911ab97b_icgraph" id="classUniverse_a6cbde58618cfcec5f72780b2911ab97b_icgraph">
+<area shape="rect" id="node3" href="classCellFill.html#a42d8ee528341de4ec858731f0c35b649" title="Return the number of flat source regions in this CellFill." alt="" coords="216,5,365,35"/><area shape="rect" id="node5" href="classGeometry.html#aa9177c6e58e051484a24c093914b853c" title="Determines the fissionability of each Universe within this Geometry." alt="" coords="184,59,397,88"/><area shape="rect" id="node7" href="classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="220,112,361,141"/><area shape="rect" id="node9" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="457,187,612,216"/><area shape="rect" id="node16" href="classGeometry.html#affea9525ab3495c60b0abfa66780322b" title="This is a recursive method that finds the Mesh cell height of the next lowest LATTICE in a given Univ..." alt="" coords="196,216,385,245"/><area shape="rect" id="node19" href="classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="445,264,624,293"/><area shape="rect" id="node22" href="classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="448,317,621,347"/><area shape="rect" id="node25" href="classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="448,371,621,400"/><area shape="rect" id="node28" href="classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="228,445,353,475"/><area shape="rect" id="node11" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="680,291,845,320"/><area shape="rect" id="node13" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="903,282,1057,329"/><area shape="rect" id="node31" href="classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="479,445,591,475"/><area shape="rect" id="node33" href="classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="673,445,852,475"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="acc6dac6fd91fc1d62285c0ee32cb4f47"></a>
@@ -636,6 +803,15 @@ Static Protected Attributes</h2></td></tr>
 <p>This method should not be called prior to the calling of the <a class="el" href="classGeometry.html#aa9177c6e58e051484a24c093914b853c" title="Determines the fissionability of each Universe within this Geometry.">Geometry::computeFissionability()</a> method. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if contains a fissionable <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a> </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a519ec15f1e4c7f4b5028b5166ec0e9f1_icgraph.png" border="0" usemap="#classUniverse_a519ec15f1e4c7f4b5028b5166ec0e9f1_icgraph" alt=""/></div>
+<map name="classUniverse_a519ec15f1e4c7f4b5028b5166ec0e9f1_icgraph" id="classUniverse_a519ec15f1e4c7f4b5028b5166ec0e9f1_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#aa9177c6e58e051484a24c093914b853c" title="Determines the fissionability of each Universe within this Geometry." alt="" coords="213,5,427,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a124179ed92827532c7aecbf51d8c1f42"></a>
@@ -661,6 +837,15 @@ Static Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a124179ed92827532c7aecbf51d8c1f42_icgraph.png" border="0" usemap="#classUniverse_a124179ed92827532c7aecbf51d8c1f42_icgraph" alt=""/></div>
+<map name="classUniverse_a124179ed92827532c7aecbf51d8c1f42_icgraph" id="classUniverse_a124179ed92827532c7aecbf51d8c1f42_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#aa9177c6e58e051484a24c093914b853c" title="Determines the fissionability of each Universe within this Geometry." alt="" coords="229,5,443,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a0f832001f75c9a3e9b57ba6834d202af"></a>
@@ -684,6 +869,15 @@ Static Protected Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a0f832001f75c9a3e9b57ba6834d202af_cgraph.png" border="0" usemap="#classUniverse_a0f832001f75c9a3e9b57ba6834d202af_cgraph" alt=""/></div>
+<map name="classUniverse_a0f832001f75c9a3e9b57ba6834d202af_cgraph" id="classUniverse_a0f832001f75c9a3e9b57ba6834d202af_cgraph">
+<area shape="rect" id="node3" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f" title="Set the Point&#39;s x&#45;coordinate." alt="" coords="191,5,276,35"/><area shape="rect" id="node5" href="classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="191,59,276,88"/><area shape="rect" id="node7" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5" title="Set the Point&#39;s y&#45;coordinate." alt="" coords="191,112,276,141"/><area shape="rect" id="node9" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="191,165,276,195"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -728,6 +922,15 @@ Static Protected Attributes</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>a character array representing the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a>'s attributes </dd></dl>
 
 <p>Reimplemented in <a class="el" href="classLattice.html#a85eb51407b84e29d55f300e06b29f9b4">Lattice</a>.</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classUniverse_a9bc78841d661eb12afa51ca04ae31368_icgraph.png" border="0" usemap="#classUniverse_a9bc78841d661eb12afa51ca04ae31368_icgraph" alt=""/></div>
+<map name="classUniverse_a9bc78841d661eb12afa51ca04ae31368_icgraph" id="classUniverse_a9bc78841d661eb12afa51ca04ae31368_icgraph">
+<area shape="rect" id="node3" href="classUniverse.html#a9d7f74890c13dc3856a694b4f142f985" title="Prints a string representation of the Universe&#39;s attributes to the console." alt="" coords="181,5,323,35"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -910,7 +1113,7 @@ Static Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classUniverse.html">Universe</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 18:24:51 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:16:30 for OpenMOC by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

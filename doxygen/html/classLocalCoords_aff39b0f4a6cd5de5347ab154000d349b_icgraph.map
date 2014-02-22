@@ -1,0 +1,8 @@
+<map id="LocalCoords::getPoint" name="LocalCoords::getPoint">
+<area shape="rect" id="node3" href="$classCell.html#a89c95a180daff341176d78c5d573da53" title="Determines whether a Point is contained inside a Cell." alt="" coords="215,29,380,59"/>
+<area shape="rect" id="node10" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="777,56,956,85"/>
+<area shape="rect" id="node12" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="220,133,375,163"/>
+<area shape="rect" id="node14" href="$classSurface.html#a1263b1b61154ed6f75e7079a5832d853" title="Return true or false if a LocalCoord is on or off of a Surface." alt="" coords="207,187,388,216"/>
+<area shape="rect" id="node5" href="$classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="439,29,564,59"/>
+<area shape="rect" id="node8" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="615,29,727,59"/>
+</map>

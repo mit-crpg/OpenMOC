@@ -69,7 +69,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -115,6 +115,13 @@ $(document).ready(function(){initNavTree('classGeometry.html','');});
  <a href="classGeometry.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="Geometry_8h_source.html">src/Geometry.h</a>&quot;</code></p>
+<div class="dynheader">
+Collaboration diagram for Geometry:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry__coll__graph.png" border="0" usemap="#Geometry_coll__map" alt="Collaboration graph"/></div>
+<map name="Geometry_coll__map" id="Geometry_coll__map">
+</map>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -252,6 +259,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ac682e21a0664f12390bb956147030bdf_cgraph.png" border="0" usemap="#classGeometry_ac682e21a0664f12390bb956147030bdf_cgraph" alt=""/></div>
+<map name="classGeometry_ac682e21a0664f12390bb956147030bdf_cgraph" id="classGeometry_ac682e21a0664f12390bb956147030bdf_cgraph">
+<area shape="rect" id="node3" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="215,5,313,35"/><area shape="rect" id="node5" href="classGeometry.html#af6cb323d79275e9540d7ba4e81bccebf" title="Return a pointer to a Material object in the Geometry." alt="" coords="189,59,339,88"/><area shape="rect" id="node7" href="classCell.html#a8c9b3117ae5909be0dd1c2c9cf4f99ce" title="Return the std::map of Surface pointers and halfspaces (+/&#45;1) for all surfaces bounding the Cell..." alt="" coords="203,112,325,141"/><area shape="rect" id="node9" href="classGeometry.html#ae0c48bef75b8bd549ad5ad6edfa4644d" title="Add a Surface to the Geometry." alt="" coords="188,165,340,195"/><area shape="rect" id="node23" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="223,219,305,248"/><area shape="rect" id="node25" href="classCell.html#aff9ec2bde8c171e92241588a2215a2a3" title="Return the ID of the Universe within which this Cell resides." alt="" coords="197,272,331,301"/><area shape="rect" id="node27" href="classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="184,376,344,405"/><area shape="rect" id="node11" href="classSurface.html#a017d43ba277780965b6d5aa928a635fc" title="Return the Surface&#39;s user&#45;defined ID." alt="" coords="429,5,533,35"/><area shape="rect" id="node13" href="classSurface.html#afa3ef1b6a8b18d04240ee1a3bc908780" title="Returns the type of boundary conditions for this Surface (REFLECTIVE, VACUUM or BOUNDARY_NONE)" alt="" coords="393,59,569,88"/><area shape="rect" id="node15" href="classSurface.html#a3baea26cc38b6fb0d194fca014018174" title="Returns the minimum x value on this Surface." alt="" coords="420,112,543,141"/><area shape="rect" id="node17" href="classSurface.html#aff659fd1b2d547d8b59df1b804d4098b" title="Returns the maximum x value on this Surface." alt="" coords="419,165,544,195"/><area shape="rect" id="node19" href="classSurface.html#a294b8bd2f04b3b938cc7c31cc4f941f3" title="Returns the minimum y value on this Surface." alt="" coords="420,219,543,248"/><area shape="rect" id="node21" href="classSurface.html#a1ffa35335f366974886fa7c36b564fef" title="Returns the maximum y value on this Surface." alt="" coords="419,272,544,301"/><area shape="rect" id="node29" href="classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21" title="Universe::getId" alt="" coords="651,324,760,353"/><area shape="rect" id="node31" href="classCellFill.html#a232ce5ae20d99af538e1db21c7b5d290" title="Return the ID of the Universe filling this Cell." alt="" coords="397,376,565,405"/><area shape="rect" id="node33" href="classCellFill.html#a557f647cc02f782866db15f5f7f04104" title="Set a pointer to the Universe filling this CellFill." alt="" coords="403,429,560,475"/><area shape="rect" id="node36" href="classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="408,564,555,593"/><area shape="rect" id="node38" href="classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066" title="Return the level (UNIV or LAT) of this LocalCoords." alt="" coords="631,377,780,407"/><area shape="rect" id="node40" href="classLocalCoords.html#abd2c9a1c25b7122f6db3e5cba016be6d" title="Return the ID of the Lattice within which this LocalCoords resides." alt="" coords="625,431,785,460"/><area shape="rect" id="node42" href="classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="648,484,763,513"/><area shape="rect" id="node44" href="classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73" title="Return the first index of the Lattice cell within which this LocalCoords resides." alt="" coords="621,537,789,567"/><area shape="rect" id="node46" href="classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac" title="Return the second index of the Lattice cell within which this LocalCoords resides." alt="" coords="621,591,789,620"/><area shape="rect" id="node48" href="classLocalCoords.html#a746874a431aa9c7c53e0d56731a41fe7" title="Return the ID of the Universe within which this LocalCoords resides." alt="" coords="619,644,792,673"/><area shape="rect" id="node50" href="classUniverse.html#a2545de3832105c879395d4fa6b639b55" title="Returns the local ID for the FSR representing a Cell in this Universe." alt="" coords="643,697,768,727"/><area shape="rect" id="node52" href="classLocalCoords.html#a3cca83a3745f138c0ba4f62dcd6c3de2" title="Return the ID of the Cell within which this LocalCoords resides." alt="" coords="633,751,777,780"/><area shape="rect" id="node54" href="classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="631,804,780,833"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="aefea16b34ccd4f2b266665c7ac9d8b83"></a>
@@ -277,6 +293,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_aefea16b34ccd4f2b266665c7ac9d8b83_cgraph.png" border="0" usemap="#classGeometry_aefea16b34ccd4f2b266665c7ac9d8b83_cgraph" alt=""/></div>
+<map name="classGeometry_aefea16b34ccd4f2b266665c7ac9d8b83_cgraph" id="classGeometry_aefea16b34ccd4f2b266665c7ac9d8b83_cgraph">
+<area shape="rect" id="node3" href="classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="219,5,341,35"/><area shape="rect" id="node5" href="classLattice.html#a8bdf33505871fa71a8e9d86bb7efec10" title="Return the number of Lattice cells along the x&#45;axis." alt="" coords="219,59,341,88"/><area shape="rect" id="node7" href="classLattice.html#ab5e3b6812c4c7e478e5ded4acc5d3819" title="Return a 2D vector of the Universes in the Lattice." alt="" coords="207,112,353,141"/><area shape="rect" id="node9" href="classLattice.html#a9a59a806e3629135d7ea784669a6c12c" title="Sets the pointer to a Universe filling one of this Lattice&#39;s Lattice cells." alt="" coords="409,163,588,192"/><area shape="rect" id="node11" href="classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21" title="Universe::getId" alt="" coords="669,215,779,244"/><area shape="rect" id="node14" href="classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="200,317,360,347"/><area shape="rect" id="node17" href="classCellFill.html#a232ce5ae20d99af538e1db21c7b5d290" title="Return the ID of the Universe filling this Cell." alt="" coords="415,317,583,347"/><area shape="rect" id="node19" href="classCellFill.html#a557f647cc02f782866db15f5f7f04104" title="Set a pointer to the Universe filling this CellFill." alt="" coords="420,370,577,417"/><area shape="rect" id="node22" href="classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="425,461,572,491"/><area shape="rect" id="node24" href="classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066" title="Return the level (UNIV or LAT) of this LocalCoords." alt="" coords="649,268,799,297"/><area shape="rect" id="node26" href="classLocalCoords.html#abd2c9a1c25b7122f6db3e5cba016be6d" title="Return the ID of the Lattice within which this LocalCoords resides." alt="" coords="644,321,804,351"/><area shape="rect" id="node28" href="classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="667,375,781,404"/><area shape="rect" id="node30" href="classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73" title="Return the first index of the Lattice cell within which this LocalCoords resides." alt="" coords="640,428,808,457"/><area shape="rect" id="node32" href="classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac" title="Return the second index of the Lattice cell within which this LocalCoords resides." alt="" coords="640,481,808,511"/><area shape="rect" id="node34" href="classLocalCoords.html#a746874a431aa9c7c53e0d56731a41fe7" title="Return the ID of the Universe within which this LocalCoords resides." alt="" coords="637,535,811,564"/><area shape="rect" id="node36" href="classUniverse.html#a2545de3832105c879395d4fa6b639b55" title="Returns the local ID for the FSR representing a Cell in this Universe." alt="" coords="661,588,787,617"/><area shape="rect" id="node38" href="classLocalCoords.html#a3cca83a3745f138c0ba4f62dcd6c3de2" title="Return the ID of the Cell within which this LocalCoords resides." alt="" coords="652,641,796,671"/><area shape="rect" id="node40" href="classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="649,695,799,724"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="ae59d522ea23dfae9feb61b6cb000eb5e"></a>
@@ -300,6 +325,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </table>
   </dd>
 </dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ae59d522ea23dfae9feb61b6cb000eb5e_cgraph.png" border="0" usemap="#classGeometry_ae59d522ea23dfae9feb61b6cb000eb5e_cgraph" alt=""/></div>
+<map name="classGeometry_ae59d522ea23dfae9feb61b6cb000eb5e_cgraph" id="classGeometry_ae59d522ea23dfae9feb61b6cb000eb5e_cgraph">
+<area shape="rect" id="node3" href="classMaterial.html#a50683c7b7c62f1473809c51f37af5a13" title="Returns the number of energy groups for this Material&#39;s nuclear data." alt="" coords="208,5,413,35"/><area shape="rect" id="node5" href="classMaterial.html#a87f3a97ca307696bcb8ec0fae721b1b6" title="Return the Material&#39;s user&#45;defined ID." alt="" coords="259,59,363,88"/><area shape="rect" id="node7" href="classMaterial.html#a2defb57596c868a773cea7c094fe61f6" title="Checks if the total cross&#45;section for this Material is equal to the absorption plus scattering cross&#45;..." alt="" coords="233,112,388,141"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -326,6 +360,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ae0c48bef75b8bd549ad5ad6edfa4644d_cgraph.png" border="0" usemap="#classGeometry_ae0c48bef75b8bd549ad5ad6edfa4644d_cgraph" alt=""/></div>
+<map name="classGeometry_ae0c48bef75b8bd549ad5ad6edfa4644d_cgraph" id="classGeometry_ae0c48bef75b8bd549ad5ad6edfa4644d_cgraph">
+<area shape="rect" id="node3" href="classSurface.html#a017d43ba277780965b6d5aa928a635fc" title="Return the Surface&#39;s user&#45;defined ID." alt="" coords="245,5,349,35"/><area shape="rect" id="node5" href="classSurface.html#afa3ef1b6a8b18d04240ee1a3bc908780" title="Returns the type of boundary conditions for this Surface (REFLECTIVE, VACUUM or BOUNDARY_NONE)" alt="" coords="209,59,385,88"/><area shape="rect" id="node7" href="classSurface.html#a3baea26cc38b6fb0d194fca014018174" title="Returns the minimum x value on this Surface." alt="" coords="236,112,359,141"/><area shape="rect" id="node9" href="classSurface.html#aff659fd1b2d547d8b59df1b804d4098b" title="Returns the maximum x value on this Surface." alt="" coords="235,165,360,195"/><area shape="rect" id="node11" href="classSurface.html#a294b8bd2f04b3b938cc7c31cc4f941f3" title="Returns the minimum y value on this Surface." alt="" coords="236,219,359,248"/><area shape="rect" id="node13" href="classSurface.html#a1ffa35335f366974886fa7c36b564fef" title="Returns the maximum y value on this Surface." alt="" coords="235,272,360,301"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ae0c48bef75b8bd549ad5ad6edfa4644d_icgraph.png" border="0" usemap="#classGeometry_ae0c48bef75b8bd549ad5ad6edfa4644d_icgraph" alt=""/></div>
+<map name="classGeometry_ae0c48bef75b8bd549ad5ad6edfa4644d_icgraph" id="classGeometry_ae0c48bef75b8bd549ad5ad6edfa4644d_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="208,5,339,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a5c928795dfb3da715a7dacc7961414e9"></a>
@@ -350,6 +402,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </table>
   </dd>
 </dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a5c928795dfb3da715a7dacc7961414e9_cgraph.png" border="0" usemap="#classGeometry_a5c928795dfb3da715a7dacc7961414e9_cgraph" alt=""/></div>
+<map name="classGeometry_a5c928795dfb3da715a7dacc7961414e9_cgraph" id="classGeometry_a5c928795dfb3da715a7dacc7961414e9_cgraph">
+<area shape="rect" id="node3" href="classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21" title="Universe::getId" alt="" coords="461,5,571,35"/><area shape="rect" id="node5" href="classCellFill.html#a232ce5ae20d99af538e1db21c7b5d290" title="Return the ID of the Universe filling this Cell." alt="" coords="213,57,381,87"/><area shape="rect" id="node7" href="classCellFill.html#a557f647cc02f782866db15f5f7f04104" title="Set a pointer to the Universe filling this CellFill." alt="" coords="219,110,376,157"/><area shape="rect" id="node10" href="classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="224,245,371,275"/><area shape="rect" id="node12" href="classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066" title="Return the level (UNIV or LAT) of this LocalCoords." alt="" coords="441,59,591,88"/><area shape="rect" id="node14" href="classLocalCoords.html#abd2c9a1c25b7122f6db3e5cba016be6d" title="Return the ID of the Lattice within which this LocalCoords resides." alt="" coords="436,112,596,141"/><area shape="rect" id="node16" href="classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="459,165,573,195"/><area shape="rect" id="node18" href="classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73" title="Return the first index of the Lattice cell within which this LocalCoords resides." alt="" coords="432,219,600,248"/><area shape="rect" id="node20" href="classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac" title="Return the second index of the Lattice cell within which this LocalCoords resides." alt="" coords="432,272,600,301"/><area shape="rect" id="node22" href="classLocalCoords.html#a746874a431aa9c7c53e0d56731a41fe7" title="Return the ID of the Universe within which this LocalCoords resides." alt="" coords="429,325,603,355"/><area shape="rect" id="node24" href="classUniverse.html#a2545de3832105c879395d4fa6b639b55" title="Returns the local ID for the FSR representing a Cell in this Universe." alt="" coords="453,379,579,408"/><area shape="rect" id="node26" href="classLocalCoords.html#a3cca83a3745f138c0ba4f62dcd6c3de2" title="Return the ID of the Cell within which this LocalCoords resides." alt="" coords="444,432,588,461"/><area shape="rect" id="node28" href="classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="441,485,591,515"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a5c928795dfb3da715a7dacc7961414e9_icgraph.png" border="0" usemap="#classGeometry_a5c928795dfb3da715a7dacc7961414e9_icgraph" alt=""/></div>
+<map name="classGeometry_a5c928795dfb3da715a7dacc7961414e9_icgraph" id="classGeometry_a5c928795dfb3da715a7dacc7961414e9_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="221,5,352,35"/><area shape="rect" id="node5" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="213,59,360,88"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -376,6 +446,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </table>
   </dd>
 </dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_aa9177c6e58e051484a24c093914b853c_cgraph.png" border="0" usemap="#classGeometry_aa9177c6e58e051484a24c093914b853c_cgraph" alt=""/></div>
+<map name="classGeometry_aa9177c6e58e051484a24c093914b853c_cgraph" id="classGeometry_aa9177c6e58e051484a24c093914b853c_cgraph">
+<area shape="rect" id="node3" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="309,5,437,35"/><area shape="rect" id="node5" href="classUniverse.html#a190ad75ccf5c8403a309c22b18d33e5d" title="Aggregates a list (vector) of the IDs of all Materials within the MATERIAL type Cells filling this Un..." alt="" coords="292,59,455,88"/><area shape="rect" id="node9" href="classUniverse.html#a98bd6f494727dc21c99e9b82017f5b13" title="Aggregates a list (vector) of the IDs of all Universes within the FILL type Cells filling this Univer..." alt="" coords="268,112,479,141"/><area shape="rect" id="node12" href="classUniverse.html#a519ec15f1e4c7f4b5028b5166ec0e9f1" title="Returns true if the Universe contains a Cell filled by a fissionable Material and false otherwise..." alt="" coords="295,165,452,195"/><area shape="rect" id="node14" href="classMaterial.html#a518c42114378e88c9d5a198fc6bb8c00" title="Returns whether or not the Material contains a fissionable (non&#45;zero) fission cross&#45;section." alt="" coords="297,219,449,248"/><area shape="rect" id="node16" href="classUniverse.html#a124179ed92827532c7aecbf51d8c1f42" title="Sets whether or not this Universe contains a fissionable Material with a non&#45;zero fission cross&#45;secti..." alt="" coords="285,272,461,301"/><area shape="rect" id="node7" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="529,85,628,115"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -448,6 +527,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a953bddab7863827c6f93911647d3b7ab_cgraph.png" border="0" usemap="#classGeometry_a953bddab7863827c6f93911647d3b7ab_cgraph" alt=""/></div>
+<map name="classGeometry_a953bddab7863827c6f93911647d3b7ab_cgraph" id="classGeometry_a953bddab7863827c6f93911647d3b7ab_cgraph">
+<area shape="rect" id="node3" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="460,5,588,35"/><area shape="rect" id="node5" href="classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="459,59,589,88"/><area shape="rect" id="node7" href="classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="445,112,603,141"/><area shape="rect" id="node9" href="classLattice.html#a8bdf33505871fa71a8e9d86bb7efec10" title="Return the number of Lattice cells along the x&#45;axis." alt="" coords="463,325,585,355"/><area shape="rect" id="node11" href="classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="463,219,585,248"/><area shape="rect" id="node13" href="classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="455,379,593,408"/><area shape="rect" id="node15" href="classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="467,432,581,461"/><area shape="rect" id="node17" href="classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="232,268,373,297"/><area shape="rect" id="node30" href="classMesh.html#a575b2e9ab08c406592335e30ab3ba4ef" title="Set the Mesh cell width for a particular cell." alt="" coords="228,473,377,503"/><area shape="rect" id="node32" href="classLattice.html#acb5c93de94618ab65ef61f18a93e48b3" title="Return the width of the Lattice along the x&#45;axis." alt="" coords="237,527,368,556"/><area shape="rect" id="node34" href="classMesh.html#a976363005f6bc9fefa139e2c61a3108a" title="Set the Mesh cell height for a particular cell." alt="" coords="228,580,377,609"/><area shape="rect" id="node36" href="classLattice.html#ad54b31fc59330eaadf4c6b81e034a199" title="Return the width of the Lattice along the y&#45;axis." alt="" coords="237,633,368,663"/><area shape="rect" id="node38" href="classGeometry.html#affea9525ab3495c60b0abfa66780322b" title="This is a recursive method that finds the Mesh cell height of the next lowest LATTICE in a given Univ..." alt="" coords="208,164,397,193"/><area shape="rect" id="node21" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="475,165,573,195"/><area shape="rect" id="node23" href="classMesh.html#a4738244dc29a498d007bc486777f2dbd" title="Get pointer to a std::vector of Mesh cell FSRs." alt="" coords="456,272,592,301"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a953bddab7863827c6f93911647d3b7ab_icgraph.png" border="0" usemap="#classGeometry_a953bddab7863827c6f93911647d3b7ab_icgraph" alt=""/></div>
+<map name="classGeometry_a953bddab7863827c6f93911647d3b7ab_icgraph" id="classGeometry_a953bddab7863827c6f93911647d3b7ab_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="209,13,375,43"/><area shape="rect" id="node5" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="425,5,580,51"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a92eee0b27aeacfee8eaef6dacd2c8d6e"></a>
@@ -474,6 +571,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> that this FSR is in </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a92eee0b27aeacfee8eaef6dacd2c8d6e_icgraph.png" border="0" usemap="#classGeometry_a92eee0b27aeacfee8eaef6dacd2c8d6e_icgraph" alt=""/></div>
+<map name="classGeometry_a92eee0b27aeacfee8eaef6dacd2c8d6e_icgraph" id="classGeometry_a92eee0b27aeacfee8eaef6dacd2c8d6e_icgraph">
+<area shape="rect" id="node3" href="classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5" title="Initialize the FSRs." alt="" coords="293,5,435,35"/><area shape="rect" id="node7" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="276,59,452,88"/><area shape="rect" id="node5" href="classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="503,5,596,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="ac6025e6ed8673a109e406733e3c2ca05"></a>
@@ -498,6 +604,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the FSR ID for a given <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object </dd></dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ac6025e6ed8673a109e406733e3c2ca05_cgraph.png" border="0" usemap="#classGeometry_ac6025e6ed8673a109e406733e3c2ca05_cgraph" alt=""/></div>
+<map name="classGeometry_ac6025e6ed8673a109e406733e3c2ca05_cgraph" id="classGeometry_ac6025e6ed8673a109e406733e3c2ca05_cgraph">
+<area shape="rect" id="node3" href="classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066" title="Return the level (UNIV or LAT) of this LocalCoords." alt="" coords="212,5,361,35"/><area shape="rect" id="node5" href="classLocalCoords.html#abd2c9a1c25b7122f6db3e5cba016be6d" title="Return the ID of the Lattice within which this LocalCoords resides." alt="" coords="207,59,367,88"/><area shape="rect" id="node7" href="classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="229,112,344,141"/><area shape="rect" id="node9" href="classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73" title="Return the first index of the Lattice cell within which this LocalCoords resides." alt="" coords="203,165,371,195"/><area shape="rect" id="node11" href="classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac" title="Return the second index of the Lattice cell within which this LocalCoords resides." alt="" coords="203,219,371,248"/><area shape="rect" id="node13" href="classLocalCoords.html#a746874a431aa9c7c53e0d56731a41fe7" title="Return the ID of the Universe within which this LocalCoords resides." alt="" coords="200,272,373,301"/><area shape="rect" id="node15" href="classUniverse.html#a2545de3832105c879395d4fa6b639b55" title="Returns the local ID for the FSR representing a Cell in this Universe." alt="" coords="224,325,349,355"/><area shape="rect" id="node17" href="classLocalCoords.html#a3cca83a3745f138c0ba4f62dcd6c3de2" title="Return the ID of the Cell within which this LocalCoords resides." alt="" coords="215,379,359,408"/><area shape="rect" id="node19" href="classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="212,432,361,461"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ac6025e6ed8673a109e406733e3c2ca05_icgraph.png" border="0" usemap="#classGeometry_ac6025e6ed8673a109e406733e3c2ca05_icgraph" alt=""/></div>
+<map name="classGeometry_ac6025e6ed8673a109e406733e3c2ca05_icgraph" id="classGeometry_ac6025e6ed8673a109e406733e3c2ca05_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="200,32,360,61"/><area shape="rect" id="node9" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="203,85,357,115"/><area shape="rect" id="node5" href="classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="416,5,547,35"/><area shape="rect" id="node7" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="408,59,555,88"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -541,6 +665,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_aa988bf6c4a3064afeb21c7c0f81eef58_cgraph.png" border="0" usemap="#classGeometry_aa988bf6c4a3064afeb21c7c0f81eef58_cgraph" alt=""/></div>
+<map name="classGeometry_aa988bf6c4a3064afeb21c7c0f81eef58_cgraph" id="classGeometry_aa988bf6c4a3064afeb21c7c0f81eef58_cgraph">
+<area shape="rect" id="node3" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="212,5,340,35"/><area shape="rect" id="node5" href="classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="211,59,341,88"/><area shape="rect" id="node7" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="227,112,325,141"/><area shape="rect" id="node9" href="classMesh.html#a4738244dc29a498d007bc486777f2dbd" title="Get pointer to a std::vector of Mesh cell FSRs." alt="" coords="208,165,344,195"/><area shape="rect" id="node11" href="classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="197,219,355,248"/><area shape="rect" id="node13" href="classLattice.html#a8bdf33505871fa71a8e9d86bb7efec10" title="Return the number of Lattice cells along the x&#45;axis." alt="" coords="215,272,337,301"/><area shape="rect" id="node15" href="classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="215,325,337,355"/><area shape="rect" id="node17" href="classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="207,379,345,408"/><area shape="rect" id="node19" href="classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="219,432,333,461"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_aa988bf6c4a3064afeb21c7c0f81eef58_icgraph.png" border="0" usemap="#classGeometry_aa988bf6c4a3064afeb21c7c0f81eef58_icgraph" alt=""/></div>
+<map name="classGeometry_aa988bf6c4a3064afeb21c7c0f81eef58_icgraph" id="classGeometry_aa988bf6c4a3064afeb21c7c0f81eef58_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="197,13,352,43"/><area shape="rect" id="node5" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="401,13,567,43"/><area shape="rect" id="node7" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="617,5,772,51"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="ab3e05754e221bbf39a52f22d13d207f1"></a>
@@ -575,6 +717,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </table>
   </dd>
 </dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ab3e05754e221bbf39a52f22d13d207f1_cgraph.png" border="0" usemap="#classGeometry_ab3e05754e221bbf39a52f22d13d207f1_cgraph" alt=""/></div>
+<map name="classGeometry_ab3e05754e221bbf39a52f22d13d207f1_cgraph" id="classGeometry_ab3e05754e221bbf39a52f22d13d207f1_cgraph">
+<area shape="rect" id="node3" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="244,5,372,35"/><area shape="rect" id="node5" href="classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="243,59,373,88"/><area shape="rect" id="node7" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="259,112,357,141"/><area shape="rect" id="node9" href="classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="229,165,387,195"/><area shape="rect" id="node11" href="classLattice.html#a8bdf33505871fa71a8e9d86bb7efec10" title="Return the number of Lattice cells along the x&#45;axis." alt="" coords="247,219,369,248"/><area shape="rect" id="node13" href="classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="247,272,369,301"/><area shape="rect" id="node15" href="classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="239,325,377,355"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ab3e05754e221bbf39a52f22d13d207f1_icgraph.png" border="0" usemap="#classGeometry_ab3e05754e221bbf39a52f22d13d207f1_icgraph" alt=""/></div>
+<map name="classGeometry_ab3e05754e221bbf39a52f22d13d207f1_icgraph" id="classGeometry_ab3e05754e221bbf39a52f22d13d207f1_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="231,13,396,43"/><area shape="rect" id="node5" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="447,5,601,51"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -618,6 +778,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ad0038b2f7ce38dd852e85e5512f76eb0_cgraph.png" border="0" usemap="#classGeometry_ad0038b2f7ce38dd852e85e5512f76eb0_cgraph" alt=""/></div>
+<map name="classGeometry_ad0038b2f7ce38dd852e85e5512f76eb0_cgraph" id="classGeometry_ad0038b2f7ce38dd852e85e5512f76eb0_cgraph">
+<area shape="rect" id="node3" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="247,5,375,35"/><area shape="rect" id="node5" href="classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="245,59,376,88"/><area shape="rect" id="node7" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="261,112,360,141"/><area shape="rect" id="node9" href="classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="232,165,389,195"/><area shape="rect" id="node11" href="classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="249,219,372,248"/><area shape="rect" id="node13" href="classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="241,272,380,301"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ad0038b2f7ce38dd852e85e5512f76eb0_icgraph.png" border="0" usemap="#classGeometry_ad0038b2f7ce38dd852e85e5512f76eb0_icgraph" alt=""/></div>
+<map name="classGeometry_ad0038b2f7ce38dd852e85e5512f76eb0_icgraph" id="classGeometry_ad0038b2f7ce38dd852e85e5512f76eb0_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="233,13,399,43"/><area shape="rect" id="node5" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="449,5,604,51"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a9dc3627155dcebcfc358bc1882062b52"></a>
@@ -660,6 +838,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a9dc3627155dcebcfc358bc1882062b52_cgraph.png" border="0" usemap="#classGeometry_a9dc3627155dcebcfc358bc1882062b52_cgraph" alt=""/></div>
+<map name="classGeometry_a9dc3627155dcebcfc358bc1882062b52_cgraph" id="classGeometry_a9dc3627155dcebcfc358bc1882062b52_cgraph">
+<area shape="rect" id="node3" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="244,5,372,35"/><area shape="rect" id="node5" href="classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="243,59,373,88"/><area shape="rect" id="node7" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="259,112,357,141"/><area shape="rect" id="node9" href="classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="229,165,387,195"/><area shape="rect" id="node11" href="classLattice.html#a8bdf33505871fa71a8e9d86bb7efec10" title="Return the number of Lattice cells along the x&#45;axis." alt="" coords="247,219,369,248"/><area shape="rect" id="node13" href="classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="247,272,369,301"/><area shape="rect" id="node15" href="classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="239,325,377,355"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a9dc3627155dcebcfc358bc1882062b52_icgraph.png" border="0" usemap="#classGeometry_a9dc3627155dcebcfc358bc1882062b52_icgraph" alt=""/></div>
+<map name="classGeometry_a9dc3627155dcebcfc358bc1882062b52_icgraph" id="classGeometry_a9dc3627155dcebcfc358bc1882062b52_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="231,13,396,43"/><area shape="rect" id="node5" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="447,5,601,51"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a07444dd93641d2cb52cd12c88b178998"></a>
@@ -678,6 +874,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Returns the boundary condition for the bottom <a class="el" href="classSurface.html" title="Represents a general surface in the 2D xy-plane.">Surface</a> of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a>. </p>
 <p>The boundary conditions are vacuum (false) and reflective (false). </p>
 <dl class="section return"><dt>Returns</dt><dd>the boundary conditions for the bottom of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a> </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a07444dd93641d2cb52cd12c88b178998_icgraph.png" border="0" usemap="#classGeometry_a07444dd93641d2cb52cd12c88b178998_icgraph" alt=""/></div>
+<map name="classGeometry_a07444dd93641d2cb52cd12c88b178998_icgraph" id="classGeometry_a07444dd93641d2cb52cd12c88b178998_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="223,16,388,45"/><area shape="rect" id="node7" href="classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="235,71,376,100"/><area shape="rect" id="node5" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="439,5,593,51"/><area shape="rect" id="node9" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="464,75,568,104"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -698,6 +903,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>The boundary conditions are vacuum (false) and reflective (false). </p>
 <dl class="section return"><dt>Returns</dt><dd>the boundary conditions for the left surface of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a> </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a39d4d8148dcd69fc2eced65296f5fc71_icgraph.png" border="0" usemap="#classGeometry_a39d4d8148dcd69fc2eced65296f5fc71_icgraph" alt=""/></div>
+<map name="classGeometry_a39d4d8148dcd69fc2eced65296f5fc71_icgraph" id="classGeometry_a39d4d8148dcd69fc2eced65296f5fc71_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="201,16,367,45"/><area shape="rect" id="node7" href="classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="213,71,355,100"/><area shape="rect" id="node5" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="417,5,572,51"/><area shape="rect" id="node9" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="443,75,547,104"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a8cad295f5a2811cb0c2c0c5db5554468"></a>
@@ -717,6 +931,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>The boundary conditions are vacuum (false) and reflective (false). </p>
 <dl class="section return"><dt>Returns</dt><dd>the boundary conditions for the right surface of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a> </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a8cad295f5a2811cb0c2c0c5db5554468_icgraph.png" border="0" usemap="#classGeometry_a8cad295f5a2811cb0c2c0c5db5554468_icgraph" alt=""/></div>
+<map name="classGeometry_a8cad295f5a2811cb0c2c0c5db5554468_icgraph" id="classGeometry_a8cad295f5a2811cb0c2c0c5db5554468_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="209,16,375,45"/><area shape="rect" id="node7" href="classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="221,71,363,100"/><area shape="rect" id="node5" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="425,5,580,51"/><area shape="rect" id="node9" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="451,75,555,104"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="afa186cc8ccef93a093cad29618becf28"></a>
@@ -735,6 +958,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Returns the boundary condition for the top <a class="el" href="classSurface.html" title="Represents a general surface in the 2D xy-plane.">Surface</a> of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a>. </p>
 <p>The boundary conditions are vacuum (false) and reflective (false). </p>
 <dl class="section return"><dt>Returns</dt><dd>the boundary conditions for the top of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a> </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_afa186cc8ccef93a093cad29618becf28_icgraph.png" border="0" usemap="#classGeometry_afa186cc8ccef93a093cad29618becf28_icgraph" alt=""/></div>
+<map name="classGeometry_afa186cc8ccef93a093cad29618becf28_icgraph" id="classGeometry_afa186cc8ccef93a093cad29618becf28_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="201,16,367,45"/><area shape="rect" id="node7" href="classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="213,71,355,100"/><area shape="rect" id="node5" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="417,5,572,51"/><area shape="rect" id="node9" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="443,75,547,104"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -786,6 +1018,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> object </dd></dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ae8bb828df45dc6c34349e78412268d59_cgraph.png" border="0" usemap="#classGeometry_ae8bb828df45dc6c34349e78412268d59_cgraph" alt=""/></div>
+<map name="classGeometry_ae8bb828df45dc6c34349e78412268d59_cgraph" id="classGeometry_ae8bb828df45dc6c34349e78412268d59_cgraph">
+<area shape="rect" id="node3" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="217,5,316,35"/><area shape="rect" id="node5" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="225,59,308,88"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a8196cf7b0bb73ead492767a47f01db70"></a>
@@ -810,6 +1051,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> object </dd></dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a8196cf7b0bb73ead492767a47f01db70_cgraph.png" border="0" usemap="#classGeometry_a8196cf7b0bb73ead492767a47f01db70_cgraph" alt=""/></div>
+<map name="classGeometry_a8196cf7b0bb73ead492767a47f01db70_cgraph" id="classGeometry_a8196cf7b0bb73ead492767a47f01db70_cgraph">
+<area shape="rect" id="node3" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="201,5,300,35"/><area shape="rect" id="node5" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="209,59,292,88"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -865,6 +1115,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Returns the total height (y extent) of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a> in cm. </p>
 <dl class="section return"><dt>Returns</dt><dd>the total height of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a> (cm) </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a8895b7f5b91d85926f316ac09ade9e5f_icgraph.png" border="0" usemap="#classGeometry_a8895b7f5b91d85926f316ac09ade9e5f_icgraph" alt=""/></div>
+<map name="classGeometry_a8895b7f5b91d85926f316ac09ade9e5f_icgraph" id="classGeometry_a8895b7f5b91d85926f316ac09ade9e5f_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#ae247a0c9686286fa941142e803d289f1" title="Converts this Geometry&#39;s attributes to a character array." alt="" coords="217,9,348,39"/><area shape="rect" id="node7" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="200,64,365,93"/><area shape="rect" id="node11" href="classTrackGenerator.html#a8012954f5eeeae9dfb4fd445937884ee" title="Generates tracks for some number of azimuthal angles and track spacing." alt="" coords="197,117,368,163"/><area shape="rect" id="node5" href="classGeometry.html#a51d5ba4a579b470d1321f365517436db" title="Prints a string representation of all of the Geometry&#39;s attributes to the console." alt="" coords="421,5,568,35"/><area shape="rect" id="node9" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="417,58,572,105"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="ae53b8ee66ccf407bbca22de35a267a28"></a>
@@ -915,6 +1174,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a> object </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_af6cb323d79275e9540d7ba4e81bccebf_icgraph.png" border="0" usemap="#classGeometry_af6cb323d79275e9540d7ba4e81bccebf_icgraph" alt=""/></div>
+<map name="classGeometry_af6cb323d79275e9540d7ba4e81bccebf_icgraph" id="classGeometry_af6cb323d79275e9540d7ba4e81bccebf_icgraph">
+<area shape="rect" id="node3" href="classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5" title="Initialize the FSRs." alt="" coords="224,5,365,35"/><area shape="rect" id="node7" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="207,59,383,88"/><area shape="rect" id="node9" href="classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="229,112,360,141"/><area shape="rect" id="node11" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="217,165,372,211"/><area shape="rect" id="node13" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="217,235,372,264"/><area shape="rect" id="node5" href="classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="433,5,527,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a79583fea11962f810751c6d8668be50a"></a>
@@ -932,6 +1200,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 <p>Return a std::map container of <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a> IDs (keys) with Materials pointers (values). </p>
 <dl class="section return"><dt>Returns</dt><dd>a std::map of Materials indexed by <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a> ID in the geometry </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a79583fea11962f810751c6d8668be50a_icgraph.png" border="0" usemap="#classGeometry_a79583fea11962f810751c6d8668be50a_icgraph" alt=""/></div>
+<map name="classGeometry_a79583fea11962f810751c6d8668be50a_icgraph" id="classGeometry_a79583fea11962f810751c6d8668be50a_icgraph">
+<area shape="rect" id="node3" href="classVectorizedSolver.html#ab4a29f8b4f8cbb4dff38ce2b85a56642" title="Sets the Geometry for the Solver and aligns all Material cross&#45;section data for SIMD vector instructi..." alt="" coords="215,13,417,43"/><area shape="rect" id="node5" href="classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="468,5,657,51"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -969,6 +1246,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Returns a pointer to the CMFD <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration.">Mesh</a> object. </p>
 <dl class="section return"><dt>Returns</dt><dd>A pointer to the CMFD <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration.">Mesh</a> object </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ab072933706e35191f0b9d499dca9aca0_icgraph.png" border="0" usemap="#classGeometry_ab072933706e35191f0b9d499dca9aca0_icgraph" alt=""/></div>
+<map name="classGeometry_ab072933706e35191f0b9d499dca9aca0_icgraph" id="classGeometry_ab072933706e35191f0b9d499dca9aca0_icgraph">
+<area shape="rect" id="node3" href="classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="217,5,311,35"/><area shape="rect" id="node5" href="classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="193,59,335,88"/><area shape="rect" id="node7" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="384,59,488,88"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a1c13e62d14cbe8dc20ebf048a5793ff2"></a>
@@ -1005,6 +1291,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Returns the number of energy groups for each <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s nuclear data. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of energy groups </dd></dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_aceb6249699270b234cddfb9046ed9b2d_cgraph.png" border="0" usemap="#classGeometry_aceb6249699270b234cddfb9046ed9b2d_cgraph" alt=""/></div>
+<map name="classGeometry_aceb6249699270b234cddfb9046ed9b2d_cgraph" id="classGeometry_aceb6249699270b234cddfb9046ed9b2d_cgraph">
+<area shape="rect" id="node3" href="classGeometry.html#aee3114c51ec090bdc73b470a93ee2b32" title="Returns the number of Materials in the Geometry." alt="" coords="269,5,456,35"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_aceb6249699270b234cddfb9046ed9b2d_icgraph.png" border="0" usemap="#classGeometry_aceb6249699270b234cddfb9046ed9b2d_icgraph" alt=""/></div>
+<map name="classGeometry_aceb6249699270b234cddfb9046ed9b2d_icgraph" id="classGeometry_aceb6249699270b234cddfb9046ed9b2d_icgraph">
+<area shape="rect" id="node3" href="classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="295,5,388,35"/><area shape="rect" id="node5" href="classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="271,59,412,88"/><area shape="rect" id="node7" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="461,59,565,88"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="aa6c6670cf0552fc24824f074077e994b"></a>
@@ -1023,6 +1327,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Returns the number of flat source regions (FSRs) in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>number of FSRs </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_aa6c6670cf0552fc24824f074077e994b_icgraph.png" border="0" usemap="#classGeometry_aa6c6670cf0552fc24824f074077e994b_icgraph" alt=""/></div>
+<map name="classGeometry_aa6c6670cf0552fc24824f074077e994b_icgraph" id="classGeometry_aa6c6670cf0552fc24824f074077e994b_icgraph">
+<area shape="rect" id="node3" href="classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="223,5,364,35"/><area shape="rect" id="node5" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="413,5,517,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="aee3114c51ec090bdc73b470a93ee2b32"></a>
@@ -1040,6 +1353,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 <p>Returns the number of Materials in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of Materials </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_aee3114c51ec090bdc73b470a93ee2b32_icgraph.png" border="0" usemap="#classGeometry_aee3114c51ec090bdc73b470a93ee2b32_icgraph" alt=""/></div>
+<map name="classGeometry_aee3114c51ec090bdc73b470a93ee2b32_icgraph" id="classGeometry_aee3114c51ec090bdc73b470a93ee2b32_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#aceb6249699270b234cddfb9046ed9b2d" title="Returns the number of energy groups for each Material&#39;s nuclear data." alt="" coords="240,7,456,36"/><area shape="rect" id="node7" href="classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="505,59,647,88"/><area shape="rect" id="node5" href="classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="529,5,623,35"/><area shape="rect" id="node9" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="696,59,800,88"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -1091,6 +1413,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> object </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_abbd6276818d60a6fb5395d07032007d5_icgraph.png" border="0" usemap="#classGeometry_abbd6276818d60a6fb5395d07032007d5_icgraph" alt=""/></div>
+<map name="classGeometry_abbd6276818d60a6fb5395d07032007d5_icgraph" id="classGeometry_abbd6276818d60a6fb5395d07032007d5_icgraph">
+<area shape="rect" id="node3" href="classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5" title="Initialize the FSRs." alt="" coords="229,5,371,35"/><area shape="rect" id="node7" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="212,59,388,88"/><area shape="rect" id="node5" href="classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="439,5,532,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a8a7afceb0905b411d296c57fb0f8f3ba"></a>
@@ -1108,6 +1439,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 <p>Returns the total width (x extent) of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a> in cm. </p>
 <dl class="section return"><dt>Returns</dt><dd>the total width of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a> (cm) </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a8a7afceb0905b411d296c57fb0f8f3ba_icgraph.png" border="0" usemap="#classGeometry_a8a7afceb0905b411d296c57fb0f8f3ba_icgraph" alt=""/></div>
+<map name="classGeometry_a8a7afceb0905b411d296c57fb0f8f3ba_icgraph" id="classGeometry_a8a7afceb0905b411d296c57fb0f8f3ba_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#ae247a0c9686286fa941142e803d289f1" title="Converts this Geometry&#39;s attributes to a character array." alt="" coords="211,8,341,37"/><area shape="rect" id="node7" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="193,63,359,92"/><area shape="rect" id="node5" href="classGeometry.html#a51d5ba4a579b470d1321f365517436db" title="Prints a string representation of all of the Geometry&#39;s attributes to the console." alt="" coords="413,5,560,35"/><area shape="rect" id="node9" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="409,58,564,105"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -1199,6 +1539,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Compute the number of flat source regions in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a> and initialize arrays for FSR IDs and maps. </p>
 <p>This method is intended to be called by the user before initiating source iteration. This method first subdivides all Cells by calling the <a class="el" href="classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca" title="Subidivides all Cells in the Geometry into rings and angular sectors.">Geometry::subdivideCells()</a> method. Then it computes the total number of FSRs in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a> and initializes integer arrays of maps to Cells and Materials UIDs/IDs indexed by FSR IDs. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ad951597b0a94c3f4c43db865ae30218d_cgraph.png" border="0" usemap="#classGeometry_ad951597b0a94c3f4c43db865ae30218d_cgraph" alt=""/></div>
+<map name="classGeometry_ad951597b0a94c3f4c43db865ae30218d_cgraph" id="classGeometry_ad951597b0a94c3f4c43db865ae30218d_cgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca" title="Subidivides all Cells in the Geometry into rings and angular sectors." alt="" coords="221,177,392,207"/><area shape="rect" id="node13" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="904,216,987,245"/><area shape="rect" id="node18" href="classUniverse.html#af76741be6456d3542a302024fd4c52e4" title="Compute the FSR offset maps for this Universe and return the number of FSRs inside the Universe..." alt="" coords="212,320,401,349"/><area shape="rect" id="node21" href="classGeometry.html#af6cb323d79275e9540d7ba4e81bccebf" title="Return a pointer to a Material object in the Geometry." alt="" coords="232,373,381,403"/><area shape="rect" id="node23" href="classCellBasic.html#a514c35ecf0d8b33d1e81e9eec2fc10a9" title="Return the ID of the Material filling the CellBasic." alt="" coords="232,427,381,456"/><area shape="rect" id="node25" href="classMesh.html#a0286b4dfbca37b921dc5919a2e47b59a" title="Return whether or not CMFD is in use." alt="" coords="243,480,371,509"/><area shape="rect" id="node27" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="224,1077,389,1107"/><area shape="rect" id="node5" href="classUniverse.html#ae3952c88390eda788da540d421d0b139" title="Subdivides all of the Cells within this Universe into rings and angular sectors." alt="" coords="457,139,623,168"/><area shape="rect" id="node7" href="classCellBasic.html#ad5af2c486bcfd2a0cc8531300b4edf67" title="Return the number of rings in the Cell." alt="" coords="684,5,849,35"/><area shape="rect" id="node9" href="classCellBasic.html#ad1f28a0ba1cb3c98e4a6390b5c5a28f2" title="Return the number of sectors in the Cell." alt="" coords="679,59,855,88"/><area shape="rect" id="node11" href="classCellBasic.html#a68bcdce0e270b6b439ba878a0694d5b1" title="Subdivides a Cell into rings and sectors." alt="" coords="685,112,848,141"/><area shape="rect" id="node15" href="classUniverse.html#af045c632c9b336f8d4f7be20c5a510a1" title="Adds a Cell to this Universe." alt="" coords="704,216,829,245"/><area shape="rect" id="node29" href="classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="453,709,627,739"/><area shape="rect" id="node45" href="classMesh.html#a92e729fde85be31a18d1d3ab7058afd0" title="Gets the Mesh nested universe level." alt="" coords="469,971,611,1000"/><area shape="rect" id="node47" href="classMesh.html#afcb60b85924462fc2604cd382bb05703" title="Sets the Mesh nested universe level." alt="" coords="469,1024,611,1053"/><area shape="rect" id="node49" href="classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="451,656,629,685"/><area shape="rect" id="node57" href="classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="453,763,627,792"/><area shape="rect" id="node66" href="classMesh.html#a4ab507788b30413780ca8825afcbff62" title="Set the Mesh boundary type for left surface." alt="" coords="473,1077,607,1107"/><area shape="rect" id="node68" href="classGeometry.html#a39d4d8148dcd69fc2eced65296f5fc71" title="Returns the boundary condition for the left Surface of the Geometry." alt="" coords="467,1131,613,1160"/><area shape="rect" id="node70" href="classGeometry.html#a07444dd93641d2cb52cd12c88b178998" title="Returns the boundary condition for the bottom Surface of the Geometry." alt="" coords="457,1184,623,1213"/><area shape="rect" id="node72" href="classGeometry.html#a8cad295f5a2811cb0c2c0c5db5554468" title="Returns the boundary condition for the right Surface of the Geometry." alt="" coords="463,1237,617,1267"/><area shape="rect" id="node74" href="classGeometry.html#afa186cc8ccef93a093cad29618becf28" title="Returns the boundary condition for the top Surface of the Geometry." alt="" coords="467,1291,613,1320"/><area shape="rect" id="node76" href="classMesh.html#a9402981d023f717f2e2717af2ddb5a65" title="Set the number of FSRs in the Geometry." alt="" coords="469,1344,611,1373"/><area shape="rect" id="node78" href="classMesh.html#a5314e9ba5c4b89949fa3a10e6a3afb2c" title="Set the number of Mesh cells in a column." alt="" coords="481,1397,599,1427"/><area shape="rect" id="node80" href="classMesh.html#aa4444542b32756e13ec530f2db05c509" title="Set the number of Mesh cells in a row." alt="" coords="481,1451,599,1480"/><area shape="rect" id="node82" href="classMesh.html#a740709acf8f975c5563ff9df62b97aed" title="Set Mesh height." alt="" coords="476,1504,604,1533"/><area shape="rect" id="node84" href="classGeometry.html#a8895b7f5b91d85926f316ac09ade9e5f" title="Returns the total height (y extent) of the Geometry in cm." alt="" coords="469,1557,611,1587"/><area shape="rect" id="node86" href="classMesh.html#a7119321672e520ac9aabf8c005a87605" title="Set Mesh width." alt="" coords="476,1611,604,1640"/><area shape="rect" id="node88" href="classGeometry.html#a8a7afceb0905b411d296c57fb0f8f3ba" title="Returns the total width (x extent) of the Geometry in cm." alt="" coords="471,1664,609,1693"/><area shape="rect" id="node90" href="classMesh.html#ac8378f78e7c8e5657ee8dbd12a42c2ca" title="Initializes the Mesh by allocating memory for various arrays." alt="" coords="485,1717,595,1747"/><area shape="rect" id="node92" href="classMesh.html#ac8e3c415c1b6c11a9fdea408dc924caa" title="Get Mesh cell width." alt="" coords="481,1771,599,1800"/><area shape="rect" id="node94" href="classMesh.html#a74808bdb6bffae46b7b875eb415109a2" title="Get Mesh cell height." alt="" coords="481,1824,599,1853"/><area shape="rect" id="node96" href="classMesh.html#a07b1601ecce08bc657bd63e19f3f17aa" title="Set the whether CMFD acceleration is being used." alt="" coords="464,1877,616,1907"/><area shape="rect" id="node98" href="classMesh.html#a9373cbcef6e41604be036b5ad8750d92" title="Get the solution method (DIFFUSION or MOC)." alt="" coords="469,320,611,349"/><area shape="rect" id="node100" href="classMesh.html#a4313ee4fa233f01120d2a804a7ac6081" title="Inform whether to use optically thick diffusion correction factor." alt="" coords="459,373,621,403"/><area shape="rect" id="node102" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="463,816,617,845"/><area shape="rect" id="node110" href="classMesh.html#a575b2e9ab08c406592335e30ab3ba4ef" title="Set the Mesh cell width for a particular cell." alt="" coords="692,923,841,952"/><area shape="rect" id="node112" href="classMesh.html#a976363005f6bc9fefa139e2c61a3108a" title="Set the Mesh cell height for a particular cell." alt="" coords="692,976,841,1005"/><area shape="rect" id="node116" href="classMesh.html#a4738244dc29a498d007bc486777f2dbd" title="Get pointer to a std::vector of Mesh cell FSRs." alt="" coords="472,427,608,456"/><area shape="rect" id="node118" href="classMesh.html#aa18cac231885a153521e000b42563d5f" title="Set the FSR bounds for each Mesh cell." alt="" coords="465,480,615,509"/><area shape="rect" id="node120" href="classMesh.html#a5c3aedc5c7cdde03f624138e2e5e7f4a" title="Compute the physical bounds of each Mesh cell." alt="" coords="467,533,613,563"/><area shape="rect" id="node122" href="classMesh.html#a1f2cf10dca78f89e9d1a59e55a18670e" title="Initialize the Mesh cell Materials." alt="" coords="459,586,621,633"/><area shape="rect" id="node31" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="703,656,831,685"/><area shape="rect" id="node33" href="classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="701,709,832,739"/><area shape="rect" id="node35" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="717,549,816,579"/><area shape="rect" id="node37" href="classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="688,763,845,792"/><area shape="rect" id="node39" href="classLattice.html#a8bdf33505871fa71a8e9d86bb7efec10" title="Return the number of Lattice cells along the x&#45;axis." alt="" coords="705,869,828,899"/><area shape="rect" id="node41" href="classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="705,816,828,845"/><area shape="rect" id="node43" href="classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="697,603,836,632"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a46c73fdec60562eeadfb92146754f01d"></a>
@@ -1216,6 +1565,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 <p>This is a recursive method which makes a mesh for solving the Course <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration.">Mesh</a> Finite Difference (CMFD) diffusion equations. </p>
 <p>The CMFD <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration.">Mesh</a> must be a structured Cartesian mesh and defined as a certain nested Univeres level (counting from the top). This method defines the mesh dimensions (width and height) and mesh cell dimensions (width and height). This function adds new <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration.">Mesh</a> cell objects to the <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration.">Mesh</a> and defines the values in each <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration.">Mesh</a> cell. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a46c73fdec60562eeadfb92146754f01d_cgraph.png" border="0" usemap="#classGeometry_a46c73fdec60562eeadfb92146754f01d_cgraph" alt=""/></div>
+<map name="classGeometry_a46c73fdec60562eeadfb92146754f01d_cgraph" id="classGeometry_a46c73fdec60562eeadfb92146754f01d_cgraph">
+<area shape="rect" id="node3" href="classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="445,185,619,214"/><area shape="rect" id="node19" href="classMesh.html#a92e729fde85be31a18d1d3ab7058afd0" title="Gets the Mesh nested universe level." alt="" coords="235,860,376,889"/><area shape="rect" id="node21" href="classMesh.html#afcb60b85924462fc2604cd382bb05703" title="Sets the Mesh nested universe level." alt="" coords="235,913,376,942"/><area shape="rect" id="node23" href="classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="443,78,621,108"/><area shape="rect" id="node31" href="classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="445,238,619,268"/><area shape="rect" id="node40" href="classMesh.html#a4ab507788b30413780ca8825afcbff62" title="Set the Mesh boundary type for left surface." alt="" coords="239,966,372,996"/><area shape="rect" id="node42" href="classGeometry.html#a39d4d8148dcd69fc2eced65296f5fc71" title="Returns the boundary condition for the left Surface of the Geometry." alt="" coords="232,1020,379,1049"/><area shape="rect" id="node44" href="classGeometry.html#a07444dd93641d2cb52cd12c88b178998" title="Returns the boundary condition for the bottom Surface of the Geometry." alt="" coords="223,1073,388,1102"/><area shape="rect" id="node46" href="classGeometry.html#a8cad295f5a2811cb0c2c0c5db5554468" title="Returns the boundary condition for the right Surface of the Geometry." alt="" coords="228,1126,383,1156"/><area shape="rect" id="node48" href="classGeometry.html#afa186cc8ccef93a093cad29618becf28" title="Returns the boundary condition for the top Surface of the Geometry." alt="" coords="232,1180,379,1209"/><area shape="rect" id="node50" href="classMesh.html#a9402981d023f717f2e2717af2ddb5a65" title="Set the number of FSRs in the Geometry." alt="" coords="235,1233,376,1262"/><area shape="rect" id="node52" href="classMesh.html#a5314e9ba5c4b89949fa3a10e6a3afb2c" title="Set the number of Mesh cells in a column." alt="" coords="247,1286,364,1316"/><area shape="rect" id="node54" href="classMesh.html#aa4444542b32756e13ec530f2db05c509" title="Set the number of Mesh cells in a row." alt="" coords="247,1340,364,1369"/><area shape="rect" id="node56" href="classMesh.html#a740709acf8f975c5563ff9df62b97aed" title="Set Mesh height." alt="" coords="241,1393,369,1422"/><area shape="rect" id="node58" href="classGeometry.html#a8895b7f5b91d85926f316ac09ade9e5f" title="Returns the total height (y extent) of the Geometry in cm." alt="" coords="235,1446,376,1476"/><area shape="rect" id="node60" href="classMesh.html#a7119321672e520ac9aabf8c005a87605" title="Set Mesh width." alt="" coords="241,1500,369,1529"/><area shape="rect" id="node62" href="classGeometry.html#a8a7afceb0905b411d296c57fb0f8f3ba" title="Returns the total width (x extent) of the Geometry in cm." alt="" coords="236,1553,375,1582"/><area shape="rect" id="node64" href="classMesh.html#ac8378f78e7c8e5657ee8dbd12a42c2ca" title="Initializes the Mesh by allocating memory for various arrays." alt="" coords="251,1606,360,1636"/><area shape="rect" id="node66" href="classMesh.html#ac8e3c415c1b6c11a9fdea408dc924caa" title="Get Mesh cell width." alt="" coords="247,1660,364,1689"/><area shape="rect" id="node68" href="classMesh.html#a74808bdb6bffae46b7b875eb415109a2" title="Get Mesh cell height." alt="" coords="247,1713,364,1742"/><area shape="rect" id="node70" href="classMesh.html#a07b1601ecce08bc657bd63e19f3f17aa" title="Set the whether CMFD acceleration is being used." alt="" coords="229,1766,381,1796"/><area shape="rect" id="node72" href="classMesh.html#a9373cbcef6e41604be036b5ad8750d92" title="Get the solution method (DIFFUSION or MOC)." alt="" coords="235,1820,376,1849"/><area shape="rect" id="node74" href="classMesh.html#a4313ee4fa233f01120d2a804a7ac6081" title="Inform whether to use optically thick diffusion correction factor." alt="" coords="224,1873,387,1902"/><area shape="rect" id="node76" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="228,470,383,500"/><area shape="rect" id="node91" href="classMesh.html#a4738244dc29a498d007bc486777f2dbd" title="Get pointer to a std::vector of Mesh cell FSRs." alt="" coords="685,657,821,686"/><area shape="rect" id="node98" href="classMesh.html#a575b2e9ab08c406592335e30ab3ba4ef" title="Set the Mesh cell width for a particular cell." alt="" coords="457,705,607,734"/><area shape="rect" id="node102" href="classMesh.html#a976363005f6bc9fefa139e2c61a3108a" title="Set the Mesh cell height for a particular cell." alt="" coords="457,758,607,788"/><area shape="rect" id="node116" href="classMesh.html#aa18cac231885a153521e000b42563d5f" title="Set the FSR bounds for each Mesh cell." alt="" coords="231,1926,380,1956"/><area shape="rect" id="node118" href="classMesh.html#a5c3aedc5c7cdde03f624138e2e5e7f4a" title="Compute the physical bounds of each Mesh cell." alt="" coords="232,1980,379,2009"/><area shape="rect" id="node120" href="classMesh.html#a1f2cf10dca78f89e9d1a59e55a18670e" title="Initialize the Mesh cell Materials." alt="" coords="224,2032,387,2079"/><area shape="rect" id="node5" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="689,77,817,106"/><area shape="rect" id="node7" href="classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="688,130,819,160"/><area shape="rect" id="node9" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="704,184,803,213"/><area shape="rect" id="node11" href="classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="675,290,832,320"/><area shape="rect" id="node13" href="classLattice.html#a8bdf33505871fa71a8e9d86bb7efec10" title="Return the number of Lattice cells along the x&#45;axis." alt="" coords="692,397,815,426"/><area shape="rect" id="node15" href="classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="692,344,815,373"/><area shape="rect" id="node17" href="classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="684,237,823,266"/><area shape="rect" id="node84" href="classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="696,498,811,528"/><area shape="rect" id="node86" href="classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="461,342,603,372"/><area shape="rect" id="node100" href="classLattice.html#acb5c93de94618ab65ef61f18a93e48b3" title="Return the width of the Lattice along the x&#45;axis." alt="" coords="467,598,597,628"/><area shape="rect" id="node104" href="classLattice.html#ad54b31fc59330eaadf4c6b81e034a199" title="Return the width of the Lattice along the y&#45;axis." alt="" coords="467,652,597,681"/><area shape="rect" id="node106" href="classGeometry.html#affea9525ab3495c60b0abfa66780322b" title="This is a recursive method that finds the Mesh cell height of the next lowest LATTICE in a given Univ..." alt="" coords="437,132,627,161"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a46c73fdec60562eeadfb92146754f01d_icgraph.png" border="0" usemap="#classGeometry_a46c73fdec60562eeadfb92146754f01d_icgraph" alt=""/></div>
+<map name="classGeometry_a46c73fdec60562eeadfb92146754f01d_icgraph" id="classGeometry_a46c73fdec60562eeadfb92146754f01d_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="223,5,377,51"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -1242,6 +1609,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the level in the nested <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> hierarchy </dd></dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_affea9525ab3495c60b0abfa66780322b_cgraph.png" border="0" usemap="#classGeometry_affea9525ab3495c60b0abfa66780322b_cgraph" alt=""/></div>
+<map name="classGeometry_affea9525ab3495c60b0abfa66780322b_cgraph" id="classGeometry_affea9525ab3495c60b0abfa66780322b_cgraph">
+<area shape="rect" id="node3" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="257,5,385,35"/><area shape="rect" id="node5" href="classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="256,59,387,88"/><area shape="rect" id="node7" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="272,112,371,141"/><area shape="rect" id="node9" href="classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="243,165,400,195"/><area shape="rect" id="node11" href="classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="260,219,383,248"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_affea9525ab3495c60b0abfa66780322b_icgraph.png" border="0" usemap="#classGeometry_affea9525ab3495c60b0abfa66780322b_icgraph" alt=""/></div>
+<map name="classGeometry_affea9525ab3495c60b0abfa66780322b_icgraph" id="classGeometry_affea9525ab3495c60b0abfa66780322b_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="243,13,397,43"/><area shape="rect" id="node5" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="447,13,612,43"/><area shape="rect" id="node7" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="663,5,817,51"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a51d5ba4a579b470d1321f365517436db"></a>
@@ -1259,6 +1644,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 <p>Prints a string representation of all of the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a>'s attributes to the console. </p>
 <p>This method calls the <a class="el" href="classGeometry.html#a51d5ba4a579b470d1321f365517436db" title="Prints a string representation of all of the Geometry&#39;s attributes to the console.">printString()</a> method for all Materials, Surfaces, <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a>, Universes and Lattices contained by the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a>. </p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a51d5ba4a579b470d1321f365517436db_cgraph.png" border="0" usemap="#classGeometry_a51d5ba4a579b470d1321f365517436db_cgraph" alt=""/></div>
+<map name="classGeometry_a51d5ba4a579b470d1321f365517436db_cgraph" id="classGeometry_a51d5ba4a579b470d1321f365517436db_cgraph">
+<area shape="rect" id="node3" href="classGeometry.html#ae247a0c9686286fa941142e803d289f1" title="Converts this Geometry&#39;s attributes to a character array." alt="" coords="201,32,332,61"/><area shape="rect" id="node5" href="classGeometry.html#a8a7afceb0905b411d296c57fb0f8f3ba" title="Returns the total width (x extent) of the Geometry in cm." alt="" coords="384,5,523,35"/><area shape="rect" id="node7" href="classGeometry.html#a8895b7f5b91d85926f316ac09ade9e5f" title="Returns the total height (y extent) of the Geometry in cm." alt="" coords="383,59,524,88"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -1385,6 +1779,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a21a092d997179d6bea6c66f592faa6de_cgraph.png" border="0" usemap="#classGeometry_a21a092d997179d6bea6c66f592faa6de_cgraph" alt=""/></div>
+<map name="classGeometry_a21a092d997179d6bea6c66f592faa6de_cgraph" id="classGeometry_a21a092d997179d6bea6c66f592faa6de_cgraph">
+<area shape="rect" id="node3" href="classTrack.html#a14cbba36e759b0191961e05debcc527c" title="Returns a pointer to the Track&#39;s start Point." alt="" coords="240,5,349,35"/><area shape="rect" id="node5" href="classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="708,109,793,139"/><area shape="rect" id="node7" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="708,163,793,192"/><area shape="rect" id="node9" href="classTrack.html#adc334d5a90c1204770ab180b2f39bc56" title="Return the Track&#39;s azimuthal angle (with respect to the x&#45;axis)." alt="" coords="245,849,344,879"/><area shape="rect" id="node11" href="classLocalCoords.html#ad514c86c5d7de44b1a08b400383710a1" title="Set the ID of the Universe within which this LocalCoords resides." alt="" coords="431,320,604,349"/><area shape="rect" id="node13" href="classTrack.html#abc465cc8bc4d568c7031667cb831825e" title="Convert this Track&#39;s attributes to a character array." alt="" coords="464,109,571,139"/><area shape="rect" id="node17" href="classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8" title="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords." alt="" coords="208,743,381,772"/><area shape="rect" id="node19" href="classLocalCoords.html#ab6a1654615643dabd35a19c8ed5f7dad" title="Removes and frees memory for all LocalCoords beyond this one in the linked list." alt="" coords="451,373,584,403"/><area shape="rect" id="node33" href="classLocalCoords.html#a9623e05ee2de4ace57a7595a154a3764" title="Returns the x&#45;coordinate for this LocalCoords location." alt="" coords="452,213,583,243"/><area shape="rect" id="node40" href="classLocalCoords.html#ac2ca0a99b00c2aa5784ff82fba2a3618" title="Returns the y&#45;coordinate for this LocalCoords location." alt="" coords="452,267,583,296"/><area shape="rect" id="node76" href="classLocalCoords.html#aff39b0f4a6cd5de5347ab154000d349b" title="Returns a pointer to the Point containing the coordinates for this LocalCoord." alt="" coords="220,903,369,932"/><area shape="rect" id="node78" href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9" title="Compute the distance from this Point to another Point of interest." alt="" coords="217,956,372,985"/><area shape="rect" id="node80" href="classGeometry.html#af6cb323d79275e9540d7ba4e81bccebf" title="Return a pointer to a Material object in the Geometry." alt="" coords="220,1009,369,1039"/><area shape="rect" id="node82" href="classMaterial.html#a0bb70f99202814861516d5d7db94321e" title="Return the array of the Material&#39;s total cross&#45;sections." alt="" coords="225,1063,364,1092"/><area shape="rect" id="node84" href="classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="221,796,368,825"/><area shape="rect" id="node97" href="classMesh.html#a0286b4dfbca37b921dc5919a2e47b59a" title="Return whether or not CMFD is in use." alt="" coords="231,1116,359,1145"/><area shape="rect" id="node99" href="classMesh.html#ad3bde7577f1b12057769b68981a78f48" title="Using an FSR ID and coordinate, find which surface a coordinate is on." alt="" coords="215,267,375,296"/><area shape="rect" id="node103" href="classTrack.html#a08af057318f555da880a391718837ea0" title="Adds a segment pointer to this Track&#39;s list of segments." alt="" coords="227,1169,363,1199"/><area shape="rect" id="node105" href="classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="211,1223,379,1252"/><area shape="rect" id="node108" href="classTrack.html#aba38ecdfdde05c79cbefaf341715a4ec" title="Return the Track&#39;s unique ID." alt="" coords="244,1276,345,1305"/><area shape="rect" id="node23" href="classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="896,639,1045,668"/><area shape="rect" id="node27" href="classLocalCoords.html#ad0d95a64372a6b60c4a7276350380c7c" title="Sets the pointer to the LocalCoords on the next lower nested Universe level." alt="" coords="676,560,825,589"/><area shape="rect" id="node29" href="classLocalCoords.html#af00fc05471c68683e7b55274afdb68ba" title="Set the x&#45;coordinate for this LocalCoords." alt="" coords="452,955,583,984"/><area shape="rect" id="node36" href="classLocalCoords.html#ae7a4a2eeb8a1e17698da8b58d08c05b5" title="Set the y&#45;coordinate for this Localcoords." alt="" coords="452,848,583,877"/><area shape="rect" id="node44" href="classLocalCoords.html#a746874a431aa9c7c53e0d56731a41fe7" title="Return the ID of the Universe within which this LocalCoords resides." alt="" coords="431,1008,604,1037"/><area shape="rect" id="node46" href="classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066" title="Return the level (UNIV or LAT) of this LocalCoords." alt="" coords="443,1061,592,1091"/><area shape="rect" id="node48" href="classLocalCoords.html#a5eb0104c614b60dee59177afbf5a1d09" title="Set the type of LocalCoords (UNIV or LAT)." alt="" coords="443,427,592,456"/><area shape="rect" id="node50" href="classLocalCoords.html#a459a5178aa8861a4d9504d7aea0d4a6a" title="Set the ID of the Cell within which this LocalCoords resides." alt="" coords="445,480,589,509"/><area shape="rect" id="node52" href="classLocalCoords.html#a3cca83a3745f138c0ba4f62dcd6c3de2" title="Return the ID of the Cell within which this LocalCoords resides." alt="" coords="445,1115,589,1144"/><area shape="rect" id="node54" href="classLocalCoords.html#acba537be0e701e2bd46a8d2cabf54881" title="Sets the ID of the Lattice within which this LocalCoords resides." alt="" coords="437,533,597,563"/><area shape="rect" id="node56" href="classLocalCoords.html#abd2c9a1c25b7122f6db3e5cba016be6d" title="Return the ID of the Lattice within which this LocalCoords resides." alt="" coords="437,1168,597,1197"/><area shape="rect" id="node58" href="classLocalCoords.html#aaebab559746c2641969f7aea7055f4d7" title="Sets the row index for the Lattice cell within which this LocalCoords resides." alt="" coords="433,587,601,616"/><area shape="rect" id="node60" href="classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73" title="Return the first index of the Lattice cell within which this LocalCoords resides." alt="" coords="433,1221,601,1251"/><area shape="rect" id="node62" href="classLocalCoords.html#a5fe4af5a2aaa1b44f9da0482c2c73caf" title="Sets the column index for the Lattice cell within which this LocalCoords resides." alt="" coords="433,691,601,720"/><area shape="rect" id="node64" href="classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac" title="Return the second index of the Lattice cell within which this LocalCoords resides." alt="" coords="433,1275,601,1304"/><area shape="rect" id="node67" href="classLocalCoords.html#ab0d2336c8312720fd28aefd09f6f7da0" title="Constructor sets the x and y coordinates." alt="" coords="429,901,605,931"/><area shape="rect" id="node72" href="classLocalCoords.html#a433a17c4bfb3f491a16a6067e05067ae" title="Sets the pointer to the LocalCoords on the next higher nested Universe level." alt="" coords="444,795,591,824"/><area shape="rect" id="node21" href="classLocalCoords.html#a9eea7e15fe849f272854e8db1fe7268a" title="Find and return the last LocalCoords in the linked list wich represents the local coordinates on the ..." alt="" coords="653,453,848,483"/><area shape="rect" id="node25" href="classLocalCoords.html#a41901845738accab675e9a021185fcc5" title="Return a pointer to the LocalCoord at the next higher nested Universe level if one exists..." alt="" coords="677,373,824,403"/><area shape="rect" id="node31" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f" title="Set the Point&#39;s x&#45;coordinate." alt="" coords="708,955,793,984"/><area shape="rect" id="node38" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5" title="Set the Point&#39;s y&#45;coordinate." alt="" coords="708,848,793,877"/><area shape="rect" id="node69" href="classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a" title="Initializes a Point with two&#45;dimensional coordinates." alt="" coords="691,901,811,931"/><area shape="rect" id="node88" href="classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="460,1379,575,1408"/><area shape="rect" id="node93" href="classUniverse.html#a2545de3832105c879395d4fa6b639b55" title="Returns the local ID for the FSR representing a Cell in this Universe." alt="" coords="455,1432,580,1461"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a8a81fa7b3dec100737f1dcc566f4d2ca"></a>
@@ -1404,6 +1807,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>This method is called by the <a class="el" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps...">Geometry::initializeFlatSourceRegions()</a> method but may also be called by the user in Python if needed:</p>
 <div class="fragment"><div class="line">geometry.subdivideCells()</div>
 </div><!-- fragment --> 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a8a81fa7b3dec100737f1dcc566f4d2ca_cgraph.png" border="0" usemap="#classGeometry_a8a81fa7b3dec100737f1dcc566f4d2ca_cgraph" alt=""/></div>
+<map name="classGeometry_a8a81fa7b3dec100737f1dcc566f4d2ca_cgraph" id="classGeometry_a8a81fa7b3dec100737f1dcc566f4d2ca_cgraph">
+<area shape="rect" id="node3" href="classUniverse.html#ae3952c88390eda788da540d421d0b139" title="Subdivides all of the Cells within this Universe into rings and angular sectors." alt="" coords="228,112,393,141"/><area shape="rect" id="node5" href="classCellBasic.html#ad5af2c486bcfd2a0cc8531300b4edf67" title="Return the number of rings in the Cell." alt="" coords="449,5,615,35"/><area shape="rect" id="node7" href="classCellBasic.html#ad1f28a0ba1cb3c98e4a6390b5c5a28f2" title="Return the number of sectors in the Cell." alt="" coords="444,59,620,88"/><area shape="rect" id="node9" href="classCellBasic.html#a68bcdce0e270b6b439ba878a0694d5b1" title="Subdivides a Cell into rings and sectors." alt="" coords="451,112,613,141"/><area shape="rect" id="node11" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="669,191,752,220"/><area shape="rect" id="node13" href="classUniverse.html#af045c632c9b336f8d4f7be20c5a510a1" title="Adds a Cell to this Universe." alt="" coords="469,216,595,245"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_a8a81fa7b3dec100737f1dcc566f4d2ca_icgraph.png" border="0" usemap="#classGeometry_a8a81fa7b3dec100737f1dcc566f4d2ca_icgraph" alt=""/></div>
+<map name="classGeometry_a8a81fa7b3dec100737f1dcc566f4d2ca_icgraph" id="classGeometry_a8a81fa7b3dec100737f1dcc566f4d2ca_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="228,5,383,51"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="ae247a0c9686286fa941142e803d289f1"></a>
@@ -1423,6 +1844,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>This method calls the <a class="el" href="classGeometry.html#ae247a0c9686286fa941142e803d289f1" title="Converts this Geometry&#39;s attributes to a character array.">toString()</a> method for all Materials, Surfaces, <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a>, Universes and Lattices contained by the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>a character array of this <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a>'s class attributes </dd></dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ae247a0c9686286fa941142e803d289f1_cgraph.png" border="0" usemap="#classGeometry_ae247a0c9686286fa941142e803d289f1_cgraph" alt=""/></div>
+<map name="classGeometry_ae247a0c9686286fa941142e803d289f1_cgraph" id="classGeometry_ae247a0c9686286fa941142e803d289f1_cgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a8a7afceb0905b411d296c57fb0f8f3ba" title="Returns the total width (x extent) of the Geometry in cm." alt="" coords="189,5,328,35"/><area shape="rect" id="node5" href="classGeometry.html#a8895b7f5b91d85926f316ac09ade9e5f" title="Returns the total height (y extent) of the Geometry in cm." alt="" coords="188,59,329,88"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classGeometry_ae247a0c9686286fa941142e803d289f1_icgraph.png" border="0" usemap="#classGeometry_ae247a0c9686286fa941142e803d289f1_icgraph" alt=""/></div>
+<map name="classGeometry_ae247a0c9686286fa941142e803d289f1_icgraph" id="classGeometry_ae247a0c9686286fa941142e803d289f1_icgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a51d5ba4a579b470d1321f365517436db" title="Prints a string representation of all of the Geometry&#39;s attributes to the console." alt="" coords="187,5,333,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
@@ -1435,7 +1874,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classGeometry.html">Geometry</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 18:24:51 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:16:29 for OpenMOC by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

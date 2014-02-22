@@ -1,0 +1,11 @@
+<map id="Lattice::getUniverse" name="Lattice::getUniverse">
+<area shape="rect" id="node3" href="$classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="209,5,351,35"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="429,52,584,81"/>
+<area shape="rect" id="node12" href="$classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="417,105,596,135"/>
+<area shape="rect" id="node15" href="$classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="420,159,593,188"/>
+<area shape="rect" id="node18" href="$classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="193,211,367,240"/>
+<area shape="rect" id="node21" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="224,264,336,293"/>
+<area shape="rect" id="node7" href="$classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="647,132,812,161"/>
+<area shape="rect" id="node9" href="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="863,123,1017,170"/>
+<area shape="rect" id="node23" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="417,264,596,293"/>
+</map>

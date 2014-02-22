@@ -1,0 +1,12 @@
+<map id="LocalCoords::adjustCoords" name="LocalCoords::adjustCoords">
+<area shape="rect" id="node3" href="$classLocalCoords.html#af00fc05471c68683e7b55274afdb68ba" title="Set the x&#45;coordinate for this LocalCoords." alt="" coords="244,5,375,35"/>
+<area shape="rect" id="node7" href="$classLocalCoords.html#a9623e05ee2de4ace57a7595a154a3764" title="Returns the x&#45;coordinate for this LocalCoords location." alt="" coords="244,59,375,88"/>
+<area shape="rect" id="node11" href="$classLocalCoords.html#ae7a4a2eeb8a1e17698da8b58d08c05b5" title="Set the y&#45;coordinate for this Localcoords." alt="" coords="244,112,375,141"/>
+<area shape="rect" id="node15" href="$classLocalCoords.html#ac2ca0a99b00c2aa5784ff82fba2a3618" title="Returns the y&#45;coordinate for this LocalCoords location." alt="" coords="244,165,375,195"/>
+<area shape="rect" id="node19" href="$classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="235,219,384,248"/>
+<area shape="rect" id="node21" href="$classLocalCoords.html#a41901845738accab675e9a021185fcc5" title="Return a pointer to the LocalCoord at the next higher nested Universe level if one exists..." alt="" coords="236,272,383,301"/>
+<area shape="rect" id="node5" href="$classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f" title="Set the Point&#39;s x&#45;coordinate." alt="" coords="433,5,519,35"/>
+<area shape="rect" id="node9" href="$classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="433,59,519,88"/>
+<area shape="rect" id="node13" href="$classPoint.html#a91ab67528ea9e1311d408237448e16c5" title="Set the Point&#39;s y&#45;coordinate." alt="" coords="433,112,519,141"/>
+<area shape="rect" id="node17" href="$classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="433,165,519,195"/>
+</map>

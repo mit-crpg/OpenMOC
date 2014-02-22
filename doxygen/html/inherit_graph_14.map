@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classSurface.html" title="Represents a general surface in the 2D xy&#45;plane." alt="" coords="5,32,72,61"/>
+<area shape="rect" id="node3" href="$classCircle.html" title="Represents a Circle in the xy&#45;plane." alt="" coords="120,5,176,35"/>
+<area shape="rect" id="node5" href="$classPlane.html" title="Represents a Plane perpendicular to the xy&#45;plane." alt="" coords="121,59,175,88"/>
+<area shape="rect" id="node7" href="$classXPlane.html" title="Represents a Plane perpendicular to the x&#45;axis." alt="" coords="224,5,288,35"/>
+<area shape="rect" id="node9" href="$classYPlane.html" title="Represents a Plane perpendicular to the y&#45;axis." alt="" coords="224,59,288,88"/>
+<area shape="rect" id="node11" href="$classZPlane.html" title="Represents a Plane perpendicular to the z&#45;axis." alt="" coords="225,112,287,141"/>
+</map>

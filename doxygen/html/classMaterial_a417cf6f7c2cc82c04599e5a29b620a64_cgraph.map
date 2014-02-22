@@ -1,0 +1,15 @@
+<map id="Material::clone" name="Material::clone">
+<area shape="rect" id="node3" href="$classMaterial.html#abdbf0d4678e9a6fc93f385b8231882eb" title="Constructor sets the ID and unique ID for the Material." alt="" coords="203,5,325,35"/>
+<area shape="rect" id="node5" href="$classMaterial.html#a87f3a97ca307696bcb8ec0fae721b1b6" title="Return the Material&#39;s user&#45;defined ID." alt="" coords="212,59,316,88"/>
+<area shape="rect" id="node7" href="$classMaterial.html#a5650368fddfd9793205bf6b05f25ee60" title="Set the number of energy groups for this Material." alt="" coords="161,112,367,141"/>
+<area shape="rect" id="node9" href="$classMaterial.html#a61fd26dde452e699b2b2531b993d2cab" title="Set the Material&#39;s total cross&#45;section for some energy group." alt="" coords="169,165,359,195"/>
+<area shape="rect" id="node11" href="$classMaterial.html#a4bedbd3883a56bf47b903417b34676fc" title="Set the Material&#39;s absorption cross&#45;section for some energy group." alt="" coords="169,219,359,248"/>
+<area shape="rect" id="node13" href="$classMaterial.html#a9a5b3e747ee51343327b22356549bf20" title="Set the Material&#39;s fission cross&#45;section for some energy group." alt="" coords="169,272,359,301"/>
+<area shape="rect" id="node15" href="$classMaterial.html#a4929d58a0e80b155cd1d115edbc15819" title="Set the Material&#39;s fission cross&#45;section multiplied by &#160;for some energy group." alt="" coords="161,325,367,355"/>
+<area shape="rect" id="node17" href="$classMaterial.html#a05006775ab7559d41479842043fd2e33" title="Set the Material&#39;s chi value for some energy group." alt="" coords="181,379,347,408"/>
+<area shape="rect" id="node19" href="$classMaterial.html#afa089d512b06b16196cd327502862689" title="Set the Material&#39;s scattering cross&#45;section for some energy group." alt="" coords="169,432,359,461"/>
+<area shape="rect" id="node21" href="$classMaterial.html#a5bb0558e66fd17ec7276aa1329168afc" title="Set the Material&#39;s diffusion coefficient for some energy group." alt="" coords="169,485,359,515"/>
+<area shape="rect" id="node23" href="$classMaterial.html#a78d6d92a2ff64c1a0b012886929341d7" title="Set the Material&#39;s diffusion coefficient for some energy group." alt="" coords="167,539,361,568"/>
+<area shape="rect" id="node25" href="$classMaterial.html#ab74f17b1f67bcdbfa5404dd6be179a8f" title="Set the Material&#39;s diffusion coefficient for some energy group along some CMFD mesh cell..." alt="" coords="173,592,355,621"/>
+<area shape="rect" id="node27" href="$classMaterial.html#a645e4ac06e76e0862d86912247cb71b3" title="Set the Material&#39;s CMFD corrected diffusion coefficient for some energy group." alt="" coords="169,645,359,675"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="Solver::setTrackGenerator" name="Solver::setTrackGenerator">
+<area shape="rect" id="node3" href="$classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="273,5,377,35"/>
+<area shape="rect" id="node5" href="$classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="231,58,420,105"/>
+</map>

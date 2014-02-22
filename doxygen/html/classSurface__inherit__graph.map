@@ -1,0 +1,7 @@
+<map id="Surface" name="Surface">
+<area shape="rect" id="node3" href="$classCircle.html" title="Represents a Circle in the xy&#45;plane." alt="" coords="5,382,115,658"/>
+<area shape="rect" id="node5" href="$classPlane.html" title="Represents a Plane perpendicular to the xy&#45;plane." alt="" coords="139,391,248,649"/>
+<area shape="rect" id="node7" href="$classXPlane.html" title="Represents a Plane perpendicular to the x&#45;axis." alt="" coords="25,715,119,922"/>
+<area shape="rect" id="node9" href="$classYPlane.html" title="Represents a Plane perpendicular to the y&#45;axis." alt="" coords="143,707,244,931"/>
+<area shape="rect" id="node11" href="$classZPlane.html" title="Represents a Plane perpendicular to the z&#45;axis." alt="" coords="268,707,369,931"/>
+</map>

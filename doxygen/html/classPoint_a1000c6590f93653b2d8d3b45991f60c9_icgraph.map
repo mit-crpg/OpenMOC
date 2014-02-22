@@ -1,0 +1,5 @@
+<map id="Point::distanceToPoint" name="Point::distanceToPoint">
+<area shape="rect" id="node3" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="221,5,376,35"/>
+<area shape="rect" id="node5" href="$classSurface.html#a38d24a561dd8d1e3e3a0dabc3a472634" title="Finds the minimum distance to a Surface." alt="" coords="216,59,381,88"/>
+<area shape="rect" id="node7" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="209,112,388,141"/>
+</map>

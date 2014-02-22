@@ -1,0 +1,4 @@
+<map id="Geometry::getMaterials" name="Geometry::getMaterials">
+<area shape="rect" id="node3" href="$classVectorizedSolver.html#ab4a29f8b4f8cbb4dff38ce2b85a56642" title="Sets the Geometry for the Solver and aligns all Material cross&#45;section data for SIMD vector instructi..." alt="" coords="215,13,417,43"/>
+<area shape="rect" id="node5" href="$classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="468,5,657,51"/>
+</map>

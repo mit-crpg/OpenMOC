@@ -1,0 +1,12 @@
+<map id="openmoc.process.compute_pin_powers" name="openmoc.process.compute_pin_powers">
+<area shape="rect" id="node3" href="$namespaceopenmoc_1_1process.html#a6115e946c5118ee95f71ffed07034df5" title="A recursive routine to compute the fission rate for all cells in a given universe, and for all universes contained within those cells." alt="" coords="232,68,411,115"/>
+<area shape="rect" id="node5" href="$namespaceopenmoc_1_1process.html#a151286616e1ef981c7488979ffd1fe06" title="This method stores all of the data for an OpenMOC simulation to a a binary file for downstream data p..." alt="" coords="460,94,617,140"/>
+<area shape="rect" id="node8" href="$namespaceopenmoc_1_1log.html#a0bfafaa584b4e7156cce255cb70943e5" title="Function to print a log message to the screen." alt="" coords="1079,188,1228,217"/>
+<area shape="rect" id="node10" href="$namespaceopenmoc_1_1process.html#a20436071e0dfd32af17c67bf86636a93" title="This method restores all of the data for an OpenMOC simulation from a a binary file for downstream da..." alt="" coords="668,179,836,226"/>
+<area shape="rect" id="node13" href="$namespaceopenmoc_1_1plotter.html#aff1a3faf0ddfd06c51d29b707e56a19d" title="This method takes in a Geometry object and plots a color&#45;coded 2D surface plot representing the Cells..." alt="" coords="888,75,1027,122"/>
+<area shape="rect" id="node16" href="$namespaceopenmoc_1_1plotter.html#a5d7c01d67fcbf425377b981bf78e31ca" title="This method takes in a Geometry object and plots a color&#45;coded 2D surface plot representing the flat ..." alt="" coords="887,144,1028,191"/>
+<area shape="rect" id="node19" href="$namespaceopenmoc_1_1plotter.html#af8c06de547846a573bc7c86bd5cb7840" title="This method takes in a Geometry object and plots a color&#45;coded 2D surface plot representing the flat ..." alt="" coords="888,214,1027,260"/>
+<area shape="rect" id="node22" href="$namespaceopenmoc_1_1plotter.html#a003a5d8a2b7bf92fb9d2fc4508b789aa" title="This method takes in a Geometry object and plots a color&#45;coded 2D surface plot representing the Mater..." alt="" coords="888,283,1027,330"/>
+<area shape="rect" id="node25" href="$namespaceopenmoc_1_1plotter.html#a25052c8e4973614b3109f91382801c96" title="Plots the characteristic Track segments from an OpenMOC simulation." alt="" coords="888,352,1027,399"/>
+<area shape="rect" id="node28" href="$namespaceopenmoc_1_1plotter.html#aa7d77b958747ebb815e3d35979049901" title="Plots the characteristic tracks from an OpenMOC simulation." alt="" coords="888,422,1027,468"/>
+</map>

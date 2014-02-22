@@ -1,0 +1,7 @@
+<map id="LocalCoords::setX" name="LocalCoords::setX">
+<area shape="rect" id="node3" href="$classLocalCoords.html#a9a554dc0de187957849d1577cba7a277" title="Translate all of the x,y coordinates for each LocalCoords object in the linked list." alt="" coords="185,59,364,88"/>
+<area shape="rect" id="node9" href="$classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8" title="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords." alt="" coords="188,112,361,141"/>
+<area shape="rect" id="node5" href="$classLocalCoords.html#a371080a986073525f2e0572345e438c7" title="Update the last element in the linked list (the one at the lowest level of nested Universes) to have ..." alt="" coords="413,5,616,35"/>
+<area shape="rect" id="node7" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="425,59,604,88"/>
+<area shape="rect" id="node11" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="437,112,592,141"/>
+</map>

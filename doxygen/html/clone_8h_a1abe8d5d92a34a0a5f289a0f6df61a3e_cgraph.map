@@ -1,0 +1,11 @@
+<map id="clone_track_on_gpu" name="clone_track_on_gpu">
+<area shape="rect" id="node3" href="$classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="196,5,364,35"/>
+<area shape="rect" id="node5" href="$classTrack.html#aba38ecdfdde05c79cbefaf341715a4ec" title="Return the Track&#39;s unique ID." alt="" coords="229,59,331,88"/>
+<area shape="rect" id="node7" href="$classTrack.html#ad200ad729b952101b48a99b695c81a1b" title="Return the index for the Track&#39;s azimuthal angle (with respect to the x&#45;axis)." alt="" coords="192,112,368,141"/>
+<area shape="rect" id="node9" href="$classTrack.html#ac553046c3f61abb50c00d9c16ed045a0" title="Returns whether to give the outgoing flux to the &quot;forward&quot; (false) or &quot;reverse&quot; (true) direction of t..." alt="" coords="227,165,333,195"/>
+<area shape="rect" id="node11" href="$classTrack.html#aafdc812cdaf36e09a3341284c61b8f0b" title="Returns whether to give the outgoing flux to the &quot;forward&quot; (false) or &quot;reverse&quot; (true) direction of t..." alt="" coords="221,219,339,248"/>
+<area shape="rect" id="node13" href="$classTrack.html#a724c791d976b2e42b320598a496b13d4" title="Returns the boundary condition for the flux along the Track&#39;s &quot;forward&quot; direction." alt="" coords="225,272,335,301"/>
+<area shape="rect" id="node15" href="$classTrack.html#af84359a4e08d94a446157fce41a0f968" title="Returns the boundary condition for the flux along the Track&#39;s &quot;reverse&quot; direction." alt="" coords="220,325,340,355"/>
+<area shape="rect" id="node17" href="$classTrack.html#a9f3cf1bcb2d1f234b7029b25cf657b3d" title="Returns a pointer to a segment with a given index." alt="" coords="213,379,347,408"/>
+<area shape="rect" id="node19" href="$classMaterial.html#a95de130b248a20f9237793ab92e494a3" title="Return the Material&#39;s unique ID." alt="" coords="223,432,337,461"/>
+</map>

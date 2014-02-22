@@ -1,0 +1,5 @@
+<map id="Geometry::printString" name="Geometry::printString">
+<area shape="rect" id="node3" href="$classGeometry.html#ae247a0c9686286fa941142e803d289f1" title="Converts this Geometry&#39;s attributes to a character array." alt="" coords="201,32,332,61"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a8a7afceb0905b411d296c57fb0f8f3ba" title="Returns the total width (x extent) of the Geometry in cm." alt="" coords="384,5,523,35"/>
+<area shape="rect" id="node7" href="$classGeometry.html#a8895b7f5b91d85926f316ac09ade9e5f" title="Returns the total height (y extent) of the Geometry in cm." alt="" coords="383,59,524,88"/>
+</map>

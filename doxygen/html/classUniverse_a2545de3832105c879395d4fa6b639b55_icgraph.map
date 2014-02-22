@@ -1,0 +1,7 @@
+<map id="Universe::getFSR" name="Universe::getFSR">
+<area shape="rect" id="node3" href="$classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="181,59,328,88"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="376,32,536,61"/>
+<area shape="rect" id="node11" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="379,85,533,115"/>
+<area shape="rect" id="node7" href="$classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="592,5,723,35"/>
+<area shape="rect" id="node9" href="$classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="584,59,731,88"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="clone_material_on_gpu" name="clone_material_on_gpu">
+<area shape="rect" id="node3" href="$classMaterial.html#a87f3a97ca307696bcb8ec0fae721b1b6" title="Return the Material&#39;s user&#45;defined ID." alt="" coords="259,5,363,35"/>
+<area shape="rect" id="node5" href="$classMaterial.html#a95de130b248a20f9237793ab92e494a3" title="Return the Material&#39;s unique ID." alt="" coords="253,59,368,88"/>
+<area shape="rect" id="node7" href="$classMaterial.html#a50683c7b7c62f1473809c51f37af5a13" title="Returns the number of energy groups for this Material&#39;s nuclear data." alt="" coords="208,112,413,141"/>
+<area shape="rect" id="node9" href="$classMaterial.html#a0bb70f99202814861516d5d7db94321e" title="Return the array of the Material&#39;s total cross&#45;sections." alt="" coords="241,165,380,195"/>
+<area shape="rect" id="node11" href="$classMaterial.html#aa9cf818091ddecc3dc23f394f8baa6e3" title="Return the array of the Material&#39;s absorption cross&#45;sections." alt="" coords="241,219,380,248"/>
+<area shape="rect" id="node13" href="$classMaterial.html#a88eb6a2d580f5d82896892d180cd7469" title="Return the array of the Material&#39;s scattering cross&#45;section matrix." alt="" coords="241,272,380,301"/>
+<area shape="rect" id="node15" href="$classMaterial.html#ad33fc0d6cea0feb87f43734a34432880" title="Return the array of the Material&#39;s fission cross&#45;sections." alt="" coords="241,325,380,355"/>
+<area shape="rect" id="node17" href="$classMaterial.html#ab9ebe0e1526d215f8329d3eb326c5280" title="Return the array of the Material&#39;s fission cross&#45;sections multiplied by nu ." alt="" coords="233,379,388,408"/>
+<area shape="rect" id="node19" href="$classMaterial.html#a5d5966fb7c5718246d8d03a14c1c4564" title="Return the array of the Material&#39;s chi ." alt="" coords="253,432,368,461"/>
+</map>

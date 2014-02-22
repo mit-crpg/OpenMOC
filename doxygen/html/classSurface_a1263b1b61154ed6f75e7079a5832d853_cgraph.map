@@ -1,0 +1,5 @@
+<map id="Surface::isCoordOnSurface" name="Surface::isCoordOnSurface">
+<area shape="rect" id="node3" href="$classSurface.html#ad996b11e3af07e6dea8081cb11ccfe0c" title="Return true or false if a Point is on or off of a Surface." alt="" coords="239,5,415,35"/>
+<area shape="rect" id="node7" href="$classLocalCoords.html#aff39b0f4a6cd5de5347ab154000d349b" title="Returns a pointer to the Point containing the coordinates for this LocalCoord." alt="" coords="252,59,401,88"/>
+<area shape="rect" id="node5" href="$classSurface.html#a2e0aaef635a7392806d27fb4999a9168" title="Evaluate a Point using the Surface&#39;s potential equation." alt="" coords="465,5,588,35"/>
+</map>

@@ -69,7 +69,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -120,14 +120,17 @@ $(document).ready(function(){initNavTree('classVectorizedSolver.html','');});
 <div class="dynheader">
 Inheritance diagram for VectorizedSolver:</div>
 <div class="dyncontent">
- <div class="center">
-  <img src="classVectorizedSolver.png" usemap="#VectorizedSolver_map" alt=""/>
-  <map id="VectorizedSolver_map" name="VectorizedSolver_map">
-<area href="classCPUSolver.html" title="This a subclass of the Solver class for multi-core CPUs using OpenMP multi-threading." alt="CPUSolver" shape="rect" coords="0,56,150,80"/>
-<area href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture..." alt="Solver" shape="rect" coords="0,0,150,24"/>
-<area href="classVectorizedPrivateSolver.html" title="This is a subclass of the VectorizedSolver class. This class uses a thread private array for FSR scal..." alt="VectorizedPrivateSolver" shape="rect" coords="0,168,150,192"/>
-</map>
- </div></div>
+<div class="center"><img src="classVectorizedSolver__inherit__graph.png" border="0" usemap="#VectorizedSolver_inherit__map" alt="Inheritance graph"/></div>
+<map name="VectorizedSolver_inherit__map" id="VectorizedSolver_inherit__map">
+<area shape="rect" id="node7" href="classVectorizedPrivateSolver.html" title="This is a subclass of the VectorizedSolver class. This class uses a thread private array for FSR scal..." alt="" coords="28,1587,217,1690"/><area shape="rect" id="node2" href="classCPUSolver.html" title="This a subclass of the Solver class for multi&#45;core CPUs using OpenMP multi&#45;threading." alt="" coords="25,677,220,1144"/><area shape="rect" id="node4" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture..." alt="" coords="5,6,240,629"/></map>
+</div>
+<div class="dynheader">
+Collaboration diagram for VectorizedSolver:</div>
+<div class="dyncontent">
+<div class="center"><img src="classVectorizedSolver__coll__graph.png" border="0" usemap="#VectorizedSolver_coll__map" alt="Collaboration graph"/></div>
+<map name="VectorizedSolver_coll__map" id="VectorizedSolver_coll__map">
+<area shape="rect" id="node2" href="classCPUSolver.html" title="This a subclass of the Solver class for multi&#45;core CPUs using OpenMP multi&#45;threading." alt="" coords="503,1005,697,1472"/><area shape="rect" id="node4" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture..." alt="" coords="483,331,717,954"/><area shape="rect" id="node6" href="classGeometry.html" title="The master class containing references to all geometry&#45;related objects &#45; Surfaces, Cells, Universes and Lattices &#45; and Materials." alt="" coords="5,5,125,264"/><area shape="rect" id="node8" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross&#45;sections) for neutron transport." alt="" coords="149,5,320,264"/><area shape="rect" id="node10" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration." alt="" coords="344,5,499,264"/><area shape="rect" id="node12" href="classTrack.html" title="A Track represents a characteristic line across the geometry." alt="" coords="523,5,677,264"/><area shape="rect" id="node14" href="classQuadrature.html" title="Stores values for a variety of polar quadratures which may be used." alt="" coords="701,5,859,264"/><area shape="rect" id="node16" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo..." alt="" coords="883,5,1061,264"/><area shape="rect" id="node18" href="classTimer.html" title="The Timer class is for timing and profiling regions of code." alt="" coords="1085,5,1189,264"/></map>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -369,6 +372,15 @@ Protected Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classVectorizedSolver_a4115f20eeaf814518521c75568045794_cgraph.png" border="0" usemap="#classVectorizedSolver_a4115f20eeaf814518521c75568045794_cgraph" alt=""/></div>
+<map name="classVectorizedSolver_a4115f20eeaf814518521c75568045794_cgraph" id="classVectorizedSolver_a4115f20eeaf814518521c75568045794_cgraph">
+<area shape="rect" id="node3" href="classVectorizedSolver.html#ab4a29f8b4f8cbb4dff38ce2b85a56642" title="Sets the Geometry for the Solver and aligns all Material cross&#45;section data for SIMD vector instructi..." alt="" coords="247,71,449,100"/><area shape="rect" id="node7" href="classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5" title="Sets the Solver&#39;s TrackGenerator with characteristic Tracks." alt="" coords="261,189,435,219"/><area shape="rect" id="node5" href="classGeometry.html#a79583fea11962f810751c6d8668be50a" title="Return a std::map container of Material IDs (keys) with Materials pointers (values)." alt="" coords="528,5,685,35"/><area shape="rect" id="node9" href="classTrackGenerator.html#a5ec836ced3479a5aae51132809a3d7b4" title="Returns whether or not the TrackGenerator contains Track that are for its current number of azimuthal..." alt="" coords="523,58,691,105"/><area shape="rect" id="node11" href="classTrackGenerator.html#a9c9661635df90ab658b17517548e7cc2" title="Return the number of azimuthal angles in ." alt="" coords="509,128,704,157"/><area shape="rect" id="node13" href="classTrackGenerator.html#a20e00c47aa96fbee5c2eef16e8aa006c" title="Return an array of the number of Tracks for each azimuthal angle." alt="" coords="504,181,709,227"/><area shape="rect" id="node15" href="classTrackGenerator.html#a078d71a343d4c245c38195491b2d024c" title="Return the total number of Tracks across the Geometry." alt="" coords="504,251,709,280"/><area shape="rect" id="node17" href="classTrackGenerator.html#a31deadd969cddf7eba85a442729f697a" title="Return a pointer to the array of azimuthal angle quadrature weights." alt="" coords="499,304,715,333"/><area shape="rect" id="node19" href="classTrackGenerator.html#a293c6a25a694bfcb8187cfd679fa3639" title="Returns a 2D jagged array of the Tracks." alt="" coords="517,357,696,387"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -617,6 +629,24 @@ Protected Attributes</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="classSolver.html#a117012c7ecaf59b70fa6b489562acc65">Solver</a>.</p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classVectorizedSolver_ab4a29f8b4f8cbb4dff38ce2b85a56642_cgraph.png" border="0" usemap="#classVectorizedSolver_ab4a29f8b4f8cbb4dff38ce2b85a56642_cgraph" alt=""/></div>
+<map name="classVectorizedSolver_ab4a29f8b4f8cbb4dff38ce2b85a56642_cgraph" id="classVectorizedSolver_ab4a29f8b4f8cbb4dff38ce2b85a56642_cgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a79583fea11962f810751c6d8668be50a" title="Return a std::map container of Material IDs (keys) with Materials pointers (values)." alt="" coords="260,5,417,35"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classVectorizedSolver_ab4a29f8b4f8cbb4dff38ce2b85a56642_icgraph.png" border="0" usemap="#classVectorizedSolver_ab4a29f8b4f8cbb4dff38ce2b85a56642_icgraph" alt=""/></div>
+<map name="classVectorizedSolver_ab4a29f8b4f8cbb4dff38ce2b85a56642_icgraph" id="classVectorizedSolver_ab4a29f8b4f8cbb4dff38ce2b85a56642_icgraph">
+<area shape="rect" id="node3" href="classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="260,5,449,51"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a8870d66ff12cad16d893d9f1dad0c799"></a>
@@ -752,7 +782,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classVectorizedSolver.html">VectorizedSolver</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 18:24:51 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:16:30 for OpenMOC by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

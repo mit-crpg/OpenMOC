@@ -1,0 +1,5 @@
+<map id="Universe::computeFSRMaps" name="Universe::computeFSRMaps">
+<area shape="rect" id="node3" href="$classCellFill.html#a42d8ee528341de4ec858731f0c35b649" title="Return the number of flat source regions in this CellFill." alt="" coords="260,5,409,35"/>
+<area shape="rect" id="node5" href="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="257,58,412,105"/>
+<area shape="rect" id="node7" href="$classLattice.html#afc84badb58ce4b9c3946fcc944647c30" title="Computes the flat source region base indices for each of the Lattice cells within this Lattice (i..." alt="" coords="245,128,424,157"/>
+</map>

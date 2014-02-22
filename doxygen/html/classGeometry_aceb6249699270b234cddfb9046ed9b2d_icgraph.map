@@ -1,0 +1,5 @@
+<map id="Geometry::getNumEnergyGroups" name="Geometry::getNumEnergyGroups">
+<area shape="rect" id="node3" href="$classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="295,5,388,35"/>
+<area shape="rect" id="node5" href="$classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="271,59,412,88"/>
+<area shape="rect" id="node7" href="$classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="461,59,565,88"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="Solver::checkTrackSpacing" name="Solver::checkTrackSpacing">
+<area shape="rect" id="node3" href="$classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="237,5,405,35"/>
+<area shape="rect" id="node5" href="$classTrack.html#a796efa8dc12ef0f1073ba264f4074380" title="Returns a vector of pointers to the Track&#39;s segments." alt="" coords="252,59,391,88"/>
+<area shape="rect" id="node7" href="$classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="280,112,363,141"/>
+</map>

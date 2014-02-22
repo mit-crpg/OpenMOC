@@ -1,0 +1,4 @@
+<map id="Track::getUid" name="Track::getUid">
+<area shape="rect" id="node3" href="$clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="163,5,301,35"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="155,59,309,88"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="Material::getNumEnergyGroups" name="Material::getNumEnergyGroups">
+<area shape="rect" id="node3" href="$clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="259,5,413,35"/>
+<area shape="rect" id="node5" href="$classGeometry.html#ae59d522ea23dfae9feb61b6cb000eb5e" title="Add a Material to the Geometry." alt="" coords="259,59,413,88"/>
+</map>

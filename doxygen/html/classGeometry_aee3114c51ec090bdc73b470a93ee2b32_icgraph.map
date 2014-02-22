@@ -1,0 +1,6 @@
+<map id="Geometry::getNumMaterials" name="Geometry::getNumMaterials">
+<area shape="rect" id="node3" href="$classGeometry.html#aceb6249699270b234cddfb9046ed9b2d" title="Returns the number of energy groups for each Material&#39;s nuclear data." alt="" coords="240,7,456,36"/>
+<area shape="rect" id="node7" href="$classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="505,59,647,88"/>
+<area shape="rect" id="node5" href="$classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="529,5,623,35"/>
+<area shape="rect" id="node9" href="$classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="696,59,800,88"/>
+</map>

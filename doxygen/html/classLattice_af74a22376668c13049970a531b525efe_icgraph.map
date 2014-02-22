@@ -1,0 +1,11 @@
+<map id="Lattice::getFSR" name="Lattice::getFSR">
+<area shape="rect" id="node3" href="$classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="168,45,315,75"/>
+<area shape="rect" id="node13" href="$classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="171,99,312,128"/>
+<area shape="rect" id="node15" href="$classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="365,125,520,155"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="363,5,523,35"/>
+<area shape="rect" id="node11" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="365,59,520,88"/>
+<area shape="rect" id="node7" href="$classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="589,5,720,35"/>
+<area shape="rect" id="node9" href="$classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="581,59,728,88"/>
+<area shape="rect" id="node17" href="$classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="572,125,737,155"/>
+<area shape="rect" id="node19" href="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="788,117,943,163"/>
+</map>

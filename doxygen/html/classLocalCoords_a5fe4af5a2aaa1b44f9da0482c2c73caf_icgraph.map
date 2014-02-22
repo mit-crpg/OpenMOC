@@ -1,0 +1,6 @@
+<map id="LocalCoords::setLatticeY" name="LocalCoords::setLatticeY">
+<area shape="rect" id="node3" href="$classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8" title="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords." alt="" coords="224,5,397,35"/>
+<area shape="rect" id="node7" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="255,59,367,88"/>
+<area shape="rect" id="node9" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="447,84,625,113"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="459,5,613,35"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="VectorizedPrivateSolver" name="VectorizedPrivateSolver">
+<area shape="rect" id="node2" href="$classVectorizedSolver.html" title="This is a subclass of the CPUSolver class which uses memory&#45;aligned data structures and Intel&#39;s auto&#45;..." alt="" coords="33,1193,212,1538"/>
+<area shape="rect" id="node4" href="$classCPUSolver.html" title="This a subclass of the Solver class for multi&#45;core CPUs using OpenMP multi&#45;threading." alt="" coords="25,677,220,1144"/>
+<area shape="rect" id="node6" href="$classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture..." alt="" coords="5,6,240,629"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="Material::setSigmaTByGroup" name="Material::setSigmaTByGroup">
+<area shape="rect" id="node3" href="$classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="245,5,376,35"/>
+<area shape="rect" id="node9" href="$classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="257,59,364,88"/>
+<area shape="rect" id="node5" href="$classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="424,5,560,35"/>
+<area shape="rect" id="node7" href="$classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="609,5,769,35"/>
+</map>

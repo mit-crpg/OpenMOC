@@ -1,0 +1,7 @@
+<map id="Geometry::nextLatticeHeight" name="Geometry::nextLatticeHeight">
+<area shape="rect" id="node3" href="$classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="257,5,385,35"/>
+<area shape="rect" id="node5" href="$classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="256,59,387,88"/>
+<area shape="rect" id="node7" href="$classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="272,112,371,141"/>
+<area shape="rect" id="node9" href="$classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="243,165,400,195"/>
+<area shape="rect" id="node11" href="$classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="260,219,383,248"/>
+</map>

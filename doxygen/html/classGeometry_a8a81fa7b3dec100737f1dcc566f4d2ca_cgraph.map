@@ -1,0 +1,8 @@
+<map id="Geometry::subdivideCells" name="Geometry::subdivideCells">
+<area shape="rect" id="node3" href="$classUniverse.html#ae3952c88390eda788da540d421d0b139" title="Subdivides all of the Cells within this Universe into rings and angular sectors." alt="" coords="228,112,393,141"/>
+<area shape="rect" id="node5" href="$classCellBasic.html#ad5af2c486bcfd2a0cc8531300b4edf67" title="Return the number of rings in the Cell." alt="" coords="449,5,615,35"/>
+<area shape="rect" id="node7" href="$classCellBasic.html#ad1f28a0ba1cb3c98e4a6390b5c5a28f2" title="Return the number of sectors in the Cell." alt="" coords="444,59,620,88"/>
+<area shape="rect" id="node9" href="$classCellBasic.html#a68bcdce0e270b6b439ba878a0694d5b1" title="Subdivides a Cell into rings and sectors." alt="" coords="451,112,613,141"/>
+<area shape="rect" id="node11" href="$classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="669,191,752,220"/>
+<area shape="rect" id="node13" href="$classUniverse.html#af045c632c9b336f8d4f7be20c5a510a1" title="Adds a Cell to this Universe." alt="" coords="469,216,595,245"/>
+</map>

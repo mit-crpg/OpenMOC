@@ -1,0 +1,6 @@
+<map id="Geometry::getBCLeft" name="Geometry::getBCLeft">
+<area shape="rect" id="node3" href="$classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="201,16,367,45"/>
+<area shape="rect" id="node7" href="$classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="213,71,355,100"/>
+<area shape="rect" id="node5" href="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="417,5,572,51"/>
+<area shape="rect" id="node9" href="$classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="443,75,547,104"/>
+</map>

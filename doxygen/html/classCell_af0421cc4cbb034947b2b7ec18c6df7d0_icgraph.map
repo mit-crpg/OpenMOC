@@ -1,0 +1,21 @@
+<map id="Cell::getType" name="Cell::getType">
+<area shape="rect" id="node3" href="$classGeometry.html#ae8bb828df45dc6c34349e78412268d59" title="Return a pointer to a Cell filled by a Material (CellBasic) from the Geometry." alt="" coords="181,5,341,35"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a8196cf7b0bb73ead492767a47f01db70" title="Return a pointer to a Cell filled by a Universe (CellFill) from the Geometry." alt="" coords="189,59,333,88"/>
+<area shape="rect" id="node7" href="$classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="196,112,327,141"/>
+<area shape="rect" id="node9" href="$classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="191,165,332,195"/>
+<area shape="rect" id="node17" href="$classGeometry.html#affea9525ab3495c60b0abfa66780322b" title="This is a recursive method that finds the Mesh cell height of the next lowest LATTICE in a given Univ..." alt="" coords="167,219,356,248"/>
+<area shape="rect" id="node20" href="$classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="433,268,612,297"/>
+<area shape="rect" id="node23" href="$classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="436,321,609,351"/>
+<area shape="rect" id="node26" href="$classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="436,375,609,404"/>
+<area shape="rect" id="node29" href="$classUniverse.html#a190ad75ccf5c8403a309c22b18d33e5d" title="Aggregates a list (vector) of the IDs of all Materials within the MATERIAL type Cells filling this Un..." alt="" coords="180,424,343,453"/>
+<area shape="rect" id="node33" href="$classUniverse.html#a98bd6f494727dc21c99e9b82017f5b13" title="Aggregates a list (vector) of the IDs of all Universes within the FILL type Cells filling this Univer..." alt="" coords="156,477,367,507"/>
+<area shape="rect" id="node36" href="$classUniverse.html#afb546608a947f48e8eafb307eab0d2d8" title="Returns a CellFill in this Universe." alt="" coords="192,531,331,560"/>
+<area shape="rect" id="node38" href="$classUniverse.html#abbbc6829e073e135d980c77020fc8293" title="Returns a CellBasic in this Universe." alt="" coords="184,584,339,613"/>
+<area shape="rect" id="node40" href="$classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="199,661,324,691"/>
+<area shape="rect" id="node11" href="$classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="445,215,600,244"/>
+<area shape="rect" id="node13" href="$classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="685,295,851,324"/>
+<area shape="rect" id="node15" href="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="908,286,1063,333"/>
+<area shape="rect" id="node31" href="$classGeometry.html#aa9177c6e58e051484a24c093914b853c" title="Determines the fissionability of each Universe within this Geometry." alt="" coords="416,452,629,481"/>
+<area shape="rect" id="node43" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="467,661,579,691"/>
+<area shape="rect" id="node45" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="679,661,857,691"/>
+</map>

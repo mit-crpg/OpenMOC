@@ -1,0 +1,8 @@
+<map id="Solver::setTrackGenerator" name="Solver::setTrackGenerator">
+<area shape="rect" id="node3" href="$classTrackGenerator.html#a5ec836ced3479a5aae51132809a3d7b4" title="Returns whether or not the TrackGenerator contains Track that are for its current number of azimuthal..." alt="" coords="253,5,421,51"/>
+<area shape="rect" id="node5" href="$classTrackGenerator.html#a9c9661635df90ab658b17517548e7cc2" title="Return the number of azimuthal angles in ." alt="" coords="240,75,435,104"/>
+<area shape="rect" id="node7" href="$classTrackGenerator.html#a20e00c47aa96fbee5c2eef16e8aa006c" title="Return an array of the number of Tracks for each azimuthal angle." alt="" coords="235,127,440,174"/>
+<area shape="rect" id="node9" href="$classTrackGenerator.html#a078d71a343d4c245c38195491b2d024c" title="Return the total number of Tracks across the Geometry." alt="" coords="235,197,440,227"/>
+<area shape="rect" id="node11" href="$classTrackGenerator.html#a31deadd969cddf7eba85a442729f697a" title="Return a pointer to the array of azimuthal angle quadrature weights." alt="" coords="229,251,445,280"/>
+<area shape="rect" id="node13" href="$classTrackGenerator.html#a293c6a25a694bfcb8187cfd679fa3639" title="Returns a 2D jagged array of the Tracks." alt="" coords="248,304,427,333"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="Geometry::computeFissionability" name="Geometry::computeFissionability">
+<area shape="rect" id="node3" href="$classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="309,5,437,35"/>
+<area shape="rect" id="node5" href="$classUniverse.html#a190ad75ccf5c8403a309c22b18d33e5d" title="Aggregates a list (vector) of the IDs of all Materials within the MATERIAL type Cells filling this Un..." alt="" coords="292,59,455,88"/>
+<area shape="rect" id="node9" href="$classUniverse.html#a98bd6f494727dc21c99e9b82017f5b13" title="Aggregates a list (vector) of the IDs of all Universes within the FILL type Cells filling this Univer..." alt="" coords="268,112,479,141"/>
+<area shape="rect" id="node12" href="$classUniverse.html#a519ec15f1e4c7f4b5028b5166ec0e9f1" title="Returns true if the Universe contains a Cell filled by a fissionable Material and false otherwise..." alt="" coords="295,165,452,195"/>
+<area shape="rect" id="node14" href="$classMaterial.html#a518c42114378e88c9d5a198fc6bb8c00" title="Returns whether or not the Material contains a fissionable (non&#45;zero) fission cross&#45;section." alt="" coords="297,219,449,248"/>
+<area shape="rect" id="node16" href="$classUniverse.html#a124179ed92827532c7aecbf51d8c1f42" title="Sets whether or not this Universe contains a fissionable Material with a non&#45;zero fission cross&#45;secti..." alt="" coords="285,272,461,301"/>
+<area shape="rect" id="node7" href="$classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="529,85,628,115"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="TrackGenerator::getAzimWeights" name="TrackGenerator::getAzimWeights">
+<area shape="rect" id="node3" href="$classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5" title="Sets the Solver&#39;s TrackGenerator with characteristic Tracks." alt="" coords="271,36,444,65"/>
+<area shape="rect" id="node5" href="$classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="537,5,641,35"/>
+<area shape="rect" id="node7" href="$classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="495,58,684,105"/>
+</map>

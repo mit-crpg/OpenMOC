@@ -69,7 +69,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -115,6 +115,13 @@ $(document).ready(function(){initNavTree('classTrackGenerator.html','');});
  <a href="classTrackGenerator.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="TrackGenerator_8h_source.html">src/TrackGenerator.h</a>&quot;</code></p>
+<div class="dynheader">
+Collaboration diagram for TrackGenerator:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator__coll__graph.png" border="0" usemap="#TrackGenerator_coll__map" alt="Collaboration graph"/></div>
+<map name="TrackGenerator_coll__map" id="TrackGenerator_coll__map">
+</map>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -200,6 +207,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a19c16de624bb489a4757772f08c078c3_cgraph.png" border="0" usemap="#classTrackGenerator_a19c16de624bb489a4757772f08c078c3_cgraph" alt=""/></div>
+<map name="classTrackGenerator_a19c16de624bb489a4757772f08c078c3_cgraph" id="classTrackGenerator_a19c16de624bb489a4757772f08c078c3_cgraph">
+<area shape="rect" id="node3" href="classTrackGenerator.html#a646dd957a791ae40d9319d50d87bd596" title="Set the number of azimuthal angles in ." alt="" coords="265,5,460,35"/><area shape="rect" id="node5" href="classTrackGenerator.html#aa7692a0e2fab2d8cbc14c5c8b65add6f" title="Set the suggested track spacing (cm)." alt="" coords="277,58,448,105"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <h2>Member Function Documentation</h2>
@@ -219,6 +235,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Returns whether or not the <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> contains <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a> that are for its current number of azimuthal angles, track spacing and geometry. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> conatains Tracks; false otherwise </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a5ec836ced3479a5aae51132809a3d7b4_icgraph.png" border="0" usemap="#classTrackGenerator_a5ec836ced3479a5aae51132809a3d7b4_icgraph" alt=""/></div>
+<map name="classTrackGenerator_a5ec836ced3479a5aae51132809a3d7b4_icgraph" id="classTrackGenerator_a5ec836ced3479a5aae51132809a3d7b4_icgraph">
+<area shape="rect" id="node3" href="classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5" title="Sets the Solver&#39;s TrackGenerator with characteristic Tracks." alt="" coords="225,36,399,65"/><area shape="rect" id="node5" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="492,5,596,35"/><area shape="rect" id="node7" href="classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="449,58,639,105"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a8012954f5eeeae9dfb4fd445937884ee"></a>
@@ -237,6 +262,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Generates tracks for some number of azimuthal angles and track spacing. </p>
 <p>Computes the effective angles and track spacing. Computes the number of Tracks for each azimuthal angle, allocates memory for all Tracks at each angle and sets each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s starting and ending Points, azimuthal angle, and azimuthal angle quadrature weight. </p>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a8012954f5eeeae9dfb4fd445937884ee_cgraph.png" border="0" usemap="#classTrackGenerator_a8012954f5eeeae9dfb4fd445937884ee_cgraph" alt=""/></div>
+<map name="classTrackGenerator_a8012954f5eeeae9dfb4fd445937884ee_cgraph" id="classTrackGenerator_a8012954f5eeeae9dfb4fd445937884ee_cgraph">
+<area shape="rect" id="node3" href="classGeometry.html#a8895b7f5b91d85926f316ac09ade9e5f" title="Returns the total height (y extent) of the Geometry in cm." alt="" coords="225,13,367,43"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a31deadd969cddf7eba85a442729f697a"></a>
@@ -254,6 +288,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 <p>Return a pointer to the array of azimuthal angle quadrature weights. </p>
 <dl class="section return"><dt>Returns</dt><dd>the array of azimuthal angle quadrature weights </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a31deadd969cddf7eba85a442729f697a_icgraph.png" border="0" usemap="#classTrackGenerator_a31deadd969cddf7eba85a442729f697a_icgraph" alt=""/></div>
+<map name="classTrackGenerator_a31deadd969cddf7eba85a442729f697a_icgraph" id="classTrackGenerator_a31deadd969cddf7eba85a442729f697a_icgraph">
+<area shape="rect" id="node3" href="classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5" title="Sets the Solver&#39;s TrackGenerator with characteristic Tracks." alt="" coords="271,36,444,65"/><area shape="rect" id="node5" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="537,5,641,35"/><area shape="rect" id="node7" href="classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="495,58,684,105"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -291,6 +334,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Return the number of azimuthal angles in <img class="formulaInl" alt="$ [0, 2\pi] $" src="form_27.png"/>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of azimuthal angles in <img class="formulaInl" alt="$ 2\pi $" src="form_28.png"/> </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a9c9661635df90ab658b17517548e7cc2_icgraph.png" border="0" usemap="#classTrackGenerator_a9c9661635df90ab658b17517548e7cc2_icgraph" alt=""/></div>
+<map name="classTrackGenerator_a9c9661635df90ab658b17517548e7cc2_icgraph" id="classTrackGenerator_a9c9661635df90ab658b17517548e7cc2_icgraph">
+<area shape="rect" id="node3" href="classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5" title="Sets the Solver&#39;s TrackGenerator with characteristic Tracks." alt="" coords="252,36,425,65"/><area shape="rect" id="node5" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="519,5,623,35"/><area shape="rect" id="node7" href="classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="476,58,665,105"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a4e377cdc26b0eec5f54d55ebc2249089"></a>
@@ -308,6 +360,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 <p>Return the total number of <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a> segments across the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the total number of <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a> segments </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a4e377cdc26b0eec5f54d55ebc2249089_icgraph.png" border="0" usemap="#classTrackGenerator_a4e377cdc26b0eec5f54d55ebc2249089_icgraph" alt=""/></div>
+<map name="classTrackGenerator_a4e377cdc26b0eec5f54d55ebc2249089_icgraph" id="classTrackGenerator_a4e377cdc26b0eec5f54d55ebc2249089_icgraph">
+<area shape="rect" id="node3" href="classSolver.html#aeec2b08ba9d6be88cf08f1fc02658500" title="Prints a report of the timing statistics to the console." alt="" coords="281,5,444,35"/><area shape="rect" id="node5" href="classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504" title="Fills an array with the x,y coordinates for each Track segment." alt="" coords="281,58,444,105"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -345,6 +406,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Return the total number of Tracks across the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials.">Geometry</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the total number of Tracks </dd></dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a078d71a343d4c245c38195491b2d024c_icgraph.png" border="0" usemap="#classTrackGenerator_a078d71a343d4c245c38195491b2d024c_icgraph" alt=""/></div>
+<map name="classTrackGenerator_a078d71a343d4c245c38195491b2d024c_icgraph" id="classTrackGenerator_a078d71a343d4c245c38195491b2d024c_icgraph">
+<area shape="rect" id="node3" href="classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5" title="Sets the Solver&#39;s TrackGenerator with characteristic Tracks." alt="" coords="263,36,436,65"/><area shape="rect" id="node9" href="classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935" title="Fills an array with the x,y coordinates for each Track." alt="" coords="268,89,431,135"/><area shape="rect" id="node5" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="529,5,633,35"/><area shape="rect" id="node7" href="classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="487,58,676,105"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a20e00c47aa96fbee5c2eef16e8aa006c"></a>
@@ -362,6 +432,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 <p>Return an array of the number of Tracks for each azimuthal angle. </p>
 <dl class="section return"><dt>Returns</dt><dd>array with the number of Tracks </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a20e00c47aa96fbee5c2eef16e8aa006c_icgraph.png" border="0" usemap="#classTrackGenerator_a20e00c47aa96fbee5c2eef16e8aa006c_icgraph" alt=""/></div>
+<map name="classTrackGenerator_a20e00c47aa96fbee5c2eef16e8aa006c_icgraph" id="classTrackGenerator_a20e00c47aa96fbee5c2eef16e8aa006c_icgraph">
+<area shape="rect" id="node3" href="classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5" title="Sets the Solver&#39;s TrackGenerator with characteristic Tracks." alt="" coords="263,36,436,65"/><area shape="rect" id="node5" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="529,5,633,35"/><area shape="rect" id="node7" href="classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="487,58,676,105"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -381,6 +460,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Returns a 2D jagged array of the Tracks. </p>
 <p>The first index into the array is the azimuthal angle and the second index is the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a> number for a given azimuthal angle. </p>
 <dl class="section return"><dt>Returns</dt><dd>the 2D jagged array of Tracks </dd></dl>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a293c6a25a694bfcb8187cfd679fa3639_icgraph.png" border="0" usemap="#classTrackGenerator_a293c6a25a694bfcb8187cfd679fa3639_icgraph" alt=""/></div>
+<map name="classTrackGenerator_a293c6a25a694bfcb8187cfd679fa3639_icgraph" id="classTrackGenerator_a293c6a25a694bfcb8187cfd679fa3639_icgraph">
+<area shape="rect" id="node3" href="classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5" title="Sets the Solver&#39;s TrackGenerator with characteristic Tracks." alt="" coords="233,36,407,65"/><area shape="rect" id="node5" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="500,5,604,35"/><area shape="rect" id="node7" href="classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="457,58,647,105"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -439,6 +527,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_ad18b94b9307680cf9e7053d3c03e4504_cgraph.png" border="0" usemap="#classTrackGenerator_ad18b94b9307680cf9e7053d3c03e4504_cgraph" alt=""/></div>
+<map name="classTrackGenerator_ad18b94b9307680cf9e7053d3c03e4504_cgraph" id="classTrackGenerator_ad18b94b9307680cf9e7053d3c03e4504_cgraph">
+<area shape="rect" id="node3" href="classTrackGenerator.html#a4e377cdc26b0eec5f54d55ebc2249089" title="Return the total number of Track segments across the Geometry." alt="" coords="217,5,441,35"/><area shape="rect" id="node5" href="classTrack.html#a14cbba36e759b0191961e05debcc527c" title="Returns a pointer to the Track&#39;s start Point." alt="" coords="275,59,384,88"/><area shape="rect" id="node7" href="classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="287,112,372,141"/><area shape="rect" id="node9" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="287,165,372,195"/><area shape="rect" id="node11" href="classTrack.html#adc334d5a90c1204770ab180b2f39bc56" title="Return the Track&#39;s azimuthal angle (with respect to the x&#45;axis)." alt="" coords="280,219,379,248"/><area shape="rect" id="node13" href="classTrack.html#a796efa8dc12ef0f1073ba264f4074380" title="Returns a vector of pointers to the Track&#39;s segments." alt="" coords="260,272,399,301"/><area shape="rect" id="node15" href="classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="245,325,413,355"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="a6b61a46a4dfd62aa13cab68e454ed935"></a>
@@ -476,6 +573,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </table>
   </dd>
 </dl>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a6b61a46a4dfd62aa13cab68e454ed935_cgraph.png" border="0" usemap="#classTrackGenerator_a6b61a46a4dfd62aa13cab68e454ed935_cgraph" alt=""/></div>
+<map name="classTrackGenerator_a6b61a46a4dfd62aa13cab68e454ed935_cgraph" id="classTrackGenerator_a6b61a46a4dfd62aa13cab68e454ed935_cgraph">
+<area shape="rect" id="node3" href="classTrackGenerator.html#a078d71a343d4c245c38195491b2d024c" title="Return the total number of Tracks across the Geometry." alt="" coords="217,5,423,35"/><area shape="rect" id="node5" href="classTrack.html#a14cbba36e759b0191961e05debcc527c" title="Returns a pointer to the Track&#39;s start Point." alt="" coords="265,59,375,88"/><area shape="rect" id="node7" href="classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="277,112,363,141"/><area shape="rect" id="node9" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="277,165,363,195"/><area shape="rect" id="node11" href="classTrack.html#adecdf5c5a6905609248b4fc30af5f111" title="Returns a pointer to the Track&#39;s end Point." alt="" coords="268,219,372,248"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -525,6 +631,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_a646dd957a791ae40d9319d50d87bd596_icgraph.png" border="0" usemap="#classTrackGenerator_a646dd957a791ae40d9319d50d87bd596_icgraph" alt=""/></div>
+<map name="classTrackGenerator_a646dd957a791ae40d9319d50d87bd596_icgraph" id="classTrackGenerator_a646dd957a791ae40d9319d50d87bd596_icgraph">
+<area shape="rect" id="node3" href="classTrackGenerator.html#a19c16de624bb489a4757772f08c078c3" title="Constructor for the TrackGenerator assigns default values." alt="" coords="251,5,461,35"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <a class="anchor" id="aa7692a0e2fab2d8cbc14c5c8b65add6f"></a>
@@ -549,6 +664,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classTrackGenerator_aa7692a0e2fab2d8cbc14c5c8b65add6f_icgraph.png" border="0" usemap="#classTrackGenerator_aa7692a0e2fab2d8cbc14c5c8b65add6f_icgraph" alt=""/></div>
+<map name="classTrackGenerator_aa7692a0e2fab2d8cbc14c5c8b65add6f_icgraph" id="classTrackGenerator_aa7692a0e2fab2d8cbc14c5c8b65add6f_icgraph">
+<area shape="rect" id="node3" href="classTrackGenerator.html#a19c16de624bb489a4757772f08c078c3" title="Constructor for the TrackGenerator assigns default values." alt="" coords="224,13,435,43"/></map>
+</div>
+</p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
@@ -561,7 +685,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 18:24:51 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:16:29 for OpenMOC by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

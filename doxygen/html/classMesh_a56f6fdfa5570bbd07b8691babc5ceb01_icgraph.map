@@ -1,0 +1,5 @@
+<map id="Mesh::setNumGroups" name="Mesh::setNumGroups">
+<area shape="rect" id="node3" href="$classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="229,5,365,35"/>
+<area shape="rect" id="node7" href="$classCmfd.html#a0689a29ee08097111ee813c3e997fae6" title="Set the number of coarse CMFD energy groups." alt="" coords="207,59,388,88"/>
+<area shape="rect" id="node5" href="$classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="439,5,599,35"/>
+</map>

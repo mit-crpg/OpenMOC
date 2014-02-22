@@ -1,0 +1,51 @@
+<map id="Cmfd::computeKeff" name="Cmfd::computeKeff">
+<area shape="rect" id="node3" href="$classMesh.html#a56f6fdfa5570bbd07b8691babc5ceb01" title="Set the number of energy groups." alt="" coords="212,352,361,381"/>
+<area shape="rect" id="node5" href="$classCmfd.html#aa97d965c5a865b558cd98383ac6778eb" title="Create the CMFD coarse energy group structure." alt="" coords="193,405,380,435"/>
+<area shape="rect" id="node7" href="$classMesh.html#a787f9e2f03a4d8577f0dd6ec08b539e4" title="Initializes the Mesh cell PRIMAL, PRIMAL_UPDATE and ADJOINT fluxes." alt="" coords="220,459,353,488"/>
+<area shape="rect" id="node9" href="$classMesh.html#ab37b386a4b08be476c2930338604ad7b" title="Initialize the Mesh cell Materials." alt="" coords="191,512,383,541"/>
+<area shape="rect" id="node13" href="$classTimer.html#aa8c887576ec3b0d68c10ebf4097c367c" title="Starts the Timer." alt="" coords="225,565,348,595"/>
+<area shape="rect" id="node15" href="$classMesh.html#ab77b347a84664b1c246e78f8b3bdf2c8" title="Get a Mesh cell scalar flux array." alt="" coords="477,1072,595,1101"/>
+<area shape="rect" id="node17" href="$classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="221,619,352,648"/>
+<area shape="rect" id="node52" href="$classCmfd.html#a49638bfe6101933e7b76c156dd43d532" title="Compute the diffusion coefficients: &#160;&#45; straight diffusion coefficient &#160;&#45; surface diffusion coefficien..." alt="" coords="223,1125,351,1155"/>
+<area shape="rect" id="node77" href="$classCmfd.html#a58613922850f0add48c8056c27dd0e83" title="Fill in the values in the A matrix, M matrix, and old scalar flux vector." alt="" coords="204,805,369,835"/>
+<area shape="rect" id="node87" href="$classCmfd.html#a31386e6716af0246c79f594c4fa14098" title="Multiply matrix by vector (i.e., y = M *x)." alt="" coords="476,1499,596,1528"/>
+<area shape="rect" id="node89" href="$classCmfd.html#ae6e87a58709fe78ad95b3bc9e55416a8" title="Sum all elements in a vector." alt="" coords="481,1552,591,1581"/>
+<area shape="rect" id="node91" href="$classCmfd.html#a170275051ff9c43a6011e84f1348c97e" title="Scale vectgor by some scalar value." alt="" coords="479,1605,593,1635"/>
+<area shape="rect" id="node93" href="$classCmfd.html#af83f3b89305fbc4bc8e0d5aab9822d90" title="Copy a vector to another vector." alt="" coords="479,1659,593,1688"/>
+<area shape="rect" id="node95" href="$classCmfd.html#acb66d1a509993e1dcbec5a6cfa6ee8e8" title="Solve the linear system Ax=b using Gauss Seidel with SOR." alt="" coords="224,1544,349,1573"/>
+<area shape="rect" id="node98" href="$classCmfd.html#a2885348654cf05fea72c8c361a0c5f85" title="Computes the Rayleigh quotient." alt="" coords="209,1179,364,1208"/>
+<area shape="rect" id="node101" href="$classCmfd.html#af99526efd65f8b4e4540fef70a669f53" title="Cmfd::matSubtract" alt="" coords="220,1437,353,1467"/>
+<area shape="rect" id="node103" href="$classCmfd.html#af2880d2006780f1a4c8844380c39e63c" title="Finds and returns the maximum element in a vector." alt="" coords="233,1491,340,1520"/>
+<area shape="rect" id="node105" href="$classCmfd.html#ae2c98ca17f124ff28422060c52c22894" title="Rescale the initial and converged flux arrays." alt="" coords="223,1283,351,1312"/>
+<area shape="rect" id="node111" href="$classCmfd.html#a92498d14632389804569ef690a126942" title="Update the MOC flux in each FSR." alt="" coords="208,1021,365,1051"/>
+<area shape="rect" id="node115" href="$classTimer.html#a27f97da1b1d19ad74a847703ca25c455" title="Stops the Timer." alt="" coords="227,1648,347,1677"/>
+<area shape="rect" id="node117" href="$classTimer.html#a613c775ca0b0b08f7cf1a6c165a6b6f7" title="Records a message corresponding to a time for the current split." alt="" coords="224,1701,349,1731"/>
+<area shape="rect" id="node119" href="$classTimer.html#aa56c74daecc44c72c434db6c98e69178" title="Returns the time associated with a particular split." alt="" coords="233,1755,340,1784"/>
+<area shape="rect" id="node11" href="$classMaterial.html#a5650368fddfd9793205bf6b05f25ee60" title="Set the number of energy groups for this Material." alt="" coords="433,5,639,35"/>
+<area shape="rect" id="node19" href="$classMesh.html#ab9200f0675fbaf4337cab71a26673612" title="Split the currents of the Mesh cell corners to the nearby surfaces." alt="" coords="471,379,601,408"/>
+<area shape="rect" id="node21" href="$classMesh.html#a3722a89b752680ce9c106d21c9423a4f" title="Get pointer to the FSR Materials array." alt="" coords="469,805,603,835"/>
+<area shape="rect" id="node24" href="$classMesh.html#a4738244dc29a498d007bc486777f2dbd" title="Get pointer to a std::vector of Mesh cell FSRs." alt="" coords="468,752,604,781"/>
+<area shape="rect" id="node26" href="$classMaterial.html#a88eb6a2d580f5d82896892d180cd7469" title="Return the array of the Material&#39;s scattering cross&#45;section matrix." alt="" coords="467,699,605,728"/>
+<area shape="rect" id="node28" href="$classMaterial.html#a5d5966fb7c5718246d8d03a14c1c4564" title="Return the array of the Material&#39;s chi ." alt="" coords="479,539,593,568"/>
+<area shape="rect" id="node30" href="$classMaterial.html#ab9ebe0e1526d215f8329d3eb326c5280" title="Return the array of the Material&#39;s fission cross&#45;sections multiplied by nu ." alt="" coords="459,592,613,621"/>
+<area shape="rect" id="node32" href="$classMaterial.html#aa9cf818091ddecc3dc23f394f8baa6e3" title="Return the array of the Material&#39;s absorption cross&#45;sections." alt="" coords="467,645,605,675"/>
+<area shape="rect" id="node34" href="$classMaterial.html#a0bb70f99202814861516d5d7db94321e" title="Return the array of the Material&#39;s total cross&#45;sections." alt="" coords="467,432,605,461"/>
+<area shape="rect" id="node36" href="$classMaterial.html#a7cfbc94cdbffcf086260c4ccdc536117" title="Return the array of the Material&#39;s diffusion coefficients." alt="" coords="467,859,605,888"/>
+<area shape="rect" id="node38" href="$classMesh.html#afbdac88ef84f96568b8670a26ab9888d" title="Set the volume of a Mesh cell." alt="" coords="475,485,597,515"/>
+<area shape="rect" id="node40" href="$classMaterial.html#a4bedbd3883a56bf47b903417b34676fc" title="Set the Material&#39;s absorption cross&#45;section for some energy group." alt="" coords="441,59,631,88"/>
+<area shape="rect" id="node42" href="$classMaterial.html#a61fd26dde452e699b2b2531b993d2cab" title="Set the Material&#39;s total cross&#45;section for some energy group." alt="" coords="441,112,631,141"/>
+<area shape="rect" id="node44" href="$classMaterial.html#a4929d58a0e80b155cd1d115edbc15819" title="Set the Material&#39;s fission cross&#45;section multiplied by &#160;for some energy group." alt="" coords="433,165,639,195"/>
+<area shape="rect" id="node46" href="$classMaterial.html#a5bb0558e66fd17ec7276aa1329168afc" title="Set the Material&#39;s diffusion coefficient for some energy group." alt="" coords="441,219,631,248"/>
+<area shape="rect" id="node48" href="$classMaterial.html#a05006775ab7559d41479842043fd2e33" title="Set the Material&#39;s chi value for some energy group." alt="" coords="453,272,619,301"/>
+<area shape="rect" id="node50" href="$classMaterial.html#afa089d512b06b16196cd327502862689" title="Set the Material&#39;s scattering cross&#45;section for some energy group." alt="" coords="441,325,631,355"/>
+<area shape="rect" id="node56" href="$classMesh.html#a4104d5c081d8575f25b5c3e4fef5e78e" title="Get array of Mesh cell lengths in y direction." alt="" coords="469,912,603,941"/>
+<area shape="rect" id="node58" href="$classMesh.html#ad67a2137a193fe5333dcd14aaacdbe54" title="Get array of Mesh cell lengths in x direction." alt="" coords="469,965,603,995"/>
+<area shape="rect" id="node60" href="$classMesh.html#ac25891212bc63ec14e6f03b5790b9b46" title="Get array of Mesh cell surface currents." alt="" coords="471,1179,601,1208"/>
+<area shape="rect" id="node63" href="$classMesh.html#a481d0f01cc91f00e1379d5f4806195a6" title="Get the ID of the Mesh cell next to given Mesh cell." alt="" coords="471,1232,601,1261"/>
+<area shape="rect" id="node65" href="$classCmfd.html#add0bcdf4d8737d61b377b4dcd7a70d9d" title="Compute diffusion correction factors to correct diffusion coefficients in optically thick mesh cells..." alt="" coords="448,1285,624,1315"/>
+<area shape="rect" id="node67" href="$classMesh.html#adfed01d527d2ca43e3963d0a53d820b5" title="Get the boundaryType for one side of the Mesh." alt="" coords="469,1339,603,1368"/>
+<area shape="rect" id="node69" href="$classMaterial.html#a0dcce69bacce8aa138846be7da0dcbee" title="Return the array of the Material&#39;s CMFD correction to the surface diffusion coefficients." alt="" coords="467,1019,605,1048"/>
+<area shape="rect" id="node71" href="$classMesh.html#af8ed35c6b23883b81cf464975fd8d715" title="Get the relaxation factor." alt="" coords="461,1392,611,1421"/>
+<area shape="rect" id="node73" href="$classMaterial.html#ab74f17b1f67bcdbfa5404dd6be179a8f" title="Set the Material&#39;s diffusion coefficient for some energy group along some CMFD mesh cell..." alt="" coords="445,1445,627,1475"/>
+<area shape="rect" id="node75" href="$classMaterial.html#a645e4ac06e76e0862d86912247cb71b3" title="Set the Material&#39;s CMFD corrected diffusion coefficient for some energy group." alt="" coords="441,1125,631,1155"/>
+</map>

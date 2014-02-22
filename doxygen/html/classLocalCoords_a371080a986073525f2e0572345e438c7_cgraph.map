@@ -1,0 +1,14 @@
+<map id="LocalCoords::updateMostLocal" name="LocalCoords::updateMostLocal">
+<area shape="rect" id="node3" href="$classLocalCoords.html#a9eea7e15fe849f272854e8db1fe7268a" title="Find and return the last LocalCoords in the linked list wich represents the local coordinates on the ..." alt="" coords="256,48,451,77"/>
+<area shape="rect" id="node7" href="$classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="697,49,783,79"/>
+<area shape="rect" id="node9" href="$classLocalCoords.html#a9623e05ee2de4ace57a7595a154a3764" title="Returns the x&#45;coordinate for this LocalCoords location." alt="" coords="508,101,639,131"/>
+<area shape="rect" id="node12" href="$classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="697,341,783,371"/>
+<area shape="rect" id="node14" href="$classLocalCoords.html#ac2ca0a99b00c2aa5784ff82fba2a3618" title="Returns the y&#45;coordinate for this LocalCoords location." alt="" coords="508,315,639,344"/>
+<area shape="rect" id="node17" href="$classLocalCoords.html#a9a554dc0de187957849d1577cba7a277" title="Translate all of the x,y coordinates for each LocalCoords object in the linked list." alt="" coords="264,155,443,184"/>
+<area shape="rect" id="node5" href="$classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="499,48,648,77"/>
+<area shape="rect" id="node19" href="$classLocalCoords.html#af00fc05471c68683e7b55274afdb68ba" title="Set the x&#45;coordinate for this LocalCoords." alt="" coords="508,155,639,184"/>
+<area shape="rect" id="node24" href="$classLocalCoords.html#ae7a4a2eeb8a1e17698da8b58d08c05b5" title="Set the y&#45;coordinate for this Localcoords." alt="" coords="508,208,639,237"/>
+<area shape="rect" id="node30" href="$classLocalCoords.html#a41901845738accab675e9a021185fcc5" title="Return a pointer to the LocalCoord at the next higher nested Universe level if one exists..." alt="" coords="500,261,647,291"/>
+<area shape="rect" id="node21" href="$classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f" title="Set the Point&#39;s x&#45;coordinate." alt="" coords="697,155,783,184"/>
+<area shape="rect" id="node26" href="$classPoint.html#a91ab67528ea9e1311d408237448e16c5" title="Set the Point&#39;s y&#45;coordinate." alt="" coords="697,208,783,237"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="CellFill::getNumFSRs" name="CellFill::getNumFSRs">
+<area shape="rect" id="node3" href="$classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="223,5,380,35"/>
+<area shape="rect" id="node5" href="$classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="237,59,365,88"/>
+<area shape="rect" id="node7" href="$classUniverse.html#af76741be6456d3542a302024fd4c52e4" title="Compute the FSR offset maps for this Universe and return the number of FSRs inside the Universe..." alt="" coords="207,112,396,141"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="Geometry::getCellFill" name="Geometry::getCellFill">
+<area shape="rect" id="node3" href="$classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="201,5,300,35"/>
+<area shape="rect" id="node5" href="$classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="209,59,292,88"/>
+</map>

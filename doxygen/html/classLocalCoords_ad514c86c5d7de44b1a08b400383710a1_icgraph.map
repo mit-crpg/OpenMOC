@@ -1,0 +1,7 @@
+<map id="LocalCoords::setUniverse" name="LocalCoords::setUniverse">
+<area shape="rect" id="node3" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="448,11,603,40"/>
+<area shape="rect" id="node5" href="$classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8" title="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords." alt="" coords="227,36,400,66"/>
+<area shape="rect" id="node8" href="$classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="251,114,376,143"/>
+<area shape="rect" id="node11" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="469,164,581,194"/>
+<area shape="rect" id="node13" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="652,191,831,220"/>
+</map>

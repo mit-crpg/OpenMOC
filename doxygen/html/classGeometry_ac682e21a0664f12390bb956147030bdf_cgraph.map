@@ -1,0 +1,28 @@
+<map id="Geometry::addCell" name="Geometry::addCell">
+<area shape="rect" id="node3" href="$classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="215,5,313,35"/>
+<area shape="rect" id="node5" href="$classGeometry.html#af6cb323d79275e9540d7ba4e81bccebf" title="Return a pointer to a Material object in the Geometry." alt="" coords="189,59,339,88"/>
+<area shape="rect" id="node7" href="$classCell.html#a8c9b3117ae5909be0dd1c2c9cf4f99ce" title="Return the std::map of Surface pointers and halfspaces (+/&#45;1) for all surfaces bounding the Cell..." alt="" coords="203,112,325,141"/>
+<area shape="rect" id="node9" href="$classGeometry.html#ae0c48bef75b8bd549ad5ad6edfa4644d" title="Add a Surface to the Geometry." alt="" coords="188,165,340,195"/>
+<area shape="rect" id="node23" href="$classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="223,219,305,248"/>
+<area shape="rect" id="node25" href="$classCell.html#aff9ec2bde8c171e92241588a2215a2a3" title="Return the ID of the Universe within which this Cell resides." alt="" coords="197,272,331,301"/>
+<area shape="rect" id="node27" href="$classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="184,376,344,405"/>
+<area shape="rect" id="node11" href="$classSurface.html#a017d43ba277780965b6d5aa928a635fc" title="Return the Surface&#39;s user&#45;defined ID." alt="" coords="429,5,533,35"/>
+<area shape="rect" id="node13" href="$classSurface.html#afa3ef1b6a8b18d04240ee1a3bc908780" title="Returns the type of boundary conditions for this Surface (REFLECTIVE, VACUUM or BOUNDARY_NONE)" alt="" coords="393,59,569,88"/>
+<area shape="rect" id="node15" href="$classSurface.html#a3baea26cc38b6fb0d194fca014018174" title="Returns the minimum x value on this Surface." alt="" coords="420,112,543,141"/>
+<area shape="rect" id="node17" href="$classSurface.html#aff659fd1b2d547d8b59df1b804d4098b" title="Returns the maximum x value on this Surface." alt="" coords="419,165,544,195"/>
+<area shape="rect" id="node19" href="$classSurface.html#a294b8bd2f04b3b938cc7c31cc4f941f3" title="Returns the minimum y value on this Surface." alt="" coords="420,219,543,248"/>
+<area shape="rect" id="node21" href="$classSurface.html#a1ffa35335f366974886fa7c36b564fef" title="Returns the maximum y value on this Surface." alt="" coords="419,272,544,301"/>
+<area shape="rect" id="node29" href="$classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21" title="Universe::getId" alt="" coords="651,324,760,353"/>
+<area shape="rect" id="node31" href="$classCellFill.html#a232ce5ae20d99af538e1db21c7b5d290" title="Return the ID of the Universe filling this Cell." alt="" coords="397,376,565,405"/>
+<area shape="rect" id="node33" href="$classCellFill.html#a557f647cc02f782866db15f5f7f04104" title="Set a pointer to the Universe filling this CellFill." alt="" coords="403,429,560,475"/>
+<area shape="rect" id="node36" href="$classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="408,564,555,593"/>
+<area shape="rect" id="node38" href="$classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066" title="Return the level (UNIV or LAT) of this LocalCoords." alt="" coords="631,377,780,407"/>
+<area shape="rect" id="node40" href="$classLocalCoords.html#abd2c9a1c25b7122f6db3e5cba016be6d" title="Return the ID of the Lattice within which this LocalCoords resides." alt="" coords="625,431,785,460"/>
+<area shape="rect" id="node42" href="$classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="648,484,763,513"/>
+<area shape="rect" id="node44" href="$classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73" title="Return the first index of the Lattice cell within which this LocalCoords resides." alt="" coords="621,537,789,567"/>
+<area shape="rect" id="node46" href="$classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac" title="Return the second index of the Lattice cell within which this LocalCoords resides." alt="" coords="621,591,789,620"/>
+<area shape="rect" id="node48" href="$classLocalCoords.html#a746874a431aa9c7c53e0d56731a41fe7" title="Return the ID of the Universe within which this LocalCoords resides." alt="" coords="619,644,792,673"/>
+<area shape="rect" id="node50" href="$classUniverse.html#a2545de3832105c879395d4fa6b639b55" title="Returns the local ID for the FSR representing a Cell in this Universe." alt="" coords="643,697,768,727"/>
+<area shape="rect" id="node52" href="$classLocalCoords.html#a3cca83a3745f138c0ba4f62dcd6c3de2" title="Return the ID of the Cell within which this LocalCoords resides." alt="" coords="633,751,777,780"/>
+<area shape="rect" id="node54" href="$classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="631,804,780,833"/>
+</map>

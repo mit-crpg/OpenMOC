@@ -1,0 +1,6 @@
+<map id="Universe::setOrigin" name="Universe::setOrigin">
+<area shape="rect" id="node3" href="$classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f" title="Set the Point&#39;s x&#45;coordinate." alt="" coords="191,5,276,35"/>
+<area shape="rect" id="node5" href="$classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="191,59,276,88"/>
+<area shape="rect" id="node7" href="$classPoint.html#a91ab67528ea9e1311d408237448e16c5" title="Set the Point&#39;s y&#45;coordinate." alt="" coords="191,112,276,141"/>
+<area shape="rect" id="node9" href="$classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="191,165,276,195"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="LocalCoords::toString" name="LocalCoords::toString">
+<area shape="rect" id="node3" href="$classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066" title="Return the level (UNIV or LAT) of this LocalCoords." alt="" coords="215,5,364,35"/>
+<area shape="rect" id="node5" href="$classLocalCoords.html#a9623e05ee2de4ace57a7595a154a3764" title="Returns the x&#45;coordinate for this LocalCoords location." alt="" coords="224,59,355,88"/>
+<area shape="rect" id="node9" href="$classLocalCoords.html#ac2ca0a99b00c2aa5784ff82fba2a3618" title="Returns the y&#45;coordinate for this LocalCoords location." alt="" coords="224,112,355,141"/>
+<area shape="rect" id="node13" href="$classLocalCoords.html#a746874a431aa9c7c53e0d56731a41fe7" title="Return the ID of the Universe within which this LocalCoords resides." alt="" coords="203,165,376,195"/>
+<area shape="rect" id="node15" href="$classLocalCoords.html#a3cca83a3745f138c0ba4f62dcd6c3de2" title="Return the ID of the Cell within which this LocalCoords resides." alt="" coords="217,219,361,248"/>
+<area shape="rect" id="node17" href="$classLocalCoords.html#abd2c9a1c25b7122f6db3e5cba016be6d" title="Return the ID of the Lattice within which this LocalCoords resides." alt="" coords="209,272,369,301"/>
+<area shape="rect" id="node19" href="$classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73" title="Return the first index of the Lattice cell within which this LocalCoords resides." alt="" coords="205,325,373,355"/>
+<area shape="rect" id="node21" href="$classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac" title="Return the second index of the Lattice cell within which this LocalCoords resides." alt="" coords="205,379,373,408"/>
+<area shape="rect" id="node23" href="$classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="215,432,364,461"/>
+<area shape="rect" id="node7" href="$classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="425,59,511,88"/>
+<area shape="rect" id="node11" href="$classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="425,112,511,141"/>
+</map>

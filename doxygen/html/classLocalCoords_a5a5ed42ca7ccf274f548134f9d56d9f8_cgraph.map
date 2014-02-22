@@ -1,0 +1,30 @@
+<map id="LocalCoords::copyCoords" name="LocalCoords::copyCoords">
+<area shape="rect" id="node3" href="$classLocalCoords.html#ab6a1654615643dabd35a19c8ed5f7dad" title="Removes and frees memory for all LocalCoords beyond this one in the linked list." alt="" coords="248,59,381,88"/>
+<area shape="rect" id="node7" href="$classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="693,85,843,115"/>
+<area shape="rect" id="node11" href="$classLocalCoords.html#ad0d95a64372a6b60c4a7276350380c7c" title="Sets the pointer to the LocalCoords on the next lower nested Universe level." alt="" coords="473,112,623,141"/>
+<area shape="rect" id="node13" href="$classLocalCoords.html#af00fc05471c68683e7b55274afdb68ba" title="Set the x&#45;coordinate for this LocalCoords." alt="" coords="249,216,380,245"/>
+<area shape="rect" id="node17" href="$classLocalCoords.html#a9623e05ee2de4ace57a7595a154a3764" title="Returns the x&#45;coordinate for this LocalCoords location." alt="" coords="249,269,380,299"/>
+<area shape="rect" id="node21" href="$classLocalCoords.html#ae7a4a2eeb8a1e17698da8b58d08c05b5" title="Set the y&#45;coordinate for this Localcoords." alt="" coords="249,323,380,352"/>
+<area shape="rect" id="node25" href="$classLocalCoords.html#ac2ca0a99b00c2aa5784ff82fba2a3618" title="Returns the y&#45;coordinate for this LocalCoords location." alt="" coords="249,376,380,405"/>
+<area shape="rect" id="node29" href="$classLocalCoords.html#ad514c86c5d7de44b1a08b400383710a1" title="Set the ID of the Universe within which this LocalCoords resides." alt="" coords="228,429,401,459"/>
+<area shape="rect" id="node31" href="$classLocalCoords.html#a746874a431aa9c7c53e0d56731a41fe7" title="Return the ID of the Universe within which this LocalCoords resides." alt="" coords="228,483,401,512"/>
+<area shape="rect" id="node33" href="$classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066" title="Return the level (UNIV or LAT) of this LocalCoords." alt="" coords="240,536,389,565"/>
+<area shape="rect" id="node35" href="$classLocalCoords.html#a5eb0104c614b60dee59177afbf5a1d09" title="Set the type of LocalCoords (UNIV or LAT)." alt="" coords="240,589,389,619"/>
+<area shape="rect" id="node37" href="$classLocalCoords.html#a459a5178aa8861a4d9504d7aea0d4a6a" title="Set the ID of the Cell within which this LocalCoords resides." alt="" coords="243,643,387,672"/>
+<area shape="rect" id="node39" href="$classLocalCoords.html#a3cca83a3745f138c0ba4f62dcd6c3de2" title="Return the ID of the Cell within which this LocalCoords resides." alt="" coords="243,696,387,725"/>
+<area shape="rect" id="node41" href="$classLocalCoords.html#acba537be0e701e2bd46a8d2cabf54881" title="Sets the ID of the Lattice within which this LocalCoords resides." alt="" coords="235,749,395,779"/>
+<area shape="rect" id="node43" href="$classLocalCoords.html#abd2c9a1c25b7122f6db3e5cba016be6d" title="Return the ID of the Lattice within which this LocalCoords resides." alt="" coords="235,803,395,832"/>
+<area shape="rect" id="node45" href="$classLocalCoords.html#aaebab559746c2641969f7aea7055f4d7" title="Sets the row index for the Lattice cell within which this LocalCoords resides." alt="" coords="231,856,399,885"/>
+<area shape="rect" id="node47" href="$classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73" title="Return the first index of the Lattice cell within which this LocalCoords resides." alt="" coords="231,909,399,939"/>
+<area shape="rect" id="node49" href="$classLocalCoords.html#a5fe4af5a2aaa1b44f9da0482c2c73caf" title="Sets the column index for the Lattice cell within which this LocalCoords resides." alt="" coords="231,963,399,992"/>
+<area shape="rect" id="node51" href="$classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac" title="Return the second index of the Lattice cell within which this LocalCoords resides." alt="" coords="231,1016,399,1045"/>
+<area shape="rect" id="node54" href="$classLocalCoords.html#ab0d2336c8312720fd28aefd09f6f7da0" title="Constructor sets the x and y coordinates." alt="" coords="227,1069,403,1099"/>
+<area shape="rect" id="node59" href="$classLocalCoords.html#a433a17c4bfb3f491a16a6067e05067ae" title="Sets the pointer to the LocalCoords on the next higher nested Universe level." alt="" coords="241,1123,388,1152"/>
+<area shape="rect" id="node5" href="$classLocalCoords.html#a9eea7e15fe849f272854e8db1fe7268a" title="Find and return the last LocalCoords in the linked list wich represents the local coordinates on the ..." alt="" coords="451,5,645,35"/>
+<area shape="rect" id="node9" href="$classLocalCoords.html#a41901845738accab675e9a021185fcc5" title="Return a pointer to the LocalCoord at the next higher nested Universe level if one exists..." alt="" coords="475,59,621,88"/>
+<area shape="rect" id="node15" href="$classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f" title="Set the Point&#39;s x&#45;coordinate." alt="" coords="505,216,591,245"/>
+<area shape="rect" id="node19" href="$classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="505,269,591,299"/>
+<area shape="rect" id="node23" href="$classPoint.html#a91ab67528ea9e1311d408237448e16c5" title="Set the Point&#39;s y&#45;coordinate." alt="" coords="505,323,591,352"/>
+<area shape="rect" id="node27" href="$classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="505,376,591,405"/>
+<area shape="rect" id="node56" href="$classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a" title="Initializes a Point with two&#45;dimensional coordinates." alt="" coords="488,1069,608,1099"/>
+</map>

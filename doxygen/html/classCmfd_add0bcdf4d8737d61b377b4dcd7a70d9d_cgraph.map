@@ -1,0 +1,5 @@
+<map id="Cmfd::computeDiffCorrect" name="Cmfd::computeDiffCorrect">
+<area shape="rect" id="node3" href="$classMesh.html#ab98bd2d6ebcc7c9e46ae7e838cd2ad38" title="Return whether optically thick diffusion correction factor is in use." alt="" coords="231,5,393,35"/>
+<area shape="rect" id="node5" href="$classQuadrature.html#a891c96ac4127b45461832bd72cbaf364" title="Returns the &#160;value for a particular polar angle." alt="" coords="231,59,393,88"/>
+<area shape="rect" id="node7" href="$classQuadrature.html#a7dde6379ad5b6b02cbc2aea3f5f9bce5" title="Returns the weight value for a particular polar angle." alt="" coords="236,112,388,141"/>
+</map>

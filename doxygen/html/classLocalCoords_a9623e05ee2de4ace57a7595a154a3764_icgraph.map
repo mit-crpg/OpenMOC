@@ -1,0 +1,12 @@
+<map id="LocalCoords::getX" name="LocalCoords::getX">
+<area shape="rect" id="node3" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="437,57,592,87"/>
+<area shape="rect" id="node5" href="$classLocalCoords.html#a9a554dc0de187957849d1577cba7a277" title="Translate all of the x,y coordinates for each LocalCoords object in the linked list." alt="" coords="185,499,364,528"/>
+<area shape="rect" id="node7" href="$classLocalCoords.html#a371080a986073525f2e0572345e438c7" title="Update the last element in the linked list (the one at the lowest level of nested Universes) to have ..." alt="" coords="413,447,616,476"/>
+<area shape="rect" id="node9" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="665,291,844,320"/>
+<area shape="rect" id="node12" href="$classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8" title="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords." alt="" coords="188,109,361,139"/>
+<area shape="rect" id="node15" href="$classLocalCoords.html#a82104907b1705c31fbc12e61deb77cf5" title="Converts this LocalCoords&#39;s attributes to a character array representation." alt="" coords="201,291,348,320"/>
+<area shape="rect" id="node17" href="$classMesh.html#ad3bde7577f1b12057769b68981a78f48" title="Using an FSR ID and coordinate, find which surface a coordinate is on." alt="" coords="195,5,355,35"/>
+<area shape="rect" id="node20" href="$classMesh.html#aa4570b874a18a4356680a10c1529afd6" title="Get the Mesh Cell ID given a LocalCoords object." alt="" coords="216,395,333,424"/>
+<area shape="rect" id="node22" href="$classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="212,237,337,267"/>
+<area shape="rect" id="node25" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="459,291,571,320"/>
+</map>

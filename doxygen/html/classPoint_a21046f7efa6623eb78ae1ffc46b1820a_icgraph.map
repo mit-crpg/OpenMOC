@@ -1,0 +1,9 @@
+<map id="Point::setCoords" name="Point::setCoords">
+<area shape="rect" id="node3" href="$classLocalCoords.html#ab0d2336c8312720fd28aefd09f6f7da0" title="Constructor sets the x and y coordinates." alt="" coords="176,5,352,35"/>
+<area shape="rect" id="node9" href="$classPlane.html#a6e1b304a38f0c6d6f7dc985d548e0304" title="Finds the intersection Point with this Plane from a given Point and trajectory defined by an angle..." alt="" coords="199,59,329,88"/>
+<area shape="rect" id="node11" href="$classCircle.html#a49e3967db73a8f068dbe6302a84370f6" title="Finds the intersection Point with this circle from a given Point and trajectory defined by an angle (..." alt="" coords="199,112,329,141"/>
+<area shape="rect" id="node13" href="$classTrack.html#a321e6d98cba4d260b7ca787013f85186" title="Set the values for the Track&#39;s start and end point and angle." alt="" coords="204,165,324,195"/>
+<area shape="rect" id="node15" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="175,219,353,248"/>
+<area shape="rect" id="node5" href="$classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8" title="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords." alt="" coords="403,5,576,35"/>
+<area shape="rect" id="node7" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="624,5,779,35"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture..." alt="" coords="5,59,64,88"/>
+<area shape="rect" id="node3" href="$classCPUSolver.html" title="This a subclass of the Solver class for multi&#45;core CPUs using OpenMP multi&#45;threading." alt="" coords="112,32,200,61"/>
+<area shape="rect" id="node11" href="$classGPUSolver.html" title="This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs)." alt="" coords="112,85,200,115"/>
+<area shape="rect" id="node5" href="$classThreadPrivateSolver.html" title="This is a subclass of the CPUSolver which uses thread private arrays for the FSR scalar fluxes to min..." alt="" coords="249,5,388,35"/>
+<area shape="rect" id="node7" href="$classVectorizedSolver.html" title="This is a subclass of the CPUSolver class which uses memory&#45;aligned data structures and Intel&#39;s auto&#45;..." alt="" coords="259,59,379,88"/>
+<area shape="rect" id="node9" href="$classVectorizedPrivateSolver.html" title="This is a subclass of the VectorizedSolver class. This class uses a thread private array for FSR scal..." alt="" coords="437,59,600,88"/>
+</map>

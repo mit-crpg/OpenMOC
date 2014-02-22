@@ -1,0 +1,7 @@
+<map id="CellBasic::clone" name="CellBasic::clone">
+<area shape="rect" id="node3" href="$classCellBasic.html#ae40a1bd96323a32693d1088bd9b9a1cc" title="CellBasic::CellBasic" alt="" coords="172,59,313,88"/>
+<area shape="rect" id="node9" href="$classCell.html#aaf1680b706b11b4b0121aef6a4a81009" title="Insert a Surface into this Cells container." alt="" coords="184,112,301,141"/>
+<area shape="rect" id="node5" href="$classCellBasic.html#aabb439fc80329f063ccca9a1aa70e5a2" title="Set the Cell&#39;s number of rings." alt="" coords="369,5,535,35"/>
+<area shape="rect" id="node7" href="$classCellBasic.html#a6387edfa5eadaf8b21dbce6b30cf7521" title="Set the Cell&#39;s number of sectors." alt="" coords="364,59,540,88"/>
+<area shape="rect" id="node11" href="$classSurface.html#a017d43ba277780965b6d5aa928a635fc" title="Return the Surface&#39;s user&#45;defined ID." alt="" coords="400,112,504,141"/>
+</map>

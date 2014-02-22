@@ -1,0 +1,5 @@
+<map id="CellBasic::setNumSectors" name="CellBasic::setNumSectors">
+<area shape="rect" id="node3" href="$classCellBasic.html#ae40a1bd96323a32693d1088bd9b9a1cc" title="CellBasic::CellBasic" alt="" coords="233,5,375,35"/>
+<area shape="rect" id="node5" href="$classCellBasic.html#a11467ff4cc874cb9688ff12feef184a6" title="Create a duplicate of the CellBasic." alt="" coords="424,5,541,35"/>
+<area shape="rect" id="node7" href="$classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90" title="Clones this Universe and all of the Cells within it and returns it." alt="" coords="591,5,703,35"/>
+</map>

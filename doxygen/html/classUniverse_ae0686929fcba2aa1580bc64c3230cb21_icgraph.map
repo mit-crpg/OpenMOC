@@ -1,0 +1,10 @@
+<map id="Universe::getId" name="Universe::getId">
+<area shape="rect" id="node3" href="$classCellFill.html#a557f647cc02f782866db15f5f7f04104" title="Set a pointer to the Universe filling this CellFill." alt="" coords="165,5,323,51"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="381,72,541,101"/>
+<area shape="rect" id="node9" href="$classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="600,125,747,155"/>
+<area shape="rect" id="node13" href="$classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90" title="Clones this Universe and all of the Cells within it and returns it." alt="" coords="188,176,300,205"/>
+<area shape="rect" id="node15" href="$classLattice.html#a9a59a806e3629135d7ea784669a6c12c" title="Sets the pointer to a Universe filling one of this Lattice&#39;s Lattice cells." alt="" coords="372,201,551,231"/>
+<area shape="rect" id="node18" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="188,280,300,309"/>
+<area shape="rect" id="node20" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="372,305,551,335"/>
+<area shape="rect" id="node7" href="$classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="608,72,739,101"/>
+</map>

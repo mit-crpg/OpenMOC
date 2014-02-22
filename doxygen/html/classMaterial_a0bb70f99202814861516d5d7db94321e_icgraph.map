@@ -1,0 +1,9 @@
+<map id="Material::getSigmaT" name="Material::getSigmaT">
+<area shape="rect" id="node3" href="$clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="192,5,347,35"/>
+<area shape="rect" id="node5" href="$classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="204,59,335,88"/>
+<area shape="rect" id="node11" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="192,112,347,141"/>
+<area shape="rect" id="node13" href="$classThreadPrivateSolver.html#a0d9da6c56e767cb2d16759e92e0fecf1" title="Computes the contribution to the FSR scalar flux from a Track segment." alt="" coords="200,165,339,211"/>
+<area shape="rect" id="node7" href="$classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="397,59,533,88"/>
+<area shape="rect" id="node9" href="$classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="585,59,745,88"/>
+<area shape="rect" id="node15" href="$classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0" title="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups." alt="" coords="396,165,535,211"/>
+</map>

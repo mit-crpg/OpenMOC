@@ -1,0 +1,5 @@
+<map id="Cell::cellContainsCoords" name="Cell::cellContainsCoords">
+<area shape="rect" id="node3" href="$classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="223,29,348,59"/>
+<area shape="rect" id="node6" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="399,29,511,59"/>
+<area shape="rect" id="node8" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="561,29,740,59"/>
+</map>

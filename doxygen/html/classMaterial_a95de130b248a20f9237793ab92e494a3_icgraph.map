@@ -1,0 +1,7 @@
+<map id="Material::getUid" name="Material::getUid">
+<area shape="rect" id="node3" href="$clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="180,5,335,35"/>
+<area shape="rect" id="node5" href="$clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="188,59,327,88"/>
+<area shape="rect" id="node7" href="$classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5" title="Initialize the FSRs." alt="" coords="187,112,328,141"/>
+<area shape="rect" id="node11" href="$classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="169,165,345,195"/>
+<area shape="rect" id="node9" href="$classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="396,112,489,141"/>
+</map>

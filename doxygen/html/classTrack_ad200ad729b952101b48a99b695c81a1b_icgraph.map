@@ -1,0 +1,5 @@
+<map id="Track::getAzimAngleIndex" name="Track::getAzimAngleIndex">
+<area shape="rect" id="node3" href="$clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="249,5,388,35"/>
+<area shape="rect" id="node5" href="$classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="231,59,407,88"/>
+<area shape="rect" id="node7" href="$classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0" title="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups." alt="" coords="249,111,388,158"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="Lattice::getNumY" name="Lattice::getNumY">
+<area shape="rect" id="node3" href="$classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="200,5,347,35"/>
+<area shape="rect" id="node5" href="$classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="203,59,344,88"/>
+<area shape="rect" id="node7" href="$classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="428,135,583,164"/>
+<area shape="rect" id="node14" href="$classGeometry.html#affea9525ab3495c60b0abfa66780322b" title="This is a recursive method that finds the Mesh cell height of the next lowest LATTICE in a given Univ..." alt="" coords="179,163,368,192"/>
+<area shape="rect" id="node17" href="$classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="416,211,595,240"/>
+<area shape="rect" id="node20" href="$classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="419,264,592,293"/>
+<area shape="rect" id="node23" href="$classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="419,317,592,347"/>
+<area shape="rect" id="node9" href="$classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="644,237,809,267"/>
+<area shape="rect" id="node11" href="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="860,229,1015,275"/>
+</map>

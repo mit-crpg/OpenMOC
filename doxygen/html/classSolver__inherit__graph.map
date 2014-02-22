@@ -1,0 +1,7 @@
+<map id="Solver" name="Solver">
+<area shape="rect" id="node3" href="$classCPUSolver.html" title="This a subclass of the Solver class for multi&#45;core CPUs using OpenMP multi&#45;threading." alt="" coords="124,677,319,1144"/>
+<area shape="rect" id="node11" href="$classGPUSolver.html" title="This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs)." alt="" coords="343,764,537,1057"/>
+<area shape="rect" id="node5" href="$classThreadPrivateSolver.html" title="This is a subclass of the CPUSolver which uses thread private arrays for the FSR scalar fluxes to min..." alt="" coords="5,1236,219,1495"/>
+<area shape="rect" id="node7" href="$classVectorizedSolver.html" title="This is a subclass of the CPUSolver class which uses memory&#45;aligned data structures and Intel&#39;s auto&#45;..." alt="" coords="243,1193,421,1538"/>
+<area shape="rect" id="node9" href="$classVectorizedPrivateSolver.html" title="This is a subclass of the VectorizedSolver class. This class uses a thread private array for FSR scal..." alt="" coords="237,1587,427,1690"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="Material::getDifCoef" name="Material::getDifCoef">
+<area shape="rect" id="node3" href="$classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="192,5,323,35"/>
+<area shape="rect" id="node9" href="$classCmfd.html#a49638bfe6101933e7b76c156dd43d532" title="Compute the diffusion coefficients: &#160;&#45; straight diffusion coefficient &#160;&#45; surface diffusion coefficien..." alt="" coords="193,59,321,88"/>
+<area shape="rect" id="node5" href="$classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="371,32,507,61"/>
+<area shape="rect" id="node7" href="$classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="556,32,716,61"/>
+</map>

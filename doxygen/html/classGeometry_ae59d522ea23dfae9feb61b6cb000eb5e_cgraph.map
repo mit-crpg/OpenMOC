@@ -1,0 +1,5 @@
+<map id="Geometry::addMaterial" name="Geometry::addMaterial">
+<area shape="rect" id="node3" href="$classMaterial.html#a50683c7b7c62f1473809c51f37af5a13" title="Returns the number of energy groups for this Material&#39;s nuclear data." alt="" coords="208,5,413,35"/>
+<area shape="rect" id="node5" href="$classMaterial.html#a87f3a97ca307696bcb8ec0fae721b1b6" title="Return the Material&#39;s user&#45;defined ID." alt="" coords="259,59,363,88"/>
+<area shape="rect" id="node7" href="$classMaterial.html#a2defb57596c868a773cea7c094fe61f6" title="Checks if the total cross&#45;section for this Material is equal to the absorption plus scattering cross&#45;..." alt="" coords="233,112,388,141"/>
+</map>

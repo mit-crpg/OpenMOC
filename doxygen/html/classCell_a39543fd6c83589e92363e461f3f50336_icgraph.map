@@ -1,0 +1,21 @@
+<map id="Cell::getId" name="Cell::getId">
+<area shape="rect" id="node3" href="$classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5" title="Initialize the FSRs." alt="" coords="157,5,299,35"/>
+<area shape="rect" id="node7" href="$classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="140,59,316,88"/>
+<area shape="rect" id="node9" href="$classGeometry.html#ae8bb828df45dc6c34349e78412268d59" title="Return a pointer to a Cell filled by a Material (CellBasic) from the Geometry." alt="" coords="148,112,308,141"/>
+<area shape="rect" id="node11" href="$classGeometry.html#a8196cf7b0bb73ead492767a47f01db70" title="Return a pointer to a Cell filled by a Universe (CellFill) from the Geometry." alt="" coords="156,165,300,195"/>
+<area shape="rect" id="node13" href="$classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="163,219,293,248"/>
+<area shape="rect" id="node15" href="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="815,302,969,349"/>
+<area shape="rect" id="node17" href="$classSolver.html#a4ab290c6ca1d74230bf885cfc7f58b7a" title="Checks that each FSR has at least one Track segment crossing it and if not, throws an exception and p..." alt="" coords="137,323,319,352"/>
+<area shape="rect" id="node21" href="$classUniverse.html#a5d8cb5356f72e52bef498e2cbeb95328" title="Aggregates a list (vector) of the IDs of all Cells in the Universe." alt="" coords="157,376,299,405"/>
+<area shape="rect" id="node23" href="$classUniverse.html#af045c632c9b336f8d4f7be20c5a510a1" title="Adds a Cell to this Universe." alt="" coords="165,480,291,509"/>
+<area shape="rect" id="node25" href="$classUniverse.html#ae3952c88390eda788da540d421d0b139" title="Subdivides all of the Cells within this Universe into rings and angular sectors." alt="" coords="369,427,535,456"/>
+<area shape="rect" id="node32" href="$classUniverse.html#afb546608a947f48e8eafb307eab0d2d8" title="Returns a CellFill in this Universe." alt="" coords="159,533,297,563"/>
+<area shape="rect" id="node34" href="$classUniverse.html#abbbc6829e073e135d980c77020fc8293" title="Returns a CellBasic in this Universe." alt="" coords="151,587,305,616"/>
+<area shape="rect" id="node36" href="$classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="165,664,291,693"/>
+<area shape="rect" id="node5" href="$classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="405,5,499,35"/>
+<area shape="rect" id="node19" href="$classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="372,323,532,352"/>
+<area shape="rect" id="node30" href="$classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90" title="Clones this Universe and all of the Cells within it and returns it." alt="" coords="396,480,508,509"/>
+<area shape="rect" id="node27" href="$classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca" title="Subidivides all Cells in the Geometry into rings and angular sectors." alt="" coords="589,388,760,417"/>
+<area shape="rect" id="node39" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="396,664,508,693"/>
+<area shape="rect" id="node41" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="585,664,764,693"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="Surface::getMinDistance" name="Surface::getMinDistance">
+<area shape="rect" id="node3" href="$classSurface.html#a145ed967142bc6c121d43f5f2523e2e9" title="Finds the intersection Point with this Surface from a given Point and trajectory defined by an angle..." alt="" coords="228,5,369,35"/>
+<area shape="rect" id="node5" href="$classPoint.html#a1000c6590f93653b2d8d3b45991f60c9" title="Compute the distance from this Point to another Point of interest." alt="" coords="221,59,376,88"/>
+<area shape="rect" id="node7" href="$classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f" title="Set the Point&#39;s x&#45;coordinate." alt="" coords="256,112,341,141"/>
+<area shape="rect" id="node9" href="$classPoint.html#a91ab67528ea9e1311d408237448e16c5" title="Set the Point&#39;s y&#45;coordinate." alt="" coords="256,165,341,195"/>
+</map>

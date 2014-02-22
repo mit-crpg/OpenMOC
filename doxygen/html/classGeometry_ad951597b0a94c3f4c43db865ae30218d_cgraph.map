@@ -1,0 +1,51 @@
+<map id="Geometry::initializeFlatSourceRegions" name="Geometry::initializeFlatSourceRegions">
+<area shape="rect" id="node3" href="$classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca" title="Subidivides all Cells in the Geometry into rings and angular sectors." alt="" coords="221,177,392,207"/>
+<area shape="rect" id="node13" href="$classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="904,216,987,245"/>
+<area shape="rect" id="node18" href="$classUniverse.html#af76741be6456d3542a302024fd4c52e4" title="Compute the FSR offset maps for this Universe and return the number of FSRs inside the Universe..." alt="" coords="212,320,401,349"/>
+<area shape="rect" id="node21" href="$classGeometry.html#af6cb323d79275e9540d7ba4e81bccebf" title="Return a pointer to a Material object in the Geometry." alt="" coords="232,373,381,403"/>
+<area shape="rect" id="node23" href="$classCellBasic.html#a514c35ecf0d8b33d1e81e9eec2fc10a9" title="Return the ID of the Material filling the CellBasic." alt="" coords="232,427,381,456"/>
+<area shape="rect" id="node25" href="$classMesh.html#a0286b4dfbca37b921dc5919a2e47b59a" title="Return whether or not CMFD is in use." alt="" coords="243,480,371,509"/>
+<area shape="rect" id="node27" href="$classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="224,1077,389,1107"/>
+<area shape="rect" id="node5" href="$classUniverse.html#ae3952c88390eda788da540d421d0b139" title="Subdivides all of the Cells within this Universe into rings and angular sectors." alt="" coords="457,139,623,168"/>
+<area shape="rect" id="node7" href="$classCellBasic.html#ad5af2c486bcfd2a0cc8531300b4edf67" title="Return the number of rings in the Cell." alt="" coords="684,5,849,35"/>
+<area shape="rect" id="node9" href="$classCellBasic.html#ad1f28a0ba1cb3c98e4a6390b5c5a28f2" title="Return the number of sectors in the Cell." alt="" coords="679,59,855,88"/>
+<area shape="rect" id="node11" href="$classCellBasic.html#a68bcdce0e270b6b439ba878a0694d5b1" title="Subdivides a Cell into rings and sectors." alt="" coords="685,112,848,141"/>
+<area shape="rect" id="node15" href="$classUniverse.html#af045c632c9b336f8d4f7be20c5a510a1" title="Adds a Cell to this Universe." alt="" coords="704,216,829,245"/>
+<area shape="rect" id="node29" href="$classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="453,709,627,739"/>
+<area shape="rect" id="node45" href="$classMesh.html#a92e729fde85be31a18d1d3ab7058afd0" title="Gets the Mesh nested universe level." alt="" coords="469,971,611,1000"/>
+<area shape="rect" id="node47" href="$classMesh.html#afcb60b85924462fc2604cd382bb05703" title="Sets the Mesh nested universe level." alt="" coords="469,1024,611,1053"/>
+<area shape="rect" id="node49" href="$classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="451,656,629,685"/>
+<area shape="rect" id="node57" href="$classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="453,763,627,792"/>
+<area shape="rect" id="node66" href="$classMesh.html#a4ab507788b30413780ca8825afcbff62" title="Set the Mesh boundary type for left surface." alt="" coords="473,1077,607,1107"/>
+<area shape="rect" id="node68" href="$classGeometry.html#a39d4d8148dcd69fc2eced65296f5fc71" title="Returns the boundary condition for the left Surface of the Geometry." alt="" coords="467,1131,613,1160"/>
+<area shape="rect" id="node70" href="$classGeometry.html#a07444dd93641d2cb52cd12c88b178998" title="Returns the boundary condition for the bottom Surface of the Geometry." alt="" coords="457,1184,623,1213"/>
+<area shape="rect" id="node72" href="$classGeometry.html#a8cad295f5a2811cb0c2c0c5db5554468" title="Returns the boundary condition for the right Surface of the Geometry." alt="" coords="463,1237,617,1267"/>
+<area shape="rect" id="node74" href="$classGeometry.html#afa186cc8ccef93a093cad29618becf28" title="Returns the boundary condition for the top Surface of the Geometry." alt="" coords="467,1291,613,1320"/>
+<area shape="rect" id="node76" href="$classMesh.html#a9402981d023f717f2e2717af2ddb5a65" title="Set the number of FSRs in the Geometry." alt="" coords="469,1344,611,1373"/>
+<area shape="rect" id="node78" href="$classMesh.html#a5314e9ba5c4b89949fa3a10e6a3afb2c" title="Set the number of Mesh cells in a column." alt="" coords="481,1397,599,1427"/>
+<area shape="rect" id="node80" href="$classMesh.html#aa4444542b32756e13ec530f2db05c509" title="Set the number of Mesh cells in a row." alt="" coords="481,1451,599,1480"/>
+<area shape="rect" id="node82" href="$classMesh.html#a740709acf8f975c5563ff9df62b97aed" title="Set Mesh height." alt="" coords="476,1504,604,1533"/>
+<area shape="rect" id="node84" href="$classGeometry.html#a8895b7f5b91d85926f316ac09ade9e5f" title="Returns the total height (y extent) of the Geometry in cm." alt="" coords="469,1557,611,1587"/>
+<area shape="rect" id="node86" href="$classMesh.html#a7119321672e520ac9aabf8c005a87605" title="Set Mesh width." alt="" coords="476,1611,604,1640"/>
+<area shape="rect" id="node88" href="$classGeometry.html#a8a7afceb0905b411d296c57fb0f8f3ba" title="Returns the total width (x extent) of the Geometry in cm." alt="" coords="471,1664,609,1693"/>
+<area shape="rect" id="node90" href="$classMesh.html#ac8378f78e7c8e5657ee8dbd12a42c2ca" title="Initializes the Mesh by allocating memory for various arrays." alt="" coords="485,1717,595,1747"/>
+<area shape="rect" id="node92" href="$classMesh.html#ac8e3c415c1b6c11a9fdea408dc924caa" title="Get Mesh cell width." alt="" coords="481,1771,599,1800"/>
+<area shape="rect" id="node94" href="$classMesh.html#a74808bdb6bffae46b7b875eb415109a2" title="Get Mesh cell height." alt="" coords="481,1824,599,1853"/>
+<area shape="rect" id="node96" href="$classMesh.html#a07b1601ecce08bc657bd63e19f3f17aa" title="Set the whether CMFD acceleration is being used." alt="" coords="464,1877,616,1907"/>
+<area shape="rect" id="node98" href="$classMesh.html#a9373cbcef6e41604be036b5ad8750d92" title="Get the solution method (DIFFUSION or MOC)." alt="" coords="469,320,611,349"/>
+<area shape="rect" id="node100" href="$classMesh.html#a4313ee4fa233f01120d2a804a7ac6081" title="Inform whether to use optically thick diffusion correction factor." alt="" coords="459,373,621,403"/>
+<area shape="rect" id="node102" href="$classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="463,816,617,845"/>
+<area shape="rect" id="node110" href="$classMesh.html#a575b2e9ab08c406592335e30ab3ba4ef" title="Set the Mesh cell width for a particular cell." alt="" coords="692,923,841,952"/>
+<area shape="rect" id="node112" href="$classMesh.html#a976363005f6bc9fefa139e2c61a3108a" title="Set the Mesh cell height for a particular cell." alt="" coords="692,976,841,1005"/>
+<area shape="rect" id="node116" href="$classMesh.html#a4738244dc29a498d007bc486777f2dbd" title="Get pointer to a std::vector of Mesh cell FSRs." alt="" coords="472,427,608,456"/>
+<area shape="rect" id="node118" href="$classMesh.html#aa18cac231885a153521e000b42563d5f" title="Set the FSR bounds for each Mesh cell." alt="" coords="465,480,615,509"/>
+<area shape="rect" id="node120" href="$classMesh.html#a5c3aedc5c7cdde03f624138e2e5e7f4a" title="Compute the physical bounds of each Mesh cell." alt="" coords="467,533,613,563"/>
+<area shape="rect" id="node122" href="$classMesh.html#a1f2cf10dca78f89e9d1a59e55a18670e" title="Initialize the Mesh cell Materials." alt="" coords="459,586,621,633"/>
+<area shape="rect" id="node31" href="$classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="703,656,831,685"/>
+<area shape="rect" id="node33" href="$classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="701,709,832,739"/>
+<area shape="rect" id="node35" href="$classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="717,549,816,579"/>
+<area shape="rect" id="node37" href="$classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="688,763,845,792"/>
+<area shape="rect" id="node39" href="$classLattice.html#a8bdf33505871fa71a8e9d86bb7efec10" title="Return the number of Lattice cells along the x&#45;axis." alt="" coords="705,869,828,899"/>
+<area shape="rect" id="node41" href="$classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="705,816,828,845"/>
+<area shape="rect" id="node43" href="$classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="697,603,836,632"/>
+</map>

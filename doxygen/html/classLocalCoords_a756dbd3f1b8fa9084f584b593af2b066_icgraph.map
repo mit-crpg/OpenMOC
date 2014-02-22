@@ -1,0 +1,9 @@
+<map id="LocalCoords::getType" name="LocalCoords::getType">
+<area shape="rect" id="node3" href="$classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="219,32,365,61"/>
+<area shape="rect" id="node13" href="$classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8" title="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords." alt="" coords="205,85,379,115"/>
+<area shape="rect" id="node16" href="$classLocalCoords.html#a82104907b1705c31fbc12e61deb77cf5" title="Converts this LocalCoords&#39;s attributes to a character array representation." alt="" coords="219,139,365,168"/>
+<area shape="rect" id="node5" href="$classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="427,32,587,61"/>
+<area shape="rect" id="node11" href="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="429,85,584,115"/>
+<area shape="rect" id="node7" href="$classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="643,5,773,35"/>
+<area shape="rect" id="node9" href="$classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="635,59,781,88"/>
+</map>

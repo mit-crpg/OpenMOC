@@ -1,0 +1,46 @@
+<map id="Geometry::segmentize" name="Geometry::segmentize">
+<area shape="rect" id="node3" href="$classTrack.html#a14cbba36e759b0191961e05debcc527c" title="Returns a pointer to the Track&#39;s start Point." alt="" coords="240,5,349,35"/>
+<area shape="rect" id="node5" href="$classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="708,109,793,139"/>
+<area shape="rect" id="node7" href="$classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="708,163,793,192"/>
+<area shape="rect" id="node9" href="$classTrack.html#adc334d5a90c1204770ab180b2f39bc56" title="Return the Track&#39;s azimuthal angle (with respect to the x&#45;axis)." alt="" coords="245,849,344,879"/>
+<area shape="rect" id="node11" href="$classLocalCoords.html#ad514c86c5d7de44b1a08b400383710a1" title="Set the ID of the Universe within which this LocalCoords resides." alt="" coords="431,320,604,349"/>
+<area shape="rect" id="node13" href="$classTrack.html#abc465cc8bc4d568c7031667cb831825e" title="Convert this Track&#39;s attributes to a character array." alt="" coords="464,109,571,139"/>
+<area shape="rect" id="node17" href="$classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8" title="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords." alt="" coords="208,743,381,772"/>
+<area shape="rect" id="node19" href="$classLocalCoords.html#ab6a1654615643dabd35a19c8ed5f7dad" title="Removes and frees memory for all LocalCoords beyond this one in the linked list." alt="" coords="451,373,584,403"/>
+<area shape="rect" id="node33" href="$classLocalCoords.html#a9623e05ee2de4ace57a7595a154a3764" title="Returns the x&#45;coordinate for this LocalCoords location." alt="" coords="452,213,583,243"/>
+<area shape="rect" id="node40" href="$classLocalCoords.html#ac2ca0a99b00c2aa5784ff82fba2a3618" title="Returns the y&#45;coordinate for this LocalCoords location." alt="" coords="452,267,583,296"/>
+<area shape="rect" id="node76" href="$classLocalCoords.html#aff39b0f4a6cd5de5347ab154000d349b" title="Returns a pointer to the Point containing the coordinates for this LocalCoord." alt="" coords="220,903,369,932"/>
+<area shape="rect" id="node78" href="$classPoint.html#a1000c6590f93653b2d8d3b45991f60c9" title="Compute the distance from this Point to another Point of interest." alt="" coords="217,956,372,985"/>
+<area shape="rect" id="node80" href="$classGeometry.html#af6cb323d79275e9540d7ba4e81bccebf" title="Return a pointer to a Material object in the Geometry." alt="" coords="220,1009,369,1039"/>
+<area shape="rect" id="node82" href="$classMaterial.html#a0bb70f99202814861516d5d7db94321e" title="Return the array of the Material&#39;s total cross&#45;sections." alt="" coords="225,1063,364,1092"/>
+<area shape="rect" id="node84" href="$classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="221,796,368,825"/>
+<area shape="rect" id="node97" href="$classMesh.html#a0286b4dfbca37b921dc5919a2e47b59a" title="Return whether or not CMFD is in use." alt="" coords="231,1116,359,1145"/>
+<area shape="rect" id="node99" href="$classMesh.html#ad3bde7577f1b12057769b68981a78f48" title="Using an FSR ID and coordinate, find which surface a coordinate is on." alt="" coords="215,267,375,296"/>
+<area shape="rect" id="node103" href="$classTrack.html#a08af057318f555da880a391718837ea0" title="Adds a segment pointer to this Track&#39;s list of segments." alt="" coords="227,1169,363,1199"/>
+<area shape="rect" id="node105" href="$classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="211,1223,379,1252"/>
+<area shape="rect" id="node108" href="$classTrack.html#aba38ecdfdde05c79cbefaf341715a4ec" title="Return the Track&#39;s unique ID." alt="" coords="244,1276,345,1305"/>
+<area shape="rect" id="node23" href="$classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="896,639,1045,668"/>
+<area shape="rect" id="node27" href="$classLocalCoords.html#ad0d95a64372a6b60c4a7276350380c7c" title="Sets the pointer to the LocalCoords on the next lower nested Universe level." alt="" coords="676,560,825,589"/>
+<area shape="rect" id="node29" href="$classLocalCoords.html#af00fc05471c68683e7b55274afdb68ba" title="Set the x&#45;coordinate for this LocalCoords." alt="" coords="452,955,583,984"/>
+<area shape="rect" id="node36" href="$classLocalCoords.html#ae7a4a2eeb8a1e17698da8b58d08c05b5" title="Set the y&#45;coordinate for this Localcoords." alt="" coords="452,848,583,877"/>
+<area shape="rect" id="node44" href="$classLocalCoords.html#a746874a431aa9c7c53e0d56731a41fe7" title="Return the ID of the Universe within which this LocalCoords resides." alt="" coords="431,1008,604,1037"/>
+<area shape="rect" id="node46" href="$classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066" title="Return the level (UNIV or LAT) of this LocalCoords." alt="" coords="443,1061,592,1091"/>
+<area shape="rect" id="node48" href="$classLocalCoords.html#a5eb0104c614b60dee59177afbf5a1d09" title="Set the type of LocalCoords (UNIV or LAT)." alt="" coords="443,427,592,456"/>
+<area shape="rect" id="node50" href="$classLocalCoords.html#a459a5178aa8861a4d9504d7aea0d4a6a" title="Set the ID of the Cell within which this LocalCoords resides." alt="" coords="445,480,589,509"/>
+<area shape="rect" id="node52" href="$classLocalCoords.html#a3cca83a3745f138c0ba4f62dcd6c3de2" title="Return the ID of the Cell within which this LocalCoords resides." alt="" coords="445,1115,589,1144"/>
+<area shape="rect" id="node54" href="$classLocalCoords.html#acba537be0e701e2bd46a8d2cabf54881" title="Sets the ID of the Lattice within which this LocalCoords resides." alt="" coords="437,533,597,563"/>
+<area shape="rect" id="node56" href="$classLocalCoords.html#abd2c9a1c25b7122f6db3e5cba016be6d" title="Return the ID of the Lattice within which this LocalCoords resides." alt="" coords="437,1168,597,1197"/>
+<area shape="rect" id="node58" href="$classLocalCoords.html#aaebab559746c2641969f7aea7055f4d7" title="Sets the row index for the Lattice cell within which this LocalCoords resides." alt="" coords="433,587,601,616"/>
+<area shape="rect" id="node60" href="$classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73" title="Return the first index of the Lattice cell within which this LocalCoords resides." alt="" coords="433,1221,601,1251"/>
+<area shape="rect" id="node62" href="$classLocalCoords.html#a5fe4af5a2aaa1b44f9da0482c2c73caf" title="Sets the column index for the Lattice cell within which this LocalCoords resides." alt="" coords="433,691,601,720"/>
+<area shape="rect" id="node64" href="$classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac" title="Return the second index of the Lattice cell within which this LocalCoords resides." alt="" coords="433,1275,601,1304"/>
+<area shape="rect" id="node67" href="$classLocalCoords.html#ab0d2336c8312720fd28aefd09f6f7da0" title="Constructor sets the x and y coordinates." alt="" coords="429,901,605,931"/>
+<area shape="rect" id="node72" href="$classLocalCoords.html#a433a17c4bfb3f491a16a6067e05067ae" title="Sets the pointer to the LocalCoords on the next higher nested Universe level." alt="" coords="444,795,591,824"/>
+<area shape="rect" id="node21" href="$classLocalCoords.html#a9eea7e15fe849f272854e8db1fe7268a" title="Find and return the last LocalCoords in the linked list wich represents the local coordinates on the ..." alt="" coords="653,453,848,483"/>
+<area shape="rect" id="node25" href="$classLocalCoords.html#a41901845738accab675e9a021185fcc5" title="Return a pointer to the LocalCoord at the next higher nested Universe level if one exists..." alt="" coords="677,373,824,403"/>
+<area shape="rect" id="node31" href="$classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f" title="Set the Point&#39;s x&#45;coordinate." alt="" coords="708,955,793,984"/>
+<area shape="rect" id="node38" href="$classPoint.html#a91ab67528ea9e1311d408237448e16c5" title="Set the Point&#39;s y&#45;coordinate." alt="" coords="708,848,793,877"/>
+<area shape="rect" id="node69" href="$classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a" title="Initializes a Point with two&#45;dimensional coordinates." alt="" coords="691,901,811,931"/>
+<area shape="rect" id="node88" href="$classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="460,1379,575,1408"/>
+<area shape="rect" id="node93" href="$classUniverse.html#a2545de3832105c879395d4fa6b639b55" title="Returns the local ID for the FSR representing a Cell in this Universe." alt="" coords="455,1432,580,1461"/>
+</map>

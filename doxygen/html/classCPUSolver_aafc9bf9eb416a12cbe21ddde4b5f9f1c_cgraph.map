@@ -1,0 +1,11 @@
+<map id="CPUSolver::initializeFSRs" name="CPUSolver::initializeFSRs">
+<area shape="rect" id="node3" href="$classGeometry.html#abbd6276818d60a6fb5395d07032007d5" title="Return a pointer to a Universe from the Geometry." alt="" coords="264,5,421,35"/>
+<area shape="rect" id="node5" href="$classTrack.html#ad200ad729b952101b48a99b695c81a1b" title="Return the index for the Track&#39;s azimuthal angle (with respect to the x&#45;axis)." alt="" coords="255,59,431,88"/>
+<area shape="rect" id="node7" href="$classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="259,112,427,141"/>
+<area shape="rect" id="node9" href="$classTrack.html#a796efa8dc12ef0f1073ba264f4074380" title="Returns a vector of pointers to the Track&#39;s segments." alt="" coords="273,165,412,195"/>
+<area shape="rect" id="node11" href="$classGeometry.html#a92eee0b27aeacfee8eaef6dacd2c8d6e" title="Find the Cell for a flat source region ID." alt="" coords="233,219,452,248"/>
+<area shape="rect" id="node13" href="$classGeometry.html#af6cb323d79275e9540d7ba4e81bccebf" title="Return a pointer to a Material object in the Geometry." alt="" coords="268,272,417,301"/>
+<area shape="rect" id="node15" href="$classCellBasic.html#a514c35ecf0d8b33d1e81e9eec2fc10a9" title="Return the ID of the Material filling the CellBasic." alt="" coords="268,325,417,355"/>
+<area shape="rect" id="node17" href="$classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="301,379,384,408"/>
+<area shape="rect" id="node19" href="$classMaterial.html#a95de130b248a20f9237793ab92e494a3" title="Return the Material&#39;s unique ID." alt="" coords="285,432,400,461"/>
+</map>

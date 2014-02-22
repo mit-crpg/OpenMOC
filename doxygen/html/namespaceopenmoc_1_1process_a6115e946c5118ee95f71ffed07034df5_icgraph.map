@@ -1,0 +1,5 @@
+<map id="openmoc.process.compute_universe_fission_rate" name="openmoc.process.compute_universe_fission_rate">
+<area shape="rect" id="node3" href="$namespaceopenmoc_1_1process.html#ad313c9844294d5e285b5943664389a0f" title="This routine is computes the fission rate in each flat source region, and combines the rates into pin..." alt="" coords="232,24,411,71"/>
+<area shape="rect" id="node5" href="$namespaceopenmoc_1_1process.html#a151286616e1ef981c7488979ffd1fe06" title="This method stores all of the data for an OpenMOC simulation to a a binary file for downstream data p..." alt="" coords="679,24,836,71"/>
+<area shape="rect" id="node8" href="$namespaceopenmoc_1_1process.html#a20436071e0dfd32af17c67bf86636a93" title="This method restores all of the data for an OpenMOC simulation from a a binary file for downstream da..." alt="" coords="460,24,628,71"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="Universe::getType" name="Universe::getType">
+<area shape="rect" id="node3" href="$classCellFill.html#a42d8ee528341de4ec858731f0c35b649" title="Return the number of flat source regions in this CellFill." alt="" coords="216,5,365,35"/>
+<area shape="rect" id="node5" href="$classGeometry.html#aa9177c6e58e051484a24c093914b853c" title="Determines the fissionability of each Universe within this Geometry." alt="" coords="184,59,397,88"/>
+<area shape="rect" id="node7" href="$classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="220,112,361,141"/>
+<area shape="rect" id="node9" href="$classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="457,187,612,216"/>
+<area shape="rect" id="node16" href="$classGeometry.html#affea9525ab3495c60b0abfa66780322b" title="This is a recursive method that finds the Mesh cell height of the next lowest LATTICE in a given Univ..." alt="" coords="196,216,385,245"/>
+<area shape="rect" id="node19" href="$classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="445,264,624,293"/>
+<area shape="rect" id="node22" href="$classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="448,317,621,347"/>
+<area shape="rect" id="node25" href="$classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="448,371,621,400"/>
+<area shape="rect" id="node28" href="$classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="228,445,353,475"/>
+<area shape="rect" id="node11" href="$classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="680,291,845,320"/>
+<area shape="rect" id="node13" href="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="903,282,1057,329"/>
+<area shape="rect" id="node31" href="$classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="479,445,591,475"/>
+<area shape="rect" id="node33" href="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="673,445,852,475"/>
+</map>

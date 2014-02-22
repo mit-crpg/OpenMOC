@@ -1,0 +1,17 @@
+<map id="Geometry::defineMesh" name="Geometry::defineMesh">
+<area shape="rect" id="node3" href="$classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="460,5,588,35"/>
+<area shape="rect" id="node5" href="$classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f" title="Return the container of Cell IDs and Cell pointers in this Universe." alt="" coords="459,59,589,88"/>
+<area shape="rect" id="node7" href="$classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="445,112,603,141"/>
+<area shape="rect" id="node9" href="$classLattice.html#a8bdf33505871fa71a8e9d86bb7efec10" title="Return the number of Lattice cells along the x&#45;axis." alt="" coords="463,325,585,355"/>
+<area shape="rect" id="node11" href="$classLattice.html#aa7e9fbdedddbb9d40e4f845710ce8ec2" title="Return the number of Lattice cells along the y&#45;axis." alt="" coords="463,219,585,248"/>
+<area shape="rect" id="node13" href="$classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="455,379,593,408"/>
+<area shape="rect" id="node15" href="$classLattice.html#af74a22376668c13049970a531b525efe" title="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..." alt="" coords="467,432,581,461"/>
+<area shape="rect" id="node17" href="$classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="232,268,373,297"/>
+<area shape="rect" id="node30" href="$classMesh.html#a575b2e9ab08c406592335e30ab3ba4ef" title="Set the Mesh cell width for a particular cell." alt="" coords="228,473,377,503"/>
+<area shape="rect" id="node32" href="$classLattice.html#acb5c93de94618ab65ef61f18a93e48b3" title="Return the width of the Lattice along the x&#45;axis." alt="" coords="237,527,368,556"/>
+<area shape="rect" id="node34" href="$classMesh.html#a976363005f6bc9fefa139e2c61a3108a" title="Set the Mesh cell height for a particular cell." alt="" coords="228,580,377,609"/>
+<area shape="rect" id="node36" href="$classLattice.html#ad54b31fc59330eaadf4c6b81e034a199" title="Return the width of the Lattice along the y&#45;axis." alt="" coords="237,633,368,663"/>
+<area shape="rect" id="node38" href="$classGeometry.html#affea9525ab3495c60b0abfa66780322b" title="This is a recursive method that finds the Mesh cell height of the next lowest LATTICE in a given Univ..." alt="" coords="208,164,397,193"/>
+<area shape="rect" id="node21" href="$classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="475,165,573,195"/>
+<area shape="rect" id="node23" href="$classMesh.html#a4738244dc29a498d007bc486777f2dbd" title="Get pointer to a std::vector of Mesh cell FSRs." alt="" coords="456,272,592,301"/>
+</map>
