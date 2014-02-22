@@ -1,0 +1,17 @@
+digraph "Material::getUid"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Material::getUid",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="clone_material_on_gpu",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a",tooltip="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="clone_track_on_gpu",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e",tooltip="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Cmfd::initializeFSRs",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5",tooltip="Initialize the FSRs."];
+  Node4 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Cmfd::Cmfd",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCmfd.html#a335603297bf627c6eb63ca24cb971a26",tooltip="Constructor initializes boundaries and variables that describe the Cmfd object."];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="CPUSolver::initializeFSRs",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c",tooltip="Initializes the FSR volumes and Materials array."];
+}

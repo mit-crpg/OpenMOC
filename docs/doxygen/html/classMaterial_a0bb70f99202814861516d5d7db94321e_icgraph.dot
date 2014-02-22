@@ -1,0 +1,21 @@
+digraph "Material::getSigmaT"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Material::getSigmaT",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="clone_material_on_gpu",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a",tooltip="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Cmfd::computeXS",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c",tooltip="Create cross-sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..."];
+  Node3 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Cmfd::computeKeff",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCmfd.html#ad3da57b100041e93e2ca8d6b89137775",tooltip="CMFD solver that solves the diffusion problem."];
+  Node4 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Solver::convergeSource",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classSolver.html#af8358a66a7cbd56339211f80a2365678",tooltip="Computes keff by performing a series of transport sweep and source updates."];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Geometry::segmentize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de",tooltip="This method performs ray tracing to create Track segments within each flat source region in the Geome..."];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="ThreadPrivateSolver\l::scalarFluxTally",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classThreadPrivateSolver.html#a0d9da6c56e767cb2d16759e92e0fecf1",tooltip="Computes the contribution to the FSR scalar flux from a Track segment."];
+  Node7 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="ThreadPrivateSolver\l::transportSweep",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0",tooltip="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups."];
+}

@@ -1,0 +1,17 @@
+digraph "LocalCoords::setX"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="LocalCoords::setX",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="LocalCoords::adjustCoords",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#a9a554dc0de187957849d1577cba7a277",tooltip="Translate all of the x,y coordinates for each LocalCoords object in the linked list."];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="LocalCoords::updateMostLocal",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#a371080a986073525f2e0572345e438c7",tooltip="Update the last element in the linked list (the one at the lowest level of nested Universes) to have ..."];
+  Node2 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Lattice::findNextLatticeCell",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825",tooltip="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..."];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="LocalCoords::copyCoords",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8",tooltip="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords."];
+  Node5 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Geometry::segmentize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de",tooltip="This method performs ray tracing to create Track segments within each flat source region in the Geome..."];
+}

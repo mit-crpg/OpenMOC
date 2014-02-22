@@ -1,0 +1,14 @@
+digraph "/home/wbinventor/OpenMOC/openmoc/intel/" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_feeaf68b943d4425f333311e6b81e54f {
+    graph [ bgcolor="#ddddee", pencolor="black", label="openmoc" fontname="Helvetica", fontsize="10", URL="dir_feeaf68b943d4425f333311e6b81e54f.html"]
+  subgraph clusterdir_d0150c83ea081bd0343e7a6ba8afaadf {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_d0150c83ea081bd0343e7a6ba8afaadf.html"];
+    dir_d0150c83ea081bd0343e7a6ba8afaadf [shape=plaintext label="intel"];
+    dir_ca1b423e2d558e09515023036476e5b9 [shape=box label="double" color="black" fillcolor="white" style="filled" URL="dir_ca1b423e2d558e09515023036476e5b9.html"];
+    dir_545d1206f768ef3e88179d0ae2cf054f [shape=box label="single" color="black" fillcolor="white" style="filled" URL="dir_545d1206f768ef3e88179d0ae2cf054f.html"];
+  }
+  }
+}

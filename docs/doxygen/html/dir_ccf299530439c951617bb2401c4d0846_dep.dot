@@ -1,0 +1,9 @@
+digraph "/home/wbinventor/OpenMOC/openmoc/cuda/double/" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_5b8d6644a45595a9b7fae4bf845de8d0 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="cuda" fontname="Helvetica", fontsize="10", URL="dir_5b8d6644a45595a9b7fae4bf845de8d0.html"]
+  dir_ccf299530439c951617bb2401c4d0846 [shape=box, label="double", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_ccf299530439c951617bb2401c4d0846.html"];
+  }
+}

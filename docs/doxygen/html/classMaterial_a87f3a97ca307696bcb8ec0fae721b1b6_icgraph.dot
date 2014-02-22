@@ -1,0 +1,13 @@
+digraph "Material::getId"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Material::getId",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="clone_material_on_gpu",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a",tooltip="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Geometry::addMaterial",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#ae59d522ea23dfae9feb61b6cb000eb5e",tooltip="Add a Material to the Geometry."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Material::clone",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64",tooltip="Create a duplicate of the Material."];
+}

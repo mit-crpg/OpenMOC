@@ -1,0 +1,21 @@
+digraph "TrackGenerator::retrieveSegmentCoords"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="TrackGenerator::retrieve\lSegmentCoords",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="TrackGenerator::getNumSegments",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a4e377cdc26b0eec5f54d55ebc2249089",tooltip="Return the total number of Track segments across the Geometry."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Track::getStart",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#a14cbba36e759b0191961e05debcc527c",tooltip="Returns a pointer to the Track&#39;s start Point."];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Point::getX",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classPoint.html#af52a20a376f8f31e87658837565d3812",tooltip="Returns this Point&#39;s x-coordinate."];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Point::getY",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classPoint.html#aac5008459bf0e0053ce744a69187bae7",tooltip="Returns this Point&#39;s y-coordinate."];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Track::getPhi",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#adc334d5a90c1204770ab180b2f39bc56",tooltip="Return the Track&#39;s azimuthal angle (with respect to the x-axis)."];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Track::getSegments",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#a796efa8dc12ef0f1073ba264f4074380",tooltip="Returns a vector of pointers to the Track&#39;s segments."];
+  Node1 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Track::getNumSegments",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#a034893295ac06eed35aac0c7ed172419",tooltip="Return the number of segments along this Track."];
+}

@@ -1,0 +1,13 @@
+digraph "Universe::computeFSRMaps"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Universe::computeFSRMaps",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="CellFill::getNumFSRs",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCellFill.html#a42d8ee528341de4ec858731f0c35b649",tooltip="Return the number of flat source regions in this CellFill."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Geometry::initializeFlat\lSourceRegions",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d",tooltip="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Lattice::computeFSRMaps",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLattice.html#afc84badb58ce4b9c3946fcc944647c30",tooltip="Computes the flat source region base indices for each of the Lattice cells within this Lattice (i..."];
+}

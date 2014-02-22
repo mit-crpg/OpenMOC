@@ -1,0 +1,15 @@
+digraph "openmoc.process.compute_pin_powers"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="openmoc.process.compute\l_pin_powers",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="openmoc.process.store\l_simulation_state",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$namespaceopenmoc_1_1process.html#a151286616e1ef981c7488979ffd1fe06",tooltip="This method stores all of the data for an OpenMOC simulation to a a binary file for downstream data p..."];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="openmoc.process.compute\l_universe_fission_rate",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$namespaceopenmoc_1_1process.html#a6115e946c5118ee95f71ffed07034df5",tooltip="A recursive routine to compute the fission rate for all cells in a given universe, and for all universes contained within those cells."];
+  Node3 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="openmoc.process.restore\l_simulation_state",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$namespaceopenmoc_1_1process.html#a20436071e0dfd32af17c67bf86636a93",tooltip="This method restores all of the data for an OpenMOC simulation from a a binary file for downstream da..."];
+  Node4 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

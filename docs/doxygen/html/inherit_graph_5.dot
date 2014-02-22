@@ -1,0 +1,7 @@
+digraph "Graphical Class Hierarchy"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Geometry",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html",tooltip="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials."];
+}

@@ -1,0 +1,24 @@
+digraph "Lattice::getNumX"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Lattice::getNumX",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Geometry::addLattice",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83",tooltip="Add a Lattice to the Geometry."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Geometry::findFSRs",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58",tooltip="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..."];
+  Node3 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Geometry::defineMesh",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a953bddab7863827c6f93911647d3b7ab",tooltip="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..."];
+  Node4 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Geometry::initializeMesh",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a46c73fdec60562eeadfb92146754f01d",tooltip="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..."];
+  Node5 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Geometry::initializeFlat\lSourceRegions",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#ad951597b0a94c3f4c43db865ae30218d",tooltip="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Geometry::findMeshWidth",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a9dc3627155dcebcfc358bc1882062b52",tooltip="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..."];
+  Node7 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Geometry::findMeshDepth",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1",tooltip="This is a recursive method that finds the depth of the Geometry Mesh."];
+  Node8 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

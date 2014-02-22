@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['info',['INFO',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a748005382152808a72b1a9177d9dc806',1,'log.h']]],
+  ['initialize',['initialize',['../classMesh.html#ac8378f78e7c8e5657ee8dbd12a42c2ca',1,'Mesh']]],
+  ['initializecmfd',['initializeCmfd',['../classCPUSolver.html#acf1386161e001fd58d8962a4c6ad24c7',1,'CPUSolver::initializeCmfd()'],['../classSolver.html#afeab07b86fb26ba8be22d525cba33c4f',1,'Solver::initializeCmfd()'],['../classThreadPrivateSolver.html#a2093a23adc15841ad486b2b803e1fb28',1,'ThreadPrivateSolver::initializeCmfd()']]],
+  ['initializeflatsourceregions',['initializeFlatSourceRegions',['../classGeometry.html#ad951597b0a94c3f4c43db865ae30218d',1,'Geometry']]],
+  ['initializeflux',['initializeFlux',['../classMesh.html#a787f9e2f03a4d8577f0dd6ec08b539e4',1,'Mesh']]],
+  ['initializefluxarrays',['initializeFluxArrays',['../classCPUSolver.html#a8eac5804397c5e5f95d73b19a6e4cbfd',1,'CPUSolver::initializeFluxArrays()'],['../classSolver.html#a916eb7ef96140e1ea2d22bb9d1c86240',1,'Solver::initializeFluxArrays()'],['../classThreadPrivateSolver.html#a916aa2e259b03848d5a35c9e3c29ac4b',1,'ThreadPrivateSolver::initializeFluxArrays()'],['../classVectorizedSolver.html#a6d5bac107495fe429839826859b7dfa1',1,'VectorizedSolver::initializeFluxArrays()']]],
+  ['initializefsrs',['initializeFSRs',['../classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5',1,'Cmfd::initializeFSRs()'],['../classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c',1,'CPUSolver::initializeFSRs()'],['../classSolver.html#a512ac25e056b3e2d77ae9159e793babf',1,'Solver::initializeFSRs()']]],
+  ['initializematerialsdiffusion',['initializeMaterialsDiffusion',['../classMesh.html#a1f2cf10dca78f89e9d1a59e55a18670e',1,'Mesh']]],
+  ['initializematerialsmoc',['initializeMaterialsMOC',['../classMesh.html#ab37b386a4b08be476c2930338604ad7b',1,'Mesh']]],
+  ['initializemesh',['initializeMesh',['../classGeometry.html#a46c73fdec60562eeadfb92146754f01d',1,'Geometry']]],
+  ['initializepolarquadrature',['initializePolarQuadrature',['../classCPUSolver.html#a061a09ddde28c55cda28a8734eac4c1a',1,'CPUSolver::initializePolarQuadrature()'],['../classSolver.html#a6591b996eb837e0c4184424e48e191a3',1,'Solver::initializePolarQuadrature()']]],
+  ['initializesourcearrays',['initializeSourceArrays',['../classCPUSolver.html#a51419d540c7eea9d29c3df963cc80784',1,'CPUSolver::initializeSourceArrays()'],['../classSolver.html#a8592d819738b24a5b983e54c0a635d30',1,'Solver::initializeSourceArrays()'],['../classVectorizedSolver.html#a7287329d44d695ca91181e9484e32bca',1,'VectorizedSolver::initializeSourceArrays()']]],
+  ['initializesurfacecurrents',['initializeSurfaceCurrents',['../classMesh.html#a5394bf063964790c48d4e07b09fa071b',1,'Mesh']]],
+  ['intersection',['intersection',['../classSurface.html#a145ed967142bc6c121d43f5f2523e2e9',1,'Surface::intersection()'],['../classPlane.html#a6e1b304a38f0c6d6f7dc985d548e0304',1,'Plane::intersection()'],['../classCircle.html#a49e3967db73a8f068dbe6302a84370f6',1,'Circle::intersection()']]],
+  ['iscoordonsurface',['isCoordOnSurface',['../classSurface.html#a1263b1b61154ed6f75e7079a5832d853',1,'Surface']]],
+  ['isdataaligned',['isDataAligned',['../classMaterial.html#a2e0a8759604823c08a695cce843120d4',1,'Material']]],
+  ['isfissionable',['isFissionable',['../classMaterial.html#a518c42114378e88c9d5a198fc6bb8c00',1,'Material::isFissionable()'],['../classUniverse.html#a519ec15f1e4c7f4b5028b5166ec0e9f1',1,'Universe::isFissionable()']]],
+  ['ispointonsurface',['isPointOnSurface',['../classSurface.html#ad996b11e3af07e6dea8081cb11ccfe0c',1,'Surface']]],
+  ['isreflin',['isReflIn',['../classTrack.html#ac553046c3f61abb50c00d9c16ed045a0',1,'Track']]],
+  ['isreflout',['isReflOut',['../classTrack.html#aafdc812cdaf36e09a3341284c61b8f0b',1,'Track']]],
+  ['isusingdoubleprecision',['isUsingDoublePrecision',['../classSolver.html#a791b6f6d7ed7fd356991eb36bdf9386d',1,'Solver']]],
+  ['isusingexponentialinterpolation',['isUsingExponentialInterpolation',['../classSolver.html#a62c73dba0380643a9d359cfe844bef11',1,'Solver']]],
+  ['isusingexponentialintrinsic',['isUsingExponentialIntrinsic',['../classSolver.html#ae86cb4a6791fc953156f114667a04983',1,'Solver']]],
+  ['isusingsingleprecision',['isUsingSinglePrecision',['../classSolver.html#a167c30a4b8107dc490ddcc7c6279dc79',1,'Solver']]]
+];

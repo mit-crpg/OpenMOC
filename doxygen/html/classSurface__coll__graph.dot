@@ -1,0 +1,6 @@
+digraph "Surface"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="{Surface\n|# _uid\l# _id\l# _surface_type\l# _boundary_type\l# _n\l|+ Surface()\l+ ~Surface()\l+ getUid()\l+ getId()\l+ getSurfaceType()\l+ getBoundaryType()\l+ getXMin()\l+ getXMax()\l+ getYMin()\l+ getYMax()\land 8 more...\l}",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+}

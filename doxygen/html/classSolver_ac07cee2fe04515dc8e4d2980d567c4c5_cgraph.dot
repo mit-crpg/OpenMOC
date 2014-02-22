@@ -1,0 +1,19 @@
+digraph "Solver::setTrackGenerator"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Solver::setTrackGenerator",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="TrackGenerator::contains\lTracks",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a5ec836ced3479a5aae51132809a3d7b4",tooltip="Returns whether or not the TrackGenerator contains Track that are for its current number of azimuthal..."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="TrackGenerator::getNumAzim",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a9c9661635df90ab658b17517548e7cc2",tooltip="Return the number of azimuthal angles in ."];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="TrackGenerator::getNumTracks\lArray",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a20e00c47aa96fbee5c2eef16e8aa006c",tooltip="Return an array of the number of Tracks for each azimuthal angle."];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="TrackGenerator::getNumTracks",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a078d71a343d4c245c38195491b2d024c",tooltip="Return the total number of Tracks across the Geometry."];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="TrackGenerator::getAzimWeights",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a31deadd969cddf7eba85a442729f697a",tooltip="Return a pointer to the array of azimuthal angle quadrature weights."];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="TrackGenerator::getTracks",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a293c6a25a694bfcb8187cfd679fa3639",tooltip="Returns a 2D jagged array of the Tracks."];
+}

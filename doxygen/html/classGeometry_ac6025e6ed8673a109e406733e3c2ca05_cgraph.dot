@@ -1,0 +1,25 @@
+digraph "Geometry::findFSRId"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Geometry::findFSRId",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="LocalCoords::getType",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066",tooltip="Return the level (UNIV or LAT) of this LocalCoords."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="LocalCoords::getLattice",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#abd2c9a1c25b7122f6db3e5cba016be6d",tooltip="Return the ID of the Lattice within which this LocalCoords resides."];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Lattice::getFSR",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLattice.html#af74a22376668c13049970a531b525efe",tooltip="Return the id of a flat source region base index (smallest FSR region id within a specific Lattice ce..."];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="LocalCoords::getLatticeX",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73",tooltip="Return the first index of the Lattice cell within which this LocalCoords resides."];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="LocalCoords::getLatticeY",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac",tooltip="Return the second index of the Lattice cell within which this LocalCoords resides."];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="LocalCoords::getUniverse",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#a746874a431aa9c7c53e0d56731a41fe7",tooltip="Return the ID of the Universe within which this LocalCoords resides."];
+  Node1 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Universe::getFSR",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUniverse.html#a2545de3832105c879395d4fa6b639b55",tooltip="Returns the local ID for the FSR representing a Cell in this Universe."];
+  Node1 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="LocalCoords::getCell",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#a3cca83a3745f138c0ba4f62dcd6c3de2",tooltip="Return the ID of the Cell within which this LocalCoords resides."];
+  Node1 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="LocalCoords::getNext",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594",tooltip="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..."];
+}

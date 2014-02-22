@@ -1,0 +1,25 @@
+digraph "clone_track_on_gpu"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="clone_track_on_gpu",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Track::getNumSegments",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#a034893295ac06eed35aac0c7ed172419",tooltip="Return the number of segments along this Track."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Track::getUid",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#aba38ecdfdde05c79cbefaf341715a4ec",tooltip="Return the Track&#39;s unique ID."];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Track::getAzimAngleIndex",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#ad200ad729b952101b48a99b695c81a1b",tooltip="Return the index for the Track&#39;s azimuthal angle (with respect to the x-axis)."];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Track::isReflIn",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#ac553046c3f61abb50c00d9c16ed045a0",tooltip="Returns whether to give the outgoing flux to the &quot;forward&quot; (false) or &quot;reverse&quot; (true) direction of t..."];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Track::isReflOut",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#aafdc812cdaf36e09a3341284c61b8f0b",tooltip="Returns whether to give the outgoing flux to the &quot;forward&quot; (false) or &quot;reverse&quot; (true) direction of t..."];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Track::getBCIn",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#a724c791d976b2e42b320598a496b13d4",tooltip="Returns the boundary condition for the flux along the Track&#39;s &quot;forward&quot; direction."];
+  Node1 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Track::getBCOut",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#af84359a4e08d94a446157fce41a0f968",tooltip="Returns the boundary condition for the flux along the Track&#39;s &quot;reverse&quot; direction."];
+  Node1 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="Track::getSegment",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#a9f3cf1bcb2d1f234b7029b25cf657b3d",tooltip="Returns a pointer to a segment with a given index."];
+  Node1 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="Material::getUid",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a95de130b248a20f9237793ab92e494a3",tooltip="Return the Material&#39;s unique ID."];
+}

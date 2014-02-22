@@ -1,0 +1,9 @@
+digraph "/home/wbinventor/OpenMOC/openmoc/bgq/single/" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_ab1ffabdc9417faef508a622a4f16fd6 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="bgq" fontname="Helvetica", fontsize="10", URL="dir_ab1ffabdc9417faef508a622a4f16fd6.html"]
+  dir_c7ef4a5897bc34eb5ffb151864937b85 [shape=box, label="single", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_c7ef4a5897bc34eb5ffb151864937b85.html"];
+  }
+}

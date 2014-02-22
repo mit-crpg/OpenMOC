@@ -1,0 +1,21 @@
+digraph "Point::setCoords"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Point::setCoords",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="LocalCoords::LocalCoords",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#ab0d2336c8312720fd28aefd09f6f7da0",tooltip="Constructor sets the x and y coordinates."];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="LocalCoords::copyCoords",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8",tooltip="Copies a LocalCoords&#39; values to this one. details Given a pointer to a LocalCoords, it first prunes it and then creates a copy of the linked list of LocalCoords in the linked list below this one to give to the input LocalCoords."];
+  Node3 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Geometry::segmentize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a21a092d997179d6bea6c66f592faa6de",tooltip="This method performs ray tracing to create Track segments within each flat source region in the Geome..."];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Plane::intersection",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classPlane.html#a6e1b304a38f0c6d6f7dc985d548e0304",tooltip="Finds the intersection Point with this Plane from a given Point and trajectory defined by an angle..."];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Circle::intersection",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCircle.html#a49e3967db73a8f068dbe6302a84370f6",tooltip="Finds the intersection Point with this circle from a given Point and trajectory defined by an angle (..."];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Track::setValues",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#a321e6d98cba4d260b7ca787013f85186",tooltip="Set the values for the Track&#39;s start and end point and angle."];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Lattice::findNextLatticeCell",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classLattice.html#a74e06905bc0f096fa4fb1b97420b0825",tooltip="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..."];
+}

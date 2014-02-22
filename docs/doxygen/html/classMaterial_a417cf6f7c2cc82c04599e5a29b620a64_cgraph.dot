@@ -1,0 +1,33 @@
+digraph "Material::clone"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Material::clone",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Material::Material",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#abdbf0d4678e9a6fc93f385b8231882eb",tooltip="Constructor sets the ID and unique ID for the Material."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Material::getId",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a87f3a97ca307696bcb8ec0fae721b1b6",tooltip="Return the Material&#39;s user-defined ID."];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Material::setNumEnergyGroups",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a5650368fddfd9793205bf6b05f25ee60",tooltip="Set the number of energy groups for this Material."];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Material::setSigmaTByGroup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a61fd26dde452e699b2b2531b993d2cab",tooltip="Set the Material&#39;s total cross-section for some energy group."];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Material::setSigmaAByGroup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a4bedbd3883a56bf47b903417b34676fc",tooltip="Set the Material&#39;s absorption cross-section for some energy group."];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Material::setSigmaFByGroup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a9a5b3e747ee51343327b22356549bf20",tooltip="Set the Material&#39;s fission cross-section for some energy group."];
+  Node1 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Material::setNuSigmaFByGroup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a4929d58a0e80b155cd1d115edbc15819",tooltip="Set the Material&#39;s fission cross-section multiplied by  for some energy group."];
+  Node1 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="Material::setChiByGroup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a05006775ab7559d41479842043fd2e33",tooltip="Set the Material&#39;s chi value for some energy group."];
+  Node1 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="Material::setSigmaSByGroup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#afa089d512b06b16196cd327502862689",tooltip="Set the Material&#39;s scattering cross-section for some energy group."];
+  Node1 -> Node11 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="Material::setDifCoefByGroup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a5bb0558e66fd17ec7276aa1329168afc",tooltip="Set the Material&#39;s diffusion coefficient for some energy group."];
+  Node1 -> Node12 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="Material::setBucklingByGroup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a78d6d92a2ff64c1a0b012886929341d7",tooltip="Set the Material&#39;s diffusion coefficient for some energy group."];
+  Node1 -> Node13 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="Material::setDifHatByGroup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#ab74f17b1f67bcdbfa5404dd6be179a8f",tooltip="Set the Material&#39;s diffusion coefficient for some energy group along some CMFD mesh cell..."];
+  Node1 -> Node14 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="Material::setDifTildeByGroup",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a645e4ac06e76e0862d86912247cb71b3",tooltip="Set the Material&#39;s CMFD corrected diffusion coefficient for some energy group."];
+}

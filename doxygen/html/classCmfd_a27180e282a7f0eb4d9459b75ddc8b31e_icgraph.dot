@@ -1,0 +1,15 @@
+digraph "Cmfd::getNumCmfdGroups"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Cmfd::getNumCmfdGroups",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="CPUSolver::initializeCmfd",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCPUSolver.html#acf1386161e001fd58d8962a4c6ad24c7",tooltip="Initializes Cmfd object for acceleration prior to source iteration."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="ThreadPrivateSolver\l::initializeCmfd",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classThreadPrivateSolver.html#a2093a23adc15841ad486b2b803e1fb28",tooltip="Initializes Cmfd object for acceleration prior to source iteration."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="ThreadPrivateSolver\l::reduceThreadSurfaceCurrents",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classThreadPrivateSolver.html#a4cb9752f69c981fc62c5ad2d7268a6e9",tooltip="Reduces the Cmfd Mesh surface currents from private thread arrays to a global Mesh surface current ar..."];
+  Node4 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="ThreadPrivateSolver\l::transportSweep",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0",tooltip="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups."];
+}

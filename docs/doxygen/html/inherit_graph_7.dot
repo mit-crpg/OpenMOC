@@ -1,0 +1,7 @@
+digraph "Graphical Class Hierarchy"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Material",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html",tooltip="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport."];
+}

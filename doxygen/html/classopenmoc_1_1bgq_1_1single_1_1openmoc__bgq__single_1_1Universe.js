@@ -1,0 +1,26 @@
+var classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe =
+[
+    [ "__init__", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a800ececddca4109440bdef8ecbf470b9", null ],
+    [ "addCell", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#af18ed83d2a7111e0056c1900cc28390e", null ],
+    [ "computeFSRMaps", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a1bb35cc1132769b32bbf42cbe2a50d3a", null ],
+    [ "findCell", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a6ccc4031750459edfab983caa7848372", null ],
+    [ "getCell", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#ad48dc27613cbe5e674c9027e6017a67b", null ],
+    [ "getCellIds", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a8846840d254649a07f47c31b2fc077cb", null ],
+    [ "getCells", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a8b8f082679b40d831c37e3f4acdef161", null ],
+    [ "getFSR", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a19df9fa92d47ca1d3bd9d5677d73fb44", null ],
+    [ "getId", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a086a54f629c4eb6a5038a525dc3cfedb", null ],
+    [ "getMaterialIds", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a86647c35486726cf9d02521d1c6d99a5", null ],
+    [ "getNestedUniverseIds", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a217a6e66c09e68dab23dc127595dc3fc", null ],
+    [ "getNumCells", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a6e8623534fd4c9e4b254cf6fb1595fe5", null ],
+    [ "getOrigin", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a2d0edef031055c7cc6ab28eb9b64a10f", null ],
+    [ "getType", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#afd8b26ac087310a6312462cbcdf87804", null ],
+    [ "getUid", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a3ac09f2d5cc37accbb8286f5527a61bb", null ],
+    [ "isFissionable", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a4f2361bee465df4edf01d85faf59a606", null ],
+    [ "printString", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a645018e98259f8255e46dcb78612cf04", null ],
+    [ "setFissionability", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a705e68037982b3d86689f7b0be015720", null ],
+    [ "setOrigin", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a0b5000842954d95c1009e5afbdb6d124", null ],
+    [ "setType", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#a6a7ad825a67e39f3cc40e04fbde3ef5b", null ],
+    [ "subdivideCells", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#aaf3f7382ef73d15cb59dcaf143824ab3", null ],
+    [ "toString", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#aca18b46504a52e2eeec9ddce4af16ad0", null ],
+    [ "this", "classopenmoc_1_1bgq_1_1single_1_1openmoc__bgq__single_1_1Universe.html#ac432abaf754c6392616588fdf1671fc4", null ]
+];

@@ -1,0 +1,22 @@
+digraph "Geometry::computeFissionability"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Geometry::computeFissionability",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Universe::getType",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b",tooltip="Return the Universe type (SIMPLE or LATTICE)."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Universe::getMaterialIds",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUniverse.html#a190ad75ccf5c8403a309c22b18d33e5d",tooltip="Aggregates a list (vector) of the IDs of all Materials within the MATERIAL type Cells filling this Un..."];
+  Node3 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Cell::getType",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0",tooltip="Return the Cell type (FILL or MATERIAL)."];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Universe::getNestedUniverseIds",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUniverse.html#a98bd6f494727dc21c99e9b82017f5b13",tooltip="Aggregates a list (vector) of the IDs of all Universes within the FILL type Cells filling this Univer..."];
+  Node5 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Universe::isFissionable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUniverse.html#a519ec15f1e4c7f4b5028b5166ec0e9f1",tooltip="Returns true if the Universe contains a Cell filled by a fissionable Material and false otherwise..."];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Material::isFissionable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a518c42114378e88c9d5a198fc6bb8c00",tooltip="Returns whether or not the Material contains a fissionable (non-zero) fission cross-section."];
+  Node1 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Universe::setFissionability",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classUniverse.html#a124179ed92827532c7aecbf51d8c1f42",tooltip="Sets whether or not this Universe contains a fissionable Material with a non-zero fission cross-secti..."];
+}

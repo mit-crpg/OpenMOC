@@ -1,0 +1,43 @@
+digraph "Cmfd::Cmfd"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Cmfd::Cmfd",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Mesh::getNumFSRs",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMesh.html#a532859005ca84d27ed86b3032b2cdc1e",tooltip="Get the number of FSRs in the Geometry."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Geometry::getMesh",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#ab072933706e35191f0b9d499dca9aca0",tooltip="Returns a pointer to the CMFD Mesh object."];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Mesh::getCellsX",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMesh.html#ac8e3c415c1b6c11a9fdea408dc924caa",tooltip="Get Mesh cell width."];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Mesh::getCellsY",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMesh.html#a74808bdb6bffae46b7b875eb415109a2",tooltip="Get Mesh cell height."];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Mesh::getSolveType",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMesh.html#a9373cbcef6e41604be036b5ad8750d92",tooltip="Get the solution method (DIFFUSION or MOC)."];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Geometry::getNumEnergyGroups",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#aceb6249699270b234cddfb9046ed9b2d",tooltip="Returns the number of energy groups for each Material&#39;s nuclear data."];
+  Node7 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Geometry::getNumMaterials",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#aee3114c51ec090bdc73b470a93ee2b32",tooltip="Returns the number of Materials in the Geometry."];
+  Node1 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="Mesh::initializeSurfaceCurrents",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMesh.html#a5394bf063964790c48d4e07b09fa071b",tooltip="Initializes the Mesh surface currents."];
+  Node1 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="Cmfd::initializeFSRs",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5",tooltip="Initialize the FSRs."];
+  Node10 -> Node11 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="Geometry::getUniverse",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#abbd6276818d60a6fb5395d07032007d5",tooltip="Return a pointer to a Universe from the Geometry."];
+  Node10 -> Node12 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="Mesh::getLengthsY",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMesh.html#a4104d5c081d8575f25b5c3e4fef5e78e",tooltip="Get array of Mesh cell lengths in y direction."];
+  Node10 -> Node13 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="Mesh::getLengthsX",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMesh.html#ad67a2137a193fe5333dcd14aaacdbe54",tooltip="Get array of Mesh cell lengths in x direction."];
+  Node10 -> Node14 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="Mesh::getCellFSRs",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMesh.html#a4738244dc29a498d007bc486777f2dbd",tooltip="Get pointer to a std::vector of Mesh cell FSRs."];
+  Node10 -> Node15 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 [label="Geometry::findCellContainingFSR",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a92eee0b27aeacfee8eaef6dacd2c8d6e",tooltip="Find the Cell for a flat source region ID."];
+  Node10 -> Node16 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node16 [label="Geometry::getMaterial",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#af6cb323d79275e9540d7ba4e81bccebf",tooltip="Return a pointer to a Material object in the Geometry."];
+  Node10 -> Node17 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node17 [label="CellBasic::getMaterial",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCellBasic.html#a514c35ecf0d8b33d1e81e9eec2fc10a9",tooltip="Return the ID of the Material filling the CellBasic."];
+  Node10 -> Node18 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node18 [label="Cell::getId",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCell.html#a39543fd6c83589e92363e461f3f50336",tooltip="Return the Cell&#39;s user-specified ID."];
+  Node10 -> Node19 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node19 [label="Material::getUid",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a95de130b248a20f9237793ab92e494a3",tooltip="Return the Material&#39;s unique ID."];
+}

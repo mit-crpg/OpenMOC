@@ -1,0 +1,25 @@
+digraph "CPUSolver::initializeFSRs"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="CPUSolver::initializeFSRs",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Geometry::getUniverse",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#abbd6276818d60a6fb5395d07032007d5",tooltip="Return a pointer to a Universe from the Geometry."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Track::getAzimAngleIndex",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#ad200ad729b952101b48a99b695c81a1b",tooltip="Return the index for the Track&#39;s azimuthal angle (with respect to the x-axis)."];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Track::getNumSegments",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#a034893295ac06eed35aac0c7ed172419",tooltip="Return the number of segments along this Track."];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Track::getSegments",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrack.html#a796efa8dc12ef0f1073ba264f4074380",tooltip="Returns a vector of pointers to the Track&#39;s segments."];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Geometry::findCellContainingFSR",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a92eee0b27aeacfee8eaef6dacd2c8d6e",tooltip="Find the Cell for a flat source region ID."];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Geometry::getMaterial",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#af6cb323d79275e9540d7ba4e81bccebf",tooltip="Return a pointer to a Material object in the Geometry."];
+  Node1 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="CellBasic::getMaterial",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCellBasic.html#a514c35ecf0d8b33d1e81e9eec2fc10a9",tooltip="Return the ID of the Material filling the CellBasic."];
+  Node1 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="Cell::getId",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCell.html#a39543fd6c83589e92363e461f3f50336",tooltip="Return the Cell&#39;s user-specified ID."];
+  Node1 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="Material::getUid",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMaterial.html#a95de130b248a20f9237793ab92e494a3",tooltip="Return the Material&#39;s unique ID."];
+}

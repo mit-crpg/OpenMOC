@@ -1,0 +1,42 @@
+digraph "Solver::Solver"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Solver::Solver",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Solver::setGeometry",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classSolver.html#a117012c7ecaf59b70fa6b489562acc65",tooltip="Sets the Geometry for the Solver."];
+  Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Geometry::getNumFSRs",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#aa6c6670cf0552fc24824f074077e994b",tooltip="Returns the number of flat source regions (FSRs) in the Geometry."];
+  Node2 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Geometry::getNumEnergyGroups",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#aceb6249699270b234cddfb9046ed9b2d",tooltip="Returns the number of energy groups for each Material&#39;s nuclear data."];
+  Node4 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Geometry::getNumMaterials",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#aee3114c51ec090bdc73b470a93ee2b32",tooltip="Returns the number of Materials in the Geometry."];
+  Node2 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Geometry::getBCTop",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#afa186cc8ccef93a093cad29618becf28",tooltip="Returns the boundary condition for the top Surface of the Geometry."];
+  Node2 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Geometry::getBCBottom",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a07444dd93641d2cb52cd12c88b178998",tooltip="Returns the boundary condition for the bottom Surface of the Geometry."];
+  Node2 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Geometry::getBCLeft",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a39d4d8148dcd69fc2eced65296f5fc71",tooltip="Returns the boundary condition for the left Surface of the Geometry."];
+  Node2 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="Geometry::getBCRight",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a8cad295f5a2811cb0c2c0c5db5554468",tooltip="Returns the boundary condition for the right Surface of the Geometry."];
+  Node2 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="Geometry::getMesh",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#ab072933706e35191f0b9d499dca9aca0",tooltip="Returns a pointer to the CMFD Mesh object."];
+  Node2 -> Node11 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="Mesh::getNumCells",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMesh.html#a52a3a3b2569f357ff63a22799b72f0a8",tooltip="Get the number of Mesh cells in the Geometry."];
+  Node1 -> Node12 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="Solver::setTrackGenerator",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5",tooltip="Sets the Solver&#39;s TrackGenerator with characteristic Tracks."];
+  Node12 -> Node13 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="TrackGenerator::contains\lTracks",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a5ec836ced3479a5aae51132809a3d7b4",tooltip="Returns whether or not the TrackGenerator contains Track that are for its current number of azimuthal..."];
+  Node12 -> Node14 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="TrackGenerator::getNumAzim",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a9c9661635df90ab658b17517548e7cc2",tooltip="Return the number of azimuthal angles in ."];
+  Node12 -> Node15 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 [label="TrackGenerator::getNumTracks\lArray",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a20e00c47aa96fbee5c2eef16e8aa006c",tooltip="Return an array of the number of Tracks for each azimuthal angle."];
+  Node12 -> Node16 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node16 [label="TrackGenerator::getNumTracks",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a078d71a343d4c245c38195491b2d024c",tooltip="Return the total number of Tracks across the Geometry."];
+  Node12 -> Node17 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node17 [label="TrackGenerator::getAzimWeights",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a31deadd969cddf7eba85a442729f697a",tooltip="Return a pointer to the array of azimuthal angle quadrature weights."];
+  Node12 -> Node18 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node18 [label="TrackGenerator::getTracks",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classTrackGenerator.html#a293c6a25a694bfcb8187cfd679fa3639",tooltip="Returns a 2D jagged array of the Tracks."];
+}

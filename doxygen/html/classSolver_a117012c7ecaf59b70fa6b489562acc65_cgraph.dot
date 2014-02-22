@@ -1,0 +1,26 @@
+digraph "Solver::setGeometry"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Solver::setGeometry",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Geometry::getNumFSRs",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#aa6c6670cf0552fc24824f074077e994b",tooltip="Returns the number of flat source regions (FSRs) in the Geometry."];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Geometry::getNumEnergyGroups",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#aceb6249699270b234cddfb9046ed9b2d",tooltip="Returns the number of energy groups for each Material&#39;s nuclear data."];
+  Node3 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Geometry::getNumMaterials",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#aee3114c51ec090bdc73b470a93ee2b32",tooltip="Returns the number of Materials in the Geometry."];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Geometry::getBCTop",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#afa186cc8ccef93a093cad29618becf28",tooltip="Returns the boundary condition for the top Surface of the Geometry."];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Geometry::getBCBottom",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a07444dd93641d2cb52cd12c88b178998",tooltip="Returns the boundary condition for the bottom Surface of the Geometry."];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="Geometry::getBCLeft",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a39d4d8148dcd69fc2eced65296f5fc71",tooltip="Returns the boundary condition for the left Surface of the Geometry."];
+  Node1 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Geometry::getBCRight",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#a8cad295f5a2811cb0c2c0c5db5554468",tooltip="Returns the boundary condition for the right Surface of the Geometry."];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="Geometry::getMesh",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classGeometry.html#ab072933706e35191f0b9d499dca9aca0",tooltip="Returns a pointer to the CMFD Mesh object."];
+  Node1 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="Mesh::getNumCells",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classMesh.html#a52a3a3b2569f357ff63a22799b72f0a8",tooltip="Get the number of Mesh cells in the Geometry."];
+}

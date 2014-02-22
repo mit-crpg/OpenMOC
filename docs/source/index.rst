@@ -25,7 +25,7 @@ Contents
     methods/index
     usersguide/index
     devguide/index
-    api/index
+    doxygen/api
     publications
     developers
     license
