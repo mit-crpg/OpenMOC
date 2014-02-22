@@ -1,5 +1,5 @@
 cd docs/doxygen
-doxgyen Doxyfile
+doxygen Doxyfile
 cd ..
 make html
 cd ..

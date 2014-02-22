@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>OpenMOC: Track Class Reference</title>
+<title>Track Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -26,12 +26,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td style="padding-left: 0.5em;">
-   <div id="projectname">OpenMOC
-   &#160;<span id="projectnumber">v0.1.1</span>
-   </div>
-   <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="openmoc-logo-api.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -69,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -115,13 +113,6 @@ $(document).ready(function(){initNavTree('classTrack.html','');});
  <a href="classTrack.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="Track_8h_source.html">src/Track.h</a>&quot;</code></p>
-<div class="dynheader">
-Collaboration diagram for Track:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack__coll__graph.png" border="0" usemap="#Track_coll__map" alt="Collaboration graph"/></div>
-<map name="Track_coll__map" id="Track_coll__map">
-</map>
-</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -229,15 +220,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_a08af057318f555da880a391718837ea0_icgraph.png" border="0" usemap="#classTrack_a08af057318f555da880a391718837ea0_icgraph" alt=""/></div>
-<map name="classTrack_a08af057318f555da880a391718837ea0_icgraph" id="classTrack_a08af057318f555da880a391718837ea0_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="189,5,344,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a99ae10a8b0b25640a9041f85a1acd663"></a>
@@ -263,15 +245,6 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the <a class="el" href="classPoint.html" title="Class to represent a 2D point in space.">Point</a> is on the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>, false otherwise </dd></dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_a99ae10a8b0b25640a9041f85a1acd663_cgraph.png" border="0" usemap="#classTrack_a99ae10a8b0b25640a9041f85a1acd663_cgraph" alt=""/></div>
-<map name="classTrack_a99ae10a8b0b25640a9041f85a1acd663_cgraph" id="classTrack_a99ae10a8b0b25640a9041f85a1acd663_cgraph">
-<area shape="rect" id="node3" href="classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="167,5,252,35"/><area shape="rect" id="node5" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="167,59,252,88"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="ad200ad729b952101b48a99b695c81a1b"></a>
@@ -289,15 +262,6 @@ Here is the call graph for this function:</div>
 
 <p>Return the index for the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s azimuthal angle (with respect to the x-axis). </p>
 <dl class="section return"><dt>Returns</dt><dd>th azimuthal angle index </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_ad200ad729b952101b48a99b695c81a1b_icgraph.png" border="0" usemap="#classTrack_ad200ad729b952101b48a99b695c81a1b_icgraph" alt=""/></div>
-<map name="classTrack_ad200ad729b952101b48a99b695c81a1b_icgraph" id="classTrack_ad200ad729b952101b48a99b695c81a1b_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="249,5,388,35"/><area shape="rect" id="node5" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="231,59,407,88"/><area shape="rect" id="node7" href="classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0" title="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups." alt="" coords="249,111,388,158"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -317,15 +281,6 @@ Here is the caller graph for this function:</div>
 <p>Returns the boundary condition for the flux along the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s "forward" direction. </p>
 <dl class="section return"><dt>Returns</dt><dd>vacuum (false) or reflective (true) reflective boundary conditions </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_a724c791d976b2e42b320598a496b13d4_icgraph.png" border="0" usemap="#classTrack_a724c791d976b2e42b320598a496b13d4_icgraph" alt=""/></div>
-<map name="classTrack_a724c791d976b2e42b320598a496b13d4_icgraph" id="classTrack_a724c791d976b2e42b320598a496b13d4_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="165,5,304,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="af84359a4e08d94a446157fce41a0f968"></a>
@@ -344,15 +299,6 @@ Here is the caller graph for this function:</div>
 <p>Returns the boundary condition for the flux along the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s "reverse" direction. </p>
 <dl class="section return"><dt>Returns</dt><dd>vacuum (false) or reflective (true) reflective boundary conditions </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_af84359a4e08d94a446157fce41a0f968_icgraph.png" border="0" usemap="#classTrack_af84359a4e08d94a446157fce41a0f968_icgraph" alt=""/></div>
-<map name="classTrack_af84359a4e08d94a446157fce41a0f968_icgraph" id="classTrack_af84359a4e08d94a446157fce41a0f968_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="176,5,315,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="adecdf5c5a6905609248b4fc30af5f111"></a>
@@ -370,15 +316,6 @@ Here is the caller graph for this function:</div>
 
 <p>Returns a pointer to the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s end <a class="el" href="classPoint.html" title="Class to represent a 2D point in space.">Point</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s end <a class="el" href="classPoint.html" title="Class to represent a 2D point in space.">Point</a> </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_adecdf5c5a6905609248b4fc30af5f111_icgraph.png" border="0" usemap="#classTrack_adecdf5c5a6905609248b4fc30af5f111_icgraph" alt=""/></div>
-<map name="classTrack_adecdf5c5a6905609248b4fc30af5f111_icgraph" id="classTrack_adecdf5c5a6905609248b4fc30af5f111_icgraph">
-<area shape="rect" id="node3" href="classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935" title="Fills an array with the x,y coordinates for each Track." alt="" coords="157,5,320,51"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -406,15 +343,6 @@ Here is the caller graph for this function:</div>
 <p>Return the number of segments along this <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of segments </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_a034893295ac06eed35aac0c7ed172419_icgraph.png" border="0" usemap="#classTrack_a034893295ac06eed35aac0c7ed172419_icgraph" alt=""/></div>
-<map name="classTrack_a034893295ac06eed35aac0c7ed172419_icgraph" id="classTrack_a034893295ac06eed35aac0c7ed172419_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="244,5,383,35"/><area shape="rect" id="node5" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="225,59,401,88"/><area shape="rect" id="node7" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="236,112,391,141"/><area shape="rect" id="node9" href="classSolver.html#a4ab290c6ca1d74230bf885cfc7f58b7a" title="Checks that each FSR has at least one Track segment crossing it and if not, throws an exception and p..." alt="" coords="223,165,404,195"/><area shape="rect" id="node13" href="classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0" title="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups." alt="" coords="244,218,383,265"/><area shape="rect" id="node15" href="classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504" title="Fills an array with the x,y coordinates for each Track segment." alt="" coords="232,287,395,334"/><area shape="rect" id="node11" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="455,165,615,195"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="adc334d5a90c1204770ab180b2f39bc56"></a>
@@ -432,15 +360,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s azimuthal angle (with respect to the x-axis). </p>
 <dl class="section return"><dt>Returns</dt><dd>the azimuthal angle <img class="formulaInl" alt="$ \theta \in [0, \pi] $" src="form_26.png"/> </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_adc334d5a90c1204770ab180b2f39bc56_icgraph.png" border="0" usemap="#classTrack_adc334d5a90c1204770ab180b2f39bc56_icgraph" alt=""/></div>
-<map name="classTrack_adc334d5a90c1204770ab180b2f39bc56_icgraph" id="classTrack_adc334d5a90c1204770ab180b2f39bc56_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="159,5,313,35"/><area shape="rect" id="node5" href="classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504" title="Fills an array with the x,y coordinates for each Track segment." alt="" coords="155,58,317,105"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -476,15 +395,6 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the requested segment </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_a9f3cf1bcb2d1f234b7029b25cf657b3d_icgraph.png" border="0" usemap="#classTrack_a9f3cf1bcb2d1f234b7029b25cf657b3d_icgraph" alt=""/></div>
-<map name="classTrack_a9f3cf1bcb2d1f234b7029b25cf657b3d_icgraph" id="classTrack_a9f3cf1bcb2d1f234b7029b25cf657b3d_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="187,5,325,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a796efa8dc12ef0f1073ba264f4074380"></a>
@@ -511,15 +421,6 @@ Here is the caller graph for this function:</div>
 <p>Returns a vector of pointers to the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s segments. </p>
 <dl class="section return"><dt>Returns</dt><dd>vector of segment pointers </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_a796efa8dc12ef0f1073ba264f4074380_icgraph.png" border="0" usemap="#classTrack_a796efa8dc12ef0f1073ba264f4074380_icgraph" alt=""/></div>
-<map name="classTrack_a796efa8dc12ef0f1073ba264f4074380_icgraph" id="classTrack_a796efa8dc12ef0f1073ba264f4074380_icgraph">
-<area shape="rect" id="node3" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="199,5,375,35"/><area shape="rect" id="node5" href="classSolver.html#a4ab290c6ca1d74230bf885cfc7f58b7a" title="Checks that each FSR has at least one Track segment crossing it and if not, throws an exception and p..." alt="" coords="196,59,377,88"/><area shape="rect" id="node9" href="classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0" title="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups." alt="" coords="217,111,356,158"/><area shape="rect" id="node11" href="classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504" title="Fills an array with the x,y coordinates for each Track segment." alt="" coords="205,181,368,227"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="428,59,588,88"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a14cbba36e759b0191961e05debcc527c"></a>
@@ -537,15 +438,6 @@ Here is the caller graph for this function:</div>
 
 <p>Returns a pointer to the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s start <a class="el" href="classPoint.html" title="Class to represent a 2D point in space.">Point</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s start <a class="el" href="classPoint.html" title="Class to represent a 2D point in space.">Point</a> </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_a14cbba36e759b0191961e05debcc527c_icgraph.png" border="0" usemap="#classTrack_a14cbba36e759b0191961e05debcc527c_icgraph" alt=""/></div>
-<map name="classTrack_a14cbba36e759b0191961e05debcc527c_icgraph" id="classTrack_a14cbba36e759b0191961e05debcc527c_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="167,5,321,35"/><area shape="rect" id="node5" href="classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935" title="Fills an array with the x,y coordinates for each Track." alt="" coords="163,58,325,105"/><area shape="rect" id="node7" href="classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504" title="Fills an array with the x,y coordinates for each Track segment." alt="" coords="163,127,325,174"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -697,15 +589,6 @@ Here is the caller graph for this function:</div>
 <p>Return the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s unique ID. </p>
 <dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s unique ID </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_aba38ecdfdde05c79cbefaf341715a4ec_icgraph.png" border="0" usemap="#classTrack_aba38ecdfdde05c79cbefaf341715a4ec_icgraph" alt=""/></div>
-<map name="classTrack_aba38ecdfdde05c79cbefaf341715a4ec_icgraph" id="classTrack_aba38ecdfdde05c79cbefaf341715a4ec_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="163,5,301,35"/><area shape="rect" id="node5" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="155,59,309,88"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="ac553046c3f61abb50c00d9c16ed045a0"></a>
@@ -724,15 +607,6 @@ Here is the caller graph for this function:</div>
 <p>Returns whether to give the outgoing flux to the "forward" (false) or "reverse" (true) direction of the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a> reflecting out of this one along its "forward" direction. </p>
 <dl class="section return"><dt>Returns</dt><dd>"forward" (false) "reverse" (true) direction of outgoing <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a> </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_ac553046c3f61abb50c00d9c16ed045a0_icgraph.png" border="0" usemap="#classTrack_ac553046c3f61abb50c00d9c16ed045a0_icgraph" alt=""/></div>
-<map name="classTrack_ac553046c3f61abb50c00d9c16ed045a0_icgraph" id="classTrack_ac553046c3f61abb50c00d9c16ed045a0_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="163,5,301,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="aafdc812cdaf36e09a3341284c61b8f0b"></a>
@@ -750,15 +624,6 @@ Here is the caller graph for this function:</div>
 
 <p>Returns whether to give the outgoing flux to the "forward" (false) or "reverse" (true) direction of the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a> reflecting out of this one along its "reverse" direction. </p>
 <dl class="section return"><dt>Returns</dt><dd>"forward" (false) "reverse" (true) direction of outgoing <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a> </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_aafdc812cdaf36e09a3341284c61b8f0b_icgraph.png" border="0" usemap="#classTrack_aafdc812cdaf36e09a3341284c61b8f0b_icgraph" alt=""/></div>
-<map name="classTrack_aafdc812cdaf36e09a3341284c61b8f0b_icgraph" id="classTrack_aafdc812cdaf36e09a3341284c61b8f0b_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="173,5,312,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -1134,15 +999,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_a321e6d98cba4d260b7ca787013f85186_cgraph.png" border="0" usemap="#classTrack_a321e6d98cba4d260b7ca787013f85186_cgraph" alt=""/></div>
-<map name="classTrack_a321e6d98cba4d260b7ca787013f85186_cgraph" id="classTrack_a321e6d98cba4d260b7ca787013f85186_cgraph">
-<area shape="rect" id="node3" href="classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a" title="Initializes a Point with two&#45;dimensional coordinates." alt="" coords="176,5,296,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="abc465cc8bc4d568c7031667cb831825e"></a>
@@ -1162,24 +1018,6 @@ Here is the call graph for this function:</div>
 <p>The character array returned includes the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s starting and ending coordinates, the azimuthal angle and azimuthal weight. </p>
 <dl class="section return"><dt>Returns</dt><dd>a character array of this <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>'s attributes </dd></dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_abc465cc8bc4d568c7031667cb831825e_cgraph.png" border="0" usemap="#classTrack_abc465cc8bc4d568c7031667cb831825e_cgraph" alt=""/></div>
-<map name="classTrack_abc465cc8bc4d568c7031667cb831825e_cgraph" id="classTrack_abc465cc8bc4d568c7031667cb831825e_cgraph">
-<area shape="rect" id="node3" href="classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="164,5,249,35"/><area shape="rect" id="node5" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="164,59,249,88"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classTrack_abc465cc8bc4d568c7031667cb831825e_icgraph.png" border="0" usemap="#classTrack_abc465cc8bc4d568c7031667cb831825e_icgraph" alt=""/></div>
-<map name="classTrack_abc465cc8bc4d568c7031667cb831825e_icgraph" id="classTrack_abc465cc8bc4d568c7031667cb831825e_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="163,5,317,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
@@ -1192,7 +1030,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classTrack.html">Track</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 19:16:29 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:39:56 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

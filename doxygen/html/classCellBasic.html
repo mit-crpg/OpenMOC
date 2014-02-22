@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>OpenMOC: CellBasic Class Reference</title>
+<title>CellBasic Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -26,12 +26,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td style="padding-left: 0.5em;">
-   <div id="projectname">OpenMOC
-   &#160;<span id="projectnumber">v0.1.1</span>
-   </div>
-   <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="openmoc-logo-api.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -69,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -115,20 +113,6 @@ $(document).ready(function(){initNavTree('classCellBasic.html','');});
  <a href="classCellBasic.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="Cell_8h_source.html">src/Cell.h</a>&quot;</code></p>
-<div class="dynheader">
-Inheritance diagram for CellBasic:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic__inherit__graph.png" border="0" usemap="#CellBasic_inherit__map" alt="Inheritance graph"/></div>
-<map name="CellBasic_inherit__map" id="CellBasic_inherit__map">
-<area shape="rect" id="node2" href="classCell.html" title="Represents a Cell inside of a Universe." alt="" coords="5,5,144,368"/></map>
-</div>
-<div class="dynheader">
-Collaboration diagram for CellBasic:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic__coll__graph.png" border="0" usemap="#CellBasic_coll__map" alt="Collaboration graph"/></div>
-<map name="CellBasic_coll__map" id="CellBasic_coll__map">
-<area shape="rect" id="node2" href="classCell.html" title="Represents a Cell inside of a Universe." alt="" coords="5,5,144,368"/></map>
-</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -256,24 +240,6 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_ae40a1bd96323a32693d1088bd9b9a1cc_cgraph.png" border="0" usemap="#classCellBasic_ae40a1bd96323a32693d1088bd9b9a1cc_cgraph" alt=""/></div>
-<map name="classCellBasic_ae40a1bd96323a32693d1088bd9b9a1cc_cgraph" id="classCellBasic_ae40a1bd96323a32693d1088bd9b9a1cc_cgraph">
-<area shape="rect" id="node3" href="classCellBasic.html#aabb439fc80329f063ccca9a1aa70e5a2" title="Set the Cell&#39;s number of rings." alt="" coords="204,5,369,35"/><area shape="rect" id="node5" href="classCellBasic.html#a6387edfa5eadaf8b21dbce6b30cf7521" title="Set the Cell&#39;s number of sectors." alt="" coords="199,59,375,88"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_ae40a1bd96323a32693d1088bd9b9a1cc_icgraph.png" border="0" usemap="#classCellBasic_ae40a1bd96323a32693d1088bd9b9a1cc_icgraph" alt=""/></div>
-<map name="classCellBasic_ae40a1bd96323a32693d1088bd9b9a1cc_icgraph" id="classCellBasic_ae40a1bd96323a32693d1088bd9b9a1cc_icgraph">
-<area shape="rect" id="node3" href="classCellBasic.html#a11467ff4cc874cb9688ff12feef184a6" title="Create a duplicate of the CellBasic." alt="" coords="197,5,315,35"/><area shape="rect" id="node5" href="classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90" title="Clones this Universe and all of the Cells within it and returns it." alt="" coords="364,5,476,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <h2>Member Function Documentation</h2>
@@ -293,24 +259,6 @@ Here is the caller graph for this function:</div>
 <p>Create a duplicate of the <a class="el" href="classCellBasic.html" title="Represents a Cell filled with a Material.">CellBasic</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the clone </dd></dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_a11467ff4cc874cb9688ff12feef184a6_cgraph.png" border="0" usemap="#classCellBasic_a11467ff4cc874cb9688ff12feef184a6_cgraph" alt=""/></div>
-<map name="classCellBasic_a11467ff4cc874cb9688ff12feef184a6_cgraph" id="classCellBasic_a11467ff4cc874cb9688ff12feef184a6_cgraph">
-<area shape="rect" id="node3" href="classCellBasic.html#ae40a1bd96323a32693d1088bd9b9a1cc" title="CellBasic::CellBasic" alt="" coords="172,59,313,88"/><area shape="rect" id="node9" href="classCell.html#aaf1680b706b11b4b0121aef6a4a81009" title="Insert a Surface into this Cells container." alt="" coords="184,112,301,141"/><area shape="rect" id="node5" href="classCellBasic.html#aabb439fc80329f063ccca9a1aa70e5a2" title="Set the Cell&#39;s number of rings." alt="" coords="369,5,535,35"/><area shape="rect" id="node7" href="classCellBasic.html#a6387edfa5eadaf8b21dbce6b30cf7521" title="Set the Cell&#39;s number of sectors." alt="" coords="364,59,540,88"/><area shape="rect" id="node11" href="classSurface.html#a017d43ba277780965b6d5aa928a635fc" title="Return the Surface&#39;s user&#45;defined ID." alt="" coords="400,112,504,141"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_a11467ff4cc874cb9688ff12feef184a6_icgraph.png" border="0" usemap="#classCellBasic_a11467ff4cc874cb9688ff12feef184a6_icgraph" alt=""/></div>
-<map name="classCellBasic_a11467ff4cc874cb9688ff12feef184a6_icgraph" id="classCellBasic_a11467ff4cc874cb9688ff12feef184a6_icgraph">
-<area shape="rect" id="node3" href="classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90" title="Clones this Universe and all of the Cells within it and returns it." alt="" coords="172,5,284,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a514c35ecf0d8b33d1e81e9eec2fc10a9"></a>
@@ -328,15 +276,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the ID of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a> filling the <a class="el" href="classCellBasic.html" title="Represents a Cell filled with a Material.">CellBasic</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s ID </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_a514c35ecf0d8b33d1e81e9eec2fc10a9_icgraph.png" border="0" usemap="#classCellBasic_a514c35ecf0d8b33d1e81e9eec2fc10a9_icgraph" alt=""/></div>
-<map name="classCellBasic_a514c35ecf0d8b33d1e81e9eec2fc10a9_icgraph" id="classCellBasic_a514c35ecf0d8b33d1e81e9eec2fc10a9_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5" title="Initialize the FSRs." alt="" coords="224,5,365,35"/><area shape="rect" id="node7" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="207,59,383,88"/><area shape="rect" id="node9" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="217,111,372,158"/><area shape="rect" id="node5" href="classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="433,5,527,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -385,15 +324,6 @@ Here is the caller graph for this function:</div>
 <p>Return the number of rings in the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of rings </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_ad5af2c486bcfd2a0cc8531300b4edf67_icgraph.png" border="0" usemap="#classCellBasic_ad5af2c486bcfd2a0cc8531300b4edf67_icgraph" alt=""/></div>
-<map name="classCellBasic_ad5af2c486bcfd2a0cc8531300b4edf67_icgraph" id="classCellBasic_ad5af2c486bcfd2a0cc8531300b4edf67_icgraph">
-<area shape="rect" id="node3" href="classUniverse.html#ae3952c88390eda788da540d421d0b139" title="Subdivides all of the Cells within this Universe into rings and angular sectors." alt="" coords="223,13,388,43"/><area shape="rect" id="node5" href="classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca" title="Subidivides all Cells in the Geometry into rings and angular sectors." alt="" coords="439,13,609,43"/><area shape="rect" id="node7" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="660,5,815,51"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="ad1f28a0ba1cb3c98e4a6390b5c5a28f2"></a>
@@ -411,15 +341,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the number of sectors in the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of sectors </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_ad1f28a0ba1cb3c98e4a6390b5c5a28f2_icgraph.png" border="0" usemap="#classCellBasic_ad1f28a0ba1cb3c98e4a6390b5c5a28f2_icgraph" alt=""/></div>
-<map name="classCellBasic_ad1f28a0ba1cb3c98e4a6390b5c5a28f2_icgraph" id="classCellBasic_ad1f28a0ba1cb3c98e4a6390b5c5a28f2_icgraph">
-<area shape="rect" id="node3" href="classUniverse.html#ae3952c88390eda788da540d421d0b139" title="Subdivides all of the Cells within this Universe into rings and angular sectors." alt="" coords="233,13,399,43"/><area shape="rect" id="node5" href="classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca" title="Subidivides all Cells in the Geometry into rings and angular sectors." alt="" coords="449,13,620,43"/><area shape="rect" id="node7" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="671,5,825,51"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -469,15 +390,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_aabb439fc80329f063ccca9a1aa70e5a2_icgraph.png" border="0" usemap="#classCellBasic_aabb439fc80329f063ccca9a1aa70e5a2_icgraph" alt=""/></div>
-<map name="classCellBasic_aabb439fc80329f063ccca9a1aa70e5a2_icgraph" id="classCellBasic_aabb439fc80329f063ccca9a1aa70e5a2_icgraph">
-<area shape="rect" id="node3" href="classCellBasic.html#ae40a1bd96323a32693d1088bd9b9a1cc" title="CellBasic::CellBasic" alt="" coords="223,5,364,35"/><area shape="rect" id="node5" href="classCellBasic.html#a11467ff4cc874cb9688ff12feef184a6" title="Create a duplicate of the CellBasic." alt="" coords="413,5,531,35"/><area shape="rect" id="node7" href="classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90" title="Clones this Universe and all of the Cells within it and returns it." alt="" coords="580,5,692,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a6387edfa5eadaf8b21dbce6b30cf7521"></a>
@@ -502,15 +414,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_a6387edfa5eadaf8b21dbce6b30cf7521_icgraph.png" border="0" usemap="#classCellBasic_a6387edfa5eadaf8b21dbce6b30cf7521_icgraph" alt=""/></div>
-<map name="classCellBasic_a6387edfa5eadaf8b21dbce6b30cf7521_icgraph" id="classCellBasic_a6387edfa5eadaf8b21dbce6b30cf7521_icgraph">
-<area shape="rect" id="node3" href="classCellBasic.html#ae40a1bd96323a32693d1088bd9b9a1cc" title="CellBasic::CellBasic" alt="" coords="233,5,375,35"/><area shape="rect" id="node5" href="classCellBasic.html#a11467ff4cc874cb9688ff12feef184a6" title="Create a duplicate of the CellBasic." alt="" coords="424,5,541,35"/><area shape="rect" id="node7" href="classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90" title="Clones this Universe and all of the Cells within it and returns it." alt="" coords="591,5,703,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a68bcdce0e270b6b439ba878a0694d5b1"></a>
@@ -529,15 +432,6 @@ Here is the caller graph for this function:</div>
 <p>Subdivides a <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> into rings and sectors. </p>
 <p>This method uses the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a>'s clone method to produce a vector of this <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a>'s subdivided ring and sector Cells. </p>
 <dl class="section return"><dt>Returns</dt><dd>a vector of <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> pointers to the new subdivided Cells </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_a68bcdce0e270b6b439ba878a0694d5b1_icgraph.png" border="0" usemap="#classCellBasic_a68bcdce0e270b6b439ba878a0694d5b1_icgraph" alt=""/></div>
-<map name="classCellBasic_a68bcdce0e270b6b439ba878a0694d5b1_icgraph" id="classCellBasic_a68bcdce0e270b6b439ba878a0694d5b1_icgraph">
-<area shape="rect" id="node3" href="classUniverse.html#ae3952c88390eda788da540d421d0b139" title="Subdivides all of the Cells within this Universe into rings and angular sectors." alt="" coords="220,13,385,43"/><area shape="rect" id="node5" href="classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca" title="Subidivides all Cells in the Geometry into rings and angular sectors." alt="" coords="436,13,607,43"/><area shape="rect" id="node7" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="657,5,812,51"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -567,24 +461,6 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classCell.html#a4a84efc6a82f7abe42d9a6dc990c70e6">Cell</a>.</p>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_a7c9a65e73c5c9004c2b75f40ab19e4b3_cgraph.png" border="0" usemap="#classCellBasic_a7c9a65e73c5c9004c2b75f40ab19e4b3_cgraph" alt=""/></div>
-<map name="classCellBasic_a7c9a65e73c5c9004c2b75f40ab19e4b3_cgraph" id="classCellBasic_a7c9a65e73c5c9004c2b75f40ab19e4b3_cgraph">
-<area shape="rect" id="node3" href="classCell.html#a61a924f10990017b73b5f3aac1534cb4" title="Return the number of Surfaces in the Cell." alt="" coords="185,5,335,35"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellBasic_a7c9a65e73c5c9004c2b75f40ab19e4b3_icgraph.png" border="0" usemap="#classCellBasic_a7c9a65e73c5c9004c2b75f40ab19e4b3_icgraph" alt=""/></div>
-<map name="classCellBasic_a7c9a65e73c5c9004c2b75f40ab19e4b3_icgraph" id="classCellBasic_a7c9a65e73c5c9004c2b75f40ab19e4b3_icgraph">
-<area shape="rect" id="node3" href="classCellBasic.html#a8a4daeca3487c62cfd7251ccb9e22847" title="Prints a string representation of all of the CellBasic&#39;s attributes to the console." alt="" coords="185,5,329,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
@@ -597,7 +473,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCellBasic.html">CellBasic</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 19:16:29 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:39:56 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

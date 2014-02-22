@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>OpenMOC: CPUSolver Class Reference</title>
+<title>CPUSolver Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -26,12 +26,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td style="padding-left: 0.5em;">
-   <div id="projectname">OpenMOC
-   &#160;<span id="projectnumber">v0.1.1</span>
-   </div>
-   <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="openmoc-logo-api.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -69,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -117,20 +115,6 @@ $(document).ready(function(){initNavTree('classCPUSolver.html','');});
  <a href="classCPUSolver.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="CPUSolver_8h_source.html">src/CPUSolver.h</a>&quot;</code></p>
-<div class="dynheader">
-Inheritance diagram for CPUSolver:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCPUSolver__inherit__graph.png" border="0" usemap="#CPUSolver_inherit__map" alt="Inheritance graph"/></div>
-<map name="CPUSolver_inherit__map" id="CPUSolver_inherit__map">
-<area shape="rect" id="node5" href="classThreadPrivateSolver.html" title="This is a subclass of the CPUSolver which uses thread private arrays for the FSR scalar fluxes to min..." alt="" coords="5,1236,219,1495"/><area shape="rect" id="node7" href="classVectorizedSolver.html" title="This is a subclass of the CPUSolver class which uses memory&#45;aligned data structures and Intel&#39;s auto&#45;..." alt="" coords="243,1193,421,1538"/><area shape="rect" id="node2" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture..." alt="" coords="104,6,339,629"/><area shape="rect" id="node9" href="classVectorizedPrivateSolver.html" title="This is a subclass of the VectorizedSolver class. This class uses a thread private array for FSR scal..." alt="" coords="237,1587,427,1690"/></map>
-</div>
-<div class="dynheader">
-Collaboration diagram for CPUSolver:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCPUSolver__coll__graph.png" border="0" usemap="#CPUSolver_coll__map" alt="Collaboration graph"/></div>
-<map name="CPUSolver_coll__map" id="CPUSolver_coll__map">
-<area shape="rect" id="node2" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture..." alt="" coords="483,331,717,954"/><area shape="rect" id="node4" href="classGeometry.html" title="The master class containing references to all geometry&#45;related objects &#45; Surfaces, Cells, Universes and Lattices &#45; and Materials." alt="" coords="5,5,125,264"/><area shape="rect" id="node6" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross&#45;sections) for neutron transport." alt="" coords="149,5,320,264"/><area shape="rect" id="node8" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration." alt="" coords="344,5,499,264"/><area shape="rect" id="node10" href="classTrack.html" title="A Track represents a characteristic line across the geometry." alt="" coords="523,5,677,264"/><area shape="rect" id="node12" href="classQuadrature.html" title="Stores values for a variety of polar quadratures which may be used." alt="" coords="701,5,859,264"/><area shape="rect" id="node14" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo..." alt="" coords="883,5,1061,264"/><area shape="rect" id="node16" href="classTimer.html" title="The Timer class is for timing and profiling regions of code." alt="" coords="1085,5,1189,264"/></map>
-</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -358,15 +342,6 @@ Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCPUSolver_a919f1b5cad684e6bcb594cecb872a5b1_cgraph.png" border="0" usemap="#classCPUSolver_a919f1b5cad684e6bcb594cecb872a5b1_cgraph" alt=""/></div>
-<map name="classCPUSolver_a919f1b5cad684e6bcb594cecb872a5b1_cgraph" id="classCPUSolver_a919f1b5cad684e6bcb594cecb872a5b1_cgraph">
-<area shape="rect" id="node3" href="classCPUSolver.html#a2407bc2c3829aff938c34a990d8fbe65" title="Sets the number of shared memory OpenMP threads to use (&gt;0)." alt="" coords="216,5,405,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <h2>Member Function Documentation</h2>
@@ -419,15 +394,6 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the evaluated exponential </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCPUSolver_a15c08662bd62a5042f5054a74e23391f_icgraph.png" border="0" usemap="#classCPUSolver_a15c08662bd62a5042f5054a74e23391f_icgraph" alt=""/></div>
-<map name="classCPUSolver_a15c08662bd62a5042f5054a74e23391f_icgraph" id="classCPUSolver_a15c08662bd62a5042f5054a74e23391f_icgraph">
-<area shape="rect" id="node3" href="classThreadPrivateSolver.html#a0d9da6c56e767cb2d16759e92e0fecf1" title="Computes the contribution to the FSR scalar flux from a Track segment." alt="" coords="271,5,409,51"/><area shape="rect" id="node5" href="classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0" title="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups." alt="" coords="460,5,599,51"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -764,15 +730,6 @@ Here is the caller graph for this function:</div>
 
 <p>Reimplemented in <a class="el" href="classThreadPrivateSolver.html#a2093a23adc15841ad486b2b803e1fb28">ThreadPrivateSolver</a>.</p>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCPUSolver_acf1386161e001fd58d8962a4c6ad24c7_cgraph.png" border="0" usemap="#classCPUSolver_acf1386161e001fd58d8962a4c6ad24c7_cgraph" alt=""/></div>
-<map name="classCPUSolver_acf1386161e001fd58d8962a4c6ad24c7_cgraph" id="classCPUSolver_acf1386161e001fd58d8962a4c6ad24c7_cgraph">
-<area shape="rect" id="node3" href="classCmfd.html#acbf8310fb5a8a657751b905eea3ead8c" title="Get pointer to the Mesh object." alt="" coords="265,5,377,35"/><area shape="rect" id="node5" href="classMesh.html#a0286b4dfbca37b921dc5919a2e47b59a" title="Return whether or not CMFD is in use." alt="" coords="257,59,385,88"/><area shape="rect" id="node7" href="classCmfd.html#a27180e282a7f0eb4d9459b75ddc8b31e" title="Get the number of coarse CMFD energy groups." alt="" coords="231,112,412,141"/><area shape="rect" id="node9" href="classMesh.html#a52a3a3b2569f357ff63a22799b72f0a8" title="Get the number of Mesh cells in the Geometry." alt="" coords="252,165,391,195"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a8eac5804397c5e5f95d73b19a6e4cbfd"></a>
@@ -830,15 +787,6 @@ Here is the call graph for this function:</div>
 <p>This method assigns each FSR a unique, monotonically increasing ID, sets the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a> for each FSR, and assigns a volume based on the cumulative length of all of the segments inside the FSR. </p>
 
 <p>Implements <a class="el" href="classSolver.html#a512ac25e056b3e2d77ae9159e793babf">Solver</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCPUSolver_aafc9bf9eb416a12cbe21ddde4b5f9f1c_cgraph.png" border="0" usemap="#classCPUSolver_aafc9bf9eb416a12cbe21ddde4b5f9f1c_cgraph" alt=""/></div>
-<map name="classCPUSolver_aafc9bf9eb416a12cbe21ddde4b5f9f1c_cgraph" id="classCPUSolver_aafc9bf9eb416a12cbe21ddde4b5f9f1c_cgraph">
-<area shape="rect" id="node3" href="classGeometry.html#abbd6276818d60a6fb5395d07032007d5" title="Return a pointer to a Universe from the Geometry." alt="" coords="264,5,421,35"/><area shape="rect" id="node5" href="classTrack.html#ad200ad729b952101b48a99b695c81a1b" title="Return the index for the Track&#39;s azimuthal angle (with respect to the x&#45;axis)." alt="" coords="255,59,431,88"/><area shape="rect" id="node7" href="classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="259,112,427,141"/><area shape="rect" id="node9" href="classTrack.html#a796efa8dc12ef0f1073ba264f4074380" title="Returns a vector of pointers to the Track&#39;s segments." alt="" coords="273,165,412,195"/><area shape="rect" id="node11" href="classGeometry.html#a92eee0b27aeacfee8eaef6dacd2c8d6e" title="Find the Cell for a flat source region ID." alt="" coords="233,219,452,248"/><area shape="rect" id="node13" href="classGeometry.html#af6cb323d79275e9540d7ba4e81bccebf" title="Return a pointer to a Material object in the Geometry." alt="" coords="268,272,417,301"/><area shape="rect" id="node15" href="classCellBasic.html#a514c35ecf0d8b33d1e81e9eec2fc10a9" title="Return the ID of the Material filling the CellBasic." alt="" coords="268,325,417,355"/><area shape="rect" id="node17" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="301,379,384,408"/><area shape="rect" id="node19" href="classMaterial.html#a95de130b248a20f9237793ab92e494a3" title="Return the Material&#39;s unique ID." alt="" coords="285,432,400,461"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -988,15 +936,6 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCPUSolver_a2407bc2c3829aff938c34a990d8fbe65_icgraph.png" border="0" usemap="#classCPUSolver_a2407bc2c3829aff938c34a990d8fbe65_icgraph" alt=""/></div>
-<map name="classCPUSolver_a2407bc2c3829aff938c34a990d8fbe65_icgraph" id="classCPUSolver_a2407bc2c3829aff938c34a990d8fbe65_icgraph">
-<area shape="rect" id="node3" href="classCPUSolver.html#a919f1b5cad684e6bcb594cecb872a5b1" title="Constructor initializes array pointers for Tracks and Materials." alt="" coords="243,5,405,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a4f014a827e40dc698646825dd1b8038f"></a>
@@ -1055,15 +994,6 @@ Here is the caller graph for this function:</div>
 </dl>
 
 <p>Reimplemented in <a class="el" href="classVectorizedSolver.html#a8870d66ff12cad16d893d9f1dad0c799">VectorizedSolver</a>.</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCPUSolver_a4f014a827e40dc698646825dd1b8038f_icgraph.png" border="0" usemap="#classCPUSolver_a4f014a827e40dc698646825dd1b8038f_icgraph" alt=""/></div>
-<map name="classCPUSolver_a4f014a827e40dc698646825dd1b8038f_icgraph" id="classCPUSolver_a4f014a827e40dc698646825dd1b8038f_icgraph">
-<area shape="rect" id="node3" href="classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0" title="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups." alt="" coords="276,5,415,51"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -1162,7 +1092,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCPUSolver.html">CPUSolver</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 19:16:29 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:39:56 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

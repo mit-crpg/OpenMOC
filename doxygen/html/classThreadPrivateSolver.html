@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>OpenMOC: ThreadPrivateSolver Class Reference</title>
+<title>ThreadPrivateSolver Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -26,12 +26,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td style="padding-left: 0.5em;">
-   <div id="projectname">OpenMOC
-   &#160;<span id="projectnumber">v0.1.1</span>
-   </div>
-   <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="openmoc-logo-api.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -69,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -117,20 +115,6 @@ $(document).ready(function(){initNavTree('classThreadPrivateSolver.html','');});
  <a href="classThreadPrivateSolver.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="ThreadPrivateSolver_8h_source.html">openmoc/src/ThreadPrivateSolver.h</a>&quot;</code></p>
-<div class="dynheader">
-Inheritance diagram for ThreadPrivateSolver:</div>
-<div class="dyncontent">
-<div class="center"><img src="classThreadPrivateSolver__inherit__graph.png" border="0" usemap="#ThreadPrivateSolver_inherit__map" alt="Inheritance graph"/></div>
-<map name="ThreadPrivateSolver_inherit__map" id="ThreadPrivateSolver_inherit__map">
-<area shape="rect" id="node2" href="classCPUSolver.html" title="This a subclass of the Solver class for multi&#45;core CPUs using OpenMP multi&#45;threading." alt="" coords="25,677,220,1144"/><area shape="rect" id="node4" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture..." alt="" coords="5,6,240,629"/></map>
-</div>
-<div class="dynheader">
-Collaboration diagram for ThreadPrivateSolver:</div>
-<div class="dyncontent">
-<div class="center"><img src="classThreadPrivateSolver__coll__graph.png" border="0" usemap="#ThreadPrivateSolver_coll__map" alt="Collaboration graph"/></div>
-<map name="ThreadPrivateSolver_coll__map" id="ThreadPrivateSolver_coll__map">
-<area shape="rect" id="node2" href="classCPUSolver.html" title="This a subclass of the Solver class for multi&#45;core CPUs using OpenMP multi&#45;threading." alt="" coords="503,1005,697,1472"/><area shape="rect" id="node4" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture..." alt="" coords="483,331,717,954"/><area shape="rect" id="node6" href="classGeometry.html" title="The master class containing references to all geometry&#45;related objects &#45; Surfaces, Cells, Universes and Lattices &#45; and Materials." alt="" coords="5,5,125,264"/><area shape="rect" id="node8" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross&#45;sections) for neutron transport." alt="" coords="149,5,320,264"/><area shape="rect" id="node10" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration." alt="" coords="344,5,499,264"/><area shape="rect" id="node12" href="classTrack.html" title="A Track represents a characteristic line across the geometry." alt="" coords="523,5,677,264"/><area shape="rect" id="node14" href="classQuadrature.html" title="Stores values for a variety of polar quadratures which may be used." alt="" coords="701,5,859,264"/><area shape="rect" id="node16" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo..." alt="" coords="883,5,1061,264"/><area shape="rect" id="node18" href="classTimer.html" title="The Timer class is for timing and profiling regions of code." alt="" coords="1085,5,1189,264"/></map>
-</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -409,15 +393,6 @@ Protected Attributes</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="classCPUSolver.html#a154cbd82754abdadb2ca57068ec12102">CPUSolver</a>.</p>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classThreadPrivateSolver_a59774ef30af398b452a767a338e01517_icgraph.png" border="0" usemap="#classThreadPrivateSolver_a59774ef30af398b452a767a338e01517_icgraph" alt=""/></div>
-<map name="classThreadPrivateSolver_a59774ef30af398b452a767a338e01517_icgraph" id="classThreadPrivateSolver_a59774ef30af398b452a767a338e01517_icgraph">
-<area shape="rect" id="node3" href="classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0" title="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups." alt="" coords="196,5,335,51"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a2093a23adc15841ad486b2b803e1fb28"></a>
@@ -445,15 +420,6 @@ Here is the caller graph for this function:</div>
 <p>Instantiates a dummy <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration.">Cmfd</a> object if one was not assigned to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> by the user and initializes FSRs, Materials, fluxes and the <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration.">Mesh</a>. This method intializes thread private arrays for the <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration.">Cmfd</a> <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration.">Mesh</a> surface currents. </p>
 
 <p>Reimplemented from <a class="el" href="classCPUSolver.html#acf1386161e001fd58d8962a4c6ad24c7">CPUSolver</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classThreadPrivateSolver_a2093a23adc15841ad486b2b803e1fb28_cgraph.png" border="0" usemap="#classThreadPrivateSolver_a2093a23adc15841ad486b2b803e1fb28_cgraph" alt=""/></div>
-<map name="classThreadPrivateSolver_a2093a23adc15841ad486b2b803e1fb28_cgraph" id="classThreadPrivateSolver_a2093a23adc15841ad486b2b803e1fb28_cgraph">
-<area shape="rect" id="node3" href="classCmfd.html#acbf8310fb5a8a657751b905eea3ead8c" title="Get pointer to the Mesh object." alt="" coords="231,5,343,35"/><area shape="rect" id="node5" href="classMesh.html#a0286b4dfbca37b921dc5919a2e47b59a" title="Return whether or not CMFD is in use." alt="" coords="223,59,351,88"/><area shape="rect" id="node7" href="classCmfd.html#a27180e282a7f0eb4d9459b75ddc8b31e" title="Get the number of coarse CMFD energy groups." alt="" coords="196,112,377,141"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -550,24 +516,6 @@ Here is the call graph for this function:</div>
 
 <p>Reimplemented from <a class="el" href="classCPUSolver.html#a414e03f5c083e4b8e77da6c8fa79af02">CPUSolver</a>.</p>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classThreadPrivateSolver_a0d9da6c56e767cb2d16759e92e0fecf1_cgraph.png" border="0" usemap="#classThreadPrivateSolver_a0d9da6c56e767cb2d16759e92e0fecf1_cgraph" alt=""/></div>
-<map name="classThreadPrivateSolver_a0d9da6c56e767cb2d16759e92e0fecf1_cgraph" id="classThreadPrivateSolver_a0d9da6c56e767cb2d16759e92e0fecf1_cgraph">
-<area shape="rect" id="node3" href="classMaterial.html#a0bb70f99202814861516d5d7db94321e" title="Return the array of the Material&#39;s total cross&#45;sections." alt="" coords="233,5,372,35"/><area shape="rect" id="node5" href="classCPUSolver.html#a15c08662bd62a5042f5054a74e23391f" title="Computes the exponential term in the transport equation for a track segment." alt="" coords="196,59,409,88"/><area shape="rect" id="node7" href="classCmfd.html#acbf8310fb5a8a657751b905eea3ead8c" title="Get pointer to the Mesh object." alt="" coords="247,112,359,141"/><area shape="rect" id="node9" href="classMesh.html#a0286b4dfbca37b921dc5919a2e47b59a" title="Return whether or not CMFD is in use." alt="" coords="239,165,367,195"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classThreadPrivateSolver_a0d9da6c56e767cb2d16759e92e0fecf1_icgraph.png" border="0" usemap="#classThreadPrivateSolver_a0d9da6c56e767cb2d16759e92e0fecf1_icgraph" alt=""/></div>
-<map name="classThreadPrivateSolver_a0d9da6c56e767cb2d16759e92e0fecf1_icgraph" id="classThreadPrivateSolver_a0d9da6c56e767cb2d16759e92e0fecf1_icgraph">
-<area shape="rect" id="node3" href="classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0" title="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups." alt="" coords="196,5,335,51"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="ad784c540c10f88aafe54965631c139e0"></a>
@@ -595,15 +543,6 @@ Here is the caller graph for this function:</div>
 <p>The method integrates the flux along each track and updates the boundary fluxes for the corresponding output <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a>, while updating the scalar flux in each flat source region. </p>
 
 <p>Reimplemented from <a class="el" href="classCPUSolver.html#a9aac0098d2d8969d87212aad0cb9c54e">CPUSolver</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classThreadPrivateSolver_ad784c540c10f88aafe54965631c139e0_cgraph.png" border="0" usemap="#classThreadPrivateSolver_ad784c540c10f88aafe54965631c139e0_cgraph" alt=""/></div>
-<map name="classThreadPrivateSolver_ad784c540c10f88aafe54965631c139e0_cgraph" id="classThreadPrivateSolver_ad784c540c10f88aafe54965631c139e0_cgraph">
-<area shape="rect" id="node3" href="classThreadPrivateSolver.html#a59774ef30af398b452a767a338e01517" title="Set the FSR scalar flux for each energy group to some value." alt="" coords="236,5,375,51"/><area shape="rect" id="node5" href="classCmfd.html#acbf8310fb5a8a657751b905eea3ead8c" title="Get pointer to the Mesh object." alt="" coords="516,75,628,104"/><area shape="rect" id="node7" href="classMesh.html#a0286b4dfbca37b921dc5919a2e47b59a" title="Return whether or not CMFD is in use." alt="" coords="508,129,636,159"/><area shape="rect" id="node9" href="classThreadPrivateSolver.html#ac076b6d2b99b18ea299356194f3ab091" title="Set the surface currents for each energy group inside each Cmfd Mesh cell to zero." alt="" coords="231,245,380,291"/><area shape="rect" id="node11" href="classTrack.html#ad200ad729b952101b48a99b695c81a1b" title="Return the index for the Track&#39;s azimuthal angle (with respect to the x&#45;axis)." alt="" coords="217,315,393,344"/><area shape="rect" id="node13" href="classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="221,368,389,397"/><area shape="rect" id="node15" href="classTrack.html#a796efa8dc12ef0f1073ba264f4074380" title="Returns a vector of pointers to the Track&#39;s segments." alt="" coords="236,421,375,451"/><area shape="rect" id="node17" href="classThreadPrivateSolver.html#a0d9da6c56e767cb2d16759e92e0fecf1" title="Computes the contribution to the FSR scalar flux from a Track segment." alt="" coords="236,175,375,222"/><area shape="rect" id="node25" href="classCPUSolver.html#a4f014a827e40dc698646825dd1b8038f" title="Updates the boundary flux for a Track given boundary conditions." alt="" coords="196,475,415,504"/><area shape="rect" id="node27" href="classThreadPrivateSolver.html#a09364c26764b7194e2e2b0c85d816f83" title="Reduces the FSR scalar fluxes from private thread private arrays to a global array FSR scalar flux ar..." alt="" coords="213,527,397,574"/><area shape="rect" id="node29" href="classThreadPrivateSolver.html#a4cb9752f69c981fc62c5ad2d7268a6e9" title="Reduces the Cmfd Mesh surface currents from private thread arrays to a global Mesh surface current ar..." alt="" coords="204,597,407,643"/><area shape="rect" id="node19" href="classMaterial.html#a0bb70f99202814861516d5d7db94321e" title="Return the array of the Material&#39;s total cross&#45;sections." alt="" coords="503,237,641,267"/><area shape="rect" id="node21" href="classCPUSolver.html#a15c08662bd62a5042f5054a74e23391f" title="Computes the exponential term in the transport equation for a track segment." alt="" coords="465,184,679,213"/><area shape="rect" id="node31" href="classCmfd.html#a27180e282a7f0eb4d9459b75ddc8b31e" title="Get the number of coarse CMFD energy groups." alt="" coords="481,605,663,635"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -660,7 +599,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classThreadPrivateSolver.html">ThreadPrivateSolver</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 19:16:29 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:39:56 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

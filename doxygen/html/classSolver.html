@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>OpenMOC: Solver Class Reference</title>
+<title>Solver Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -26,12 +26,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td style="padding-left: 0.5em;">
-   <div id="projectname">OpenMOC
-   &#160;<span id="projectnumber">v0.1.1</span>
-   </div>
-   <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="openmoc-logo-api.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -69,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -117,20 +115,6 @@ $(document).ready(function(){initNavTree('classSolver.html','');});
  <a href="classSolver.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="Solver_8h_source.html">src/Solver.h</a>&quot;</code></p>
-<div class="dynheader">
-Inheritance diagram for Solver:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver__inherit__graph.png" border="0" usemap="#Solver_inherit__map" alt="Inheritance graph"/></div>
-<map name="Solver_inherit__map" id="Solver_inherit__map">
-<area shape="rect" id="node3" href="classCPUSolver.html" title="This a subclass of the Solver class for multi&#45;core CPUs using OpenMP multi&#45;threading." alt="" coords="124,677,319,1144"/><area shape="rect" id="node11" href="classGPUSolver.html" title="This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs)." alt="" coords="343,764,537,1057"/><area shape="rect" id="node5" href="classThreadPrivateSolver.html" title="This is a subclass of the CPUSolver which uses thread private arrays for the FSR scalar fluxes to min..." alt="" coords="5,1236,219,1495"/><area shape="rect" id="node7" href="classVectorizedSolver.html" title="This is a subclass of the CPUSolver class which uses memory&#45;aligned data structures and Intel&#39;s auto&#45;..." alt="" coords="243,1193,421,1538"/><area shape="rect" id="node9" href="classVectorizedPrivateSolver.html" title="This is a subclass of the VectorizedSolver class. This class uses a thread private array for FSR scal..." alt="" coords="237,1587,427,1690"/></map>
-</div>
-<div class="dynheader">
-Collaboration diagram for Solver:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver__coll__graph.png" border="0" usemap="#Solver_coll__map" alt="Collaboration graph"/></div>
-<map name="Solver_coll__map" id="Solver_coll__map">
-<area shape="rect" id="node2" href="classGeometry.html" title="The master class containing references to all geometry&#45;related objects &#45; Surfaces, Cells, Universes and Lattices &#45; and Materials." alt="" coords="5,5,125,264"/><area shape="rect" id="node4" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross&#45;sections) for neutron transport." alt="" coords="149,5,320,264"/><area shape="rect" id="node6" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration." alt="" coords="344,5,499,264"/><area shape="rect" id="node8" href="classTrack.html" title="A Track represents a characteristic line across the geometry." alt="" coords="523,5,677,264"/><area shape="rect" id="node10" href="classQuadrature.html" title="Stores values for a variety of polar quadratures which may be used." alt="" coords="701,5,859,264"/><area shape="rect" id="node12" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo..." alt="" coords="883,5,1061,264"/><area shape="rect" id="node14" href="classTimer.html" title="The Timer class is for timing and profiling regions of code." alt="" coords="1085,5,1189,264"/></map>
-</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -334,15 +318,6 @@ Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_aa695c4bdcdb0664b2c55c87f2dc7ec6a_cgraph.png" border="0" usemap="#classSolver_aa695c4bdcdb0664b2c55c87f2dc7ec6a_cgraph" alt=""/></div>
-<map name="classSolver_aa695c4bdcdb0664b2c55c87f2dc7ec6a_cgraph" id="classSolver_aa695c4bdcdb0664b2c55c87f2dc7ec6a_cgraph">
-<area shape="rect" id="node3" href="classSolver.html#a117012c7ecaf59b70fa6b489562acc65" title="Sets the Geometry for the Solver." alt="" coords="175,243,316,272"/><area shape="rect" id="node24" href="classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5" title="Sets the Solver&#39;s TrackGenerator with characteristic Tracks." alt="" coords="159,613,332,643"/><area shape="rect" id="node5" href="classGeometry.html#aa6c6670cf0552fc24824f074077e994b" title="Returns the number of flat source regions (FSRs) in the Geometry." alt="" coords="407,5,572,35"/><area shape="rect" id="node7" href="classGeometry.html#aceb6249699270b234cddfb9046ed9b2d" title="Returns the number of energy groups for each Material&#39;s nuclear data." alt="" coords="381,59,597,88"/><area shape="rect" id="node9" href="classGeometry.html#aee3114c51ec090bdc73b470a93ee2b32" title="Returns the number of Materials in the Geometry." alt="" coords="645,85,832,115"/><area shape="rect" id="node11" href="classGeometry.html#afa186cc8ccef93a093cad29618becf28" title="Returns the boundary condition for the top Surface of the Geometry." alt="" coords="416,163,563,192"/><area shape="rect" id="node13" href="classGeometry.html#a07444dd93641d2cb52cd12c88b178998" title="Returns the boundary condition for the bottom Surface of the Geometry." alt="" coords="407,216,572,245"/><area shape="rect" id="node15" href="classGeometry.html#a39d4d8148dcd69fc2eced65296f5fc71" title="Returns the boundary condition for the left Surface of the Geometry." alt="" coords="416,269,563,299"/><area shape="rect" id="node17" href="classGeometry.html#a8cad295f5a2811cb0c2c0c5db5554468" title="Returns the boundary condition for the right Surface of the Geometry." alt="" coords="412,323,567,352"/><area shape="rect" id="node20" href="classGeometry.html#ab072933706e35191f0b9d499dca9aca0" title="Returns a pointer to the CMFD Mesh object." alt="" coords="421,376,557,405"/><area shape="rect" id="node22" href="classMesh.html#a52a3a3b2569f357ff63a22799b72f0a8" title="Get the number of Mesh cells in the Geometry." alt="" coords="420,429,559,459"/><area shape="rect" id="node26" href="classTrackGenerator.html#a5ec836ced3479a5aae51132809a3d7b4" title="Returns whether or not the TrackGenerator contains Track that are for its current number of azimuthal..." alt="" coords="405,482,573,529"/><area shape="rect" id="node28" href="classTrackGenerator.html#a9c9661635df90ab658b17517548e7cc2" title="Return the number of azimuthal angles in ." alt="" coords="392,552,587,581"/><area shape="rect" id="node30" href="classTrackGenerator.html#a20e00c47aa96fbee5c2eef16e8aa006c" title="Return an array of the number of Tracks for each azimuthal angle." alt="" coords="387,605,592,651"/><area shape="rect" id="node32" href="classTrackGenerator.html#a078d71a343d4c245c38195491b2d024c" title="Return the total number of Tracks across the Geometry." alt="" coords="387,675,592,704"/><area shape="rect" id="node34" href="classTrackGenerator.html#a31deadd969cddf7eba85a442729f697a" title="Return a pointer to the array of azimuthal angle quadrature weights." alt="" coords="381,728,597,757"/><area shape="rect" id="node36" href="classTrackGenerator.html#a293c6a25a694bfcb8187cfd679fa3639" title="Returns a 2D jagged array of the Tracks." alt="" coords="400,781,579,811"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="aba52d3c92fafceb6fe39f937f2d73db3"></a>
@@ -395,24 +370,6 @@ Here is the call graph for this function:</div>
 
 <p>Checks that each FSR has at least one <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry.">Track</a> segment crossing it and if not, throws an exception and prints an error message. </p>
 <p>This method is for internal use only and is called by the <a class="el" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates.">Solver::convergeSource()</a> method and should not be called directly by the user. </p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_a4ab290c6ca1d74230bf885cfc7f58b7a_cgraph.png" border="0" usemap="#classSolver_a4ab290c6ca1d74230bf885cfc7f58b7a_cgraph" alt=""/></div>
-<map name="classSolver_a4ab290c6ca1d74230bf885cfc7f58b7a_cgraph" id="classSolver_a4ab290c6ca1d74230bf885cfc7f58b7a_cgraph">
-<area shape="rect" id="node3" href="classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="237,5,405,35"/><area shape="rect" id="node5" href="classTrack.html#a796efa8dc12ef0f1073ba264f4074380" title="Returns a vector of pointers to the Track&#39;s segments." alt="" coords="252,59,391,88"/><area shape="rect" id="node7" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="280,112,363,141"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_a4ab290c6ca1d74230bf885cfc7f58b7a_icgraph.png" border="0" usemap="#classSolver_a4ab290c6ca1d74230bf885cfc7f58b7a_icgraph" alt=""/></div>
-<map name="classSolver_a4ab290c6ca1d74230bf885cfc7f58b7a_icgraph" id="classSolver_a4ab290c6ca1d74230bf885cfc7f58b7a_icgraph">
-<area shape="rect" id="node3" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="239,5,399,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -490,15 +447,6 @@ Here is the caller graph for this function:</div>
 
 <p>Implemented in <a class="el" href="classCPUSolver.html#add777a473fdeaf1bf2928c5d05168c85">CPUSolver</a>, and <a class="el" href="classVectorizedSolver.html#a14a159d804a2b94f1442e6cb6046e4f0">VectorizedSolver</a>.</p>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_af3265d25938ee473633e193bc59202c8_icgraph.png" border="0" usemap="#classSolver_af3265d25938ee473633e193bc59202c8_icgraph" alt=""/></div>
-<map name="classSolver_af3265d25938ee473633e193bc59202c8_icgraph" id="classSolver_af3265d25938ee473633e193bc59202c8_icgraph">
-<area shape="rect" id="node3" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="247,5,407,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="af8358a66a7cbd56339211f80a2365678"></a>
@@ -535,15 +483,6 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the value of the computed eigenvalue <img class="formulaInl" alt="$ k_{eff} $" src="form_4.png"/> </dd></dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_af8358a66a7cbd56339211f80a2365678_cgraph.png" border="0" usemap="#classSolver_af8358a66a7cbd56339211f80a2365678_cgraph" alt=""/></div>
-<map name="classSolver_af8358a66a7cbd56339211f80a2365678_cgraph" id="classSolver_af8358a66a7cbd56339211f80a2365678_cgraph">
-<area shape="rect" id="node3" href="classSolver.html#a4f6e2e3069aa9404fefd62be376e8390" title="Deletes the Timer&#39;s timing entries for each timed code section code in the source convergence loop..." alt="" coords="240,140,400,169"/><area shape="rect" id="node7" href="classTimer.html#aa8c887576ec3b0d68c10ebf4097c367c" title="Starts the Timer." alt="" coords="508,59,631,88"/><area shape="rect" id="node9" href="classSolver.html#a6591b996eb837e0c4184424e48e191a3" title="Creates a polar quadrature object for the Solver." alt="" coords="216,1096,424,1125"/><area shape="rect" id="node11" href="classSolver.html#a916eb7ef96140e1ea2d22bb9d1c86240" title="Initializes Track boundary angular flux and leakage and FSR scalar flux arrays." alt="" coords="232,1149,408,1179"/><area shape="rect" id="node13" href="classSolver.html#a8592d819738b24a5b983e54c0a635d30" title="Allocates memory for FSR source arrays." alt="" coords="243,1202,397,1249"/><area shape="rect" id="node15" href="classSolver.html#a7098d5d9fde857934ce0f867164f9d2e" title="Builds the exponential linear interpolation table." alt="" coords="229,1272,411,1301"/><area shape="rect" id="node17" href="classSolver.html#a512ac25e056b3e2d77ae9159e793babf" title="Initializes the volumes and Material arrays for each FSR." alt="" coords="247,1325,393,1355"/><area shape="rect" id="node19" href="classSolver.html#afeab07b86fb26ba8be22d525cba33c4f" title="Initializes a Cmfd object for acceleratiion prior to source iteration." alt="" coords="247,1379,393,1408"/><area shape="rect" id="node27" href="classCmfd.html#acbf8310fb5a8a657751b905eea3ead8c" title="Get pointer to the Mesh object." alt="" coords="513,1432,625,1461"/><area shape="rect" id="node31" href="classSolver.html#a4ab290c6ca1d74230bf885cfc7f58b7a" title="Checks that each FSR has at least one Track segment crossing it and if not, throws an exception and p..." alt="" coords="229,1483,411,1512"/><area shape="rect" id="node39" href="classSolver.html#a148137c97310ee2df94a4fd3fe35456f" title="Set the scalar flux for each FSR and energy group to some value." alt="" coords="236,1536,404,1565"/><area shape="rect" id="node41" href="classSolver.html#a906c202ff2b3e38443f333964efa2342" title="Set the source for each FSR and energy group to some value." alt="" coords="231,1589,409,1619"/><area shape="rect" id="node43" href="classSolver.html#ac9960f6987c85a3d8e670beb10a9fbb2" title="Zero each Track&#39;s boundary fluxes for each energy group and polar angle in the &quot;forward&quot; and &quot;reverse..." alt="" coords="239,1643,401,1672"/><area shape="rect" id="node46" href="classMesh.html#a8f6ecca5c43bda3b80ac8c80815a79bd" title="Return whether CMFD acceleration is in use." alt="" coords="244,1696,396,1725"/><area shape="rect" id="node48" href="classSolver.html#aeb89db6a6b624b222494625613b2ed57" title="Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total fission source (times..." alt="" coords="239,1749,401,1779"/><area shape="rect" id="node50" href="classSolver.html#af3265d25938ee473633e193bc59202c8" title="Computes the total source (fission and scattering) for each FSR and energy group." alt="" coords="224,1803,416,1832"/><area shape="rect" id="node52" href="classSolver.html#ab029744c3532b239fab583c4f8d8ea98" title="This method performs one transport sweep of all azimuthal angles, Tracks, segments, polar angles and energy groups." alt="" coords="241,1856,399,1885"/><area shape="rect" id="node54" href="classSolver.html#a431c793e0164e134d35fecf9e1e56434" title="Add the source term contribution in the transport equation to the FSR scalar flux." alt="" coords="217,1909,423,1939"/><area shape="rect" id="node56" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="252,643,388,672"/><area shape="rect" id="node104" href="classTimer.html#a27f97da1b1d19ad74a847703ca25c455" title="Stops the Timer." alt="" coords="509,1112,629,1141"/><area shape="rect" id="node106" href="classTimer.html#a613c775ca0b0b08f7cf1a6c165a6b6f7" title="Records a message corresponding to a time for the current split." alt="" coords="507,1165,632,1195"/><area shape="rect" id="node110" href="classSolver.html#a7d0c4632edff104979002eb21d38d794" title="Compute &#160;from total fission and absorption rates in each FSR and energy group." alt="" coords="249,1963,391,1992"/><area shape="rect" id="node5" href="classTimer.html#a11700956fe9bcbfefc0812e84c483764" title="Clears the time split for this message and deletes the message&#39;s entry in the Timer&#39;s splits log..." alt="" coords="511,5,628,35"/><area shape="rect" id="node21" href="classCmfd.html#a5e424fa34563f18e5c16899d717444e1" title="Set the fsr volumes by summing the volumes of the FSRs contained in each Mesh cell." alt="" coords="491,1325,648,1355"/><area shape="rect" id="node23" href="classCmfd.html#a1ee1d060957c194d7d91e1b6c8192ac4" title="Set the FSR materials array pointer." alt="" coords="489,1379,649,1408"/><area shape="rect" id="node25" href="classCmfd.html#a8dc3d1c41f34eabbe50820df8dd79055" title="Set pointer to FSR flux array." alt="" coords="496,1219,643,1248"/><area shape="rect" id="node29" href="classMesh.html#a09769e1578d2d4d0f74783d12c56b3c8" title="Set the pointer to the Mesh surface currents array." alt="" coords="483,1272,656,1301"/><area shape="rect" id="node33" href="classTrack.html#a034893295ac06eed35aac0c7ed172419" title="Return the number of segments along this Track." alt="" coords="485,1592,653,1621"/><area shape="rect" id="node35" href="classTrack.html#a796efa8dc12ef0f1073ba264f4074380" title="Returns a vector of pointers to the Track&#39;s segments." alt="" coords="500,1485,639,1515"/><area shape="rect" id="node37" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="528,1539,611,1568"/><area shape="rect" id="node58" href="classMesh.html#a56f6fdfa5570bbd07b8691babc5ceb01" title="Set the number of energy groups." alt="" coords="495,376,644,405"/><area shape="rect" id="node60" href="classCmfd.html#aa97d965c5a865b558cd98383ac6778eb" title="Create the CMFD coarse energy group structure." alt="" coords="476,429,663,459"/><area shape="rect" id="node62" href="classMesh.html#a787f9e2f03a4d8577f0dd6ec08b539e4" title="Initializes the Mesh cell PRIMAL, PRIMAL_UPDATE and ADJOINT fluxes." alt="" coords="503,483,636,512"/><area shape="rect" id="node64" href="classMesh.html#ab37b386a4b08be476c2930338604ad7b" title="Initialize the Mesh cell Materials." alt="" coords="473,536,665,565"/><area shape="rect" id="node67" href="classMesh.html#ab77b347a84664b1c246e78f8b3bdf2c8" title="Get a Mesh cell scalar flux array." alt="" coords="716,695,833,724"/><area shape="rect" id="node69" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="504,643,635,672"/><area shape="rect" id="node72" href="classCmfd.html#a49638bfe6101933e7b76c156dd43d532" title="Compute the diffusion coefficients: &#160;&#45; straight diffusion coefficient &#160;&#45; surface diffusion coefficien..." alt="" coords="505,747,633,776"/><area shape="rect" id="node75" href="classCmfd.html#a58613922850f0add48c8056c27dd0e83" title="Fill in the values in the A matrix, M matrix, and old scalar flux vector." alt="" coords="487,1059,652,1088"/><area shape="rect" id="node77" href="classCmfd.html#a31386e6716af0246c79f594c4fa14098" title="Multiply matrix by vector (i.e., y = M *x)." alt="" coords="715,851,835,880"/><area shape="rect" id="node79" href="classCmfd.html#ae6e87a58709fe78ad95b3bc9e55416a8" title="Sum all elements in a vector." alt="" coords="720,917,829,947"/><area shape="rect" id="node81" href="classCmfd.html#a170275051ff9c43a6011e84f1348c97e" title="Scale vectgor by some scalar value." alt="" coords="717,995,832,1024"/><area shape="rect" id="node83" href="classCmfd.html#af83f3b89305fbc4bc8e0d5aab9822d90" title="Copy a vector to another vector." alt="" coords="717,139,832,168"/><area shape="rect" id="node85" href="classCmfd.html#acb66d1a509993e1dcbec5a6cfa6ee8e8" title="Solve the linear system Ax=b using Gauss Seidel with SOR." alt="" coords="507,112,632,141"/><area shape="rect" id="node88" href="classCmfd.html#a2885348654cf05fea72c8c361a0c5f85" title="Computes the Rayleigh quotient." alt="" coords="492,851,647,880"/><area shape="rect" id="node91" href="classCmfd.html#af99526efd65f8b4e4540fef70a669f53" title="Cmfd::matSubtract" alt="" coords="503,216,636,245"/><area shape="rect" id="node93" href="classCmfd.html#af2880d2006780f1a4c8844380c39e63c" title="Finds and returns the maximum element in a vector." alt="" coords="516,269,623,299"/><area shape="rect" id="node95" href="classCmfd.html#ae2c98ca17f124ff28422060c52c22894" title="Rescale the initial and converged flux arrays." alt="" coords="505,904,633,933"/><area shape="rect" id="node101" href="classCmfd.html#a92498d14632389804569ef690a126942" title="Update the MOC flux in each FSR." alt="" coords="491,589,648,619"/><area shape="rect" id="node108" href="classTimer.html#aa56c74daecc44c72c434db6c98e69178" title="Returns the time associated with a particular split." alt="" coords="516,323,623,352"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a148137c97310ee2df94a4fd3fe35456f"></a>
@@ -578,15 +517,6 @@ Here is the call graph for this function:</div>
 
 <p>Implemented in <a class="el" href="classCPUSolver.html#a154cbd82754abdadb2ca57068ec12102">CPUSolver</a>, and <a class="el" href="classThreadPrivateSolver.html#a59774ef30af398b452a767a338e01517">ThreadPrivateSolver</a>.</p>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_a148137c97310ee2df94a4fd3fe35456f_icgraph.png" border="0" usemap="#classSolver_a148137c97310ee2df94a4fd3fe35456f_icgraph" alt=""/></div>
-<map name="classSolver_a148137c97310ee2df94a4fd3fe35456f_icgraph" id="classSolver_a148137c97310ee2df94a4fd3fe35456f_icgraph">
-<area shape="rect" id="node3" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="225,5,385,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a906c202ff2b3e38443f333964efa2342"></a>
@@ -620,15 +550,6 @@ Here is the caller graph for this function:</div>
 </dl>
 
 <p>Implemented in <a class="el" href="classCPUSolver.html#a50b87bcfca1e6e3399ad75a8c9fd6337">CPUSolver</a>.</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_a906c202ff2b3e38443f333964efa2342_icgraph.png" border="0" usemap="#classSolver_a906c202ff2b3e38443f333964efa2342_icgraph" alt=""/></div>
-<map name="classSolver_a906c202ff2b3e38443f333964efa2342_icgraph" id="classSolver_a906c202ff2b3e38443f333964efa2342_icgraph">
-<area shape="rect" id="node3" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="233,5,393,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -876,15 +797,6 @@ Here is the caller graph for this function:</div>
 <p>Returns the total time to converge the source (seconds). </p>
 <dl class="section return"><dt>Returns</dt><dd>the time to converge the source (seconds) </dd></dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_a023343c843dcbe719051b3ce533294e5_cgraph.png" border="0" usemap="#classSolver_a023343c843dcbe719051b3ce533294e5_cgraph" alt=""/></div>
-<map name="classSolver_a023343c843dcbe719051b3ce533294e5_cgraph" id="classSolver_a023343c843dcbe719051b3ce533294e5_cgraph">
-<area shape="rect" id="node3" href="classTimer.html#aa56c74daecc44c72c434db6c98e69178" title="Returns the time associated with a particular split." alt="" coords="197,5,304,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="ac47a004e88d7fde15880ab8c2b08e754"></a>
@@ -930,24 +842,6 @@ Here is the call graph for this function:</div>
 <p>Instantiates a dummy <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration.">Cmfd</a> object if one was not assigned to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> by the user and initializes FSRs, materials, fluxes and the <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration.">Mesh</a> object. This method is for internal use only and is called by the <a class="el" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates.">Solver::convergeSource()</a> method and should not be called directly by the user. </p>
 
 <p>Reimplemented in <a class="el" href="classCPUSolver.html#acf1386161e001fd58d8962a4c6ad24c7">CPUSolver</a>, and <a class="el" href="classThreadPrivateSolver.html#a2093a23adc15841ad486b2b803e1fb28">ThreadPrivateSolver</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_afeab07b86fb26ba8be22d525cba33c4f_cgraph.png" border="0" usemap="#classSolver_afeab07b86fb26ba8be22d525cba33c4f_cgraph" alt=""/></div>
-<map name="classSolver_afeab07b86fb26ba8be22d525cba33c4f_cgraph" id="classSolver_afeab07b86fb26ba8be22d525cba33c4f_cgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a5e424fa34563f18e5c16899d717444e1" title="Set the fsr volumes by summing the volumes of the FSRs contained in each Mesh cell." alt="" coords="209,32,367,61"/><area shape="rect" id="node9" href="classCmfd.html#a1ee1d060957c194d7d91e1b6c8192ac4" title="Set the FSR materials array pointer." alt="" coords="208,85,368,115"/><area shape="rect" id="node11" href="classCmfd.html#a8dc3d1c41f34eabbe50820df8dd79055" title="Set pointer to FSR flux array." alt="" coords="215,139,361,168"/><area shape="rect" id="node13" href="classCmfd.html#acbf8310fb5a8a657751b905eea3ead8c" title="Get pointer to the Mesh object." alt="" coords="232,192,344,221"/><area shape="rect" id="node15" href="classMesh.html#a09769e1578d2d4d0f74783d12c56b3c8" title="Set the pointer to the Mesh surface currents array." alt="" coords="201,245,375,275"/><area shape="rect" id="node5" href="classMesh.html#a4738244dc29a498d007bc486777f2dbd" title="Get pointer to a std::vector of Mesh cell FSRs." alt="" coords="425,5,561,35"/><area shape="rect" id="node7" href="classMesh.html#afbdac88ef84f96568b8670a26ab9888d" title="Set the volume of a Mesh cell." alt="" coords="432,59,555,88"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_afeab07b86fb26ba8be22d525cba33c4f_icgraph.png" border="0" usemap="#classSolver_afeab07b86fb26ba8be22d525cba33c4f_icgraph" alt=""/></div>
-<map name="classSolver_afeab07b86fb26ba8be22d525cba33c4f_icgraph" id="classSolver_afeab07b86fb26ba8be22d525cba33c4f_icgraph">
-<area shape="rect" id="node3" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="201,5,361,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -1156,24 +1050,6 @@ Here is the caller graph for this function:</div>
 
 <p>Reimplemented in <a class="el" href="classGPUSolver.html#a6e6d50acc405f83a15bd24e2bc908e1d">GPUSolver</a>, and <a class="el" href="classVectorizedSolver.html#ab4a29f8b4f8cbb4dff38ce2b85a56642">VectorizedSolver</a>.</p>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_a117012c7ecaf59b70fa6b489562acc65_cgraph.png" border="0" usemap="#classSolver_a117012c7ecaf59b70fa6b489562acc65_cgraph" alt=""/></div>
-<map name="classSolver_a117012c7ecaf59b70fa6b489562acc65_cgraph" id="classSolver_a117012c7ecaf59b70fa6b489562acc65_cgraph">
-<area shape="rect" id="node3" href="classGeometry.html#aa6c6670cf0552fc24824f074077e994b" title="Returns the number of flat source regions (FSRs) in the Geometry." alt="" coords="223,5,388,35"/><area shape="rect" id="node5" href="classGeometry.html#aceb6249699270b234cddfb9046ed9b2d" title="Returns the number of energy groups for each Material&#39;s nuclear data." alt="" coords="197,59,413,88"/><area shape="rect" id="node7" href="classGeometry.html#aee3114c51ec090bdc73b470a93ee2b32" title="Returns the number of Materials in the Geometry." alt="" coords="461,85,648,115"/><area shape="rect" id="node9" href="classGeometry.html#afa186cc8ccef93a093cad29618becf28" title="Returns the boundary condition for the top Surface of the Geometry." alt="" coords="232,163,379,192"/><area shape="rect" id="node11" href="classGeometry.html#a07444dd93641d2cb52cd12c88b178998" title="Returns the boundary condition for the bottom Surface of the Geometry." alt="" coords="223,216,388,245"/><area shape="rect" id="node13" href="classGeometry.html#a39d4d8148dcd69fc2eced65296f5fc71" title="Returns the boundary condition for the left Surface of the Geometry." alt="" coords="232,269,379,299"/><area shape="rect" id="node15" href="classGeometry.html#a8cad295f5a2811cb0c2c0c5db5554468" title="Returns the boundary condition for the right Surface of the Geometry." alt="" coords="228,323,383,352"/><area shape="rect" id="node18" href="classGeometry.html#ab072933706e35191f0b9d499dca9aca0" title="Returns a pointer to the CMFD Mesh object." alt="" coords="237,376,373,405"/><area shape="rect" id="node20" href="classMesh.html#a52a3a3b2569f357ff63a22799b72f0a8" title="Get the number of Mesh cells in the Geometry." alt="" coords="236,429,375,459"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_a117012c7ecaf59b70fa6b489562acc65_icgraph.png" border="0" usemap="#classSolver_a117012c7ecaf59b70fa6b489562acc65_icgraph" alt=""/></div>
-<map name="classSolver_a117012c7ecaf59b70fa6b489562acc65_icgraph" id="classSolver_a117012c7ecaf59b70fa6b489562acc65_icgraph">
-<area shape="rect" id="node3" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="197,5,301,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a069e8bf490a2f5de391f57cd9e7224ed"></a>
@@ -1305,24 +1181,6 @@ Here is the caller graph for this function:</div>
 </dl>
 
 <p>Reimplemented in <a class="el" href="classGPUSolver.html#ab0298357c57685b183c772b6abaa88e8">GPUSolver</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_ac07cee2fe04515dc8e4d2980d567c4c5_cgraph.png" border="0" usemap="#classSolver_ac07cee2fe04515dc8e4d2980d567c4c5_cgraph" alt=""/></div>
-<map name="classSolver_ac07cee2fe04515dc8e4d2980d567c4c5_cgraph" id="classSolver_ac07cee2fe04515dc8e4d2980d567c4c5_cgraph">
-<area shape="rect" id="node3" href="classTrackGenerator.html#a5ec836ced3479a5aae51132809a3d7b4" title="Returns whether or not the TrackGenerator contains Track that are for its current number of azimuthal..." alt="" coords="253,5,421,51"/><area shape="rect" id="node5" href="classTrackGenerator.html#a9c9661635df90ab658b17517548e7cc2" title="Return the number of azimuthal angles in ." alt="" coords="240,75,435,104"/><area shape="rect" id="node7" href="classTrackGenerator.html#a20e00c47aa96fbee5c2eef16e8aa006c" title="Return an array of the number of Tracks for each azimuthal angle." alt="" coords="235,127,440,174"/><area shape="rect" id="node9" href="classTrackGenerator.html#a078d71a343d4c245c38195491b2d024c" title="Return the total number of Tracks across the Geometry." alt="" coords="235,197,440,227"/><area shape="rect" id="node11" href="classTrackGenerator.html#a31deadd969cddf7eba85a442729f697a" title="Return a pointer to the array of azimuthal angle quadrature weights." alt="" coords="229,251,445,280"/><area shape="rect" id="node13" href="classTrackGenerator.html#a293c6a25a694bfcb8187cfd679fa3639" title="Returns a 2D jagged array of the Tracks." alt="" coords="248,304,427,333"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSolver_ac07cee2fe04515dc8e4d2980d567c4c5_icgraph.png" border="0" usemap="#classSolver_ac07cee2fe04515dc8e4d2980d567c4c5_icgraph" alt=""/></div>
-<map name="classSolver_ac07cee2fe04515dc8e4d2980d567c4c5_icgraph" id="classSolver_ac07cee2fe04515dc8e4d2980d567c4c5_icgraph">
-<area shape="rect" id="node3" href="classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a" title="Constructor initializes an empty Solver class with array pointers set to NULL." alt="" coords="273,5,377,35"/><area shape="rect" id="node5" href="classVectorizedSolver.html#a4115f20eeaf814518521c75568045794" title="Constructor initializes empty arrays for source, flux, etc." alt="" coords="231,58,420,105"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -2240,7 +2098,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classSolver.html">Solver</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 19:16:29 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:39:56 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

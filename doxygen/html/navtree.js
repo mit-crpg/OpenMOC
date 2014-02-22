@@ -1,6 +1,6 @@
 var NAVTREE =
 [
-  [ "OpenMOC", "index.html", [
+  [ "Main Page", "index.html", [
     [ "Namespaces", null, [
       [ "Namespace List", "namespaces.html", null ],
       [ "Namespace Members", "namespacemembers.html", [

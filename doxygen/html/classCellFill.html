@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>OpenMOC: CellFill Class Reference</title>
+<title>CellFill Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -26,12 +26,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td style="padding-left: 0.5em;">
-   <div id="projectname">OpenMOC
-   &#160;<span id="projectnumber">v0.1.1</span>
-   </div>
-   <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="openmoc-logo-api.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -69,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -115,20 +113,6 @@ $(document).ready(function(){initNavTree('classCellFill.html','');});
  <a href="classCellFill.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="Cell_8h_source.html">src/Cell.h</a>&quot;</code></p>
-<div class="dynheader">
-Inheritance diagram for CellFill:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellFill__inherit__graph.png" border="0" usemap="#CellFill_inherit__map" alt="Inheritance graph"/></div>
-<map name="CellFill_inherit__map" id="CellFill_inherit__map">
-<area shape="rect" id="node2" href="classCell.html" title="Represents a Cell inside of a Universe." alt="" coords="21,5,160,368"/></map>
-</div>
-<div class="dynheader">
-Collaboration diagram for CellFill:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellFill__coll__graph.png" border="0" usemap="#CellFill_coll__map" alt="Collaboration graph"/></div>
-<map name="CellFill_coll__map" id="CellFill_coll__map">
-<area shape="rect" id="node2" href="classCell.html" title="Represents a Cell inside of a Universe." alt="" coords="21,5,160,368"/></map>
-</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -264,15 +248,6 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Implements <a class="el" href="classCell.html#a7e47c4f454dc5ee6689e48a5f3770f43">Cell</a>.</p>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellFill_a42d8ee528341de4ec858731f0c35b649_cgraph.png" border="0" usemap="#classCellFill_a42d8ee528341de4ec858731f0c35b649_cgraph" alt=""/></div>
-<map name="classCellFill_a42d8ee528341de4ec858731f0c35b649_cgraph" id="classCellFill_a42d8ee528341de4ec858731f0c35b649_cgraph">
-<area shape="rect" id="node3" href="classCellFill.html#af5debd1e98494583d628641cb5321a8c" title="Return a pointer to the Universe filling this Cell." alt="" coords="223,5,380,35"/><area shape="rect" id="node5" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="237,59,365,88"/><area shape="rect" id="node7" href="classUniverse.html#af76741be6456d3542a302024fd4c52e4" title="Compute the FSR offset maps for this Universe and return the number of FSRs inside the Universe..." alt="" coords="207,112,396,141"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="af5debd1e98494583d628641cb5321a8c"></a>
@@ -291,15 +266,6 @@ Here is the call graph for this function:</div>
 <p>Return a pointer to the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> filling this <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the universe pointer </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellFill_af5debd1e98494583d628641cb5321a8c_icgraph.png" border="0" usemap="#classCellFill_af5debd1e98494583d628641cb5321a8c_icgraph" alt=""/></div>
-<map name="classCellFill_af5debd1e98494583d628641cb5321a8c_icgraph" id="classCellFill_af5debd1e98494583d628641cb5321a8c_icgraph">
-<area shape="rect" id="node3" href="classCellFill.html#a42d8ee528341de4ec858731f0c35b649" title="Return the number of flat source regions in this CellFill." alt="" coords="231,5,380,35"/><area shape="rect" id="node5" href="classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="235,59,376,88"/><area shape="rect" id="node7" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="460,135,615,164"/><area shape="rect" id="node14" href="classGeometry.html#affea9525ab3495c60b0abfa66780322b" title="This is a recursive method that finds the Mesh cell height of the next lowest LATTICE in a given Univ..." alt="" coords="211,163,400,192"/><area shape="rect" id="node17" href="classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="448,211,627,240"/><area shape="rect" id="node20" href="classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="451,264,624,293"/><area shape="rect" id="node23" href="classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="451,317,624,347"/><area shape="rect" id="node9" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="676,237,841,267"/><area shape="rect" id="node11" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="892,229,1047,275"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a232ce5ae20d99af538e1db21c7b5d290"></a>
@@ -317,15 +283,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the ID of the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> filling this <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a>'s id </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellFill_a232ce5ae20d99af538e1db21c7b5d290_icgraph.png" border="0" usemap="#classCellFill_a232ce5ae20d99af538e1db21c7b5d290_icgraph" alt=""/></div>
-<map name="classCellFill_a232ce5ae20d99af538e1db21c7b5d290_icgraph" id="classCellFill_a232ce5ae20d99af538e1db21c7b5d290_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="221,47,381,76"/><area shape="rect" id="node9" href="classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="239,124,364,153"/><area shape="rect" id="node5" href="classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="437,5,568,35"/><area shape="rect" id="node7" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="429,59,576,88"/><area shape="rect" id="node12" href="classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="447,124,559,153"/><area shape="rect" id="node14" href="classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="625,124,804,153"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -350,24 +307,6 @@ Here is the caller graph for this function:</div>
   </table>
   </dd>
 </dl>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellFill_a557f647cc02f782866db15f5f7f04104_cgraph.png" border="0" usemap="#classCellFill_a557f647cc02f782866db15f5f7f04104_cgraph" alt=""/></div>
-<map name="classCellFill_a557f647cc02f782866db15f5f7f04104_cgraph" id="classCellFill_a557f647cc02f782866db15f5f7f04104_cgraph">
-<area shape="rect" id="node3" href="classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21" title="Universe::getId" alt="" coords="212,13,321,43"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellFill_a557f647cc02f782866db15f5f7f04104_icgraph.png" border="0" usemap="#classCellFill_a557f647cc02f782866db15f5f7f04104_icgraph" alt=""/></div>
-<map name="classCellFill_a557f647cc02f782866db15f5f7f04104_icgraph" id="classCellFill_a557f647cc02f782866db15f5f7f04104_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="211,32,371,61"/><area shape="rect" id="node5" href="classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="427,5,557,35"/><area shape="rect" id="node7" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="419,59,565,88"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -398,24 +337,6 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classCell.html#a4a84efc6a82f7abe42d9a6dc990c70e6">Cell</a>.</p>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellFill_ac37b3795b89ffdd71315610e99100f8b_cgraph.png" border="0" usemap="#classCellFill_ac37b3795b89ffdd71315610e99100f8b_cgraph" alt=""/></div>
-<map name="classCellFill_ac37b3795b89ffdd71315610e99100f8b_cgraph" id="classCellFill_ac37b3795b89ffdd71315610e99100f8b_cgraph">
-<area shape="rect" id="node3" href="classCell.html#a61a924f10990017b73b5f3aac1534cb4" title="Return the number of Surfaces in the Cell." alt="" coords="169,5,319,35"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classCellFill_ac37b3795b89ffdd71315610e99100f8b_icgraph.png" border="0" usemap="#classCellFill_ac37b3795b89ffdd71315610e99100f8b_icgraph" alt=""/></div>
-<map name="classCellFill_ac37b3795b89ffdd71315610e99100f8b_icgraph" id="classCellFill_ac37b3795b89ffdd71315610e99100f8b_icgraph">
-<area shape="rect" id="node3" href="classCellFill.html#a26e6c0b4accfa1aa4926dfdc47b2d985" title="Prints a string representation of all of the CellFill&#39;s attributes to the console." alt="" coords="169,5,297,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
@@ -428,7 +349,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCellFill.html">CellFill</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 19:16:29 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:39:56 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>OpenMOC: Material Class Reference</title>
+<title>Material Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -26,12 +26,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td style="padding-left: 0.5em;">
-   <div id="projectname">OpenMOC
-   &#160;<span id="projectnumber">v0.1.1</span>
-   </div>
-   <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="openmoc-logo-api.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -69,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -115,13 +113,6 @@ $(document).ready(function(){initNavTree('classMaterial.html','');});
  <a href="classMaterial.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="Material_8h_source.html">src/Material.h</a>&quot;</code></p>
-<div class="dynheader">
-Collaboration diagram for Material:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial__coll__graph.png" border="0" usemap="#Material_coll__map" alt="Collaboration graph"/></div>
-<map name="Material_coll__map" id="Material_coll__map">
-</map>
-</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -241,15 +232,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_abdbf0d4678e9a6fc93f385b8231882eb_icgraph.png" border="0" usemap="#classMaterial_abdbf0d4678e9a6fc93f385b8231882eb_icgraph" alt=""/></div>
-<map name="classMaterial_abdbf0d4678e9a6fc93f385b8231882eb_icgraph" id="classMaterial_abdbf0d4678e9a6fc93f385b8231882eb_icgraph">
-<area shape="rect" id="node3" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="176,5,283,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <h2>Member Function Documentation</h2>
@@ -287,15 +269,6 @@ Here is the caller graph for this function:</div>
 <p>Checks if the total cross-section for this <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a> is equal to the absorption plus scattering cross-sections for all energy groups. </p>
 <p>If the total cross-section does not equal the absorption plus scattering cross-section within SIGMA_T_THRESH then this method exits OpenMOC. </p>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a2defb57596c868a773cea7c094fe61f6_icgraph.png" border="0" usemap="#classMaterial_a2defb57596c868a773cea7c094fe61f6_icgraph" alt=""/></div>
-<map name="classMaterial_a2defb57596c868a773cea7c094fe61f6_icgraph" id="classMaterial_a2defb57596c868a773cea7c094fe61f6_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#ae59d522ea23dfae9feb61b6cb000eb5e" title="Add a Material to the Geometry." alt="" coords="211,5,365,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a417cf6f7c2cc82c04599e5a29b620a64"></a>
@@ -313,15 +286,6 @@ Here is the caller graph for this function:</div>
 
 <p>Create a duplicate of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the clone </dd></dl>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a417cf6f7c2cc82c04599e5a29b620a64_cgraph.png" border="0" usemap="#classMaterial_a417cf6f7c2cc82c04599e5a29b620a64_cgraph" alt=""/></div>
-<map name="classMaterial_a417cf6f7c2cc82c04599e5a29b620a64_cgraph" id="classMaterial_a417cf6f7c2cc82c04599e5a29b620a64_cgraph">
-<area shape="rect" id="node3" href="classMaterial.html#abdbf0d4678e9a6fc93f385b8231882eb" title="Constructor sets the ID and unique ID for the Material." alt="" coords="203,5,325,35"/><area shape="rect" id="node5" href="classMaterial.html#a87f3a97ca307696bcb8ec0fae721b1b6" title="Return the Material&#39;s user&#45;defined ID." alt="" coords="212,59,316,88"/><area shape="rect" id="node7" href="classMaterial.html#a5650368fddfd9793205bf6b05f25ee60" title="Set the number of energy groups for this Material." alt="" coords="161,112,367,141"/><area shape="rect" id="node9" href="classMaterial.html#a61fd26dde452e699b2b2531b993d2cab" title="Set the Material&#39;s total cross&#45;section for some energy group." alt="" coords="169,165,359,195"/><area shape="rect" id="node11" href="classMaterial.html#a4bedbd3883a56bf47b903417b34676fc" title="Set the Material&#39;s absorption cross&#45;section for some energy group." alt="" coords="169,219,359,248"/><area shape="rect" id="node13" href="classMaterial.html#a9a5b3e747ee51343327b22356549bf20" title="Set the Material&#39;s fission cross&#45;section for some energy group." alt="" coords="169,272,359,301"/><area shape="rect" id="node15" href="classMaterial.html#a4929d58a0e80b155cd1d115edbc15819" title="Set the Material&#39;s fission cross&#45;section multiplied by &#160;for some energy group." alt="" coords="161,325,367,355"/><area shape="rect" id="node17" href="classMaterial.html#a05006775ab7559d41479842043fd2e33" title="Set the Material&#39;s chi value for some energy group." alt="" coords="181,379,347,408"/><area shape="rect" id="node19" href="classMaterial.html#afa089d512b06b16196cd327502862689" title="Set the Material&#39;s scattering cross&#45;section for some energy group." alt="" coords="169,432,359,461"/><area shape="rect" id="node21" href="classMaterial.html#a5bb0558e66fd17ec7276aa1329168afc" title="Set the Material&#39;s diffusion coefficient for some energy group." alt="" coords="169,485,359,515"/><area shape="rect" id="node23" href="classMaterial.html#a78d6d92a2ff64c1a0b012886929341d7" title="Set the Material&#39;s diffusion coefficient for some energy group." alt="" coords="167,539,361,568"/><area shape="rect" id="node25" href="classMaterial.html#ab74f17b1f67bcdbfa5404dd6be179a8f" title="Set the Material&#39;s diffusion coefficient for some energy group along some CMFD mesh cell..." alt="" coords="173,592,355,621"/><area shape="rect" id="node27" href="classMaterial.html#a645e4ac06e76e0862d86912247cb71b3" title="Set the Material&#39;s CMFD corrected diffusion coefficient for some energy group." alt="" coords="169,645,359,675"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -359,15 +323,6 @@ Here is the call graph for this function:</div>
 <p>Return the array of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s chi <img class="formulaInl" alt="$ \chi $" src="form_9.png"/>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the pointer to the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s array of chi <img class="formulaInl" alt="$ \chi $" src="form_9.png"/> values </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a5d5966fb7c5718246d8d03a14c1c4564_icgraph.png" border="0" usemap="#classMaterial_a5d5966fb7c5718246d8d03a14c1c4564_icgraph" alt=""/></div>
-<map name="classMaterial_a5d5966fb7c5718246d8d03a14c1c4564_icgraph" id="classMaterial_a5d5966fb7c5718246d8d03a14c1c4564_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="175,5,329,35"/><area shape="rect" id="node5" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="187,59,317,88"/><area shape="rect" id="node11" href="classCmfd.html#a58613922850f0add48c8056c27dd0e83" title="Fill in the values in the A matrix, M matrix, and old scalar flux vector." alt="" coords="169,112,335,141"/><area shape="rect" id="node7" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="384,85,520,115"/><area shape="rect" id="node9" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="569,85,729,115"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a7cfbc94cdbffcf086260c4ccdc536117"></a>
@@ -385,15 +340,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the array of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s diffusion coefficients. </p>
 <dl class="section return"><dt>Returns</dt><dd>the pointer to the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s array of diffusion coefficients </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a7cfbc94cdbffcf086260c4ccdc536117_icgraph.png" border="0" usemap="#classMaterial_a7cfbc94cdbffcf086260c4ccdc536117_icgraph" alt=""/></div>
-<map name="classMaterial_a7cfbc94cdbffcf086260c4ccdc536117_icgraph" id="classMaterial_a7cfbc94cdbffcf086260c4ccdc536117_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="192,5,323,35"/><area shape="rect" id="node9" href="classCmfd.html#a49638bfe6101933e7b76c156dd43d532" title="Compute the diffusion coefficients: &#160;&#45; straight diffusion coefficient &#160;&#45; surface diffusion coefficien..." alt="" coords="193,59,321,88"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="371,32,507,61"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="556,32,716,61"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -414,15 +360,6 @@ Here is the caller graph for this function:</div>
 <p>Returns the diffusion coefficients <img class="formulaInl" alt="$ \hat{D} $" src="form_12.png"/> for this <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a> on each of the four surfaces of a CMFD mesh cell. </p>
 <dl class="section return"><dt>Returns</dt><dd>the pointer to the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s array of surface diffusion coefficients </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a185f6c4fb6bbd540b44f8dd6e2447d92_icgraph.png" border="0" usemap="#classMaterial_a185f6c4fb6bbd540b44f8dd6e2447d92_icgraph" alt=""/></div>
-<map name="classMaterial_a185f6c4fb6bbd540b44f8dd6e2447d92_icgraph" id="classMaterial_a185f6c4fb6bbd540b44f8dd6e2447d92_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a58613922850f0add48c8056c27dd0e83" title="Fill in the values in the A matrix, M matrix, and old scalar flux vector." alt="" coords="188,5,353,35"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="403,5,539,35"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="588,5,748,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a0dcce69bacce8aa138846be7da0dcbee"></a>
@@ -440,15 +377,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the array of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s CMFD correction to the surface diffusion coefficients. </p>
 <dl class="section return"><dt>Returns</dt><dd>the pointer to the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s array of CMFD correction to the surface diffusion coefficients </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a0dcce69bacce8aa138846be7da0dcbee_icgraph.png" border="0" usemap="#classMaterial_a0dcce69bacce8aa138846be7da0dcbee_icgraph" alt=""/></div>
-<map name="classMaterial_a0dcce69bacce8aa138846be7da0dcbee_icgraph" id="classMaterial_a0dcce69bacce8aa138846be7da0dcbee_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a49638bfe6101933e7b76c156dd43d532" title="Compute the diffusion coefficients: &#160;&#45; straight diffusion coefficient &#160;&#45; surface diffusion coefficien..." alt="" coords="212,5,340,35"/><area shape="rect" id="node9" href="classCmfd.html#a58613922850f0add48c8056c27dd0e83" title="Fill in the values in the A matrix, M matrix, and old scalar flux vector." alt="" coords="193,59,359,88"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="408,32,544,61"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="593,32,753,61"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -468,15 +396,6 @@ Here is the caller graph for this function:</div>
 <p>Return the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s user-defined ID. </p>
 <dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s user-defined ID </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a87f3a97ca307696bcb8ec0fae721b1b6_icgraph.png" border="0" usemap="#classMaterial_a87f3a97ca307696bcb8ec0fae721b1b6_icgraph" alt=""/></div>
-<map name="classMaterial_a87f3a97ca307696bcb8ec0fae721b1b6_icgraph" id="classMaterial_a87f3a97ca307696bcb8ec0fae721b1b6_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="160,5,315,35"/><area shape="rect" id="node5" href="classGeometry.html#ae59d522ea23dfae9feb61b6cb000eb5e" title="Add a Material to the Geometry." alt="" coords="160,59,315,88"/><area shape="rect" id="node7" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="184,112,291,141"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a50683c7b7c62f1473809c51f37af5a13"></a>
@@ -494,15 +413,6 @@ Here is the caller graph for this function:</div>
 
 <p>Returns the number of energy groups for this <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s nuclear data. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of energy groups </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a50683c7b7c62f1473809c51f37af5a13_icgraph.png" border="0" usemap="#classMaterial_a50683c7b7c62f1473809c51f37af5a13_icgraph" alt=""/></div>
-<map name="classMaterial_a50683c7b7c62f1473809c51f37af5a13_icgraph" id="classMaterial_a50683c7b7c62f1473809c51f37af5a13_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="259,5,413,35"/><area shape="rect" id="node5" href="classGeometry.html#ae59d522ea23dfae9feb61b6cb000eb5e" title="Add a Material to the Geometry." alt="" coords="259,59,413,88"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -540,15 +450,6 @@ Here is the caller graph for this function:</div>
 <p>Return the array of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s fission cross-sections multiplied by nu <img class="formulaInl" alt="$ \nu $" src="form_0.png"/>. </p>
 <dl class="section return"><dt>Returns</dt><dd>the pointer to the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s array of fission cross-sections multiplied by nu <img class="formulaInl" alt="$ \nu $" src="form_0.png"/> </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_ab9ebe0e1526d215f8329d3eb326c5280_icgraph.png" border="0" usemap="#classMaterial_ab9ebe0e1526d215f8329d3eb326c5280_icgraph" alt=""/></div>
-<map name="classMaterial_ab9ebe0e1526d215f8329d3eb326c5280_icgraph" id="classMaterial_ab9ebe0e1526d215f8329d3eb326c5280_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="229,5,384,35"/><area shape="rect" id="node5" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="241,59,372,88"/><area shape="rect" id="node11" href="classCmfd.html#a58613922850f0add48c8056c27dd0e83" title="Fill in the values in the A matrix, M matrix, and old scalar flux vector." alt="" coords="224,112,389,141"/><area shape="rect" id="node14" href="classCPUSolver.html#aadf42a3cc81fc4641d259aee546e48c3" title="Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total fission source (times..." alt="" coords="212,165,401,195"/><area shape="rect" id="node16" href="classVectorizedSolver.html#a6c428f0706f8c8960a88404606665704" title="Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total fission source (times..." alt="" coords="215,218,399,265"/><area shape="rect" id="node7" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="451,85,587,115"/><area shape="rect" id="node9" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="636,85,796,115"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="aa9cf818091ddecc3dc23f394f8baa6e3"></a>
@@ -566,15 +467,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the array of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s absorption cross-sections. </p>
 <dl class="section return"><dt>Returns</dt><dd>the pointer to the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s array of absorption cross-sections </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_aa9cf818091ddecc3dc23f394f8baa6e3_icgraph.png" border="0" usemap="#classMaterial_aa9cf818091ddecc3dc23f394f8baa6e3_icgraph" alt=""/></div>
-<map name="classMaterial_aa9cf818091ddecc3dc23f394f8baa6e3_icgraph" id="classMaterial_aa9cf818091ddecc3dc23f394f8baa6e3_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="201,5,356,35"/><area shape="rect" id="node5" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="213,59,344,88"/><area shape="rect" id="node11" href="classCmfd.html#a58613922850f0add48c8056c27dd0e83" title="Fill in the values in the A matrix, M matrix, and old scalar flux vector." alt="" coords="196,112,361,141"/><area shape="rect" id="node7" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="411,85,547,115"/><area shape="rect" id="node9" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="596,85,756,115"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -594,15 +486,6 @@ Here is the caller graph for this function:</div>
 <p>Return the array of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s fission cross-sections. </p>
 <dl class="section return"><dt>Returns</dt><dd>the pointer to the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s array of fission cross-sections </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_ad33fc0d6cea0feb87f43734a34432880_icgraph.png" border="0" usemap="#classMaterial_ad33fc0d6cea0feb87f43734a34432880_icgraph" alt=""/></div>
-<map name="classMaterial_ad33fc0d6cea0feb87f43734a34432880_icgraph" id="classMaterial_ad33fc0d6cea0feb87f43734a34432880_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="192,5,347,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a88eb6a2d580f5d82896892d180cd7469"></a>
@@ -620,15 +503,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the array of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s scattering cross-section matrix. </p>
 <dl class="section return"><dt>Returns</dt><dd>the pointer to the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s array of scattering cross-sections </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a88eb6a2d580f5d82896892d180cd7469_icgraph.png" border="0" usemap="#classMaterial_a88eb6a2d580f5d82896892d180cd7469_icgraph" alt=""/></div>
-<map name="classMaterial_a88eb6a2d580f5d82896892d180cd7469_icgraph" id="classMaterial_a88eb6a2d580f5d82896892d180cd7469_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="201,5,356,35"/><area shape="rect" id="node5" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="213,59,344,88"/><area shape="rect" id="node11" href="classCmfd.html#a58613922850f0add48c8056c27dd0e83" title="Fill in the values in the A matrix, M matrix, and old scalar flux vector." alt="" coords="196,112,361,141"/><area shape="rect" id="node7" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="411,85,547,115"/><area shape="rect" id="node9" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="596,85,756,115"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -648,15 +522,6 @@ Here is the caller graph for this function:</div>
 <p>Return the array of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s total cross-sections. </p>
 <dl class="section return"><dt>Returns</dt><dd>the pointer to the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s array of total cross-sections </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a0bb70f99202814861516d5d7db94321e_icgraph.png" border="0" usemap="#classMaterial_a0bb70f99202814861516d5d7db94321e_icgraph" alt=""/></div>
-<map name="classMaterial_a0bb70f99202814861516d5d7db94321e_icgraph" id="classMaterial_a0bb70f99202814861516d5d7db94321e_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="192,5,347,35"/><area shape="rect" id="node5" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="204,59,335,88"/><area shape="rect" id="node11" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="192,112,347,141"/><area shape="rect" id="node13" href="classThreadPrivateSolver.html#a0d9da6c56e767cb2d16759e92e0fecf1" title="Computes the contribution to the FSR scalar flux from a Track segment." alt="" coords="200,165,339,211"/><area shape="rect" id="node7" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="397,59,533,88"/><area shape="rect" id="node9" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="585,59,745,88"/><area shape="rect" id="node15" href="classThreadPrivateSolver.html#ad784c540c10f88aafe54965631c139e0" title="This method performs one transport sweep of all azimuthal angles, Tracks, Track segments, polar angles and energy groups." alt="" coords="396,165,535,211"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a95de130b248a20f9237793ab92e494a3"></a>
@@ -674,15 +539,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s unique ID. </p>
 <dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s unique ID </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a95de130b248a20f9237793ab92e494a3_icgraph.png" border="0" usemap="#classMaterial_a95de130b248a20f9237793ab92e494a3_icgraph" alt=""/></div>
-<map name="classMaterial_a95de130b248a20f9237793ab92e494a3_icgraph" id="classMaterial_a95de130b248a20f9237793ab92e494a3_icgraph">
-<area shape="rect" id="node3" href="clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a" title="Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the properties f..." alt="" coords="180,5,335,35"/><area shape="rect" id="node5" href="clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e" title="Given a pointer to a Track on the host and a dev_track on the GPU, copy all of the class attributes a..." alt="" coords="188,59,327,88"/><area shape="rect" id="node7" href="classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5" title="Initialize the FSRs." alt="" coords="187,112,328,141"/><area shape="rect" id="node11" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c" title="Initializes the FSR volumes and Materials array." alt="" coords="169,165,345,195"/><area shape="rect" id="node9" href="classCmfd.html#a335603297bf627c6eb63ca24cb971a26" title="Constructor initializes boundaries and variables that describe the Cmfd object." alt="" coords="396,112,489,141"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -719,15 +575,6 @@ Here is the caller graph for this function:</div>
 
 <p>Returns whether or not the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a> contains a fissionable (non-zero) fission cross-section. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if fissionable, false otherwise </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a518c42114378e88c9d5a198fc6bb8c00_icgraph.png" border="0" usemap="#classMaterial_a518c42114378e88c9d5a198fc6bb8c00_icgraph" alt=""/></div>
-<map name="classMaterial_a518c42114378e88c9d5a198fc6bb8c00_icgraph" id="classMaterial_a518c42114378e88c9d5a198fc6bb8c00_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#aa9177c6e58e051484a24c093914b853c" title="Determines the fissionability of each Universe within this Geometry." alt="" coords="205,5,419,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -803,15 +650,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a78d6d92a2ff64c1a0b012886929341d7_icgraph.png" border="0" usemap="#classMaterial_a78d6d92a2ff64c1a0b012886929341d7_icgraph" alt=""/></div>
-<map name="classMaterial_a78d6d92a2ff64c1a0b012886929341d7_icgraph" id="classMaterial_a78d6d92a2ff64c1a0b012886929341d7_icgraph">
-<area shape="rect" id="node3" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="248,5,355,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a114afbe76bed5364472bf9a46d72adea"></a>
@@ -886,15 +724,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a05006775ab7559d41479842043fd2e33_icgraph.png" border="0" usemap="#classMaterial_a05006775ab7559d41479842043fd2e33_icgraph" alt=""/></div>
-<map name="classMaterial_a05006775ab7559d41479842043fd2e33_icgraph" id="classMaterial_a05006775ab7559d41479842043fd2e33_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="219,5,349,35"/><area shape="rect" id="node9" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="231,59,337,88"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="397,5,533,35"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="583,5,743,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a2f6cf864b9adcb019f706a5c235f9804"></a>
@@ -968,15 +797,6 @@ Here is the caller graph for this function:</div>
   </table>
   </dd>
 </dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a5bb0558e66fd17ec7276aa1329168afc_icgraph.png" border="0" usemap="#classMaterial_a5bb0558e66fd17ec7276aa1329168afc_icgraph" alt=""/></div>
-<map name="classMaterial_a5bb0558e66fd17ec7276aa1329168afc_icgraph" id="classMaterial_a5bb0558e66fd17ec7276aa1329168afc_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="245,5,376,35"/><area shape="rect" id="node9" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="257,59,364,88"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="424,5,560,35"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="609,5,769,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -1059,15 +879,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_ab74f17b1f67bcdbfa5404dd6be179a8f_icgraph.png" border="0" usemap="#classMaterial_ab74f17b1f67bcdbfa5404dd6be179a8f_icgraph" alt=""/></div>
-<map name="classMaterial_ab74f17b1f67bcdbfa5404dd6be179a8f_icgraph" id="classMaterial_ab74f17b1f67bcdbfa5404dd6be179a8f_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a49638bfe6101933e7b76c156dd43d532" title="Compute the diffusion coefficients: &#160;&#45; straight diffusion coefficient &#160;&#45; surface diffusion coefficien..." alt="" coords="239,5,367,35"/><area shape="rect" id="node9" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="249,59,356,88"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="416,5,552,35"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="601,5,761,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="ac9cb62920cb0673b6cb7bb31b21d5773"></a>
@@ -1149,15 +960,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a645e4ac06e76e0862d86912247cb71b3_icgraph.png" border="0" usemap="#classMaterial_a645e4ac06e76e0862d86912247cb71b3_icgraph" alt=""/></div>
-<map name="classMaterial_a645e4ac06e76e0862d86912247cb71b3_icgraph" id="classMaterial_a645e4ac06e76e0862d86912247cb71b3_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a49638bfe6101933e7b76c156dd43d532" title="Compute the diffusion coefficients: &#160;&#45; straight diffusion coefficient &#160;&#45; surface diffusion coefficien..." alt="" coords="247,5,375,35"/><area shape="rect" id="node9" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="257,59,364,88"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="424,5,560,35"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="609,5,769,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a5650368fddfd9793205bf6b05f25ee60"></a>
@@ -1181,15 +983,6 @@ Here is the caller graph for this function:</div>
   </table>
   </dd>
 </dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a5650368fddfd9793205bf6b05f25ee60_icgraph.png" border="0" usemap="#classMaterial_a5650368fddfd9793205bf6b05f25ee60_icgraph" alt=""/></div>
-<map name="classMaterial_a5650368fddfd9793205bf6b05f25ee60_icgraph" id="classMaterial_a5650368fddfd9793205bf6b05f25ee60_icgraph">
-<area shape="rect" id="node3" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="303,5,409,35"/><area shape="rect" id="node5" href="classMesh.html#ab37b386a4b08be476c2930338604ad7b" title="Initialize the Mesh cell Materials." alt="" coords="260,59,452,88"/><area shape="rect" id="node7" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="501,59,637,88"/><area shape="rect" id="node9" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="687,59,847,88"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -1265,15 +1058,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a4929d58a0e80b155cd1d115edbc15819_icgraph.png" border="0" usemap="#classMaterial_a4929d58a0e80b155cd1d115edbc15819_icgraph" alt=""/></div>
-<map name="classMaterial_a4929d58a0e80b155cd1d115edbc15819_icgraph" id="classMaterial_a4929d58a0e80b155cd1d115edbc15819_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="261,5,392,35"/><area shape="rect" id="node9" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="273,59,380,88"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="440,5,576,35"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="625,5,785,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a73890393a3c599dd9697af4af9b5a5f0"></a>
@@ -1348,15 +1132,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a4bedbd3883a56bf47b903417b34676fc_icgraph.png" border="0" usemap="#classMaterial_a4bedbd3883a56bf47b903417b34676fc_icgraph" alt=""/></div>
-<map name="classMaterial_a4bedbd3883a56bf47b903417b34676fc_icgraph" id="classMaterial_a4bedbd3883a56bf47b903417b34676fc_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="245,5,376,35"/><area shape="rect" id="node9" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="257,59,364,88"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="424,5,560,35"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="609,5,769,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a3240f3778b1a6690a5c3fc008ce79cca"></a>
@@ -1430,15 +1205,6 @@ Here is the caller graph for this function:</div>
   </table>
   </dd>
 </dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a9a5b3e747ee51343327b22356549bf20_icgraph.png" border="0" usemap="#classMaterial_a9a5b3e747ee51343327b22356549bf20_icgraph" alt=""/></div>
-<map name="classMaterial_a9a5b3e747ee51343327b22356549bf20_icgraph" id="classMaterial_a9a5b3e747ee51343327b22356549bf20_icgraph">
-<area shape="rect" id="node3" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="245,5,352,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -1525,15 +1291,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_afa089d512b06b16196cd327502862689_icgraph.png" border="0" usemap="#classMaterial_afa089d512b06b16196cd327502862689_icgraph" alt=""/></div>
-<map name="classMaterial_afa089d512b06b16196cd327502862689_icgraph" id="classMaterial_afa089d512b06b16196cd327502862689_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="245,5,376,35"/><area shape="rect" id="node9" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="257,59,364,88"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="424,5,560,35"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="609,5,769,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a2949b239adb57bd0053ab9e4e5bd9d65"></a>
@@ -1608,15 +1365,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a61fd26dde452e699b2b2531b993d2cab_icgraph.png" border="0" usemap="#classMaterial_a61fd26dde452e699b2b2531b993d2cab_icgraph" alt=""/></div>
-<map name="classMaterial_a61fd26dde452e699b2b2531b993d2cab_icgraph" id="classMaterial_a61fd26dde452e699b2b2531b993d2cab_icgraph">
-<area shape="rect" id="node3" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c" title="Create cross&#45;sections and fluxes for each Cmfd cell by energy condensing and volume averaging cross s..." alt="" coords="245,5,376,35"/><area shape="rect" id="node9" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64" title="Create a duplicate of the Material." alt="" coords="257,59,364,88"/><area shape="rect" id="node5" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775" title="CMFD solver that solves the diffusion problem." alt="" coords="424,5,560,35"/><area shape="rect" id="node7" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates." alt="" coords="609,5,769,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a72f180d85439497ffc732718166e5634"></a>
@@ -1636,15 +1384,6 @@ Here is the caller graph for this function:</div>
 <p>The character array returned includes the user-defined ID, and each of the absorption, total, fission, nu multiplied by fission and scattering cross-sections and chi for all energy groups. </p>
 <dl class="section return"><dt>Returns</dt><dd>character array of this <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport.">Material</a>'s attributes </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classMaterial_a72f180d85439497ffc732718166e5634_icgraph.png" border="0" usemap="#classMaterial_a72f180d85439497ffc732718166e5634_icgraph" alt=""/></div>
-<map name="classMaterial_a72f180d85439497ffc732718166e5634_icgraph" id="classMaterial_a72f180d85439497ffc732718166e5634_icgraph">
-<area shape="rect" id="node3" href="classMaterial.html#a5901b75e048d7b55616a3f53a983390e" title="Prints a string representation of all of the Material&#39;s attributes to the console." alt="" coords="177,5,311,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
@@ -1657,7 +1396,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classMaterial.html">Material</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 19:16:29 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:39:56 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>

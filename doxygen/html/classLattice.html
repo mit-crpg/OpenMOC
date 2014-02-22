@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>OpenMOC: Lattice Class Reference</title>
+<title>Lattice Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -26,12 +26,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td style="padding-left: 0.5em;">
-   <div id="projectname">OpenMOC
-   &#160;<span id="projectnumber">v0.1.1</span>
-   </div>
-   <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="openmoc-logo-api.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">An open source method of characteristics neutron transport code.</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -69,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
-      <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
@@ -115,20 +113,6 @@ $(document).ready(function(){initNavTree('classLattice.html','');});
  <a href="classLattice.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="Universe_8h_source.html">src/Universe.h</a>&quot;</code></p>
-<div class="dynheader">
-Inheritance diagram for Lattice:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice__inherit__graph.png" border="0" usemap="#Lattice_inherit__map" alt="Inheritance graph"/></div>
-<map name="Lattice_inherit__map" id="Lattice_inherit__map">
-<area shape="rect" id="node2" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy&#45;plane." alt="" coords="7,6,121,386"/></map>
-</div>
-<div class="dynheader">
-Collaboration diagram for Lattice:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice__coll__graph.png" border="0" usemap="#Lattice_coll__map" alt="Collaboration graph"/></div>
-<map name="Lattice_coll__map" id="Lattice_coll__map">
-<area shape="rect" id="node2" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy&#45;plane." alt="" coords="16,315,131,677"/><area shape="rect" id="node4" href="classPoint.html" title="Class to represent a 2D point in space." alt="" coords="5,6,141,247"/></map>
-</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -293,15 +277,6 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="classUniverse.html#af76741be6456d3542a302024fd4c52e4">Universe</a>.</p>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_afc84badb58ce4b9c3946fcc944647c30_cgraph.png" border="0" usemap="#classLattice_afc84badb58ce4b9c3946fcc944647c30_cgraph" alt=""/></div>
-<map name="classLattice_afc84badb58ce4b9c3946fcc944647c30_cgraph" id="classLattice_afc84badb58ce4b9c3946fcc944647c30_cgraph">
-<area shape="rect" id="node3" href="classUniverse.html#af76741be6456d3542a302024fd4c52e4" title="Compute the FSR offset maps for this Universe and return the number of FSRs inside the Universe..." alt="" coords="233,5,423,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a106bb34948883f3695bbffa5e44bce2b"></a>
@@ -340,24 +315,6 @@ Here is the call graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> this LocalCoord is in or NULL </dd></dl>
 
 <p>Reimplemented from <a class="el" href="classUniverse.html#a70bafb1689f44b64ed98e85df1595f03">Universe</a>.</p>
-
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_a106bb34948883f3695bbffa5e44bce2b_cgraph.png" border="0" usemap="#classLattice_a106bb34948883f3695bbffa5e44bce2b_cgraph" alt=""/></div>
-<map name="classLattice_a106bb34948883f3695bbffa5e44bce2b_cgraph" id="classLattice_a106bb34948883f3695bbffa5e44bce2b_cgraph">
-<area shape="rect" id="node3" href="classLocalCoords.html#a5eb0104c614b60dee59177afbf5a1d09" title="Set the type of LocalCoords (UNIV or LAT)." alt="" coords="399,176,548,206"/><area shape="rect" id="node5" href="classLocalCoords.html#a9623e05ee2de4ace57a7595a154a3764" title="Returns the x&#45;coordinate for this LocalCoords location." alt="" coords="408,72,539,102"/><area shape="rect" id="node7" href="classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="643,47,728,76"/><area shape="rect" id="node10" href="classLocalCoords.html#ac2ca0a99b00c2aa5784ff82fba2a3618" title="Returns the y&#45;coordinate for this LocalCoords location." alt="" coords="408,230,539,259"/><area shape="rect" id="node12" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="643,178,728,207"/><area shape="rect" id="node15" href="classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="399,603,548,632"/><area shape="rect" id="node17" href="classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="184,672,323,702"/><area shape="rect" id="node19" href="classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21" title="Universe::getId" alt="" coords="199,726,308,755"/><area shape="rect" id="node21" href="classLocalCoords.html#ad514c86c5d7de44b1a08b400383710a1" title="Set the ID of the Universe within which this LocalCoords resides." alt="" coords="387,656,560,686"/><area shape="rect" id="node23" href="classLocalCoords.html#acba537be0e701e2bd46a8d2cabf54881" title="Sets the ID of the Lattice within which this LocalCoords resides." alt="" coords="173,779,333,808"/><area shape="rect" id="node25" href="classLocalCoords.html#aaebab559746c2641969f7aea7055f4d7" title="Sets the row index for the Lattice cell within which this LocalCoords resides." alt="" coords="169,832,337,862"/><area shape="rect" id="node27" href="classLocalCoords.html#a5fe4af5a2aaa1b44f9da0482c2c73caf" title="Sets the column index for the Lattice cell within which this LocalCoords resides." alt="" coords="169,886,337,915"/><area shape="rect" id="node29" href="classLocalCoords.html#ad0d95a64372a6b60c4a7276350380c7c" title="Sets the pointer to the LocalCoords on the next lower nested Universe level." alt="" coords="399,710,548,739"/><area shape="rect" id="node31" href="classLocalCoords.html#a433a17c4bfb3f491a16a6067e05067ae" title="Sets the pointer to the LocalCoords on the next higher nested Universe level." alt="" coords="400,763,547,792"/><area shape="rect" id="node33" href="classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="191,416,316,446"/><area shape="rect" id="node36" href="classCell.html#a89c95a180daff341176d78c5d573da53" title="Determines whether a Point is contained inside a Cell." alt="" coords="391,443,556,472"/><area shape="rect" id="node42" href="classLocalCoords.html#a459a5178aa8861a4d9504d7aea0d4a6a" title="Set the ID of the Cell within which this LocalCoords resides." alt="" coords="401,496,545,526"/><area shape="rect" id="node44" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="432,550,515,579"/><area shape="rect" id="node46" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="424,283,523,312"/><area shape="rect" id="node51" href="classCellFill.html#a232ce5ae20d99af538e1db21c7b5d290" title="Return the ID of the Universe filling this Cell." alt="" coords="389,336,557,366"/><area shape="rect" id="node56" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="409,390,537,419"/><area shape="rect" id="node38" href="classCell.html#a7ccb9a3084719a36a170bed2cd48a593" title="Determines whether a Point is contained inside a Cell." alt="" coords="608,416,763,446"/><area shape="rect" id="node40" href="classLocalCoords.html#aff39b0f4a6cd5de5347ab154000d349b" title="Returns a pointer to the Point containing the coordinates for this LocalCoord." alt="" coords="611,470,760,499"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_a106bb34948883f3695bbffa5e44bce2b_icgraph.png" border="0" usemap="#classLattice_a106bb34948883f3695bbffa5e44bce2b_icgraph" alt=""/></div>
-<map name="classLattice_a106bb34948883f3695bbffa5e44bce2b_icgraph" id="classLattice_a106bb34948883f3695bbffa5e44bce2b_icgraph">
-<area shape="rect" id="node3" href="classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="169,5,348,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -403,15 +360,6 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to a <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe.">Cell</a> if found, NULL if no cell found </dd></dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_a74e06905bc0f096fa4fb1b97420b0825_cgraph.png" border="0" usemap="#classLattice_a74e06905bc0f096fa4fb1b97420b0825_cgraph" alt=""/></div>
-<map name="classLattice_a74e06905bc0f096fa4fb1b97420b0825_cgraph" id="classLattice_a74e06905bc0f096fa4fb1b97420b0825_cgraph">
-<area shape="rect" id="node3" href="classLocalCoords.html#a9623e05ee2de4ace57a7595a154a3764" title="Returns the x&#45;coordinate for this LocalCoords location." alt="" coords="717,518,848,547"/><area shape="rect" id="node5" href="classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="952,258,1037,287"/><area shape="rect" id="node7" href="classLocalCoords.html#ac2ca0a99b00c2aa5784ff82fba2a3618" title="Returns the y&#45;coordinate for this LocalCoords location." alt="" coords="717,358,848,387"/><area shape="rect" id="node9" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="952,155,1037,184"/><area shape="rect" id="node11" href="classLocalCoords.html#a76cbf2526be775cbedf32f7462041c73" title="Return the first index of the Lattice cell within which this LocalCoords resides." alt="" coords="236,256,404,286"/><area shape="rect" id="node13" href="classLocalCoords.html#a85f31e3a35b45d738f94237a11514aac" title="Return the second index of the Lattice cell within which this LocalCoords resides." alt="" coords="236,310,404,339"/><area shape="rect" id="node15" href="classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a" title="Initializes a Point with two&#45;dimensional coordinates." alt="" coords="260,363,380,392"/><area shape="rect" id="node17" href="classLattice.html#aaa38ae681b8814661033c99f6410fadd" title="Checks if a Point is within the bounds of a Lattice." alt="" coords="709,104,856,134"/><area shape="rect" id="node21" href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9" title="Compute the distance from this Point to another Point of interest." alt="" coords="243,467,397,496"/><area shape="rect" id="node23" href="classLocalCoords.html#aff39b0f4a6cd5de5347ab154000d349b" title="Returns a pointer to the Point containing the coordinates for this LocalCoord." alt="" coords="920,1415,1069,1444"/><area shape="rect" id="node25" href="classLocalCoords.html#a9a554dc0de187957849d1577cba7a277" title="Translate all of the x,y coordinates for each LocalCoords object in the linked list." alt="" coords="461,410,640,439"/><area shape="rect" id="node43" href="classLocalCoords.html#aaebab559746c2641969f7aea7055f4d7" title="Sets the row index for the Lattice cell within which this LocalCoords resides." alt="" coords="467,618,635,647"/><area shape="rect" id="node45" href="classLocalCoords.html#a5fe4af5a2aaa1b44f9da0482c2c73caf" title="Sets the column index for the Lattice cell within which this LocalCoords resides." alt="" coords="467,671,635,700"/><area shape="rect" id="node47" href="classLocalCoords.html#ab6a1654615643dabd35a19c8ed5f7dad" title="Removes and frees memory for all LocalCoords beyond this one in the linked list." alt="" coords="253,571,387,600"/><area shape="rect" id="node53" href="classLocalCoords.html#ad0d95a64372a6b60c4a7276350380c7c" title="Sets the pointer to the LocalCoords on the next lower nested Universe level." alt="" coords="708,936,857,966"/><area shape="rect" id="node55" href="classLocalCoords.html#a433a17c4bfb3f491a16a6067e05067ae" title="Sets the pointer to the LocalCoords on the next higher nested Universe level." alt="" coords="709,1363,856,1392"/><area shape="rect" id="node58" href="classLocalCoords.html#ad514c86c5d7de44b1a08b400383710a1" title="Set the ID of the Universe within which this LocalCoords resides." alt="" coords="696,1416,869,1446"/><area shape="rect" id="node60" href="classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21" title="Universe::getId" alt="" coords="496,1314,605,1343"/><area shape="rect" id="node62" href="classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="264,851,376,880"/><area shape="rect" id="node27" href="classLocalCoords.html#af00fc05471c68683e7b55274afdb68ba" title="Set the x&#45;coordinate for this LocalCoords." alt="" coords="717,411,848,440"/><area shape="rect" id="node32" href="classLocalCoords.html#ae7a4a2eeb8a1e17698da8b58d08c05b5" title="Set the y&#45;coordinate for this Localcoords." alt="" coords="717,464,848,494"/><area shape="rect" id="node37" href="classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594" title="Return a pointer to the LocalCoord at the next lower nested Universe level if one exists..." alt="" coords="708,671,857,700"/><area shape="rect" id="node39" href="classLocalCoords.html#a41901845738accab675e9a021185fcc5" title="Return a pointer to the LocalCoord at the next higher nested Universe level if one exists..." alt="" coords="709,254,856,283"/><area shape="rect" id="node29" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f" title="Set the Point&#39;s x&#45;coordinate." alt="" coords="952,411,1037,440"/><area shape="rect" id="node34" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5" title="Set the Point&#39;s y&#45;coordinate." alt="" coords="952,464,1037,494"/><area shape="rect" id="node49" href="classLocalCoords.html#a9eea7e15fe849f272854e8db1fe7268a" title="Find and return the last LocalCoords in the linked list wich represents the local coordinates on the ..." alt="" coords="453,514,648,543"/><area shape="rect" id="node64" href="classLocalCoords.html#a5eb0104c614b60dee59177afbf5a1d09" title="Set the type of LocalCoords (UNIV or LAT)." alt="" coords="708,990,857,1019"/><area shape="rect" id="node71" href="classLattice.html#ac9c176ea0299608b036378c3d3f5d72e" title="Returns a pointer to the Universe within a specific Lattice cell." alt="" coords="481,876,620,906"/><area shape="rect" id="node75" href="classLocalCoords.html#acba537be0e701e2bd46a8d2cabf54881" title="Sets the ID of the Lattice within which this LocalCoords resides." alt="" coords="471,930,631,959"/><area shape="rect" id="node81" href="classUniverse.html#a70bafb1689f44b64ed98e85df1595f03" title="Finds the Cell for which a LocalCoords object resides." alt="" coords="488,1159,613,1188"/><area shape="rect" id="node84" href="classCell.html#a89c95a180daff341176d78c5d573da53" title="Determines whether a Point is contained inside a Cell." alt="" coords="700,1310,865,1339"/><area shape="rect" id="node89" href="classLocalCoords.html#a459a5178aa8861a4d9504d7aea0d4a6a" title="Set the ID of the Cell within which this LocalCoords resides." alt="" coords="711,1043,855,1072"/><area shape="rect" id="node91" href="classCell.html#a39543fd6c83589e92363e461f3f50336" title="Return the Cell&#39;s user&#45;specified ID." alt="" coords="741,1096,824,1126"/><area shape="rect" id="node93" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0" title="Return the Cell type (FILL or MATERIAL)." alt="" coords="733,1150,832,1179"/><area shape="rect" id="node98" href="classCellFill.html#a232ce5ae20d99af538e1db21c7b5d290" title="Return the ID of the Universe filling this Cell." alt="" coords="699,1203,867,1232"/><area shape="rect" id="node103" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b" title="Return the Universe type (SIMPLE or LATTICE)." alt="" coords="719,1256,847,1286"/><area shape="rect" id="node86" href="classCell.html#a7ccb9a3084719a36a170bed2cd48a593" title="Determines whether a Point is contained inside a Cell." alt="" coords="917,1310,1072,1339"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="af74a22376668c13049970a531b525efe"></a>
@@ -448,15 +396,6 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the index of the base FSR </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_af74a22376668c13049970a531b525efe_icgraph.png" border="0" usemap="#classLattice_af74a22376668c13049970a531b525efe_icgraph" alt=""/></div>
-<map name="classLattice_af74a22376668c13049970a531b525efe_icgraph" id="classLattice_af74a22376668c13049970a531b525efe_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05" title="Find and return the ID of the flat source region that a given LocalCoords object resides within..." alt="" coords="168,45,315,75"/><area shape="rect" id="node13" href="classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="171,99,312,128"/><area shape="rect" id="node15" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="365,125,520,155"/><area shape="rect" id="node5" href="classGeometry.html#a5c928795dfb3da715a7dacc7961414e9" title="Add a Universe to the Geometry." alt="" coords="363,5,523,35"/><area shape="rect" id="node11" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de" title="This method performs ray tracing to create Track segments within each flat source region in the Geome..." alt="" coords="365,59,520,88"/><area shape="rect" id="node7" href="classGeometry.html#ac682e21a0664f12390bb956147030bdf" title="Add a Cell to the Geometry." alt="" coords="589,5,720,35"/><area shape="rect" id="node9" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="581,59,728,88"/><area shape="rect" id="node17" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="572,125,737,155"/><area shape="rect" id="node19" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="788,117,943,163"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -497,15 +436,6 @@ Here is the caller graph for this function:</div>
 <p>Return the number of <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a> cells along the x-axis. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a> cells along x </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_a8bdf33505871fa71a8e9d86bb7efec10_icgraph.png" border="0" usemap="#classLattice_a8bdf33505871fa71a8e9d86bb7efec10_icgraph" alt=""/></div>
-<map name="classLattice_a8bdf33505871fa71a8e9d86bb7efec10_icgraph" id="classLattice_a8bdf33505871fa71a8e9d86bb7efec10_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="179,5,325,35"/><area shape="rect" id="node5" href="classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="181,59,323,88"/><area shape="rect" id="node7" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="384,107,539,136"/><area shape="rect" id="node14" href="classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="375,160,548,189"/><area shape="rect" id="node17" href="classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="375,213,548,243"/><area shape="rect" id="node9" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="599,160,764,189"/><area shape="rect" id="node11" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="815,151,969,198"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="aa7e9fbdedddbb9d40e4f845710ce8ec2"></a>
@@ -523,15 +453,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the number of <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a> cells along the y-axis. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a> cells along y </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_aa7e9fbdedddbb9d40e4f845710ce8ec2_icgraph.png" border="0" usemap="#classLattice_aa7e9fbdedddbb9d40e4f845710ce8ec2_icgraph" alt=""/></div>
-<map name="classLattice_aa7e9fbdedddbb9d40e4f845710ce8ec2_icgraph" id="classLattice_aa7e9fbdedddbb9d40e4f845710ce8ec2_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="200,5,347,35"/><area shape="rect" id="node5" href="classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="203,59,344,88"/><area shape="rect" id="node7" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="428,135,583,164"/><area shape="rect" id="node14" href="classGeometry.html#affea9525ab3495c60b0abfa66780322b" title="This is a recursive method that finds the Mesh cell height of the next lowest LATTICE in a given Univ..." alt="" coords="179,163,368,192"/><area shape="rect" id="node17" href="classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="416,211,595,240"/><area shape="rect" id="node20" href="classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="419,264,592,293"/><area shape="rect" id="node23" href="classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="419,317,592,347"/><area shape="rect" id="node9" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="644,237,809,267"/><area shape="rect" id="node11" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="860,229,1015,275"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -589,15 +510,6 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>pointer to a <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane.">Universe</a> filling the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a> cell </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_ac9c176ea0299608b036378c3d3f5d72e_icgraph.png" border="0" usemap="#classLattice_ac9c176ea0299608b036378c3d3f5d72e_icgraph" alt=""/></div>
-<map name="classLattice_ac9c176ea0299608b036378c3d3f5d72e_icgraph" id="classLattice_ac9c176ea0299608b036378c3d3f5d72e_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58" title="This is a recursive method which stores the IDs of all FSRs located in a Mesh cell object in a std::v..." alt="" coords="209,5,351,35"/><area shape="rect" id="node5" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="429,52,584,81"/><area shape="rect" id="node12" href="classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0" title="This is a recursive method that finds the Mesh cell height of the LATTICE at the CMFD Mesh level..." alt="" coords="417,105,596,135"/><area shape="rect" id="node15" href="classGeometry.html#a9dc3627155dcebcfc358bc1882062b52" title="This is a recursive method that finds the Mesh cell width of the LATTICE at the CMFD Mesh level..." alt="" coords="420,159,593,188"/><area shape="rect" id="node18" href="classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1" title="This is a recursive method that finds the depth of the Geometry Mesh." alt="" coords="193,211,367,240"/><area shape="rect" id="node21" href="classLattice.html#a106bb34948883f3695bbffa5e44bce2b" title="Finds the Cell within this Lattice that a LocalCoords is in." alt="" coords="224,264,336,293"/><area shape="rect" id="node7" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="647,132,812,161"/><area shape="rect" id="node9" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="863,123,1017,170"/><area shape="rect" id="node23" href="classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="417,264,596,293"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="ab5e3b6812c4c7e478e5ded4acc5d3819"></a>
@@ -615,15 +527,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return a 2D vector of the Universes in the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a>. </p>
 <dl class="section return"><dt>Returns</dt><dd>2D vector of Universes </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_ab5e3b6812c4c7e478e5ded4acc5d3819_icgraph.png" border="0" usemap="#classLattice_ab5e3b6812c4c7e478e5ded4acc5d3819_icgraph" alt=""/></div>
-<map name="classLattice_ab5e3b6812c4c7e478e5ded4acc5d3819_icgraph" id="classLattice_ab5e3b6812c4c7e478e5ded4acc5d3819_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="200,5,347,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -643,15 +546,6 @@ Here is the caller graph for this function:</div>
 <p>Return the width of the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a> along the x-axis. </p>
 <dl class="section return"><dt>Returns</dt><dd>the width of the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a> cells along x </dd></dl>
 
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_acb5c93de94618ab65ef61f18a93e48b3_icgraph.png" border="0" usemap="#classLattice_acb5c93de94618ab65ef61f18a93e48b3_icgraph" alt=""/></div>
-<map name="classLattice_acb5c93de94618ab65ef61f18a93e48b3_icgraph" id="classLattice_acb5c93de94618ab65ef61f18a93e48b3_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="184,13,339,43"/><area shape="rect" id="node5" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="388,13,553,43"/><area shape="rect" id="node7" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="604,5,759,51"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="ad54b31fc59330eaadf4c6b81e034a199"></a>
@@ -669,15 +563,6 @@ Here is the caller graph for this function:</div>
 
 <p>Return the width of the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a> along the y-axis. </p>
 <dl class="section return"><dt>Returns</dt><dd>the width of the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a> cells along y </dd></dl>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_ad54b31fc59330eaadf4c6b81e034a199_icgraph.png" border="0" usemap="#classLattice_ad54b31fc59330eaadf4c6b81e034a199_icgraph" alt=""/></div>
-<map name="classLattice_ad54b31fc59330eaadf4c6b81e034a199_icgraph" id="classLattice_ad54b31fc59330eaadf4c6b81e034a199_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab" title="This is a recursive method which defines all the parameters of the the Mesh cell objects in a Mesh..." alt="" coords="184,13,339,43"/><area shape="rect" id="node5" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d" title="This is a recursive method which makes a mesh for solving the Course Mesh Finite Difference (CMFD) di..." alt="" coords="388,13,553,43"/><area shape="rect" id="node7" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps..." alt="" coords="604,5,759,51"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -726,15 +611,6 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_a7e26e6e079c58f1ebc6c9e1ee237d932_cgraph.png" border="0" usemap="#classLattice_a7e26e6e079c58f1ebc6c9e1ee237d932_cgraph" alt=""/></div>
-<map name="classLattice_a7e26e6e079c58f1ebc6c9e1ee237d932_cgraph" id="classLattice_a7e26e6e079c58f1ebc6c9e1ee237d932_cgraph">
-<area shape="rect" id="node3" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f" title="Set the Point&#39;s x&#45;coordinate." alt="" coords="212,5,297,35"/><area shape="rect" id="node5" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5" title="Set the Point&#39;s y&#45;coordinate." alt="" coords="212,59,297,88"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a9a59a806e3629135d7ea784669a6c12c"></a>
@@ -759,24 +635,6 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_a9a59a806e3629135d7ea784669a6c12c_cgraph.png" border="0" usemap="#classLattice_a9a59a806e3629135d7ea784669a6c12c_cgraph" alt=""/></div>
-<map name="classLattice_a9a59a806e3629135d7ea784669a6c12c_cgraph" id="classLattice_a9a59a806e3629135d7ea784669a6c12c_cgraph">
-<area shape="rect" id="node3" href="classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21" title="Universe::getId" alt="" coords="236,5,345,35"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_a9a59a806e3629135d7ea784669a6c12c_icgraph.png" border="0" usemap="#classLattice_a9a59a806e3629135d7ea784669a6c12c_icgraph" alt=""/></div>
-<map name="classLattice_a9a59a806e3629135d7ea784669a6c12c_icgraph" id="classLattice_a9a59a806e3629135d7ea784669a6c12c_icgraph">
-<area shape="rect" id="node3" href="classGeometry.html#aefea16b34ccd4f2b266665c7ac9d8b83" title="Add a Lattice to the Geometry." alt="" coords="235,5,381,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <a class="anchor" id="a85eb51407b84e29d55f300e06b29f9b4"></a>
@@ -796,15 +654,6 @@ Here is the caller graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>character array of this <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes.">Lattice</a>'s attributes </dd></dl>
 
 <p>Reimplemented from <a class="el" href="classUniverse.html#a9bc78841d661eb12afa51ca04ae31368">Universe</a>.</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_a85eb51407b84e29d55f300e06b29f9b4_icgraph.png" border="0" usemap="#classLattice_a85eb51407b84e29d55f300e06b29f9b4_icgraph" alt=""/></div>
-<map name="classLattice_a85eb51407b84e29d55f300e06b29f9b4_icgraph" id="classLattice_a85eb51407b84e29d55f300e06b29f9b4_icgraph">
-<area shape="rect" id="node3" href="classLattice.html#ac29a8a1d0a21829843ee39eb3778fc85" title="Prints a string representation of all of the Lattice&#39;s attributes to the console." alt="" coords="168,5,296,35"/></map>
-</div>
-</p>
 
 </div>
 </div>
@@ -831,24 +680,6 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the <a class="el" href="classPoint.html" title="Class to represent a 2D point in space.">Point</a> is in the bounds, false if not </dd></dl>
 
-<p><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_aaa38ae681b8814661033c99f6410fadd_cgraph.png" border="0" usemap="#classLattice_aaa38ae681b8814661033c99f6410fadd_cgraph" alt=""/></div>
-<map name="classLattice_aaa38ae681b8814661033c99f6410fadd_cgraph" id="classLattice_aaa38ae681b8814661033c99f6410fadd_cgraph">
-<area shape="rect" id="node3" href="classPoint.html#af52a20a376f8f31e87658837565d3812" title="Returns this Point&#39;s x&#45;coordinate." alt="" coords="201,5,287,35"/><area shape="rect" id="node5" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7" title="Returns this Point&#39;s y&#45;coordinate." alt="" coords="201,59,287,88"/></map>
-</div>
-</p>
-
-<p><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classLattice_aaa38ae681b8814661033c99f6410fadd_icgraph.png" border="0" usemap="#classLattice_aaa38ae681b8814661033c99f6410fadd_icgraph" alt=""/></div>
-<map name="classLattice_aaa38ae681b8814661033c99f6410fadd_icgraph" id="classLattice_aaa38ae681b8814661033c99f6410fadd_icgraph">
-<area shape="rect" id="node3" href="classLattice.html#a74e06905bc0f096fa4fb1b97420b0825" title="Finds the next Cell for a LocalCoords object along a trajectory defined by some angle (in radians fro..." alt="" coords="201,5,380,35"/></map>
-</div>
-</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
@@ -861,7 +692,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classLattice.html">Lattice</a></li>
-    <li class="footer">Generated on Fri Feb 21 2014 19:16:29 for OpenMOC by
+    <li class="footer">Generated on Fri Feb 21 2014 19:39:56 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.1.2 </li>
   </ul>
