@@ -37,9 +37,11 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 ".html",
-"classCmfd.html#add0bcdf4d8737d61b377b4dcd7a70d9d",
-"classQuadrature.html#a39beb5f26c5a80b2115af0821e6b7981",
-"classVectorizedSolver.html#a6c428f0706f8c8960a88404606665704"
+"classCmfd.html#adbe1e69d52cc7244fe8cc02e8203cea2",
+"classQuadrature.html#a1f523924a8cc88680aa77366a7d3a38e",
+"classVectorizedSolver.html#a5a9623683961869eef3a171c41fb6f81",
+"classopenmoc_1_1openmoc_1_1Material.html#a1855429d903aa7c14fd0f561b564c653",
+"classopenmoc_1_1openmoc_1_1Universe.html#a227831163b155ce986cee35aaa2b0b9d"
 ];
 
 var navTreeSubIndices = new Array();

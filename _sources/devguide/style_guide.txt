@@ -134,13 +134,15 @@ Temporary variables (e.g. variables defined within the scope of a function) are 
    }
 
 
+.. _code_comments:
+
 -------------
 Code Comments
 -------------
 
-OpenMOC uses doxygen_ for automated generation of Application Programming Interface (API_) documentation based upon code comments. Please adhere to the doxygen standard for code comments in both C/C++ and Python source code. In particular, 
+OpenMOC uses Doxygen_ for automated generation of Application Programming Interface (API_) documentation based upon code comments. Please adhere to the Doxygen standard for code comments in both C/C++ and Python source code. In particular, 
 
-* **C/C++ functions** should be preceded by doxygen-style comments as illustrated in the following code snippet:
+* **C/C++ functions** should be preceded by Doxygen-style comments as illustrated in the following code snippet:
 
 .. code-block:: c
 
@@ -161,7 +163,7 @@ OpenMOC uses doxygen_ for automated generation of Application Programming Interf
      }
 
 
-* **C/C++ class** definitions in a header file should be preceded by doxygen-style comments as illustrated in the following code snippet:
+* **C/C++ class** definitions in a header file should be preceded by Doxygen-style comments as illustrated in the following code snippet:
 
 .. code-block:: c
 
@@ -203,7 +205,7 @@ OpenMOC uses doxygen_ for automated generation of Application Programming Interf
 
 
 
-* **Python functions** should be preceded by doxygen-style comments as illustrated in the following code snippet:
+* **Python functions** should be preceded by Doxygen-style comments as illustrated in the following code snippet:
 
 .. code-block:: python
 
@@ -220,7 +222,7 @@ OpenMOC uses doxygen_ for automated generation of Application Programming Interf
         y[i] = a[i] * x[i] + y[i]
 
 
-* **Python classes** should be preceded by doxygen-style comments as illustrated in the following code snippet:
+* **Python classes** should be preceded by Doxygen-style comments as illustrated in the following code snippet:
 
 .. code-block:: python
 
@@ -312,7 +314,7 @@ Avoid extraneous whitespace in the following situations:
       No: if ( variable==2 ) then
 
 
-.. _doxygen: http://www.stack.nl/~dimitri/doxygen/
+.. _Doxygen: http://www.stack.nl/~dimitri/doxygen/
 .. _sphinx: http://sphinx-doc.org/
 .. _api: http://en.wikipedia.org/wiki/Application_programming_interface
 .. _CamelCase: http://en.wikipedia.org/wiki/CamelCase

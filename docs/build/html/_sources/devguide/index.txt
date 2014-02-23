@@ -15,4 +15,5 @@ Welcome to the OpenMOC Developer's Guide! The Developer's Guide is a **must read
     build_system
     debugging
     style_guide
+    documentation
     work_flow

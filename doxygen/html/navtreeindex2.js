@@ -1,5 +1,6 @@
 var NAVTREEINDEX2 =
 {
+"classQuadrature.html#a1f523924a8cc88680aa77366a7d3a38e":[1,0,18,1],
 "classQuadrature.html#a39beb5f26c5a80b2115af0821e6b7981":[1,0,18,0],
 "classQuadrature.html#a3f19d76860a2d1ec8406366188449a6d":[1,0,18,2],
 "classQuadrature.html#a4d80c3ca24bfe94d20cf8f0b20fbf62c":[1,0,18,10],
@@ -248,6 +249,5 @@ var NAVTREEINDEX2 =
 "classVectorizedSolver.html":[1,0,28],
 "classVectorizedSolver.html#a0a18af2566bcaee51cec4bd55a70e7e8":[1,0,28,16],
 "classVectorizedSolver.html#a14a159d804a2b94f1442e6cb6046e4f0":[1,0,28,5],
-"classVectorizedSolver.html#a4115f20eeaf814518521c75568045794":[1,0,28,0],
-"classVectorizedSolver.html#a5a9623683961869eef3a171c41fb6f81":[1,0,28,15]
+"classVectorizedSolver.html#a4115f20eeaf814518521c75568045794":[1,0,28,0]
 };

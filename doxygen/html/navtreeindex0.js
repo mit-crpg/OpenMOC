@@ -1,6 +1,7 @@
 var NAVTREEINDEX0 =
 {
 ".html":[1,0,0],
+".html":[1,0,0,2],
 "CPUSolver_8h.html":[2,0,1,3],
 "CPUSolver_8h.html#a1ada87108681a86ec25d66c3644e04e3":[2,0,1,3,4],
 "CPUSolver_8h.html#a2143506339a36528e1c9d7e27501897f":[2,0,1,3,2],
@@ -248,6 +249,5 @@ var NAVTREEINDEX0 =
 "classCmfd.html#acb66d1a509993e1dcbec5a6cfa6ee8e8":[1,0,5,14],
 "classCmfd.html#acbf8310fb5a8a657751b905eea3ead8c":[1,0,5,11],
 "classCmfd.html#ad3da57b100041e93e2ca8d6b89137775":[1,0,5,4],
-"classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5":[1,0,5,13],
-"classCmfd.html#adbe1e69d52cc7244fe8cc02e8203cea2":[1,0,5,31]
+"classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5":[1,0,5,13]
 };

@@ -3,6 +3,7 @@ var searchData=
   ['scalar_5fflux',['scalar_flux',['../GPUSolver_8h.html#a4089c9be8cf297ccf942eb8c29cca415',1,'GPUSolver.h']]],
   ['scalarfluxtally',['scalarFluxTally',['../classCPUSolver.html#a414e03f5c083e4b8e77da6c8fa79af02',1,'CPUSolver::scalarFluxTally()'],['../classThreadPrivateSolver.html#a0d9da6c56e767cb2d16759e92e0fecf1',1,'ThreadPrivateSolver::scalarFluxTally()'],['../classVectorizedSolver.html#a861e52b6f96cd79a6a5298cefc7fe378',1,'VectorizedSolver::scalarFluxTally()']]],
   ['segment',['segment',['../structsegment.html',1,'']]],
+  ['segment',['segment',['../classopenmoc_1_1openmoc_1_1segment.html',1,'openmoc::openmoc']]],
   ['segmentize',['segmentize',['../classGeometry.html#a21a092d997179d6bea6c66f592faa6de',1,'Geometry']]],
   ['separator',['SEPARATOR',['../log_8h.html#a5096002e05063d13577205e0bc5f0564ac22e1a44f0ddbc929cfea45e49d20f84',1,'log.h']]],
   ['set_5ferr',['set_err',['../log_8h.html#a940ee8efe959af1453430dfb17a69b52',1,'log.h']]],
@@ -106,6 +107,7 @@ var searchData=
   ['setz',['setZ',['../classZPlane.html#a96d7d97847aefd832bad4d78a0ba5bd0',1,'ZPlane']]],
   ['sigma_5ft_5fthresh',['SIGMA_T_THRESH',['../Material_8h.html#ae9c3eb98c50e150b93f8428cc6bdf3ca',1,'Material.h']]],
   ['simple',['SIMPLE',['../Universe_8h.html#a123911615dcd5c50bea706d32683a02aa1a6b6e9893ec9e5d9710335b4c74d3f6',1,'Universe.h']]],
+  ['solver',['Solver',['../classopenmoc_1_1openmoc_1_1Solver.html',1,'openmoc::openmoc']]],
   ['solver',['Solver',['../classSolver.html',1,'Solver'],['../classSolver.html#aa695c4bdcdb0664b2c55c87f2dc7ec6a',1,'Solver::Solver()']]],
   ['solver_2eh',['Solver.h',['../Solver_8h.html',1,'']]],
   ['solvetype',['solveType',['../Mesh_8h.html#a0cdedba974328b9119267e5e8cf77114',1,'Mesh.h']]],
@@ -118,6 +120,7 @@ var searchData=
   ['subdividecell',['subdivideCell',['../classCellBasic.html#a68bcdce0e270b6b439ba878a0694d5b1',1,'CellBasic']]],
   ['subdividecells',['subdivideCells',['../classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca',1,'Geometry::subdivideCells()'],['../classUniverse.html#ae3952c88390eda788da540d421d0b139',1,'Universe::subdivideCells()']]],
   ['surf_5fid',['surf_id',['../Surface_8h.html#aa0ccb834fb6c557e9713707f95ee10f0',1,'Surface.cpp']]],
+  ['surface',['Surface',['../classopenmoc_1_1openmoc_1_1Surface.html',1,'openmoc::openmoc']]],
   ['surface',['Surface',['../classSurface.html',1,'Surface'],['../classPlane.html#a432070efb8401735ea64bc0e98feebe5',1,'Plane::Surface()'],['../classCircle.html#a432070efb8401735ea64bc0e98feebe5',1,'Circle::Surface()'],['../classSurface.html#ade6f088703067a2a01fb525fded74488',1,'Surface::Surface()']]],
   ['surface_2eh',['Surface.h',['../Surface_8h.html',1,'']]],
   ['surfacetype',['surfaceType',['../Surface_8h.html#a669341e8f044e9051db22e680c1b81df',1,'Surface.h']]]
