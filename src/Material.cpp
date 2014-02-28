@@ -464,11 +464,11 @@ void Material::setSigmaT(double* xs, int num_groups) {
  */
 void Material::setSigmaTByGroup(double xs, int group) {
 
-  if (group <= 0 || group > _num_groups)
+  if (group < 0 || group >= _num_groups)
     log_printf(ERROR, "Unable to set sigma_t for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
 
-  _sigma_t[group-1] = xs;
+  _sigma_t[group] = xs;
 }
 
 
@@ -513,11 +513,11 @@ void Material::setSigmaA(double* xs, int num_groups) {
  */
 void Material::setSigmaAByGroup(double xs, int group) {
 
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to set sigma_a for group %d for Mmaterial "
+  if (group < 0 || group >= _num_groups)
+    log_printf(ERROR, "Unable to set sigma_a for group %d for material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
 
-  _sigma_a[group-1] = xs;
+  _sigma_a[group] = xs;
 }
 
 
@@ -573,12 +573,12 @@ void Material::setSigmaS(double* xs, int num_groups_squared) {
  */
 void Material::setSigmaSByGroup(double xs, int group1, int group2) {
 
-  if (group1<=0 || group2<=0 || group1>_num_groups || group2>_num_groups)
+  if (group1 < 0 || group2 < 0 || group1 >= _num_groups || group2 >= _num_groups)
     log_printf(ERROR, "Unable to set sigma_s for group %d,%d for Material %d "
                "which contains %d energy groups",
                group1, group2, _uid, _num_groups);
 
-  _sigma_s[_num_groups*(group1-1) + (group2-1)] = xs;
+  _sigma_s[_num_groups*(group1) + (group2)] = xs;
 }
 
 
@@ -629,11 +629,11 @@ void Material::setSigmaF(double* xs, int num_groups) {
  */
 void Material::setSigmaFByGroup(double xs, int group) {
 
-  if (group <= 0 || group > _num_groups)
+  if (group < 0 || group >= _num_groups)
     log_printf(ERROR, "Unable to set sigma_f for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
 
-  _sigma_f[group-1] = xs;
+  _sigma_f[group] = xs;
 
   /* Determine whether or not this Material is fissionable */
   _fissionable = false;
@@ -687,11 +687,11 @@ void Material::setNuSigmaF(double* xs, int num_groups) {
  */
 void Material::setNuSigmaFByGroup(double xs, int group) {
 
-  if (group <= 0 || group > _num_groups)
+  if (group < 0 || group >= _num_groups)
     log_printf(ERROR, "Unable to set nu_sigma_f for group %d for Material "
                "%d which contains %d energy groups", group, _uid);
 
-  _nu_sigma_f[group-1] = xs;
+  _nu_sigma_f[group] = xs;
 }
 
 
@@ -733,11 +733,11 @@ void Material::setChi(double* xs, int num_groups) {
  */
 void Material::setChiByGroup(double xs, int group) {
 
-  if (group <= 0 || group > _num_groups)
+  if (group < 0 || group >= _num_groups)
     log_printf(ERROR, "Unable to set chi for group %d for Material "
               "%d which contains %d energy groups", group, _num_groups, _uid);
 
-  _chi[group-1] = xs;
+  _chi[group] = xs;
 }
 
 
@@ -782,7 +782,7 @@ void Material::setDifCoef(double* xs, int num_groups) {
  */
 void Material::setDifCoefByGroup(double xs, int group) {
 
-  if (group <= 0 || group > _num_groups)
+  if (group < 0 || group >= _num_groups)
     log_printf(ERROR, "Unable to set diffusion coefficient for group %d for "
                "Material %d which contains %d energy groups",
                group, _num_groups, _uid);
@@ -794,7 +794,7 @@ void Material::setDifCoefByGroup(double xs, int group) {
       _dif_coef[i] = 0.0;
   }
 
-  _dif_coef[group-1] = xs;
+  _dif_coef[group] = xs;
 }
 
 
@@ -839,7 +839,7 @@ void Material::setBuckling(double* xs, int num_groups) {
  */
 void Material::setBucklingByGroup(double xs, int group) {
 
-  if (group <= 0 || group > _num_groups)
+  if (group < 0 || group >= _num_groups)
     log_printf(ERROR, "Unable to set diffusion coefficient for group %d for "
                "Material %d which contains %d energy groups",
                group, _num_groups, _uid);
@@ -850,7 +850,7 @@ void Material::setBucklingByGroup(double xs, int group) {
       _buckling[i] = 0.0;
   }
 
-  _buckling[group-1] = xs;
+  _buckling[group] = xs;
 }
 
 
@@ -897,7 +897,7 @@ void Material::setDifHat(double* xs, int num_groups) {
  */
 void Material::setDifHatByGroup(double xs, int group, int surface) {
 
-  if (group <= 0 || group > _num_groups)
+  if (group < 0 || group >= _num_groups)
     log_printf(ERROR, "Unable to set diffusion coefficient for group %d for "
               "Material %d which contains %d energy groups",
               group, _num_groups, _uid);
@@ -910,7 +910,7 @@ void Material::setDifHatByGroup(double xs, int group, int surface) {
       _dif_hat[i] = 0.0;
   }
 
-  _dif_hat[surface*_num_groups + (group-1)] = xs;
+  _dif_hat[surface*_num_groups + group] = xs;
 }
 
 
@@ -958,7 +958,7 @@ void Material::setDifTilde(double* xs, int num_groups) {
  */
 void Material::setDifTildeByGroup(double xs, int group, int surface) {
 
-  if (group <= 0 || group > _num_groups)
+  if (group < 0 || group >= _num_groups)
     log_printf(ERROR, "Unable to set diffusion coefficient correction for "
               "group %d for Material %d which contains %d energy groups",
                group, _num_groups, _uid);
@@ -970,7 +970,7 @@ void Material::setDifTildeByGroup(double xs, int group, int surface) {
       _dif_tilde[i] = 0.0;
   }
 
-  _dif_tilde[surface*_num_groups + (group-1)] = xs;
+  _dif_tilde[surface*_num_groups + group] = xs;
 }
 
 
@@ -1206,28 +1206,28 @@ Material* Material::clone(){
   clone->setNumEnergyGroups(_num_groups);
 
   for (int i=0; i < _num_groups; i++) {
-    clone->setSigmaTByGroup((double)_sigma_t[i], i+1);
-    clone->setSigmaAByGroup((double)_sigma_a[i], i+1);
-    clone->setSigmaFByGroup((double)_sigma_f[i], i+1);
-    clone->setNuSigmaFByGroup((double)_nu_sigma_f[i], i+1);
-    clone->setChiByGroup((double)_chi[i], i+1);
+    clone->setSigmaTByGroup((double)_sigma_t[i], i);
+    clone->setSigmaAByGroup((double)_sigma_a[i], i);
+    clone->setSigmaFByGroup((double)_sigma_f[i], i);
+    clone->setNuSigmaFByGroup((double)_nu_sigma_f[i], i);
+    clone->setChiByGroup((double)_chi[i], i);
 
     for (int j=0; j < _num_groups; j++)
-      clone->setSigmaSByGroup((double)_sigma_s[i*_num_groups+j], i+1, j+1);
+      clone->setSigmaSByGroup((double)_sigma_s[i*_num_groups+j], i, j);
 
     if (_dif_coef != NULL)
-      clone->setDifCoefByGroup((double)_dif_coef[i], i+1);
+      clone->setDifCoefByGroup((double)_dif_coef[i], i);
 
     if (_buckling != NULL)
-      clone->setBucklingByGroup((double)_buckling[i], i+1);
+      clone->setBucklingByGroup((double)_buckling[i], i);
 
     for (int j=0; j < 4; j++) {
 
       if (_dif_hat != NULL)
-        clone->setDifHatByGroup((double)_dif_hat[i*4+j], i+1, j+1);
+        clone->setDifHatByGroup((double)_dif_hat[i*4+j], i, j);
 
       if (_dif_tilde != NULL)
-        clone->setDifTildeByGroup((double)_dif_tilde[i*4+j], i+1, j+1);
+        clone->setDifTildeByGroup((double)_dif_tilde[i*4+j], i, j);
     }
   }
 

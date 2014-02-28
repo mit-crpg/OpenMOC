@@ -14,8 +14,8 @@ Cmfd::Cmfd(Geometry* geometry, double criteria) {
 
   /* Initialize Geometry and Mesh-related attribute */
   _geometry = geometry;
-  _num_FSRs = _mesh->getNumFSRs();
   _mesh = geometry->getMesh();
+  _num_FSRs = _mesh->getNumFSRs();
   _cx = _mesh->getCellsX();
   _cy = _mesh->getCellsY();
   _quad = new Quadrature(TABUCHI);
@@ -1506,8 +1506,8 @@ int Cmfd::getCmfdGroupWidth(){
  * @brief Set the number of coarse CMFD energy groups.
  * @param num_num_cmfd_groups the number of CMFD energy groups
  */
-void Cmfd::setNumCmfdGroups(int num_num_cmfd_groups){
-  _num_cmfd_groups = num_num_cmfd_groups;
+void Cmfd::setNumCmfdGroups(int num_cmfd_groups){
+  _num_cmfd_groups = num_cmfd_groups;
   _mesh->setNumGroups(_num_cmfd_groups);
 }
 
