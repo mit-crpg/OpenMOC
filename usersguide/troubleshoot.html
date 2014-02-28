@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -61,16 +60,18 @@ error you are receiving is among the following options.</p>
 <div class="section" id="nameerror-is-not-defined">
 <h3>6.1.1. NameError: ... is not defined<a class="headerlink" href="#nameerror-is-not-defined" title="Permalink to this headline">¶</a></h3>
 <p>In some cases, the symbolic links for the code are not established correctly and users may receive a <cite>NameError</cite>, and example of which is given below:</p>
-<div class="highlight-python"><pre>Traceback (most recent call last):
-  File "simple-lattice.py", line 1, in &lt;module&gt;
+<div class="highlight-python"><div class="highlight"><pre>Traceback (most recent call last):
+  File &quot;simple-lattice.py&quot;, line 1, in &lt;module&gt;
     from openmoc import *
-  File "/home/wbinventor/.local/lib/python2.7/site-packages/openmoc/__init__.py", line 15, in &lt;module&gt;
-    setLogfileName('log/openmoc-' + current_time + '.log');
-NameError: name 'setLogfileName' is not defined</pre>
+  File &quot;/home/wbinventor/.local/lib/python2.7/site-packages/openmoc/__init__.py&quot;, line 15, in &lt;module&gt;
+    setLogfileName(&#39;log/openmoc-&#39; + current_time + &#39;.log&#39;);
+NameError: name &#39;setLogfileName&#39; is not defined
+</pre></div>
 </div>
 <p>This error is commonly seen by new users after just installing the code. As noted in the <em class="xref std std-ref">Installation and Configuration</em>, some Python distributions require that OpenMOC be installed twice the first time it is installed. The recommended solution in this case would be to execute the installation command twice in sequence:</p>
-<div class="highlight-python"><pre>python setup.py install --user
-python setup.py install --user</pre>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py install --user
+python setup.py install --user
+</pre></div>
 </div>
 </div>
 </div>
@@ -143,7 +144,7 @@ python setup.py install --user</pre>
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
 <script type="text/javascript">
 

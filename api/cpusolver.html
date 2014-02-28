@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -11,7 +10,6 @@
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -25,10 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="OpenMOC API" href="index.html" />
-    <link rel="next" title="GPUSolver" href="gpusolver.html" />
-    <link rel="prev" title="Solver" href="solver.html" /> 
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,14 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="gpusolver.html" title="GPUSolver"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="solver.html" title="Solver"
-             accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">OpenMOC API</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -55,133 +43,6 @@
             
   <div class="section" id="cpusolver">
 <span id="id1"></span><h1>CPUSolver<a class="headerlink" href="#cpusolver" title="Permalink to this headline">¶</a></h1>
-<div class="line-block">
-<div class="line" id=""><span id="OpenMOCclassCPUSolver"></span><em>class</em> <strong>CPUSolver</strong></div>
-</div>
-<blockquote>
-<div><p>This a subclass of the <a class="reference internal" href="solver.html#OpenMOCclassSolver"><em>Solver</em></a> class for multi-core CPUs using OpenMP multi-threading. </p>
-<p></p>
-<em>Public Functions</em><blockquote>
-<div><p id=""><span id="OpenMOCclassCPUSolver_1a7a3a562bc1ec3f99ce834e6ee7f54fef"></span><div class="line-block">
-<div class="line"> <strong>CPUSolver</strong>(<a class="reference internal" href="geometry.html#OpenMOCclassGeometry"><em>Geometry</em></a>  * geometry = NULL, <a class="reference internal" href="trackgenerator.html#OpenMOCclassTrackGenerator"><em>TrackGenerator</em></a>  * track_generator = NULL)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Constructor initializes array pointers for tracks and materials. </p>
-<p>The constructor retrieves the number of energy groups and flat source regions and azimuthal angles from the geometry and track generator. The constructor initalizes the number of threads to a default of 1. <dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">geometry</span></tt> - <p>an optional pointer to the geometry </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">track_generator</span></tt> - <p>an optional pointer to the trackgenerator </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCPUSolver_1a6573957b7c5ea0b6c41b773081fd49cd"></span><div class="line-block">
-<div class="line"> <strong>~CPUSolver</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Destructor deletes array for OpenMP atomic locks for scalar flux updates, and calls <a class="reference internal" href="solver.html#OpenMOCclassSolver"><em>Solver</em></a> subclass destructor to deletes arrays for fluxes and sources. </p>
-<p></p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCPUSolver_1af890494e4e5353fa81f41f80d6e52cb4"></span><div class="line-block">
-<div class="line">int <strong>getNumThreads</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Returns the number of shared memory OpenMP threads in use. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the number of threads </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCPUSolver_1ac0c9152a81ce1bd13f42aeb20ee9402c"></span><div class="line-block">
-<div class="line">FP_PRECISION <strong>getFSRScalarFlux</strong>(int fsr_id, int energy_group)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Returns the scalar flux for some energy group for a flat source region. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the flat source region scalar flux </dd>
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">fsr_id</span></tt> - <p>the ID for the FSR of interest </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">energy_group</span></tt> - <p>the energy group of interest </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCPUSolver_1a281e593c8d4e75fd44a6acb8e7bf91ee"></span><div class="line-block">
-<div class="line">FP_PRECISION * <strong>getFSRScalarFluxes</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return an array indexed by flat source region IDs and energy groups which contains the corresponding fluxes for each flat source region. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>an array of flat source region scalar fluxes </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCPUSolver_1a90dc1357f3ec10f9a85ae31cefd0bd49"></span><div class="line-block">
-<div class="line">FP_PRECISION * <strong>getFSRPowers</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return an array indexed by flat source region IDs with the corresponding flat source region power. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>an array of flat source region powers </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCPUSolver_1a57ef6e1450abb4e7ba67f582228d6241"></span><div class="line-block">
-<div class="line">FP_PRECISION * <strong>getFSRPinPowers</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return an array indexed by flat source region IDs with the corresponding pin cell power. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>an array of flat source region pin powers </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCPUSolver_1a2407bc2c3829aff938c34a990d8fbe65"></span><div class="line-block">
-<div class="line">void <strong>setNumThreads</strong>(int num_threads)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Sets the number of shared memory OpenMP threads to use (&gt;0). </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">num_threads</span></tt> - <p>the number of threads </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCPUSolver_1a4a85c27ea780c422e81f1d2f59789744"></span><div class="line-block">
-<div class="line">void <strong>computePinPowers</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Compute the fission rates in each flat source region and stores them in an array indexed by flat source region ID. </p>
-<p></p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 </div>
 
 
@@ -190,12 +51,9 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="solver.html"
-                        title="previous chapter">Solver</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="gpusolver.html"
-                        title="next chapter">GPUSolver</a></p>
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/openmoc-logo-sphinx.png" alt="Logo"/>
+            </a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/api/cpusolver.txt"
@@ -224,20 +82,13 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="gpusolver.html" title="GPUSolver"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="solver.html" title="Solver"
-             >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >OpenMOC API</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
 <script type="text/javascript">
 

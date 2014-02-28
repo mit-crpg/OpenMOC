@@ -19,8 +19,6 @@ var classCell =
     [ "toString", "classCell.html#a4a84efc6a82f7abe42d9a6dc990c70e6", null ],
     [ "_cell_type", "classCell.html#a479098cae5775f5070b63b9ef7abbb04", null ],
     [ "_id", "classCell.html#a5a7fef990e0f7da60e726679e445a5e2", null ],
-    [ "_n", "classCell.html#a541f3c7c6a6dfe20a650c695bd7d9e6e", null ],
-    [ "_num_clones", "classCell.html#a9fdffc8a64a9a7362120027952f3444d", null ],
     [ "_surfaces", "classCell.html#a15ce12228fe3a75bbb01a486cbc03afc", null ],
     [ "_uid", "classCell.html#a0a8d52810c4b5f992d50347dbc0e2be7", null ],
     [ "_universe", "classCell.html#abebfee25524f8429acd698f206d1cf58", null ]

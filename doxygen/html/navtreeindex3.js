@@ -1,9 +1,5 @@
 var NAVTREEINDEX3 =
 {
-"classVectorizedSolver.html#a5a9623683961869eef3a171c41fb6f81":[1,0,28,15],
-"classVectorizedSolver.html#a6c428f0706f8c8960a88404606665704":[1,0,28,10],
-"classVectorizedSolver.html#a6d5bac107495fe429839826859b7dfa1":[1,0,28,8],
-"classVectorizedSolver.html#a7287329d44d695ca91181e9484e32bca":[1,0,28,9],
 "classVectorizedSolver.html#a7ab9f0df852a0afd04876f6e0ec53046":[1,0,28,6],
 "classVectorizedSolver.html#a861e52b6f96cd79a6a5298cefc7fe378":[1,0,28,11],
 "classVectorizedSolver.html#a8870d66ff12cad16d893d9f1dad0c799":[1,0,28,13],
@@ -249,5 +245,9 @@ var NAVTREEINDEX3 =
 "classopenmoc_1_1openmoc_1_1Material.html":[1,0,0,2,6],
 "classopenmoc_1_1openmoc_1_1Material.html#a0fb717a3cef0842ecbc05638a73841fb":[1,0,0,2,6,29],
 "classopenmoc_1_1openmoc_1_1Material.html#a147440b2e5a3bfced1a1a4b43db90517":[1,0,0,2,6,4],
-"classopenmoc_1_1openmoc_1_1Material.html#a147ad77196c792e868a2936236d8d61f":[1,0,0,2,6,32]
+"classopenmoc_1_1openmoc_1_1Material.html#a147ad77196c792e868a2936236d8d61f":[1,0,0,2,6,32],
+"classopenmoc_1_1openmoc_1_1Material.html#a1855429d903aa7c14fd0f561b564c653":[1,0,0,2,6,35],
+"classopenmoc_1_1openmoc_1_1Material.html#a1b4817faf563886d6977f54163c29242":[1,0,0,2,6,37],
+"classopenmoc_1_1openmoc_1_1Material.html#a2f2ae6c23394c2d1b2a7a25d0718e36b":[1,0,0,2,6,40],
+"classopenmoc_1_1openmoc_1_1Material.html#a34c5d020cb6fac3e22773cb385c8f449":[1,0,0,2,6,8]
 };

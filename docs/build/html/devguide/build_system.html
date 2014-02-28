@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -141,13 +140,16 @@
 <p>The class attributes each have default values corresponding to the configuration needed to build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module. The <tt class="file docutils literal"><span class="pre">OpenMOC/setup.py</span></tt> file instantiates a <tt class="docutils literal"><span class="pre">configuration</span></tt> class object and redefines the class attributes based on the command line options given at runtime. This process is discussed in greater detail in the <a class="reference internal" href="#setup-file"><em>Setup File</em></a> section.</p>
 <p>Once the build options have been defined for the <tt class="docutils literal"><span class="pre">configuration</span></tt> class, the <tt class="file docutils literal"><span class="pre">setup.py</span></tt> calls the <tt class="docutils literal"><span class="pre">setup_extension_modules(...)</span></tt> class method which instantiates one or more <tt class="docutils literal"><span class="pre">Extension</span></tt> class objects for each Python module the user wishes to build and install.</p>
 <p>For example, the following command would build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module using the default compiler (gcc) and with double precision:</p>
-<div class="highlight-python"><pre>python setup.py install --user --with-dp</pre>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py install --user --with-dp
+</pre></div>
 </div>
 <p>Users may build and install more than one OpenMOC module at once with the appropriate command line options. For example, the following command would build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module with default compiler (gcc), as well as the <tt class="docutils literal"><span class="pre">openmoc.intel.double</span></tt> module, each with double precision:</p>
-<div class="highlight-python"><pre>python setup.py install --user --with-intel --with-dp</pre>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py install --user --with-intel --with-dp
+</pre></div>
 </div>
 <p>Similarly, the following command would build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module with default compiler (gcc), as well was the <tt class="docutils literal"><span class="pre">openmoc.cuda.single</span></tt> module, each with single precision and <a class="reference external" href="http://en.wikipedia.org/wiki/Debug_symbol">debug symbols</a>:</p>
-<div class="highlight-python"><pre>python setup.py install --user --with-cuda --with-sp --debug-mode</pre>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py install --user --with-cuda --with-sp --debug-mode
+</pre></div>
 </div>
 </div>
 <div class="section" id="setup-file">
@@ -603,7 +605,7 @@
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
 <script type="text/javascript">
 

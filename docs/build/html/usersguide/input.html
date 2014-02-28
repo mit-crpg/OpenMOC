@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -212,7 +211,7 @@
 </pre></div>
 </div>
 <p>And the following is the output displayed to the console and recorded in the log file:</p>
-<div class="highlight-python"><pre>[  DEBUG  ]  This is a DEBUG message
+<div class="highlight-python"><div class="highlight"><pre>[  DEBUG  ]  This is a DEBUG message
 [  INFO   ]  This is an INFO message
 [  NORMAL ]  This is a NORMAL message
 [SEPARATOR]  *******************************************************************
@@ -224,10 +223,11 @@
 [ CRITICAL]  This is a CRITICAL message
 [ UNITTEST]  This is a UNITTEST message
 Traceback (most recent call last):
-  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
-  File "openmoc/log.py", line 59, in py_printf
+  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;
+  File &quot;openmoc/log.py&quot;, line 59, in py_printf
     openmoc.log_printf(openmoc.ERROR, my_str % args)
-RuntimeError: This is an ERROR message</pre>
+RuntimeError: This is an ERROR message
+</pre></div>
 </div>
 <p>It should be noted that the <tt class="docutils literal"><span class="pre">py_printf(...)</span></tt> routine in the logging module is based on the <a class="reference external" href="http://www.cplusplus.com/reference/cstdio/printf/">printf</a> routine in C/C++ and accepts a variable number of arguments. In particular, this is intended to accept <a class="reference external" href="http://www.cplusplus.com/reference/cstdio/printf/">formatted data</a> to embed formatted integers, floats, strings, etc. in the output message. An example of this feature in use is given below:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.log</span> <span class="kn">as</span> <span class="nn">log</span>
@@ -247,8 +247,9 @@ RuntimeError: This is an ERROR message</pre>
 </pre></div>
 </div>
 <p>This will result in the following output messages to be printed to the console and stored to the log file:</p>
-<div class="highlight-python"><pre>[  NORMAL ]  Hello World! My name is Will Boyd
-[  NORMAL ]  I am 26 years old. My favorite # is 3.141593</pre>
+<div class="highlight-python"><div class="highlight"><pre>[  NORMAL ]  Hello World! My name is Will Boyd
+[  NORMAL ]  I am 26 years old. My favorite # is 3.141593
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -392,10 +393,10 @@ also sometimes referred to as combinatorial geometry. CSG allows a user to
 create complex objects using Boolean operators on a set of simpler surfaces. In
 the geometry model, each unique closed volume is defined by its bounding
 surfaces. The CSG formulation used in OpenMOC is described in more detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#constructive-solid-geometry"><em>Constructive Solid Geometry</em></a>.</p>
-<p>The following sections detail how to create surfaces, cells, universes and lattices to construct a simple 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 pin cell lattice.</p>
+<p>The following sections detail how to create surfaces, cells, universes and lattices to construct a simple 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 pin cell lattice.</p>
 <div class="section" id="surfaces">
 <h3>3.4.1. Surfaces<a class="headerlink" href="#surfaces" title="Permalink to this headline">¶</a></h3>
-<p>In most cases, the first step towards building a reactor geometry is to create the surfaces defining boundaries between distinct regions. The CSG formulation for surfaces in OpenMOC is described in detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#surfaces-halfspaces"><em>Surfaces and Halfspaces</em></a>. For LWRs, the most typical surfaces needed to model 2D rectangular lattices are the <tt class="docutils literal"><span class="pre">Circle</span></tt>, <tt class="docutils literal"><span class="pre">XPlane</span></tt>, and <tt class="docutils literal"><span class="pre">YPlane</span></tt> classes. The following code snippet illustrates how to create a circle to represent a fuel pin and reflective boundary planes to surround a 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice.</p>
+<p>In most cases, the first step towards building a reactor geometry is to create the surfaces defining boundaries between distinct regions. The CSG formulation for surfaces in OpenMOC is described in detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#surfaces-halfspaces"><em>Surfaces and Halfspaces</em></a>. For LWRs, the most typical surfaces needed to model 2D rectangular lattices are the <tt class="docutils literal"><span class="pre">Circle</span></tt>, <tt class="docutils literal"><span class="pre">XPlane</span></tt>, and <tt class="docutils literal"><span class="pre">YPlane</span></tt> classes. The following code snippet illustrates how to create a circle to represent a fuel pin and reflective boundary planes to surround a 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize circular fuel pin surface</span>
 <span class="n">circle</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)</span>
 
@@ -476,9 +477,9 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 <col width="50%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><img alt="../_images/pin-cell-fsrs-1.png" class="first last align-right" id="figa" src="../_images/pin-cell-fsrs-1.png" style="width: 50%;" />
+<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/pin-cell-fsrs-1.png" id="figa"><img alt="../_images/pin-cell-fsrs-1.png" class="align-right" id="figa" src="../_images/pin-cell-fsrs-1.png" style="width: 50%;" /></a>
 </td>
-<td><img alt="../_images/pin-cell-fsrs-2.png" class="first last align-left" id="figb" src="../_images/pin-cell-fsrs-2.png" style="width: 50%;" />
+<td><a class="first last reference internal image-reference" href="../_images/pin-cell-fsrs-2.png" id="figb"><img alt="../_images/pin-cell-fsrs-2.png" class="align-left" id="figb" src="../_images/pin-cell-fsrs-2.png" style="width: 50%;" /></a>
 </td>
 </tr>
 </tbody>
@@ -494,7 +495,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 </div>
 <div class="section" id="lattices">
 <h3>3.4.4. Lattices<a class="headerlink" href="#lattices" title="Permalink to this headline">¶</a></h3>
-<p>Once the cells for the geometry have been created, OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Lattice</span></tt> class may be used to represent repeating patterns of the cells on a rectangular array. The CSG formulation for lattices is described further in <a class="reference internal" href="../methods/constructive_solid_geometry.html#lattices"><em>Lattices</em></a>. In OpenMOC, the <tt class="docutils literal"><span class="pre">Lattice</span></tt> class is a subclass of the <tt class="docutils literal"><span class="pre">Universe</span></tt> class. The following code snippet illustrates the creation of a 4 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> 4 lattice with each lattice cell filled by the universe with ID = 1. The total width and height of the lattice are defined as parameters when the lattice is initialized. The lattice dimensions are used to define the rectangular region of interest centered at the origin of each universe filling each lattice cell.</p>
+<p>Once the cells for the geometry have been created, OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Lattice</span></tt> class may be used to represent repeating patterns of the cells on a rectangular array. The CSG formulation for lattices is described further in <a class="reference internal" href="../methods/constructive_solid_geometry.html#lattices"><em>Lattices</em></a>. In OpenMOC, the <tt class="docutils literal"><span class="pre">Lattice</span></tt> class is a subclass of the <tt class="docutils literal"><span class="pre">Universe</span></tt> class. The following code snippet illustrates the creation of a 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice with each lattice cell filled by the universe with ID = 1. The total width and height of the lattice are defined as parameters when the lattice is initialized. The lattice dimensions are used to define the rectangular region of interest centered at the origin of each universe filling each lattice cell.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize the lattice for the geometry</span>
 <span class="n">lattice</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Lattice</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">width_x</span><span class="o">=</span><span class="mf">5.04</span><span class="p">,</span> <span class="n">width_y</span><span class="o">=</span><span class="mf">5.04</span><span class="p">)</span>
 
@@ -559,7 +560,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 <div><ul class="simple">
 <li><tt class="docutils literal"><span class="pre">ThreadPrivateSolver</span></tt> - multi-core CPUs, less memory efficient, excellent parallel scaling <a class="footnote-reference" href="#id3" id="id1">[1]</a></li>
 <li><tt class="docutils literal"><span class="pre">CPUSolver</span></tt> - multi-core CPUs, memory efficient, poor parallel scaling</li>
-<li><tt class="docutils literal"><span class="pre">GPUSolver</span></tt> - GPUs, 30-50 <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> faster than CPUs <a class="footnote-reference" href="#id4" id="id2">[2]</a></li>
+<li><tt class="docutils literal"><span class="pre">GPUSolver</span></tt> - GPUs, 30-50 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> faster than CPUs <a class="footnote-reference" href="#id4" id="id2">[2]</a></li>
 </ul>
 </div></blockquote>
 <p>The following code snippet illustrates the instantiation of the <tt class="docutils literal"><span class="pre">ThreadPrivateSolver</span></tt> for multi-core CPUs. The code assigns runtime parameters to the solver and calls the <tt class="docutils literal"><span class="pre">convergeSource(...)</span></tt> routine to execute the <a class="reference internal" href="../methods/eigenvalue_calculations.html#figure-overall-iterative-scheme"><em>MOC Source Iteration Algorithm</em></a>.</p>
@@ -667,7 +668,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
 <script type="text/javascript">
 

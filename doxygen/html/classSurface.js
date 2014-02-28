@@ -20,7 +20,6 @@ var classSurface =
     [ "toString", "classSurface.html#a7275a4ce4c6d96fd90b5c1916cf9ae37", null ],
     [ "_boundary_type", "classSurface.html#a73ff438f865a0694735877998dce0d91", null ],
     [ "_id", "classSurface.html#a8bb880c5fad9e000352651028c1e93a9", null ],
-    [ "_n", "classSurface.html#af29013bb2235204f570e86d62bca4a1f", null ],
     [ "_surface_type", "classSurface.html#a2b8655eb5a953ea4b45abe5fab7831d0", null ],
     [ "_uid", "classSurface.html#aea05fdb4d9e26103dfb66c6833f66b4a", null ]
 ];

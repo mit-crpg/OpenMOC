@@ -32,6 +32,7 @@ var searchData=
   ['getcellsx',['getCellsX',['../classMesh.html#ac8e3c415c1b6c11a9fdea408dc924caa',1,'Mesh']]],
   ['getcellsy',['getCellsY',['../classMesh.html#a74808bdb6bffae46b7b875eb415109a2',1,'Mesh']]],
   ['getchi',['getChi',['../classMaterial.html#a5d5966fb7c5718246d8d03a14c1c4564',1,'Material']]],
+  ['getcmfdacceleration',['getCmfdAcceleration',['../classopenmoc_1_1options_1_1Options.html#ad55d8cb88293dae59e99e5c6963ea73b',1,'openmoc::options::Options']]],
   ['getcmfdgroupwidth',['getCmfdGroupWidth',['../classCmfd.html#a02e93f352631900316a2f82be78ba38d',1,'Cmfd']]],
   ['getcmfdmeshlevel',['getCmfdMeshLevel',['../classopenmoc_1_1options_1_1Options.html#a2c3b41e0e3adaba144ad0e1c0aa2e59d',1,'openmoc::options::Options']]],
   ['getcmfdon',['getCmfdOn',['../classMesh.html#a0286b4dfbca37b921dc5919a2e47b59a',1,'Mesh']]],

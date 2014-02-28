@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -11,7 +10,6 @@
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -25,10 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="OpenMOC API" href="index.html" />
-    <link rel="next" title="CellFill" href="cellfill.html" />
-    <link rel="prev" title="Circle" href="circle.html" /> 
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,14 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="cellfill.html" title="CellFill"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="circle.html" title="Circle"
-             accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">OpenMOC API</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -55,255 +43,6 @@
             
   <div class="section" id="cell">
 <span id="id1"></span><h1>Cell<a class="headerlink" href="#cell" title="Permalink to this headline">¶</a></h1>
-<div class="line-block">
-<div class="line" id=""><span id="OpenMOCclassCell"></span><em>class</em> <strong>Cell</strong></div>
-</div>
-<blockquote>
-<div><p>Represents a cell inside of a universe. </p>
-<p></p>
-<em>Public Functions</em><blockquote>
-<div><p id=""><span id="OpenMOCclassCell_1a394510643e8664cf12b5efaf5cb99f71"></span><div class="line-block">
-<div class="line"> <strong>Cell</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Default constructor used in rings/sectors subdivision of cells. </p>
-<p></p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1a42507131912fad0ec04a7c398456322a"></span><div class="line-block">
-<div class="line"> <strong>Cell</strong>(short int universe, short int id = 0)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Constructor sets the unique and user-specifed IDs for this cell. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">id</span></tt> - <p>the user-specified cell ID </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">universe</span></tt> - <p>the ID of the universe within which this cell resides </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1a9fa559f7a28e2b4336c6879ca09304d8"></span><div class="line-block">
-<div class="line"> <strong>~Cell</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Destructor frees all surfaces making up cell. </p>
-<p></p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1a27be5077c04eaf21747b1e6101495ba4"></span><div class="line-block">
-<div class="line">short int <strong>getUid</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the cell&#8217;s unique ID. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the cell&#8217;s unique ID </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1a5ee7d2b6a1ed18804d207f937e3defaf"></span><div class="line-block">
-<div class="line">short int <strong>getId</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the cell&#8217;s user-specified ID. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the cell&#8217;s user-specified ID </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1af0421cc4cbb034947b2b7ec18c6df7d0"></span><div class="line-block">
-<div class="line">cellType <strong>getType</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the cell type (FILL or MATERIAL). </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the cell type </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1af4af1af3638b0c9a64d0b8f3f12f0e30"></span><div class="line-block">
-<div class="line">short int <strong>getUniverse</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the ID of the universe within which this cell resides. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the universe ID </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1a7c3defd6e47e454df12891d2f9c90405"></span><div class="line-block">
-<div class="line">short int <strong>getNumSurfaces</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the number of surfaces in the cell. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the number of surfaces </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1a212ae4536a8da3258fcdb5b3ab36a3a0"></span><div class="line-block">
-<div class="line">std::map&lt; short int,  <a class="reference internal" href="surface.html#OpenMOCclassSurface"><em>Surface</em></a>  * &gt; <strong>getSurfaces</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the hashtable of surfaces IDs and surface pointers for all surfaces making up the cell. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>map of surface IDs and surface pointers </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1a7e47c4f454dc5ee6689e48a5f3770f43"></span><div class="line-block">
-<div class="line">int <strong>getNumFSRs</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the number of flat source regions in this cell. </p>
-<p>This method is used when the geometry recursively constructs flat source regions. <dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the number of FSRs in this cell </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1aaf4b5dcb6f7e1dc7121f6bdf5f69aa09"></span><div class="line-block">
-<div class="line">void <strong>setUniverse</strong>(short int universe)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the ID for teh universe within whic this cell resides. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">universe</span></tt> - <p>the universe&#8217;s user-specified ID </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1aa3dc5df3090ba776ea817b5a8385616b"></span><div class="line-block">
-<div class="line">void <strong>addSurface</strong>(short int halfspace, <a class="reference internal" href="surface.html#OpenMOCclassSurface"><em>Surface</em></a>  * surface)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Insert the a surface into this cell&#8217;s container. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">halfspace</span></tt> - <p>the surface halfspace (positive/negative for surface side) </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">surface</span></tt> - <p>a pointer to the surface </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1ad6a1e2e87f6708663dddb370d670a067"></span><div class="line-block">
-<div class="line">void <strong>setSurfacePointer</strong>(<a class="reference internal" href="surface.html#OpenMOCclassSurface"><em>Surface</em></a>  * surface)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Registers a surface pointer with the <a class="reference internal" href="#OpenMOCclassCell"><em>Cell</em></a>&#8216;s surfaces map. </p>
-<p>This method is used by the geometry whenever a new cell is added to it. <dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">surface</span></tt> - <p>the surface pointer </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1a7ccb9a3084719a36a170bed2cd48a593"></span><div class="line-block">
-<div class="line">bool <strong>cellContainsPoint</strong>(<a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * point)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Determines whether a point is contained inside a cell. </p>
-<p>Queries each surface inside the cell to determine if the point particle is on the same side of the surface. This point is only inside the cell if it is on the same side of every surface in the cell. <dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">point</span></tt> - <p>a pointer to a point </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1a89c95a180daff341176d78c5d573da53"></span><div class="line-block">
-<div class="line">bool <strong>cellContainsCoords</strong>(LocalCoords  * coords)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Determines whether a point is contained inside a cell. </p>
-<p>Queries each surface inside the cell to determine if the particle is on the same side of the surface. This particle is only inside the cell if it is on the same side of every surface in the cell. <dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">coords</span></tt> - <p>a pointer to a localcoord </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1adf41aafa99278a759d8d6ae826c7330e"></span><div class="line-block">
-<div class="line">double <strong>minSurfaceDist</strong>(<a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * point, double angle, <a class="reference internal" href="point.html#OpenMOCclassPoint"><em>Point</em></a>  * min_intersection)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Computes the minimum distance to a surface from a point with a given trajectory at a certain angle. </p>
-<p>If the trajectory will not intersect any of the surfaces in the cell* returns INFINITY. <dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">point</span></tt> - <p>the point of interest </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">angle</span></tt> - <p>the angle of the trajectory (in radians from 0 to 2*PI) </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">min_intersection</span></tt> - <p>a pointer to the intersection point that is found </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1a4a84efc6a82f7abe42d9a6dc990c70e6"></span><div class="line-block">
-<div class="line">std::string <strong>toString</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Convert this cellfill&#8217;s attributes to a string format. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>a character array of this cell&#8217;s attributes </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassCell_1af53a3407201aaaebf593939e1b7a69fb"></span><div class="line-block">
-<div class="line">void <strong>printString</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Prints a string representation of all of the cells&#8217;s objects to the console. </p>
-<p></p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 </div>
 
 
@@ -312,12 +51,9 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="circle.html"
-                        title="previous chapter">Circle</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="cellfill.html"
-                        title="next chapter">CellFill</a></p>
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/openmoc-logo-sphinx.png" alt="Logo"/>
+            </a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/api/cell.txt"
@@ -346,20 +82,13 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="cellfill.html" title="CellFill"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="circle.html" title="Circle"
-             >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >OpenMOC API</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
 <script type="text/javascript">
 

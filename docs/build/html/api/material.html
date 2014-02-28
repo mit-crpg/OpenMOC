@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -11,7 +10,6 @@
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -25,10 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="OpenMOC API" href="index.html" />
-    <link rel="next" title="Timer" href="timer.html" />
-    <link rel="prev" title="Quadrature" href="quadrature.html" /> 
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,14 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="timer.html" title="Timer"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="quadrature.html" title="Quadrature"
-             accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">OpenMOC API</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -55,492 +43,6 @@
             
   <div class="section" id="material">
 <span id="id1"></span><h1>Material<a class="headerlink" href="#material" title="Permalink to this headline">¶</a></h1>
-<div class="line-block">
-<div class="line" id=""><span id="OpenMOCclassMaterial"></span><em>class</em> <strong>Material</strong></div>
-</div>
-<blockquote>
-<div><p>The material class represents a unique material and its relevant nuclear data (ie, multigroup cross-sections) for neutron transport. </p>
-<p></p>
-<em>Public Functions</em><blockquote>
-<div><p id=""><span id="OpenMOCclassMaterial_1a3aeffba703966e0c9c971209455f77a9"></span><div class="line-block">
-<div class="line"> <strong>Material</strong>(short int id)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Constructor sets the ID and unique ID for the material. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">id</span></tt> - <p>the user-defined id for the material </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a2c19452d71f54075df8f5405b03129f4"></span><div class="line-block">
-<div class="line"> <strong>~Material</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Destructor deletes all cross-section data. </p>
-<p></p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a95de130b248a20f9237793ab92e494a3"></span><div class="line-block">
-<div class="line">int <strong>getUid</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the material&#8217;s unique ID. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the material&#8217;s unique ID </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1adf33854b14118543ec16888b33595cc9"></span><div class="line-block">
-<div class="line">short int <strong>getId</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the material&#8217;s user-defined ID. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the material&#8217;s user-defined ID </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a50683c7b7c62f1473809c51f37af5a13"></span><div class="line-block">
-<div class="line">int <strong>getNumEnergyGroups</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Returns the number of energy groups for this material&#8217;s nuclear data. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the number of energy groups </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a79a0abbbfb65002dd7e59e6e1d871faa"></span><div class="line-block">
-<div class="line">double * <strong>getSigmaT</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the array of the material&#8217;s total cross-sections. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the pointer to the material&#8217;s array of total cross-sections </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1ada8e6ff3194dc56f5c9ebd6947b20418"></span><div class="line-block">
-<div class="line">double * <strong>getSigmaA</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the array of the material&#8217;s absorption cross-sections. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the pointer to the material&#8217;s array of absorption cross-sections </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a8c771a7e51ac3a9323226f91cad432a0"></span><div class="line-block">
-<div class="line">double * <strong>getSigmaS</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the array of the material&#8217;s scattering cross-section matrix. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the pointer to the material&#8217;s array of scattering cross-sections </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a36a0b94a5b3d19add9582e9dba9fce2c"></span><div class="line-block">
-<div class="line">double * <strong>getSigmaF</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the array of the material&#8217;s fission cross-sections. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the pointer to the material&#8217;s array of fission cross-sections </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1ab9dfbf1074438717d8699601f5bb1339"></span><div class="line-block">
-<div class="line">double * <strong>getNuSigmaF</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the array of the material&#8217;s fission cross-sections multiplied by nu <img class="math" src="../_images/math/90a2a9743a0ecc4ab6d6ce9e38e1e7f876ac970c.png" alt="\nu"/>. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the pointer to the material&#8217;s array of fission cross-sections multiplied by nu <img class="math" src="../_images/math/90a2a9743a0ecc4ab6d6ce9e38e1e7f876ac970c.png" alt="\nu"/> </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a542b94d86be7e2c63b4aec8cd4dde1cb"></span><div class="line-block">
-<div class="line">double * <strong>getChi</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Return the array of the material&#8217;s chi <img class="math" src="../_images/math/480886fbaa27cf48736c2f1aece16be69e668f20.png" alt="\chi"/>. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the pointer to the material&#8217;s array of chi <img class="math" src="../_images/math/480886fbaa27cf48736c2f1aece16be69e668f20.png" alt="\chi"/> values </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a2e0a8759604823c08a695cce843120d4"></span><div class="line-block">
-<div class="line">bool <strong>isDataAligned</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Returns true if the data is vector aligned, false otherwise (default). </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>Whether or not the materials data is vector aligned </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1aafa74846dbee967669b0017bf61c724e"></span><div class="line-block">
-<div class="line">int <strong>getNumVectorGroups</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Returns the rounded up number of energy groups to fill an integral number of vector lengths. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>The number of vector-aligned energy groups </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a5650368fddfd9793205bf6b05f25ee60"></span><div class="line-block">
-<div class="line">void <strong>setNumEnergyGroups</strong>(const int num_groups)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the number of energy groups for this material. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">num_groups</span></tt> - <p>the number of energy groups. </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a2949b239adb57bd0053ab9e4e5bd9d65"></span><div class="line-block">
-<div class="line">void <strong>setSigmaT</strong>(double * xs, int num_groups)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s array of total cross-sections. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the array of total cross-sections </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">num_groups</span></tt> - <p>the number of energy groups </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a73890393a3c599dd9697af4af9b5a5f0"></span><div class="line-block">
-<div class="line">void <strong>setSigmaA</strong>(double * xs, int num_groups)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s array of absorption scattering cross-sections. </p>
-<p>This method is intended to be called from <dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the array of absorption scattering cross-sections </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">num_groups</span></tt> - <p>the number of energy groups </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1acebc8e4e35bbcf9a9e6d3f183a1e7568"></span><div class="line-block">
-<div class="line">void <strong>setSigmaS</strong>(double * xs, int num_groups num_groups_squared)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s 2D array of scattering cross-sections. </p>
-<p>This assumes that the scattering matrix passed in has the standard notation: the ij element is for scattering from group i to j. For efficient caching of the elements of this matrix during fixed source iteration, the matrix transpose is what is actually stored in the material <dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the array of scattering cross-sections </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">num_groups_squared</span></tt> - <p>the number of energy groups squared </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a3240f3778b1a6690a5c3fc008ce79cca"></span><div class="line-block">
-<div class="line">void <strong>setSigmaF</strong>(double * xs, int num_groups)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s array of fission cross-sections. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the array of fission cross-sections </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">num_groups</span></tt> - <p>the number of energy groups </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a5a330fb2c6408c1d60ec9516337a65fa"></span><div class="line-block">
-<div class="line">void <strong>setNuSigmaF</strong>(double * xs, int num_groups)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s array of fission cross-sections multiplied by <img class="math" src="../_images/math/90a2a9743a0ecc4ab6d6ce9e38e1e7f876ac970c.png" alt="\nu"/>. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the array of fission cross-sections multiplied by nu <img class="math" src="../_images/math/90a2a9743a0ecc4ab6d6ce9e38e1e7f876ac970c.png" alt="\nu"/> </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">num_groups</span></tt> - <p>the number of energy groups </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a114afbe76bed5364472bf9a46d72adea"></span><div class="line-block">
-<div class="line">void <strong>setChi</strong>(double * xs, int num_groups)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s array of <img class="math" src="../_images/math/480886fbaa27cf48736c2f1aece16be69e668f20.png" alt="\chi"/> values. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the array of chi <img class="math" src="../_images/math/480886fbaa27cf48736c2f1aece16be69e668f20.png" alt="\chi"/> values </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">num_groups</span></tt> - <p>the number of energy groups </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a61fd26dde452e699b2b2531b993d2cab"></span><div class="line-block">
-<div class="line">void <strong>setSigmaTByGroup</strong>(double xs, int group)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s total cross-section for some energy group. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the total cross-section ( <img class="math" src="../_images/math/7acfee8b0909e14afe49917dc0732c87bb86bcc1.png" alt="\Sigma_t [cm^1]"/>) </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">group</span></tt> - <p>the energy group </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a4bedbd3883a56bf47b903417b34676fc"></span><div class="line-block">
-<div class="line">void <strong>setSigmaAByGroup</strong>(double xs, int group)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s absorption cross-section for some energy group. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the absorption cross-section ( <img class="math" src="../_images/math/1d83571ce973c769fab06e5207ce3afb387ddbc9.png" alt="\Sigma_a [cm^1]"/>) </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">group</span></tt> - <p>the energy group </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a9a5b3e747ee51343327b22356549bf20"></span><div class="line-block">
-<div class="line">void <strong>setSigmaFByGroup</strong>(double xs, int group)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s fission cross-section for some energy group. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the fission cross-section ( <img class="math" src="../_images/math/3bad3e4edda2dcad5058005e55203e54947ffa9c.png" alt="\Sigma_f [cm^1]"/>) </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">group</span></tt> - <p>the energy group </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a4929d58a0e80b155cd1d115edbc15819"></span><div class="line-block">
-<div class="line">void <strong>setNuSigmaFByGroup</strong>(double xs, int group)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s fission cross-section multiplied by <img class="math" src="../_images/math/90a2a9743a0ecc4ab6d6ce9e38e1e7f876ac970c.png" alt="\nu"/> for some energy group. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the fission cross-section ( <img class="math" src="../_images/math/87f45443e7139dfb820b7d50688794b1fb8d50f6.png" alt="\nu\Sigma_f [cm^1]"/>) </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">group</span></tt> - <p>the energy group </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1afa089d512b06b16196cd327502862689"></span><div class="line-block">
-<div class="line">void <strong>setSigmaSByGroup</strong>(double xs, int group1, int group2)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s scattering cross-section for some energy group. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the scattering cross-section ( <img class="math" src="../_images/math/19d3eb37291ba74f6cf27442f9aa8eb039a553dc.png" alt="\Sigma_s [cm^1]"/>) </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">group1</span></tt> - <p>the row index in the scattering matrix </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">group2</span></tt> - <p>the column index in the scattering matrix </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a05006775ab7559d41479842043fd2e33"></span><div class="line-block">
-<div class="line">void <strong>setChiByGroup</strong>(double xs, int group)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the material&#8217;s chi value for some energy group. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">xs</span></tt> - <p>the chi value ( <div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils"> \Chi </tt>)</p>
-<p>latex exited with error:
-[stderr]
-
-[stdout]
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian)
- restricted \write18 enabled.
-entering extended mode
-(./math.tex
-LaTeX2e &lt;2011/06/27&gt;
-Babel &lt;v3.8m&gt; and hyphenation patterns for english, dumylang, nohyphenation, et
-hiopic, farsi, arabic, pinyin, croatian, bulgarian, ukrainian, russian, slovak,
- czech, danish, dutch, usenglishmax, ukenglish, finnish, french, basque, ngerma
-n, german, swissgerman, ngerman-x-2012-05-30, german-x-2012-05-30, monogreek, g
-reek, ibycus, ancientgreek, hungarian, bengali, tamil, hindi, telugu, gujarati,
- sanskrit, malayalam, kannada, assamese, marathi, oriya, panjabi, italian, lati
-n, latvian, lithuanian, mongolian, mongolianlmc, nynorsk, bokmal, indonesian, e
-speranto, coptic, welsh, irish, interlingua, serbian, serbianc, slovenian, friu
-lan, romansh, estonian, romanian, armenian, uppersorbian, turkish, afrikaans, i
-celandic, kurmanji, polish, portuguese, galician, catalan, spanish, swedish, th
-ai, loaded.
-(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
-Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
-(/usr/share/texlive/texmf-dist/tex/latex/base/size12.clo))
-(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
-(/usr/share/texlive/texmf-dist/tex/latex/ucs/utf8x.def))
-(/usr/share/texlive/texmf-dist/tex/latex/ucs/ucs.sty
-(/usr/share/texlive/texmf-dist/tex/latex/ucs/data/uni-global.def))
-(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
-For additional information on amsmath, use the `?&#8217; option.
-(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
-(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))
-(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)
-(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty))
-(/usr/share/texlive/texmf-dist/tex/latex/amscls/amsthm.sty)
-(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
-(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))
-(/usr/share/texlive/texmf-dist/tex/latex/tools/bm.sty) (./math.aux)
-(/usr/share/texlive/texmf-dist/tex/latex/ucs/ucsencs.def)
-(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd)
-(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd)
-! Undefined control sequence.
-l.12 $ \Chi
-            $
-[1] (./math.aux) )
-(see the transcript file for additional information)
-Output written on math.dvi (1 page, 152 bytes).
-Transcript written on math.log.
-</p>
-</div>
-) </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">group</span></tt> - <p>the energy group </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a2defb57596c868a773cea7c094fe61f6"></span><div class="line-block">
-<div class="line">void <strong>checkSigmaT</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Checks if the total cross-section for this material is equal to the absorption plus scattering cross-sections for all energy groups. </p>
-<p>If the total cross-section does not equal the absorption plus scattering cross-section within SIGMA_T_THRESH (defined in openmoc/src/host/configurations.h) then this method exits OpenMOC. </p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a72f180d85439497ffc732718166e5634"></span><div class="line-block">
-<div class="line">std::string <strong>toString</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Converts this material&#8217;s attributes to a character array representation. </p>
-<p>The character array returned includes the user-defined ID, and each of the absorption, total, fission, nu multiplied by fission and scattering cross-sections and chi for all energy groups. <dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>character array of this member&#8217;s attributes </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a5901b75e048d7b55616a3f53a983390e"></span><div class="line-block">
-<div class="line">void <strong>printString</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Prints a string representation of all of the material&#8217;s objects to the console. </p>
-<p></p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassMaterial_1a68937e22f1c8369a4f03506c8a356cb6"></span><div class="line-block">
-<div class="line">void <strong>alignData</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Aligns the cross-section data structures. </p>
-<p></p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 </div>
 
 
@@ -549,12 +51,9 @@ Transcript written on math.log.
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="quadrature.html"
-                        title="previous chapter">Quadrature</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="timer.html"
-                        title="next chapter">Timer</a></p>
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/openmoc-logo-sphinx.png" alt="Logo"/>
+            </a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/api/material.txt"
@@ -583,20 +82,13 @@ Transcript written on math.log.
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="timer.html" title="Timer"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="quadrature.html" title="Quadrature"
-             >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >OpenMOC API</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
 <script type="text/javascript">
 

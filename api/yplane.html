@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -11,7 +10,6 @@
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -25,10 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="OpenMOC API" href="index.html" />
-    <link rel="next" title="ZPlane" href="zplane.html" />
-    <link rel="prev" title="XPlane" href="xplane.html" /> 
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,14 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="zplane.html" title="ZPlane"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="xplane.html" title="XPlane"
-             accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">OpenMOC API</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -55,129 +43,6 @@
             
   <div class="section" id="yplane">
 <span id="id1"></span><h1>YPlane<a class="headerlink" href="#yplane" title="Permalink to this headline">¶</a></h1>
-<div class="line-block">
-<div class="line" id=""><span id="OpenMOCclassYPlane"></span><em>class</em> <strong>YPlane</strong></div>
-</div>
-<blockquote>
-<div><p>Represents a plane perpendicular to the y-axis. </p>
-<p></p>
-<em>Public Functions</em><blockquote>
-<div><p id=""><span id="OpenMOCclassYPlane_1a9e04f6233f8a1ea659ad5fee27ee54c2"></span><div class="line-block">
-<div class="line"> <strong>YPlane</strong>(const double y, const short int id = 0)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Constructor for a plane perpendicular to the y-axis. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">id</span></tt> - <p>the surface id </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">y</span></tt> - <p>the location of the plane along the y-axis </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassYPlane_1a899cafc6a3533efd3fa32dd1fdfdc3ba"></span><div class="line-block">
-<div class="line">void <strong>setY</strong>(const double y)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Set the location of this yplane on the y-axis. </p>
-<p><dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">y</span></tt> - <p>the location of the yplane on the y-axis </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassYPlane_1a238909f9532b3b06bae42903a47b9f67"></span><div class="line-block">
-<div class="line">double <strong>getY</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Returns the location of the yplane on the y-axis. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the location of the yplane on the y-axis </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassYPlane_1ac3516c324a84328918483ba4fb9ed3b0"></span><div class="line-block">
-<div class="line">double <strong>getXMin</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Returns the minimum x value of -INFINITY on this yplane. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the minimum x value of -INFINITY </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassYPlane_1a826121aa104801c8de740bdf35b8719b"></span><div class="line-block">
-<div class="line">double <strong>getXMax</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Returns the maximum x value of INFINITY on this yplane. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the maximum x value of INFINITY </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassYPlane_1ad31d977334c0839649588b2382c6d316"></span><div class="line-block">
-<div class="line">double <strong>getYMin</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Returns the minimum y value on this yplane. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the minimum y value </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassYPlane_1a68f1585c4575003ef500e95bd21475f1"></span><div class="line-block">
-<div class="line">double <strong>getYMax</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Returns the maximum y value on this yplane. </p>
-<p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>the maximum y value </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassYPlane_1a90e984e54368bc0508c82e86b05de286"></span><div class="line-block">
-<div class="line">std::string <strong>toString</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Converts this yplane&#8217;s attributes to a character array. </p>
-<p>The character array returned conatins the type of plane (ie, YPLANE) and the A, B, and C coefficients in the quadratic surface equation and the location of the plane on the y-axis. <dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd>a character array of this yplane&#8217;s attributes </dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassYPlane_1a0be4dfa4623eaf137fdd0324bfe1e7ea"></span><div class="line-block">
-<div class="line">void <strong>printString</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Prints a string representation of all of the yplane&#8217;s objects to the console. </p>
-<p></p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 </div>
 
 
@@ -186,12 +51,9 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="xplane.html"
-                        title="previous chapter">XPlane</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="zplane.html"
-                        title="next chapter">ZPlane</a></p>
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/openmoc-logo-sphinx.png" alt="Logo"/>
+            </a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/api/yplane.txt"
@@ -220,20 +82,13 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="zplane.html" title="ZPlane"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="xplane.html" title="XPlane"
-             >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >OpenMOC API</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
 <script type="text/javascript">
 

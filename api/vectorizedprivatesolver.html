@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -11,7 +10,6 @@
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/breathe.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -25,10 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="OpenMOC API" href="index.html" />
-    <link rel="next" title="Surface" href="surface.html" />
-    <link rel="prev" title="VectorizedSolver" href="vectorizedsolver.html" /> 
+    <link rel="top" title="OpenMOC Documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,14 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="surface.html" title="Surface"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="vectorizedsolver.html" title="VectorizedSolver"
-             accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">OpenMOC API</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -55,41 +43,6 @@
             
   <div class="section" id="vectorizedprivatesolver">
 <span id="id1"></span><h1>VectorizedPrivateSolver<a class="headerlink" href="#vectorizedprivatesolver" title="Permalink to this headline">¶</a></h1>
-<div class="line-block">
-<div class="line" id=""><span id="OpenMOCclassVectorizedPrivateSolver"></span><em>class</em> <strong>VectorizedPrivateSolver</strong></div>
-</div>
-<blockquote>
-<div><p>This is a subclass of the <a class="reference internal" href="vectorizedsolver.html#OpenMOCclassVectorizedSolver"><em>VectorizedSolver</em></a> class. This class uses a thread private array for flat source region scalar fluxes during each transport sweep to avoid the use of OpenMP atomics. It also uses memory-aligned data structures and Intel&#8217;s auto-vectorization. </p>
-<p></p>
-<em>Public Functions</em><blockquote>
-<div><p id=""><span id="OpenMOCclassVectorizedPrivateSolver_1a1de9e8c8035a2a241e76942937d09428"></span><div class="line-block">
-<div class="line"> <strong>VectorizedPrivateSolver</strong>(<a class="reference internal" href="geometry.html#OpenMOCclassGeometry"><em>Geometry</em></a>  * geometry = NULL, <a class="reference internal" href="trackgenerator.html#OpenMOCclassTrackGenerator"><em>TrackGenerator</em></a>  * track_generator = NULL)</div>
-</div>
-</p>
-<blockquote>
-<div><p>Constructor initializes empty arrays for source, flux, etc. </p>
-<p>The construcor retrieves the number of energy groups and flat source regions and azimuthal angles from the geometry and track generator, and uses this to initialie empty arrays for the flat source regions, boundary angular fluxes, scalar flatsourcergion fluxes, flatsourceregion sources and flatsourceregion powers. The constructor initalizes the number of threads to a default of 1. <dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="breatheparameterlist first last">
-<li><tt class="first docutils literal"><span class="pre">geometry</span></tt> - <p>an optional pointer to the geometry </p>
-</li>
-<li><tt class="first docutils literal"><span class="pre">track_generator</span></tt> - <p>an optional pointer to the trackgenerator </p>
-</li>
-</ul>
-</dd>
-</dl>
-</p>
-</div></blockquote>
-<p id=""><span id="OpenMOCclassVectorizedPrivateSolver_1a50b87b272a9188c0de0d5a09472d7c51"></span><div class="line-block">
-<div class="line"> <strong>~VectorizedPrivateSolver</strong>()</div>
-</div>
-</p>
-<blockquote>
-<div><p>Destructor deletes arrays of boundary angular flux for all tracks, scalar flux and source for each flat source region. </p>
-<p></p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 </div>
 
 
@@ -98,12 +51,9 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="vectorizedsolver.html"
-                        title="previous chapter">VectorizedSolver</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="surface.html"
-                        title="next chapter">Surface</a></p>
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/openmoc-logo-sphinx.png" alt="Logo"/>
+            </a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/api/vectorizedprivatesolver.txt"
@@ -132,20 +82,13 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="surface.html" title="Surface"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="vectorizedsolver.html" title="VectorizedSolver"
-             >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >OpenMOC API</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
 <script type="text/javascript">
 
