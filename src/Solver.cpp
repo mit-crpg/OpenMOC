@@ -55,6 +55,9 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator,
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
 
+  if (cmfd != NULL)
+    setCmfd(cmfd);
+
   /* Default polar quadrature */
   _quadrature_type = TABUCHI;
   _num_polar = 3;
@@ -66,8 +69,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator,
 
   _timer = new Timer();
 
-  if (cmfd != NULL)
-    _cmfd = cmfd;
 }
 
 
@@ -424,12 +425,11 @@ void Solver::initializeCmfd(){
 
   /* Initialize a dummy CMFD object if one has not been set */
   if (_cmfd == NULL)
-    _cmfd = new Cmfd(_geometry, MOC);
+    _cmfd = new Cmfd(_geometry);
 
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
-  _cmfd->getMesh()->setSurfaceCurrents(_surface_currents);
 }
 
 
@@ -541,6 +541,9 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
   initializeFSRs();
   initializeCmfd();
 
+  if (_cmfd->getMesh()->getAcceleration())
+    _cmfd->getMesh()->setSurfaceCurrents(_surface_currents);
+
   /* Check that each FSR has at least one segment crossing it */
   checkTrackSpacing();
 
@@ -549,10 +552,6 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
   flattenFSRSources(1.0);
   zeroTrackFluxes();
 
-  /* If using CMFD acceleration, initialize the Cmfd object */
-  if (_cmfd->getMesh()->getAcceleration())
-    initializeCmfd();
-
   /* Source iteration loop */
   for (int i=0; i < max_iterations; i++) {
 
@@ -560,13 +559,15 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
                "\tres = %1.3E", i, _k_eff, residual);
 
     normalizeFluxes();
+
     residual = computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
 
     /* Update the flux with cmfd */
-    if (_cmfd->getMesh()->getAcceleration())
+    if (_cmfd->getMesh()->getAcceleration()){
       _k_eff = _cmfd->computeKeff();
+    }
 
     computeKeff();
 

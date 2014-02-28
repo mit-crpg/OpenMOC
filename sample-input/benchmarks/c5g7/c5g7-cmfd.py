@@ -17,7 +17,7 @@ num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 relax_factor = options.getCmfdRelaxationFactor()
-acceleration = options.useCmfdAccleration()
+acceleration = options.getCmfdAcceleration()
 mesh_level = options.getCmfdMeshLevel()
 
 log.set_log_level('NORMAL')
@@ -344,7 +344,7 @@ log.py_printf('NORMAL', 'Creating cmfd module...')
 
 cmfd = Cmfd(geometry)
 cmfd.setOmega(1.50)
-cmfd.setNumCmfdGroups(3)
+cmfd.setNumCmfdGroups(2)
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################

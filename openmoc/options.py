@@ -88,7 +88,7 @@ class Options:
   def parseArguments(self):
     try:
       opts, args = getopt.getopt(sys.argv[1:],
-                                 'ha:s:i:c:t:b:g:r:f:l:',
+                                 'hfa:s:i:c:t:b:g:r:l:',
                                  ['help',
                                   'num-azim=',
                                   'track-spacing=',
@@ -98,7 +98,7 @@ class Options:
                                   'num-thread-blocks=',
                                   'num-gpu-threads=',
                                   'relax-factor=',
-                                  'acceleration=',
+                                  'cmfd-acceleration',
                                   'mesh-level='])
 
     except getopt.GetoptError as err:
@@ -155,8 +155,9 @@ class Options:
         relax_factor += 'The cmfd relaxation factor\n'
         print relax_factor
 
-        acceleration = '\t{: <35}'.format('-f, --acceleration=<False>')
-        relax_factor += 'The cmfd acceleration flag\n\n'
+        acceleration = '\t{: <35}'.format('-f, --cmfd-acceleration=<False>')
+        acceleration += 'The cmfd acceleration flag\n'
+        print acceleration
 
         mesh_level = '\t{: <35}'.format('-l, --mesh-level=<-1>')
         mesh_level += 'The mesh level\n'
@@ -185,8 +186,8 @@ class Options:
       elif opt in ('-g', '--num-gpu-threads'):
         self._num_gpu_threads = int(arg)
 
-      elif opt in ('-f', '--acceleration'):
-        self._use_cmfd_acceleration = bool(arg)
+      elif opt in ('-f', '--cmfd-acceleration'):
+        self._use_cmfd_acceleration = True
 
       elif opt in ('-r', '--relax-factor'):
         self._cmfd_relax_factor = float(arg)
@@ -247,7 +248,7 @@ class Options:
   ##
   # @brief Returns the whether or not to use CMFD acceleration.
   # @return use CMFD acceleration (true) or not (false)
-  def useCmfdAccleration(self):
+  def getCmfdAcceleration(self):
     return self._use_cmfd_acceleration
 
 

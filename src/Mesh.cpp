@@ -22,7 +22,7 @@ Mesh::Mesh(solveType solve_type, bool cmfd_on,
   /* Initialize variables */
   _cmfd_on = cmfd_on;
   _acceleration = cmfd_on;
-  _num_groups = 0;
+   _num_groups = 0;
   _num_fsrs = 0;
   _num_currents = 0;
   _num_x = 0;
@@ -453,6 +453,7 @@ void Mesh::splitCorners(){
             _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e];
           _currents[((y+1)*_num_x+x)*_num_groups*8 + e] +=
             _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e];
+
         }
       }
       /* If cell is on left or bottom geometry edge, give to bottom
@@ -461,14 +462,15 @@ void Mesh::splitCorners(){
 
         for (int e = 0; e < _num_groups; e++){
 
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f",
-                     y*_num_x+x,e,
-                     _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e]);
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f", 
+		     y*_num_x+x,e, 
+		     _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e]);
 
           _currents[(y*_num_x+x)*_num_groups*8 + 1*_num_groups + e] +=
             _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e];
           _currents[(y*_num_x+x)*_num_groups*8 + e] +=
             _currents[(y*_num_x+x)*_num_groups*8 + 4*_num_groups + e];
+
         }
       }
 
