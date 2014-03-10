@@ -6,8 +6,14 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date July 24, 2013
 
-import log
 import getopt, sys
+
+# For Python 2.X.X
+if (sys.version_info[0] == 2):
+  from log import *
+# For Python 3.X.X
+else:
+  from openmoc.log import *
 
 
 ##
@@ -102,7 +108,7 @@ class Options:
                                   'mesh-level='])
 
     except getopt.GetoptError as err:
-      log.py_printf('WARNING', str(err))
+      py_printf('WARNING', str(err))
       pass
 
 
@@ -113,55 +119,55 @@ class Options:
       # Print a report of all supported runtime options and exit
       if opt in ('-h', '--help'):
 
-        print '{:-^80}'.format('')
-        print '{: ^80}'.format('OpenMOC v.0.1.1 runtime options')
-        print '{:-^80}'.format('')
-        print
+        print('{:-^80}'.format(''))
+        print('{: ^80}'.format('OpenMOC v.0.1.1 runtime options'))
+        print('{:-^80}'.format(''))
+        print('')
 
         help_msg = '\t{: <35}'.format('-h, --help')
         help_msg = 'Report OpenMOC runtime options\n'
-        print help_msg
+        print(help_msg)
 
         num_azim = '\t{: <35}'.format('-a, --num-azim=<4>')
         num_azim += 'the number of azimuthal angles\n'
-        print num_azim
+        print(num_azim)
 
         track_spacing = '\t{: <35}'.format('-s, --track-spacing=<0.1>')
         track_spacing += 'The track spacing [cm]\n'
-        print track_spacing
+        print(track_spacing)
 
         max_iters = '\t{: <35}'.format('-i, --max-iters=<1000>')
         max_iters += 'The max number of source iterations\n'
-        print max_iters
+        print(max_iters)
 
         tolerance = '\t{: <35}'.format('-c, --tolerance=<1E-5>')
         tolerance += 'The source convergence tolerance\n'
-        print tolerance
+        print(tolerance)
 
         num_omp_threads = '\t{: <35}'.format('-t, --num-omp-threads=<1>')
         num_omp_threads += 'The number of OpenMP threads\n'
-        print num_omp_threads
+        print(num_omp_threads)
 
         num_gpu_threadblocks = '\t{: <35}'.format('-b, ' + \
                                '--num-gpu-threadblocks=<64>')
         num_gpu_threadblocks += 'The number of GPU threadblocks\n'
-        print num_gpu_threadblocks
+        print(num_gpu_threadblocks)
 
         num_gpu_threads = '\t{: <35}'.format('-g, --num-gpu-threads=<64>')
         num_gpu_threads += 'The number of GPU threads per block\n'
-        print num_gpu_threads
+        print(num_gpu_threads)
 
         relax_factor = '\t{: <35}'.format('-r, --relax-factor=<0.6>')
         relax_factor += 'The cmfd relaxation factor\n'
-        print relax_factor
+        print(relax_factor)
 
         acceleration = '\t{: <35}'.format('-f, --cmfd-acceleration=<False>')
         acceleration += 'The cmfd acceleration flag\n'
-        print acceleration
+        print(acceleration)
 
         mesh_level = '\t{: <35}'.format('-l, --mesh-level=<-1>')
         mesh_level += 'The mesh level\n'
-        print mesh_level
+        print(mesh_level)
 
         sys.exit()
 

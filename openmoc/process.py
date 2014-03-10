@@ -9,10 +9,8 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 27, 2013
 
-import numpy as np
-import os
+
 import sys
-from log import *
 
 ## @var openmoc
 #  @brief The openmoc module in use in the Python script using the
@@ -35,6 +33,15 @@ elif 'openmoc.bgq.single' in sys.modules:
 else:
   from openmoc import *
 
+import numpy as np
+import os
+
+# For Python 2.X.X
+if (sys.version_info[0] == 2):
+  from log import *
+# For Python 3.X.X
+else:
+  from openmoc.log import *
 
 
 ##

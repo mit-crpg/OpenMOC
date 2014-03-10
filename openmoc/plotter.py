@@ -7,25 +7,7 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date March 10, 2013
 
-import matplotlib
-
-# force headless backend, or set 'backend' to 'Agg'
-# in your ~/.matplotlib/matplotlibrc
-matplotlib.use('Agg')
-
-import matplotlib.pyplot as plt
-
-# Force non-interactive mode, or set 'interactive' to False
-# in your ~/.matplotlib/matplotlibrc
-plt.ioff()
-
-import matplotlib.colors as colors
-import matplotlib.cm as cmx
-import numpy as np
-import numpy.random
-import os, sys
-from log import *
-
+import sys
 
 ## @var openmoc
 #  @brief The openmoc module in use in the Python script using the
@@ -48,6 +30,31 @@ elif 'openmoc.bgq.single' in sys.modules:
 else:
   from openmoc import *
 
+
+import matplotlib
+
+# force headless backend, or set 'backend' to 'Agg'
+# in your ~/.matplotlib/matplotlibrc
+matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
+
+# Force non-interactive mode, or set 'interactive' to False
+# in your ~/.matplotlib/matplotlibrc
+plt.ioff()
+
+import matplotlib.colors as colors
+import matplotlib.cm as cmx
+import numpy as np
+import numpy.random
+import os, sys
+
+# For Python 2.X.X
+if (sys.version_info[0] == 2):
+  from log import *
+# For Python 3.X.X
+else:
+  from openmoc.log import *
 
 
 ## A static variable for the output directory in which to save plots

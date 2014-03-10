@@ -14,6 +14,7 @@ def get_openmoc_object_name():
   # NOTE: Python 3 distributions are not yet working with SWIG, but this
   # is a stub for the future
   elif (sys.version_info[0] == 3):
+#    filename = '_openmoc.so'
     filename = '_openmoc.cpython-{version[0]}{version[1]}mu.so'
     filename = filename.format(version=sys.version_info)
 
@@ -28,6 +29,8 @@ def get_shared_object_path():
     directory = 'build/lib.{platform}-{version[0]}.{version[1]}'
     directory = directory.format(platform=get_platform(),
                                      version=sys.version_info)
+
+    
 
   # For Python 3.X.X
   # NOTE: Python 3 distributions are not yet working with SWIG, but this is
@@ -289,7 +292,7 @@ class configuration:
   ###########################################################################
 
   # A list of the flags for SWIG
-  swig_flags = ['-c++', '-keyword']
+  swig_flags = ['-c++', '-keyword', '-py3']
 
 
   #############################################################################
