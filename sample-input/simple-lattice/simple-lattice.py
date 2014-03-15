@@ -1,4 +1,4 @@
-from openmoc import *
+from openmoc.intel.single import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -29,7 +29,7 @@ log.set_log_level('NORMAL')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../c5g7-materials.h5')
+materials = materialize.materialize('../c5g7-materials.py')
 
 uo2_id = materials['UO2'].getId()
 water_id = materials['Water'].getId()

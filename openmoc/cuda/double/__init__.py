@@ -9,7 +9,7 @@ if (sys.version_info[0] == 2):
 else:
   import openmoc.openmoc as openmoc
   import _openmoc_cuda
-  from openmoc.cuda.openmoc_cuda_double import *
+  from openmoc.cuda.double.openmoc_cuda_double import *
 
 # Tell Python to recognize CTRL+C and stop the C++ extension module
 # when this is passed in from the keyboard

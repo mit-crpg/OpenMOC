@@ -133,3 +133,7 @@ build/*
 .idea/*.xml
 
 sphinx/
+
+
+__pycache__
+__pycache__/*
