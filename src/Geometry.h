@@ -104,7 +104,6 @@ private:
 
   Cell* findFirstCell(LocalCoords* coords, double angle);
   Cell* findNextCell(LocalCoords* coords, double angle);
-  Cell* findCellContainingCoords(LocalCoords* coords);
   Cell* findCell(Universe* univ, int fsr_id);
 
 public:
@@ -150,6 +149,7 @@ public:
   void removeUniverse(int id);
   void removeLattice(int id);
 
+  Cell* findCellContainingCoords(LocalCoords* coords);
   CellBasic* findCellContainingFSR(int fsr_id);
   int findFSRId(LocalCoords* coords);
   void subdivideCells();
