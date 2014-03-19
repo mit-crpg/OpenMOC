@@ -1,7 +1,5 @@
 var NAVTREEINDEX2 =
 {
-"classQuadrature.html#a39beb5f26c5a80b2115af0821e6b7981":[1,0,18,0],
-"classQuadrature.html#a3f19d76860a2d1ec8406366188449a6d":[1,0,18,2],
 "classQuadrature.html#a4d80c3ca24bfe94d20cf8f0b20fbf62c":[1,0,18,10],
 "classQuadrature.html#a4f6664557a9fe290b1d6f9ca6d847c8e":[1,0,18,4],
 "classQuadrature.html#a678dfcec6a74deeff5369c42ba7748aa":[1,0,18,6],
@@ -249,5 +247,7 @@ var NAVTREEINDEX2 =
 "classVectorizedSolver.html#a5a9623683961869eef3a171c41fb6f81":[1,0,28,15],
 "classVectorizedSolver.html#a6c428f0706f8c8960a88404606665704":[1,0,28,10],
 "classVectorizedSolver.html#a6d5bac107495fe429839826859b7dfa1":[1,0,28,8],
-"classVectorizedSolver.html#a7287329d44d695ca91181e9484e32bca":[1,0,28,9]
+"classVectorizedSolver.html#a7287329d44d695ca91181e9484e32bca":[1,0,28,9],
+"classVectorizedSolver.html#a7ab9f0df852a0afd04876f6e0ec53046":[1,0,28,6],
+"classVectorizedSolver.html#a861e52b6f96cd79a6a5298cefc7fe378":[1,0,28,11]
 };

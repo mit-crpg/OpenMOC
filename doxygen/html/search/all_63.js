@@ -50,6 +50,6 @@ var searchData=
   ['cpusolver',['CPUSolver',['../classCPUSolver.html',1,'CPUSolver'],['../classCPUSolver.html#a919f1b5cad684e6bcb594cecb872a5b1',1,'CPUSolver::CPUSolver()']]],
   ['cpusolver_2eh',['CPUSolver.h',['../CPUSolver_8h.html',1,'']]],
   ['create_5fmultiline_5fmsg',['create_multiline_msg',['../log_8h.html#a60b17cac0a6ec19ed74a1244caab226d',1,'log.cpp']]],
-  ['creategroupstructure',['createGroupStructure',['../classCmfd.html#aa97d965c5a865b558cd98383ac6778eb',1,'Cmfd']]],
+  ['creategroupstructure',['createGroupStructure',['../classCmfd.html#a7d8a3a82ac6b38bf722be9fcaa45894c',1,'Cmfd']]],
   ['critical',['CRITICAL',['../log_8h.html#a5096002e05063d13577205e0bc5f0564acda21a4a072f2261f6d4ab596599f8b0',1,'log.h']]]
 ];

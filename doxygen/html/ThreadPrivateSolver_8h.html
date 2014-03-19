@@ -124,7 +124,7 @@ Classes</h2></td></tr>
 Macros</h2></td></tr>
 <tr class="memitem:a96098a8f0ada349f6b315d7b1c45472f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ThreadPrivateSolver_8h.html#a96098a8f0ada349f6b315d7b1c45472f">_thread_flux</a>(tid, r, e)&#160;&#160;&#160;(_thread_flux[(tid)][(r)*_num_groups+(e)])</td></tr>
 <tr class="separator:a96098a8f0ada349f6b315d7b1c45472f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67c6c35415725a9fe498d08c00dce497"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ThreadPrivateSolver_8h.html#a67c6c35415725a9fe498d08c00dce497">_thread_currents</a>(tid, r, e)&#160;&#160;&#160;(_thread_currents[(tid)*_num_mesh_cells*8*_cmfd-&gt;getNumCmfdGroups() + (r)*_cmfd-&gt;getNumCmfdGroups() + std::min((e) / _cmfd-&gt;getCmfdGroupWidth(), _cmfd-&gt;getNumCmfdGroups()-1)])</td></tr>
+<tr class="memitem:a67c6c35415725a9fe498d08c00dce497"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ThreadPrivateSolver_8h.html#a67c6c35415725a9fe498d08c00dce497">_thread_currents</a>(tid, r, e)&#160;&#160;&#160;(_thread_currents[(tid)*_num_mesh_cells*8*_cmfd-&gt;getNumCmfdGroups() + (r)*_cmfd-&gt;getNumCmfdGroups() + _cmfd-&gt;getCmfdGroup((e))])</td></tr>
 <tr class="separator:a67c6c35415725a9fe498d08c00dce497"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -157,7 +157,7 @@ Macros</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;(_thread_currents[(tid)*_num_mesh_cells*8*_cmfd-&gt;getNumCmfdGroups() + (r)*_cmfd-&gt;getNumCmfdGroups() + std::min((e) / _cmfd-&gt;getCmfdGroupWidth(), _cmfd-&gt;getNumCmfdGroups()-1)])</td>
+          <td></td><td>&#160;&#160;&#160;(_thread_currents[(tid)*_num_mesh_cells*8*_cmfd-&gt;getNumCmfdGroups() + (r)*_cmfd-&gt;getNumCmfdGroups() + _cmfd-&gt;getCmfdGroup((e))])</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -204,7 +204,7 @@ Macros</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="ThreadPrivateSolver_8h.html">ThreadPrivateSolver.h</a></li>
-    <li class="footer">Generated on Fri Feb 28 2014 12:05:32 by
+    <li class="footer">Generated on Wed Mar 19 2014 11:08:57 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

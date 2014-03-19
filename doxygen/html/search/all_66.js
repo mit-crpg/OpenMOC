@@ -5,7 +5,6 @@ var searchData=
   ['findcellcontainingfsr',['findCellContainingFSR',['../classGeometry.html#a92eee0b27aeacfee8eaef6dacd2c8d6e',1,'Geometry']]],
   ['findcellid',['findCellId',['../classMesh.html#aa4570b874a18a4356680a10c1529afd6',1,'Mesh']]],
   ['findfsrid',['findFSRId',['../classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05',1,'Geometry']]],
-  ['findfsrs',['findFSRs',['../classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58',1,'Geometry']]],
   ['findmeshcell',['findMeshCell',['../classMesh.html#a8e016553896d3fcce129069883ac2c4c',1,'Mesh']]],
   ['findmeshdepth',['findMeshDepth',['../classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1',1,'Geometry']]],
   ['findmeshheight',['findMeshHeight',['../classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0',1,'Geometry']]],

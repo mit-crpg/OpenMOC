@@ -258,9 +258,6 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a46c73fdec60562eeadfb92146754f01d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d">initializeMesh</a> ()</td></tr>
 <tr class="memdesc:a46c73fdec60562eeadfb92146754f01d"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is a recursive method which makes a mesh for solving the Course <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> Finite Difference (CMFD) diffusion equations.  <a href="#a46c73fdec60562eeadfb92146754f01d">More...</a><br/></td></tr>
 <tr class="separator:a46c73fdec60562eeadfb92146754f01d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa988bf6c4a3064afeb21c7c0f81eef58"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58">findFSRs</a> (<a class="el" href="classUniverse.html">Universe</a> *univ, int cell_num, int *fsr_id)</td></tr>
-<tr class="memdesc:aa988bf6c4a3064afeb21c7c0f81eef58"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is a recursive method which stores the IDs of all FSRs located in a <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> cell object in a std::vector owned by the <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> cell.  <a href="#aa988bf6c4a3064afeb21c7c0f81eef58">More...</a><br/></td></tr>
-<tr class="separator:aa988bf6c4a3064afeb21c7c0f81eef58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a953bddab7863827c6f93911647d3b7ab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a953bddab7863827c6f93911647d3b7ab">defineMesh</a> (<a class="el" href="classMesh.html">Mesh</a> *mesh, <a class="el" href="classUniverse.html">Universe</a> *univ, int depth, int *meshCellNum, int row, bool base, int fsr_id)</td></tr>
 <tr class="memdesc:a953bddab7863827c6f93911647d3b7ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is a recursive method which defines all the parameters of the the <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> cell objects in a <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a>.  <a href="#a953bddab7863827c6f93911647d3b7ab">More...</a><br/></td></tr>
 <tr class="separator:a953bddab7863827c6f93911647d3b7ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -551,48 +548,6 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the FSR ID for a given <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="aa988bf6c4a3064afeb21c7c0f81eef58"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Geometry::findFSRs </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classUniverse.html">Universe</a> *&#160;</td>
-          <td class="paramname"><em>univ</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>cell_num</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>fsr_id</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>This is a recursive method which stores the IDs of all FSRs located in a <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> cell object in a std::vector owned by the <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> cell. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">univ</td><td>a pointer to the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> that contains the <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> cell </td></tr>
-    <tr><td class="paramname">cell_num</td><td>the <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> cell number </td></tr>
-    <tr><td class="paramname">fsr_id</td><td>an integer pointer set to the first fsr_id in this <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>
@@ -1489,7 +1444,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classGeometry.html">Geometry</a></li>
-    <li class="footer">Generated on Fri Feb 28 2014 12:05:32 by
+    <li class="footer">Generated on Wed Mar 19 2014 11:08:57 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

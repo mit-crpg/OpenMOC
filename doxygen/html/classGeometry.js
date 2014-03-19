@@ -11,7 +11,6 @@ var classGeometry =
     [ "defineMesh", "classGeometry.html#a953bddab7863827c6f93911647d3b7ab", null ],
     [ "findCellContainingFSR", "classGeometry.html#a92eee0b27aeacfee8eaef6dacd2c8d6e", null ],
     [ "findFSRId", "classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05", null ],
-    [ "findFSRs", "classGeometry.html#aa988bf6c4a3064afeb21c7c0f81eef58", null ],
     [ "findMeshDepth", "classGeometry.html#ab3e05754e221bbf39a52f22d13d207f1", null ],
     [ "findMeshHeight", "classGeometry.html#ad0038b2f7ce38dd852e85e5512f76eb0", null ],
     [ "findMeshWidth", "classGeometry.html#a9dc3627155dcebcfc358bc1882062b52", null ],

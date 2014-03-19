@@ -10,7 +10,6 @@ var classopenmoc_1_1openmoc_1_1Geometry =
     [ "defineMesh", "classopenmoc_1_1openmoc_1_1Geometry.html#acdcc177a0c68f0296fdb97cdb4b2161f", null ],
     [ "findCellContainingFSR", "classopenmoc_1_1openmoc_1_1Geometry.html#a0958a0195953ef241d973eaaf39f51d5", null ],
     [ "findFSRId", "classopenmoc_1_1openmoc_1_1Geometry.html#a996043aed6d59319e604aedc3a4887b2", null ],
-    [ "findFSRs", "classopenmoc_1_1openmoc_1_1Geometry.html#a54b16da52c4c6215021b0b4edafb8ed6", null ],
     [ "findMeshDepth", "classopenmoc_1_1openmoc_1_1Geometry.html#ad2a2f4e62f89f164bae759812a546533", null ],
     [ "findMeshHeight", "classopenmoc_1_1openmoc_1_1Geometry.html#a5929980d900c62f4d8c3b21e56598b64", null ],
     [ "findMeshWidth", "classopenmoc_1_1openmoc_1_1Geometry.html#a84304c05e08d7689354f192b7a27f322", null ],

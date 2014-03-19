@@ -37,5 +37,5 @@ var searchData=
   ['copycoords',['copyCoords',['../classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8',1,'LocalCoords']]],
   ['cpusolver',['CPUSolver',['../classCPUSolver.html#a919f1b5cad684e6bcb594cecb872a5b1',1,'CPUSolver']]],
   ['create_5fmultiline_5fmsg',['create_multiline_msg',['../log_8h.html#a60b17cac0a6ec19ed74a1244caab226d',1,'log.cpp']]],
-  ['creategroupstructure',['createGroupStructure',['../classCmfd.html#aa97d965c5a865b558cd98383ac6778eb',1,'Cmfd']]]
+  ['creategroupstructure',['createGroupStructure',['../classCmfd.html#a7d8a3a82ac6b38bf722be9fcaa45894c',1,'Cmfd']]]
 ];

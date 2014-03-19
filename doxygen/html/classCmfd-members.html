@@ -116,9 +116,9 @@ $(document).ready(function(){initNavTree('classCmfd.html','');});
   <tr><td class="entry"><a class="el" href="classCmfd.html#ad3da57b100041e93e2ca8d6b89137775">computeKeff</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c">computeXS</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classCmfd.html#a58613922850f0add48c8056c27dd0e83">constructMatrices</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#aa97d965c5a865b558cd98383ac6778eb">createGroupStructure</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a7d8a3a82ac6b38bf722be9fcaa45894c">createGroupStructure</a>(int *group_indices, int ncg)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classCmfd.html#a0b59f6142f3ba7500a6e98548770685c">dumpVec</a>(double *vec, int length)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a02e93f352631900316a2f82be78ba38d">getCmfdGroupWidth</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#af77e5b1efc13b00fc887f0ca10df6381">getCmfdGroup</a>(int group)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classCmfd.html#a96854c723eae49e827314da20bc5b5e2">getKeff</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#acbf8310fb5a8a657751b905eea3ead8c">getMesh</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classCmfd.html#a27180e282a7f0eb4d9459b75ddc8b31e">getNumCmfdGroups</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
@@ -128,29 +128,28 @@ $(document).ready(function(){initNavTree('classCmfd.html','');});
   <tr><td class="entry"><a class="el" href="classCmfd.html#a31386e6716af0246c79f594c4fa14098">matMultM</a>(double **mat, double *vec_x, double *vec_y)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#af99526efd65f8b4e4540fef70a669f53">matSubtract</a>(double **AM, double **A, double omega, double **M)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classCmfd.html#a169832f52b591cb15e86c39b547f8c8d">matZero</a>(double **mat, int width)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a2885348654cf05fea72c8c361a0c5f85">rayleighQuotient</a>(double *x, double *snew, double *sold)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#aa8cca7120f5fc29d7f79614d63d7e38b">rayleighQuotient</a>(double *x, double *s_new, double *s_old)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classCmfd.html#ae2c98ca17f124ff28422060c52c22894">rescaleFlux</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a736fc413519e0ccf1f3a9ccd7fe89e32">setEigenMethod</a>(const char *eigen_method)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classCmfd.html#a2e73010263c696509f423a0c8c8a957b">setFluxType</a>(const char *flux_type)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a8dc3d1c41f34eabbe50820df8dd79055">setFSRFluxes</a>(FP_PRECISION *scalar_flux)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classCmfd.html#a1ee1d060957c194d7d91e1b6c8192ac4">setFSRMaterials</a>(Material **FSR_materials)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a5e424fa34563f18e5c16899d717444e1">setFSRVolumes</a>(FP_PRECISION *FSR_volumes)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classCmfd.html#a0689a29ee08097111ee813c3e997fae6">setNumCmfdGroups</a>(int num_cmfd_groups)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a1872f55ed665700cbc0d0a8282c87b69">setOmega</a>(double omega)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classCmfd.html#a92498d14632389804569ef690a126942">updateMOCFlux</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#af83f3b89305fbc4bc8e0d5aab9822d90">vecCopy</a>(double *vec_from, double *vec_to)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classCmfd.html#af2880d2006780f1a4c8844380c39e63c">vecMax</a>(double *vec)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#adbe1e69d52cc7244fe8cc02e8203cea2">vecNormal</a>(double **mat, double *vec)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classCmfd.html#a170275051ff9c43a6011e84f1348c97e">vecScale</a>(double *vec, double scale_val)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#ab526b23a3a34ed34258f0603430f59d7">vecSet</a>(double *vec, double val)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classCmfd.html#ae6e87a58709fe78ad95b3bc9e55416a8">vecSum</a>(double *vec)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a8fed853849ff46479586ea8b712fe2b4">~Cmfd</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classCmfd.html#ace50040fb4ef39ba6449a8c2d14db8db">setFSRMaterials</a>(Material **fsr_materials)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a602885bd58a8485c322c957656452616">setFSRVolumes</a>(FP_PRECISION *fsr_volumes)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classCmfd.html#a1872f55ed665700cbc0d0a8282c87b69">setOmega</a>(double omega)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a92498d14632389804569ef690a126942">updateMOCFlux</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classCmfd.html#af83f3b89305fbc4bc8e0d5aab9822d90">vecCopy</a>(double *vec_from, double *vec_to)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#af2880d2006780f1a4c8844380c39e63c">vecMax</a>(double *vec)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classCmfd.html#adbe1e69d52cc7244fe8cc02e8203cea2">vecNormal</a>(double **mat, double *vec)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#a170275051ff9c43a6011e84f1348c97e">vecScale</a>(double *vec, double scale_val)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classCmfd.html#ab526b23a3a34ed34258f0603430f59d7">vecSet</a>(double *vec, double val)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classCmfd.html#ae6e87a58709fe78ad95b3bc9e55416a8">vecSum</a>(double *vec)</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classCmfd.html#a8fed853849ff46479586ea8b712fe2b4">~Cmfd</a>()</td><td class="entry"><a class="el" href="classCmfd.html">Cmfd</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
 </table></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Fri Feb 28 2014 12:05:32 by
+    <li class="footer">Generated on Wed Mar 19 2014 11:08:57 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

@@ -124,7 +124,7 @@ Classes</h2></td></tr>
 Macros</h2></td></tr>
 <tr class="memitem:a3d16df105bf900bad9d2b5a6061aa06d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Solver_8h.html#a3d16df105bf900bad9d2b5a6061aa06d">_scalar_flux</a>(r, e)&#160;&#160;&#160;(_scalar_flux[(r)*_num_groups + (e)])</td></tr>
 <tr class="separator:a3d16df105bf900bad9d2b5a6061aa06d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e54944e94810750bab24ebb38c71090"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Solver_8h.html#a7e54944e94810750bab24ebb38c71090">_surface_currents</a>(r, e)&#160;&#160;&#160;(_surface_currents[(r)*_cmfd-&gt;getNumCmfdGroups() + std::min((e) / _cmfd-&gt;getCmfdGroupWidth(), _cmfd-&gt;getNumCmfdGroups()-1)])</td></tr>
+<tr class="memitem:a7e54944e94810750bab24ebb38c71090"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Solver_8h.html#a7e54944e94810750bab24ebb38c71090">_surface_currents</a>(r, e)&#160;&#160;&#160;(_surface_currents[(r)*_cmfd-&gt;getNumCmfdGroups() + _cmfd-&gt;getCmfdGroup((e))])</td></tr>
 <tr class="separator:a7e54944e94810750bab24ebb38c71090"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aefc524ce5b072d1f3c928afba0a6089f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Solver_8h.html#aefc524ce5b072d1f3c928afba0a6089f">_source</a>(r, e)&#160;&#160;&#160;(_source[(r)*_num_groups + (e)])</td></tr>
 <tr class="separator:aefc524ce5b072d1f3c928afba0a6089f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -426,7 +426,7 @@ Macros</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;(_surface_currents[(r)*_cmfd-&gt;getNumCmfdGroups() + std::min((e) / _cmfd-&gt;getCmfdGroupWidth(), _cmfd-&gt;getNumCmfdGroups()-1)])</td>
+          <td></td><td>&#160;&#160;&#160;(_surface_currents[(r)*_cmfd-&gt;getNumCmfdGroups() + _cmfd-&gt;getCmfdGroup((e))])</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -466,7 +466,7 @@ Macros</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="Solver_8h.html">Solver.h</a></li>
-    <li class="footer">Generated on Fri Feb 28 2014 12:05:32 by
+    <li class="footer">Generated on Wed Mar 19 2014 11:08:57 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

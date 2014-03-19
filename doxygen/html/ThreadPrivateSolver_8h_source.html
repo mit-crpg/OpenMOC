@@ -119,7 +119,7 @@ $(document).ready(function(){initNavTree('ThreadPrivateSolver_8h_source.html',''
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="ThreadPrivateSolver_8h.html#a96098a8f0ada349f6b315d7b1c45472f">   21</a></span>&#160;<span class="preprocessor">#define _thread_flux(tid,r,e) (_thread_flux[(tid)][(r)*_num_groups+(e)])</span></div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="ThreadPrivateSolver_8h.html#a67c6c35415725a9fe498d08c00dce497">   25</a></span>&#160;<span class="preprocessor">#define _thread_currents(tid,r,e) (_thread_currents[(tid)*_num_mesh_cells*8*_cmfd-&gt;getNumCmfdGroups() + (r)*_cmfd-&gt;getNumCmfdGroups() + std::min((e) / _cmfd-&gt;getCmfdGroupWidth(), _cmfd-&gt;getNumCmfdGroups()-1)])</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="ThreadPrivateSolver_8h.html#a67c6c35415725a9fe498d08c00dce497">   25</a></span>&#160;<span class="preprocessor">#define _thread_currents(tid,r,e) (_thread_currents[(tid)*_num_mesh_cells*8*_cmfd-&gt;getNumCmfdGroups() + (r)*_cmfd-&gt;getNumCmfdGroups() + _cmfd-&gt;getCmfdGroup((e))])</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
 <div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="classThreadPrivateSolver.html">   37</a></span>&#160;<span class="keyword">class </span><a class="code" href="classThreadPrivateSolver.html">ThreadPrivateSolver</a> : <span class="keyword">public</span> <a class="code" href="classCPUSolver.html">CPUSolver</a> {</div>
@@ -177,7 +177,7 @@ $(document).ready(function(){initNavTree('ThreadPrivateSolver_8h_source.html',''
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="ThreadPrivateSolver_8h.html">ThreadPrivateSolver.h</a></li>
-    <li class="footer">Generated on Fri Feb 28 2014 12:05:32 by
+    <li class="footer">Generated on Wed Mar 19 2014 11:08:57 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>
