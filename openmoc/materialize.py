@@ -6,14 +6,13 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 23, 2013
 
-from log import *
-import sys
-
-
 # Determine which OpenMOC module is being used. This is important for
 # the materialize module since it must instantiate Material objects
 # with the same floating point precision as that compiled into the
 # openmoc module used in the main Python input script to OpenMOC.
+
+
+import sys
 
 
 ## @var openmoc
@@ -35,6 +34,16 @@ elif 'openmoc.bgq.single' in sys.modules:
   openmoc = sys.modules['openmoc.bgq.single']
 else:
   import openmoc
+
+# For Python 2.X.X
+if (sys.version_info[0] == 2):
+  from log import *
+# For Python 3.X.X
+else:
+  from openmoc.log import *
+
+
+
 
 ##
 # @brief This routine takes in an input file of Material nuclear data and

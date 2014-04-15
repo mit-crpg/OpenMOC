@@ -27,7 +27,6 @@
 #include <sys/stat.h>
 #endif
 
-
 /**
  * @enum logLevels
  * @brief Logging levels characterize an ordered set of message types

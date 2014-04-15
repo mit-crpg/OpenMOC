@@ -1,7 +1,15 @@
-import openmoc
+import signal, sys
+
 import _openmoc_bgq_single
-from openmoc_bgq_single import *
-import signal
+
+# For Python 2.X.X
+if (sys.version_info[0] == 2):
+  import openmoc
+  from openmoc_bgq_single import *
+# For Python 3.X.X
+else:
+  import openmoc.openmoc as openmoc
+  from openmoc.bgq.single.openmoc_bgq_single import *
 
 # Tell Python to recognize CTRL+C and stop the C++ extension module
 # when this is passed in from the keyboard
