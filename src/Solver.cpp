@@ -476,7 +476,7 @@ void Solver::checkTrackSpacing() {
     if (FSR_segment_tallies[r] == 0) {
       log_printf(ERROR, "No tracks were tallied inside FSR id = %d. Please "
                  "reduce your track spacing, increase the number of azimuthal"
-                 "angles, or increase the size of the FSRs", r, cell->getId());
+                 "angles, or increase the size of the FSRs", r);
     }
   }
 
