@@ -10,8 +10,23 @@
 # @author Samuel Shaner
 # @date March 15, 2013
 
+import sys
 
-import openmoc
+# Determine which OpenMOC module is being used
+if 'openmoc.gnu.double' in sys.modules:
+  openmoc = sys.modules['openmoc.gnu.double']
+elif 'openmoc.gnu.single' in sys.modules:
+  openmoc = sys.modules['openmoc.gnu.single']
+elif 'openmoc.intel.double' in sys.modules:
+  openmoc = sys.modules['openmoc.intel.double']
+elif 'openmoc.intel.single' in sys.modules:
+  openmoc = sys.modules['openmoc.intel.single']
+elif 'openmoc.bgq.double' in sys.modules:
+  openmoc = sys.modules['openmoc.bgq.double']
+elif 'openmoc.bgq.single' in sys.modules:
+  openmoc = sys.modules['openmoc.bgq.single']
+else:
+  import openmoc
 
 
 ##

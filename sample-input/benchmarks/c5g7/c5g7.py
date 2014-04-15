@@ -1,4 +1,5 @@
 from openmoc import *
+from openmoc.cuda import GPUSolver
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -358,9 +359,10 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = ThreadPrivateSolver(geometry, track_generator, cmfd)
+#solver = ThreadPrivateSolver(geometry, track_generator, cmfd)
+solver = GPUSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
+#solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 

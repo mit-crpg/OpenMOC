@@ -1,4 +1,8 @@
-%module openmoc
+%define DOCSTRING 
+"A method of characteristics code for nuclear reactor physics calculations."
+%enddef
+
+%module(docstring=DOCSTRING) openmoc
 
 %{
   #define SWIG_FILE_WITH_INIT
@@ -265,6 +269,10 @@
 %include ../src/Universe.h
 %include ../src/Cmfd.h
 %include ../src/Mesh.h
+
+
+#define printf PySys_WriteStdout
+
 
 #ifdef DOUBLE
 typedef double FP_PRECISION;
