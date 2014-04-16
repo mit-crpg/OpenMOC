@@ -31,7 +31,8 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
 log.py_printf('NORMAL', 'Importing materials data from py...')
 
-materials = materialize.materialize('../../c5g7-materials.py')
+#materials = materialize.materialize('../../c5g7-materials.py')
+materials = materialize.materialize('../../c5g7-materials.h5')
 
 uo2_id = materials['UO2'].getId()
 mox43_id = materials['MOX-4.3%'].getId()
@@ -344,7 +345,7 @@ log.py_printf('NORMAL', 'Creating cmfd module...')
 
 cmfd = Cmfd(geometry)
 cmfd.setOmega(1.50)
-cmfd.setNumCmfdGroups(2)
+cmfd.createGroupStructure([0,3,7])
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
