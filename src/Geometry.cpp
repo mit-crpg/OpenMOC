@@ -1645,10 +1645,10 @@ void Geometry::initializeMesh(){
  * @brief This is a recursive method which stores the IDs of all FSRs located
  *        in a Mesh cell object in a std::vector owned by the Mesh cell.
  * @param univ a pointer to the Universe that contains the Mesh cell
- * @param cell_num the Mesh cell number
+ * @param cell_num the Mesh cell indice
  * @param fsr_id an integer pointer set to the first fsr_id in this Universe
  */
-void Geometry::findFSRs(Universe* univ, int cell_num, int* fsr_id){
+void Geometry::findFSRsInCell(Universe* univ, int cell_num, int* fsr_id){
 
   /* If the Universe is a SIMPLE type Universe */
   if (univ->getType() == SIMPLE) {
@@ -1672,16 +1672,17 @@ void Geometry::findFSRs(Universe* univ, int cell_num, int* fsr_id){
         *fsr_id += 1;
       }
 
-      /* If the current Cell is a FILL type cell recursively call findFSRs() */
+      /* If the current Cell is a FILL type cell recursively call findFSRsInCell() */
       else {
         CellFill* fill_cell = static_cast<CellFill*>(curr);
         Universe* universe_fill = fill_cell->getUniverseFill();
-        findFSRs(universe_fill, cell_num, fsr_id);
+        findFSRsInCell(universe_fill, cell_num, fsr_id);
       }
     }
   }
 
-  /* If the Universe is a LATTICE type Universe recursively call findFSRs() */
+  /* If the Universe is a LATTICE type Universe recursively call 
+     findFSRsInCell() */
   else {
 
     Lattice* lattice = static_cast<Lattice*>(univ);
@@ -1701,7 +1702,7 @@ void Geometry::findFSRs(Universe* univ, int cell_num, int* fsr_id){
         *fsr_id = baseFSR + lattice->getFSR(j,i);
 
         /* Find all FSRs in this Lattice */
-        findFSRs(curr, cell_num, fsr_id);
+        findFSRsInCell(curr, cell_num, fsr_id);
       }
     }
   }
@@ -1768,7 +1769,7 @@ void Geometry::defineMesh(Mesh* mesh, Universe* univ, int depth,
             log_printf(DEBUG, "Added FSR ID to counter -> fsr_id: %i", fsr_id);
 
             /* Store fsr_ids of FSRs in this LATTICE in a Mesh cell object */
-            findFSRs(curr, *meshCellNum, &fsr_id);
+            findFSRsInCell(curr, *meshCellNum, &fsr_id);
             mesh->setCellLengthX(*meshCellNum, lattice->getWidthX());
             mesh->setCellLengthY(*meshCellNum, lattice->getWidthY());
 
@@ -1793,7 +1794,7 @@ void Geometry::defineMesh(Mesh* mesh, Universe* univ, int depth,
           log_printf(DEBUG, "Set FSr ID to: %i", fsr_id);
 
           /* Store fsr_ids of the FSRs in this LATTICE in a Mesh cell object */
-          findFSRs(curr, *meshCellNum, &fsr_id);
+          findFSRsInCell(curr, *meshCellNum, &fsr_id);
           mesh->setCellLengthX(*meshCellNum, lattice->getWidthX());
           mesh->setCellLengthY(*meshCellNum, lattice->getWidthY());
 
