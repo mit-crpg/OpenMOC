@@ -155,6 +155,41 @@
 }
 
 
+/* Typemap for the Cmfd::setGroupStructure(int* group_indices, int ncg)
+ * method - allows users to pass in a Python list of group indices
+ * for each CMFD energy group */
+%typemap(in) (int* group_indices, int ncg) {
+
+  if (!PyList_Check($input)) {
+    PyErr_SetString(PyExc_ValueError,"Expected a Python list of values "
+                    "for the group indices array");
+    return NULL;
+  }
+
+  $2 = PySequence_Length($input);  // ncg
+  $1 = (int*) malloc($2 * sizeof(int));  // group indices array
+
+  /* Loop over x */
+  for (int i = 0; i < $2; i++) {
+
+    /* Extract the value from the list at this location */
+    PyObject *o = PySequence_GetItem($input,i);
+
+    /* If value is a number, cast it as an int and set the input array value */
+    if (PyNumber_Check(o)) {
+      $1[i] = (int) PyInt_AS_LONG(o)
+    }
+    else {
+      free($1);
+      PyErr_SetString(PyExc_ValueError,"Expected a list of numbers "
+                      "for group indices values\n");
+      return NULL;
+    }
+  }
+}
+
+
+
 /* Typemap for Lattice::setLatticeCells(int num_x, int num_y, int* universes)
  * method - allows users to pass in Python lists of Universe IDs for each
  * lattice cell */
@@ -223,6 +258,11 @@
  * Lattice::setLatticeCells setter method. This allows users to set the lattice
  * cells (universe IDs) using a 2D NumPy array */
 %apply (int DIM1, int DIM2, int* IN_ARRAY2) {(int num_x, int num_y, int* universes)}
+
+/* The typemap used to match the method signature for the
+ * Cmfd::createGroupStructure method. This allows users to set the CMFD group 
+ * structure using a NumPy array */
+%apply (int* IN_ARRAY1, int DIM1) {(int* group_indices, int ncg)}
 
 /* The typemap used to match the method signature for the Material
  * cross-section setter methods. This allows users to set the cross-sections
