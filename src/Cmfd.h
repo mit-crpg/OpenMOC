@@ -111,8 +111,8 @@ private:
   /** Coarse energy indices for fine energy groups */
   int* _group_indices;
 
-  /** Number of fine energy groups per coarse energy group */
-  int _group_width;
+  /** Map of MOC groups to CMFD groups */
+  int* _group_indices_map;
 
   /** Number of FSRs */
   int _num_FSRs;
@@ -162,19 +162,18 @@ public:
   void matSubtract(double** AM, double** A, double omega, double** M);
   double vecMax(double* vec);
   double rayleighQuotient(double* x, double* snew, double* sold);
-  void createGroupStructure();
-
+  void createGroupStructure(int* group_indices, int ncg);
+  
   /* Get parameters */
   Mesh* getMesh();
   double getKeff();
   int getNumCmfdGroups();
-  int getCmfdGroupWidth();
+  int getCmfdGroup(int group);
 
   /* Set parameters */
   void setOmega(double omega);
   void setFluxType(const char* flux_type);
   void setEigenMethod(const char* eigen_method);
-  void setNumCmfdGroups(int num_cmfd_groups);
 
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);

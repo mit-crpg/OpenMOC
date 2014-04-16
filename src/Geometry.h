@@ -161,7 +161,7 @@ public:
   void printString();
 
   void initializeMesh();
-  void findFSRs(Universe* univ, int cell_num, int* fsr_id);
+  void findFSRsInCell(Universe* univ, int cell_num, int* fsr_id);
   void defineMesh(Mesh* mesh, Universe* univ, int depth,
                   int* meshCellNum, int row, bool base, int fsr_id);
   int nextLatticeHeight(Universe* univ);
