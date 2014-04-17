@@ -16,9 +16,6 @@ track_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-acceleration = options.getCmfdAcceleration()
-relax_factor = options.getCmfdRelaxationFactor()
-mesh_level = options.getCmfdMeshLevel()
 
 log.set_log_level('NORMAL')
 
@@ -314,12 +311,6 @@ lattices[-1].setLatticeCells([[10, 11, 15],
                              [11, 10, 15],
                              [13, 13, 14]])
 
-###############################################################################
-##########################     Creating Cmfd mesh    ##########################
-###############################################################################
-log.py_printf('NORMAL', 'Creating Cmfd mesh...')
-
-mesh = Mesh(MOC, acceleration, relax_factor, mesh_level)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -327,22 +318,13 @@ mesh = Mesh(MOC, acceleration, relax_factor, mesh_level)
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry(mesh)
+geometry = Geometry()
 
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 for lattice in lattices: geometry.addLattice(lattice)
 
-geometry.initializeFlatSourceRegions() 
-
-###############################################################################
-##########################   Creating Cmfd module    ##########################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating cmfd module...')
-
-cmfd = Cmfd(geometry)
-cmfd.setOmega(1.0)
+geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
@@ -354,11 +336,12 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
 
+
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = ThreadPrivateSolver(geometry, track_generator, cmfd)
+solver = ThreadPrivateSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)

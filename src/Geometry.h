@@ -104,7 +104,6 @@ private:
 
   Cell* findFirstCell(LocalCoords* coords, double angle);
   Cell* findNextCell(LocalCoords* coords, double angle);
-  Cell* findCellContainingCoords(LocalCoords* coords);
   Cell* findCell(Universe* univ, int fsr_id);
 
 public:
@@ -150,6 +149,7 @@ public:
   void removeUniverse(int id);
   void removeLattice(int id);
 
+  Cell* findCellContainingCoords(LocalCoords* coords);
   CellBasic* findCellContainingFSR(int fsr_id);
   int findFSRId(LocalCoords* coords);
   void subdivideCells();
@@ -161,7 +161,7 @@ public:
   void printString();
 
   void initializeMesh();
-  void findFSRs(Universe* univ, int cell_num, int* fsr_id);
+  void findFSRsInCell(Universe* univ, int cell_num, int* fsr_id);
   void defineMesh(Mesh* mesh, Universe* univ, int depth,
                   int* meshCellNum, int row, bool base, int fsr_id);
   int nextLatticeHeight(Universe* univ);

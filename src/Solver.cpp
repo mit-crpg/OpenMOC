@@ -427,6 +427,9 @@ void Solver::initializeCmfd(){
   if (_cmfd == NULL)
     _cmfd = new Cmfd(_geometry);
 
+  if (_cmfd->getNumCmfdGroups() == 0)
+      _cmfd->createGroupStructure(NULL, _num_groups+1);
+
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
@@ -476,7 +479,7 @@ void Solver::checkTrackSpacing() {
     if (FSR_segment_tallies[r] == 0) {
       log_printf(ERROR, "No tracks were tallied inside FSR id = %d. Please "
                  "reduce your track spacing, increase the number of azimuthal"
-                 "angles, or increase the size of the FSRs", r, cell->getId());
+                 "angles, or increase the size of the FSRs", r);
     }
   }
 

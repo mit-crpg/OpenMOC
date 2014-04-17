@@ -1,5 +1,6 @@
 from distutils.core import setup
 from distutils.command.build_ext import build_ext
+from distutils.command.build_py import build_py
 from distutils.command.install import install
 from distutils.errors import DistutilsOptionError
 import os
@@ -451,8 +452,8 @@ class custom_build_ext(build_ext):
 
 
 # Run the distutils setup method for the complete build
-setup(name = 'openmoc',
-      version = '0.1.1',
+dist = setup(name = 'openmoc',
+      version = '0.1.2',
       description = 'An open source method of characteristics code for ' + \
                     'solving the 2D neutron distribution in nuclear reactors',
       author = 'Will Boyd',
@@ -471,3 +472,9 @@ setup(name = 'openmoc',
       cmdclass={ 'build_ext': custom_build_ext,
                  'install': custom_install}
 )
+
+# Rerun the build_py to setup links for C++ extension modules created by SWIG
+# This prevents us from having to install twice
+build_py = build_py(dist)
+build_py.ensure_finalized()
+build_py.run()

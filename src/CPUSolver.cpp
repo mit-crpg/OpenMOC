@@ -426,7 +426,6 @@ void CPUSolver::initializeCmfd() {
     /* Allocate an array for the Cmfd Mesh surface currents */
     if (_cmfd->getMesh()->getCmfdOn()){
       size = _num_mesh_cells * _cmfd->getNumCmfdGroups() * 8;
-      log_printf(NORMAL, "creating surface currents of size: %i", size);
       _surface_currents = new double[size];
     }
 

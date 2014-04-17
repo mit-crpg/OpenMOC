@@ -9,10 +9,8 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 27, 2013
 
-import numpy as np
-import os
+
 import sys
-from log import *
 
 ## @var openmoc
 #  @brief The openmoc module in use in the Python script using the
@@ -35,6 +33,15 @@ elif 'openmoc.bgq.single' in sys.modules:
 else:
   from openmoc import *
 
+import numpy as np
+import os
+
+# For Python 2.X.X
+if (sys.version_info[0] == 2):
+  from log import *
+# For Python 3.X.X
+else:
+  from openmoc.log import *
 
 
 ##
@@ -59,7 +66,7 @@ def compute_pin_powers(solver, use_hdf5=False):
 
   # Error checking of input parameters
 
-  directory = openmoc.get_output_directory() + '/pin-powers/'
+  directory = get_output_directory() + '/pin-powers/'
 
   # Determine which Universes and Lattices contain fissionable Materials
   geometry = solver.getGeometry()
@@ -111,7 +118,7 @@ def compute_universe_fission_rate(geometry, universe, FSR_offset,
     return fission_rate
 
   # If the Universe is a fissionable SIMPLE type Universe
-  elif universe.getType() is openmoc.SIMPLE:
+  elif universe.getType() is SIMPLE:
 
     # Create a directory/file for this Universe's total fission rate
     attributes.append('universe' + str(universe.getId()))
@@ -126,14 +133,14 @@ def compute_universe_fission_rate(geometry, universe, FSR_offset,
       cell = universe.getCell(int(cell_id))
 
       # If the current cell is a MATERIAL type cell
-      if cell.getType() is openmoc.MATERIAL:
-        cell = openmoc.castCellToCellBasic(cell)
+      if cell.getType() is MATERIAL:
+        cell = castCellToCellBasic(cell)
         fsr_id = universe.getFSR(cell.getId()) + FSR_offset
         fission_rate += FSR_fission_rates[fsr_id]
 
       # The current Cell is a FILL type cell
       else:
-        cell = openmoc.castCellToCellFill(cell)
+        cell = castCellToCellFill(cell)
         universe_fill = cell.getUniverseFill()
         fsr_id = universe.getFSR(cell.getId()) + FSR_offset
         fission_rate += \
@@ -152,7 +159,7 @@ def compute_universe_fission_rate(geometry, universe, FSR_offset,
     attributes.append('lattice' + str(universe.getId()))
 
     # Retrieve a pointer to this Lattice and its dimensions
-    lattice = openmoc.castUniverseToLattice(universe)
+    lattice = castUniverseToLattice(universe)
     num_x = lattice.getNumX()
     num_y = lattice.getNumY()
 
