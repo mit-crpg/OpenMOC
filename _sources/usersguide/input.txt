@@ -504,6 +504,54 @@ The following code snippet illustrates the instantiation of the ``ThreadPrivateS
     # Print a report of the time to solution
     solver.printTimerReport()
 
+--------------------
+CMFD Acceleration
+--------------------
+
+OpenMOC has an integrated CMFD acceleration framework that allows users to greatly accelerate the convergence of their neutron transport problems and achieve run-time time improvements of over 30 times. The CMFD acceleration framework is implemented in two classes, ``Mesh`` and ``Cmfd``. The ``Mesh`` class contains all the information about the CMFD mesh such as number of cells, width and height of each cell, and functions necessary to query certain information about the mesh. The ``Cmfd`` class performs the physics related to solving a CMFD diffusion problem including condensing cross sections, computing the diffusion coefficients, and solving the matrix problem. Running a simulation with CMFD acceleration is quite easy and requires only a few additional lines of code in your input file and one command line option. The following code snippet illustrates the instantiation of the ``Mesh`` class used to generate the CMFD mesh for your problem and give that mesh to the geometry.
+
+.. code-block:: python
+
+    # Get CMFD options from command line input
+    relax_factor = options.getCmfdRelaxationFactor()
+    acceleration = options.getCmfdAcceleration()
+    mesh_level = options.getCmfdMeshLevel()
+
+    # Initialize the Mesh object
+    mesh = Mesh(MOC, acceleration, relax_factor, mesh_level)
+
+    # initialize the Geometry object
+    geometry = Geometry(mesh)  
+    ...
+
+These lines of code should be placed in your input file at the location where the geometry object would be initialize had your problem been set up without CMFD acceleration. In this code, the mesh object is initializes with the three command line options as well as an enum (MOC) that specifies that we are solving a MOC neutron transport problem. A brief discussion of the command line options is included below:
+
+  * ``relax_factor`` - Our formulation of CMFD acceleration requires a static relaxation factor set using the ``-r`` flag with a float argument between 0 and 1.0 that provides a relaxation on the nonlinear diffusion coefficient as described in the Theory and Methodology section of the OpenMOC documentation. A default value of 0.6 is used and is sufficient for most problems we have tested. If CMFD accelerated MOC seems to diverge, it is suggested that the relaxation factor be reduced until the problem begins to stabilize.
+  * ``acceleration`` - The acceleration flag ``-f`` is used to turn on CMFD acceleration. Note that the code shown above and below must still be included in your input file for CMFD to be used.  
+  * ``mesh_level`` - OpenMOC is only able to operate on a structured mesh. By default, OpenMOC searches for the finest structured mesh (as determined by looking at the lattices) to use for acceleration and achieve the greatest reduction in transport sweeps. The mesh_level flag, ``-l``, accepts an integer argument between 0 and the maximum mesh level, which is less than or equal to the maximum number of nested lattices in your problem. For example, the ``c5g7-cmfd.py`` input file has a maximum mesh level of 2, as it contains a pin-cell and an assembly lattice. In most multi-assembly lattice physics problems, there will 1 or 2 nested lattices. In problems of sufficient size (such as a full core simulation) this mesh might lie on the pin cell level and result in hundreds of thousands to millions of CMFD cells. In this case, users are recommended to set the mesh level such that there are only a few hundred to a few thousand mesh cells in order to achieve optimum run time performance. 
+
+In practice the ``-r`` and ``-l`` flags will be rarely used. They are included mainly to avoid instabilities when the relaxation factor is too high or improve performance when a large geometry with a very fine structured mesh is present. Most of the the time users will simply input the lines of code listed above and below and use the ``-f`` flag when executing their simulation. 
+
+After the geometry has been initialize, the flat source regions have been initialized, and all materials, cells, and lattices have been added to the geometry, the CMFD object needs to be initialized. The code below shows how this is done:
+
+.. code-block:: python
+
+    # Create Cmfd object
+    cmfd = Cmfd(geometry)  
+    cmfd.createGroupStructure([0,3,7])
+
+In this code the optional ``createGroupStructure`` method has been called to set a separate energy group structure for the CMFD problem. When only a few energy groups are used in the MOC problem, this line can be omitted and the same group structure is used in the MOC and CMFD problems. If a fine energy group structure (>25 groups) is used, it is recommended to condense that group structure into only a few groups (typically between 2-20) for CMFD acceleration. For instance, the above line of code seperates a seven group problem into two CMFD energy groups, one CMFD group containing groups 0, 1, and 2 and the other CMFD group containing groups 3, 4, 5, and 6. It is important for this list of numbers to be always increasing, start with group 0, and end with the number of groups.  
+
+One more addition modification is needed in order to use CMFD acceleration. When initializing the solver, the cmfd object must be given to the solver object as shown below:
+
+.. code-block:: python
+
+    # Initialize a solver object with CMFD acceleration
+    solver = openmoc.ThreadPrivateSolver(geometry, track_generator, cmfd)
+    ...
+
+With those few additional lines of code, you should be able to create an input file for any problem and utilize CMFD acceleration. The input file ``c5g7-cmfd.py`` provides a good example of how an input file is constructed that uses CMFD acceleration.
+
 .. _logging module: https://mit-crpg.github.io/OpenMOC/api/log.html
 .. _printf: http://www.cplusplus.com/reference/cstdio/printf/
 .. _formatted data: http://www.cplusplus.com/reference/cstdio/printf/

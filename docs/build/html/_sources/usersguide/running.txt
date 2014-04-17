@@ -140,7 +140,7 @@ The number of CUDA threads per threadblock. This option only applies to scripts 
 
 .. option:: -f, --acceleration=<false>
 
-Whether or not to use Coarse Mesh Finite Difference Acceleration (CMFD), a nonlinear acceleration scheme implemented in OpenMOC.
+Whether or not to use Coarse Mesh Finite Difference Acceleration (CMFD), a nonlinear acceleration scheme implemented in OpenMOC. Note that no command line argument after the flag ``-f`` is needed to turn on CMFD acceleration.
 
 
 .. option:: -r, --relax-factor=<0.6>
