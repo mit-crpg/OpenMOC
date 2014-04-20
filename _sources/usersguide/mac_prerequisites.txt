@@ -24,7 +24,7 @@ The following command will install all required and optional dependencies using 
 
       OpenMOC extensively uses Python for rapid data processing and visualization. OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindingssuch that users are entirely insulated from having to write in C/C++ or CUDA, and can simply write a Python script with calls to OpenMOC.
 
-      Currently, OpenMOC is only tested with Python 2.6 and 2.7 and does not yet support Python 3. Even if you already have Python installed, it is recommended that you install it again using MacPorts to ensure that it is properly configured with ``g++``. You can easily install version 2.7 using MacPorts as follows::
+      Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 and 3.2. Even if you already have Python installed, it is recommended that you install it again using MacPorts to ensure that it is properly configured with ``g++``. You can easily install version 2.7 using MacPorts as follows::
 
 	sudo port install python27
 
