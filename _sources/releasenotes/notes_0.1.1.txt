@@ -1,4 +1,4 @@
-.. _notes_0.4.1:
+.. _notes_0.1.1:
 
 ===============================
 Release Notes for OpenMOC 0.1.1
