@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['rayleighquotient',['rayleighQuotient',['../classCmfd.html#aa8cca7120f5fc29d7f79614d63d7e38b',1,'Cmfd']]],
+  ['rayleighquotient',['rayleighQuotient',['../classCmfd.html#a2885348654cf05fea72c8c361a0c5f85',1,'Cmfd']]],
   ['recordsplit',['recordSplit',['../classTimer.html#a613c775ca0b0b08f7cf1a6c165a6b6f7',1,'Timer']]],
   ['reduced_5fsource',['reduced_source',['../GPUSolver_8h.html#a201104e7c4ebc64308385f741ae5143d',1,'GPUSolver.h']]],
   ['reducethreadscalarfluxes',['reduceThreadScalarFluxes',['../classThreadPrivateSolver.html#a09364c26764b7194e2e2b0c85d816f83',1,'ThreadPrivateSolver']]],

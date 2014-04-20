@@ -29,6 +29,7 @@ var classUniverse =
     [ "_cells", "classUniverse.html#a506bf6b00ef090584d01123cb548698f", null ],
     [ "_fissionable", "classUniverse.html#a73026adf57ffb86110759698354943b2", null ],
     [ "_id", "classUniverse.html#a3f8b882d7ce239a318be9abe653b46f2", null ],
+    [ "_n", "classUniverse.html#aeea9c22816c028a32514d6020cc66b6d", null ],
     [ "_origin", "classUniverse.html#a1a1a80e5a8cc28b9629317edf03b9765", null ],
     [ "_region_map", "classUniverse.html#adca8df0b782ecddad4e1ff65d7621f68", null ],
     [ "_type", "classUniverse.html#ab982650a751c2aae8ebc26e150b71cd1", null ],
