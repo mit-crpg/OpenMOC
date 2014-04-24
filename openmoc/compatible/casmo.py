@@ -26,9 +26,52 @@ class Casmo(object):
     self._cell_type_array = None 
     self._string_cell_type_array = None #this will be stored as an array of strings
 
-  def setAssemblyName(self, assembly_name): self._assembly_name = assembly_name
-  def getAssemblyname(self): return self._assembly_name
+  ##
+  # @brief Returns assembly type as string
+  # @param self the Casmo object pointer
+  # @return assembly type (string)
+  def getAssemblyname(self): 
+    return self._assembly_name
 
+  ##
+  # @brief Sets assembly type
+  # @param self the Casmo object pointer
+  # @param assembly_name a string that indicates assembly type
+  def setAssemblyName(self, assembly_name): 
+    self._assembly_name = assembly_name
+
+  ##
+  # @brief Returns name of casmo output file to be parsed
+  # @param self the Casmo object pointer
+  # @return name of casmo output file to be parsed
+  def getFileName(self): 
+    return self._filename
+
+  ##
+  # @brief Sets file name of casmo output file to be parsed
+  # @param self the Casmo object pointer
+  # @param filename the name of the casmo output file to be parsed (string)
+  def setFileName(self, filename): self._filename = filename
+
+  ##
+  # @brief Returns directory of casmo output file being parsed
+  # @param self the Casmo object pointer
+  # @return directory of casmo output file being parsed
+  def getDirectory(self):
+    return self._directory
+
+  ##
+  # @brief Sets directory of casmo output file to be parsed
+  # @param self the Casmo object pointer
+  # @param directory the directory of the casmo output file to be parsed (string)
+  def setDirectory(self, directory): 
+    self._directory = directory
+
+  ##
+  # @brief This method parses the casmo output file for the number of
+  #        energy groups
+  # @param self the Casmo object pointer
+  # @return number of energy groups directly from casmo output file
   def parseEnergyGroups(self):
     f = open(self._directory + self._filename,'r')
     for line in f:
@@ -39,12 +82,32 @@ class Casmo(object):
     f.close()
     return energy_groups
   
-  def getEnergyGroups(self): return self._energy_groups
-  def setEnergyGroups(self, energy_groups): self._energy_groups = energy_groups
-  def importEnergyGroups(self): self.setEnergyGroups(self.parseEnergyGroups())
+  ##
+  # @brief Returns number of energy groups
+  # @param self the Casmo object pointer
+  # @return number of energy groups
+  def getEnergyGroups(self): 
+    return self._energy_groups
 
+  ##
+  # @brief Sets number of energy groups
+  # @param self the Casmo object pointer
+  # @param energy_groups number of energy groups (int)
+  def setEnergyGroups(self, energy_groups):
+    self._energy_groups = energy_groups
+
+  ##
+  # @brief parses and sets number of energy groups from casmo output file
+  # @param self the Casmo object pointer
+  def importEnergyGroups(self): 
+    self.setEnergyGroups(self.parseEnergyGroups())
+
+  ##
+  # @brief This method parses the casmo output file for the number of 
+  #        microregions in the assembly
+  # @param self the Casmo object pointer
+  # @return number of microregions directly from casmo output file
   def parseNumRegions(self):
-    '''Parses CASMO for total number of microregions in assembly.'''
     f = open(self._directory + self._filename, 'r')
     counter = 0
     for line in f:
@@ -58,19 +121,35 @@ class Casmo(object):
     f.close()
     return num_micro_regions
 
-  def getNumRegions(self): return self._num_micro_regions
-  def setNumRegions(self, num_micro_regions): self._num_micro_regions = num_micro_regions
+  ##
+  # @brief Returns number of microregions in assembly
+  # @param self the Casmo object pointer
+  # @return number of microregions
+  def getNumRegions(self): 
+    return self._num_micro_regions
 
+  ##
+  # @brief Sets the number of microregions
+  # @param self the Casmo object pointer
+  # @param num_micro_regions the number of microregions in the assembly
+  def setNumRegions(self, num_micro_regions):
+    self._num_micro_regions = num_micro_regions
+
+  ##
+  # @brief parses and sets number of microregions from casmo output file
+  # @param self the Casmo object pointer
   def importNumRegions(self):
     self.setNumRegions(self.parseNumRegions())
 
-
+  ##
+  # @brief This method parses the casmo output file for the materials 
+  #        cross sections for every microregion in the assembly
+  # @param self the Casmo object pointer
+  # @param xs_name the name of cross section type (string in all CAPS)
+  # @return numpy array of cross sections
   def parseXS(self, xs_name):
-    '''Takes name of cross-section to be parsed, returns numpy array of
-    cross\ sections.'''
 
-    # Specify in documentation that xs should be ALLCAPSONEWORD
-
+    # Parses for cross sections that are not the scattering matrix
     if xs_name != 'SIGS':
       xs_array = numpy.zeros((self._num_micro_regions, self._energy_groups))
       f = open(self._directory + self._filename, 'r')
@@ -84,6 +163,7 @@ class Casmo(object):
           break
       f.close()
 
+    # Parses for scattering matrix cross sections
     if xs_name == 'SIGS':
       xs_array = numpy.zeros((self._num_micro_regions, self._energy_groups, self._energy_groups))
       f = open(self._directory + self._filename, "r")
@@ -102,25 +182,11 @@ class Casmo(object):
     f.close()
     return xs_array
 
-  def setXS(self, xs_name, xs_array):
-    '''Takes name of cross-section and numpy array with cross-section values,
-    sets cross-section attribute.'''
-
-    if xs_name == 'SIGA':
-      self._siga = xs_array
-    if xs_name == 'SIGD':
-      self._sigd = xs_array
-    if xs_name == 'SIGT':
-      self._sigt = xs_array
-    if xs_name == 'SIGF':
-      self._sigf = xs_array
-    if xs_name == 'SIGNF':
-      self._signf = xs_array
-    if xs_name == 'SIGS':
-      self._sigs = xs_array
-    if xs_name == 'CHI':
-      self._chi = xs_array
-
+  ##
+  # @brief Returns a specific cross section numpy array
+  # @param self the Casmo object pointer
+  # @param xs_name the name of a type of cross section (string)
+  # @return a cross section numpy array
   def getXS(self, xs_name):
     '''Retrieves cross-section attribute.'''
 
@@ -139,15 +205,50 @@ class Casmo(object):
     if xs_name == 'CHI':
       return self._chi
 
-  def importXS(self, xs_name): self.setXS(xs_name, self.parseXS(xs_name))
+  ##
+  # @brief Sets a specific cross section
+  # @param self the Casmo object pointer
+  # @param xs_name the name of a type of cross section (string)
+  # @param xs_array a numpy array of cross section values
+  def setXS(self, xs_name, xs_array):
 
+    if xs_name == 'SIGA':
+      self._siga = xs_array
+    if xs_name == 'SIGD':
+      self._sigd = xs_array
+    if xs_name == 'SIGT':
+      self._sigt = xs_array
+    if xs_name == 'SIGF':
+      self._sigf = xs_array
+    if xs_name == 'SIGNF':
+      self._signf = xs_array
+    if xs_name == 'SIGS':
+      self._sigs = xs_array
+    if xs_name == 'CHI':
+      self._chi = xs_array
+
+  ##
+  # @brief parses and sets a specific cross section type from casmo ouput file
+  # @param self the Casmo object pointer
+  # @param xs_name the name of a type of cross section (string)
+  def importXS(self, xs_name):
+    self.setXS(xs_name, self.parseXS(xs_name))
+
+  ##
+  # @brief calls importXS for all types of cross sections needed by OpenMOC
+  # @param self the Casmo object pointer
   def importAllXS(self):
     xs_list = ['SIGA', 'SIGD', 'SIGT', 'SIGF', 'SIGNF', 'SIGS', 'CHI']
     for xs_name in xs_list:
       self.importXS(xs_name)
 
+  ##
+  # @brief This method parses the casmo output file for the dimensions of
+  #        the assembly. The width equals the number of fuel pins in a row
+  #        or column of an assembly.
+  # @param self the Casmo object pointer
+  # @return width of the assembly
   def parseWidth(self):
-    '''Parses half_widths of one fourth the full array from CASMO.'''
 
     half_width = -1
     f = open(self._directory + self._filename, "r")
@@ -162,11 +263,34 @@ class Casmo(object):
     f.close()
     return half_width*2-1
 
-  def setWidth(self,width): self._width = width
-  def importWidth(self): self.setWidth(self.parseWidth())
+  ##
+  # @brief Returns width of the assembly
+  # @param self the Casmo object pointer
+  # @return width of the assembly (int)
+  def getWidth(self):
+    return self._width = width
 
+  ##
+  # @brief Sets width of the assembly
+  # @param self the Casmo object pointer
+  # @param width the width to be set for the assembly
+  def setWidth(self, width):
+    self._width = width
+
+  ##
+  # @brief parses and sets a width of assembly from casmo ouput file
+  # @param self the Casmo object pointer
+  def importWidth(self):
+    self.setWidth(self.parseWidth())
+
+  ##
+  # @brief This method parses the casmo output file for microregion ranges
+  #        and returns a tuple of two numpy arrays, one is the minimum values
+  #        and the other is the maximum values of those microregion ranges, each
+  #        each located within its specific macroregion
+  # @param self the Casmo object pointer
+  # @return numpy array tuple (min microregion values, max microregion values)
   def parseMicroregions(self):
-    '''Parses minimum microregions for each assembly component.'''
 
     half_width = (self._width+1)/2
     min_array = numpy.zeros((self._width,self._width), dtype=numpy.int32)
@@ -208,15 +332,47 @@ class Casmo(object):
 
     return min_array, max_array
 
+  ##
+  # @brief Returns numpy array of minimum values of microregion range within
+  #        each macroregion
+  # @param self the Casmo object pointer
+  # @return numpy array of minimum values of microregion ranges
+  def getMinMicroregions(self):
+    return self._min_microregions
 
-  def getMinMicroregions(self): return self._min_microregions
-  def setMinMicroregions(self, min_array): self._min_microregions = min_array
-  def getMaxMicroregions(self): return self._max_microregions
-  def setMaxMicroregions(self, max_array): self._max_microregions = max_array
+  ##
+  # @brief Sets minimum values of microregion ranges within each macroregion
+  # @param self the Casmo object pointer
+  # @param min_array numpy array of minimum values of microregion ranges
+  def setMinMicroregions(self, min_array):
+    self._min_microregions = min_array
+
+  ##
+  # @brief Returns numpy array of maximum values of microregion ranges within
+  #        each macroregion
+  # @param self the Casmo object pointer
+  # @return numpy array of maximum values of microregion ranges
+  def getMaxMicroregions(self):
+    return self._max_microregions
+
+  ##
+  # @brief Sets minimum values of microregion ranges within each macroregion
+  # @param self the Casmo object pointer
+  # @param min_array numpy array of minimum values of microregion ranges
+  def setMaxMicroregions(self, max_array):
+    self._max_microregions = max_array
+
+  ##
+  # @brief parses and sets microregion value numpy arrays
+  # @param self the Casmo object pointer
   def importMicroregions(self):
       self.setMinMicroregions(self.parseMicroregions()[0])
       self.setMinMicroregions(self.parseMicroregions()[1])
 
+  ##
+  # @brief This method parses the casmo output file for reference eigenvalue
+  # @param self the Casmo object pointer
+  # @return reference eigenvalue of assembly (float)
   def parseKinf(self):
     '''parses k-infinity from CASMO output file'''
 
@@ -230,12 +386,31 @@ class Casmo(object):
     f.close()
     return kinf
 
-  def getKinf(self): return self._kinf
-  def setKinf(self,kinf): self._kinf = kinf
-  def importKinf(self): self.setKinf(self.parseKinf())
+  ##
+  # @brief Returns reference eigenvalue of assembly from casmo output file
+  # @param self the Casmo object pointer
+  # @return reference eigenvalue of assembly (float)
+  def getKinf(self):
+    return self._kinf
 
+  ##
+  # @brief Sets reference eigenvalue of assembly
+  # @param self the Casmo object pointer
+  # @param kinf the reference eigenvalue to be set for the assembly
+  def setKinf(self, kinf):
+    self._kinf = kinf
+
+  ##
+  # @brief parses and sets eigenvalue of assembly
+  # @param self the Casmo object pointer
+  def importKinf(self):
+    self.setKinf(self.parseKinf())
+
+  ##
+  # @brief This method parses the casmo output file for reference pin powers
+  # @param self the Casmo object pointer
+  # @return numpy array of float-valued reference pin powers of assembly
   def parsePinPowers(self):
-    '''parses pin powers from the CASMO output file'''
 
     f = open(self._directory + self._filename, 'r')
 
@@ -259,6 +434,7 @@ class Casmo(object):
             counter += 1
     f.close()
     
+    # Arranges section of pin powers into larger array by symmetry
     pin_power_array[(half_width-1):,(half_width-1):] = quadrant4
     pin_power_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
     pin_power_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
@@ -266,21 +442,53 @@ class Casmo(object):
 
     return pin_power_array
 
-  def setPinPowers(self,pin_power_array): self._pin_powers = pin_power_array
-  def getPinPowers(self): return self._pin_powers
-  def importPinPowers(self): self.setPinPowers(self.parsePinPowers())
+  ##
+  # @brief Returns reference pin powers of assembly from casmo output file
+  # @param self the Casmo object pointer
+  # @return numpy array of float valued reference pin powers of assembly
+  def getPinPowers(self):
+    return self._pin_powers
 
-  def setCellTypes(self, cell_types_id, name):
+  ##
+  # @brief Sets reference pin powers of assembly
+  # @param self the Casmo object pointer
+  # @param pin_power_array numpy array of float-valued reference pin powers
+  def setPinPowers(self, pin_power_array):
+    self._pin_powers = pin_power_array
+
+  ##
+  # @brief parses and sets pin powers of assembly
+  # @param self the Casmo object pointer
+  def importPinPowers(self):
+    self.setPinPowers(self.parsePinPowers())
+
+  ##
+  # @brief Returns dictionary of cell type associated with each id number
+  # @param self the Casmo object pointer
+  # @return dictionary cell types by id number, int-->string
+  def getCellTypes(self):
+    return self._cell_types
+
+  ##
+  # @brief Sets a cell type and cell type id key-value pair
+  # @param self the Casmo object pointer
+  # @param cell_types_id id number for a certain cell type (int)
+  # @param name name of a specific cell type associated an id number (string)
+  def setCellType(self, cell_types_id, name):
     self._cell_types[cell_types_id] = name
-  def getCellTypes(self): return self._cell_types
 
+  ##
+  # @brief This method parses the casmo output file for the type of material in
+  #        each cell
+  # @param self the Casmo object pointer
+  # @return numpy array of int-valued cell types
   def parseCellTypeArray(self):
+
     half_width = (self._width+1)/2
     full_width = self._width
     cell_type_array = numpy.zeros((full_width,full_width), dtype=numpy.int32)
     quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.int32)
 
-    '''parses cell types from CASMO output file'''
     counter = 0
     f = open(self._directory + self._filename, 'r')
     for line in f:
@@ -297,7 +505,7 @@ class Casmo(object):
             counter += 1
     f.close()
     
-    '''creates an array of all the cell types represented by whole numbers'''
+    # Arranges section of cell types into larger array by symmetry
     cell_type_array[(half_width-1):,(half_width-1):] = quadrant4
     cell_type_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
     cell_type_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
@@ -307,13 +515,33 @@ class Casmo(object):
 	
     return cell_type_array
 
-  def setCellTypeArray(self, cell_type_array): self._cell_type_array = cell_type_array
-  def getCellTypeArray(self): return self._cell_type_array
-  def importCellTypeArray(self): self.setCellTypeArray(self.parseCellTypeArray())
+  ##
+  # @brief Returns array of cell type ids for assembly
+  # @param self the Casmo object pointer
+  # @return array of cell types for every cell in assembly
+  def getCellTypeArray(self):
+    return self._cell_type_array
 
+  ##
+  # @brief Sets array of cell type ids for assembly
+  # @param self the Casmo object pointer
+  # @param cell_type_array numpy array of int-valued cell type ids
+  def setCellTypeArray(self, cell_type_array):
+    self._cell_type_array = cell_type_array
+
+  ##
+  # @brief parses and sets cell type ids for assembly
+  # @param self the Casmo object pointer
+  def importCellTypeArray(self):
+    self.setCellTypeArray(self.parseCellTypeArray())
+
+  ##
+  # @brief This method converts the numerical cell type array to strings that
+  #        indicate the cell type in clearer language
+  # @param self the Casmo object pointer
+  # @return numpy array of cell types as strings
   def stringCellTypeArray(self):
 
-    '''converts numerical array to strings'''
     #id of 1 corresponds to fuel (string of fuel)
     #id of 2 corresponds to guide tube (string of gt)
     #id of 3 corresponds to burnable poison (string of bp)
@@ -339,9 +567,26 @@ class Casmo(object):
           string_cell_type_array[i,j] = 'bp'
     '''
 
-  def getStringCellTypeArray(self): return self._string_cell_type_array
-  def setStringCellTypeArray(self,string_cell_type_array): self._string_cell_type_array = string_cell_type_array
+  ##
+  # @brief Returns array of cell types as strings for assembly
+  # @param self the Casmo object pointer
+  # @return array of cell types as strings for assembly
+  def getStringCellTypeArray(self):
+    return self._string_cell_type_array
 
+  ##
+  # @brief Sets array of cell types as strings for assembly
+  # @param self the Casmo object pointer
+  # @param string_cell_type_array array of cell types as strings
+  def setStringCellTypeArray(self, string_cell_type_array):
+    self._string_cell_type_array = string_cell_type_array
+
+  ##
+  # @brief This method calls the Casmo import methods necessary to construct
+  #        the geometry of an assembly in OpenMOC
+  # @param self the Casmo object pointer
+  # @param filename filename of casmo output file to be parsed
+  # @param directory directory of casmo output file to be parsed
   def importFromCASMO(self, filename, directory):
     self._filename = filename
     self._directory = directory
@@ -354,6 +599,12 @@ class Casmo(object):
     self.importPinPowers()
     self.importCellTypeArray()
 
+  ##
+  # @brief This method exports all data contained within member variables
+  #        of the Casmo object to an hdf5 data file
+  # @param self the Casmo object pointer
+  # @param filename filename of hdf5 data file
+  # @param directory directory where hdf5 data file will be stored
   def export(self, directory = 'casmo-data/', filename = 'casmo-data.h5'):
     f = h5py.File(directory + filename)
     f.attrs['Energy Groups'] = self._energy_groups
@@ -382,6 +633,12 @@ class Casmo(object):
     max_microregions.create_dataset('Max Microregions', data=self._max_microregions)
     f.close()
 
+  ##
+  # @brief This method imports data from an hdf5 data file and assigns it
+  #        to the corresponding member variables
+  # @param self the Casmo object pointer
+  # @param filename filename of hdf5 data file
+  # @param directory directory where hdf5 data file is stored
   def importFromHDF5(self, directory = 'casmo-data/', filename = 'casmo-data.h5'):
     f = h5py.File(directory + filename, 'r')
     self._directory = directory    
@@ -403,15 +660,20 @@ class Casmo(object):
     self._num_micro_regions = self._sigt.shape[0]
     f.close()
 
+  ##
+  # @brief This method exports only cross sectional arrays contained within 
+  #        member variables of the Casmo object to an hdf5 data file
+  # @param self the Casmo object pointer
+  # @param assembly_name name of assembly for materials being exported
+  # @param directory directory where hdf5 data file will be stored
+  def xsToHDF5(self, assembly_name, directory = 'casmo-data'):
 
-  def xsToHDF5(self, assembly, directory = 'casmo-data'):
-
-    os.system('rm ' + directory + '/' + assembly + '-materials.hdf5')
+    os.system('rm ' + directory + '/' + assembly_name + '-materials.hdf5')
     if not os.path.exists(directory):
       os.makedirs(directory)
 
 
-    f = h5py.File(directory + '/' + assembly + '-materials.hdf5')
+    f = h5py.File(directory + '/' + assembly_name + '-materials.hdf5')
 
     f.attrs['Energy Groups'] = self._energy_groups
 
