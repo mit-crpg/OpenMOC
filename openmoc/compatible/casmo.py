@@ -1,8 +1,19 @@
+##
+# @file casmo.py
+# @package openmoc.compatible.casmo
+# @brief The parsing module provides utility functions to parse in data 
+#        necessary to construct assembly geometries in OpenMOC
+# @author Davis Tran (dvtran@mit.edu)
+# @date April 24, 2014
+
 import numpy
 import h5py
 import os
 import openmoc.log as log
 
+##
+# @class casmo.py "openmoc/compatible/casmo.py"
+# @brief Contains data parsed from casmo output file
 class Casmo(object):
   def __init__(self):
     self._assembly_name = None
@@ -24,7 +35,7 @@ class Casmo(object):
     self._pin_powers = None
     self._cell_types = {}
     self._cell_type_array = None 
-    self._string_cell_type_array = None #this will be stored as an array of strings
+    self._string_cell_type_array = None
 
   ##
   # @brief Returns assembly type as string
@@ -374,8 +385,6 @@ class Casmo(object):
   # @param self the Casmo object pointer
   # @return reference eigenvalue of assembly (float)
   def parseKinf(self):
-    '''parses k-infinity from CASMO output file'''
-
     f = open(self._directory + self._filename, 'r')
 
     for line in f:
@@ -420,18 +429,18 @@ class Casmo(object):
 
     counter = 0
     for line in f:
-        if counter >= 1 and line == "\n":
-            break
-        if "Power Distribution" in line:
-            counter += 1
-            continue
-        if counter >= 1:
-            powers = line.split()
-            for index, power in enumerate(powers):
-                power = power.strip("*")
-                quadrant4[counter-1, index] = float(power)
-                quadrant4[index, counter-1] = float(power)
-            counter += 1
+      if counter >= 1 and line == "\n":
+        break
+      if "Power Distribution" in line:
+        counter += 1
+        continue
+      if counter >= 1:
+        powers = line.split()
+        for index, power in enumerate(powers):
+          power = power.strip("*")
+          quadrant4[counter-1, index] = float(power)
+          quadrant4[index, counter-1] = float(power)
+        counter += 1
     f.close()
     
     # Arranges section of pin powers into larger array by symmetry
@@ -492,17 +501,17 @@ class Casmo(object):
     counter = 0
     f = open(self._directory + self._filename, 'r')
     for line in f:
-        if counter >=1 and line == '\n':
-            break
-        if 'Layout' in line:
-            counter += 1
-            continue
-        if counter >= 1:
-            cell_types = line.split()
-            for index, cell_type in enumerate(cell_types):
-                cell_type = cell_type.strip('*')
-                quadrant4[counter-1, index] = int(cell_type)
-            counter += 1
+      if counter >=1 and line == '\n':
+        break
+      if 'Layout' in line:
+        counter += 1
+        continue
+      if counter >= 1:
+        cell_types = line.split()
+        for index, cell_type in enumerate(cell_types):
+          cell_type = cell_type.strip('*')
+          quadrant4[counter-1, index] = int(cell_type)
+        counter += 1
     f.close()
     
     # Arranges section of cell types into larger array by symmetry
@@ -601,7 +610,7 @@ class Casmo(object):
 
   ##
   # @brief This method exports all data contained within member variables
-  #        of the Casmo object to an hdf5 data file
+  #        of the Casmo object to an hdf5 data file, data sets expect arrays
   # @param self the Casmo object pointer
   # @param filename filename of hdf5 data file
   # @param directory directory where hdf5 data file will be stored
