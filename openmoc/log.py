@@ -12,6 +12,11 @@
 
 import sys
 
+## @var openmoc
+#  @brief The openmoc module in use in the Python script using the
+#         openmoc.log module.
+openmoc = ''
+
 # Determine which OpenMOC module is being used
 if 'openmoc.gnu.double' in sys.modules:
   openmoc = sys.modules['openmoc.gnu.double']

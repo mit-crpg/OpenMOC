@@ -14,7 +14,7 @@ import sys
 
 ## @var openmoc
 #  @brief The openmoc module in use in the Python script using the
-#         openmoc.materialize module.
+#         openmoc.process module.
 openmoc = ''
 
 # Determine which OpenMOC module is being used
