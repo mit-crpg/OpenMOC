@@ -3,7 +3,7 @@
 # @package openmoc.compatible.casmo
 # @brief The parsing module provides utility functions to parse in data 
 #        necessary to construct assembly geometries in OpenMOC
-# @author Davis Tran (dvtran@mit.edu)
+# @author BEAVRS (beavrs@mit.edu)
 # @date April 24, 2014
 
 import numpy
@@ -15,12 +15,17 @@ import openmoc.log as log
 # @class casmo.py "openmoc/compatible/casmo.py"
 # @brief Contains data parsed from casmo output file
 class Casmo(object):
+
+  ##
+  # @brief Casmo object class constructor
   def __init__(self):
     self._assembly_name = None
     self._filename = None
     self._directory = None
     self._energy_groups = None
     self._num_micro_regions = None
+    self._fuel_pin_rad = None
+    self._lattice_pitch = None
     self._siga = None
     self._sigd = None
     self._sigt = None
@@ -41,7 +46,7 @@ class Casmo(object):
   # @brief Returns assembly type as string
   # @param self the Casmo object pointer
   # @return assembly type (string)
-  def getAssemblyname(self): 
+  def getAssemblyName(self): 
     return self._assembly_name
 
   ##
@@ -74,7 +79,7 @@ class Casmo(object):
   ##
   # @brief Sets directory of casmo output file to be parsed
   # @param self the Casmo object pointer
-  # @param directory the directory of the casmo output file to be parsed (string)
+  # @param directory directory of the casmo output file to be parsed (string)
   def setDirectory(self, directory): 
     self._directory = directory
 
@@ -151,6 +156,80 @@ class Casmo(object):
   # @param self the Casmo object pointer
   def importNumRegions(self):
     self.setNumRegions(self.parseNumRegions())
+
+  ##
+  # @brief This method parses the casmo output file for the thermally
+  #        expanded fuel pin radii
+  # @param self the Casmo object pointer
+  # @return fuel pin radii (float)
+  def parseFuelPinRadii(self):
+    f = open(self._directory + self._filename, 'r')
+    for line in f:
+      if 'Average fuel pellet diam.' in line:
+        tokens = line.split()
+        diameter = tokens[5]
+        break
+    f.close()
+    E = diameter.index('E')
+    radii = (0.5 * float(diameter[0:E]) * 10 ** int(diameter[E+1:]))
+    return radii
+
+  ##
+  # @brief Returns fuel pin radii of the assembly
+  # @param self the Casmo object pointer
+  # @return fuel pin radii (float)
+  def getFuelPinRadii(self): 
+    return self._fuel_pin_rad
+
+  ##
+  # @brief Sets fuel pin radii of the assembly
+  # @param self the Casmo object pointer
+  # @param fuel_pin_rad fuel pin radii to be set for assembly (float)
+  def setFuelPinRadii(self, fuel_pin_rad):
+    self._fuel_pin_rad = fuel_pin_rad
+
+  ##
+  # @brief parses and sets fuel pin radii of the assembly
+  # @param self the Casmo object pointer
+  def importFuelPinRadii(self): 
+    self.setFuelPinRadii(self.parseFuelPinRadii())
+
+  ##
+  # @brief This method parses the casmo output file for the thermally
+  #        expanded lattice pitch
+  # @param self the Casmo object pointer
+  # @return lattice pitch (float)
+  def parseLatticePitch(self):
+    f = open(self._directory + self._filename, 'r')
+    for line in f:
+      if 'Bundle pitch' in line:
+        tokens = line.split()
+        raw_pitch = tokens[3]
+        break
+    f.close()
+    E = raw_pitch.index('E')
+    pitch = (float(raw_pitch[0:E]) * 10 ** int(raw_pitch[E+1:]))
+    return pitch
+
+  ##
+  # @brief Returns lattice pitch of the assembly
+  # @param self the Casmo object pointer
+  # @return lattice pitch (float)
+  def getLatticePitch(self): 
+    return self._lattice_pitch
+
+  ##
+  # @brief Sets lattice pitch of the assembly
+  # @param self the Casmo object pointer
+  # @param lattice_pitch lattice pitch to be set for assembly (float)
+  def setLatticePitch(self, lattice_pitch):
+    self._lattice_pitch = lattice_pitch
+
+  ##
+  # @brief parses and sets lattice pitch of the assembly
+  # @param self the Casmo object pointer
+  def importLatticePitch(self): 
+    self.setLatticePitch(self.parseLatticePitch())    
 
   ##
   # @brief This method parses the casmo output file for the materials 
@@ -279,7 +358,7 @@ class Casmo(object):
   # @param self the Casmo object pointer
   # @return width of the assembly (int)
   def getWidth(self):
-    return self._width = width
+    return self._width
 
   ##
   # @brief Sets width of the assembly
@@ -369,7 +448,7 @@ class Casmo(object):
   ##
   # @brief Sets minimum values of microregion ranges within each macroregion
   # @param self the Casmo object pointer
-  # @param min_array numpy array of minimum values of microregion ranges
+  # @param max_array numpy array of minimum values of microregion ranges
   def setMaxMicroregions(self, max_array):
     self._max_microregions = max_array
 
@@ -378,7 +457,7 @@ class Casmo(object):
   # @param self the Casmo object pointer
   def importMicroregions(self):
       self.setMinMicroregions(self.parseMicroregions()[0])
-      self.setMinMicroregions(self.parseMicroregions()[1])
+      self.setMaxMicroregions(self.parseMicroregions()[1])
 
   ##
   # @brief This method parses the casmo output file for reference eigenvalue
@@ -615,31 +694,28 @@ class Casmo(object):
   # @param filename filename of hdf5 data file
   # @param directory directory where hdf5 data file will be stored
   def export(self, directory = 'casmo-data/', filename = 'casmo-data.h5'):
-    f = h5py.File(directory + filename)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    f = h5py.File(directory + filename, 'w')
     f.attrs['Energy Groups'] = self._energy_groups
     f.attrs['K-Infinity'] = self._kinf
-    sigma_t = f.create_group('Total XS')
-    sigma_t.create_dataset('Total XS', data=self._sigt)
-    sigma_a = f.create_group('Absorption XS')
-    sigma_a.create_dataset('Absorption XS', data=self._siga)
-    sigma_f = f.create_group('Fission XS')
-    sigma_f.create_dataset('Fission XS', data=self._sigf)
-    sigma_nf = f.create_group('Nu Fission XS')
-    sigma_nf.create_dataset('Nu Fission XS', data=self._signf)
-    sigma_s = f.create_group('Scattering XS')
-    sigma_s.create_dataset('Scattering XS', data=self._sigs)
-    sigma_d = f.create_group('Dif Coefficient')
-    sigma_d.create_dataset('Dif Coefficient', data=self._sigd)
-    chi = f.create_group('Chi')
-    chi.create_dataset('Chi', data=self._chi)
-    pin_powers = f.create_group('Pin Powers')
-    pin_powers.create_dataset('Pin Powers', data=self._pin_powers)
-    cell_types = f.create_group('Cell Types')
-    cell_types.create_dataset('Cell Types', data=self._cell_type_array)
-    min_microregions = f.create_group('Min Microregions')
-    min_microregions.create_dataset('Min Microregions', data=self._min_microregions)
-    max_microregions = f.create_group('Max Microregions')
-    max_microregions.create_dataset('Max Microregions', data=self._max_microregions)
+    f.attrs['Assembly Width'] = self._width
+    f.attrs['Num Microregions'] = self._num_micro_regions
+    f.attrs['Fuel Pin Radii'] = self._fuel_pin_rad
+    f.attrs['Lattice Pitch'] = self._lattice_pitch
+    big_data = f.create_group('Casmo Data')
+    big_data.create_dataset('Total XS', data=self._sigt)
+    big_data.create_dataset('Absorption XS', data=self._siga)
+    big_data.create_dataset('Fission XS', data=self._sigf)
+    big_data.create_dataset('Nu Fission XS', data=self._signf)
+    big_data.create_dataset('Scattering XS', data=self._sigs)
+    big_data.create_dataset('Dif Coefficient', data=self._sigd)
+    big_data.create_dataset('Chi', data=self._chi)
+    big_data.create_dataset('Pin Powers', data=self._pin_powers)
+    big_data.create_dataset('Cell Types', data=self._cell_type_array)
+    big_data.create_dataset('String Cell Types', data=self._string_cell_type_array)
+    big_data.create_dataset('Min Microregions', data=self._min_microregions)
+    big_data.create_dataset('Max Microregions', data=self._max_microregions)
     f.close()
 
   ##
@@ -649,24 +725,27 @@ class Casmo(object):
   # @param filename filename of hdf5 data file
   # @param directory directory where hdf5 data file is stored
   def importFromHDF5(self, directory = 'casmo-data/', filename = 'casmo-data.h5'):
+
     f = h5py.File(directory + filename, 'r')
     self._directory = directory    
     self._filename = filename
-    self._energy_groups = f['Energy Groups']
-    self._kinf = f['K-Infinity']
-    self._sigt = f['Total XS'][...]
-    self._siga = f['Absorption XS'][...]
-    self._sigf = f['Fission XS'][...]
-    self._signf = f['Nu Fission XS'][...]
-    self._sigs = f['Scattering XS'][...]
-    self._sigd = f['Dif Coefficient'][...]
-    self._chi = f['Chi'][...]
-    self._pin_powers = f['Pin Powers'][...]
-    self._cell_type_array = f['Cell Types'][...]
-    self._min_microregions = f['Min Microregions'][...]
-    self._max_microregions = f['Max Microregions'][...]
-    self._width = self._max_microregions.shape[0]
-    self._num_micro_regions = self._sigt.shape[0]
+    self._energy_groups = f.attrs['Energy Groups']
+    self._kinf = f.attrs['K-Infinity']
+    self._width = f.attrs['Assembly Width']
+    self._num_micro_regions = f.attrs['Num Microregions']
+    self._fuel_pin_rad = f.attrs['Fuel Pin Radii']
+    self._lattice_pitch = f.attrs['Lattice Pitch']
+    self._sigt = f['Casmo Data']['Total XS'][...]
+    self._siga = f['Casmo Data']['Absorption XS'][...]
+    self._sigf = f['Casmo Data']['Fission XS'][...]
+    self._signf = f['Casmo Data']['Nu Fission XS'][...]
+    self._sigs = f['Casmo Data']['Scattering XS'][...]
+    self._sigd = f['Casmo Data']['Dif Coefficient'][...]
+    self._chi = f['Casmo Data']['Chi'][...]
+    self._pin_powers = f['Casmo Data']['Pin Powers'][...]
+    self._cell_type_array = f['Casmo Data']['Cell Types'][...]
+    self._min_microregions = f['Casmo Data']['Min Microregions'][...]
+    self._max_microregions = f['Casmo Data']['Max Microregions'][...]
     f.close()
 
   ##
