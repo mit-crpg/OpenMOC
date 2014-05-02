@@ -1498,8 +1498,8 @@ int Cmfd::getNumCmfdGroups(){
 
 
 /**
- * @brief Get the CMFD group given and MOC group.
- * @param the MOC energy group
+ * @brief Get the CMFD group given an MOC group.
+ * @param group the MOC energy group
  * @return the CMFD energy group
  */
 int Cmfd::getCmfdGroup(int group){
