@@ -12,7 +12,7 @@ def get_openmoc_object_name():
 
   # For Python 3.X.X
   # NOTE: Python 3 distributions are not yet working with SWIG, but this
-  # is a stub for the future
+  # is a stub for the futuresmo
   elif (sys.version_info[0] == 3):
 #    filename = '_openmoc.so'
     filename = '_openmoc.cpython-{version[0]}{version[1]}mu.so'
@@ -111,7 +111,7 @@ class configuration:
   # List of the packages to install - only openmoc is guaranteed to be built
   # while the others will be built based on which flags are specified
   # at compile time
-  packages = ['openmoc', 'openmoc.intel', 'openmoc.gnu',
+  packages = ['openmoc', 'openmoc.compatible', 'openmoc.intel', 'openmoc.gnu',
               'openmoc.bgq', 'openmoc.cuda', 'openmoc.intel.double',
               'openmoc.intel.single', 'openmoc.gnu.double',
               'openmoc.gnu.single', 'openmoc.bgq.single',
