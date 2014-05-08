@@ -218,7 +218,7 @@ class Casmo(object):
   def parseXS(self, xs_name):
 
     # Parses for cross sections that are not the scattering matrix
-    if xs_name != 'SIGS':
+    if xs_name != 'SIGS' and xs_name!='CHI':
       xs_array = numpy.zeros((self._num_micro_regions, self._energy_groups))
       f = open(self._directory + self._filename, 'r')
       counter = 0
@@ -302,7 +302,7 @@ class Casmo(object):
   ##
   # @brief calls importXS for all types of cross sections needed by OpenMOC
   def importAllXS(self):
-    xs_list = ['SIGA', 'SIGD', 'SIGT', 'SIGF', 'SIGNF', 'SIGS', 'CHI']
+    xs_list = ['SIGA', 'SIGD', 'SIGT', 'SIGF', 'SIGNF', 'SIGS']
     for xs_name in xs_list:
       self.importXS(xs_name)
 
