@@ -591,7 +591,7 @@ class Casmo(object):
         if self._cell_type_array[i,j] in self._cell_types.keys():
           string_cell_type_array[i,j] = self._cell_types[self._cell_type_array[i,j]]
         else:
-          log.py_printf('WARNING', 'Cell type id %d does not exist. Call setCellTypes to set cell name for id.', cell_type_array[i,j])
+          log.py_printf('WARNING', 'Cell type id %d does not exist. Call setCellTypes to set cell name for id.', self._cell_type_array[i,j])
 
     return string_cell_type_array
 
@@ -688,12 +688,10 @@ class Casmo(object):
   #        member variables of the Casmo object to an hdf5 data file
   # @param assembly_name name of assembly for materials being exported
   # @param directory directory where hdf5 data file will be stored
-  def xsToHDF5(self, assembly_name, directory = 'casmo-data'):
-
-    os.system('rm ' + directory + '/' + assembly_name + '-materials.hdf5')
+  def exportAllXSToHDF5(self, assembly_name, directory = 'casmo-data'):
     if not os.path.exists(directory):
       os.makedirs(directory)
-    f = h5py.File(directory + '/' + assembly_name + '-materials.hdf5')
+    f = h5py.File(directory + '/' + assembly_name + '-all-materials.hdf5','w')
     f.attrs['Energy Groups'] = self._energy_groups
     for region in range(self._num_micro_regions):
       material = f.create_group('microregion-' + str((region + 1)))
@@ -706,45 +704,62 @@ class Casmo(object):
       material.create_dataset('Chi', data=self._chi[region, :])
     f.close()
 
+  def exportAvgXSToHDF5(self, assembly_name, directory = 'casmo-data'):
+    if not os.path.exists(directory):
+      os.makedirs(directory)
+    f = h5py.File(directory + '/' + assembly_name + '-avg-materials.hdf5','w')
+    f.attrs['Energy Groups'] = self._energy_groups
+    for region in self._average_cross_sections.keys():
+      region_group = f.create_group(region)
+      for xs_type in self._average_cross_sections[region].keys():
+        region_group.create_dataset(xs_type,data=self._average_cross_sections[region][xs_type])
+    f.close()
+
   def averageXSGenerator(self):
     xs_types = ['siga','sigd','sigt','sigf','signf','sigs']
-    regions = ['fuel','water','cladding','helium','bp','zircaloy','ss304']
+    regions = ['fuel','water','cladding','helium']
+    if 'b' in self._string_cell_type_array:
+      regions.extend(['bp','ss304'])
     variable_dict = {'siga':self._siga,'sigd':self._sigd,'sigt':self._sigt,'sigf':self._sigf,'signf':self._signf,'sigs':self._sigs}
     val_dict = {}
-    for xs_type in xs_types:
-      for region in regions:
+    for region in regions:
+      val_dict[region] = {}
+      for xs_type in xs_types:
         val_dict[region][xs_type] = []
-    
-    for i in range(len(self._cell_type_array)):
-      for j in range(len(self._cell_type_array[i])):
-        if string_pin_cell_array[i][j]=='gt':
+    for i in range(len(self._string_cell_type_array)):
+      for j in range(len(self._string_cell_type_array[i])):
+        if self._string_cell_type_array[i][j]=='g':
           for xs_type in xs_types:
-            val_dict['water'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
-            val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+1])
-            for k in range(self._min_microregions[i][j]+2,self.max_microregions[i][j]+1):
+            val_dict['water'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
+            val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
+            for k in range(self._min_microregions[i][j]+1,self._max_microregions[i][j]):
               val_dict['water'][xs_type].append(variable_dict[xs_type][k])
-        elif string_pin_cell_array[i][j]=='fuel':
+        elif self._string_cell_type_array[i][j]=='f':
           for xs_type in xs_types:
-            val_dict['fuel'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
-            val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+1])
-            val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+2])
-            for k in range(self._min_microregions[i][j]+3,self.max_microregions[i][j]+1):
-              val_dict[xs_type]['water'].append(variable_dict[xs_type][k])
-        elif string_pin_cell_array[i][j]=='bp':
-          for xs_type in xs_types:
+            val_dict['fuel'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
             val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
-            val_dict['ss304'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+1])
-            val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+2])
-            val_dict['bp'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+3])
-            val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+4])
-            val_dict['ss304'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+5])
-            val_dict['water'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+6])
-            val_dict['zircaloy'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+7])
-            for k in range(self._min_microregions[i][j]+8,self.max_microregions[i][j]+1):
+            val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+1])
+            for k in range(self._min_microregions[i][j]+2,self._max_microregions[i][j]):
               val_dict['water'][xs_type].append(variable_dict[xs_type][k])
-        
+        elif self._string_cell_type_array[i][j]=='b':
+          for xs_type in xs_types:
+            val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
+            val_dict['ss304'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
+            val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+1])
+            val_dict['bp'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+2])
+            val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+3])
+            val_dict['ss304'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+4])
+            val_dict['water'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+5])
+            val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+6])
+            for k in range(self._min_microregions[i][j]+7,self._max_microregions[i][j]):
+              val_dict['water'][xs_type].append(variable_dict[xs_type][k])
     avg_dict = {}            
-    for xs_type in xs_types:
-      for region in regions:
-        avg_dict[region][xs_type] = sum(val_dict[region][xs_type])/len(val_dict[region][xs_type])
+    for region in regions:
+      avg_dict[region] = {}
+      for xs_type in xs_types:
+        avg_dict[region][xs_type] = []
+        for group in range(self._energy_groups):
+          numerator = sum([e[group] for e in val_dict[region][xs_type]])
+          denominator = float(len(val_dict[region][xs_type]))
+          avg_dict[region][xs_type].append(numerator/denominator)
     self._average_cross_sections = avg_dict
