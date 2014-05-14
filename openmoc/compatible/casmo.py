@@ -716,33 +716,32 @@ class Casmo(object):
     f.close()
 
   def averageXSGenerator(self):
-    xs_types = ['siga','sigd','sigt','sigf','signf','sigs']
     regions = ['fuel','water','cladding','helium']
     if 'b' in self._string_cell_type_array:
       regions.extend(['bp','ss304'])
-    variable_dict = {'siga':self._siga,'sigd':self._sigd,'sigt':self._sigt,'sigf':self._sigf,'signf':self._signf,'sigs':self._sigs}
+    variable_dict = {'Absorption XS':self._siga,'Dif Coefficient':self._sigd,
+      'Total XS':self._sigt,'Fission XS':self._sigf,'Nu Fission XS':self._signf,
+      'Scattering XS':self._sigs}
     val_dict = {}
     for region in regions:
       val_dict[region] = {}
-      for xs_type in xs_types:
+      for xs_type in variable_dict.keys():
         val_dict[region][xs_type] = []
     for i in range(len(self._string_cell_type_array)):
       for j in range(len(self._string_cell_type_array[i])):
-        if self._string_cell_type_array[i][j]=='g':
-          for xs_type in xs_types:
+        for xs_type in variable_dict.keys():
+          if self._string_cell_type_array[i][j]=='g':
             val_dict['water'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
             val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
             for k in range(self._min_microregions[i][j]+1,self._max_microregions[i][j]):
               val_dict['water'][xs_type].append(variable_dict[xs_type][k])
-        elif self._string_cell_type_array[i][j]=='f':
-          for xs_type in xs_types:
+          elif self._string_cell_type_array[i][j]=='f':
             val_dict['fuel'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
             val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
             val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+1])
             for k in range(self._min_microregions[i][j]+2,self._max_microregions[i][j]):
               val_dict['water'][xs_type].append(variable_dict[xs_type][k])
-        elif self._string_cell_type_array[i][j]=='b':
-          for xs_type in xs_types:
+          elif self._string_cell_type_array[i][j]=='b':
             val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
             val_dict['ss304'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
             val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+1])
@@ -753,13 +752,16 @@ class Casmo(object):
             val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+6])
             for k in range(self._min_microregions[i][j]+7,self._max_microregions[i][j]):
               val_dict['water'][xs_type].append(variable_dict[xs_type][k])
-    avg_dict = {}            
+      avg_dict = {}            
     for region in regions:
       avg_dict[region] = {}
-      for xs_type in xs_types:
+      for xs_type in variable_dict.keys():
         avg_dict[region][xs_type] = []
         for group in range(self._energy_groups):
           numerator = sum([e[group] for e in val_dict[region][xs_type]])
           denominator = float(len(val_dict[region][xs_type]))
-          avg_dict[region][xs_type].append(numerator/denominator)
+          if xs_type == 'Scattering XS':
+            avg_dict[region][xs_type].extend(numerator/denominator)
+          else:
+            avg_dict[region][xs_type].append(numerator/denominator)
     self._average_cross_sections = avg_dict
