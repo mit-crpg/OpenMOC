@@ -709,24 +709,24 @@ class Casmo(object):
       os.makedirs(directory)
     f = h5py.File(directory + '/' + assembly_name + '-avg-materials.hdf5','w')
     f.attrs['Energy Groups'] = self._energy_groups
-    for region in self._average_cross_sections.keys():
-      region_group = f.create_group(region)
-      for xs_type in self._average_cross_sections[region].keys():
-        region_group.create_dataset(xs_type,data=self._average_cross_sections[region][xs_type])
+    for material in self._average_cross_sections.keys():
+      material_group = f.create_group(material)
+      for xs_type in self._average_cross_sections[material].keys():
+        material_group.create_dataset(xs_type,data=self._average_cross_sections[material][xs_type])
     f.close()
 
   def averageXSGenerator(self):
-    regions = ['fuel','water','cladding','helium']
+    materials = ['fuel','water','cladding','helium']
     if 'b' in self._string_cell_type_array:
-      regions.extend(['bp','ss304'])
+      materials.extend(['bp','ss304'])
     variable_dict = {'Absorption XS':self._siga,'Dif Coefficient':self._sigd,
       'Total XS':self._sigt,'Fission XS':self._sigf,'Nu Fission XS':self._signf,
-      'Scattering XS':self._sigs}
+      'Scattering XS':self._sigs,'Chi':self._chi}
     val_dict = {}
-    for region in regions:
-      val_dict[region] = {}
+    for material in materials:
+      val_dict[material] = {}
       for xs_type in variable_dict.keys():
-        val_dict[region][xs_type] = []
+        val_dict[material][xs_type] = []
     for i in range(len(self._string_cell_type_array)):
       for j in range(len(self._string_cell_type_array[i])):
         for xs_type in variable_dict.keys():
@@ -753,15 +753,15 @@ class Casmo(object):
             for k in range(self._min_microregions[i][j]+7,self._max_microregions[i][j]):
               val_dict['water'][xs_type].append(variable_dict[xs_type][k])
       avg_dict = {}            
-    for region in regions:
-      avg_dict[region] = {}
+    for material in materials:
+      avg_dict[material] = {}
       for xs_type in variable_dict.keys():
-        avg_dict[region][xs_type] = []
+        avg_dict[material][xs_type] = []
         for group in range(self._energy_groups):
-          numerator = sum([e[group] for e in val_dict[region][xs_type]])
-          denominator = float(len(val_dict[region][xs_type]))
+          numerator = sum([e[group] for e in val_dict[material][xs_type]])
+          denominator = float(len(val_dict[material][xs_type]))
           if xs_type == 'Scattering XS':
-            avg_dict[region][xs_type].extend(numerator/denominator)
+            avg_dict[material][xs_type].extend(numerator/denominator)
           else:
-            avg_dict[region][xs_type].append(numerator/denominator)
+            avg_dict[material][xs_type].append(numerator/denominator)
     self._average_cross_sections = avg_dict
