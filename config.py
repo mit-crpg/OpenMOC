@@ -101,7 +101,7 @@ class configuration:
   vector_length = 8
 
   # The vector alignment used in the VectorizedSolver class when allocating
-  # aligned data structures using _mm_malloc and _mm_free
+  # aligned data structures using MM_MALLOC and MM_FREE
   vector_alignment = 16
 
   # List of C/C++/CUDA distutils.extension objects which are created based
