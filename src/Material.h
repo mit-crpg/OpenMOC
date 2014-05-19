@@ -16,12 +16,18 @@
 #include "log.h"
 #endif
 
-#ifndef ICPC
+#ifdef ICPC
 /** Word-aligned memory allocation for Intel's compiler */
-#define _mm_free(array) free(array)
+#define MM_FREE(array) _mm_free(array)
 
 /** Word-aligned memory allocation for Intel's compiler */
-#define _mm_malloc(size,alignment) malloc(size)
+#define MM_MALLOC(size,alignment) _mm_alloc(size, alignment)
+
+#else
+
+#define MM_FREE(array) free(array)
+#define MM_MALLOC(size,alignment) malloc(size)
+
 #endif
 
 /** Error threshold for determining how close the sum of \f$ \Sigma_a \f$
