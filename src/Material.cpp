@@ -58,22 +58,22 @@ Material::~Material() {
   /* If data is vector aligned */
   if (_data_aligned) {
     if (_sigma_t != NULL)
-      _mm_free(_sigma_t);
+      MM_FREE(_sigma_t);
 
     if (_sigma_a != NULL)
-      _mm_free(_sigma_a);
+      MM_FREE(_sigma_a);
 
     if (_sigma_s != NULL)
-      _mm_free(_sigma_s);
+      MM_FREE(_sigma_s);
 
     if (_sigma_f != NULL)
-      _mm_free(_sigma_f);
+      MM_FREE(_sigma_f);
 
     if (_nu_sigma_f != NULL)
-      _mm_free(_nu_sigma_f);
+      MM_FREE(_nu_sigma_f);
 
     if (_chi != NULL)
-      _mm_free(_chi);
+      MM_FREE(_chi);
 
     /* Whomever SIMD'izes OpenMOC will need to properly free these
      * using mm_free if they are vector aligned */
@@ -357,22 +357,22 @@ void Material::setNumEnergyGroups(const int num_groups) {
   /* If data is vector aligned */
   if (_data_aligned) {
     if (_sigma_t != NULL)
-      _mm_free(_sigma_t);
+      MM_FREE(_sigma_t);
 
     if (_sigma_a != NULL)
-      _mm_free(_sigma_a);
+      MM_FREE(_sigma_a);
 
     if (_sigma_s != NULL)
-      _mm_free(_sigma_s);
+      MM_FREE(_sigma_s);
 
     if (_sigma_f != NULL)
-      _mm_free(_sigma_f);
+      MM_FREE(_sigma_f);
 
     if (_nu_sigma_f != NULL)
-      _mm_free(_nu_sigma_f);
+      MM_FREE(_nu_sigma_f);
 
     if (_chi != NULL)
-      _mm_free(_chi);
+      MM_FREE(_chi);
   }
 
   /* Data is not vector aligned */
@@ -1126,11 +1126,11 @@ void Material::alignData() {
   int size = _num_vector_groups * VEC_LENGTH * sizeof(FP_PRECISION);
 
   /* Allocate word-aligned memory for cross-section data arrays */
-  FP_PRECISION* new_sigma_t = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-  FP_PRECISION* new_sigma_a = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-  FP_PRECISION* new_sigma_f = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-  FP_PRECISION* new_nu_sigma_f=(FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-  FP_PRECISION* new_chi = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_sigma_t = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_sigma_a = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_sigma_f = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_nu_sigma_f=(FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_chi = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* The scattering matrix will be the number of vector groups
    * wide (SIMD) and the actual number of groups long since
@@ -1138,7 +1138,7 @@ void Material::alignData() {
 
   size = _num_vector_groups * VEC_LENGTH * _num_vector_groups;
   size *= VEC_LENGTH * sizeof(FP_PRECISION);
-  FP_PRECISION* new_sigma_s = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_sigma_s = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* Initialize data structures to ones for sigma_t since it is used to
    * divide the source in the solver, and zeroes for everything else */
