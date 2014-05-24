@@ -12,7 +12,7 @@ def get_openmoc_object_name():
 
   # For Python 3.X.X
   # NOTE: Python 3 distributions are not yet working with SWIG, but this
-  # is a stub for the future
+  # is a stub for the futuresmo
   elif (sys.version_info[0] == 3):
 #    filename = '_openmoc.so'
     filename = '_openmoc.cpython-{version[0]}{version[1]}mu.so'
@@ -101,7 +101,7 @@ class configuration:
   vector_length = 8
 
   # The vector alignment used in the VectorizedSolver class when allocating
-  # aligned data structures using _mm_malloc and _mm_free
+  # aligned data structures using MM_MALLOC and MM_FREE
   vector_alignment = 16
 
   # List of C/C++/CUDA distutils.extension objects which are created based
@@ -111,7 +111,7 @@ class configuration:
   # List of the packages to install - only openmoc is guaranteed to be built
   # while the others will be built based on which flags are specified
   # at compile time
-  packages = ['openmoc', 'openmoc.intel', 'openmoc.gnu',
+  packages = ['openmoc', 'openmoc.compatible', 'openmoc.intel', 'openmoc.gnu',
               'openmoc.bgq', 'openmoc.cuda', 'openmoc.intel.double',
               'openmoc.intel.single', 'openmoc.gnu.double',
               'openmoc.gnu.single', 'openmoc.bgq.single',

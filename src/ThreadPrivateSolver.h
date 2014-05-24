@@ -22,8 +22,7 @@
 
 /** Indexing scheme for the thread private Cmfd Mesh surface currents for each 
  * thread in each FSR and energy group */
-#define _thread_currents(tid,r,e) (_thread_currents[(tid)*_num_mesh_cells*8*_cmfd->getNumCmfdGroups() + (r)*_cmfd->getNumCmfdGroups() + std::min((e) / _cmfd->getCmfdGroupWidth(), _cmfd->getNumCmfdGroups()-1)])
-
+#define _thread_currents(tid,r,e) (_thread_currents[(tid)*_num_mesh_cells*8*_cmfd->getNumCmfdGroups() + (r)*_cmfd->getNumCmfdGroups() + _cmfd->getCmfdGroup((e))])
 
 /**
  * @class ThreadPrivateSolver ThreadPrivateSolver.h "openmoc/src/ThreadPrivateSolver.h"

@@ -33,15 +33,18 @@ Cmfd::Cmfd(Geometry* geometry, double criteria) {
 
   /* Energy group problem parameters */
   _num_groups = _geometry->getNumEnergyGroups();
-  _num_cmfd_groups = _num_groups;
-  _group_width = 1;
+  _num_cmfd_groups = 0;
 
+  /* matrices */
   _A = NULL;
   _M = NULL;
-	_AM = NULL;
+  _AM = NULL;
   _phi_temp = NULL;
   _old_source = NULL;
   _new_source = NULL;
+  _group_indices = NULL;
+  _group_indices_map = NULL;
+
 
   /* If solving diffusion problem, create arrays for FSR parameters */
   if (_solve_method == DIFFUSION){
@@ -126,20 +129,19 @@ void Cmfd::computeXS(){
   double chi_groups[_num_cmfd_groups];
   double chi_tally[_num_cmfd_groups];
 
-  /* Iterator to loop over FSRs in each Mesh cell */
-  std::vector<int>::iterator iter;
-
+  /* Pointers to material objects */
   Material* fsr_material;
   Material* cell_material;
 
   /* Loop over Mesh cells */
   #pragma omp parallel for private(volume, flux, abs, tot, nu_fis, chi, \
     dif_coef, scat, abs_tally, nu_fis_tally, dif_tally, rxn_tally,  \
-    vol_tally, tot_tally, scat_tally, iter, fsr_material, cell_material, \
+    vol_tally, tot_tally, scat_tally, fsr_material, cell_material, \
     neut_prod_tally, chi_tally, chi_groups)
   for (int i = 0; i < _cx * _cy; i++){
 
     cell_material = materials[i];
+    std::vector<int>::iterator iter;
 
     /* Loop over CMFD coarse energy groups */
     for (int e = 0; e < _num_cmfd_groups; e++) {
@@ -209,8 +211,8 @@ void Cmfd::computeXS(){
 
           /* Scattering tallies */
           for (int g = 0; g < _num_groups; g++){
-            scat_tally[std::min(g / _group_width, _num_cmfd_groups-1)] +=
-              scat[g*_num_groups+h] * flux * volume;
+              scat_tally[getCmfdGroup(g)] +=
+                  scat[g*_num_groups+h] * flux * volume;
           }
         }
       }
@@ -458,6 +460,9 @@ double Cmfd::computeKeff(){
   /* Create matrix and vector objects */
   if (_A == NULL){
     try{
+    
+      if (_num_cmfd_groups == 0)
+        createGroupStructure(NULL, _num_groups+1);
 
       _AM = NULL;
       _M = new double*[_cx*_cy];
@@ -467,8 +472,6 @@ double Cmfd::computeKeff(){
       _new_source = new double[_cx*_cy*_num_cmfd_groups];
 
       _mesh->setNumGroups(_num_cmfd_groups);
-
-      createGroupStructure();
 
       _mesh->initializeFlux();
 
@@ -1140,14 +1143,15 @@ void Cmfd::updateMOCFlux(){
   log_printf(INFO, "Updating MOC flux...");
 
   /* Initialize variables */
-  std::vector<int>::iterator iter;
   double* old_flux = _mesh->getFluxes(PRIMAL);
   double* new_flux = _mesh->getFluxes(PRIMAL_UPDATE);
   double old_cell_flux, new_cell_flux;
 
   /* Loop over mesh cells */
-  #pragma omp parallel for private(iter, old_cell_flux, new_cell_flux)
+  #pragma omp parallel for private(old_cell_flux, new_cell_flux)
   for (int i = 0; i < _cx*_cy; i++){
+
+    std::vector<int>::iterator iter;
 
     /* Loop over CMFD groups */
     for (int e = 0; e < _num_cmfd_groups; e++){
@@ -1290,7 +1294,6 @@ void Cmfd::setFSRVolumes(FP_PRECISION* FSR_volumes){
 
         for (iter = _mesh->getCellFSRs()->at(y*_cx+x).begin();
              iter != _mesh->getCellFSRs()->at(y*_cx+x).end(); ++iter)
-
           volume += _FSR_volumes[*iter];
 
         _mesh->setVolume(volume, y*_cx+x);
@@ -1495,40 +1498,55 @@ int Cmfd::getNumCmfdGroups(){
 
 
 /**
- * @brief Get the number of fine energy groups per CMFD energy group.
- * @return the number of fine-to-coarse energy groups
+ * @brief Get the CMFD group given an MOC group.
+ * @param group the MOC energy group
+ * @return the CMFD energy group
  */
-int Cmfd::getCmfdGroupWidth(){
-  return _group_width;
+int Cmfd::getCmfdGroup(int group){
+    return _group_indices_map[group];
 }
 
 
 /**
- * @brief Set the number of coarse CMFD energy groups.
- * @param num_num_cmfd_groups the number of CMFD energy groups
- */
-void Cmfd::setNumCmfdGroups(int num_cmfd_groups){
-  _num_cmfd_groups = num_cmfd_groups;
-  _mesh->setNumGroups(_num_cmfd_groups);
-}
+  * @brief Create the CMFD coarse energy group structure.
+  */
+void Cmfd::createGroupStructure(int* group_indices, int ncg){
 
-
-/**
- * @brief Create the CMFD coarse energy group structure.
- */
-void Cmfd::createGroupStructure(){
-
-  _group_width = _num_groups / _num_cmfd_groups;
-
-  _group_indices = new int[_num_cmfd_groups+1];
-
-  for (int i = 0; i < _num_cmfd_groups; i++){
-    _group_indices[i] = i*_group_width;
-    log_printf(INFO, "group indices %i: %i", i, _group_indices[i]);
-  }
-
-  _group_indices[_num_cmfd_groups] = _num_groups;
-  log_printf(INFO, "group indices %i: %i",
-            _num_cmfd_groups, _group_indices[_num_cmfd_groups]);
-  log_printf(INFO, "group width: %i", _group_width);
+    _num_cmfd_groups = ncg - 1;
+    
+    /* allocate memory */
+    if (_group_indices == NULL){
+        _group_indices = new int[ncg];
+        _group_indices_map = new int[_num_groups];
+    }
+    
+    if (group_indices == NULL){
+        for (int i = 0; i < ncg; i++){
+            _group_indices[i] = i;
+        }
+    }
+    else{
+        /* check that the group indices span the group space */
+        if (group_indices[0] != 0 || group_indices[ncg-1] != _num_groups)
+            log_printf(ERROR, "The first and last indicies of group structure "
+                       " must be 0 and the number of MOC energy groups");
+        
+        _group_indices[0] = 0;
+        
+        for (int i = 1; i < ncg; i++){
+            /* check that the group indices are always increasing */
+            if (group_indices[i] <= group_indices[i-1])
+                log_printf(ERROR, "The group indices must be increasing!");
+            
+            _group_indices[i] = group_indices[i];
+            log_printf(INFO, "group indices %i: %i", i, _group_indices[i]);
+        }
+    }
+    
+    /* create group indices map */
+    for (int e = 0; e < _num_cmfd_groups; e++){
+        for (int h = _group_indices[e]; h < _group_indices[e+1]; h++){
+            _group_indices_map[h] = e;
+        }
+    }
 }

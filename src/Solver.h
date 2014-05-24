@@ -25,7 +25,7 @@
  *  each energy group */
 /** Indexing macro for the surface currents for each mesh surface and in
  *  each energy group */
-#define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() + std::min((e) / _cmfd->getCmfdGroupWidth(), _cmfd->getNumCmfdGroups()-1)])
+#define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() + _cmfd->getCmfdGroup((e))])
 
 /** Indexing macro for the total source in each FSR and energy group */
 #define _source(r,e) (_source[(r)*_num_groups + (e)])
