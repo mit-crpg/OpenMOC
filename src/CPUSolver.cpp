@@ -787,6 +787,10 @@ void CPUSolver::transportSweep() {
 
       tid = omp_get_thread_num();
 
+      /* Use local array accumulator to prevent false sharing*/
+      FP_PRECISION* thread_fsr_flux;
+      thread_fsr_flux = new FP_PRECISION[_num_groups];
+
       /* Initialize local pointers to important data structures */
       curr_track = _tracks[track_id];
       azim_index = curr_track->getAzimAngleIndex();
@@ -798,7 +802,7 @@ void CPUSolver::transportSweep() {
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
         scalarFluxTally(curr_segment, azim_index, track_flux,
-                        &_thread_fsr_flux(tid),true);
+                        thread_fsr_flux,true);
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -810,8 +814,9 @@ void CPUSolver::transportSweep() {
       for (int s=num_segments-1; s > -1; s--) {
         curr_segment = &segments[s];
         scalarFluxTally(curr_segment, azim_index, track_flux,
-                        &_thread_fsr_flux(tid),false);
+                        thread_fsr_flux,false);
       }
+      delete thread_fsr_flux;
 
       /* Transfer boundary angular flux to outgoing Track */
       transferBoundaryFlux(track_id, azim_index, false, track_flux);
