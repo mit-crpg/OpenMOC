@@ -114,17 +114,36 @@ class Casmo(object):
   # @brief This method parses the casmo output file for the number of 
   #        microregions in the assembly
   # @return number of microregions directly from casmo output file
+  
+  
   def parseNumRegions(self):
+    print self._filename
     f = open(self._directory + self._filename, 'r')
     counter = 0
-    for line in f:
-      if 'Micro-region' in line:
-        counter += 1
-        continue
-      if counter == 1:
-        tokens = line.split()
-        num_micro_regions = int(tokens[1])
-        break
+    newcounter = 0
+    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.out','c4.pwru240w12.out', 'c4.pwru240w16.out', 'c4.pwru310c00.out', 'c4.pwru310w12.out', 'c4.pwru310w16.out', 'c4.pwru310w20.out']
+    if self._filename in symmetric:
+      for line in f:
+        if 'Micro-region number ' in line:
+          counter += 1
+          continue
+        if counter == 1:
+          tokens = line.split()
+          num_micro_regions = int(tokens[1])
+          break
+    else:
+      for newline in f:
+        if '--- ---- ---------------  ------------    ' in newline:
+          newcounter += 1
+          continue
+        if newcounter == 1:
+          print 'YAYYAYY'
+          newtokens = newline.split()
+          num_micro_regions = int(newtokens[0])
+          print num_micro_regions
+          break
+      
+  
     f.close()
     return num_micro_regions
 
@@ -313,7 +332,7 @@ class Casmo(object):
   #        or column of an assembly.
   # @return width of the assembly
   def parseWidth(self):
-
+    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.out','c4.pwru240w12.out', 'c4.pwru240w16.out', 'c4.pwru310c00.out', 'c4.pwru310w12.out', 'c4.pwru310w16.out', 'c4.pwru310w20.out']
     half_width = -1
     f = open(self._directory + self._filename, 'r')
     for line in f:
@@ -325,7 +344,11 @@ class Casmo(object):
       if half_width>=0:
         half_width += 1
     f.close()
-    return half_width*2-1
+    if self._filename in symmetric:
+      return half_width*2-1
+    else:
+      return half_width
+
 
   ##
   # @brief Returns width of the assembly
@@ -357,39 +380,69 @@ class Casmo(object):
     max_array = numpy.zeros((self._width,self._width), dtype=numpy.int32)
     min_quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.int32)
     max_quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.int32)
+    min_values = []
+    max_values = []
+    
+    print 'WIDTH'
+    print self._width
+    
 
     f = open(self._directory + self._filename, 'r')
     counter = 0
-    for line in f:
-      if counter >= 1 and '1_________' in line:
-        break
-      if 'Micro-region' in line:
+    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.out','c4.pwru240w12.out', 'c4.pwru240w16.out', 'c4.pwru310c00.out', 'c4.pwru310w12.out', 'c4.pwru310w16.out', 'c4.pwru310w20.out']
+    if self._filename in symmetric:
+      for line in f:
+        if counter >= 1 and '1_________' in line:
+          break
+        if 'Micro-region' in line:
+          counter += 1
+          continue
+        if counter >= 1:
+          tokens = line.split()
+          for index, token in enumerate(tokens):
+            token = token.strip('*')
+            token = token.strip('-')
+            if index%2 ==0:
+              min_quadrant4[counter-1, index/2] = float(token)
+              min_quadrant4[index/2, counter-1] = float(token)
+            else:
+              max_quadrant4[counter-1, (index-1)/2] = float(token)
+              max_quadrant4[(index-1)/2, counter-1] = float(token)
+          counter += 1
+      f.close()
+
+      min_array[(half_width-1):,(half_width-1):] = min_quadrant4
+      min_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(min_quadrant4)
+      min_array[0:(half_width), (half_width-1):] = numpy.flipud(min_quadrant4)
+      min_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(min_quadrant4))
+
+      max_array[(half_width-1):,(half_width-1):] = max_quadrant4
+      max_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(max_quadrant4)
+      max_array[0:(half_width), (half_width-1):] = numpy.flipud(max_quadrant4)
+      max_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(max_quadrant4))
+    else:
+      counter = 0
+      for line in f:
+        if 'Micro :' in line:
+          newline = line.lstrip('Micro :')
+          xline = newline.translate(None, '-')
+          tokens = xline.split()
+          for index, token in enumerate(tokens):
+            if index%2 ==0:
+              min_values.append(token)
+            else:
+              max_values.append(token)
+      for index, value in enumerate(min_values):
+        min_array[int(counter)/int(self._width), index%self._width] = float(value)
         counter += 1
         continue
-      if counter >= 1:
-        tokens = line.split()
-        for index, token in enumerate(tokens):
-          token = token.strip('*')
-          token = token.strip('-')
-          if index%2 ==0:
-            min_quadrant4[counter-1, index/2] = float(token)
-            min_quadrant4[index/2, counter-1] = float(token)
-          else:
-            max_quadrant4[counter-1, (index-1)/2] = float(token)
-            max_quadrant4[(index-1)/2, counter-1] = float(token)
+      print min_array
+      counter = 0
+      for index, value in enumerate(max_values):
+        max_array[int(counter)/int(self._width), index%self._width] = float(value)
         counter += 1
-    f.close()
-
-    min_array[(half_width-1):,(half_width-1):] = min_quadrant4
-    min_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(min_quadrant4)
-    min_array[0:(half_width), (half_width-1):] = numpy.flipud(min_quadrant4)
-    min_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(min_quadrant4))
-
-    max_array[(half_width-1):,(half_width-1):] = max_quadrant4
-    max_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(max_quadrant4)
-    max_array[0:(half_width), (half_width-1):] = numpy.flipud(max_quadrant4)
-    max_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(max_quadrant4))
-
+        continue
+      f.close()
     return min_array, max_array
 
   ##
@@ -467,27 +520,34 @@ class Casmo(object):
     quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.float32)
 
     counter = 0
+    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.out','c4.pwru240w12.out', 'c4.pwru240w16.out', 'c4.pwru310c00.out', 'c4.pwru310w12.out', 'c4.pwru310w16.out', 'c4.pwru310w20.out']
     for line in f:
       if counter >= 1 and line == '\n':
         break
       if 'Power Distribution' in line:
         counter += 1
         continue
-      if counter >= 1:
-        powers = line.split()
-        for index, power in enumerate(powers):
-          power = power.strip('*')
-          quadrant4[counter-1, index] = float(power)
-          quadrant4[index, counter-1] = float(power)
-        counter += 1
+      if self._filename in symmetric:
+        if counter >= 1:
+          powers = line.split()
+          for index, power in enumerate(powers):
+            power = power.strip('*')
+            quadrant4[counter-1, index] = float(power)
+            quadrant4[index, counter-1] = float(power)
+          counter += 1
+        # Arranges section of pin powers into larger array by symmetry
+        pin_power_array[(half_width-1):,(half_width-1):] = quadrant4
+        pin_power_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
+        pin_power_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
+        pin_power_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(quadrant4))
+      else:
+        if counter >= 1:
+          powers = line.split()
+          for index, power in enumerate(powers):
+            power = power.strip('*')
+            pin_power_array[counter-1, index] = float(power)
+          counter+=1
     f.close()
-    
-    # Arranges section of pin powers into larger array by symmetry
-    pin_power_array[(half_width-1):,(half_width-1):] = quadrant4
-    pin_power_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
-    pin_power_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
-    pin_power_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(quadrant4))
-
     return pin_power_array
 
   ##
@@ -530,6 +590,7 @@ class Casmo(object):
     full_width = self._width
     cell_type_array = numpy.zeros((full_width,full_width), dtype=numpy.int32)
     quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.int32)
+    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.out','c4.pwru240w12.out', 'c4.pwru240w16.out', 'c4.pwru310c00.out', 'c4.pwru310w12.out', 'c4.pwru310w16.out', 'c4.pwru310w20.out']
 
     counter = 0
     f = open(self._directory + self._filename, 'r')
@@ -543,18 +604,20 @@ class Casmo(object):
         cell_types = line.split()
         for index, cell_type in enumerate(cell_types):
           cell_type = cell_type.strip('*')
-          quadrant4[counter-1, index] = int(cell_type)
+          if self._filename in symmetric:
+            quadrant4[counter-1, index] = int(cell_type)
+          else:
+            cell_type_array[counter-1, index] = int(cell_type)
         counter += 1
     f.close()
-    
-    # Arranges section of cell types into larger array by symmetry
-    cell_type_array[(half_width-1):,(half_width-1):] = quadrant4
-    cell_type_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
-    cell_type_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
-    cell_type_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(quadrant4))
+    if self._filename in symmetric:
+      # Arranges section of cell types into larger array by symmetry
+      cell_type_array[(half_width-1):,(half_width-1):] = quadrant4
+      cell_type_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
+      cell_type_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
+      cell_type_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(quadrant4))
 
     cell_type_array[half_width-1,half_width-1] = 2
-	
     return cell_type_array
 
   ##
