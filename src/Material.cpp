@@ -663,6 +663,9 @@ void Material::setNuSigmaF(double* xs, int num_groups) {
   for (int i=0; i < _num_groups; i++)
     _nu_sigma_f[i] = xs[i];
     
+  /* Determine whether or not this Material is fissionable */
+  _fissionable = false;
+
   for (int i=0; i < _num_groups; i++) {
     if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
       _fissionable = true;
@@ -700,6 +703,9 @@ void Material::setNuSigmaFByGroup(double xs, int group) {
 
   _nu_sigma_f[group] = xs;
   
+  /* Determine whether or not this Material is fissionable */
+  _fissionable = false;
+
   for (int i=0; i < _num_groups; i++) {
     if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
       _fissionable = true;
