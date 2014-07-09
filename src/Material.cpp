@@ -614,7 +614,7 @@ void Material::setSigmaF(double* xs, int num_groups) {
   _fissionable = false;
 
   for (int i=0; i < _num_groups; i++) {
-    if (_sigma_f[i] > 0.0) {
+    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
       _fissionable = true;
       return;
     }
@@ -639,7 +639,7 @@ void Material::setSigmaFByGroup(double xs, int group) {
   _fissionable = false;
 
   for (int i=0; i < _num_groups; i++) {
-    if (_sigma_f[i] > 0.0) {
+    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
       _fissionable = true;
       return;
     }
@@ -662,6 +662,13 @@ void Material::setNuSigmaF(double* xs, int num_groups) {
 
   for (int i=0; i < _num_groups; i++)
     _nu_sigma_f[i] = xs[i];
+    
+  for (int i=0; i < _num_groups; i++) {
+    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
+      _fissionable = true;
+      return;
+    }
+  }
 }
 
 
@@ -692,6 +699,13 @@ void Material::setNuSigmaFByGroup(double xs, int group) {
                "%d which contains %d energy groups", group, _uid);
 
   _nu_sigma_f[group] = xs;
+  
+  for (int i=0; i < _num_groups; i++) {
+    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
+      _fissionable = true;
+      return;
+    }
+  }
 }
 
 
