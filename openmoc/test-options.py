@@ -7,66 +7,106 @@ import unittest
 import nose
 from options import *
 
+
 class TestDefaultInit(unittest.TestCase):
     
     # creates a new Options() every test... can it just be done once?
 
-    def setUp(self):
-        self._default_options = Options()
+    @classmethod
+    def setUpClass(cls):
+        cls._default_options = Options()
+        print 'sys.argv?'
+        print str(sys.argv)
 
     def test_default_num_azim(self):
-        self.assertEqual(self._default_options._num_azim, 4)
+        self.assertEqual(self._default_options.getNumAzimAngles(), 4)
 
     def test_default_track_spacing(self):
-        self.assertEqual(self._default_options._track_spacing, 0.1)
+        self.assertEqual(self._default_options.getTrackSpacing(), 0.1)
 
     def test_default_max_iters(self):
-        self.assertEqual(self._default_options._max_iters, 1000)
+        self.assertEqual(self._default_options.getMaxIterations(), 1000)
 
     def test_default_tolerance(self):
-        self.assertEqual(self._default_options._tolerance, .00001)
+        self.assertEqual(self._default_options.getTolerance(), .00001)
 
     def test_default_num_omp_threads(self):
-        self.assertEqual(self._default_options._num_omp_threads, 1)
+        self.assertEqual(self._default_options.getNumThreads(), 1)
 
     def test_default_num_thread_blocks(self):
-        self.assertEqual(self._default_options._num_thread_blocks, 64)
+        self.assertEqual(self._default_options.getNumThreadBlocks(), 64)
 
     def test_default_num_gpu_threads(self):
-        self.assertEqual(self._default_options._num_gpu_threads, 64)
+        self.assertEqual(self._default_options.getNumThreadsPerBlock(), 64)
 
     def test_default_cmfd_acceleration(self):
-        self.assertFalse(self._default_options._use_cmfd_acceleration)
+        self.assertFalse(self._default_options.getCmfdAcceleration())
 
     def test_default_cmfd_relax_factor(self):
-        self.assertEqual(self._default_options._cmfd_relax_factor, 0.6)
+        self.assertEqual(self._default_options.getCmfdRelaxationFactor(), 0.6)
 
     def test_default_cmfd_mesh_level(self):
-        self.assertEqual(self._default_options._cmfd_mesh_level, -1)
+        self.assertEqual(self._default_options.getCmfdMeshLevel(), -1)
 
-    def tearDown(self):
-        self._default_options = None
+    @classmethod
+    def tearDownClass(cls):
+        cls._default_options = None
 
 class TestCustomInit(unittest.TestCase):
 
-    def setUp(self):
-        self._options = Options()
-        opts, args = getopt.getopt('REPLACE THIS WITH THE ARGS',
-                                 'hfa:s:i:c:t:b:g:r:l:',
-                                 ['help',
-                                  'num-azim=',
-                                  'track-spacing=',
-                                  'tolerance=',
-                                  'max-iters=',
-                                  'num-omp-threads=',
-                                  'num-thread-blocks=',
-                                  'num-gpu-threads=',
-                                  'relax-factor=',
-                                  'cmfd-acceleration',
-                                  'mesh-level='])
+    # Uses simulated command line input, test parseArguments
+    
+    @classmethod
+    def setUpClass(cls):
+
+        # change sys.argv to reflect the following command line:
+
+        # --num-azim 5 --track-spacing 0.4 --max-iters 2000 --tolerance 0.00005 --num-omp-threads 2 --num-thread-blocks 72
+        # --num-gpu-threads 80 --relax-factor 0.7 --mesh-level -2
+        
+        sys.argv.extend(["--num-azim", "5", '--track-spacing', '0.4', '--max-iters', '2000', '--tolerance', '0.00005', '--num-omp-threads', '2',
+                         '--num-thread-blocks', '72', '--num-gpu-threads', '80', '--relax-factor', '0.7', '--mesh-level', '-2'])
+        
+        cls._options = Options()
+
+        
+    def test_command_num_azim(self):
+        self.assertEqual(self._options.getNumAzimAngles(), 5)
+
+    def test_command_track_spacing(self):
+        self.assertEqual(self._options.getTrackSpacing(), 0.4)
+
+    def test_command_max_iters(self):
+        self.assertEqual(self._options.getMaxIterations(), 2000)
+
+    def test_command_tolerance(self):
+        self.assertEqual(self._options.getTolerance(), .00005)
+
+    def test_command_num_omp_threads(self):
+        self.assertEqual(self._options.getNumThreads(), 2)
+
+    def test_command_num_thread_blocks(self):
+        self.assertEqual(self._options.getNumThreadBlocks(), 72)
+
+    def test_command_num_gpu_threads(self):
+        self.assertEqual(self._options.getNumThreadsPerBlock(), 80)
+
+    def test_command_cmfd_acceleration(self):
+        self.assertFalse(self._options.getCmfdAcceleration())
+
+    def test_command_cmfd_relax_factor(self):
+        self.assertEqual(self._options.getCmfdRelaxationFactor(), 0.7)
+
+    def test_command_cmfd_mesh_level(self):
+        self.assertEqual(self._options.getCmfdMeshLevel(), -2)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._options = None
+        sys.argv = ['test-options.py']
     
 
 suite = unittest.TestLoader().loadTestsFromTestCase(TestDefaultInit)
-#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestCustomInit))
+suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestCustomInit))
 
-unittest.TextTestRunner(verbosity=2).run(suite)        
+unittest.TextTestRunner(verbosity=2).run(suite)
