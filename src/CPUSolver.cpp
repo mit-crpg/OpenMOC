@@ -858,7 +858,7 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
     for (int p=0; p < _num_polar; p++){
       exponential = computeExponential(sigma_t[e], length, p);
       delta_psi = (track_flux(p,e)-_reduced_source(fsr_id,e))*exponential;
-      fsr_flux[e] += delta_psi * _polar_weights[p];
+      fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
       track_flux(p,e) -= delta_psi;
     }
   }
@@ -880,7 +880,7 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 
           /* Increment current (polar and azimuthal weighted flux, group) */
           _surface_currents(curr_segment->_mesh_surface_fwd,e) +=
-                                        track_flux(p,e)*_polar_weights[p]/2.0;
+						track_flux(p,e)*_polar_weights(azim_index,p)/2.0;
           pe++;
         }
       }
@@ -905,7 +905,7 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 
           /* Increment current (polar and azimuthal weighted flux, group) */
           _surface_currents(curr_segment->_mesh_surface_bwd,e) +=
-                                        track_flux(p,e)*_polar_weights[p]/2.0;
+						track_flux(p,e)*_polar_weights(azim_index,p)/2.0;
           pe++;
         }
       }
