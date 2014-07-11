@@ -3,6 +3,7 @@
 ## DOES NOT work from IDLE (Python crashes when importing options)
 ## DOES NOT work with nosetests from command line (module does not have attribute 'test-options')
 
+
 import unittest
 import nose
 from options import *
@@ -10,13 +11,11 @@ from options import *
 
 class TestDefaultInit(unittest.TestCase):
     
-    # creates a new Options() every test... can it just be done once?
+    ## Tests the default values set when creating an Options instance (when nothing is specified in the command line)
 
     @classmethod
     def setUpClass(cls):
         cls._default_options = Options()
-        print 'sys.argv?'
-        print str(sys.argv)
 
     def test_default_num_azim(self):
         self.assertEqual(self._default_options.getNumAzimAngles(), 4)
@@ -59,15 +58,18 @@ class TestCustomInit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
-        # change sys.argv to reflect the following command line:
+        ## directly changing sys.argv to reflect the following command line:
 
-        # --num-azim 5 --track-spacing 0.4 --max-iters 2000 --tolerance 0.00005 --num-omp-threads 2 --num-thread-blocks 72
-        # --num-gpu-threads 80 --relax-factor 0.7 --mesh-level -2
-        
+        ## --num-azim 5 --track-spacing 0.4 --max-iters 2000 --tolerance 0.00005 --num-omp-threads 2 --num-thread-blocks 72
+        ## --num-gpu-threads 80 --relax-factor 0.7 --mesh-level -2
+
+        sys.argv = ['test-options.py']
         sys.argv.extend(["--num-azim", "5", '--track-spacing', '0.4', '--max-iters', '2000', '--tolerance', '0.00005', '--num-omp-threads', '2',
                          '--num-thread-blocks', '72', '--num-gpu-threads', '80', '--relax-factor', '0.7', '--mesh-level', '-2'])
         
         cls._options = Options()
+
+        ## parseArguments is part of initializing Options(), so it will get the values from simulated command line
 
         
     def test_command_num_azim(self):
