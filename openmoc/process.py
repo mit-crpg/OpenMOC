@@ -379,8 +379,8 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       f = h5py.File(directory + '/' + filename + '.h5', 'w')
 
     # Create groups for the day and time in the HDF5 file
-    day_group = f.require_group(str(month)+'-'+str(day)+'-'+str(year))
-    time_group = day_group.create_group(str(hr)+':'+str(mins)+':'+str(sec))
+    day_group = f.require_group(str(month).zfill(2)+'-'+str(day).zfill(2)+'-'+str(year))
+    time_group = day_group.create_group(str(hr).zfill(2)+':'+str(mins).zfill(2)+':'+str(sec).zfill(2))
 
     # Store a note for this simulation state
     if not note is '':
