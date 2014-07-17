@@ -32,7 +32,7 @@ VectorizedPrivateSolver::~VectorizedPrivateSolver() {
   if (_thread_flux != NULL) {
 
     for (int t=0; t < _num_threads; t++)
-      _mm_free(_thread_flux[t]);
+      MM_FREE(_thread_flux[t]);
 
     delete [] _thread_flux;
     _thread_flux = NULL;
@@ -80,7 +80,7 @@ void VectorizedPrivateSolver::initializeFluxArrays() {
   if (_thread_flux != NULL) {
 
     for (int t=0; t < _num_threads; t++)
-      _mm_free(_thread_flux[t]);
+      MM_FREE(_thread_flux[t]);
 
     delete [] _thread_flux;
   }
@@ -93,7 +93,7 @@ void VectorizedPrivateSolver::initializeFluxArrays() {
     size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
 
     for (int t=0; t < _num_threads; t++)
-      _thread_flux[t] = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+      _thread_flux[t] = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the "

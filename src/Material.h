@@ -16,12 +16,18 @@
 #include "log.h"
 #endif
 
-#ifndef ICPC
+#ifdef ICPC
 /** Word-aligned memory allocation for Intel's compiler */
-#define _mm_free(array) free(array)
+#define MM_FREE(array) _mm_free(array)
 
 /** Word-aligned memory allocation for Intel's compiler */
-#define _mm_malloc(size,alignment) malloc(size)
+#define MM_MALLOC(size,alignment) _mm_alloc(size, alignment)
+
+#else
+
+#define MM_FREE(array) free(array)
+#define MM_MALLOC(size,alignment) malloc(size)
+
 #endif
 
 /** Error threshold for determining how close the sum of \f$ \Sigma_a \f$
@@ -117,6 +123,16 @@ public:
   FP_PRECISION* getBuckling();
   FP_PRECISION* getDifHat();
   FP_PRECISION* getDifTilde();
+  FP_PRECISION getSigmaTByGroup(int group);
+  FP_PRECISION getSigmaAByGroup(int group);
+  FP_PRECISION getSigmaSByGroup(int group1, int group2);
+  FP_PRECISION getSigmaFByGroup(int group);
+  FP_PRECISION getNuSigmaFByGroup(int group);
+  FP_PRECISION getChiByGroup(int group);
+  FP_PRECISION getDifCoefByGroup(int group);
+  FP_PRECISION getBucklingByGroup(int group);
+  FP_PRECISION getDifHatByGroup(int group, int surface);
+  FP_PRECISION getDifTildeByGroup(int group);  
   bool isFissionable();
   bool isDataAligned();
   int getNumVectorGroups();
