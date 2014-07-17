@@ -34,8 +34,9 @@
 import materialize
 import unittest
 import imp
+import openmoc
 
-class testPyFiles(unittest.TestCase):
+class TestPyFiles(unittest.TestCase):
 
     ## Test the materialize.py module for when the input is a
     ## .py file.
@@ -83,7 +84,7 @@ class testPyFiles(unittest.TestCase):
             list_of_true.append(True)
         self.assertEqual(list_of_results, list_of_true)
 
-class testUO2(testPyFiles):
+class TestUO2(TestPyFiles):
 
     ## Test the assigned values to UO2 match those in the input file.
 
@@ -99,15 +100,40 @@ class testUO2(testPyFiles):
 
     def testUO2TotalXS(self):
 
-        ## this is just wrong.
+        ## this is just wrong. 
         
-        UO2_input = self._UO2_input
-        UO2_output = self._UO2_output
-        print UO2_output.getSigmaT()
-        self.assertEqual(UO2_input['Total XS'], UO2_output.getSigmaT())
+##        UO2_input = self._UO2_input
+##        UO2_output = self._UO2_output
+##        print UO2_output.getSigmaT() # this is a swig object
+##        print UO2_output._swig_getattr(float) # this is not right. not sure how to use wrappers
+##        self.assertEqual(UO2_input['Total XS'], UO2_output.getSigmaT())
 
-suite = unittest.TestLoader().loadTestsFromTestCase(testPyFiles)
-suite.addTests(unittest.TestLoader().loadTestsFromTestCase(testUO2))
+
+        UO2_input = self._UO2_input
+        UO2_output_orig = self._UO2_output
+        UO2_output = self._UO2_output
+        UO2_TotalXS_input = UO2_input['Total XS']
+        list_of_results = []
+        list_of_true = []
+
+        for energy_group in xrange(len(UO2_TotalXS_input)):
+            # this would set the values one by one (by energy group)
+            UO2_output.setSigmaTByGroup(UO2_TotalXS_input[energy_group], energy_group)
+
+        # could write individual tests for each energy level, or an aggregate test:
+            list_of_true.append(True)
+
+            ##############################
+            ##############################
+            ##############################
+            ## FIX THIS WHEN getSigmaTByGroup() has been implemented!!!
+            list_of_results.append(UO2_output.getSigmaTByGroup(energy_group) = UO2_TotalXS_input[energy_group])
+        
+        self.assertEqual(list_of_results, list_of_true)
+
+            
+suite = unittest.TestLoader().loadTestsFromTestCase(TestPyFiles)
+suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUO2))
 
 unittest.TextTestRunner(verbosity=2).run(suite)
 
