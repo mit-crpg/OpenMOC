@@ -103,6 +103,7 @@ class testUO2(testPyFiles):
         
         UO2_input = self._UO2_input
         UO2_output = self._UO2_output
+        print UO2_output.getSigmaT()
         self.assertEqual(UO2_input['Total XS'], UO2_output.getSigmaT())
 
 suite = unittest.TestLoader().loadTestsFromTestCase(testPyFiles)
