@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -223,7 +222,7 @@ adding new code in OpenMC.</p>
     <span class="nl">public:</span>
 
       <span class="kt">char</span><span class="o">*</span> <span class="n">getName</span><span class="p">();</span>
-      <span class="kt">int</span> <span class="n">getAge</span><span class="p">();</span>
+      <span class="kt">int</span> <span class="nf">getAge</span><span class="p">();</span>
 
       <span class="p">...</span>
 
@@ -308,7 +307,8 @@ adding new code in OpenMC.</p>
 </pre></div>
 </div>
 <p>vim users should include the following line in their .vimrc file:</p>
-<div class="highlight-python"><pre>set expandtab</pre>
+<div class="highlight-python"><div class="highlight"><pre>set expandtab
+</pre></div>
 </div>
 </div>
 <div class="section" id="whitespace">
@@ -318,13 +318,15 @@ adding new code in OpenMC.</p>
 <blockquote>
 <div><ul>
 <li><p class="first">In function calls:</p>
-<div class="highlight-python"><pre>Yes: myfunc(x, y(2), z)
-No: myfunc ( x, y( 2 ), z )</pre>
+<div class="highlight-python"><div class="highlight"><pre>Yes: myfunc(x, y(2), z)
+No: myfunc ( x, y( 2 ), z )
+</pre></div>
 </div>
 </li>
 <li><p class="first">In logical expressions, use one space around operators but nowhere else:</p>
-<div class="highlight-python"><pre>Yes: if(variable == 2) then
-No: if ( variable==2 ) then</pre>
+<div class="highlight-python"><div class="highlight"><pre>Yes: if(variable == 2) then
+No: if ( variable==2 ) then
+</pre></div>
 </div>
 </li>
 </ul>
@@ -408,7 +410,7 @@ No: if ( variable==2 ) then</pre>
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
 <script type="text/javascript">
 

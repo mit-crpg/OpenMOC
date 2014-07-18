@@ -367,7 +367,7 @@ Parameter          Type                 Default    Optional   Note
 =================  ===================  =========  =========  ============================================
 ``geometry``       ``Geometry`` object  None       No         The geometry of interest
 ``solver``         ``Solver`` object    None       No         The solver used to converge the source
-``energy_groups``  list                 [0]        No         Create separate plots for each energy group
+``energy_groups``  list                 [1]        No         Create separate plots for each energy group
 ``gridsize``       integer              250        Yes        The pixel resolution
 =================  ===================  =========  =========  ============================================
 

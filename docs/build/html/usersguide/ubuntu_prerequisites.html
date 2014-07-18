@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -46,38 +45,45 @@
 <span id="ubuntu-prerequisites"></span><h1>Installing Prerequisites on Ubuntu<a class="headerlink" href="#installing-prerequisites-on-ubuntu" title="Permalink to this headline">¶</a></h1>
 <p>There are a few prerequisites which must be installed on your machine before you will be able to build and install OpenMOC. All of the prerequisites can easily be installed using a standard package manager, such as <a class="reference external" href="http://www.apt-get.org/">apt-get</a> for Ubuntu. The following instructions detail which packages are needed, with instructions on how to install them using <tt class="docutils literal"><span class="pre">apt-get</span></tt>.</p>
 <p>The following command will install all required and optional dependencies on Ubuntu 12.04 or later:</p>
-<div class="highlight-python"><pre>sudo apt-get install build-essential git swig python-dev python-numpy python-matplotlib python-h5py</pre>
+<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install build-essential git swig python-dev python-numpy python-matplotlib python-h5py
+</pre></div>
 </div>
 <div class="admonition-required admonition">
 <p class="first admonition-title">Required</p>
 <ul class="last">
 <li><p class="first">GNU&#8217;s C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a></p>
 <p>In order to compile OpenMOC, you will need to have a C++ compiler installed on your machine. It is recommended that you build OpenMOC with g++ version 4.4 or later. To install g++ on Debian Linux or a Debian derivative such as Ubuntu, use the following command in the console:</p>
-<div class="highlight-python"><pre>sudo apt-get install build-essential</pre>
+<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install build-essential
+</pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.python.org/">Python</a></p>
 <p>OpenMOC extensively uses Python for rapid data processing and visualization. OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindingssuch that users are entirely insulated from having to write in C/C++ or CUDA, and can simply write a Python script with calls to OpenMOC.</p>
 <p>Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 and 3.2. Even if you already have Python installed, it is recommended that you install it again using <tt class="docutils literal"><span class="pre">apt-get</span></tt> to ensure that it is properly configured with <tt class="docutils literal"><span class="pre">g++</span></tt>. You can easily install version 2.7 in Ubuntu as follows:</p>
-<div class="highlight-python"><pre>sudo apt-get install python2.7</pre>
+<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install python2.7
+</pre></div>
 </div>
 <p>In addition, you must install the Python development headers:</p>
-<div class="highlight-python"><pre>sudo apt-get install python-dev</pre>
+<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install python-dev
+</pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://git-scm.com">Git</a></p>
 <p>The OpenMOC development team uses the <a class="reference external" href="http://git-scm.com">Git</a> version control software for code development and collaboration. To download the code from our <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a> repository, you must first install git. You can do so on Ubuntu as follows:</p>
-<div class="highlight-python"><pre>sudo apt-get install git</pre>
+<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install git
+</pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.swig.org/">SWIG</a></p>
 <p>The Simplified Wrapper Interface Generator (SWIG) is used to wrap the compiled C/C++ and CUDA source code and generate Python bindings. SWIG can be installed on Ubuntu as follows:</p>
-<div class="highlight-python"><pre>sudo apt-get install swig</pre>
+<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install swig
+</pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.numpy.org/">NumPy</a></p>
 <p>NumPy is a commonly used, general purpose numerical array creation and manipulation package for Python. OpenMOC uses NumPy to seamlessly transfer numerical data between Python and the C/C++ back-end compiled code. To install NumPy on Ubuntu, use the following command:</p>
-<div class="highlight-python"><pre>sudo apt-get install python-numpy</pre>
+<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install python-numpy
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -91,13 +97,15 @@
 <ul class="last">
 <li><p class="first"><a class="reference external" href="http://matplotlib.org/">matplotlib</a></p>
 <p>The matplotlib Python package is a general purpose utility for plotting and visualizations. OpenMOC uses matplotlib in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module to generate plots, such as flux and power distributions. Although matplotlib and the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> modules are not required for an OpenMOC simulation, visualizations can be a helpful tool in debugging and input model validation. To install matplotlib in Ubuntu, issue the following command:</p>
-<div class="highlight-python"><pre>sudo apt-get install python-matplotlib</pre>
+<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install python-matplotlib
+</pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.h5py.org/">h5py</a></p>
 <p>The h5py Python package contains tools to create, retrieve, and manipulate data stored using the <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> binary format. OpenMOC leverages the h5py functionality in its <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module which includes routines to import/export multi-group nuclear cross-section data to/from HDF5. In addition, the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module contains routines to import/export simulation and performance data to/from HDF5 output files. Although h5py and the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> and <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> modules are not required to run OpenMOC, they can facilitate fast access and storage of binary data.</p>
 <p>To install h5py on Ubuntu, issue the following command:</p>
-<div class="highlight-python"><pre>sudo apt-get install python-h5py</pre>
+<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install python-h5py
+</pre></div>
 </div>
 </li>
 </ul>
@@ -147,7 +155,7 @@
 
     <div class="footer">
         &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
 <script type="text/javascript">
 
