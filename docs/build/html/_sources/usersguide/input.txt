@@ -462,7 +462,7 @@ The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` c
     # all materials, cells, and lattices have been added to it
     geometry.initializeFlatSourceRegions()
 
-.. warning:: Users **must** add ``Surfaces``, ``Cells``, and ``Lattices`` to the ``Geometry`` in that order for correct results.
+.. warning:: Users **must** add ``Materials``, ``Surfaces``, ``Cells``, and ``Lattices`` to the ``Geometry`` in that order for correct results.
 
 
 
