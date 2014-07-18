@@ -1,4 +1,4 @@
-## Currently imports 'materials-test.py' which is a copy of 'c5g7-materials.py'
+## Currently imports 'materials-test.h5' (which is a copy of 'c5g7-materials.h5')
 ## and tests the materialize module by comparing the inputted values for all
 ## parameters to the values stored when the Material instance is created.
 
@@ -13,8 +13,6 @@
 
 ## This DOES NOT currently test the following modules because they aren't included in the test input file:
 ##  getDifCoefByGroup, getBucklingByGroup, getDifHat, getDifTilde
-
-## This DOES NOT currently test importing from .h5 / .hdf5 files.
 
 ## This DOES NOT test the case where the filename is not a string
 
@@ -31,9 +29,9 @@
 import materialize
 import unittest
 import imp
-import openmoc
+import h5py
 
-class TestPyFiles(unittest.TestCase):
+class TestH5Files(unittest.TestCase):
 
     ## Test the materialize.py module for when the input is a
     ## .py file.
@@ -53,7 +51,7 @@ class TestPyFiles(unittest.TestCase):
         # Asserts the number of energy groups is 7 (from file)
         
         data = self._import
-        num_groups = data['Energy Groups']
+        num_groups = data.attrs['Energy Groups']
         self.assertEqual(num_groups, 7)
 
     def testNumOfMaterials(self):
@@ -97,9 +95,10 @@ class TestUO2(unittest.TestCase):
         cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
         data = cls._import
-        cls._data = list(data)
+        cls._data = data
         cls._UO2_input = cls._data['UO2']
         cls._UO2_output = cls._output['UO2']
+
 
     def testUO2TotalXS(self):
 
@@ -249,11 +248,12 @@ class TestMOX43(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+
         cls._input = 'materials-test.h5'
         cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
         data = cls._import
-        cls._data = list(data)
+        cls._data = data
         cls._MOX_input = cls._data['MOX-4.3%']
         cls._MOX_output = cls._output['MOX-4.3%']
 
@@ -411,7 +411,6 @@ class TestMOX7(unittest.TestCase):
         cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
         data = cls._import
-        cls._data = list(data)
         cls._MOX_input = cls._data['MOX-7%']
         cls._MOX_output = cls._output['MOX-7%']
 
@@ -569,7 +568,6 @@ class TestMOX87(unittest.TestCase):
         cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
         data = cls._import
-        cls._data = list(data)
         cls._MOX_input = cls._data['MOX-8.7%']
         cls._MOX_output = cls._output['MOX-8.7%']
 
@@ -726,7 +724,6 @@ class TestFissionChamber(unittest.TestCase):
         cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
         data = cls._import
-        cls._data = list(data)
         cls._MOX_input = cls._data['Fission Chamber']
         cls._MOX_output = cls._output['Fission Chamber']
 
@@ -868,7 +865,7 @@ class TestFissionChamber(unittest.TestCase):
 
 
         
-suite = unittest.TestLoader().loadTestsFromTestCase(TestPyFiles)
+suite = unittest.TestLoader().loadTestsFromTestCase(TestH5Files)
 suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUO2))
 suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestMOX43))
 suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestMOX7))

@@ -14,8 +14,6 @@
 ## This DOES NOT currently test the following modules because they aren't included in the test input file:
 ##  getDifCoefByGroup, getBucklingByGroup, getDifHat, getDifTilde
 
-## This DOES NOT currently test importing from .h5 / .hdf5 files.
-
 ## This DOES NOT test the case where the filename is not a string
 
 ## This DOES NOT test the case where the filetype is unsupported.
