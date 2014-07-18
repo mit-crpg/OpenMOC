@@ -44,8 +44,8 @@ class TestPyFiles(unittest.TestCase):
         # Stores the input filename, the imported file,
         # and the output dictionary in the test class.
         
-        cls._input = 'materials-test.py'
-        cls._import = imp.load_source(cls._input, cls._input).dataset
+        cls._input = 'materials-test.h5'
+        cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
     
     def testEnergyGroup(self):
@@ -62,7 +62,7 @@ class TestPyFiles(unittest.TestCase):
         # and in the processed list
         
         data = self._import
-        data = data['Materials']
+        data = list(data)
         output = self._output
         self.assertEqual(len(data), len(output))
 
@@ -74,9 +74,9 @@ class TestPyFiles(unittest.TestCase):
         list_of_results = []
         list_of_true = []
         data = self._import
-        data = data['Materials']
+        data = list(data)
         output = self._output
-        for material in data.keys():
+        for material in data:
             list_of_results.append(material in output)
             list_of_true.append(True)
         self.assertEqual(list_of_results, list_of_true)
@@ -93,11 +93,11 @@ class TestUO2(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._input = 'materials-test.py'
-        cls._import = imp.load_source(cls._input, cls._input).dataset
+        cls._input = 'materials-test.h5'
+        cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
         data = cls._import
-        cls._data = data['Materials']
+        cls._data = list(data)
         cls._UO2_input = cls._data['UO2']
         cls._UO2_output = cls._output['UO2']
 
@@ -249,13 +249,14 @@ class TestMOX43(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._input = 'materials-test.py'
-        cls._import = imp.load_source(cls._input, cls._input).dataset
+        cls._input = 'materials-test.h5'
+        cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
         data = cls._import
-        cls._data = data['Materials']
+        cls._data = list(data)
         cls._MOX_input = cls._data['MOX-4.3%']
         cls._MOX_output = cls._output['MOX-4.3%']
+
 
     def testMOX43TotalXS(self):
 
@@ -406,11 +407,11 @@ class TestMOX7(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._input = 'materials-test.py'
-        cls._import = imp.load_source(cls._input, cls._input).dataset
+        cls._input = 'materials-test.h5'
+        cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
         data = cls._import
-        cls._data = data['Materials']
+        cls._data = list(data)
         cls._MOX_input = cls._data['MOX-7%']
         cls._MOX_output = cls._output['MOX-7%']
 
@@ -564,11 +565,11 @@ class TestMOX87(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._input = 'materials-test.py'
-        cls._import = imp.load_source(cls._input, cls._input).dataset
+        cls._input = 'materials-test.h5'
+        cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
         data = cls._import
-        cls._data = data['Materials']
+        cls._data = list(data)
         cls._MOX_input = cls._data['MOX-8.7%']
         cls._MOX_output = cls._output['MOX-8.7%']
 
@@ -721,13 +722,13 @@ class TestFissionChamber(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._input = 'materials-test.py'
-        cls._import = imp.load_source(cls._input, cls._input).dataset
+        cls._input = 'materials-test.h5'
+        cls._import = h5py.File(cls._input)
         cls._output = materialize.materialize(cls._input)
         data = cls._import
-        cls._data = data['Materials']
-        cls._FissionChamber_input = cls._data['Fission Chamber']
-        cls._FissionChamber_output = cls._output['Fission Chamber']
+        cls._data = list(data)
+        cls._MOX_input = cls._data['Fission Chamber']
+        cls._MOX_output = cls._output['Fission Chamber']
 
     def testFCTotalXS(self):
 
