@@ -44,16 +44,20 @@
   <div class="section" id="installing-prerequisites-on-mac-os-x">
 <span id="mac-prerequisites"></span><h1>Installing Prerequisites on Mac OS X<a class="headerlink" href="#installing-prerequisites-on-mac-os-x" title="Permalink to this headline">¶</a></h1>
 <p>There are a few prerequisites which must be installed on your machine before you will be able to build and install OpenMOC. All of the prerequisites can easily be installed using a standard package manager, such as <a class="reference external" href="http://www.macports.org/">MacPorts</a> for Mac OS X. The following instructions detail which packages are needed, with instructions on how to install them using MacPorts.</p>
-<p>The following command will install all required and optional dependencies using MacPorts:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo port install gcc48 git python27 swig swig-python py27-numpy py27-matplotlib py27-h5py
-</pre></div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is important to install the following prerequisite packages in the order given - in particular, Python must be installed before NumPy and Matplotlib.</p>
 </div>
 <div class="admonition-required admonition">
 <p class="first admonition-title">Required</p>
 <ul class="last">
 <li><p class="first">GNU&#8217;s C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a></p>
-<p>In order to compile OpenMOC, you will need to have a C++ compiler installed on your machine. It is recommended that you build OpenMOC with g++ version 4.4 or later. To install the latest stable version of <tt class="docutils literal"><span class="pre">g++</span></tt> using MacPorts, use the following command in the console:</p>
+<p>In order to compile OpenMOC, you will need to have a C++ compiler installed on your machine. It is recommended that you build OpenMOC with g++ version 4.4 or later. To install the latest stable version of <tt class="docutils literal"><span class="pre">g++</span></tt> using MacPorts (v4.8 at the time of this writing), use the following command in the console:</p>
 <div class="highlight-python"><div class="highlight"><pre>sudo port install gcc48
+</pre></div>
+</div>
+<p>Finally, you must set this version of <tt class="docutils literal"><span class="pre">g++</span></tt> as the default for Macports:</p>
+<div class="highlight-python"><div class="highlight"><pre>sudo port select --set gcc mp-gcc48
 </pre></div>
 </div>
 </li>
@@ -61,6 +65,10 @@
 <p>OpenMOC extensively uses Python for rapid data processing and visualization. OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindingssuch that users are entirely insulated from having to write in C/C++ or CUDA, and can simply write a Python script with calls to OpenMOC.</p>
 <p>Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 and 3.2. Even if you already have Python installed, it is recommended that you install it again using MacPorts to ensure that it is properly configured with <tt class="docutils literal"><span class="pre">g++</span></tt>. You can easily install version 2.7 using MacPorts as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre>sudo port install python27
+</pre></div>
+</div>
+<p>Finally, you must set this version of <tt class="docutils literal"><span class="pre">python</span></tt> as the default for Macports:</p>
+<div class="highlight-python"><div class="highlight"><pre>sudo port select --set python python27
 </pre></div>
 </div>
 </li>

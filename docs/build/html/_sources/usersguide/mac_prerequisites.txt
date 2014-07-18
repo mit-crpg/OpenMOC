@@ -6,18 +6,19 @@ Installing Prerequisites on Mac OS X
 
 There are a few prerequisites which must be installed on your machine before you will be able to build and install OpenMOC. All of the prerequisites can easily be installed using a standard package manager, such as MacPorts_ for Mac OS X. The following instructions detail which packages are needed, with instructions on how to install them using MacPorts.
 
-The following command will install all required and optional dependencies using MacPorts::
-  
-  sudo port install gcc48 git python27 swig swig-python py27-numpy py27-matplotlib py27-h5py
-
+.. note:: It is important to install the following prerequisite packages in the order given - in particular, Python must be installed before NumPy and Matplotlib.
 
 .. admonition:: Required
 
     * GNU's C++ compiler_
 
-      In order to compile OpenMOC, you will need to have a C++ compiler installed on your machine. It is recommended that you build OpenMOC with g++ version 4.4 or later. To install the latest stable version of ``g++`` using MacPorts, use the following command in the console::
+      In order to compile OpenMOC, you will need to have a C++ compiler installed on your machine. It is recommended that you build OpenMOC with g++ version 4.4 or later. To install the latest stable version of ``g++`` using MacPorts (v4.8 at the time of this writing), use the following command in the console::
 
 	sudo port install gcc48
+
+      Finally, you must set this version of ``g++`` as the default for Macports::
+
+	sudo port select --set gcc mp-gcc48
 
 
     * Python_
@@ -27,6 +28,10 @@ The following command will install all required and optional dependencies using 
       Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 and 3.2. Even if you already have Python installed, it is recommended that you install it again using MacPorts to ensure that it is properly configured with ``g++``. You can easily install version 2.7 using MacPorts as follows::
 
 	sudo port install python27
+
+      Finally, you must set this version of ``python`` as the default for Macports::
+
+	sudo port select --set python python27
 
 
     * Git_
