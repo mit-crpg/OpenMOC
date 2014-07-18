@@ -459,7 +459,7 @@ def plot_flat_source_regions(geometry, gridsize=250):
 # @param solver a Solver object that has converged the source for the Geometry
 # @param energy_groups a Python list of integer energy groups to plot
 # @param gridsize an optional number of grid cells for the plot
-def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
+def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
 
   global subdirectory
 
