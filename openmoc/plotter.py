@@ -481,12 +481,12 @@ def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
   if isinstance(energy_groups, list):
     for group in energy_groups:
       if not isinstance(group, int):
-        py_print('ERROR', 'Unable to plot the flat source region ' + \
+        py_printf('ERROR', 'Unable to plot the flat source region ' + \
                  'scalar flux since the energy_groups list ' + \
                  'contains %s which is not an int', str(group))
 
       elif group <= 0:
-        py_print('ERROR', 'Unable to plot the flat source region scalar ' + \
+        py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                  'flux since the energy_groups list contains %d which is' + \
                  'less than the index for all energy groups', str(group))
 
@@ -497,7 +497,7 @@ def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
 
   elif isinstance(energy_groups, int):
     if energy_groups <= 0:
-      py_print('ERROR', 'Unable to plot the flat source region scalar ' + \
+      py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                'flux since the energy_groups argument contains %d which is' + \
                ' less than the index for all energy groups', str(energy_groups))
 
