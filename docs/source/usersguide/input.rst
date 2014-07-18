@@ -303,6 +303,8 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in :re
 
 The following sections detail how to create surfaces, cells, universes and lattices to construct a simple 4 :math:`\times` 4 pin cell lattice. 
 
+.. note:: Users should create ``Surfaces``, ``Cells``, and ``Lattices`` and add them to the ``Geometry`` in that order for correct results.
+
 
 Surfaces
 --------
@@ -437,7 +439,7 @@ Once the cells for the geometry have been created, OpenMOC's ``Lattice`` class m
 Geometry
 --------
 
-The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` class. The ``Geometry`` class encapsulates all materials, surfaces, cells, universes and lattices. The following code snippet illustrates the creation of the geometry and the registration of each material, cell and lattice constructed in the preceding sections. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.
+The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` class. The ``Geometry`` class encapsulates all ``Materials``, ``Surfaces``, ``Cells``, ``Universes`` and ``Lattices``. The following code snippet illustrates the creation of the ``Geometry`` and the registration of each ``Material``, ``Cell`` and ``Lattice`` constructed in the preceding sections. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.
 
 .. code-block:: python
 
@@ -459,6 +461,9 @@ The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` c
     # Next, initialize the flat source regions in the geometry after
     # all materials, cells, and lattices have been added to it
     geometry.initializeFlatSourceRegions()
+
+.. warning:: Users **must** add ``Surfaces``, ``Cells``, and ``Lattices`` to the ``Geometry`` in that order for correct results.
+
 
 
 ----------------
