@@ -320,7 +320,7 @@ FP_PRECISION Material::getSigmaTByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's total "
                "cross section since it has not yet been set", _id);
                
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get sigma_t for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
                
@@ -338,7 +338,7 @@ FP_PRECISION Material::getSigmaAByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's absorption "
                "cross section since it has not yet been set", _id);
   
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get sigma_a for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
   
@@ -357,7 +357,7 @@ FP_PRECISION Material::getSigmaSByGroup(int group1, int group2) {
     log_printf(ERROR, "Unable to return Material %d's scattering "
                "cross section since it has not yet been set", _id);
   
-  if (group1 < 0 || group2 < 0 || group1 >= _num_groups || group2 >= _num_groups)
+  if (group1 <= 0 || group2 <= 0 || group1 > _num_groups || group2 > _num_groups)
     log_printf(ERROR, "Unable to get sigma_s for group %d,%d for Material %d "
                "which contains %d energy groups",
                group1, group2, _uid, _num_groups);
@@ -376,7 +376,7 @@ FP_PRECISION Material::getSigmaFByGroup(int group) {
     log_printf(ERROR, "Unable to return material %d's fission "
                "cross section since it has not yet been set", _id);
   
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get sigma_f for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);  
   
@@ -394,7 +394,7 @@ FP_PRECISION Material::getNuSigmaFByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's nu-fission "
                "cross section since it has not yet been set", _id);
   
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get nu_sigma_f for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
   
@@ -412,7 +412,7 @@ FP_PRECISION Material::getChiByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's chi spectrum "
                "since it has not yet been set", _id);
   
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get chi for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
   
@@ -430,7 +430,7 @@ FP_PRECISION Material::getDifCoefByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's diffusion coefficient "
                "since it has not yet been set", _id);
   
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get dif_coef for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
   
@@ -449,7 +449,7 @@ FP_PRECISION Material::getDifHatByGroup(int group, int surface) {
     log_printf(ERROR, "Unable to return Material %d's dif_hat "
                "since it has not yet been set", _id);
   
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get dif_hat for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
                
@@ -467,7 +467,7 @@ FP_PRECISION Material::getDifTildeByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's dif_tilde "
                "since it has not yet been set", _id);
   
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get dif_tilde for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
   
@@ -485,7 +485,7 @@ FP_PRECISION Material::getBucklingByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's buckling "
                "since it has not yet been set", _id);
   
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get buckling for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
   
