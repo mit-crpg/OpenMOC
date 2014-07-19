@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['options',['Options',['../classopenmoc_1_1options_1_1Options.html',1,'openmoc::options']]]
+  ['material',['Material',['../classopenmoc_1_1openmoc_1_1Material.html',1,'openmoc::openmoc']]],
+  ['material',['Material',['../classMaterial.html',1,'']]],
+  ['mesh',['Mesh',['../classMesh.html',1,'']]],
+  ['mesh',['Mesh',['../classopenmoc_1_1openmoc_1_1Mesh.html',1,'openmoc::openmoc']]]
 ];

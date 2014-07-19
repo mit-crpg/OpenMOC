@@ -162,6 +162,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae86cb4a6791fc953156f114667a04983"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ae86cb4a6791fc953156f114667a04983">isUsingExponentialIntrinsic</a> ()</td></tr>
 <tr class="memdesc:ae86cb4a6791fc953156f114667a04983"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> uses the exponential intrinsic exp(...) routine to compute exponentials.  <a href="#ae86cb4a6791fc953156f114667a04983">More...</a><br/></td></tr>
 <tr class="separator:ae86cb4a6791fc953156f114667a04983"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a972a7ae139448c1c65f51d421c816306"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a972a7ae139448c1c65f51d421c816306">isUsingCmfd</a> ()</td></tr>
+<tr class="memdesc:a972a7ae139448c1c65f51d421c816306"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> is has initialized Coarse <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> Finite Difference (CMFD) acceleration.  <a href="#a972a7ae139448c1c65f51d421c816306">More...</a><br/></td></tr>
+<tr class="separator:a972a7ae139448c1c65f51d421c816306"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a14aa82ed26bb664d3dc89a19b9f13c63"><td class="memItemLeft" align="right" valign="top">virtual FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a14aa82ed26bb664d3dc89a19b9f13c63">getFSRScalarFlux</a> (int fsr_id, int energy_group)=0</td></tr>
 <tr class="memdesc:a14aa82ed26bb664d3dc89a19b9f13c63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the scalar flux for a FSR and energy group.  <a href="#a14aa82ed26bb664d3dc89a19b9f13c63">More...</a><br/></td></tr>
 <tr class="separator:a14aa82ed26bb664d3dc89a19b9f13c63"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -933,6 +936,24 @@ Protected Attributes</h2></td></tr>
 <p>Instantiates a dummy <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> object if one was not assigned to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> by the user and initializes FSRs, materials, fluxes and the <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> object. This method is for internal use only and is called by the <a class="el" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates. ">Solver::convergeSource()</a> method and should not be called directly by the user. </p>
 
 <p>Reimplemented in <a class="el" href="classCPUSolver.html#acf1386161e001fd58d8962a4c6ad24c7">CPUSolver</a>, and <a class="el" href="classThreadPrivateSolver.html#a2093a23adc15841ad486b2b803e1fb28">ThreadPrivateSolver</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a972a7ae139448c1c65f51d421c816306"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Solver::isUsingCmfd </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns whether the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> is has initialized Coarse <a class="el" href="classMesh.html" title="Represents a cartesian mesh for Coarse Mesh Finite Difference Diffusion acceleration. ">Mesh</a> Finite Difference (CMFD) acceleration. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if so, false otherwise </dd></dl>
 
 </div>
 </div>
@@ -2189,7 +2210,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classSolver.html">Solver</a></li>
-    <li class="footer">Generated on Fri Jul 18 2014 19:35:00 by
+    <li class="footer">Generated on Sat Jul 19 2014 15:50:12 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

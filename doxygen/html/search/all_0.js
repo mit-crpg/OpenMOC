@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['_5f_5finit_5f_5f',['__init__',['../classopenmoc_1_1options_1_1Options.html#a15ef23a601cd963fdf5bcca94821f272',1,'openmoc::options::Options']]],
+  ['_5f_5finit_5f_5f',['__init__',['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#aca9b5323ed8bd30b4594cd6b099da62f',1,'openmoc.compatible.casmo.Casmo.__init__()'],['../classopenmoc_1_1options_1_1Options.html#a15ef23a601cd963fdf5bcca94821f272',1,'openmoc.options.Options.__init__()']]],
   ['_5fa',['_A',['../classPlane.html#afd0aae8ff683f84d286e975e856df3ef',1,'Plane']]],
   ['_5fazim_5fangle_5findex',['_azim_angle_index',['../structdev__track.html#a8a209d642c97a47a95ef485b9251b6f6',1,'dev_track']]],
   ['_5fazim_5fweights',['_azim_weights',['../classSolver.html#afc3f8d170cf341d43307dfcfde49d3d9',1,'Solver']]],
@@ -37,8 +37,6 @@ var searchData=
   ['_5fmesh_5fsurface_5fbwd',['_mesh_surface_bwd',['../structsegment.html#ab52bc65d2ee91cad7f317c9a6d181cbd',1,'segment']]],
   ['_5fmesh_5fsurface_5ffwd',['_mesh_surface_fwd',['../structsegment.html#ada6ab94c33b989169bafcb01cfdba6cc',1,'segment']]],
   ['_5fmesh_5fsurface_5flocks',['_mesh_surface_locks',['../classCPUSolver.html#ace99a46f6682ae87e967ca06c420b959',1,'CPUSolver']]],
-  ['_5fmm_5ffree',['_mm_free',['../Material_8h.html#a8319c1d37e5ba7806ad110885442e0b3',1,'Material.h']]],
-  ['_5fmm_5fmalloc',['_mm_malloc',['../Material_8h.html#aa32bffa1709c4370edc669c910780ab7',1,'Material.h']]],
   ['_5fn',['_n',['../classCell.html#a541f3c7c6a6dfe20a650c695bd7d9e6e',1,'Cell::_n()'],['../classSurface.html#af29013bb2235204f570e86d62bca4a1f',1,'Surface::_n()'],['../classUniverse.html#aeea9c22816c028a32514d6020cc66b6d',1,'Universe::_n()']]],
   ['_5fnu_5fsigma_5ff',['_nu_sigma_f',['../structdev__material.html#a4da54eab9513b0d5a51afc867ed20520',1,'dev_material']]],
   ['_5fnum_5fazim',['_num_azim',['../classSolver.html#a9f0fd3a842870803f27c47ed51a83039',1,'Solver']]],
@@ -53,6 +51,7 @@ var searchData=
   ['_5fnum_5fthreads',['_num_threads',['../classCPUSolver.html#aae4771f6912d3ea1a3a10537a791b28e',1,'CPUSolver']]],
   ['_5fnum_5ftracks',['_num_tracks',['../classSolver.html#a564e918dc20cdc12f40e15a86fffefc2',1,'Solver']]],
   ['_5fnum_5fvector_5flengths',['_num_vector_lengths',['../classVectorizedSolver.html#adff1b20b7ea5cb791119fae7ee83fc1f',1,'VectorizedSolver']]],
+  ['_5fobject',['_object',['../classopenmoc_1_1openmoc_1_1__object.html',1,'openmoc::openmoc']]],
   ['_5fold_5fsource',['_old_source',['../classSolver.html#ad7d3233142b6798f9aea7330b221754c',1,'Solver::_old_source()'],['../Solver_8h.html#adf95dbf2b22130c73aeb1b65f7c9194c',1,'_old_source():&#160;Solver.h']]],
   ['_5forigin',['_origin',['../classUniverse.html#a1a1a80e5a8cc28b9629317edf03b9765',1,'Universe']]],
   ['_5fpolar_5ftimes_5fgroups',['_polar_times_groups',['../classSolver.html#a84ce3dbf9e3c4a86773161e7c92b1da1',1,'Solver']]],

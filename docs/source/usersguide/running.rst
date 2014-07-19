@@ -110,7 +110,7 @@ The maximum number of source convergence iterations. The MOC solvers will execut
 The tolerance on the source convergence. The default is 1E-5.
 
 
-.. option:: -t, --num-omp-threads=<1>
+.. option:: -t, --num-omp-threads=<# CPU cores>
 
 The number of OpenMP threads to use. This option only applies to scripts which use OpenMOC's :cpp:class:`CPUSolver`, or derived classes such as :cpp:class:`ThreadPrivateSolver`, :cpp:class:`VectorizedSolver` and :cpp:class:`VectorizedPrivateSolver`. The default is 1 thread.
 
