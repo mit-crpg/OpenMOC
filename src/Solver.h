@@ -313,6 +313,7 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
   bool isUsingExponentialIntrinsic();
+  bool isUsingCmfd();
 
   /**
    * @brief Returns the scalar flux for a FSR and energy group.

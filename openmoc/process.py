@@ -322,6 +322,13 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   else:
     method = 'linear interpolation'
 
+  # Determine whether the Solver has initialized Coarse Mesh Finite
+  # Difference Acceleration (CMFD)
+  if solver.isUsingCmfd():
+    cmfd = True
+  else:
+    cmfd = False
+
   # Get the Geometry and TrackGenerator from the solver
   geometry = solver.getGeometry()
   track_generator = solver.getTrackGenerator()
@@ -407,6 +414,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     time_group.create_dataset('source residual threshold', data=thresh)
     time_group.create_dataset('exponential', data=method)
     time_group.create_dataset('floating point', data=precision)
+    time_group.create_dataset('CMFD', data=cmfd)
     time_group.create_dataset('time [sec]', data=tot_time)
     time_group.create_dataset('keff', data=keff)
 
@@ -477,6 +485,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     state['source residual threshold'] = thresh
     state['exponential'] = method
     state['floating point'] = precision
+    state['CMFD'] = cmfd
     state['time [sec]'] = tot_time
     state['keff'] = keff
 
@@ -492,7 +501,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     if sources:
       state['FSR sources'] = sources
 
-    if powers:
+    if pin_powers:
       py_printf('WARNING', 'The process.storeSimulationState(...)' + \
                 'method only supports pin power storage for HDF5 files')
 
@@ -594,6 +603,9 @@ def restore_simulation_state(filename='simulation-state.h5',
 
         precision = str(dataset['floating point'][...])
         state['floating point'] = precision
+
+        cmfd = str(dataset['CMFD'][...])
+        state['CMFD'] = cmfd
 
         time = float(dataset['time [sec]'][...])
         state['time [sec]'] = time
