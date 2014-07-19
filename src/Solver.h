@@ -210,6 +210,9 @@ protected:
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
 
+  /** Whether or not CMFD is initialized for use use */
+  bool _using_cmfd;
+
   int round_to_int(float x);
   int round_to_int(double x);
 
@@ -313,6 +316,7 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
   bool isUsingExponentialIntrinsic();
+  bool isUsingCmfd();
 
   /**
    * @brief Returns the scalar flux for a FSR and energy group.

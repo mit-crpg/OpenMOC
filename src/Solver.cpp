@@ -31,6 +31,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator,
   _track_generator = NULL;
   _geometry = NULL;
   _cmfd = NULL;
+  _using_cmfd = false;
 
   _tracks = NULL;
   _azim_weights = NULL;
@@ -258,6 +259,15 @@ bool Solver::isUsingExponentialIntrinsic() {
 }
 
 
+/**
+ * @brief Returns whether the Solver is has initialized Coarse Mesh
+ *        Finite Difference (CMFD) acceleration.
+ * @return true if so, false otherwise
+ */
+bool Solver::isUsingCmfd() {
+  return _using_cmfd;
+}
+
 
 /**
  * @brief Sets the Geometry for the Solver.
@@ -428,11 +438,13 @@ void Solver::initializeCmfd(){
     _cmfd = new Cmfd(_geometry);
 
   if (_cmfd->getNumCmfdGroups() == 0)
-      _cmfd->createGroupStructure(NULL, _num_groups+1);
+    _cmfd->createGroupStructure(NULL, _num_groups+1);
 
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
+
+  _using_cmfd = true;
 }
 
 
