@@ -258,6 +258,15 @@ bool Solver::isUsingExponentialIntrinsic() {
 }
 
 
+/**
+ * @brief Returns whether the Solver is has initialized Coarse Mesh
+ *        Finite Difference (CMFD) acceleration.
+ * @return true if so, false otherwise
+ */
+bool Solver::isUsingCmfd() {
+  return _cmfd->getMesh()->getAcceleration();
+}
+
 
 /**
  * @brief Sets the Geometry for the Solver.
@@ -428,7 +437,7 @@ void Solver::initializeCmfd(){
     _cmfd = new Cmfd(_geometry);
 
   if (_cmfd->getNumCmfdGroups() == 0)
-      _cmfd->createGroupStructure(NULL, _num_groups+1);
+    _cmfd->createGroupStructure(NULL, _num_groups+1);
 
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
