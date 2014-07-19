@@ -31,7 +31,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator,
   _track_generator = NULL;
   _geometry = NULL;
   _cmfd = NULL;
-  _using_cmfd = false;
 
   _tracks = NULL;
   _azim_weights = NULL;
@@ -265,7 +264,7 @@ bool Solver::isUsingExponentialIntrinsic() {
  * @return true if so, false otherwise
  */
 bool Solver::isUsingCmfd() {
-  return _using_cmfd;
+  return _cmfd->getMesh()->getAcceleration();
 }
 
 
@@ -443,8 +442,6 @@ void Solver::initializeCmfd(){
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
-
-  _using_cmfd = true;
 }
 
 
