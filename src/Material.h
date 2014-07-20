@@ -123,6 +123,16 @@ public:
   FP_PRECISION* getBuckling();
   FP_PRECISION* getDifHat();
   FP_PRECISION* getDifTilde();
+  FP_PRECISION getSigmaTByGroup(int group);
+  FP_PRECISION getSigmaAByGroup(int group);
+  FP_PRECISION getSigmaSByGroup(int group1, int group2);
+  FP_PRECISION getSigmaFByGroup(int group);
+  FP_PRECISION getNuSigmaFByGroup(int group);
+  FP_PRECISION getChiByGroup(int group);
+  FP_PRECISION getDifCoefByGroup(int group);
+  FP_PRECISION getBucklingByGroup(int group);
+  FP_PRECISION getDifHatByGroup(int group, int surface);
+  FP_PRECISION getDifTildeByGroup(int group);  
   bool isFissionable();
   bool isDataAligned();
   int getNumVectorGroups();

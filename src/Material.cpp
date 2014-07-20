@@ -310,6 +310,189 @@ FP_PRECISION* Material::getBuckling() {
   return _buckling;
 }
 
+/**
+ * @brief Get the Material's total cross section for some energy group.
+ * @param group the energy group
+ * @return the total cross section
+ */
+FP_PRECISION Material::getSigmaTByGroup(int group) {    
+  if (_sigma_t == NULL)
+    log_printf(ERROR, "Unable to return Material %d's total "
+               "cross section since it has not yet been set", _id);
+               
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get sigma_t for group %d for Material "
+               "%d which contains %d energy groups", group, _uid, _num_groups);
+               
+  return _sigma_t[group-1];
+}
+
+
+/**
+ * @brief Get the Material's absorption cross section for some energy group.
+ * @param group the energy group
+ * @return the absorption cross section
+ */
+FP_PRECISION Material::getSigmaAByGroup(int group) {    
+  if (_sigma_a == NULL)
+    log_printf(ERROR, "Unable to return Material %d's absorption "
+               "cross section since it has not yet been set", _id);
+  
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get sigma_a for group %d for Material "
+               "%d which contains %d energy groups", group, _uid, _num_groups);
+  
+  return _sigma_a[group-1];
+}
+
+
+/**
+ * @brief Get the Material's scattering cross section for some energy group.
+ * @param group1 the row index in the scattering matrix
+ * @param group2 the column index in the scattering matrix
+ * @return the scattering cross section
+ */
+FP_PRECISION Material::getSigmaSByGroup(int group1, int group2) {   
+  if (_sigma_s == NULL)
+    log_printf(ERROR, "Unable to return Material %d's scattering "
+               "cross section since it has not yet been set", _id);
+  
+  if (group1 <= 0 || group2 <= 0 || group1 > _num_groups || group2 > _num_groups)
+    log_printf(ERROR, "Unable to get sigma_s for group %d,%d for Material %d "
+               "which contains %d energy groups",
+               group1, group2, _uid, _num_groups);
+   
+  return _sigma_s[_num_groups*(group1-1) + (group2-1)];
+}
+
+
+/**
+ * @brief Get the Material's fission cross section for some energy group.
+ * @param group the energy group
+ * @return the fission cross section
+ */
+FP_PRECISION Material::getSigmaFByGroup(int group) {    
+  if (_sigma_f == NULL)
+    log_printf(ERROR, "Unable to return material %d's fission "
+               "cross section since it has not yet been set", _id);
+  
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get sigma_f for group %d for Material "
+               "%d which contains %d energy groups", group, _uid, _num_groups);  
+  
+  return _sigma_f[group-1];
+}    
+
+
+/**
+ * @brief Get the Material's nu-fission cross section for some energy group.
+ * @param group the energy group
+ * @return the nu-fission cross section
+ */
+FP_PRECISION Material::getNuSigmaFByGroup(int group) {    
+  if (_nu_sigma_f == NULL)
+    log_printf(ERROR, "Unable to return Material %d's nu-fission "
+               "cross section since it has not yet been set", _id);
+  
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get nu_sigma_f for group %d for Material "
+               "%d which contains %d energy groups", group, _uid, _num_groups);
+  
+  return _nu_sigma_f[group-1];
+}    
+
+
+/**
+ * @brief Get the Material's fission spectrum for some energy group.
+ * @param group the energy group
+ * @return the fission spectrum
+ */
+FP_PRECISION Material::getChiByGroup(int group) {        
+  if (_chi == NULL)
+    log_printf(ERROR, "Unable to return Material %d's chi spectrum "
+               "since it has not yet been set", _id);
+  
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get chi for group %d for Material "
+               "%d which contains %d energy groups", group, _uid, _num_groups);
+  
+  return _chi[group-1];
+}  
+
+
+/**
+ * @brief Get the Material's diffustion coefficient for some energy group.
+ * @param group the energy group
+ * @return the diffusion coefficient
+ */
+FP_PRECISION Material::getDifCoefByGroup(int group) {
+  if (_dif_coef == NULL)
+    log_printf(ERROR, "Unable to return Material %d's diffusion coefficient "
+               "since it has not yet been set", _id);
+  
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get dif_coef for group %d for Material "
+               "%d which contains %d energy groups", group, _uid, _num_groups);
+  
+  return _dif_coef[group-1];
+}
+
+
+/**
+ * @brief Get the Material's dif_hat for some energy group.
+ * @param group the energy group
+ * @param surface the index of the surface
+ * @return the dif_hat value
+ */
+FP_PRECISION Material::getDifHatByGroup(int group, int surface) {
+  if (_dif_hat == NULL)
+    log_printf(ERROR, "Unable to return Material %d's dif_hat "
+               "since it has not yet been set", _id);
+  
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get dif_hat for group %d for Material "
+               "%d which contains %d energy groups", group, _uid, _num_groups);
+               
+  return _dif_hat[surface*_num_groups + (group-1)];
+}
+
+
+/**
+ * @brief Get the Material's dif_tilde for some energy group.
+ * @param group the energy group
+ * @return the dif_tilde value
+ */
+FP_PRECISION Material::getDifTildeByGroup(int group) {
+  if (_dif_tilde == NULL)
+    log_printf(ERROR, "Unable to return Material %d's dif_tilde "
+               "since it has not yet been set", _id);
+  
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get dif_tilde for group %d for Material "
+               "%d which contains %d energy groups", group, _uid, _num_groups);
+  
+  return _dif_tilde[group-1];
+}
+
+
+/**
+ * @brief Get the Material's buckling for some energy group.
+ * @param group the energy group
+ * @return the buckling value
+ */
+FP_PRECISION Material::getBucklingByGroup(int group) {
+  if (_buckling == NULL)
+    log_printf(ERROR, "Unable to return Material %d's buckling "
+               "since it has not yet been set", _id);
+  
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get buckling for group %d for Material "
+               "%d which contains %d energy groups", group, _uid, _num_groups);
+  
+  return _buckling[group-1];
+}
+
+
 
 /**
  * @brief Returns whether or not the Material contains a fissionable (non-zero)
@@ -464,11 +647,11 @@ void Material::setSigmaT(double* xs, int num_groups) {
  */
 void Material::setSigmaTByGroup(double xs, int group) {
 
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to set sigma_t for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
 
-  _sigma_t[group] = xs;
+  _sigma_t[group-1] = xs;
 }
 
 
@@ -513,11 +696,11 @@ void Material::setSigmaA(double* xs, int num_groups) {
  */
 void Material::setSigmaAByGroup(double xs, int group) {
 
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to set sigma_a for group %d for material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
 
-  _sigma_a[group] = xs;
+  _sigma_a[group-1] = xs;
 }
 
 
@@ -573,12 +756,12 @@ void Material::setSigmaS(double* xs, int num_groups_squared) {
  */
 void Material::setSigmaSByGroup(double xs, int group1, int group2) {
 
-  if (group1 < 0 || group2 < 0 || group1 >= _num_groups || group2 >= _num_groups)
+  if (group1 <= 0 || group2 <= 0 || group1 > _num_groups || group2 > _num_groups)
     log_printf(ERROR, "Unable to set sigma_s for group %d,%d for Material %d "
                "which contains %d energy groups",
                group1, group2, _uid, _num_groups);
 
-  _sigma_s[_num_groups*(group1) + (group2)] = xs;
+  _sigma_s[_num_groups*(group1-1) + (group2-1)] = xs;
 }
 
 
@@ -614,7 +797,7 @@ void Material::setSigmaF(double* xs, int num_groups) {
   _fissionable = false;
 
   for (int i=0; i < _num_groups; i++) {
-    if (_sigma_f[i] > 0.0) {
+    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
       _fissionable = true;
       return;
     }
@@ -629,17 +812,17 @@ void Material::setSigmaF(double* xs, int num_groups) {
  */
 void Material::setSigmaFByGroup(double xs, int group) {
 
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to set sigma_f for group %d for Material "
                "%d which contains %d energy groups", group, _uid, _num_groups);
 
-  _sigma_f[group] = xs;
+  _sigma_f[group-1] = xs;
 
   /* Determine whether or not this Material is fissionable */
   _fissionable = false;
 
   for (int i=0; i < _num_groups; i++) {
-    if (_sigma_f[i] > 0.0) {
+    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
       _fissionable = true;
       return;
     }
@@ -662,6 +845,16 @@ void Material::setNuSigmaF(double* xs, int num_groups) {
 
   for (int i=0; i < _num_groups; i++)
     _nu_sigma_f[i] = xs[i];
+    
+  /* Determine whether or not this Material is fissionable */
+  _fissionable = false;
+
+  for (int i=0; i < _num_groups; i++) {
+    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
+      _fissionable = true;
+      return;
+    }
+  }
 }
 
 
@@ -687,11 +880,21 @@ void Material::setNuSigmaF(double* xs, int num_groups) {
  */
 void Material::setNuSigmaFByGroup(double xs, int group) {
 
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to set nu_sigma_f for group %d for Material "
                "%d which contains %d energy groups", group, _uid);
 
-  _nu_sigma_f[group] = xs;
+  _nu_sigma_f[group-1] = xs;
+  
+  /* Determine whether or not this Material is fissionable */
+  _fissionable = false;
+
+  for (int i=0; i < _num_groups; i++) {
+    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
+      _fissionable = true;
+      return;
+    }
+  }
 }
 
 
@@ -733,11 +936,11 @@ void Material::setChi(double* xs, int num_groups) {
  */
 void Material::setChiByGroup(double xs, int group) {
 
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to set chi for group %d for Material "
               "%d which contains %d energy groups", group, _num_groups, _uid);
 
-  _chi[group] = xs;
+  _chi[group-1] = xs;
 }
 
 
@@ -782,7 +985,7 @@ void Material::setDifCoef(double* xs, int num_groups) {
  */
 void Material::setDifCoefByGroup(double xs, int group) {
 
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to set diffusion coefficient for group %d for "
                "Material %d which contains %d energy groups",
                group, _num_groups, _uid);
@@ -794,7 +997,7 @@ void Material::setDifCoefByGroup(double xs, int group) {
       _dif_coef[i] = 0.0;
   }
 
-  _dif_coef[group] = xs;
+  _dif_coef[group-1] = xs;
 }
 
 
@@ -839,7 +1042,7 @@ void Material::setBuckling(double* xs, int num_groups) {
  */
 void Material::setBucklingByGroup(double xs, int group) {
 
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to set diffusion coefficient for group %d for "
                "Material %d which contains %d energy groups",
                group, _num_groups, _uid);
@@ -850,7 +1053,7 @@ void Material::setBucklingByGroup(double xs, int group) {
       _buckling[i] = 0.0;
   }
 
-  _buckling[group] = xs;
+  _buckling[group-1] = xs;
 }
 
 
@@ -897,7 +1100,7 @@ void Material::setDifHat(double* xs, int num_groups) {
  */
 void Material::setDifHatByGroup(double xs, int group, int surface) {
 
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to set diffusion coefficient for group %d for "
               "Material %d which contains %d energy groups",
               group, _num_groups, _uid);
@@ -910,7 +1113,7 @@ void Material::setDifHatByGroup(double xs, int group, int surface) {
       _dif_hat[i] = 0.0;
   }
 
-  _dif_hat[surface*_num_groups + group] = xs;
+  _dif_hat[surface*_num_groups + (group-1)] = xs;
 }
 
 
@@ -958,7 +1161,7 @@ void Material::setDifTilde(double* xs, int num_groups) {
  */
 void Material::setDifTildeByGroup(double xs, int group, int surface) {
 
-  if (group < 0 || group >= _num_groups)
+  if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to set diffusion coefficient correction for "
               "group %d for Material %d which contains %d energy groups",
                group, _num_groups, _uid);
@@ -970,7 +1173,7 @@ void Material::setDifTildeByGroup(double xs, int group, int surface) {
       _dif_tilde[i] = 0.0;
   }
 
-  _dif_tilde[surface*_num_groups + group] = xs;
+  _dif_tilde[surface*_num_groups + (group-1)] = xs;
 }
 
 
