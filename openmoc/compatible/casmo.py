@@ -1,3 +1,5 @@
+#might need to change all (.txt)s to (.out)s
+
 ##
 # @file casmo.py
 # @package openmoc.compatible.casmo
@@ -117,11 +119,11 @@ class Casmo(object):
   
   
   def parseNumRegions(self):
-    print self._filename
     f = open(self._directory + self._filename, 'r')
     counter = 0
     newcounter = 0
-    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.out','c4.pwru240w12.out', 'c4.pwru240w16.out', 'c4.pwru310c00.out', 'c4.pwru310w12.out', 'c4.pwru310w16.out', 'c4.pwru310w20.out']
+    num_micro_regions = 0
+    symmetric = ['c4.pwru160c00.txt', 'c4.pwru240c00.txt','c4.pwru240w12.txt', 'c4.pwru240w16.txt', 'c4.pwru310c00.txt', 'c4.pwru310w12.txt', 'c4.pwru310w16.txt', 'c4.pwru310w20.txt']
     if self._filename in symmetric:
       for line in f:
         if 'Micro-region number ' in line:
@@ -137,13 +139,11 @@ class Casmo(object):
           newcounter += 1
           continue
         if newcounter == 1:
-          print 'YAYYAYY'
           newtokens = newline.split()
           num_micro_regions = int(newtokens[0])
-          print num_micro_regions
           break
       
-  
+  	
     f.close()
     return num_micro_regions
 
@@ -332,7 +332,7 @@ class Casmo(object):
   #        or column of an assembly.
   # @return width of the assembly
   def parseWidth(self):
-    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.out','c4.pwru240w12.out', 'c4.pwru240w16.out', 'c4.pwru310c00.out', 'c4.pwru310w12.out', 'c4.pwru310w16.out', 'c4.pwru310w20.out']
+    symmetric = ['c4.pwru160c00.txt', 'c4.pwru240c00.txt','c4.pwru240w12.txt', 'c4.pwru240w16.txt', 'c4.pwru310c00.txt', 'c4.pwru310w12.txt', 'c4.pwru310w16.txt', 'c4.pwru310w20.txt']
     half_width = -1
     f = open(self._directory + self._filename, 'r')
     for line in f:
@@ -383,13 +383,12 @@ class Casmo(object):
     min_values = []
     max_values = []
     
-    print 'WIDTH'
-    print self._width
+   
     
 
     f = open(self._directory + self._filename, 'r')
     counter = 0
-    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.out','c4.pwru240w12.out', 'c4.pwru240w16.out', 'c4.pwru310c00.out', 'c4.pwru310w12.out', 'c4.pwru310w16.out', 'c4.pwru310w20.out']
+    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.txt','c4.pwru240w12.txt', 'c4.pwru240w16.txt', 'c4.pwru310c00.txt', 'c4.pwru310w12.txt', 'c4.pwru310w16.txt', 'c4.pwru310w20.txt']
     if self._filename in symmetric:
       for line in f:
         if counter >= 1 and '1_________' in line:
@@ -436,7 +435,7 @@ class Casmo(object):
         min_array[int(counter)/int(self._width), index%self._width] = float(value)
         counter += 1
         continue
-      print min_array
+      
       counter = 0
       for index, value in enumerate(max_values):
         max_array[int(counter)/int(self._width), index%self._width] = float(value)
@@ -520,7 +519,7 @@ class Casmo(object):
     quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.float32)
 
     counter = 0
-    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.out','c4.pwru240w12.out', 'c4.pwru240w16.out', 'c4.pwru310c00.out', 'c4.pwru310w12.out', 'c4.pwru310w16.out', 'c4.pwru310w20.out']
+    symmetric = ['c4.pwru160c00.txt', 'c4.pwru240c00.txt','c4.pwru240w12.txt', 'c4.pwru240w16.txt', 'c4.pwru310c00.txt', 'c4.pwru310w12.txt', 'c4.pwru310w16.txt', 'c4.pwru310w20.txt']
     for line in f:
       if counter >= 1 and line == '\n':
         break
@@ -590,7 +589,7 @@ class Casmo(object):
     full_width = self._width
     cell_type_array = numpy.zeros((full_width,full_width), dtype=numpy.int32)
     quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.int32)
-    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.out','c4.pwru240w12.out', 'c4.pwru240w16.out', 'c4.pwru310c00.out', 'c4.pwru310w12.out', 'c4.pwru310w16.out', 'c4.pwru310w20.out']
+    symmetric = ['c4.pwru160c00.txt', 'c4.pwru240c00.txt','c4.pwru240w12.txt', 'c4.pwru240w16.txt', 'c4.pwru310c00.txt', 'c4.pwru310w12.txt', 'c4.pwru310w16.txt', 'c4.pwru310w20.txt']
 
     counter = 0
     f = open(self._directory + self._filename, 'r')
