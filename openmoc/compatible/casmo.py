@@ -24,6 +24,7 @@ class Casmo(object):
     self._assembly_name = None
     self._filename = None
     self._directory = None
+    self._symmetric = True
     self._energy_groups = None
     self._num_micro_regions = None
     self._fuel_pin_rad = None
@@ -44,7 +45,7 @@ class Casmo(object):
     self._cell_type_array = None 
     self._string_cell_type_array = None
     self._average_cross_sections = None
-    #self._symmetric = True
+    
     
   ##
   # @brief Returns assembly type as string
@@ -81,6 +82,18 @@ class Casmo(object):
   # @param directory directory of the casmo output file to be parsed (string)
   def setDirectory(self, directory): 
     self._directory = directory
+    
+  ##
+  # @brief Returns whether the assembly for the casmo output file is symmetric 
+  # @return True if symmetric, else False
+  def getSymmetric(self):
+    return self._symmetric
+
+  ##
+  # @brief Sets whether the assembly for the casmo output file is symmetric
+  # @param directory directory of the casmo output file to be parsed (string)
+  def setSymmetric(self, boolean): 
+    self._symmetric = boolean
 
   ##
   # @brief This method parses the casmo output file for the number of
