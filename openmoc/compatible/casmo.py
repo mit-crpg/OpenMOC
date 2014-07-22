@@ -44,7 +44,8 @@ class Casmo(object):
     self._cell_type_array = None 
     self._string_cell_type_array = None
     self._average_cross_sections = None
-
+    #self._symmetric = True
+    
   ##
   # @brief Returns assembly type as string
   # @return assembly type (string)
