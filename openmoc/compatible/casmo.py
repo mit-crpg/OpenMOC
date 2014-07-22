@@ -131,14 +131,22 @@ class Casmo(object):
   #        microregions in the assembly
   # @return number of microregions directly from casmo output file
   
-  
   def parseNumRegions(self):
     f = open(self._directory + self._filename, 'r')
+    #check for symmetry
+    sym_counter = 0
+    for sym_line in f: 
+    	if 'LPI' in sym_line: 
+    		sym_counter +=1
+    		continue
+    	if sym_counter == 1: 
+    		sym_tokens = line.split()
+    		if sym_tokens.length > 2:
+    			f.setSymmetric(False)
     counter = 0
     newcounter = 0
     num_micro_regions = 0
-    symmetric = ['c4.pwru160c00.txt', 'c4.pwru240c00.txt','c4.pwru240w12.txt', 'c4.pwru240w16.txt', 'c4.pwru310c00.txt', 'c4.pwru310w12.txt', 'c4.pwru310w16.txt', 'c4.pwru310w20.txt']
-    if self._filename in symmetric:
+    if f.getSymmetric():
       for line in f:
         if 'Micro-region number ' in line:
           counter += 1
@@ -346,9 +354,20 @@ class Casmo(object):
   #        or column of an assembly.
   # @return width of the assembly
   def parseWidth(self):
-    symmetric = ['c4.pwru160c00.txt', 'c4.pwru240c00.txt','c4.pwru240w12.txt', 'c4.pwru240w16.txt', 'c4.pwru310c00.txt', 'c4.pwru310w12.txt', 'c4.pwru310w16.txt', 'c4.pwru310w20.txt']
     half_width = -1
     f = open(self._directory + self._filename, 'r')
+    
+    #check for symmetry
+    sym_counter = 0
+    for sym_line in f: 
+    	if 'LPI' in sym_line: 
+    		sym_counter +=1
+    		continue
+    	if sym_counter == 1: 
+    		sym_tokens = line.split()
+    		if sym_tokens.length > 2:
+    			f.setSymmetric(False)
+    
     for line in f:
       if 'Layout' in line:
         half_width += 1
@@ -358,7 +377,7 @@ class Casmo(object):
       if half_width>=0:
         half_width += 1
     f.close()
-    if self._filename in symmetric:
+    if f.getSymmetric():
       return half_width*2-1
     else:
       return half_width
@@ -402,8 +421,19 @@ class Casmo(object):
 
     f = open(self._directory + self._filename, 'r')
     counter = 0
-    symmetric = ['c4.pwru160c00.out', 'c4.pwru240c00.txt','c4.pwru240w12.txt', 'c4.pwru240w16.txt', 'c4.pwru310c00.txt', 'c4.pwru310w12.txt', 'c4.pwru310w16.txt', 'c4.pwru310w20.txt']
-    if self._filename in symmetric:
+    
+    #check for symmetry
+    sym_counter = 0
+    for sym_line in f: 
+    	if 'LPI' in sym_line: 
+    		sym_counter +=1
+    		continue
+    	if sym_counter == 1: 
+    		sym_tokens = line.split()
+    		if sym_tokens.length > 2:
+    			f.setSymmetric(False)
+    
+    if f.getSymmetric():
       for line in f:
         if counter >= 1 and '1_________' in line:
           break
@@ -533,14 +563,25 @@ class Casmo(object):
     quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.float32)
 
     counter = 0
-    symmetric = ['c4.pwru160c00.txt', 'c4.pwru240c00.txt','c4.pwru240w12.txt', 'c4.pwru240w16.txt', 'c4.pwru310c00.txt', 'c4.pwru310w12.txt', 'c4.pwru310w16.txt', 'c4.pwru310w20.txt']
+    #check for symmetry
+    sym_counter = 0
+    for sym_line in f: 
+    	if 'LPI' in sym_line: 
+    		sym_counter +=1
+    		continue
+    	if sym_counter == 1: 
+    		sym_tokens = line.split()
+    		if sym_tokens.length > 2:
+    			f.setSymmetric(False)
+    
+    
     for line in f:
       if counter >= 1 and line == '\n':
         break
       if 'Power Distribution' in line:
         counter += 1
         continue
-      if self._filename in symmetric:
+      if f.getSymmetric():
         if counter >= 1:
           powers = line.split()
           for index, power in enumerate(powers):
@@ -603,10 +644,22 @@ class Casmo(object):
     full_width = self._width
     cell_type_array = numpy.zeros((full_width,full_width), dtype=numpy.int32)
     quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.int32)
-    symmetric = ['c4.pwru160c00.txt', 'c4.pwru240c00.txt','c4.pwru240w12.txt', 'c4.pwru240w16.txt', 'c4.pwru310c00.txt', 'c4.pwru310w12.txt', 'c4.pwru310w16.txt', 'c4.pwru310w20.txt']
 
     counter = 0
     f = open(self._directory + self._filename, 'r')
+    
+    #check for symmetry
+    sym_counter = 0
+    for sym_line in f: 
+    	if 'LPI' in sym_line: 
+    		sym_counter +=1
+    		continue
+    	if sym_counter == 1: 
+    		sym_tokens = line.split()
+    		if sym_tokens.length > 2:
+    			f.setSymmetric(False)
+    
+    
     for line in f:
       if counter >=1 and line == '\n':
         break
@@ -617,13 +670,13 @@ class Casmo(object):
         cell_types = line.split()
         for index, cell_type in enumerate(cell_types):
           cell_type = cell_type.strip('*')
-          if self._filename in symmetric:
+          if f.getSymmetric():
             quadrant4[counter-1, index] = int(cell_type)
           else:
             cell_type_array[counter-1, index] = int(cell_type)
         counter += 1
     f.close()
-    if self._filename in symmetric:
+    if f.getSymmetric():
       # Arranges section of cell types into larger array by symmetry
       cell_type_array[(half_width-1):,(half_width-1):] = quadrant4
       cell_type_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
