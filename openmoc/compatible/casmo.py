@@ -140,13 +140,14 @@ class Casmo(object):
     		sym_counter +=1
     		continue
     	if sym_counter == 1: 
-    		sym_tokens = line.split()
-    		if sym_tokens.length > 2:
-    			f.setSymmetric(False)
+    		sym_tokens = sym_line.split()
+    		if len(sym_tokens) > 2:
+    			self._symmetric = False
+    			
     counter = 0
     newcounter = 0
     num_micro_regions = 0
-    if f.getSymmetric():
+    if self._symmetric:
       for line in f:
         if 'Micro-region number ' in line:
           counter += 1
@@ -364,9 +365,9 @@ class Casmo(object):
     		sym_counter +=1
     		continue
     	if sym_counter == 1: 
-    		sym_tokens = line.split()
-    		if sym_tokens.length > 2:
-    			f.setSymmetric(False)
+    		sym_tokens = sym_line.split()
+    		if len(sym_tokens) > 2:
+    			self._symmetric = False
     
     for line in f:
       if 'Layout' in line:
@@ -377,7 +378,7 @@ class Casmo(object):
       if half_width>=0:
         half_width += 1
     f.close()
-    if f.getSymmetric():
+    if self._symmetric:
       return half_width*2-1
     else:
       return half_width
@@ -429,11 +430,11 @@ class Casmo(object):
     		sym_counter +=1
     		continue
     	if sym_counter == 1: 
-    		sym_tokens = line.split()
-    		if sym_tokens.length > 2:
-    			f.setSymmetric(False)
+    		sym_tokens = sym_line.split()
+    		if len(sym_tokens) > 2:
+    			self._symmetric = False
     
-    if f.getSymmetric():
+    if self._symmetric:
       for line in f:
         if counter >= 1 and '1_________' in line:
           break
@@ -570,9 +571,9 @@ class Casmo(object):
     		sym_counter +=1
     		continue
     	if sym_counter == 1: 
-    		sym_tokens = line.split()
-    		if sym_tokens.length > 2:
-    			f.setSymmetric(False)
+    		sym_tokens = sym_line.split()
+    		if len(sym_tokens) > 2:
+    			self._symmetric = False
     
     
     for line in f:
@@ -581,7 +582,7 @@ class Casmo(object):
       if 'Power Distribution' in line:
         counter += 1
         continue
-      if f.getSymmetric():
+      if self._symmetric:
         if counter >= 1:
           powers = line.split()
           for index, power in enumerate(powers):
@@ -656,8 +657,8 @@ class Casmo(object):
     		continue
     	if sym_counter == 1: 
     		sym_tokens = line.split()
-    		if sym_tokens.length > 2:
-    			f.setSymmetric(False)
+    		if len(sym_tokens) > 2:
+    			self._symmetric = False
     
     
     for line in f:
@@ -670,13 +671,13 @@ class Casmo(object):
         cell_types = line.split()
         for index, cell_type in enumerate(cell_types):
           cell_type = cell_type.strip('*')
-          if f.getSymmetric():
+          if self._symmetric:
             quadrant4[counter-1, index] = int(cell_type)
           else:
             cell_type_array[counter-1, index] = int(cell_type)
         counter += 1
     f.close()
-    if f.getSymmetric():
+    if self._symmetric:
       # Arranges section of cell types into larger array by symmetry
       cell_type_array[(half_width-1):,(half_width-1):] = quadrant4
       cell_type_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
