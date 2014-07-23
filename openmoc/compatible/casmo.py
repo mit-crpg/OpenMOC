@@ -108,6 +108,9 @@ class Casmo(object):
         break
     f.close()
     return energy_groups
+    
+    
+  
   
   ##
   # @brief Returns number of energy groups
@@ -133,16 +136,21 @@ class Casmo(object):
   
   def parseNumRegions(self):
     f = open(self._directory + self._filename, 'r')
+    
     #check for symmetry
     sym_counter = 0
     for sym_line in f: 
     	if 'LPI' in sym_line: 
-    		sym_counter +=1
+    		sym_counter += 1  		
     		continue
-    	if sym_counter == 1: 
+    	if sym_counter ==1: 
     		sym_tokens = sym_line.split()
     		if len(sym_tokens) > 2:
     			self._symmetric = False
+    			break
+    		else: 
+    			self._symmetric = True
+    			break
     			
     counter = 0
     newcounter = 0
@@ -357,17 +365,23 @@ class Casmo(object):
   def parseWidth(self):
     half_width = -1
     f = open(self._directory + self._filename, 'r')
+    print "FILE:"+ self._filename
     
     #check for symmetry
     sym_counter = 0
     for sym_line in f: 
     	if 'LPI' in sym_line: 
-    		sym_counter +=1
+    		sym_counter += 1  		
     		continue
-    	if sym_counter == 1: 
+    	if sym_counter ==1: 
     		sym_tokens = sym_line.split()
     		if len(sym_tokens) > 2:
     			self._symmetric = False
+    			break
+    		else: 
+    			self._symmetric = True
+    			break
+    
     
     for line in f:
       if 'Layout' in line:
@@ -382,8 +396,8 @@ class Casmo(object):
       return half_width*2-1
     else:
       return half_width
-
-
+      print "HALFWIDTH" + half_width
+      
   ##
   # @brief Returns width of the assembly
   # @return width of the assembly (int)
@@ -423,16 +437,20 @@ class Casmo(object):
     f = open(self._directory + self._filename, 'r')
     counter = 0
     
-    #check for symmetry
+   #check for symmetry
     sym_counter = 0
     for sym_line in f: 
     	if 'LPI' in sym_line: 
-    		sym_counter +=1
+    		sym_counter += 1  		
     		continue
-    	if sym_counter == 1: 
+    	if sym_counter ==1: 
     		sym_tokens = sym_line.split()
     		if len(sym_tokens) > 2:
     			self._symmetric = False
+    			break
+    		else: 
+    			self._symmetric = True
+    			break
     
     if self._symmetric:
       for line in f:
@@ -564,17 +582,21 @@ class Casmo(object):
     quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.float32)
 
     counter = 0
+    
     #check for symmetry
     sym_counter = 0
     for sym_line in f: 
     	if 'LPI' in sym_line: 
-    		sym_counter +=1
+    		sym_counter += 1  		
     		continue
-    	if sym_counter == 1: 
+    	if sym_counter ==1: 
     		sym_tokens = sym_line.split()
     		if len(sym_tokens) > 2:
     			self._symmetric = False
-    
+    			break
+    		else: 
+    			self._symmetric = True
+    			break
     
     for line in f:
       if counter >= 1 and line == '\n':
@@ -653,13 +675,16 @@ class Casmo(object):
     sym_counter = 0
     for sym_line in f: 
     	if 'LPI' in sym_line: 
-    		sym_counter +=1
+    		sym_counter += 1  		
     		continue
-    	if sym_counter == 1: 
-    		sym_tokens = line.split()
+    	if sym_counter ==1: 
+    		sym_tokens = sym_line.split()
     		if len(sym_tokens) > 2:
     			self._symmetric = False
-    
+    			break
+    		else: 
+    			self._symmetric = True
+    			break
     
     for line in f:
       if counter >=1 and line == '\n':
