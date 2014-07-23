@@ -1,5 +1,3 @@
-#might need to change all (.txt)s to (.out)s
-
 ##
 # @file casmo.py
 # @package openmoc.compatible.casmo
@@ -62,13 +60,13 @@ class Casmo(object):
   ##
   # @brief Returns name of casmo output file to be parsed
   # @return name of casmo output file to be parsed
-  def getFileName(self): 
+  def getFilename(self): 
     return self._filename
 
   ##
   # @brief Sets file name of casmo output file to be parsed
   # @param filename the name of the casmo output file to be parsed (string)
-  def setFileName(self, filename): 
+  def setFilename(self, filename): 
     self._filename = filename
 
   ##
@@ -108,9 +106,6 @@ class Casmo(object):
         break
     f.close()
     return energy_groups
-    
-    
-  
   
   ##
   # @brief Returns number of energy groups
@@ -865,15 +860,19 @@ class Casmo(object):
   # @param assembly_name name of assembly for materials being exported
   # @param directory directory where hdf5 data file will be stored
   def exportAvgXSToHDF5(self, assembly_name, directory = 'casmo-data'):
-    if not os.path.exists(directory):
-      os.makedirs(directory)
-    f = h5py.File(directory + '/' + assembly_name + '-avg-materials.hdf5','w')
-    f.attrs['Energy Groups'] = self._energy_groups
-    for material in self._average_cross_sections.keys():
-      material_group = f.create_group(material)
-      for xs_type in self._average_cross_sections[material].keys():
-        material_group.create_dataset(xs_type,data=self._average_cross_sections[material][xs_type])
-    f.close()
+    if len(self._average_cross_sections) == 0: 
+  	  log.py_printf('WARNING', 'Average Cross Sections do not exist. Call'
+      ' averageXSGenerator to compute them.')
+    else:
+			if not os.path.exists(directory):
+				os.makedirs(directory)
+			f = h5py.File(directory + '/' + assembly_name + '-avg-materials.hdf5','w')
+			f.attrs['Energy Groups'] = self._energy_groups
+			for material in self._average_cross_sections.keys():
+				material_group = f.create_group(material)
+				for xs_type in self._average_cross_sections[material].keys():
+					material_group.create_dataset(xs_type,data=self._average_cross_sections[material][xs_type])
+			f.close()
    
 
   ##
