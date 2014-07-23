@@ -131,5 +131,6 @@ solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
+print 'KEFF IS', solver.getKeff()
 
 log.py_printf('TITLE', 'Finished')
