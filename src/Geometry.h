@@ -124,6 +124,7 @@ public:
   int getNumFSRs();
   int getNumEnergyGroups();
   int getNumMaterials();
+  int getNumCells();
   int* getFSRtoCellMap();
   int* getFSRtoMaterialMap();
   double getMaxSegmentLength();
