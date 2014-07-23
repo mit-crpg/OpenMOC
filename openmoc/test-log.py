@@ -68,6 +68,5 @@ class TestLogLevel(unittest.TestCase):
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(TestLogLevel)
-#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUO2))
 
 unittest.TextTestRunner(verbosity=2).run(suite)

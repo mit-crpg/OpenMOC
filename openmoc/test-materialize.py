@@ -10,6 +10,10 @@
 ##  Fission Chamber
 
 ## Can also add tests for Guide Tube, Water, and Control Rod if that would be useful.
+## Add water (don't need all fuels)
+
+## make sure we get an error if we try energy group = 0
+## test isFissionable
 
 ## This DOES NOT currently test the following modules because they aren't included in the test input file:
 ##  getDifCoefByGroup, getBucklingByGroup, getDifHat, getDifTilde
@@ -29,7 +33,8 @@
 import materialize
 import unittest
 import imp
-import openmoc
+import sys
+import optparse
 
 class TestPyFiles(unittest.TestCase):
 
@@ -137,11 +142,10 @@ class TestUO2(unittest.TestCase):
         #print UO2_Scattering_input
         
         input_list_index = 0
-        low = 1
         # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
         for group2 in xrange(1, num_energy_groups + 1):
 
-            for group1 in xrange(low, num_energy_groups + 1):
+            for group1 in xrange(1, num_energy_groups + 1):
             
                 # identify what was passed in for SigmaS at this point
                 SigmaS = UO2_Scattering_input[input_list_index]
@@ -149,13 +153,10 @@ class TestUO2(unittest.TestCase):
                 list_of_true.append(True)
                 list_of_results.append(abs(UO2_output.getSigmaSByGroup(group1, group2) - SigmaS) < 0.05)
 
-                # if we just got to num_energy_groups, bump up low
-                if group1 == num_energy_groups:
-                    low += 1
-
                 # debugging code
-##                if abs(UO2_output.getSigmaSByGroup(group1, group2) - SigmaS) >= 0.05:
-##                    print 'PROBLEM AREA!!!!', group1, group2
+                if abs(UO2_output.getSigmaSByGroup(group1, group2) - SigmaS) >= 0.05:
+                    print 'PROBLEM AREA!!!!', group1, group2
+                    print 'We expected:', SigmaS, 'We got:', UO2_output.getSigmaSByGroup(group1, group2)
 
         len(list_of_results)
         self.assertEqual(list_of_results, list_of_true)
@@ -236,477 +237,10 @@ class TestUO2(unittest.TestCase):
         
         self.assertEqual(list_of_results, list_of_true)
 
+    def testUO2IsFissionable(self):
+        UO2_output = self._UO2_output
+        self.assertTrue(UO2_output.isFissionable())
 
-#######################################################################################
-################################   Test Case: MOX-4.3%   ##############################
-#######################################################################################
-
-class TestMOX43(unittest.TestCase):
-
-    ## Test the assigned values to UO2 match those in the input file.
-
-    @classmethod
-    def setUpClass(cls):
-        cls._input = 'materials-test.py'
-        cls._import = imp.load_source(cls._input, cls._input).dataset
-        cls._output = materialize.materialize(cls._input)
-        data = cls._import
-        cls._data = data['Materials']
-        cls._MOX_input = cls._data['MOX-4.3%']
-        cls._MOX_output = cls._output['MOX-4.3%']
-
-    def testMOX43TotalXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_TotalXS_input = MOX_input['Total XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_TotalXS_input)+1):
-
-            # identify what was passed in for SigmaT here
-            SigmaT = MOX_TotalXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getSigmaTByGroup(energy_group) - SigmaT) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX43ScatteringXS(self):
-
-        # The input is a list of num_groups**2 values that should be mapped as follows:
-        # list[0] = getSigmaSByGroup(1,1)
-        # list[1] = getSigmaSByGroup(2,1)
-        # list[2] = getSigmaSByGroup(3,1), etc.
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_ScatteringXS_input = MOX_input['Scattering XS']
-        list_of_results = []
-        list_of_true = []
-        
-        num_energy_groups = int((len(MOX_ScatteringXS_input))**0.5)
-
-        #print len(UO2_Scattering_input)
-        #print UO2_Scattering_input
-        
-        input_list_index = 0
-        low = 1
-        
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for group2 in xrange(1, num_energy_groups + 1):
-
-            for group1 in xrange(low, num_energy_groups + 1):
-            
-                # identify what was passed in for SigmaS at this point
-                SigmaS = MOX_ScatteringXS_input[input_list_index]
-                input_list_index += 1           
-                list_of_true.append(True)
-                list_of_results.append(abs(MOX_output.getSigmaSByGroup(group1, group2) - SigmaS) < 0.05)
-
-                # if we just got to num_energy_groups, bump up low
-                if group1 == num_energy_groups:
-                    low += 1
-
-                # debugging code
-##                if abs(MOX_output.getSigmaSByGroup(group1, group2) - SigmaS) >= 0.05:
-##                    print 'PROBLEM AREA!!!!', group1, group2
-
-        len(list_of_results)
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX43FissionXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_FissionXS_input = MOX_input['Fission XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_FissionXS_input)+1):
-
-            # identify what was passed in for SigmaT here
-            SigmaF = MOX_FissionXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getSigmaFByGroup(energy_group) - SigmaF) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX43NuFissionXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_NuFissionXS_input = MOX_input['Nu Fission XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_NuFissionXS_input)+1):
-
-            # identify what was passed in for SigmaT here
-            NuSigmaF = MOX_NuFissionXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(UO2_output.getNuSigmaFByGroup(energy_group) - NuSigmaF) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX43Chi(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_Chi_input = MOX_input['Chi']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_Chi_input)+1):
-
-            # identify what was passed in for SigmaT here
-            Chi = MOX_Chi_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getChiByGroup(energy_group) - Chi) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX43AbsorptionXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_AbsorptionXS_input = MOX_input['Absorption XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaA to the assigned value.
-        for energy_group in xrange(1, len(MOX_AbsorptionXS_input)+1):
-
-            # identify what was passed in for SigmaA here
-            SigmaA = MOX_AbsorptionXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getSigmaAByGroup(energy_group) - SigmaA) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-#####################################################################################
-################################   Test Case: MOX-7%   ##############################
-#####################################################################################
-
-
-class TestMOX7(unittest.TestCase):
-
-    ## Test the assigned values to UO2 match those in the input file.
-
-    @classmethod
-    def setUpClass(cls):
-        cls._input = 'materials-test.py'
-        cls._import = imp.load_source(cls._input, cls._input).dataset
-        cls._output = materialize.materialize(cls._input)
-        data = cls._import
-        cls._data = data['Materials']
-        cls._MOX_input = cls._data['MOX-7%']
-        cls._MOX_output = cls._output['MOX-7%']
-
-    def testMOX7TotalXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_TotalXS_input = MOX_input['Total XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_TotalXS_input)+1):
-
-            # identify what was passed in for SigmaT here
-            SigmaT = MOX_TotalXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getSigmaTByGroup(energy_group) - SigmaT) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX7ScatteringXS(self):
-
-        # The input is a list of num_groups**2 values that should be mapped as follows:
-        # list[0] = getSigmaSByGroup(1,1)
-        # list[1] = getSigmaSByGroup(2,1)
-        # list[2] = getSigmaSByGroup(3,1), etc.
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_ScatteringXS_input = MOX_input['Scattering XS']
-        list_of_results = []
-        list_of_true = []
-        
-        num_energy_groups = int((len(MOX_ScatteringXS_input))**0.5)
-
-        #print len(UO2_Scattering_input)
-        #print UO2_Scattering_input
-        
-        input_list_index = 0
-        low = 1
-        
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for group2 in xrange(1, num_energy_groups + 1):
-
-            for group1 in xrange(low, num_energy_groups + 1):
-            
-                # identify what was passed in for SigmaS at this point
-                SigmaS = MOX_ScatteringXS_input[input_list_index]
-                input_list_index += 1           
-                list_of_true.append(True)
-                list_of_results.append(abs(MOX_output.getSigmaSByGroup(group1, group2) - SigmaS) < 0.05)
-
-                # if we just got to num_energy_groups, bump up low
-                if group1 == num_energy_groups:
-                    low += 1
-
-                # debugging code
-##                if abs(MOX_output.getSigmaSByGroup(group1, group2) - SigmaS) >= 0.05:
-##                    print 'PROBLEM AREA!!!!', group1, group2
-
-        len(list_of_results)
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX7FissionXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_FissionXS_input = MOX_input['Fission XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_FissionXS_input)+1):
-
-            # identify what was passed in for SigmaT here
-            SigmaF = MOX_FissionXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getSigmaFByGroup(energy_group) - SigmaF) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX7NuFissionXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_NuFissionXS_input = MOX_input['Nu Fission XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_NuFissionXS_input)+1):
-
-            # identify what was passed in for SigmaT here
-            NuSigmaF = MOX_NuFissionXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(UO2_output.getNuSigmaFByGroup(energy_group) - NuSigmaF) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX7Chi(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_Chi_input = MOX_input['Chi']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_Chi_input)+1):
-
-            # identify what was passed in for SigmaT here
-            Chi = MOX_Chi_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getChiByGroup(energy_group) - Chi) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX7AbsorptionXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_AbsorptionXS_input = MOX_input['Absorption XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaA to the assigned value.
-        for energy_group in xrange(1, len(MOX_AbsorptionXS_input)+1):
-
-            # identify what was passed in for SigmaA here
-            SigmaA = MOX_AbsorptionXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getSigmaAByGroup(energy_group) - SigmaA) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-
-#######################################################################################
-################################   Test Case: MOX-8.7%   ##############################
-#######################################################################################
-
-
-class TestMOX87(unittest.TestCase):
-
-    ## Test the assigned values to UO2 match those in the input file.
-
-    @classmethod
-    def setUpClass(cls):
-        cls._input = 'materials-test.py'
-        cls._import = imp.load_source(cls._input, cls._input).dataset
-        cls._output = materialize.materialize(cls._input)
-        data = cls._import
-        cls._data = data['Materials']
-        cls._MOX_input = cls._data['MOX-8.7%']
-        cls._MOX_output = cls._output['MOX-8.7%']
-
-    def testMOX87TotalXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_TotalXS_input = MOX_input['Total XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_TotalXS_input)+1):
-
-            # identify what was passed in for SigmaT here
-            SigmaT = MOX_TotalXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getSigmaTByGroup(energy_group) - SigmaT) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX87ScatteringXS(self):
-
-        # The input is a list of num_groups**2 values that should be mapped as follows:
-        # list[0] = getSigmaSByGroup(1,1)
-        # list[1] = getSigmaSByGroup(2,1)
-        # list[2] = getSigmaSByGroup(3,1), etc.
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_ScatteringXS_input = MOX_input['Scattering XS']
-        list_of_results = []
-        list_of_true = []
-        
-        num_energy_groups = int((len(MOX_ScatteringXS_input))**0.5)
-
-        #print len(UO2_Scattering_input)
-        #print UO2_Scattering_input
-        
-        input_list_index = 0
-        low = 1
-        
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for group2 in xrange(1, num_energy_groups + 1):
-
-            for group1 in xrange(low, num_energy_groups + 1):
-            
-                # identify what was passed in for SigmaS at this point
-                SigmaS = MOX_ScatteringXS_input[input_list_index]
-                input_list_index += 1           
-                list_of_true.append(True)
-                list_of_results.append(abs(MOX_output.getSigmaSByGroup(group1, group2) - SigmaS) < 0.05)
-
-                # if we just got to num_energy_groups, bump up low
-                if group1 == num_energy_groups:
-                    low += 1
-
-                # debugging code
-##                if abs(MOX_output.getSigmaSByGroup(group1, group2) - SigmaS) >= 0.05:
-##                    print 'PROBLEM AREA!!!!', group1, group2
-
-        len(list_of_results)
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX87FissionXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_FissionXS_input = MOX_input['Fission XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_FissionXS_input)+1):
-
-            # identify what was passed in for SigmaT here
-            SigmaF = MOX_FissionXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getSigmaFByGroup(energy_group) - SigmaF) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX87NuFissionXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_NuFissionXS_input = MOX_input['Nu Fission XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_NuFissionXS_input)+1):
-
-            # identify what was passed in for SigmaT here
-            NuSigmaF = MOX_NuFissionXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(UO2_output.getNuSigmaFByGroup(energy_group) - NuSigmaF) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX87Chi(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_Chi_input = MOX_input['Chi']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
-        for energy_group in xrange(1, len(MOX_Chi_input)+1):
-
-            # identify what was passed in for SigmaT here
-            Chi = MOX_Chi_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getChiByGroup(energy_group) - Chi) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
-
-    def testMOX87AbsorptionXS(self):
-
-        MOX_input = self._MOX_input
-        MOX_output = self._MOX_output
-        MOX_AbsorptionXS_input = MOX_input['Absorption XS']
-        list_of_results = []
-        list_of_true = []
-
-        # for each energy group, compare the value that SHOULD be SigmaA to the assigned value.
-        for energy_group in xrange(1, len(MOX_AbsorptionXS_input)+1):
-
-            # identify what was passed in for SigmaA here
-            SigmaA = MOX_AbsorptionXS_input[energy_group - 1]
-            
-            list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getSigmaAByGroup(energy_group) - SigmaA) < 0.05)
-        
-        self.assertEqual(list_of_results, list_of_true)
 
 #############################################################################################
 ################################   Test Case: Fission Chamber  ##############################
@@ -762,22 +296,17 @@ class TestFissionChamber(unittest.TestCase):
         num_energy_groups = int((len(FC_ScatteringXS_input))**0.5)
         
         input_list_index = 0
-        low = 1
         
         # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
         for group2 in xrange(1, num_energy_groups + 1):
 
-            for group1 in xrange(low, num_energy_groups + 1):
+            for group1 in xrange(1, num_energy_groups + 1):
             
                 # identify what was passed in for SigmaS at this point
                 SigmaS = FC_ScatteringXS_input[input_list_index]
                 input_list_index += 1           
                 list_of_true.append(True)
                 list_of_results.append(abs(FC_output.getSigmaSByGroup(group1, group2) - SigmaS) < 0.05)
-
-                # if we just got to num_energy_groups, bump up low
-                if group1 == num_energy_groups:
-                    low += 1
 
                 # debugging code
 ##                if abs(MOX_output.getSigmaSByGroup(group1, group2) - SigmaS) >= 0.05:
@@ -839,7 +368,7 @@ class TestFissionChamber(unittest.TestCase):
             Chi = FC_Chi_input[energy_group - 1]
             
             list_of_true.append(True)
-            list_of_results.append(abs(MOX_output.getChiByGroup(energy_group) - Chi) < 0.05)
+            list_of_results.append(abs(FC_output.getChiByGroup(energy_group) - Chi) < 0.05)
         
         self.assertEqual(list_of_results, list_of_true)
 
@@ -862,14 +391,237 @@ class TestFissionChamber(unittest.TestCase):
         
         self.assertEqual(list_of_results, list_of_true)
 
+    def testFCIsFissionable(self):
+        FC_output = self._FissionChamber_output
+        self.assertTrue(FC_output.isFissionable())
 
 
+################################################################################
+#############################   Test Case: Water  ##############################
+################################################################################
+
+
+class TestWater(unittest.TestCase):
+
+    ## Test the assigned values to UO2 match those in the input file.
+
+    @classmethod
+    def setUpClass(cls):
+        cls._input = 'materials-test.py'
+        cls._import = imp.load_source(cls._input, cls._input).dataset
+        cls._output = materialize.materialize(cls._input)
+        data = cls._import['Materials']
+        cls._Water_input = data['Water']
+        cls._Water_output = cls._output['Water']
+
+    def testWaterTotalXS(self):
+
+        Water_input = self._Water_input
+        Water_output = self._Water_output
+        Water_TotalXS_input = Water_input['Total XS']
+        list_of_results = []
+        list_of_true = []
+
+        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
+        for energy_group in xrange(1, len(Water_TotalXS_input)+1):
+
+            # identify what was passed in for SigmaT here
+            SigmaT = Water_TotalXS_input[energy_group - 1]
+            
+            list_of_true.append(True)
+            list_of_results.append(abs(Water_output.getSigmaTByGroup(energy_group) - SigmaT) < 0.05)
         
+        self.assertEqual(list_of_results, list_of_true)
+
+    def testWaterScatteringXS(self):
+
+        # The input is a list of num_groups**2 values that should be mapped as follows:
+        # list[0] = getSigmaSByGroup(1,1)
+        # list[1] = getSigmaSByGroup(2,1)
+        # list[2] = getSigmaSByGroup(3,1), etc.
+
+        Water_input = self._Water_input
+        Water_output = self._Water_output
+        Water_ScatteringXS_input = Water_input['Scattering XS']
+        list_of_results = []
+        list_of_true = []
+        
+        num_energy_groups = int((len(Water_ScatteringXS_input))**0.5)
+        
+        input_list_index = 0
+        
+        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
+        for group2 in xrange(1, num_energy_groups + 1):
+
+            for group1 in xrange(1, num_energy_groups + 1):
+            
+                # identify what was passed in for SigmaS at this point
+                SigmaS = Water_ScatteringXS_input[input_list_index]
+                input_list_index += 1           
+                list_of_true.append(True)
+                list_of_results.append(abs(Water_output.getSigmaSByGroup(group1, group2) - SigmaS) < 0.05)
+
+        self.assertEqual(list_of_results, list_of_true)
+
+    def testWaterFissionXS(self):
+
+        Water_input = self._Water_input
+        Water_output = self._Water_output
+        Water_FissionXS_input = Water_input['Fission XS']
+        list_of_results = []
+        list_of_true = []
+
+        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
+        for energy_group in xrange(1, len(Water_FissionXS_input)+1):
+
+            # identify what was passed in for SigmaT here
+            SigmaF = Water_FissionXS_input[energy_group - 1]
+            
+            list_of_true.append(True)
+            list_of_results.append(abs(Water_output.getSigmaFByGroup(energy_group) - SigmaF) < 0.05)
+        
+        self.assertEqual(list_of_results, list_of_true)
+
+    def testWaterNuFissionXS(self):
+
+        Water_input = self._Water_input
+        Water_output = self._Water_output
+        Water_NuFissionXS_input = Water_input['Nu Fission XS']
+        list_of_results = []
+        list_of_true = []
+
+        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
+        for energy_group in xrange(1, len(Water_NuFissionXS_input)+1):
+
+            # identify what was passed in for SigmaT here
+            NuSigmaF = Water_NuFissionXS_input[energy_group - 1]
+            
+            list_of_true.append(True)
+            list_of_results.append(abs(Water_output.getNuSigmaFByGroup(energy_group) - NuSigmaF) < 0.05)
+        
+        self.assertEqual(list_of_results, list_of_true)
+
+    def testWaterChi(self):
+
+        Water_input = self._Water_input
+        Water_output = self._Water_output
+        Water_Chi_input = Water_input['Chi']
+        list_of_results = []
+        list_of_true = []
+
+        # for each energy group, compare the value that SHOULD be SigmaT to the assigned value.
+        for energy_group in xrange(1, len(Water_Chi_input)+1):
+
+            # identify what was passed in for SigmaT here
+            Chi = Water_Chi_input[energy_group - 1]
+            
+            list_of_true.append(True)
+            list_of_results.append(abs(Water_output.getChiByGroup(energy_group) - Chi) < 0.05)
+        
+        self.assertEqual(list_of_results, list_of_true)
+
+    def testWaterAbsorptionXS(self):
+
+        Water_input = self._Water_input
+        Water_output = self._Water_output
+        Water_AbsorptionXS_input = Water_input['Absorption XS']
+        list_of_results = []
+        list_of_true = []
+
+        # for each energy group, compare the value that SHOULD be SigmaA to the assigned value.
+        for energy_group in xrange(1, len(Water_AbsorptionXS_input)+1):
+
+            # identify what was passed in for SigmaA here
+            SigmaA = Water_AbsorptionXS_input[energy_group - 1]
+            
+            list_of_true.append(True)
+            list_of_results.append(abs(Water_output.getSigmaAByGroup(energy_group) - SigmaA) < 0.05)
+        
+        self.assertEqual(list_of_results, list_of_true)
+
+    def testWaterIsFissionable(self):
+        Water_output = self._Water_output
+        self.assertFalse(Water_output.isFissionable())
+
+class TestMaterialFile(unittest.TestCase):
+
+    ## Runs basic tests (num energy groups, num materials, names of materials) on an input file
+    ## and the Material() object created from that file.
+
+    ## TODO: Create a framework that would also test the values for each material
+    ## in the input file.
+
+    def __init__(filename):
+        self._input = filename
+        
+    @classmethod
+    def setUpClass(cls):
+
+        cls._import = imp.load_source(cls._input, cls._input).dataset
+        cls._output = materialize.materialize(cls._input)
+
+    def testEnergyGroup(self):
+
+        # Asserts the number of energy groups is the same as the lengths of the cross-section lists
+        
+        data = self._import
+        num_groups = data['Energy Groups']
+        list_of_results = []
+        list_of_true = []
+
+        for material in data['Materials']:
+            for attribute in material:
+                if attribute != 'Scattering XS':
+                    list_of_results.append(len(attribute) == num_groups)
+                list_of_true.append(True)
+        
+        self.assertEqual(list_of_results, list_of_true)
+
+    def testNumOfMaterials(self):
+
+        # Asserts the number of materials is the same in the data
+        # and in the processed list
+        
+        data = self._import
+        data = data['Materials']
+        output = self._output
+        self.assertEqual(len(data), len(output))
+
+    def testNamesOfMaterials(self):
+
+        # Makes sure every material in the imported file
+        # is present in the output file.
+        
+        list_of_results = []
+        list_of_true = []
+        data = self._import
+        data = data['Materials']
+        output = self._output
+        for material in data.keys():
+            list_of_results.append(material in output)
+            list_of_true.append(True)
+        self.assertEqual(list_of_results, list_of_true)
+
+
 suite = unittest.TestLoader().loadTestsFromTestCase(TestPyFiles)
 suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUO2))
-suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestMOX43))
-suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestMOX7))
-suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestMOX87))
 suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestFissionChamber))
+suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestWater))
+
+
+## this is just playing around with command line stuff. please ignore for now
+##
+##p = optparse.OptionParser()
+##p.add_option('--custom', '-c')
+##opts, arguments = p.parse_args()
+##if '--custom' in opts or '-c' in opts:
+##    print 'success'
+##    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestMaterialFile))
+##    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestCustomMaterials))
+
+
+## if sys.argv says to use custom one:
+##  for attr in input_attributes:
+##      add test case
 
 unittest.TextTestRunner(verbosity=2).run(suite)
