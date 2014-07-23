@@ -133,7 +133,6 @@ class Casmo(object):
   # @brief This method parses the casmo output file for the number of 
   #        microregions in the assembly
   # @return number of microregions directly from casmo output file
-  
   def parseNumRegions(self):
     f = open(self._directory + self._filename, 'r')
     
@@ -365,7 +364,6 @@ class Casmo(object):
   def parseWidth(self):
     half_width = -1
     f = open(self._directory + self._filename, 'r')
-    print "FILE:"+ self._filename
     
     #check for symmetry
     sym_counter = 0
@@ -396,7 +394,7 @@ class Casmo(object):
       return half_width*2-1
     else:
       return half_width
-      print "HALFWIDTH" + half_width
+      
       
   ##
   # @brief Returns width of the assembly
@@ -746,7 +744,8 @@ class Casmo(object):
         if self._cell_type_array[i,j] in self._cell_types.keys():
           string_cell_type_array[i,j] = self._cell_types[self._cell_type_array[i,j]]
         else:
-          log.py_printf('WARNING', 'Cell type id %d does not exist. Call setCellTypes to set cell name for id.', self._cell_type_array[i,j])
+          log.py_printf('WARNING', 'Cell type id %d does not exist. Call'
+          ' setCellTypes to set cell name for id.', self._cell_type_array[i,j])
 
     return string_cell_type_array
 
@@ -859,6 +858,12 @@ class Casmo(object):
       material.create_dataset('Chi', data=self._chi[region, :])
     f.close()
 
+
+  ##
+  # @brief This method exports average cross sectional arrays contained within 
+  #        member variables of the Casmo object to an hdf5 data file
+  # @param assembly_name name of assembly for materials being exported
+  # @param directory directory where hdf5 data file will be stored
   def exportAvgXSToHDF5(self, assembly_name, directory = 'casmo-data'):
     if not os.path.exists(directory):
       os.makedirs(directory)
@@ -869,7 +874,14 @@ class Casmo(object):
       for xs_type in self._average_cross_sections[material].keys():
         material_group.create_dataset(xs_type,data=self._average_cross_sections[material][xs_type])
     f.close()
+   
 
+  ##
+  # @brief This method determines the average materials based on average cross 
+  #        parsed from the output file
+  # @param assembly_name name of assembly for materials being exported
+  # @param directory directory where hdf5 data file will be stored
+  
   def averageXSGenerator(self):
     materials = ['fuel','water','cladding','helium']
     if 'b' in self._string_cell_type_array:
