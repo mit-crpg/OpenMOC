@@ -15,7 +15,6 @@
   #include "../src/Quadrature.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
-  #include "../src/ThreadPrivateSolver.h"
   #include "../src/Surface.h"
   #include "../src/Timer.h"
   #include "../src/Track.h" 
@@ -301,7 +300,6 @@
 %include ../src/Quadrature.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
-%include ../src/ThreadPrivateSolver.h
 %include ../src/Surface.h
 %include ../src/Timer.h
 %include ../src/Track.h
