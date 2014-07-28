@@ -18,7 +18,6 @@ CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator,
 
   _FSR_locks = NULL;
   _mesh_surface_locks = NULL;
-  _thread_fsr_flux = NULL;
 }
 
 
@@ -35,8 +34,6 @@ CPUSolver::~CPUSolver() {
   if (_mesh_surface_locks != NULL)
     delete [] _mesh_surface_locks;
 
-  if (_thread_fsr_flux != NULL)
-    delete [] _thread_fsr_flux;
 
   if (_surface_currents != NULL)
     delete [] _surface_currents;
@@ -184,9 +181,6 @@ void CPUSolver::initializeFluxArrays() {
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
 
-  if (_thread_fsr_flux != NULL)
-    delete [] _thread_fsr_flux;
-
   int size;
 
   /* Allocate memory for the Track boundary flux and leakage arrays */
@@ -196,19 +190,13 @@ void CPUSolver::initializeFluxArrays() {
     _boundary_flux = new FP_PRECISION[size];
     _boundary_leakage = new FP_PRECISION[size];
 
-    /* Allocate an array for the FSR scalar flux */
-    size = _num_FSRs * _num_groups;
-    _scalar_flux = new FP_PRECISION[size];
-
-    /* Allocate a thread local local memory buffer for FSR scalar flux */
-    size = _num_groups * _num_threads;
-    _thread_fsr_flux = new FP_PRECISION[size];
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the Solver's fluxes. "
                "Backtrace:%s", e.what());
   }
 }
+
 
 
 /**
@@ -241,6 +229,7 @@ void CPUSolver::initializeSourceArrays() {
 
   /* Allocate memory for all source arrays */
   try{
+
     size = _num_FSRs * _num_groups;
     _fission_sources = new FP_PRECISION[size];
     _source = new FP_PRECISION[size];
@@ -258,6 +247,7 @@ void CPUSolver::initializeSourceArrays() {
     log_printf(ERROR, "Could not allocate memory for the solver's FSR "
                "sources array. Backtrace:%s", e.what());
   }
+
 }
 
 
@@ -787,6 +777,10 @@ void CPUSolver::transportSweep() {
 
       tid = omp_get_thread_num();
 
+      /* Use local array accumulator to prevent false sharing*/
+      FP_PRECISION* thread_fsr_flux;
+      thread_fsr_flux = new FP_PRECISION[_num_groups];
+
       /* Initialize local pointers to important data structures */
       curr_track = _tracks[track_id];
       azim_index = curr_track->getAzimAngleIndex();
@@ -798,7 +792,7 @@ void CPUSolver::transportSweep() {
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
         scalarFluxTally(curr_segment, azim_index, track_flux,
-                        &_thread_fsr_flux(tid),true);
+                        thread_fsr_flux,true);
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -810,8 +804,9 @@ void CPUSolver::transportSweep() {
       for (int s=num_segments-1; s > -1; s--) {
         curr_segment = &segments[s];
         scalarFluxTally(curr_segment, azim_index, track_flux,
-                        &_thread_fsr_flux(tid),false);
+                        thread_fsr_flux,false);
       }
+      delete thread_fsr_flux;
 
       /* Transfer boundary angular flux to outgoing Track */
       transferBoundaryFlux(track_id, azim_index, false, track_flux);
