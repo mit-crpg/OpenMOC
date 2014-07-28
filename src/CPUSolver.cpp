@@ -186,15 +186,17 @@ void CPUSolver::initializeFluxArrays() {
   /* Allocate memory for the Track boundary flux and leakage arrays */
   try{
 
-    size = 2 * _tot_num_tracks * _polar_times_groups;
-    _boundary_flux = new FP_PRECISION[size];
-    _boundary_leakage = new FP_PRECISION[size];
+      size = 2 * _tot_num_tracks * _polar_times_groups;
+      _boundary_flux = new FP_PRECISION[size];
+      _boundary_leakage = new FP_PRECISION[size];
 
-    /* Allocate an array for the FSR scalar flux */
-    size = _num_FSRs * _num_groups;
-    _scalar_flux = new FP_PRECISION[size];
-
+  }
+  catch(std::exception &e) {
+      log_printf(ERROR, "Could not allocate memory for the Solver's fluxes. "
+              "Backtrace:%s", e.what());
+  }
 }
+
 
 
 /**
@@ -227,6 +229,7 @@ void CPUSolver::initializeSourceArrays() {
 
   /* Allocate memory for all source arrays */
   try{
+
     size = _num_FSRs * _num_groups;
     _fission_sources = new FP_PRECISION[size];
     _source = new FP_PRECISION[size];
@@ -239,6 +242,10 @@ void CPUSolver::initializeSourceArrays() {
     size = _num_FSRs;
     _source_residuals = new FP_PRECISION[size];
 
+  }
+  catch(std::exception &e) {
+      log_printf(ERROR, "Could not allocate memory for the solver's FSR "
+              "sources array. Backtrace:%s", e.what());
   }
 
 }

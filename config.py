@@ -136,7 +136,6 @@ class configuration:
                     'src/Quadrature.cpp',
                     'src/Solver.cpp',
                     'src/CPUSolver.cpp',
-                    'src/VectorizedSolver.cpp',
                     'src/Surface.cpp',
                     'src/Timer.cpp',
                     'src/Track.cpp',
