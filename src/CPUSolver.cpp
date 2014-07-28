@@ -18,7 +18,6 @@ CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator,
 
   _FSR_locks = NULL;
   _mesh_surface_locks = NULL;
-  _thread_fsr_flux = NULL;
 }
 
 
@@ -35,8 +34,6 @@ CPUSolver::~CPUSolver() {
   if (_mesh_surface_locks != NULL)
     delete [] _mesh_surface_locks;
 
-  if (_thread_fsr_flux != NULL)
-    delete [] _thread_fsr_flux;
 
   if (_surface_currents != NULL)
     delete [] _surface_currents;
@@ -184,9 +181,6 @@ void CPUSolver::initializeFluxArrays() {
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
 
-  if (_thread_fsr_flux != NULL)
-    delete [] _thread_fsr_flux;
-
   int size;
 
   /* Allocate memory for the Track boundary flux and leakage arrays */
@@ -200,14 +194,6 @@ void CPUSolver::initializeFluxArrays() {
     size = _num_FSRs * _num_groups;
     _scalar_flux = new FP_PRECISION[size];
 
-    /* Allocate a thread local local memory buffer for FSR scalar flux */
-    size = _num_groups * _num_threads;
-    _thread_fsr_flux = new FP_PRECISION[size];
-  }
-  catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for the Solver's fluxes. "
-               "Backtrace:%s", e.what());
-  }
 }
 
 
