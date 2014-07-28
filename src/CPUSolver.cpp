@@ -185,11 +185,13 @@ void CPUSolver::initializeFluxArrays() {
 
   /* Allocate memory for the Track boundary flux and leakage arrays */
   try{
-
     size = 2 * _tot_num_tracks * _polar_times_groups;
     _boundary_flux = new FP_PRECISION[size];
     _boundary_leakage = new FP_PRECISION[size];
 
+    /* Allocate an array for the FSR scalar flux */
+    size = _num_FSRs * _num_groups;
+    _scalar_flux = new FP_PRECISION[size];
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the Solver's fluxes. "
