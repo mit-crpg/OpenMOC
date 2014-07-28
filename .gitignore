@@ -133,3 +133,7 @@ build/*
 .idea/*.xml
 
 sphinx/
+
+# Use wildcards as well
+# *~
+*.swp
