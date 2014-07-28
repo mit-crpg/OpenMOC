@@ -240,10 +240,7 @@ void CPUSolver::initializeSourceArrays() {
     _source_residuals = new FP_PRECISION[size];
 
   }
-  catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for the solver's FSR "
-               "sources array. Backtrace:%s", e.what());
-  }
+
 }
 
 
