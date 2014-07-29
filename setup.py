@@ -468,6 +468,10 @@ dist = setup(name = 'openmoc',
       # (ie, openmoc.log, openmoc.materialize, etc)
       packages = config.packages,
 
+      # Include the NumPy development headers since the NumPy C API
+      # is embedded into the source for NumPy typemaps by SWIG
+      include_dirs = [config.numpy_include],
+
       # Inject our custom compiler and linker triggers
       cmdclass={ 'build_ext': custom_build_ext,
                  'install': custom_install}
