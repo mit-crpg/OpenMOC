@@ -39,6 +39,26 @@
 
 int material_id();
 
+/**
+ * @brief inline function for efficient mapping for scattering, from
+ *        1D as stored in memory to 2D as used by humans
+ * @details Everyone is confused by how the scattering matrix is stored
+ *        in every code that has ever been written.  This routine allows
+ *        that logic to be kept in one single place, and takes the burden
+ *        of getting it right off of the developer implementing new 
+ *        features.  Also allows it to be changed in one place rather than
+ *        all over the code.
+ * @param sigma_s pointer to the scattering matrix
+ * @param origin the column index of the matrix element
+ * @param destination the row index of the matrix element
+ * @param num_groups the number of groups, or the linear dimension of the
+ *        square matrix
+ */
+inline FP_PRECISION scat_matrix_element(FP_PRECISION* sigma_s, 
+                        int origin, int destination, int num_groups) {
+  return sigma_s[destination*num_groups + origin];
+}
+
 
 /**
  * @class Material Material.h "src/Material.h"
@@ -125,7 +145,8 @@ public:
   FP_PRECISION* getDifTilde();
   FP_PRECISION getSigmaTByGroup(int group);
   FP_PRECISION getSigmaAByGroup(int group);
-  FP_PRECISION getSigmaSByGroup(int group1, int group2);
+  FP_PRECISION getSigmaSByGroup(int origin, int destination);
+  FP_PRECISION getSigmaSByGroupInline(int origin, int destination);
   FP_PRECISION getSigmaFByGroup(int group);
   FP_PRECISION getNuSigmaFByGroup(int group);
   FP_PRECISION getChiByGroup(int group);
@@ -154,7 +175,7 @@ public:
   void setSigmaAByGroup(double xs, int group);
   void setSigmaFByGroup(double xs, int group);
   void setNuSigmaFByGroup(double xs, int group);
-  void setSigmaSByGroup(double xs, int group1, int group2);
+  void setSigmaSByGroup(double xs, int origin, int destination);
   void setChiByGroup(double xs, int group);
   void setBucklingByGroup(double xs, int group);
   void setDifCoefByGroup(double xs, int group);
@@ -169,5 +190,10 @@ public:
 
   Material* clone();
 };
+
+inline FP_PRECISION Material::getSigmaSByGroupInline(
+          int origin, int destination) {
+  return _sigma_s[destination*_num_groups + origin];
+}
 
 #endif /* MATERIAL_H_ */
