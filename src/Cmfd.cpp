@@ -432,8 +432,8 @@ void Cmfd::computeDs(){
              (1 - _mesh->getRelaxFactor()) + _mesh->getRelaxFactor() * d_tilde;
 
           /* Set d_hat and d_tilde */
-          materials[cell]->setDifHatByGroup(d_hat, e, surface);
-          materials[cell]->setDifTildeByGroup(d_tilde, e, surface);
+          materials[cell]->setDifHatByGroup(d_hat, e+1, surface);
+          materials[cell]->setDifTildeByGroup(d_tilde, e+1, surface);
 
           log_printf(DEBUG, "cell: %i, group: %i, side: %i, flux: %f,"
                      " current: %f, d: %f, dhat: %f, dtilde: %f",
