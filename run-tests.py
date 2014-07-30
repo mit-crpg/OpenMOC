@@ -2,6 +2,8 @@ import sys
 
 ## Run all tests.
 
+## work on directory stuff
+
 ## This is not ready yet.
 
 ## Determine if slow version is wanted.
