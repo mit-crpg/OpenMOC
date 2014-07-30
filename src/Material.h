@@ -39,26 +39,6 @@
 
 int material_id();
 
-/**
- * @brief inline function for efficient mapping for scattering, from
- *        1D as stored in memory to 2D as used by humans
- * @details Everyone is confused by how the scattering matrix is stored
- *        in every code that has ever been written.  This routine allows
- *        that logic to be kept in one single place, and takes the burden
- *        of getting it right off of the developer implementing new 
- *        features.  Also allows it to be changed in one place rather than
- *        all over the code.
- * @param sigma_s pointer to the scattering matrix
- * @param origin the column index of the matrix element
- * @param destination the row index of the matrix element
- * @param num_groups the number of groups, or the linear dimension of the
- *        square matrix
- */
-inline FP_PRECISION scat_matrix_element(FP_PRECISION* sigma_s, 
-                        int origin, int destination, int num_groups) {
-  return sigma_s[destination*num_groups + origin];
-}
-
 
 /**
  * @class Material Material.h "src/Material.h"
@@ -191,6 +171,19 @@ public:
   Material* clone();
 };
 
+
+/**
+ * @brief inline function for efficient mapping for scattering, from
+ *        1D as stored in memory to 2D as used by humans
+ * @details Everyone is confused by how the scattering matrix is stored
+ *        in every code that has ever been written.  This routine allows
+ *        that logic to be kept in one single place, and takes the burden
+ *        of getting it right off of the developer implementing new 
+ *        features.  Also allows it to be changed in one place rather than
+ *        all over the code.
+ * @param origin the column index of the matrix element
+ * @param destination the row index of the matrix element
+ */
 inline FP_PRECISION Material::getSigmaSByGroupInline(
           int origin, int destination) {
   return _sigma_s[destination*_num_groups + origin];
