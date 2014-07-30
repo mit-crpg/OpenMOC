@@ -38,6 +38,7 @@ Cmfd::Cmfd(Geometry* geometry, double criteria) {
 
   _A = NULL;
   _M = NULL;
+  _AM = NULL;
   _phi_temp = NULL;
   _old_source = NULL;
   _new_source = NULL;

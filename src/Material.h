@@ -140,6 +140,7 @@ public:
   FP_PRECISION getSigmaTByGroup(int group);
   FP_PRECISION getSigmaAByGroup(int group);
   FP_PRECISION getSigmaSByGroup(int origin, int destination);
+  FP_PRECISION getSigmaSByGroupInline(int origin, int destination);
   FP_PRECISION getSigmaFByGroup(int group);
   FP_PRECISION getNuSigmaFByGroup(int group);
   FP_PRECISION getChiByGroup(int group);
@@ -183,5 +184,10 @@ public:
 
   Material* clone();
 };
+
+inline FP_PRECISION Material::getSigmaSByGroupInline(
+          int origin, int destination) {
+  return _sigma_s[destination*_num_groups + origin];
+}
 
 #endif /* MATERIAL_H_ */

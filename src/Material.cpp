@@ -361,7 +361,7 @@ FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
                "which contains %d energy groups",
                origin, destination, _uid, _num_groups);
    
-  return scat_matrix_element(_sigma_s,origin-1,destination-1,_num_groups);
+  return getSigmaSByGroupInline(origin-1,destination-1);
   
 }
 
