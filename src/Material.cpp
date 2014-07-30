@@ -1433,7 +1433,7 @@ Material* Material::clone(){
 
     for (int j=0; j < _num_groups; j++)
       clone->setSigmaSByGroup(
-        (double)scat_matrix_element(_sigma_s,i,j,_num_groups), i+1, j+1);
+        (double)getSigmaSByGroupInline(i,j), i+1, j+1);
 
     if (_dif_coef != NULL)
       clone->setDifCoefByGroup((double)_dif_coef[i], i+1);
