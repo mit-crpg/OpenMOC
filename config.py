@@ -71,10 +71,10 @@ class configuration:
   fp = 'double'
 
   # Supported C++ compilers: 'gcc', 'icpc', 'bgxlc', 'nvcc', 'all'
-  cpp_compilers = []
+  cpp_compilers = list()
 
   # Supported floating point precision levels: 'single', 'double', 'all'
-  fp_precision = []
+  fp_precision = list()
 
   # Compile using ccache (for developers needing fast recompilation)
   with_ccache = False
@@ -111,7 +111,7 @@ class configuration:
 
   # List of C/C++/CUDA distutils.extension objects which are created based
   # on which flags are specified at compile time.
-  extensions = []
+  extensions = list()
 
   # List of the packages to install - only openmoc is guaranteed to be built
   # while the others will be built based on which flags are specified
@@ -129,7 +129,7 @@ class configuration:
   #############################################################################
 
   # Dictionary of source code files to compile for each extension module
-  sources = {}
+  sources = dict()
 
   sources['gcc'] = ['openmoc/openmoc_wrap.cpp',
                     'src/Cell.cpp',
@@ -197,7 +197,7 @@ class configuration:
   #############################################################################
 
   # A dictionary of the compiler flags to use for each compiler type
-  compiler_flags = {}
+  compiler_flags = dict()
 
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                            '-std=c++0x', '-fpic']
@@ -217,7 +217,7 @@ class configuration:
   #############################################################################
 
   # A dictionary of the linker flags to use for each compiler type
-  linker_flags = {}
+  linker_flags = dict()
 
   if (get_platform()[:6] == 'macosx'):
     linker_flags['gcc'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
@@ -239,7 +239,7 @@ class configuration:
   #############################################################################
 
   # A dictionary of the shared libraries to use for each compiler type
-  shared_libraries = {}
+  shared_libraries = dict()
 
   shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
   shared_libraries['icpc'] = ['stdc++', 'iomp5', 'pthread', 'irc',
@@ -254,16 +254,14 @@ class configuration:
 
   # A dictionary of the library directories to use for each compiler type
   # if not set in the LD_LIBRARY_PATH environment variable
-  library_directories = {}
+  library_directories = dict()
 
-  if (get_platform()[:6] == 'macosx'):
-    library_directories['gcc'] = [sys.exec_prefix + '/lib']
-  else:
-    library_directories['gcc'] = []
+  usr_lib = sys.exec_prefix + '/lib'
 
-  library_directories['icpc'] = []
-  library_directories['bgxlc'] = []
-  library_directories['nvcc'] = ['/usr/local/cuda/lib64']
+  library_directories['gcc'] = [usr_lib]
+  library_directories['icpc'] = [usr_lib]
+  library_directories['bgxlc'] = [usr_lib]
+  library_directories['nvcc'] = [usr_lib, '/usr/local/cuda/lib64']
 
 
   #############################################################################
@@ -272,19 +270,11 @@ class configuration:
 
   # A dictionary of the include directories to use for each compiler type
   # for header files not found from paths set in the user's environment
-  include_directories = {}
+  include_directories = dict()
 
-  if (get_platform()[:6] == 'macosx' and with_numpy):
-    include_directories['gcc'] = [sys.exec_prefix + '/lib/python' + \
-                                  str(sys.version_info[0]) + '.' + \
-                                  str(sys.version_info[1]) + \
-                                  '/site-packages/numpy/core/include']
-  else:
-    include_directories['gcc'] = []
-
-  include_directories['icpc'] =[]
-  include_directories['bgxlc'] = \
-      ['/usr/lib64/python2.6/site-packages/numpy/core/include']
+  include_directories['gcc'] = list()
+  include_directories['icpc'] = list()
+  include_directories['bgxlc'] = list()
   include_directories['nvcc'] = ['/usr/local/cuda/include']
 
 
@@ -302,12 +292,12 @@ class configuration:
 
   # A dictionary of the macros to set at compile time for each compiler type
   # and floating point precisin level
-  macros = {}
+  macros = dict()
 
-  macros['gcc'] = {}
-  macros['icpc'] = {}
-  macros['bgxlc'] = {}
-  macros['nvcc'] = {}
+  macros['gcc'] = dict()
+  macros['icpc'] = dict()
+  macros['bgxlc'] = dict()
+  macros['nvcc'] = dict()
 
   macros['gcc']['single']= [('FP_PRECISION', 'float'),
                             ('SINGLE', None),
@@ -390,9 +380,16 @@ class configuration:
     # Otherwise, obtain the NumPy include directory
     else:
       try:
-        self.numpy_include = numpy.get_include()
+        numpy_include = numpy.get_include()
+        
       except AttributeError:
-        self.numpy_include = numpy.get_numpy_include()
+        numpy_include = numpy.get_numpy_include()
+
+      # Add the NumPy include directory to the include directories
+      # list for each type of compiler
+      for cc in self.include_directories.keys():
+        self.include_directories[cc].append(numpy_include)
+
 
     # The main openmoc extension (defaults are gcc and single precision)
     self.extensions.append(

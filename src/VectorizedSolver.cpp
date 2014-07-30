@@ -52,11 +52,6 @@ VectorizedSolver::~VectorizedSolver() {
     _scalar_flux = NULL;
   }
 
-  if (_thread_fsr_flux != NULL) {
-    MM_FREE(_thread_fsr_flux);
-    _thread_fsr_flux = NULL;
-  }
-
   if (_fission_sources != NULL) {
     MM_FREE(_fission_sources);
     _fission_sources = NULL;
@@ -176,9 +171,6 @@ void VectorizedSolver::initializeFluxArrays() {
   if (_scalar_flux != NULL)
     MM_FREE(_scalar_flux);
 
-  if (_thread_fsr_flux != NULL)
-    MM_FREE(_thread_fsr_flux);
-
   if (_thread_taus != NULL)
     MM_FREE(_thread_taus);
 
@@ -194,9 +186,6 @@ void VectorizedSolver::initializeFluxArrays() {
 
     size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
     _scalar_flux = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-
-    size = _num_threads * _num_groups * sizeof(FP_PRECISION);
-    _thread_fsr_flux = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
     size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
     _thread_taus = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
