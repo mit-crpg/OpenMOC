@@ -640,7 +640,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
       scatter_source = 0;
 
       for (int g=0; g < _num_groups; g++)
-        _scatter_sources(tid,g) = scat_matrix_element(sigma_s,g,G,_num_groups)
+        _scatter_sources(tid,g) = material->getSigmaSByGroupInline(g,G)
                       * _scalar_flux(r,g);
 
         scatter_source=pairwise_sum<FP_PRECISION>(&_scatter_sources(tid,0),
