@@ -12,11 +12,8 @@ def get_openmoc_object_name():
     filename = '_openmoc.so'
 
   # For Python 3.X.X
-  # NOTE: Python 3 distributions are not yet working with SWIG, but this
-  # is a stub for the futuresmo
   elif (sys.version_info[0] == 3):
-#    filename = '_openmoc.so'
-    filename = '_openmoc.cpython-{version[0]}{version[1]}mu.so'
+    filename = '_openmoc.cpython-{version[0]}{version[1]}m.so'
     filename = filename.format(version=sys.version_info)
 
   return filename
@@ -31,11 +28,7 @@ def get_shared_object_path():
     directory = directory.format(platform=get_platform(),
                                      version=sys.version_info)
 
-    
-
   # For Python 3.X.X
-  # NOTE: Python 3 distributions are not yet working with SWIG, but this is
-  # a stub for the future
   elif (sys.version_info[0] == 3):
     directory = 'build/lib'
 
