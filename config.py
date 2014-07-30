@@ -1,4 +1,5 @@
 import sys, copy
+import numpy
 from distutils.extension import Extension
 from distutils.util import get_platform
 
@@ -92,6 +93,10 @@ class configuration:
   # arrays to/from the C++ source code
   with_numpy = True
 
+  # The NumPy development headers for SWIG to embed the NumPy C API
+  # in the source for NumPy typemaps
+  numpy_include = None
+
   # The vector length used for the VectorizedSolver class. This will used
   # as a hint for the Intel compiler to issue SIMD (ie, SSE, AVX, etc) vector
   # instructions. This is accomplished by adding "dummy" energy groups such
@@ -136,7 +141,6 @@ class configuration:
                     'src/Quadrature.cpp',
                     'src/Solver.cpp',
                     'src/CPUSolver.cpp',
-                    'src/ThreadPrivateSolver.cpp',
                     'src/Surface.cpp',
                     'src/Timer.cpp',
                     'src/Track.cpp',
@@ -155,9 +159,7 @@ class configuration:
                      'src/Quadrature.cpp',
                      'src/Solver.cpp',
                      'src/CPUSolver.cpp',
-                     'src/ThreadPrivateSolver.cpp',
                      'src/VectorizedSolver.cpp',
-                     'src/VectorizedPrivateSolver.cpp',
                      'src/Surface.cpp',
                      'src/Timer.cpp',
                      'src/Track.cpp',
@@ -176,7 +178,6 @@ class configuration:
                       'src/Quadrature.cpp',
                       'src/Solver.cpp',
                       'src/CPUSolver.cpp',
-                      'src/ThreadPrivateSolver.cpp',
                       'src/Surface.cpp',
                       'src/Timer.cpp',
                       'src/Track.cpp',
@@ -385,6 +386,13 @@ class configuration:
     # NumPy typemaps in the source code
     if not self.with_numpy:
       self.swig_flags += ['-DNO_NUMPY']
+
+    # Otherwise, obtain the NumPy include directory
+    else:
+      try:
+        self.numpy_include = numpy.get_include()
+      except AttributeError:
+        self.numpy_include = numpy.get_numpy_include()
 
     # The main openmoc extension (defaults are gcc and single precision)
     self.extensions.append(

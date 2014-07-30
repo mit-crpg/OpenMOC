@@ -204,6 +204,15 @@ int Geometry::getNumMaterials() {
 
 
 /**
+ * @brief Returns the number of Cells in the Geometry.
+ * @return the number of Cells
+ */
+int Geometry::getNumCells() {
+  return _cells.size();
+}
+
+
+/**
  * @brief Return an array indexed by flat source region IDs which contain
  *        the corresponding Cell IDs.
  * @return an integer array of FSR-to-Cell IDs indexed by FSR ID

@@ -60,12 +60,6 @@ else:
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
 
-## The number of colors to use when creating a random color map for plots
-num_colors = 50
-
-## An array of random floats that represents a random color map for plots
-color_map = np.random.random_sample((num_colors,))
-
 
 ##
 # @brief Plots the characteristic tracks from an OpenMOC simulation.
@@ -183,6 +177,12 @@ def plot_segments(track_generator):
     x[i*2+1] = coords[i*5+3]
     y[i*2+1] = coords[i*5+4]
 
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_fsrs, endpoint=False)
+  numpy.random.shuffle(color_map)
+
   # Make figure of line segments for each track
   fig = plt.figure()
 
@@ -192,7 +192,7 @@ def plot_segments(track_generator):
     jet = cm = plt.get_cmap('jet')
     cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
     scalarMap = cmx.ScalarMappable(norm=cNorm)
-    color = scalarMap.to_rgba(color_map[fsrs[i] % num_colors])
+    color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
     plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], c=color)
 
   plt.xlim([x.min(), x.max()])
@@ -250,6 +250,15 @@ def plot_materials(geometry, gridsize=250):
 
   py_printf('NORMAL', 'Plotting the materials...')
 
+  # Get the number of Cells filled with Materials
+  num_materials = geometry.getNumMaterials()
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_materials, endpoint=False)
+  numpy.random.shuffle(color_map)
+
   # Initialize a NumPy array for the surface colors
   surface = numpy.zeros((gridsize, gridsize))
 
@@ -275,7 +284,7 @@ def plot_materials(geometry, gridsize=250):
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.findFSRId(point)
       material_id = geometry.findCellContainingFSR(fsr_id).getMaterial()
-      surface[j][i] = color_map[material_id % num_colors]
+      surface[j][i] = color_map[material_id % num_materials]
 
   # Flip the surface vertically to align NumPy row/column indices with the
   # orientation expected by the user
@@ -329,6 +338,15 @@ def plot_cells(geometry, gridsize=250):
 
   py_printf('NORMAL', 'Plotting the cells...')
 
+  # Get the number of Cells
+  num_cells = geometry.getNumCells()
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_cells, endpoint=False)
+  numpy.random.shuffle(color_map)
+
   # Initialize a NumPy array for the surface colors
   surface = np.zeros((gridsize, gridsize))
 
@@ -354,7 +372,7 @@ def plot_cells(geometry, gridsize=250):
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.findFSRId(point)
       cell_id = geometry.findCellContainingFSR(fsr_id).getId()
-      surface[j][i] = color_map[cell_id % num_colors]
+      surface[j][i] = color_map[cell_id % num_cells]
 
   # Flip the surface vertically to align NumPy row/column indices with the
   # orientation expected by the user
@@ -409,6 +427,15 @@ def plot_flat_source_regions(geometry, gridsize=250):
 
   py_printf('NORMAL', 'Plotting the flat source regions...')
 
+  # Get the number of flat source regions
+  num_fsrs = geometry.getNumFSRs()
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_fsrs, endpoint=False)
+  numpy.random.shuffle(color_map)
+
   # Initialize a NumPy array for the surface colors
   surface = numpy.zeros((gridsize, gridsize))
 
@@ -433,7 +460,7 @@ def plot_flat_source_regions(geometry, gridsize=250):
       point.setUniverse(0)
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.findFSRId(point)
-      surface[j][i] = color_map[fsr_id % num_colors]
+      surface[j][i] = color_map[fsr_id % num_fsrs]
 
   # Flip the surface vertically to align NumPy row/column indices with the
   # orientation expected by the user
