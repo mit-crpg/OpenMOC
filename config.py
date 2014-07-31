@@ -10,20 +10,8 @@ def get_openmoc_object_name():
 
   ext_suffix = sysconfig.get_config_var('SOABI')
   if ext_suffix is None: ext_suffix = ''
-  filename = '_openmoc{0}.so'.format(ext_suffix)
-
+  filename = '_openmoc.{0}.so'.format(ext_suffix)
   return filename
-
-  # For Python 2.X.X
-#  if (sys.version_info[0] == 2):
-#    filename = '_openmoc.so'
-
-  # For Python 3.X.X
-#  elif (sys.version_info[0] == 3):
-#    filename = '_openmoc.cpython-{version[0]}{version[1]}m.so'
-#    filename = filename.format(version=sys.version_info)
-
-#  return filename
 
 
 def get_shared_object_path():
