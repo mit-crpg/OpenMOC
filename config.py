@@ -8,11 +8,9 @@ from distutils.util import get_platform
 def get_openmoc_object_name():
   """Returns the name of the main openmoc shared library object"""
 
-  ext_suffix = sysconfig.get_config_var('EXT_SUFFIX')
-  if ext_suffix is None:
-    ext_suffix = '.so'
-
-  filename = '_openmoc{0}'.format(ext_suffix)
+  ext_suffix = sysconfig.get_config_var('SOABI')
+  if ext_suffix is None: ext_suffix = ''
+  filename = '_openmoc{0}.so'.format(ext_suffix)
 
   return filename
 
