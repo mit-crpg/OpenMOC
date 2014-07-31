@@ -125,7 +125,8 @@ public:
   FP_PRECISION* getDifTilde();
   FP_PRECISION getSigmaTByGroup(int group);
   FP_PRECISION getSigmaAByGroup(int group);
-  FP_PRECISION getSigmaSByGroup(int group1, int group2);
+  FP_PRECISION getSigmaSByGroup(int origin, int destination);
+  FP_PRECISION getSigmaSByGroupInline(int origin, int destination);
   FP_PRECISION getSigmaFByGroup(int group);
   FP_PRECISION getNuSigmaFByGroup(int group);
   FP_PRECISION getChiByGroup(int group);
@@ -154,7 +155,7 @@ public:
   void setSigmaAByGroup(double xs, int group);
   void setSigmaFByGroup(double xs, int group);
   void setNuSigmaFByGroup(double xs, int group);
-  void setSigmaSByGroup(double xs, int group1, int group2);
+  void setSigmaSByGroup(double xs, int origin, int destination);
   void setChiByGroup(double xs, int group);
   void setBucklingByGroup(double xs, int group);
   void setDifCoefByGroup(double xs, int group);
@@ -169,5 +170,22 @@ public:
 
   Material* clone();
 };
+
+
+/**
+ * @brief inline function for efficient mapping for scattering, from
+ *        1D as stored in memory to 2D matrix
+ * @details Encapsulates the logic for indexing into the scattering
+ *        matrix so it does not need to be repeated in other parts of 
+ *        the code.  Note that this routine is 0-based, rather than 
+ *        1-based indexing, as it is intended for use inside the code,
+ *        not by users from Python.
+ * @param origin the column index of the matrix element
+ * @param destination the row index of the matrix element
+ */
+inline FP_PRECISION Material::getSigmaSByGroupInline(
+          int origin, int destination) {
+  return _sigma_s[destination*_num_groups + origin];
+}
 
 #endif /* MATERIAL_H_ */
