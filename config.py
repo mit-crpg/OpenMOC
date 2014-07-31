@@ -1,4 +1,5 @@
-import sys, copy
+import sys, sysconfig
+import copy
 import numpy
 from distutils.extension import Extension
 from distutils.util import get_platform
@@ -7,16 +8,24 @@ from distutils.util import get_platform
 def get_openmoc_object_name():
   """Returns the name of the main openmoc shared library object"""
 
-  # For Python 2.X.X
-  if (sys.version_info[0] == 2):
-    filename = '_openmoc.so'
+  ext_suffix = sysconfig.get_config_var('EXT_SUFFIX')
+  if ext_suffix is None:
+    ext_suffix = '.so'
 
-  # For Python 3.X.X
-  elif (sys.version_info[0] == 3):
-    filename = '_openmoc.cpython-{version[0]}{version[1]}m.so'
-    filename = filename.format(version=sys.version_info)
+  filename = '_openmoc{0}'.format(ext_suffix)
 
   return filename
+
+  # For Python 2.X.X
+#  if (sys.version_info[0] == 2):
+#    filename = '_openmoc.so'
+
+  # For Python 3.X.X
+#  elif (sys.version_info[0] == 3):
+#    filename = '_openmoc.cpython-{version[0]}{version[1]}m.so'
+#    filename = filename.format(version=sys.version_info)
+
+#  return filename
 
 
 def get_shared_object_path():
@@ -85,10 +94,6 @@ class configuration:
   # Compile with NumPy typemaps and the C API to allow users to pass NumPy
   # arrays to/from the C++ source code
   with_numpy = True
-
-  # The NumPy development headers for SWIG to embed the NumPy C API
-  # in the source for NumPy typemaps
-  numpy_include = None
 
   # The vector length used for the VectorizedSolver class. This will used
   # as a hint for the Intel compiler to issue SIMD (ie, SSE, AVX, etc) vector
@@ -237,8 +242,8 @@ class configuration:
   shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
   shared_libraries['icpc'] = ['stdc++', 'iomp5', 'pthread', 'irc',
                               'imf','rt', 'mkl_rt','m',]
-  shared_libraries['nvcc'] = ['cudart']
   shared_libraries['bgxlc'] = ['stdc++', 'pthread', 'm', 'xlsmp', 'rt']
+  shared_libraries['nvcc'] = ['cudart']
 
 
   #############################################################################
@@ -298,13 +303,13 @@ class configuration:
                             ('VEC_LENGTH', vector_length),
                             ('VEC_ALIGNMENT', vector_alignment)]
 
-  macros['icpc']['single']= [('FP_PRECISION', 'float'), 
+  macros['icpc']['single']= [('FP_PRECISION', 'float'),
                              ('SINGLE', None),
                              ('INTEL', None),
                              ('MKL_ILP64', None),
                              ('VEC_LENGTH', vector_length),
                              ('VEC_ALIGNMENT', vector_alignment)]
-  
+
   macros['bgxlc']['single'] = [('FP_PRECISION', 'float'),
                                ('SINGLE', None),
                                ('BGXLC', None),
@@ -374,7 +379,7 @@ class configuration:
     else:
       try:
         numpy_include = numpy.get_include()
-        
+
       except AttributeError:
         numpy_include = numpy.get_numpy_include()
 
