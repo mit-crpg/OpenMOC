@@ -10,7 +10,7 @@ def get_openmoc_object_name():
 
   ext_suffix = sysconfig.get_config_var('EXT_SUFFIX')
   if ext_suffix is None:
-    ext_suffix = ''
+    ext_suffix = '.so'
 
   filename = '_openmoc{0}'.format(ext_suffix)
 
