@@ -200,7 +200,7 @@ void set_log_level(const char* new_level) {
     log_printf(INFO, "Logging level set to NORMAL");
   }
   else if (strcmp("SEPARATOR", new_level) == 0) {
-    log_level = HEADER;
+    log_level = SEPARATOR;
     log_printf(INFO, "Logging level set to SEPARATOR");
   }
   else if (strcmp("HEADER", new_level) == 0) {

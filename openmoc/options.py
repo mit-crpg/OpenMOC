@@ -7,6 +7,7 @@
 # @date July 24, 2013
 
 import getopt, sys
+import multiprocessing
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -65,7 +66,7 @@ class Options:
     self._tolerance = 1E-5
 
     ## The default number of OpenMP threads
-    self._num_omp_threads = 1
+    self._num_omp_threads = multiprocessing.cpu_count()
 
     ## The default number of GPU threadblocks
     self._num_thread_blocks = 64
