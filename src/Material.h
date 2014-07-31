@@ -174,13 +174,12 @@ public:
 
 /**
  * @brief inline function for efficient mapping for scattering, from
- *        1D as stored in memory to 2D as used by humans
- * @details Everyone is confused by how the scattering matrix is stored
- *        in every code that has ever been written.  This routine allows
- *        that logic to be kept in one single place, and takes the burden
- *        of getting it right off of the developer implementing new 
- *        features.  Also allows it to be changed in one place rather than
- *        all over the code.
+ *        1D as stored in memory to 2D matrix
+ * @details Encapsulates the logic for indexing into the scattering
+ *        matrix so it does not need to be repeated in other parts of 
+ *        the code.  Note that this routine is 0-based, rather than 
+ *        1-based indexing, as it is intended for use inside the code,
+ *        not by users from Python.
  * @param origin the column index of the matrix element
  * @param destination the row index of the matrix element
  */

@@ -347,8 +347,8 @@ FP_PRECISION Material::getSigmaAByGroup(int group) {
 
 /**
  * @brief Get the Material's scattering cross section for some energy group.
- * @param origin the column index in the scattering matrix
- * @param destination the row index in the scattering matrix
+ * @param origin the incoming energy group
+ * @param destination the outgoing energy group
  * @return the scattering cross section
  */
 FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {   
@@ -531,7 +531,7 @@ void Material::setNumEnergyGroups(const int num_groups) {
 
   if (num_groups < 0)
     log_printf(ERROR, "Unable to set the number of energy groups for "
-               "material %d to %d", _uid, _num_groups);
+               "material %d to %d", _uid, num_groups);
 
   _num_groups = num_groups;
 
@@ -722,7 +722,7 @@ void Material::setSigmaAByGroup(double xs, int group) {
  *                ...         
  *
  *          Note that if the scattering matrix is defined in NumPy by
- *          the standard convention, flat will put the matrix into row
+ *          the standard convention, "flat" will put the matrix into row
  *          major order.  Thus, one should transpose the matrix before
  *          flattening. 
  * 
