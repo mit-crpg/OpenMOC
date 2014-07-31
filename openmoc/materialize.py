@@ -73,7 +73,11 @@ def materialize(filename):
     import numpy as np
 
     # Create a h5py file handle for the file
-    f = h5py.File(filename)
+    try:
+      f = h5py.File(filename,'r')
+    except:
+      py_printf('ERROR', 'Unable to materialize file %s because it ' + \
+                  'cannot be opened.  Check the file path.',filename)
 
     # Check that the file has an 'energy groups' attribute
     if not 'Energy Groups' in f.attrs:
@@ -137,7 +141,13 @@ def materialize(filename):
   elif filename.endswith('.py'):
 
     import imp
-    data = imp.load_source(filename, filename).dataset
+    
+    
+    try:
+      data = imp.load_source(filename, filename).dataset
+    except IOError:
+      py_printf('ERROR', 'Unable to materialize file %s because it ' + \
+                  'cannot be opened.  Check the file path.',filename)
 
     # Check that the file has an 'energy groups' attribute
     if not 'Energy Groups' in data.keys():
