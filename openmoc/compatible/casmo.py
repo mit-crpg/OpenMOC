@@ -84,7 +84,7 @@ class Casmo(object):
   ##
   # @brief Returns whether the assembly for the casmo output file is symmetric 
   # @return True if symmetric, else False
-  def getSymmetric(self):
+  def isSymmetric(self):
     return self._symmetric
 
   ##
