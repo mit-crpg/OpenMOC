@@ -177,7 +177,7 @@
 
     /* If value is a number, cast it as an int and set the input array value */
     if (PyNumber_Check(o)) {
-      $1[i] = (int) PyInt_AS_LONG(o)
+      $1[i] = (int) PyInt_AS_LONG(o);
     }
     else {
       free($1);
@@ -241,6 +241,7 @@
 }
 
 
+
 /* If the user did not pass in the --no-numpy flag, then NumPy typemaps will be
  * used and the NumPy C API will be embedded in the source code. This will allow
  * users to pass arrays of data to/from the C++ source code (ie, setting group
@@ -248,9 +249,6 @@
 #else
 
 %include "numpy.i"
-
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-
 
 %init %{
   import_array();
@@ -277,7 +275,7 @@
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
 
 /* The typemap used to match the method signature for the TrackGenerator's
- * getter methods for track segment start and end coordinates for the plotting 
+ * getter methods for track segment start and end coordinates for the plotting
  * routines in openmoc.plotter */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
 
