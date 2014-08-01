@@ -249,8 +249,6 @@
 
 %include "numpy.i"
 
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-
 
 %init %{
   import_array();
