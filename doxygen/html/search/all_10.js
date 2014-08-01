@@ -3,8 +3,6 @@ var searchData=
   ['rayleighquotient',['rayleighQuotient',['../classCmfd.html#a2885348654cf05fea72c8c361a0c5f85',1,'Cmfd']]],
   ['recordsplit',['recordSplit',['../classTimer.html#a613c775ca0b0b08f7cf1a6c165a6b6f7',1,'Timer']]],
   ['reduced_5fsource',['reduced_source',['../GPUSolver_8h.html#a201104e7c4ebc64308385f741ae5143d',1,'GPUSolver.h']]],
-  ['reducethreadscalarfluxes',['reduceThreadScalarFluxes',['../classThreadPrivateSolver.html#a09364c26764b7194e2e2b0c85d816f83',1,'ThreadPrivateSolver']]],
-  ['reducethreadsurfacecurrents',['reduceThreadSurfaceCurrents',['../classThreadPrivateSolver.html#a4cb9752f69c981fc62c5ad2d7268a6e9',1,'ThreadPrivateSolver']]],
   ['reflective',['REFLECTIVE',['../Surface_8h.html#a94f2bdaf8e1769faec72dbd9e7486341a45e171c3bba46047336203d2aed3775d',1,'Surface.h']]],
   ['removecell',['removeCell',['../classGeometry.html#a00a421068dca3bf871fea4cfd7eec5f8',1,'Geometry']]],
   ['removelattice',['removeLattice',['../classGeometry.html#aca0ede6135eb284c6e0f5ae8de919c02',1,'Geometry']]],

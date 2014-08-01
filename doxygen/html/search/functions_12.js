@@ -6,6 +6,5 @@ var searchData=
   ['vecscale',['vecScale',['../classCmfd.html#a170275051ff9c43a6011e84f1348c97e',1,'Cmfd']]],
   ['vecset',['vecSet',['../classCmfd.html#ab526b23a3a34ed34258f0603430f59d7',1,'Cmfd']]],
   ['vecsum',['vecSum',['../classCmfd.html#ae6e87a58709fe78ad95b3bc9e55416a8',1,'Cmfd']]],
-  ['vectorizedprivatesolver',['VectorizedPrivateSolver',['../classVectorizedPrivateSolver.html#a775a4402113bb9edccadd8c6868b3008',1,'VectorizedPrivateSolver']]],
   ['vectorizedsolver',['VectorizedSolver',['../classVectorizedSolver.html#a4115f20eeaf814518521c75568045794',1,'VectorizedSolver']]]
 ];

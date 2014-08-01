@@ -2,8 +2,6 @@ var searchData=
 [
   ['rayleighquotient',['rayleighQuotient',['../classCmfd.html#a2885348654cf05fea72c8c361a0c5f85',1,'Cmfd']]],
   ['recordsplit',['recordSplit',['../classTimer.html#a613c775ca0b0b08f7cf1a6c165a6b6f7',1,'Timer']]],
-  ['reducethreadscalarfluxes',['reduceThreadScalarFluxes',['../classThreadPrivateSolver.html#a09364c26764b7194e2e2b0c85d816f83',1,'ThreadPrivateSolver']]],
-  ['reducethreadsurfacecurrents',['reduceThreadSurfaceCurrents',['../classThreadPrivateSolver.html#a4cb9752f69c981fc62c5ad2d7268a6e9',1,'ThreadPrivateSolver']]],
   ['removecell',['removeCell',['../classGeometry.html#a00a421068dca3bf871fea4cfd7eec5f8',1,'Geometry']]],
   ['removelattice',['removeLattice',['../classGeometry.html#aca0ede6135eb284c6e0f5ae8de919c02',1,'Geometry']]],
   ['removematerial',['removeMaterial',['../classGeometry.html#a1fdf26fee15cfbe29b6bce6dbe0c1a7b',1,'Geometry']]],

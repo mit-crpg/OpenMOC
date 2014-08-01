@@ -25,6 +25,7 @@ var classopenmoc_1_1openmoc_1_1Material =
     [ "getSigmaFByGroup", "classopenmoc_1_1openmoc_1_1Material.html#a07d7c2ce857cef0a4cfd7a459bc9b172", null ],
     [ "getSigmaS", "classopenmoc_1_1openmoc_1_1Material.html#af8d44b319aa8d69eb5e314e3b92679e9", null ],
     [ "getSigmaSByGroup", "classopenmoc_1_1openmoc_1_1Material.html#a2fe939d7357b7421bda28410f8389f43", null ],
+    [ "getSigmaSByGroupInline", "classopenmoc_1_1openmoc_1_1Material.html#acb914cad9c2d13d20ee3f651d6bf64b8", null ],
     [ "getSigmaT", "classopenmoc_1_1openmoc_1_1Material.html#aacd374b681cf257cb8aeb79f35d96a6e", null ],
     [ "getSigmaTByGroup", "classopenmoc_1_1openmoc_1_1Material.html#a55bd895374b70058950e82140ec726ba", null ],
     [ "getUid", "classopenmoc_1_1openmoc_1_1Material.html#ac05160438c9e6dbceba0a33545da04bb", null ],

@@ -25,7 +25,8 @@ var classMaterial =
     [ "getSigmaF", "classMaterial.html#ad33fc0d6cea0feb87f43734a34432880", null ],
     [ "getSigmaFByGroup", "classMaterial.html#abd925675cc99d0720ce5cb2645ab8532", null ],
     [ "getSigmaS", "classMaterial.html#a88eb6a2d580f5d82896892d180cd7469", null ],
-    [ "getSigmaSByGroup", "classMaterial.html#ad500c20c0f48414f551616bb5a3ece5b", null ],
+    [ "getSigmaSByGroup", "classMaterial.html#a5f0ac3401992f4d5fab3564154d21588", null ],
+    [ "getSigmaSByGroupInline", "classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a", null ],
     [ "getSigmaT", "classMaterial.html#a0bb70f99202814861516d5d7db94321e", null ],
     [ "getSigmaTByGroup", "classMaterial.html#a3382e0de3100906526d6b2e7182ab3f9", null ],
     [ "getUid", "classMaterial.html#a95de130b248a20f9237793ab92e494a3", null ],
@@ -50,7 +51,7 @@ var classMaterial =
     [ "setSigmaF", "classMaterial.html#a3240f3778b1a6690a5c3fc008ce79cca", null ],
     [ "setSigmaFByGroup", "classMaterial.html#a9a5b3e747ee51343327b22356549bf20", null ],
     [ "setSigmaS", "classMaterial.html#acebc8e4e35bbcf9a9e6d3f183a1e7568", null ],
-    [ "setSigmaSByGroup", "classMaterial.html#afa089d512b06b16196cd327502862689", null ],
+    [ "setSigmaSByGroup", "classMaterial.html#a4dfe71b8c5319ac13e66c8efdd15ed56", null ],
     [ "setSigmaT", "classMaterial.html#a2949b239adb57bd0053ab9e4e5bd9d65", null ],
     [ "setSigmaTByGroup", "classMaterial.html#a61fd26dde452e699b2b2531b993d2cab", null ],
     [ "toString", "classMaterial.html#a72f180d85439497ffc732718166e5634", null ]

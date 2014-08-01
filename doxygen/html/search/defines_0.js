@@ -9,8 +9,5 @@ var searchData=
   ['_5fscalar_5fflux',['_scalar_flux',['../Solver_8h.html#a3d16df105bf900bad9d2b5a6061aa06d',1,'Solver.h']]],
   ['_5fscatter_5fsources',['_scatter_sources',['../Solver_8h.html#a39e01aad71440f7e74d0bdfa70fc20fa',1,'Solver.h']]],
   ['_5fsource',['_source',['../Solver_8h.html#aefc524ce5b072d1f3c928afba0a6089f',1,'Solver.h']]],
-  ['_5fsurface_5fcurrents',['_surface_currents',['../Solver_8h.html#a7e54944e94810750bab24ebb38c71090',1,'Solver.h']]],
-  ['_5fthread_5fcurrents',['_thread_currents',['../ThreadPrivateSolver_8h.html#a67c6c35415725a9fe498d08c00dce497',1,'ThreadPrivateSolver.h']]],
-  ['_5fthread_5fflux',['_thread_flux',['../ThreadPrivateSolver_8h.html#a96098a8f0ada349f6b315d7b1c45472f',1,'_thread_flux():&#160;ThreadPrivateSolver.h'],['../VectorizedPrivateSolver_8h.html#a96098a8f0ada349f6b315d7b1c45472f',1,'_thread_flux():&#160;VectorizedPrivateSolver.h']]],
-  ['_5fthread_5ffsr_5fflux',['_thread_fsr_flux',['../CPUSolver_8h.html#a85f67017ac5e1b0b02a37affc36380c4',1,'CPUSolver.h']]]
+  ['_5fsurface_5fcurrents',['_surface_currents',['../Solver_8h.html#a7e54944e94810750bab24ebb38c71090',1,'Solver.h']]]
 ];

@@ -170,9 +170,12 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a31b77f7dc0167079c44deb95a506e4df"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMaterial.html#a31b77f7dc0167079c44deb95a506e4df">getSigmaAByGroup</a> (int group)</td></tr>
 <tr class="memdesc:a31b77f7dc0167079c44deb95a506e4df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s absorption cross section for some energy group.  <a href="#a31b77f7dc0167079c44deb95a506e4df">More...</a><br/></td></tr>
 <tr class="separator:a31b77f7dc0167079c44deb95a506e4df"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad500c20c0f48414f551616bb5a3ece5b"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMaterial.html#ad500c20c0f48414f551616bb5a3ece5b">getSigmaSByGroup</a> (int group1, int group2)</td></tr>
-<tr class="memdesc:ad500c20c0f48414f551616bb5a3ece5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s scattering cross section for some energy group.  <a href="#ad500c20c0f48414f551616bb5a3ece5b">More...</a><br/></td></tr>
-<tr class="separator:ad500c20c0f48414f551616bb5a3ece5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f0ac3401992f4d5fab3564154d21588"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMaterial.html#a5f0ac3401992f4d5fab3564154d21588">getSigmaSByGroup</a> (int origin, int destination)</td></tr>
+<tr class="memdesc:a5f0ac3401992f4d5fab3564154d21588"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s scattering cross section for some energy group.  <a href="#a5f0ac3401992f4d5fab3564154d21588">More...</a><br/></td></tr>
+<tr class="separator:a5f0ac3401992f4d5fab3564154d21588"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a61fa80d0c202f95eea997acf1f2dcb8a"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a">getSigmaSByGroupInline</a> (int origin, int destination)</td></tr>
+<tr class="memdesc:a61fa80d0c202f95eea997acf1f2dcb8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">inline function for efficient mapping for scattering, from 1D as stored in memory to 2D matrix  <a href="#a61fa80d0c202f95eea997acf1f2dcb8a">More...</a><br/></td></tr>
+<tr class="separator:a61fa80d0c202f95eea997acf1f2dcb8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd925675cc99d0720ce5cb2645ab8532"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMaterial.html#abd925675cc99d0720ce5cb2645ab8532">getSigmaFByGroup</a> (int group)</td></tr>
 <tr class="memdesc:abd925675cc99d0720ce5cb2645ab8532"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s fission cross section for some energy group.  <a href="#abd925675cc99d0720ce5cb2645ab8532">More...</a><br/></td></tr>
 <tr class="separator:abd925675cc99d0720ce5cb2645ab8532"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -248,9 +251,9 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a4929d58a0e80b155cd1d115edbc15819"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMaterial.html#a4929d58a0e80b155cd1d115edbc15819">setNuSigmaFByGroup</a> (double xs, int group)</td></tr>
 <tr class="memdesc:a4929d58a0e80b155cd1d115edbc15819"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s fission cross-section multiplied by <img class="formulaInl" alt="$ \nu $" src="form_0.png"/> for some energy group.  <a href="#a4929d58a0e80b155cd1d115edbc15819">More...</a><br/></td></tr>
 <tr class="separator:a4929d58a0e80b155cd1d115edbc15819"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa089d512b06b16196cd327502862689"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMaterial.html#afa089d512b06b16196cd327502862689">setSigmaSByGroup</a> (double xs, int group1, int group2)</td></tr>
-<tr class="memdesc:afa089d512b06b16196cd327502862689"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s scattering cross-section for some energy group.  <a href="#afa089d512b06b16196cd327502862689">More...</a><br/></td></tr>
-<tr class="separator:afa089d512b06b16196cd327502862689"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4dfe71b8c5319ac13e66c8efdd15ed56"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMaterial.html#a4dfe71b8c5319ac13e66c8efdd15ed56">setSigmaSByGroup</a> (double xs, int origin, int destination)</td></tr>
+<tr class="memdesc:a4dfe71b8c5319ac13e66c8efdd15ed56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s scattering cross-section for some energy group.  <a href="#a4dfe71b8c5319ac13e66c8efdd15ed56">More...</a><br/></td></tr>
+<tr class="separator:a4dfe71b8c5319ac13e66c8efdd15ed56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a05006775ab7559d41479842043fd2e33"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMaterial.html#a05006775ab7559d41479842043fd2e33">setChiByGroup</a> (double xs, int group)</td></tr>
 <tr class="memdesc:a05006775ab7559d41479842043fd2e33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s chi value for some energy group.  <a href="#a05006775ab7559d41479842043fd2e33">More...</a><br/></td></tr>
 <tr class="separator:a05006775ab7559d41479842043fd2e33"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -793,7 +796,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="ad500c20c0f48414f551616bb5a3ece5b"></a>
+<a class="anchor" id="a5f0ac3401992f4d5fab3564154d21588"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -801,13 +804,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
           <td class="memname">FP_PRECISION Material::getSigmaSByGroup </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>group1</em>, </td>
+          <td class="paramname"><em>origin</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>group2</em>&#160;</td>
+          <td class="paramname"><em>destination</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -820,12 +823,56 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Get the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s scattering cross section for some energy group. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">group1</td><td>the row index in the scattering matrix </td></tr>
-    <tr><td class="paramname">group2</td><td>the column index in the scattering matrix </td></tr>
+    <tr><td class="paramname">origin</td><td>the incoming energy group </td></tr>
+    <tr><td class="paramname">destination</td><td>the outgoing energy group </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the scattering cross section </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a61fa80d0c202f95eea997acf1f2dcb8a"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">FP_PRECISION Material::getSigmaSByGroupInline </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>origin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>destination</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>inline function for efficient mapping for scattering, from 1D as stored in memory to 2D matrix </p>
+<p>Encapsulates the logic for indexing into the scattering matrix so it does not need to be repeated in other parts of the code. Note that this routine is 0-based, rather than 1-based indexing, as it is intended for use inside the code, not by users from Python. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">origin</td><td>the column index of the matrix element </td></tr>
+    <tr><td class="paramname">destination</td><td>the row index of the matrix element </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -1581,14 +1628,17 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Set the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s 2D array of scattering cross-sections. </p>
-<p>This assumes that the scattering matrix passed in has the standard notation: the (i,j) element is for scattering from group i to j. For efficient caching of the elements of this matrix during fixed source iteration, the matrix transpose is what is actually stored in the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>.</p>
-<p>This method is a helper function to allow OpenMOC users to assign the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s nuclear data in Python. A user must initialize a NumPy array of the correct size (i.e., a float64 array the length of the number of energy groups) as input to this function. This function then fills the NumPy array with the data values for the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s scattering cross-sections. An example of how this function might be called in Python is as follows:</p>
-<div class="fragment"><div class="line">sigma_s = numpy.array([[0.05, 0.1, 0.15, ... ],</div>
-<div class="line">                       [...      ...      ...],</div>
-<div class="line">                                 ...</div>
-<div class="line">                       [...      ...      ...]])</div>
+<p>The array should be passed to OpenMOC as a 1D array in column-major order. This assumes the standard convention, where column index is the origin group and the row index is the destination group. That is, the array should be ordered as follows: 1 -&gt; 1 1 -&gt; 2 1 -&gt; 3 ... 2 -&gt; 1 2 -&gt; 2 ...</p>
+<p>Note that if the scattering matrix is defined in NumPy by the standard convention, "flat" will put the matrix into row major order. Thus, one should transpose the matrix before flattening.</p>
+<p>For cache efficiency, the transpose of the input is actually stored in OpenMOC.</p>
+<p>This method is a helper function to allow OpenMOC users to assign the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s nuclear data in Python. A user must initialize a NumPy array of the correct size (i.e., a float64 array the length of the square of the number of energy groups) as input to this function. This function then fills the NumPy array with the data values for the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>'s scattering cross-sections. An example of how this function might be called in Python is as follows:</p>
+<div class="fragment"><div class="line">sigma_s = numpy.array([[0.05,    0,    0,     ... ],</div>
+<div class="line">                       [0.10, 0.08,   ...     ... ],</div>
+<div class="line">                                   ...</div>
+<div class="line">                       [...        ...        ... ]])</div>
+<div class="line">sigma_s = numpy.transpose(sigma_s)</div>
 <div class="line">material = <a class="code" href="namespaceopenmoc_1_1log.html#aba53740608da72a6ff5857ab332fc48d">openmoc</a>.Material(<a class="code" href="namespaceopenmoc_1_1log.html#aba53740608da72a6ff5857ab332fc48d">openmoc</a>.material_id())</div>
-<div class="line">material.setSigmaS(sigma_s)</div>
+<div class="line">material.setSigmaS(sigma_s.flat)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">xs</td><td>the array of scattering cross-sections </td></tr>
@@ -1599,7 +1649,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="afa089d512b06b16196cd327502862689"></a>
+<a class="anchor" id="a4dfe71b8c5319ac13e66c8efdd15ed56"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1613,13 +1663,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>group1</em>, </td>
+          <td class="paramname"><em>origin</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>group2</em>&#160;</td>
+          <td class="paramname"><em>destination</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1633,8 +1683,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">xs</td><td>the scattering cross-section </td></tr>
-    <tr><td class="paramname">group1</td><td>the row index in the scattering matrix </td></tr>
-    <tr><td class="paramname">group2</td><td>the column index in the scattering matrix </td></tr>
+    <tr><td class="paramname">origin</td><td>the column index in the scattering matrix </td></tr>
+    <tr><td class="paramname">destination</td><td>the row index in the scattering matrix </td></tr>
   </table>
   </dd>
 </dl>
@@ -1744,7 +1794,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classMaterial.html">Material</a></li>
-    <li class="footer">Generated on Sat Jul 19 2014 15:50:12 by
+    <li class="footer">Generated on Fri Aug 1 2014 09:45:15 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

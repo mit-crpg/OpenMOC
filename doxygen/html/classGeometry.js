@@ -32,6 +32,7 @@ var classGeometry =
     [ "getMaxSegmentLength", "classGeometry.html#a63515dc65e3c80ef36dfc4a41b749fe8", null ],
     [ "getMesh", "classGeometry.html#ab072933706e35191f0b9d499dca9aca0", null ],
     [ "getMinSegmentLength", "classGeometry.html#a1c13e62d14cbe8dc20ebf048a5793ff2", null ],
+    [ "getNumCells", "classGeometry.html#ad462ec60f8dbb3464ac8fec6b59208db", null ],
     [ "getNumEnergyGroups", "classGeometry.html#aceb6249699270b234cddfb9046ed9b2d", null ],
     [ "getNumFSRs", "classGeometry.html#aa6c6670cf0552fc24824f074077e994b", null ],
     [ "getNumMaterials", "classGeometry.html#aee3114c51ec090bdc73b470a93ee2b32", null ],

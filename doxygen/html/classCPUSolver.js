@@ -29,6 +29,5 @@ var classCPUSolver =
     [ "zeroTrackFluxes", "classCPUSolver.html#a003f1ec12b683d237d62a23c7364dd5c", null ],
     [ "_FSR_locks", "classCPUSolver.html#aa5e0750911999b1c6b5bb76228798195", null ],
     [ "_mesh_surface_locks", "classCPUSolver.html#ace99a46f6682ae87e967ca06c420b959", null ],
-    [ "_num_threads", "classCPUSolver.html#aae4771f6912d3ea1a3a10537a791b28e", null ],
-    [ "_thread_fsr_flux", "classCPUSolver.html#a719d0a4dcd9de62e0fe1985953ce44ca", null ]
+    [ "_num_threads", "classCPUSolver.html#aae4771f6912d3ea1a3a10537a791b28e", null ]
 ];

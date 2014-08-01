@@ -31,6 +31,7 @@ var classopenmoc_1_1openmoc_1_1Geometry =
     [ "getMaxSegmentLength", "classopenmoc_1_1openmoc_1_1Geometry.html#aeed5c31760a5b7dc948165fe943d1787", null ],
     [ "getMesh", "classopenmoc_1_1openmoc_1_1Geometry.html#a9e8d74c391a61340e585e0ce9669a676", null ],
     [ "getMinSegmentLength", "classopenmoc_1_1openmoc_1_1Geometry.html#a9170d70d99155b7e21cf3c7c4f56d5a2", null ],
+    [ "getNumCells", "classopenmoc_1_1openmoc_1_1Geometry.html#a26e873f92f3d65874e38ac440e072986", null ],
     [ "getNumEnergyGroups", "classopenmoc_1_1openmoc_1_1Geometry.html#af96c4d7eec81fdc64952f981bfc286ea", null ],
     [ "getNumFSRs", "classopenmoc_1_1openmoc_1_1Geometry.html#a7a098dd01b428c82ea6f19d2c036b750", null ],
     [ "getNumMaterials", "classopenmoc_1_1openmoc_1_1Geometry.html#a7b7da8e0383963f35ce25d366bb166c0", null ],

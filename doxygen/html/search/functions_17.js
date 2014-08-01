@@ -13,11 +13,9 @@ var searchData=
   ['_7equadrature',['~Quadrature',['../classQuadrature.html#a1f523924a8cc88680aa77366a7d3a38e',1,'Quadrature']]],
   ['_7esolver',['~Solver',['../classSolver.html#aba52d3c92fafceb6fe39f937f2d73db3',1,'Solver']]],
   ['_7esurface',['~Surface',['../classSurface.html#a89de75c95cb550d432f3ea4ed1429db0',1,'Surface']]],
-  ['_7ethreadprivatesolver',['~ThreadPrivateSolver',['../classThreadPrivateSolver.html#a3ec19146ff0b958397cdb460b94bb9fe',1,'ThreadPrivateSolver']]],
   ['_7etimer',['~Timer',['../classTimer.html#ad3c95ce902fce977d280256256856d64',1,'Timer']]],
   ['_7etrack',['~Track',['../classTrack.html#a416e75e66accc8eb9e3fafc3e8555216',1,'Track']]],
   ['_7etrackgenerator',['~TrackGenerator',['../classTrackGenerator.html#a11821904ab5138800c922970585cb1e4',1,'TrackGenerator']]],
   ['_7euniverse',['~Universe',['../classUniverse.html#a7723438c7fa497defb4c82ac975152b2',1,'Universe']]],
-  ['_7evectorizedprivatesolver',['~VectorizedPrivateSolver',['../classVectorizedPrivateSolver.html#a50b87b272a9188c0de0d5a09472d7c51',1,'VectorizedPrivateSolver']]],
   ['_7evectorizedsolver',['~VectorizedSolver',['../classVectorizedSolver.html#abcda5ede1c19f0e4c91e042c7d7a110d',1,'VectorizedSolver']]]
 ];

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['scalarfluxtally',['scalarFluxTally',['../classCPUSolver.html#a414e03f5c083e4b8e77da6c8fa79af02',1,'CPUSolver::scalarFluxTally()'],['../classThreadPrivateSolver.html#a0d9da6c56e767cb2d16759e92e0fecf1',1,'ThreadPrivateSolver::scalarFluxTally()'],['../classVectorizedSolver.html#a861e52b6f96cd79a6a5298cefc7fe378',1,'VectorizedSolver::scalarFluxTally()']]],
+  ['scalarfluxtally',['scalarFluxTally',['../classCPUSolver.html#a414e03f5c083e4b8e77da6c8fa79af02',1,'CPUSolver::scalarFluxTally()'],['../classVectorizedSolver.html#a861e52b6f96cd79a6a5298cefc7fe378',1,'VectorizedSolver::scalarFluxTally()']]],
   ['segmentize',['segmentize',['../classGeometry.html#a21a092d997179d6bea6c66f592faa6de',1,'Geometry']]],
   ['set_5ferr',['set_err',['../log_8h.html#a940ee8efe959af1453430dfb17a69b52',1,'log.h']]],
   ['set_5fheader_5fcharacter',['set_header_character',['../log_8h.html#aae7afe68c23dff1177580a23dc59329d',1,'log.cpp']]],
@@ -90,7 +90,7 @@ var searchData=
   ['setsigmaf',['setSigmaF',['../classMaterial.html#a3240f3778b1a6690a5c3fc008ce79cca',1,'Material']]],
   ['setsigmafbygroup',['setSigmaFByGroup',['../classMaterial.html#a9a5b3e747ee51343327b22356549bf20',1,'Material']]],
   ['setsigmas',['setSigmaS',['../classMaterial.html#acebc8e4e35bbcf9a9e6d3f183a1e7568',1,'Material']]],
-  ['setsigmasbygroup',['setSigmaSByGroup',['../classMaterial.html#afa089d512b06b16196cd327502862689',1,'Material']]],
+  ['setsigmasbygroup',['setSigmaSByGroup',['../classMaterial.html#a4dfe71b8c5319ac13e66c8efdd15ed56',1,'Material']]],
   ['setsigmat',['setSigmaT',['../classMaterial.html#a2949b239adb57bd0053ab9e4e5bd9d65',1,'Material']]],
   ['setsigmatbygroup',['setSigmaTByGroup',['../classMaterial.html#a61fd26dde452e699b2b2531b993d2cab',1,'Material']]],
   ['setsourceconvergencethreshold',['setSourceConvergenceThreshold',['../classSolver.html#aaace17535420183bd7c699b0a10c1e01',1,'Solver']]],

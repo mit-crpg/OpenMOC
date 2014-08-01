@@ -314,8 +314,6 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:aa5e0750911999b1c6b5bb76228798195"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace99a46f6682ae87e967ca06c420b959"><td class="memItemLeft" align="right" valign="top">omp_lock_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUSolver.html#ace99a46f6682ae87e967ca06c420b959">_mesh_surface_locks</a></td></tr>
 <tr class="separator:ace99a46f6682ae87e967ca06c420b959"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a719d0a4dcd9de62e0fe1985953ce44ca"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUSolver.html#a719d0a4dcd9de62e0fe1985953ce44ca">_thread_fsr_flux</a></td></tr>
-<tr class="separator:a719d0a4dcd9de62e0fe1985953ce44ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classSolver"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classSolver')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classSolver.html">Solver</a></td></tr>
 <tr class="memitem:a9f0fd3a842870803f27c47ed51a83039 inherit pro_attribs_classSolver"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a9f0fd3a842870803f27c47ed51a83039">_num_azim</a></td></tr>
 <tr class="separator:a9f0fd3a842870803f27c47ed51a83039 inherit pro_attribs_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -406,7 +404,7 @@ Protected Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This a subclass of the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> class for multi-core CPUs using OpenMP multi-threading. </p>
-<p>This <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> subclass uses OpenMP's multi-threading directives, including the mutual exclusion locks. Although the algorithm is more memory efficient than its <a class="el" href="classThreadPrivateSolver.html" title="This is a subclass of the CPUSolver which uses thread private arrays for the FSR scalar fluxes to min...">ThreadPrivateSolver</a> subclass, its parallel performance scales very poorly. As a result, this class is not recommended for general use and is primarily intended to expose the limitations of OpenMP's mutual exclusion formulation. </p>
+<p>This <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> subclass uses OpenMP's multi-threading directives, including the mutual exclusion locks. Although the algorithm is more memory efficient than its ThreadPrivateSolver subclass, its parallel performance scales very poorly. As a result, this class is not recommended for general use and is primarily intended to expose the limitations of OpenMP's mutual exclusion formulation. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a919f1b5cad684e6bcb594cecb872a5b1"></a>
 <div class="memitem">
@@ -613,8 +611,6 @@ Protected Attributes</h2></td></tr>
 </dl>
 
 <p>Implements <a class="el" href="classSolver.html#a148137c97310ee2df94a4fd3fe35456f">Solver</a>.</p>
-
-<p>Reimplemented in <a class="el" href="classThreadPrivateSolver.html#a59774ef30af398b452a767a338e01517">ThreadPrivateSolver</a>.</p>
 
 </div>
 </div>
@@ -835,8 +831,6 @@ Protected Attributes</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="classSolver.html#afeab07b86fb26ba8be22d525cba33c4f">Solver</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classThreadPrivateSolver.html#a2093a23adc15841ad486b2b803e1fb28">ThreadPrivateSolver</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a8eac5804397c5e5f95d73b19a6e4cbfd"></a>
@@ -865,7 +859,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="classSolver.html#a916eb7ef96140e1ea2d22bb9d1c86240">Solver</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classVectorizedSolver.html#a6d5bac107495fe429839826859b7dfa1">VectorizedSolver</a>, and <a class="el" href="classThreadPrivateSolver.html#a916aa2e259b03848d5a35c9e3c29ac4b">ThreadPrivateSolver</a>.</p>
+<p>Reimplemented in <a class="el" href="classVectorizedSolver.html#a6d5bac107495fe429839826859b7dfa1">VectorizedSolver</a>.</p>
 
 </div>
 </div>
@@ -1017,7 +1011,7 @@ Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classVectorizedSolver.html#a861e52b6f96cd79a6a5298cefc7fe378">VectorizedSolver</a>, and <a class="el" href="classThreadPrivateSolver.html#a0d9da6c56e767cb2d16759e92e0fecf1">ThreadPrivateSolver</a>.</p>
+<p>Reimplemented in <a class="el" href="classVectorizedSolver.html#a861e52b6f96cd79a6a5298cefc7fe378">VectorizedSolver</a>.</p>
 
 </div>
 </div>
@@ -1168,27 +1162,6 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a719d0a4dcd9de62e0fe1985953ce44ca"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">FP_PRECISION* CPUSolver::_thread_fsr_flux</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>A buffer for temporary FSR scalar flux updates for each thread </p>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>/home/wbinventor/Desktop/OpenMOC/src/<a class="el" href="CPUSolver_8h_source.html">CPUSolver.h</a></li>
 <li>/home/wbinventor/Desktop/OpenMOC/src/CPUSolver.cpp</li>
@@ -1199,7 +1172,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCPUSolver.html">CPUSolver</a></li>
-    <li class="footer">Generated on Sat Jul 19 2014 15:50:12 by
+    <li class="footer">Generated on Fri Aug 1 2014 09:45:15 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

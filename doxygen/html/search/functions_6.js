@@ -12,6 +12,6 @@ var searchData=
   ['findmeshsurface',['findMeshSurface',['../classMesh.html#ad3bde7577f1b12057769b68981a78f48',1,'Mesh']]],
   ['findmeshwidth',['findMeshWidth',['../classGeometry.html#a9dc3627155dcebcfc358bc1882062b52',1,'Geometry']]],
   ['findnextlatticecell',['findNextLatticeCell',['../classLattice.html#a74e06905bc0f096fa4fb1b97420b0825',1,'Lattice']]],
-  ['flattenfsrfluxes',['flattenFSRFluxes',['../classCPUSolver.html#a154cbd82754abdadb2ca57068ec12102',1,'CPUSolver::flattenFSRFluxes()'],['../classSolver.html#a148137c97310ee2df94a4fd3fe35456f',1,'Solver::flattenFSRFluxes()'],['../classThreadPrivateSolver.html#a59774ef30af398b452a767a338e01517',1,'ThreadPrivateSolver::flattenFSRFluxes()']]],
+  ['flattenfsrfluxes',['flattenFSRFluxes',['../classCPUSolver.html#a154cbd82754abdadb2ca57068ec12102',1,'CPUSolver::flattenFSRFluxes()'],['../classSolver.html#a148137c97310ee2df94a4fd3fe35456f',1,'Solver::flattenFSRFluxes()']]],
   ['flattenfsrsources',['flattenFSRSources',['../classCPUSolver.html#a50b87bcfca1e6e3399ad75a8c9fd6337',1,'CPUSolver::flattenFSRSources()'],['../classSolver.html#a906c202ff2b3e38443f333964efa2342',1,'Solver::flattenFSRSources()']]]
 ];

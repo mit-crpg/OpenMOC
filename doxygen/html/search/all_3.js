@@ -2,8 +2,8 @@ var searchData=
 [
   ['casmo',['Casmo',['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html',1,'openmoc::compatible::casmo']]],
   ['casmo_2epy',['casmo.py',['../casmo_8py.html',1,'']]],
-  ['cell',['Cell',['../classCell.html',1,'Cell'],['../classCell.html#a394510643e8664cf12b5efaf5cb99f71',1,'Cell::Cell()'],['../classCell.html#a7279c304b51be92725946cf95fb403ae',1,'Cell::Cell(int universe, int id=0)']]],
   ['cell',['Cell',['../classopenmoc_1_1openmoc_1_1Cell.html',1,'openmoc::openmoc']]],
+  ['cell',['Cell',['../classCell.html',1,'Cell'],['../classCell.html#a394510643e8664cf12b5efaf5cb99f71',1,'Cell::Cell()'],['../classCell.html#a7279c304b51be92725946cf95fb403ae',1,'Cell::Cell(int universe, int id=0)']]],
   ['cell_2eh',['Cell.h',['../Cell_8h.html',1,'']]],
   ['cell_5fid',['cell_id',['../Cell_8h.html#abb9096ea25c5bc90958fe62105192ec7',1,'Cell.cpp']]],
   ['cellbasic',['CellBasic',['../classopenmoc_1_1openmoc_1_1CellBasic.html',1,'openmoc::openmoc']]],
@@ -28,7 +28,6 @@ var searchData=
   ['cmfd',['Cmfd',['../classCmfd.html',1,'Cmfd'],['../classCmfd.html#a335603297bf627c6eb63ca24cb971a26',1,'Cmfd::Cmfd()']]],
   ['cmfd',['Cmfd',['../classopenmoc_1_1openmoc_1_1Cmfd.html',1,'openmoc::openmoc']]],
   ['cmfd_2eh',['Cmfd.h',['../Cmfd_8h.html',1,'']]],
-  ['color_5fmap',['color_map',['../namespaceopenmoc_1_1plotter.html#ab4cddaf8a44b4d1d6a0b8eda9639c713',1,'openmoc::plotter']]],
   ['compute_5fpin_5fpowers',['compute_pin_powers',['../namespaceopenmoc_1_1process.html#ad313c9844294d5e285b5943664389a0f',1,'openmoc::process']]],
   ['compute_5funiverse_5ffission_5frate',['compute_universe_fission_rate',['../namespaceopenmoc_1_1process.html#a6115e946c5118ee95f71ffed07034df5',1,'openmoc::process']]],
   ['computediffcorrect',['computeDiffCorrect',['../classCmfd.html#add0bcdf4d8737d61b377b4dcd7a70d9d',1,'Cmfd']]],

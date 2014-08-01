@@ -14,9 +14,7 @@ var hierarchy =
       [ "openmoc.openmoc.Quadrature", "classopenmoc_1_1openmoc_1_1Quadrature.html", null ],
       [ "openmoc.openmoc.segment", "classopenmoc_1_1openmoc_1_1segment.html", null ],
       [ "openmoc.openmoc.Solver", "classopenmoc_1_1openmoc_1_1Solver.html", [
-        [ "openmoc.openmoc.CPUSolver", "classopenmoc_1_1openmoc_1_1CPUSolver.html", [
-          [ "openmoc.openmoc.ThreadPrivateSolver", "classopenmoc_1_1openmoc_1_1ThreadPrivateSolver.html", null ]
-        ] ]
+        [ "openmoc.openmoc.CPUSolver", "classopenmoc_1_1openmoc_1_1CPUSolver.html", null ]
       ] ],
       [ "openmoc.openmoc.Surface", "classopenmoc_1_1openmoc_1_1Surface.html", [
         [ "openmoc.openmoc.Circle", "classopenmoc_1_1openmoc_1_1Circle.html", null ],
@@ -55,10 +53,7 @@ var hierarchy =
     [ "segment", "structsegment.html", null ],
     [ "Solver", "classSolver.html", [
       [ "CPUSolver", "classCPUSolver.html", [
-        [ "ThreadPrivateSolver", "classThreadPrivateSolver.html", null ],
-        [ "VectorizedSolver", "classVectorizedSolver.html", [
-          [ "VectorizedPrivateSolver", "classVectorizedPrivateSolver.html", null ]
-        ] ]
+        [ "VectorizedSolver", "classVectorizedSolver.html", null ]
       ] ],
       [ "GPUSolver", "classGPUSolver.html", null ]
     ] ],
