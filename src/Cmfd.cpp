@@ -1513,13 +1513,13 @@ int Cmfd::getCmfdGroup(int group){
 void Cmfd::createGroupStructure(int* group_indices, int ncg){
 
     _num_cmfd_groups = ncg - 1;
-    
+
     /* allocate memory */
     if (_group_indices == NULL){
         _group_indices = new int[ncg];
         _group_indices_map = new int[_num_groups];
     }
-    
+
     if (group_indices == NULL){
         for (int i = 0; i < ncg; i++){
             _group_indices[i] = i;
