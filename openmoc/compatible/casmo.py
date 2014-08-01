@@ -90,8 +90,8 @@ class Casmo(object):
   ##
   # @brief Sets whether the assembly for the casmo output file is symmetric
   # @param directory directory of the casmo output file to be parsed (string)
-  def setSymmetric(self, boolean): 
-    self._symmetric = boolean
+  def setSymmetric(self, is_symmetric): 
+    self._symmetric = is_symmetric
 
   ##
   # @brief This method parses the casmo output file for the number of
