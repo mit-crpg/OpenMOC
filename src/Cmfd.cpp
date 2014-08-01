@@ -238,7 +238,7 @@ void Cmfd::computeXS(){
                  rxn_tally / vol_tally, chi_tally[e] / (neut_prod_tally+1e-12));
 
       for (int g = 0; g < _num_cmfd_groups; g++){
-        cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, g+1, e+1);
+        cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e+1, g+1);
         log_printf(DEBUG, "scattering from %i to %i: %f", e, g,
                    scat_tally[g] / rxn_tally);
       }
