@@ -359,7 +359,7 @@ class configuration:
     # If the user passed in the --no-numpy flag, tell SWIG not to embed
     # NumPy typemaps in the source code
     if not self.with_numpy:
-      self.swig_flags += ['-DNO_NUMPY']
+      self.swig_flags.append('-DNO_NUMPY')
 
     # Otherwise, obtain the NumPy include directory
     else:
