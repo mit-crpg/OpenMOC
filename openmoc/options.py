@@ -109,7 +109,7 @@ class Options:
                                   'mesh-level='])
 
     except getopt.GetoptError as err:
-      py_printf('WARNING', str(err))
+      py_printf('ERROR', str(err))
       pass
 
 
