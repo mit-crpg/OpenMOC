@@ -25,6 +25,7 @@
 
   #define printf PySys_WriteStdout
 
+
   /* Exception helpers */
   static int swig_c_error_num = 0;
   static char swig_c_err_msg[1024];
@@ -247,6 +248,8 @@
 #else
 
 %include "numpy.i"
+
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 
 
 %init %{
