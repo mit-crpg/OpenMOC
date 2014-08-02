@@ -133,5 +133,11 @@ build/*
 .idea/*.xml
 
 sphinx/
+
 *.DS_Store
 */*.DS_Store
+
+# Use wildcards as well
+# *~
+*.swp
+
