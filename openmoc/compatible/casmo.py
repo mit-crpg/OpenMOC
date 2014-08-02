@@ -22,6 +22,7 @@ class Casmo(object):
     self._assembly_name = None
     self._filename = None
     self._directory = None
+    self._is_symmetric = True
     self._energy_groups = None
     self._num_micro_regions = None
     self._fuel_pin_rad = None
@@ -41,7 +42,9 @@ class Casmo(object):
     self._cell_types = {}
     self._cell_type_array = None 
     self._string_cell_type_array = None
-
+    self._average_cross_sections = None
+    
+    
   ##
   # @brief Returns assembly type as string
   # @return assembly type (string)
@@ -57,13 +60,13 @@ class Casmo(object):
   ##
   # @brief Returns name of casmo output file to be parsed
   # @return name of casmo output file to be parsed
-  def getFileName(self): 
+  def getFilename(self): 
     return self._filename
 
   ##
   # @brief Sets file name of casmo output file to be parsed
   # @param filename the name of the casmo output file to be parsed (string)
-  def setFileName(self, filename): 
+  def setFilename(self, filename): 
     self._filename = filename
 
   ##
@@ -77,6 +80,37 @@ class Casmo(object):
   # @param directory directory of the casmo output file to be parsed (string)
   def setDirectory(self, directory): 
     self._directory = directory
+    
+  ##
+  # @brief Returns whether the assembly for the casmo output file is symmetric 
+  # @return True if symmetric, else False
+  def isSymmetric(self):
+    return self._is_symmetric
+
+  ##
+  # @brief Sets whether the assembly for the casmo output file is symmetric
+  # @param directory directory of the casmo output file to be parsed (string)
+  def setSymmetric(self, is_symmetric): 
+    self._is_symmetric = is_symmetric
+  
+  ##
+  # @brief Checks to see if assembly for casmo output file is symmetric
+  # @param f casmo output file
+  def checkSymmetry(self, f):
+    sym_counter = 0
+    for sym_line in f: 
+      if 'LPI' in sym_line: 
+        sym_counter += 1      
+        continue
+      if sym_counter ==1: 
+        sym_tokens = sym_line.split()
+        if len(sym_tokens) > 2:
+          self._is_symmetric = False
+          break
+        else: 
+          self._is_symmetric = True
+          break
+  
 
   ##
   # @brief This method parses the casmo output file for the number of
@@ -115,15 +149,33 @@ class Casmo(object):
   # @return number of microregions directly from casmo output file
   def parseNumRegions(self):
     f = open(self._directory + self._filename, 'r')
+    
+    #check for symmetry
+    self.checkSymmetry(f)
+          
     counter = 0
-    for line in f:
-      if 'Micro-region' in line:
-        counter += 1
-        continue
-      if counter == 1:
-        tokens = line.split()
-        num_micro_regions = int(tokens[1])
-        break
+    newcounter = 0
+    num_micro_regions = 0
+    if self._is_symmetric:
+      for line in f:
+        if 'Micro-region number ' in line:
+          counter += 1
+          continue
+        if counter == 1:
+          tokens = line.split()
+          num_micro_regions = int(tokens[1])
+          break
+    else:
+      for newline in f:
+        if '--- ---- ---------------  ------------    ' in newline:
+          newcounter += 1
+          continue
+        if newcounter == 1:
+          newtokens = newline.split()
+          num_micro_regions = int(newtokens[0])
+          break
+      
+    
     f.close()
     return num_micro_regions
 
@@ -312,9 +364,13 @@ class Casmo(object):
   #        or column of an assembly.
   # @return width of the assembly
   def parseWidth(self):
-
     half_width = -1
     f = open(self._directory + self._filename, 'r')
+    
+    #check for symmetry
+    self.checkSymmetry(f)
+    
+    
     for line in f:
       if 'Layout' in line:
         half_width += 1
@@ -324,8 +380,12 @@ class Casmo(object):
       if half_width>=0:
         half_width += 1
     f.close()
-    return half_width*2-1
-
+    if self._is_symmetric:
+      return half_width*2-1
+    else:
+      return half_width
+      
+      
   ##
   # @brief Returns width of the assembly
   # @return width of the assembly (int)
@@ -356,39 +416,71 @@ class Casmo(object):
     max_array = numpy.zeros((self._width,self._width), dtype=numpy.int32)
     min_quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.int32)
     max_quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.int32)
+    min_values = []
+    max_values = []
+    
+   
+    
 
     f = open(self._directory + self._filename, 'r')
     counter = 0
-    for line in f:
-      if counter >= 1 and '1_________' in line:
-        break
-      if 'Micro-region' in line:
+    
+    #check for symmetry
+    self.checkSymmetry(f)
+    
+    if self._is_symmetric:
+      for line in f:
+        if counter >= 1 and '1_________' in line:
+          break
+        if 'Micro-region' in line:
+          counter += 1
+          continue
+        if counter >= 1:
+          tokens = line.split()
+          for index, token in enumerate(tokens):
+            token = token.strip('*')
+            token = token.strip('-')
+            if index%2 ==0:
+              min_quadrant4[counter-1, index/2] = float(token)
+              min_quadrant4[index/2, counter-1] = float(token)
+            else:
+              max_quadrant4[counter-1, (index-1)/2] = float(token)
+              max_quadrant4[(index-1)/2, counter-1] = float(token)
+          counter += 1
+      f.close()
+
+      min_array[(half_width-1):,(half_width-1):] = min_quadrant4
+      min_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(min_quadrant4)
+      min_array[0:(half_width), (half_width-1):] = numpy.flipud(min_quadrant4)
+      min_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(min_quadrant4))
+
+      max_array[(half_width-1):,(half_width-1):] = max_quadrant4
+      max_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(max_quadrant4)
+      max_array[0:(half_width), (half_width-1):] = numpy.flipud(max_quadrant4)
+      max_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(max_quadrant4))
+    else:
+      counter = 0
+      for line in f:
+        if 'Micro :' in line:
+          newline = line.lstrip('Micro :')
+          xline = newline.translate(None, '-')
+          tokens = xline.split()
+          for index, token in enumerate(tokens):
+            if index%2 ==0:
+              min_values.append(token)
+            else:
+              max_values.append(token)
+      for index, value in enumerate(min_values):
+        min_array[int(counter)/int(self._width), index%self._width] = float(value)
         counter += 1
         continue
-      if counter >= 1:
-        tokens = line.split()
-        for index, token in enumerate(tokens):
-          token = token.strip('*')
-          token = token.strip('-')
-          if index%2 ==0:
-            min_quadrant4[counter-1, index/2] = float(token)
-            min_quadrant4[index/2, counter-1] = float(token)
-          else:
-            max_quadrant4[counter-1, (index-1)/2] = float(token)
-            max_quadrant4[(index-1)/2, counter-1] = float(token)
+      
+      counter = 0
+      for index, value in enumerate(max_values):
+        max_array[int(counter)/int(self._width), index%self._width] = float(value)
         counter += 1
-    f.close()
-
-    min_array[(half_width-1):,(half_width-1):] = min_quadrant4
-    min_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(min_quadrant4)
-    min_array[0:(half_width), (half_width-1):] = numpy.flipud(min_quadrant4)
-    min_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(min_quadrant4))
-
-    max_array[(half_width-1):,(half_width-1):] = max_quadrant4
-    max_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(max_quadrant4)
-    max_array[0:(half_width), (half_width-1):] = numpy.flipud(max_quadrant4)
-    max_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(max_quadrant4))
-
+        continue
+      f.close()
     return min_array, max_array
 
   ##
@@ -430,10 +522,10 @@ class Casmo(object):
     f = open(self._directory + self._filename, 'r')
 
     for line in f:
-        if 'k-infinity' in line:
-            tokens = line.split()
-            kinf = float(tokens[2])
-            break
+      if 'k-infinity' in line:
+        tokens = line.split()
+        kinf = float(tokens[2])
+        break
     f.close()
     return kinf
 
@@ -466,27 +558,43 @@ class Casmo(object):
     quadrant4 = numpy.zeros((half_width,half_width), dtype=numpy.float32)
 
     counter = 0
+    
+    #check for symmetry
+    self.checkSymmetry(f)
+    
     for line in f:
+    
       if counter >= 1 and line == '\n':
         break
+        
       if 'Power Distribution' in line:
         counter += 1
         continue
-      if counter >= 1:
-        powers = line.split()
-        for index, power in enumerate(powers):
-          power = power.strip('*')
-          quadrant4[counter-1, index] = float(power)
-          quadrant4[index, counter-1] = float(power)
-        counter += 1
+        
+      if self._is_symmetric:
+        if counter >= 1:
+          powers = line.split()
+          for index, power in enumerate(powers):
+            power = power.strip('*')
+            quadrant4[counter-1, index] = float(power)
+            quadrant4[index, counter-1] = float(power)
+          counter += 1
+        # Arranges section of pin powers into larger array by symmetry
+        pin_power_array[(half_width-1):,(half_width-1):] = quadrant4
+        pin_power_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
+        pin_power_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
+        pin_power_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(quadrant4))
+        
+      else:
+        if counter >= 1:
+          powers = line.split()
+          
+          for index, power in enumerate(powers):
+            power = power.strip('*')
+            pin_power_array[counter-1, index] = float(power)
+          counter+=1
+          
     f.close()
-    
-    # Arranges section of pin powers into larger array by symmetry
-    pin_power_array[(half_width-1):,(half_width-1):] = quadrant4
-    pin_power_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
-    pin_power_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
-    pin_power_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(quadrant4))
-
     return pin_power_array
 
   ##
@@ -532,6 +640,10 @@ class Casmo(object):
 
     counter = 0
     f = open(self._directory + self._filename, 'r')
+    
+    #check for symmetry
+    self.checkSymmetry(f)
+    
     for line in f:
       if counter >=1 and line == '\n':
         break
@@ -542,18 +654,20 @@ class Casmo(object):
         cell_types = line.split()
         for index, cell_type in enumerate(cell_types):
           cell_type = cell_type.strip('*')
-          quadrant4[counter-1, index] = int(cell_type)
+          if self._is_symmetric:
+            quadrant4[counter-1, index] = int(cell_type)
+          else:
+            cell_type_array[counter-1, index] = int(cell_type)
         counter += 1
     f.close()
-    
-    # Arranges section of cell types into larger array by symmetry
-    cell_type_array[(half_width-1):,(half_width-1):] = quadrant4
-    cell_type_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
-    cell_type_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
-    cell_type_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(quadrant4))
+    if self._is_symmetric:
+      # Arranges section of cell types into larger array by symmetry
+      cell_type_array[(half_width-1):,(half_width-1):] = quadrant4
+      cell_type_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
+      cell_type_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
+      cell_type_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(quadrant4))
 
     cell_type_array[half_width-1,half_width-1] = 2
-	
     return cell_type_array
 
   ##
@@ -590,7 +704,8 @@ class Casmo(object):
         if self._cell_type_array[i,j] in self._cell_types.keys():
           string_cell_type_array[i,j] = self._cell_types[self._cell_type_array[i,j]]
         else:
-          log.py_printf('WARNING', 'Cell type id %d does not exist. Call setCellTypes to set cell name for id.', cell_type_array[i,j])
+          log.py_printf('WARNING', 'Cell type id %d does not exist. Call'
+          ' setCellTypes to set cell name for id.', self._cell_type_array[i,j])
 
     return string_cell_type_array
 
@@ -687,12 +802,10 @@ class Casmo(object):
   #        member variables of the Casmo object to an hdf5 data file
   # @param assembly_name name of assembly for materials being exported
   # @param directory directory where hdf5 data file will be stored
-  def xsToHDF5(self, assembly_name, directory = 'casmo-data'):
-
-    os.system('rm ' + directory + '/' + assembly_name + '-materials.hdf5')
+  def exportAllXSToHDF5(self, assembly_name, directory = 'casmo-data'):
     if not os.path.exists(directory):
       os.makedirs(directory)
-    f = h5py.File(directory + '/' + assembly_name + '-materials.hdf5')
+    f = h5py.File(directory + '/' + assembly_name + '-all-materials.hdf5','w')
     f.attrs['Energy Groups'] = self._energy_groups
     for region in range(self._num_micro_regions):
       material = f.create_group('microregion-' + str((region + 1)))
@@ -704,3 +817,107 @@ class Casmo(object):
       material.create_dataset('Dif Coefficient', data=self._sigd[region, :])
       material.create_dataset('Chi', data=self._chi[region, :])
     f.close()
+
+
+  ##
+  # @brief This method exports average cross sectional arrays contained within 
+  #        member variables of the Casmo object to an hdf5 data file
+  # @param assembly_name name of assembly for materials being exported
+  # @param directory directory where hdf5 data file will be stored
+  def exportAvgXSToHDF5(self, assembly_name, directory = 'casmo-data'):
+  
+    #check if cross sections have been computed
+    if len(self._average_cross_sections) == 0: 
+      log.py_printf('WARNING', 'Average Cross Sections do not exist. Call'
+      ' averageXSGenerator to compute them.')
+      
+    else:
+    
+      #create/set directory in which to store hdf5 file
+      if not os.path.exists(directory):
+        os.makedirs(directory)
+      f = h5py.File(directory + '/' + assembly_name + '-avg-materials.hdf5','w')
+      f.attrs['Energy Groups'] = self._energy_groups
+      
+      #create an hdf5 dataset to store each average cross section
+      for material in self._average_cross_sections.keys():
+        material_group = f.create_group(material)
+        for xs_type in self._average_cross_sections[material].keys():
+          material_group.create_dataset(xs_type,data=self._average_cross_sections[material][xs_type])
+      f.close()
+   
+
+  ##
+  # @brief This method determines the average materials based on average cross 
+  #        parsed from the output file
+  # @param assembly_name name of assembly for materials being exported
+  # @param directory directory where hdf5 data file will be stored
+  
+  def averageXSGenerator(self):
+  
+    materials = ['fuel','water','cladding','helium']
+    
+    #check for burnable poisons
+    if 'b' in self._string_cell_type_array:
+      materials.extend(['bp','ss304'])
+      
+    #create dictionary of variables
+    variable_dict = {'Absorption XS':self._siga,'Dif Coefficient':self._sigd,
+      'Total XS':self._sigt,'Fission XS':self._sigf,'Nu Fission XS':self._signf,
+      'Scattering XS':self._sigs,'Chi':self._chi}
+      
+    #create dictionary of values  
+    val_dict = {}
+    
+    #compute average cross section for each material 
+    for material in materials:
+      val_dict[material] = {}
+      for xs_type in variable_dict.keys():
+        val_dict[material][xs_type] = []
+        
+    for i in range(len(self._string_cell_type_array)):
+      for j in range(len(self._string_cell_type_array[i])):
+        for xs_type in variable_dict.keys():
+        
+          #if pin cell is guide tube
+          if self._string_cell_type_array[i][j]=='g':
+            val_dict['water'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
+            val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
+            for k in range(self._min_microregions[i][j]+1,self._max_microregions[i][j]):
+              val_dict['water'][xs_type].append(variable_dict[xs_type][k])
+              
+          #if pin cell is fuel
+          elif self._string_cell_type_array[i][j]=='f':
+            val_dict['fuel'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
+            val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
+            val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+1])
+            for k in range(self._min_microregions[i][j]+2,self._max_microregions[i][j]):
+              val_dict['water'][xs_type].append(variable_dict[xs_type][k])
+              
+          #if pin cell is burnable poison
+          elif self._string_cell_type_array[i][j]=='b':
+            val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
+            val_dict['ss304'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
+            val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+1])
+            val_dict['bp'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+2])
+            val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+3])
+            val_dict['ss304'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+4])
+            val_dict['water'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+5])
+            val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+6])
+            for k in range(self._min_microregions[i][j]+7,self._max_microregions[i][j]):
+              val_dict['water'][xs_type].append(variable_dict[xs_type][k])
+      avg_dict = {}         
+      
+    #add avg cross sections to dictionary   
+    for material in materials:
+      avg_dict[material] = {}
+      for xs_type in variable_dict.keys():
+        avg_dict[material][xs_type] = []
+        for group in range(self._energy_groups):
+          numerator = sum([e[group] for e in val_dict[material][xs_type]])
+          denominator = float(len(val_dict[material][xs_type]))
+          if xs_type == 'Scattering XS':
+            avg_dict[material][xs_type].extend(numerator/denominator)
+          else:
+            avg_dict[material][xs_type].append(numerator/denominator)
+    self._average_cross_sections = avg_dict
