@@ -31,7 +31,6 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
 log.py_printf('NORMAL', 'Importing materials data from py...')
 
-#materials = materialize.materialize('../../c5g7-materials.py')
 materials = materialize.materialize('../../c5g7-materials.h5')
 
 uo2_id = materials['UO2'].getId()
@@ -361,7 +360,7 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = ThreadPrivateSolver(geometry, track_generator, cmfd)
+solver = CPUSolver(geometry, track_generator, cmfd)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)

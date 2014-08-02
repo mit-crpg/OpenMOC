@@ -238,7 +238,7 @@ void Cmfd::computeXS(){
                  rxn_tally / vol_tally, chi_tally[e] / (neut_prod_tally+1e-12));
 
       for (int g = 0; g < _num_cmfd_groups; g++){
-        cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, g+1, e+1);
+        cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e+1, g+1);
         log_printf(DEBUG, "scattering from %i to %i: %f", e, g,
                    scat_tally[g] / rxn_tally);
       }
@@ -1513,13 +1513,13 @@ int Cmfd::getCmfdGroup(int group){
 void Cmfd::createGroupStructure(int* group_indices, int ncg){
 
     _num_cmfd_groups = ncg - 1;
-    
+
     /* allocate memory */
     if (_group_indices == NULL){
         _group_indices = new int[ncg];
         _group_indices_map = new int[_num_groups];
     }
-    
+
     if (group_indices == NULL){
         for (int i = 0; i < ncg; i++){
             _group_indices[i] = i;

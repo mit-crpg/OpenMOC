@@ -17,9 +17,6 @@
 #include "Solver.h"
 #endif
 
-/** Indexing macro for the thread private FSR scalar fluxes */
-#define _thread_fsr_flux(tid) (_thread_fsr_flux[tid*_num_groups])
-
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for either the forward or reverse direction for a given Track */ 
 #define track_flux(p,e) (track_flux[(p)*_num_groups + (e)])
@@ -56,9 +53,6 @@ protected:
 
   /** OpenMP mutual exclusion locks for atomic surface current updates */
   omp_lock_t* _mesh_surface_locks;
-
-  /** A buffer for temporary FSR scalar flux updates for each thread */
-  FP_PRECISION* _thread_fsr_flux;
 
   void initializeFluxArrays();
   void initializeSourceArrays();
