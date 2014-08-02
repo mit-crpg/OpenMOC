@@ -100,16 +100,16 @@ class Casmo(object):
     sym_counter = 0
     for sym_line in f: 
       if 'LPI' in sym_line: 
-    	  sym_counter += 1  		
-    	  continue
+        sym_counter += 1      
+        continue
       if sym_counter ==1: 
-    		sym_tokens = sym_line.split()
-    		if len(sym_tokens) > 2:
-    			self._symmetric = False
-    			break
-    		else: 
-    			self._symmetric = True
-    			break
+        sym_tokens = sym_line.split()
+        if len(sym_tokens) > 2:
+          self._symmetric = False
+          break
+        else: 
+          self._symmetric = True
+          break
   
 
   ##
@@ -152,7 +152,7 @@ class Casmo(object):
     
     #check for symmetry
     self.checkSymmetry(f)
-    			
+          
     counter = 0
     newcounter = 0
     num_micro_regions = 0
@@ -175,7 +175,7 @@ class Casmo(object):
           num_micro_regions = int(newtokens[0])
           break
       
-  	
+    
     f.close()
     return num_micro_regions
 
@@ -522,10 +522,10 @@ class Casmo(object):
     f = open(self._directory + self._filename, 'r')
 
     for line in f:
-        if 'k-infinity' in line:
-            tokens = line.split()
-            kinf = float(tokens[2])
-            break
+      if 'k-infinity' in line:
+        tokens = line.split()
+        kinf = float(tokens[2])
+        break
     f.close()
     return kinf
 
@@ -826,25 +826,25 @@ class Casmo(object):
   # @param directory directory where hdf5 data file will be stored
   def exportAvgXSToHDF5(self, assembly_name, directory = 'casmo-data'):
   
-  	#check if cross sections have been computed
+    #check if cross sections have been computed
     if len(self._average_cross_sections) == 0: 
-  	  log.py_printf('WARNING', 'Average Cross Sections do not exist. Call'
+      log.py_printf('WARNING', 'Average Cross Sections do not exist. Call'
       ' averageXSGenerator to compute them.')
       
     else:
     
       #create/set directory in which to store hdf5 file
-			if not os.path.exists(directory):
-				os.makedirs(directory)
-			f = h5py.File(directory + '/' + assembly_name + '-avg-materials.hdf5','w')
-			f.attrs['Energy Groups'] = self._energy_groups
-			
-			#create an hdf5 dataset to store each average cross section
-			for material in self._average_cross_sections.keys():
-				material_group = f.create_group(material)
-				for xs_type in self._average_cross_sections[material].keys():
-					material_group.create_dataset(xs_type,data=self._average_cross_sections[material][xs_type])
-			f.close()
+      if not os.path.exists(directory):
+        os.makedirs(directory)
+      f = h5py.File(directory + '/' + assembly_name + '-avg-materials.hdf5','w')
+      f.attrs['Energy Groups'] = self._energy_groups
+      
+      #create an hdf5 dataset to store each average cross section
+      for material in self._average_cross_sections.keys():
+        material_group = f.create_group(material)
+        for xs_type in self._average_cross_sections[material].keys():
+          material_group.create_dataset(xs_type,data=self._average_cross_sections[material][xs_type])
+      f.close()
    
 
   ##
