@@ -132,11 +132,6 @@ Compiles with debugging symbols and information by including the :envvar:`-g` co
 Compiles OpenMOC without embedding the NumPy C API. This is severely limiting for integrating both OpenMOC source convergence calculations and data analysis into Python, but may be necessary on some machines such as IBM's BlueGene_ where NumPy is not a standard package.
 
 
-.. option:: --with-papi
-
-Compiles all :cpp:class:`Solver` derived classes with PAPI_ instrumentation for performance counter measurements.
-
-
 .. option:: --with-ccache
 
 Compiles using ccache_ which uses a cache to speedup compilation of unchanged source files with the binaries from previous compilations. This flag is only relevant for developers needing to frequently recompile the source code. The ccache p]rogram must be installed for this flag to work. The following console command will install ccache on Ubuntu::
@@ -150,7 +145,6 @@ Compiles using ccache_ which uses a cache to speedup compilation of unchanged so
 .. _bgxlc: http://www-03.ibm.com/software/products/us/en/ccompfami/
 .. _ccache: http://ccache.samba.org
 .. _NVIDIA: http://www.nvidia.com/content/global/global.php
-.. _PAPI: http://icl.cs.utk.edu/papi/
 .. _symbolic links: http://en.wikipedia.org/wiki/Symbolic_link
 .. _BlueGene: http://www-03.ibm.com/systems/technicalcomputing/solutions/bluegene/
 
