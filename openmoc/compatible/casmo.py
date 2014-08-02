@@ -92,6 +92,25 @@ class Casmo(object):
   # @param directory directory of the casmo output file to be parsed (string)
   def setSymmetric(self, is_symmetric): 
     self._symmetric = is_symmetric
+  
+  ##
+  # @brief Checks to see if assembly for casmo output file is symmetric
+  # @param casmo output file
+  def checkSymmetry(self, f):
+    sym_counter = 0
+    for sym_line in f: 
+      if 'LPI' in sym_line: 
+    	  sym_counter += 1  		
+    	  continue
+      if sym_counter ==1: 
+    		sym_tokens = sym_line.split()
+    		if len(sym_tokens) > 2:
+    			self._symmetric = False
+    			break
+    		else: 
+    			self._symmetric = True
+    			break
+  
 
   ##
   # @brief This method parses the casmo output file for the number of
@@ -132,19 +151,7 @@ class Casmo(object):
     f = open(self._directory + self._filename, 'r')
     
     #check for symmetry
-    sym_counter = 0
-    for sym_line in f: 
-    	if 'LPI' in sym_line: 
-    		sym_counter += 1  		
-    		continue
-    	if sym_counter ==1: 
-    		sym_tokens = sym_line.split()
-    		if len(sym_tokens) > 2:
-    			self._symmetric = False
-    			break
-    		else: 
-    			self._symmetric = True
-    			break
+    self.checkSymmetry(f)
     			
     counter = 0
     newcounter = 0
@@ -361,19 +368,7 @@ class Casmo(object):
     f = open(self._directory + self._filename, 'r')
     
     #check for symmetry
-    sym_counter = 0
-    for sym_line in f: 
-    	if 'LPI' in sym_line: 
-    		sym_counter += 1  		
-    		continue
-    	if sym_counter ==1: 
-    		sym_tokens = sym_line.split()
-    		if len(sym_tokens) > 2:
-    			self._symmetric = False
-    			break
-    		else: 
-    			self._symmetric = True
-    			break
+    self.checkSymmetry(f)
     
     
     for line in f:
@@ -430,20 +425,8 @@ class Casmo(object):
     f = open(self._directory + self._filename, 'r')
     counter = 0
     
-   #check for symmetry
-    sym_counter = 0
-    for sym_line in f: 
-    	if 'LPI' in sym_line: 
-    		sym_counter += 1  		
-    		continue
-    	if sym_counter ==1: 
-    		sym_tokens = sym_line.split()
-    		if len(sym_tokens) > 2:
-    			self._symmetric = False
-    			break
-    		else: 
-    			self._symmetric = True
-    			break
+    #check for symmetry
+    self.checkSymmetry(f)
     
     if self._symmetric:
       for line in f:
@@ -577,19 +560,7 @@ class Casmo(object):
     counter = 0
     
     #check for symmetry
-    sym_counter = 0
-    for sym_line in f: 
-    	if 'LPI' in sym_line: 
-    		sym_counter += 1  		
-    		continue
-    	if sym_counter ==1: 
-    		sym_tokens = sym_line.split()
-    		if len(sym_tokens) > 2:
-    			self._symmetric = False
-    			break
-    		else: 
-    			self._symmetric = True
-    			break
+    self.checkSymmetry(f)
     
     for line in f:
       if counter >= 1 and line == '\n':
@@ -665,19 +636,7 @@ class Casmo(object):
     f = open(self._directory + self._filename, 'r')
     
     #check for symmetry
-    sym_counter = 0
-    for sym_line in f: 
-    	if 'LPI' in sym_line: 
-    		sym_counter += 1  		
-    		continue
-    	if sym_counter ==1: 
-    		sym_tokens = sym_line.split()
-    		if len(sym_tokens) > 2:
-    			self._symmetric = False
-    			break
-    		else: 
-    			self._symmetric = True
-    			break
+    self.checkSymmetry(f)
     
     for line in f:
       if counter >=1 and line == '\n':
