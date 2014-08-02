@@ -563,11 +563,14 @@ class Casmo(object):
     self.checkSymmetry(f)
     
     for line in f:
+    
       if counter >= 1 and line == '\n':
         break
+        
       if 'Power Distribution' in line:
         counter += 1
         continue
+        
       if self._symmetric:
         if counter >= 1:
           powers = line.split()
@@ -581,13 +584,16 @@ class Casmo(object):
         pin_power_array[(half_width-1):, 0:(half_width)] = numpy.fliplr(quadrant4)
         pin_power_array[0:(half_width), (half_width-1):] = numpy.flipud(quadrant4)
         pin_power_array[0:(half_width), 0:(half_width)] = numpy.flipud(numpy.fliplr(quadrant4))
+        
       else:
         if counter >= 1:
           powers = line.split()
+          
           for index, power in enumerate(powers):
             power = power.strip('*')
             pin_power_array[counter-1, index] = float(power)
           counter+=1
+          
     f.close()
     return pin_power_array
 
@@ -868,20 +874,27 @@ class Casmo(object):
       val_dict[material] = {}
       for xs_type in variable_dict.keys():
         val_dict[material][xs_type] = []
+        
     for i in range(len(self._string_cell_type_array)):
       for j in range(len(self._string_cell_type_array[i])):
         for xs_type in variable_dict.keys():
+        
+          #if pin cell is guide tube
           if self._string_cell_type_array[i][j]=='g':
             val_dict['water'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
             val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
             for k in range(self._min_microregions[i][j]+1,self._max_microregions[i][j]):
               val_dict['water'][xs_type].append(variable_dict[xs_type][k])
+              
+          #if pin cell is fuel
           elif self._string_cell_type_array[i][j]=='f':
             val_dict['fuel'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
             val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
             val_dict['cladding'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]+1])
             for k in range(self._min_microregions[i][j]+2,self._max_microregions[i][j]):
               val_dict['water'][xs_type].append(variable_dict[xs_type][k])
+              
+          #if pin cell is burnable poison
           elif self._string_cell_type_array[i][j]=='b':
             val_dict['helium'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]-1])
             val_dict['ss304'][xs_type].append(variable_dict[xs_type][self._min_microregions[i][j]])
