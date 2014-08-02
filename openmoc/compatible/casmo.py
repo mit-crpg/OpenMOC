@@ -95,7 +95,7 @@ class Casmo(object):
   
   ##
   # @brief Checks to see if assembly for casmo output file is symmetric
-  # @param casmo output file
+  # @param f casmo output file
   def checkSymmetry(self, f):
     sym_counter = 0
     for sym_line in f: 
