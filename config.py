@@ -3,6 +3,8 @@ import copy
 import numpy
 from distutils.extension import Extension
 from distutils.util import get_platform
+from distutils.dist import Distribution
+from distutils.command.install_lib import install_lib
 
 
 def get_openmoc_object_name():
@@ -21,15 +23,11 @@ def get_openmoc_object_name():
 def get_shared_object_path():
   """Returns the name of the distutils build directory"""
 
-  # For Python 2.X.X
-  if (sys.version_info[0] == 2):
-    directory = 'build/lib.{platform}-{version[0]}.{version[1]}'
-    directory = directory.format(platform=get_platform(),
-                                     version=sys.version_info)
+  install_lib_command = install_lib(Distribution())
+  install_lib_command.initialize_options()
+  install_lib_command.finalize_options()
 
-  # For Python 3.X.X
-  elif (sys.version_info[0] == 3):
-    directory = 'build/lib'
+  directory = install_lib_command.build_dir
 
   return directory
 
