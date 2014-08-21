@@ -14,9 +14,8 @@
  * @param cmfd an optional pointer to a Cmfd object
  */
 VectorizedSolver::VectorizedSolver(Geometry* geometry,
-                                   TrackGenerator* track_generator,
-                                   Cmfd* cmfd) :
-  CPUSolver(geometry, track_generator, cmfd) {
+                                   TrackGenerator* track_generator) :
+  CPUSolver(geometry, track_generator) {
 
   _thread_taus = NULL;
   _thread_exponentials = NULL;

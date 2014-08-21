@@ -1,19 +1,15 @@
 #include "Solver.h"
-
-
 /**
  * @brief Constructor initializes an empty Solver class with array pointers
  *        set to NULL.
- * @details If the constructor receives Geometry, TrackGenerator, and/or
- *          Cmfd objects, it will retrieves the number of energy groups
+ * @details If the constructor receives Geometry and TrackGenerator 
+ *          objects it will retrieves the number of energy groups
  *          and FSRs from the Geometry and azimuthal angles from the
  *          TrackGenerator.
  * @param geometry an optional pointer to a Geometry object
  * @param track_generator an optional pointer to a TrackGenerator object
- * @param cmfd an optional pointer to a Cmfd object object
  */
-Solver::Solver(Geometry* geometry, TrackGenerator* track_generator,
-               Cmfd* cmfd) {
+Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
 
   /* Default values */
   _num_materials = 0;
@@ -49,14 +45,13 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator,
   _interpolate_exponential = true;
   _exp_table = NULL;
 
-  if (geometry != NULL)
+  if (geometry != NULL){
+    setCmfd(geometry->getCmfd());
     setGeometry(geometry);
+  }
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
-
-  if (cmfd != NULL)
-    setCmfd(cmfd);
 
   /* Default polar quadrature */
   _quadrature_type = TABUCHI;
@@ -259,16 +254,6 @@ bool Solver::isUsingExponentialIntrinsic() {
 
 
 /**
- * @brief Returns whether the Solver is has initialized Coarse Mesh
- *        Finite Difference (CMFD) acceleration.
- * @return true if so, false otherwise
- */
-bool Solver::isUsingCmfd() {
-  return _cmfd->getMesh()->getAcceleration();
-}
-
-
-/**
  * @brief Sets the Geometry for the Solver.
  * @details The Geometry must already have initialized FSR offset maps
  *          and segmentized the TrackGenerator's tracks. Each of these
@@ -292,21 +277,12 @@ void Solver::setGeometry(Geometry* geometry) {
     log_printf(ERROR, "Unable to set the Geometry for the Solver "
                "since the Geometry does noet contain any materials");
 
-  if (geometry->getBCTop() == ZERO_FLUX ||
-      geometry->getBCBottom() == ZERO_FLUX ||
-      geometry->getBCLeft() == ZERO_FLUX ||
-      geometry->getBCRight() == ZERO_FLUX)
-    log_printf(ERROR, "You have input a ZERO_FLUX BC for solving an MOC "
-               "transport problem! OpenMOC only supports ZERO_FLUX BCs "
-               "for solving diffusion problems. Please use a different "
-                "BC (VACUUM or REFLECTIVE).");
-
   _geometry = geometry;
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();
   _polar_times_groups = _num_groups * _num_polar;
   _num_materials = _geometry->getNumMaterials();
-  _num_mesh_cells = _geometry->getMesh()->getNumCells();
+  _num_mesh_cells = _cmfd->getNumCells();
 }
 
 
@@ -432,13 +408,8 @@ void Solver::initializeCmfd(){
 
   log_printf(INFO, "Initializing CMFD...");
 
-  /* Initialize a dummy CMFD object if one has not been set */
-  if (_cmfd == NULL)
-    _cmfd = new Cmfd(_geometry);
-
-  if (_cmfd->getNumCmfdGroups() == 0)
-    _cmfd->createGroupStructure(NULL, _num_groups+1);
-
+  /* Give CMFD number of FSRs and FSR property arrays */
+  _cmfd->setNumFSRs(_num_FSRs);
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
@@ -464,7 +435,7 @@ void Solver::checkTrackSpacing() {
   /* Set each tally to zero to begin with */
   #pragma omp parallel for
   for (int r=0; r < _num_FSRs; r++)
-    FSR_segment_tallies[r] = 0;
+      FSR_segment_tallies[r] = 0;
 
   /* Iterate over all azimuthal angles, all tracks, and all Track segments
    * and tally each segment in the corresponding FSR */
@@ -551,10 +522,8 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
   initializeSourceArrays();
   buildExpInterpTable();
   initializeFSRs();
-  initializeCmfd();
-
-  if (_cmfd->getMesh()->getAcceleration())
-    _cmfd->getMesh()->setSurfaceCurrents(_surface_currents);
+  if (_cmfd->getOverlayMesh() && _cmfd->getUpdateFlux())
+    initializeCmfd();
 
   /* Check that each FSR has at least one segment crossing it */
   checkTrackSpacing();
@@ -576,10 +545,9 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     transportSweep();
     addSourceToScalarFlux();
 
-    /* Update the flux with cmfd */
-    if (_cmfd->getMesh()->getAcceleration()){
+    /* Solve CMFD diffusion problem and update MOC flux */
+    if (_cmfd->getOverlayMesh() && _cmfd->getUpdateFlux())
       _k_eff = _cmfd->computeKeff();
-    }
 
     computeKeff();
 

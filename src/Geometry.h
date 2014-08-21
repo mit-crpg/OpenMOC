@@ -15,8 +15,12 @@
 #include <sys/stat.h>
 #include "LocalCoords.h"
 #include "Track.h"
-#include "Mesh.h"
 #include "Surface.h"
+#include "Cmfd.h"
+#include <sstream>
+#include <string>
+#include <omp.h>
+#include <unordered_map>
 #endif
 
 
@@ -32,6 +36,8 @@
 class Geometry {
 
 private:
+
+  omp_lock_t* _num_FSRs_lock;
 
   /** The minimum point along the x-axis contained by Geometry in cm */
   double _x_min;
@@ -67,14 +73,20 @@ private:
   /** The number of energy groups for each Material's nuclear data */
   int _num_groups;
 
-  /** An array of Cell IDs indexed by FSR IDs */
-  int* _FSRs_to_cells;
+  /** An map of FSR keys to unique FSR indices from 0 to _num_FSRs  */
+  std::unordered_map<std::string, int> _FSR_keys_map;
 
-  /** An array of Material UIDs indexed by FSR IDs */
-  int* _FSRs_to_material_UIDs;
+  /** A vector of fsr keys indexed by FSR IDs */
+  std::vector<std::string> _FSRs_to_keys;
 
-  /** An array of Material UIDs indexed by FSR IDs */
-  int* _FSRs_to_material_IDs;
+  /** A vector of Cell IDs indexed by FSR IDs */
+  std::vector<int> _FSRs_to_cells;
+
+  /** A vector of Material UIDs indexed by FSR IDs */
+  std::vector<int> _FSRs_to_material_UIDs;
+
+  /** A vector of Material UIDs indexed by FSR IDs */
+  std::vector<int> _FSRs_to_material_IDs;
 
   /** The maximum Track segment length in the Geometry */
   double _max_seg_length;
@@ -97,20 +109,19 @@ private:
   /** A std::map of Lattice IDs (keys) to Lattice object pointers (values) */
   std::map<int, Lattice*> _lattices;
 
-  /** A CMFD Mesh object pointer */
-  Mesh* _mesh;
+  /** A CMFD object pointer */
+  Cmfd* _cmfd;
 
-  void initializeCellFillPointers();
-
+  void initializeCellFillPointers();  
   Cell* findFirstCell(LocalCoords* coords, double angle);
   Cell* findNextCell(LocalCoords* coords, double angle);
-  Cell* findCell(Universe* univ, int fsr_id);
 
 public:
 
-  Geometry(Mesh* mesh=NULL);
+  Geometry(Cmfd* cmfd=NULL);
   virtual ~Geometry();
 
+  /* get parameters */
   double getWidth();
   double getHeight();
   double getXMin();
@@ -125,8 +136,8 @@ public:
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
-  int* getFSRtoCellMap();
-  int* getFSRtoMaterialMap();
+  std::vector<int> getFSRtoCellMap();
+  std::vector<int> getFSRtoMaterialMap();
   double getMaxSegmentLength();
   double getMinSegmentLength();
   std::map<int, Material*> getMaterials();
@@ -137,38 +148,50 @@ public:
   CellFill* getCellFill(int id);
   Universe* getUniverse(int id);
   Lattice* getLattice(int id);
-  Mesh* getMesh();
+  Cmfd* getCmfd();
+  std::unordered_map<std::string, int> getFSRKeysMap();
+  std::vector<std::string> getFSRsToKeys();
+  std::vector<int> getFSRsToCells();
+  std::vector<int> getFSRsToMaterialUIDs();
+  std::vector<int> getFSRsToMaterialIDs();
+  int getFSRId(LocalCoords* coords);
+  std::string getFSRKey(LocalCoords* coords);
 
+  /* set parameters */
+  void setFSRKeysMap(std::unordered_map<std::string, int> FSR_keys_map);
+  void setFSRsToKeys(std::vector<std::string> FSRs_to_keys);
+  void setFSRsToCells(std::vector<int> FSRs_to_cells);
+  void setFSRsToMaterialUIDs(std::vector<int> FSRs_to_material_UIDs);
+  void setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
+  void setNumFSRs(int num_fsrs);
+
+  /* add object methods */
   void addMaterial(Material* material);
   void addSurface(Surface* surface);
   void addCell(Cell *cell);
   void addUniverse(Universe* universe);
   void addLattice(Lattice* lattice);
 
+  /* remove object methods */
   void removeMaterial(int id);
   void removeCell(int id);
   void removeUniverse(int id);
   void removeLattice(int id);
 
+  /* find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);
   CellBasic* findCellContainingFSR(int fsr_id);
   int findFSRId(LocalCoords* coords);
+
+  /* Other worker methods */
   void subdivideCells();
   void initializeFlatSourceRegions();
   void segmentize(Track* track);
   void computeFissionability(Universe* univ=NULL);
-
   std::string toString();
   void printString();
+  void initializeCmfd();
 
-  void initializeMesh();
-  void findFSRsInCell(Universe* univ, int cell_num, int* fsr_id);
-  void defineMesh(Mesh* mesh, Universe* univ, int depth,
-                  int* meshCellNum, int row, bool base, int fsr_id);
-  int nextLatticeHeight(Universe* univ);
-  void findMeshHeight(Universe* univ, int* height, int depth);
-  void findMeshWidth(Universe* univ, int* width, int depth);
-  int findMeshDepth(Universe* univ, int mesh_level);
 };
 
 #endif /* GEOMETRY_H_ */

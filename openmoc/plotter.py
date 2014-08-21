@@ -436,10 +436,10 @@ def plot_flat_source_regions(geometry, gridsize=250):
   surface = numpy.zeros((gridsize, gridsize))
 
   # Retrieve the bounding box for the Geometry
-  xmin = geometry.getXMin()
-  xmax = geometry.getXMax()
-  ymin = geometry.getYMin()
-  ymax = geometry.getYMax()
+  xmin = geometry.getXMin() + 1e-5
+  xmax = geometry.getXMax() - 1e-5
+  ymin = geometry.getYMin() + 1e-5
+  ymax = geometry.getYMax() - 1e-5
 
   # Initialize numpy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -452,10 +452,10 @@ def plot_flat_source_regions(geometry, gridsize=250):
       x = xcoords[i]
       y = ycoords[j]
 
-      point = LocalCoords(x, y)
-      point.setUniverse(0)
-      geometry.findCellContainingCoords(point)
-      fsr_id = geometry.findFSRId(point)
+      coords = LocalCoords(x, y)
+      coords.setUniverse(0)
+      geometry.findCellContainingCoords(coords)
+      fsr_id = geometry.getFSRId(coords)
       surface[j][i] = color_map[fsr_id % num_fsrs]
 
   # Flip the surface vertically to align NumPy row/column indices with the
@@ -467,6 +467,93 @@ def plot_flat_source_regions(geometry, gridsize=250):
   plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
   plt.title('Flat Source Regions')
   filename = directory + 'flat-source-regions.png'
+  fig.savefig(filename, bbox_inches='tight')
+
+
+##
+# @brief This method takes in a Geometry object and plots a color-coded 2D
+#        surface plot representing the flat source regions in the Geometry.
+# @details The Geometry object must be initialized with Materials, Cells,
+#          Universes and Lattices before being passed into this method. A user
+#          may invoke this function from an OpenMOC Python file as follows:
+#
+# @code
+#         openmoc.plotter.plot_flat_source_regions(geometry)
+# @endcode
+#
+# @param geometry a geometry object which has been initialized with Materials,
+#        Cells, Universes and Lattices
+# @param gridsize an optional number of grid cells for the plot
+def plot_cmfd_cells(geometry, cmfd, gridsize=250):
+
+  global subdirectory
+
+  directory = get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'Geometry' in str(type(geometry)):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'input was not a geometry class object')
+
+  if not isinstance(gridsize, int):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'since the gridsize %s is not an integer', str(gridsize))
+
+  if gridsize <= 0:
+    py_printf('Error', 'Unable to plot the flat source regions ' + \
+              'with a negative gridsize (%d)', gridsize)
+
+  py_printf('NORMAL', 'Plotting the CMFD cells...')
+
+  # Get the number of flat source regions
+  num_cells = cmfd.getNumCells()
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_cells, endpoint=False)
+  numpy.random.shuffle(color_map)
+
+  # Initialize a NumPy array for the surface colors
+  surface = numpy.zeros((gridsize, gridsize))
+
+  # Retrieve the bounding box for the Geometry
+  xmin = geometry.getXMin() + 1e-10
+  xmax = geometry.getXMax() - 1e-10
+  ymin = geometry.getYMin() + 1e-10
+  ymax = geometry.getYMax() - 1e-10
+
+  # Initialize numpy arrays for the grid points
+  xcoords = np.linspace(xmin, xmax, gridsize)
+  ycoords = np.linspace(ymin, ymax, gridsize)
+
+  # Find the flat source region IDs for each grid point
+  for i in range(gridsize):
+    for j in range(gridsize):
+
+      x = xcoords[i]
+      y = ycoords[j]
+
+      coords = LocalCoords(x, y)
+      coords.setUniverse(0)
+      geometry.findCellContainingCoords(coords)
+      fsr_id = geometry.getFSRId(coords)
+      cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)
+      surface[j][i] = color_map[cell_id % num_cells]
+
+  # Flip the surface vertically to align NumPy row/column indices with the
+  # orientation expected by the user
+  surface = np.flipud(surface)
+
+  # Plot a 2D color map of the flat source regions
+  fig = plt.figure()
+  plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
+  plt.title('CMFD cells')
+  filename = directory + 'cmfd-cells.png'
   fig.savefig(filename, bbox_inches='tight')
 
 

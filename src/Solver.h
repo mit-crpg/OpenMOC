@@ -296,8 +296,7 @@ protected:
 
 
 public:
-  Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL,
-         Cmfd* cmfd=NULL);
+  Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
   Geometry* getGeometry();
@@ -313,7 +312,6 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
   bool isUsingExponentialIntrinsic();
-  bool isUsingCmfd();
 
   /**
    * @brief Returns the scalar flux for a FSR and energy group.

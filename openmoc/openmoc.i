@@ -21,7 +21,6 @@
   #include "../src/TrackGenerator.h"
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
-  #include "../src/Mesh.h"
 
   #define printf PySys_WriteStdout
 
@@ -260,7 +259,7 @@
 %apply (int DIM1, int DIM2, int* IN_ARRAY2) {(int num_x, int num_y, int* universes)}
 
 /* The typemap used to match the method signature for the
- * Cmfd::createGroupStructure method. This allows users to set the CMFD group 
+ * Cmfd::setGroupStructure method. This allows users to set the CMFD group 
  * structure using a NumPy array */
 %apply (int* IN_ARRAY1, int DIM1) {(int* group_indices, int ncg)}
 
@@ -307,7 +306,6 @@
 %include ../src/TrackGenerator.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h
-%include ../src/Mesh.h
 
 
 #define printf PySys_WriteStdout

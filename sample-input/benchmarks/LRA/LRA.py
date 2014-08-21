@@ -2,13 +2,27 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
+from openmoc.options import Options
 
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-log.set_log_level('INFO')
+options = Options()
+
+num_threads = options.getNumThreads()
+track_spacing = options.getTrackSpacing()
+num_azim = options.getNumAzimAngles()
+tolerance = options.getTolerance()
+max_iters = options.getMaxIterations()
+relax_factor = options.getCmfdRelaxationFactor()
+acceleration = options.getCmfdAcceleration()
+
+log.set_log_level('NORMAL')
+
+log.py_printf('TITLE', 'Simulating the LRA Benchmark Problem...')
+
 
 ###############################################################################
 ###########################   Creating Materials   ############################
@@ -37,9 +51,9 @@ planes.append(XPlane(x=82.5))
 planes.append(YPlane(y=-82.5))
 planes.append(YPlane(y=82.5))
 planes[0].setBoundaryType(REFLECTIVE)
-planes[1].setBoundaryType(ZERO_FLUX)
+planes[1].setBoundaryType(VACUUM)
 planes[2].setBoundaryType(REFLECTIVE)
-planes[3].setBoundaryType(ZERO_FLUX)
+planes[3].setBoundaryType(VACUUM)
 
 
 ###############################################################################
@@ -165,21 +179,12 @@ core.setLatticeCells([[26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26],
 
 
 ###############################################################################
-###########################   Creating Cmfd Mesh   #############################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating cmfd mesh...')
-
-mesh = Mesh(DIFFUSION)
-
-
-###############################################################################
 ##########################   Creating the Geometry   ##########################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry(mesh)
+geometry = Geometry()
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 geometry.addLattice(assembly1)
@@ -193,16 +198,26 @@ geometry.addLattice(core)
 geometry.initializeFlatSourceRegions()
 
 ###############################################################################
-########################   Creating the Cmfd module   #########################
+########################   Creating the TrackGenerator   ######################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating cmfd...')
+log.py_printf('NORMAL', 'Initializing the track generator...')
 
-cmfd = Cmfd(geometry)
-cmfd.setOmega(1.5)
-cmfd.computeKeff()
+track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.generateTracks()
 
-log.py_printf('NORMAL', 'k_eff = %f', cmfd.getKeff())
+#plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
+
+###############################################################################
+###########################   Running a Simulation   ##########################
+###############################################################################
+
+solver = CPUSolver(geometry, track_generator)
+solver.setSourceConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
+solver.convergeSource(max_iters)
+solver.printTimerReport()
+
 
 ###############################################################################
 ############################   Generating Plots   #############################
@@ -210,10 +225,12 @@ log.py_printf('NORMAL', 'k_eff = %f', cmfd.getKeff())
 
 log.py_printf('NORMAL', 'Plotting data...')
 
+#plotter.plot_tracks(track_generator)
 #plotter.plot_materials(geometry, gridsize=500)
 #plotter.plot_cells(geometry, gridsize=500)
 #plotter.plot_flat_source_regions(geometry, gridsize=500)
-#plotter.plot_mesh_fluxes(mesh, energy_groups=[1,2])
+#plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+#plotter.plot_mesh_fluxes(mesh, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')
 

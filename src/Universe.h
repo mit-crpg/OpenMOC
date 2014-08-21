@@ -70,19 +70,14 @@ protected:
   /** A user-defined id for each Universe created */
   int _id;
 
-  /** The type of Universe (ie, SIMLE or LATTICE) */
+  /** The type of Universe (ie, SIMPLE or LATTICE) */
   universeType _type;
 
   /** A collection of Cell IDs and Cell pointers */
   std::map<int, Cell*> _cells;
 
-  /** The coordinates of the origin for the Universe */
-  Point _origin;
-
-  /** A collection of Cell IDs and their corresponding flat source region IDs.
-   *  This helps for computing FSR IDs and building FSR maps for plotting
-   *  FSR-based quantities such as the scalar flux and pin powers. */
-  std::map<int, int> _region_map;
+  /** The coordinates of the offset for the Universe */
+  Point _offset;
 
   /** A boolean representing whether or not this Universe contains a Material
    *  with a non-zero fission cross-section and is fissionable */
@@ -103,19 +98,18 @@ public:
   int getId() const;
   universeType getType();
   int getNumCells() const;
-  int getFSR(int cell_id);
-  Point* getOrigin();
+  Point* getOffset();
   std::vector<int> getMaterialIds();
   std::vector<int> getNestedUniverseIds();
   void getCellIds(int* cell_ids, int num_cells);
   bool isFissionable();
 
   void setType(universeType type);
-  void setOrigin(Point* origin);
+  void setOffset(double x, double y);
   void setFissionability(bool fissionable);
 
   Cell* findCell(LocalCoords* coords, std::map<int, Universe*> universes);
-  int computeFSRMaps();
+  double minSurfaceDist(Point* point, double angle);
   void subdivideCells();
   std::string toString();
   void printString();
@@ -147,9 +141,6 @@ private:
   /** A container of Universes ? */
   std::vector< std::vector< std::pair<int, Universe*> > > _universes;
 
-  /** A container of the number of FSRs in each Lattice cell */
-  std::vector< std::vector< std::pair<int, int> > > _region_map;
-
 public:
 
   Lattice(const int id, const double width_x, const double width_y);
@@ -157,24 +148,27 @@ public:
 
   int getNumX() const;
   int getNumY() const;
-  Point* getOrigin();
+  void setNumX(int num_x);
+  void setNumY(int num_y);
   std::vector< std::vector< std::pair<int, Universe*> > >
                                            getUniverses() const;
   Universe* getUniverse(int lattice_x, int lattice_y) const;
   double getWidthX() const;
   double getWidthY() const;
-  int getFSR(int lat_x, int lat_y);
   std::vector<int> getNestedUniverseIds();
+
+  int getLatX(Point* point);
+  int getLatY(Point* point);
+
+  int getLatticeCell(Point* point);
+  int getLatticeSurface(int cell, Point* point);
 
   void setLatticeCells(int num_x, int num_y, int* universes);
   void setUniversePointer(Universe* universe);
 
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords, std::map<int, Universe*> universes);
-  Cell* findNextLatticeCell(LocalCoords* coords, double angle,
-                            std::map<int, Universe*> universes);
-  int computeFSRMaps();
-
+  double minSurfaceDist(Point* point, double angle);
   std::string toString();
   void printString();
 };
