@@ -1392,6 +1392,8 @@ void Cmfd::splitCorners(){
 
   log_printf(INFO, "splitting corners...");
     
+  int ncg = _num_cmfd_groups;
+
   for (int x = 0; x < _cx; x++){
     for (int y = 0; y < _cy; y++){
         
@@ -1401,32 +1403,45 @@ void Cmfd::splitCorners(){
        * give to bottom surface and left surface of mesh cell below */
       if (x > 0 && y > 0){
     
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 1*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 +                 e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e];
-          _currents[((y-1)*_cx+x)*_num_cmfd_groups*8 +                 e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e];
-          _currents[(y*_cx+x-1)  *_num_cmfd_groups*8 + 1*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f",
+                     y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 4*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + 1*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 4*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 4*ncg + e];
+          _currents[((y-1)*_cx+x)*ncg*8 + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 4*ncg + e];
+          _currents[(y*_cx+x-1)*ncg*8 + 1*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 4*ncg + e];
         }
       }
       /* if cell is on left geometry edge
        * give to bottom surface and left surfaces */
       else if (x == 0 && y != 0){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 1*_num_cmfd_groups + e] +=       _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 +                 e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e];
-          _currents[((y-1)*_cx+x)*_num_cmfd_groups*8 +                 e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f", 
+                     y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 4*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + 1*ncg + e] += 
+              _currents[(y*_cx+x)*ncg*8 + 4*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 4*ncg + e];
+          _currents[((y-1)*_cx+x)*ncg*8 + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 4*ncg + e];
         }
       }
       /* if cell is on bottom geometry edge
        * give to bottom surface and left surfaces */
       else if (x != 0 && y == 0){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)  *_num_cmfd_groups*8 + 1*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)  *_num_cmfd_groups*8 +                 e] +=       _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e];
-          _currents[(y*_cx+x-1)*_num_cmfd_groups*8 + 1*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f", 
+                     y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 4*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + 1*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 4*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + e] += 
+              _currents[(y*_cx+x)*ncg*8 + 4*ncg + e];
+          _currents[(y*_cx+x-1)*ncg*8 + 1*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 4*ncg + e];
         }
       }
       
@@ -1435,32 +1450,45 @@ void Cmfd::splitCorners(){
       /* if cell is not on right or bottom geometry edge
        * give to bottom surface and right surface of mesh cell below */
       if (x < _cx - 1 && y > 0){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 1*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 2*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e];
-          _currents[((y-1)*_cx+x)*_num_cmfd_groups*8 + 2*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e];
-          _currents[(y*_cx+x+1)  *_num_cmfd_groups*8 + 1*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f", 
+        y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 5*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + 1*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 5*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + 2*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 5*ncg + e];
+          _currents[((y-1)*_cx+x)*ncg*8 + 2*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 5*ncg + e];
+          _currents[(y*_cx+x+1)*ncg*8 + 1*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 5*ncg + e];
         }
       }
       /* if cell is on right geometry edge
        * give to bottom surface and right surface */
       else if (x == _cx - 1 && y > 0){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 1*_num_cmfd_groups + e] +=       _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 2*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e];
-          _currents[((y-1)*_cx+x)*_num_cmfd_groups*8 + 2*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f", 
+                     y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 5*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + 1*ncg + e] += 
+              _currents[(y*_cx+x)*ncg*8 + 5*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + 2*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 5*ncg + e];
+          _currents[((y-1)*_cx+x)*ncg*8 + 2*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 5*ncg + e];
         }
       }
       /* if cell is on bottom geometry edge
        * give to bottom surface and right surface */
       else if (x < _cx - 1 && y == 0){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)  *_num_cmfd_groups*8 + 1*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)  *_num_cmfd_groups*8 + 2*_num_cmfd_groups + e] +=       _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e];
-          _currents[(y*_cx+x+1)*_num_cmfd_groups*8 + 1*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f", 
+                     y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 5*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + 1*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 5*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + 2*ncg + e] += 
+              _currents[(y*_cx+x)*ncg*8 + 5*ncg + e];
+          _currents[(y*_cx+x+1)*ncg*8 + 1*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 5*ncg + e];
         }
       }
       
@@ -1469,32 +1497,45 @@ void Cmfd::splitCorners(){
       /* if cell is not on right or top geometry edge
        * give to right surface and top surface of mesh cell to the right */
       if (x < _cx - 1 && y < _cy - 1){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 2*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 3*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e];
-          _currents[(y*_cx+x+1)  *_num_cmfd_groups*8 + 3*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e];
-          _currents[((y+1)*_cx+x)*_num_cmfd_groups*8 + 2*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f", 
+                     y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 6*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + 2*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 6*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + 3*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 6*ncg + e];
+          _currents[(y*_cx+x+1)*ncg*8 + 3*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 6*ncg + e];
+          _currents[((y+1)*_cx+x)*ncg*8 + 2*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 6*ncg + e];
         }
       }
       /* if cell is on right geometry edge
        * give to right surface and top surface */
       else if (x == _cx - 1 && y != _cy - 1){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 2*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 3*_num_cmfd_groups + e] +=       _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e];
-          _currents[((y+1)*_cx+x)*_num_cmfd_groups*8 + 2*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f", 
+                     y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 6*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + 2*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 6*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + 3*ncg + e] += 
+              _currents[(y*_cx+x)*ncg*8 + 6*ncg + e];
+          _currents[((y+1)*_cx+x)*ncg*8 + 2*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 6*ncg + e];
         }
       }
       /* if cell is on top geometry edge
        * give to right surface and top surface */
       else if (x != _cx - 1 && y == _cy - 1){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)  *_num_cmfd_groups*8 + 2*_num_cmfd_groups + e] += _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)  *_num_cmfd_groups*8 + 3*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e];
-          _currents[(y*_cx+x+1)*_num_cmfd_groups*8 + 3*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f", 
+                     y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 6*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + 2*ncg + e] += 
+              _currents[(y*_cx+x)*ncg*8 + 6*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + 3*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 6*ncg + e];
+          _currents[(y*_cx+x+1)*ncg*8 + 3*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 6*ncg + e];
         }
       }
       
@@ -1503,40 +1544,53 @@ void Cmfd::splitCorners(){
       /* if cell is not on left or top geometry edge
        * give to left surface and top surface of mesh cell to the left */
       if (x > 0 && y < _cy - 1){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 +                 e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 3*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e];
-          _currents[(y*_cx+x-1)  *_num_cmfd_groups*8 + 3*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e];
-          _currents[((y+1)*_cx+x)*_num_cmfd_groups*8 +                 e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f", 
+                     y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 7*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 7*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + 3*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 7*ncg + e];
+          _currents[(y*_cx+x-1)*ncg*8 + 3*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 7*ncg + e];
+          _currents[((y+1)*_cx+x)*ncg*8 + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 7*ncg + e];
         }
       }
       /* if cell is on left geometry edge
        * give to top surface and left surface */
       else if (x == 0 && y != _cy - 1){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 +                 e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)    *_num_cmfd_groups*8 + 3*_num_cmfd_groups + e] +=       _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e];
-          _currents[((y+1)*_cx+x)*_num_cmfd_groups*8 +                 e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f", 
+        y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 7*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 7*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + 3*ncg + e] += 
+              _currents[(y*_cx+x)*ncg*8 + 7*ncg + e];
+          _currents[((y+1)*_cx+x)*ncg*8 + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 7*ncg + e];
         }
       }
       /* if cell is on top geometry edge
        * give to top surface and left surface */
       else if (x != 0 && y == _cy - 1){
-        for (int e = 0; e < _num_cmfd_groups; e++){
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f", y*_cx+x,e, _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e]);
-          _currents[(y*_cx+x)  *_num_cmfd_groups*8 +                 e] += _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e];
-          _currents[(y*_cx+x)  *_num_cmfd_groups*8 + 3*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e];
-          _currents[(y*_cx+x-1)*_num_cmfd_groups*8 + 3*_num_cmfd_groups + e] += 0.5 * _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e];
+        for (int e = 0; e < ncg; e++){
+          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f", 
+        y*_cx+x,e, _currents[(y*_cx+x)*ncg*8 + 7*ncg + e]);
+          _currents[(y*_cx+x)*ncg*8 + e] += 
+              _currents[(y*_cx+x)*ncg*8 + 7*ncg + e];
+          _currents[(y*_cx+x)*ncg*8 + 3*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 7*ncg + e];
+          _currents[(y*_cx+x-1)*ncg*8 + 3*ncg + e] += 
+              0.5 * _currents[(y*_cx+x)*ncg*8 + 7*ncg + e];
         }
       }
       
-      for (int e = 0; e < _num_cmfd_groups; e++){
-        _currents[(y*_cx+x)*_num_cmfd_groups*8 + 4*_num_cmfd_groups + e] = 0.0;
-        _currents[(y*_cx+x)*_num_cmfd_groups*8 + 5*_num_cmfd_groups + e] = 0.0;
-        _currents[(y*_cx+x)*_num_cmfd_groups*8 + 6*_num_cmfd_groups + e] = 0.0;
-        _currents[(y*_cx+x)*_num_cmfd_groups*8 + 7*_num_cmfd_groups + e] = 0.0;
+      for (int e = 0; e < ncg; e++){
+        _currents[(y*_cx+x)*ncg*8 + 4*ncg + e] = 0.0;
+        _currents[(y*_cx+x)*ncg*8 + 5*ncg + e] = 0.0;
+        _currents[(y*_cx+x)*ncg*8 + 6*ncg + e] = 0.0;
+        _currents[(y*_cx+x)*ncg*8 + 7*ncg + e] = 0.0;
       }
     }
   }

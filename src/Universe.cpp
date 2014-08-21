@@ -492,13 +492,13 @@ Universe* Universe::clone() {
     /* If the Cell is filled with a Material, clone it */
     if ((*iter1).second->getType() == MATERIAL) {
 
-        /* Clone the Cell */
-        CellBasic* parent = static_cast<CellBasic*>((*iter1).second);
-        CellBasic* cell_clone = parent->clone();
-        
-        /* Add Cell clone to the list */
-        clone->addCell(cell_clone);
-        cell_clone->setUniverse(clone->getId());
+      /* Clone the Cell */
+      CellBasic* parent = static_cast<CellBasic*>((*iter1).second);
+      CellBasic* cell_clone = parent->clone();
+      
+      /* Add Cell clone to the list */
+      clone->addCell(cell_clone);
+      cell_clone->setUniverse(clone->getId());
     }
     
     /* Throw error message if Cell is FILL type */

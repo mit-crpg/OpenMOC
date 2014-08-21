@@ -370,7 +370,7 @@ void CPUSolver::initializeFSRs() {
   }
 
   /* Loop over all FSRs to extract FSR material pointers */
-  //#pragma omp parallel for private(cell, material) schedule(guided)
+  #pragma omp parallel for private(cell, material) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     /* Get the Cell corresponding to this FSR from the geometry */
@@ -528,7 +528,7 @@ void CPUSolver::normalizeFluxes() {
   for (int r=0; r < _num_FSRs; r++) {
 
     /* Get pointers to important data structures */
-      nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
+    nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
     volume = _FSR_volumes[r];
 
     for (int e=0; e < _num_groups; e++)
@@ -641,8 +641,8 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 
       /* Compute the norm of residual of the source in the FSR */
       if (fabs(_source(r,G)) > 1E-10)
-          _source_residuals[r] += pow((_source(r,G) - _old_source(r,G))
-                                / _source(r,G), 2);
+        _source_residuals[r] += pow((_source(r,G) - _old_source(r,G))
+                                    / _source(r,G), 2);
 
       /* Update the old source */
       _old_source(r,G) = _source(r,G);

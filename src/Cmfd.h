@@ -44,7 +44,7 @@ private:
   /** The A (destruction) matrix */
   double** _A;
 
-  /** The M (fission) matrix */
+  /** The M (production) matrix */
   double** _M;
 
   /** The old source vector */

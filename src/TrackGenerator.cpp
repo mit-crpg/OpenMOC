@@ -1023,7 +1023,7 @@ void TrackGenerator::dumpTracksToFile() {
 
   /* Write geometry metadata to the Track file */
   fwrite(&string_length, sizeof(int), 1, out);
-  fwrite(geometry_to_string.c_str(), sizeof(char)*(string_length), 1, out);
+  fwrite(geometry_to_string.c_str(), sizeof(char)*string_length, 1, out);
 
   /* Write ray tracing metadata to the Track file */
   fwrite(&_num_azim, sizeof(int), 1, out);
@@ -1051,8 +1051,8 @@ void TrackGenerator::dumpTracksToFile() {
   double length;
   int material_id;
   int region_id;
-  int mesh_surface_fwd;
-  int mesh_surface_bwd;
+  int cmfd_surface_fwd;
+  int cmfd_surface_bwd;
 
   /* Loop over all Tracks */
   for (int i=0; i < _num_azim; i++) {
@@ -1093,10 +1093,10 @@ void TrackGenerator::dumpTracksToFile() {
 
         /* Write CMFD-related data for the Track if needed */
         if (cmfd->getOverlayMesh()){
-          mesh_surface_fwd = curr_segment->_cmfd_surface_fwd;
-          mesh_surface_bwd = curr_segment->_cmfd_surface_bwd;
-          fwrite(&mesh_surface_fwd, sizeof(int), 1, out);
-          fwrite(&mesh_surface_bwd, sizeof(int), 1, out);
+          cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+          cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+          fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
+          fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
         }
       }
     }      
@@ -1231,8 +1231,8 @@ bool TrackGenerator::readTracksFromFile() {
   int material_id;
   int region_id;
 
-  int mesh_surface_fwd;
-  int mesh_surface_bwd;
+  int cmfd_surface_fwd;
+  int cmfd_surface_bwd;
 
   /* Calculate the total number of Tracks */
   for (int i=0; i < _num_azim; i++)
@@ -1285,10 +1285,10 @@ bool TrackGenerator::readTracksFromFile() {
 
         /* Import CMFD-related data if needed */
         if (cmfd->getOverlayMesh()){
-          ret = fread(&mesh_surface_fwd, sizeof(int), 1, in);
-          ret = fread(&mesh_surface_bwd, sizeof(int), 1, in);
-          curr_segment->_cmfd_surface_fwd = mesh_surface_fwd;
-          curr_segment->_cmfd_surface_bwd = mesh_surface_bwd;
+          ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
+          ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
+          curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+          curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
         }
 
         /* Add this segment to the Track */

@@ -518,7 +518,7 @@ void CellBasic::ringify() {
           continue;
         }
         else
-            ring->addSurface(+1, *(iter2+1));
+          ring->addSurface(+1, *(iter2+1));
 
         /* Store the clone in the parent Cell's container of ring Cells */
         _rings.push_back(ring);
@@ -543,7 +543,7 @@ void CellBasic::ringify() {
         break;
       }
       else
-          ring->addSurface(+1, *(iter2+1));
+        ring->addSurface(+1, *(iter2+1));
 
       /* Store the clone in the parent Cell's container of ring Cells */
       _rings.push_back(ring);

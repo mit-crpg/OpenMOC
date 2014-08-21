@@ -921,12 +921,14 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
     * universe or lattice cell. Recheck min_dist. */
     while (coords != NULL) {
 
-      /* If we reach a LocalCoord in a Lattice, delete all lower level
-       * LocalCoords in linked list and break loop. */
+      /* If we reach a LocalCoord in a Lattice, find the distance to the
+      * nearest lattice cell boundary */
       if (coords->getType() == LAT) {
         Lattice* lattice = _lattices.at(coords->getLattice());
         dist = lattice->minSurfaceDist(coords->getPoint(), angle);
       }
+      /* If we reach a LocalCoord in a Universe, find the distance to the
+      * nearest cell surface */
       else{
         Universe* universe = _universes.at(coords->getUniverse());
         dist = universe->minSurfaceDist(coords->getPoint(), angle);
@@ -944,7 +946,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
       }
     }
 
-    /* check for distance to CMFD mesh */
+    /* check for distance to nearest CMFD mesh cell boundary */
     if (_cmfd->getOverlayMesh()){
       Lattice* lattice = _cmfd->getLattice();
       dist = lattice->minSurfaceDist(coords->getPoint(), angle);
@@ -1009,18 +1011,35 @@ int Geometry::findFSRId(LocalCoords* coords) {
 }
 
 
+/**
+ * @brief Return the ID of the flat source region that a given
+ *        LocalCoords object resides within.
+ * @param coords a LocalCoords object pointer
+ * @return the FSR ID for a given LocalCoords object
+ */
 int Geometry::getFSRId(LocalCoords* coords) {
   return _FSR_keys_map.at(getFSRKey(coords));
 }
 
 
+/**
+ * @brief Generate a string FSR "key" that identifies an FSR by its
+ *        unique hierarchical lattice/universe/cell structure.
+ * @detail Since not all FSRs will reside on the absolute lowest universe
+ *         level and Cells might overlap other cells, it is important to
+ *         have a method for uniquely identifying FSRs. This method
+ *         createds a unique FSR key by constructing a structured string
+ *         that describes the hierarchy of lattices/universes/cells.
+ * @param coords a LocalCoords object pointer
+ * @return the FSR key
+ */
 std::string Geometry::getFSRKey(LocalCoords* coords) {
 
   std::stringstream key;
   LocalCoords* curr = coords->getHighestLevel();
   std::ostringstream ostr;
 
-  /* if CMFD is on, get CMFD latice cell and write to key */
+  /* If CMFD is on, get CMFD latice cell and write to key */
   if (_cmfd->getOverlayMesh()){
       ostr << _cmfd->getLattice()->getLatX(curr->getPoint());
       key << "CMFD = (" << ostr.str() << ", ";
@@ -1029,6 +1048,8 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
       key << ostr.str() << ") : ";
   }
 
+  /* Descend the linked list hierarchy until the lowest level has
+   * been reached */
   while(curr != NULL){
       
     /* clear string stream */

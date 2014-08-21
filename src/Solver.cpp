@@ -435,7 +435,7 @@ void Solver::checkTrackSpacing() {
   /* Set each tally to zero to begin with */
   #pragma omp parallel for
   for (int r=0; r < _num_FSRs; r++)
-      FSR_segment_tallies[r] = 0;
+    FSR_segment_tallies[r] = 0;
 
   /* Iterate over all azimuthal angles, all tracks, and all Track segments
    * and tally each segment in the corresponding FSR */
