@@ -155,7 +155,7 @@ public:
   int findFSRId(LocalCoords* coords);
   void subdivideCells();
   void initializeFlatSourceRegions();
-  void segmentize(Track* track);
+  void segmentize(Track* track, FP_PRECISION max_optical_length);
   void computeFissionability(Universe* univ=NULL);
 
   std::string toString();
