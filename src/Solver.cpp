@@ -289,6 +289,9 @@ void Solver::setGeometry(Geometry* geometry) {
                "Geometry has not yet initialized FSRs");
 
   geometry->checkMaterials();
+  if (geometry->getNumEnergyGroups() == 0)
+    log_printf(ERROR, "Unable to set the Geometry for the Solver "
+               "since the Geometry does noet contain any materials");
 
   if (geometry->getBCTop() == ZERO_FLUX ||
       geometry->getBCBottom() == ZERO_FLUX ||
