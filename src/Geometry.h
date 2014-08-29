@@ -169,6 +169,7 @@ public:
   void findMeshHeight(Universe* univ, int* height, int depth);
   void findMeshWidth(Universe* univ, int* width, int depth);
   int findMeshDepth(Universe* univ, int mesh_level);
+  void checkMaterials();
 };
 
 #endif /* GEOMETRY_H_ */
