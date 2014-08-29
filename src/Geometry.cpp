@@ -452,7 +452,10 @@ void Geometry::addMaterial(Material* material) {
   }
 }
 
-
+/**
+ * @brief Check that all Materials in Geometry have the same number
+ *    of energy groups.
+ */
 void Geometry::checkMaterials() {
   
   log_printf(NORMAL, "Greetings.");
