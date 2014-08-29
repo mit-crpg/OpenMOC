@@ -458,8 +458,6 @@ void Geometry::addMaterial(Material* material) {
  */
 void Geometry::checkMaterials() {
   
-  log_printf(NORMAL, "Greetings.");
-  
   std::map<int,Material*>::iterator iter;
   
   _num_groups = 0;
