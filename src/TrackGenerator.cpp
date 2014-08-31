@@ -1265,14 +1265,14 @@ bool TrackGenerator::readTracksFromFile() {
 
 /**
  * @brief Set the maximum allowable optical length for a track segment
- * @param tau The max optical length
+ * @param max_optical_length The max optical length
  */
-void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
-  if (tau < 0)
+void TrackGenerator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+  if (max_optical_length <= 0)
     log_printf(ERROR, "Cannot set max optical length to %f because it "
-        "must be positive.", tau); 
+               "must be positive.", max_optical_length); 
         
-  _max_optical_length = tau;
+  _max_optical_length = max_optical_length;
 }
 
 /**

@@ -459,13 +459,14 @@ void Geometry::addMaterial(Material* material) {
 void Geometry::checkMaterials() {
   
   std::map<int,Material*>::iterator iter;
+  int mat_id;
+  int num_groups;
   
   _num_groups = 0;
   
   
   for (iter = _materials.begin(); iter != _materials.end(); ++iter) {
-    int mat_id;
-    int num_groups = iter->second->getNumEnergyGroups();
+    num_groups = iter->second->getNumEnergyGroups();
     
     if (_num_groups == 0) {
       _num_groups = num_groups;
@@ -1306,6 +1307,8 @@ void Geometry::initializeFlatSourceRegions() {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
+ * @param max_optical_length the maximum optical length a segment is allowed to
+ *          have
  */
 void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
 
@@ -1374,7 +1377,7 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
     for (int g=0; g < num_groups; g++) {
       num_segments = ceil(segment_length * sigma_t[g] / max_optical_length);
       if (num_segments > min_num_segments)
-      min_num_segments = num_segments;
+        min_num_segments = num_segments;
     }
 
     /* "Cut up" Track segment into sub-segments such that the length of each

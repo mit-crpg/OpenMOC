@@ -272,8 +272,6 @@ void CPUSolver::initializePolarQuadrature() {
 /**
  * @brief Builds a linear interpolation table to compute exponentials for
  *        each segment of each Track for each polar angle.
- * @param max_optical_length The maximum value needed in the exponential
- *        table.
  */
 void CPUSolver::buildExpInterpTable() {
 

@@ -58,7 +58,7 @@ private:
    *  azimuthal angle */
   int* _num_y;
   
-  /** The maximum optical length a track is allowed to have */
+  /** The default maximum optical length a track is allowed to have */
   FP_PRECISION _max_optical_length = 10;
 
   /** An array of the azimuthal angle quadrature weights */
@@ -110,7 +110,7 @@ public:
   void setNumAzim(int num_azim);
   void setTrackSpacing(double spacing);
   void setGeometry(Geometry* geometry);
-  void setMaxOpticalLength(FP_PRECISION tau);
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
 
   bool containsTracks();
   void retrieveTrackCoords(double* coords, int num_tracks);
