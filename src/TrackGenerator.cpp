@@ -974,7 +974,7 @@ void TrackGenerator::segmentize() {
         track = &_tracks[i][j];
         log_printf(DEBUG, "Segmenting Track %d/%d with i = %d, j = %d",
         track->getUid(), _tot_num_tracks, i, j);
-        _geometry->segmentize(track);
+        _geometry->segmentize(track,_max_optical_length);
       }
     }
 
@@ -1261,3 +1261,41 @@ bool TrackGenerator::readTracksFromFile() {
 
   return true;
 }
+
+
+/**
+ * @brief Set the maximum allowable optical length for a track segment
+ * @param max_optical_length The max optical length
+ */
+void TrackGenerator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+  if (max_optical_length <= 0)
+    log_printf(ERROR, "Cannot set max optical length to %f because it "
+               "must be positive.", max_optical_length); 
+        
+  _max_optical_length = max_optical_length;
+}
+
+/**
+ * @brief Get the maximum allowable optical lenght for a track segment
+ * @return The max optical length
+ */
+FP_PRECISION TrackGenerator::getMaxOpticalLength() {
+  return _max_optical_length;
+}
+
+/**
+ * @brief Get the total number of tracks in the TrackGenerator
+ * @return the total number of tracks
+ */
+int TrackGenerator::getTotNumTracks() {
+  return _tot_num_tracks;
+}
+
+/**
+ * @brief Get the total number of track segments in the TrackGenerator
+ * @return the total number of track segments
+ */
+int TrackGenerator::getTotNumSegments() {
+  return _tot_num_segments;
+}
+

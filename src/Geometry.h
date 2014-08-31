@@ -155,7 +155,7 @@ public:
   int findFSRId(LocalCoords* coords);
   void subdivideCells();
   void initializeFlatSourceRegions();
-  void segmentize(Track* track);
+  void segmentize(Track* track, FP_PRECISION max_optical_length);
   void computeFissionability(Universe* univ=NULL);
 
   std::string toString();
@@ -169,6 +169,7 @@ public:
   void findMeshHeight(Universe* univ, int* height, int depth);
   void findMeshWidth(Universe* univ, int* width, int depth);
   int findMeshDepth(Universe* univ, int mesh_level);
+  void checkMaterials();
 };
 
 #endif /* GEOMETRY_H_ */
