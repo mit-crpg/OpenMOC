@@ -427,17 +427,17 @@ void TrackGenerator::initializeTrackFileDirectory() {
   if (!stat(directory.str().c_str(), &st) == 0)
     mkdir(directory.str().c_str(), S_IRWXU);
 
-  if (_geometry->getCmfd()->getOverlayMesh()){
-    test_filename << directory.str() << "/tracks_"
-                  <<  _num_azim*2.0 << "_angles_"
+  if (_geometry->getCmfd() != NULL){
+    test_filename << directory.str() << "/"
+                  << _num_azim*2.0 << "_angles_"
                   << _spacing << "_cm_spacing_cmfd_"
                   << _geometry->getCmfd()->getNumX() 
                   << "x" << _geometry->getCmfd()->getNumY()
                   << ".data";
     }
   else{
-    test_filename << directory.str() << "/tracks_"
-                  <<  _num_azim*2.0 << "_angles_"
+    test_filename << directory.str() << "/"
+                  << _num_azim*2.0 << "_angles_"
                   << _spacing << "_cm_spacing.data";
   }
 
@@ -1092,7 +1092,7 @@ void TrackGenerator::dumpTracksToFile() {
         fwrite(&region_id, sizeof(int), 1, out);
 
         /* Write CMFD-related data for the Track if needed */
-        if (cmfd->getOverlayMesh()){
+        if (cmfd != NULL){
           cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
           cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
           fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
@@ -1102,31 +1102,45 @@ void TrackGenerator::dumpTracksToFile() {
     }      
   }
 
-  /* get FSR vector maps */
-  std::vector<std::string> FSRs_to_keys = _geometry->getFSRsToKeys();
-  std::vector<int> FSRs_to_cells = _geometry->getFSRsToCells();
-  std::vector<int> FSRs_to_material_UIDs = _geometry->getFSRsToMaterialUIDs();
-  std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
-  std::string fsr_key;
+  /* Get FSR vector maps */
+  std::map<std::size_t, fsr_data> FSR_keys_map = _geometry->getFSRKeysMap();
+  std::map<std::size_t, fsr_data>::iterator iter;
+  std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterials();
+  std::size_t fsr_key;
+  int fsr_id;
+  int fsr_counter = 0;
+  double x, y;
 
-  /* write number of FSRs */
+  /* Write number of FSRs */
   int num_FSRs = _geometry->getNumFSRs();
   fwrite(&num_FSRs, sizeof(int), 1, out);
 
-  /* write FSR vector maps to file */
-  for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++){
+  /* Write FSR vector maps to file */
+  for (iter = FSR_keys_map.begin(); iter != FSR_keys_map.end(); ++iter){
 
-    fsr_key = FSRs_to_keys.at(fsr_id);
-    string_length = fsr_key.length() + 1;
-    fwrite(&string_length, sizeof(int), 1, out);
-    fwrite(fsr_key.c_str(), sizeof(char)*string_length, 1, out);
-    fwrite(&(FSRs_to_cells.at(fsr_id)), sizeof(int), 1, out);
-    fwrite(&(FSRs_to_material_UIDs.at(fsr_id)), sizeof(int), 1, out);
-    fwrite(&(FSRs_to_material_IDs.at(fsr_id)), sizeof(int), 1, out);
+    /* Write data to file from FSR_keys_map */
+    fsr_key = iter->first;
+    fsr_id = iter->second._fsr_id;
+    x = iter->second._point->getX();
+    y = iter->second._point->getY();
+    fwrite(&fsr_key, sizeof(std::size_t), 1, out);
+    fwrite(&fsr_id, sizeof(int), 1, out);
+    fwrite(&x, sizeof(double), 1, out);
+    fwrite(&y, sizeof(double), 1, out);
+    
+    /* Write data to file from FSRs_to_material_IDs */
+    fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
+
+    /* Write data to file from FSRs_to_keys */
+    fwrite(&(FSRs_to_keys.at(fsr_counter)), sizeof(std::size_t), 1, out);
+
+    /* Increment FSR ID counter */
+    fsr_counter++;
   }
 
-  /* write cmfd_fsrs vector of vectors to file */
-  if (cmfd->getOverlayMesh()){
+  /* Write cmfd_fsrs vector of vectors to file */
+  if (cmfd != NULL){
     std::vector< std::vector<int> > cell_fsrs = cmfd->getCellFSRs();
     std::vector<int>::iterator iter;
     int num_cells = cmfd->getNumCells();
@@ -1138,7 +1152,8 @@ void TrackGenerator::dumpTracksToFile() {
       fwrite(&num_FSRs, sizeof(int), 1, out);
 
       /* Loop over FSRs within cell */
-      for (iter = cell_fsrs.at(cell).begin(); iter != cell_fsrs.at(cell).end(); ++iter)
+      for (iter = cell_fsrs.at(cell).begin(); iter != cell_fsrs.at(cell).end();
+          ++iter)
         fwrite(&(*iter), sizeof(int), 1, out);
     }        
   }   
@@ -1284,7 +1299,7 @@ bool TrackGenerator::readTracksFromFile() {
         curr_segment->_region_id = region_id;
 
         /* Import CMFD-related data if needed */
-        if (cmfd->getOverlayMesh()){
+        if (cmfd != NULL){
           ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
           ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
           curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
@@ -1300,12 +1315,13 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Create FSR vector maps */
-  std::unordered_map<std::string, int> FSR_keys_map;
-  std::vector<std::string> FSRs_to_keys;
-  std::vector<int> FSRs_to_cells;
-  std::vector<int> FSRs_to_material_UIDs;
+  std::map<std::size_t, fsr_data> FSR_keys_map;
   std::vector<int> FSRs_to_material_IDs;
-  int cell_id, material_uid, num_FSRs;
+  std::vector<std::size_t> FSRs_to_keys;
+  int num_FSRs;
+  std::size_t fsr_key;
+  int fsr_key_id;
+  double x, y;
 
   /* Get number of FSRs */
   ret = fread(&num_FSRs, sizeof(int), 1, in);
@@ -1314,32 +1330,34 @@ bool TrackGenerator::readTracksFromFile() {
   /* Read FSR vector maps from file */
   for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++){
 
-    ret = fread(&string_length, sizeof(int), 1, in);
-    char* fsr_key = new char[string_length];
-    ret = fread(fsr_key, sizeof(char)*string_length, 1, in);
-    ret = fread(&cell_id, sizeof(int), 1, in);
-    ret = fread(&material_uid, sizeof(int), 1, in);
-    ret = fread(&material_id, sizeof(int), 1, in);
+    /* Read data from file for FSR_keys_map */
+    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
+    ret = fread(&fsr_key_id, sizeof(int), 1, in);
+    ret = fread(&x, sizeof(double), 1, in);
+    ret = fread(&y, sizeof(double), 1, in);
+    fsr_data* fsr = new fsr_data;
+    fsr->_fsr_id = fsr_key_id;
+    Point* point = new Point();
+    point->setCoords(x,y);
+    fsr->_point = point;
+    FSR_keys_map[fsr_key] = *fsr;
 
-    FSR_keys_map.insert(std::unordered_map<std::string, int>::value_type
-          (std::string(fsr_key), fsr_id));
-    FSRs_to_keys.push_back(std::string(fsr_key));
-    FSRs_to_cells.push_back(cell_id);
-    FSRs_to_material_UIDs.push_back(material_uid);
+    /* Read data from file for FSR_to_materials_IDs */
+    ret = fread(&material_id, sizeof(int), 1, in);
     FSRs_to_material_IDs.push_back(material_id);
 
-    delete [] fsr_key;
+    /* Read data from file for FSR_to_keys */
+    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
+    FSRs_to_keys.push_back(fsr_key);
   }
 
   /* Set FSR vector maps */
   _geometry->setFSRKeysMap(FSR_keys_map);
-  _geometry->setFSRsToCells(FSRs_to_cells);
+  _geometry->setFSRsToMaterials(FSRs_to_material_IDs);
   _geometry->setFSRsToKeys(FSRs_to_keys);
-  _geometry->setFSRsToMaterialUIDs(FSRs_to_material_UIDs);
-  _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
-  
+   
   /* Read cmfd cell_fsrs vector of vectors from file */
-  if (cmfd->getOverlayMesh()){
+  if (cmfd != NULL){
     std::vector< std::vector<int> > cell_fsrs;
     int num_cells, fsr_id; 
     ret = fread(&num_cells, sizeof(int), 1, in);

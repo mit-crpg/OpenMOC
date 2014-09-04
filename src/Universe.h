@@ -76,9 +76,6 @@ protected:
   /** A collection of Cell IDs and Cell pointers */
   std::map<int, Cell*> _cells;
 
-  /** The coordinates of the offset for the Universe */
-  Point _offset;
-
   /** A boolean representing whether or not this Universe contains a Material
    *  with a non-zero fission cross-section and is fissionable */
   bool _fissionable;
@@ -98,14 +95,13 @@ public:
   int getId() const;
   universeType getType();
   int getNumCells() const;
-  Point* getOffset();
   std::vector<int> getMaterialIds();
   std::vector<int> getNestedUniverseIds();
   void getCellIds(int* cell_ids, int num_cells);
   bool isFissionable();
 
   void setType(universeType type);
-  void setOffset(double x, double y);
+
   void setFissionability(bool fissionable);
 
   Cell* findCell(LocalCoords* coords, std::map<int, Universe*> universes);
@@ -138,6 +134,9 @@ private:
   /** The width of each Lattice cell (cm) along the y-axis */
   double _width_y;
 
+  /** The coordinates of the offset for the Universe */
+  Point _offset;
+
   /** A container of Universes ? */
   std::vector< std::vector< std::pair<int, Universe*> > > _universes;
 
@@ -146,6 +145,8 @@ public:
   Lattice(const int id, const double width_x, const double width_y);
   virtual ~Lattice();
 
+  void setOffset(double x, double y);
+  Point* getOffset();
   int getNumX() const;
   int getNumY() const;
   void setNumX(int num_x);

@@ -24,6 +24,8 @@
 #include "Surface.h"
 #include "Timer.h"
 #include "Universe.h"
+#include "cmfd_linear_algebra.h"
+#include "pairwise_sum.h"
 #endif
 
 
@@ -39,44 +41,49 @@ private:
   Quadrature* _quad;
 
   /** The keff eigenvalue */
-  double _k_eff;
+  FP_PRECISION _k_eff;
 
   /** The A (destruction) matrix */
-  double** _A;
+  FP_PRECISION** _A;
 
   /** The M (production) matrix */
-  double** _M;
+  FP_PRECISION** _M;
 
   /** The old source vector */
-  double* _old_source;
+  FP_PRECISION* _old_source;
 
   /** The new source vector */
-  double* _new_source;
+  FP_PRECISION* _new_source;
 
-  /** flux vectors */
-  double* _new_flux;
-  double* _old_flux;
-  double* _flux_temp;
+  /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
+   * the end of a CMFD solve */
+  FP_PRECISION* _new_flux;
+
+  /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
+   * the beginning of a CMFD solve */
+  FP_PRECISION* _old_flux;
+
+  /** Vector representing the flux during the previous iteration of a 
+   * cmfd solve */
+  FP_PRECISION* _flux_temp;
 
   /** Gauss-Seidel SOR relaxation factor */
-  double _SOR_factor;
+  FP_PRECISION _SOR_factor;
 
-  /** L2 norm */
-  double _l2_norm;
-
-  /** Keff convergence criteria */
-  double _conv_criteria;
+  /** cmfd source convergence threshold */
+  FP_PRECISION _source_convergence_threshold;
 
   /** Number of cells in x direction */
-  int _cx;
+  int _num_x;
 
   /** Number of cells in y direction */
-  int _cy;
+  int _num_y;
 
   /** Number of energy groups */
-  int _num_groups;
+  int _num_moc_groups;
 
-  /** Number of coarse energy groups */
+  /** Number of energy groups used in cmfd solver. Note that cmfd supports
+   * energy condensation from the MOC */
   int _num_cmfd_groups;
 
   /** Coarse energy indices for fine energy groups */
@@ -98,7 +105,7 @@ private:
   FP_PRECISION* _FSR_fluxes;
 
   /** Array of CMFD cell volumes */
-  double* _volumes;
+  FP_PRECISION* _volumes;
 
   /** Array of material pointers for CMFD cell materials */
   Material** _materials;
@@ -113,16 +120,13 @@ private:
   boundaryType* _boundaries;
 
   /** Array of surface currents for each CMFD cell */
-  double* _currents;
+  FP_PRECISION* _surface_currents;
 
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
 
-  /** Flag indicating whether CMFD mesh should be overlaid on geometry */
-  bool _overlay_mesh;
-
   /** MOC flux update relaxation factor */
-  double _relax_factor;
+  FP_PRECISION _relax_factor;
 
   /** Flag indicating whether to use optically thick correction factor */
   bool _optically_thick;
@@ -131,11 +135,11 @@ private:
   Lattice* _lattice;
 
   /** Flag indicating whether to update the MOC flux */
-  bool _update_flux;
+  bool _flux_update_on;
 
 public:
 
-  Cmfd(double criteria=1e-8);
+  Cmfd();
   virtual ~Cmfd();
 
   /* Worker functions */
@@ -143,64 +147,55 @@ public:
   void computeDs();
   void computeXS();
   void updateMOCFlux();
-  double computeDiffCorrect(double d, double h);
-  double computeKeff();
+  FP_PRECISION computeDiffCorrect(FP_PRECISION d, FP_PRECISION h);
+  FP_PRECISION computeKeff();
   void initializeCellMap();
   void initializeGroupMap();
   void initializeFlux();
   void initializeMaterials();
   void rescaleFlux();
-  void linearSolve(double** mat, double* vec_x, double* vec_b,
-                   double conv, int max_iter=10000);
+  void linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x, FP_PRECISION* vec_b,
+                   FP_PRECISION conv, int max_iter=10000);
   void splitCorners();
   int getCellNext(int cell_num, int surface_id);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell, LocalCoords* coords);
   void addFSRToCell(int cmfd_cell, int fsr_id);
 
-  /* Matrix and Vector functions */
-  void matZero(double** mat, int width);
-  void vecCopy(double* vec_from, double* vec_to);
-  double vecSum(double* vec);
-  void matMultM(double** mat, double* vec_x, double* vec_y);
-  void vecSet(double* vec, double val);
-  void vecScale(double* vec, double scale_val);
-
   /* Get parameters */
-  double getKeff();
   int getNumCmfdGroups();
-  int getNumGroups();
+  int getNumMOCGroups();
   int getNumCells();
   int getCmfdGroup(int group);
-  bool getOverlayMesh();
-  bool getOpticallyThick();
-  double getMOCRelaxationFactor();
+  bool isOpticallyThick();
+  FP_PRECISION getMOCRelaxationFactor();
   boundaryType getBoundary(int side);
   Lattice* getLattice();
   int getNumX();
   int getNumY();
   int convertFSRIdToCmfdCell(int fsr_id);
   std::vector< std::vector<int> > getCellFSRs();
-  bool getUpdateFlux();
+  bool isFluxUpdateOn();
 
   /* Set parameters */
-  void setSORRelaxationFactor(double SOR_factor);
+  void setSORRelaxationFactor(FP_PRECISION SOR_factor);
   void setWidth(double width);
   void setHeight(double height);
   void setNumX(int cx);
   void setNumY(int cy);
-  void setSurfaceCurrents(double* surface_currents);
+  void setSurfaceCurrents(FP_PRECISION* surface_currents);
   void setNumFSRs(int num_fsrs);
-  void setNumGroups(int num_groups);
-  void setOverlayMesh(bool overlay_mesh);
+  void setNumMOCGroups(int num_moc_groups);
   void setOpticallyThick(bool thick);
-  void setMOCRelaxationFactor(double relax_factor);
+  void setMOCRelaxationFactor(FP_PRECISION relax_factor);
   void setBoundary(int side, boundaryType boundary);
   void setLattice(Lattice* lattice);
   void setLatticeStructure(int num_x, int num_y);
-  void setUpdateFlux(bool update_flux);
-  void setGroupStructure(int* group_indices, int ncg);
-
+  void setFluxUpdateOn(bool flux_update_on);
+  void setGroupStructure(int* group_indices, int length_group_indices);
+  void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
+  void setPolarQuadrature(quadratureType quadrature_type, int num_polar);
+  
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);

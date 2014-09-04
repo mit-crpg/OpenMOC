@@ -31,7 +31,6 @@ Universe::Universe(const int id) {
   _id = id;
   _n++;
   _type = SIMPLE;
-  _offset.setCoords(0.0, 0.0);
 
   /* By default, the Universe's fissionability is unknown */
   _fissionable = false;
@@ -78,15 +77,6 @@ universeType Universe::getType() {
  */
 int Universe::getNumCells() const {
   return _cells.size();
-}
-
-
-/**
- * @brief Return a pointer to the offset for this Cell (in global coordinates).
- * @return the offset of the Cell
- */
-Point* Universe::getOffset() {
-  return &_offset;
 }
 
 
@@ -141,7 +131,7 @@ std::vector<int> Universe::getNestedUniverseIds() {
      * to the list */
     if (cell->getType() == FILL)
       universe_ids.push_back(static_cast<CellFill*>(cell)->getUniverseFillId());
-    }
+  }
 
   return universe_ids;
 }
@@ -287,16 +277,6 @@ CellBasic* Universe::getCellBasic(int cell_id) {
  */
 void Universe::setType(universeType type) {
   _type = type;
-}
-
-
-/**
- * @brief Set the offset in global coordinates for this Universe.
- * @param offset a pointer to the offset
- */
-void Universe::setOffset(double x, double y) {
-  _offset.setX(x);
-  _offset.setY(y);
 }
 
 
@@ -545,6 +525,32 @@ Lattice::~Lattice() {
 
 
 /**
+ * @brief Set the offset in global coordinates for this Lattice.
+ * @details A lattice is assumed to be a rectilinear grid with the center/origin
+ *          of the grid located in the center of the Lattice's parent universe.
+ *          The offset represents the offset of the lattice's center/origin with 
+ *          respect to the center of the parent universe. Therefore an offset of
+ *          (-1,2) would move the center/origin of the lattice to the left 1 cm
+ *          and up 2 cm.
+ * @param x the offset in the x direction
+ * @param y the offset in the y direction
+ */
+void Lattice::setOffset(double x, double y) {
+  _offset.setX(x);
+  _offset.setY(y);
+}
+
+
+/**
+ * @brief Return a pointer to the offset for this Cell (in global coordinates).
+ * @return the offset of the Cell
+ */
+Point* Lattice::getOffset() {
+  return &_offset;
+}
+
+
+/**
  * @brief Return the number of Lattice cells along the x-axis.
  * @return the number of Lattice cells along x
  */
@@ -738,20 +744,20 @@ void Lattice::setLatticeCells(int num_x, int num_y, int* universes) {
 bool Lattice::withinBounds(Point* point) {
 
   /* Computes the Lattice bounds */
-  double bound_x_high = _offset.getX() + _num_x/2.0 * _width_x;
-  double bound_x_low = _offset.getX() - _num_x/2.0 * _width_x;
-  double bound_y_high = _offset.getY() + _num_y/2.0 * _width_y;
-  double bound_y_low = _offset.getY() - _num_y/2.0 * _width_y;
+  double bound_x_max = _offset.getX() + _num_x/2.0 * _width_x;
+  double bound_x_min = _offset.getX() - _num_x/2.0 * _width_x;
+  double bound_y_max = _offset.getY() + _num_y/2.0 * _width_y;
+  double bound_y_min = _offset.getY() - _num_y/2.0 * _width_y;
 
   double x = point->getX();
   double y = point->getY();
 
   /* If the Point is outside the x bounds */
-  if (x > bound_x_high || x < bound_x_low)
+  if (x > bound_x_max || x < bound_x_min)
     return false;
 
   /* If the Point is outside the y boounds */
-  else if (y > bound_y_high || y < bound_y_low)
+  else if (y > bound_y_max || y < bound_y_min)
     return false;
 
   /* If the Point is within the bounds */
@@ -870,15 +876,22 @@ double Lattice::minSurfaceDist(Point* point, double angle) {
 int Lattice::getLatX(Point* point) {
 
   /* Compute the x indice for the Lattice cell this point is in */
-  int lat_x = (int)floor((point->getX() + _width_x*_num_x/2.0 - _offset.getX()) / _width_x);
+  int lat_x = (int)floor((point->getX() + _width_x*_num_x/2.0 - 
+                          _offset.getX()) / _width_x);
+
+  /* get the distance to the left surface */
+  double dist_to_left = point->getX() + _num_x*_width_x/2.0 - _offset.getX();
 
   /* Check if the Point is on the Lattice boundaries and if so adjust
    * x Lattice cell indice */
-  if (point->getX() + _num_x*_width_x/2.0 - _offset.getX() < 0.0)
+  if (fabs(dist_to_left) < ON_SURFACE_THRESH)
     lat_x = 0;
-  else if (point->getX() + _num_x*_width_x/2.0 - _offset.getX() >= _num_x*_width_x)
+  else if (fabs(dist_to_left - _num_x*_width_x) < ON_SURFACE_THRESH)
     lat_x = _num_x - 1;
-
+  else if (lat_x < 0 || lat_x > _num_x-1)
+    log_printf(ERROR, "Trying to get lattice x index for point that is "
+               "outside lattice bounds.");
+  
   return lat_x;
 }
 
@@ -891,14 +904,21 @@ int Lattice::getLatX(Point* point) {
 int Lattice::getLatY(Point* point) {
 
   /* Compute the y indice for the Lattice cell this point is in */
-  int lat_y = (int)floor((point->getY() + _width_y*_num_y/2.0 - _offset.getY()) / _width_y);
+  int lat_y = (int)floor((point->getY() + _width_y*_num_y/2.0 -
+                          _offset.getY()) / _width_y);
+
+  /* get the distance to the bottom surface */
+  double dist_to_bottom = point->getY() + _width_y*_num_y/2.0 - _offset.getY();
 
   /* Check if the Point is on the Lattice boundaries and if so adjust
    * y Lattice cell indice */
-  if (point->getY() + _width_y*_num_y/2.0 - _offset.getY() < 0.0) 
+  if (fabs(dist_to_bottom) < ON_SURFACE_THRESH) 
     lat_y = 0;
-  else if (point->getY() + _width_y*_num_y/2.0 - _offset.getY() >= _num_y*_width_y) 
+  else if (fabs(dist_to_bottom - _num_y*_width_y) < ON_SURFACE_THRESH) 
     lat_y = _num_y - 1;
+  else if (lat_y < 0 || lat_y > _num_y-1)
+    log_printf(ERROR, "Trying to get lattice y index for point that is "
+               "outside lattice bounds.");
 
   return lat_y;
 }
@@ -939,6 +959,13 @@ void Lattice::printString() {
 
 /**
  * @brief Finds the Lattice cell index that a point lies in.
+ * @details Lattice cells are numbered starting with 0 in the lower left
+ *          corner. Lattice cell IDs in all rows then increase monotonically 
+ *          from left to right. For example, the indices for a 4 x 4 lattice:
+ *                  12  13  14  15
+ *                  8    9  10  11
+ *                  4    5   6   7
+ *                  0    1   2   3
  * @param point a pointer to a point being evaluated.
  * @return the Lattice cell index.
  */
@@ -950,7 +977,7 @@ int Lattice::getLatticeCell(Point* point){
 /**
  * @brief Finds the Lattice cell surface that a point lies on.
  *        If the point is not on a surface, -1 is returned.
- * @detail The surface indices for a lattice cell are 0 (left),
+ * @details The surface indices for a lattice cell are 0 (left),
  *         1, (bottom), 2 (right), 3 (top), 4 (bottom-left corner),
  *         5 (bottom-right corner), 6 (top-right corner), and 
  *         7 (top-left corner). The index returned takes into account
@@ -973,35 +1000,33 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
   int surface = -1;
 
   /* Check if point is on left boundary */ 
-  if (fabs(x - left) < 2*TINY_MOVE){
+  if (fabs(x - left) <= ON_SURFACE_THRESH){
     /* Check if point is on bottom boundary */ 
-    if (fabs(y - bottom) < 2*TINY_MOVE)
+    if (fabs(y - bottom) <= ON_SURFACE_THRESH)
       surface = cell*8 + 4;
     /* Check if point is on top boundary */ 
-    else if (fabs(y - top) < 2*TINY_MOVE)
+    else if (fabs(y - top) <= ON_SURFACE_THRESH)
       surface = cell*8 + 7;
     else
       surface = cell*8;
   }
   /* Check if point is on right boundary */ 
-  else if (fabs(x - right) < 2*TINY_MOVE){
+  else if (fabs(x - right) <= ON_SURFACE_THRESH){
     /* Check if point is on bottom boundary */ 
-    if (fabs(y - bottom) < 2*TINY_MOVE)
+    if (fabs(y - bottom) <= ON_SURFACE_THRESH)
       surface = cell*8 + 5;
     /* Check if point is on top boundary */ 
-    else if (fabs(y - top) < 2*TINY_MOVE)
+    else if (fabs(y - top) <= ON_SURFACE_THRESH)
       surface = cell*8 + 6;
     else
       surface = cell*8 + 2;
   }
   /* Check if point is on bottom boundary */ 
-  else if (fabs(y - bottom) < 2*TINY_MOVE)
+  else if (fabs(y - bottom) <= ON_SURFACE_THRESH)
     surface = cell*8 + 1;
   /* Check if point is on top boundary */ 
-  else if (fabs(y - top) < 2*TINY_MOVE)
+  else if (fabs(y - top) <= ON_SURFACE_THRESH)
     surface = cell*8 + 3;
 
   return surface;
 }
-
-

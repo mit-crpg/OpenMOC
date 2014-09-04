@@ -417,9 +417,9 @@ void CellBasic::ringify() {
   for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
 
     /* Determine if any of the Surfaces is a Circle */
-    if ((*iter1).second._surface->getSurfaceType() == CIRCLE) {
-      int halfspace = (*iter1).second._halfspace;
-      Circle* circle = static_cast<Circle*>((*iter1).second._surface);
+    if (iter1->second._surface->getSurfaceType() == CIRCLE) {
+      int halfspace = iter1->second._halfspace;
+      Circle* circle = static_cast<Circle*>(iter1->second._surface);
 
       /* Outermost bounding Circle */
       if (halfspace == -1) {

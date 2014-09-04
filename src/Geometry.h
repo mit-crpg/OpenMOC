@@ -20,9 +20,24 @@
 #include <sstream>
 #include <string>
 #include <omp.h>
-#include <unordered_map>
 #endif
 
+/**
+ * @struct fsr_data
+ * @brief A fsr_data struct represents an FSR with a unique FSR ID
+ *        and a characteristic point that lies within the FSR that
+ *        can be used to recompute the hierarchical LocalCoords
+ *        linked list.
+ */
+struct fsr_data {
+
+  /** The FSR ID */
+  int _fsr_id;
+
+  /** Characteristic point in Universe 0 that lies in FSR */
+  Point* _point;
+
+};
 
 /**
  * @class Geometry Geometry.h "src/Geometry.h"
@@ -73,19 +88,13 @@ private:
   /** The number of energy groups for each Material's nuclear data */
   int _num_groups;
 
-  /** An map of FSR keys to unique FSR indices from 0 to _num_FSRs  */
-  std::unordered_map<std::string, int> _FSR_keys_map;
+  /** An map of FSR key hashes to unique fsr_data structs */
+  std::map<std::size_t, fsr_data> _FSR_keys_map;
 
-  /** A vector of fsr keys indexed by FSR IDs */
-  std::vector<std::string> _FSRs_to_keys;
+  /** An vector of FSR key hashes indexed by FSR ID */
+  std::vector<std::size_t> _FSRs_to_keys;
 
-  /** A vector of Cell IDs indexed by FSR IDs */
-  std::vector<int> _FSRs_to_cells;
-
-  /** A vector of Material UIDs indexed by FSR IDs */
-  std::vector<int> _FSRs_to_material_UIDs;
-
-  /** A vector of Material UIDs indexed by FSR IDs */
+  /** A vector of Material IDs indexed by FSR IDs */
   std::vector<int> _FSRs_to_material_IDs;
 
   /** The maximum Track segment length in the Geometry */
@@ -113,8 +122,9 @@ private:
   Cmfd* _cmfd;
 
   void initializeCellFillPointers();  
-  Cell* findFirstCell(LocalCoords* coords, double angle);
-  Cell* findNextCell(LocalCoords* coords, double angle);
+  CellBasic* findFirstCell(LocalCoords* coords, double angle);
+  CellBasic* findNextCell(LocalCoords* coords, double angle);
+
 
 public:
 
@@ -136,8 +146,7 @@ public:
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
-  std::vector<int> getFSRtoCellMap();
-  std::vector<int> getFSRtoMaterialMap();
+
   double getMaxSegmentLength();
   double getMinSegmentLength();
   std::map<int, Material*> getMaterials();
@@ -149,20 +158,17 @@ public:
   Universe* getUniverse(int id);
   Lattice* getLattice(int id);
   Cmfd* getCmfd();
-  std::unordered_map<std::string, int> getFSRKeysMap();
-  std::vector<std::string> getFSRsToKeys();
-  std::vector<int> getFSRsToCells();
-  std::vector<int> getFSRsToMaterialUIDs();
-  std::vector<int> getFSRsToMaterialIDs();
+  std::map<std::size_t, fsr_data> getFSRKeysMap();
+  std::vector<std::size_t> getFSRsToKeys();
+  std::vector<int> getFSRsToMaterials();
   int getFSRId(LocalCoords* coords);
+  Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
 
   /* set parameters */
-  void setFSRKeysMap(std::unordered_map<std::string, int> FSR_keys_map);
-  void setFSRsToKeys(std::vector<std::string> FSRs_to_keys);
-  void setFSRsToCells(std::vector<int> FSRs_to_cells);
-  void setFSRsToMaterialUIDs(std::vector<int> FSRs_to_material_UIDs);
-  void setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
+  void setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map);
+  void setFSRsToMaterials(std::vector<int> FSRs_to_material_IDs);
+  void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
   void setNumFSRs(int num_fsrs);
 
   /* add object methods */
@@ -179,8 +185,8 @@ public:
   void removeLattice(int id);
 
   /* find methods */
-  Cell* findCellContainingCoords(LocalCoords* coords);
-  CellBasic* findCellContainingFSR(int fsr_id);
+  CellBasic* findCellContainingCoords(LocalCoords* coords);
+  Material* findMaterialContainingFSR(int fsr_id);
   int findFSRId(LocalCoords* coords);
 
   /* Other worker methods */

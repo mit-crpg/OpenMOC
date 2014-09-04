@@ -46,7 +46,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _exp_table = NULL;
 
   if (geometry != NULL){
-    setCmfd(geometry->getCmfd());
+    _cmfd = geometry->getCmfd();
     setGeometry(geometry);
   }
 
@@ -61,6 +61,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _num_iterations = 0;
   _source_convergence_thresh = 1E-3;
   _converged_source = false;
+
 
   _timer = new Timer();
 
@@ -282,7 +283,9 @@ void Solver::setGeometry(Geometry* geometry) {
   _num_groups = _geometry->getNumEnergyGroups();
   _polar_times_groups = _num_groups * _num_polar;
   _num_materials = _geometry->getNumMaterials();
-  _num_mesh_cells = _cmfd->getNumCells();
+  
+  if (_cmfd != NULL)
+    _num_mesh_cells = _cmfd->getNumCells();
 }
 
 
@@ -321,15 +324,6 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
       counter++;
     }
   }
-}
-
-
-/**
- * @brief Sets the Cmfd object for Coarse Mesh Finite Difference acceleration.
- * @param cmfd a pointer to the Cmfd object
- */
-void Solver::setCmfd(Cmfd* cmfd) {
-  _cmfd = cmfd;
 }
 
 
@@ -413,6 +407,7 @@ void Solver::initializeCmfd(){
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
+  _cmfd->setPolarQuadrature(_quadrature_type, _num_polar);
 }
 
 
@@ -522,7 +517,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
   initializeSourceArrays();
   buildExpInterpTable();
   initializeFSRs();
-  if (_cmfd->getOverlayMesh() && _cmfd->getUpdateFlux())
+  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     initializeCmfd();
 
   /* Check that each FSR has at least one segment crossing it */
@@ -546,7 +541,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     addSourceToScalarFlux();
 
     /* Solve CMFD diffusion problem and update MOC flux */
-    if (_cmfd->getOverlayMesh() && _cmfd->getUpdateFlux())
+    if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff();
 
     computeKeff();
