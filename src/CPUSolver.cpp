@@ -638,7 +638,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
       /* Compute the norm of residual of the source in the FSR */
       if (fabs(_source(r,G)) > 1E-10)
         _source_residuals[r] += pow((_source(r,G) - _old_source(r,G))
-                                    / _source(r,G), 2);
+                                / _source(r,G), 2);
 
       /* Update the old source */
       _old_source(r,G) = _source(r,G);

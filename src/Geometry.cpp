@@ -961,7 +961,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
     fsr->_point = point;
     _FSR_keys_map[fsr_key_hash] = *fsr;
     _FSRs_to_keys.push_back(fsr_key_hash);
-    _FSRs_to_material_IDs.push_back(getMaterial(cell->getMaterial())->getId());
+    _FSRs_to_material_IDs.push_back(cell->getMaterial());
 
     /* If CMFD acceleration is on, add FSR to CMFD cell */
     if (_cmfd != NULL){

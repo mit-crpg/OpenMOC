@@ -181,8 +181,8 @@ public:
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
   void setWidth(double width);
   void setHeight(double height);
-  void setNumX(int cx);
-  void setNumY(int cy);
+  void setNumX(int num_x);
+  void setNumY(int num_y);
   void setSurfaceCurrents(FP_PRECISION* surface_currents);
   void setNumFSRs(int num_fsrs);
   void setNumMOCGroups(int num_moc_groups);

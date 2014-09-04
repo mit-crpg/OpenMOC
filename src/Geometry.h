@@ -131,7 +131,7 @@ public:
   Geometry(Cmfd* cmfd=NULL);
   virtual ~Geometry();
 
-  /* get parameters */
+  /* Get parameters */
   double getWidth();
   double getHeight();
   double getXMin();
@@ -146,7 +146,6 @@ public:
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
-
   double getMaxSegmentLength();
   double getMinSegmentLength();
   std::map<int, Material*> getMaterials();
@@ -165,26 +164,26 @@ public:
   Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
 
-  /* set parameters */
+  /* Set parameters */
   void setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map);
   void setFSRsToMaterials(std::vector<int> FSRs_to_material_IDs);
   void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
   void setNumFSRs(int num_fsrs);
 
-  /* add object methods */
+  /* Add object methods */
   void addMaterial(Material* material);
   void addSurface(Surface* surface);
   void addCell(Cell *cell);
   void addUniverse(Universe* universe);
   void addLattice(Lattice* lattice);
 
-  /* remove object methods */
+  /* Remove object methods */
   void removeMaterial(int id);
   void removeCell(int id);
   void removeUniverse(int id);
   void removeLattice(int id);
 
-  /* find methods */
+  /* Find methods */
   CellBasic* findCellContainingCoords(LocalCoords* coords);
   Material* findMaterialContainingFSR(int fsr_id);
   int findFSRId(LocalCoords* coords);

@@ -93,15 +93,15 @@ Cmfd::~Cmfd() {
 
 /**
  * @brief Set the number of Mesh cells in a row.
- * @param cx number of Mesh cells in a row
+ * @param number of Mesh cells in a row
  */
-void Cmfd::setNumX(int cx){
+void Cmfd::setNumX(int num_x){
 
-  if (cx < 1)
+  if (num_x < 1)
     log_printf(ERROR, "The number of lattice cells in the x direction "
-               "must be > 0. Input value: %i", cx);
+               "must be > 0. Input value: %i", num_x);
 
-  _num_x = cx;
+  _num_x = num_x;
   if (_width != 0.)
     _cell_width = _width / _num_x;
 }
@@ -109,15 +109,15 @@ void Cmfd::setNumX(int cx){
 
 /**
  * @brief Set the number of Mesh cells in a column
- * @param cy number of Mesh cells in a column
+ * @param number of Mesh cells in a column
  */
-void Cmfd::setNumY(int cy){
+void Cmfd::setNumY(int num_y){
 
-  if (cy < 1)
+  if (num_y < 1)
     log_printf(ERROR, "The number of lattice cells in the y direction "
-               "must be > 0. Input value: %i", cy);
+               "must be > 0. Input value: %i", num_y);
 
-  _num_y = cy;
+  _num_y = num_y;
   if (_height != 0.)
     _cell_height = _height / _num_y;
 }
@@ -1217,9 +1217,9 @@ void Cmfd::setLattice(Lattice* lattice){
  * @param The number of cells in the x direction.
  * @param The number of cells in the y direction.
  */
-void Cmfd::setLatticeStructure(int cx, int cy){
-  setNumX(cx);
-  setNumY(cy);
+void Cmfd::setLatticeStructure(int num_x, int num_y){
+  setNumX(num_x);
+  setNumY(num_y);
 }
 
 
