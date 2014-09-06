@@ -1064,8 +1064,8 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices){
     if (group_indices[0] != 1)
       log_printf(ERROR, "The first value in group indices must be 1!");    
 
-    /* Set first group indice to 1 */
-    _group_indices[0] = 1;
+    /* Set first group indice to 0 */
+    _group_indices[0] = 0;
         
     /* Set MOC group bounds for rest of CMFD energy groups */
     for (int i = 1; i < length_group_indices; i++){
