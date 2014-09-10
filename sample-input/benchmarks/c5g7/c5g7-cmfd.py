@@ -345,8 +345,6 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
 
-#plotter.plot_flat_source_regions(geometry, gridsize=500)
-
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
@@ -357,19 +355,18 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
-
 ###############################################################################
 ############################   Generating Plots   #############################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-plotter.plot_tracks(track_generator)
-plotter.plot_materials(geometry, gridsize=500)
-plotter.plot_cells(geometry, gridsize=500)
-plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
-plotter.plot_flat_source_regions(geometry, gridsize=500)
-plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
-plotter.plot_fission_rates(geometry, solver, gridsize=500)
+#plotter.plot_tracks(track_generator)
+#plotter.plot_materials(geometry, gridsize=500)
+#plotter.plot_cells(geometry, gridsize=500)
+#plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
+#plotter.plot_flat_source_regions(geometry, gridsize=500)
+#plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+#plotter.plot_fission_rates(geometry, solver, gridsize=500)
 
 log.py_printf('TITLE', 'Finished')
