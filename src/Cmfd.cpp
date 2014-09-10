@@ -1064,8 +1064,8 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices){
     if (group_indices[0] != 1)
       log_printf(ERROR, "The first value in group indices must be 1!");    
 
-    /* Set first group indice to 1 */
-    _group_indices[0] = 1;
+    /* Set first group indice to 0 */
+    _group_indices[0] = 0;
         
     /* Set MOC group bounds for rest of CMFD energy groups */
     for (int i = 1; i < length_group_indices; i++){
@@ -1074,7 +1074,7 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices){
         log_printf(ERROR, "The group indices must be increasing!");
             
       _group_indices[i] = group_indices[i] - 1;
-      log_printf(INFO, "group indices %i: %i", i, _group_indices[i]+1);
+      log_printf(INFO, "group indices %i: %i", i, group_indices[i]);
     }
   }
 }
@@ -1284,7 +1284,7 @@ void Cmfd::setSurfaceCurrents(FP_PRECISION* surface_currents){
  * @param the number of FSRs
  */
 void Cmfd::setNumFSRs(int num_fsrs){
-    _num_FSRs = num_fsrs;
+  _num_FSRs = num_fsrs;
 }
 
 

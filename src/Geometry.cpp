@@ -4,7 +4,7 @@
 /**
  * @brief Constructor initializes an empty Geometry.
  */
-Geometry::Geometry(Cmfd* cmfd) {
+Geometry::Geometry() {
 
   /* Initializing the corners of the bounding box encapsulating
    * the Geometry to be infinite  */
@@ -25,12 +25,8 @@ Geometry::Geometry(Cmfd* cmfd) {
   _num_FSRs = 0;
   _num_groups = 0;
 
-  /* assign cmfd mesh to _cmfd variable */
-  _cmfd = cmfd;
-
-  /* initialize _num_FSRs lock */
-  _num_FSRs_lock = new omp_lock_t;
-  omp_init_lock(_num_FSRs_lock);
+  /* Initialize CMFD object to NULL */
+  _cmfd = NULL;
 }
 
 
@@ -131,7 +127,6 @@ double Geometry::getYMin() {
 double Geometry::getYMax() {
   return _y_max;
 }
-
 
 
 /**
@@ -292,6 +287,7 @@ Surface* Geometry::getSurface(int id) {
   return surface;
 }
 
+
 /**
  * @brief Return a pointer to a Cell object in the Geometry.
  * @param id the user-specified Cell's ID
@@ -363,7 +359,6 @@ CellFill* Geometry::getCellFill(int id) {
 }
 
 
-
 /**
  * @brief Return a pointer to a Universe from the Geometry.
  * @param id the user-specified Universe ID
@@ -411,6 +406,15 @@ Lattice* Geometry::getLattice(int id) {
  */
 Cmfd* Geometry::getCmfd(){
   return _cmfd;
+}
+
+
+/**
+ * @brief Sets the pointer to a CMFD object used for acceleration.
+ * @param A pointer to the CMFD object
+ */
+void Geometry::setCmfd(Cmfd* cmfd){
+  _cmfd = cmfd;
 }
 
 
@@ -842,7 +846,7 @@ CellBasic* Geometry::findFirstCell(LocalCoords* coords, double angle) {
  * @param fsr_id a FSR id
  * @return a pointer to the Material that this FSR is in
  */
-Material* Geometry::findMaterialContainingFSR(int fsr_id) {
+Material* Geometry::findFSRMaterial(int fsr_id) {
   return getMaterial(_FSRs_to_material_IDs.at(fsr_id));
 }
 
@@ -951,7 +955,6 @@ int Geometry::findFSRId(LocalCoords* coords) {
     CellBasic* cell = findCellContainingCoords(curr);
     
     /* Add FSR information to FSR key map and FSR_to vectors */
-    omp_set_lock(_num_FSRs_lock);
     fsr_id = _num_FSRs;
     fsr_data* fsr = new fsr_data;
     fsr->_fsr_id = fsr_id;
@@ -969,9 +972,8 @@ int Geometry::findFSRId(LocalCoords* coords) {
       _cmfd->addFSRToCell(cmfd_cell, fsr_id);
     }
 
-    /* Increment FSR counter and unset lock */
+    /* Increment FSR counter */
     _num_FSRs++;
-    omp_unset_lock(_num_FSRs_lock);
   }
   /* If FSR has already been encountered, get the fsr id from map */
   else

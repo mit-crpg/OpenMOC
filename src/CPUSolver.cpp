@@ -9,7 +9,6 @@
  *          the number of OpenMP threads to a default of 1.
  * @param geometry an optional pointer to the Geometry
  * @param track_generator an optional pointer to the TrackGenerator
- * @param cmfd an optional pointer to a Cmfd object object
  */
 CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator) 
     : Solver(geometry, track_generator) {
@@ -373,7 +372,7 @@ void CPUSolver::initializeFSRs() {
   for (int r=0; r < _num_FSRs; r++) {
 
     /* Assign the Material corresponding to this FSR */
-    material = _geometry->findMaterialContainingFSR(r);
+    material = _geometry->findFSRMaterial(r);
     _FSR_materials[r] = material;
 
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d "

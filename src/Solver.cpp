@@ -535,7 +535,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
                "\tres = %1.3E", i, _k_eff, residual);
 
     normalizeFluxes();
-
+    
     residual = computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();

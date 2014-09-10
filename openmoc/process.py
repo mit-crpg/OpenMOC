@@ -84,7 +84,7 @@ def compute_fission_rates(solver, use_hdf5=False):
   # Loop over FSRs and populate fission rates dictionary
   for fsr in range(geometry.getNumFSRs()):
     
-    if geometry.findMaterialContainingFSR(fsr).isFissionable():
+    if geometry.findFSRMaterial(fsr).isFissionable():
 
       # Get the linked list of LocalCoords
       point = geometry.getFSRPoint(fsr)

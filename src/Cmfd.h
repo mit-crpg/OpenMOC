@@ -24,8 +24,8 @@
 #include "Surface.h"
 #include "Timer.h"
 #include "Universe.h"
-#include "cmfd_linear_algebra.h"
-#include "pairwise_sum.h"
+#include "linalg.h"
+#include "pairwisesum.h"
 #endif
 
 

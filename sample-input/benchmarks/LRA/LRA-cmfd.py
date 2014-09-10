@@ -192,7 +192,8 @@ cmfd.setLatticeStructure(110,110)
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry(cmfd)
+geometry = Geometry()
+geometry.setCmfd(cmfd)
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 geometry.addLattice(assembly1)

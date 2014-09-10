@@ -20,6 +20,7 @@
 #include <sstream>
 #include <string>
 #include <omp.h>
+#include <functional>
 #endif
 
 /**
@@ -51,8 +52,6 @@ struct fsr_data {
 class Geometry {
 
 private:
-
-  omp_lock_t* _num_FSRs_lock;
 
   /** The minimum point along the x-axis contained by Geometry in cm */
   double _x_min;
@@ -128,7 +127,7 @@ private:
 
 public:
 
-  Geometry(Cmfd* cmfd=NULL);
+  Geometry();
   virtual ~Geometry();
 
   /* Get parameters */
@@ -169,7 +168,8 @@ public:
   void setFSRsToMaterials(std::vector<int> FSRs_to_material_IDs);
   void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
   void setNumFSRs(int num_fsrs);
-
+  void setCmfd(Cmfd* cmfd);
+  
   /* Add object methods */
   void addMaterial(Material* material);
   void addSurface(Surface* surface);
@@ -185,7 +185,7 @@ public:
 
   /* Find methods */
   CellBasic* findCellContainingCoords(LocalCoords* coords);
-  Material* findMaterialContainingFSR(int fsr_id);
+  Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
 
   /* Other worker methods */
