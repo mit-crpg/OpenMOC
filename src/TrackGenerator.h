@@ -58,8 +58,8 @@ private:
    *  azimuthal angle */
   int* _num_y;
   
-  /** The default maximum optical length a track is allowed to have */
-  FP_PRECISION _max_optical_length = 10;
+  /** The maximum optical length a track is allowed to have */
+  FP_PRECISION _max_optical_length;
 
   /** An array of the azimuthal angle quadrature weights */
   FP_PRECISION* _azim_weights;

@@ -19,6 +19,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
+  _max_optical_length = 10;
 }
 
 
