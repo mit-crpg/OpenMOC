@@ -345,7 +345,7 @@ void Cmfd::computeDs(){
           cell_next = getCellNext(cell, surface);
 
           /* Set halfspace sense of the Surface */
-          if (surface == 0 || surface == 3)
+          if (surface == 0 || surface == 1)
             sense = -1.0;
           else
             sense = 1.0;
@@ -847,7 +847,7 @@ void Cmfd::constructMatrices(){
 
         /* Set transport term on diagonal */
         value = (material->getDifHat()[1*_num_cmfd_groups + e]
-                - material->getDifTilde()[1*_num_cmfd_groups + e])
+                + material->getDifTilde()[1*_num_cmfd_groups + e])
                 * _cell_width;
 
         _A[cell][e*(_num_cmfd_groups+4)+e+2] += value;
@@ -855,7 +855,7 @@ void Cmfd::constructMatrices(){
         /* Set transport term on off diagonal */
         if (y != 0){
           value = - (material->getDifHat()[1*_num_cmfd_groups + e]
-                  + material->getDifTilde()[1*_num_cmfd_groups + e])
+                  - material->getDifTilde()[1*_num_cmfd_groups + e])
               * _cell_width;
 
           _A[cell][e*(_num_cmfd_groups+4)+1] += value;
@@ -865,7 +865,7 @@ void Cmfd::constructMatrices(){
 
         /* Set transport term on diagonal */
         value = (material->getDifHat()[3*_num_cmfd_groups + e]
-                + material->getDifTilde()[3*_num_cmfd_groups + e])
+                - material->getDifTilde()[3*_num_cmfd_groups + e])
             * _cell_width;
 
         _A[cell][e*(_num_cmfd_groups+4)+e+2] += value;
@@ -873,7 +873,7 @@ void Cmfd::constructMatrices(){
         /* Set transport term on off diagonal */
         if (y != _num_y - 1){
           value = - (material->getDifHat()[3*_num_cmfd_groups + e]
-                  - material->getDifTilde()[3*_num_cmfd_groups + e])
+                  + material->getDifTilde()[3*_num_cmfd_groups + e])
                   * _cell_width;
 
           _A[cell][e*(_num_cmfd_groups+4)+_num_cmfd_groups+3] += value;
