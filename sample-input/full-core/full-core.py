@@ -330,7 +330,7 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = ThreadPrivateSolver(geometry, track_generator)
+solver = CPUSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)

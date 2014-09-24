@@ -55,7 +55,7 @@ void Timer::recordSplit(const char* msg) {
   std::string msg_string = std::string(msg);
 
   if (_timer_splits.find(msg_string) != _timer_splits.end())
-    _timer_splits[msg_string] += time;
+    _timer_splits.at(msg_string) += time;
   else
     _timer_splits.insert(std::pair<std::string, double>(msg_string, time));
 }
@@ -83,7 +83,7 @@ double Timer::getSplit(const char* msg) {
   if (_timer_splits.find(msg_string) == _timer_splits.end())
     return 0.0;
   else
-    return _timer_splits[msg_string];
+    return _timer_splits.at(msg_string);
 }
 
 

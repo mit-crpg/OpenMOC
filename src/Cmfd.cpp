@@ -177,12 +177,12 @@ void Cmfd::computeXS(){
           for (int h = _group_indices[b]; h < _group_indices[b+1]; h++)
             chi_groups[b] += fsr_material->getChi()[h];
 
-            for (int h = 0; h < _num_groups; h++){
-              chi_tally[b] += chi_groups[b] * fsr_material->getNuSigmaF()[h] *
-                              _FSR_fluxes[(*iter)*_num_groups+h] * volume;
-              neut_prod_tally += chi_groups[b] *
-                                 fsr_material->getNuSigmaF()[h] *
-                                 _FSR_fluxes[(*iter)*_num_groups+h] * volume;
+          for (int h = 0; h < _num_groups; h++){
+            chi_tally[b] += chi_groups[b] * fsr_material->getNuSigmaF()[h] *
+                            _FSR_fluxes[(*iter)*_num_groups+h] * volume;
+            neut_prod_tally += chi_groups[b] *
+                               fsr_material->getNuSigmaF()[h] *
+                               _FSR_fluxes[(*iter)*_num_groups+h] * volume;
           }
         }
 
@@ -219,17 +219,17 @@ void Cmfd::computeXS(){
 
       /* Set the Mesh cell properties with the tallies */
       _mesh->setVolume(vol_tally, i);
-      cell_material->setSigmaAByGroup(abs_tally / rxn_tally, e);
-      cell_material->setSigmaTByGroup(tot_tally / rxn_tally, e);
-      cell_material->setNuSigmaFByGroup(nu_fis_tally / rxn_tally, e);
-      cell_material->setDifCoefByGroup(dif_tally / rxn_tally, e);
+      cell_material->setSigmaAByGroup(abs_tally / rxn_tally, e+1);
+      cell_material->setSigmaTByGroup(tot_tally / rxn_tally, e+1);
+      cell_material->setNuSigmaFByGroup(nu_fis_tally / rxn_tally, e+1);
+      cell_material->setDifCoefByGroup(dif_tally / rxn_tally, e+1);
       fluxes[i*_num_cmfd_groups+e] = rxn_tally / vol_tally;
 
       /* set chi */
       if (neut_prod_tally != 0.0)
-        cell_material->setChiByGroup(chi_tally[e] / neut_prod_tally,e);
+        cell_material->setChiByGroup(chi_tally[e] / neut_prod_tally, e+1);
       else
-        cell_material->setChiByGroup(0.0,e);
+        cell_material->setChiByGroup(0.0,e+1);
 
       log_printf(DEBUG, "cell: %i, group: %i, vol: %f, siga: %f, sigt: %f,"
                  " nu_sigf: %f, dif_coef: %f, flux: %f, chi: %f", i, e,
@@ -238,7 +238,7 @@ void Cmfd::computeXS(){
                  rxn_tally / vol_tally, chi_tally[e] / (neut_prod_tally+1e-12));
 
       for (int g = 0; g < _num_cmfd_groups; g++){
-        cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, g, e);
+        cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e+1, g+1);
         log_printf(DEBUG, "scattering from %i to %i: %f", e, g,
                    scat_tally[g] / rxn_tally);
       }
@@ -435,8 +435,8 @@ void Cmfd::computeDs(){
              (1 - _mesh->getRelaxFactor()) + _mesh->getRelaxFactor() * d_tilde;
 
           /* Set d_hat and d_tilde */
-          materials[cell]->setDifHatByGroup(d_hat, e, surface);
-          materials[cell]->setDifTildeByGroup(d_tilde, e, surface);
+          materials[cell]->setDifHatByGroup(d_hat, e+1, surface);
+          materials[cell]->setDifTildeByGroup(d_tilde, e+1, surface);
 
           log_printf(DEBUG, "cell: %i, group: %i, side: %i, flux: %f,"
                      " current: %f, d: %f, dhat: %f, dtilde: %f",
@@ -1513,13 +1513,13 @@ int Cmfd::getCmfdGroup(int group){
 void Cmfd::createGroupStructure(int* group_indices, int ncg){
 
     _num_cmfd_groups = ncg - 1;
-    
+
     /* allocate memory */
     if (_group_indices == NULL){
         _group_indices = new int[ncg];
         _group_indices_map = new int[_num_groups];
     }
-    
+
     if (group_indices == NULL){
         for (int i = 0; i < ncg; i++){
             _group_indices[i] = i;
