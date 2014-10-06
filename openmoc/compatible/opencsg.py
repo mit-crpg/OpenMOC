@@ -73,10 +73,8 @@ def get_opencsg_material(openmoc_material):
     return OPENCSG_MATERIALS[material_id]
 
   # Create an OpenCSG Material to represent this OpenMOC Material
-  # FIXME: OpenMOC materials currently do not contain names
-#  name = openmoc_material._name
-#  opencsg_material = opencsg.Material(material_id=material_id, name=name)
-  opencsg_material = opencsg.Material(material_id=material_id)
+  name = openmoc_material.getName()
+  opencsg_material = opencsg.Material(material_id=material_id, name=name)
 
   # Add the OpenMOC Material to the global collection of all OpenMOC Materials
   OPENMOC_MATERIALS[material_id] = openmoc_material
@@ -102,10 +100,8 @@ def get_openmoc_material(opencsg_material):
     return OPENMOC_MATERIALS[material_id]
 
   # Create an OpenMOC Material to represent this OpenCSG Material
-  # FIXME: OpenMOC materials currently do not contain names
-#  name = opencsg_material._name
-#  openmoc_material = openmoc.Material(material_id=material_id, name=name)
-  openmoc_material = openmoc.Material(material_id)
+  name = opencsg_material._name
+  openmoc_material = openmoc.Material(material_id=material_id, name=name)
 
   # Add the OpenMOC Material to the global collection of all OpenMOC Materials
   OPENMOC_MATERIALS[material_id] = openmoc_material
@@ -144,9 +140,7 @@ def get_opencsg_surface(openmoc_surface):
     return OPENCSG_SURFACES[surface_id]
 
   # Create an OpenCSG Surface to represent this OpenMOC Surface
-  # FIXME: OpenMOC Surfaces currently do not contain names
-#  name = openmoc_surface._name
-  name = ''
+  name = openmoc_surface.getName()
 
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
   boundary = openmoc_surface.getBoundaryType()
@@ -167,7 +161,6 @@ def get_opencsg_surface(openmoc_surface):
 #    B = openmoc_surface._coeffs['B']
 #    C = openmoc_surface._coeffs['C']
 #    D = openmoc_surface._coeffs['D']
-#    opencsg_surface = opencsg.Plane(surface_id, name, boundary, A, B, C, D)
     A = openmoc_surface.getA()
     B = openmoc_surface.getB()
     C = openmoc_surface.getC()
@@ -186,10 +179,10 @@ def get_opencsg_surface(openmoc_surface):
     opencsg_surface = opencsg.ZPlane(surface_id, name, boundary, z0)
 
   elif surface_type == openmoc.CIRCLE:
-    y0 = openmoc_surface.getX0()
-    z0 = openmoc_surface.getY0()
+    x0 = openmoc_surface.getX0()
+    y0 = openmoc_surface.getY0()
     R = openmoc_surface.getRadius()
-    opencsg_surface = opencsg.XCylinder(surface_id, name, boundary, y0, z0, R)
+    opencsg_surface = opencsg.ZCylinder(surface_id, name, boundary, x0, y0, R)
 
   # Add the OpenMOC Surface to the global collection of all OpenMOC Surfaces
   OPENMOC_SURFACES[surface_id] = openmoc_surface
@@ -230,33 +223,24 @@ def get_openmoc_surface(opencsg_surface):
     A = opencsg_surface._coeffs['A']
     B = opencsg_surface._coeffs['B']
     D = opencsg_surface._coeffs['D']
-    # FIXME: Need to implement a name attribute for the Surface class
-#    openmoc_surface = openmoc.Plane(A, B, D, surface_id, name)
-    openmoc_surface = openmoc.Plane(A, B, D, surface_id)
+    openmoc_surface = openmoc.Plane(A, B, D, surface_id, name)
 
   elif opencsg_surface._type == 'x-plane':
     x0 = opencsg_surface._coeffs['x0']
-    # FIXME: Need to implement a name attribute for the Surface class
-#    openmoc_surface = openmoc.XPlane(x0, surface_id, name)
-    openmoc_surface = openmoc.XPlane(x0, surface_id)
+    openmoc_surface = openmoc.XPlane(x0, surface_id, name)
 
   elif opencsg_surface._type == 'y-plane':
     y0 = opencsg_surface._coeffs['y0']
-    # FIXME: Need to implement a name attribute for the Surface class
-#    openmoc_surface = openmoc.ZPlane(z0, surface_id, name)
-    openmoc_surface = openmoc.YPlane(y0, surface_id)
+    openmoc_surface = openmoc.ZPlane(y0, surface_id, name)
 
   elif opencsg_surface._type == 'z-plane':
     z0 = opencsg_surface._coeffs['z0']
-    # FIXME: Need to implement a name attribute for the Surface class
-#    openmoc_surface = openmoc.ZPlane(z0, surface_id, name)
-    openmoc_surface = openmoc.ZPlane(z0, surface_id)
+    openmoc_surface = openmoc.ZPlane(z0, surface_id, name)
 
   elif opencsg_surface._type == 'z-cylinder':
     x0 = opencsg_surface._coeffs['x0']
     y0 = opencsg_surface._coeffs['y0']
     R = opencsg_surface._coeffs['R']
-#    openmoc_surface = openmoc.Circle(x0, y0, R, surface_id)
     openmoc_surface = openmoc.Circle(x0, y0, R, surface_id, name)
 
   else:
@@ -309,15 +293,10 @@ def get_compatible_opencsg_surfaces(opencsg_surface):
     R = opencsg_surface._coeffs['R']
 
     # Create a list of the four planes we need
-    # FIXME: Need to implement name attribute for Surface class
-#    left = opencsg.XPlane(x0-R, name)
-#    right = opencsg.XPlane(x0+R, name)
-#    bottom = opencsg.YPlane(y0-R, name)
-#    top = opencsg.YPlane(y0+R, name)
-    left = opencsg.XPlane(x0-R)
-    right = opencsg.XPlane(x0+R)
-    bottom = opencsg.YPlane(y0-R)
-    top = opencsg.YPlane(y0+R)
+    left = opencsg.XPlane(x0-R, name)
+    right = opencsg.XPlane(x0+R, name)
+    bottom = opencsg.YPlane(y0-R, name)
+    top = opencsg.YPlane(y0+R, name)
 
     # Set the boundary conditions for each Surface
     left.setBoundaryType(boundary)
