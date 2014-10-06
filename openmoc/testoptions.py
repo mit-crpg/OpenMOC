@@ -6,7 +6,7 @@
 
 import unittest
 import nose
-from options import *
+from ../options import *
 
 
 class TestDefaultInit(unittest.TestCase):
