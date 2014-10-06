@@ -25,8 +25,9 @@ int surf_id() {
  * @details Assigns a default boundary condition for this Surface to
  *          BOUNDARY_NONE.
  * @param id an optional user-defined Surface ID
+ * @param name an optional user-defined Surface name
  */
-Surface::Surface(const int id){
+Surface::Surface(const int id, const char* name){
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
@@ -40,6 +41,7 @@ Surface::Surface(const int id){
 
   _uid = _n;
   _n++;
+  setName(name);
   _boundary_type = BOUNDARY_NONE;
 }
 
@@ -69,6 +71,15 @@ int Surface::getId() const {
 
 
 /**
+ * @brief Return the user-defined name of the Surface
+ * @return the Surface name
+ */
+char* Surface::getName() const {
+  return _name;
+}
+
+
+/**
  * @brief Return the type of Surface (ie, XPLANE, CIRCLE, etc).
  * @return the Surface type
  */
@@ -84,6 +95,22 @@ surfaceType Surface::getSurfaceType() {
  */
 boundaryType Surface::getBoundaryType(){
   return _boundary_type;
+}
+
+
+/**
+ * @brief Sets the name of the Surface
+ * @param name the Surface name string
+ */
+void Surface::setName(const char* name) {
+  int length = strlen(name);
+
+  /* Initialize a character array for the Surface's name */
+  _name = new char[length+1];
+
+  /* Copy the input character array Surface name to the class attribute name */
+  for (int i=0; i <= length; i++)
+    _name[i] = name[i];
 }
 
 
@@ -124,14 +151,15 @@ bool Surface::isCoordOnSurface(LocalCoords* coord) {
 
 /**
  * @brief Constructor.
- * @param id the Surface ID
  * @param A the first coefficient in \f$ A * x + B * y + C = 0 \f$
  * @param B the second coefficient in \f$ A * x + B * y + C = 0 \f$
  * @param C the third coefficient in \f$ A * x + B * y + C = 0 \f$
+ * @param id the optional Surface ID
+ * @param name the optional name of the Surface
  */
 Plane::Plane(const double A, const double B,
-             const double C, const int id):
-  Surface(id) {
+             const double C, const int id, const char* name):
+  Surface(id, name) {
 
   _surface_type = PLANE;
   _A = A;
@@ -250,9 +278,11 @@ inline int Plane::intersection(Point* point, double angle, Point* points) {
  * @return a character array of this Plane's attributes
  */
 std::string Plane::toString() {
+
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", type = PLANE " << ", A = "
+  string << "Surface id = " << _id << ", name = " << _name
+         << ", type = PLANE " << ", A = "
          << _A << ", B = " << _B << ", C = " << _C;
 
   return string.str();
@@ -270,11 +300,12 @@ void Plane::printString() {
 
 /**
  * @brief Constructor for a Plane perpendicular to the x-axis.
- * @param id the user-defined Surface id
  * @param x the location of the Plane along the x-axis
+ * @param id the optional Surface id
+ * @param name the optional name of the XPlane
  */
-XPlane::XPlane(const double x, const int id):
-  Plane(0, 1, -x, id) {
+XPlane::XPlane(const double x, const int id, const char* name):
+  Plane(0, 1, -x, id, name) {
 
   _surface_type = XPLANE;
   _x = x;
@@ -347,7 +378,8 @@ std::string XPlane::toString() {
 
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", type = XPLANE " << ", A = "
+  string << "Surface id = " << _id << ", name = " << _name
+         << ", type = XPLANE " << ", A = "
          << _A << ", B = " << _B << ", C = " << _C << ", x = " << _x;
 
   return string.str();
@@ -356,11 +388,12 @@ std::string XPlane::toString() {
 
 /**
  * @brief Constructor for a Plane perpendicular to the y-axis.
- * @param id the surface id
  * @param y the location of the Plane along the y-axis
+ * @param id the optional Surface id
+ * @param name the optional Surface name
  */
-YPlane::YPlane(const double y, const int id):
-  Plane(1, 0, -y, id) {
+YPlane::YPlane(const double y, const int id, const char* name):
+  Plane(1, 0, -y, id, name) {
 
   _surface_type = YPLANE;
   _y = y;
@@ -431,7 +464,8 @@ std::string YPlane::toString() {
 
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", type = YPLANE " << ", A = "
+  string << "Surface id = " << _id << ", name = " << _name
+         << ", type = YPLANE " << ", A = "
          << _A << ", B = " << _B << ", C = " << _C << ", y = " << _y;
 
   return string.str();
@@ -449,11 +483,12 @@ void YPlane::printString() {
 
 /**
  * @brief Constructor for a Plane perpendicular to the z-axis.
- * @param id the surface ID
  * @param z the location of the Plane along the z-axis
+ * @param id the optional Surface ID
+ * @param name the optional Surface name
  */
-ZPlane::ZPlane(const double z, const int id):
-  Plane(0, 0, -z, id) {
+ZPlane::ZPlane(const double z, const int id, const char* name):
+  Plane(0, 0, -z, id, name) {
 
   _surface_type = ZPLANE;
   _z = z;
@@ -522,9 +557,11 @@ double ZPlane::getYMax(){
  * @return a character array of this ZPlane's attributes
  */
 std::string ZPlane::toString() {
+
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", type = ZPLANE " << ", A = "
+  string << "Surface id = " << _id << ", name = " << _name
+         << ", type = ZPLANE " << ", A = "
          << _A << ", B = " << _B << ", C = " << _C << ", z = " << _z;
 
   return string.str();
@@ -542,14 +579,15 @@ void ZPlane::printString() {
 
 /**
  * @brief constructor.
- * @param id the surface ID
  * @param x the x-coordinte of the Circle center
  * @param y the y-coordinate of the Circle center
  * @param radius the radius of the Circle
+ * @param id the optional Surface ID
+ * @param name the optional Surface name
  */
 Circle::Circle(const double x, const double y,
-               const double radius, const int id):
-  Surface(id) {
+               const double radius, const int id, const char* name):
+  Surface(id, name) {
 
   _surface_type = CIRCLE;
   _A = 1.;
@@ -715,9 +753,11 @@ int Circle::intersection(Point* point, double angle, Point* points) {
  * @return a character array of this Circle's attributes
  */
 std::string Circle::toString() {
+
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", type = CIRCLE " << ", A = "
+  string << "Surface id = " << _id << ", name " << _name
+         << ", type = CIRCLE " << ", A = "
          << _A << ", B = " << _B << ", C = " << _C << ", D = " << _D
          << ", E = " << _E << ", x0 = " << _center.getX() << ", y0 = "
          << _center.getY() << ", radius = " << _radius;
