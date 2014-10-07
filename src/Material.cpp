@@ -20,6 +20,15 @@ int material_id() {
   return id;
 }
 
+
+/**
+ * @brief Resets the auto-generated unique Material ID counter to 10000.
+ */
+void reset_material_id() {
+  auto_id = 10000;
+}
+
+
 /**
  * @brief Constructor sets the ID and unique ID for the Material.
  * @param id the user-defined ID for the material

@@ -23,6 +23,14 @@ int cell_id() {
 
 
 /**
+ * @brief Resets the auto-generated unique Cell ID counter to 10000.
+ */
+void reset_cell_id() {
+  auto_id = 10000;
+}
+
+
+/**
  * @brief Default constructor used in rings/sectors subdivision of Cells.
  */
 Cell::Cell() {
@@ -31,10 +39,11 @@ Cell::Cell() {
 
 /**
  * @brief Constructor sets the unique and user-specifed IDs for this Cell.
- * @param id the user-specified Cell ID
  * @param universe the ID of the Universe within which this Cell resides
+ * @param id the user-specified optional Cell ID
+ * @param name the user-specified optional Cell name
  */
-Cell::Cell(int universe, int id) {
+Cell::Cell(int universe, int id, const char* name) {
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
@@ -51,6 +60,7 @@ Cell::Cell(int universe, int id) {
 
   _uid = _n;
   _n++;
+  setName(name);
   _universe = universe;
 }
 
@@ -78,6 +88,15 @@ int Cell::getUid() const {
  */
 int Cell::getId() const {
   return _id;
+}
+
+
+/**
+ * @brief Return the user-defined name of the Cell
+ * @return the Cell name
+ */
+char* Cell::getName() const {
+  return _name;
 }
 
 
@@ -115,6 +134,22 @@ int Cell::getNumSurfaces() const {
  */
 std::map<Surface*, int> Cell::getSurfaces() const {
   return _surfaces;
+}
+
+
+/**
+ * @brief Sets the name of the Cell
+ * @param name the Cell name string
+ */
+void Cell::setName(const char* name) {
+  int length = strlen(name);
+
+  /* Initialize a character array for the Cell's name */
+  _name = new char[length+1];
+
+  /* Copy the input character array Cell name to the class attribute name */
+  for (int i=0; i <= length; i++)
+    _name[i] = name[i];
 }
 
 
@@ -221,10 +256,12 @@ double Cell::minSurfaceDist(Point* point, double angle,
  *        (the default is zero)
  * @param sectors the number of angular sectors to divide this Cell into
  *        (the default is zero)
- * @param id the user-specified Cell ID
+ * @param id the user-specified optional Cell ID
+ * @param name the user-specified optional Cell name
  */
 CellBasic::CellBasic(int universe, int material, int rings,
-                     int sectors, int id): Cell(universe, id) {
+                     int sectors, int id, const char* name):
+  Cell(universe, id, name) {
 
   _cell_type = MATERIAL;
   _material = material;
@@ -587,6 +624,7 @@ std::string CellBasic::toString() {
   std::stringstream string;
 
   string << "Cell id = " << _id
+         << ", name = " << _name
          << ", type = MATERIAL, material id = " << _material
          << ", universe = " << _universe
          << ", num_surfaces = " << getNumSurfaces()
@@ -613,13 +651,14 @@ void CellBasic::printString() {
 
 
 /**
- *  @brief CellFill constructor
- *  @param id the user-specified Cell ID
- *  @param universe the ID of the Universe within which this Cell resides
- *  @param universe_fill the ID of the Universe filling this Cell
+ * @brief CellFill constructor
+ * @param universe the ID of the Universe within which this Cell resides
+ * @param universe_fill the ID of the Universe filling this Cell
+ * @param id the user-specified optional Cell ID
+ * @param name the user-specified optional Cell name
  */
-CellFill::CellFill(int universe, int universe_fill, int id):
-  Cell(universe, id) {
+CellFill::CellFill(int universe, int universe_fill, int id, const char* name):
+  Cell(universe, id, name) {
 
   _cell_type = FILL;
   _universe_fill_id = universe_fill;
@@ -679,9 +718,10 @@ std::string CellFill::toString() {
 
   std::stringstream string;
 
-  string << "Cell id = " << _id << ", type = FILL, universe_fill = " <<
-    _universe_fill_id << ", universe = " << _universe <<
-    ", num_surfaces = " << getNumSurfaces();
+  string << "Cell id = " << _id << ", name = " << _name
+         << ", type = FILL, universe_fill = " << _universe_fill_id
+         << ", universe = " << _universe << ", num_surfaces = "
+         << getNumSurfaces();
 
   /** Add the IDs for the Surfaces in this Cell */
   std::map<Surface*, int>::iterator iter;

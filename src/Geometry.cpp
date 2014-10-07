@@ -2,6 +2,18 @@
 
 
 /**
+ * @brief Resets the auto-generated unique IDs for Materials, Surfaces,
+ *        Cells and Universes/Lattices to 10000.
+ */
+void reset_auto_ids() {
+  reset_material_id();
+  reset_surf_id();
+  reset_cell_id();
+  reset_universe_id();
+}
+
+
+/**
  * @brief Constructor initializes an empty Geometry.
  */
 Geometry::Geometry(Mesh* mesh) {

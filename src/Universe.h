@@ -33,6 +33,7 @@ class CellBasic;
 
 
 int universe_id();
+void reset_universe_id();
 
 
 /**
@@ -70,6 +71,9 @@ protected:
   /** A user-defined id for each Universe created */
   int _id;
 
+  /** A user-defined name for the Surface */
+  char* _name;
+
   /** The type of Universe (ie, SIMLE or LATTICE) */
   universeType _type;
 
@@ -90,7 +94,7 @@ protected:
 
 public:
 
-  Universe(const int id);
+  Universe(const int id, const char* name="");
   virtual ~Universe();
 
   void addCell(Cell* cell);
@@ -101,6 +105,7 @@ public:
   std::map<int, Cell*> getCells() const;
   int getUid() const;
   int getId() const;
+  char* getName() const;
   universeType getType();
   int getNumCells() const;
   int getFSR(int cell_id);
@@ -110,6 +115,7 @@ public:
   void getCellIds(int* cell_ids, int num_cells);
   bool isFissionable();
 
+  void setName(const char* name);
   void setType(universeType type);
   void setOrigin(Point* origin);
   void setFissionability(bool fissionable);
@@ -152,7 +158,8 @@ private:
 
 public:
 
-  Lattice(const int id, const double width_x, const double width_y);
+  Lattice(const int id, const double width_x, const double width_y,
+          const char* name="");
   virtual ~Lattice();
 
   int getNumX() const;

@@ -20,6 +20,9 @@
 #endif
 
 
+void reset_auto_ids();
+
+
 /**
  * @class Geometry Geometry.h "src/Geometry.h"
  * @brief The master class containing references to all geometry-related

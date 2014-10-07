@@ -23,13 +23,23 @@ int universe_id() {
 
 
 /**
- * @brief Constructor assigns a unique and user-specified ID for the Universe.
- * @param id the user-specified Universe ID
+ * @brief Resets the auto-generated unique Universe ID counter to 10000.
  */
-Universe::Universe(const int id) {
+void reset_universe_id() {
+  auto_id = 10000;
+}
+
+
+/**
+ * @brief Constructor assigns a unique and user-specified ID for the Universe.
+ * @param id the user-specified optional Universe ID
+ * @param name the user-specified optional Universe ID
+ */
+Universe::Universe(const int id, const char* name) {
   _uid = _n;
   _id = id;
   _n++;
+  setName(name);
   _type = SIMPLE;
 
   /* By default, the Universe's fissionability is unknown */
@@ -60,6 +70,15 @@ int Universe::getUid() const {
  */
 int Universe::getId() const {
   return _id;
+}
+
+
+/**
+ * @brief Return the user-defined name of the Universe
+ * @return the Universe name
+ */
+char* Universe::getName() const {
+  return _name;
 }
 
 
@@ -298,6 +317,22 @@ CellBasic* Universe::getCellBasic(int cell_id) {
 
 
 /**
+ * @brief Sets the name of the Universe
+ * @param name the Universe name string
+ */
+void Universe::setName(const char* name) {
+  int length = strlen(name);
+
+  /* Initialize a character array for the Universe's name */
+  _name = new char[length+1];
+
+  /* Copy the input character array Universe name to the class attribute name */
+  for (int i=0; i <= length; i++)
+    _name[i] = name[i];
+}
+
+
+/**
  * @brief Sets the Universe type to SIMPLE or LATTICE.
  * @param type the Universe type
  */
@@ -403,7 +438,8 @@ std::string Universe::toString() {
   std::stringstream string;
   std::map<int, Cell*>::iterator iter;
 
-  string << "Universe ID = " << _id << ", type = ";
+  string << "Universe ID = " << _id;
+  string << ", name = " << _name << ", type = ";
 
   if (_type == SIMPLE)
     string << "SIMPLE";
@@ -498,7 +534,7 @@ Universe* Universe::clone() {
   log_printf(DEBUG, "Cloning Universe %d", _id);
 
   /* Instantiate new Universe clone */
-  Universe* clone = new Universe(universe_id());
+  Universe* clone = new Universe(universe_id(), _name);
 
   /* Loop over Cells in Universe and clone each one */
   std::map<int, Cell*>::iterator iter1;
@@ -529,12 +565,14 @@ Universe* Universe::clone() {
 
 /**
  * @brief Constructor sets the user-specified and unique IDs for this Lattice.
- * @param id the user-specified Lattice (Universe) ID
+ * @param id the user-specified optional Lattice (Universe) ID
  * @param width_x the width of the Lattice cells along x
  * @param width_y the width of the Lattice cells along y
+ * @param name the user-specified optional Lattice (Universe) name
  */
-Lattice::Lattice(const int id, double width_x, double width_y):
-  Universe(id) {
+Lattice::Lattice(const int id, double width_x, double width_y,
+                 const char* name):
+  Universe(id, name) {
 
   _width_x = width_x;
   _width_y = width_y;
@@ -1113,8 +1151,9 @@ std::string Lattice::toString() {
 
   std::stringstream string;
 
-  string << "Lattice ID = " << _id << ", num cells along x = "
-         << _num_x << ", num cells along y = " << _num_y << ", x width = "
+  string << "Lattice ID = " << _id << ", name = " << _name
+         << ", num cells along x = " << _num_x
+         << ", num cells along y = " << _num_y << ", x width = "
          << _width_x << ", y width = " << _width_y;
 
   string << "\n\t\tUniverse IDs within this Lattice:\n\t\t";

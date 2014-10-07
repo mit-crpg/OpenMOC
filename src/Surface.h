@@ -26,6 +26,7 @@ class Cell;
 
 
 int surf_id();
+void reset_surf_id();
 
 
 /**
@@ -55,7 +56,7 @@ enum surfaceType {
 
 /**
  * @enum boundaryType
- * @brief The types of boundary conditions supported by OpenMOC for surfaces.
+ * @brief The types of boundary conditions supported by OpenMOC for Surfaces.
  */
 enum boundaryType {
   /** A vacuum boundary condition */
@@ -75,7 +76,7 @@ enum boundaryType {
 
 /**
  * @class Surface Surface.h "src/Surface.h"
- * @brief Represents a general surface in the 2D xy-plane
+ * @brief Represents a general Surface in the 2D xy-plane
  * @details The Surface class and its subclasses are used to define the
  *          geometry for an OpenMOC simulation using a constructive solid
  *          geometry (CSG) formalism. Surfaces are used during ray tracing
@@ -85,28 +86,32 @@ class Surface {
 
 protected:
 
-  /** A static counter fo the number of surfaces in a simulation */
+  /** A static counter for the number of Surfaces in a simulation */
   static int _n;
 
-  /** A monotonically increasing unique ID for each surface created */
+  /** A monotonically increasing unique ID for each Surface created */
   int _uid;
 
-  /** A user-defined id for each surface created */
+  /** A user-defined id for each Surface created */
   int _id;
 
-  /** The type of surface (ie, XPLANE, CIRCLE, etc) */
+  /** A user-defined name for the Surface */
+  char* _name;
+
+  /** The type of Surface (ie, XPLANE, CIRCLE, etc) */
   surfaceType _surface_type;
 
-  /** The type of boundary condition to be used for this surface
+  /** The type of boundary condition to be used for this Surface
    *  (ie, VACUUM or REFLECTIVE) */
   boundaryType _boundary_type;
 
 public:
-  Surface(const int id=0);
+  Surface(const int id=0, const char* name="");
   virtual ~Surface();
 
   int getUid() const;
   int getId() const;
+  char* getName() const;
   surfaceType getSurfaceType();
   boundaryType getBoundaryType();
 
@@ -134,6 +139,7 @@ public:
    */
   virtual double getYMax() =0;
 
+  void setName(const char* name);
   void setBoundaryType(const boundaryType boundary_type);
 
   /**
@@ -200,12 +206,16 @@ protected:
 
 public:
 
-  Plane(const double A, const double B, const double C, const int id=0);
+  Plane(const double A, const double B, const double C,
+        const int id=0, const char* name="");
 
   double getXMin();
   double getXMax();
   double getYMin();
   double getYMax();
+  double getA();
+  double getB();
+  double getC();
 
   double evaluate(const Point* point) const;
   int intersection(Point* point, double angle, Point* points);
@@ -227,7 +237,7 @@ private:
   double _x;
 
 public:
-  XPlane(const double x, const int id=0);
+  XPlane(const double x, const int id=0, const char* name="");
 
   void setX(const double x);
 
@@ -253,7 +263,7 @@ private:
   double _y;
 
 public:
-  YPlane(const double y, const int id=0);
+  YPlane(const double y, const int id=0, const char* name="");
 
   void setY(const double y);
 
@@ -280,7 +290,7 @@ private:
   double _z;
 
 public:
-  ZPlane(const double z, const int id=0);
+  ZPlane(const double z, const int id=0, const char* name="");
 
   void setZ(const double z);
 
@@ -331,7 +341,8 @@ private:
   friend class Plane;
 
 public:
-  Circle(const double x, const double y, const double radius, const int id=0);
+  Circle(const double x, const double y, const double radius,
+         const int id=0, const char* name="");
 
   double getX0();
   double getY0();

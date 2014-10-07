@@ -38,6 +38,7 @@
 
 
 int material_id();
+void reset_material_id();
 
 
 /**
