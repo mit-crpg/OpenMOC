@@ -338,10 +338,8 @@ def get_opencsg_cell(openmoc_cell):
     return OPENCSG_CELLS[cell_id]
 
   # Create an OpenCSG Cell to represent this OpenMC Cell
-  # FIXME: Need to implement name attribute and getter method for Cell class
-#  name = openmoc_cell.getName()
-#  opencsg_cell = opencsg.Cell(cell_id, name)
-  opencsg_cell = opencsg.Cell(cell_id)
+  name = openmoc_cell.getName()
+  opencsg_cell = opencsg.Cell(cell_id, name)
 
   fill = openmoc_cell._fill
 
@@ -530,11 +528,9 @@ def get_openmoc_cell(opencsg_cell):
 
   # Create an OpenMOC Cell to represent this OpenCSG Cell
   name = opencsg_cell._name
-  fill = opencsg_cell._fill
-    # FIXME: Need to implement name attribute for Cell class
-#    openmoc_cell = openmoc.CellFill(cell_id, name)
-  openmoc_cell = openmoc.CellFill(cell_id)
+  openmoc_cell = openmoc.CellFill(cell_id, name)
 
+  fill = opencsg_cell._fill
   if opencsg_cell._type == 'universe':
     openmoc_cell.setFill(get_openmoc_universe(fill))
   elif opencsg_cell._type == 'lattice':
