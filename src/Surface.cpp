@@ -316,9 +316,10 @@ std::string Plane::toString() {
 
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", name = " << _name
-         << ", type = PLANE " << ", A = "
-         << _A << ", B = " << _B << ", C = " << _C;
+  string << "Surface ID = " << _id
+         << ", name = " << _name
+         << ", type = PLANE "
+         << ", A = " << _A << ", B = " << _B << ", C = " << _C;
 
   return string.str();
 }
@@ -413,9 +414,11 @@ std::string XPlane::toString() {
 
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", name = " << _name
-         << ", type = XPLANE " << ", A = "
-         << _A << ", B = " << _B << ", C = " << _C << ", x = " << _x;
+  string << "Surface ID = " << _id
+         << ", name = " << _name
+         << ", type = XPLANE "
+         << ", A = " << _A << ", B = " << _B
+         << ", C = " << _C << ", x = " << _x;
 
   return string.str();
 }
@@ -499,9 +502,11 @@ std::string YPlane::toString() {
 
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", name = " << _name
-         << ", type = YPLANE " << ", A = "
-         << _A << ", B = " << _B << ", C = " << _C << ", y = " << _y;
+  string << "Surface ID = " << _id
+         << ", name = " << _name
+         << ", type = YPLANE "
+         << ", A = " << _A << ", B = " << _B
+         << ", C = " << _C << ", y = " << _y;
 
   return string.str();
 }
@@ -595,9 +600,11 @@ std::string ZPlane::toString() {
 
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", name = " << _name
-         << ", type = ZPLANE " << ", A = "
-         << _A << ", B = " << _B << ", C = " << _C << ", z = " << _z;
+  string << "Surface ID = " << _id
+         << ", name = " << _name
+         << ", type = ZPLANE "
+         << ", A = " << _A << ", B = " << _B
+         << ", C = " << _C << ", z = " << _z;
 
   return string.str();
 }
@@ -791,11 +798,14 @@ std::string Circle::toString() {
 
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", name " << _name
-         << ", type = CIRCLE " << ", A = "
-         << _A << ", B = " << _B << ", C = " << _C << ", D = " << _D
-         << ", E = " << _E << ", x0 = " << _center.getX() << ", y0 = "
-         << _center.getY() << ", radius = " << _radius;
+  string << "Surface ID = " << _id
+         << ", name " << _name
+         << ", type = CIRCLE "
+         << ", A = " << _A << ", B = " << _B
+         << ", C = " << _C << ", D = " << _D << ", E = " << _E
+         << ", x0 = " << _center.getX()
+         << ", y0 = " << _center.getY()
+         << ", radius = " << _radius;
 
     return string.str();
 }

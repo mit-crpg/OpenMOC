@@ -10,9 +10,12 @@
 #define CELL_H_
 
 #ifdef __cplusplus
+#include "Material.h"
 #include "Surface.h"
 #include "Point.h"
-#include "LocalCoords.h"
+//#include "LocalCoords.h"
+#include <map>
+#include <vector>
 #endif
 
 class Universe;
@@ -63,23 +66,24 @@ protected:
   /** The type of Cell (ie MATERIAL or FILL) */
   cellType _cell_type;
 
-  /** The ID for the Universe within which this cell resides */
-  int _universe;
-
   /** Map of bounding Surface pointers to halfspaces (+/-1) */
   std::map<Surface*, int> _surfaces;
 
+  /** A boolean representing whether or not this Cell contains a Material
+   *  with a non-zero fission cross-section and is fissionable */
+  bool _fissionable;
+
 public:
   Cell();
-  Cell(int universe, int id=0, const char* name="");
+  Cell(int id=0, const char* name="");
   virtual ~Cell();
   int getUid() const;
   int getId() const;
   char* getName() const;
   cellType getType() const;
-  int getUniverseId() const;
   int getNumSurfaces() const;
   std::map<Surface*, int> getSurfaces() const;
+  bool isFissionable();
 
   /**
    * @brief Return the number of flat source regions in this Cell.
@@ -89,9 +93,28 @@ public:
    */
   virtual int getNumFSRs() =0;
 
+  /**
+   * @brief Returns the std::map of Cell IDs and Cell pointers within any
+   *        nested Universes filling this Cell.
+   * @return std::map of Cell IDs and pointers
+   */
+  virtual std::map<int, Cell*> getAllCells() =0;
+
+  /**
+   * @brief Returns the std::map of Universe IDs and Universe pointers within
+   *        any nested Universes filling this Universe.
+   * @return std::map of Universe IDs and pointers
+   */
+  virtual std::map<int, Universe*> getAllUniverses() =0;
+
   void setName(const char* name);
-  void setUniverse(int universe);
   void addSurface(int halfspace, Surface* surface);
+  void removeSurface(Surface* surface);
+
+  /**
+   * @brief Computes whether or not this Cell contains a fissionable Material.
+   */
+  virtual void computeFissionability() =0;
 
   bool cellContainsPoint(Point* point);
   bool cellContainsCoords(LocalCoords* coords);
@@ -119,7 +142,7 @@ class CellBasic: public Cell {
 private:
 
   /** A pointer to the Material filling this Cell */
-  int _material;
+  Material* _material;
 
   /** The number of rings sub-dividing this Cell */
   int _num_rings;
@@ -140,19 +163,22 @@ private:
   void sectorize();
 
 public:
-  CellBasic(int universe, int material, int rings=0, int sectors=0,
-            int id=0, const char* name="");
+  CellBasic(int id=0, const char* name="", int rings=0, int sectors=0);
 
-  int getMaterial() const;
+  Material* getMaterial();
   int getNumRings();
   int getNumSectors();
   int getNumFSRs();
+  std::map<int, Cell*> getAllCells();
+  std::map<int, Universe*> getAllUniverses();
 
-  void setMaterial(int material_id);
+  void setMaterial(Material* material);
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);
+
   CellBasic* clone();
   std::vector<CellBasic*> subdivideCell();
+  void computeFissionability();
 
   std::string toString();
   void printString();
@@ -167,20 +193,20 @@ class CellFill: public Cell {
 
 private:
 
-  /** The ID of the Universe filling this Cell */
-  int _universe_fill_id;
-
   /** The pointer to the Universe filling this Cell */
-  Universe* _universe_fill;
+  Universe* _fill;
 
 public:
-  CellFill(int universe, int universe_fill, int id=0, const char* name="");
+  CellFill(int id=0, const char* name="");
 
-  int getUniverseFillId() const;
-  Universe* getUniverseFill() const;
+  Universe* getFill() const;
   int getNumFSRs();
+  std::map<int, Cell*> getAllCells();
+  std::map<int, Universe*> getAllUniverses();
 
-  void setUniverseFillPointer(Universe* universe_fill);
+  void setFill(Universe* universe_fill);
+
+  void computeFissionability();
 
   std::string toString();
   void printString();

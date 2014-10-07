@@ -39,11 +39,10 @@ Cell::Cell() {
 
 /**
  * @brief Constructor sets the unique and user-specifed IDs for this Cell.
- * @param universe the ID of the Universe within which this Cell resides
  * @param id the user-specified optional Cell ID
  * @param name the user-specified optional Cell name
  */
-Cell::Cell(int universe, int id, const char* name) {
+Cell::Cell(int id, const char* name) {
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
@@ -61,7 +60,10 @@ Cell::Cell(int universe, int id, const char* name) {
   _uid = _n;
   _n++;
   setName(name);
-  _universe = universe;
+
+  /* By default, the Cell's fissionability is unknown */
+  _fissionable = false;
+  _fissionable = false;
 }
 
 
@@ -110,15 +112,6 @@ cellType Cell::getType() const {
 
 
 /**
- * @brief Return the ID of the Universe within which this Cell resides.
- * @return the Universe ID
- */
-int Cell::getUniverseId() const {
-  return _universe;
-}
-
-
-/**
  * @brief Return the number of Surfaces in the Cell.
  * @return the number of Surfaces
  */
@@ -134,6 +127,16 @@ int Cell::getNumSurfaces() const {
  */
 std::map<Surface*, int> Cell::getSurfaces() const {
   return _surfaces;
+}
+
+
+/**
+ * @brief Returns true if the Cell contains a fissionable Material and
+ *        false otherwise.
+ * @return wehther or not the Cell contains a fissionable Material
+ */
+bool Cell::isFissionable() {
+  return _fissionable;
 }
 
 
@@ -154,16 +157,7 @@ void Cell::setName(const char* name) {
 
 
 /**
- * @brief Set the ID for the Universe within which this Cell resides.
- * @param universe the Universe's user-specified ID
- */
-void Cell::setUniverse(int universe) {
-  _universe = universe;
-}
-
-
-/**
- * @brief Insert a Surface into this Cells container.
+ * @brief Insert a Surface into this Cell's container of bounding Surfaces.
  * @param halfspace the Surface halfspace (+/-1)
  * @param surface a pointer to the Surface
  */
@@ -174,6 +168,16 @@ void Cell::addSurface(int halfspace, Surface* surface) {
                " %d is not -1 or 1", surface->getId(), _id, halfspace);
 
   _surfaces.insert(std::pair<Surface*, int>(surface, halfspace));
+}
+
+
+/**
+ * @brief Removes a Surface from this Cell's container of bounding Surfaces.
+ * @param surface a pointer to the Surface to remove
+ */
+void Cell::removeSurface(Surface* surface) {
+  if (_surfaces.find(surface) != _surfaces.end())
+    _surfaces.erase(surface);
 }
 
 
@@ -249,22 +253,18 @@ double Cell::minSurfaceDist(Point* point, double angle,
 
 
 /**
- * Constructor sets the user-specified and unique IDs for this CellBasic.
- * @param universe the ID for the Universe within which this CellBasic resides
- * @param material the ID for the Material which fills this CellBasic
+ * @brief Constructor sets the user-specified and unique IDs for this CellBasic.
+ * @param id the user-specified optional Cell ID
+ * @param name the user-specified optional Cell name
  * @param rings the number of equal volume rings to divide this Cell into
  *        (the default is zero)
  * @param sectors the number of angular sectors to divide this Cell into
  *        (the default is zero)
- * @param id the user-specified optional Cell ID
- * @param name the user-specified optional Cell name
  */
-CellBasic::CellBasic(int universe, int material, int rings,
-                     int sectors, int id, const char* name):
-  Cell(universe, id, name) {
+CellBasic::CellBasic(int id, const char* name, int rings, int sectors):
+  Cell(id, name) {
 
   _cell_type = MATERIAL;
-  _material = material;
   setNumRings(rings);
   setNumSectors(sectors);
 }
@@ -272,10 +272,10 @@ CellBasic::CellBasic(int universe, int material, int rings,
 
 
 /**
- * @brief Return the ID of the Material filling the CellBasic.
- * @return the Material's ID
+ * @brief Return the Material filling the CellBasic.
+ * @return the Material's pointer
  */
-int CellBasic::getMaterial() const {
+Material* CellBasic::getMaterial() {
   return _material;
 }
 
@@ -312,6 +312,35 @@ int CellBasic::getNumFSRs() {
 
 
 /**
+ * @brief Returns an empty std::map of Cell IDs and Cell pointers.
+ * @return empty std::map of Cell IDs and pointers
+ */
+std::map<int, Cell*> CellBasic::getAllCells() {
+  std::map<int, Cell*> cells;
+  return cells;
+}
+
+
+/**
+ * @brief Returns an empty std::map of nested Universe IDs and pointers
+ * @return empty std::map of Universe IDs and pointers
+ */
+std::map<int, Universe*> CellBasic::getAllUniverses() {
+  std::map<int, Universe*> universes;
+  return universes;
+}
+
+
+/**
+ * @brief Sets the Material filling this Cell.
+ * @param material the Material filling this Cell
+ */
+void CellBasic::setMaterial(Material* material) {
+  _material = material;
+}
+
+
+/**
  * @brief Set the Cell's number of rings.
  * @param num_rings the number of rings in this Cell
  */
@@ -343,23 +372,15 @@ void CellBasic::setNumSectors(int num_sectors) {
 
 
 /**
- * @brief Sets the ID for the Material filling this Cell.
- * @param material_id the new Material filling this Cell
- */
-void CellBasic::setMaterial(int material_id) {
-  _material = material_id;
-}
-
-
-/**
  * @brief Create a duplicate of the CellBasic.
  * @return a pointer to the clone
  */
 CellBasic* CellBasic::clone() {
 
   /* Construct new Cell */
-  CellBasic* new_cell = new CellBasic(_universe, _material,
-                                      _num_rings, _num_sectors);
+  CellBasic* new_cell = new CellBasic();
+  new_cell->setNumRings(_num_rings);
+  new_cell->setNumSectors(_num_sectors);
 
   /* Loop over all of this Cell's Surfaces and add them to the clone */
   std::map<Surface*, int>::iterator iter;
@@ -615,6 +636,14 @@ std::vector<CellBasic*> CellBasic::subdivideCell() {
   return _subcells;
 }
 
+
+/**
+ * @brief Computes whether or not the Material filling this Cell is fissionable.
+ */
+void CellBasic::computeFissionability() {
+  _fissionable = _material->isFissionable();
+}
+
 /**
  * @brief Convert this CellBasic's attributes to a string format.
  * @return a character array of this CellBasic's attributes
@@ -623,13 +652,13 @@ std::string CellBasic::toString() {
 
   std::stringstream string;
 
-  string << "Cell id = " << _id
+  string << "Cell ID = " << _id
          << ", name = " << _name
-         << ", type = MATERIAL, material id = " << _material
-         << ", universe = " << _universe
-         << ", num_surfaces = " << getNumSurfaces()
-         << ", num of rings = " << _num_rings
-         << ", num of sectors = " << _num_sectors;
+         << ", type = MATERIAL"
+         << ", material id = " << _material->getId()
+         << ", # surfaces = " << getNumSurfaces()
+         << ", # rings = " << _num_rings
+         << ", # sectors = " << _num_sectors;
 
   /* Append each of the surface ids to the string */
   std::map<Surface*, int>::iterator iter;
@@ -652,34 +681,20 @@ void CellBasic::printString() {
 
 /**
  * @brief CellFill constructor
- * @param universe the ID of the Universe within which this Cell resides
- * @param universe_fill the ID of the Universe filling this Cell
  * @param id the user-specified optional Cell ID
  * @param name the user-specified optional Cell name
  */
-CellFill::CellFill(int universe, int universe_fill, int id, const char* name):
-  Cell(universe, id, name) {
-
+CellFill::CellFill(int id, const char* name): Cell(id, name) {
   _cell_type = FILL;
-  _universe_fill_id = universe_fill;
-}
-
-
-/**
- * @brief Return the ID of the Universe filling this Cell.
- * @return the Universe's id
- */
-int CellFill::getUniverseFillId() const {
-  return _universe_fill_id;
 }
 
 
 /**
  * @brief Return a pointer to the Universe filling this Cell.
- * @return the universe pointer
+ * @return the Universe pointer
  */
-Universe* CellFill::getUniverseFill() const {
-  return _universe_fill;
+Universe* CellFill::getFill() const {
+  return _fill;
 }
 
 
@@ -690,13 +705,49 @@ Universe* CellFill::getUniverseFill() const {
  * @return the number of FSRs in this CellFill
  */
 int CellFill::getNumFSRs() {
-  Universe *univ = getUniverseFill();
 
-  if (univ->getType() == SIMPLE)
-    return univ->computeFSRMaps();
+  if (_fill != NULL && _fill->getType() == SIMPLE)
+    return _fill->computeFSRMaps();
 
   else
-    return static_cast<Lattice*>(univ)->computeFSRMaps();
+    return static_cast<Lattice*>(_fill)->computeFSRMaps();
+}
+
+
+/**
+ * @brief Returns the std::map of Cell IDs and Cell pointers within any
+ *        nested Universes filling this Cell.
+ * @return std::map of Cell IDs and pointers
+ */
+std::map<int, Cell*> CellFill::getAllCells() {
+
+  std::map<int, Cell*> cells;
+
+  if (_cell_type == FILL && _fill != NULL) {
+    std::map<int, Cell*> nested_cells = _fill->getAllCells();
+    cells.insert(nested_cells.begin(), nested_cells.end());
+  }
+
+  return cells;
+}
+
+
+/**
+ * @brief Returns the std::map of all nested Universe IDs and Universe pointers
+          filling this Cell.
+ * @return std::map of Universe IDs and pointers
+ */
+std::map<int, Universe*> CellFill::getAllUniverses() {
+
+  std::map<int, Universe*> universes;
+
+  if (_cell_type == FILL && _fill != NULL) {
+    universes[_fill->getId()] = _fill;
+    std::map<int, Universe*> nested_universes = _fill->getAllUniverses();
+    universes.insert(nested_universes.begin(), nested_universes.end());
+  }
+
+  return universes;
 }
 
 
@@ -704,9 +755,18 @@ int CellFill::getNumFSRs() {
  * @brief Set a pointer to the Universe filling this CellFill.
  * @param universe the Universe's pointer
  */
-void CellFill::setUniverseFillPointer(Universe* universe) {
-  _universe_fill = universe;
-  _universe_fill_id = universe->getId();
+void CellFill::setFill(Universe* universe) {
+  _fill = universe;
+}
+
+
+/**
+ * @brief Computes whether or not the Universe filling this Cell is fissionable.
+ * @return whether or not the Universe filling the Cell is fissionable
+ */
+void CellFill::computeFissionability() {
+  _fill->computeFissionability();
+  _fissionable = _fill->isFissionable();
 }
 
 
@@ -718,10 +778,11 @@ std::string CellFill::toString() {
 
   std::stringstream string;
 
-  string << "Cell id = " << _id << ", name = " << _name
-         << ", type = FILL, universe_fill = " << _universe_fill_id
-         << ", universe = " << _universe << ", num_surfaces = "
-         << getNumSurfaces();
+  string << "Cell ID = " << _id
+         << ", name = " << _name
+         << ", type = FILL, "
+         << ", fill = " << _fill->getId()
+         << ", # surfaces = " << getNumSurfaces();
 
   /** Add the IDs for the Surfaces in this Cell */
   std::map<Surface*, int>::iterator iter;

@@ -11,7 +11,12 @@
 #ifdef __cplusplus
 #include "Point.h"
 #include "Universe.h"
+#include "Cell.h"
 #endif
+
+class Universe;
+class Lattice;
+class Cell;
 
 /**
  * @enum coordType
@@ -37,14 +42,14 @@ private:
   /** The local coordinate type (UNIV or LAT) */
   coordType _type;
 
-  /** The ID of the Universe within which this LocalCoords resides */
-  int _universe;
+  /** The Universe within which this LocalCoords resides */
+  Universe* _universe;
 
-  /** The ID of the Cell within which this LocalCoords resides */
-  int _cell;
+  /** The Cell within which this LocalCoords resides */
+  Cell* _cell;
 
-  /** The ID of the Lattice within which this LocalCoords resides */
-  int _lattice;
+  /** The Lattice within which this LocalCoords resides */
+  Lattice* _lattice;
 
   /** The first index of the Lattice cell within which this LocalCoords
    *  resides */
@@ -67,9 +72,9 @@ public:
   LocalCoords(double x, double y);
   virtual ~LocalCoords();
   coordType getType();
-  int getUniverse() const;
-  int getCell() const;
-  int getLattice() const;
+  Universe* getUniverse() const;
+  Cell* getCell() const;
+  Lattice* getLattice() const;
   int getLatticeX() const;
   int getLatticeY() const;
   double getX() const;
@@ -79,9 +84,9 @@ public:
   LocalCoords* getPrev() const;
 
   void setType(coordType type);
-  void setUniverse(int universe);
-  void setCell(int cell);
-  void setLattice(int lattice);
+  void setUniverse(Universe* universe);
+  void setCell(Cell* cell);
+  void setLattice(Lattice* lattice);
   void setLatticeX(int lattice_x);
   void setLatticeY(int lattice_y);
   void setX(double x);

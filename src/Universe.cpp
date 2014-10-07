@@ -109,158 +109,6 @@ Point* Universe::getOrigin() {
 
 
 /**
- * @brief Aggregates a list (vector) of the IDs of all Materials within
- *        the MATERIAL type Cells filling this Universe.
- * @details Note that this method only searches the first level of Cells
- *          below this Universe within the nested Universe coordinate system.
- * @return a vector of Material IDs
- */
-std::vector<int> Universe::getMaterialIds() {
-
-  std::vector<int> material_ids;
-
-  /* Otherwise, we don't yet know whether or not this Universe contains a Cell
-   * with a Material with a non-zero (fissionable) fission cross-section */
-  std::map<int, Cell*>::iterator iter;
-
-  /* Loop over all Cells in this Universe */
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-
-    Cell* cell = iter->second;
-
-    /* If this Cell is filled by a Material, add the Material's ID
-     * to the list */
-    if (cell->getType() == MATERIAL)
-      material_ids.push_back(static_cast<CellBasic*>(cell)->getMaterial());
-  }
-
-  return material_ids;
-}
-
-
-/**
- * @brief Aggregates a list (vector) of the IDs of all Universes within
- *        the FILL type Cells filling this Universe.
- * @details Note that this method only searches the first level of Cells
- *          below this Universe within the nested Universe coordinate system.
- * @return a vector of Universe IDs
- */
-std::vector<int> Universe::getNestedUniverseIds() {
-
-  std::vector<int> universe_ids;
-
-  /* Loop over all Cells in this Universe */
-  std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-
-    Cell* cell = iter->second;
-
-    /* If this Cell is filled by a Material, add the Material's ID
-     * to the list */
-    if (cell->getType() == FILL)
-      universe_ids.push_back(static_cast<CellFill*>(cell)->getUniverseFillId());
-    }
-
-  return universe_ids;
-}
-
-
-/**
- * @brief Aggregates a list (vector) of the IDs of all Cells in the Universe.
- * @details Note that this method only searches the first level of Cells
- *          below this Universe within the nested Universe coordinate system.
- *          This is a helper method for SWIG to allow a user to pass in a single
- *          NumPy array as an argument. In particular, the method permits
- *          "Universe cloning" in Python, a technique which permits the easy
- *          creation of a large heterogeneous Contructive Solid Geometry with
- *          different Materials in each region.
- *
- *          An example of how this might be used in Python is given as follows:
- *
- * @code
- *          num_cells = universe.getNumCells()
- *          cell_ids = numpy.zeros(num_cells)
- *          universe.getCellIds(cell_ids)
- * @endcode
- *
- * @param cell_ids an array to populate with Cell IDs
- * @param num_cells the number of Cells in the Universe
- */
-void Universe::getCellIds(int* cell_ids, int num_cells) {
-
-  int counter = 0;
-
-  /* Loop over all Cells in this Universe */
-  std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    Cell* cell = iter->second;
-    cell_ids[counter] = cell->getId();
-    counter++;
-  }
-
-  return;
-}
-
-
-/**
- * @brief Returns true if the Universe contains a Cell filled by a fissionable
- *        Material and false otherwise.
- * @details This method should not be called prior to the calling of the
- *          Geometry::computeFissionability() method.
- * @return true if contains a fissionable Material
- */
-bool Universe::isFissionable() {
-  return _fissionable;
-}
-
-
-/**
- * @brief Returns the local ID for the FSR representing a Cell in this Universe.
- * @details This method is used when constructing an ID for an FSR and should
- *          only be called by the Geometry. Users should NOT call this method
- *          directly to retreive an FSR ID.
- * @param cell_id the ID of the cell of interest
- */
-int Universe::getFSR(int cell_id) {
-
-  if (_cells.find(cell_id) == _cells.end())
-    log_printf(ERROR, "Tried to find FSR ID for Cell with ID = %d in "
-               " Universe with ID = %d but no Cell exists", cell_id, _id);
-
-  return _region_map.at(cell_id);
-}
-
-
-/**
- * @brief Return the container of Cell IDs and Cell pointers in this Universe.
- * @return std::map of Cell IDs
- */
-std::map<int, Cell*> Universe::getCells() const {
-  return _cells;
-}
-
-
-/**
- * @brief Adds a Cell to this Universe.
- * @details Stores the user-specified Cell ID and Cell pointer in a std::map
- *          along with all of other Cells added to this Universe.
- * @param cell the Cell pointer
- */
-void Universe::addCell(Cell* cell) {
-
-  try {
-    _cells.insert(std::pair<int, Cell*>(cell->getId(), cell));
-    log_printf(INFO, "Added Cell with ID = %d to Universe with ID = %d",
-               cell->getId(), _id);
-  }
-  catch (std::exception &e) {
-    log_printf(ERROR, "Unable to add Cell with ID = %d to Universe with"
-               " ID = %d. Backtrace:\n%s", cell, _id, e.what());
-  }
-}
-
-
-/**
  * @brief Returns a Cell in this universe.
  * @param cell_id the integer the cell_id
  * @return Returns the cell pointer.
@@ -272,6 +120,15 @@ Cell* Universe::getCell(int cell_id) {
                "ID = %d since it does not contain this Cell", cell_id, _id);
 
     return _cells.at(cell_id);
+}
+
+
+/**
+ * @brief Return the container of Cell IDs and Cell pointers in this Universe.
+ * @return std::map of Cell IDs
+ */
+std::map<int, Cell*> Universe::getCells() const {
+  return _cells;
 }
 
 
@@ -317,6 +174,83 @@ CellBasic* Universe::getCellBasic(int cell_id) {
 
 
 /**
+ * @brief Returns the std::map of Cell IDs and Cell pointers in this Universe
+ *        at all nested Universe levels.
+ * @return std::map of Cell IDs and pointers
+ */
+std::map<int, Cell*> Universe::getAllCells() {
+
+  std::map<int, Cell*> cells;
+  std::map<int, Cell*>::iterator iter;
+
+  /* Add this Universe's Cells to the map */
+  cells.insert(_cells.begin(), _cells.end());
+
+  /* Append all Cells in each Cell in the Universe to the map */
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    std::map<int, Cell*> nested_cells = iter->second->getAllCells();
+    cells.insert(nested_cells.begin(), nested_cells.end());
+  }
+
+  return cells;
+}
+
+
+/**
+ * @brief Returns the std::map of all nested Universe IDs and Universe pointers
+          filling this Universe.
+ * @return std::map of Universe IDs and pointers
+ */
+std::map<int, Universe*> Universe::getAllUniverses() {
+
+  /* Get all Cells in this Universe */
+  std::map<int, Cell*> cells = getAllCells();
+
+  std::map<int, Universe*> universes;
+  std::map<int, Cell*>::iterator iter;
+  Cell* cell;
+
+  /* Append all Universes containing each Cell to the map */
+  for (iter = cells.begin(); iter != cells.end(); ++iter) {
+    cell = (*iter).second;
+    std::map<int, Universe*> nested_universes = cell->getAllUniverses();
+    universes.insert(nested_universes.begin(), nested_universes.end());
+  }
+
+  return universes;
+}
+
+
+/**
+ * @brief Returns the local ID for the FSR representing a Cell in this Universe.
+ * @details This method is used when constructing an ID for an FSR and should
+ *          only be called by the Geometry. Users should NOT call this method
+ *          directly to retreive an FSR ID.
+ * @param cell_id the ID of the cell of interest
+ */
+int Universe::getFSR(int cell_id) {
+
+  if (_cells.find(cell_id) == _cells.end())
+    log_printf(ERROR, "Tried to find FSR ID for Cell with ID = %d in "
+               " Universe with ID = %d but no Cell exists", cell_id, _id);
+
+  return _region_map.at(cell_id);
+}
+
+
+/**
+ * @brief Returns true if the Universe contains a Cell filled by a fissionable
+ *        Material and false otherwise.
+ * @details This method should not be called prior to the calling of the
+ *          Geometry::computeFissionability() method.
+ * @return true if contains a fissionable Material
+ */
+bool Universe::isFissionable() {
+  return _fissionable;
+}
+
+
+/**
  * @brief Sets the name of the Universe
  * @param name the Universe name string
  */
@@ -352,15 +286,32 @@ void Universe::setOrigin(Point* origin) {
 
 
 /**
- * @brief Sets whether or not this Universe contains a fissionable Material
- *        with a non-zero fission cross-section.
- * @details This method is called by the Geometry::computeFissionability()
- *          class method.
- * @param fissionable true if the Universe contains a fissionable Material;
- *        false otherwise
+ * @brief Adds a Cell to this Universe.
+ * @details Stores the user-specified Cell ID and Cell pointer in a std::map
+ *          along with all of other Cells added to this Universe.
+ * @param cell the Cell pointer
  */
-void Universe::setFissionability(bool fissionable) {
-  _fissionable = fissionable;
+void Universe::addCell(Cell* cell) {
+
+  try {
+    _cells.insert(std::pair<int, Cell*>(cell->getId(), cell));
+    log_printf(INFO, "Added Cell with ID = %d to Universe with ID = %d",
+               cell->getId(), _id);
+  }
+  catch (std::exception &e) {
+    log_printf(ERROR, "Unable to add Cell with ID = %d to Universe with"
+               " ID = %d. Backtrace:\n%s", cell, _id, e.what());
+  }
+}
+
+
+/**
+ * @brief Removes a Cell from this Universe's container of Cells.
+ * @param cell a pointer to the Cell to remove
+ */
+void Universe::removeCell(Cell* cell) {
+  if (_cells.find(cell->getId()) != _cells.end())
+    _cells.erase(cell->getId());
 }
 
 
@@ -370,11 +321,9 @@ void Universe::setFissionability(bool fissionable) {
  *          checking each of this Universe's Cells. Returns NULL if the
  *          LocalCoords is not in any of the Cells.
  * @param coords a pointer to the LocalCoords of interest
- * @param universes a container of all of the Universes passed in by Geometry
  * @return a pointer the Cell where the LocalCoords is located
  */
-Cell* Universe::findCell(LocalCoords* coords,
-                         std::map<int, Universe*> universes) {
+Cell* Universe::findCell(LocalCoords* coords) {
 
   Cell* return_cell = NULL;
   std::map<int, Cell*>::iterator iter;
@@ -389,11 +338,11 @@ Cell* Universe::findCell(LocalCoords* coords,
     if (cell->cellContainsCoords(coords)) {
 
       /* Set the Cell on this level */
-      coords->setCell(cell->getId());
+      coords->setCell(cell);
 
       /* MATERIAL type Cell - lowest level, terminate search for Cell */
       if (cell->getType() == MATERIAL) {
-        coords->setCell(cell->getId());
+        coords->setCell(cell);
         return_cell = cell;
         return return_cell;
       }
@@ -409,49 +358,22 @@ Cell* Universe::findCell(LocalCoords* coords,
         else
           next_coords = coords->getNext();
 
-        CellFill* cell_fill = static_cast<CellFill*>(cell);
-        int universe_id = cell_fill->getUniverseFillId();
-        next_coords->setUniverse(universe_id);
-        Universe* univ = universes.at(universe_id);
-        coords->setCell(cell->getId());
+        CellFill* fill = static_cast<CellFill*>(cell);
+        Universe* univ = fill->getFill();
+        next_coords->setUniverse(univ);
+        coords->setCell(cell);
 
         coords->setNext(next_coords);
         next_coords->setPrev(coords);
         if (univ->getType() == SIMPLE)
-          return univ->findCell(next_coords, universes);
+          return univ->findCell(next_coords);
         else
-          return static_cast<Lattice*>(univ)->findCell(next_coords, universes);
+          return static_cast<Lattice*>(univ)->findCell(next_coords);
       }
     }
   }
 
   return return_cell;
-}
-
-
-/**
- * @brief Convert the member attributes of this Universe to a character array.
- * @return a character array representing the Universe's attributes
- */
-std::string Universe::toString() {
-
-  std::stringstream string;
-  std::map<int, Cell*>::iterator iter;
-
-  string << "Universe ID = " << _id;
-  string << ", name = " << _name << ", type = ";
-
-  if (_type == SIMPLE)
-    string << "SIMPLE";
-  else
-    string << "LATTICE";
-
-  string << ", num cells = " << _cells.size() << ", cell IDs = ";
-
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-    string << iter->first << ", ";
-
-  return string.str();
 }
 
 
@@ -477,6 +399,27 @@ int Universe::computeFSRMaps() {
   }
 
   return count;
+}
+
+
+/**
+ * @brief Computes whether or not the Universe contains one or more Cells
+ *        filled by a fissionable Material.
+ */
+void Universe::computeFissionability() {
+
+  std::map<int, Cell*> all_cells = getAllCells();
+  std::map<int, Cell*>::iterator iter;
+  Cell* cell;
+
+  for (iter = all_cells.begin(); iter != all_cells.end(); ++iter) {
+
+    cell = (*iter).second;
+    cell->computeFissionability();
+
+    if (cell->isFissionable())
+      _fissionable = true;
+  }
 }
 
 
@@ -517,6 +460,33 @@ void Universe::subdivideCells() {
 
 
 /**
+ * @brief Convert the member attributes of this Universe to a character array.
+ * @return a character array representing the Universe's attributes
+ */
+std::string Universe::toString() {
+
+  std::stringstream string;
+  std::map<int, Cell*>::iterator iter;
+
+  string << "Universe ID = " << _id;
+  string << ", name = " << _name;
+
+  string << ", type = ";
+  if (_type == SIMPLE)
+    string << "SIMPLE";
+  else
+    string << "LATTICE";
+
+  string << ", # cells = " << _cells.size() << ", cell IDs = ";
+
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    string << iter->first << ", ";
+
+  return string.str();
+}
+
+
+/**
  * @brief Prints a string representation of the Universe's attributes to
  *        the console.
  */
@@ -549,7 +519,6 @@ Universe* Universe::clone() {
 
       /* Add Cell clone to the list */
       clone->addCell(cell_clone);
-      cell_clone->setUniverse(clone->getId());
     }
 
     /* Throw error message if Cell is FILL type */
@@ -566,21 +535,17 @@ Universe* Universe::clone() {
 /**
  * @brief Constructor sets the user-specified and unique IDs for this Lattice.
  * @param id the user-specified optional Lattice (Universe) ID
- * @param width_x the width of the Lattice cells along x
- * @param width_y the width of the Lattice cells along y
  * @param name the user-specified optional Lattice (Universe) name
  */
-Lattice::Lattice(const int id, double width_x, double width_y,
-                 const char* name):
-  Universe(id, name) {
+Lattice::Lattice(const int id, const char* name): Universe(id, name) {
 
-  _width_x = width_x;
-  _width_y = width_y;
   _type = LATTICE;
 
-  /* Default number of Lattice cells along each dimension */
+  /* Default width and number of Lattice cells along each dimension */
   _num_y = 0;
   _num_x = 0;
+  _width_x = 0;
+  _width_y = 0;
 }
 
 
@@ -615,43 +580,6 @@ int Lattice::getNumY() const {
 
 
 /**
- * @brief Return the origin of the Lattice.
- * @return a pointer to the origin of the Lattice
- */
-Point* Lattice::getOrigin() {
-  return &_origin;
-}
-
-
-/**
- * @brief Return a 2D vector of the Universes in the Lattice.
- * @return 2D vector of Universes
- */
-std::vector< std::vector< std::pair<int, Universe*> > >
-Lattice::getUniverses() const {
-  return _universes;
-}
-
-
-/**
- * @brief Returns a pointer to the Universe within a specific Lattice cell.
- * @param lattice_x the x index to the Lattice cell
- * @param lattice_y the y index to the Lattice cell
- * @return pointer to a Universe filling the Lattice cell
- */
-Universe* Lattice::getUniverse(int lattice_x, int lattice_y) const {
-
-  /* Checks that lattice indices are within the bounds of the lattice */
-  if (lattice_x > _num_x || lattice_y > _num_y)
-    log_printf(ERROR, "Cannot retrieve Universe from Lattice ID = %d: Index"
-               "out of bounds: Tried to access Cell x = %d, y = %d but bounds"
-               "are x = %d, y = %d", _id, lattice_x, lattice_y, _num_x, _num_y);
-
-  return _universes.at(lattice_y).at(lattice_x).second;
-}
-
-
-/**
  * @brief Return the width of the Lattice along the x-axis.
  * @return the width of the Lattice cells along x
  */
@@ -666,6 +594,44 @@ double Lattice::getWidthX() const {
  */
 double Lattice::getWidthY() const {
   return _width_y;
+}
+
+
+/**
+ * @brief Return the origin of the Lattice.
+ * @return a pointer to the origin of the Lattice
+ */
+Point* Lattice::getOrigin() {
+  return &_origin;
+}
+
+
+/**
+ * @brief Returns a pointer to the Universe within a specific Lattice cell.
+ * @param lat_x the x index to the Lattice cell
+ * @param lat_y the y index to the Lattice cell
+ * @return pointer to a Universe filling the Lattice cell
+ */
+Universe* Lattice::getUniverse(int lat_x, int lat_y) const {
+
+  /* Checks that lattice indices are within the bounds of the lattice */
+  if (lat_x > _num_x || lat_y > _num_y)
+    log_printf(ERROR, "Cannot retrieve Universe from Lattice ID = %d: Index"
+               "out of bounds: Tried to access Cell x = %d, y = %d but bounds"
+               "are x = %d, y = %d", _id, lat_x, lat_y, _num_x, _num_y);
+
+  return _universes.at(lat_y).at(lat_x).second;
+}
+
+
+/**
+ * @brief Return a 2D vector of the Universes in the Lattice.
+ * @return 2D vector of Universes
+ */
+std::vector<std::vector<std::pair<int, Universe*>>>
+  Lattice::getUniverses() const {
+
+  return _universes;
 }
 
 
@@ -692,81 +658,99 @@ int Lattice::getFSR(int lat_x, int lat_y) {
 
 
 /**
- * @brief Aggregates a list (vector) of the IDs of all Universes within
- *        the FILL type Cells filling this Universe.
- * @details Note that this method only searches the first level of Cells
- *          below this Universe within the nested Universe coordinate system.
- * @return a vector of Universe IDs
+ * @brief Returns the std::map of all Universe IDs and Universe pointers
+          filling this Lattice.
+ * @return std::map of Universe IDs and pointers
  */
-std::vector<int> Lattice::getNestedUniverseIds() {
+std::map<int, Universe*> Lattice::getUniqueUniverses() {
 
-  std::vector<int> universe_ids;
+  std::map<int, Universe*> unique_universes;
+  Universe* universe;
 
-  /* Loop over all Lattice cells */
-  for (int i = 0; i < _num_y; i++) {
-    for (int j = 0; j< _num_x; j++)
-      universe_ids.push_back(_universes[i][j].second->getId());
-  }
-
-  return universe_ids;
-}
-
-
-/**
- * @brief Sets the pointer to a Universe filling one of this Lattice's
- *        Lattice cells.
- * @param universe pointer to the Universe
- */
-void Lattice::setUniversePointer(Universe* universe) {
-
-  /* Check that _surfaces contains this Surface ID and delete the ID
-   *  otherwise throw an error */
-  int universe_id = universe->getId();
-  bool universe_not_found = true;
-
-  /* Loop over all Universes in Lattice */
-  for (int i = 0; i < _num_y; i++) {
-    for (int j = 0; j< _num_x; j++) {
-
-      /* Checks if the Universe ID matches what the Lattice's
-       * Universes container expects */
-      if (_universes.at(i).at(j).first == universe_id) {
-        _universes[i][j].second = universe;
-        universe_not_found = false;
-      }
+  for (int i = _num_y-1; i > -1;  i--) {
+    for (int j = 0; j < _num_x; j++) {
+      universe = _universes.at(i).at(j).second;
+      unique_universes[universe->getId()] = universe;
     }
   }
 
-  if (universe_not_found)
-    log_printf(WARNING, "Tried to set the Universe pointer for "
-              "Lattice id = %d for Universe ID = %d but the Lattice "
-               "does not contain the Universe", _id, universe_id);
-  else
-    log_printf(INFO, "Set the Universe pointer for Lattice "
-               "ID = %d for Universe ID = %d", _id, universe_id);
-
-  return;
+  return unique_universes;
 }
 
 
 /**
- * @brief Sets the arrary of Universe IDs filling each Lattice cell.
- * @details This is a helper method for SWIG to allow users to assign Universe
- *          IDs to a Lattice using a 2D Python list (list of lists). An example
+ * @brief Returns the std::map of Cell IDs and Cell pointers in this Lattice
+ *        at all nested Universe levels.
+ * @return std::map of Cell IDs and pointers
+ */
+std::map<int, Cell*> Lattice::getAllCells() {
+
+  std::map<int, Cell*> cells;
+  std::map<int, Universe*> unique_universes = getUniqueUniverses();
+
+  std::map<int, Universe*>::iterator iter;
+  std::map<int, Cell*> nested_cells;
+
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter){
+    nested_cells = iter->second->getAllCells();
+    cells.insert(nested_cells.begin(), nested_cells.end());
+  }
+
+  return cells;
+}
+
+
+/**
+ * @brief Returns the std::map of all nested Universe IDs and Universe pointers
+          filling this Lattice.
+ * @return std::map of Universe IDs and pointers
+ */
+std::map<int, Universe*> Lattice::getAllUniverses() {
+
+  /* Initialize a map of all Universes contained by the Lattice in each
+   * nested Universe level */
+  std::map<int, Universe*> all_universes;
+
+  /* Get all unique Universes contained in each of the Lattice cells */
+  std::map<int, Universe*> unique_universes = getUniqueUniverses();
+
+  /* Add the unique Universes filling each Lattice cell */
+  all_universes.insert(unique_universes.begin(), unique_universes.end());
+
+  /* Append all Universes containing each Cell to the map */
+  std::map<int, Universe*>::iterator iter;
+  std::map<int, Universe*> nested_universes;
+
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter){
+    nested_universes = iter->second->getAllUniverses();
+    all_universes.insert(nested_universes.begin(), nested_universes.end());
+  }
+
+  return all_universes;
+}
+
+
+/**
+ * @brief Sets the array of Universe pointers filling each Lattice cell.
+ * @details This is a helper method for SWIG to allow users to assign Universes
+ *          to a Lattice using a 2D Python list (list of lists). An example
  *          how this method can be called from Python is as follows:
  *
  * @code
- *          lattice.setLatticeCells([[1, 2, 1, 2],
- *                                   [2, 3, 2, 3],
- *                                   [1, 2, 1, 2],
- *                                   [2, 3, 2, 3]])
+ *          u1 = Universe(name='Universe 1')
+ *          u2 = Universe(name='Universe 2')
+ *          u3 = Universe(name='Universe 3')
+ *          lattice.setLatticeCells([[u1, u2, u1, u2],
+ *                                   [u2, u3, u2, u3],
+ *                                   [u1, u2, u1, u2],
+ *                                   [u2, u3, u2, u3]])
  * @endcode
  *
- * @param universes the array of Universe IDs for each Lattice cell
  * @param num_x the number of Lattice cells along x
  * @param num_y the number of Lattice cells along y
+ * @param universes the array of Universes for each Lattice cell
  */
-void Lattice::setLatticeCells(int num_x, int num_y, int* universes) {
+void Lattice::setUniverses(int num_x, int num_y, Universe* universes) {
 
   /* Clear any Universes in the Lattice (from a previous run) */
   for (int i=0; i < _num_x; i++)
@@ -782,7 +766,7 @@ void Lattice::setLatticeCells(int num_x, int num_y, int* universes) {
   _origin.setX(-_width_x*_num_x/2.0);
   _origin.setY(-_width_y*_num_y/2.0);
 
-  Universe* empty_universe_pointer = NULL;
+  Universe* universe;
 
   /* The Lattice cells are assumed input in row major order starting from the
    * upper left corner. This double loop reorders the Lattice cells from the
@@ -792,12 +776,13 @@ void Lattice::setLatticeCells(int num_x, int num_y, int* universes) {
     _universes.push_back(std::vector< std::pair<int, Universe*> >());
 
     for (int j = 0; j< _num_x; j++){
+      universe = &universes[(_num_y-1-i)*_num_x + j];
       _universes.at(i).push_back(std::pair<int, Universe*>
-                  (universes[(_num_y-1-i)*_num_x + j], empty_universe_pointer));
+                                 (universe->getId(), universe));
     }
   }
 
-  /* Intialize _region_map */
+  /* Intialize region_map */
   for (int i = 0; i < _num_y; i++) {
 
     _region_map.push_back(std::vector< std::pair<int, int> >());
@@ -843,11 +828,9 @@ bool Lattice::withinBounds(Point* point) {
  *          Universe inside that Lattice cell. If LocalCoords is outside
  *          the bounds of the Lattice, this method will return NULL.
  * @param coords the LocalCoords of interest
- * @param universes a std::map of all Universes passed in from the geometry
  * @return a pointer to the Cell this LocalCoord is in or NULL
  */
-Cell* Lattice::findCell(LocalCoords* coords,
-                        std::map<int, Universe*> universes) {
+Cell* Lattice::findCell(LocalCoords* coords) {
 
   /* Set the LocalCoord to be a LAT type at this level */
   coords->setType(LAT);
@@ -892,12 +875,11 @@ Cell* Lattice::findCell(LocalCoords* coords,
   else
     next_coords = coords->getNext();
 
-  int universe_id = getUniverse(lat_x, lat_y)->getId();
-  Universe* univ = universes.at(universe_id);
-  next_coords->setUniverse(universe_id);
+  Universe* univ = getUniverse(lat_x, lat_y);
+  next_coords->setUniverse(univ);
 
   /* Set Lattice indices */
-  coords->setLattice(_id);
+  coords->setLattice(this);
   coords->setLatticeX(lat_x);
   coords->setLatticeY(lat_y);
 
@@ -905,7 +887,7 @@ Cell* Lattice::findCell(LocalCoords* coords,
   next_coords->setPrev(coords);
 
   /* Search the next lowest level Universe for the Cell */
-  return univ->findCell(next_coords, universes);
+  return univ->findCell(next_coords);
 }
 
 
@@ -924,11 +906,9 @@ Cell* Lattice::findCell(LocalCoords* coords,
  *          that the LocalCoords will reach next along its trajectory.
  * @param coords pointer to a LocalCoords object
  * @param angle the angle of the trajectory
- * @param universes a map of all of the Universes passed in by the Geometry
  * @return a pointer to a Cell if found, NULL if no cell found
  */
-Cell* Lattice::findNextLatticeCell(LocalCoords* coords, double angle,
-                                   std::map<int, Universe*> universes) {
+Cell* Lattice::findNextLatticeCell(LocalCoords* coords, double angle) {
 
   /* Tests the upper, lower, left and right Lattice Cells adjacent to
    * the LocalCoord and uses the one with the shortest distance from
@@ -1095,7 +1075,7 @@ Cell* Lattice::findNextLatticeCell(LocalCoords* coords, double angle,
 
       /* Move to next lowest level Universe */
       coords->prune();
-      Universe* univ = _universes.at(new_lattice_y).at(new_lattice_x).second;
+      Universe* univ = getUniverse(new_lattice_x, new_lattice_y);
       LocalCoords* next_coords;
 
       /* Compute local position of Point in next level Universe */
@@ -1109,10 +1089,10 @@ Cell* Lattice::findNextLatticeCell(LocalCoords* coords, double angle,
       next_coords->setPrev(coords);
       coords->setNext(next_coords);
 
-      next_coords->setUniverse(univ->getId());
+      next_coords->setUniverse(univ);
 
       /* Search lower level Universe */
-      return findCell(coords, universes);
+      return findCell(coords);
     }
   }
 }
@@ -1151,10 +1131,12 @@ std::string Lattice::toString() {
 
   std::stringstream string;
 
-  string << "Lattice ID = " << _id << ", name = " << _name
-         << ", num cells along x = " << _num_x
-         << ", num cells along y = " << _num_y << ", x width = "
-         << _width_x << ", y width = " << _width_y;
+  string << "Lattice ID = " << _id
+         << ", name = " << _name
+         << ", # cells along x = " << _num_x
+         << ", # cells along y = " << _num_y
+         << ", x width = " << _width_x
+         << ", y width = " << _width_y;
 
   string << "\n\t\tUniverse IDs within this Lattice:\n\t\t";
 

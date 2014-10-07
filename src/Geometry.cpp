@@ -22,8 +22,8 @@ Geometry::Geometry(Mesh* mesh) {
    * the Geometry to be infinite  */
   _x_min = std::numeric_limits<double>::max();
   _y_min = std::numeric_limits<double>::max();
-  _x_max = -std::numeric_limits<double>::max();;
-  _y_max = -std::numeric_limits<double>::max();;
+  _x_max = -std::numeric_limits<double>::max();
+  _y_max = -std::numeric_limits<double>::max();
 
   _max_seg_length = 0;
   _min_seg_length = std::numeric_limits<double>::infinity();
@@ -45,16 +45,9 @@ Geometry::Geometry(Mesh* mesh) {
 
 
 /**
- * @brief Destructor clears all references to Materials, Surfaces, Cells,
- *        Universes and Lattices.
+ * @brief Destructor clears FSR to Cells and Materials maps.
  */
 Geometry::~Geometry() {
-
-  _materials.clear();
-  _surfaces.clear();
-  _cells.clear();
-  _universes.clear();
-  _lattices.clear();
 
   /* Free FSR-to-Cells and Materials offset maps if they were initialized */
   if (_num_FSRs != 0) {
@@ -62,30 +55,6 @@ Geometry::~Geometry() {
     delete [] _FSRs_to_material_UIDs;
     delete [] _FSRs_to_material_IDs;
   }
-}
-
-
-/**
- * Link the CellFill objects with the Universes filling them.
- */
-void Geometry::initializeCellFillPointers() {
-
-  std::map<int, Cell*>::iterator iter;
-  CellFill* cell;
-  Universe* univ;
-
-  /* Iterates over all Cells in the Geometry */
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-
-    /* Checks if CellFill references this Universe and sets its pointer */
-    if (iter->second->getType() == FILL) {
-      cell = static_cast<CellFill*>(iter->second);
-      univ = _universes.at(cell->getUniverseFillId());
-      cell->setUniverseFillPointer(univ);
-    }
-  }
-
-  return;
 }
 
 
@@ -211,7 +180,9 @@ int Geometry::getNumEnergyGroups() {
  * @return the number of Materials
  */
 int Geometry::getNumMaterials() {
-  return _materials.size();
+  std::map<int, Material*> all_materials = getAllMaterials();
+  int num_materials = all_materials.size();
+  return num_materials;
 }
 
 
@@ -220,7 +191,15 @@ int Geometry::getNumMaterials() {
  * @return the number of Cells
  */
 int Geometry::getNumCells() {
-  return _cells.size();
+
+  int num_cells = 0;
+
+  if (_root_universe != NULL) {
+    std::map<int, Cell*> all_cells = _root_universe->getAllCells();
+    num_cells = all_cells.size();
+  }
+
+  return num_cells;
 }
 
 
@@ -275,163 +254,36 @@ double Geometry::getMinSegmentLength() {
  *        pointers (values).
  * @return a std::map of Materials indexed by Material ID in the geometry
  */
-std::map<int, Material*> Geometry::getMaterials() {
-  return _materials;
+std::map<int, Material*> Geometry::getAllMaterials() {
+
+  std::map<int, Material*> all_materials;
+  Cell* cell;
+  Material* material;
+
+  if (_root_universe != NULL) {
+    std::map<int, Cell*> all_cells = _root_universe->getAllCells();
+    std::map<int, Cell*>::iterator iter;
+
+    for (iter = all_cells.begin(); iter != all_cells.end(); ++iter) {
+      cell = (*iter).second;
+
+      if (cell->getType() == MATERIAL) {
+        material = static_cast<CellBasic*>(cell)->getMaterial();
+        all_materials[material->getId()] = material;
+      }
+    }
+  }
+
+  return all_materials;
 }
 
 
 /**
- * @brief Return a pointer to a Material object in the Geometry.
- * @param id the user-specified Material ID
- * @return a pointer to the Material object
+ * @brief Returns the Universe at the root node in the CSG tree.
+ * @return the root Universe
  */
-Material* Geometry::getMaterial(int id) {
-
-  Material* material = NULL;
-
-  try {
-    material = _materials.at(id);
-  }
-  catch (std::exception & e) {
-    log_printf(ERROR, "Attempted to retrieve Material with ID = %d which"
-               " does not exist. Backtrace:\n%s", id, e.what());
-  }
-
-  return material;
-}
-
-
-/**
- * @brief Return a pointer to a Surface from the Geometry.
- * @param id the user-specified Surface ID
- * @return a pointer to the Surface object
- */
-Surface* Geometry::getSurface(int id) {
-
-  Surface* surface = NULL;
-
-  try {
-    surface = _surfaces.at(id);
-  }
-  catch (std::exception & e) {
-    log_printf(ERROR, "Attempted to retrieve Surface with ID = %d which "
-               "has not been declared. Backtrace:\n%s", id, e.what());
-  }
-
-  return surface;
-}
-
-/**
- * @brief Return a pointer to a Cell object in the Geometry.
- * @param id the user-specified Cell's ID
- * @return a pointer to the Cell object
- */
-
-Cell* Geometry::getCell(int id) {
-
-  Cell* cell = NULL;
-
-  try {
-    cell = static_cast<Cell*>(_cells.at(id));
-  }
-  catch (std::exception & e) {
-    log_printf(ERROR, "Attempted to retrieve Cell with ID = %d which has "
-               "not been declared. Backtrace:\n%s", id, e.what());
-  }
-
-  return cell;
-}
-
-
-/**
- * @brief Return a pointer to a Cell filled by a Material (CellBasic)
- *        from the Geometry.
- * @param id the user-specified Cell's ID
- * @return a pointer to the Cell object
- */
-CellBasic* Geometry::getCellBasic(int id) {
-
-  CellBasic* cell = NULL;
-
-  try {
-    cell = static_cast<CellBasic*>(_cells.at(id));
-    if (cell->getType() != MATERIAL)
-      log_printf(WARNING, "Retrieving Cell %d from the Geometry, but it "
-                 "is not a MATERIAL type Cell", cell->getId());
-  }
-  catch (std::exception & e) {
-    log_printf(ERROR, "Attempted to retrieve Cell with ID = %d which has "
-               "not been declared. Backtrace:\n%s", id, e.what());
-  }
-
-  return cell;
-}
-
-
-/**
- * @brief Return a pointer to a Cell filled by a Universe (CellFill)
- *        from the Geometry.
- * @param id the user-specified Cell's ID
- * @return a pointer to the Cell object
- */
-CellFill* Geometry::getCellFill(int id) {
-
-  CellFill* cell = NULL;
-
-  try {
-    cell = static_cast<CellFill*>(_cells.at(id));
-    if (cell->getType() != FILL)
-      log_printf(WARNING, "Retrieving Cell %d from the Geometry, but it "
-                 "is not a FILL type Cell", cell->getId());
-  }
-  catch (std::exception & e) {
-    log_printf(ERROR, "Attempted to retrieve Cell with ID = %d which has "
-               "not been declared. Backtrace:\n%s", id, e.what());
-  }
-
-  return cell;
-}
-
-
-
-/**
- * @brief Return a pointer to a Universe from the Geometry.
- * @param id the user-specified Universe ID
- * @return a pointer to the Universe object
- */
-Universe* Geometry::getUniverse(int id) {
-
-  Universe* universe = NULL;
-
-  try {
-    universe = _universes.at(id);
-  }
-  catch (std::exception & e) {
-    log_printf(ERROR, "Attempted to retrieve Universe with ID = %d which "
-               "has not been declared. Backtrace:\n%s", id, e.what());
-  }
-
-  return universe;
-}
-
-
-/**
- * @brief Return a pointer to a Lattice from the Geometry.
- * @param id the user-specified Lattice (Universe) ID
- * @return a pointer to the Lattice object
- */
-Lattice* Geometry::getLattice(int id) {
-
-  Lattice* lattice = NULL;
-  try {
-    lattice = _lattices.at(id);
-  }
-  catch (std::exception & e) {
-    log_printf(ERROR, "Attempted to retrieve Lattice with ID = %d which "
-               "has not been declared. Backtrace:\n%s", id, e.what());
-  }
-
-  return lattice;
+Universe* Geometry::getRootUniverse() {
+  return _root_universe;
 }
 
 
@@ -442,396 +294,6 @@ Lattice* Geometry::getLattice(int id) {
 Mesh* Geometry::getMesh(){
     return _mesh;
 }
-
-
-/**
- * @brief Add a Material to the Geometry.
- * @param material a pointer to a Material object
- */
-void Geometry::addMaterial(Material* material) {
-
-  /* Checks the number of energy groups */
-  if (material->getNumEnergyGroups() == 0)
-    log_printf(ERROR, "Unable to add Material %d since it does not "
-               "contain any nuclear data", material->getId());
-
-  if (_num_groups == 0)
-    _num_groups = material->getNumEnergyGroups();
-
-  else if (_num_groups != material->getNumEnergyGroups())
-    log_printf(ERROR, "Unable to add Material %d with %d energy groups to the"
-               " Geometry which contains Material(s) with %d energy groups",
-               material->getId(), material->getNumEnergyGroups(), _num_groups);
-
-  try {
-    /* Check that the sum of the Material's absorption and scattering
-     * cross-sections equals its total cross-section */
-    material->checkSigmaT();
-    _materials.insert(std::pair<int,Material*>(material->getId(), material));
-    log_printf(INFO, "Added Material with ID = %d to Geometry",
-               material->getId());
-  }
-  catch (std::exception &e) {
-    log_printf(ERROR, "Unable to add Material with ID = %d to Geometry. "
-               "Backtrace:\n%s", material->getId(), e.what());
-  }
-}
-
-
-/**
- * @brief Add a Surface to the Geometry.
- * @details This method will update the boundary conditions and bounding box
- *          encapsulating the Geometry if the Surface has VACUUUM or REFLECTIVE
- *          boundary conditions.
- * @param surface a pointer to the Surface object
- */
-void Geometry::addSurface(Surface* surface) {
-
-  try {
-    _surfaces.insert(std::pair<int, Surface*>(surface->getId(), surface));
-    log_printf(INFO, "Added Surface with ID = %d to Geometry",surface->getId());
-  }
-  catch (std::exception &e) {
-    log_printf(ERROR, "Unable to add Surface with ID = %d to Geometry. "
-               "Backtrace:\n%s", surface->getId(), e.what());
-  }
-
-
-  /* Use new surface to update the boundaries of the Geometry */
-  switch (surface->getBoundaryType()) {
-  case REFLECTIVE:
-    if (surface->getXMin() < _x_min &&
-        surface->getXMin() !=-std::numeric_limits<double>::infinity()) {
-      _x_min = surface->getXMin();
-      _left_bc = REFLECTIVE;
-     }
-
-    if (surface->getXMax() > _x_max &&
-        surface->getXMax() != std::numeric_limits<double>::infinity()) {
-      _x_max = surface->getXMax();
-      _right_bc = REFLECTIVE;
-    }
-
-    if (surface->getYMin() < _y_min &&
-        surface->getYMin() !=-std::numeric_limits<double>::infinity()) {
-      _y_min = surface->getYMin();
-      _bottom_bc = REFLECTIVE;
-    }
-    if (surface->getYMax() > _y_max &&
-        surface->getYMax() != std::numeric_limits<double>::infinity()) {
-     _y_max = surface->getYMax();
-     _top_bc = REFLECTIVE;
-    }
-    break;
-
-  case VACUUM:
-    if (surface->getXMin() < _x_min &&
-        surface->getXMin() !=-std::numeric_limits<double>::infinity()) {
-      _x_min = surface->getXMin();
-      _left_bc = VACUUM;
-    }
-
-    if (surface->getXMax() > _x_max &&
-        surface->getXMax() != std::numeric_limits<double>::infinity()) {
-      _x_max = surface->getXMax();
-      _right_bc = VACUUM;
-    }
-
-    if (surface->getYMin() < _y_min &&
-        surface->getYMin() !=-std::numeric_limits<double>::infinity()) {
-      _y_min = surface->getYMin();
-      _bottom_bc = VACUUM;
-    }
-
-    if (surface->getYMax() > _y_max &&
-        surface->getYMax() != std::numeric_limits<double>::infinity()) {
-      _y_max = surface->getYMax();
-      _top_bc = VACUUM;
-    }
-    break;
-
-  case ZERO_FLUX:
-    if (surface->getXMin() < _x_min &&
-        surface->getXMin() !=-std::numeric_limits<double>::infinity()) {
-     _x_min = surface->getXMin();
-     _left_bc = ZERO_FLUX;
-    }
-
-    if (surface->getXMax() > _x_max &&
-        surface->getXMax() != std::numeric_limits<double>::infinity()) {
-      _x_max = surface->getXMax();
-      _right_bc = ZERO_FLUX;
-    }
-
-    if (surface->getYMin() < _y_min &&
-        surface->getYMin() !=-std::numeric_limits<double>::infinity()) {
-      _y_min = surface->getYMin();
-      _bottom_bc = ZERO_FLUX;
-    }
-
-    if (surface->getYMax() > _y_max &&
-        surface->getYMax() != std::numeric_limits<double>::infinity()) {
-      _y_max = surface->getYMax();
-      _top_bc = ZERO_FLUX;
-    }
-    break;
-
-  case BOUNDARY_NONE:
-    break;
-  }
-
-  return;
-}
-
-
-/**
- * @brief Add a Cell to the Geometry.
- * @details This method checks if the Universe the Cell is in already exists.
- *          If not, the Universe is created and added to the Geometry.
- * @param cell a pointer to the Cell object
- */
-void Geometry::addCell(Cell* cell) {
-
-  /* Prints error msg if the Cell is filled with a non-existent Material */
-  if (cell->getType() == MATERIAL &&
-           _materials.find(static_cast<CellBasic*>(cell)->getMaterial()) ==
-           _materials.end()) {
-
-    log_printf(ERROR, "Attempted to add Cell with Material with ID = %d,"
-               " but the Geometry does not contain this Material",
-    static_cast<CellBasic*>(cell)->getMaterial());
-  }
-
-  std::map<Surface*, int> cells_surfaces = cell->getSurfaces();
-  std::map<Surface*, int>::iterator iter;
-  for (iter = cells_surfaces.begin(); iter != cells_surfaces.end(); ++iter)
-    addSurface(iter->first);
-
-
-  /* Insert the Cell into the Geometry's Cell container */
-  try {
-    _cells.insert(std::pair<int, Cell*>(cell->getId(), cell));
-    log_printf(INFO, "Added Cell with ID = %d to Geometry", cell->getId());
-  }
-  catch (std::exception &e) {
-    log_printf(ERROR, "Unable to add Cell with ID = %d to Geometry. "
-               "Backtrace:\n%s", cell->getId(), e.what());
-  }
-
-  /* Checks if the Universe the Cell in exists; if not, creates Universe */
-  if (_universes.find(cell->getUniverseId()) == _universes.end()) {
-    try {
-      Universe* univ = new Universe(cell->getUniverseId());
-      addUniverse(univ);
-      log_printf(INFO, "Created Universe with ID = %d", cell->getUniverseId());
-    }
-    catch (std::exception &e) {
-      log_printf(ERROR, "Unable to create a new Universe with ID = %d "
-                 "and add it to the Geometry. Backtrace:\n%s",
-                 cell->getUniverseId(), e.what());
-    }
-  }
-
-  /* Adds the cell to the appropriate universe */
-  _universes.at(cell->getUniverseId())->addCell(cell);
-
-  return;
-}
-
-
-/**
- * @brief Add a Universe to the Geometry.
- * @details This method sets the pointer to the Universe for each CellFill
- *          containing this Universe.
- * @param universe a pointer to the Universe object
- */
-void Geometry::addUniverse(Universe* universe) {
-
-  /* Add the Universe */
-  try {
-    _universes.insert(std::pair<int,Universe*>(universe->getId(),
-                                               universe));
-    log_printf(INFO, "Added Universe with ID = %d to Geometry. ",
-               universe->getId());
-  }
-  catch (std::exception &e) {
-    log_printf(ERROR, "Unable to add Universe with ID = %d to Geometry. "
-               "Backtrace:\n%s", universe->getId(), e.what());
-  }
-
-  /* Checks if any CellFill references this Universe and sets its pointer */
-  std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-
-    if (iter->second->getType() == FILL) {
-      CellFill* cell = static_cast<CellFill*>(iter->second);
-
-      if (cell->getUniverseFillId() == universe->getId()) {
-        cell->setUniverseFillPointer(universe);
-        int findFSRId(LocalCoords* coords);
-      }
-    }
-  }
-
-  return;
-}
-
-
-/**
- * @brief Add a Lattice to the Geometry.
- * @details Adds the Lattice to both the Lattice and Universe containers. This
- *          method sets the pointers to the Universes contained by each
- *          Lattice cell.
- * @param lattice a pointer to the Lattice object
- */
-void Geometry::addLattice(Lattice* lattice) {
-
-  /* Sets the Universe pointers for the Lattice and checks if the Lattice
-   * contains a Universe which does not exist */
-  for (int i = 0; i < lattice->getNumY(); i++) {
-    for (int j = 0; j < lattice->getNumX(); j++) {
-      int universe_id = lattice->getUniverses().at(i).at(j).first;
-
-      /* If the Universe does not exist */
-      if (_universes.find(universe_id) == _universes.end())
-        log_printf(ERROR, "Attempted to create Lattice containing Universe "
-                   "with ID = %d, but the Geometry does not contain this "
-                   "Universe", lattice->getUniverses().at(i).at(j).first);
-
-      /* Set the Universe pointer */
-      else
-        lattice->setUniversePointer(_universes.at(universe_id));
-    }
-  }
-
-  /* Add the Lattice to the Geometry's :attices container */
-  try {
-    _lattices.insert(std::pair<int, Lattice*>(lattice->getId(), lattice));
-    log_printf(INFO, "Added Lattice with ID = %d to Geometry",
-    lattice->getId());
-  }
-  catch (std::exception &e) {
-    log_printf(ERROR, "Unable to add Lattice with ID = %d to Geometry. "
-               ". Backtrace:\n%s", lattice->getId(), e.what());
-  }
-
-  /* Add the Lattice to the Universes container as well */
-  addUniverse(lattice);
-}
-
-
-/**
- * @brief Removes a Material from the Geometry.
- * @details Note: this method does not remove the Cells filled by this Material
- *          from the Geometry.
- * @param id the Material ID
- */
-void Geometry::removeMaterial(int id) {
-
-  /* Checks if the Geometry contains this Material */
-  if (_materials.find(id) == _materials.end())
-    log_printf(WARNING, "Cannot remove a Material with ID = %d from the "
-               "geometry since it doesn't contain that Material", id);
-
-  try {
-    std::map<int, Material*>::iterator iter;
-    iter = _materials.find(id);
-    _materials.erase(iter);
-    log_printf(INFO, "Removed Material with ID = %d from geometry", id);
-  }
-  catch (std::exception &e) {
-    log_printf(ERROR, "Unable to remove a Material with ID = %d from "
-               "Geometry. Backtrace:\n%s", id, e.what());
-  }
-}
-
-
-/**
- * @brief Removes a Cell from the Geometry.
- * @details Note: this method does not remove the Universe, Surface(s), or
- *          Material contained within the Cell.
- * @param id the Cell ID
- */
-void Geometry::removeCell(int id) {
-
-  /* Checks if the Geometry contains this Cell */
-  if (_cells.find(id) == _cells.end())
-    log_printf(WARNING, "Cannot remove a Cell with ID = %d from the "
-               "Geometry since it doesn't contain that Cell", id);
-
-  try {
-    std::map<int, Cell*>::iterator iter;
-    iter = _cells.find(id);
-    _cells.erase(iter);
-    log_printf(INFO, "Removed Cell with ID = %d from Geometry", id);
-  }
-  catch (std::exception &e) {
-    log_printf(ERROR, "Unable to remove a Cell with ID = %d "
-               "from Geometry. Backtrace:\n%s", id, e.what());
-  }
-}
-
-
-
-/**
- * @brief Removes a Universe from the Geometry.
- * @details Note: this method does not remove the Cells contained within the
- *          Universe, or Cells filled by this Universe.
- * @param id the Universe ID
- */
-void Geometry::removeUniverse(int id) {
-
-  /* Checks if the Geometry contains this Universe */
-  if (_universes.find(id) == _universes.end())
-    log_printf(WARNING, "Cannot remove a Universe with ID = %d from the "
-               "Geometry since it doesn't contain that Universe", id);
-
-  /* Remove the Universe from the Geometry */
-  else {
-    try {
-      std::map<int, Universe*>::iterator iter;
-      iter = _universes.find(id);
-      _universes.erase(iter);
-      log_printf(INFO, "Removed Universe with ID = %d from Geometry", id);
-    }
-    catch (std::exception &e) {
-      log_printf(ERROR, "Unable to remove Universe with ID = %d from "
-                 "Geometry. Backtrace:\n%s", id, e.what());
-    }
-  }
-
-  return;
-}
-
-
-/**
- * @brief Removes a Lattice from the Geometry.
- * @details Note: this method does not remove the Universes filling each
- *          Lattice cell in the Lattice.
- * @param id the Lattice ID
- */
-void Geometry::removeLattice(int id) {
-
-  /* Checks if the Geometry contains this Universe */
-  if (_lattices.find(id) == _lattices.end())
-    log_printf(WARNING, "Cannot remove a Lattice with ID = %d from the "
-               "Geometry since it doesn't contain that Lattice", id);
-
-  /* Remove the Universe from the Geometry */
-  else {
-    try {
-      std::map<int, Lattice*>::iterator iter;
-      iter = _lattices.find(id);
-      _lattices.erase(iter);
-      log_printf(INFO, "Removed Lattice with ID = %d from Geometry", id);
-    }
-    catch (std::exception &e) {
-      log_printf(ERROR, "Unable to remove Lattice with ID = %d from "
-                 "Geometry. Backtrace:\n%s", id, e.what());
-    }
-  }
-}
-
 
 
 /**
@@ -853,13 +315,12 @@ void Geometry::removeLattice(int id) {
  */
 Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
 
-  int universe_id = coords->getUniverse();
-  Universe* univ = _universes.at(universe_id);
+  Universe* univ = coords->getUniverse();
 
   if (univ->getType() == SIMPLE)
-    return univ->findCell(coords, _universes);
+    return univ->findCell(coords);
   else
-    return static_cast<Lattice*>(univ)->findCell(coords, _universes);
+    return static_cast<Lattice*>(univ)->findCell(coords);
 }
 
 
@@ -899,7 +360,7 @@ Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
  * @return a pointer to the Cell that this FSR is in
  */
 CellBasic* Geometry::findCellContainingFSR(int fsr_id) {
-  return static_cast<CellBasic*>(findCell(_universes.at(0), fsr_id));
+  return static_cast<CellBasic*>(findCell(_root_universe, fsr_id));
 }
 
 
@@ -956,7 +417,7 @@ Cell* Geometry::findCell(Universe* univ, int fsr_id) {
                    "max_id (%d) > fsr_id (%d)", fsr_id, max_id, fsr_id);
       else {
         CellFill* cellfill = static_cast<CellFill*>(cell_min);
-        return findCell(cellfill->getUniverseFill(), fsr_id);
+        return findCell(cellfill->getFill(), fsr_id);
       }
     }
     /* Otherwise, decrement the fsr_id and make recursive call to next
@@ -970,7 +431,7 @@ Cell* Geometry::findCell(Universe* univ, int fsr_id) {
                    "fsr_id = %d and Cell type = MATERIAL", fsr_id, fsr_id);
       else {
         CellFill* cellfill = static_cast<CellFill*>(cell_min);
-        return findCell(cellfill->getUniverseFill(), fsr_id);
+        return findCell(cellfill->getFill(), fsr_id);
       }
     }
   }
@@ -1054,7 +515,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
     /* If the distance returned is not INFINITY, the trajectory will
      * intersect a Surface in the Cell */
     if (dist != std::numeric_limits<double>::infinity()) {
-      LocalCoords test(0,0);
+      LocalCoords test(0, 0);
 
       /* Move LocalCoords just to the next Surface in the Cell plus an
        * additional small bit into the next Cell */
@@ -1071,14 +532,13 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
       /* Find new Cell for the perturbed coords */
       cell = findCellContainingCoords(coords);
 
-
      /* Check if the next Cell found is in the same lattice cell
       * as the previous cell */
       LocalCoords* test_curr = test.getLowestLevel();
       LocalCoords* coords_curr = coords->getLowestLevel();
 
-      while (test_curr != NULL && test_curr->getUniverse() != 0 &&
-             coords_curr != NULL && coords_curr->getUniverse() !=0){
+      while (test_curr != NULL && test_curr->getUniverse() != NULL &&
+             coords_curr != NULL && coords_curr->getUniverse() != NULL){
 
         if (coords_curr->getType() == LAT && test_curr->getType() == LAT) {
 
@@ -1126,7 +586,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
       LocalCoords* curr = coords->getLowestLevel();
 
       /* Retrace linked list from lowest level */
-      while (curr != NULL && curr->getUniverse() != 0) {
+      while (curr != NULL && curr->getUniverse() != NULL) {
         curr = curr->getPrev();
 
         /* If we reach a LocalCoord in a lattice, delete all lower
@@ -1144,16 +604,15 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
        * Lattice cell crossings in each one. If we never find a crossing
        * and reach universe 0 then return NULL since this means we have
        * reached the edge of the Geometry */
-      while (curr->getUniverse() != 0) {
+      while (curr->getUniverse() != NULL) {
 
         /* If the lowest level LocalCoords is inside a Lattice, find
          * the next Lattice cell */
         if (curr->getType() == LAT) {
 
-          int lattice_id = curr->getLattice();
-          Lattice* lattice = _lattices.at(lattice_id);
+          Lattice* lattice = curr->getLattice();
 
-          cell = lattice->findNextLatticeCell(curr,angle,_universes);
+          cell = lattice->findNextLatticeCell(curr, angle);
 
           /* If Cell returned is NULL, the LocalCoords are outside of current
           * Lattice, so move to a higher level Lattice if there is one */
@@ -1213,15 +672,15 @@ int Geometry::findFSRId(LocalCoords* coords) {
     /* If the current level is a Lattice, add an offset from the Lattice map
      * to the FSR ID */
     if (curr->getType() == LAT) {
-      Lattice* lattice = _lattices.at(curr->getLattice());
+      Lattice* lattice = curr->getLattice();
       fsr_id += lattice->getFSR(curr->getLatticeX(), curr->getLatticeY());
     }
 
     /* If the current level is a Lattice, add an offset from the Lattice map
      * to the FSR ID*/
     else if (curr->getType() == UNIV) {
-      Universe* universe = _universes.at(curr->getUniverse());
-      fsr_id += universe->getFSR(curr->getCell());
+      Universe* universe = curr->getUniverse();
+      fsr_id += universe->getFSR(curr->getCell()->getId());
     }
 
     /* Get next LocalCoords node in the linked list */
@@ -1243,15 +702,18 @@ int Geometry::findFSRId(LocalCoords* coords) {
  */
 void Geometry::subdivideCells() {
 
+  std::map<int, Universe*> all_universes = _root_universe->getAllUniverses();
   std::map<int, Universe*>::iterator iter;
   Universe* curr;
 
   /* Loop over all Universe in the Geometry and instruct each to inform
    * their Cells to subdivide into rings and sectors as specified by
    * the user during Cell instantiation */
-  for (iter = _universes.begin(); iter != _universes.end(); ++iter) {
+  for (iter = all_universes.begin(); iter != all_universes.end(); ++iter) {
     curr = (*iter).second;
-    curr->subdivideCells();
+
+    if (curr->getType() == SIMPLE)
+      curr->subdivideCells();
   }
 }
 
@@ -1267,15 +729,11 @@ void Geometry::subdivideCells() {
  */
 void Geometry::initializeFlatSourceRegions() {
 
-  /* Initialize pointers from CellFills to Universes */
-  initializeCellFillPointers();
-
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 
   /* Generate flat source regions offset maps for each Universe and Lattice */
-  Universe *univ = _universes.at(0);
-  _num_FSRs = univ->computeFSRMaps();
+  _num_FSRs = _root_universe->computeFSRMaps();
 
   log_printf(NORMAL, "Number of flat source regions: %d", _num_FSRs);
 
@@ -1286,10 +744,10 @@ void Geometry::initializeFlatSourceRegions() {
 
   /* Load maps with Cell and Material IDs/UIDs */
   for (int r=0; r < _num_FSRs; r++) {
-    CellBasic* curr=static_cast<CellBasic*>(findCell(_universes.at(0), r));
+    CellBasic* curr = static_cast<CellBasic*>(findCell(_root_universe, r));
     _FSRs_to_cells[r] = curr->getId();
-    _FSRs_to_material_UIDs[r] = getMaterial(curr->getMaterial())->getUid();
-    _FSRs_to_material_IDs[r] = getMaterial(curr->getMaterial())->getId();
+    _FSRs_to_material_UIDs[r] = curr->getMaterial()->getUid();
+    _FSRs_to_material_IDs[r] = curr->getMaterial()->getId();
   }
 
   if (_mesh->getCmfdOn())
@@ -1323,8 +781,8 @@ void Geometry::segmentize(Track* track) {
   /* Use a LocalCoords for the start and end of each segment */
   LocalCoords segment_start(x0, y0);
   LocalCoords segment_end(x0, y0);
-  segment_start.setUniverse(0);
-  segment_end.setUniverse(0);
+  segment_start.setUniverse(_root_universe);
+  segment_end.setUniverse(_root_universe);
 
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&segment_end, phi);
@@ -1359,8 +817,7 @@ void Geometry::segmentize(Track* track) {
     /* Find the segment length between the segment's start and end points */
     segment_length = FP_PRECISION(segment_end.getPoint()
                       ->distanceToPoint(segment_start.getPoint()));
-    segment_material = _materials.at(static_cast<CellBasic*>(prev)
-                       ->getMaterial());
+    segment_material = static_cast<CellBasic*>(prev)->getMaterial();
     sigma_t = segment_material->getSigmaT();
     fsr_id = findFSRId(&segment_start);
 
@@ -1441,52 +898,7 @@ void Geometry::segmentize(Track* track) {
  * @param univ the Universe of interest (default is NULL)
  */
 void Geometry::computeFissionability(Universe* univ) {
-
-  bool fissionable = false;
-  std::vector<int> material_ids;
-  std::vector<int> universe_ids;
-
-  /* If no Universe was passed in as an argument, then this is the first
-   * recursive call from a user via Python, so get the base Universe */
-  if (univ == NULL)
-    univ = _universes.at(0);
-
-  /* If a Universe was passed in as an argument, then this is a recursive
-   * call with a Universe at a lower level in the nested Universe hierarchy */
-  if (univ->getType() == SIMPLE) {
-    material_ids = univ->getMaterialIds();
-    universe_ids = univ->getNestedUniverseIds();
-  }
-
-  else
-    universe_ids = static_cast<Lattice*>(univ)->getNestedUniverseIds();
-
-  /* Loop over the nested Universes first to ensure that fissionability
-   * is set at each nested Universe level */
-  for (int i=0; i < universe_ids.size(); i++) {
-    int universe_id = universe_ids[i];
-    Universe* universe = _universes.at(universe_id);
-
-    /* Recursively check whether this nested Universe is fissionable */
-    computeFissionability(universe);
-
-    if (universe->isFissionable())
-      fissionable = true;
-  }
-
-  /* Loop over the Materials in this Universe at this level */
-  for (int i=0; i < material_ids.size(); i++) {
-    int material_id = material_ids[i];
-    Material* material = _materials.at(material_id);
-
-    /* Check whether this Material is fissionable or not */
-    if (material->isFissionable())
-      fissionable = true;
-  }
-
-  /* Set this Universe's fissionability based on the nested Universes
-   * and Materials within it */
-  univ->setFissionability(fissionable);
+  _root_universe->computeFissionability();
 }
 
 
@@ -1499,35 +911,29 @@ void Geometry::computeFissionability(Universe* univ) {
 std::string Geometry::toString() {
 
   std::stringstream string;
-  std::map<int, Material*>::iterator iter1;
-  std::map<int, Surface*>::iterator iter2;
-  std::map<int, Cell*>::iterator iter3;
-  std::map<int, Universe*>::iterator iter4;
-  std::map<int, Lattice*>::iterator iter5;
 
-  string << "Geometry: width = " << getWidth() << ", height = "
-         << getHeight() << ", Bounding Box: ((" << _x_min << ", "
-         << _y_min << "), (" << _x_max << ", " << _y_max << ")";
+  std::map<int, Cell*> all_cells = _root_universe->getAllCells();
+  std::map<int, Universe*> all_universes = _root_universe->getAllUniverses();
 
-  string << "\n\tMaterials:\n\t\t";
-  for (iter1 = _materials.begin(); iter1 != _materials.end(); ++iter1)
-    string << iter1->second->toString() << "\n\n\t\t";
+  std::map<int, Cell*>::iterator cell_iter;
+  std::map<int, Universe*>::iterator univ_iter;
 
-  string << "\n\tSurfaces:\n\t\t";
-  for (iter2 = _surfaces.begin(); iter2 != _surfaces.end(); ++iter2)
-    string << iter2->second->toString() << "\n\t\t";
+  string << "Geometry: width = "
+         << getWidth() << ", height = "
+         << getHeight() << ", Bounding Box: (("
+         << _x_min << ", "
+         << _y_min << "), ("
+         << _x_max << ", "
+         << _y_max << ")";
 
   string << "\n\tCells:\n\t\t";
-  for (iter3 = _cells.begin(); iter3 != _cells.end(); ++iter3)
-    string << iter3->second->toString() << "\n\t\t";
+  for (cell_iter = all_cells.begin(); cell_iter != all_cells.end(); ++cell_iter)
+    string << cell_iter->second->toString() << "\n\t\t";
 
   string << "\n\tUniverses:\n\t\t";
-  for (iter4 = _universes.begin(); iter4 != _universes.end(); ++iter4)
-    string << iter4->second->toString() << "\n\t\t";
-
-  string << "\n\tLattices:\n\t\t";
-  for (iter5 = _lattices.begin(); iter5 != _lattices.end(); ++iter5)
-    string << iter5->second->toString()  << "\n\t\t";
+  for (univ_iter = all_universes.begin();
+       univ_iter != all_universes.end(); ++univ_iter)
+    string << univ_iter->second->toString() << "\n\t\t";
 
   std::string formatted_string = string.str();
   formatted_string.erase(formatted_string.end()-3);
@@ -1559,8 +965,7 @@ void Geometry::printString() {
  */
 void Geometry::initializeMesh(){
 
-  Universe* univ = _universes.at(0);
-  univ = _universes.at(0);
+  Universe* univ = _root_universe;
 
   int max_mesh_level = 0;
   int mesh_level = 0;
@@ -1592,7 +997,7 @@ void Geometry::initializeMesh(){
   int width = 0;
   int height = 0;
   findMeshHeight(univ, &height, mesh_level);
-  univ = _universes.at(0);
+  univ = _root_universe;
   findMeshWidth(univ, &width, mesh_level);
 
   /* Set Mesh boundary conditions */
@@ -1655,8 +1060,10 @@ void Geometry::initializeMesh(){
   _mesh->setFSRBounds();
   _mesh->setCellBounds();
 
-  if (_mesh->getSolveType() == DIFFUSION)
-    _mesh->initializeMaterialsDiffusion(&_materials, _FSRs_to_material_IDs);
+  if (_mesh->getSolveType() == DIFFUSION) {
+    std::map<int, Material*> all_materials = getAllMaterials();
+    _mesh->initializeMaterialsDiffusion(&all_materials, _FSRs_to_material_IDs);
+  }
 
   return;
 }
@@ -1696,8 +1103,8 @@ void Geometry::findFSRsInCell(Universe* univ, int cell_num, int* fsr_id){
       /* If the current Cell is a FILL type cell recursively call findFSRsInCell() */
       else {
         CellFill* fill_cell = static_cast<CellFill*>(curr);
-        Universe* universe_fill = fill_cell->getUniverseFill();
-        findFSRsInCell(universe_fill, cell_num, fsr_id);
+        Universe* fill = fill_cell->getFill();
+        findFSRsInCell(fill, cell_num, fsr_id);
       }
     }
   }
@@ -1763,8 +1170,8 @@ void Geometry::defineMesh(Mesh* mesh, Universe* univ, int depth,
     std::map<int, Cell*>::iterator iter;
     for (iter = cells.begin(); iter != cells.end(); ++iter) {
       curr = iter->second;CellFill* fill_cell = static_cast<CellFill*>(curr);
-      Universe* universe_fill = fill_cell->getUniverseFill();
-      defineMesh(mesh, universe_fill, depth, meshCellNum, row, base, fsr_id);
+      Universe* fill = fill_cell->getFill();
+      defineMesh(mesh, fill, depth, meshCellNum, row, base, fsr_id);
     }
   }
 
@@ -1881,8 +1288,8 @@ int Geometry::nextLatticeHeight(Universe* univ){
     /* IF the Cell is FILL type recursively call nextLatticeHeight(...) */
     if (curr->getType() == FILL){
       CellFill* fill_cell = static_cast<CellFill*>(curr);
-      Universe* universe_fill = fill_cell->getUniverseFill();
-      height = nextLatticeHeight(universe_fill);
+      Universe* fill = fill_cell->getFill();
+      height = nextLatticeHeight(fill);
     }
   }
 
@@ -1918,8 +1325,8 @@ void Geometry::findMeshHeight(Universe* univ, int* height, int depth){
       /* IF the Cell is FILL type, recursively call findMeshHeight(...) */
       if (curr->getType() == FILL){
         CellFill* fill_cell = static_cast<CellFill*>(curr);
-        Universe* universe_fill = fill_cell->getUniverseFill();
-        findMeshHeight(universe_fill, height, depth);
+        Universe* fill = fill_cell->getFill();
+        findMeshHeight(fill, height, depth);
       }
     }
   }
@@ -1979,8 +1386,8 @@ void Geometry::findMeshWidth(Universe* univ, int* width, int depth){
       /* IF the Cell is FILL type, recursively call findMeshWidth(...) */
       if (curr->getType() == FILL){
         CellFill* fill_cell = static_cast<CellFill*>(curr);
-        Universe* universe_fill = fill_cell->getUniverseFill();
-        findMeshWidth(universe_fill, width, depth);
+        Universe* fill = fill_cell->getFill();
+        findMeshWidth(fill, width, depth);
      }
     }
   }
@@ -2040,8 +1447,8 @@ int Geometry::findMeshDepth(Universe* univ, int mesh_level){
       /* IF the Cell is FILL type recursively call findMeshWidth(...) */
       if (curr->getType() == FILL){
         CellFill* fill_cell = static_cast<CellFill*>(curr);
-        Universe* universe_fill = fill_cell->getUniverseFill();
-        mesh_level = findMeshDepth(universe_fill, mesh_level);
+        Universe* fill = fill_cell->getFill();
+        mesh_level = findMeshDepth(fill, mesh_level);
       }
     }
   }

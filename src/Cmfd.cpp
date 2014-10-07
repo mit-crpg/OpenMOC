@@ -1235,7 +1235,7 @@ void Cmfd::initializeFSRs(){
   int fsr_id;
   CellBasic* cell;
   Material* material;
-  Universe* univ_zero = _geometry->getUniverse(0);
+  Universe* root_universe = _geometry->getRootUniverse();
   double* heights = _mesh->getLengthsY();
   double* widths = _mesh->getLengthsX();
 
@@ -1253,7 +1253,7 @@ void Cmfd::initializeFSRs(){
     cell = _geometry->findCellContainingFSR(fsr_id);
 
     /* Get the cell's material and assign it to the FSR */
-    material = _geometry->getMaterial(cell->getMaterial());
+    material = cell->getMaterial();
     _FSR_materials[fsr_id] = material;
 
     log_printf(DEBUG, "cell %i with FSR id = %d has cell id = %d and "

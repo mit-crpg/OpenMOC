@@ -352,7 +352,7 @@ void CPUSolver::initializeFSRs() {
   FP_PRECISION volume;
   CellBasic* cell;
   Material* material;
-  Universe* univ_zero = _geometry->getUniverse(0);
+  Universe* root_universe = _geometry->getRootUniverse();
 
   /* Set each FSR's "volume" by accumulating the total length of all Tracks
    * inside the FSR. Loop over azimuthal angles, Tracks and Track segments. */
@@ -370,6 +370,7 @@ void CPUSolver::initializeFSRs() {
   }
 
   /* Loop over all FSRs to extract FSR material pointers */
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
   #pragma omp parallel for private(cell, material) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
@@ -377,7 +378,7 @@ void CPUSolver::initializeFSRs() {
     cell = _geometry->findCellContainingFSR(r);
 
     /* Get the Cell's Material and assign it to the FSR */
-    material = _geometry->getMaterial(cell->getMaterial());
+    material = materials[cell->getMaterial()->getId()];
     _FSR_materials[r] = material;
 
     log_printf(DEBUG, "FSR ID = %d has Cell ID = %d and Material ID = %d "

@@ -1187,6 +1187,8 @@ bool TrackGenerator::readTracksFromFile() {
   int mesh_surface_fwd;
   int mesh_surface_bwd;
 
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+
   /* Calculate the total number of Tracks */
   for (int i=0; i < _num_azim; i++)
     _tot_num_tracks += _num_tracks[i];
@@ -1233,7 +1235,7 @@ bool TrackGenerator::readTracksFromFile() {
         /* Initialize segment with the data */
         segment* curr_segment = new segment;
         curr_segment->_length = length;
-        curr_segment->_material = _geometry->getMaterial(material_id);
+        curr_segment->_material = materials[material_id];
         curr_segment->_region_id = region_id;
 
         /* Import CMFD-related data if needed */

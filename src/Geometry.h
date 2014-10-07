@@ -85,25 +85,11 @@ private:
   /** The minimum Track segment length in the Geometry */
   double _min_seg_length;
 
-  /** A std::map of Material IDs (keys) to Material object pointers (values) */
-  std::map<int, Material*> _materials;
-
-  /** A std::map of Surface IDs (keys) to Surface object pointers (values) */
-  std::map<int, Surface*> _surfaces;
-
-  /** A std::map of Cell IDs (keys) to Cell object pointers (values) */
-  std::map<int, Cell*> _cells;
-
-  /** A std::map of Universe IDs (keys) to Universe object pointers (values) */
-  std::map<int, Universe*> _universes;
-
-  /** A std::map of Lattice IDs (keys) to Lattice object pointers (values) */
-  std::map<int, Lattice*> _lattices;
+  /* The Universe at the root node in the CSG tree */
+  Universe* _root_universe;
 
   /** A CMFD Mesh object pointer */
   Mesh* _mesh;
-
-  void initializeCellFillPointers();
 
   Cell* findFirstCell(LocalCoords* coords, double angle);
   Cell* findNextCell(LocalCoords* coords, double angle);
@@ -124,34 +110,19 @@ public:
   boundaryType getBCBottom();
   boundaryType getBCLeft();
   boundaryType getBCRight();
+  Universe* getRootUniverse();
   int getNumFSRs();
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
+  std::map<int, Material*> getAllMaterials();
   int* getFSRtoCellMap();
   int* getFSRtoMaterialMap();
   double getMaxSegmentLength();
   double getMinSegmentLength();
-  std::map<int, Material*> getMaterials();
-  Material* getMaterial(int id);
-  Surface* getSurface(int id);
-  Cell* getCell(int id);
-  CellBasic* getCellBasic(int id);
-  CellFill* getCellFill(int id);
-  Universe* getUniverse(int id);
-  Lattice* getLattice(int id);
   Mesh* getMesh();
 
-  void addMaterial(Material* material);
-  void addSurface(Surface* surface);
-  void addCell(Cell *cell);
-  void addUniverse(Universe* universe);
-  void addLattice(Lattice* lattice);
-
-  void removeMaterial(int id);
-  void removeCell(int id);
-  void removeUniverse(int id);
-  void removeLattice(int id);
+  void setRootUniverse(Universe* root_universe);
 
   Cell* findCellContainingCoords(LocalCoords* coords);
   CellBasic* findCellContainingFSR(int fsr_id);
