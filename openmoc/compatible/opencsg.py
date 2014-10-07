@@ -156,11 +156,6 @@ def get_opencsg_surface(openmoc_surface):
   surface_type = openmoc_surface.getSurfaceType()
 
   if surface_type == openmoc.PLANE:
-    # FIXME: These getters need to be implemented
-#    A = openmoc_surface._coeffs['A']
-#    B = openmoc_surface._coeffs['B']
-#    C = openmoc_surface._coeffs['C']
-#    D = openmoc_surface._coeffs['D']
     A = openmoc_surface.getA()
     B = openmoc_surface.getB()
     C = openmoc_surface.getC()
