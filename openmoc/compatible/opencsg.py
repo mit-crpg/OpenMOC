@@ -786,7 +786,6 @@ def get_openmoc_geometry(opencsg_geometry):
   OPENMOC_LATTICES.clear()
   OPENCSG_LATTICES.clear()
 
-  # FIXME: Need to implement this routine
   openmoc.reset_auto_ids()
 
   # FIXME: Need to implement root universe in Geometry class

@@ -26,6 +26,7 @@ class Cell;
 
 
 int surf_id();
+void reset_surf_id();
 
 
 /**
@@ -139,7 +140,10 @@ public:
   virtual double getYMax() =0;
 
   void setName(const char* name);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9bb33db4904b933781866da78a84c6bdbf9237d8
   void setBoundaryType(const boundaryType boundary_type);
 
   /**

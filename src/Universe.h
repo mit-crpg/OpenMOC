@@ -33,6 +33,7 @@ class CellBasic;
 
 
 int universe_id();
+void reset_universe_id();
 
 
 /**

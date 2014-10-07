@@ -23,6 +23,14 @@ int universe_id() {
 
 
 /**
+ * @brief Resets the auto-generated unique Universe ID counter to 10000.
+ */
+void reset_universe_id() {
+  auto_id = 10000;
+}
+
+
+/**
  * @brief Constructor assigns a unique and user-specified ID for the Universe.
  * @param id the user-specified optional Universe ID
  * @param name the user-specified optional Universe ID

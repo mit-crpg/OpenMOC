@@ -21,6 +21,14 @@ int surf_id() {
 
 
 /**
+ * @brief Resets the auto-generated unique Surface ID counter to 10000.
+ */
+void reset_surf_id() {
+  auto_id = 10000;
+}
+
+
+/**
  * @brief Constructor assigns unique ID and user-defined ID for a Surface.
  * @details Assigns a default boundary condition for this Surface to
  *          BOUNDARY_NONE.

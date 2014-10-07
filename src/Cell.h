@@ -20,6 +20,7 @@ class Surface;
 class LocalCoords;
 
 int cell_id();
+void reset_cell_id();
 
 
 /**

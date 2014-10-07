@@ -23,6 +23,14 @@ int cell_id() {
 
 
 /**
+ * @brief Resets the auto-generated unique Cell ID counter to 10000.
+ */
+void reset_cell_id() {
+  auto_id = 10000;
+}
+
+
+/**
  * @brief Default constructor used in rings/sectors subdivision of Cells.
  */
 Cell::Cell() {
