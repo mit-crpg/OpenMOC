@@ -43,6 +43,7 @@ log.py_printf('NORMAL', 'Creating surfaces...')
 
 circles = []
 planes = []
+planes.append(XPlane(x=-2.0))
 planes.append(XPlane(x=2.0))
 planes.append(YPlane(y=-2.0))
 planes.append(YPlane(y=2.0))

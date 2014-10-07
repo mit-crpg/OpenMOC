@@ -209,6 +209,33 @@ double Plane::getYMax(){
 
 
 /**
+ * @brief Returns the A coefficient multiplying x in the surface equation
+ * @return the value for the A coefficient
+ */
+double Plane::getA() {
+  return _A;
+}
+
+
+/**
+ * @brief Returns the B coefficient multiplying x in the surface equation
+ * @return the value for the B coefficient
+ */
+double Plane::getB() {
+  return _B;
+}
+
+
+/**
+ * @brief Returns the C coefficient multiplying x in the surface equation
+ * @return the value for the C coefficient
+ */
+double Plane::getC() {
+  return _C;
+}
+
+
+/**
 * @brief Finds the intersection Point with this Plane from a given Point and
 *        trajectory defined by an angle.
 * @param point pointer to the Point of interest

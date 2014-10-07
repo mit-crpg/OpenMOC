@@ -213,6 +213,9 @@ public:
   double getXMax();
   double getYMin();
   double getYMax();
+  double getA();
+  double getB();
+  double getC();
 
   double evaluate(const Point* point) const;
   int intersection(Point* point, double angle, Point* points);
