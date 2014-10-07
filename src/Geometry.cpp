@@ -438,19 +438,6 @@ Mesh* Geometry::getMesh(){
  */
 void Geometry::addMaterial(Material* material) {
 
-  /* Checks the number of energy groups */
-  if (material->getNumEnergyGroups() == 0)
-    log_printf(ERROR, "Unable to add Material %d since it does not "
-               "contain any nuclear data", material->getId());
-
-  if (_num_groups == 0)
-    _num_groups = material->getNumEnergyGroups();
-
-  else if (_num_groups != material->getNumEnergyGroups())
-    log_printf(ERROR, "Unable to add Material %d with %d energy groups to the"
-               " Geometry which contains Material(s) with %d energy groups",
-               material->getId(), material->getNumEnergyGroups(), _num_groups);
-
   try {
     /* Check that the sum of the Material's absorption and scattering
      * cross-sections equals its total cross-section */
@@ -463,6 +450,34 @@ void Geometry::addMaterial(Material* material) {
     log_printf(ERROR, "Unable to add Material with ID = %d to Geometry. "
                "Backtrace:\n%s", material->getId(), e.what());
   }
+}
+
+/**
+ * @brief Check that all Materials in Geometry have the same number
+ *    of energy groups.
+ */
+void Geometry::checkMaterials() {
+  
+  std::map<int,Material*>::iterator iter;
+  int mat_id;
+  int num_groups;
+  
+  _num_groups = 0;
+  
+  
+  for (iter = _materials.begin(); iter != _materials.end(); ++iter) {
+    num_groups = iter->second->getNumEnergyGroups();
+    
+    if (_num_groups == 0) {
+      _num_groups = num_groups;
+      mat_id = iter->second->getId();
+    }
+    else if (_num_groups != num_groups)
+      log_printf(ERROR, "Geometry has inconsistent number of energy "
+          "groups.  Material %d has %d groups; Material %d has %d groups.",
+          mat_id, _num_groups, iter->second->getId(), num_groups);
+  }
+  
 }
 
 
@@ -1292,8 +1307,10 @@ void Geometry::initializeFlatSourceRegions() {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
+ * @param max_optical_length the maximum optical length a segment is allowed to
+ *          have
  */
-void Geometry::segmentize(Track* track) {
+void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
@@ -1307,6 +1324,7 @@ void Geometry::segmentize(Track* track) {
   FP_PRECISION* sigma_t;
   int min_num_segments;
   int num_segments;
+  int num_groups;
 
   /* Use a LocalCoords for the start and end of each segment */
   LocalCoords segment_start(x0, y0);
@@ -1355,10 +1373,11 @@ void Geometry::segmentize(Track* track) {
     /* Compute the number of Track segments to cut this segment into to ensure
      * that it's length is small enough for the exponential table */
     min_num_segments = 1;
-    for (int e=0; e < _num_groups; e++) {
-      num_segments = ceil(segment_length * sigma_t[e] / 10.0);
+    num_groups = segment_material->getNumEnergyGroups();
+    for (int g=0; g < num_groups; g++) {
+      num_segments = ceil(segment_length * sigma_t[g] / max_optical_length);
       if (num_segments > min_num_segments)
-      min_num_segments = num_segments;
+        min_num_segments = num_segments;
     }
 
     /* "Cut up" Track segment into sub-segments such that the length of each

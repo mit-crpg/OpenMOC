@@ -280,6 +280,8 @@ void CPUSolver::buildExpInterpTable() {
   FP_PRECISION azim_weight;
 
   _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
+  
+  FP_PRECISION tau = _track_generator->getMaxOpticalLength();
 
   /* Compute the total azimuthal weight for tracks at each polar angle */
   #pragma omp parallel for private(azim_weight) schedule(guided)
@@ -292,8 +294,8 @@ void CPUSolver::buildExpInterpTable() {
   }
 
   /* Set size of interpolation table */
-  int num_array_values = 10 * sqrt(1./(8.*_source_convergence_thresh*1e-2));
-  _exp_table_spacing = 10. / num_array_values;
+  int num_array_values = tau * sqrt(1./(8.*_source_convergence_thresh*1e-2));
+  _exp_table_spacing = tau / num_array_values;
   _exp_table_size = _two_times_num_polar * num_array_values;
   _exp_table_max_index = _exp_table_size - _two_times_num_polar - 1.;
 
