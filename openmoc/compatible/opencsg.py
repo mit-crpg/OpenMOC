@@ -569,10 +569,8 @@ def get_opencsg_universe(openmoc_universe):
     return OPENCSG_UNIVERSES[universe_id]
 
   # Create an OpenCSG Universe to represent this OpenMC Universe
-  # FIXME: Need to implement name attribute and getter for Universe class
-#  name = openmoc_universe.getName()
-#  opencsg_universe = opencsg.Universe(universe_id, name)
-  opencsg_universe = opencsg.Universe(universe_id)
+  name = openmoc_universe.getName()
+  opencsg_universe = opencsg.Universe(universe_id, name)
 
   # Convert all OpenMOC Cells in this Universe to OpenCSG Cells
   # FIXME: Need to use std_map.i SWIG interface file for this
@@ -610,9 +608,7 @@ def get_openmoc_universe(opencsg_universe):
 
   # Create an OpenMOC Universe to represent this OpenCSG Universe
   name = opencsg_universe._name
-  # FIXME: Need to add name attribute to Universe class
-#  openmoc_universe = openmoc.Universe(universe_id, name)
-  openmoc_universe = openmoc.Universe(universe_id)
+  openmoc_universe = openmoc.Universe(universe_id, name)
 
   # Convert all OpenCSG Cells in this Universe to OpenMC Cells
   opencsg_cells = opencsg_universe._cells
@@ -645,8 +641,7 @@ def get_opencsg_lattice(openmoc_lattice):
     return OPENCSG_LATTICES[lattice_id]
 
   # Create an OpenCSG Lattice to represent this OpenMC Lattice
-  # FIXME: Need to add name attribute and getter to Lattice class
-#  name = openmoc_lattice.getName()
+  name = openmoc_lattice.getName()
   dimension = [1, openmoc_lattice.getNumY(), openmoc_lattice.getNumX()]
   width = [1, openmoc_lattice.getWidthY(), openmoc_lattice.getWidthX()]
   lower_left = [-np.inf, width[1]*dimension[1]/2., width[2]*dimension[2] / 2.]
@@ -669,9 +664,7 @@ def get_opencsg_lattice(openmoc_lattice):
       universe_id = universe.getId()
       universe_array[0][y][x] = unique_universes[universe_id]
 
-  # FIXME: Need to implement name attribute for Lattice class
-#  opencsg_lattice = opencsg.Lattice(lattice_id, name)
-  opencsg_lattice = opencsg.LatCoords(lattice_id)
+  opencsg_lattice = opencsg.Lattice(lattice_id, name)
   opencsg_lattice.setDimension(dimension)
   opencsg_lattice.setWidth(width)
   opencsg_lattice.setUniverses(universe_array)
