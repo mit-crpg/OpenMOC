@@ -60,7 +60,7 @@ for plane in planes: plane.setBoundaryType(REFLECTIVE)
 log.py_printf('NORMAL', 'Creating cells...')
 
 cells = []
-cells.append(CellBasic(universe=1, material=uo2_id))
+cells.append(CellBasic(universe=1, material=uo2_id, name='testing...'))
 cells.append(CellBasic(universe=1, material=water_id))
 cells.append(CellBasic(universe=2, material=uo2_id))
 cells.append(CellBasic(universe=2, material=water_id))

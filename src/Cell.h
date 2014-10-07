@@ -56,6 +56,9 @@ protected:
   /** A user-defined ID for each Cell created */
   int _id;
 
+  /** A user-defined name for the Surface */
+  char* _name;
+
   /** The type of Cell (ie MATERIAL or FILL) */
   cellType _cell_type;
 
@@ -67,10 +70,11 @@ protected:
 
 public:
   Cell();
-  Cell(int universe, int id=0);
+  Cell(int universe, int id=0, const char* name="");
   virtual ~Cell();
   int getUid() const;
   int getId() const;
+  char* getName() const;
   cellType getType() const;
   int getUniverseId() const;
   int getNumSurfaces() const;
@@ -84,6 +88,7 @@ public:
    */
   virtual int getNumFSRs() =0;
 
+  void setName(const char* name);
   void setUniverse(int universe);
   void addSurface(int halfspace, Surface* surface);
 
@@ -134,7 +139,8 @@ private:
   void sectorize();
 
 public:
-  CellBasic(int universe, int material, int rings=0, int sectors=0, int id=0);
+  CellBasic(int universe, int material, int rings=0, int sectors=0,
+            int id=0, const char* name="");
 
   int getMaterial() const;
   int getNumRings();
@@ -167,7 +173,7 @@ private:
   Universe* _universe_fill;
 
 public:
-  CellFill(int universe, int universe_fill, int id=0);
+  CellFill(int universe, int universe_fill, int id=0, const char* name="");
 
   int getUniverseFillId() const;
   Universe* getUniverseFill() const;
