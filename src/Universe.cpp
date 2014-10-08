@@ -731,6 +731,23 @@ std::map<int, Universe*> Lattice::getAllUniverses() {
 
 
 /**
+ * @brief
+ * @param
+ * @param
+ */
+void Lattice::setWidth(double width_x, double width_y) {
+
+  if (width_x <= 0 || width_y <= 0)
+    log_printf(ERROR, "Unable to set the width of Lattice ID = %d "
+               "for x = %f and y = %f since they are not positive values",
+               _id, width_x, width_y);
+
+  _width_x = width_x;
+  _width_y = width_y;
+}
+
+
+/**
  * @brief Sets the array of Universe pointers filling each Lattice cell.
  * @details This is a helper method for SWIG to allow users to assign Universes
  *          to a Lattice using a 2D Python list (list of lists). An example

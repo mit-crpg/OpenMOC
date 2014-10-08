@@ -297,6 +297,16 @@ Mesh* Geometry::getMesh(){
 
 
 /**
+ * @brief Sets the root Universe for the CSG tree.
+ * @param root_universe the root Universe of the CSG tree.
+ */
+void Geometry::setRootUniverse(Universe* root_universe) {
+  _root_universe = root_universe;
+}
+
+
+
+/**
  * @brief Find the Cell that this LocalCoords object is in at the lowest level
  *        of the nested Universe hierarchy.
  * @details This method assumes that the LocalCoords has been initialized
