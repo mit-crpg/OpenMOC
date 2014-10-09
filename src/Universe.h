@@ -172,6 +172,13 @@ public:
   double getWidthX() const;
   double getWidthY() const;
   Point* getOrigin();
+  double getMinX();
+  double getMaxX();
+  double getMinY();
+  double getMaxY();
+  double getMinZ();
+  double getMaxZ();
+
   Universe* getUniverse(int lat_x, int lat_y) const;
   std::vector< std::vector< std::pair<int, Universe*> > > getUniverses() const;
   int getFSR(int lat_x, int lat_y);

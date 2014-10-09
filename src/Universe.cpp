@@ -727,6 +727,60 @@ Point* Lattice::getOrigin() {
 
 
 /**
+ * @brief Returns the minimum reachable x-coordinate in the Lattice.
+ * @return the minimum reachable x-coordinate
+ */
+double Lattice::getMinX() {
+  return _origin.getX();
+}
+
+
+/**
+ * @brief Returns the maximum reachable x-coordinate in the Lattice.
+ * @return the maximum reachable x-coordinate
+ */
+double Lattice::getMaxX() {
+  return _origin.getX() + _num_x * _width_x;
+}
+
+
+/**
+ * @brief Returns the minimum reachable y-coordinate in the Lattice.
+ * @return the minimum reachable y-coordinate
+ */
+double Lattice::getMinY() {
+  return _origin.getY();
+}
+
+
+/**
+ * @brief Returns the maximum reachable y-coordinate in the Lattice.
+ * @return the maximum reachable y-coordinate
+ */
+double Lattice::getMaxY(){
+  return _origin.getY() + _num_y * _width_y;
+}
+
+
+/**
+ * @brief Returns the minimum reachable z-coordinate in the Lattice.
+ * @return the minimum reachable z-coordinate
+ */
+double Lattice::getMinZ() {
+  return -std::numeric_limits<double>::infinity();
+}
+
+
+/**
+ * @brief Returns the maximum reachable z-coordinate in the Lattice.
+ * @return the maximum reachable z-coordinate
+ */
+double Lattice::getMaxZ() {
+  return std::numeric_limits<double>::infinity();
+}
+
+
+/**
  * @brief Returns a pointer to the Universe within a specific Lattice cell.
  * @param lat_x the x index to the Lattice cell
  * @param lat_y the y index to the Lattice cell
