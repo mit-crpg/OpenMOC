@@ -9,6 +9,7 @@
 #define UNIVERSE_H_
 
 #ifdef __cplusplus
+#include <limits>
 #include <map>
 #include <vector>
 #include "Cell.h"
@@ -102,6 +103,13 @@ public:
   universeType getType();
   int getNumCells() const;
   Point* getOrigin();
+  double getMinX();
+  double getMaxX();
+  double getMinY();
+  double getMaxY();
+  double getMinZ();
+  double getMaxZ();
+
   Cell* getCell(int cell_id);
   std::map<int, Cell*> getCells() const;
   CellFill* getCellFill(int cell_id);

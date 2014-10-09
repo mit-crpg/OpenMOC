@@ -123,6 +123,113 @@ Point* Universe::getOrigin() {
 
 
 /**
+ * @brief Returns the minimum reachable x-coordinate in the Universe.
+ * @return the minimum reachable x-coordinate
+ */
+double Universe::getMinX() {
+
+  int min_x = std::numeric_limits<double>::infinity();
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (min_x > iter->second->getMinX())
+      min_x = iter->second->getMinX();
+  }
+
+  return min_x;
+}
+
+
+/**
+ * @brief Returns the maximum reachable x-coordinate in the Universe.
+ * @return the maximum reachable x-coordinate
+ */
+double Universe::getMaxX() {
+
+  int max_x = -std::numeric_limits<double>::infinity();
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (max_x < iter->second->getMaxX())
+      max_x = iter->second->getMaxX();
+  }
+
+  return max_x;
+}
+
+
+/**
+ * @brief Returns the minimum reachable y-coordinate in the Universe.
+ * @return the minimum reachable y-coordinate
+ */
+double Universe::getMinY() {
+
+  int min_y = std::numeric_limits<double>::infinity();
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (min_y > iter->second->getMinY())
+      min_y = iter->second->getMinY();
+  }
+
+  return min_y;
+}
+
+
+/**
+ * @brief Returns the maximum reachable y-coordinate in the Universe.
+ * @return the maximum reachable y-coordinate
+ */
+double Universe::getMaxY(){
+
+  int max_y = -std::numeric_limits<double>::infinity();
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (max_y < iter->second->getMaxY())
+      max_y = iter->second->getMaxY();
+  }
+
+  return max_y;
+}
+
+
+/**
+ * @brief Returns the minimum reachable z-coordinate in the Universe.
+ * @return the minimum reachable z-coordinate
+ */
+double Universe::getMinZ() {
+  int min_z = std::numeric_limits<double>::infinity();
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (min_z > iter->second->getMinZ())
+      min_z = iter->second->getMinZ();
+  }
+
+  return min_z;
+}
+
+
+/**
+ * @brief Returns the maximum reachable z-coordinate in the Universe.
+ * @return the maximum reachable z-coordinate
+ */
+double Universe::getMaxZ() {
+
+  int max_z = -std::numeric_limits<double>::infinity();
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (max_z < iter->second->getMaxZ())
+      max_z = iter->second->getMaxZ();
+  }
+
+  return max_z;
+}
+
+
+/**
  * @brief Returns a Cell in this universe.
  * @param cell_id the integer the cell_id
  * @return Returns the cell pointer.

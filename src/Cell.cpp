@@ -312,7 +312,6 @@ void Cell::findBoundingBox() {
     _min_y = -std::numeric_limits<double>::infinity();
   if (_min_z == std::numeric_limits<double>::infinity())
     _min_z = -std::numeric_limits<double>::infinity();
-
 }
 
 
