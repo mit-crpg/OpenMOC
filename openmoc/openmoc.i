@@ -17,7 +17,7 @@
   #include "../src/CPUSolver.h"
   #include "../src/Surface.h"
   #include "../src/Timer.h"
-  #include "../src/Track.h" 
+  #include "../src/Track.h"
   #include "../src/TrackGenerator.h"
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
@@ -83,8 +83,6 @@
  * this into their code, so if --no-numpy is passed in we use SWIG typemaps to
  * allow users to pass in arrays of data as Python lists. */
 #ifdef NO_NUMPY
-
-%include typemaps.i
 
 
 /* Typemap for the Material::set_____XS(double* xs, int num_groups)
@@ -190,58 +188,6 @@
 
 
 
-/* Typemap for Lattice::setLatticeCells(int num_x, int num_y, int* universes)
- * method - allows users to pass in Python lists of Universe IDs for each
- * lattice cell */
-%typemap(in) (int num_x, int num_y, int* universes) {
-
-  if (!PyList_Check($input)) {
-    PyErr_SetString(PyExc_ValueError,"Expected a Python list of integers "
-                    "for the Lattice cells");
-    return NULL;
-  }
-
-  $1 = PySequence_Length($input);  // num_x
-  $2 = PySequence_Length(PyList_GetItem($input,0)); // num_y
-  $3 = (int*) malloc(($1 * $2) * sizeof(int));  // universes
-
-  /* Loop over x */
-  for (int i = 0; i < $2; i++) {
-
-    /* Get the inner list in the nested list for the lattice */
-    PyObject* outer_list = PySequence_GetItem($input,i);
-
-    /* Check that the length of this list is the same as the length
-     * of the first list */
-    if (PySequence_Length(outer_list) != $2) {
-      PyErr_SetString(PyExc_ValueError, "Size mismatch. Expected $1 x $2 "
-                      "elements for Lattice\n");
-      return NULL;
-    }
-
-    /* Loop over y */
-    for (int j =0; j < $1; j++) {
-
-      /* Extract the value from the list at this location */
-      PyObject *o = PySequence_GetItem(outer_list,j);
-
-      /* If the value is a number, cast it as an int and set the
-       * input array value */
-      if (PyNumber_Check(o)) {
-        $3[i*$1 + j] = (int) PyInt_AS_LONG(o);
-      }
-      else {
-        free($3);
-        PyErr_SetString(PyExc_ValueError,"Expected a list of numbers as "
-                        "Universe IDs when constructing Lattice cells\n");
-        return NULL;
-      }
-    }
-  }
-}
-
-
-
 /* If the user did not pass in the --no-numpy flag, then NumPy typemaps will be
  * used and the NumPy C API will be embedded in the source code. This will allow
  * users to pass arrays of data to/from the C++ source code (ie, setting group
@@ -289,6 +235,49 @@
 %apply (int* ARGOUT_ARRAY1, int DIM1) {(int* cell_ids, int num_cells)}
 
 #endif
+
+
+
+/* Typemap for Lattice::setUniverses(int num_x, int num_y, Universe** universes)
+ * method - allows users to pass in Python lists of Universes for each
+ * lattice cell */
+%typemap(in) (int num_x, int num_y, Universe** universes) {
+
+  if (!PyList_Check($input)) {
+    PyErr_SetString(PyExc_ValueError,"Expected a Python list of integers "
+                    "for the Lattice cells");
+    return NULL;
+  }
+
+  $1 = PySequence_Length($input);  // num_x
+  $2 = PySequence_Length(PyList_GetItem($input,0)); // num_y
+  $3 = (Universe**) malloc(($1 * $2) * sizeof(Universe*)); // universes
+
+  /* Loop over x */
+  for (int i = 0; i < $2; i++) {
+
+    /* Get the inner list in the nested list for the lattice */
+    PyObject* outer_list = PyList_GetItem($input,i);
+
+    /* Check that the length of this list is the same as the length
+     * of the first list */
+    if (PySequence_Length(outer_list) != $2) {
+      PyErr_SetString(PyExc_ValueError, "Size mismatch. Expected $1 x $2 "
+                      "elements for Lattice\n");
+      return NULL;
+    }
+
+    /* Loop over y */
+    for (int j =0; j < $1; j++) {
+      /* Extract the value from the list at this location and convert
+       * SWIG wrapper to pointer to underlying C++ class instance */
+      PyObject* o = PyList_GetItem(outer_list,j);
+      void *p1 = 0;
+      SWIG_ConvertPtr(o, &p1, SWIGTYPE_p_Universe, 0 | 0);
+      $3[i*$1+j] = (Universe*) p1;
+    }
+  }
+}
 
 
 %include <exception.i>

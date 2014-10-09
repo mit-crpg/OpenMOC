@@ -94,7 +94,7 @@ protected:
 
 public:
 
-  Universe(const int id, const char* name="");
+  Universe(const int id=0, const char* name="");
   virtual ~Universe();
   int getUid() const;
   int getId() const;
@@ -156,7 +156,7 @@ private:
 
 public:
 
-  Lattice(const int id, const char* name="");
+  Lattice(const int id=0, const char* name="");
   virtual ~Lattice();
 
   int getNumX() const;
@@ -172,7 +172,7 @@ public:
   std::map<int, Universe*> getAllUniverses();
 
   void setWidth(double width_x, double width_y);
-  void setUniverses(int num_x, int num_y, Universe* universes);
+  void setUniverses(int num_x, int num_y, Universe** universes);
 
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);

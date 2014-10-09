@@ -36,9 +36,23 @@ void reset_universe_id() {
  * @param name the user-specified optional Universe ID
  */
 Universe::Universe(const int id, const char* name) {
+
+  /* If the user did not define an optional ID, create one */
+  if (id == 0)
+    _id = cell_id();
+
+  /* If the user-defined ID is in the prohibited range, return an error */
+  else if (id >= 10000)
+    log_printf(ERROR, "Unable to set the ID of a Universe to %d since IDs "
+               "greater than or equal to 10000 is probibited by OpenMOC.", id);
+
+  /* Use the user-defined ID */
+  else
+    _id = id;
+
   _uid = _n;
-  _id = id;
   _n++;
+
   setName(name);
   _type = SIMPLE;
 
@@ -531,7 +545,6 @@ Universe* Universe::clone() {
   return clone;
 }
 
-
 /**
  * @brief Constructor sets the user-specified and unique IDs for this Lattice.
  * @param id the user-specified optional Lattice (Universe) ID
@@ -744,6 +757,10 @@ void Lattice::setWidth(double width_x, double width_y) {
 
   _width_x = width_x;
   _width_y = width_y;
+
+  /* Set origin to lower left corner with (x=0, y=0) in center of Lattice */
+  _origin.setX(-_width_x*_num_x/2.0);
+  _origin.setY(-_width_y*_num_y/2.0);
 }
 
 
@@ -767,7 +784,7 @@ void Lattice::setWidth(double width_x, double width_y) {
  * @param num_y the number of Lattice cells along y
  * @param universes the array of Universes for each Lattice cell
  */
-void Lattice::setUniverses(int num_x, int num_y, Universe* universes) {
+void Lattice::setUniverses(int num_x, int num_y, Universe** universes) {
 
   /* Clear any Universes in the Lattice (from a previous run) */
   for (int i=0; i < _num_x; i++)
@@ -793,7 +810,7 @@ void Lattice::setUniverses(int num_x, int num_y, Universe* universes) {
     _universes.push_back(std::vector< std::pair<int, Universe*> >());
 
     for (int j = 0; j< _num_x; j++){
-      universe = &universes[(_num_y-1-i)*_num_x + j];
+      universe = universes[(_num_y-1-i)*_num_x + j];
       _universes.at(i).push_back(std::pair<int, Universe*>
                                  (universe->getId(), universe));
     }
