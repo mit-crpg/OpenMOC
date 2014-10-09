@@ -10,12 +10,12 @@
 #define CELL_H_
 
 #ifdef __cplusplus
+#include <limits>
+#include <map>
+#include <vector>
 #include "Material.h"
 #include "Surface.h"
 #include "Point.h"
-//#include "LocalCoords.h"
-#include <map>
-#include <vector>
 #endif
 
 class Universe;
@@ -73,6 +73,24 @@ protected:
    *  with a non-zero fission cross-section and is fissionable */
   bool _fissionable;
 
+  /** The minimum reachable x-coordinate within the Cell */
+  double _min_x;
+
+  /** The maximum reachable x-coordinate within the Cell */
+  double _max_x;
+
+  /** The minimum reachable y-coordinate within the Cell */
+  double _min_y;
+
+  /** The maximum reachable y-coordinate within the Cell */
+  double _max_y;
+
+  /** The minimum reachable z-coordinate within the Cell */
+  double _min_z;
+
+  /** The maximum reachable z-coordinate within the Cell */
+  double _max_z;
+
 public:
   Cell();
   Cell(int id=0, const char* name="");
@@ -81,6 +99,12 @@ public:
   int getId() const;
   char* getName() const;
   cellType getType() const;
+  double getMinX();
+  double getMaxX();
+  double getMinY();
+  double getMaxY();
+  double getMinZ();
+  double getMaxZ();
   int getNumSurfaces() const;
   std::map<Surface*, int> getSurfaces() const;
   bool isFissionable();
@@ -110,6 +134,7 @@ public:
   void setName(const char* name);
   void addSurface(int halfspace, Surface* surface);
   void removeSurface(Surface* surface);
+  void findBoundingBox();
 
   /**
    * @brief Computes whether or not this Cell contains a fissionable Material.

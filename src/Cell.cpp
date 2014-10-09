@@ -61,6 +61,15 @@ Cell::Cell(int id, const char* name) {
   _n++;
   setName(name);
 
+  /* Set a default bounding box around the Cell */
+  _min_x = -std::numeric_limits<double>::infinity();
+  _max_x = std::numeric_limits<double>::infinity();
+  _min_y = -std::numeric_limits<double>::infinity();
+  _max_y = std::numeric_limits<double>::infinity();
+  _min_z = -std::numeric_limits<double>::infinity();
+  _max_z = std::numeric_limits<double>::infinity();
+
+
   /* By default, the Cell's fissionability is unknown */
   _fissionable = false;
   _fissionable = false;
@@ -108,6 +117,60 @@ char* Cell::getName() const {
  */
 cellType Cell::getType() const {
   return _cell_type;
+}
+
+
+/**
+ * @brief Return the minimum reachable x-coordinate in the Cell.
+ * @return the minimum x-coordinate
+ */
+double Cell::getMinX() {
+  return _min_x;
+}
+
+
+/**
+ * @brief Return the maximum reachable x-coordinate in the Cell.
+ * @return the maximum x-coordinate
+ */
+double Cell::getMaxX() {
+  return _max_x;
+}
+
+
+/**
+ * @brief Return the minimum reachable y-coordinate in the Cell.
+ * @return the minimum y-coordinate
+ */
+double Cell::getMinY() {
+  return _min_y;
+}
+
+
+/**
+ * @brief Return the maximum reachable y-coordinate in the Cell.
+ * @return the maximum y-coordinate
+ */
+double Cell::getMaxY() {
+  return _max_y;
+}
+
+
+/**
+ * @brief Return the minimum reachable z-coordinate in the Cell.
+ * @return the minimum z-coordinate
+ */
+double Cell::getMinZ() {
+  return _min_z;
+}
+
+
+/**
+ * @brief Return the maximum reachable z-coordinate in the Cell.
+ * @return the maximum z-coordinate
+ */
+double Cell::getMaxZ() {
+  return _max_z;
 }
 
 
@@ -168,6 +231,7 @@ void Cell::addSurface(int halfspace, Surface* surface) {
                " %d is not -1 or 1", surface->getId(), _id, halfspace);
 
   _surfaces.insert(std::pair<Surface*, int>(surface, halfspace));
+  findBoundingBox();
 }
 
 
@@ -176,8 +240,79 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  * @param surface a pointer to the Surface to remove
  */
 void Cell::removeSurface(Surface* surface) {
+
   if (_surfaces.find(surface) != _surfaces.end())
     _surfaces.erase(surface);
+
+  findBoundingBox();
+}
+
+
+
+/**
+ * @brief
+ * @param
+ */
+void Cell::findBoundingBox() {
+
+  /* Set a default bounding box around the Cell */
+  _min_x = -std::numeric_limits<double>::infinity();
+  _max_x = std::numeric_limits<double>::infinity();
+  _min_y = -std::numeric_limits<double>::infinity();
+  _max_y = std::numeric_limits<double>::infinity();
+  _min_z = -std::numeric_limits<double>::infinity();
+  _max_z = std::numeric_limits<double>::infinity();
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<Surface*, int>::iterator iter;
+  Surface* surface;
+  int halfspace;
+  double min_x, max_x, min_y, max_y, min_z, max_z;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+
+    surface = iter->first;
+    halfspace = iter->second;
+
+    max_x = surface->getMaxX(halfspace);
+    max_y = surface->getMaxY(halfspace);
+    max_z = surface->getMaxZ(halfspace);
+
+    min_x = surface->getMinX(halfspace);
+    min_y = surface->getMinY(halfspace);
+    min_z = surface->getMinZ(halfspace);
+
+    if (max_x != std::numeric_limits<double>::infinity() && max_x < _max_x)
+      _max_x = max_x;
+    if (max_y != std::numeric_limits<double>::infinity() && max_y < _max_y)
+      _max_y = max_y;
+    if (max_z != std::numeric_limits<double>::infinity() && max_z < _max_z)
+      _max_z = max_z;
+
+    if (min_x != -std::numeric_limits<double>::infinity() && min_x > _min_x)
+      _min_x = min_x;
+    if (min_y != -std::numeric_limits<double>::infinity() && min_y > _min_y)
+      _min_y = min_y;
+    if (min_z != -std::numeric_limits<double>::infinity() && min_z > _min_z)
+      _min_z = min_z;
+  }
+
+  /* If we could not find a bounds for any dimension, readjust
+   * it to +/- infinity */
+  if (_max_x == -std::numeric_limits<double>::infinity())
+    _max_x = std::numeric_limits<double>::infinity();
+  if (_max_y == -std::numeric_limits<double>::infinity())
+    _max_y = std::numeric_limits<double>::infinity();
+  if (_max_z == -std::numeric_limits<double>::infinity())
+    _max_z = std::numeric_limits<double>::infinity();
+
+  if (_min_x == std::numeric_limits<double>::infinity())
+    _min_x = -std::numeric_limits<double>::infinity();
+  if (_min_y == std::numeric_limits<double>::infinity())
+    _min_y = -std::numeric_limits<double>::infinity();
+  if (_min_z == std::numeric_limits<double>::infinity())
+    _min_z = -std::numeric_limits<double>::infinity();
+
 }
 
 
