@@ -127,6 +127,10 @@ class SimulationObject():
         self._solver = solver
 
     def runSimulationTest(self):
+
+        ## NEW ERROR -- ThreadPrivateSolver is not defined ##
+
+        
         solver = ThreadPrivateSolver(self._geometry, self._track_generator)
         solver.setNumThreads(self._num_threads)
         solver.setSourceConvergenceThreshold(self._tolerance)
