@@ -116,28 +116,46 @@ public:
   boundaryType getBoundaryType();
 
   /**
-   * @brief Returns the minimum x value on this Surface.
+   * @brief Returns the minimum x value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
    * @return the minimum x value
    */
-  virtual double getXMin() =0;
+  virtual double getMinX(int halfspace) =0;
 
   /**
-   * @brief Returns the maximum x value on this Surface.
+   * @brief Returns the maximum x value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
    * @return the maximum x value
    */
-  virtual double getXMax() =0;
+  virtual double getMaxX(int halfspace) =0;
 
   /**
-   * @brief Returns the minimum y value on this Surface.
+   * @brief Returns the minimum y value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
    * @return the minimum y value
    */
-  virtual double getYMin() =0;
+  virtual double getMinY(int halfspace) =0;
 
   /**
-   * @brief Returns the maximum y value on this Surface.
+   * @brief Returns the maximum y value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
    * @return the maximum y value
    */
-  virtual double getYMax() =0;
+  virtual double getMaxY(int halfspace) =0;
+
+  /**
+   * @brief Returns the minimum z value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
+   * @return the minimum z value
+   */
+  virtual double getMinZ(int halfspace) =0;
+
+  /**
+   * @brief Returns the maximum z value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
+   * @return the maximum z value
+   */
+  virtual double getMaxZ(int halfspace) =0;
 
   void setName(const char* name);
   void setBoundaryType(const boundaryType boundary_type);
@@ -173,11 +191,7 @@ public:
    */
   virtual std::string toString() =0;
 
-  /**
-   * @brief Prints a string representation of all of the Surface's objects to
-   *        the console.
-   */
-  virtual void printString() =0;
+  void printString();
 };
 
 
@@ -209,10 +223,12 @@ public:
   Plane(const double A, const double B, const double C,
         const int id=0, const char* name="");
 
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinX(int halfspace);
+  double getMaxX(int halfspace);
+  double getMinY(int halfspace);
+  double getMaxY(int halfspace);
+  double getMinZ(int halfspace);
+  double getMaxZ(int halfspace);
   double getA();
   double getB();
   double getC();
@@ -221,7 +237,6 @@ public:
   int intersection(Point* point, double angle, Point* points);
 
   std::string toString();
-  void printString();
 };
 
 
@@ -242,10 +257,8 @@ public:
   void setX(const double x);
 
   double getX();
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinX(int halfspace);
+  double getMaxX(int halfspace);
 
   std::string toString();
 };
@@ -268,13 +281,10 @@ public:
   void setY(const double y);
 
   double getY();
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinY(int halfspace);
+  double getMaxY(int halfspace);
 
   std::string toString();
-  void printString();
 };
 
 
@@ -295,13 +305,10 @@ public:
   void setZ(const double z);
 
   double getZ();
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinZ(int halfspace);
+  double getMaxZ(int halfspace);
 
   std::string toString();
-  void printString();
 };
 
 
@@ -347,16 +354,17 @@ public:
   double getX0();
   double getY0();
   double getRadius();
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinX(int halfspace);
+  double getMaxX(int halfspace);
+  double getMinY(int halfspace);
+  double getMaxY(int halfspace);
+  double getMinZ(int halfspace);
+  double getMaxZ(int halfspace);
 
   double evaluate(const Point* point) const;
   int intersection(Point* point, double angle, Point* points);
 
   std::string toString();
-  void printString();
 };
 
 

@@ -378,10 +378,10 @@ void TrackGenerator::generateTracks() {
 
     /* Check to make sure that height, width of the Geometry are nonzero */
     if (_geometry->getHeight() <= 0 || _geometry->getHeight() <= 0)
-      log_printf(ERROR, "The total height and width of the Geometry must be"
-                 "must be nonzero for Track generation. Create a CellFill which"
-                 "is filled by the entire geometry and bounded by XPlanes"
-                 "and YPlanes to enable the Geometry to determine the total"
+      log_printf(ERROR, "The total height and width of the Geometry must be "
+                 "nonzero for Track generation. Create a CellFill which "
+                 "is filled by the entire geometry and bounded by XPlanes "
+                 "and YPlanes to enable the Geometry to determine the total "
                  "width and height of the model.");
 
     /* Generate Tracks, perform ray tracing across the geometry, and store
