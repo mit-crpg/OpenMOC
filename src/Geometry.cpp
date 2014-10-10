@@ -18,13 +18,6 @@ void reset_auto_ids() {
  */
 Geometry::Geometry(Mesh* mesh) {
 
-  /* Initializing the corners of the bounding box encapsulating
-   * the Geometry to be infinite  */
-  _x_min = std::numeric_limits<double>::max();
-  _y_min = std::numeric_limits<double>::max();
-  _x_max = -std::numeric_limits<double>::max();
-  _y_max = -std::numeric_limits<double>::max();
-
   _max_seg_length = 0;
   _min_seg_length = std::numeric_limits<double>::infinity();
 
@@ -63,7 +56,7 @@ Geometry::~Geometry() {
  * @return the total height of the Geometry (cm)
  */
 double Geometry::getHeight() {
-  return (_y_max - _y_min);
+  return (getMaxY() - getMinY());
 }
 
 
@@ -72,7 +65,7 @@ double Geometry::getHeight() {
  * @return the total width of the Geometry (cm)
  */
 double Geometry::getWidth() {
-  return (_x_max - _x_min);
+  return (getMaxX() - getMinX());
 }
 
 
@@ -80,8 +73,8 @@ double Geometry::getWidth() {
  * @brief Return the minimum x-coordinate contained by the Geometry.
  * @return the minimum x-coordinate (cm)
  */
-double Geometry::getXMin() {
-  return _x_min;
+double Geometry::getMinX() {
+  return _root_universe->getMinX();
 }
 
 
@@ -89,8 +82,8 @@ double Geometry::getXMin() {
  * @brief Return the maximum x-coordinate contained by the Geometry.
  * @return the maximum x-coordinate (cm)
  */
-double Geometry::getXMax() {
-  return _x_max;
+double Geometry::getMaxX() {
+  return _root_universe->getMaxX();
 }
 
 
@@ -98,8 +91,8 @@ double Geometry::getXMax() {
  * @brief Return the minimum y-coordinate contained by the Geometry.
  * @return the minimum y-coordinate (cm)
  */
-double Geometry::getYMin() {
-  return _y_min;
+double Geometry::getMinY() {
+  return _root_universe->getMinY();
 }
 
 
@@ -107,10 +100,27 @@ double Geometry::getYMin() {
  * @brief Return the maximum y-coordinate contained by the Geometry.
  * @return the maximum y-coordinate (cm)
  */
-double Geometry::getYMax() {
-  return _y_max;
+double Geometry::getMaxY() {
+  return _root_universe->getMaxY();
 }
 
+
+/**
+ * @brief Return the minimum z-coordinate contained by the Geometry.
+ * @return the minimum z-coordinate (cm)
+ */
+double Geometry::getMinZ() {
+  return _root_universe->getMinZ();
+}
+
+
+/**
+ * @brief Return the maximum z-coordinate contained by the Geometry.
+ * @return the maximum z-coordinate (cm)
+ */
+double Geometry::getMaxZ() {
+  return _root_universe->getMaxZ();
+}
 
 
 /**
@@ -619,7 +629,6 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
         /* If the lowest level LocalCoords is inside a Lattice, find
          * the next Lattice cell */
         if (curr->getType() == LAT) {
-
           Lattice* lattice = curr->getLattice();
 
           cell = lattice->findNextLatticeCell(curr, angle);
@@ -635,7 +644,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
             curr = coords->getLowestLevel();
 
             /* Retrace linked list from lowest level */
-            while (curr != NULL && curr->getUniverse() != 0) {
+            while (curr != NULL && curr->getUniverse() != _root_universe) {
 
               curr = curr->getPrev();
 
@@ -651,10 +660,11 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
             curr = coords->getLowestLevel();
           }
 
-          /* If lowest level Universe is not a Lattice, return current Cell */
-          else
-            return cell;
         }
+
+        /* If lowest level Universe is not a Lattice, return current Cell */
+        else
+          return cell;
       }
     }
   }
@@ -927,14 +937,6 @@ std::string Geometry::toString() {
 
   std::map<int, Cell*>::iterator cell_iter;
   std::map<int, Universe*>::iterator univ_iter;
-
-  string << "Geometry: width = "
-         << getWidth() << ", height = "
-         << getHeight() << ", Bounding Box: (("
-         << _x_min << ", "
-         << _y_min << "), ("
-         << _x_max << ", "
-         << _y_max << ")";
 
   string << "\n\tCells:\n\t\t";
   for (cell_iter = all_cells.begin(); cell_iter != all_cells.end(); ++cell_iter)

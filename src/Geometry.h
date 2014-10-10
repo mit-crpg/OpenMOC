@@ -36,18 +36,6 @@ class Geometry {
 
 private:
 
-  /** The minimum point along the x-axis contained by Geometry in cm */
-  double _x_min;
-
-  /** The minimum point along the y-axis contained by Geometry in cm */
-  double _y_min;
-
-  /** The maximum point along the x-axis contained by Geometry in cm */
-  double _x_max;
-
-  /** The maximum point along the y-axis contained by Geometry in cm */
-  double _y_max;
-
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
   boundaryType _top_bc;
@@ -102,10 +90,12 @@ public:
 
   double getWidth();
   double getHeight();
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinX();
+  double getMaxX();
+  double getMinY();
+  double getMaxY();
+  double getMinZ();
+  double getMaxZ();
   boundaryType getBCTop();
   boundaryType getBCBottom();
   boundaryType getBCLeft();
