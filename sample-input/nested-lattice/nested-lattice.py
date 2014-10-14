@@ -54,7 +54,6 @@ for plane in planes: plane.setBoundaryType(REFLECTIVE)
 log.py_printf('NORMAL', 'Creating cells...')
 
 cells = list()
-cells = list()
 cells.append(CellBasic(name='large pin fuel', rings=3, sectors=8))
 cells.append(CellBasic(name='large pin moderator', sectors=8))
 cells.append(CellBasic(name='medium pin fuel', rings=3, sectors=8))
