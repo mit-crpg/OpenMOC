@@ -588,12 +588,6 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
         coords_curr = coords_curr->getPrev();
       }
 
-      /* Check if Cell is NULL - this means that intersection point
-       * is outside the bounds of the Geometry and the old coords should
-       * should be restored so that we can look for the next Lattice cell */
-      if (cell == NULL)
-        dist = std::numeric_limits<double>::infinity();
-
       /* If the distance is not INFINITY then the new Cell found is the
        * one to return */
       if (dist != std::numeric_limits<double>::infinity()) {

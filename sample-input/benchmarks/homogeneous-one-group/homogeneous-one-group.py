@@ -17,7 +17,7 @@ num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 
-log.set_log_level('DEBUG')
+log.set_log_level('NORMAL')
 
 log.py_printf('TITLE', 'Simulating a one group homogeneous infinite medium...')
 log.py_printf('HEADER', 'The reference keff = 1.43...')
