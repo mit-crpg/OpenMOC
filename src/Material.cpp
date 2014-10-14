@@ -31,13 +31,27 @@ void reset_material_id() {
 
 /**
  * @brief Constructor sets the ID and unique ID for the Material.
- * @param id the user-defined ID for the material
+ * @param id the user-specified optional Material ID
+ * @param name the user-specified optional Material name
  */
-Material::Material(int id) {
+Material::Material(int id, const char* name) {
+
+  /* If the user did not define an optional ID, create one */
+  if (id == 0)
+    _id = material_id();
+
+  /* If the user-defined ID is in the prohibited range, return an error */
+  else if (id >= 10000)
+    log_printf(ERROR, "Unable to set a Material ID to %d since Material IDs "
+               "greater than or equal to 10000 is probibited by OpenMOC.", id);
+
+  /* Use the user-defined ID */
+  else
+    _id = id;
 
   _uid = _n;
-  _id = id;
   _n++;
+  setName(name);
 
   _sigma_t = NULL;
   _sigma_a = NULL;
@@ -148,6 +162,15 @@ int Material::getUid() const {
  */
 int Material::getId() const {
   return _id;
+}
+
+
+/**
+ * @brief Return the user-defined name of the Material
+ * @return the Material name
+ */
+char* Material::getName() const {
+  return _name;
 }
 
 
@@ -529,6 +552,22 @@ bool Material::isDataAligned() {
  */
 int Material::getNumVectorGroups() {
   return _num_vector_groups;
+}
+
+
+/**
+ * @brief Sets the name of the Material
+ * @param name the Material name string
+ */
+void Material::setName(const char* name) {
+  int length = strlen(name);
+
+  /* Initialize a character array for the Material's name */
+  _name = new char[length+1];
+
+  /* Copy the input character array Material name to the class attribute name */
+  for (int i=0; i <= length; i++)
+    _name[i] = name[i];
 }
 
 

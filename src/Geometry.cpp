@@ -619,7 +619,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
       LocalCoords* curr = coords->getLowestLevel();
 
       /* Retrace linked list from lowest level */
-      while (curr != NULL && curr->getUniverse() != NULL) {
+      while (curr != NULL && curr->getUniverse() != _root_universe){ //NULL) {
         curr = curr->getPrev();
 
         /* If we reach a LocalCoord in a lattice, delete all lower

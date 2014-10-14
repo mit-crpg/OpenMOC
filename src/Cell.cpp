@@ -50,7 +50,7 @@ Cell::Cell(int id, const char* name) {
 
   /* If the user-defined ID is in the prohibited range, return an error */
   else if (id >= 10000)
-    log_printf(ERROR, "Unable to set the ID of a cell to %d since cell IDs "
+    log_printf(ERROR, "Unable to set a Cell ID to %d since Cell IDs "
                "greater than or equal to 10000 is probibited by OpenMOC.", id);
 
   /* Use the user-defined ID */
