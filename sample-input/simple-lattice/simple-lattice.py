@@ -31,9 +31,6 @@ log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
 materials = materialize.materialize('../c5g7-materials.h5')
 
-uo2_id = materials['UO2'].getId()
-water_id = materials['Water'].getId()
-
 
 ###############################################################################
 ###########################   Creating Surfaces   #############################
@@ -41,15 +38,15 @@ water_id = materials['Water'].getId()
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circles = []
-planes = []
-planes.append(XPlane(x=-2.0))
-planes.append(XPlane(x=2.0))
-planes.append(YPlane(y=-2.0))
-planes.append(YPlane(y=2.0))
-circles.append(Circle(x=0.0, y=0.0, radius=0.4))
-circles.append(Circle(x=0.0, y=0.0, radius=0.3))
-circles.append(Circle(x=0.0, y=0.0, radius=0.2))
+circles = list()
+planes = list()
+planes.append(XPlane(x=-2.0, name='left'))
+planes.append(XPlane(x=2.0, name='right'))
+planes.append(YPlane(y=-2.0, name='top'))
+planes.append(YPlane(y=2.0, name='bottom'))
+circles.append(Circle(x=0.0, y=0.0, radius=0.4, name='large pin'))
+circles.append(Circle(x=0.0, y=0.0, radius=0.3, name='medium pin'))
+circles.append(Circle(x=0.0, y=0.0, radius=0.2, name='small pin'))
 for plane in planes: plane.setBoundaryType(REFLECTIVE)
 
 
@@ -59,14 +56,21 @@ for plane in planes: plane.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cells = []
-cells.append(CellBasic(universe=1, material=uo2_id, name='testing...'))
-cells.append(CellBasic(universe=1, material=water_id))
-cells.append(CellBasic(universe=2, material=uo2_id))
-cells.append(CellBasic(universe=2, material=water_id))
-cells.append(CellBasic(universe=3, material=uo2_id, sectors=8))
-cells.append(CellBasic(universe=3, material=water_id))
-cells.append(CellFill(universe=0, universe_fill=5))
+cells = list()
+cells.append(CellBasic(name='large pin fuel', rings=3, sectors=8))
+cells.append(CellBasic(name='large pin moderator', sectors=8))
+cells.append(CellBasic(name='medium pin fuel', rings=3, sectors=8))
+cells.append(CellBasic(name='medium pin moderator', sectors=8))
+cells.append(CellBasic(name='small pin fuel', rings=3, sectors=8))
+cells.append(CellBasic(name='small pin moderator', sectors=8))
+cells.append(CellFill(name='root cell'))
+
+cells[0].setMaterial(materials['UO2'])
+cells[1].setMaterial(materials['Water'])
+cells[2].setMaterial(materials['UO2'])
+cells[3].setMaterial(materials['Water'])
+cells[4].setMaterial(materials['UO2'])
+cells[5].setMaterial(materials['Water'])
 
 cells[0].addSurface(halfspace=-1, surface=circles[0])
 cells[1].addSurface(halfspace=+1, surface=circles[0])
@@ -82,24 +86,39 @@ cells[6].addSurface(halfspace=-1, surface=planes[3])
 
 
 ###############################################################################
+#                            Creating Universes
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating universes...')
+
+pin1 = Universe(name='large pin cell')
+pin2 = Universe(name='medium pin cell')
+pin3 = Universe(name='small pin cell')
+root = Universe(name='root universe')
+
+pin1.addCell(cells[0])
+pin1.addCell(cells[1])
+pin2.addCell(cells[2])
+pin2.addCell(cells[3])
+pin3.addCell(cells[4])
+pin3.addCell(cells[5])
+root.addCell(cells[6])
+
+
+###############################################################################
 ###########################   Creating Lattices   #############################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating simple 4 x 4 lattice...')
 
-lattice = Lattice(id=5, width_x=1.0, width_y=1.0)
-lattice.setLatticeCells([[1, 2, 1, 2],
-                         [2, 3, 2, 3],
-                         [1, 2, 1, 2],
-                         [2, 3, 2, 3]])
+lattice = Lattice(name='4x4 lattice')
+lattice.setWidth(width_x=1.0, width_y=1.0)
+lattice.setUniverses([[pin1, pin2, pin1, pin2],
+                      [pin2, pin3, pin2, pin3],
+                      [pin1, pin2, pin1, pin2],
+                      [pin2, pin3, pin2, pin3]])
+cells[6].setFill(lattice)
 
-
-###############################################################################
-##########################     Creating Cmfd mesh    ##########################
-###############################################################################
-log.py_printf('NORMAL', 'Creating Cmfd mesh...')
-
-mesh = Mesh(MOC, acceleration, relax_factor, mesh_level)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -107,21 +126,10 @@ mesh = Mesh(MOC, acceleration, relax_factor, mesh_level)
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry(mesh)
-for material in materials.values(): geometry.addMaterial(material)
-for cell in cells: geometry.addCell(cell)
-geometry.addLattice(lattice)
-
+geometry = Geometry()
+geometry.setRootUniverse(root)
 geometry.initializeFlatSourceRegions()
 
-###############################################################################
-##########################   Creating Cmfd module    ##########################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating cmfd module...')
-
-cmfd = Cmfd(geometry)
-cmfd.setOmega(1.0)
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -137,7 +145,7 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator, cmfd)
+solver = CPUSolver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
