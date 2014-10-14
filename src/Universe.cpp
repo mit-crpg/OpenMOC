@@ -128,10 +128,11 @@ Point* Universe::getOrigin() {
  */
 double Universe::getMinX() {
 
-  int min_x = std::numeric_limits<double>::infinity();
+  double min_x = std::numeric_limits<double>::infinity();
 
   std::map<int, Cell*>::iterator iter;
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+
     if (min_x > iter->second->getMinX())
       min_x = iter->second->getMinX();
   }
@@ -146,7 +147,7 @@ double Universe::getMinX() {
  */
 double Universe::getMaxX() {
 
-  int max_x = -std::numeric_limits<double>::infinity();
+  double max_x = -std::numeric_limits<double>::infinity();
 
   std::map<int, Cell*>::iterator iter;
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
@@ -164,7 +165,7 @@ double Universe::getMaxX() {
  */
 double Universe::getMinY() {
 
-  int min_y = std::numeric_limits<double>::infinity();
+  double min_y = std::numeric_limits<double>::infinity();
 
   std::map<int, Cell*>::iterator iter;
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
@@ -182,7 +183,7 @@ double Universe::getMinY() {
  */
 double Universe::getMaxY(){
 
-  int max_y = -std::numeric_limits<double>::infinity();
+  double max_y = -std::numeric_limits<double>::infinity();
 
   std::map<int, Cell*>::iterator iter;
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
@@ -199,7 +200,7 @@ double Universe::getMaxY(){
  * @return the minimum reachable z-coordinate
  */
 double Universe::getMinZ() {
-  int min_z = std::numeric_limits<double>::infinity();
+  double min_z = std::numeric_limits<double>::infinity();
 
   std::map<int, Cell*>::iterator iter;
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
@@ -217,7 +218,7 @@ double Universe::getMinZ() {
  */
 double Universe::getMaxZ() {
 
-  int max_z = -std::numeric_limits<double>::infinity();
+  double max_z = -std::numeric_limits<double>::infinity();
 
   std::map<int, Cell*>::iterator iter;
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
