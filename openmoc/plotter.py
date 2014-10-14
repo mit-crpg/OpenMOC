@@ -261,10 +261,10 @@ def plot_materials(geometry, gridsize=250):
   surface = numpy.zeros((gridsize, gridsize))
 
   # Retrieve the bounding box for the Geometry
-  xmin = geometry.getXMin()
-  xmax = geometry.getXMax()
-  ymin = geometry.getYMin()
-  ymax = geometry.getYMax()
+  xmin = geometry.getMinX()
+  xmax = geometry.getMaxX()
+  ymin = geometry.getMinY()
+  ymax = geometry.getMaxY()
 
   # Initialize NumPy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -278,10 +278,10 @@ def plot_materials(geometry, gridsize=250):
       y = ycoords[j]
 
       point = LocalCoords(x, y)
-      point.setUniverse(0)
+      point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.findFSRId(point)
-      material_id = geometry.findCellContainingFSR(fsr_id).getMaterial()
+      material_id = geometry.findCellContainingFSR(fsr_id).getMaterial().getId()
       surface[j][i] = color_map[material_id % num_materials]
 
   # Flip the surface vertically to align NumPy row/column indices with the
@@ -348,10 +348,10 @@ def plot_cells(geometry, gridsize=250):
   surface = np.zeros((gridsize, gridsize))
 
   # Retrieve the bounding box for the Geometry
-  xmin = geometry.getXMin()
-  xmax = geometry.getXMax()
-  ymin = geometry.getYMin()
-  ymax = geometry.getYMax()
+  xmin = geometry.getMinX()
+  xmax = geometry.getMaxX()
+  ymin = geometry.getMinY()
+  ymax = geometry.getMaxY()
 
   # Initialize numpy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -365,7 +365,7 @@ def plot_cells(geometry, gridsize=250):
       y = ycoords[j]
 
       point = LocalCoords(x, y)
-      point.setUniverse(0)
+      point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.findFSRId(point)
       cell_id = geometry.findCellContainingFSR(fsr_id).getId()
@@ -436,10 +436,10 @@ def plot_flat_source_regions(geometry, gridsize=250):
   surface = numpy.zeros((gridsize, gridsize))
 
   # Retrieve the bounding box for the Geometry
-  xmin = geometry.getXMin()
-  xmax = geometry.getXMax()
-  ymin = geometry.getYMin()
-  ymax = geometry.getYMax()
+  xmin = geometry.getMinX()
+  xmax = geometry.getMaxX()
+  ymin = geometry.getMinY()
+  ymax = geometry.getMaxY()
 
   # Initialize numpy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -453,7 +453,7 @@ def plot_flat_source_regions(geometry, gridsize=250):
       y = ycoords[j]
 
       point = LocalCoords(x, y)
-      point.setUniverse(0)
+      point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.findFSRId(point)
       surface[j][i] = color_map[fsr_id % num_fsrs]
@@ -562,10 +562,10 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
   fluxes = numpy.zeros((len(energy_groups), gridsize, gridsize))
 
   # Retrieve the bounding box for the geometry
-  xmin = geometry.getXMin()
-  xmax = geometry.getXMax()
-  ymin = geometry.getYMin()
-  ymax = geometry.getYMax()
+  xmin = geometry.getMinX()
+  xmax = geometry.getMaxX()
+  ymin = geometry.getMinY()
+  ymax = geometry.getMaxY()
 
   # Initialize numpy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -579,7 +579,7 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
       y = ycoords[j]
 
       point = LocalCoords(x, y)
-      point.setUniverse(0)
+      point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.findFSRId(point)
 
@@ -699,7 +699,7 @@ def plot_mesh_fluxes(mesh, energy_groups=[1], gridsize=500):
       y = ycoords[j]
 
       point = LocalCoords(x, y)
-      point.setUniverse(0)
+      point.setUniverse(geometry.getRootUniverse())
       cell_id = mesh.findCellId(point)
 
       # Get the scalar flux for each energy group in this FSR

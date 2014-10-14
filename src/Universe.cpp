@@ -558,7 +558,7 @@ void Universe::subdivideCells() {
 
     for (iter1 = _cells.begin(); iter1 != _cells.end(); ++iter1) {
 
-      if ((*iter1).second->getType() == MATERIAL) {
+      if (((*iter1).second)->getType() == MATERIAL) {
         CellBasic* cell = static_cast<CellBasic*>((*iter1).second);
 
         if (cell->getNumRings() > 0 || cell->getNumSectors() > 0) {
@@ -1264,6 +1264,7 @@ Cell* Lattice::findNextLatticeCell(LocalCoords* coords, double angle) {
 
     /* New LocalCoords is still within the interior of the Lattice */
     else {
+
       /* Update the LocalCoords Lattice cell indices */
       coords->setLatticeX(new_lattice_x);
       coords->setLatticeY(new_lattice_y);

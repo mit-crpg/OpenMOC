@@ -89,7 +89,7 @@ def compute_pin_powers(solver, use_hdf5=False):
 
   # Get the base Universe in the Geometry and compute pin powers for each
   # level of nested Universes and Lattices
-  universe = geometry.getUniverse(0)
+  universe = geometry.getRootUniverse()
   compute_universe_fission_rate(geometry, universe, 0, fission_rates,
                                 use_hdf5, directory=directory)
 
@@ -101,8 +101,8 @@ def compute_pin_powers(solver, use_hdf5=False):
 #          compute_pin_powers(...) routine and is NOT intended to be
 #          called by the user.
 # @param geometry a pointer to a Geometry object
-# @param universe a pointer to the universe of interest
-# @param FSR_offset the offset for this universe in the nested hierarchy
+# @param universe a pointer to the Universe of interest
+# @param FSR_offset the offset for this Universe in the nested hierarchy
 # @param FSR_fission_rates the array of fission rates for all FSRs
 # @param use_hdf5 whether or not to export pin powers to HDF5
 # @param attributes a list of strings for the path in the nested CSG hierarchy
@@ -124,13 +124,11 @@ def compute_universe_fission_rate(geometry, universe, FSR_offset,
     attributes.append('universe' + str(universe.getId()))
 
     num_cells = universe.getNumCells()
-    cell_ids = universe.getCellIds(int(num_cells))
+    cells = universe.getCells()
 
     # For each of the Cells inside the Universe, check if it is a
     # MATERIAL or FILL type
-    for cell_id in cell_ids:
-
-      cell = universe.getCell(int(cell_id))
+    for cell_id, cell in cells.items():
 
       # If the current cell is a MATERIAL type cell
       if cell.getType() is MATERIAL:
@@ -141,7 +139,7 @@ def compute_universe_fission_rate(geometry, universe, FSR_offset,
       # The current Cell is a FILL type cell
       else:
         cell = castCellToCellFill(cell)
-        universe_fill = cell.getUniverseFill()
+        universe_fill = cell.getFill()
         fsr_id = universe.getFSR(cell.getId()) + FSR_offset
         fission_rate += \
           compute_universe_fission_rate(geometry, universe_fill, fsr_id, \
@@ -261,19 +259,19 @@ def compute_universe_fission_rate(geometry, universe, FSR_offset,
 #          This method may be called from Python as follows:
 #
 # @code
-#          store_simulation_state(solver, fluxes=True, sources=True, \
+#          store_simulation_state(solver, fluxes=True, source=True, \
 #                                 pin_powers=True, use_hdf5=True)
 # @endcode
 #
 # @param solver a pointer to a Solver object
 # @param fluxes whether to store FSR scalar fluxes (false by default)
-# @param sources whether to store FSR sources (false by default)
+# @param source whether to store FSR source distribution (false by default)
 # @param pin_powers whether to store fission rates (false by default)
 # @param use_hdf5 whether to export to HDF5 (default) or Python pickle file
 # @param filename the filename to use (default is 'simulation-state.h5')
 # @param append append to existing file or create new one (false by default)
 # @param note an additional string note to include in state file
-def store_simulation_state(solver, fluxes=False, sources=False,
+def store_simulation_state(solver, fluxes=False, source=False,
                            pin_powers=False, use_hdf5=False,
                            filename='simulation-state',
                            append=True, note=''):
@@ -365,7 +363,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
         scalar_fluxes[i,j] = solver.getFSRScalarFlux(i,j+1)
 
   # If the user requested to store the FSR sources
-  if sources:
+  if source:
 
     # Allocate array
     sources = np.zeros((num_FSRs, num_groups))
@@ -427,7 +425,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     if fluxes:
       time_group.create_dataset('FSR scalar fluxes', data=scalar_fluxes)
 
-    if sources:
+    if source:
       time_group.create_dataset('FSR sources', data=sources)
 
     if pin_powers:
@@ -498,7 +496,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     if fluxes:
       state['FSR scalar fluxes'] = scalar_fluxes
 
-    if sources:
+    if source:
       state['FSR sources'] = sources
 
     if pin_powers:

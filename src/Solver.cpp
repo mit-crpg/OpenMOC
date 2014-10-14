@@ -284,14 +284,6 @@ bool Solver::isUsingCmfd() {
  */
 void Solver::setGeometry(Geometry* geometry) {
 
-  if (geometry->getNumFSRs() == 0)
-    log_printf(ERROR, "Unable to set the Geometry for the Solver since the "
-               "Geometry has not yet initialized FSRs");
-
-  if (geometry->getNumEnergyGroups() == 0)
-    log_printf(ERROR, "Unable to set the Geometry for the Solver "
-               "since the Geometry does noet contain any materials");
-
   if (geometry->getBCTop() == ZERO_FLUX ||
       geometry->getBCBottom() == ZERO_FLUX ||
       geometry->getBCLeft() == ZERO_FLUX ||

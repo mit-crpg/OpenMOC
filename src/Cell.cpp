@@ -513,8 +513,10 @@ CellBasic* CellBasic::clone() {
 
   /* Construct new Cell */
   CellBasic* new_cell = new CellBasic();
+  new_cell->setName(_name);
   new_cell->setNumRings(_num_rings);
   new_cell->setNumSectors(_num_sectors);
+  new_cell->setMaterial(_material);
 
   /* Loop over all of this Cell's Surfaces and add them to the clone */
   std::map<Surface*, int>::iterator iter;
@@ -794,6 +796,7 @@ std::string CellBasic::toString() {
          << ", # rings = " << _num_rings
          << ", # sectors = " << _num_sectors;
 
+
   /* Append each of the surface ids to the string */
   std::map<Surface*, int>::iterator iter;
   string << ", surface ids = ";
@@ -858,7 +861,13 @@ std::map<int, Cell*> CellFill::getAllCells() {
   std::map<int, Cell*> cells;
 
   if (_cell_type == FILL && _fill != NULL) {
-    std::map<int, Cell*> nested_cells = _fill->getAllCells();
+    std::map<int, Cell*> nested_cells;
+
+    if (_fill->getType() == SIMPLE)
+      nested_cells = _fill->getAllCells();
+    else
+      nested_cells = static_cast<Lattice*>(_fill)->getAllCells();
+
     cells.insert(nested_cells.begin(), nested_cells.end());
   }
 
@@ -877,7 +886,11 @@ std::map<int, Universe*> CellFill::getAllUniverses() {
 
   if (_cell_type == FILL && _fill != NULL) {
     universes[_fill->getId()] = _fill;
-    std::map<int, Universe*> nested_universes = _fill->getAllUniverses();
+    std::map<int, Universe*> nested_universes;
+    if (_fill->getType() == SIMPLE)
+      nested_universes = static_cast<Universe*>(_fill)->getAllUniverses();
+    else
+      nested_universes = static_cast<Lattice*>(_fill)->getAllUniverses();
     universes.insert(nested_universes.begin(), nested_universes.end());
   }
 

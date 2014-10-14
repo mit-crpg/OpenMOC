@@ -28,7 +28,6 @@ Geometry::Geometry(Mesh* mesh) {
   _right_bc  = REFLECTIVE;
 
   _num_FSRs = 0;
-  _num_groups = 0;
 
   if (mesh == NULL)
     _mesh = new Mesh();
@@ -177,11 +176,23 @@ int Geometry::getNumFSRs() {
  * @return the number of energy groups
  */
 int Geometry::getNumEnergyGroups() {
-  if (getNumMaterials() == 0)
-    log_printf(ERROR, "Unable to return the number of energy groups from "
-               "the geometry since it does not contain any materials");
 
-  return _num_groups;
+  std::map<int, Material*> materials = getAllMaterials();
+  std::map<int, Material*>::iterator iter;
+  int num_groups = materials.begin()->second->getNumEnergyGroups();
+
+  if (materials.size() == 0)
+    log_printf(ERROR, "Unable to return the number of energy groups from "
+               "the Geometry since it does not contain any Materials");
+
+  for (iter = materials.begin(); iter != materials.end(); ++iter) {
+    if (iter->second->getNumEnergyGroups() != num_groups)
+      log_printf(ERROR, "Unable to return the number of energy groups from "
+                 "the Geometry since it contains different numbers of groups: "
+                 "%d and %d", num_groups, iter->second->getNumEnergyGroups());
+  }
+
+  return num_groups;
 }
 
 
@@ -405,10 +416,10 @@ Cell* Geometry::findCell(Universe* univ, int fsr_id) {
     log_printf(ERROR, "Tried to find the Cell for FSR with ID = %d which "
                "does not exist", fsr_id);
 
-
   /* If the Universe is a SIMPLE type, then find the Cell the smallest FSR
    * offset map entry that is less than or equal to fsr_id */
   if (univ->getType() == SIMPLE) {
+
     std::map<int, Cell*>::iterator iter;
     std::map<int, Cell*> cells = univ->getCells();
     Cell* cell_min = NULL;
@@ -418,6 +429,7 @@ Cell* Geometry::findCell(Universe* univ, int fsr_id) {
 
     /* Loop over this Universe's Cells */
     for (iter = cells.begin(); iter != cells.end(); ++iter) {
+
       fsr_map_id = univ->getFSR(iter->first);
       if (fsr_map_id <= fsr_id && fsr_map_id >= max_id) {
         max_id = fsr_map_id;
@@ -459,6 +471,7 @@ Cell* Geometry::findCell(Universe* univ, int fsr_id) {
   /* If the Universe is a Lattice then we find the Lattice cell with the
    * smallest FSR offset map entry that is less than or equal to fsr_id */
   else {
+
     Lattice* lat = static_cast<Lattice*>(univ);
     Universe* next_univ = NULL;
     int num_y = lat->getNumY();
@@ -660,6 +673,8 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
             curr = coords->getLowestLevel();
           }
 
+          else
+            return cell;
         }
 
         /* If lowest level Universe is not a Lattice, return current Cell */
@@ -844,7 +859,7 @@ void Geometry::segmentize(Track* track) {
     /* Compute the number of Track segments to cut this segment into to ensure
      * that it's length is small enough for the exponential table */
     min_num_segments = 1;
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < getNumEnergyGroups(); e++) {
       num_segments = ceil(segment_length * sigma_t[e] / 10.0);
       if (num_segments > min_num_segments)
       min_num_segments = num_segments;

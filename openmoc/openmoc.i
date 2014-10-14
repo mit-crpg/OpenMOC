@@ -238,6 +238,28 @@
 
 
 
+%include <std_map.i>
+%cleap std::map<int, Cell*>;
+%typemap(out) std::map<int, Cell*> {
+
+  $result = PyDict_New();
+  int size = $1.size();
+
+  std::map<int, Cell*>::iterator iter;
+  Cell* cell;
+  int cell_id;
+
+  for (iter = $1.begin(); iter != $1.end(); ++iter) {
+    cell_id = iter->first;
+    cell = iter->second;
+    PyObject* value = SWIG_NewPointerObj(SWIG_as_voidptr(cell), $descriptor(Cell*), 0);
+    PyDict_SetItem($result, PyInt_FromLong(cell_id), value);
+  }
+
+}
+
+
+
 /* Typemap for Lattice::setUniverses(int num_x, int num_y, Universe** universes)
  * method - allows users to pass in Python lists of Universes for each
  * lattice cell */
@@ -281,6 +303,7 @@
 
 
 %include <exception.i>
+%include <std_map.i>
 %include ../src/Cell.h
 %include ../src/Geometry.h
 %include ../src/LocalCoords.h
@@ -297,6 +320,9 @@
 %include ../src/Universe.h
 %include ../src/Cmfd.h
 %include ../src/Mesh.h
+
+
+ //%template(NewMapInstance) ::std::map<int, Cell*>
 
 
 #define printf PySys_WriteStdout

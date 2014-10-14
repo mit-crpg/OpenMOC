@@ -55,9 +55,6 @@ private:
   /** The total number of FSRs in the Geometry */
   int _num_FSRs;
 
-  /** The number of energy groups for each Material's nuclear data */
-  int _num_groups;
-
   /** An array of Cell IDs indexed by FSR IDs */
   int* _FSRs_to_cells;
 

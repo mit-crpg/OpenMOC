@@ -129,6 +129,7 @@ public:
   int computeFSRMaps();
   void computeFissionability();
   void subdivideCells();
+
   std::string toString();
   void printString();
 
