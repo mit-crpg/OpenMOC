@@ -114,17 +114,11 @@ int Universe::getNumCells() const {
 
 
 /**
- * @brief Return a pointer to the origin for this Cell (in global coordinates).
- * @return the origin of the Cell
- */
-Point* Universe::getOrigin() {
-  return &_origin;
-}
-
-
-/**
- * @brief Returns the minimum reachable x-coordinate in the Universe.
- * @return the minimum reachable x-coordinate
+ * @brief Aggregates a list (vector) of the IDs of all Materials within
+ *        the MATERIAL type Cells filling this Universe.
+ * @details Note that this method only searches the first level of Cells
+ *          below this Universe within the nested Universe coordinate system.
+ * @return a vector of Material IDs
  */
 double Universe::getMinX() {
 
@@ -317,6 +311,32 @@ std::map<int, Cell*> Universe::getAllCells() {
   return cells;
 }
 
+/**
+ * @brief Returns the std::map of all IDs and Material pointers filling
+          this Universe.
+ * @return std::map of Material IDs and pointers
+ */
+std::map<int, Material*> Universe::getAllMaterials() {
+
+  std::map<int, Cell*> cells = getAllCells();
+  std::map<int, Cell*>::iterator iter;
+  std::map<int, Material*> materials;
+
+  Cell* cell;
+  Material* material;
+
+  for (iter = cells.begin(); iter != cells.end(); ++iter) {
+    cell = iter->second;
+
+    if (cell->getType() == MATERIAL) {
+      material = static_cast<CellBasic*>(cell)->getMaterial();
+      materials[material->getId()] = material;
+    }
+  }
+
+  return materials;
+}
+
 
 /**
  * @brief Returns the std::map of all nested Universe IDs and Universe pointers
@@ -340,23 +360,6 @@ std::map<int, Universe*> Universe::getAllUniverses() {
   }
 
   return universes;
-}
-
-
-/**
- * @brief Returns the local ID for the FSR representing a Cell in this Universe.
- * @details This method is used when constructing an ID for an FSR and should
- *          only be called by the Geometry. Users should NOT call this method
- *          directly to retreive an FSR ID.
- * @param cell_id the ID of the cell of interest
- */
-int Universe::getFSR(int cell_id) {
-
-  if (_cells.find(cell_id) == _cells.end())
-    log_printf(ERROR, "Tried to find FSR ID for Cell with ID = %d in "
-               " Universe with ID = %d but no Cell exists", cell_id, _id);
-
-  return _region_map.at(cell_id);
 }
 
 
@@ -398,12 +401,15 @@ void Universe::setType(universeType type) {
 
 
 /**
- * @brief Set the origin in global coordinates for this Universe.
- * @param origin a pointer to the origin
+ * @brief Sets whether or not this Universe contains a fissionable Material
+ *        with a non-zero fission cross-section.
+ * @details This method is called by the Geometry::computeFissionability()
+ *          class method.
+ * @param fissionable true if the Universe contains a fissionable Material;
+ *        false otherwise
  */
-void Universe::setOrigin(Point* origin) {
-  _origin.setX(origin->getX());
-  _origin.setY(origin->getY());
+void Universe::setFissionability(bool fissionable) {
+  _fissionable = fissionable;
 }
 
 
@@ -500,48 +506,28 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
 
 /**
- * @brief Compute the FSR offset maps for this Universe and return the number of
- *        FSRs inside the Universe.
- * @details The FSR map is simply a std::map of the local FSR IDs for each
- *          of the Cells making up this Universe. This is used when
- *          constructing a global FSR ID for a Lattice which may contain
- *          several repeating versions of this Universe.
- * @return the number of FSRs in the Universe
+ * @brief Finds the distance to the nearest surface.
+ * @details Loops over all the cells within the universe and computes
+ *          the distance to each one following the direction of the track.
+ *          Returns distance to nearest next cell's nearest surface.
+ * @param point a pointer to a starting point
+ * @param angle the azimuthal angle of the track
+ * @return the distance to the nearest surface
  */
-int Universe::computeFSRMaps() {
+double Universe::minSurfaceDist(Point* point, double angle) {
 
-  /* Initialize a counter */
+  Point min_intersection;
   std::map<int, Cell*>::iterator iter;
-  int count = 0;
+  double dist;
+  double min_dist = INFINITY;
 
-  /* Iterate over Cells in the Universe to set the map and update count */
+  /* Loop over all Cells in this Universe */
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    _region_map.insert(std::pair<int, int>(iter->first, count));
-    count += iter->second->getNumFSRs();
+    dist = iter->second->minSurfaceDist(point, angle, &min_intersection);
+    min_dist = std::min(dist, min_dist);
   }
 
-  return count;
-}
-
-
-/**
- * @brief Computes whether or not the Universe contains one or more Cells
- *        filled by a fissionable Material.
- */
-void Universe::computeFissionability() {
-
-  std::map<int, Cell*> all_cells = getAllCells();
-  std::map<int, Cell*>::iterator iter;
-  Cell* cell;
-
-  for (iter = all_cells.begin(); iter != all_cells.end(); ++iter) {
-
-    cell = (*iter).second;
-    cell->computeFissionability();
-
-    if (cell->isFissionable())
-      _fissionable = true;
-  }
+  return min_dist;
 }
 
 
@@ -618,7 +604,7 @@ void Universe::printString() {
 
 
 /**
- * @brief Clones this Universe and all of the Cells within it and returns it
+ * @brief Clones this Universe and copy cells map
  * @return a pointer to the Universe clone
  */
 Universe* Universe::clone() {
@@ -642,14 +628,14 @@ Universe* Universe::clone() {
       /* Add Cell clone to the list */
       clone->addCell(cell_clone);
     }
-
+    
     /* Throw error message if Cell is FILL type */
     else {
       log_printf(ERROR, "Unable to clone Universe %d since it contains Cell %d"
                  "which is filled with a Universe rather than a Material");
     }
   }
-
+  
   return clone;
 }
 
@@ -661,6 +647,7 @@ Universe* Universe::clone() {
 Lattice::Lattice(const int id, const char* name): Universe(id, name) {
 
   _type = LATTICE;
+  _offset.setCoords(0.0, 0.0);
 
   /* Default width and number of Lattice cells along each dimension */
   _num_y = 0;
@@ -679,6 +666,32 @@ Lattice::~Lattice() {
     _universes.at(i).clear();
 
   _universes.clear();
+}
+
+
+/**
+ * @brief Set the offset in global coordinates for this Lattice.
+ * @details A lattice is assumed to be a rectilinear grid with the center/origin
+ *          of the grid located in the center of the Lattice's parent universe.
+ *          The offset represents the offset of the lattice center/origin with
+ *          respect to the center of the parent universe. Therefore an offset of
+ *          (-1,2) would move the center/origin of the lattice to the left 1 cm
+ *          and up 2 cm.
+ * @param x the offset in the x direction
+ * @param y the offset in the y direction
+ */
+void Lattice::setOffset(double x, double y) {
+  _offset.setX(x);
+  _offset.setY(y);
+}
+
+
+/**
+ * @brief Return a pointer to the offset for this Cell (in global coordinates).
+ * @return the offset of the Cell
+ */
+Point* Lattice::getOffset() {
+  return &_offset;
 }
 
 
@@ -719,20 +732,11 @@ double Lattice::getWidthY() const {
 
 
 /**
- * @brief Return the origin of the Lattice.
- * @return a pointer to the origin of the Lattice
- */
-Point* Lattice::getOrigin() {
-  return &_origin;
-}
-
-
-/**
  * @brief Returns the minimum reachable x-coordinate in the Lattice.
  * @return the minimum reachable x-coordinate
  */
 double Lattice::getMinX() {
-  return _origin.getX();
+  return _offset.getX() - (_num_x + _width_x / 2.);
 }
 
 
@@ -741,7 +745,7 @@ double Lattice::getMinX() {
  * @return the maximum reachable x-coordinate
  */
 double Lattice::getMaxX() {
-  return _origin.getX() + _num_x * _width_x;
+  return _offset.getX() + (_num_x * _width_x / 2.);
 }
 
 
@@ -750,7 +754,7 @@ double Lattice::getMaxX() {
  * @return the minimum reachable y-coordinate
  */
 double Lattice::getMinY() {
-  return _origin.getY();
+  return _offset.getY() - (_num_y * _width_y / 2.);
 }
 
 
@@ -759,7 +763,7 @@ double Lattice::getMinY() {
  * @return the maximum reachable y-coordinate
  */
 double Lattice::getMaxY(){
-  return _origin.getY() + _num_y * _width_y;
+  return _offset.getY() + (_num_y * _width_y / 2.);
 }
 
 
@@ -811,31 +815,11 @@ std::vector<std::vector<std::pair<int, Universe*>>>
 
 
 /**
- * @brief Return the id of a flat source region base index (smallest FSR
- *        region id within a specific Lattice cell)
- * @details This method is used when constructing an ID for an FSR and should
- *          only be called by the Geometry. Users should NOT call this method
- *          directly to retreive an FSR ID.
- * @param lat_x the x index of the Lattice cell
- * @param lat_y the y index of the Lattice cell
- * @return the index of the base FSR
- */
-int Lattice::getFSR(int lat_x, int lat_y) {
-
-  /* Check if Lattice indices are out of bounds */
-  if (lat_x > _num_x || lat_y > _num_y)
-    log_printf(ERROR, "Tried to access FSR map of Lattice ID = %d, but indices"
-               "lat_x = %d and lat_y = %d were out of bounds",
-               _id, lat_x, lat_y);
-
-  return _region_map[lat_y][lat_x].second;
-}
-
-
-/**
- * @brief Returns the std::map of all Universe IDs and Universe pointers
-          filling this Lattice.
- * @return std::map of Universe IDs and pointers
+ * @brief Aggregates a list (vector) of the IDs of all Universes within
+ *        the FILL type Cells filling this Universe.
+ * @details Note that this method only searches the first level of Cells
+ *          below this Universe within the nested Universe coordinate system.
+ * @return a vector of Universe IDs
  */
 std::map<int, Universe*> Lattice::getUniqueUniverses() {
 
@@ -906,6 +890,24 @@ std::map<int, Universe*> Lattice::getAllUniverses() {
 
 
 /**
+ * @brief Set the number of Lattice cells along the x-axis.
+ * @param num_x the number of Lattice cells along x
+ */
+void Lattice::setNumX(int num_x) {
+  _num_x = num_x;
+}
+
+
+/**
+ * @brief Set the number of Lattice cells along the y-axis.
+ * @param num_y the number of Lattice cells along y
+ */
+void Lattice::setNumY(int num_y) {
+  _num_y = num_y;
+}
+
+
+/**
  * @brief
  * @param
  * @param
@@ -919,10 +921,6 @@ void Lattice::setWidth(double width_x, double width_y) {
 
   _width_x = width_x;
   _width_y = width_y;
-
-  /* Set origin to lower left corner with (x=0, y=0) in center of Lattice */
-  _origin.setX(-_width_x*_num_x/2.0);
-  _origin.setY(-_width_y*_num_y/2.0);
 }
 
 
@@ -955,12 +953,8 @@ void Lattice::setUniverses(int num_x, int num_y, Universe** universes) {
   _universes.clear();
 
   /* Set the Lattice dimensions */
-  _num_x = num_x;
-  _num_y = num_y;
-
-  /* Set origin to lower left corner with (x=0, y=0) in center of Lattice */
-  _origin.setX(-_width_x*_num_x/2.0);
-  _origin.setY(-_width_y*_num_y/2.0);
+  setNumX(num_y);
+  setNumY(num_y);
 
   Universe* universe;
 
@@ -977,16 +971,6 @@ void Lattice::setUniverses(int num_x, int num_y, Universe** universes) {
                                  (universe->getId(), universe));
     }
   }
-
-  /* Intialize region_map */
-  for (int i = 0; i < _num_y; i++) {
-
-    _region_map.push_back(std::vector< std::pair<int, int> >());
-
-    for (int j = 0; j < _num_x; j++) {
-      _region_map.at(i).push_back(std::pair<int, int>());
-    }
-  }
 }
 
 
@@ -998,18 +982,20 @@ void Lattice::setUniverses(int num_x, int num_y, Universe** universes) {
 bool Lattice::withinBounds(Point* point) {
 
   /* Computes the Lattice bounds */
-  double bound_x = _num_x/2.0 * _width_x;
-  double bound_y = _num_y/2.0 * _width_y;
+  double bound_x_max = _offset.getX() + _num_x/2.0 * _width_x;
+  double bound_x_min = _offset.getX() - _num_x/2.0 * _width_x;
+  double bound_y_max = _offset.getY() + _num_y/2.0 * _width_y;
+  double bound_y_min = _offset.getY() - _num_y/2.0 * _width_y;
 
   double x = point->getX();
   double y = point->getY();
 
   /* If the Point is outside the x bounds */
-  if (x > bound_x || x < -1*bound_x)
+  if (x > bound_x_max || x < bound_x_min)
     return false;
 
   /* If the Point is outside the y boounds */
-  else if (y > bound_y || y < -1*bound_y)
+  else if (y > bound_y_max || y < bound_y_min)
     return false;
 
   /* If the Point is within the bounds */
@@ -1032,26 +1018,8 @@ Cell* Lattice::findCell(LocalCoords* coords) {
   coords->setType(LAT);
 
   /* Compute the x and y indices for the Lattice cell this coord is in */
-  int lat_x = (int)floor((coords->getX() - _origin.getX()) / _width_x);
-  int lat_y = (int)floor((coords->getY() - _origin.getY()) / _width_y);
-
-  /* Check if the LocalCoord is on the Lattice boundaries and if so adjust
-   * x or y Lattice cell indices */
-  if (fabs(fabs(coords->getX()) - _num_x*_width_x*0.5) <
-      ON_LATTICE_CELL_THRESH) {
-
-    if (coords->getX() > 0)
-      lat_x = _num_x - 1;
-    else
-      lat_x = 0;
-  }
-  if (fabs(fabs(coords->getY()) - _num_y*_width_y*0.5) <
-      ON_LATTICE_CELL_THRESH) {
-    if (coords->getY() > 0)
-      lat_y = _num_y - 1;
-    else
-      lat_y = 0;
-  }
+  int lat_x = getLatX(coords->getPoint());
+  int lat_y = getLatY(coords->getPoint());
 
   /* If the indices are outside the bound of the Lattice */
   if (lat_x < 0 || lat_x >= _num_x ||
@@ -1060,8 +1028,12 @@ Cell* Lattice::findCell(LocalCoords* coords) {
   }
 
   /* Compute local position of Point in the next level Universe */
-  double nextX = coords->getX() - (_origin.getX() + (lat_x + 0.5) * _width_x);
-  double nextY = coords->getY() - (_origin.getY() + (lat_y + 0.5) * _width_y);
+  double nextX = coords->getX()
+      - (-_width_x*_num_x/2.0 + _offset.getX() + (lat_x + 0.5) * _width_x)
+      + getOffset()->getX();
+  double nextY = coords->getY()
+      - (-_width_y*_num_y/2.0 + _offset.getY() + (lat_y + 0.5) * _width_y)
+      + getOffset()->getY();
 
   /* Create a new LocalCoords object for the next level Universe */
   LocalCoords* next_coords;
@@ -1088,237 +1060,104 @@ Cell* Lattice::findCell(LocalCoords* coords) {
 
 
 /**
- * @brief Finds the next Cell for a LocalCoords object along a trajectory
- *        defined by some angle (in radians from 0 to pi).
- * @details The method will update the LocalCoords passed in as an argument
- *          to be the one at the boundary of the next Cell crossed along the
- *          given trajectory. It will do this by recursively building a linked
- *          list of LocalCoords from the LocalCoords passed in as an argument
- *          down to the lowest level Cell found. In the process it will set
- *          the local coordinates for each LocalCoords in the linked list for
- *          the Lattice or Universe that it is in. If the LocalCoords is
- *          outside the bounds of the Lattice or on the boundaries this method
- *          will return NULL; otherwise it will return a pointer to the Cell
- *          that the LocalCoords will reach next along its trajectory.
- * @param coords pointer to a LocalCoords object
- * @param angle the angle of the trajectory
- * @return a pointer to a Cell if found, NULL if no cell found
+ * @brief Finds the distance to the nearest surface.
+ * @details Knowing that a Lattice must be cartesian, this function computes
+ *          the distance to the nearest boundary between lattice cells
+ *          in the direction of the track.
+ *          Returns distance to nearest Lattice cell boundary.
+ * @param point a pointer to a starting point
+ * @param angle the azimuthal angle of the track
+ * @return the distance to the nearest Lattice cell boundary
  */
-Cell* Lattice::findNextLatticeCell(LocalCoords* coords, double angle) {
+double Lattice::minSurfaceDist(Point* point, double angle) {
 
-  /* Tests the upper, lower, left and right Lattice Cells adjacent to
-   * the LocalCoord and uses the one with the shortest distance from
-   * the current location of the LocalCoord */
+  double next_x, next_y;
+  double dist_x, dist_y;
+  double dist_row, dist_col;
 
-  /* Initial distance is infinity */
-  double distance = std::numeric_limits<double>::infinity();
+  /* Compute the x and y indices for the Lattice cell this point is in */
+  int lat_x = getLatX(point);
+  int lat_y = getLatY(point);
 
-  /* Current minimum distance */
-  double d;
+  /* find distance to next x plane crossing */
+  if (angle < M_PI / 2.0)
+    next_x = (lat_x + 1) * _width_x - _width_x*_num_x/2.0 + _offset.getX();
+  else
+    next_x = lat_x * _width_x - _width_x*_num_x/2.0 + _offset.getX();
 
-  /* Properties of the current LocalCoords */
-  double x0 = coords->getX();
-  double y0 = coords->getY();
-  int lattice_x = coords->getLatticeX();
-  int lattice_y = coords->getLatticeY();
+  /* get distance to the nearest cell in the current row */
+  next_y = point->getY() + tan(angle) * (next_x - point->getX());
+  dist_x = fabs(next_x - point->getX());
+  dist_y = fabs(next_y - point->getY());
+  dist_row = pow(pow(dist_x, 2) + pow(dist_y, 2), 0.5);
 
-  /* Slope of trajectory */
-  double m = sin(angle) / cos(angle);
+  /* find distance to next y plane crossing */
+  next_y = (lat_y + 1) * _width_y - _width_y*_num_y/2.0 + _offset.getY();
+  next_x = point->getX() + (next_y - point->getY()) / tan(angle);
+  dist_x = fabs(next_x - point->getX());
+  dist_y = fabs(next_y - point->getY());
+  dist_col = pow(pow(dist_x, 2) + pow(dist_y, 2), 0.5);
 
-  /* Properties of the new location for LocalCoords */
-  /* Current point of minimum distance */
-  double x_curr, y_curr;
-
-  /* x-coordinate on new Lattice cell */
-  double x_new = x0;
-
-  /* y-coordinate on new Lattice cell */
-  double y_new = x0;
-
-  /* New x Lattice cell index */
-  int new_lattice_x;
-
-  /* New y Lattice cell index */
-  int new_lattice_y;
-
-  /* Test Point for computing distance */
-  Point test;
-
-  /* Check lower Lattice cell */
-  if (lattice_y >= 0 && angle >= M_PI) {
-    y_curr = (lattice_y - _num_y/2.0) * _width_y;
-    x_curr = x0 + (y_curr - y0) / m;
-    test.setCoords(x_curr, y_curr);
-
-    /* Check if the test Point is within the bounds of the Lattice */
-    if (withinBounds(&test)) {
-      d = test.distanceToPoint(coords->getPoint());
-
-      /* Check if distance to test Point is current minimum */
-      if (d < distance) {
-        distance = d;
-        x_new = x_curr;
-        y_new = y_curr;
-      }
-    }
-  }
-
-  /* Upper Lattice cell */
-  if (lattice_y <= _num_y-1 && angle <= M_PI) {
-    y_curr = (lattice_y - _num_y/2.0 + 1) * _width_y;
-    x_curr = x0 + (y_curr - y0) / m;
-    test.setCoords(x_curr, y_curr);
-
-    /* Check if the test Point is within the bounds of the Lattice */
-    if (withinBounds(&test)) {
-      d = test.distanceToPoint(coords->getPoint());
-
-      /* Check if distance to test Point is current minimum */
-      if (d < distance) {
-        distance = d;
-        x_new = x_curr;
-        y_new = y_curr;
-      }
-    }
-  }
-
-  /* Left Lattice cell */
-  if (lattice_x >= 0 && (angle >= M_PI/2 && angle <= 3*M_PI/2)) {
-    x_curr = (lattice_x - _num_x/2.0) * _width_x;
-    y_curr = y0 + m * (x_curr - x0);
-    test.setCoords(x_curr, y_curr);
-
-    /* Check if the test Point is within the bounds of the Lattice */
-    if (withinBounds(&test)) {
-      d = test.distanceToPoint(coords->getPoint());
-
-      /* Check if distance to test Point is current minimum */
-      if (d < distance) {
-        distance = d;
-        x_new = x_curr;
-        y_new = y_curr;
-      }
-    }
-  }
-
-  /* Right Lattice cell */
-  if (lattice_x <= _num_x-1 && (angle <= M_PI/2 || angle >= 3*M_PI/2)) {
-    x_curr = (lattice_x - _num_x/2.0 + 1) * _width_x;
-    y_curr = y0 + m * (x_curr - x0);
-    test.setCoords(x_curr, y_curr);
-
-    /* Check if the test Point is within the bounds of the Lattice */
-    if (withinBounds(&test)) {
-      d = test.distanceToPoint(coords->getPoint());
-
-      /* Check if distance to test Point is current minimum */
-      if (d < distance) {
-        distance = d;
-        x_new = x_curr;
-        y_new = y_curr;
-      }
-    }
-  }
-
-  /* If no Point was found on the Lattice cell, then the LocalCoords was
-   * already on the boundary of the Lattice */
-  if (distance == INFINITY)
-    return NULL;
-
-  /* Otherwise a Point was found inside a new Lattice cell */
-  else {
-    /* Update the Localcoords location to the Point on the new Lattice cell
-     * plus a small bit to ensure that its coordinates are inside cell */
-    double delta_x = (x_new - coords->getX()) + cos(angle) * TINY_MOVE;
-    double delta_y = (y_new - coords->getY()) + sin(angle) * TINY_MOVE;
-    coords->adjustCoords(delta_x, delta_y);
-
-    /* Compute the x and y indices for the new Lattice cell */
-    new_lattice_x = (int)floor((coords->getX() - _origin.getX())/_width_x);
-    new_lattice_y = (int)floor((coords->getY() - _origin.getY())/_width_y);
-
-    /* Check if the LocalCoord is on the lattice boundaries and if so adjust
-     * x or y Lattice cell indices i */
-    if (fabs(fabs(coords->getX()) - _num_x*_width_x*0.5) <
-        ON_LATTICE_CELL_THRESH) {
-
-      if (coords->getX() > 0)
-        new_lattice_x = _num_x - 1;
-      else
-        new_lattice_x = 0;
-    }
-    if (fabs(fabs(coords->getY()) - _num_y*_width_y*0.5) <
-        ON_LATTICE_CELL_THRESH) {
-
-      if (coords->getY() > 0)
-        new_lattice_y = _num_y - 1;
-      else
-        new_lattice_y = 0;
-    }
-
-    /* Check if new Lattice cell indices are within the bounds, if not,
-     * new LocalCoords is now on the boundary of the Lattice */
-    if (new_lattice_x >= _num_x || new_lattice_x < 0)
-      return NULL;
-    else if (new_lattice_y >= _num_y || new_lattice_y < 0)
-      return NULL;
-
-    /* New LocalCoords is still within the interior of the Lattice */
-    else {
-
-      /* Update the LocalCoords Lattice cell indices */
-      coords->setLatticeX(new_lattice_x);
-      coords->setLatticeY(new_lattice_y);
-
-      /* Move to next lowest level Universe */
-      coords->prune();
-      Universe* univ = getUniverse(new_lattice_x, new_lattice_y);
-      LocalCoords* next_coords;
-
-      /* Compute local position of Point in next level Universe */
-      double nextX = coords->getX() - (_origin.getX()
-                     + (new_lattice_x + 0.5) * _width_x);
-      double nextY = coords->getY() - (_origin.getY()
-                     + (new_lattice_y + 0.5) * _width_y);
-
-      /* Set the coordinates at the next level LocalCoord */
-      next_coords = new LocalCoords(nextX, nextY);
-      next_coords->setPrev(coords);
-      coords->setNext(next_coords);
-
-      next_coords->setUniverse(univ);
-
-      /* Search lower level Universe */
-      return findCell(coords);
-    }
-  }
+  /* return shortest distance to next lattice cell */
+  return std::min(dist_row, dist_col);
 }
 
 
 /**
- * @brief Computes the flat source region base indices for each of the
- *        Lattice cells within this Lattice (i.e., the minimum ID for the flat
- *        source regions within each Lattice cell). Returns the number of
- *        FSRs in the Lattice.
- * @return the number of FSRs
+ * @brief Finds the Lattice cell x index that a point lies in.
+ * @param point a pointer to a point being evaluated.
+ * @return the Lattice cell x index.
  */
-int Lattice::computeFSRMaps() {
+int Lattice::getLatX(Point* point) {
 
-  /* Initialize a counter */
-  int count = 0;
+  /* Compute the x indice for the Lattice cell this point is in */
+  int lat_x = (int)floor((point->getX() + _width_x*_num_x/2.0 - 
+                          _offset.getX()) / _width_x);
 
-  /* loop over Universes in the Lattice to set the map and update count */
-  for (int i = 0; i < _num_y; i++) {
-    for (int j = 0; j < _num_x; j++) {
-      Universe *u = _universes.at(i).at(j).second;
-      _region_map[i][j].second = count;
-      count += u->computeFSRMaps();
-    }
-  }
+  /* get the distance to the left surface */
+  double dist_to_left = point->getX() + _num_x*_width_x/2.0 - _offset.getX();
 
-  return count;
+  /* Check if the Point is on the Lattice boundaries and if so adjust
+   * x Lattice cell indice */
+  if (fabs(dist_to_left) < ON_SURFACE_THRESH)
+    lat_x = 0;
+  else if (fabs(dist_to_left - _num_x*_width_x) < ON_SURFACE_THRESH)
+    lat_x = _num_x - 1;
+  else if (lat_x < 0 || lat_x > _num_x-1)
+    log_printf(ERROR, "Trying to get lattice x index for point that is "
+               "outside lattice bounds.");
+  
+  return lat_x;
 }
 
+
+/**
+ * @brief Finds the Lattice cell y index that a point lies in.
+ * @param point a pointer to a point being evaluated.
+ * @return the Lattice cell y index.
+ */
+int Lattice::getLatY(Point* point) {
+
+  /* Compute the y indice for the Lattice cell this point is in */
+  int lat_y = (int)floor((point->getY() + _width_y*_num_y/2.0 -
+                          _offset.getY()) / _width_y);
+
+  /* get the distance to the bottom surface */
+  double dist_to_bottom = point->getY() + _width_y*_num_y/2.0 - _offset.getY();
+
+  /* Check if the Point is on the Lattice boundaries and if so adjust
+   * y Lattice cell indice */
+  if (fabs(dist_to_bottom) < ON_SURFACE_THRESH) 
+    lat_y = 0;
+  else if (fabs(dist_to_bottom - _num_y*_width_y) < ON_SURFACE_THRESH) 
+    lat_y = _num_y - 1;
+  else if (lat_y < 0 || lat_y > _num_y-1)
+    log_printf(ERROR, "Trying to get lattice y index for point that is "
+               "outside lattice bounds.");
+
+  return lat_y;
+}
+  
 
 /**
  * @brief Converts a Lattice's attributes to a character array representation.
@@ -1335,15 +1174,15 @@ std::string Lattice::toString() {
          << ", x width = " << _width_x
          << ", y width = " << _width_y;
 
-  string << "\n\t\tUniverse IDs within this Lattice:\n\t\t";
+  string << "\n\t\tUniverse IDs within this Lattice: ";
 
   for (int i = _num_y-1; i > -1;  i--) {
     for (int j = 0; j < _num_x; j++)
-      string << _universes.at(i).at(j).first << "  ";
+      string << _universes.at(i).at(j).first << ", ";
     string << "\n\t\t";
   }
 
-  return string.str().c_str();
+  return string.str();
 }
 
 
@@ -1353,4 +1192,79 @@ std::string Lattice::toString() {
  */
 void Lattice::printString() {
   log_printf(RESULT, toString().c_str());
+}
+
+
+/**
+ * @brief Finds the Lattice cell index that a point lies in.
+ * @details Lattice cells are numbered starting with 0 in the lower left
+ *          corner. Lattice cell IDs in all rows then increase monotonically 
+ *          from left to right. For example, the indices for a 4 x 4 lattice:
+ *                  12  13  14  15
+ *                  8    9  10  11
+ *                  4    5   6   7
+ *                  0    1   2   3
+ * @param point a pointer to a point being evaluated.
+ * @return the Lattice cell index.
+ */
+int Lattice::getLatticeCell(Point* point){
+  return (getLatY(point)*_num_x + getLatX(point));
+}
+
+
+/**
+ * @brief Finds the Lattice cell surface that a point lies on.
+ *        If the point is not on a surface, -1 is returned.
+ * @details The surface indices for a lattice cell are 0 (left),
+ *         1, (bottom), 2 (right), 3 (top), 4 (bottom-left corner),
+ *         5 (bottom-right corner), 6 (top-right corner), and 
+ *         7 (top-left corner). The index returned takes into account
+ *         the cell index and returns 8*cell_index + surface_index.
+ * @param cell the cell index that the point is in.
+ * @param point a pointer to a point being evaluated.
+ * @return the Lattice surface index.
+ */
+int Lattice::getLatticeSurface(int cell, Point* point) {
+
+  /* Get coordinates of point and cell boundaries */
+  double x = point->getX();
+  double y = point->getY();
+  int lat_x = cell % _num_x;
+  int lat_y = cell / _num_x;
+  double left = lat_x*_width_x - _width_x*_num_x/2.0 + _offset.getX();
+  double right = (lat_x + 1)*_width_x - _width_x*_num_x/2.0 + _offset.getX();
+  double bottom = lat_y*_width_y - _width_y*_num_y/2.0 + _offset.getY();
+  double top = (lat_y+1)*_width_y - _width_y*_num_y/2.0 + _offset.getY();
+  int surface = -1;
+
+  /* Check if point is on left boundary */ 
+  if (fabs(x - left) <= ON_SURFACE_THRESH){
+    /* Check if point is on bottom boundary */ 
+    if (fabs(y - bottom) <= ON_SURFACE_THRESH)
+      surface = cell*8 + 4;
+    /* Check if point is on top boundary */ 
+    else if (fabs(y - top) <= ON_SURFACE_THRESH)
+      surface = cell*8 + 7;
+    else
+      surface = cell*8;
+  }
+  /* Check if point is on right boundary */ 
+  else if (fabs(x - right) <= ON_SURFACE_THRESH){
+    /* Check if point is on bottom boundary */ 
+    if (fabs(y - bottom) <= ON_SURFACE_THRESH)
+      surface = cell*8 + 5;
+    /* Check if point is on top boundary */ 
+    else if (fabs(y - top) <= ON_SURFACE_THRESH)
+      surface = cell*8 + 6;
+    else
+      surface = cell*8 + 2;
+  }
+  /* Check if point is on bottom boundary */ 
+  else if (fabs(y - bottom) <= ON_SURFACE_THRESH)
+    surface = cell*8 + 1;
+  /* Check if point is on top boundary */ 
+  else if (fabs(y - top) <= ON_SURFACE_THRESH)
+    surface = cell*8 + 3;
+
+  return surface;
 }

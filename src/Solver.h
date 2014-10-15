@@ -14,7 +14,6 @@
 #include "Timer.h"
 #include "Quadrature.h"
 #include "TrackGenerator.h"
-#include "pairwise_sum.h"
 #include "Cmfd.h"
 #endif
 
@@ -22,8 +21,6 @@
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
 
 /** Indexing macro for the surface currents for each CMFD Mesh surface and
- *  each energy group */
-/** Indexing macro for the surface currents for each mesh surface and in
  *  each energy group */
 #define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() + _cmfd->getCmfdGroup((e))])
 
@@ -146,7 +143,7 @@ protected:
   FP_PRECISION* _scalar_flux;
 
   /** The CMFD Mesh surface currents in each energy group */
-  double* _surface_currents;
+  FP_PRECISION* _surface_currents;
 
   /** The fission source in each FSR and energy group */
   FP_PRECISION* _fission_sources;
@@ -296,8 +293,7 @@ protected:
 
 
 public:
-  Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL,
-         Cmfd* cmfd=NULL);
+  Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
   Geometry* getGeometry();
@@ -313,7 +309,6 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
   bool isUsingExponentialIntrinsic();
-  bool isUsingCmfd();
 
   /**
    * @brief Returns the scalar flux for a FSR and energy group.
@@ -339,7 +334,6 @@ public:
 
   virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setCmfd(Cmfd* cmfd);
   virtual void setPolarQuadratureType(quadratureType quadrature_type);
   virtual void setNumPolarAngles(int num_polar);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);

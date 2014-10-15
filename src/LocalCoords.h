@@ -95,6 +95,7 @@ public:
   void setPrev(LocalCoords* coords);
 
   LocalCoords* getLowestLevel();
+  LocalCoords* getHighestLevel();
   void adjustCoords(double delta_x, double delta_y);
   void updateMostLocal(Point* point);
   void prune();

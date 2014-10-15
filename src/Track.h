@@ -31,10 +31,10 @@ struct segment {
   int _region_id;
 
   /** The ID for the mesh surface crossed by the Track end point */
-  int _mesh_surface_fwd;
+  int _cmfd_surface_fwd;
 
   /** The ID for the mesh surface crossed by the Track start point */
-  int _mesh_surface_bwd;
+  int _cmfd_surface_bwd;
 };
 
 

@@ -1057,7 +1057,7 @@ void GPUSolver::initializeFSRs() {
     FP_PRECISION* temp_FSR_volumes = new FP_PRECISION[_num_FSRs];
 
     /* Get the array indexed by FSR IDs with Material ID values */
-    int* FSRs_to_materials = _geometry->getFSRtoMaterialMap();
+    std::vector<int> FSRs_to_materials = _geometry->getFSRtoMaterialMap();
 
     /* Initialize each FSRs volume to 0 to avoid NaNs */
     memset(temp_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
@@ -1091,7 +1091,7 @@ void GPUSolver::initializeFSRs() {
     /* Copy the temporary array of FSRs to the device */
     cudaMemcpy((void*)_FSR_volumes, (void*)temp_FSR_volumes,
       _num_FSRs * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)_FSR_materials, (void*)FSRs_to_materials,
+    cudaMemcpy((void*)_FSR_materials, (void*)(&FSRs_to_materials[0]),
       _num_FSRs * sizeof(int), cudaMemcpyHostToDevice);
 
     /* Copy the number of FSRs into constant memory on the GPU */

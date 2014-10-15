@@ -65,9 +65,6 @@ enum boundaryType {
   /** A reflective boundary condition */
   REFLECTIVE,
 
-  /** A zero flux boundary condition */
-  ZERO_FLUX,
-
   /** No boundary type (typically an interface between flat source regions) */
   BOUNDARY_NONE
 };

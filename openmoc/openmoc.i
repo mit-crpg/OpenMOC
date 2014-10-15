@@ -21,7 +21,6 @@
   #include "../src/TrackGenerator.h"
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
-  #include "../src/Mesh.h"
 
   #define printf PySys_WriteStdout
 
@@ -153,10 +152,11 @@
 }
 
 
-/* Typemap for the Cmfd::setGroupStructure(int* group_indices, int ncg)
+/* Typemap for the Cmfd::setGroupStructure
+ * (int* group_indices, int length_group_indices)
  * method - allows users to pass in a Python list of group indices
  * for each CMFD energy group */
-%typemap(in) (int* group_indices, int ncg) {
+%typemap(in) (int* group_indices, int length_group_indices) {
 
   if (!PyList_Check($input)) {
     PyErr_SetString(PyExc_ValueError,"Expected a Python list of values "
@@ -164,7 +164,7 @@
     return NULL;
   }
 
-  $2 = PySequence_Length($input);  // ncg
+  $2 = PySequence_Length($input);  // length_group_indices
   $1 = (int*) malloc($2 * sizeof(int));  // group indices array
 
   /* Loop over x */
@@ -206,9 +206,9 @@
 %apply (int DIM1, int DIM2, int* IN_ARRAY2) {(int num_x, int num_y, int* universes)}
 
 /* The typemap used to match the method signature for the
- * Cmfd::createGroupStructure method. This allows users to set the CMFD group 
+ * Cmfd::setGroupStructure method. This allows users to set the CMFD group 
  * structure using a NumPy array */
-%apply (int* IN_ARRAY1, int DIM1) {(int* group_indices, int ncg)}
+%apply (int* IN_ARRAY1, int DIM1) {(int* group_indices, int length_group_indices)}
 
 /* The typemap used to match the method signature for the Material
  * cross-section setter methods. This allows users to set the cross-sections
@@ -319,7 +319,6 @@
 %include ../src/TrackGenerator.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h
-%include ../src/Mesh.h
 
 
  //%template(NewMapInstance) ::std::map<int, Cell*>

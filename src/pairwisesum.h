@@ -1,5 +1,5 @@
 /**
- * @file pairwise_sum.h
+ * @file pairwisesum.h
  * @brief Utility function for the accurate pairwise sum of a list of floating
  *        point numbers.
  * @author William Boyd (wboyd@mit.edu)

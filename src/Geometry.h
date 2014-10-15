@@ -15,10 +15,30 @@
 #include <sys/stat.h>
 #include "LocalCoords.h"
 #include "Track.h"
-#include "Mesh.h"
 #include "Surface.h"
+#include "Cmfd.h"
+#include <sstream>
+#include <string>
+#include <omp.h>
+#include <functional>
 #endif
 
+/**
+ * @struct fsr_data
+ * @brief A fsr_data struct represents an FSR with a unique FSR ID
+ *        and a characteristic point that lies within the FSR that
+ *        can be used to recompute the hierarchical LocalCoords
+ *        linked list.
+ */
+struct fsr_data {
+
+  /** The FSR ID */
+  int _fsr_id;
+
+  /** Characteristic point in Universe 0 that lies in FSR */
+  Point* _point;
+
+};
 
 void reset_auto_ids();
 
@@ -55,14 +75,17 @@ private:
   /** The total number of FSRs in the Geometry */
   int _num_FSRs;
 
-  /** An array of Cell IDs indexed by FSR IDs */
-  int* _FSRs_to_cells;
+  /** The number of energy groups for each Material's nuclear data */
+  int _num_groups;
 
-  /** An array of Material UIDs indexed by FSR IDs */
-  int* _FSRs_to_material_UIDs;
+  /** An map of FSR key hashes to unique fsr_data structs */
+  std::map<std::size_t, fsr_data> _FSR_keys_map;
 
-  /** An array of Material UIDs indexed by FSR IDs */
-  int* _FSRs_to_material_IDs;
+  /** An vector of FSR key hashes indexed by FSR ID */
+  std::vector<std::size_t> _FSRs_to_keys;
+
+  /** A vector of Material IDs indexed by FSR IDs */
+  std::vector<int> _FSRs_to_material_IDs;
 
   /** The maximum Track segment length in the Geometry */
   double _max_seg_length;
@@ -73,18 +96,18 @@ private:
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
 
-  /** A CMFD Mesh object pointer */
-  Mesh* _mesh;
+  /** A CMFD object pointer */
+  Cmfd* _cmfd;
 
-  Cell* findFirstCell(LocalCoords* coords, double angle);
-  Cell* findNextCell(LocalCoords* coords, double angle);
-  Cell* findCell(Universe* univ, int fsr_id);
+  CellBasic* findFirstCell(LocalCoords* coords, double angle);
+  CellBasic* findNextCell(LocalCoords* coords, double angle);
 
 public:
 
-  Geometry(Mesh* mesh=NULL);
+  Geometry();
   virtual ~Geometry();
 
+  /* Get parameters */
   double getWidth();
   double getHeight();
   double getMinX();
@@ -103,17 +126,31 @@ public:
   int getNumMaterials();
   int getNumCells();
   std::map<int, Material*> getAllMaterials();
-  int* getFSRtoCellMap();
-  int* getFSRtoMaterialMap();
-  double getMaxSegmentLength();
-  double getMinSegmentLength();
-  Mesh* getMesh();
-
   void setRootUniverse(Universe* root_universe);
 
-  Cell* findCellContainingCoords(LocalCoords* coords);
-  CellBasic* findCellContainingFSR(int fsr_id);
+  double getMaxSegmentLength();
+  double getMinSegmentLength();
+  Cmfd* getCmfd();
+  std::map<std::size_t, fsr_data> getFSRKeysMap();
+  std::vector<std::size_t> getFSRsToKeys();
+  std::vector<int> getFSRsToMaterials();
+  int getFSRId(LocalCoords* coords);
+  Point* getFSRPoint(int fsr_id);
+  std::string getFSRKey(LocalCoords* coords);
+
+  /* Set parameters */
+  void setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map);
+  void setFSRsToMaterials(std::vector<int> FSRs_to_material_IDs);
+  void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
+  void setNumFSRs(int num_fsrs);
+  void setCmfd(Cmfd* cmfd);
+
+  /* Find methods */
+  CellBasic* findCellContainingCoords(LocalCoords* coords);
+  Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
+
+  /* Other worker methods */
   void subdivideCells();
   void initializeFlatSourceRegions();
   void segmentize(Track* track);
@@ -121,15 +158,7 @@ public:
 
   std::string toString();
   void printString();
-
-  void initializeMesh();
-  void findFSRsInCell(Universe* univ, int cell_num, int* fsr_id);
-  void defineMesh(Mesh* mesh, Universe* univ, int depth,
-                  int* meshCellNum, int row, bool base, int fsr_id);
-  int nextLatticeHeight(Universe* univ);
-  void findMeshHeight(Universe* univ, int* height, int depth);
-  void findMeshWidth(Universe* univ, int* width, int depth);
-  int findMeshDepth(Universe* univ, int mesh_level);
+  void initializeCmfd();
 };
 
 #endif /* GEOMETRY_H_ */

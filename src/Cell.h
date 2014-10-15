@@ -27,6 +27,21 @@ void reset_cell_id();
 
 
 /**
+ * @struct surface_halfspace
+ * @brief A surface_halfspace represents a surface pointer with associated
+ *        halfspace.
+ */
+struct surface_halfspace {
+
+  /** A pointer to the Surface object and associated halfspace */
+  Surface* _surface;
+  int _halfspace;
+
+};
+
+
+
+/**
  * @enum cellType
  * @brief The type of cell.
 */
@@ -66,12 +81,12 @@ protected:
   /** The type of Cell (ie MATERIAL or FILL) */
   cellType _cell_type;
 
-  /** Map of bounding Surface pointers to halfspaces (+/-1) */
-  std::map<Surface*, int> _surfaces;
+  /** The ID for the Universe within which this cell resides */
+  // FIXME: Remove this
+  int _universe;
 
-  /** A boolean representing whether or not this Cell contains a Material
-   *  with a non-zero fission cross-section and is fissionable */
-  bool _fissionable;
+  /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
+  std::map<int, surface_halfspace> _surfaces;
 
   /** The minimum reachable x-coordinate within the Cell */
   double _min_x;
@@ -106,16 +121,7 @@ public:
   double getMinZ();
   double getMaxZ();
   int getNumSurfaces() const;
-  std::map<Surface*, int> getSurfaces() const;
-  bool isFissionable();
-
-  /**
-   * @brief Return the number of flat source regions in this Cell.
-   * @details This method is used when the Geometry recursively constructs
-   *          flat source regions.
-   * @return the number of FSRs in this Cell
-   */
-  virtual int getNumFSRs() =0;
+  std::map<int, surface_halfspace> getSurfaces() const;
 
   /**
    * @brief Returns the std::map of Cell IDs and Cell pointers within any
@@ -135,11 +141,6 @@ public:
   void addSurface(int halfspace, Surface* surface);
   void removeSurface(Surface* surface);
   void findBoundingBox();
-
-  /**
-   * @brief Computes whether or not this Cell contains a fissionable Material.
-   */
-  virtual void computeFissionability() =0;
 
   bool cellContainsPoint(Point* point);
   bool cellContainsCoords(LocalCoords* coords);
@@ -193,7 +194,6 @@ public:
   Material* getMaterial();
   int getNumRings();
   int getNumSectors();
-  int getNumFSRs();
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
 
@@ -203,7 +203,6 @@ public:
 
   CellBasic* clone();
   std::vector<CellBasic*> subdivideCell();
-  void computeFissionability();
 
   std::string toString();
   void printString();
@@ -225,13 +224,10 @@ public:
   CellFill(int id=0, const char* name="");
 
   Universe* getFill() const;
-  int getNumFSRs();
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
 
   void setFill(Universe* universe_fill);
-
-  void computeFissionability();
 
   std::string toString();
   void printString();

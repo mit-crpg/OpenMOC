@@ -91,6 +91,7 @@ public:
   TrackGenerator(Geometry* geometry, int num_azim, double spacing);
   virtual ~TrackGenerator();
 
+  /* Get parameters */
   int getNumAzim();
   double getTrackSpacing();
   Geometry* getGeometry();
@@ -101,14 +102,15 @@ public:
   Track** getTracks();
   FP_PRECISION* getAzimWeights();
 
+  /* Set parameters */
   void setNumAzim(int num_azim);
   void setTrackSpacing(double spacing);
   void setGeometry(Geometry* geometry);
 
+  /* Worker functions */
   bool containsTracks();
   void retrieveTrackCoords(double* coords, int num_tracks);
   void retrieveSegmentCoords(double* coords, int num_segments);
-
   void generateTracks();
 };
 

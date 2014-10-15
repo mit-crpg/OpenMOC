@@ -11,12 +11,10 @@
  *          initalizes the number of threads to a default of 1.
  * @param geometry an optional pointer to the Geometry object
  * @param track_generator an optional pointer to a TrackGenerator object
- * @param cmfd an optional pointer to a Cmfd object
  */
 VectorizedSolver::VectorizedSolver(Geometry* geometry,
-                                   TrackGenerator* track_generator,
-                                   Cmfd* cmfd) :
-  CPUSolver(geometry, track_generator, cmfd) {
+                                   TrackGenerator* track_generator) :
+  CPUSolver(geometry, track_generator) {
 
   _thread_taus = NULL;
   _thread_exponentials = NULL;

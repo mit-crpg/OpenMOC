@@ -16,9 +16,6 @@ track_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-acceleration = options.getCmfdAcceleration()
-relax_factor = options.getCmfdRelaxationFactor()
-mesh_level = options.getCmfdMeshLevel()
 
 log.set_log_level('NORMAL')
 
@@ -139,7 +136,6 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.generateTracks()
-
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################

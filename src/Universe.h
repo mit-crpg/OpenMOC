@@ -75,19 +75,11 @@ protected:
   /** A user-defined name for the Surface */
   char* _name;
 
-  /** The type of Universe (ie, SIMLE or LATTICE) */
+  /** The type of Universe (ie, SIMPLE or LATTICE) */
   universeType _type;
 
   /** A collection of Cell IDs and Cell pointers */
   std::map<int, Cell*> _cells;
-
-  /** The coordinates of the origin for the Universe */
-  Point _origin;
-
-  /** A collection of Cell IDs and their corresponding flat source region IDs.
-   *  This helps for computing FSR IDs and building FSR maps for plotting
-   *  FSR-based quantities such as the scalar flux and pin powers. */
-  std::map<int, int> _region_map;
 
   /** A boolean representing whether or not this Universe contains a Material
    *  with a non-zero fission cross-section and is fissionable */
@@ -102,7 +94,6 @@ public:
   char* getName() const;
   universeType getType();
   int getNumCells() const;
-  Point* getOrigin();
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -115,19 +106,18 @@ public:
   CellFill* getCellFill(int cell_id);
   CellBasic* getCellBasic(int cell_id);
   std::map<int, Cell*> getAllCells();
+	std::map<int, Material*> getAllMaterials();
   std::map<int, Universe*> getAllUniverses();
-  int getFSR(int cell_id);
   bool isFissionable();
 
   void setName(const char* name);
   void setType(universeType type);
-  void setOrigin(Point* origin);
   void addCell(Cell* cell);
   void removeCell(Cell* cell);
 
   Cell* findCell(LocalCoords* coords);
-  int computeFSRMaps();
-  void computeFissionability();
+  void setFissionability(bool fissionable);
+  double minSurfaceDist(Point* point, double angle);
   void subdivideCells();
 
   std::string toString();
@@ -157,22 +147,23 @@ private:
   /** The width of each Lattice cell (cm) along the y-axis */
   double _width_y;
 
+  /** The coordinates of the offset for the Universe */
+  Point _offset;
+
   /** A container of Universes ? */
   std::vector< std::vector< std::pair<int, Universe*> > > _universes;
-
-  /** A container of the number of FSRs in each Lattice cell */
-  std::vector< std::vector< std::pair<int, int> > > _region_map;
 
 public:
 
   Lattice(const int id=0, const char* name="");
   virtual ~Lattice();
 
+  void setOffset(double x, double y);
+  Point* getOffset();
   int getNumX() const;
   int getNumY() const;
   double getWidthX() const;
   double getWidthY() const;
-  Point* getOrigin();
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -182,18 +173,24 @@ public:
 
   Universe* getUniverse(int lat_x, int lat_y) const;
   std::vector< std::vector< std::pair<int, Universe*> > > getUniverses() const;
-  int getFSR(int lat_x, int lat_y);
   std::map<int, Universe*> getUniqueUniverses();
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
 
+  void setNumX(int num_x);
+  void setNumY(int num_y);
   void setWidth(double width_x, double width_y);
   void setUniverses(int num_x, int num_y, Universe** universes);
 
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);
-  Cell* findNextLatticeCell(LocalCoords* coords, double angle);
-  int computeFSRMaps();
+  double minSurfaceDist(Point* point, double angle);
+
+  int getLatX(Point* point);
+  int getLatY(Point* point);
+
+  int getLatticeCell(Point* point);
+  int getLatticeSurface(int cell, Point* point);
 
   std::string toString();
   void printString();

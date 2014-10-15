@@ -361,7 +361,7 @@ std::string Plane::toString() {
  * @param name the optional name of the XPlane
  */
 XPlane::XPlane(const double x, const int id, const char* name):
-  Plane(0, 1, -x, id, name) {
+  Plane(1, 0, -x, id) {
 
   _surface_type = XPLANE;
   _x = x;
@@ -441,7 +441,7 @@ std::string XPlane::toString() {
  * @param name the optional Surface name
  */
 YPlane::YPlane(const double y, const int id, const char* name):
-  Plane(1, 0, -y, id, name) {
+  Plane(0, 1, -y, id) {
 
   _surface_type = YPLANE;
   _y = y;
