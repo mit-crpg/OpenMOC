@@ -117,7 +117,7 @@ private:
   double _cell_height;
 
   /** Array of geometry boundaries */
-  boundaryType* _boundaries;
+  int* _boundaries;
 
   /** Array of surface currents for each CMFD cell */
   FP_PRECISION* _surface_currents;
@@ -169,7 +169,7 @@ public:
   int getCmfdGroup(int group);
   bool isOpticallyThick();
   FP_PRECISION getMOCRelaxationFactor();
-  boundaryType getBoundary(int side);
+  int getBoundary(int side);
   Lattice* getLattice();
   int getNumX();
   int getNumY();
@@ -188,7 +188,7 @@ public:
   void setNumMOCGroups(int num_moc_groups);
   void setOpticallyThick(bool thick);
   void setMOCRelaxationFactor(FP_PRECISION relax_factor);
-  void setBoundary(int side, boundaryType boundary);
+  void setBoundary(int side, int boundary);
   void setLattice(Lattice* lattice);
   void setLatticeStructure(int num_x, int num_y);
   void setFluxUpdateOn(bool flux_update_on);

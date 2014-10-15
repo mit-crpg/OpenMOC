@@ -170,6 +170,66 @@ double Cell::getMaxZ() {
 
 
 /**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the minimum reachable x-coordinate in the Cell.
+ * @return the boundary condition at the minimum x-coordinate
+ */
+int Cell::getMinXBoundaryType() {
+  return _min_x_bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the maximum reachable x-coordinate in the Cell.
+ * @return the boundary condition at the maximum x-coordinate
+ */
+int Cell::getMaxXBoundaryType() {
+  return _max_x_bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the minimum reachable y-coordinate in the Cell.
+ * @return the boundary condition at the minimum y-coordinate
+ */
+int Cell::getMinYBoundaryType() {
+  return _min_y_bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the maximum reachable y-coordinate in the Cell.
+ * @return the boundary condition at the maximum y-coordinate
+ */
+int Cell::getMaxYBoundaryType() {
+  return _max_y_bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the minimum reachable z-coordinate in the Cell.
+ * @return the boundary condition at the minimum z-coordinate
+ */
+int Cell::getMinZBoundaryType() {
+  return _min_z_bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the maximum reachable z-coordinate in the Cell.
+ * @return the boundary condition at the maximum z-coordinate
+ */
+int Cell::getMaxZBoundaryType() {
+  return _max_z_bc;
+}
+
+
+/**
  * @brief Return the number of Surfaces in the Cell.
  * @return the number of Surfaces
  */
@@ -272,19 +332,31 @@ void Cell::findBoundingBox() {
     min_y = surface->getMinY(halfspace);
     min_z = surface->getMinZ(halfspace);
 
-    if (max_x != std::numeric_limits<double>::infinity() && max_x < _max_x)
+    if (max_x != std::numeric_limits<double>::infinity() && max_x < _max_x) {
       _max_x = max_x;
-    if (max_y != std::numeric_limits<double>::infinity() && max_y < _max_y)
+      _max_x_bc = surface->getBoundaryType();
+    }
+    if (max_y != std::numeric_limits<double>::infinity() && max_y < _max_y) {
       _max_y = max_y;
-    if (max_z != std::numeric_limits<double>::infinity() && max_z < _max_z)
+      _max_y_bc = surface->getBoundaryType();
+    }
+    if (max_z != std::numeric_limits<double>::infinity() && max_z < _max_z) {
       _max_z = max_z;
+      _max_z_bc = surface->getBoundaryType();
+    }
 
-    if (min_x != -std::numeric_limits<double>::infinity() && min_x > _min_x)
+    if (min_x != -std::numeric_limits<double>::infinity() && min_x > _min_x) {
       _min_x = min_x;
-    if (min_y != -std::numeric_limits<double>::infinity() && min_y > _min_y)
+      _min_x_bc = surface->getBoundaryType();
+    }
+    if (min_y != -std::numeric_limits<double>::infinity() && min_y > _min_y) {
       _min_y = min_y;
-    if (min_z != -std::numeric_limits<double>::infinity() && min_z > _min_z)
+      _min_y_bc = surface->getBoundaryType();
+    }
+    if (min_z != -std::numeric_limits<double>::infinity() && min_z > _min_z) {
       _min_z = min_z;
+      _min_z_bc = surface->getBoundaryType();
+    }
   }
 
   /* If we could not find a bounds for any dimension, readjust

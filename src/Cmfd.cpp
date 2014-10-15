@@ -44,7 +44,7 @@ Cmfd::Cmfd() {
   _group_indices_map = NULL;
 
   /* Initialize boundaries to be reflective */
-  _boundaries = new boundaryType[4];
+  _boundaries = new int[4];
   _boundaries[0] = REFLECTIVE;
   _boundaries[1] = REFLECTIVE;
   _boundaries[2] = REFLECTIVE;
@@ -1585,7 +1585,7 @@ void Cmfd::setMOCRelaxationFactor(FP_PRECISION relax_factor){
  * @param side the cmfd surface UID.
  * @param boundary the boundaryType of the surface.
  */
-void Cmfd::setBoundary(int side, boundaryType boundary){
+void Cmfd::setBoundary(int side, int boundary){
   _boundaries[side] = boundary;
 }
 
@@ -1595,7 +1595,7 @@ void Cmfd::setBoundary(int side, boundaryType boundary){
  * @param side the Mesh surface ID.
  * @return the boundaryType for the surface.
  */
-boundaryType Cmfd::getBoundary(int side){
+int Cmfd::getBoundary(int side){
   return _boundaries[side];
 }
 

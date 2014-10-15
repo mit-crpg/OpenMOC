@@ -18,17 +18,10 @@ void reset_auto_ids() {
  */
 Geometry::Geometry() {
 
+  _num_FSRs = 0;
+
   _max_seg_length = 0;
   _min_seg_length = std::numeric_limits<double>::infinity();
-
-  /* Default boundary conditions are reflective */
-  // FIXME!!!!
-  _top_bc    = REFLECTIVE;
-  _bottom_bc = REFLECTIVE;
-  _left_bc   = REFLECTIVE;
-  _right_bc  = REFLECTIVE;
-
-  _num_FSRs = 0;
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
@@ -122,47 +115,67 @@ double Geometry::getMaxZ() {
 
 
 /**
- * @brief Returns the boundary condition for the top Surface of the Geometry.
- * @details The boundary conditions are vacuum (false) and reflective (false).
- * @return the boundary conditions for the top of the Geometry
+ * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
+ *        minimum x-coordinate in the Geometry.
+ * @return the boundary conditions for the minimum x-coordinate in the Geometry
  */
-boundaryType Geometry::getBCTop() {
-  return _top_bc;
+int Geometry::getMinXBoundaryType() {
+  return _root_universe->getMinXBoundaryType();
 }
 
 
 /**
- * @brief Returns the boundary condition for the bottom Surface of the Geometry.
- * @details The boundary conditions are vacuum (false) and reflective (false).
- * @return the boundary conditions for the bottom of the Geometry
+ * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
+ *        maximum x-coordinate in the Geometry.
+ * @return the boundary conditions for the maximum z-coordinate in the Geometry
  */
-boundaryType Geometry::getBCBottom() {
-  return _bottom_bc;
+int Geometry::getMaxXBoundaryType() {
+  return _root_universe->getMaxXBoundaryType();
 }
 
 
 /**
- * @brief Returns the boundary condition for the left Surface of the Geometry.
- * @details The boundary conditions are vacuum (false) and reflective (false).
- * @return the boundary conditions for the left surface of the Geometry
+ * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
+ *        minimum y-coordinate in the Geometry.
+ * @return the boundary conditions for the minimum y-coordinate in the Geometry
  */
-boundaryType Geometry::getBCLeft() {
-  return _left_bc;
+int Geometry::getMinYBoundaryType() {
+  return _root_universe->getMinYBoundaryType();
 }
 
 
 /**
- * @brief Returns the boundary condition for the right Surface of the Geometry.
- * @details The boundary conditions are vacuum (false) and reflective (false).
- * @return the boundary conditions for the right surface of the Geometry
+ * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
+ *        maximum y-coordinate in the Geometry.
+ * @return the boundary conditions for the maximum y-coordinate in the Geometry
  */
-boundaryType Geometry::getBCRight() {
-  return _right_bc;
+int Geometry::getMaxYBoundaryType() {
+  return _root_universe->getMaxYBoundaryType();
 }
 
 
 /**
- * @brief Returns the number of flat source regions (FSRs) in the Geometry.
+ * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
+ *        minimum z-coordinate in the Geometry.
+ * @return the boundary conditions for the minimum z-coordinate in the Geometry
+ */
+int Geometry::getMinZBoundaryType() {
+  return _root_universe->getMinZBoundaryType();
+}
+
+
+/**
+ * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
+ *        maximum z-coordinate in the Geometry.
+ * @return the boundary conditions for the maximum z-coordinate in the Geometry
+ */
+int Geometry::getMaxZBoundaryType() {
+  return _root_universe->getMaxZBoundaryType();
+}
+
+
+/**
+ * @brief Returns the number of flat source regions in the Geometry.
  * @return number of FSRs
  */
 int Geometry::getNumFSRs() {
@@ -966,10 +979,10 @@ void Geometry::initializeCmfd(){
   _cmfd->setLattice(lattice);
 
   /* Set CMFD mesh boundary conditions */
-  _cmfd->setBoundary(0, getBCLeft());
-  _cmfd->setBoundary(1, getBCBottom());
-  _cmfd->setBoundary(2, getBCRight());
-  _cmfd->setBoundary(3, getBCTop());
+  _cmfd->setBoundary(0, getMinXBoundaryType());
+  _cmfd->setBoundary(1, getMinYBoundaryType());
+  _cmfd->setBoundary(2, getMaxXBoundaryType());
+  _cmfd->setBoundary(3, getMaxYBoundaryType());
 
   /* Set CMFD mesh dimensions and number of groups */
   _cmfd->setWidth(width);

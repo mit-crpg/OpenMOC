@@ -13,6 +13,7 @@
 #include <map>
 #include <vector>
 #include "Cell.h"
+#include "Surface.h"
 #include "LocalCoords.h"
 #endif
 
@@ -31,6 +32,7 @@ class LocalCoords;
 class Cell;
 class CellFill;
 class CellBasic;
+class Surface;
 
 
 int universe_id();
@@ -100,6 +102,12 @@ public:
   double getMaxY();
   double getMinZ();
   double getMaxZ();
+  int getMinXBoundaryType();
+  int getMaxXBoundaryType();
+  int getMinYBoundaryType();
+  int getMaxYBoundaryType();
+  int getMinZBoundaryType();
+  int getMaxZBoundaryType();
 
   Cell* getCell(int cell_id);
   std::map<int, Cell*> getCells() const;

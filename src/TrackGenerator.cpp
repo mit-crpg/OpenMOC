@@ -697,7 +697,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(false);
           refl[j].setReflIn(false);
 
-          if (_geometry->getBCBottom() == REFLECTIVE) {
+          if (_geometry->getMinYBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j].setBCIn(1);
           }
@@ -717,7 +717,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(false);
           refl[2 * nxi - 1 - j].setReflIn(true);
 
-          if (_geometry->getBCRight() == REFLECTIVE) {
+          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[2 * nxi - 1 - j].setBCIn(1);
           }
@@ -740,7 +740,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(true);
           refl[j - nxi].setReflOut(false);
 
-          if (_geometry->getBCLeft() == REFLECTIVE) {
+          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j - nxi].setBCOut(1);
           }
@@ -760,7 +760,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(false);
           refl[j + nxi].setReflIn(true);
 
-          if (_geometry->getBCRight() == REFLECTIVE) {
+          if (_geometry->getMaxXBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[j + nxi].setBCIn(1);
           }
@@ -783,7 +783,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(true);
           refl[j - nxi].setReflOut(false);
 
-          if (_geometry->getBCLeft() == REFLECTIVE) {
+          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j - nxi].setBCOut(1);
           }
@@ -803,7 +803,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(true);
           refl[2 * nti - nxi - j - 1].setReflOut(true);
 
-          if (_geometry->getBCTop() == REFLECTIVE) {
+          if (_geometry->getMaxYBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[2 * nti - nxi - j - 1].setBCOut(1);
           }
@@ -830,7 +830,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(false);
           refl[j].setReflIn(false);
 
-          if (_geometry->getBCBottom() == REFLECTIVE) {
+          if (_geometry->getMinYBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j].setBCIn(1);
          }
@@ -850,7 +850,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(true);
           refl[nti - (nxi - nyi) + j].setReflOut(true);
 
-          if (_geometry->getBCTop() == REFLECTIVE) {
+          if (_geometry->getMaxYBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[nti - (nxi - nyi) + j].setBCOut(1);
           }
@@ -873,7 +873,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(false);
           refl[j].setReflIn(false);
 
-          if (_geometry->getBCBottom() == REFLECTIVE) {
+          if (_geometry->getMinYBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j].setBCIn(1);
           }
@@ -893,7 +893,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(false);
           refl[nxi + (nxi - j) - 1].setReflIn(true);
 
-          if (_geometry->getBCRight() == REFLECTIVE) {
+          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[nxi + (nxi - j) - 1].setBCIn(1);
           }
@@ -916,7 +916,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(true);
           refl[j - nxi].setReflOut(false);
 
-          if (_geometry->getBCLeft() == REFLECTIVE) {
+          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j - nxi].setBCOut(1);
           }
@@ -936,7 +936,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(true);
           refl[nyi + (nti - j) - 1].setReflOut(true);
 
-          if (_geometry->getBCTop() == REFLECTIVE) {
+          if (_geometry->getMaxYBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[nyi + (nti - j) - 1].setBCOut(1);
           }

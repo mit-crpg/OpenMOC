@@ -56,22 +56,6 @@ class Geometry {
 
 private:
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _top_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _bottom_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _left_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _right_bc;
-
   /** The total number of FSRs in the Geometry */
   int _num_FSRs;
 
@@ -113,10 +97,12 @@ public:
   double getMaxY();
   double getMinZ();
   double getMaxZ();
-  boundaryType getBCTop();
-  boundaryType getBCBottom();
-  boundaryType getBCLeft();
-  boundaryType getBCRight();
+  int getMinXBoundaryType();
+  int getMaxXBoundaryType();
+  int getMinYBoundaryType();
+  int getMaxYBoundaryType();
+  int getMinZBoundaryType();
+  int getMaxZBoundaryType();
   Universe* getRootUniverse();
   int getNumFSRs();
   int getNumEnergyGroups();

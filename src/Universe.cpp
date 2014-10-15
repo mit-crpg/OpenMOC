@@ -225,6 +225,141 @@ double Universe::getMaxZ() {
 
 
 /**
+ * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the minimum
+ *         reachable x-coordinate in the Universe.
+ * @return the boundary conditions at the minimum reachable x-coordinate
+ */
+int Universe::getMinXBoundaryType() {
+
+  double min_x = std::numeric_limits<double>::infinity();
+  int bc_x = REFLECTIVE;
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+
+    if (min_x > iter->second->getMinX()) {
+      min_x = iter->second->getMinX();
+      bc_x = iter->second->getMinXBoundaryType();
+    }
+  }
+
+  return bc_x;
+}
+
+
+/**
+ * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the maximum
+ *         reachable x-coordinate in the Universe.
+ * @return the boundary conditions at the maximum reachable x-coordinate
+ */
+int Universe::getMaxXBoundaryType() {
+
+  double max_x = -std::numeric_limits<double>::infinity();
+  int bc_x = REFLECTIVE;
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (max_x < iter->second->getMaxX()) {
+      max_x = iter->second->getMaxX();
+      bc_x = iter->second->getMaxXBoundaryType();
+    }
+  }
+
+  return bc_x;
+}
+
+
+/**
+ * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the minimum
+ *         reachable y-coordinate in the Universe.
+ * @return the boundary conditions at the minimum reachable y-coordinate
+ */
+int Universe::getMinYBoundaryType() {
+
+  double min_y = std::numeric_limits<double>::infinity();
+  int bc_y = REFLECTIVE;
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+
+    if (min_y > iter->second->getMinY()) {
+      min_y = iter->second->getMinY();
+      bc_y = iter->second->getMinYBoundaryType();
+    }
+  }
+
+  return bc_y;
+}
+
+
+/**
+ * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the maximum
+ *         reachable y-coordinate in the Universe.
+ * @return the boundary conditions at the maximum reachable y-coordinate
+ */
+int Universe::getMaxYBoundaryType() {
+
+  double max_y = -std::numeric_limits<double>::infinity();
+  int bc_y = REFLECTIVE;
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (max_y < iter->second->getMaxY()) {
+      max_y = iter->second->getMaxY();
+      bc_y = iter->second->getMaxYBoundaryType();
+    }
+  }
+
+  return bc_y;
+}
+
+
+/**
+ * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the minimum
+ *         reachable z-coordinate in the Universe.
+ * @return the boundary conditions at the minimum reachable z-coordinate
+ */
+int Universe::getMinZBoundaryType() {
+
+  double min_z = std::numeric_limits<double>::infinity();
+  int bc_z = REFLECTIVE;
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+
+    if (min_z > iter->second->getMinZ()) {
+      min_z = iter->second->getMinZ();
+      bc_z = iter->second->getMinZBoundaryType();
+    }
+  }
+
+  return bc_z;
+}
+
+
+/**
+ * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the maximum
+ *         reachable z-coordinate in the Universe.
+ * @return the boundary conditions at the maximum reachable z-coordinate
+ */
+int Universe::getMaxZBoundaryType() {
+
+  double max_z = -std::numeric_limits<double>::infinity();
+  int bc_z = REFLECTIVE;
+
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (max_z < iter->second->getMaxZ()) {
+      max_z = iter->second->getMaxZ();
+      bc_z = iter->second->getMaxZBoundaryType();
+    }
+  }
+
+  return bc_z;
+}
+
+
+/**
  * @brief Returns a Cell in this universe.
  * @param cell_id the integer the cell_id
  * @return Returns the cell pointer.

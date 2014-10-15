@@ -106,6 +106,24 @@ protected:
   /** The maximum reachable z-coordinate within the Cell */
   double _max_z;
 
+  /** The boundary condition at the minimum reachable x-coordinate */
+  int _min_x_bc;
+
+  /** The boundary condition at the maximum reachable x-coordinate */
+  int _max_x_bc;
+
+  /** The boundary condition at the minimum reachable y-coordinate */
+  int _min_y_bc;
+
+  /** The boundary condition at the maximum reachable y-coordinate */
+  int _max_y_bc;
+
+  /** The boundary condition at the minimum reachable z-coordinate */
+  int _min_z_bc;
+
+  /** The boundary condition at the maximum reachable z-coordinate */
+  int _max_z_bc;
+
 public:
   Cell();
   Cell(int id=0, const char* name="");
@@ -120,6 +138,12 @@ public:
   double getMaxY();
   double getMinZ();
   double getMaxZ();
+  int getMinXBoundaryType();
+  int getMaxXBoundaryType();
+  int getMinYBoundaryType();
+  int getMaxYBoundaryType();
+  int getMinZBoundaryType();
+  int getMaxZBoundaryType();
   int getNumSurfaces() const;
   std::map<int, surface_halfspace> getSurfaces() const;
 
