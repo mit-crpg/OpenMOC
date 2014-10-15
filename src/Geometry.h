@@ -75,9 +75,6 @@ private:
   /** The total number of FSRs in the Geometry */
   int _num_FSRs;
 
-  /** The number of energy groups for each Material's nuclear data */
-  int _num_groups;
-
   /** An map of FSR key hashes to unique fsr_data structs */
   std::map<std::size_t, fsr_data> _FSR_keys_map;
 

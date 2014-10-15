@@ -974,12 +974,12 @@ void Geometry::initializeCmfd(){
   /* Set CMFD mesh dimensions and number of groups */
   _cmfd->setWidth(width);
   _cmfd->setHeight(height);
-  _cmfd->setNumMOCGroups(_num_groups);
+  _cmfd->setNumMOCGroups(getNumEnergyGroups());
 
   /* If user did not set CMFD group structure, create CMFD group
   * structure that is the same as the MOC group structure */
   if (_cmfd->getNumCmfdGroups() == 0)
-    _cmfd->setGroupStructure(NULL, _num_groups+1);
+    _cmfd->setGroupStructure(NULL, getNumEnergyGroups()+1);
 
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
