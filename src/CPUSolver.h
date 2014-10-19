@@ -94,6 +94,7 @@ protected:
   void addSourceToScalarFlux();
   void computeKeff();
   void transportSweep();
+  void updateBoundaryFlux();
 
   /**
    * @brief Computes the exponential term in the transport equation for a

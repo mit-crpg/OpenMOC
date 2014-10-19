@@ -1,6 +1,7 @@
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
+import openmoc.process as process
 import openmoc.materialize as materialize
 from openmoc.options import Options
 
@@ -318,10 +319,11 @@ lattices[-1].setLatticeCells([[10, 11, 15],
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(1.0)
+cmfd.setMOCRelaxationFactor(0.6)
+cmfd.setOpticallyThick(False)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
-cmfd.setGroupStructure([1,4,8])
+#cmfd.setGroupStructure([1,4,8])
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -362,12 +364,13 @@ solver.printTimerReport()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
+process.compute_fission_rates(solver)
 #plotter.plot_tracks(track_generator)
 #plotter.plot_materials(geometry, gridsize=500)
 #plotter.plot_cells(geometry, gridsize=500)
 #plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
 #plotter.plot_flat_source_regions(geometry, gridsize=500)
 #plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
-#plotter.plot_fission_rates(geometry, solver, gridsize=500)
+plotter.plot_fission_rates(geometry, solver, gridsize=500)
 
 log.py_printf('TITLE', 'Finished')

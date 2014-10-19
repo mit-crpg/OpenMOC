@@ -289,6 +289,12 @@ protected:
    */
   virtual void transportSweep() =0;
 
+  /**
+   * @brief This method performs an update of the boundary fluxes using
+   *        the CMFD scalar fluxes.
+   */
+  virtual void updateBoundaryFlux() =0;
+
   void clearTimerSplits();
 
 

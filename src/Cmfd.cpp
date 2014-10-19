@@ -182,6 +182,7 @@ void Cmfd::computeXS(){
   /* Initialize tallies for each parameter */
   FP_PRECISION abs_tally, nu_fis_tally, dif_tally, rxn_tally;
   FP_PRECISION vol_tally, tot_tally, neut_prod_tally;
+  FP_PRECISION trans_tally_group, rxn_tally_group;
   FP_PRECISION scat_tally[_num_cmfd_groups];
   FP_PRECISION chi_tally[_num_cmfd_groups];
 
@@ -193,7 +194,7 @@ void Cmfd::computeXS(){
   #pragma omp parallel for private(volume, flux, abs, tot, nu_fis, chi, \
     dif_coef, scat, abs_tally, nu_fis_tally, dif_tally, rxn_tally,  \
     vol_tally, tot_tally, scat_tally, fsr_material, cell_material, \
-    neut_prod_tally, chi_tally)
+    neut_prod_tally, chi_tally, trans_tally_group, rxn_tally_group)
   for (int i = 0; i < _num_x * _num_y; i++){
 
     cell_material = _materials[i];
@@ -203,12 +204,12 @@ void Cmfd::computeXS(){
     for (int e = 0; e < _num_cmfd_groups; e++) {
 
       /* Zero tallies for this group */
-      abs_tally = 0;
-      nu_fis_tally = 0;
-      dif_tally = 0;
-      rxn_tally = 0;
-      vol_tally = 0;
-      tot_tally = 0;
+      abs_tally = 0.0;
+      nu_fis_tally = 0.0;
+      dif_tally = 0.0;
+      rxn_tally = 0.0;
+      vol_tally = 0.0;
+      tot_tally = 0.0;
       neut_prod_tally = 0.0;
 
       /* Zero each group-to-group scattering tally */
@@ -217,19 +218,17 @@ void Cmfd::computeXS(){
         chi_tally[g] = 0.0;
       }
 
-      /* Loop over FSRs in cmfd cell */
+      /* Loop over FSRs in cmfd cell to compute chi */
       for (iter = _cell_fsrs.at(i).begin();
-        iter != _cell_fsrs.at(i).end(); ++iter){
+           iter != _cell_fsrs.at(i).end(); ++iter){
 
         fsr_material = _FSR_materials[*iter];
         volume = _FSR_volumes[*iter];
-        scat = fsr_material->getSigmaS();
-        vol_tally += volume;
 
         /* Chi tallies */
         for (int b = 0; b < _num_cmfd_groups; b++){
           chi = 0.0;
-
+              
           /* Compute the chi for group b */
           for (int h = _group_indices[b]; h < _group_indices[b+1]; h++)
             chi += fsr_material->getChi()[h];
@@ -241,23 +240,30 @@ void Cmfd::computeXS(){
                 _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
           }
         }
+      }
 
-        /* Loop over MOC energy groups within this CMFD coarse group */
-        for (int h = _group_indices[e]; h < _group_indices[e+1]; h++){
+      /* Loop over MOC energy groups within this CMFD coarse group */
+      for (int h = _group_indices[e]; h < _group_indices[e+1]; h++){
+
+        /* Reset transport xs tally for this MOC group */
+        trans_tally_group = 0.0;
+        rxn_tally_group = 0.0;
+        vol_tally = 0.0;
+
+        /* Loop over FSRs in cmfd cell */
+        for (iter = _cell_fsrs.at(i).begin();
+             iter != _cell_fsrs.at(i).end(); ++iter){
+
+          fsr_material = _FSR_materials[*iter];
+          volume = _FSR_volumes[*iter];
+          scat = fsr_material->getSigmaS();
+          vol_tally += volume;
 
           /* Gets FSR volume, material, and cross sections */
           flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
           abs = fsr_material->getSigmaA()[h];
           tot = fsr_material->getSigmaT()[h];
-          dif_coef = fsr_material->getDifCoef()[h];
           nu_fis = fsr_material->getNuSigmaF()[h];
-
-          /* If Material has a diffusion coefficient, use it; otherwise
-           * estimate diffusion coefficient with \f$ \frac{1}{3\Sigma_t} \f$ */
-          if (fsr_material->getDifCoef()[h] > 1e-8)
-            dif_tally += fsr_material->getDifCoef()[h] * flux * volume;
-          else
-            dif_tally += flux * volume / (3.0 * tot);
 
           /* Increment tallies for this group */
           abs_tally += abs * flux * volume;
@@ -265,12 +271,18 @@ void Cmfd::computeXS(){
           nu_fis_tally += nu_fis * flux * volume;
           rxn_tally += flux * volume;
 
+          trans_tally_group += tot * flux * volume;
+          rxn_tally_group += flux * volume;
+
           /* Scattering tallies */
           for (int g = 0; g < _num_moc_groups; g++){
               scat_tally[getCmfdGroup(g)] +=
                   scat[g*_num_moc_groups+h] * flux * volume;
           }
         }
+
+        /* Energy collapse diffusion coefficient */
+        dif_tally += rxn_tally_group / (3.0 * (trans_tally_group / rxn_tally_group));
       }
 
       /* Set the Mesh cell properties with the tallies */
@@ -311,7 +323,7 @@ void Cmfd::computeXS(){
  *          \f$ \tilde{D} \f$ - surface diffusion coefficient correction factor
  *        for each mesh while ensuring neutron balance is achieved.
  */
-void Cmfd::computeDs(){
+void Cmfd::computeDs(int moc_iteration){
 
   log_printf(INFO, "Computing CMFD diffusion coefficients...");
 
@@ -321,6 +333,11 @@ void Cmfd::computeDs(){
   FP_PRECISION sense;
   int next_surface;
   int cell, cell_next;
+  FP_PRECISION relax_factor = _relax_factor;
+
+  /* If it is the first MOC iteration, set relax_factor to 0 */
+  if (moc_iteration == 0)
+    relax_factor = 0.0;
 
   /* Loop over mesh cells in y direction */
   #pragma omp parallel for private(d, d_next, d_hat, d_tilde, current, flux, \
@@ -468,7 +485,7 @@ void Cmfd::computeDs(){
           /* Perform underrelaxation on d_tilde */
           d_tilde =
              _materials[cell]->getDifTilde()[surface*_num_cmfd_groups + e] *
-             (1 - _relax_factor) + _relax_factor * d_tilde;
+             (1 - relax_factor) + relax_factor * d_tilde;
 
           /* Set d_hat and d_tilde */
           _materials[cell]->setDifHatByGroup(d_hat, e+1, surface);
@@ -489,7 +506,7 @@ void Cmfd::computeDs(){
 /** @brief CMFD solver that solves the diffusion problem.
  * @return k-effective the solution eigenvalue.
  */
-FP_PRECISION Cmfd::computeKeff(){
+FP_PRECISION Cmfd::computeKeff(int moc_iteration){
 
   log_printf(INFO, "Running diffusion solver...");
 
@@ -526,7 +543,7 @@ FP_PRECISION Cmfd::computeKeff(){
   
   /* Compute the cross sections and surface diffusion coefficients */
   computeXS();
-  computeDs();
+  computeDs(moc_iteration);
 
   /* Construct matrices */
   constructMatrices();
@@ -911,21 +928,14 @@ void Cmfd::updateMOCFlux(){
 
   log_printf(INFO, "Updating MOC flux...");
 
-  /* Initialize variables */
-  FP_PRECISION old_cell_flux, new_cell_flux;
-
   /* Loop over mesh cells */
-  #pragma omp parallel for private(old_cell_flux, new_cell_flux)
+  #pragma omp parallel for
   for (int i = 0; i < _num_x*_num_y; i++){
 
     std::vector<int>::iterator iter;
 
     /* Loop over CMFD groups */
     for (int e = 0; e < _num_cmfd_groups; e++){
-
-      /* Get the old and new Mesh cell flux */
-      old_cell_flux = _old_flux[i*_num_cmfd_groups + e];
-      new_cell_flux = _new_flux[i*_num_cmfd_groups + e];
 
       for (int h = _group_indices[e]; h < _group_indices[e+1]; h++){
 
@@ -934,12 +944,12 @@ void Cmfd::updateMOCFlux(){
           iter != _cell_fsrs.at(i).end(); ++iter) {
 
           /* Set new flux in FSR */
-          _FSR_fluxes[*iter*_num_moc_groups+h] =
-            new_cell_flux/old_cell_flux * _FSR_fluxes[*iter*_num_moc_groups+h];
+            _FSR_fluxes[*iter*_num_moc_groups+h] = getFluxRatio(i,h)
+             * _FSR_fluxes[*iter*_num_moc_groups+h];
 
           log_printf(DEBUG, "Updating flux in FSR: %i, cell: %i, group: "
                      "%i, ratio: %f", *iter ,i, h,
-                      new_cell_flux / old_cell_flux);
+                     getFluxRatio(i,h));
         }
       }
     }
@@ -1695,4 +1705,13 @@ void Cmfd::setPolarQuadrature(quadratureType quadrature_type, int num_polar) {
     delete _quad;
 
   _quad = new Quadrature(quadrature_type, num_polar);
+}
+
+FP_PRECISION Cmfd::getFluxRatio(int cmfd_cell, int moc_group){
+
+  int cmfd_group = _group_indices_map[moc_group];
+  FP_PRECISION old_flux = _old_flux[cmfd_cell*_num_cmfd_groups + cmfd_group];
+  FP_PRECISION new_flux = _new_flux[cmfd_cell*_num_cmfd_groups + cmfd_group];
+  FP_PRECISION ratio = new_flux / old_flux;
+  return ratio;
 }

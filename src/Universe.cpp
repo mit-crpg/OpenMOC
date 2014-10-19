@@ -309,7 +309,7 @@ Cell* Universe::findCell(LocalCoords* coords,
   std::map<int, Cell*>::iterator iter;
 
   /* Sets the LocalCoord type to UNIV at this level */
-  coords->setType(UNIV);
+ coords->setType(UNIV);
 
   /* Loop over all Cells in this Universe */
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {

@@ -91,13 +91,13 @@ def compute_fission_rates(solver, use_hdf5=False):
       coords = LocalCoords(point.getX(), point.getY())
       coords.setUniverse(0)
       geometry.findCellContainingCoords(coords)
-      coords = coords.getHighestLevel()
+      coords = coords.getHighestLevel().getNext()
 
       # initialize dictionary key
-      key = ''
+      key = 'UNIV = 0 : '
       
       # Parse through the linked list and create fsr key.
-      # If lowest level sub dictionary already exists, they increment 
+      # If lowest level sub dictionary already exists, then increment 
       # fission rate; otherwise, set the fission rate.
       while True:
         if coords.getType() is LAT:

@@ -517,6 +517,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
   initializeSourceArrays();
   buildExpInterpTable();
   initializeFSRs();
+
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     initializeCmfd();
 
@@ -525,7 +526,6 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
-  flattenFSRSources(1.0);
   zeroTrackFluxes();
 
   /* Source iteration loop */
@@ -534,17 +534,18 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     log_printf(NORMAL, "Iteration %d: \tk_eff = %1.6f"
                "\tres = %1.3E", i, _k_eff, residual);
 
-    normalizeFluxes();
-    
+    normalizeFluxes();    
     residual = computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
 
     /* Solve CMFD diffusion problem and update MOC flux */
-    if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-      _k_eff = _cmfd->computeKeff();
-
-    computeKeff();
+    if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
+      _k_eff = _cmfd->computeKeff(i);
+      updateBoundaryFlux();
+    }
+    else
+      computeKeff();
 
     _num_iterations++;
 

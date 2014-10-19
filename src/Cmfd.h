@@ -144,11 +144,11 @@ public:
 
   /* Worker functions */
   void constructMatrices();
-  void computeDs();
+  void computeDs(int moc_iteration);
   void computeXS();
   void updateMOCFlux();
   FP_PRECISION computeDiffCorrect(FP_PRECISION d, FP_PRECISION h);
-  FP_PRECISION computeKeff();
+  FP_PRECISION computeKeff(int moc_iteration);
   void initializeCellMap();
   void initializeGroupMap();
   void initializeFlux();
@@ -176,6 +176,7 @@ public:
   int convertFSRIdToCmfdCell(int fsr_id);
   std::vector< std::vector<int> > getCellFSRs();
   bool isFluxUpdateOn();
+  FP_PRECISION getFluxRatio(int cmfd_cell, int moc_group);
 
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
