@@ -47,7 +47,7 @@ else:
 ##
 # @brief This routine computes the fission rate in each flat source region,
 #        and combines the rates based on their hierarchical universe/lattice
-#        structure. The fission rates are then exported to a binary hdf5
+#        structure. The fission rates are then exported to a binary HDF5
 #        or python pickle file.
 # @details This routine is intended to be called by the user in Python to
 #          compute fission rates. Typically, the fission rates will represent
@@ -76,10 +76,10 @@ def compute_fission_rates(solver, use_hdf5=False):
   geometry = solver.getGeometry()
 
   # Compute the volume-weighted fission rates for each FSR
-  fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+  fsr_fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
 
   # Initialize fission rates dictionary
-  fission_rates_dict = {}
+  fission_rates_sum = {}
 
   # Loop over FSRs and populate fission rates dictionary
   for fsr in range(geometry.getNumFSRs()):
@@ -107,6 +107,7 @@ def compute_fission_rates(solver, use_hdf5=False):
         else:
           key += 'UNIV = ' + str(coords.getUniverse()) + ' : '
 
+        # Remove the trailing ' : ' on the end of the key if at last univ/lat
         if coords.getNext() is None:
           key = key[:-3]
           break
@@ -114,22 +115,22 @@ def compute_fission_rates(solver, use_hdf5=False):
           coords = coords.getNext()
 
       # Increment or set fission rate
-      if key in fission_rates_dict:
-        fission_rates_dict[key] += fission_rates[fsr]
+      if key in fission_rates_sum:
+        fission_rates_sum[key] += fsr_fission_rates[fsr]
       else:
-        fission_rates_dict[key] = fission_rates[fsr]
+        fission_rates_sum[key] = fsr_fission_rates[fsr]
 
   # If using HDF5
   if use_hdf5:
 
     import h5py
 
-    # Open hdf5 file
+    # Open HDF5 file
     f = h5py.File(directory + filename + '.h5', 'w')
 
-    # Write the fission rates to the hdf5 file
+    # Write the fission rates to the HDF5 file
     fission_rates_group = f.create_group('fission-rates')
-    for key, value in fission_rates_dict.items():
+    for key, value in fission_rates_sum.items():
       fission_rates_group.attrs[key] = value
 
     # Close hdf5 file
@@ -140,7 +141,7 @@ def compute_fission_rates(solver, use_hdf5=False):
     import pickle
 
     # Pickle the fission rates to a file
-    pickle.dump(fission_rates_dict, open(directory + filename + '.pkl', 'wb'))
+    pickle.dump(fission_rates_sum, open(directory + filename + '.pkl', 'wb'))
     
 
 ##

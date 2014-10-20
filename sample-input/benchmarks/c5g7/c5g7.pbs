@@ -19,4 +19,5 @@ PATH=$PBS_O_PATH
 ######################################
  
 #PBS -k eo
-python c5g7.py
+#python c5g7.py
+python c5g7-cmfd.py -t 12 -s 0.01 -a 64

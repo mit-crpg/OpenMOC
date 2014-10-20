@@ -25,7 +25,7 @@ Cmfd::Cmfd() {
   _cell_width = 0.;
   _cell_height = 0.;
   _flux_update_on = true;
-  _optically_thick = true;
+  _optically_thick = false;
   _SOR_factor = 1.0;
   _num_FSRs = 0;
   _relax_factor = 0.6;
@@ -299,8 +299,8 @@ void Cmfd::computeXS(){
       else
         cell_material->setChiByGroup(0.0,e+1);
 
-      log_printf(DEBUG, "cell: %i, group: %i, vol: %f, siga: %f, sigt: %f,"
-                 " nu_sigf: %f, dif_coef: %f, flux: %f, chi: %f", i, e,
+      log_printf(DEBUG, "cell: %i, group: %i, vol: %e, siga: %e, sigt: %e,"
+                 " nu_sigf: %e, dif_coef: %e, flux: %e, chi: %e", i, e,
                  vol_tally, abs_tally / rxn_tally, tot_tally / rxn_tally,
                  nu_fis_tally / rxn_tally, dif_tally / rxn_tally,
                  rxn_tally / vol_tally, chi_tally[e] / (neut_prod_tally+1e-12));
@@ -308,7 +308,7 @@ void Cmfd::computeXS(){
       /* Set scattering xs */
       for (int g = 0; g < _num_cmfd_groups; g++){
         cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e+1, g+1);
-        log_printf(DEBUG, "scattering from %i to %i: %f", e, g,
+        log_printf(DEBUG, "scattering from %i to %i: %e", e, g,
                    scat_tally[g] / rxn_tally);
       }
     }
@@ -594,7 +594,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration){
                iter, _k_eff, residual);
     
     /* Check for convergence */
-    if (residual < _source_convergence_threshold)
+    if (residual < _source_convergence_threshold && iter > 10)
       break;
   }
 
@@ -624,7 +624,7 @@ void Cmfd::linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x,
   FP_PRECISION val;
   int iter = 0;
 
-  while (residual > conv){
+  while (iter < max_iter){
 
     /* Pass new flux to old flux */
     vector_copy(vec_x, _flux_temp, _num_x*_num_y*_num_cmfd_groups);
@@ -638,7 +638,7 @@ void Cmfd::linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x,
 
         for (int g = 0; g < _num_cmfd_groups; g++){
 
-          row = (y*_num_x+x)*_num_cmfd_groups + g;
+          row = cell*_num_cmfd_groups + g;
           val = 0.0;
 
           /* Previous flux term */
@@ -662,7 +662,7 @@ void Cmfd::linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x,
           /* Group-to-group */
           for (int e = 0; e < _num_cmfd_groups; e++){
             if (e != g)
-              val -= _SOR_factor * vec_x[(y*_num_x+x)*_num_cmfd_groups+e] *
+              val -= _SOR_factor * vec_x[cell*_num_cmfd_groups+e] *
                      mat[cell][g*(_num_cmfd_groups+4)+2+e] /
                      mat[cell][g*(_num_cmfd_groups+4)+g+2];
           }
@@ -693,7 +693,7 @@ void Cmfd::linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x,
 
         for (int g = 0; g < _num_cmfd_groups; g++){
 
-          row = (y*_num_x+x)*_num_cmfd_groups + g;
+          row = cell*_num_cmfd_groups + g;
           val = 0.0;
 
           /* Previous flux term */
@@ -717,7 +717,7 @@ void Cmfd::linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x,
           /* Group-to-group */
           for (int e = 0; e < _num_cmfd_groups; e++){
             if (e != g)
-              val -= _SOR_factor * vec_x[(y*_num_x+x)*_num_cmfd_groups+e] *
+              val -= _SOR_factor * vec_x[cell*_num_cmfd_groups+e] *
                      mat[cell][g*(_num_cmfd_groups+4)+2+e] /
                      mat[cell][g*(_num_cmfd_groups+4)+g+2];
           }
@@ -752,7 +752,7 @@ void Cmfd::linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x,
 
     log_printf(DEBUG, "GS iter: %i, res: %f", iter, residual);
 
-    if (iter >= max_iter)
+    if (residual < conv && iter > 10)
       break;
   }
 
@@ -830,7 +830,7 @@ void Cmfd::constructMatrices(){
         value = (material->getDifHat()[2*_num_cmfd_groups + e]
                 - material->getDifTilde()[2*_num_cmfd_groups + e])
           * _cell_height;
-
+        
         _A[cell][e*(_num_cmfd_groups+4)+e+2] += value;
 
         /* Set transport term on off diagonal */
@@ -838,7 +838,7 @@ void Cmfd::constructMatrices(){
           value = - (material->getDifHat()[2*_num_cmfd_groups + e]
                   + material->getDifTilde()[2*_num_cmfd_groups + e])
                   * _cell_height;
-
+            
           _A[cell][e*(_num_cmfd_groups+4)+_num_cmfd_groups+2] += value;
         }
 
@@ -848,6 +848,7 @@ void Cmfd::constructMatrices(){
         value = (material->getDifHat()[e]
                 + material->getDifTilde()[e])
             * _cell_height;
+        
 
         _A[cell][e*(_num_cmfd_groups+4)+e+2] += value;
 
@@ -856,7 +857,7 @@ void Cmfd::constructMatrices(){
           value = - (material->getDifHat()[e]
                      - material->getDifTilde()[e])
               * _cell_height;
-
+          
           _A[cell][e*(_num_cmfd_groups+4)] += value;
         }
 
@@ -866,7 +867,7 @@ void Cmfd::constructMatrices(){
         value = (material->getDifHat()[1*_num_cmfd_groups + e]
                 + material->getDifTilde()[1*_num_cmfd_groups + e])
                 * _cell_width;
-
+        
         _A[cell][e*(_num_cmfd_groups+4)+e+2] += value;
 
         /* Set transport term on off diagonal */
@@ -874,7 +875,7 @@ void Cmfd::constructMatrices(){
           value = - (material->getDifHat()[1*_num_cmfd_groups + e]
                   - material->getDifTilde()[1*_num_cmfd_groups + e])
               * _cell_width;
-
+          
           _A[cell][e*(_num_cmfd_groups+4)+1] += value;
         }
 
@@ -884,7 +885,7 @@ void Cmfd::constructMatrices(){
         value = (material->getDifHat()[3*_num_cmfd_groups + e]
                 - material->getDifTilde()[3*_num_cmfd_groups + e])
             * _cell_width;
-
+        
         _A[cell][e*(_num_cmfd_groups+4)+e+2] += value;
 
         /* Set transport term on off diagonal */
@@ -892,7 +893,7 @@ void Cmfd::constructMatrices(){
           value = - (material->getDifHat()[3*_num_cmfd_groups + e]
                   + material->getDifTilde()[3*_num_cmfd_groups + e])
                   * _cell_width;
-
+          
           _A[cell][e*(_num_cmfd_groups+4)+_num_cmfd_groups+3] += value;
         }
 
@@ -912,7 +913,7 @@ void Cmfd::constructMatrices(){
 
         for (int i = 0; i < _num_cmfd_groups; i++)
           log_printf(DEBUG, "i: %i, M value: %f",
-                     i, _M[cell][e*(_num_cmfd_groups+4)+i]);
+                     i, _M[cell][e*(_num_cmfd_groups)+i]);
       }
     }
   }

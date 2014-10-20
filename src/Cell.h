@@ -29,8 +29,10 @@ int cell_id();
  */
 struct surface_halfspace {
 
-  /** A pointer to the Surface object and associated halfspace */
+  /** A pointer to the Surface object */
   Surface* _surface;
+
+  /** The halfspace associated with this surface */
   int _halfspace;
 
 };

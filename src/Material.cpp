@@ -940,8 +940,16 @@ void Material::setChi(double* xs, int num_groups) {
     log_printf(ERROR, "Unable to set chi with %d groups for Material "
                "%d which contains %d energy groups", num_groups, _uid, _num_groups);
 
+  double chi_sum = 0.0;
   for (int i=0; i < _num_groups; i++)
-    _chi[i] = xs[i];
+    chi_sum += xs[i];
+
+  for (int i=0; i < _num_groups; i++){
+    if (chi_sum == 0)
+      _chi[i] = xs[i];
+    else
+      _chi[i] = xs[i] / chi_sum;
+  }
 }
 
 

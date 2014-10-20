@@ -94,10 +94,7 @@ class Options:
                                   'max-iters=',
                                   'num-omp-threads=',
                                   'num-thread-blocks=',
-                                  'num-gpu-threads=',
-                                  'relax-factor=',
-                                  'cmfd-acceleration',
-                                  'mesh-level='])
+                                  'num-gpu-threads='])
 
     except getopt.GetoptError as err:
       py_printf('ERROR', str(err))

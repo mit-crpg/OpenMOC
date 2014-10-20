@@ -1057,7 +1057,7 @@ void GPUSolver::initializeFSRs() {
     FP_PRECISION* temp_FSR_volumes = new FP_PRECISION[_num_FSRs];
 
     /* Get the array indexed by FSR IDs with Material ID values */
-    std::vector<int> FSRs_to_materials = _geometry->getFSRtoMaterialMap();
+    std::vector<int> FSRs_to_materials = _geometry->getFSRsToMaterials();
 
     /* Initialize each FSRs volume to 0 to avoid NaNs */
     memset(temp_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
