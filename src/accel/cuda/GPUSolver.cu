@@ -1677,3 +1677,4 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   return;
 }
+

@@ -33,6 +33,7 @@ Cmfd::Cmfd() {
   /* Energy group problem parameters */
   _num_moc_groups = 0;
   _num_cmfd_groups = 0;
+  _num_polar = 0;
 
   /* Set matrices and arrays to NULL */
   _A = NULL;
@@ -1706,6 +1707,7 @@ void Cmfd::setPolarQuadrature(quadratureType quadrature_type, int num_polar) {
     delete _quad;
 
   _quad = new Quadrature(quadrature_type, num_polar);
+  _num_polar = num_polar;
 }
 
 FP_PRECISION Cmfd::getFluxRatio(int cmfd_cell, int moc_group){
@@ -1715,4 +1717,52 @@ FP_PRECISION Cmfd::getFluxRatio(int cmfd_cell, int moc_group){
   FP_PRECISION new_flux = _new_flux[cmfd_cell*_num_cmfd_groups + cmfd_group];
   FP_PRECISION ratio = new_flux / old_flux;
   return ratio;
+}
+
+
+void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
+			      int num_tracks){
+
+  segment* segments;
+  segment* curr_segment;
+  int num_segments;
+  int bc;
+  FP_PRECISION* track_flux;
+  FP_PRECISION ratio;
+  int cmfd_cell;
+  
+  log_printf(INFO, "updating boundary flux");
+  
+  for (int i=0; i < num_tracks; i++) {
+      
+    num_segments = tracks[i]->getNumSegments();
+    segments = tracks[i]->getSegments();
+
+    /* update boundary flux in forward direction */
+    bc = (int)tracks[i]->getBCOut();
+    curr_segment = &segments[0];
+    track_flux = &boundary_flux[i*2*_num_moc_groups*_num_polar];
+    cmfd_cell = convertFSRIdToCmfdCell(curr_segment->_region_id);
+    
+    if (bc){
+      for (int e=0; e < _num_moc_groups; e++) {
+        for (int p=0; p < _num_polar; p++) {
+          track_flux[p*_num_moc_groups+e] *= getFluxRatio(cmfd_cell, e);
+        }
+      }
+    }
+
+    /* update boundary flux in backwards direction */
+    bc = (int)tracks[i]->getBCIn();
+    curr_segment = &segments[num_segments-1];
+    track_flux = &boundary_flux[(i*2 + 1)*_num_moc_groups*_num_polar];
+    
+    if (bc){
+      for (int e=0; e < _num_moc_groups; e++) {
+        for (int p=0; p < _num_polar; p++) {
+          track_flux[p*_num_moc_groups+e] *= getFluxRatio(cmfd_cell, e);
+        }
+      }
+    }
+  }
 }

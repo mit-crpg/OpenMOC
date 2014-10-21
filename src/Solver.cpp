@@ -542,7 +542,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
       _k_eff = _cmfd->computeKeff(i);
-      //updateBoundaryFlux();
+      _cmfd->updateBoundaryFlux(_tracks, _boundary_flux, _tot_num_tracks);
     }
     else
       computeKeff();

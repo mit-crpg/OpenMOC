@@ -26,6 +26,7 @@
 #include "Universe.h"
 #include "linalg.h"
 #include "pairwisesum.h"
+#include "Track.h"
 #endif
 
 
@@ -81,6 +82,9 @@ private:
 
   /** Number of energy groups */
   int _num_moc_groups;
+
+  /** Number of polar angles */
+  int _num_polar;
 
   /** Number of energy groups used in cmfd solver. Note that cmfd supports
    * energy condensation from the MOC */
@@ -161,6 +165,7 @@ public:
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell, LocalCoords* coords);
   void addFSRToCell(int cmfd_cell, int fsr_id);
+  void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, int num_tracks);
 
   /* Get parameters */
   int getNumCmfdGroups();
