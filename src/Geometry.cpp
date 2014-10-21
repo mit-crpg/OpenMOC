@@ -53,7 +53,7 @@ Geometry::~Geometry() {
 
 
 /**
- * Link the CellFill objects with the Universes filling them.
+ * @brief initialize the CellFill objects with the Universes filling them.
  */
 void Geometry::initializeCellFillPointers() {
 
@@ -1456,7 +1456,9 @@ void Geometry::initializeCmfd(){
   Lattice* lattice = new Lattice(0, cell_width, cell_height);
   lattice->setNumX(num_x);
   lattice->setNumY(num_y);
+  lattice->setOffset(_x_min + getWidth()/2.0, _y_min + getHeight()/2.0);
   _cmfd->setLattice(lattice);
+
 
   /* Set CMFD mesh boundary conditions */
   _cmfd->setBoundary(0,getBCLeft());
@@ -1501,7 +1503,7 @@ std::vector<std::size_t> Geometry::getFSRsToKeys(){
 /**
  * @brief Return a vector indexed by flat source region IDs which contain
  *        the corresponding Material IDs.
- * @return an integer array of FSR-to-Material IDs indexed by FSR ID
+ * @return an integer vector of FSR-to-Material IDs indexed by FSR ID
  */
 std::vector<int> Geometry::getFSRsToMaterialIDs() {
   if (_num_FSRs == 0)

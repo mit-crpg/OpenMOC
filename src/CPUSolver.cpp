@@ -33,7 +33,6 @@ CPUSolver::~CPUSolver() {
   if (_cmfd_surface_locks != NULL)
     delete [] _cmfd_surface_locks;
 
-
   if (_surface_currents != NULL)
     delete [] _surface_currents;
 }

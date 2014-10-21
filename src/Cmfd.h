@@ -165,7 +165,8 @@ public:
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell, LocalCoords* coords);
   void addFSRToCell(int cmfd_cell, int fsr_id);
-  void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, int num_tracks);
+  void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
+                          int num_tracks);
 
   /* Get parameters */
   int getNumCmfdGroups();

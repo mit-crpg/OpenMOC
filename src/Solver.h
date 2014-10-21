@@ -22,7 +22,8 @@
 
 /** Indexing macro for the surface currents for each CMFD Mesh surface and
  *  each energy group */
-#define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() + _cmfd->getCmfdGroup((e))])
+#define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() \
+                                                  + _cmfd->getCmfdGroup((e))])
 
 /** Indexing macro for the total source in each FSR and energy group */
 #define _source(r,e) (_source[(r)*_num_groups + (e)])
@@ -42,11 +43,14 @@
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for the outgoing reflective track for both the forward and
  *  reverse direction for a given track */
-#define _boundary_flux(i,j,p,e) (_boundary_flux[(i)*2*_polar_times_groups + (j)*_polar_times_groups + (p)*_num_groups + (e)])
+#define _boundary_flux(i,j,p,e) (_boundary_flux[(i)*2*_polar_times_groups \
+                                                + (j)*_polar_times_groups \
+                                                + (p)*_num_groups + (e)])
 
 /** Indexing macro for the leakage for each polar angle and energy group
  *  for both the forward and reverse direction for each track */
-#define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_polar_times_groups+(pe2)])
+#define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_polar_times_groups \
+                                                    +(pe2)])
 
 /** Indexing scheme for the total fission source (\f$ \nu\Sigma_f\Phi \f$)
  *  for each FSR and energy group */

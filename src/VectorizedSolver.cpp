@@ -16,14 +16,11 @@ VectorizedSolver::VectorizedSolver(Geometry* geometry,
                                    TrackGenerator* track_generator) :
   CPUSolver(geometry, track_generator) {
 
+  if (_cmfd != NULL)
+    log_printf(ERROR, "The VectorizedSolver is not set up to use CMFD");
+
   _thread_taus = NULL;
   _thread_exponentials = NULL;
-
-  if (geometry != NULL)
-    setGeometry(geometry);
-
-  if (track_generator != NULL)
-    setTrackGenerator(track_generator);
 
   vmlSetMode(VML_EP);
 }

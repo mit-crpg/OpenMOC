@@ -90,6 +90,7 @@ int TrackGenerator::getNumTracks() {
   return _tot_num_tracks;
 }
 
+
 /**
  * @brief Return an array of the number of Tracks for each azimuthal angle.
  * @return array with the number of Tracks
@@ -330,6 +331,7 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
   _use_input_file = false;
   _tracks_filename = "";
 }
+
 
 /**
  * @brief Generates tracks for some number of azimuthal angles and track spacing
@@ -592,10 +594,10 @@ void TrackGenerator::recalibrateTracksToOrigin() {
       double y0 = _tracks[i][j].getStart()->getY();
       double x1 = _tracks[i][j].getEnd()->getX();
       double y1 = _tracks[i][j].getEnd()->getY();
-      double new_x0 = x0 - _geometry->getWidth()/2.0;
-      double new_y0 = y0 - _geometry->getHeight()/2.0;
-      double new_x1 = x1 - _geometry->getWidth()/2.0;
-      double new_y1 = y1 - _geometry->getHeight()/2.0;
+      double new_x0 = x0 + _geometry->getXMin();
+      double new_y0 = y0 + _geometry->getYMin();
+      double new_x1 = x1 + _geometry->getXMin();
+      double new_y1 = y1 + _geometry->getYMin();
       double phi = _tracks[i][j].getPhi();
 
       _tracks[i][j].setValues(new_x0, new_y0, new_x1,new_y1, phi);
