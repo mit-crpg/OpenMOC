@@ -27,6 +27,7 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
+
 }
 
 
@@ -841,7 +842,7 @@ CellBasic* Geometry::findFirstCell(LocalCoords* coords, double angle) {
 /**
  * @brief Find the Material for a flat source region ID.
  * @details  This method finds the fsr_id within the 
- *           _FSR_to_material_UIDs map and returns the corresponding
+ *           _FSR_to_material_IDs map and returns the corresponding
  *           pointer to the Material object.
  * @param fsr_id a FSR id
  * @return a pointer to the Material that this FSR is in
@@ -1147,6 +1148,14 @@ void Geometry::initializeFlatSourceRegions() {
 
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
+
+  /* Assign UIDs to materials */
+  std::map<int, Material*>::iterator iter;
+  int uid = 0;
+  for (iter = _materials.begin(); iter != _materials.end(); ++iter){
+    iter->second->setUid(uid);
+    uid++;
+  }
   
   /* Initialize CMFD */
   if (_cmfd != NULL)
@@ -1490,11 +1499,11 @@ std::vector<std::size_t> Geometry::getFSRsToKeys(){
 
 
 /**
- * @brief Return an array indexed by flat source region IDs which contain
+ * @brief Return a vector indexed by flat source region IDs which contain
  *        the corresponding Material IDs.
  * @return an integer array of FSR-to-Material IDs indexed by FSR ID
  */
-std::vector<int> Geometry::getFSRsToMaterials() {
+std::vector<int> Geometry::getFSRsToMaterialIDs() {
   if (_num_FSRs == 0)
     log_printf(ERROR, "Unable to return the FSR-to-Material map array since "
                "the Geometry has not initialized FSRs.");
@@ -1525,6 +1534,6 @@ void Geometry::setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys){
  * @brief Sets the _FSRs_to_material_IDs vector
  * @param FSRs_to_material_IDs vector mapping FSR IDs to cells
  */
-void Geometry::setFSRsToMaterials(std::vector<int> FSRs_to_material_IDs){
+void Geometry::setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs){
   _FSRs_to_material_IDs = FSRs_to_material_IDs;
 }

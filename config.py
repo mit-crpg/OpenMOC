@@ -190,7 +190,7 @@ class configuration:
   compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', '-qreport',
                              '-qsimd=auto', '-qtune=qp', '-qunroll=auto',
                              '-qsmp=omp', '-qpic']
-  compiler_flags['nvcc'] =  ['-c', '-O3', '--compiler-options', '-fpic',
+  compiler_flags['nvcc'] =  ['-c', '-O3', '--compiler-options', '-fpic', '-DTHRUST_DEBUG',
                              '-gencode=arch=compute_20,code=sm_20',
                              '-gencode=arch=compute_30,code=sm_30']
 
@@ -244,7 +244,7 @@ class configuration:
   library_directories['gcc'] = [usr_lib]
   library_directories['icpc'] = [usr_lib]
   library_directories['bgxlc'] = [usr_lib]
-  library_directories['nvcc'] = [usr_lib, '/usr/local/cuda/lib64']
+  library_directories['nvcc'] = [usr_lib, '/usr/local/cuda-5.5/lib64']
 
 
   #############################################################################
@@ -258,7 +258,7 @@ class configuration:
   include_directories['gcc'] = list()
   include_directories['icpc'] = list()
   include_directories['bgxlc'] = list()
-  include_directories['nvcc'] = ['/usr/local/cuda/include']
+  include_directories['nvcc'] = ['/usr/local/cuda-5.5/include', '/usr/local/cuda-5.5/samples/0_Simple/simplePrintf']
 
 
   ###########################################################################

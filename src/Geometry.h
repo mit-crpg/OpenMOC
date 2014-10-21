@@ -158,14 +158,14 @@ public:
   Cmfd* getCmfd();
   std::map<std::size_t, fsr_data> getFSRKeysMap();
   std::vector<std::size_t> getFSRsToKeys();
-  std::vector<int> getFSRsToMaterials();
+  std::vector<int> getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
 
   /* Set parameters */
   void setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map);
-  void setFSRsToMaterials(std::vector<int> FSRs_to_material_IDs);
+  void setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
   void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
   void setNumFSRs(int num_fsrs);
   void setCmfd(Cmfd* cmfd);

@@ -1105,7 +1105,7 @@ void TrackGenerator::dumpTracksToFile() {
   std::map<std::size_t, fsr_data> FSR_keys_map = _geometry->getFSRKeysMap();
   std::map<std::size_t, fsr_data>::iterator iter;
   std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
-  std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterials();
+  std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
   std::size_t fsr_key;
   int fsr_id;
   int fsr_counter = 0;
@@ -1352,7 +1352,7 @@ bool TrackGenerator::readTracksFromFile() {
 
   /* Set FSR vector maps */
   _geometry->setFSRKeysMap(FSR_keys_map);
-  _geometry->setFSRsToMaterials(FSRs_to_material_IDs);
+  _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
   _geometry->setFSRsToKeys(FSRs_to_keys);
    
   /* Read cmfd cell_fsrs vector of vectors from file */

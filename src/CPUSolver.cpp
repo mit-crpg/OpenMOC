@@ -1074,7 +1074,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
   return;
 }
 
-
+/*
 void CPUSolver::updateBoundaryFlux(){
 
   segment* segments;
@@ -1092,7 +1092,9 @@ void CPUSolver::updateBoundaryFlux(){
     num_segments = _tracks[i]->getNumSegments();
     segments = _tracks[i]->getSegments();
 
+*/
     /* update boundary flux in forward direction */
+  /*
     bc = (int)_tracks[i]->getBCOut();
     curr_segment = &segments[0];
     track_flux = &_boundary_flux(i,0,0,0);
@@ -1105,8 +1107,9 @@ void CPUSolver::updateBoundaryFlux(){
         }
       }
     }
-    
+  */
     /* update boundary flux in backwards direction */
+  /*
     bc = (int)_tracks[i]->getBCIn();
     curr_segment = &segments[num_segments-1];
     track_flux = &_boundary_flux(i,0,0,_polar_times_groups);
@@ -1120,3 +1123,4 @@ void CPUSolver::updateBoundaryFlux(){
     }
   }
 }
+  */

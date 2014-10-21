@@ -1,7 +1,5 @@
 #include "Material.h"
 
-int Material::_n = 0;
-
 static int auto_id = 10000;
 
 
@@ -20,15 +18,15 @@ int material_id() {
   return id;
 }
 
+
 /**
  * @brief Constructor sets the ID and unique ID for the Material.
  * @param id the user-defined ID for the material
  */
 Material::Material(int id) {
 
-  _uid = _n;
   _id = id;
-  _n++;
+  _uid = -1;
 
   _sigma_t = NULL;
   _sigma_a = NULL;
@@ -126,12 +124,22 @@ Material::~Material() {
 
 
 /**
+ * @brief Set the Material's unique ID.
+ * @param the Material's unique ID
+ */
+void Material::setUid(int uid) {
+  _uid = uid;
+}
+
+
+/**
  * @brief Return the Material's unique ID.
  * @return the Material's unique ID
  */
 int Material::getUid() const {
   return _uid;
 }
+
 
 /**
  * @brief Return the Material's user-defined ID
@@ -606,7 +614,7 @@ void Material::setNumEnergyGroups(const int num_groups) {
   memset(_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
   memset(_nu_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
   memset(_chi, 0.0, sizeof(FP_PRECISION) * _num_groups);
-  memset(_sigma_s, 0.0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_sigma_s, 0.0, sizeof(FP_PRECISION) * _num_groups * _num_groups);
 }
 
 
