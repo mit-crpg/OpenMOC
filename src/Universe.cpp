@@ -475,19 +475,18 @@ Universe* Universe::clone() {
       /* Clone the Cell */
       CellBasic* parent = static_cast<CellBasic*>((*iter1).second);
       CellBasic* cell_clone = parent->clone();
-      
+
       /* Add Cell clone to the list */
       clone->addCell(cell_clone);
       cell_clone->setUniverse(clone->getId());
     }
-    
     /* Throw error message if Cell is FILL type */
     else {
       log_printf(ERROR, "Unable to clone Universe %d since it contains Cell %d"
                  "which is filled with a Universe rather than a Material");
     }
   }
-  
+
   return clone;
 }
 

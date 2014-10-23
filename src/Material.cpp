@@ -18,7 +18,6 @@ int material_id() {
   return id;
 }
 
-
 /**
  * @brief Constructor sets the ID and unique ID for the Material.
  * @param id the user-defined ID for the material
@@ -139,7 +138,6 @@ void Material::setUid(int uid) {
 int Material::getUid() const {
   return _uid;
 }
-
 
 /**
  * @brief Return the Material's user-defined ID

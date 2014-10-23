@@ -1039,7 +1039,6 @@ void GPUSolver::initializeFSRs() {
 
   log_printf(INFO, "Initializing FSRs on the GPU...");
 
-
   /* Delete old FSRs array if it exists */
   if (_FSR_volumes != NULL)
     cudaFree(_FSR_volumes);
@@ -1501,8 +1500,6 @@ void GPUSolver::normalizeFluxes() {
 
   FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_sources_vec.begin(),
                                                   _fission_sources_vec.end());
-  
-  
   normalizeFluxesOnDevice<<<_B, _T>>>(_scalar_flux, _boundary_flux,norm_factor);
 }
 
@@ -1525,7 +1522,7 @@ FP_PRECISION GPUSolver::computeFSRSources() {
                                         _scalar_flux, _source, _old_source,
                                         _reduced_source, 1.0 / _k_eff,
                                         _source_residuals);
-					
+
   FP_PRECISION residual = thrust::reduce(_source_residuals_vec.begin(),
                                          _source_residuals_vec.end());
   residual = sqrt(residual / (_num_groups * _num_FSRs));
@@ -1677,4 +1674,3 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   return;
 }
-

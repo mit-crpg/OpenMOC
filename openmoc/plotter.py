@@ -48,6 +48,7 @@ import matplotlib.cm as cmx
 import numpy as np
 import numpy.random
 import os, sys
+from process import *
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -238,7 +239,7 @@ def plot_materials(geometry, gridsize=250):
     py_printf('ERROR', 'Unable to plot the Materials since ' + \
                     'input was not a geometry class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Materials since ' + \
               'since the gridsize %s is not an integer', str(gridsize))
 
@@ -323,7 +324,7 @@ def plot_cells(geometry, gridsize=250):
     py_printf('ERROR', 'Unable to plot the Cells since ' + \
               'input was not a Geometry class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Cells since ' + \
                 'since the gridsize %s is not an integer', str(gridsize))
 
@@ -409,7 +410,7 @@ def plot_flat_source_regions(geometry, gridsize=250):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
               'input was not a geometry class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
               'since the gridsize %s is not an integer', str(gridsize))
 
@@ -506,7 +507,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250):
     py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
               'input was not a CMFD class object')
   
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
               'since the gridsize %s is not an integer', str(gridsize))
 
@@ -601,7 +602,7 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
 
   if isinstance(energy_groups, list):
     for group in energy_groups:
-      if not isinstance(group, int):
+      if not is_integer(group):
         py_printf('ERROR', 'Unable to plot the flat source region ' + \
                  'scalar flux since the energy_groups list ' + \
                  'contains %s which is not an int', str(group))
@@ -616,7 +617,7 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
                   'flux since the energy_groups list contains %d which is' + \
                   ' greater than the index for all energy groups', str(group))
 
-  elif isinstance(energy_groups, int):
+  elif is_integer(energy_groups):
     if energy_groups <= 0:
       py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                'flux since the energy_groups argument contains %d which is' + \
@@ -634,11 +635,11 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
                 'is %s which is not an energy group index or a list ' + \
                 'of energy group indices', str(energy_groups))
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize, int):
     py_printf('ERROR', 'Unable to plot the flat source region scalar flux ' + \
               'since since the gridsize %s is not an integer', str(gridsize))
 
-  if not isinstance(energy_groups, (int, list)):
+  if not is_integer(energy_groups) and not isinstance(energy_groups, list):
     py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
               'flux since the energy_groups is not an int or a list')
 
@@ -728,7 +729,7 @@ def plot_fission_rates(geometry, solver, gridsize=250):
     py_printf('ERROR', 'Unable to plot the fission rates ' + \
               'since input did not contain a solver class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the fission rates ' + \
               'since since the gridsize %s is not an integer', str(gridsize))
 
@@ -779,5 +780,4 @@ def plot_fission_rates(geometry, solver, gridsize=250):
   plt.title('Flat Source Region Fission Rates')
   filename = directory + 'fission-rates.png'
   fig.savefig(filename, bbox_inches='tight')
-
 

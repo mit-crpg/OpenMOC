@@ -672,7 +672,7 @@ void CPUSolver::computeKeff() {
 
   FP_PRECISION* FSR_rates = new FP_PRECISION[_num_FSRs];
   FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
-
+  
   /* Loop over all FSRs and compute the volume-weighted absorption rates */
   #pragma omp parallel for private(tid, volume, \
     material, sigma_a) schedule(guided)

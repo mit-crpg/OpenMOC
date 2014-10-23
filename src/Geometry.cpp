@@ -291,7 +291,6 @@ Surface* Geometry::getSurface(int id) {
   return surface;
 }
 
-
 /**
  * @brief Return a pointer to a Cell object in the Geometry.
  * @param id the user-specified Cell's ID
@@ -640,7 +639,6 @@ void Geometry::addLattice(Lattice* lattice) {
    * contains a Universe which does not exist */
   for (int i = 0; i < lattice->getNumY(); i++) {
     for (int j = 0; j < lattice->getNumX(); j++) {
-
       int universe_id = lattice->getUniverses().at(i).at(j).first;
 
       /* If the Universe does not exist */

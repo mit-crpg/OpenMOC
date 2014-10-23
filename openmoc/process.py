@@ -9,7 +9,6 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 27, 2013
 
-
 import sys
 
 ## @var openmoc
@@ -42,6 +41,32 @@ if (sys.version_info[0] == 2):
 # For Python 3.X.X
 else:
   from openmoc.log import *
+
+
+## 
+# @brief This routine checks if a given value is an integer data type.
+#
+# @param val a value to check
+def is_integer(val):
+  return isinstance(val, (int, long, np.int_, np.intc, np.intp, np.int8,\
+                            np.int16, np.int32, np.int64, np.uint8, np.uint16,\
+                            np.uint32, np.uint64))
+
+
+## 
+# @brief This routine checks if a given value is a string data type.
+#
+# @param val a value to check
+def is_string(val):
+  return isinstance(val, (str, np.str, np.string_))
+
+
+## 
+# @brief This routine checks if a given value is an float data type.
+#
+# @param val a value to check
+def is_float(val):
+  return isinstance(val, (float, np.float_, np.float16, np.float32, np.float64))
 
 
 ##
@@ -409,6 +434,13 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     # Pickle the simulation states to a file
     pickle.dump(sim_states, open(filename, 'wb'))
 
+    # Pickle the simulation states to a file
+    pickle.dump(sim_states, open(filename, 'wb'))
+
+
+##
+# @brief
+# @details
 
 ##
 # @brief

@@ -13,7 +13,7 @@
 
 
 import sys
-
+from process import *
 
 ## @var openmoc
 #  @brief The openmoc module in use in the Python script using the
@@ -86,11 +86,14 @@ def materialize(filename):
 
     num_groups = f.attrs['Energy Groups']
 
-    # Check that the number of energy groups is an integer
-    if not isinstance(num_groups, int):
-      py_printf('ERROR', 'Unable to materialize file %s since the number of' + \
-                'energy groups %s is not an integer', filename, str(num_groups))
 
+
+    # Check that the number of energy groups is an integer
+    if not is_integer(num_groups):
+      py_printf('ERROR', 'Unable to materialize file %s since the number of' + \
+                  'energy groups %s could not be converted to an integer', \
+                  filename, str(num_groups))
+      
     material_names = list(f)
 
     # Loop over each material and
@@ -157,7 +160,7 @@ def materialize(filename):
     num_groups = data['Energy Groups']
 
     # Check that the number of energy groups is an integer
-    if not isinstance(num_groups, int):
+    if not is_integer(num_groups):
       py_printf('ERROR', 'Unable to materialize file %s since the number of' + \
                 'energy groups %s is not an integer', filename, str(num_groups))
 

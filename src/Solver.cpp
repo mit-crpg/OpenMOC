@@ -62,7 +62,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _source_convergence_thresh = 1E-3;
   _converged_source = false;
 
-
   _timer = new Timer();
 
 }

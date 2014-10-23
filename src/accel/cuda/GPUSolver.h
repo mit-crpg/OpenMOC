@@ -122,7 +122,6 @@ private:
   void addSourceToScalarFlux();
   void computeKeff();
   void transportSweep();
-  
 
 public:
 

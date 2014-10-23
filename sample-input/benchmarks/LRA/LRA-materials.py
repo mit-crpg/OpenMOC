@@ -25,7 +25,7 @@ lra_materials['region_1'] = {}
 
 lra_materials['region_1']['Absorption XS'] = [0.008252, 0.1003]
 
-lra_materials['region_1']['Total XS'] = [0.265474, 1.57978]
+lra_materials['region_1']['Total XS'] = [0.2656, 1.5798]
 
 lra_materials['region_1']['Scattering XS'] = [0.231892, 0.02533, 0.00, 1.47948]
 
@@ -35,7 +35,9 @@ lra_materials['region_1']['Nu Fission XS'] = [0.004602, 0.1091]
 
 lra_materials['region_1']['Chi'] = [1.0, 0.0]
 
-lra_materials['region_1']['Buckling'] = [0e-4, 0e-4]
+lra_materials['region_1']['Diffusion Coefficient'] = [1.255, 0.211]
+
+lra_materials['region_1']['Buckling'] = [1e-4, 1e-4]
 
 ###############################################################################
 ################################   region 2    ################################

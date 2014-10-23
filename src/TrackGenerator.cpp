@@ -119,7 +119,6 @@ int TrackGenerator::getNumTracks() {
   return _tot_num_tracks;
 }
 
-
 /**
  * @brief Return an array of the number of Tracks for each azimuthal angle.
  * @return array with the number of Tracks

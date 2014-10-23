@@ -30,7 +30,6 @@
 #define track_leakage(p,e) (track_leakage[(p)*_num_groups + (e)])
 
 
-
 /**
  * @class CPUSolver CPUSolver.h "src/CPUSolver.h"
  * @brief This a subclass of the Solver class for multi-core CPUs using

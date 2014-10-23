@@ -50,7 +50,6 @@ Cmfd::Cmfd() {
   _boundaries[1] = REFLECTIVE;
   _boundaries[2] = REFLECTIVE;
   _boundaries[3] = REFLECTIVE;
-
 }
 
 
