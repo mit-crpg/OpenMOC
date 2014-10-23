@@ -28,6 +28,9 @@ Geometry::Geometry() {
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
 
+  /* initialize _num_FSRs lock */
+  _num_FSRs_lock = new omp_lock_t;
+  omp_init_lock(_num_FSRs_lock);
 }
 
 
@@ -955,26 +958,39 @@ int Geometry::findFSRId(LocalCoords* coords) {
     /* Get the cell that contains coords */
     CellBasic* cell = findCellContainingCoords(curr);
     
-    /* Add FSR information to FSR key map and FSR_to vectors */
-    fsr_id = _num_FSRs;
-    fsr_data* fsr = new fsr_data;
-    fsr->_fsr_id = fsr_id;
-    Point* point = new Point();
-    point->setCoords(coords->getHighestLevel()->getX(), 
-                     coords->getHighestLevel()->getY());
-    fsr->_point = point;
-    _FSR_keys_map[fsr_key_hash] = *fsr;
-    _FSRs_to_keys.push_back(fsr_key_hash);
-    _FSRs_to_material_IDs.push_back(cell->getMaterial());
+    /* Get the lock */
+    omp_set_lock(_num_FSRs_lock);
 
-    /* If CMFD acceleration is on, add FSR to CMFD cell */
-    if (_cmfd != NULL){
-      int cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
-      _cmfd->addFSRToCell(cmfd_cell, fsr_id);
+    /* Recheck to see if FSR has been added to maps after getting the lock */
+    if (_FSR_keys_map.find(fsr_key_hash) != _FSR_keys_map.end())
+      fsr_id = _FSR_keys_map.at(fsr_key_hash)._fsr_id;
+    else{
+
+        /* Add FSR information to FSR key map and FSR_to vectors */
+      fsr_id = _num_FSRs;
+      fsr_data* fsr = new fsr_data;
+      fsr->_fsr_id = fsr_id;
+      Point* point = new Point();
+      point->setCoords(coords->getHighestLevel()->getX(), 
+                       coords->getHighestLevel()->getY());
+      fsr->_point = point;
+      _FSR_keys_map[fsr_key_hash] = *fsr;
+      _FSRs_to_keys.push_back(fsr_key_hash);
+      _FSRs_to_material_IDs.push_back(cell->getMaterial());
+
+      /* If CMFD acceleration is on, add FSR to CMFD cell */
+      if (_cmfd != NULL){
+        int cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
+        _cmfd->addFSRToCell(cmfd_cell, fsr_id);
+      }
+
+      /* Increment FSR counter */
+      _num_FSRs++;
     }
 
-    /* Increment FSR counter */
-    _num_FSRs++;
+    /* Release lock */
+    omp_unset_lock(_num_FSRs_lock);
+
   }
   /* If FSR has already been encountered, get the fsr id from map */
   else

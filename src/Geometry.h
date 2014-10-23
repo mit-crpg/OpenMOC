@@ -53,6 +53,8 @@ class Geometry {
 
 private:
 
+  omp_lock_t* _num_FSRs_lock;
+
   /** The minimum point along the x-axis contained by Geometry in cm */
   double _x_min;
 

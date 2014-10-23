@@ -10,6 +10,8 @@
 TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
                                const double spacing) {
 
+  setNumThreads(1);
+
   _geometry = geometry;
   setNumAzim(num_azim);
   setTrackSpacing(spacing);
@@ -40,6 +42,33 @@ TrackGenerator::~TrackGenerator() {
 
     delete [] _tracks;
   }
+}
+
+
+/**
+ * @brief Sets the number of shared memory OpenMP threads to use (>0).
+ * @param num_threads the number of threads
+ */
+void TrackGenerator::setNumThreads(int num_threads) {
+
+  if (num_threads <= 0)
+    log_printf(ERROR, "Unable to set the number of threads for the "
+               "TrackGenerator to %d since it is less than or equal to 0"
+               , num_threads);
+
+  _num_threads = num_threads;
+
+  /* Set the number of threads for OpenMP */
+  omp_set_num_threads(_num_threads);
+}
+
+
+/**
+ * @brief Returns the number of shared memory OpenMP threads in use.
+ * @return the number of threads
+ */
+int TrackGenerator::getNumThreads() {
+  return _num_threads;
 }
 
 
@@ -973,6 +1002,8 @@ void TrackGenerator::segmentize() {
 
     /* Loop over all Tracks */
     for (int i=0; i < _num_azim; i++) {
+      log_printf(NORMAL, "segmenting tracks for azim %i", i);
+      #pragma omp parallel for private(track)
       for (int j=0; j < _num_tracks[i]; j++){
         track = &_tracks[i][j];
         log_printf(DEBUG, "Segmenting Track %d/%d with i = %d, j = %d",
