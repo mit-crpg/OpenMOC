@@ -93,7 +93,7 @@ def materialize(filename):
       py_printf('ERROR', 'Unable to materialize file %s since the number of' + \
                   'energy groups %s could not be converted to an integer', \
                   filename, str(num_groups))
-      
+
     material_names = list(f)
 
     # Loop over each material and
@@ -144,8 +144,7 @@ def materialize(filename):
   elif filename.endswith('.py'):
 
     import imp
-    
-    
+
     try:
       data = imp.load_source(filename, filename).dataset
     except IOError:

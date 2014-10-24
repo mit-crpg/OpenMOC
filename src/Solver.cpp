@@ -534,7 +534,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     log_printf(NORMAL, "Iteration %d: \tk_eff = %1.6f"
                "\tres = %1.3E", i, _k_eff, residual);
 
-    normalizeFluxes();    
+    normalizeFluxes();
     residual = computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();

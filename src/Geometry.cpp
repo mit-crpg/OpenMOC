@@ -794,7 +794,7 @@ void Geometry::segmentize(Track* track) {
     for (int e=0; e < getNumEnergyGroups(); e++) {
       num_segments = ceil(segment_length * sigma_t[e] / 10.0);
       if (num_segments > min_num_segments)
-      min_num_segments = num_segments;
+        min_num_segments = num_segments;
     }
 
     /* "Cut up" Track segment into sub-segments such that the length of each

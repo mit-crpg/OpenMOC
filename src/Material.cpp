@@ -47,7 +47,6 @@ Material::Material(int id, const char* name) {
   else
     _id = id;
 
-  _id = id;
   _uid = -1;
 
   _sigma_t = NULL;
