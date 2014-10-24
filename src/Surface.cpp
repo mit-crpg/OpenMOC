@@ -40,9 +40,7 @@ Surface::Surface(const int id, const char* name){
   /* If the user did not define an optional ID, create one */
   if (id == 0)
     _id = surf_id();
-  else if (id >= surf_id())
-    log_printf(ERROR, "Unable to set the ID of a surface to %d since surface "
-               "IDs greater than 10000 are probibited by OpenMOC.", id);
+
   /* Use the user-defined ID */
   else
     _id = id;

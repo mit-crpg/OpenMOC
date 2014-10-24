@@ -41,11 +41,6 @@ Universe::Universe(const int id, const char* name) {
   if (id == 0)
     _id = cell_id();
 
-  /* If the user-defined ID is in the prohibited range, return an error */
-  else if (id >= 10000)
-    log_printf(ERROR, "Unable to set the ID of a Universe to %d since IDs "
-               "greater than or equal to 10000 is probibited by OpenMOC.", id);
-
   /* Use the user-defined ID */
   else
     _id = id;

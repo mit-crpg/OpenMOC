@@ -69,7 +69,7 @@ def get_opencsg_material(openmoc_material):
   material_id = openmoc_material.getId()
 
   # If this Material was already created, use it
-  if material_id in OPENCSG_MATERIALS.keys():
+  if material_id in OPENCSG_MATERIALS:
     return OPENCSG_MATERIALS[material_id]
 
   # Create an OpenCSG Material to represent this OpenMOC Material
@@ -96,7 +96,7 @@ def get_openmoc_material(opencsg_material):
   material_id = opencsg_material._id
 
   # If this Material was already created, use it
-  if material_id in OPENMOC_MATERIALS.keys():
+  if material_id in OPENMOC_MATERIALS:
     return OPENMOC_MATERIALS[material_id]
 
   # Create an OpenMOC Material to represent this OpenCSG Material
@@ -119,8 +119,7 @@ def is_opencsg_surface_compatible(opencsg_surface):
           'since {0} is not a Surface'.format(opencsg_surface)
     raise ValueError(msg)
 
-  if opencsg_surface._type in ['x-squareprism', 'y-squareprism',
-                               'x-cylinder', 'y-cylinder']:
+  if opencsg_surface._type in ['z-squareprism']:
     return False
   else:
     return True
@@ -137,7 +136,7 @@ def get_opencsg_surface(openmoc_surface):
   surface_id = openmoc_surface.getId()
 
   # If this Surface was already created, use it
-  if surface_id in OPENCSG_SURFACES.keys():
+  if surface_id in OPENCSG_SURFACES:
     return OPENCSG_SURFACES[surface_id]
 
   # Create an OpenCSG Surface to represent this OpenMOC Surface
@@ -200,7 +199,7 @@ def get_openmoc_surface(opencsg_surface):
   surface_id = opencsg_surface._id
 
   # If this Surface was already created, use it
-  if surface_id in OPENMOC_SURFACES.keys():
+  if surface_id in OPENMOC_SURFACES:
     return OPENMOC_SURFACES[surface_id]
 
   # Create an OpenMOC Surface to represent this OpenCSG Surface
@@ -227,7 +226,7 @@ def get_openmoc_surface(opencsg_surface):
 
   elif opencsg_surface._type == 'y-plane':
     y0 = opencsg_surface._coeffs['y0']
-    openmoc_surface = openmoc.ZPlane(y0, surface_id, name)
+    openmoc_surface = openmoc.YPlane(y0, surface_id, name)
 
   elif opencsg_surface._type == 'z-plane':
     z0 = opencsg_surface._coeffs['z0']
@@ -268,7 +267,7 @@ def get_compatible_opencsg_surfaces(opencsg_surface):
   surface_id = opencsg_surface._id
 
   # If this Surface was already created, use it
-  if surface_id in OPENMOC_SURFACES.keys():
+  if surface_id in OPENMOC_SURFACES:
     return OPENMOC_SURFACES[surface_id]
 
   # Create an OpenMC Surface to represent this OpenCSG Surface
@@ -276,12 +275,6 @@ def get_compatible_opencsg_surfaces(opencsg_surface):
 
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
   boundary = opencsg_surface._boundary_type
-  if boundary == 'vacuum':
-    boundary = openmoc.VACUUM
-  elif boundary == 'reflective':
-    boundary = openmoc.REFLECTIVE
-  elif boundary == 'interface':
-    boundary = openmoc.BOUNDARY_NONE
 
   if opencsg_surface._type == 'z-squareprism':
     x0 = opencsg_surface._coeffs['x0']
@@ -289,10 +282,10 @@ def get_compatible_opencsg_surfaces(opencsg_surface):
     R = opencsg_surface._coeffs['R']
 
     # Create a list of the four planes we need
-    left = opencsg.XPlane(x0-R, name)
-    right = opencsg.XPlane(x0+R, name)
-    bottom = opencsg.YPlane(y0-R, name)
-    top = opencsg.YPlane(y0+R, name)
+    left = opencsg.XPlane(x0=x0-R, name=name)
+    right = opencsg.XPlane(x0=x0+R, name=name)
+    bottom = opencsg.YPlane(y0=y0-R, name=name)
+    top = opencsg.YPlane(y0=y0+R, name=name)
 
     # Set the boundary conditions for each Surface
     left.setBoundaryType(boundary)
@@ -335,7 +328,7 @@ def get_opencsg_cell(openmoc_cell):
   cell_id = openmoc_cell.getId()
 
   # If this Cell was already created, use it
-  if cell_id in OPENCSG_CELLS.keys():
+  if cell_id in OPENCSG_CELLS:
     return OPENCSG_CELLS[cell_id]
 
   # Create an OpenCSG Cell to represent this OpenMC Cell
@@ -352,10 +345,11 @@ def get_opencsg_cell(openmoc_cell):
     else:
       opencsg_cell.setFill(get_opencsg_universe(fill))
 
-  # FIXME: How will this return to Python? Use std_map.i SWIG interface
   surfaces = openmoc_cell.getSurfaces()
 
-  for surface, halfspace in surfaces.items():
+  for surf_id, surface_halfspace in surfaces.items():
+    halfspace = surface_halfspace._halfspace
+    surface = surface_halfspace._surface
     opencsg_cell.addSurface(get_opencsg_surface(surface), halfspace)
 
   # Add the OpenMOC Cell to the global collection of all OpenMOC Cells
@@ -483,7 +477,7 @@ def make_opencsg_cells_compatible(opencsg_universe):
     # Check each of the OpenCSG Surfaces for OpenMOC compatibility
     surfaces = opencsg_cell._surfaces
 
-    for surface_id in surfaces.keys():
+    for surface_id in surfaces:
       surface = surfaces[surface_id][0]
       halfspace = surfaces[surface_id][1]
 
@@ -524,24 +518,26 @@ def get_openmoc_cell(opencsg_cell):
   cell_id = opencsg_cell._id
 
   # If this Cell was already created, use it
-  if cell_id in OPENMOC_CELLS.keys():
+  if cell_id in OPENMOC_CELLS:
     return OPENMOC_CELLS[cell_id]
 
   # Create an OpenMOC Cell to represent this OpenCSG Cell
   name = opencsg_cell._name
-  openmoc_cell = openmoc.CellFill(cell_id, name)
 
   fill = opencsg_cell._fill
   if opencsg_cell._type == 'universe':
+    openmoc_cell = openmoc.CellFill(cell_id, name)
     openmoc_cell.setFill(get_openmoc_universe(fill))
   elif opencsg_cell._type == 'lattice':
+    openmoc_cell = openmoc.CellFill(cell_id, name)
     openmoc_cell.setFill(get_openmoc_lattice(fill))
   else:
-    openmoc_cell.setFill(get_openmoc_material(fill))
+    openmoc_cell = openmoc.CellBasic(cell_id, name)
+    openmoc_cell.setMaterial(get_openmoc_material(fill))
 
   surfaces = opencsg_cell._surfaces
 
-  for surface_id in surfaces.keys():
+  for surface_id in surfaces:
     surface = surfaces[surface_id][0]
     halfspace = surfaces[surface_id][1]
     openmoc_cell.addSurface(halfspace, get_openmoc_surface(surface))
@@ -566,7 +562,7 @@ def get_opencsg_universe(openmoc_universe):
   universe_id = openmoc_universe.getId()
 
   # If this Universe was already created, use it
-  if universe_id in OPENCSG_UNIVERSES.keys():
+  if universe_id in OPENCSG_UNIVERSES:
     return OPENCSG_UNIVERSES[universe_id]
 
   # Create an OpenCSG Universe to represent this OpenMC Universe
@@ -574,7 +570,6 @@ def get_opencsg_universe(openmoc_universe):
   opencsg_universe = opencsg.Universe(universe_id, name)
 
   # Convert all OpenMOC Cells in this Universe to OpenCSG Cells
-  # FIXME: Need to use std_map.i SWIG interface file for this
   openmoc_cells = openmoc_universe.getCells()
 
   for cell_id, openmoc_cell in openmoc_cells.items():
@@ -601,7 +596,7 @@ def get_openmoc_universe(opencsg_universe):
   universe_id = opencsg_universe._id
 
   # If this Universe was already created, use it
-  if universe_id in OPENMOC_UNIVERSES.keys():
+  if universe_id in OPENMOC_UNIVERSES:
     return OPENMOC_UNIVERSES[universe_id]
 
   # Make all OpenCSG Cells and Surfaces in this Universe compatible with OpenMOC
@@ -638,7 +633,7 @@ def get_opencsg_lattice(openmoc_lattice):
   lattice_id = openmoc_lattice.getId()
 
   # If this Lattice was already created, use it
-  if lattice_id in OPENCSG_LATTICES.keys():
+  if lattice_id in OPENCSG_LATTICES:
     return OPENCSG_LATTICES[lattice_id]
 
   # Create an OpenCSG Lattice to represent this OpenMC Lattice
@@ -652,7 +647,6 @@ def get_opencsg_lattice(openmoc_lattice):
                               dtype=opencsg.Universe)
 
   # Create OpenCSG Universes for each unique nested Universe in this Lattice
-  # FIXME: Need to implement this routine for the Lattice class
   unique_universes = openmoc_lattice.getUniqueUniverses()
 
   for universe_id, universe in unique_universes.items():
@@ -695,16 +689,17 @@ def get_openmoc_lattice(opencsg_lattice):
   lattice_id = opencsg_lattice._id
 
   # If this Lattice was already created, use it
-  if lattice_id in OPENMOC_LATTICES.keys():
+  if lattice_id in OPENMOC_LATTICES:
     return OPENMOC_LATTICES[lattice_id]
 
+  name = opencsg_lattice._name
   dimension = opencsg_lattice._dimension
   width = opencsg_lattice._width
   offset = opencsg_lattice._offset
   universes = opencsg_lattice._universes
 
   # Initialize an empty array for the OpenMOC nested Universes in this Lattice
-  universe_array = np.ndarray(tuple(np.array(dimension[2:1:-1])), \
+  universe_array = np.ndarray(tuple(np.array(dimension[0:2])), \
                               dtype=openmoc.Universe)
 
   # Create OpenMOC Universes for each unique nested Universe in this Lattice
@@ -719,10 +714,10 @@ def get_openmoc_lattice(opencsg_lattice):
       universe_id = universes[0][y][x]._id
       universe_array[x][y] = unique_universes[universe_id]
 
-  openmoc_lattice = openmoc.Lattice(lattice_id, width[2], width[1])
-
-  # FIXME: Need to implement ability to set an array of Universe pointers for Lattice
-  openmoc_lattice.setLatticeCells(universe_array)
+  openmoc_lattice = openmoc.Lattice(lattice_id, name)
+  openmoc_lattice.setWidth(width[0], width[1])
+  openmoc_lattice.setUniverses(universe_array.tolist())
+  openmoc_lattice.setOffset(offset[0], offset[1])
 
   # Add the OpenMOC Lattice to the global collection of all OpenMOC Lattices
   OPENMOC_LATTICES[lattice_id] = openmoc_lattice
@@ -752,8 +747,7 @@ def get_opencsg_geometry(openmoc_geometry):
 
   opencsg.geometry.reset_auto_ids()
 
-  # FIXME: Need to implement root universe in Geometry class
-  openmoc_root_universe = openmoc_geometry._root_universe
+  openmoc_root_universe = openmoc_geometry.getRootUniverse()
   opencsg_root_universe = get_opencsg_universe(openmoc_root_universe)
 
   opencsg_geometry = opencsg.Geometry()
@@ -789,11 +783,9 @@ def get_openmoc_geometry(opencsg_geometry):
 
   openmoc.reset_auto_ids()
 
-  # FIXME: Need to implement root universe in Geometry class
   opencsg_root_universe = opencsg_geometry._root_universe
   openmoc_root_universe = get_openmoc_universe(opencsg_root_universe)
 
-  # FIXME: Need to implement root universe in Geometry class
   openmoc_geometry = openmoc.Geometry()
   openmoc_geometry.setRootUniverse(openmoc_root_universe)
 
