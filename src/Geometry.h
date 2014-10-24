@@ -56,6 +56,36 @@ class Geometry {
 
 private:
 
+  omp_lock_t* _num_FSRs_lock;
+
+  /** The minimum point along the x-axis contained by Geometry in cm */
+  double _x_min;
+
+  /** The minimum point along the y-axis contained by Geometry in cm */
+  double _y_min;
+
+  /** The maximum point along the x-axis contained by Geometry in cm */
+  double _x_max;
+
+  /** The maximum point along the y-axis contained by Geometry in cm */
+  double _y_max;
+
+  /** The boundary conditions at the top of the bounding box containing
+   *  the Geometry. False is for vacuum and true is for reflective BCs. */
+  boundaryType _top_bc;
+
+  /** The boundary conditions at the top of the bounding box containing
+   *  the Geometry. False is for vacuum and true is for reflective BCs. */
+  boundaryType _bottom_bc;
+
+  /** The boundary conditions at the top of the bounding box containing
+   *  the Geometry. False is for vacuum and true is for reflective BCs. */
+  boundaryType _left_bc;
+
+  /** The boundary conditions at the top of the bounding box containing
+   *  the Geometry. False is for vacuum and true is for reflective BCs. */
+  boundaryType _right_bc;
+
   /** The total number of FSRs in the Geometry */
   int _num_FSRs;
 
@@ -116,14 +146,14 @@ public:
   Cmfd* getCmfd();
   std::map<std::size_t, fsr_data> getFSRKeysMap();
   std::vector<std::size_t> getFSRsToKeys();
-  std::vector<int> getFSRsToMaterials();
+  std::vector<int> getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
 
   /* Set parameters */
   void setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map);
-  void setFSRsToMaterials(std::vector<int> FSRs_to_material_IDs);
+  void setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
   void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
   void setNumFSRs(int num_fsrs);
   void setCmfd(Cmfd* cmfd);

@@ -25,6 +25,10 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
+
+  /* initialize _num_FSRs lock */
+  _num_FSRs_lock = new omp_lock_t;
+  omp_init_lock(_num_FSRs_lock);
 }
 
 
@@ -389,7 +393,7 @@ CellBasic* Geometry::findFirstCell(LocalCoords* coords, double angle) {
 /**
  * @brief Find the Material for a flat source region ID.
  * @details  This method finds the fsr_id within the 
- *           _FSR_to_material_UIDs map and returns the corresponding
+ *           _FSR_to_material_IDs map and returns the corresponding
  *           pointer to the Material object.
  * @param fsr_id a FSR id
  * @return a pointer to the Material that this FSR is in
@@ -502,27 +506,40 @@ int Geometry::findFSRId(LocalCoords* coords) {
 
     /* Get the cell that contains coords */
     CellBasic* cell = findCellContainingCoords(curr);
+    
+    /* Get the lock */
+    omp_set_lock(_num_FSRs_lock);
 
-    /* Add FSR information to FSR key map and FSR_to vectors */
-    fsr_id = _num_FSRs;
-    fsr_data* fsr = new fsr_data;
-    fsr->_fsr_id = fsr_id;
-    Point* point = new Point();
-    point->setCoords(coords->getHighestLevel()->getX(),
-                     coords->getHighestLevel()->getY());
-    fsr->_point = point;
-    _FSR_keys_map[fsr_key_hash] = *fsr;
-    _FSRs_to_keys.push_back(fsr_key_hash);
-    _FSRs_to_material_IDs.push_back(cell->getMaterial()->getId());
+    /* Recheck to see if FSR has been added to maps after getting the lock */
+    if (_FSR_keys_map.find(fsr_key_hash) != _FSR_keys_map.end())
+      fsr_id = _FSR_keys_map.at(fsr_key_hash)._fsr_id;
+    else{
 
-    /* If CMFD acceleration is on, add FSR to CMFD cell */
-    if (_cmfd != NULL){
-      int cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
-      _cmfd->addFSRToCell(cmfd_cell, fsr_id);
+        /* Add FSR information to FSR key map and FSR_to vectors */
+      fsr_id = _num_FSRs;
+      fsr_data* fsr = new fsr_data;
+      fsr->_fsr_id = fsr_id;
+      Point* point = new Point();
+      point->setCoords(coords->getHighestLevel()->getX(), 
+                       coords->getHighestLevel()->getY());
+      fsr->_point = point;
+      _FSR_keys_map[fsr_key_hash] = *fsr;
+      _FSRs_to_keys.push_back(fsr_key_hash);
+      _FSRs_to_material_IDs.push_back(cell->getMaterial()->getId());
+
+      /* If CMFD acceleration is on, add FSR to CMFD cell */
+      if (_cmfd != NULL){
+        int cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
+        _cmfd->addFSRToCell(cmfd_cell, fsr_id);
+      }
+
+      /* Increment FSR counter */
+      _num_FSRs++;
     }
 
-    /* Increment FSR counter */
-    _num_FSRs++;
+    /* Release lock */
+    omp_unset_lock(_num_FSRs_lock);
+
   }
   /* If FSR has already been encountered, get the fsr id from map */
   else
@@ -687,6 +704,15 @@ void Geometry::initializeFlatSourceRegions() {
 
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
+
+  /* Assign UIDs to materials */
+  std::map<int, Material*> materials = getAllMaterials();
+  std::map<int, Material*>::iterator iter;
+  int uid = 0;
+  for (iter = materials.begin(); iter != materials.end(); ++iter){
+    iter->second->setUid(uid);
+    uid++;
+  }
 
   /* Initialize CMFD */
   if (_cmfd != NULL)
@@ -976,7 +1002,9 @@ void Geometry::initializeCmfd(){
   lattice->setWidth(cell_width, cell_height);
   lattice->setNumX(num_x);
   lattice->setNumY(num_y);
+  lattice->setOffset(_x_min + getWidth()/2.0, _y_min + getHeight()/2.0);
   _cmfd->setLattice(lattice);
+
 
   /* Set CMFD mesh boundary conditions */
   _cmfd->setBoundary(0, getMinXBoundaryType());
@@ -1019,11 +1047,11 @@ std::vector<std::size_t> Geometry::getFSRsToKeys(){
 
 
 /**
- * @brief Return an array indexed by flat source region IDs which contain
+ * @brief Return a vector indexed by flat source region IDs which contain
  *        the corresponding Material IDs.
- * @return an integer array of FSR-to-Material IDs indexed by FSR ID
+ * @return an integer vector of FSR-to-Material IDs indexed by FSR ID
  */
-std::vector<int> Geometry::getFSRsToMaterials() {
+std::vector<int> Geometry::getFSRsToMaterialIDs() {
   if (_num_FSRs == 0)
     log_printf(ERROR, "Unable to return the FSR-to-Material map array since "
                "the Geometry has not initialized FSRs.");
@@ -1054,6 +1082,6 @@ void Geometry::setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys){
  * @brief Sets the _FSRs_to_material_IDs vector
  * @param FSRs_to_material_IDs vector mapping FSR IDs to cells
  */
-void Geometry::setFSRsToMaterials(std::vector<int> FSRs_to_material_IDs){
+void Geometry::setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs){
   _FSRs_to_material_IDs = FSRs_to_material_IDs;
 }

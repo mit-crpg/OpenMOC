@@ -1,8 +1,10 @@
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
+import openmoc.process as process
 import openmoc.materialize as materialize
 from openmoc.options import Options
+import openmoc.process as process
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -401,7 +403,8 @@ cells[31].setFill(lattices[6])
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(0.66)
+cmfd.setMOCRelaxationFactor(0.6)
+cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
 cmfd.setGroupStructure([1,4,8])
 
@@ -424,6 +427,7 @@ geometry.initializeFlatSourceRegions()
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
 ###############################################################################

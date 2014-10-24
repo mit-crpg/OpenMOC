@@ -592,7 +592,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
   std::map<int, Cell*>::iterator iter;
 
   /* Sets the LocalCoord type to UNIV at this level */
-  coords->setType(UNIV);
+ coords->setType(UNIV);
 
   /* Loop over all Cells in this Universe */
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
@@ -763,14 +763,13 @@ Universe* Universe::clone() {
       /* Add Cell clone to the list */
       clone->addCell(cell_clone);
     }
-    
     /* Throw error message if Cell is FILL type */
     else {
       log_printf(ERROR, "Unable to clone Universe %d since it contains Cell %d"
                  "which is filled with a Universe rather than a Material");
     }
   }
-  
+
   return clone;
 }
 

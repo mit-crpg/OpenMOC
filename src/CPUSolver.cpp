@@ -33,7 +33,6 @@ CPUSolver::~CPUSolver() {
   if (_cmfd_surface_locks != NULL)
     delete [] _cmfd_surface_locks;
 
-
   if (_surface_currents != NULL)
     delete [] _surface_currents;
 }
@@ -637,7 +636,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
       /* Compute the norm of residual of the source in the FSR */
       if (fabs(_source(r,G)) > 1E-10)
         _source_residuals[r] += pow((_source(r,G) - _old_source(r,G))
-                                / _source(r,G), 2);
+                                    / _source(r,G), 2);
 
       /* Update the old source */
       _old_source(r,G) = _source(r,G);
@@ -647,7 +646,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
   /* Sum up the residuals from each FSR */
   source_residual = pairwise_sum<FP_PRECISION>(_source_residuals, _num_FSRs);
   source_residual = sqrt(source_residual / (_num_FSRs * _num_groups));
-
+  
   return source_residual;
 }
 
@@ -673,7 +672,7 @@ void CPUSolver::computeKeff() {
 
   FP_PRECISION* FSR_rates = new FP_PRECISION[_num_FSRs];
   FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
-
+  
   /* Loop over all FSRs and compute the volume-weighted absorption rates */
   #pragma omp parallel for private(tid, volume, \
     material, sigma_a) schedule(guided)

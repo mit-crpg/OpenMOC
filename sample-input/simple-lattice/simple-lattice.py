@@ -116,7 +116,6 @@ lattice.setUniverses([[pin1, pin2, pin1, pin2],
                       [pin2, pin3, pin2, pin3]])
 cells[6].setFill(lattice)
 
-
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
 ###############################################################################
@@ -126,7 +125,6 @@ log.py_printf('NORMAL', 'Creating geometry...')
 geometry = Geometry()
 geometry.setRootUniverse(root)
 geometry.initializeFlatSourceRegions()
-
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################

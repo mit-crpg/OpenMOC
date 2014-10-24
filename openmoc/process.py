@@ -9,7 +9,6 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 27, 2013
 
-
 import sys
 
 ## @var openmoc
@@ -44,10 +43,36 @@ else:
   from openmoc.log import *
 
 
+## 
+# @brief This routine checks if a given value is an integer data type.
+#
+# @param val a value to check
+def is_integer(val):
+  return isinstance(val, (int, long, np.int_, np.intc, np.intp, np.int8,\
+                            np.int16, np.int32, np.int64, np.uint8, np.uint16,\
+                            np.uint32, np.uint64))
+
+
+## 
+# @brief This routine checks if a given value is a string data type.
+#
+# @param val a value to check
+def is_string(val):
+  return isinstance(val, (str, np.str, np.string_))
+
+
+## 
+# @brief This routine checks if a given value is an float data type.
+#
+# @param val a value to check
+def is_float(val):
+  return isinstance(val, (float, np.float_, np.float16, np.float32, np.float64))
+
+
 ##
 # @brief This routine computes the fission rate in each flat source region,
 #        and combines the rates based on their hierarchical universe/lattice
-#        structure. The fission rates are then exported to a binary hdf5
+#        structure. The fission rates are then exported to a binary HDF5
 #        or python pickle file.
 # @details This routine is intended to be called by the user in Python to
 #          compute fission rates. Typically, the fission rates will represent
@@ -76,10 +101,10 @@ def compute_fission_rates(solver, use_hdf5=False):
   geometry = solver.getGeometry()
 
   # Compute the volume-weighted fission rates for each FSR
-  fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+  fsr_fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
 
   # Initialize fission rates dictionary
-  fission_rates_dict = {}
+  fission_rates_sum = {}
 
   # Loop over FSRs and populate fission rates dictionary
   for fsr in range(geometry.getNumFSRs()):
@@ -91,13 +116,13 @@ def compute_fission_rates(solver, use_hdf5=False):
       coords = LocalCoords(point.getX(), point.getY())
       coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(coords)
-      coords = coords.getHighestLevel()
+      coords = coords.getHighestLevel().getNext()
 
       # initialize dictionary key
-      key = ''
+      key = 'UNIV = 0 : '
 
       # Parse through the linked list and create fsr key.
-      # If lowest level sub dictionary already exists, they increment 
+      # If lowest level sub dictionary already exists, then increment 
       # fission rate; otherwise, set the fission rate.
       while True:
         if coords.getType() is LAT:
@@ -107,6 +132,7 @@ def compute_fission_rates(solver, use_hdf5=False):
         else:
           key += 'UNIV = ' + str(coords.getUniverse()) + ' : '
 
+        # Remove the trailing ' : ' on the end of the key if at last univ/lat
         if coords.getNext() is None:
           key = key[:-3]
           break
@@ -114,22 +140,22 @@ def compute_fission_rates(solver, use_hdf5=False):
           coords = coords.getNext()
 
       # Increment or set fission rate
-      if key in fission_rates_dict:
-        fission_rates_dict[key] += fission_rates[fsr]
+      if key in fission_rates_sum:
+        fission_rates_sum[key] += fsr_fission_rates[fsr]
       else:
-        fission_rates_dict[key] = fission_rates[fsr]
+        fission_rates_sum[key] = fsr_fission_rates[fsr]
 
   # If using HDF5
   if use_hdf5:
 
     import h5py
 
-    # Open hdf5 file
+    # Open HDF5 file
     f = h5py.File(directory + filename + '.h5', 'w')
 
-    # Write the fission rates to the hdf5 file
+    # Write the fission rates to the HDF5 file
     fission_rates_group = f.create_group('fission-rates')
-    for key, value in fission_rates_dict.items():
+    for key, value in fission_rates_sum.items():
       fission_rates_group.attrs[key] = value
 
     # Close hdf5 file
@@ -140,8 +166,7 @@ def compute_fission_rates(solver, use_hdf5=False):
     import pickle
 
     # Pickle the fission rates to a file
-    pickle.dump(fission_rates_dict, open(directory + filename + '.pkl', 'wb'))
-
+    pickle.dump(fission_rates_sum, open(directory + filename + '.pkl', 'wb'))
 
 ##
 # @brief This method stores all of the data for an OpenMOC simulation to a
@@ -272,12 +297,12 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   if source:
 
     # Allocate array
-    sources = np.zeros((num_FSRs, num_groups))
+    sources_array = np.zeros((num_FSRs, num_groups))
 
     # Get the scalar flux for each FSR and energy group
     for i in range(num_FSRs):
       for j in range(num_groups):
-        sources[i,j] = solver.getFSRSource(i,j+1)
+        sources_array[i,j] = solver.getFSRSource(i,j+1)
 
   # If using HDF5
   if use_hdf5:
@@ -325,8 +350,8 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     if fluxes:
       time_group.create_dataset('FSR scalar fluxes', data=scalar_fluxes)
 
-    if source:
-      time_group.create_dataset('FSR sources', data=sources)
+    if sources:
+      time_group.create_dataset('FSR sources', data=sources_array)
 
     if fission_rates:
 
@@ -398,8 +423,8 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     if fluxes:
       state['FSR scalar fluxes'] = scalar_fluxes
 
-    if source:
-      state['FSR sources'] = sources
+    if sources:
+      state['FSR sources'] = sources_array
 
     if fission_rates:
       compute_fission_rates(solver, False)      
@@ -408,6 +433,13 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     # Pickle the simulation states to a file
     pickle.dump(sim_states, open(filename, 'wb'))
 
+    # Pickle the simulation states to a file
+    pickle.dump(sim_states, open(filename, 'wb'))
+
+
+##
+# @brief
+# @details
 
 ##
 # @brief
@@ -524,8 +556,8 @@ def restore_simulation_state(filename='simulation-state.h5',
           state['FSR scalar fluxes'] = fluxes
 
         if 'FSR sources' in dataset:
-          sources = dataset['FSR sources'][...]
-          state['FSR sources'] = sources
+          sources_array = dataset['FSR sources'][...]
+          state['FSR sources'] = sources_array
 
         if 'note' in dataset:
           state['note'] = str(dataset['note'])

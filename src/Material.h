@@ -50,9 +50,6 @@ class Material {
 
 private:
 
-  /** A static counter for the number of Materials */
-  static int _n;
-
   /** A monotonically increasing unique ID for each Material created */
   int _uid;
 
@@ -114,6 +111,7 @@ public:
   Material(int id=0, const char* name="");
   virtual ~Material();
 
+  void setUid(int uid);
   int getUid() const;
   int getId() const;
   char* getName() const;

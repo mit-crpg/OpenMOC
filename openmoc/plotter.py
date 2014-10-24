@@ -48,6 +48,7 @@ import matplotlib.cm as cmx
 import numpy as np
 import numpy.random
 import os, sys
+from process import *
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -238,7 +239,7 @@ def plot_materials(geometry, gridsize=250):
     py_printf('ERROR', 'Unable to plot the Materials since ' + \
                     'input was not a geometry class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Materials since ' + \
               'since the gridsize %d is not an integer', gridsize)
 
@@ -324,7 +325,7 @@ def plot_cells(geometry, gridsize=250):
     py_printf('ERROR', 'Unable to plot the Cells since ' + \
               'input was not a Geometry class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Cells since ' + \
                 'since the gridsize %d is not an integer', gridsize)
 
@@ -411,7 +412,7 @@ def plot_flat_source_regions(geometry, gridsize=250):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
               'input was not a geometry class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
               'since the gridsize %d is not an integer', gridsize)
 
@@ -484,8 +485,8 @@ def plot_flat_source_regions(geometry, gridsize=250):
 # @param geometry a geometry object which has been initialized with Materials,
 #        Cells, Universes and Lattices. Segments must have been created or 
 #        extracted from a file.
-# @param cmfd a cmfd object which has been used with the geometry in 
-#        generating segments. The cmfd object must have the _overlay_mesh
+# @param cmfd a Cmfd object which has been used with the geometry in 
+#        generating segments. The Cmfd object must have the _overlay_mesh
 #        flag set to true; otherwise, the map linking FSR IDs to CMFD cells
 #        would not have been created.
 # @param gridsize an optional number of grid cells for the plot
@@ -501,24 +502,24 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250):
 
   # Error checking
   if not 'Geometry' in str(type(geometry)):
-    py_printf('ERROR', 'Unable to plot the cmfd cells since ' + \
+    py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
               'input was not a geometry class object')
 
   if not 'Cmfd' in str(type(cmfd)):
-    py_printf('ERROR', 'Unable to plot the cmfd cells since ' + \
-              'input was not a cmfd class object')
+    py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
+              'input was not a CMFD class object')
   
-  if not isinstance(gridsize, int):
-    py_printf('ERROR', 'Unable to plot the cmfd cells since ' + \
+  if not is_integer(gridsize):
+    py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
               'since the gridsize %s is not an integer', str(gridsize))
 
   if gridsize <= 0:
-    py_printf('Error', 'Unable to plot the cmfd cells ' + \
+    py_printf('Error', 'Unable to plot the CMFD cells ' + \
               'with a negative gridsize (%d)', gridsize)
 
-  py_printf('NORMAL', 'Plotting the cmfd cells...')
+  py_printf('NORMAL', 'Plotting the CMFD cells...')
 
-  # Get the number of flat source regions
+  # Get the number of CMFD cells
   num_cells = cmfd.getNumCells()
 
   # Create array of equally spaced randomized floats as a color map for plots
@@ -540,7 +541,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250):
   xcoords = np.linspace(xmin, xmax, gridsize)
   ycoords = np.linspace(ymin, ymax, gridsize)
 
-  # Find the cmfd cell ID for each grid point
+  # Find the CMFD cell ID for each grid point
   for i in range(gridsize):
     for j in range(gridsize):
 
@@ -558,7 +559,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250):
   # orientation expected by the user
   surface = np.flipud(surface)
 
-  # Plot a 2D color map of the cmfd cells
+  # Plot a 2D color map of the CMFD cells
   fig = plt.figure()
   plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
   plt.title('CMFD cells')
@@ -603,7 +604,7 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
 
   if isinstance(energy_groups, list):
     for group in energy_groups:
-      if not isinstance(group, int):
+      if not is_integer(group):
         py_printf('ERROR', 'Unable to plot the flat source region ' + \
                  'scalar flux since the energy_groups list ' + \
                  'contains %s which is not an int', str(group))
@@ -618,7 +619,7 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
                   'flux since the energy_groups list contains %d which is' + \
                   ' greater than the index for all energy groups', group)
 
-  elif isinstance(energy_groups, int):
+  elif is_integer(energy_groups):
     if energy_groups <= 0:
       py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                'flux since the energy_groups argument contains %d which is' + \
@@ -636,11 +637,11 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
                 'is %s which is not an energy group index or a list ' + \
                 'of energy group indices', str(energy_groups))
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the flat source region scalar flux ' + \
               'since since the gridsize %s is not an integer', str(gridsize))
 
-  if not isinstance(energy_groups, (int, list)):
+  if not is_integer(energy_groups) and not isinstance(energy_groups, list):
     py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
               'flux since the energy_groups is not an int or a list')
 
@@ -730,7 +731,7 @@ def plot_fission_rates(geometry, solver, gridsize=250):
     py_printf('ERROR', 'Unable to plot the fission rates ' + \
               'since input did not contain a solver class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the fission rates ' + \
               'since since the gridsize %s is not an integer', str(gridsize))
 
