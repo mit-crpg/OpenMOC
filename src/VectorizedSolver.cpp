@@ -11,21 +11,16 @@
  *          initalizes the number of threads to a default of 1.
  * @param geometry an optional pointer to the Geometry object
  * @param track_generator an optional pointer to a TrackGenerator object
- * @param cmfd an optional pointer to a Cmfd object
  */
 VectorizedSolver::VectorizedSolver(Geometry* geometry,
-                                   TrackGenerator* track_generator,
-                                   Cmfd* cmfd) :
-  CPUSolver(geometry, track_generator, cmfd) {
+                                   TrackGenerator* track_generator) :
+  CPUSolver(geometry, track_generator) {
+
+  if (_cmfd != NULL)
+    log_printf(ERROR, "The VectorizedSolver is not set up to use CMFD");
 
   _thread_taus = NULL;
   _thread_exponentials = NULL;
-
-  if (geometry != NULL)
-    setGeometry(geometry);
-
-  if (track_generator != NULL)
-    setTrackGenerator(track_generator);
 
   vmlSetMode(VML_EP);
 }

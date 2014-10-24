@@ -23,6 +23,23 @@ int cell_id();
 
 
 /**
+ * @struct surface_halfspace
+ * @brief A surface_halfspace represents a surface pointer with associated
+ *        halfspace.
+ */
+struct surface_halfspace {
+
+  /** A pointer to the Surface object */
+  Surface* _surface;
+
+  /** The halfspace associated with this surface */
+  int _halfspace;
+
+};
+
+
+
+/**
  * @enum cellType
  * @brief The type of cell.
 */
@@ -62,8 +79,8 @@ protected:
   /** The ID for the Universe within which this cell resides */
   int _universe;
 
-  /** Map of bounding Surface pointers to halfspaces (+/-1) */
-  std::map<Surface*, int> _surfaces;
+  /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
+  std::map<int, surface_halfspace> _surfaces;
 
 public:
   Cell();
@@ -74,15 +91,7 @@ public:
   cellType getType() const;
   int getUniverseId() const;
   int getNumSurfaces() const;
-  std::map<Surface*, int> getSurfaces() const;
-
-  /**
-   * @brief Return the number of flat source regions in this Cell.
-   * @details This method is used when the Geometry recursively constructs
-   *          flat source regions.
-   * @return the number of FSRs in this Cell
-   */
-  virtual int getNumFSRs() =0;
+  std::map<int, surface_halfspace> getSurfaces() const;
 
   void setUniverse(int universe);
   void addSurface(int halfspace, Surface* surface);
@@ -139,7 +148,6 @@ public:
   int getMaterial() const;
   int getNumRings();
   int getNumSectors();
-  int getNumFSRs();
 
   void setMaterial(int material_id);
   void setNumRings(int num_rings);
@@ -171,7 +179,6 @@ public:
 
   int getUniverseFillId() const;
   Universe* getUniverseFill() const;
-  int getNumFSRs();
 
   void setUniverseFillPointer(Universe* universe_fill);
 

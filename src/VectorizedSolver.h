@@ -77,8 +77,7 @@ protected:
 
 public:
   VectorizedSolver(Geometry* geometry=NULL,
-                   TrackGenerator* track_generator=NULL,
-                   Cmfd* cmfd=NULL);
+                   TrackGenerator* track_generator=NULL);
 
   virtual ~VectorizedSolver();
 

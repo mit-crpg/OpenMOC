@@ -274,7 +274,7 @@ void Plane::printString() {
  * @param x the location of the Plane along the x-axis
  */
 XPlane::XPlane(const double x, const int id):
-  Plane(0, 1, -x, id) {
+  Plane(1, 0, -x, id) {
 
   _surface_type = XPLANE;
   _x = x;
@@ -360,7 +360,7 @@ std::string XPlane::toString() {
  * @param y the location of the Plane along the y-axis
  */
 YPlane::YPlane(const double y, const int id):
-  Plane(1, 0, -y, id) {
+  Plane(0, 1, -y, id) {
 
   _surface_type = YPLANE;
   _y = y;

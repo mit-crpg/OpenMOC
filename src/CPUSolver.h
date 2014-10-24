@@ -52,7 +52,7 @@ protected:
   omp_lock_t* _FSR_locks;
 
   /** OpenMP mutual exclusion locks for atomic surface current updates */
-  omp_lock_t* _mesh_surface_locks;
+  omp_lock_t* _cmfd_surface_locks;
 
   void initializeFluxArrays();
   void initializeSourceArrays();
@@ -110,15 +110,14 @@ protected:
                                           FP_PRECISION length, int p);
 
 public:
-  CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL,
-            Cmfd* cmfd=NULL);
+  CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);
   virtual ~CPUSolver();
 
   int getNumThreads();
   FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
   FP_PRECISION* getFSRScalarFluxes();
   FP_PRECISION getFSRSource(int fsr_id, int energy_group);
-  double* getSurfaceCurrents();
+  FP_PRECISION* getSurfaceCurrents();
 
   void setNumThreads(int num_threads);
 
