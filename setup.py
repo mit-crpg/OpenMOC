@@ -46,6 +46,7 @@ class custom_install(install):
     ('with-sp', None, "Build modules with single precision"),
     ('with-dp', None, "Build modules with double precision"),
     ('debug-mode', None, "Build with debugging symbols"),
+    ('profile-mode', None, "Build with profiling symbols"),
     ('with-ccache', None, "Build with ccache for rapid recompilation"),
     ('with-papi', None, 'Build modules with PAPI instrumentation'),
     ('no-numpy', None, 'Build modules without NumPy C API')
@@ -63,6 +64,7 @@ class custom_install(install):
                      'with-icpc',
                      'with-bgxlc',
                      'debug-mode',
+                     'profile-mode',
                      'with-ccache',
                      'with-papi',
                      'no-numpy']
@@ -102,6 +104,7 @@ class custom_install(install):
 
     # Set defaults for each of the newly defined compile time options
     self.debug_mode = False
+    self.profile_mode = False
     self.with_ccache = False
     self.with_papi = False
     self.no_numpy = False
@@ -125,6 +128,7 @@ class custom_install(install):
     # unless the corresponding flag was invoked by the user
     config.with_cuda = self.with_cuda
     config.debug_mode = self.debug_mode
+    config.profile_mode = self.profile_mode
     config.with_ccache = self.with_ccache
     config.with_papi = self.with_papi
     config.with_numpy = not self.no_numpy

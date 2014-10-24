@@ -742,6 +742,7 @@ void Geometry::segmentize(Track* track) {
   FP_PRECISION* sigma_t;
   int min_num_segments;
   int num_segments;
+  int num_groups = getNumEnergyGroups();
 
   /* Use a LocalCoords for the start and end of each segment */
   LocalCoords segment_start(x0, y0);
@@ -791,7 +792,7 @@ void Geometry::segmentize(Track* track) {
     /* Compute the number of Track segments to cut this segment into to ensure
      * that it's length is small enough for the exponential table */
     min_num_segments = 1;
-    for (int e=0; e < getNumEnergyGroups(); e++) {
+    for (int e=0; e < num_groups; e++) {
       num_segments = ceil(segment_length * sigma_t[e] / 10.0);
       if (num_segments > min_num_segments)
         min_num_segments = num_segments;
