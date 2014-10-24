@@ -101,7 +101,7 @@ def get_openmoc_material(opencsg_material):
 
   # Create an OpenMOC Material to represent this OpenCSG Material
   name = opencsg_material._name
-  openmoc_material = openmoc.Material(material_id=material_id, name=name)
+  openmoc_material = openmoc.Material(id=material_id, name=name)
 
   # Add the OpenMOC Material to the global collection of all OpenMOC Materials
   OPENMOC_MATERIALS[material_id] = openmoc_material
@@ -119,7 +119,8 @@ def is_opencsg_surface_compatible(opencsg_surface):
           'since {0} is not a Surface'.format(opencsg_surface)
     raise ValueError(msg)
 
-  if opencsg_surface._type in ['x-squareprism', 'y-squareprism', 'z-squareprism']:
+  if opencsg_surface._type in ['x-squareprism', 'y-squareprism',
+                               'x-cylinder', 'y-cylinder']:
     return False
   else:
     return True
@@ -346,10 +347,10 @@ def get_opencsg_cell(openmoc_cell):
   if (openmoc_cell.getType == openmoc.MATERIAL):
     opencsg_cell.setFill(get_opencsg_material(fill))
   elif (openmoc_cell._type == openmoc.FILL):
-    if isinstance(fill, openmoc.UNIVERSE):
-      opencsg_cell.setFill(get_opencsg_universe(fill))
-    else:
+    if isinstance(fill, openmoc.Lattice):
       opencsg_cell.setFill(get_opencsg_lattice(fill))
+    else:
+      opencsg_cell.setFill(get_opencsg_universe(fill))
 
   # FIXME: How will this return to Python? Use std_map.i SWIG interface
   surfaces = openmoc_cell.getSurfaces()

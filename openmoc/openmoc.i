@@ -237,7 +237,9 @@
 #endif
 
 
-
+/* Typemap for all methods which return a std::map<int, Cell*>. This includes
+ * the Geometry::getAllCells(), Universe::getAllCells(), etc. These methods
+ * are particularly useful for OpenCSG compatibility. */
 %include <std_map.i>
 %cleap std::map<int, Cell*>;
 %typemap(out) std::map<int, Cell*> {
@@ -252,12 +254,36 @@
   for (iter = $1.begin(); iter != $1.end(); ++iter) {
     cell_id = iter->first;
     cell = iter->second;
-    PyObject* value = SWIG_NewPointerObj(SWIG_as_voidptr(cell), $descriptor(Cell*), 0);
+    PyObject* value =
+         SWIG_NewPointerObj(SWIG_as_voidptr(cell), $descriptor(Cell*), 0);
     PyDict_SetItem($result, PyInt_FromLong(cell_id), value);
   }
-
 }
 
+
+/* Typemap for all methods which return a std::map<int, surface_halfspace>.
+ * This includes the Cell::getSurfaces() method, which is useful for OpenCSG
+ * compatibility. */
+%include <std_map.i>
+%cleap std::map<int, surface_halfspace>;
+%typemap(out) std::map<int, surface_halfspace> {
+
+  $result = PyDict_New();
+  int size = $1.size();
+
+  std::map<int, surface_halfspace>::iterator iter;
+  surface_halfspace* surf;
+  int surf_id;
+
+  for (iter = $1.begin(); iter != $1.end(); ++iter) {
+    surf_id = iter->first;
+    surf = &iter->second;
+    PyObject* value =
+         SWIG_NewPointerObj(SWIG_as_voidptr(surf),
+                            $descriptor(surface_halfspace*), 0);
+    PyDict_SetItem($result, PyInt_FromLong(surf_id), value);
+  }
+}
 
 
 /* Typemap for Lattice::setUniverses(int num_x, int num_y, Universe** universes)
