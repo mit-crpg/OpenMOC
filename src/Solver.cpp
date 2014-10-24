@@ -524,6 +524,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
   checkTrackSpacing();
 
   /* Set scalar flux to unity for each region */
+  flattenFSRSources(1.0);
   flattenFSRFluxes(1.0);
   zeroTrackFluxes();
 

@@ -298,12 +298,12 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   if sources:
 
     # Allocate array
-    sources = np.zeros((num_FSRs, num_groups))
+    sources_array = np.zeros((num_FSRs, num_groups))
 
     # Get the scalar flux for each FSR and energy group
     for i in range(num_FSRs):
       for j in range(num_groups):
-        sources[i,j] = solver.getFSRSource(i,j+1)
+        sources_array[i,j] = solver.getFSRSource(i,j+1)
 
   # If using HDF5
   if use_hdf5:
@@ -352,7 +352,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       time_group.create_dataset('FSR scalar fluxes', data=scalar_fluxes)
 
     if sources:
-      time_group.create_dataset('FSR sources', data=sources)
+      time_group.create_dataset('FSR sources', data=sources_array)
 
     if fission_rates:
 
@@ -425,7 +425,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       state['FSR scalar fluxes'] = scalar_fluxes
 
     if sources:
-      state['FSR sources'] = sources
+      state['FSR sources'] = sources_array
 
     if fission_rates:
       compute_fission_rates(solver, False)      
@@ -557,8 +557,8 @@ def restore_simulation_state(filename='simulation-state.h5',
           state['FSR scalar fluxes'] = fluxes
 
         if 'FSR sources' in dataset:
-          sources = dataset['FSR sources'][...]
-          state['FSR sources'] = sources
+          sources_array = dataset['FSR sources'][...]
+          state['FSR sources'] = sources_array
 
         if 'note' in dataset:
           state['note'] = str(dataset['note'])

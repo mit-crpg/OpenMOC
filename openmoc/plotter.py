@@ -635,7 +635,7 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
                 'is %s which is not an energy group index or a list ' + \
                 'of energy group indices', str(energy_groups))
 
-  if not is_integer(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the flat source region scalar flux ' + \
               'since since the gridsize %s is not an integer', str(gridsize))
 
