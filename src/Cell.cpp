@@ -383,6 +383,7 @@ bool Cell::cellContainsPoint(Point* point) {
 
   /* Loop over all Surfaces inside the Cell */
   std::map<int, surface_halfspace>::iterator iter;
+
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Return false if the Point is not in the correct Surface halfspace */

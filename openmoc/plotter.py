@@ -244,7 +244,7 @@ def plot_materials(geometry, gridsize=250):
               'since the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
-    py_printf('Error', 'Unable to plot the Materials ' + \
+    py_printf('ERROR', 'Unable to plot the Materials ' + \
               'with a negative gridsize (%d)', gridsize)
 
   py_printf('NORMAL', 'Plotting the materials...')
@@ -280,9 +280,14 @@ def plot_materials(geometry, gridsize=250):
 
       point = LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
-      material = geometry.findCellContainingCoords(point).getMaterial()
-      material_id = material.getId()
-      surface[j][i] = color_map[material_id % num_materials]
+      cell = geometry.findCellContainingCoords(point)
+
+      # If we did not find a Cell for this region, use a NaN "bad" number color
+      if cell is None:
+        surface[j][i] = np.nan
+      else:
+        material_id = cell.getMaterial().getId()
+        surface[j][i] = color_map[material_id % num_materials]
 
   # Flip the surface vertically to align NumPy row/column indices with the
   # orientation expected by the user
@@ -330,7 +335,7 @@ def plot_cells(geometry, gridsize=250):
                 'since the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
-    py_printf('Error', 'Unable to plot the Cells ' + \
+    py_printf('ERROR', 'Unable to plot the Cells ' + \
               'with a negative gridsize (%d)', gridsize)
 
   py_printf('NORMAL', 'Plotting the cells...')
@@ -367,8 +372,17 @@ def plot_cells(geometry, gridsize=250):
       point = LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       cell = geometry.findCellContainingCoords(point)
-      cell_id = cell.getId()
-      surface[j][i] = color_map[cell_id % num_cells]
+
+      # If we did not find a Cell for this region, use a NaN "bad" number color
+      if cell is None:
+        surface[j][i] = np.nan
+      else:
+        cell_id = cell.getId()
+        surface[j][i] = color_map[cell_id % num_cells]
+
+  # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+  cmap = plt.get_cmap('spectral')
+  cmap.set_bad(alpha=0.0)
 
   # Flip the surface vertically to align NumPy row/column indices with the
   # orientation expected by the user
@@ -379,6 +393,7 @@ def plot_cells(geometry, gridsize=250):
   plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
   plt.title('Cells')
   filename = directory + 'cells.png'
+
   fig.savefig(filename, bbox_inches='tight')
 
 
@@ -417,13 +432,17 @@ def plot_flat_source_regions(geometry, gridsize=250):
               'since the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
-    py_printf('Error', 'Unable to plot the flat source regions ' + \
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
               'with a negative gridsize (%d)', gridsize)
 
   py_printf('NORMAL', 'Plotting the flat source regions...')
 
   # Get the number of flat source regions
   num_fsrs = geometry.getNumFSRs()
+
+  if num_fsrs == 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'since no tracks have been generated.')
 
   # Create array of equally spaced randomized floats as a color map for plots
   # Seed the NumPy random number generator to ensure reproducible color maps
@@ -514,7 +533,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250):
               'since the gridsize %s is not an integer', str(gridsize))
 
   if gridsize <= 0:
-    py_printf('Error', 'Unable to plot the CMFD cells ' + \
+    py_printf('ERROR', 'Unable to plot the CMFD cells ' + \
               'with a negative gridsize (%d)', gridsize)
 
   py_printf('NORMAL', 'Plotting the CMFD cells...')
@@ -646,7 +665,7 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
               'flux since the energy_groups is not an int or a list')
 
   if gridsize <= 0:
-    py_printf('Error', 'Unable to plot the flat source regions ' + \
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
               'with a negative gridsize (%d)', gridsize)
 
   py_printf('NORMAL', 'Plotting the flat source region scalar fluxes...')
@@ -736,7 +755,7 @@ def plot_fission_rates(geometry, solver, gridsize=250):
               'since since the gridsize %s is not an integer', str(gridsize))
 
   if gridsize <= 0:
-    py_printf('Error', 'Unable to plot the fission rates ' + \
+    py_printf('ERROR', 'Unable to plot the fission rates ' + \
               'with a negative gridsize (%d)', gridsize)
 
   py_printf('NORMAL', 'Plotting the flat source region fission rates...')
