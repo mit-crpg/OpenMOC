@@ -737,6 +737,8 @@ class Casmo(object):
     self.importKinf()
     self.importPinPowers()
     self.importCellTypeArray()
+    self.importFuelPinRadii()
+    self.importLatticePitch()
 
   ##
   # @brief This method exports all data contained within member variables
