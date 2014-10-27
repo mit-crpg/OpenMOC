@@ -1,6 +1,12 @@
 var annotated =
 [
+    [ "casmo", null, [
+      [ "py", "classcasmo_1_1py.html", null ]
+    ] ],
     [ "openmoc", null, [
+      [ "compatible", null, [
+        [ "casmo", "namespaceopenmoc_1_1compatible_1_1casmo.html", "namespaceopenmoc_1_1compatible_1_1casmo" ]
+      ] ],
       [ "log", "namespaceopenmoc_1_1log.html", null ],
       [ "materialize", "namespaceopenmoc_1_1materialize.html", null ],
       [ "openmoc", null, [
@@ -15,7 +21,6 @@ var annotated =
         [ "Quadrature", "classopenmoc_1_1openmoc_1_1Quadrature.html", "classopenmoc_1_1openmoc_1_1Quadrature" ],
         [ "Solver", "classopenmoc_1_1openmoc_1_1Solver.html", "classopenmoc_1_1openmoc_1_1Solver" ],
         [ "CPUSolver", "classopenmoc_1_1openmoc_1_1CPUSolver.html", "classopenmoc_1_1openmoc_1_1CPUSolver" ],
-        [ "ThreadPrivateSolver", "classopenmoc_1_1openmoc_1_1ThreadPrivateSolver.html", "classopenmoc_1_1openmoc_1_1ThreadPrivateSolver" ],
         [ "Surface", "classopenmoc_1_1openmoc_1_1Surface.html", "classopenmoc_1_1openmoc_1_1Surface" ],
         [ "Plane", "classopenmoc_1_1openmoc_1_1Plane.html", "classopenmoc_1_1openmoc_1_1Plane" ],
         [ "XPlane", "classopenmoc_1_1openmoc_1_1XPlane.html", "classopenmoc_1_1openmoc_1_1XPlane" ],
@@ -33,7 +38,11 @@ var annotated =
       ] ],
       [ "options", "namespaceopenmoc_1_1options.html", "namespaceopenmoc_1_1options" ],
       [ "plotter", "namespaceopenmoc_1_1plotter.html", null ],
-      [ "process", "namespaceopenmoc_1_1process.html", null ]
+      [ "process", "namespaceopenmoc_1_1process.html", null ],
+      [ "test-options", null, [
+        [ "TestDefaultInit", "classopenmoc_1_1test-options_1_1TestDefaultInit.html", "classopenmoc_1_1test-options_1_1TestDefaultInit" ],
+        [ "TestCustomInit", "classopenmoc_1_1test-options_1_1TestCustomInit.html", "classopenmoc_1_1test-options_1_1TestCustomInit" ]
+      ] ]
     ] ],
     [ "Cell", "classCell.html", "classCell" ],
     [ "CellBasic", "classCellBasic.html", "classCellBasic" ],
@@ -56,12 +65,10 @@ var annotated =
     [ "segment", "structsegment.html", "structsegment" ],
     [ "Solver", "classSolver.html", "classSolver" ],
     [ "Surface", "classSurface.html", "classSurface" ],
-    [ "ThreadPrivateSolver", "classThreadPrivateSolver.html", "classThreadPrivateSolver" ],
     [ "Timer", "classTimer.html", "classTimer" ],
     [ "Track", "classTrack.html", "classTrack" ],
     [ "TrackGenerator", "classTrackGenerator.html", "classTrackGenerator" ],
     [ "Universe", "classUniverse.html", "classUniverse" ],
-    [ "VectorizedPrivateSolver", "classVectorizedPrivateSolver.html", "classVectorizedPrivateSolver" ],
     [ "VectorizedSolver", "classVectorizedSolver.html", "classVectorizedSolver" ],
     [ "XPlane", "classXPlane.html", "classXPlane" ],
     [ "YPlane", "classYPlane.html", "classYPlane" ],

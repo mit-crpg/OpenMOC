@@ -2,7 +2,6 @@ var searchData=
 [
   ['machine_5fcontains_5fgpu',['machine_contains_gpu',['../GPUQuery_8h.html#afd67f75b9224ffd2088ad0e224e54c75',1,'GPUQuery.cu']]],
   ['material',['Material',['../classMaterial.html',1,'Material'],['../classMaterial.html#abdbf0d4678e9a6fc93f385b8231882eb',1,'Material::Material()'],['../Cell_8h.html#a274ceed3b07859c48505f65b1fe42328a23f8f5e62324af5f4d8f899cee8fb70d',1,'MATERIAL():&#160;Cell.h']]],
-  ['material',['Material',['../classopenmoc_1_1openmoc_1_1Material.html',1,'openmoc::openmoc']]],
   ['material_2eh',['Material.h',['../Material_8h.html',1,'']]],
   ['material_5fid',['material_id',['../Material_8h.html#ab3edf20a0bb542abb3162f8b0891b221',1,'Material.cpp']]],
   ['materialize',['materialize',['../namespaceopenmoc_1_1materialize.html#a202690e95b90bfa40f5968edf8e37730',1,'openmoc::materialize']]],
@@ -13,7 +12,6 @@ var searchData=
   ['matzero',['matZero',['../classCmfd.html#a169832f52b591cb15e86c39b547f8c8d',1,'Cmfd']]],
   ['max_5fazim_5fangles',['MAX_AZIM_ANGLES',['../GPUSolver_8h.html#a13ab74d9229f8b9544ae9decc54163da',1,'GPUSolver.h']]],
   ['max_5fpolar_5fangles',['MAX_POLAR_ANGLES',['../GPUSolver_8h.html#a91b4cb58a59ec4578195cd7787dacf66',1,'GPUSolver.h']]],
-  ['mesh',['Mesh',['../classopenmoc_1_1openmoc_1_1Mesh.html',1,'openmoc::openmoc']]],
   ['mesh',['Mesh',['../classMesh.html',1,'Mesh'],['../classMesh.html#af7a025426b5bc0a60967e60690c8415e',1,'Mesh::Mesh()']]],
   ['mesh_2eh',['Mesh.h',['../Mesh_8h.html',1,'']]],
   ['minsurfacedist',['minSurfaceDist',['../classCell.html#adf41aafa99278a759d8d6ae826c7330e',1,'Cell::minSurfaceDist()'],['../classUniverse.html#aaeb10eb025773d2ce1e15747b88f5de8',1,'Universe::minSurfaceDist()'],['../classLattice.html#a68148ab388f066e9bd0f4c88fb571880',1,'Lattice::minSurfaceDist()']]],

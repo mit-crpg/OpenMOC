@@ -54,7 +54,7 @@
 <p>This quick install guide outlines the basic steps needed to install OpenMOC on your computer. For more detailed instructions on configuring and installing OpenMOC, see <em class="xref std std-ref">usersguide_install</em> in the User&#8217;s Manual.</p>
 <div class="section" id="installing-from-source-on-linux-or-mac-os-x">
 <h2>Installing from Source on Linux or Mac OS X<a class="headerlink" href="#installing-from-source-on-linux-or-mac-os-x" title="Permalink to this headline">¶</a></h2>
-<p>All OpenMOC source code is hosted on <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a>. To download and install OpenMOC, you need to install <a class="reference external" href="http://git-scm.com">Git</a> and the GNU C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a>. In addition, you need to install <a class="reference external" href="http://www.python.org/">Python</a> 2.6 or 2.7 and the following Python packages on your machine: <a class="reference external" href="http://www.swig.org/">SWIG</a>, <a class="reference external" href="http://www.numpy.org/">NumPy</a>, <a class="reference external" href="http://matplotlib.org/">matplotlib</a>, and <a class="reference external" href="http://www.h5py.org/">h5py</a>. These packages can easily be installed using a package manager for Linux and Mac OS (see <em class="xref std std-ref">usersguide_install</em> for more details). The following command will install all required and optional dependencies on Ubuntu 12.04 or later:</p>
+<p>All OpenMOC source code is hosted on <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a>. To download and install OpenMOC, you need to install <a class="reference external" href="http://git-scm.com">Git</a> and the GNU C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a>. In addition, you need to install <a class="reference external" href="http://www.python.org/">Python</a> version 2.6 or later and the following Python packages on your machine: <a class="reference external" href="http://www.swig.org/">SWIG</a>, <a class="reference external" href="http://www.numpy.org/">NumPy</a>, <a class="reference external" href="http://matplotlib.org/">matplotlib</a>, and <a class="reference external" href="http://www.h5py.org/">h5py</a>. These packages can easily be installed using a package manager for Linux and Mac OS (see <em class="xref std std-ref">usersguide_install</em> for more details). The following command will install all required and optional dependencies on Ubuntu 12.04 or later:</p>
 <div class="highlight-python"><div class="highlight"><pre>sudo apt-get install build-essential git swig python-dev python-numpy python-matplotlib python-h5py
 </pre></div>
 </div>
@@ -72,10 +72,6 @@ python setup.py install --user
 <p class="first admonition-title">Warning</p>
 <p class="last">The <a class="reference internal" href="usersguide/install.html#cmdoption--user"><em class="xref std std-option">--user</em></a> flag should be used verbatim and should <strong>NOT</strong> be replaced with your username.</p>
 </div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Some Python distributions require that the code be built and installed <strong>twice</strong> in order to setup all of the <a class="reference external" href="http://en.wikipedia.org/wiki/Symbolic_link">symbolic links</a> correctly. This is only the case the first time OpenMOC is installed on a machine. Hence, code developers who subsequently make modifications to the source code only need to build and install the code once to have access to the modified binary.</p>
-</div>
 </div>
 </div>
 
@@ -86,7 +82,7 @@ python setup.py install --user
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/openmoc-logo-sphinx.png" alt="Logo"/>
+              <img class="logo" src="_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
             </a></p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>

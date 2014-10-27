@@ -284,7 +284,7 @@ For readability, source code in OpenMOC is limited to a maximum of **80 characte
 Indentation
 -----------
 
-For readability, OpenMOC uses tabs composed of **4 white spaces** per indentation level. For your convenience in adhering to this policy, you may update your text editor (gedit, emacs, vim, etc.) preferences to use a tab width of 4 spaces and to insert spaces instead of tabs. Emacs users should include the following line in their .emacs file:
+For readability, OpenMOC uses tabs composed of **2 white spaces** per indentation level. For your convenience in adhering to this policy, you may update your text editor (gedit, emacs, vim, etc.) preferences to use a tab width of 2 spaces and to insert spaces instead of tabs. Emacs users should include the following line in their .emacs file:
 
 .. code-block:: common-lisp
 

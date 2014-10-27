@@ -18,16 +18,27 @@ hand (the number of flat source regions and the level of track discretization).
 New Features
 ------------
 
-- Reconstructed segmentation routines to allow for tracking across overlapping cells.
-- Added P0 boundary flux update to CMFD solver.
-- Increased parallel performance of CPUSolver.
-- CMFD corner splitting now splits the corner currents to both neighboring surfaces with a weight of 0.5 instead of giving the current to only one surface.
+- `bd9d4c11eb`_: CMFD coarse group solver
+- `ea25db0454`_: Python 3 compatibility
+- `75731d8820`_: Single first-time installation
+
+.. _bd9d4c11eb: https://github.com/mit-crpg/OpenMOC/commit/bd9d4c11eb
+.. _ea25db0454: https://github.com/mit-crpg/OpenMOC/commit/ea25db0454
+.. _75731d8820: https://github.com/mit-crpg/OpenMOC/commit/75731d8820
+
 
 ---------
 Bug Fixes
 ---------
 
-- Fixed procedural error in computing diffusion coefficients in CMFD.
-- Fixed error in computing the CMFD optically thick correction factor.
-- TrackGenerator geometry string was incorrect resulting in TrackGenerator often not identifying a valid track file when one actually existed. The error in generating the geometry string has been corrected.
-- Fixed inconsistency in XPlane and YPlane constants.
+- `216ce92b2a`_: Minor correction to C5G7 cross-sections
+- `ac6bbe7674`_: Fix to find coordinates within the ``Geometry`` in ``openmoc.plotter.plot_fluxes(...)`` routine
+- `ea25db0454`_: Fix to allow sources to be stored in ``openmoc.process.store_simulation_state(...)`` routine
+- `c9bd55788e`_: Segfault for coarse track spacings in ``Solver::convergeSource(...)`` routine
+- `25fe960cd5`_: Fixed ``openmoc`` import statement in ``openmoc.process`` submodule
+
+.. _216ce92b2a: https://github.com/mit-crpg/OpenMOC/commit/216ce92b2a
+.. _ea25db0454: https://github.com/mit-crpg/OpenMOC/commit/ea25db0454
+.. _ac6bbe7674: https://github.com/mit-crpg/OpenMOC/commit/ac6bbe7674
+.. _c9bd55788e: https://github.com/mit-crpg/OpenMOC/commit/c9bd55788e
+.. _25fe960cd5: https://github.com/mit-crpg/OpenMOC/commit/25fe960cd5

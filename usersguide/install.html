@@ -88,10 +88,6 @@ The main OpenMOC Python package can be imported into any Python script as follow
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc</span>
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Some Python distributions require that the code be built and installed <strong>twice</strong> in order to setup all of the <a class="reference external" href="http://en.wikipedia.org/wiki/Symbolic_link">symbolic links</a> correctly. This is only the case the first time OpenMOC is installed on a machine. Hence, code developers who subsequently make modifications to the source code only need to build and install the code once to have access to the modified binary.</p>
-</div>
 </div>
 <div class="section" id="custom-build-configuration">
 <h3>2.3.2. Custom Build Configuration<a class="headerlink" href="#custom-build-configuration" title="Permalink to this headline">¶</a></h3>
@@ -181,12 +177,6 @@ The main OpenMOC Python package can be imported into any Python script as follow
 
 <p>Compiles OpenMOC without embedding the NumPy C API. This is severely limiting for integrating both OpenMOC source convergence calculations and data analysis into Python, but may be necessary on some machines such as IBM&#8217;s <a class="reference external" href="http://www-03.ibm.com/systems/technicalcomputing/solutions/bluegene/">BlueGene</a> where NumPy is not a standard package.</p>
 <dl class="option">
-<dt id="cmdoption--with-papi">
-<tt class="descname">--with-papi</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-papi" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p>Compiles all <tt class="xref cpp cpp-class docutils literal"><span class="pre">Solver</span></tt> derived classes with <a class="reference external" href="http://icl.cs.utk.edu/papi/">PAPI</a> instrumentation for performance counter measurements.</p>
-<dl class="option">
 <dt id="cmdoption--with-ccache">
 <tt class="descname">--with-ccache</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-ccache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -210,7 +200,7 @@ The main OpenMOC Python package can be imported into any Python script as follow
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/openmoc-logo-sphinx.png" alt="Logo"/>
+              <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
             </a></p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
@@ -274,8 +264,13 @@ The main OpenMOC Python package can be imported into any Python script as follow
     </div>
 
     <div class="footer">
+<<<<<<< HEAD
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+=======
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+>>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
     </div>
 <script type="text/javascript">
 

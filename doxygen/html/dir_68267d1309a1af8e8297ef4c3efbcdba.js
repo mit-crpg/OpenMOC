@@ -18,7 +18,6 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "Quadrature.h", "Quadrature_8h.html", "Quadrature_8h" ],
     [ "Solver.h", "Solver_8h.html", "Solver_8h" ],
     [ "Surface.h", "Surface_8h.html", "Surface_8h" ],
-    [ "ThreadPrivateSolver.h", "ThreadPrivateSolver_8h.html", "ThreadPrivateSolver_8h" ],
     [ "Timer.h", "Timer_8h.html", [
       [ "Timer", "classTimer.html", "classTimer" ]
     ] ],
@@ -30,6 +29,5 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
       [ "TrackGenerator", "classTrackGenerator.html", "classTrackGenerator" ]
     ] ],
     [ "Universe.h", "Universe_8h.html", "Universe_8h" ],
-    [ "VectorizedPrivateSolver.h", "VectorizedPrivateSolver_8h.html", "VectorizedPrivateSolver_8h" ],
     [ "VectorizedSolver.h", "VectorizedSolver_8h.html", "VectorizedSolver_8h" ]
 ];

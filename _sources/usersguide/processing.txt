@@ -53,6 +53,7 @@ track spacing [cm]         float
 # iterations               integer
 source residual threshold  float
 exponential                string          'exp intrinsic' or 'linear interpolation'
+CMFD                       boolean         True if CMFD is in use, False otherwise
 floating point             string          'double' or 'single'
 time [sec]                 float           Total time to converge the source
 keff                       float
@@ -367,7 +368,7 @@ Parameter          Type                 Default    Optional   Note
 =================  ===================  =========  =========  ============================================
 ``geometry``       ``Geometry`` object  None       No         The geometry of interest
 ``solver``         ``Solver`` object    None       No         The solver used to converge the source
-``energy_groups``  list                 [0]        No         Create separate plots for each energy group
+``energy_groups``  list                 [1]        No         Create separate plots for each energy group
 ``gridsize``       integer              250        Yes        The pixel resolution
 =================  ===================  =========  =========  ============================================
 

@@ -192,39 +192,43 @@
 <td>string</td>
 <td>&#8216;exp intrinsic&#8217; or &#8216;linear interpolation&#8217;</td>
 </tr>
-<tr class="row-even"><td>floating point</td>
+<tr class="row-even"><td>CMFD</td>
+<td>boolean</td>
+<td>True if CMFD is in use, False otherwise</td>
+</tr>
+<tr class="row-odd"><td>floating point</td>
 <td>string</td>
 <td>&#8216;double&#8217; or &#8216;single&#8217;</td>
 </tr>
-<tr class="row-odd"><td>time [sec]</td>
+<tr class="row-even"><td>time [sec]</td>
 <td>float</td>
 <td>Total time to converge the source</td>
 </tr>
-<tr class="row-even"><td>keff</td>
+<tr class="row-odd"><td>keff</td>
 <td>float</td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-odd"><td>note</td>
+<tr class="row-even"><td>note</td>
 <td>string</td>
 <td>If requested by user</td>
 </tr>
-<tr class="row-even"><td># threads</td>
+<tr class="row-odd"><td># threads</td>
 <td>integer</td>
 <td>For solvers on multi-core CPUs</td>
 </tr>
-<tr class="row-odd"><td># threads per block</td>
+<tr class="row-even"><td># threads per block</td>
 <td>integer</td>
 <td>For solvers on GPUs</td>
 </tr>
-<tr class="row-even"><td>FSR scalar fluxes</td>
+<tr class="row-odd"><td>FSR scalar fluxes</td>
 <td>float array</td>
 <td>If requested by user</td>
 </tr>
-<tr class="row-odd"><td>FSR sources</td>
+<tr class="row-even"><td>FSR sources</td>
 <td>float array</td>
 <td>If requested by user</td>
 </tr>
-<tr class="row-even"><td>fission rates</td>
+<tr class="row-odd"><td>fission rates</td>
 <td>float array(s)</td>
 <td>If requested by user</td>
 </tr>
@@ -646,7 +650,7 @@
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">energy_groups</span></tt></td>
 <td>list</td>
-<td>[0]</td>
+<td>[1]</td>
 <td>No</td>
 <td>Create separate plots for each energy group</td>
 </tr>
@@ -672,7 +676,7 @@
 <span class="n">plot</span><span class="o">.</span><span class="n">plot_fluxes</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">solver</span><span class="p">,</span> <span class="n">energy_groups</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py</span></tt>) is illustrated in <a class="reference internal" href="input.html#figure-fluxes"><em>Figure 6</em></a>.</p>
+<p>A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py</span></tt>) is illustrated in <a class="reference internal" href="#figure-fluxes"><em>Figure 6</em></a>.</p>
 <table border="1" class="docutils" id="figure-fluxes">
 <colgroup>
 <col width="51%" />
@@ -701,7 +705,7 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/openmoc-logo-sphinx.png" alt="Logo"/>
+              <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
             </a></p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>

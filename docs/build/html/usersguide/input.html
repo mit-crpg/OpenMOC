@@ -382,6 +382,10 @@ create complex objects using Boolean operators on a set of simpler surfaces. In
 the geometry model, each unique closed volume is defined by its bounding
 surfaces. The CSG formulation used in OpenMOC is described in more detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#constructive-solid-geometry"><em>Constructive Solid Geometry</em></a>.</p>
 <p>The following sections detail how to create surfaces, cells, universes and lattices to construct a simple 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 pin cell lattice.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Users should create <tt class="docutils literal"><span class="pre">Surfaces</span></tt>, <tt class="docutils literal"><span class="pre">Cells</span></tt>, and <tt class="docutils literal"><span class="pre">Lattices</span></tt> and add them to the <tt class="docutils literal"><span class="pre">Geometry</span></tt> in that order for correct results.</p>
+</div>
 <div class="section" id="surfaces">
 <h3>3.4.1. Surfaces<a class="headerlink" href="#surfaces" title="Permalink to this headline">¶</a></h3>
 <p>In most cases, the first step towards building a reactor geometry is to create the surfaces defining boundaries between distinct regions. The CSG formulation for surfaces in OpenMOC is described in detail in <a class="reference internal" href="../methods/constructive_solid_geometry.html#surfaces-halfspaces"><em>Surfaces and Halfspaces</em></a>. For LWRs, the most typical surfaces needed to model 2D rectangular lattices are the <tt class="docutils literal"><span class="pre">Circle</span></tt>, <tt class="docutils literal"><span class="pre">XPlane</span></tt>, and <tt class="docutils literal"><span class="pre">YPlane</span></tt> classes. The following code snippet illustrates how to create a circle to represent a fuel pin and reflective boundary planes to surround a 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice.</p>
@@ -505,7 +509,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 </div>
 <div class="section" id="geometry">
 <h3>3.4.5. Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h3>
-<p>The final step in creating a geometry is to instantiate OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Geometry</span></tt> class. The <tt class="docutils literal"><span class="pre">Geometry</span></tt> class encapsulates all materials, surfaces, cells, universes and lattices. The following code snippet illustrates the creation of the geometry and the registration of each material, cell and lattice constructed in the preceding sections. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.</p>
+<p>The final step in creating a geometry is to instantiate OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Geometry</span></tt> class. The <tt class="docutils literal"><span class="pre">Geometry</span></tt> class encapsulates all <tt class="docutils literal"><span class="pre">Materials</span></tt>, <tt class="docutils literal"><span class="pre">Surfaces</span></tt>, <tt class="docutils literal"><span class="pre">Cells</span></tt>, <tt class="docutils literal"><span class="pre">Universes</span></tt> and <tt class="docutils literal"><span class="pre">Lattices</span></tt>. The following code snippet illustrates the creation of the <tt class="docutils literal"><span class="pre">Geometry</span></tt> and the registration of each <tt class="docutils literal"><span class="pre">Material</span></tt>, <tt class="docutils literal"><span class="pre">Cell</span></tt> and <tt class="docutils literal"><span class="pre">Lattice</span></tt> constructed in the preceding sections. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize an empty geometry object</span>
 <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">Geometry</span><span class="p">()</span>
 
@@ -525,6 +529,10 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 <span class="c"># all materials, cells, and lattices have been added to it</span>
 <span class="n">geometry</span><span class="o">.</span><span class="n">initializeFlatSourceRegions</span><span class="p">()</span>
 </pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Users <strong>must</strong> add <tt class="docutils literal"><span class="pre">Materials</span></tt>, <tt class="docutils literal"><span class="pre">Surfaces</span></tt>, <tt class="docutils literal"><span class="pre">Cells</span></tt>, and <tt class="docutils literal"><span class="pre">Lattices</span></tt> to the <tt class="docutils literal"><span class="pre">Geometry</span></tt> in that order for correct results.</p>
 </div>
 </div>
 </div>
@@ -574,7 +582,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 
 <span class="c"># Optional CMFD parameters</span>
 <span class="n">cmfd</span><span class="o">.</span><span class="n">setGroupStructure</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">])</span>
-<span class="n">cmfd</span><span class="o">.</span><span class="n">setOpticallyThick</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">cmfd</span><span class="o">.</span><span class="n">setOpticallyThick</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
 <span class="n">cmfd</span><span class="o">.</span><span class="n">setSORRelaxationFactor</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
 <span class="n">cmfd</span><span class="o">.</span><span class="n">setMOCRelaxationFactor</span><span class="p">(</span><span class="mf">0.66</span><span class="p">)</span>
 <span class="n">cmfd</span><span class="o">.</span><span class="n">setSourceConvergenceThreshold</span><span class="p">(</span><span class="mf">1.E-8</span><span class="p">)</span>
@@ -620,7 +628,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/openmoc-logo-sphinx.png" alt="Logo"/>
+              <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
             </a></p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>

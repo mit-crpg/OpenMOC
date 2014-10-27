@@ -28,6 +28,7 @@ var classSolver =
     [ "initializeFSRs", "classSolver.html#a512ac25e056b3e2d77ae9159e793babf", null ],
     [ "initializePolarQuadrature", "classSolver.html#a6591b996eb837e0c4184424e48e191a3", null ],
     [ "initializeSourceArrays", "classSolver.html#a8592d819738b24a5b983e54c0a635d30", null ],
+    [ "isUsingCmfd", "classSolver.html#a972a7ae139448c1c65f51d421c816306", null ],
     [ "isUsingDoublePrecision", "classSolver.html#a791b6f6d7ed7fd356991eb36bdf9386d", null ],
     [ "isUsingExponentialInterpolation", "classSolver.html#a62c73dba0380643a9d359cfe844bef11", null ],
     [ "isUsingExponentialIntrinsic", "classSolver.html#ae86cb4a6791fc953156f114667a04983", null ],

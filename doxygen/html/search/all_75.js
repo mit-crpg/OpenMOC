@@ -3,7 +3,6 @@ var searchData=
   ['unittest',['UNITTEST',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a7d4213bd412f92318544af232a0481e6',1,'log.h']]],
   ['univ',['UNIV',['../LocalCoords_8h.html#a9b2c6f3fe231906f231afd6ae7293871a65a2a55bc0cbbb11fedd1f47574b355d',1,'LocalCoords.h']]],
   ['universe',['Universe',['../classUniverse.html',1,'Universe'],['../classUniverse.html#acc8b0d4180e2bf76b6629e8e22ae9761',1,'Universe::Universe()']]],
-  ['universe',['Universe',['../classopenmoc_1_1openmoc_1_1Universe.html',1,'openmoc::openmoc']]],
   ['universe_2eh',['Universe.h',['../Universe_8h.html',1,'']]],
   ['universe_5fid',['universe_id',['../Universe_8h.html#a6e3466ba5b768da78702a4a60d18d84e',1,'Universe.cpp']]],
   ['universetype',['universeType',['../Universe_8h.html#a123911615dcd5c50bea706d32683a02a',1,'Universe.h']]],

@@ -25,8 +25,13 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" />
     <link rel="up" title="Release Notes" href="index.html" />
+<<<<<<< HEAD
     <link rel="next" title="Theory and Methodology" href="../methods/index.html" />
     <link rel="prev" title="Release Notes for OpenMOC 0.1.1" href="notes_0.1.1.html" /> 
+=======
+    <link rel="next" title="Release Notes for OpenMOC 0.1.1" href="notes_0.1.1.html" />
+    <link rel="prev" title="Release Notes" href="index.html" /> 
+>>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
   </head>
   <body>
     <div class="related">
@@ -36,10 +41,17 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+<<<<<<< HEAD
           <a href="../methods/index.html" title="Theory and Methodology"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="notes_0.1.1.html" title="Release Notes for OpenMOC 0.1.1"
+=======
+          <a href="notes_0.1.1.html" title="Release Notes for OpenMOC 0.1.1"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Release Notes"
+>>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Release Notes</a> &raquo;</li> 
@@ -64,19 +76,33 @@ hand (the number of flat source regions and the level of track discretization).<
 <div class="section" id="new-features">
 <h2>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
+<<<<<<< HEAD
 <li>Reconstructed segmentation routines to allow for tracking across overlapping cells.</li>
 <li>Added P0 boundary flux update to CMFD solver.</li>
 <li>Increased parallel performance of CPUSolver.</li>
 <li>CMFD corner splitting now splits the corner currents to both neighboring surfaces with a weight of 0.5 instead of giving the current to only one surface.</li>
+=======
+<li><a class="reference external" href="https://github.com/mit-crpg/OpenMOC/commit/bd9d4c11eb">bd9d4c11eb</a>: CMFD coarse group solver</li>
+<li><a class="reference external" href="https://github.com/mit-crpg/OpenMOC/commit/ea25db0454">ea25db0454</a>: Python 3 compatibility</li>
+<li><a class="reference external" href="https://github.com/mit-crpg/OpenMOC/commit/75731d8820">75731d8820</a>: Single first-time installation</li>
+>>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
 </ul>
 </div>
 <div class="section" id="bug-fixes">
 <h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
+<<<<<<< HEAD
 <li>Fixed procedural error in computing diffusion coefficients in CMFD.</li>
 <li>Fixed error in computing the CMFD optically thick correction factor.</li>
 <li>TrackGenerator geometry string was incorrect resulting in TrackGenerator often not identifying a valid track file when one actually existed. The error in generating the geometry string has been corrected.</li>
 <li>Fixed inconsistency in XPlane and YPlane constants.</li>
+=======
+<li><a class="reference external" href="https://github.com/mit-crpg/OpenMOC/commit/216ce92b2a">216ce92b2a</a>: Minor correction to C5G7 cross-sections</li>
+<li><a class="reference external" href="https://github.com/mit-crpg/OpenMOC/commit/ac6bbe7674">ac6bbe7674</a>: Fix to find coordinates within the <tt class="docutils literal"><span class="pre">Geometry</span></tt> in <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_fluxes(...)</span></tt> routine</li>
+<li><a class="reference external" href="https://github.com/mit-crpg/OpenMOC/commit/ea25db0454">ea25db0454</a>: Fix to allow sources to be stored in <tt class="docutils literal"><span class="pre">openmoc.process.store_simulation_state(...)</span></tt> routine</li>
+<li><a class="reference external" href="https://github.com/mit-crpg/OpenMOC/commit/c9bd55788e">c9bd55788e</a>: Segfault for coarse track spacings in <tt class="docutils literal"><span class="pre">Solver::convergeSource(...)</span></tt> routine</li>
+<li><a class="reference external" href="https://github.com/mit-crpg/OpenMOC/commit/25fe960cd5">25fe960cd5</a>: Fixed <tt class="docutils literal"><span class="pre">openmoc</span></tt> import statement in <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> submodule</li>
+>>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
 </ul>
 </div>
 </div>
@@ -88,7 +114,11 @@ hand (the number of flat source regions and the level of track discretization).<
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
+<<<<<<< HEAD
               <img class="logo" src="../_static/openmoc-logo-sphinx.png" alt="Logo"/>
+=======
+              <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
+>>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
             </a></p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
@@ -101,11 +131,19 @@ hand (the number of flat source regions and the level of track discretization).<
 </ul>
 
   <h4>Previous topic</h4>
+<<<<<<< HEAD
   <p class="topless"><a href="notes_0.1.1.html"
                         title="previous chapter">Release Notes for OpenMOC 0.1.1</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../methods/index.html"
                         title="next chapter">Theory and Methodology</a></p>
+=======
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Release Notes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="notes_0.1.1.html"
+                        title="next chapter">Release Notes for OpenMOC 0.1.1</a></p>
+>>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/releasenotes/notes_0.1.2.txt"
@@ -135,10 +173,17 @@ hand (the number of flat source regions and the level of track discretization).<
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+<<<<<<< HEAD
           <a href="../methods/index.html" title="Theory and Methodology"
              >next</a> |</li>
         <li class="right" >
           <a href="notes_0.1.1.html" title="Release Notes for OpenMOC 0.1.1"
+=======
+          <a href="notes_0.1.1.html" title="Release Notes for OpenMOC 0.1.1"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Release Notes"
+>>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
              >previous</a> |</li>
         <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
           <li><a href="index.html" >Release Notes</a> &raquo;</li> 
@@ -146,8 +191,13 @@ hand (the number of flat source regions and the level of track discretization).<
     </div>
 
     <div class="footer">
+<<<<<<< HEAD
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+=======
+        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+>>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
     </div>
 <script type="text/javascript">
 
