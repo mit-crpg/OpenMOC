@@ -1,4 +1,4 @@
-##
+#
 # @file plotter.py
 # @package openmoc.plotter
 # @brief The plotter module provides utility functions to plot data from
@@ -11,7 +11,7 @@ import sys
 
 ## @var openmoc
 #  @brief The openmoc module in use in the Python script using the
-#         openmoc.materialize module.
+#         openmoc.plotter module.
 openmoc = ''
 
 # Determine which OpenMOC module is being used
@@ -48,6 +48,7 @@ import matplotlib.cm as cmx
 import numpy as np
 import numpy.random
 import os, sys
+from process import *
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -59,12 +60,6 @@ else:
 
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
-
-## The number of colors to use when creating a random color map for plots
-num_colors = 50
-
-## An array of random floats that represents a random color map for plots
-color_map = np.random.random_sample((num_colors,))
 
 
 ##
@@ -182,6 +177,12 @@ def plot_segments(track_generator):
     x[i*2+1] = coords[i*5+3]
     y[i*2+1] = coords[i*5+4]
 
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_fsrs, endpoint=False)
+  numpy.random.shuffle(color_map)
+
   # Make figure of line segments for each track
   fig = plt.figure()
 
@@ -191,7 +192,7 @@ def plot_segments(track_generator):
     jet = cm = plt.get_cmap('jet')
     cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
     scalarMap = cmx.ScalarMappable(norm=cNorm)
-    color = scalarMap.to_rgba(color_map[fsrs[i] % num_colors])
+    color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
     plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], c=color)
 
   plt.xlim([x.min(), x.max()])
@@ -238,7 +239,7 @@ def plot_materials(geometry, gridsize=250):
     py_printf('ERROR', 'Unable to plot the Materials since ' + \
                     'input was not a geometry class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Materials since ' + \
               'since the gridsize %s is not an integer', str(gridsize))
 
@@ -248,14 +249,23 @@ def plot_materials(geometry, gridsize=250):
 
   py_printf('NORMAL', 'Plotting the materials...')
 
+  # Get the number of Cells filled with Materials
+  num_materials = geometry.getNumMaterials()
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_materials, endpoint=False)
+  numpy.random.shuffle(color_map)
+
   # Initialize a NumPy array for the surface colors
   surface = numpy.zeros((gridsize, gridsize))
 
   # Retrieve the bounding box for the Geometry
-  xmin = geometry.getXMin()
-  xmax = geometry.getXMax()
-  ymin = geometry.getYMin()
-  ymax = geometry.getYMax()
+  xmin = geometry.getXMin() + TINY_MOVE
+  xmax = geometry.getXMax() - TINY_MOVE
+  ymin = geometry.getYMin() + TINY_MOVE
+  ymax = geometry.getYMax() - TINY_MOVE
 
   # Initialize NumPy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -270,10 +280,8 @@ def plot_materials(geometry, gridsize=250):
 
       point = LocalCoords(x, y)
       point.setUniverse(0)
-      geometry.findCellContainingCoords(point)
-      fsr_id = geometry.findFSRId(point)
-      material_id = geometry.findCellContainingFSR(fsr_id).getMaterial()
-      surface[j][i] = color_map[material_id % num_colors]
+      material_id = geometry.findCellContainingCoords(point).getMaterial()
+      surface[j][i] = color_map[material_id % num_materials]
 
   # Flip the surface vertically to align NumPy row/column indices with the
   # orientation expected by the user
@@ -316,7 +324,7 @@ def plot_cells(geometry, gridsize=250):
     py_printf('ERROR', 'Unable to plot the Cells since ' + \
               'input was not a Geometry class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Cells since ' + \
                 'since the gridsize %s is not an integer', str(gridsize))
 
@@ -326,14 +334,23 @@ def plot_cells(geometry, gridsize=250):
 
   py_printf('NORMAL', 'Plotting the cells...')
 
+  # Get the number of Cells
+  num_cells = geometry.getNumCells()
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_cells, endpoint=False)
+  numpy.random.shuffle(color_map)
+
   # Initialize a NumPy array for the surface colors
   surface = np.zeros((gridsize, gridsize))
 
   # Retrieve the bounding box for the Geometry
-  xmin = geometry.getXMin()
-  xmax = geometry.getXMax()
-  ymin = geometry.getYMin()
-  ymax = geometry.getYMax()
+  xmin = geometry.getXMin() + TINY_MOVE
+  xmax = geometry.getXMax() - TINY_MOVE
+  ymin = geometry.getYMin() + TINY_MOVE
+  ymax = geometry.getYMax() - TINY_MOVE
 
   # Initialize numpy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -348,10 +365,8 @@ def plot_cells(geometry, gridsize=250):
 
       point = LocalCoords(x, y)
       point.setUniverse(0)
-      geometry.findCellContainingCoords(point)
-      fsr_id = geometry.findFSRId(point)
-      cell_id = geometry.findCellContainingFSR(fsr_id).getId()
-      surface[j][i] = color_map[cell_id % num_colors]
+      cell_id = geometry.findCellContainingCoords(point).getId()
+      surface[j][i] = color_map[cell_id % num_cells]
 
   # Flip the surface vertically to align NumPy row/column indices with the
   # orientation expected by the user
@@ -395,7 +410,7 @@ def plot_flat_source_regions(geometry, gridsize=250):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
               'input was not a geometry class object')
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
               'since the gridsize %s is not an integer', str(gridsize))
 
@@ -405,14 +420,23 @@ def plot_flat_source_regions(geometry, gridsize=250):
 
   py_printf('NORMAL', 'Plotting the flat source regions...')
 
+  # Get the number of flat source regions
+  num_fsrs = geometry.getNumFSRs()
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_fsrs, endpoint=False)
+  numpy.random.shuffle(color_map)
+
   # Initialize a NumPy array for the surface colors
   surface = numpy.zeros((gridsize, gridsize))
 
   # Retrieve the bounding box for the Geometry
-  xmin = geometry.getXMin()
-  xmax = geometry.getXMax()
-  ymin = geometry.getYMin()
-  ymax = geometry.getYMax()
+  xmin = geometry.getXMin() + TINY_MOVE
+  xmax = geometry.getXMax() - TINY_MOVE
+  ymin = geometry.getYMin() + TINY_MOVE
+  ymax = geometry.getYMax() - TINY_MOVE
 
   # Initialize numpy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -425,11 +449,11 @@ def plot_flat_source_regions(geometry, gridsize=250):
       x = xcoords[i]
       y = ycoords[j]
 
-      point = LocalCoords(x, y)
-      point.setUniverse(0)
-      geometry.findCellContainingCoords(point)
-      fsr_id = geometry.findFSRId(point)
-      surface[j][i] = color_map[fsr_id % num_colors]
+      coords = LocalCoords(x, y)
+      coords.setUniverse(0)
+      geometry.findCellContainingCoords(coords)
+      fsr_id = geometry.getFSRId(coords)
+      surface[j][i] = color_map[fsr_id % num_fsrs]
 
   # Flip the surface vertically to align NumPy row/column indices with the
   # orientation expected by the user
@@ -440,6 +464,104 @@ def plot_flat_source_regions(geometry, gridsize=250):
   plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
   plt.title('Flat Source Regions')
   filename = directory + 'flat-source-regions.png'
+  fig.savefig(filename, bbox_inches='tight')
+
+
+##
+# @brief This method takes in a Geometry and Cmfd object and plots a 
+#        color-coded 2D surface plot representing the CMFD cells in a geometry.
+# @details The Geometry object must be initialized with Materials, Cells,
+#          Universes and Lattices before being passed into this method. 
+#          Plotting the CMFD cells requires that segments must have been
+#          created for the geometry and FSR IDs assigned to regions. A user
+#          may invoke this function from an OpenMOC Python file as follows:
+#
+# @code
+#         openmoc.plotter.plot_cmfd_cells(geometry, cmfd)
+# @endcode
+#
+# @param geometry a geometry object which has been initialized with Materials,
+#        Cells, Universes and Lattices. Segments must have been created or 
+#        extracted from a file.
+# @param cmfd a Cmfd object which has been used with the geometry in 
+#        generating segments. The Cmfd object must have the _overlay_mesh
+#        flag set to true; otherwise, the map linking FSR IDs to CMFD cells
+#        would not have been created.
+# @param gridsize an optional number of grid cells for the plot
+def plot_cmfd_cells(geometry, cmfd, gridsize=250):
+
+  global subdirectory
+
+  directory = get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'Geometry' in str(type(geometry)):
+    py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
+              'input was not a geometry class object')
+
+  if not 'Cmfd' in str(type(cmfd)):
+    py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
+              'input was not a CMFD class object')
+  
+  if not is_integer(gridsize):
+    py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
+              'since the gridsize %s is not an integer', str(gridsize))
+
+  if gridsize <= 0:
+    py_printf('Error', 'Unable to plot the CMFD cells ' + \
+              'with a negative gridsize (%d)', gridsize)
+
+  py_printf('NORMAL', 'Plotting the CMFD cells...')
+
+  # Get the number of CMFD cells
+  num_cells = cmfd.getNumCells()
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_cells, endpoint=False)
+  numpy.random.shuffle(color_map)
+
+  # Initialize a NumPy array for the surface colors
+  surface = numpy.zeros((gridsize, gridsize))
+
+  # Retrieve the bounding box for the Geometry
+  xmin = geometry.getXMin() + TINY_MOVE
+  xmax = geometry.getXMax() - TINY_MOVE
+  ymin = geometry.getYMin() + TINY_MOVE
+  ymax = geometry.getYMax() - TINY_MOVE
+
+  # Initialize numpy arrays for the grid points
+  xcoords = np.linspace(xmin, xmax, gridsize)
+  ycoords = np.linspace(ymin, ymax, gridsize)
+
+  # Find the CMFD cell ID for each grid point
+  for i in range(gridsize):
+    for j in range(gridsize):
+
+      x = xcoords[i]
+      y = ycoords[j]
+
+      coords = LocalCoords(x, y)
+      coords.setUniverse(0)
+      geometry.findCellContainingCoords(coords)
+      fsr_id = geometry.getFSRId(coords)
+      cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)
+      surface[j][i] = color_map[cell_id % num_cells]
+
+  # Flip the surface vertically to align NumPy row/column indices with the
+  # orientation expected by the user
+  surface = np.flipud(surface)
+
+  # Plot a 2D color map of the CMFD cells
+  fig = plt.figure()
+  plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
+  plt.title('CMFD cells')
+  filename = directory + 'cmfd-cells.png'
   fig.savefig(filename, bbox_inches='tight')
 
 
@@ -459,7 +581,7 @@ def plot_flat_source_regions(geometry, gridsize=250):
 # @param solver a Solver object that has converged the source for the Geometry
 # @param energy_groups a Python list of integer energy groups to plot
 # @param gridsize an optional number of grid cells for the plot
-def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
+def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
 
   global subdirectory
 
@@ -480,13 +602,13 @@ def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
 
   if isinstance(energy_groups, list):
     for group in energy_groups:
-      if not isinstance(group, int):
-        py_print('ERROR', 'Unable to plot the flat source region ' + \
+      if not is_integer(group):
+        py_printf('ERROR', 'Unable to plot the flat source region ' + \
                  'scalar flux since the energy_groups list ' + \
                  'contains %s which is not an int', str(group))
 
       elif group <= 0:
-        py_print('ERROR', 'Unable to plot the flat source region scalar ' + \
+        py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                  'flux since the energy_groups list contains %d which is' + \
                  'less than the index for all energy groups', str(group))
 
@@ -495,9 +617,9 @@ def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
                   'flux since the energy_groups list contains %d which is' + \
                   ' greater than the index for all energy groups', str(group))
 
-  elif isinstance(energy_groups, int):
+  elif is_integer(energy_groups):
     if energy_groups <= 0:
-      py_print('ERROR', 'Unable to plot the flat source region scalar ' + \
+      py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                'flux since the energy_groups argument contains %d which is' + \
                ' less than the index for all energy groups', str(energy_groups))
 
@@ -513,11 +635,11 @@ def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
                 'is %s which is not an energy group index or a list ' + \
                 'of energy group indices', str(energy_groups))
 
-  if not isinstance(gridsize, int):
+  if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the flat source region scalar flux ' + \
               'since since the gridsize %s is not an integer', str(gridsize))
 
-  if not isinstance(energy_groups, (int, list)):
+  if not is_integer(energy_groups) and not isinstance(energy_groups, list):
     py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
               'flux since the energy_groups is not an int or a list')
 
@@ -535,10 +657,10 @@ def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
   fluxes = numpy.zeros((len(energy_groups), gridsize, gridsize))
 
   # Retrieve the bounding box for the geometry
-  xmin = geometry.getXMin()
-  xmax = geometry.getXMax()
-  ymin = geometry.getYMin()
-  ymax = geometry.getYMax()
+  xmin = geometry.getXMin() + TINY_MOVE
+  xmax = geometry.getXMax() - TINY_MOVE
+  ymin = geometry.getYMin() + TINY_MOVE
+  ymax = geometry.getYMax() - TINY_MOVE
 
   # Initialize numpy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -554,7 +676,7 @@ def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
       point = LocalCoords(x, y)
       point.setUniverse(0)
       geometry.findCellContainingCoords(point)
-      fsr_id = geometry.findFSRId(point)
+      fsr_id = geometry.getFSRId(point)
 
       # Get the scalar flux for each energy group in this FSR
       for index, group in enumerate(energy_groups):
@@ -573,18 +695,22 @@ def plot_fluxes(geometry, solver, energy_groups=[0], gridsize=250):
 
 
 ##
-# @brief This method takes in a Mesh object for CMFD acceleration and plots a
-#        color-coded 2D surface plot representing the mesh cell flux.A user
-#        may invoke this function from an OpenMOC Python file as follows:
+# @brief This method takes in a Geometry object and plots a color-coded 2D
+#        surface plot representing the flat source region fission rates in 
+#        the Geometry.
+# @details The geometry object must be initialized with Materials, Cells,
+#          Universes and Lattices before being passed into this method. A user
+#          may invoke this function from an OpenMOC Python file as follows:
 #
 # @code
-#         openmoc.plotter.plotMeshFluxes(mesh)
+#         openmoc.plotter.plot_fission_rates(geometry, solver)
 # @endcode
 #
-# @param mesh Mesh object which has been initialized for CMFD.
-# @param energy_groups a Python list of the integer energy groups to plot
+# @param geometry a Geometry object which has been initialized with Materials,
+#        Cells, Universes and Lattices
+# @param solver a Solver object that has converged the source for the Geometry
 # @param gridsize an optional number of grid cells for the plot
-def plot_mesh_fluxes(mesh, energy_groups=[1], gridsize=500):
+def plot_fission_rates(geometry, solver, gridsize=250):
 
   global subdirectory
 
@@ -595,70 +721,38 @@ def plot_mesh_fluxes(mesh, energy_groups=[1], gridsize=500):
     os.makedirs(directory)
 
   # Error checking
-  if not 'Mesh' in str(type(mesh)):
-    py_printf('ERROR', 'Unable to plot the mesh scalar flux ' + \
-                'since input did not contain a mesh class object')
+  if not 'Geometry' in str(type(geometry)):
+    py_printf('ERROR', 'Unable to plot the fission rates ' + \
+              'since input did not contain a geometry class object')
 
-  if isinstance(energy_groups, list):
-    for group in energy_groups:
+  if not 'Solver' in str(type(solver)):
+    py_printf('ERROR', 'Unable to plot the fission rates ' + \
+              'since input did not contain a solver class object')
 
-      if not isinstance(group, int):
-        py_printf('ERROR', 'Unable to plot the mesh scalar flux since the ' + \
-                  'energy_groups list contains %s which is not an int',
-                  str(group))
-
-      elif group <= 0:
-        py_printf('ERROR', 'Unable to plot the mesh scalar flux since the ' + \
-                  'energy_groups list contains %d which is less than the ' + \
-                  'index for all energy groups', str(group))
-
-      elif group > mesh.getNumGroups():
-        py_printf('ERROR', 'Unable to plot the mesh scalar flux since the ' + \
-                  'energy_groups list contains %d which is greater than ' + \
-                  'the index for all energy groups', str(group))
-
-  elif isinstance(energy_groups, int):
-    if energy_groups <= 0:
-      py_printf('ERROR', 'Unable to plot the mesh scalar flux since the ' + \
-                'energy_groups argument contains %d which is less than the ' + \
-                'index for all energy groups', str(energy_groups))
-
-    elif energy_groups > mesh.getNumGroups():
-      py_printf('ERROR', 'Unable to plot the mesh scalar flux since the ' + \
-                'energy_groups argument contains %d which is greater than ' + \
-                'the index for all energy groups', str(energy_groups))
-
-  else:
-    py_printf('ERROR', 'Unable to plot the mesh scalar flux since the ' + \
-              'energy_groups argument is %s which is not an energy group ' + \
-              'index or a list of energy group indices', str(energy_groups))
-
-  if not isinstance(gridsize, int):
-    py_printf('ERROR', 'Unable to plot the mesh scalar flux since the ' + \
-                'gridsize %s is not an integer', str(gridsize))
-
-  if not isinstance(energy_groups, (int, list)):
-    py_printf('ERROR', 'Unable to plot the mesh scalar ' + \
-                'flux since the energy_groups is not an int or a list')
+  if not is_integer(gridsize):
+    py_printf('ERROR', 'Unable to plot the fission rates ' + \
+              'since since the gridsize %s is not an integer', str(gridsize))
 
   if gridsize <= 0:
-    py_printf('Error', 'Unable to plot the mesh ' + \
-                'with a negative gridsize (%d)', gridsize)
+    py_printf('Error', 'Unable to plot the fission rates ' + \
+              'with a negative gridsize (%d)', gridsize)
 
-  py_printf('NORMAL', 'Plotting the mesh scalar fluxes...')
+  py_printf('NORMAL', 'Plotting the flat source region fission rates...')
 
-  if not isinstance(energy_groups, list):
-    energy_groups = [energy_groups]
+  # Get geometry
+  geometry = solver.getGeometry()
 
+  # Compute the volume-weighted fission rates for each FSR
+  fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
 
-  # Initialize a numpy array for the groupwise scalar fluxes
-  fluxes = numpy.zeros((len(energy_groups), gridsize, gridsize))
+  # Initialize a numpy array of fission rates
+  fission_rates_array = numpy.zeros((gridsize, gridsize))
 
   # Retrieve the bounding box for the geometry
-  xmin = -mesh.getLengthX()/2.0
-  xmax = mesh.getLengthX()/2.0
-  ymin = -mesh.getLengthY()/2.0
-  ymax = mesh.getLengthY()/2.0
+  xmin = geometry.getXMin() + TINY_MOVE
+  xmax = geometry.getXMax() - TINY_MOVE
+  ymin = geometry.getYMin() + TINY_MOVE
+  ymax = geometry.getYMax() - TINY_MOVE
 
   # Initialize numpy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -673,20 +767,17 @@ def plot_mesh_fluxes(mesh, energy_groups=[1], gridsize=500):
 
       point = LocalCoords(x, y)
       point.setUniverse(0)
-      cell_id = mesh.findCellId(point)
+      geometry.findCellContainingCoords(point)
+      fsr_id = geometry.getFSRId(point)
 
-      # Get the scalar flux for each energy group in this FSR
-      for index, group in enumerate(energy_groups):
-        fluxes[index,j,i] = mesh.getFlux(cell_id, group-1)
+      # Get the fission rate in this FSR
+      fission_rates_array[j,i] = fission_rates[fsr_id]
 
-  # Loop over all energy group and create a plot
-  for index, group in enumerate(energy_groups):
-
-    # Plot a 2D color map of the flat source regions
-    fig = plt.figure()
-    plt.imshow(np.flipud(fluxes[index,:,:]), extent=[xmin, xmax, ymin, ymax])
-    plt.colorbar()
-    plt.title('Mesh Scalar Flux in Group ' + str(group))
-    filename = directory + 'mesh-flux-group-' + str(group) + '.png'
-    fig.savefig(filename, bbox_inches='tight')
+  # Plot a 2D color map of the flat source regions fission rates
+  fig = plt.figure()
+  plt.imshow(np.flipud(fission_rates_array), extent=[xmin, xmax, ymin, ymax])
+  plt.colorbar()
+  plt.title('Flat Source Region Fission Rates')
+  filename = directory + 'fission-rates.png'
+  fig.savefig(filename, bbox_inches='tight')
 

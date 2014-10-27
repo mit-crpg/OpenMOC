@@ -15,16 +15,15 @@
   #include "../src/Quadrature.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
-  #include "../src/ThreadPrivateSolver.h"
   #include "../src/Surface.h"
   #include "../src/Timer.h"
   #include "../src/Track.h" 
   #include "../src/TrackGenerator.h"
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
-  #include "../src/Mesh.h"
 
   #define printf PySys_WriteStdout
+
 
   /* Exception helpers */
   static int swig_c_error_num = 0;
@@ -155,10 +154,11 @@
 }
 
 
-/* Typemap for the Cmfd::setGroupStructure(int* group_indices, int ncg)
+/* Typemap for the Cmfd::setGroupStructure
+ * (int* group_indices, int length_group_indices)
  * method - allows users to pass in a Python list of group indices
  * for each CMFD energy group */
-%typemap(in) (int* group_indices, int ncg) {
+%typemap(in) (int* group_indices, int length_group_indices) {
 
   if (!PyList_Check($input)) {
     PyErr_SetString(PyExc_ValueError,"Expected a Python list of values "
@@ -166,7 +166,7 @@
     return NULL;
   }
 
-  $2 = PySequence_Length($input);  // ncg
+  $2 = PySequence_Length($input);  // length_group_indices
   $1 = (int*) malloc($2 * sizeof(int));  // group indices array
 
   /* Loop over x */
@@ -177,7 +177,7 @@
 
     /* If value is a number, cast it as an int and set the input array value */
     if (PyNumber_Check(o)) {
-      $1[i] = (int) PyInt_AS_LONG(o)
+      $1[i] = (int) PyInt_AS_LONG(o);
     }
     else {
       free($1);
@@ -241,6 +241,7 @@
 }
 
 
+
 /* If the user did not pass in the --no-numpy flag, then NumPy typemaps will be
  * used and the NumPy C API will be embedded in the source code. This will allow
  * users to pass arrays of data to/from the C++ source code (ie, setting group
@@ -248,7 +249,6 @@
 #else
 
 %include "numpy.i"
-
 
 %init %{
   import_array();
@@ -260,9 +260,9 @@
 %apply (int DIM1, int DIM2, int* IN_ARRAY2) {(int num_x, int num_y, int* universes)}
 
 /* The typemap used to match the method signature for the
- * Cmfd::createGroupStructure method. This allows users to set the CMFD group 
+ * Cmfd::setGroupStructure method. This allows users to set the CMFD group 
  * structure using a NumPy array */
-%apply (int* IN_ARRAY1, int DIM1) {(int* group_indices, int ncg)}
+%apply (int* IN_ARRAY1, int DIM1) {(int* group_indices, int length_group_indices)}
 
 /* The typemap used to match the method signature for the Material
  * cross-section setter methods. This allows users to set the cross-sections
@@ -275,7 +275,7 @@
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
 
 /* The typemap used to match the method signature for the TrackGenerator's
- * getter methods for track segment start and end coordinates for the plotting 
+ * getter methods for track segment start and end coordinates for the plotting
  * routines in openmoc.plotter */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
 
@@ -301,14 +301,12 @@
 %include ../src/Quadrature.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
-%include ../src/ThreadPrivateSolver.h
 %include ../src/Surface.h
 %include ../src/Timer.h
 %include ../src/Track.h
 %include ../src/TrackGenerator.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h
-%include ../src/Mesh.h
 
 
 #define printf PySys_WriteStdout

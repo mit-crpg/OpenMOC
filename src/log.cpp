@@ -200,7 +200,7 @@ void set_log_level(const char* new_level) {
     log_printf(INFO, "Logging level set to NORMAL");
   }
   else if (strcmp("SEPARATOR", new_level) == 0) {
-    log_level = HEADER;
+    log_level = SEPARATOR;
     log_printf(INFO, "Logging level set to SEPARATOR");
   }
   else if (strcmp("HEADER", new_level) == 0) {
@@ -376,8 +376,20 @@ void log_printf(logLevel level, const char* format, ...) {
         break;
       }
     case (RESULT):
-      msg_string = std::string("[  RESULT ]  ") + message + "\n";
-      break;
+      {
+        std::string msg = std::string(message);
+        std::string level_prefix = "[  RESULT ]  ";
+
+        /* If message is too long for a line, split into many lines */
+        if (int(msg.length()) > line_length)
+          msg_string = create_multiline_msg(level_prefix, msg);
+
+        /* Puts message on single line */
+        else
+          msg_string = level_prefix + msg + "\n";
+
+        break;
+      }
     case (UNITTEST):
       {
         std::string msg = std::string(message);

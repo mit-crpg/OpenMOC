@@ -9,12 +9,11 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 27, 2013
 
-
 import sys
 
 ## @var openmoc
 #  @brief The openmoc module in use in the Python script using the
-#         openmoc.materialize module.
+#         openmoc.process module.
 openmoc = ''
 
 # Determine which OpenMOC module is being used
@@ -44,200 +43,131 @@ else:
   from openmoc.log import *
 
 
+## 
+# @brief This routine checks if a given value is an integer data type.
+#
+# @param val a value to check
+def is_integer(val):
+  return isinstance(val, (int, long, np.int_, np.intc, np.intp, np.int8,\
+                            np.int16, np.int32, np.int64, np.uint8, np.uint16,\
+                            np.uint32, np.uint64))
+
+
+## 
+# @brief This routine checks if a given value is a string data type.
+#
+# @param val a value to check
+def is_string(val):
+  return isinstance(val, (str, np.str, np.string_))
+
+
+## 
+# @brief This routine checks if a given value is an float data type.
+#
+# @param val a value to check
+def is_float(val):
+  return isinstance(val, (float, np.float_, np.float16, np.float32, np.float64))
+
+
 ##
-# @brief This routine is computes the fission rate in each flat source region,
-#        and combines the rates into pin-wise and assembly-wise fission rates
-#        in an exported binary file.
+# @brief This routine computes the fission rate in each flat source region,
+#        and combines the rates based on their hierarchical universe/lattice
+#        structure. The fission rates are then exported to a binary HDF5
+#        or python pickle file.
 # @details This routine is intended to be called by the user in Python to
-#          compute pin and assembly fission rates. The routine either exports
-#          fission rates to an HDF5 binary file or ASCII files for each nested
-#          Universe hierarchy. The routine makes use of a recursive utility
-#          function computeUniverseFissionRate(...) which is also implemented
-#          in the process module. This routine may be called from a Python
-#          script as follows:
+#          compute fission rates. Typically, the fission rates will represent
+#          pin powers. The routine either exports fission rates to an HDF5 
+#          binary file or pickle file with each fission rate being indexed by
+#          a string representing the universe/lattice hierarchy. 
+#          This routine may be called from a Python script as follows:
 #
 # @code
-#          compute_pin_powers(solver, use_hdf5=True)
+#          compute_fission_rates(solver, use_hdf5=True)
 # @endcode
 #
 # @param solver a pointer to a Solver class object
-# @param use_hdf5 whether or not to export pin powers to an HDF5 file
-def compute_pin_powers(solver, use_hdf5=False):
+# @param use_hdf5 whether or not to export fission rates to an HDF5 file
+def compute_fission_rates(solver, use_hdf5=False):
 
-  # Error checking of input parameters
+  # create directory and filename
+  directory = get_output_directory() + '/fission-rates/'
+  filename = 'fission-rates'
 
-  directory = get_output_directory() + '/pin-powers/'
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
 
-  # Determine which Universes and Lattices contain fissionable Materials
+  # Get geometry
   geometry = solver.getGeometry()
-  geometry.computeFissionability()
 
   # Compute the volume-weighted fission rates for each FSR
-  fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+  fsr_fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
 
-  # Initialize a new HDF5 file to store the pin power data
+  # Initialize fission rates dictionary
+  fission_rates_sum = {}
+
+  # Loop over FSRs and populate fission rates dictionary
+  for fsr in range(geometry.getNumFSRs()):
+    
+    if geometry.findFSRMaterial(fsr).isFissionable():
+
+      # Get the linked list of LocalCoords
+      point = geometry.getFSRPoint(fsr)
+      coords = LocalCoords(point.getX(), point.getY())
+      coords.setUniverse(0)
+      geometry.findCellContainingCoords(coords)
+      coords = coords.getHighestLevel().getNext()
+
+      # initialize dictionary key
+      key = 'UNIV = 0 : '
+      
+      # Parse through the linked list and create fsr key.
+      # If lowest level sub dictionary already exists, then increment 
+      # fission rate; otherwise, set the fission rate.
+      while True:
+        if coords.getType() is LAT:
+          key += 'LAT = ' + str(coords.getLattice()) + ' (' + \
+                 str(coords.getLatticeX()) + ', ' + \
+                 str(coords.getLatticeY()) + ') : '
+        else:
+          key += 'UNIV = ' + str(coords.getUniverse()) + ' : '
+
+        # Remove the trailing ' : ' on the end of the key if at last univ/lat
+        if coords.getNext() is None:
+          key = key[:-3]
+          break
+        else:
+          coords = coords.getNext()
+
+      # Increment or set fission rate
+      if key in fission_rates_sum:
+        fission_rates_sum[key] += fsr_fission_rates[fsr]
+      else:
+        fission_rates_sum[key] = fsr_fission_rates[fsr]
+
+  # If using HDF5
   if use_hdf5:
 
     import h5py
 
-    # Make directory if it does not exist
-    if not os.path.exists(directory):
-      os.makedirs(directory)
+    # Open HDF5 file
+    f = h5py.File(directory + filename + '.h5', 'w')
 
-    f = h5py.File(directory + 'fission-rates.h5', 'w')
+    # Write the fission rates to the HDF5 file
+    fission_rates_group = f.create_group('fission-rates')
+    for key, value in fission_rates_sum.items():
+      fission_rates_group.attrs[key] = value
+
+    # Close hdf5 file
     f.close()
 
-  # Get the base Universe in the Geometry and compute pin powers for each
-  # level of nested Universes and Lattices
-  universe = geometry.getUniverse(0)
-  compute_universe_fission_rate(geometry, universe, 0, fission_rates,
-                                use_hdf5, directory=directory)
-
-
-##
-# @brief A recursive routine to compute the fission rate for all cells in a
-#        given universe, and for all universes contained within those cells.
-# @details This method is an internal utility helper method for the
-#          compute_pin_powers(...) routine and is NOT intended to be
-#          called by the user.
-# @param geometry a pointer to a Geometry object
-# @param universe a pointer to the universe of interest
-# @param FSR_offset the offset for this universe in the nested hierarchy
-# @param FSR_fission_rates the array of fission rates for all FSRs
-# @param use_hdf5 whether or not to export pin powers to HDF5
-# @param attributes a list of strings for the path in the nested CSG hierarchy
-# @param directory the output directory for this universe's fission rate
-def compute_universe_fission_rate(geometry, universe, FSR_offset,
-                                  FSR_fission_rates, use_hdf5=False,
-                                  attributes = [], directory=''):
-
-  fission_rate = 0.0
-
-  # If the Universe is not fissionable, the fission rate within it is zero
-  if not universe.isFissionable():
-    return fission_rate
-
-  # If the Universe is a fissionable SIMPLE type Universe
-  elif universe.getType() is SIMPLE:
-
-    # Create a directory/file for this Universe's total fission rate
-    attributes.append('universe' + str(universe.getId()))
-
-    num_cells = universe.getNumCells()
-    cell_ids = universe.getCellIds(int(num_cells))
-
-    # For each of the Cells inside the Universe, check if it is a
-    # MATERIAL or FILL type
-    for cell_id in cell_ids:
-
-      cell = universe.getCell(int(cell_id))
-
-      # If the current cell is a MATERIAL type cell
-      if cell.getType() is MATERIAL:
-        cell = castCellToCellBasic(cell)
-        fsr_id = universe.getFSR(cell.getId()) + FSR_offset
-        fission_rate += FSR_fission_rates[fsr_id]
-
-      # The current Cell is a FILL type cell
-      else:
-        cell = castCellToCellFill(cell)
-        universe_fill = cell.getUniverseFill()
-        fsr_id = universe.getFSR(cell.getId()) + FSR_offset
-        fission_rate += \
-          compute_universe_fission_rate(geometry, universe_fill, fsr_id, \
-                                        FSR_fission_rates, use_hdf5, \
-                                        attributes, directory)
-
-    # Remove the subdirectory structure attribute for this Universe
-    attributes.pop()
-
-
-  # This is a fissionable LATTICE type Universe
   else:
 
-    # Add a new attribute for this Lattice in the pin power hierarchy
-    attributes.append('lattice' + str(universe.getId()))
+    import pickle
 
-    # Retrieve a pointer to this Lattice and its dimensions
-    lattice = castUniverseToLattice(universe)
-    num_x = lattice.getNumX()
-    num_y = lattice.getNumY()
-
-    # Create a NumPy array to store all of this Lattice's pin powers
-    lattice_cell_powers = np.zeros((num_x, num_y))
-
-    attributes.append('x')
-    attributes.append('y')
-
-    # Loop over all Lattice cells in this Lattice
-    for i in range(num_y-1, -1, -1):
-      for j in range(num_x):
-
-        # Get a pointer to the current Lattice cell
-        cell_universe = lattice.getUniverse(j,i)
-
-        # Get the FSR Id prefix for this Lattice cell
-        fsr_id = lattice.getFSR(j,i) + FSR_offset
-
-        attributes[-1] = 'y' + str(i)
-        attributes[-2] = 'x' + str(j)
-
-        # Compute the fission rate within this Lattice cell
-        lattice_cell_powers[j,i] = \
-            compute_universe_fission_rate(geometry, cell_universe, fsr_id,
-                                          FSR_fission_rates, use_hdf5,
-                                          attributes, directory)
-
-        # Increment total Lattice power
-        fission_rate += lattice_cell_powers[j,i]
-
-    # Remove subdirectory attributes for x, y Lattice cell indices
-    attributes.pop()
-    attributes.pop()
-    attributes.pop()
-
-    # Flip the x-dimension of the array so that it is indexed
-    # starting from the top left corner as
-    lattice_cell_powers = np.fliplr(lattice_cell_powers)
-
-
-    #######################################################################
-    #######################  STORE PIN CELL DATA  #########################
-    #######################################################################
-
-    # If using HDF5, store data categorized by attributes in an HDF5 file
-    if use_hdf5:
-
-      import h5py
-
-      # Create a h5py file handle for the file
-      f = h5py.File(directory + 'fission-rates.h5', 'a')
-
-      # Create the group for this Lattice, Universe combination
-      curr_group = f.require_group(str.join('/', attributes))
-
-      # Create a new dataset for this Lattice's pin powers
-      curr_group.create_dataset('fission-rates', data=lattice_cell_powers)
-
-      f.close()
-
-
-    # If not using HDF5, store data categorized by subdirectory in ASCII files
-    else:
-
-      subdirectory = directory + str.join('/', attributes) + '/'
-
-      # Make directory if it does not exist
-      if not use_hdf5 and not os.path.exists(subdirectory):
-        os.makedirs(subdirectory)
-
-        np.savetxt(subdirectory + 'fission-rates.txt',
-                   lattice_cell_powers, delimiter=',')
-
-  # Return the total fission rate for this Lattice
-  return fission_rate
-
-
+    # Pickle the fission rates to a file
+    pickle.dump(fission_rates_sum, open(directory + filename + '.pkl', 'wb'))
+    
 
 ##
 # @brief This method stores all of the data for an OpenMOC simulation to a
@@ -268,13 +198,13 @@ def compute_universe_fission_rate(geometry, universe, FSR_offset,
 # @param solver a pointer to a Solver object
 # @param fluxes whether to store FSR scalar fluxes (false by default)
 # @param sources whether to store FSR sources (false by default)
-# @param pin_powers whether to store fission rates (false by default)
+# @param fission_rates whether to store fission rates (false by default)
 # @param use_hdf5 whether to export to HDF5 (default) or Python pickle file
 # @param filename the filename to use (default is 'simulation-state.h5')
 # @param append append to existing file or create new one (false by default)
 # @param note an additional string note to include in state file
 def store_simulation_state(solver, fluxes=False, sources=False,
-                           pin_powers=False, use_hdf5=False,
+                           fission_rates=False, use_hdf5=False,
                            filename='simulation-state',
                            append=True, note=''):
 
@@ -322,6 +252,13 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   else:
     method = 'linear interpolation'
 
+  # Determine whether the Solver has initialized Coarse Mesh Finite
+  # Difference Acceleration (CMFD)
+  if solver.getGeometry().getCmfd() is not None:
+    cmfd = True
+  else:
+    cmfd = False
+
   # Get the Geometry and TrackGenerator from the solver
   geometry = solver.getGeometry()
   track_generator = solver.getTrackGenerator()
@@ -361,18 +298,12 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   if sources:
 
     # Allocate array
-    sources = np.zeros((num_FSRs, num_groups))
+    sources_array = np.zeros((num_FSRs, num_groups))
 
     # Get the scalar flux for each FSR and energy group
     for i in range(num_FSRs):
       for j in range(num_groups):
-        sources[i,j] = solver.getFSRSource(i,j+1)
-
-  # If the user requested to store pin powers
-  if pin_powers:
-
-    # Generate and store pin powers
-    compute_pin_powers(solver, use_hdf5=use_hdf5)
+        sources_array[i,j] = solver.getFSRSource(i,j+1)
 
   # If using HDF5
   if use_hdf5:
@@ -407,6 +338,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     time_group.create_dataset('source residual threshold', data=thresh)
     time_group.create_dataset('exponential', data=method)
     time_group.create_dataset('floating point', data=precision)
+    time_group.create_dataset('CMFD', data=cmfd)
     time_group.create_dataset('time [sec]', data=tot_time)
     time_group.create_dataset('keff', data=keff)
 
@@ -420,18 +352,20 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       time_group.create_dataset('FSR scalar fluxes', data=scalar_fluxes)
 
     if sources:
-      time_group.create_dataset('FSR sources', data=sources)
+      time_group.create_dataset('FSR sources', data=sources_array)
 
-    if pin_powers:
+    if fission_rates:
 
-      # Open the pin powers file generated by compute_pin_powers(...)
-      pin_powers_file = h5py.File('pin-powers/fission-rates.h5', 'r')
+      compute_fission_rates(solver, use_hdf5=True)
 
-      # Deep copy the group of pin powers from pin_powers_file
-      f.copy(pin_powers_file, time_group, name='fission-rates')
+      # Open the fission rates file generated by compute_fission_rates(...)
+      fission_rates_file = h5py.File('fission-rates/fission-rates.h5', 'r')
+
+      # Deep copy the group of fission rates from fission_rates_file
+      f.copy(fission_rates_file, time_group, name='fission-rates')
 
       # Close the pin powers file
-      pin_powers_file.close()
+      fission_rates_file.close()
 
     # Close the HDF5 file
     f.close()
@@ -477,6 +411,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     state['source residual threshold'] = thresh
     state['exponential'] = method
     state['floating point'] = precision
+    state['CMFD'] = cmfd
     state['time [sec]'] = tot_time
     state['keff'] = keff
 
@@ -490,15 +425,22 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       state['FSR scalar fluxes'] = scalar_fluxes
 
     if sources:
-      state['FSR sources'] = sources
+      state['FSR sources'] = sources_array
 
-    if powers:
-      py_printf('WARNING', 'The process.storeSimulationState(...)' + \
-                'method only supports pin power storage for HDF5 files')
+    if fission_rates:
+      compute_fission_rates(solver, False)      
+      state['fission-rates'] = pickle.load(file('fission-rates/fission-rates.pkl', 'rb'))
 
     # Pickle the simulation states to a file
     pickle.dump(sim_states, open(filename, 'wb'))
 
+    # Pickle the simulation states to a file
+    pickle.dump(sim_states, open(filename, 'wb'))
+
+
+##
+# @brief
+# @details
 
 ##
 # @brief
@@ -518,8 +460,8 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 #          and number of OpenMP or CUDA threads. In addition, the routine
 #          can restore the FSR flux array, FSR source array.
 #
-#          Note: If the pin and and assembly fission rates were stored to
-#          the binary file, they are not restored and returned in this method.
+#          Note: If the fission rates were stored in a hdf5 binary file, 
+#          they are not restored and returned in this method.
 #
 #          This method may be called from Python as follows:
 #
@@ -595,6 +537,9 @@ def restore_simulation_state(filename='simulation-state.h5',
         precision = str(dataset['floating point'][...])
         state['floating point'] = precision
 
+        cmfd = str(dataset['CMFD'][...])
+        state['CMFD'] = cmfd
+
         time = float(dataset['time [sec]'][...])
         state['time [sec]'] = time
 
@@ -612,15 +557,15 @@ def restore_simulation_state(filename='simulation-state.h5',
           state['FSR scalar fluxes'] = fluxes
 
         if 'FSR sources' in dataset:
-          sources = dataset['FSR sources'][...]
-          state['FSR sources'] = sources
+          sources_array = dataset['FSR sources'][...]
+          state['FSR sources'] = sources_array
 
         if 'note' in dataset:
           state['note'] = str(dataset['note'])
 
         if 'fission-rates' in dataset:
           py_printf('WARNING', 'The process.restore_simulation_state(...)'+\
-                    'method does not yet support pin powers')
+                    'method does not yet support fission rates')
 
     return states
 
@@ -635,7 +580,6 @@ def restore_simulation_state(filename='simulation-state.h5',
     states = pickle.load(file(filename, 'rb'))
 
     return states
-
 
   # If file does not have a recognizable extension
   else:

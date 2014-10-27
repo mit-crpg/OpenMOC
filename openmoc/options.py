@@ -7,6 +7,7 @@
 # @date July 24, 2013
 
 import getopt, sys
+import multiprocessing
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -65,22 +66,13 @@ class Options:
     self._tolerance = 1E-5
 
     ## The default number of OpenMP threads
-    self._num_omp_threads = 1
+    self._num_omp_threads = multiprocessing.cpu_count()
 
     ## The default number of GPU threadblocks
     self._num_thread_blocks = 64
 
     ## The default number of GPU threads per threadblock
     self._num_gpu_threads = 64
-
-    ## The default CMFD acceleration flag
-    self._use_cmfd_acceleration = False
-
-    ## The default CMFD relaxation factor
-    self._cmfd_relax_factor = 0.6
-
-    ## The default CMFD mesh level
-    self._cmfd_mesh_level = -1
 
     # Parse in arguments from the command line
     self.parseArguments()
@@ -102,13 +94,10 @@ class Options:
                                   'max-iters=',
                                   'num-omp-threads=',
                                   'num-thread-blocks=',
-                                  'num-gpu-threads=',
-                                  'relax-factor=',
-                                  'cmfd-acceleration',
-                                  'mesh-level='])
+                                  'num-gpu-threads='])
 
     except getopt.GetoptError as err:
-      py_printf('WARNING', str(err))
+      py_printf('ERROR', str(err))
       pass
 
 
@@ -157,18 +146,6 @@ class Options:
         num_gpu_threads += 'The number of GPU threads per block\n'
         print(num_gpu_threads)
 
-        relax_factor = '\t{: <35}'.format('-r, --relax-factor=<0.6>')
-        relax_factor += 'The cmfd relaxation factor\n'
-        print(relax_factor)
-
-        acceleration = '\t{: <35}'.format('-f, --cmfd-acceleration=<False>')
-        acceleration += 'The cmfd acceleration flag\n'
-        print(acceleration)
-
-        mesh_level = '\t{: <35}'.format('-l, --mesh-level=<-1>')
-        mesh_level += 'The mesh level\n'
-        print(mesh_level)
-
         sys.exit()
 
       elif opt in ('-a', '--num-azim'):
@@ -191,16 +168,6 @@ class Options:
 
       elif opt in ('-g', '--num-gpu-threads'):
         self._num_gpu_threads = int(arg)
-
-      elif opt in ('-f', '--cmfd-acceleration'):
-        self._use_cmfd_acceleration = True
-
-      elif opt in ('-r', '--relax-factor'):
-        self._cmfd_relax_factor = float(arg)
-
-      elif opt in ('-l', '--mesh-level'):
-        self._cmfd_mesh_level = int(arg)
-
 
   ##
   # @brief Returns the number of azimuthal angles.
@@ -249,24 +216,3 @@ class Options:
   # @return the number of CUDA threads per block
   def getNumThreadsPerBlock(self):
     return self._num_gpu_threads
-
-
-  ##
-  # @brief Returns the whether or not to use CMFD acceleration.
-  # @return use CMFD acceleration (true) or not (false)
-  def getCmfdAcceleration(self):
-    return self._use_cmfd_acceleration
-
-
-  ##
-  # @brief Returns the CMFD relaxation factor.
-  # @return the CMFD relaxation factor.
-  def getCmfdRelaxationFactor(self):
-    return self._cmfd_relax_factor
-
-
-  ##
-  # @brief Returns the number of CMFD multigrid mesh levels.
-  # @return the number of CMFD multigrid mesh levels
-  def getCmfdMeshLevel(self):
-    return self._cmfd_mesh_level

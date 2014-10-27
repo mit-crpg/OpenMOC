@@ -113,7 +113,7 @@ int Cell::getNumSurfaces() const {
  *        surfaces bounding the Cell.
  * @return std::map of Surface pointers and halfspaces
  */
-std::map<Surface*, int> Cell::getSurfaces() const {
+std::map<int, surface_halfspace> Cell::getSurfaces() const {
   return _surfaces;
 }
 
@@ -138,7 +138,10 @@ void Cell::addSurface(int halfspace, Surface* surface) {
     log_printf(ERROR, "Unable to add surface %d to cell %d since the halfspace"
                " %d is not -1 or 1", surface->getId(), _id, halfspace);
 
-  _surfaces.insert(std::pair<Surface*, int>(surface, halfspace));
+  surface_halfspace* new_surf_half = new surface_halfspace;
+  new_surf_half->_surface = surface;
+  new_surf_half->_halfspace = halfspace;
+  _surfaces[surface->getId()] = *new_surf_half;
 }
 
 
@@ -152,11 +155,11 @@ void Cell::addSurface(int halfspace, Surface* surface) {
 bool Cell::cellContainsPoint(Point* point) {
 
   /* Loop over all Surfaces inside the Cell */
-  std::map<Surface*, int>::iterator iter;
+  std::map<int, surface_halfspace>::iterator iter;
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Return false if the Point is not in the correct Surface halfspace */
-    if (iter->first->evaluate(point) * iter->second < -ON_SURFACE_THRESH)
+    if (iter->second._surface->evaluate(point) * iter->second._halfspace < -ON_SURFACE_THRESH)
       return false;
   }
 
@@ -193,13 +196,13 @@ double Cell::minSurfaceDist(Point* point, double angle,
   double d;
   Point intersection;
 
-  std::map<Surface*, int>::iterator iter;
+  std::map<int, surface_halfspace>::iterator iter;
 
   /* Loop over all of the Cell's Surfaces */
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Find the minimum distance from this surface to this Point */
-    d = iter->first->getMinDistance(point, angle, &intersection);
+    d = iter->second._surface->getMinDistance(point, angle, &intersection);
 
     /* If the distance to Cell is less than current min distance, update */
     if (d < min_dist) {
@@ -262,19 +265,6 @@ int CellBasic::getNumSectors() {
 
 
 /**
- * @brief Return the number of flat source regions in this CellBasic.
- * @details This method is used when the Geometry recursively constructs flat
- *           source regions. By definition, CellBasics are the lowest level
- *           entity in the geometry and thus only have one flat source region
- *           within them, so this method always returns 1.
- * @return the number of FSRs in this Cell
- */
-int CellBasic::getNumFSRs() {
-  return 1;
-}
-
-
-/**
  * @brief Set the Cell's number of rings.
  * @param num_rings the number of rings in this Cell
  */
@@ -325,10 +315,10 @@ CellBasic* CellBasic::clone() {
                                       _num_rings, _num_sectors);
 
   /* Loop over all of this Cell's Surfaces and add them to the clone */
-  std::map<Surface*, int>::iterator iter;
+  std::map<int, surface_halfspace>::iterator iter;
 
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    new_cell->addSurface(iter->second, iter->first);
+    new_cell->addSurface(iter->second._halfspace, iter->second._surface);
 
   return new_cell;
 }
@@ -423,13 +413,13 @@ void CellBasic::ringify() {
   std::vector<Circle*> circles;
 
   /* See if the Cell contains 1 or 2 CIRCLE Surfaces */
-  std::map<Surface*, int>::iterator iter1;
+  std::map<int, surface_halfspace>::iterator iter1;
   for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
 
     /* Determine if any of the Surfaces is a Circle */
-    if ((*iter1).first->getSurfaceType() == CIRCLE) {
-      int halfspace = (*iter1).second;
-      Circle* circle = static_cast<Circle*>((*iter1).first);
+    if (iter1->second._surface->getSurfaceType() == CIRCLE) {
+      int halfspace = iter1->second._halfspace;
+      Circle* circle = static_cast<Circle*>(iter1->second._surface);
 
       /* Outermost bounding Circle */
       if (halfspace == -1) {
@@ -594,10 +584,10 @@ std::string CellBasic::toString() {
          << ", num of sectors = " << _num_sectors;
 
   /* Append each of the surface ids to the string */
-  std::map<Surface*, int>::iterator iter;
+  std::map<int, surface_halfspace>::iterator iter;
   string << ", surface ids = ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string << iter->first->getId() << ", ";
+    string << iter->first << ", ";
 
   return string.str();
 }
@@ -645,23 +635,6 @@ Universe* CellFill::getUniverseFill() const {
 
 
 /**
- * @brief Return the number of flat source regions in this CellFill.
- * @details This method is used when the geometry recursively constructs flat
- *          source regions.
- * @return the number of FSRs in this CellFill
- */
-int CellFill::getNumFSRs() {
-  Universe *univ = getUniverseFill();
-
-  if (univ->getType() == SIMPLE)
-    return univ->computeFSRMaps();
-
-  else
-    return static_cast<Lattice*>(univ)->computeFSRMaps();
-}
-
-
-/**
  * @brief Set a pointer to the Universe filling this CellFill.
  * @param universe the Universe's pointer
  */
@@ -684,10 +657,10 @@ std::string CellFill::toString() {
     ", num_surfaces = " << getNumSurfaces();
 
   /** Add the IDs for the Surfaces in this Cell */
-  std::map<Surface*, int>::iterator iter;
+  std::map<int, surface_halfspace>::iterator iter;
   string << ", surface ids = ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string << iter->first->getId() << ", ";
+    string << iter->first << ", ";
 
   return string.str();
 }
