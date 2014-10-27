@@ -157,10 +157,11 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
 <p>The number of CUDA threads per threadblock. This option only applies to scripts which use OpenMOC&#8217;s <tt class="xref cpp cpp-class docutils literal"><span class="pre">GPUSolver</span></tt> class. This value must be a multiple of the number of threads in a CUDA <a class="reference external" href="http://www.pgroup.com/lit/articles/insider/v2n1a5.htm">warp</a>. At the time of this writing, nearly all NVIDIA GPUs have a warp size of 32, though this may change for future NVIDIA GPUs. If the value set for this option is not a multiple of 32, the CUDA source code will round up to the nearest multiple of 32 threads. The default is 64 threads.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>If you are unsure what the warp size is for your GPU, you can use the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module to find out. The following Python code will report the warp size for your GPU to the console:</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.cuda</span> <span class="kn">as</span> <span class="nn">cuda</span>
+<p class="last">If you are unsure what the warp size is for your GPU, you can use the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module to find out. The following Python code will report the warp size for your GPU to the console:</p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.cuda</span> <span class="kn">as</span> <span class="nn">cuda</span>
 
-<span class="k">if</span> <span class="n">cuda</span><span class="o">.</span><span class="n">machineContainsGPU</span><span class="p">():</span>
+<span class="k">if</span> <span class="n">cuda</span><span class="o">.</span><span class="n">machine_contains_gpu</span><span class="p">():</span>
   <span class="n">num_threads</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">get_num_threads_per_warp</span><span class="p">()</span>
   <span class="k">print</span> <span class="s">&#39;This machines GPU contains </span><span class="si">%d</span><span class="s"> threads per warp&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_threads</span><span class="p">)</span>
 
@@ -168,25 +169,6 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
   <span class="k">print</span> <span class="s">&#39;This machine does not contain an NVIDIA CUDA-enabled GPU&#39;</span>
 </pre></div>
 </div>
-</div>
-<dl class="option">
-<dt id="cmdoption-f">
-<tt class="descname">-f</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--acceleration</tt><tt class="descclassname">=&lt;false&gt;</tt><a class="headerlink" href="#cmdoption-f" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p>Whether or not to use Coarse Mesh Finite Difference Acceleration (CMFD), a nonlinear acceleration scheme implemented in OpenMOC. Note that no command line argument after the flag <tt class="docutils literal"><span class="pre">-f</span></tt> is needed to turn on CMFD acceleration.</p>
-<dl class="option">
-<dt id="cmdoption-r">
-<tt class="descname">-r</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--relax-factor</tt><tt class="descclassname">=&lt;0.6&gt;</tt><a class="headerlink" href="#cmdoption-r" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p>The relaxation factor to use for CMFD acceleration.</p>
-<dl class="option">
-<dt id="cmdoption-l">
-<tt class="descname">-l</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--mesh-level</tt><tt class="descclassname">=&lt;-1&gt;</tt><a class="headerlink" href="#cmdoption-l" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p>The CMFD multigrid mesh refinement level.</p>
 </div>
 <div class="section" id="canceling-an-openmoc-simulation">
 <h2>5.5. Canceling an OpenMOC Simulation<a class="headerlink" href="#canceling-an-openmoc-simulation" title="Permalink to this headline">¶</a></h2>
@@ -261,7 +243,7 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
     </div>
 
     <div class="footer">
-        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+        &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
 <script type="text/javascript">

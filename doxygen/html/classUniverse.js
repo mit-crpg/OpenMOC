@@ -20,6 +20,7 @@ var classUniverse =
     [ "getType", "classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b", null ],
     [ "getUid", "classUniverse.html#acc6dac6fd91fc1d62285c0ee32cb4f47", null ],
     [ "isFissionable", "classUniverse.html#a519ec15f1e4c7f4b5028b5166ec0e9f1", null ],
+    [ "minSurfaceDist", "classUniverse.html#aaeb10eb025773d2ce1e15747b88f5de8", null ],
     [ "printString", "classUniverse.html#a9d7f74890c13dc3856a694b4f142f985", null ],
     [ "setFissionability", "classUniverse.html#a124179ed92827532c7aecbf51d8c1f42", null ],
     [ "setOrigin", "classUniverse.html#a0f832001f75c9a3e9b57ba6834d202af", null ],

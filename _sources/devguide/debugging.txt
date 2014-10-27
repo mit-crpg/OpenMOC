@@ -68,7 +68,32 @@ The GNU Debugger may be started from the console with the ``gdb`` command:
     <http://www.gnu.org/software/gdb/bugs/>.
     (gdb)
 
-This command will leave you in an interactive session with GDB, complete with its own command line interface.
+If you are debugging code written for the GPU, the CUDA GNU Debugger should be used:
+
+.. code-block:: none
+
+    $ cuda-gdb
+    NVIDIA (R) CUDA Debugger
+    5.5 release
+    Portions Copyright (C) 2007-2013 NVIDIA Corporation
+    GNU gdb (GDB) 7.2
+    Copyright (C) 2010 Free Software Foundation, Inc.
+    License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+    This is free software: you are free to change and redistribute it.
+    There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+    and "show warranty" for details.
+    This GDB was configured as "x86_64-unknown-linux-gnu".
+    For bug reporting instructions, please see:
+    <http://www.gnu.org/software/gdb/bugs/>.
+    (cuda-gdb)
+
+The CUDA GDB debugger oftentimes does not fail at the exact location of the error, so it is recommended to turn cuda memcheck on:
+
+.. code-block:: none
+
+    (cuda-gdb) set cuda memcheck on
+
+These commands will leave you in an interactive session with GDB, complete with its own command line interface. From now on we will give all examples with gdb, but the same commands apply for cuda-gdb.
 
 
 Initializing Python

@@ -99,7 +99,28 @@ For bug reporting instructions, please see:
 (gdb)
 </pre></div>
 </div>
-<p>This command will leave you in an interactive session with GDB, complete with its own command line interface.</p>
+<p>If you are debugging code written for the GPU, the CUDA GNU Debugger should be used:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ cuda-gdb
+NVIDIA (R) CUDA Debugger
+5.5 release
+Portions Copyright (C) 2007-2013 NVIDIA Corporation
+GNU gdb (GDB) 7.2
+Copyright (C) 2010 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;
+and &quot;show warranty&quot; for details.
+This GDB was configured as &quot;x86_64-unknown-linux-gnu&quot;.
+For bug reporting instructions, please see:
+&lt;http://www.gnu.org/software/gdb/bugs/&gt;.
+(cuda-gdb)
+</pre></div>
+</div>
+<p>The CUDA GDB debugger oftentimes does not fail at the exact location of the error, so it is recommended to turn cuda memcheck on:</p>
+<div class="highlight-none"><div class="highlight"><pre>(cuda-gdb) set cuda memcheck on
+</pre></div>
+</div>
+<p>These commands will leave you in an interactive session with GDB, complete with its own command line interface. From now on we will give all examples with gdb, but the same commands apply for cuda-gdb.</p>
 </div>
 <div class="section" id="initializing-python">
 <h3>4.2.3. Initializing Python<a class="headerlink" href="#initializing-python" title="Permalink to this headline">¶</a></h3>
@@ -428,7 +449,7 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
     </div>
 
     <div class="footer">
-        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
+        &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
 <script type="text/javascript">

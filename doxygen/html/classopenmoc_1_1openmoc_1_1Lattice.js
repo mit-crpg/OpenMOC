@@ -13,6 +13,7 @@ var classopenmoc_1_1openmoc_1_1Lattice =
     [ "getUniverses", "classopenmoc_1_1openmoc_1_1Lattice.html#aeea7a011c05d96080f96559c78505932", null ],
     [ "getWidthX", "classopenmoc_1_1openmoc_1_1Lattice.html#a641be10bb9c7b1215f370bd115958717", null ],
     [ "getWidthY", "classopenmoc_1_1openmoc_1_1Lattice.html#a5fee2d17eb7ad3816cfa7f7398aee1a1", null ],
+    [ "minSurfaceDist", "classopenmoc_1_1openmoc_1_1Lattice.html#add1c129f5778fa778a19b96da5b80224", null ],
     [ "printString", "classopenmoc_1_1openmoc_1_1Lattice.html#a799e0e3b57c1a5c28f741ca51bdf267c", null ],
     [ "setLatticeCells", "classopenmoc_1_1openmoc_1_1Lattice.html#a6360755dd60ddefef56a8ad81ec158f6", null ],
     [ "setUniversePointer", "classopenmoc_1_1openmoc_1_1Lattice.html#a676f1df72b19ab47ca27c9a1824c20f0", null ],

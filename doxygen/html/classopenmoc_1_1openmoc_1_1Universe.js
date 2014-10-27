@@ -19,6 +19,7 @@ var classopenmoc_1_1openmoc_1_1Universe =
     [ "getType", "classopenmoc_1_1openmoc_1_1Universe.html#ab9587b26a5bd1c5b91edf975cfdd9625", null ],
     [ "getUid", "classopenmoc_1_1openmoc_1_1Universe.html#a9b88d1b2f4b9cbe2ff40118df809eb19", null ],
     [ "isFissionable", "classopenmoc_1_1openmoc_1_1Universe.html#ad2f92288aa5d2aab8948b41a1c1c72c1", null ],
+    [ "minSurfaceDist", "classopenmoc_1_1openmoc_1_1Universe.html#a57095879b991e0d50c74750d645e9554", null ],
     [ "printString", "classopenmoc_1_1openmoc_1_1Universe.html#a3f86ce3ca18cc2f17645b15bb31676c7", null ],
     [ "setFissionability", "classopenmoc_1_1openmoc_1_1Universe.html#ac12a8ae26f8ed61757ec026731444967", null ],
     [ "setOrigin", "classopenmoc_1_1openmoc_1_1Universe.html#abe00ac026bf8d00ce7dedd6c085d0c20", null ],

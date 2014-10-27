@@ -9,5 +9,5 @@ var searchData=
   ['matsubtract',['matSubtract',['../classCmfd.html#af99526efd65f8b4e4540fef70a669f53',1,'Cmfd']]],
   ['matzero',['matZero',['../classCmfd.html#a169832f52b591cb15e86c39b547f8c8d',1,'Cmfd']]],
   ['mesh',['Mesh',['../classMesh.html#af7a025426b5bc0a60967e60690c8415e',1,'Mesh']]],
-  ['minsurfacedist',['minSurfaceDist',['../classCell.html#adf41aafa99278a759d8d6ae826c7330e',1,'Cell']]]
+  ['minsurfacedist',['minSurfaceDist',['../classCell.html#adf41aafa99278a759d8d6ae826c7330e',1,'Cell::minSurfaceDist()'],['../classUniverse.html#aaeb10eb025773d2ce1e15747b88f5de8',1,'Universe::minSurfaceDist()'],['../classLattice.html#a68148ab388f066e9bd0f4c88fb571880',1,'Lattice::minSurfaceDist()']]]
 ];

@@ -14,6 +14,7 @@ var classLattice =
     [ "getUniverses", "classLattice.html#ab5e3b6812c4c7e478e5ded4acc5d3819", null ],
     [ "getWidthX", "classLattice.html#acb5c93de94618ab65ef61f18a93e48b3", null ],
     [ "getWidthY", "classLattice.html#ad54b31fc59330eaadf4c6b81e034a199", null ],
+    [ "minSurfaceDist", "classLattice.html#a68148ab388f066e9bd0f4c88fb571880", null ],
     [ "printString", "classLattice.html#ac29a8a1d0a21829843ee39eb3778fc85", null ],
     [ "setLatticeCells", "classLattice.html#a7e26e6e079c58f1ebc6c9e1ee237d932", null ],
     [ "setUniversePointer", "classLattice.html#a9a59a806e3629135d7ea784669a6c12c", null ],

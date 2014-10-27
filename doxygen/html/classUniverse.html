@@ -183,6 +183,9 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a70bafb1689f44b64ed98e85df1595f03"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classCell.html">Cell</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUniverse.html#a70bafb1689f44b64ed98e85df1595f03">findCell</a> (<a class="el" href="classLocalCoords.html">LocalCoords</a> *coords, std::map&lt; int, <a class="el" href="classUniverse.html">Universe</a> * &gt; universes)</td></tr>
 <tr class="memdesc:a70bafb1689f44b64ed98e85df1595f03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> for which a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object resides.  <a href="#a70bafb1689f44b64ed98e85df1595f03">More...</a><br/></td></tr>
 <tr class="separator:a70bafb1689f44b64ed98e85df1595f03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaeb10eb025773d2ce1e15747b88f5de8"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUniverse.html#aaeb10eb025773d2ce1e15747b88f5de8">minSurfaceDist</a> (<a class="el" href="classPoint.html">Point</a> *point, double angle)</td></tr>
+<tr class="memdesc:aaeb10eb025773d2ce1e15747b88f5de8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> for which a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object resides.  <a href="#aaeb10eb025773d2ce1e15747b88f5de8">More...</a><br/></td></tr>
+<tr class="separator:aaeb10eb025773d2ce1e15747b88f5de8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af76741be6456d3542a302024fd4c52e4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUniverse.html#af76741be6456d3542a302024fd4c52e4">computeFSRMaps</a> ()</td></tr>
 <tr class="memdesc:af76741be6456d3542a302024fd4c52e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the FSR offset maps for this <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> and return the number of FSRs inside the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a>.  <a href="#af76741be6456d3542a302024fd4c52e4">More...</a><br/></td></tr>
 <tr class="separator:af76741be6456d3542a302024fd4c52e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -656,6 +659,43 @@ Static Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aaeb10eb025773d2ce1e15747b88f5de8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Universe::minSurfaceDist </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classPoint.html">Point</a> *&#160;</td>
+          <td class="paramname"><em>point</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>angle</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Finds the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> for which a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object resides. </p>
+<p>Finds the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> that a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object is located inside by checking each of this <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a>'s Cells. Returns NULL if the <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> is not in any of the Cells. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">coords</td><td>a pointer to the <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> of interest </td></tr>
+    <tr><td class="paramname">universes</td><td>a container of all of the Universes passed in by <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a pointer the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> where the <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> is located </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a124179ed92827532c7aecbf51d8c1f42"></a>
 <div class="memitem">
 <div class="memproto">
@@ -926,7 +966,7 @@ Static Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classUniverse.html">Universe</a></li>
-    <li class="footer">Generated on Thu Apr 17 2014 11:03:57 by
+    <li class="footer">Generated on Mon Oct 27 2014 12:23:27 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

@@ -11,3 +11,4 @@ bugs fixed, and known issues for each successive release.
     :maxdepth: 1
 
     notes_0.1.1
+    notes_0.1.2

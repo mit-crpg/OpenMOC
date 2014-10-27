@@ -16,6 +16,6 @@ var searchData=
   ['mesh',['Mesh',['../classopenmoc_1_1openmoc_1_1Mesh.html',1,'openmoc::openmoc']]],
   ['mesh',['Mesh',['../classMesh.html',1,'Mesh'],['../classMesh.html#af7a025426b5bc0a60967e60690c8415e',1,'Mesh::Mesh()']]],
   ['mesh_2eh',['Mesh.h',['../Mesh_8h.html',1,'']]],
-  ['minsurfacedist',['minSurfaceDist',['../classCell.html#adf41aafa99278a759d8d6ae826c7330e',1,'Cell']]],
+  ['minsurfacedist',['minSurfaceDist',['../classCell.html#adf41aafa99278a759d8d6ae826c7330e',1,'Cell::minSurfaceDist()'],['../classUniverse.html#aaeb10eb025773d2ce1e15747b88f5de8',1,'Universe::minSurfaceDist()'],['../classLattice.html#a68148ab388f066e9bd0f4c88fb571880',1,'Lattice::minSurfaceDist()']]],
   ['moc',['MOC',['../Mesh_8h.html#a0cdedba974328b9119267e5e8cf77114a68bfc3f7998aafb72168d9a1a3545bb9',1,'Mesh.h']]]
 ];

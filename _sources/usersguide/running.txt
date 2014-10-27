@@ -126,31 +126,16 @@ The number of CUDA threads per threadblock. This option only applies to scripts 
 
 .. note:: If you are unsure what the warp size is for your GPU, you can use the ``openmoc.cuda`` module to find out. The following Python code will report the warp size for your GPU to the console:
 
-     .. code-block:: python
+.. code-block:: python
 
-         import openmoc.cuda as cuda
-   
-	 if cuda.machineContainsGPU():
-	   num_threads = cuda.get_num_threads_per_warp()
-	   print 'This machines GPU contains %d threads per warp' % (num_threads)
+     import openmoc.cuda as cuda
 
-	 else:
-	   print 'This machine does not contain an NVIDIA CUDA-enabled GPU'
-
-
-.. option:: -f, --acceleration=<false>
-
-Whether or not to use Coarse Mesh Finite Difference Acceleration (CMFD), a nonlinear acceleration scheme implemented in OpenMOC. Note that no command line argument after the flag ``-f`` is needed to turn on CMFD acceleration.
-
-
-.. option:: -r, --relax-factor=<0.6>
-
-The relaxation factor to use for CMFD acceleration.
-
-
-.. option:: -l, --mesh-level=<-1>
-
-The CMFD multigrid mesh refinement level.
+     if cuda.machine_contains_gpu():
+       num_threads = cuda.get_num_threads_per_warp()
+       print 'This machines GPU contains %d threads per warp' % (num_threads)
+  
+     else:
+       print 'This machine does not contain an NVIDIA CUDA-enabled GPU'
 
 
 -------------------------------
