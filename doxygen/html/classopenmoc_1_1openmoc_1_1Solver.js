@@ -14,7 +14,6 @@ var classopenmoc_1_1openmoc_1_1Solver =
     [ "getSourceConvergenceThreshold", "classopenmoc_1_1openmoc_1_1Solver.html#ae917ccd12f79987b831c93eecfb25e4d", null ],
     [ "getTotalTime", "classopenmoc_1_1openmoc_1_1Solver.html#a149a1e9d3d353d1cca2afa74504c7842", null ],
     [ "getTrackGenerator", "classopenmoc_1_1openmoc_1_1Solver.html#a41794bf25d2f0c9d63b5e7d91f0fe290", null ],
-    [ "isUsingCmfd", "classopenmoc_1_1openmoc_1_1Solver.html#af7a5481377f23c72f17bdeee4ec971f6", null ],
     [ "isUsingDoublePrecision", "classopenmoc_1_1openmoc_1_1Solver.html#acb7b13108909c80d1b8685d2fe6179b3", null ],
     [ "isUsingExponentialInterpolation", "classopenmoc_1_1openmoc_1_1Solver.html#a7826b674d72745d2fb107cf2d7d45b17", null ],
     [ "isUsingExponentialIntrinsic", "classopenmoc_1_1openmoc_1_1Solver.html#a5ca9c41f55dc72f951a4a2516622e9f6", null ],

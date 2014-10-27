@@ -14,7 +14,9 @@ var hierarchy =
       [ "openmoc.openmoc.Quadrature", "classopenmoc_1_1openmoc_1_1Quadrature.html", null ],
       [ "openmoc.openmoc.segment", "classopenmoc_1_1openmoc_1_1segment.html", null ],
       [ "openmoc.openmoc.Solver", "classopenmoc_1_1openmoc_1_1Solver.html", [
-        [ "openmoc.openmoc.CPUSolver", "classopenmoc_1_1openmoc_1_1CPUSolver.html", null ]
+        [ "openmoc.openmoc.CPUSolver", "classopenmoc_1_1openmoc_1_1CPUSolver.html", [
+          [ "openmoc.openmoc.ThreadPrivateSolver", "classopenmoc_1_1openmoc_1_1ThreadPrivateSolver.html", null ]
+        ] ]
       ] ],
       [ "openmoc.openmoc.Surface", "classopenmoc_1_1openmoc_1_1Surface.html", [
         [ "openmoc.openmoc.Circle", "classopenmoc_1_1openmoc_1_1Circle.html", null ],
@@ -43,17 +45,16 @@ var hierarchy =
     [ "LocalCoords", "classLocalCoords.html", null ],
     [ "Material", "classMaterial.html", null ],
     [ "Mesh", "classMesh.html", null ],
-    [ "object", null, [
-      [ "openmoc.compatible.casmo.Casmo", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html", null ]
-    ] ],
     [ "openmoc.options.Options", "classopenmoc_1_1options_1_1Options.html", null ],
     [ "Point", "classPoint.html", null ],
-    [ "casmo.py", "classcasmo_1_1py.html", null ],
     [ "Quadrature", "classQuadrature.html", null ],
     [ "segment", "structsegment.html", null ],
     [ "Solver", "classSolver.html", [
       [ "CPUSolver", "classCPUSolver.html", [
-        [ "VectorizedSolver", "classVectorizedSolver.html", null ]
+        [ "ThreadPrivateSolver", "classThreadPrivateSolver.html", null ],
+        [ "VectorizedSolver", "classVectorizedSolver.html", [
+          [ "VectorizedPrivateSolver", "classVectorizedPrivateSolver.html", null ]
+        ] ]
       ] ],
       [ "GPUSolver", "classGPUSolver.html", null ]
     ] ],
@@ -64,10 +65,6 @@ var hierarchy =
         [ "YPlane", "classYPlane.html", null ],
         [ "ZPlane", "classZPlane.html", null ]
       ] ]
-    ] ],
-    [ "TestCase", null, [
-      [ "openmoc.test-options.TestCustomInit", "classopenmoc_1_1test-options_1_1TestCustomInit.html", null ],
-      [ "openmoc.test-options.TestDefaultInit", "classopenmoc_1_1test-options_1_1TestDefaultInit.html", null ]
     ] ],
     [ "Timer", "classTimer.html", null ],
     [ "Track", "classTrack.html", null ],

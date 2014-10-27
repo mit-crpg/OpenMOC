@@ -1,7 +1,7 @@
-.. _notes_0.1.2:
+.. _notes_0.1.3:
 
 ===============================
-Release Notes for OpenMOC 0.1.2
+Release Notes for OpenMOC 0.1.3
 ===============================
 
 -------------------
@@ -18,16 +18,20 @@ hand (the number of flat source regions and the level of track discretization).
 New Features
 ------------
 
-- Reconstructed segmentation routines to allow for tracking across overlapping cells.
-- Added P0 boundary flux update to CMFD solver.
-- Increased parallel performance of CPUSolver.
-- CMFD corner splitting now splits the corner currents to both neighboring surfaces with a weight of 0.5 instead of giving the current to only one surface.
+- `bee1e60397`_: Reconstructed segmentation routines to allow for tracking across overlapping cells.
+- `a5ccd1324f`_: Added P0 boundary flux update to CMFD solver.
+
+.. _a5ccd1324f : https://github.com/mit-crpg/OpenMOC/commit/a5ccd1324f
+.. _bee1e60397 : https://github.com/mit-crpg/OpenMOC/commit/bee1e60397
 
 ---------
 Bug Fixes
 ---------
 
-- Fixed procedural error in computing diffusion coefficients in CMFD.
-- Fixed error in computing the CMFD optically thick correction factor.
-- TrackGenerator geometry string was incorrect resulting in TrackGenerator often not identifying a valid track file when one actually existed. The error in generating the geometry string has been corrected.
-- Fixed inconsistency in XPlane and YPlane constants.
+- `a5ccd1324f`_: Fixed procedural error in computing diffusion coefficients in CMFD.
+- `bee1e60397`_: Fixed error in computing the CMFD optically thick correction factor.
+- `bee1e60397`_: TrackGenerator geometry string was incorrect resulting in TrackGenerator often not identifying a valid track file when one actually existed. The error in generating the geometry string has been corrected.
+- `bee1e60397`_: Fixed inconsistency in XPlane and YPlane constants.
+
+.. _a5ccd1324f : https://github.com/mit-crpg/OpenMOC/commit/a5ccd1324f
+.. _bee1e60397 : https://github.com/mit-crpg/OpenMOC/commit/bee1e60397

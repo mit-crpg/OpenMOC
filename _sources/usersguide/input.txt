@@ -519,7 +519,7 @@ OpenMOC has an integrated CMFD acceleration framework that allows users to great
 
     # Optional CMFD parameters
     cmfd.setGroupStructure([1,4,8])
-    cmfd.setOpticallyThick(True)
+    cmfd.setOpticallyThick(False)
     cmfd.setSORRelaxationFactor(1.5)
     cmfd.setMOCRelaxationFactor(0.66)
     cmfd.setSourceConvergenceThreshold(1.E-8)

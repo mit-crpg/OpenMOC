@@ -37,20 +37,11 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 ".html",
-<<<<<<< HEAD
 "classCmfd.html#ae6e87a58709fe78ad95b3bc9e55416a8",
 "classQuadrature.html#a3f19d76860a2d1ec8406366188449a6d",
 "classVectorizedSolver.html#a7ab9f0df852a0afd04876f6e0ec53046",
 "classopenmoc_1_1openmoc_1_1Material.html#a4dfb01123e90f0669d4aecac71225166",
 "classopenmoc_1_1openmoc_1_1Universe.html#a4969a792f3c5566ddcb5b4adb565a3d3"
-=======
-"classCmfd.html#af99526efd65f8b4e4540fef70a669f53",
-"classPoint.html#a91ab67528ea9e1311d408237448e16c5",
-"classVectorizedSolver.html#ac079f92b22b16a7584662fe36817495b",
-"classopenmoc_1_1openmoc_1_1Lattice.html#a488c586b992f2101907f931bab9f6b23",
-"classopenmoc_1_1openmoc_1_1Track.html#a033cc2301d55785bc66aae5b80efa819",
-"log_8py.html#a0bfafaa584b4e7156cce255cb70943e5"
->>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
@@ -163,7 +154,7 @@ function createIndent(o,domNode,node,level)
     span.style.display = 'inline-block';
     span.style.width   = 16*(level+1)+'px';
     span.style.height  = '22px';
-    span.innerHTML = '&#160;';
+    span.innerHTML = '&nbsp;';
     domNode.appendChild(span);
   } 
 }

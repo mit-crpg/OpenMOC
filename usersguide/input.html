@@ -92,7 +92,7 @@
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>Help</td>
-<td><a class="reference internal" href="running.html#cmdoption-h"><em class="xref std std-option">-h</em></a>, <a class="reference internal" href="running.html#cmdoption--help"><em class="xref std std-option">--help</em></a></td>
+<td><a class="reference internal" href="running.html#cmdoption-h"><em class="xref std std-option">-h</em></a>, <em class="xref std std-option">--help</em></td>
 <td>N/A</td>
 </tr>
 <tr class="row-odd"><td>No. Azimuthal Angles</td>
@@ -123,21 +123,6 @@
 <td><a class="reference internal" href="running.html#cmdoption-g"><em class="xref std std-option">-g</em></a>, <em class="xref std std-option">--num-gpu-threads=</em></td>
 <td>getNumThreadsPerBlock()</td>
 </tr>
-<<<<<<< HEAD
-=======
-<tr class="row-even"><td>Use CMFD Acceleration</td>
-<td><a class="reference internal" href="running.html#cmdoption-f"><em class="xref std std-option">-f</em></a>, <a class="reference internal" href="running.html#cmdoption--acceleration"><em class="xref std std-option">--acceleration</em></a></td>
-<td>useCmfdAcceleration()</td>
-</tr>
-<tr class="row-odd"><td>CMFD Relaxation Factor</td>
-<td><a class="reference internal" href="running.html#cmdoption-r"><em class="xref std std-option">-r</em></a>, <em class="xref std std-option">--relax-factor=</em></td>
-<td>getCmfdRelaxationFactor()</td>
-</tr>
-<tr class="row-even"><td>CMFD Multigrid Mesh Level</td>
-<td><a class="reference internal" href="running.html#cmdoption-l"><em class="xref std std-option">-l</em></a>, <em class="xref std std-option">--mesh-level=</em></td>
-<td>getCmfdMeshLevel()</td>
-</tr>
->>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
 </tbody>
 </table>
 <p><strong>Table 1</strong>: Runtime options and command line arguments supported by the <tt class="docutils literal"><span class="pre">openmoc.options</span></tt> module.</p>
@@ -597,7 +582,7 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 
 <span class="c"># Optional CMFD parameters</span>
 <span class="n">cmfd</span><span class="o">.</span><span class="n">setGroupStructure</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">])</span>
-<span class="n">cmfd</span><span class="o">.</span><span class="n">setOpticallyThick</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">cmfd</span><span class="o">.</span><span class="n">setOpticallyThick</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
 <span class="n">cmfd</span><span class="o">.</span><span class="n">setSORRelaxationFactor</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
 <span class="n">cmfd</span><span class="o">.</span><span class="n">setMOCRelaxationFactor</span><span class="p">(</span><span class="mf">0.66</span><span class="p">)</span>
 <span class="n">cmfd</span><span class="o">.</span><span class="n">setSourceConvergenceThreshold</span><span class="p">(</span><span class="mf">1.E-8</span><span class="p">)</span>
@@ -712,13 +697,8 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
     </div>
 
     <div class="footer">
-<<<<<<< HEAD
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
-=======
-        &copy; Copyright 2012-2013, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
->>>>>>> 78b418280894e07bda3e689c29e4fd10bffe914b
     </div>
 <script type="text/javascript">
 
