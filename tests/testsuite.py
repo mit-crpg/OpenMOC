@@ -1,9 +1,12 @@
-import testlog
-import testmaterialize
-import testmaterializeh5
-import testoptions
+## import statements don't work bc the tests are in individual folders now -- fix
+
+import testLog.testLog as testlog
+import testMaterialize.testMaterialize as testmaterialize
+import testOptions.testOptions as testoptions
+import testRegression
 import unittest
 
+## TODO: fix
 
 ## options for if we want to run all
 fullsuite = False
@@ -13,18 +16,14 @@ def buildQuickTestSuite():
     quickTestSuite = unittest.TestLoader().loadTestsFromTestCase(testlog.TestLogLevel)
     quickTestSuite.addTest(unittest.TestLoader().loadTestsFromTestCase(testoptions.TestDefaultInit))
     quickTestSuite.addTest(unittest.TestLoader().loadTestsFromTestCase(testoptions.TestCustomInit))
-    quickTestSuite.addTest(unittest.TestLoader().loadTestsFromTestCase(testmaterialize.TestPyFiles))
-##    quickTestSuite.addTest(unittest.TestLoader().loadTestsFromTestCase(testmaterialize.TestMatPySuite))
-##    quickTestSuite.addTest(unittest.TestLoader().loadTestsFromTestCase(testmaterializh5e.TestMatH5Suite))
-
-    ## above 2 lines still throwing the Class error -- fix
+    quickTestSuite.addTest(testmaterialize.MaterializeSuite)
     
     return quickTestSuite
 
 def buildFullTestSuite():
 
     fullTestSuite = buildQuickTestSuite()
-    fullTestSuite.addTest(unittest.TestLoader().loadTestsFromTestCase("TESTNAMEGOESHERE"))
+    fullTestSuite.addTest()
 
     ## TO ADD: REGRESSION TESTS (slower)
     ## First - rework regression tests
