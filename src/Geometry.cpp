@@ -902,8 +902,8 @@ CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
       /* If we reach a LocalCoord in a Universe, find the distance to the
       * nearest cell surface */
       else{
-        Universe* universe = _universes.at(coords->getUniverse());
-        dist = universe->minSurfaceDist(coords->getPoint(), angle);
+        Cell* cell = _cells.at(coords->getCell());
+        dist = cell->minSurfaceDist(coords->getPoint(), angle, &surf_intersection);
       }
 
       /* Recheck min distance */
@@ -1500,7 +1500,7 @@ void Geometry::initializeCmfd(){
  * @brief Returns the map that maps FSR keys to FSR IDs
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
+std::unordered_map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
   return _FSR_keys_map;
 }
 
@@ -1532,7 +1532,7 @@ std::vector<int> Geometry::getFSRsToMaterialIDs() {
  * @brief Sets the _FSR_keys_map map
  * @param FSR_keys_map map of FSR keys to FSR IDs
  */
-void Geometry::setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map){
+void Geometry::setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> FSR_keys_map){
   _FSR_keys_map = FSR_keys_map;
 }
 
