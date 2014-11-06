@@ -129,7 +129,7 @@ FP_PRECISION CPUSolver::getFSRSource(int fsr_id, int energy_group) {
     scatter_source += material->getSigmaSByGroupInline(g,energy_group-1)
         * _scalar_flux(fsr_id,g);
 
-  /* Set the reduced source for FSR r in group G */
+  /* Compute the total source */
   total_source = (fission_source * chi[energy_group-1] + scatter_source) *
       ONE_OVER_FOUR_PI;
 
