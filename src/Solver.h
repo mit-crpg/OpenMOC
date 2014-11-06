@@ -14,7 +14,6 @@
 #include "Timer.h"
 #include "Quadrature.h"
 #include "TrackGenerator.h"
-#include "pairwise_sum.h"
 #include "Cmfd.h"
 #endif
 
@@ -23,9 +22,8 @@
 
 /** Indexing macro for the surface currents for each CMFD Mesh surface and
  *  each energy group */
-/** Indexing macro for the surface currents for each mesh surface and in
- *  each energy group */
-#define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() + _cmfd->getCmfdGroup((e))])
+#define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() \
+                                                  + _cmfd->getCmfdGroup((e))])
 
 /** Indexing macro for the total source in each FSR and energy group */
 #define _source(r,e) (_source[(r)*_num_groups + (e)])
@@ -45,11 +43,14 @@
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for the outgoing reflective track for both the forward and
  *  reverse direction for a given track */
-#define _boundary_flux(i,j,p,e) (_boundary_flux[(i)*2*_polar_times_groups + (j)*_polar_times_groups + (p)*_num_groups + (e)])
+#define _boundary_flux(i,j,p,e) (_boundary_flux[(i)*2*_polar_times_groups \
+                                                + (j)*_polar_times_groups \
+                                                + (p)*_num_groups + (e)])
 
 /** Indexing macro for the leakage for each polar angle and energy group
  *  for both the forward and reverse direction for each track */
-#define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_polar_times_groups+(pe2)])
+#define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_polar_times_groups \
+                                                    +(pe2)])
 
 /** Indexing scheme for the total fission source (\f$ \nu\Sigma_f\Phi \f$)
  *  for each FSR and energy group */
@@ -146,7 +147,7 @@ protected:
   FP_PRECISION* _scalar_flux;
 
   /** The CMFD Mesh surface currents in each energy group */
-  double* _surface_currents;
+  FP_PRECISION* _surface_currents;
 
   /** The fission source in each FSR and energy group */
   FP_PRECISION* _fission_sources;
@@ -296,8 +297,7 @@ protected:
 
 
 public:
-  Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL,
-         Cmfd* cmfd=NULL);
+  Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
   Geometry* getGeometry();
@@ -313,7 +313,6 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
   bool isUsingExponentialIntrinsic();
-  bool isUsingCmfd();
 
   /**
    * @brief Returns the scalar flux for a FSR and energy group.
@@ -339,7 +338,6 @@ public:
 
   virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setCmfd(Cmfd* cmfd);
   virtual void setPolarQuadratureType(quadratureType quadrature_type);
   virtual void setNumPolarAngles(int num_polar);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);

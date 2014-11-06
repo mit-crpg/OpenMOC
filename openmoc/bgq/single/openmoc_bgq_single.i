@@ -16,6 +16,7 @@
   #include "../../../src/Track.h"
   #include "../../../src/TrackGenerator.h"
   #include "../../../src/Universe.h"
+  #include "../../../src/Cmfd.h"
 
   /* Exception helpers */
   static int swig_c_error_num = 0;
@@ -207,5 +208,6 @@
 %include ../../../src/Track.h
 %include ../../../src/TrackGenerator.h
 %include ../../../src/Universe.h
+%include ../../../src/Cmfd.h
 
 typedef float FP_PRECISION;

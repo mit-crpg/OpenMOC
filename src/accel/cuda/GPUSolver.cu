@@ -1,6 +1,5 @@
 #include "GPUSolver.h"
 
-
 /** The number of azimuthal angles */
 __constant__ int num_azim[1];
 
@@ -696,6 +695,7 @@ GPUSolver::GPUSolver(Geometry* geometry, TrackGenerator* track_generator) :
 
   _materials = NULL;
   _dev_tracks = NULL;
+  _FSR_materials = NULL;
 
   _tot_absorption = NULL;
   _tot_fission = NULL;
@@ -1056,8 +1056,12 @@ void GPUSolver::initializeFSRs() {
     /* Create a temporary FSR array to populate and then copy to device */
     FP_PRECISION* temp_FSR_volumes = new FP_PRECISION[_num_FSRs];
 
-    /* Get the array indexed by FSR IDs with Material ID values */
-    int* FSRs_to_materials = _geometry->getFSRtoMaterialMap();
+    /* Create a temporary FSR Material UIDs array to populate and then copy to device */
+    int* FSRs_to_material_UIDs = new int[_num_FSRs];
+
+    /* Populate FSR Material UIDs array */
+    for (int i = 0; i < _num_FSRs; i++)
+      FSRs_to_material_UIDs[i] = _geometry->findFSRMaterial(i)->getUid();
 
     /* Initialize each FSRs volume to 0 to avoid NaNs */
     memset(temp_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
@@ -1091,7 +1095,7 @@ void GPUSolver::initializeFSRs() {
     /* Copy the temporary array of FSRs to the device */
     cudaMemcpy((void*)_FSR_volumes, (void*)temp_FSR_volumes,
       _num_FSRs * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)_FSR_materials, (void*)FSRs_to_materials,
+    cudaMemcpy((void*)_FSR_materials, (void*)FSRs_to_material_UIDs,
       _num_FSRs * sizeof(int), cudaMemcpyHostToDevice);
 
     /* Copy the number of FSRs into constant memory on the GPU */
@@ -1100,6 +1104,9 @@ void GPUSolver::initializeFSRs() {
 
     /* Free the temporary array of FSRs on the host */
     free(temp_FSR_volumes);
+
+    /* Free the temporary array of FSR Material IDs on the host */
+    free(FSRs_to_material_UIDs);     
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the GPUSolver's FSRs "
@@ -1493,7 +1500,6 @@ void GPUSolver::normalizeFluxes() {
 
   FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_sources_vec.begin(),
                                                   _fission_sources_vec.end());
-
   normalizeFluxesOnDevice<<<_B, _T>>>(_scalar_flux, _boundary_flux,norm_factor);
 }
 

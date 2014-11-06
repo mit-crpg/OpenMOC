@@ -4,14 +4,14 @@
 /**
  * @brief Constructor initializes an empty Geometry.
  */
-Geometry::Geometry(Mesh* mesh) {
+Geometry::Geometry() {
 
   /* Initializing the corners of the bounding box encapsulating
    * the Geometry to be infinite  */
   _x_min = std::numeric_limits<double>::max();
   _y_min = std::numeric_limits<double>::max();
-  _x_max = -std::numeric_limits<double>::max();;
-  _y_max = -std::numeric_limits<double>::max();;
+  _x_max = -std::numeric_limits<double>::max();
+  _y_max = -std::numeric_limits<double>::max();
 
   _max_seg_length = 0;
   _min_seg_length = std::numeric_limits<double>::infinity();
@@ -25,10 +25,12 @@ Geometry::Geometry(Mesh* mesh) {
   _num_FSRs = 0;
   _num_groups = 0;
 
-  if (mesh == NULL)
-    _mesh = new Mesh();
-  else
-    _mesh = mesh;
+  /* Initialize CMFD object to NULL */
+  _cmfd = NULL;
+
+  /* initialize _num_FSRs lock */
+  _num_FSRs_lock = new omp_lock_t;
+  omp_init_lock(_num_FSRs_lock);
 }
 
 
@@ -44,17 +46,17 @@ Geometry::~Geometry() {
   _universes.clear();
   _lattices.clear();
 
-  /* Free FSR-to-Cells and Materials offset maps if they were initialized */
+  /* Free FSR  maps if they were initialized */
   if (_num_FSRs != 0) {
-    delete [] _FSRs_to_cells;
-    delete [] _FSRs_to_material_UIDs;
-    delete [] _FSRs_to_material_IDs;
+    _FSR_keys_map.clear();
+    _FSRs_to_keys.clear();
+    _FSRs_to_material_IDs.clear();
   }
 }
 
 
 /**
- * Link the CellFill objects with the Universes filling them.
+ * @brief initialize the CellFill objects with the Universes filling them.
  */
 void Geometry::initializeCellFillPointers() {
 
@@ -131,7 +133,6 @@ double Geometry::getYMax() {
 }
 
 
-
 /**
  * @brief Returns the boundary condition for the top Surface of the Geometry.
  * @details The boundary conditions are vacuum (false) and reflective (false).
@@ -182,6 +183,15 @@ int Geometry::getNumFSRs() {
 
 
 /**
+ * @brief Sets the number of flat source regions (FSRs) in the Geometry.
+ * @param num_fsrs number of FSRs
+ */
+void Geometry::setNumFSRs(int num_fsrs) {
+  _num_FSRs = num_fsrs;
+}
+
+
+/**
  * @brief Returns the number of energy groups for each Material's nuclear data.
  * @return the number of energy groups
  */
@@ -209,34 +219,6 @@ int Geometry::getNumMaterials() {
  */
 int Geometry::getNumCells() {
   return _cells.size();
-}
-
-
-/**
- * @brief Return an array indexed by flat source region IDs which contain
- *        the corresponding Cell IDs.
- * @return an integer array of FSR-to-Cell IDs indexed by FSR ID
- */
-int* Geometry::getFSRtoCellMap() {
-  if (_num_FSRs == 0)
-    log_printf(ERROR, "Unable to return the FSR-to-Cell map array since "
-               "the Geometry has not initialized FSRs.");
-
-  return _FSRs_to_cells;
-}
-
-
-/**
- * @brief Return an array indexed by flat source region IDs which contain
- *        the corresponding Material IDs.
- * @return an integer array of FSR-to-Material UIDs indexed by FSR ID
- */
-int* Geometry::getFSRtoMaterialMap() {
-  if (_num_FSRs == 0)
-    log_printf(ERROR, "Unable to return the FSR-to-Material map array since "
-               "the Geometry has not initialized FSRs.");
-
-  return _FSRs_to_material_UIDs;
 }
 
 
@@ -314,7 +296,6 @@ Surface* Geometry::getSurface(int id) {
  * @param id the user-specified Cell's ID
  * @return a pointer to the Cell object
  */
-
 Cell* Geometry::getCell(int id) {
 
   Cell* cell = NULL;
@@ -381,7 +362,6 @@ CellFill* Geometry::getCellFill(int id) {
 }
 
 
-
 /**
  * @brief Return a pointer to a Universe from the Geometry.
  * @param id the user-specified Universe ID
@@ -424,11 +404,20 @@ Lattice* Geometry::getLattice(int id) {
 
 
 /**
- * @brief Returns a pointer to the CMFD Mesh object.
- * @return A pointer to the CMFD Mesh object
+ * @brief Returns a pointer to the CMFD object.
+ * @return A pointer to the CMFD object
  */
-Mesh* Geometry::getMesh(){
-    return _mesh;
+Cmfd* Geometry::getCmfd(){
+  return _cmfd;
+}
+
+
+/**
+ * @brief Sets the pointer to a CMFD object used for acceleration.
+ * @param A pointer to the CMFD object
+ */
+void Geometry::setCmfd(Cmfd* cmfd){
+  _cmfd = cmfd;
 }
 
 
@@ -538,32 +527,6 @@ void Geometry::addSurface(Surface* surface) {
     }
     break;
 
-  case ZERO_FLUX:
-    if (surface->getXMin() < _x_min &&
-        surface->getXMin() !=-std::numeric_limits<double>::infinity()) {
-     _x_min = surface->getXMin();
-     _left_bc = ZERO_FLUX;
-    }
-
-    if (surface->getXMax() > _x_max &&
-        surface->getXMax() != std::numeric_limits<double>::infinity()) {
-      _x_max = surface->getXMax();
-      _right_bc = ZERO_FLUX;
-    }
-
-    if (surface->getYMin() < _y_min &&
-        surface->getYMin() !=-std::numeric_limits<double>::infinity()) {
-      _y_min = surface->getYMin();
-      _bottom_bc = ZERO_FLUX;
-    }
-
-    if (surface->getYMax() > _y_max &&
-        surface->getYMax() != std::numeric_limits<double>::infinity()) {
-      _y_max = surface->getYMax();
-      _top_bc = ZERO_FLUX;
-    }
-    break;
-
   case BOUNDARY_NONE:
     break;
   }
@@ -590,11 +553,11 @@ void Geometry::addCell(Cell* cell) {
     static_cast<CellBasic*>(cell)->getMaterial());
   }
 
-  std::map<Surface*, int> cells_surfaces = cell->getSurfaces();
-  std::map<Surface*, int>::iterator iter;
+  /* Add the Cell's surfaces to the Geometry's surfaces map */
+  std::map<int, surface_halfspace> cells_surfaces = cell->getSurfaces();
+  std::map<int, surface_halfspace>::iterator iter;
   for (iter = cells_surfaces.begin(); iter != cells_surfaces.end(); ++iter)
-    addSurface(iter->first);
-
+    addSurface(iter->second._surface);
 
   /* Insert the Cell into the Geometry's Cell container */
   try {
@@ -637,8 +600,7 @@ void Geometry::addUniverse(Universe* universe) {
 
   /* Add the Universe */
   try {
-    _universes.insert(std::pair<int,Universe*>(universe->getId(),
-                                               universe));
+    _universes[universe->getId()] = universe;
     log_printf(INFO, "Added Universe with ID = %d to Geometry. ",
                universe->getId());
   }
@@ -656,7 +618,6 @@ void Geometry::addUniverse(Universe* universe) {
 
       if (cell->getUniverseFillId() == universe->getId()) {
         cell->setUniverseFillPointer(universe);
-        int findFSRId(LocalCoords* coords);
       }
     }
   }
@@ -839,15 +800,16 @@ void Geometry::removeLattice(int id) {
  * @param coords pointer to a LocalCoords object
  * @return returns a pointer to a Cell if found, NULL if no Cell found
  */
-Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
+CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
 
   int universe_id = coords->getUniverse();
   Universe* univ = _universes.at(universe_id);
 
   if (univ->getType() == SIMPLE)
-    return univ->findCell(coords, _universes);
+    return static_cast<CellBasic*>(univ->findCell(coords, _universes));
   else
-    return static_cast<Lattice*>(univ)->findCell(coords, _universes);
+    return static_cast<CellBasic*>(static_cast<Lattice*>(univ)->findCell
+                                   (coords, _universes));
 }
 
 
@@ -870,7 +832,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @param angle the angle for a trajectory projected from the LocalCoords
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
-Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
+CellBasic* Geometry::findFirstCell(LocalCoords* coords, double angle) {
   double delta_x = cos(angle) * TINY_MOVE;
   double delta_y = sin(angle) * TINY_MOVE;
   coords->adjustCoords(delta_x, delta_y);
@@ -879,124 +841,15 @@ Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
 
 
 /**
- * @brief Find the Cell for a flat source region ID.
- * @details  This metthod calls the recursive Geometry::findCell(...)
- *           method with a pointer to the Universe with ID=0 which at the
- *           uppermost level in the nested Universe hierarchy.
- * @param fsr_id a FSr id
- * @return a pointer to the Cell that this FSR is in
+ * @brief Find the Material for a flat source region ID.
+ * @details  This method finds the fsr_id within the 
+ *           _FSR_to_material_IDs map and returns the corresponding
+ *           pointer to the Material object.
+ * @param fsr_id a FSR id
+ * @return a pointer to the Material that this FSR is in
  */
-CellBasic* Geometry::findCellContainingFSR(int fsr_id) {
-  return static_cast<CellBasic*>(findCell(_universes.at(0), fsr_id));
-}
-
-
-/**
- * @brief Find the Cell for an FSR ID at a certain level in the nested
- *        Universe hierarchy.
- * @details This is a recursive method which is intended to be called
- *          with the Universe with ID=0 which is at the uppermost level of the
- *          nested Universe hierarchy. The method will recursively call itself
- *          for each level in the hierarchy until it reaches the Cell which
- *          corresponds to the requested FSR ID.
- * @param univ a universe pointer for one level in the nested Universe hierarchy
- * @param fsr_id a FSr ID
- * @return a pointer to the Cell that this FSR is in
- */
-Cell* Geometry::findCell(Universe* univ, int fsr_id) {
-
-  Cell* cell = NULL;
-
-  /* Check if the FSR ID is out of bounds */
-  if (fsr_id < -1 || fsr_id > _num_FSRs)
-    log_printf(ERROR, "Tried to find the Cell for FSR with ID = %d which "
-               "does not exist", fsr_id);
-
-
-  /* If the Universe is a SIMPLE type, then find the Cell the smallest FSR
-   * offset map entry that is less than or equal to fsr_id */
-  if (univ->getType() == SIMPLE) {
-    std::map<int, Cell*>::iterator iter;
-    std::map<int, Cell*> cells = univ->getCells();
-    Cell* cell_min = NULL;
-    int max_id = 0;
-    int min_id = INT_MAX;
-    int fsr_map_id;
-
-    /* Loop over this Universe's Cells */
-    for (iter = cells.begin(); iter != cells.end(); ++iter) {
-      fsr_map_id = univ->getFSR(iter->first);
-      if (fsr_map_id <= fsr_id && fsr_map_id >= max_id) {
-        max_id = fsr_map_id;
-        cell = iter->second;
-      }
-      if (fsr_map_id < min_id) {
-        min_id = fsr_map_id;
-        cell_min = iter->second;
-      }
-    }
-
-    /* If the max_id is greater than the fsr_id, there has either been
-     * an error or we are at Universe 0 and need to go down one level */
-    if (max_id > fsr_id) {
-      if (cell_min->getType() == MATERIAL)
-        log_printf(ERROR, "Could not find Cell for FSR ID = %d: "
-                   "max_id (%d) > fsr_id (%d)", fsr_id, max_id, fsr_id);
-      else {
-        CellFill* cellfill = static_cast<CellFill*>(cell_min);
-        return findCell(cellfill->getUniverseFill(), fsr_id);
-      }
-    }
-    /* Otherwise, decrement the fsr_id and make recursive call to next
-     * Universe unless an error condition is met */
-    else {
-      fsr_id -= max_id;
-      if (fsr_id == 0 && cell_min->getType() == MATERIAL)
-        return cell;
-      else if (fsr_id != 0 && cell_min->getType() == MATERIAL)
-        log_printf(ERROR, "Could not find Cell for FSR ID = %d: "
-                   "fsr_id = %d and Cell type = MATERIAL", fsr_id, fsr_id);
-      else {
-        CellFill* cellfill = static_cast<CellFill*>(cell_min);
-        return findCell(cellfill->getUniverseFill(), fsr_id);
-      }
-    }
-  }
-
-  /* If the Universe is a Lattice then we find the Lattice cell with the
-   * smallest FSR offset map entry that is less than or equal to fsr_id */
-  else {
-    Lattice* lat = static_cast<Lattice*>(univ);
-    Universe* next_univ = NULL;
-    int num_y = lat->getNumY();
-    int num_x = lat->getNumX();
-    int max_id = 0;
-    int fsr_map_id;
-
-    /* Loop over all Lattice cells */
-    for (int i = 0; i < num_y; i++) {
-      for (int j = 0; j < num_x; j++) {
-
-        fsr_map_id = lat->getFSR(j, i);
-
-        if (fsr_map_id <= fsr_id && fsr_map_id >= max_id) {
-          max_id = fsr_map_id;
-          next_univ = lat->getUniverse(j, i);
-        }
-      }
-    }
-
-    /* If the max_id is out of bounds, then query failed */
-    if (max_id > fsr_id || next_univ == NULL)
-      log_printf(ERROR, "No Lattice cell found for FSR ID = %d, max_id = "
-                 "%d", fsr_id, max_id);
-
-    /* Otherwise update fsr_id and make recursive call to next level */
-    fsr_id -= max_id;
-    return findCell(next_univ, fsr_id);
-  }
-
-  return cell;
+Material* Geometry::findFSRMaterial(int fsr_id) {
+  return getMaterial(_FSRs_to_material_IDs.at(fsr_id));
 }
 
 
@@ -1005,26 +858,28 @@ Cell* Geometry::findCell(Universe* univ, int fsr_id) {
  *        defined by some angle (in radians from 0 to Pi).
  * @details The method will update the LocalCoords passed in as an argument
  *          to be the one at the boundary of the next Cell crossed along the
- *          given trajectory. It will do this by recursively building a linked
- *          list of LocalCoords from the LocalCoords passed in as an argument
- *          down to the Cell in the lowest level of the Universe hiearchy. In
- *          the process, the method will set the coordinates for each
- *          LocalCoords in the linked list for the Lattice or Universe that it
- *          is in at that nested Universe level. If the LocalCoords is outside
- *          the bounds of the Geometry or on the boundaries this method will
- *          will return NULL; otherwise it will return a pointer to the Cell
- *          that the LocalCoords will reach next along its trajectory.
+ *          given trajectory. It will do this by finding the minimum distance
+ *          to the surfaces at all levels of the coords hierarchy.
+ *          If the LocalCoords is outside the bounds of the Geometry or on 
+ *          the boundaries this method will return NULL; otherwise it will 
+ *          return a pointer to the Cell that the LocalCoords will reach 
+ *          next along its trajectory.
  * @param coords pointer to a LocalCoords object
  * @param angle the angle of the trajectory
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
-Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
+CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
 
-  Cell* cell = NULL;
+  CellBasic* cell = NULL;
   double dist;
+  double min_dist = std::numeric_limits<double>::infinity();
+  Point surf_intersection;
 
   /* Find the current Cell */
   cell = findCellContainingCoords(coords);
+
+  /* Get lowest level coords */
+  coords = coords->getLowestLevel();
 
   /* If the current coords is not in any Cell, return NULL */
   if (cell == NULL)
@@ -1033,153 +888,49 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
   /* If the current coords is inside a Cell, look for next Cell */
   else {
 
-    /* Check the min distance to the next Surface in the current Cell */
-    Point surf_intersection;
-    LocalCoords* lowest_level = coords->getLowestLevel();
-    dist = cell->minSurfaceDist(lowest_level->getPoint(), angle,
-                                &surf_intersection);
+    /* Ascend universes until at the highest level.
+    * At each universe/lattice level get distance to next 
+    * universe or lattice cell. Recheck min_dist. */
+    while (coords != NULL) {
 
-    /* If the distance returned is not INFINITY, the trajectory will
-     * intersect a Surface in the Cell */
-    if (dist != std::numeric_limits<double>::infinity()) {
-      LocalCoords test(0,0);
-
-      /* Move LocalCoords just to the next Surface in the Cell plus an
-       * additional small bit into the next Cell */
-      double delta_x = cos(angle) * TINY_MOVE;
-      double delta_y = sin(angle) * TINY_MOVE;
-
-      /* Copy coords to the test coords before moving it by delta and
-       * finding the new Cell it is in - do this for testing purposes
-       * in case the new Cell found is NULL or is in a new Lattice cell*/
-      coords->copyCoords(&test);
-      coords->updateMostLocal(&surf_intersection);
-      coords->adjustCoords(delta_x, delta_y);
-
-      /* Find new Cell for the perturbed coords */
-      cell = findCellContainingCoords(coords);
-
-
-     /* Check if the next Cell found is in the same lattice cell
-      * as the previous cell */
-      LocalCoords* test_curr = test.getLowestLevel();
-      LocalCoords* coords_curr = coords->getLowestLevel();
-
-      while (test_curr != NULL && test_curr->getUniverse() != 0 &&
-             coords_curr != NULL && coords_curr->getUniverse() !=0){
-
-        if (coords_curr->getType() == LAT && test_curr->getType() == LAT) {
-
-          if (coords_curr->getLatticeX() != test_curr->getLatticeX() ||
-              coords_curr->getLatticeY() != test_curr->getLatticeY()) {
-            dist = std::numeric_limits<double>::infinity();
-            break;
-          }
-        }
-
-        /* Update LocalCoords linked list to the next level up in the nested
-         * Universe hierarchy */
-        test_curr = test_curr->getPrev();
-        coords_curr = coords_curr->getPrev();
+      /* If we reach a LocalCoord in a Lattice, find the distance to the
+      * nearest lattice cell boundary */
+      if (coords->getType() == LAT) {
+        Lattice* lattice = _lattices.at(coords->getLattice());
+        dist = lattice->minSurfaceDist(coords->getPoint(), angle);
+      }
+      /* If we reach a LocalCoord in a Universe, find the distance to the
+      * nearest cell surface */
+      else{
+        Universe* universe = _universes.at(coords->getUniverse());
+        dist = universe->minSurfaceDist(coords->getPoint(), angle);
       }
 
-      /* Check if Cell is NULL - this means that intersection point
-       * is outside the bounds of the Geometry and the old coords should
-       * should be restored so that we can look for the next Lattice cell */
-      if (cell == NULL)
-        dist = std::numeric_limits<double>::infinity();
+      /* Recheck min distance */
+      min_dist = std::min(dist, min_dist);
 
-      /* If the distance is not INFINITY then the new Cell found is the
-       * one to return */
-      if (dist != std::numeric_limits<double>::infinity()) {
-        test.prune();
-        return cell;
-      }
-
-      /* If the distance is INFINITY then the new Cell found is not
-       * the one to return and we should move to a new Lattice cell */
-      else
-        test.copyCoords(coords);
-
-      test.prune();
-    }
-
-    /* If the distance returned is INFINITY, the trajectory will not
-     * intersect a Surface in the Cell. We thus need to readjust to
-     * the LocalCoord to the base Universe and check whether we need
-     * to move to a new Lattice cell */
-    if (dist == std::numeric_limits<double>::infinity()) {
-
-      /* Get the lowest level LocalCoords in the linked list */
-      LocalCoords* curr = coords->getLowestLevel();
-
-      /* Retrace linked list from lowest level */
-      while (curr != NULL && curr->getUniverse() != 0) {
-        curr = curr->getPrev();
-
-        /* If we reach a LocalCoord in a lattice, delete all lower
-         * level LocalCoords in linked list and break loop */
-        if (curr->getType() == LAT) {
-          curr->prune();
-          curr = NULL;
-        }
-      }
-
-      /* Get the lowest level Universe in linked list */
-      curr = coords->getLowestLevel();
-
-      /* Retrace through the Lattices in the LocalCoord and check for
-       * Lattice cell crossings in each one. If we never find a crossing
-       * and reach universe 0 then return NULL since this means we have
-       * reached the edge of the Geometry */
-      while (curr->getUniverse() != 0) {
-
-        /* If the lowest level LocalCoords is inside a Lattice, find
-         * the next Lattice cell */
-        if (curr->getType() == LAT) {
-
-          int lattice_id = curr->getLattice();
-          Lattice* lattice = _lattices.at(lattice_id);
-
-          cell = lattice->findNextLatticeCell(curr,angle,_universes);
-
-          /* If Cell returned is NULL, the LocalCoords are outside of current
-          * Lattice, so move to a higher level Lattice if there is one */
-          if (cell == NULL) {
-
-            /* Delete current Lattice */
-            curr->getPrev()->prune();
-
-            /* Get the lowest level LocalCoords in linked list */
-            curr = coords->getLowestLevel();
-
-            /* Retrace linked list from lowest level */
-            while (curr != NULL && curr->getUniverse() != 0) {
-
-              curr = curr->getPrev();
-
-              /* If we reach a LocalCoord in a Lattice, delete all lower level
-               * LocalCoords in linked list and break loop. */
-              if (curr->getType() == LAT) {
-                curr->prune();
-                curr = NULL;
-              }
-            }
-
-            /* Get the lowest level Universe in linked list */
-            curr = coords->getLowestLevel();
-          }
-
-          /* If lowest level Universe is not a Lattice, return current Cell */
-          else
-            return cell;
-        }
+      /* Ascend one level */
+      if (coords->getUniverse() == 0)
+        break;
+      else{
+        coords = coords->getPrev();
+        coords->prune();
       }
     }
+
+    /* Check for distance to nearest CMFD mesh cell boundary */
+    if (_cmfd != NULL){
+      Lattice* lattice = _cmfd->getLattice();
+      dist = lattice->minSurfaceDist(coords->getPoint(), angle);
+      min_dist = std::min(dist, min_dist);
+    }
+
+    /* Move point and get next cell */
+    double delta_x = cos(angle) * (min_dist + TINY_MOVE);
+    double delta_y = sin(angle) * (min_dist + TINY_MOVE);
+    coords->adjustCoords(delta_x, delta_y);
+    return findCellContainingCoords(coords);
   }
-
-  /* If no Cell was found, return NULL */
-  return NULL;
 }
 
 
@@ -1193,31 +944,176 @@ int Geometry::findFSRId(LocalCoords* coords) {
 
   int fsr_id = 0;
   LocalCoords* curr = coords;
+  curr = coords->getLowestLevel();
+  std::hash<std::string> key_hash_function;
 
-  /* Traverse linked list defined by the LocalCoords object and compute the FSR
-   * ID using the offset maps at each level of the nested Universe hierarchy */
-  while (curr != NULL) {
+  /* Generate unique FSR key */
+  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
 
-    /* If the current level is a Lattice, add an offset from the Lattice map
-     * to the FSR ID */
-    if (curr->getType() == LAT) {
-      Lattice* lattice = _lattices.at(curr->getLattice());
-      fsr_id += lattice->getFSR(curr->getLatticeX(), curr->getLatticeY());
+  /* If FSR has not been encountered, update FSR maps and vectors */
+  if (_FSR_keys_map.find(fsr_key_hash) == _FSR_keys_map.end()){
+      
+    /* Get the cell that contains coords */
+    CellBasic* cell = findCellContainingCoords(curr);
+    
+    /* Get the lock */
+    omp_set_lock(_num_FSRs_lock);
+
+    /* Recheck to see if FSR has been added to maps after getting the lock */
+    if (_FSR_keys_map.find(fsr_key_hash) != _FSR_keys_map.end())
+      fsr_id = _FSR_keys_map.at(fsr_key_hash)._fsr_id;
+    else{
+
+        /* Add FSR information to FSR key map and FSR_to vectors */
+      fsr_id = _num_FSRs;
+      fsr_data* fsr = new fsr_data;
+      fsr->_fsr_id = fsr_id;
+      Point* point = new Point();
+      point->setCoords(coords->getHighestLevel()->getX(), 
+                       coords->getHighestLevel()->getY());
+      fsr->_point = point;
+      _FSR_keys_map[fsr_key_hash] = *fsr;
+      _FSRs_to_keys.push_back(fsr_key_hash);
+      _FSRs_to_material_IDs.push_back(cell->getMaterial());
+
+      /* If CMFD acceleration is on, add FSR to CMFD cell */
+      if (_cmfd != NULL){
+        int cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
+        _cmfd->addFSRToCell(cmfd_cell, fsr_id);
+      }
+
+      /* Increment FSR counter */
+      _num_FSRs++;
     }
 
-    /* If the current level is a Lattice, add an offset from the Lattice map
-     * to the FSR ID*/
-    else if (curr->getType() == UNIV) {
-      Universe* universe = _universes.at(curr->getUniverse());
-      fsr_id += universe->getFSR(curr->getCell());
-    }
+    /* Release lock */
+    omp_unset_lock(_num_FSRs_lock);
 
-    /* Get next LocalCoords node in the linked list */
-    curr = curr->getNext();
   }
-
+  /* If FSR has already been encountered, get the fsr id from map */
+  else
+    fsr_id = _FSR_keys_map.at(fsr_key_hash)._fsr_id;
+  
   return fsr_id;
 }
+
+
+/**
+ * @brief Return the ID of the flat source region that a given
+ *        LocalCoords object resides within.
+ * @param coords a LocalCoords object pointer
+ * @return the FSR ID for a given LocalCoords object
+ */
+int Geometry::getFSRId(LocalCoords* coords) {
+    
+  int fsr_id = 0;
+  std::string fsr_key;
+  std::hash<std::string> key_hash_function;
+  
+  try{
+    fsr_key = getFSRKey(coords);
+    fsr_id = _FSR_keys_map.at(key_hash_function(fsr_key))._fsr_id;
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
+               "geometry with finer track laydown. "
+               "Backtrace:%s", fsr_key.c_str(), e.what());
+  }
+
+  return fsr_id;  
+}
+
+
+/**
+ * @brief Return the characteristic point for a given FSR ID
+ * @param fsr_id the FSR ID
+ * @return the FSR's characteristic point
+ */
+Point* Geometry::getFSRPoint(int fsr_id) {
+
+  Point* point;
+    
+  try{
+    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._point;
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not find characteristic poitn in FSR: %i. "
+               "Backtrace:%s", fsr_id, e.what());
+  }
+
+  return point;  
+}
+
+
+/**
+ * @brief Generate a string FSR "key" that identifies an FSR by its
+ *        unique hierarchical lattice/universe/cell structure.
+ * @detail Since not all FSRs will reside on the absolute lowest universe
+ *         level and Cells might overlap other cells, it is important to
+ *         have a method for uniquely identifying FSRs. This method
+ *         createds a unique FSR key by constructing a structured string
+ *         that describes the hierarchy of lattices/universes/cells.
+ * @param coords a LocalCoords object pointer
+ * @return the FSR key
+ */
+std::string Geometry::getFSRKey(LocalCoords* coords) {
+
+  std::stringstream key;
+  LocalCoords* curr = coords->getHighestLevel();
+  std::ostringstream curr_level_key;
+
+  /* If CMFD is on, get CMFD latice cell and write to key */
+  if (_cmfd != NULL){
+      curr_level_key << _cmfd->getLattice()->getLatX(curr->getPoint());
+      key << "CMFD = (" << curr_level_key.str() << ", ";
+      curr_level_key.str(std::string());
+      curr_level_key << _cmfd->getLattice()->getLatY(curr->getPoint());
+      key << curr_level_key.str() << ") : ";
+  }
+
+  /* Descend the linked list hierarchy until the lowest level has
+   * been reached */
+  while(curr != NULL){
+      
+    /* Clear string stream */
+    curr_level_key.str(std::string());
+      
+    if (curr->getType() == LAT) {
+
+      /* Write lattice ID and lattice cell to key */
+      curr_level_key << curr->getLattice();
+      key << "LAT = " << curr_level_key.str() << " (";
+      curr_level_key.str(std::string());
+      curr_level_key << curr->getLatticeX();
+      key << curr_level_key.str() << ", ";
+      curr_level_key.str(std::string());
+      curr_level_key << curr->getLatticeY();
+      key << curr_level_key.str() << ") : ";
+    }
+    else{
+
+      /* write universe ID to key */
+      curr_level_key << curr->getUniverse();
+      key << "UNIV = " << curr_level_key.str() << " : ";
+    }
+
+    /* If lowest coords reached break; otherwise get next coords */
+    if (curr->getNext() == NULL)
+      break;
+    else
+      curr = curr->getNext();
+  }
+
+  /* clear string stream */
+  curr_level_key.str(std::string());
+
+  /* write cell id to key */
+  curr_level_key << curr->getCell();
+  key << "CELL = " << curr_level_key.str();  
+
+  return key.str();
+}
+
 
 
 /**
@@ -1234,12 +1130,18 @@ void Geometry::subdivideCells() {
   std::map<int, Universe*>::iterator iter;
   Universe* curr;
 
+  std::map<int, Cell*>::iterator iter1;
+  std::map<int, Cell*> cells;
+
   /* Loop over all Universe in the Geometry and instruct each to inform
    * their Cells to subdivide into rings and sectors as specified by
    * the user during Cell instantiation */
   for (iter = _universes.begin(); iter != _universes.end(); ++iter) {
     curr = (*iter).second;
     curr->subdivideCells();
+    cells = curr->getCells();
+    for (iter1 = cells.begin(); iter1 != cells.end(); ++iter1)
+      addCell((*iter1).second);
   }
 }
 
@@ -1261,27 +1163,17 @@ void Geometry::initializeFlatSourceRegions() {
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 
-  /* Generate flat source regions offset maps for each Universe and Lattice */
-  Universe *univ = _universes.at(0);
-  _num_FSRs = univ->computeFSRMaps();
-
-  log_printf(NORMAL, "Number of flat source regions: %d", _num_FSRs);
-
-  /* Allocate memory for maps between FSR IDs and Cell or Material IDs/UIDs */
-  _FSRs_to_cells = new int[_num_FSRs];
-  _FSRs_to_material_UIDs = new int[_num_FSRs];
-  _FSRs_to_material_IDs = new int[_num_FSRs];
-
-  /* Load maps with Cell and Material IDs/UIDs */
-  for (int r=0; r < _num_FSRs; r++) {
-    CellBasic* curr=static_cast<CellBasic*>(findCell(_universes.at(0), r));
-    _FSRs_to_cells[r] = curr->getId();
-    _FSRs_to_material_UIDs[r] = getMaterial(curr->getMaterial())->getUid();
-    _FSRs_to_material_IDs[r] = getMaterial(curr->getMaterial())->getId();
+  /* Assign UIDs to materials */
+  std::map<int, Material*>::iterator iter;
+  int uid = 0;
+  for (iter = _materials.begin(); iter != _materials.end(); ++iter){
+    iter->second->setUid(uid);
+    uid++;
   }
-
-  if (_mesh->getCmfdOn())
-    initializeMesh();
+  
+  /* Initialize CMFD */
+  if (_cmfd != NULL)
+    initializeCmfd();
 }
 
 
@@ -1350,6 +1242,8 @@ void Geometry::segmentize(Track* track) {
     segment_material = _materials.at(static_cast<CellBasic*>(prev)
                        ->getMaterial());
     sigma_t = segment_material->getSigmaT();
+
+    /* Find the ID of the FSR that contains the segment */
     fsr_id = findFSRId(&segment_start);
 
     /* Compute the number of Track segments to cut this segment into to ensure
@@ -1382,13 +1276,35 @@ void Geometry::segmentize(Track* track) {
 
       new_segment->_region_id = fsr_id;
 
-      /* Get pointer to CMFD Mesh surfaces that the Track segment crosses */
-      if (_mesh->getCmfdOn()){
+      /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
+      if (_cmfd != NULL){
+          
+        /* Find cmfd cell that segment lies in */
+        int cmfd_cell = _cmfd->findCmfdCell(&segment_start);
 
-        new_segment->_mesh_surface_fwd =
-                _mesh->findMeshSurface(new_segment->_region_id, &segment_end);
-        new_segment->_mesh_surface_bwd =
-                _mesh->findMeshSurface(new_segment->_region_id, &segment_start);
+        /* Reverse nudge from surface to determine whether segment start or end
+         * points lie on a cmfd surface. */
+        double delta_x = cos(phi) * TINY_MOVE;
+        double delta_y = sin(phi) * TINY_MOVE;
+        segment_start.adjustCoords(-delta_x, -delta_y);
+        segment_end.adjustCoords(-delta_x, -delta_y);
+
+        if (i == min_num_segments-1)
+          new_segment->_cmfd_surface_fwd = 
+              _cmfd->findCmfdSurface(cmfd_cell, &segment_end);
+        else
+          new_segment->_cmfd_surface_fwd = -1;
+
+        if (i == 0)
+          new_segment->_cmfd_surface_bwd = 
+              _cmfd->findCmfdSurface(cmfd_cell, &segment_start);
+        else
+          new_segment->_cmfd_surface_bwd = -1;
+
+        /* Re-nudge segments from surface. */
+        segment_start.adjustCoords(delta_x, delta_y);
+        segment_end.adjustCoords(delta_x, delta_y);
+
       }
 
       /* Add the segment to the Track */
@@ -1537,537 +1453,103 @@ void Geometry::printString() {
 
 
 /**
- * @brief This is a recursive method which makes a mesh for solving the
- *        Course Mesh Finite Difference (CMFD) diffusion equations.
- * @details The CMFD Mesh must be a structured Cartesian mesh and defined
- *          as a certain nested Univeres level (counting from the top). This
- *          method defines the mesh dimensions (width and height) and mesh cell
- *          dimensions (width and height). This function adds new Mesh cell
- *          objects to the Mesh and defines the values in each Mesh cell.
+ * @brief This is a method that initializes the CMFD Lattice and sets
+ *          CMFD parameters.
  */
-void Geometry::initializeMesh(){
+void Geometry::initializeCmfd(){
 
-  Universe* univ = _universes.at(0);
-  univ = _universes.at(0);
+  /* Get information about geometry and CMFD mesh */
+  int num_x = _cmfd->getNumX();
+  int num_y = _cmfd->getNumY();
+  double height = getHeight();
+  double width = getWidth();
+  double cell_width = width / num_x;
+  double cell_height = height / num_y;
+  
+  /* Create CMFD lattice and set properties */
+  Lattice* lattice = new Lattice(0, cell_width, cell_height);
+  lattice->setNumX(num_x);
+  lattice->setNumY(num_y);
+  lattice->setOffset(_x_min + getWidth()/2.0, _y_min + getHeight()/2.0);
+  _cmfd->setLattice(lattice);
 
-  int max_mesh_level = 0;
-  int mesh_level = 0;
 
-  /* Find the Mesh depth of the Geometry */
-  max_mesh_level = findMeshDepth(univ, max_mesh_level);
-  log_printf(DEBUG, "Max mesh depth is: %i level(s)", max_mesh_level);
+  /* Set CMFD mesh boundary conditions */
+  _cmfd->setBoundary(0,getBCLeft());
+  _cmfd->setBoundary(1,getBCBottom());
+  _cmfd->setBoundary(2,getBCRight());
+  _cmfd->setBoundary(3,getBCTop());
 
-  /* Set CMFD level to user specified value if possible */
-  if (_mesh->getMeshLevel() == -1){
-    mesh_level = max_mesh_level;
-    _mesh->setMeshLevel(mesh_level);
-  }
+  /* Set CMFD mesh dimensions and number of groups */
+  _cmfd->setWidth(width);
+  _cmfd->setHeight(height);
+  _cmfd->setNumMOCGroups(_num_groups);
 
-  else if (_mesh->getMeshLevel() >= 0 &&
-           _mesh->getMeshLevel() <= max_mesh_level)
-    mesh_level = _mesh->getMeshLevel();
-  else{
-    log_printf(WARNING, "User input CMFD Mesh level was outside the bounds of "
-               "the Mesh level range (%d to %d)", 0, max_mesh_level);
-    mesh_level = max_mesh_level;
-    _mesh->setMeshLevel(max_mesh_level);
-  }
+  /* If user did not set CMFD group structure, create CMFD group
+  * structure that is the same as the MOC group structure */
+  if (_cmfd->getNumCmfdGroups() == 0)
+    _cmfd->setGroupStructure(NULL, _num_groups+1);
 
-  log_printf(INFO, "CMFD Mesh level: %i, max mesh level: %i",
-             mesh_level, max_mesh_level);
-
-  /* Find Cell width and height at Mesh nested Universe level */
-  int width = 0;
-  int height = 0;
-  findMeshHeight(univ, &height, mesh_level);
-  univ = _universes.at(0);
-  findMeshWidth(univ, &width, mesh_level);
-
-  /* Set Mesh boundary conditions */
-  _mesh->setBoundary(0,getBCLeft());
-  _mesh->setBoundary(1,getBCBottom());
-  _mesh->setBoundary(2,getBCRight());
-  _mesh->setBoundary(3,getBCTop());
-  _mesh->setNumFSRs(_num_FSRs);
-
-  /* Set the Mesh cell width and height */
-  if (mesh_level > 0){
-    _mesh->setCellsY(height);
-    _mesh->setCellsX(width);
-  }
-  else{
-    _mesh->setCellsY(1);
-    _mesh->setCellsX(1);
-  }
-
-  /* Set Mesh dimensions and initialize Mesh variables */
-  _mesh->setLengthY(getHeight());
-  _mesh->setLengthX(getWidth());
-  _mesh->initialize();
-  log_printf(NORMAL, "Number of mesh cells: %i", height*width);
-  log_printf(DEBUG, "mesh cell width: %i", _mesh->getCellsX());
-  log_printf(DEBUG, "mesh cell height: %i", _mesh->getCellsY());
-
-  /* Decide whether CMFD acceleration is needed for MOC acceleration */
-  if (_num_FSRs <= 1000 && _mesh->getSolveType() == MOC){
-    _mesh->setAcceleration(false);
-    log_printf(INFO, "CMFD acceleration was turned off because there are "
-               "<= 100 fsrs and CMFD is not needed for small geometries");
-  }
-
-  /* Decide whether optically thick correction factor is needed for MOC
-   * acceleration */
-  if (getHeight()*getWidth() / (height*width) >= 10.0 &&
-      _mesh->getSolveType() == MOC){
-
-    _mesh->setOpticallyThick(true);
-    log_printf(INFO, "Optically thick correction factor turned on for CMFD "
-               "acceleration because the average mesh cell size is >= 10 cm^2");
-  }
-
-  /* Make a vector of FSR IDs in each Mesh cell */
-  int meshCellNum = 0;
-
-  if (mesh_level > 0)
-    defineMesh(_mesh, univ, mesh_level, &meshCellNum, 0, true, 0);
-
-  else{
-    _mesh->setCellLengthX(0, getWidth());
-    _mesh->setCellLengthY(0, getHeight());
-
-    for (int fsr = 0; fsr < _num_FSRs; fsr++)
-      _mesh->getCellFSRs()->at(0).push_back(fsr);
-  }
-
-  /* set mesh fsr and cell bounds and initialize materials */
-  _mesh->setFSRBounds();
-  _mesh->setCellBounds();
-
-  if (_mesh->getSolveType() == DIFFUSION)
-    _mesh->initializeMaterialsDiffusion(&_materials, _FSRs_to_material_IDs);
-
-  return;
+  /* Intialize CMFD Maps */
+  _cmfd->initializeCellMap();
+  _cmfd->initializeGroupMap();
 }
 
 
 /**
- * @brief This is a recursive method which stores the IDs of all FSRs located
- *        in a Mesh cell object in a std::vector owned by the Mesh cell.
- * @param univ a pointer to the Universe that contains the Mesh cell
- * @param cell_num the Mesh cell indice
- * @param fsr_id an integer pointer set to the first fsr_id in this Universe
+ * @brief Returns the map that maps FSR keys to FSR IDs
+ * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-void Geometry::findFSRsInCell(Universe* univ, int cell_num, int* fsr_id){
-
-  /* If the Universe is a SIMPLE type Universe */
-  if (univ->getType() == SIMPLE) {
-
-    std::map<int, Cell*> cells = univ->getCells();
-    Cell* curr;
-
-    /* For each of the Cells inside the Universe, check if it is a
-     * MATERIAL or FILL type */
-    std::map<int, Cell*>::iterator iter;
-    for (iter = cells.begin(); iter != cells.end(); ++iter) {
-      curr = iter->second;
-
-      /* If the current Cell is a MATERIAL type cell, store its FSR ID */
-      if (curr->getType() == MATERIAL) {
-
-        log_printf(DEBUG, "Storing FSR ID = %i in CMFD Mesh", *fsr_id);
-        _mesh->getCellFSRs()->at(cell_num).push_back(*fsr_id);
-        log_printf(DEBUG, "cell num %i, fsr list: %i",
-                   cell_num, _mesh->getCellFSRs()->at(cell_num).size());
-        *fsr_id += 1;
-      }
-
-      /* If the current Cell is a FILL type cell recursively call findFSRsInCell() */
-      else {
-        CellFill* fill_cell = static_cast<CellFill*>(curr);
-        Universe* universe_fill = fill_cell->getUniverseFill();
-        findFSRsInCell(universe_fill, cell_num, fsr_id);
-      }
-    }
-  }
-
-  /* If the Universe is a LATTICE type Universe recursively call 
-     findFSRsInCell() */
-  else {
-
-    Lattice* lattice = static_cast<Lattice*>(univ);
-    Universe* curr;
-    int num_x = lattice->getNumX();
-    int num_y = lattice->getNumY();
-    int baseFSR = *fsr_id;
-
-    /* Loop over all Lattice cells in this Lattice */
-    for (int i = num_y-1; i > -1; i--) {
-      for (int j = 0; j < num_x; j++) {
-
-        /* Get a pointer to the current Lattice cell */
-        curr = lattice->getUniverse(j, i);
-        log_printf(DEBUG, "Getting Lattice FSR offset= %i",
-                   lattice->getFSR(j,i));
-        *fsr_id = baseFSR + lattice->getFSR(j,i);
-
-        /* Find all FSRs in this Lattice */
-        findFSRsInCell(curr, cell_num, fsr_id);
-      }
-    }
-  }
+std::map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
+  return _FSR_keys_map;
 }
 
 
 /**
- * @brief This is a recursive method which defines all the parameters of the
- *        the Mesh cell objects in a Mesh.
- * @details This method takes in the uppermost level Universe in the nested
- *          Universe hierarchy (with ID = 0) and recurses until it reaches the
- *          Universe level of the CMFD mesh. Then, the function loops over all
- *          the Cells in the Lattice and defines the corresponding Mesh cell
- *          object for each Lattice cell.
- * @param mesh the CMFD Mesh object to initialize
- * @param univ a pointer to a the base Universe (ID = 0)
- * @param depth the number of Lattices that must be descended to reach the
- *              CMFD Mesh level.
- * @param meshCellNum a pointer to an integer used to store the index of the
- *                    current Mesh cell object.
- * @param row the current row of the parent Lattice
- * @param base boolean indicating whether the current Lattice is the highest
- *             level Lattice
- * @param fsr_id a pointer to an integer that is set to first fsr_id in this
- *               Universe
+ * @brief Returns the vector that maps FSR IDs to FSR key hashes
+ * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-void Geometry::defineMesh(Mesh* mesh, Universe* univ, int depth,
-                          int* meshCellNum, int row, bool base, int fsr_id){
-
-  /* If the Universe is a SIMPLE type Universe */
-  if (univ->getType() == SIMPLE){
-    std::map<int, Cell*> cells = univ->getCells();
-    Cell* curr;
-
-    /* For each of the Cells inside the Lattice, check if it is
-     * MATERIAL or FILL type */
-    std::map<int, Cell*>::iterator iter;
-    for (iter = cells.begin(); iter != cells.end(); ++iter) {
-      curr = iter->second;CellFill* fill_cell = static_cast<CellFill*>(curr);
-      Universe* universe_fill = fill_cell->getUniverseFill();
-      defineMesh(mesh, universe_fill, depth, meshCellNum, row, base, fsr_id);
-    }
-  }
-
-  /* If the Universe is a LATTICE type Universe */
-  else {
-
-    Lattice* lattice = static_cast<Lattice*>(univ);
-    Universe* curr;
-    int num_x = lattice->getNumX();
-    int num_y = lattice->getNumY();
-    log_printf(DEBUG, "num_x: %i num_y: %i", num_x, num_y);
-
-    /* If the current LATTICE is the CMFD Mesh Lattice */
-    if (depth == 1){
-
-      /* If the current LATTICE is the base Lattice */
-      if (base == true){
-        for (int i = num_y-1; i > -1; i--) {
-          for (int j = 0; j < num_x; j++) {
-
-            curr = lattice->getUniverse(j,i);
-            fsr_id = lattice->getFSR(j,i);
-            log_printf(DEBUG, "Added FSR ID to counter -> fsr_id: %i", fsr_id);
-
-            /* Store fsr_ids of FSRs in this LATTICE in a Mesh cell object */
-            findFSRsInCell(curr, *meshCellNum, &fsr_id);
-            mesh->setCellLengthX(*meshCellNum, lattice->getWidthX());
-            mesh->setCellLengthY(*meshCellNum, lattice->getWidthY());
-
-            log_printf(DEBUG, "Mesh cell: %i, width: %f, height: %f",
-                      *meshCellNum, lattice->getWidthX(), lattice->getWidthY());
-
-            *meshCellNum = *meshCellNum + 1;
-          }
-        }
-      }
-
-      /* If the current LATTICE is not the base Lattice */
-      else{
-
-        int baseFSR = fsr_id;
-
-        for (int j = 0; j < num_x; j++) {
-
-          curr = lattice->getUniverse(j,row);
-          fsr_id = baseFSR + lattice->getFSR(j,row);
-
-          log_printf(DEBUG, "Set FSr ID to: %i", fsr_id);
-
-          /* Store fsr_ids of the FSRs in this LATTICE in a Mesh cell object */
-          findFSRsInCell(curr, *meshCellNum, &fsr_id);
-          mesh->setCellLengthX(*meshCellNum, lattice->getWidthX());
-          mesh->setCellLengthY(*meshCellNum, lattice->getWidthY());
-
-          log_printf(DEBUG, "Mesh cell num: %i, width: %f, height: %f",
-                     *meshCellNum, lattice->getWidthX(), lattice->getWidthY());
-
-          *meshCellNum = *meshCellNum + 1;
-        }
-      }
-    }
-
-    /* If the current LATTICE is not the CMFD Mesh Lattice */
-    else {
-
-      base = false;
-
-      for (int i = num_y-1; i > -1; i--) {
-
-        curr = lattice->getUniverse(0,i);
-        int nextHeight = nextLatticeHeight(curr);
-
-        log_printf(DEBUG, "next height: %i", nextHeight);
-
-        for (int k = nextHeight-1; k > -1; k--) {
-          for (int j = 0; j < num_x; j++) {
-
-            curr = lattice->getUniverse(j,i);
-            fsr_id = lattice->getFSR(j,i);
-
-            /* Recursively call defineMesh(...) until LATTICE level of
-             * CMFD mesh is reached */
-            defineMesh(mesh, curr, depth - 1, meshCellNum, k, base, fsr_id);
-          }
-        }
-      }
-    }
-  }
-
-  return;
+std::vector<std::size_t> Geometry::getFSRsToKeys(){
+  return _FSRs_to_keys;
 }
 
 
 /**
- * @brief This is a recursive method that finds the Mesh cell height of the next
- *        lowest LATTICE in a given Universe.
- * @param univ a pointer to the Universe of interest
- * @return the level in the nested Universe hierarchy
+ * @brief Return a vector indexed by flat source region IDs which contain
+ *        the corresponding Material IDs.
+ * @return an integer vector of FSR-to-Material IDs indexed by FSR ID
  */
-int Geometry::nextLatticeHeight(Universe* univ){
+std::vector<int> Geometry::getFSRsToMaterialIDs() {
+  if (_num_FSRs == 0)
+    log_printf(ERROR, "Unable to return the FSR-to-Material map array since "
+               "the Geometry has not initialized FSRs.");
 
-  int height = 1;
-
-  /* If the Universe is a SIMPLE type Universe */
-  if (univ->getType() == SIMPLE){
-
-    std::map<int, Cell*> cells = univ->getCells();
-    Cell* curr;
-
-    std::map<int, Cell*>::iterator iter;
-    iter = cells.begin();
-    curr = iter->second;
-
-    /* IF the Cell is FILL type recursively call nextLatticeHeight(...) */
-    if (curr->getType() == FILL){
-      CellFill* fill_cell = static_cast<CellFill*>(curr);
-      Universe* universe_fill = fill_cell->getUniverseFill();
-      height = nextLatticeHeight(universe_fill);
-    }
-  }
-
-  /* If the Universe is a LATTICE type Universe return the height */
-  else {
-    Lattice* lattice = static_cast<Lattice*>(univ);
-    height = lattice->getNumY();
-  }
-
-  return height;
-}
-
-
-
-/**
- * @brief This is a recursive method that finds the Mesh cell height of the
- *        LATTICE at the CMFD Mesh level.
- * @param univ a pointer to the base Universe (ID = 0)
- * @param height a pointer to the accumulator for the Mesh height
- * @param depth the number of nested Universe levels that must be descended to
- *              reach the CMFD Mesh level.
-*/
-void Geometry::findMeshHeight(Universe* univ, int* height, int depth){
-
-  /* If the Universe is a SIMPLE type Universe */
-  if (univ->getType() == SIMPLE){
-    std::map<int, Cell*> cells = univ->getCells();
-    Cell* curr;
-    std::map<int, Cell*>::iterator iter;
-    for (iter = cells.begin(); iter != cells.end(); ++iter) {
-      curr = iter->second;
-
-      /* IF the Cell is FILL type, recursively call findMeshHeight(...) */
-      if (curr->getType() == FILL){
-        CellFill* fill_cell = static_cast<CellFill*>(curr);
-        Universe* universe_fill = fill_cell->getUniverseFill();
-        findMeshHeight(universe_fill, height, depth);
-      }
-    }
-  }
-
-  /* If the Universe is a LATTICE type Universe */
-  else {
-
-    /* Check to see if CMFD Mesh Lattice depth has been reached */
-    if (depth > 0){
-
-      Lattice* lattice = static_cast<Lattice*>(univ);
-      Universe* curr;
-      int num_y = lattice->getNumY();
-
-      /* If the current LATTICE is the CMFD Mesh Lattice add its numY to
-       * height accumulator */
-      if (depth == 1){
-        *height = *height + num_y;
-      }
-
-      else{
-
-        depth = depth - 1;
-
-        for (int i = num_y-1; i > -1; i--) {
-          curr = lattice->getUniverse(0, i);
-
-          /* Find the height of the current Universe */
-          findMeshHeight(curr, height, depth);
-        }
-      }
-    }
-  }
-
-  return;
+  return _FSRs_to_material_IDs;
 }
 
 
 /**
- * @brief This is a recursive method that finds the Mesh cell width of the
- *        LATTICE at the CMFD Mesh level.
- * @param univ a pointer to the base Universe (ID = 0)
- * @param width a pointer to the accumulator for the Mesh width
- * @param depth the number of nested Universe levels that must be descended to
- *              reach the CMFD Mesh level.
+ * @brief Sets the _FSR_keys_map map
+ * @param FSR_keys_map map of FSR keys to FSR IDs
  */
-void Geometry::findMeshWidth(Universe* univ, int* width, int depth){
-
-  /* If the Universe is a SIMPLE type Universe */
-  if (univ->getType() == SIMPLE){
-    std::map<int, Cell*> cells = univ->getCells();
-    Cell* curr;
-    std::map<int, Cell*>::iterator iter;
-    for (iter = cells.begin(); iter != cells.end(); ++iter) {
-      curr = iter->second;
-
-      /* IF the Cell is FILL type, recursively call findMeshWidth(...) */
-      if (curr->getType() == FILL){
-        CellFill* fill_cell = static_cast<CellFill*>(curr);
-        Universe* universe_fill = fill_cell->getUniverseFill();
-        findMeshWidth(universe_fill, width, depth);
-     }
-    }
-  }
-
-  /* If the Universe is a LATTICE type Universe */
-  else {
-
-    /* check to see if CMFD Mesh Lattice depth has been reached */
-    if (depth > 0){
-
-      Lattice* lattice = static_cast<Lattice*>(univ);
-      Universe* curr;
-      int num_x = lattice->getNumX();
-      int num_y = lattice->getNumY();
-      int i = num_y-1;
-
-      /* If the current LATTICE is the CMFD Mesh Lattice add its numX to width
-      * accumulator */
-      if (depth == 1)
-        *width = *width + num_x;
-
-      else{
-
-        depth = depth - 1;
-
-        for (int j = 0; j < num_x; j++) {
-          curr = lattice->getUniverse(j, i);
-
-          /* Find the width of the current Universe */
-          findMeshWidth(curr, width, depth);
-        }
-      }
-    }
-  }
-
-  return;
+void Geometry::setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map){
+  _FSR_keys_map = FSR_keys_map;
 }
 
 
 /**
- * @brief This is a recursive method that finds the depth of the Geometry Mesh.
- * @param univ a pointer to a the base Universe (ID = 0)
- * @param mesh_level a pointer to the accumulator for the CMFD Mesh level
+ * @brief Sets the _FSRs_to_keys vector
+ * @param FSRs_to_keys vector of FSR key hashes indexed by FSR IDs
  */
-int Geometry::findMeshDepth(Universe* univ, int mesh_level){
+void Geometry::setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys){
+  _FSRs_to_keys = FSRs_to_keys;
+}
 
-  /* If the Universe is a SIMPLE type Universe */
-  if (univ->getType() == SIMPLE){
-    std::map<int, Cell*> cells = univ->getCells();
 
-    Cell* curr;
-    std::map<int, Cell*>::iterator iter;
-
-    for (iter = cells.begin(); iter != cells.end(); ++iter) {
-      curr = iter->second;
-
-      /* IF the Cell is FILL type recursively call findMeshWidth(...) */
-      if (curr->getType() == FILL){
-        CellFill* fill_cell = static_cast<CellFill*>(curr);
-        Universe* universe_fill = fill_cell->getUniverseFill();
-        mesh_level = findMeshDepth(universe_fill, mesh_level);
-      }
-    }
-  }
-
-  /* If the Universe is a LATTICE type Universe */
-  else {
-
-    Lattice* lattice = static_cast<Lattice*>(univ);
-    Universe* curr;
-    int num_x = lattice->getNumX();
-    int num_y = lattice->getNumY();
-    mesh_level++;
-    int i = num_y-1;
-    int j = num_x-1;
-    int min = 0;
-    int levels = 0;
-
-    /* Loop through Lattice cells and recursively call  */
-    for (int x = 0; x <= j; x++){
-      for (int y = 0; y <= i; y++){
-
-        curr = lattice->getUniverse(x, y);
-
-        /* Find the width of the current Universe */
-        levels = findMeshDepth(curr, mesh_level);
-
-        if (x == 0 && y == 0)
-          min = levels;
-
-        else{
-          min = std::min(min, levels);
-        }
-
-      }
-    }
-
-    mesh_level = min;
-  }
-
-  return mesh_level;
+/**
+ * @brief Sets the _FSRs_to_material_IDs vector
+ * @param FSRs_to_material_IDs vector mapping FSR IDs to cells
+ */
+void Geometry::setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs){
+  _FSRs_to_material_IDs = FSRs_to_material_IDs;
 }
