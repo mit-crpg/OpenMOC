@@ -199,6 +199,7 @@ public:
   std::string toString();
   void printString();
   void initializeCmfd();
+  bool withinBounds(LocalCoords* coords);
 
 };
 

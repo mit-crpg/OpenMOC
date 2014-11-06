@@ -805,6 +805,11 @@ CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
   int universe_id = coords->getUniverse();
   Universe* univ = _universes.at(universe_id);
 
+  if (universe_id == 0){
+    if (!withinBounds(coords))
+      return NULL;
+  }
+
   if (univ->getType() == SIMPLE)
     return static_cast<CellBasic*>(univ->findCell(coords, _universes));
   else
@@ -870,7 +875,7 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  */
 CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
 
-  CellBasic* cell = NULL;
+  Cell* cell = NULL;
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
   Point surf_intersection;
@@ -902,7 +907,7 @@ CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
       /* If we reach a LocalCoord in a Universe, find the distance to the
       * nearest cell surface */
       else{
-        Cell* cell = _cells.at(coords->getCell());
+        cell = _cells.at(coords->getCell());
         dist = cell->minSurfaceDist(coords->getPoint(), angle, &surf_intersection);
       }
 
@@ -1552,4 +1557,16 @@ void Geometry::setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys){
  */
 void Geometry::setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs){
   _FSRs_to_material_IDs = FSRs_to_material_IDs;
+}
+
+
+bool Geometry::withinBounds(LocalCoords* coords){
+
+  double x = coords->getX();
+  double y = coords->getY();
+  
+  if (x < _x_min || x > _x_max || y < _y_min || y > _y_max)
+    return false;
+  else
+    return true;
 }
