@@ -26,7 +26,10 @@ def general_c5g7_setup(sysargs):
     log.set_log_level('ERROR')
 
     ## materials
-    materials = materialize.materialize('../../c5g7-materials.py')
+    try:
+        materials = materialize.materialize('../../c5g7-materials.py')
+    except:
+        materials = materialize.materialize('c5g7-materials.py')
 
     uo2_id = materials['UO2'].getId()
     mox43_id = materials['MOX-4.3%'].getId()
@@ -337,7 +340,8 @@ class TestC5G7(unittest.TestCase):
 
 
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestC5G7)
+testC5G7 = unittest.TestLoader().loadTestsFromTestCase(TestC5G7)
 
-unittest.TextTestRunner(verbosity=2).run(suite)
+if __name__ == '__main__':    
+    unittest.TextTestRunner(verbosity=2).run(testC5G7)
 

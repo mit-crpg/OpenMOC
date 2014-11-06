@@ -47,9 +47,12 @@ class TestPyFiles(unittest.TestCase):
         # Stores the input filename, the imported file,
         # and the output dictionary in the test class.
         
-        cls._input = 'materials-test.py'
+        cls._input = 'testMaterialize/materials-test.py'
         cls._import = imp.load_source(cls._input, cls._input).dataset
         cls._output = materialize.materialize(cls._input)
+
+
+        ########### importing the file fails when running the full suite
     
     def testEnergyGroup(self):
 
@@ -96,7 +99,7 @@ class TestUO2(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._input = 'materials-test.py'
+        cls._input = 'testMaterialize/materials-test.py'
         cls._import = imp.load_source(cls._input, cls._input).dataset
         cls._output = materialize.materialize(cls._input)
         data = cls._import
@@ -253,7 +256,10 @@ class TestFissionChamber(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._input = 'materials-test.py'
+        
+        # pass in directory in input (default - empty, pass in directory if outside immediate directory)
+
+        cls._input = 'testMaterialize/materials-test.py'
         cls._import = imp.load_source(cls._input, cls._input).dataset
         cls._output = materialize.materialize(cls._input)
         data = cls._import
@@ -407,7 +413,7 @@ class TestWater(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._input = 'materials-test.py'
+        cls._input = 'testMaterialize/materials-test.py'
         cls._import = imp.load_source(cls._input, cls._input).dataset
         cls._output = materialize.materialize(cls._input)
         data = cls._import['Materials']

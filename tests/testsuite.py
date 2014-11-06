@@ -3,13 +3,12 @@
 import testLog.testLog as testlog
 import testMaterialize.testMaterialize as testmaterialize
 import testOptions.testOptions as testoptions
-import testRegression
+import testRegression.testRegressionSuite as testRegression
 import unittest
 
-## TODO: fix
 
 ## options for if we want to run all
-fullsuite = False
+fullsuite = True
 
 def buildQuickTestSuite():
 
@@ -23,10 +22,9 @@ def buildQuickTestSuite():
 def buildFullTestSuite():
 
     fullTestSuite = buildQuickTestSuite()
-    fullTestSuite.addTest()
+    fullTestSuite.addTest(testRegression.RegressionSuite)
 
-    ## TO ADD: REGRESSION TESTS (slower)
-    ## First - rework regression tests
+    return fullTestSuite
 
 if fullsuite:
     TestSuite = buildFullTestSuite()

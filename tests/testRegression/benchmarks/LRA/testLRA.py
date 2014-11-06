@@ -2,7 +2,9 @@
 
 ## This gets different values sometimes (not reliable)
 
-## ALSO: cmfd.computeKeff() has error
+## import os.cwd (current working directory) -- make sure the pointer is 
+
+import os
 
 from openmoc import *
 import openmoc.log as log
@@ -11,7 +13,13 @@ import openmoc.materialize as materialize
 import unittest
 import sys
 
+
+
 def general_LRA_setup(sysargs):
+
+    cwd = os.getcwd()
+    current_directory = os.path.dirname(os.path.realpath(__file__))
+    print current_directory
 
     ## Run simulation with passed-in parameters.
 
@@ -19,11 +27,12 @@ def general_LRA_setup(sysargs):
     log.set_log_level('ERROR')
 
     ## materials
-    sys.path.append('/Users/kenausis/Desktop/OpenMOC/sample-input/benchmarks/LRA')
-    materials = materialize.materialize('LRA-materials.py')
+    materials = materialize.materialize(current_directory+'/materialsLRA.py')
 
     ## CURRENTLY THROWS ERROR IN FULL TEST SUITE - 'no such file' when materializing
-    ## 'LRA-materials.py' (could be hyphen?)
+    ## 'LRA-materials.py'
+
+    ## looks for materials.py file in current directory
 
     region1 = materials['region_1'].getId()
     region2 = materials['region_2'].getId()
@@ -168,10 +177,12 @@ def general_LRA_setup(sysargs):
     geometry.addLattice(assembly6)
     geometry.addLattice(core)
 
+    geometry.initializeFlatSourceRegions()
+
     ## Cmfd module
     cmfd = Cmfd(geometry)
     cmfd.setOmega(1.5)
-    ## cmfd.computeKeff()
+    cmfd.computeKeff()
 
     ## return Keff
 
@@ -182,7 +193,8 @@ class TestLRA(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
-        cls._Keff_benchmark = 1.04e-322
+        cls._Keff_benchmark = 0.9962826806701051
+        ## add space
         cls._Keff = general_LRA_setup(['LRA.py'])
 
     def testKeff(self):
@@ -194,7 +206,8 @@ class TestLRA(unittest.TestCase):
         Keff = general_LRA_setup(['LRA.py', '--num-omp-threads', '6'])
         self.assertEqual(Keff, self._Keff_benchmark)
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestLRA)
+testLRA = unittest.TestLoader().loadTestsFromTestCase(TestLRA)
 
-unittest.TextTestRunner(verbosity=2).run(suite)
+if __name__ == '__main__':    
+    unittest.TextTestRunner(verbosity=2).run(testLRA)
 

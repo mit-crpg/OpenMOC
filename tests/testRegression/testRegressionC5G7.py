@@ -80,7 +80,7 @@ def generic_test_setup(sysargs):
 
     ## Running a Simulation
 
-    solver = ThreadPrivateSolver(g, track_generator)
+    solver = openmoc.ThreadPrivateSolver(g, track_generator)
     solver.setNumThreads(num_threads)
     solver.setSourceConvergenceThreshold(tolerance)
     solver.convergeSource(max_iters)

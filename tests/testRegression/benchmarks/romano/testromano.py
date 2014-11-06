@@ -125,6 +125,7 @@ class TestRomano(unittest.TestCase):
         Keff = general_romano_setup(['romano.py', '--num-omp-threads', '5'])
         self.assertEqual(self._Keff_benchmark, Keff)
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestRomano)
+testRomano = unittest.TestLoader().loadTestsFromTestCase(TestRomano)
 
-unittest.TextTestRunner(verbosity=2).run(suite)
+if __name__ == '__main__':    
+    unittest.TextTestRunner(verbosity=2).run(testRomano)

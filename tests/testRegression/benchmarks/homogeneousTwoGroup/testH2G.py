@@ -74,7 +74,7 @@ def general_h2g_setup(sysargs):
     track_generator.generateTracks()
 
     # run simulation
-    solver = ThreadPrivateSolver(geometry, track_generator)
+    solver = CPUSolver(geometry, track_generator)
     solver.setNumThreads(num_threads)
     solver.setSourceConvergenceThreshold(tolerance)
     solver.convergeSource(max_iters)
@@ -102,7 +102,8 @@ class TestHomogTwoGroups(unittest.TestCase):
         ## this fails, although it's close.
         ## use small threshold instead?
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestHomogTwoGroups)
+testH2G = unittest.TestLoader().loadTestsFromTestCase(TestHomogTwoGroups)
 
-unittest.TextTestRunner(verbosity=2).run(suite)
+if __name__ == '__main__':    
+    unittest.TextTestRunner(verbosity=2).run(testH2G)
 
