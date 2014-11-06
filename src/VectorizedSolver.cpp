@@ -11,21 +11,16 @@
  *          initalizes the number of threads to a default of 1.
  * @param geometry an optional pointer to the Geometry object
  * @param track_generator an optional pointer to a TrackGenerator object
- * @param cmfd an optional pointer to a Cmfd object
  */
 VectorizedSolver::VectorizedSolver(Geometry* geometry,
-                                   TrackGenerator* track_generator,
-                                   Cmfd* cmfd) :
-  CPUSolver(geometry, track_generator, cmfd) {
+                                   TrackGenerator* track_generator) :
+  CPUSolver(geometry, track_generator) {
+
+  if (_cmfd != NULL)
+    log_printf(ERROR, "The VectorizedSolver is not set up to use CMFD");
 
   _thread_taus = NULL;
   _thread_exponentials = NULL;
-
-  if (geometry != NULL)
-    setGeometry(geometry);
-
-  if (track_generator != NULL)
-    setTrackGenerator(track_generator);
 
   vmlSetMode(VML_EP);
 }
@@ -38,57 +33,52 @@ VectorizedSolver::VectorizedSolver(Geometry* geometry,
 VectorizedSolver::~VectorizedSolver() {
 
   if (_boundary_flux != NULL) {
-    _mm_free(_boundary_flux);
+    MM_FREE(_boundary_flux);
     _boundary_flux = NULL;
   }
 
   if (_boundary_leakage != NULL) {
-    _mm_free(_boundary_leakage);
+    MM_FREE(_boundary_leakage);
     _boundary_leakage = NULL;
   }
 
   if (_scalar_flux != NULL) {
-    _mm_free(_scalar_flux);
+    MM_FREE(_scalar_flux);
     _scalar_flux = NULL;
   }
 
-  if (_thread_fsr_flux != NULL) {
-    _mm_free(_thread_fsr_flux);
-    _thread_fsr_flux = NULL;
-  }
-
   if (_fission_sources != NULL) {
-    _mm_free(_fission_sources);
+    MM_FREE(_fission_sources);
     _fission_sources = NULL;
   }
 
   if (_scatter_sources != NULL) {
-    _mm_free(_scatter_sources);
+    MM_FREE(_scatter_sources);
     _scatter_sources = NULL;
   }
 
   if (_source != NULL) {
-    _mm_free(_source);
+    MM_FREE(_source);
     _source = NULL;
   }
 
   if (_old_source != NULL) {
-    _mm_free(_old_source);
+    MM_FREE(_old_source);
     _old_source = NULL;
   }
 
   if (_reduced_source != NULL) {
-    _mm_free(_reduced_source);
+    MM_FREE(_reduced_source);
     _reduced_source = NULL;
   }
 
   if (_thread_taus != NULL) {
-    _mm_free(_thread_taus);
+    MM_FREE(_thread_taus);
     _thread_taus = NULL;
   }
 
   if (_thread_exponentials != NULL) {
-    _mm_free(_thread_exponentials);
+    MM_FREE(_thread_exponentials);
     _thread_exponentials = NULL;
   }
 
@@ -146,14 +136,14 @@ void VectorizedSolver::buildExpInterpTable() {
   /* Deallocates memory for the exponentials if it was allocated for a
    * previous simulation */
   if (_thread_exponentials != NULL)
-    _mm_free(_thread_exponentials);
+    MM_FREE(_thread_exponentials);
 
   /* Allocates memory for an array of exponential values for each thread
    * - this is not used by default, but can be to allow for vectorized
    * evaluation of the exponentials. Unfortunately this does not appear
    * to give any performance boost. */
   int size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
-  _thread_exponentials = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+  _thread_exponentials = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 }
 
 
@@ -168,19 +158,16 @@ void VectorizedSolver::initializeFluxArrays() {
 
   /* Delete old flux arrays if they exist */
   if (_boundary_flux != NULL)
-    _mm_free(_boundary_flux);
+    MM_FREE(_boundary_flux);
 
   if (_boundary_leakage != NULL)
-    _mm_free(_boundary_leakage);
+    MM_FREE(_boundary_leakage);
 
   if (_scalar_flux != NULL)
-    _mm_free(_scalar_flux);
-
-  if (_thread_fsr_flux != NULL)
-    _mm_free(_thread_fsr_flux);
+    MM_FREE(_scalar_flux);
 
   if (_thread_taus != NULL)
-    _mm_free(_thread_taus);
+    MM_FREE(_thread_taus);
 
   int size;
 
@@ -189,17 +176,14 @@ void VectorizedSolver::initializeFluxArrays() {
 
     size = 2 * _tot_num_tracks * _num_groups * _num_polar;
     size *= sizeof(FP_PRECISION);
-    _boundary_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-    _boundary_leakage = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+    _boundary_flux = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    _boundary_leakage = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
     size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-    _scalar_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-
-    size = _num_threads * _num_groups * sizeof(FP_PRECISION);
-    _thread_fsr_flux = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+    _scalar_flux = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
     size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
-    _thread_taus = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+    _thread_taus = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   }
   catch(std::exception &e) {
@@ -218,38 +202,38 @@ void VectorizedSolver::initializeSourceArrays() {
 
   /* Delete old sources arrays if they exist */
   if (_fission_sources != NULL)
-    _mm_free(_fission_sources);
+    MM_FREE(_fission_sources);
 
   if (_scatter_sources != NULL)
-    _mm_free(_scatter_sources);
+    MM_FREE(_scatter_sources);
 
   if (_source != NULL)
-    _mm_free(_source);
+    MM_FREE(_source);
 
   if (_old_source != NULL)
-    _mm_free(_old_source);
+    MM_FREE(_old_source);
 
   if (_reduced_source != NULL)
-    _mm_free(_reduced_source);
+    MM_FREE(_reduced_source);
 
   if (_source_residuals != NULL)
-    _mm_free(_source_residuals);
+    MM_FREE(_source_residuals);
 
   int size;
 
   /* Allocate aligned memory for all source arrays */
   try{
     size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-    _fission_sources = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-    _source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-    _old_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
-    _reduced_source = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+    _fission_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    _source = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    _old_source = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    _reduced_source = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
     size = _num_threads * _num_groups * sizeof(FP_PRECISION);
-    _scatter_sources = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+    _scatter_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
     size = _num_FSRs * sizeof(FP_PRECISION);
-    _source_residuals = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+    _source_residuals = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the VectorizedSolver's "
@@ -491,10 +475,10 @@ void VectorizedSolver::computeKeff() {
   FP_PRECISION tot_fission = 0.0;
 
   int size = _num_FSRs * sizeof(FP_PRECISION);
-  FP_PRECISION* FSR_rates = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+  FP_PRECISION* FSR_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   size = _num_threads * _num_groups * sizeof(FP_PRECISION);
-  FP_PRECISION* group_rates = (FP_PRECISION*)_mm_malloc(size, VEC_ALIGNMENT);
+  FP_PRECISION* group_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* Loop over all FSRs and compute the volume-weighted absorption rates */
   #pragma omp parallel for private(tid, volume, \
@@ -576,8 +560,8 @@ void VectorizedSolver::computeKeff() {
   log_printf(DEBUG, "abs = %f, fission = %f, leakage = %f, k_eff = %f",
              tot_abs, tot_fission, _leakage, _k_eff);
 
-  _mm_free(FSR_rates);
-  _mm_free(group_rates);
+  MM_FREE(FSR_rates);
+  MM_FREE(group_rates);
 
 return;
 }

@@ -216,7 +216,7 @@ void LocalCoords::setPrev(LocalCoords* prev) {
 
 
 /**
- * @brief Find and return the last LocalCoords in the linked list wich
+ * @brief Find and return the last LocalCoords in the linked list which
  *        represents the local coordinates on the lowest level of a geometry
  *        of nested universes.
  * @details Traverses a linked list of LocalCoords to find the one at the
@@ -226,11 +226,28 @@ void LocalCoords::setPrev(LocalCoords* prev) {
 LocalCoords* LocalCoords::getLowestLevel() {
   LocalCoords* curr = this;
 
-  if (curr)
+  /* Traverse linked list */
+  while (curr->getNext() != NULL)
+    curr = curr->getNext();
 
-    /* Traverse linked list */
-    while (curr->getNext() != NULL)
-      curr = curr->getNext();
+  return curr;
+}
+
+
+/**
+ * @brief Find and return the first LocalCoords in the linked list which
+ *        represents the local coordinates on the highest level of a geometry
+ *        of nested universes.
+ * @details Traverses a linked list of LocalCoords to find the one at the
+ *          highest nested Universe level.
+ * @return a pointer to the first LocalCoords object in the list
+ */
+LocalCoords* LocalCoords::getHighestLevel() {
+  LocalCoords* curr = this;
+
+  /* Traverse linked list */
+  while (curr->getPrev() != NULL)
+    curr = curr->getPrev();
 
   return curr;
 }

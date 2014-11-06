@@ -1,22 +1,21 @@
-import sys, copy
+import sys, sysconfig
+import copy
+import numpy
 from distutils.extension import Extension
 from distutils.util import get_platform
+from distutils.dist import Distribution
+from distutils.command.install_lib import install_lib
 
 
 def get_openmoc_object_name():
   """Returns the name of the main openmoc shared library object"""
 
-  # For Python 2.X.X
-  if (sys.version_info[0] == 2):
-    filename = '_openmoc.so'
+  ext_suffix = sysconfig.get_config_var('SOABI')
 
-  # For Python 3.X.X
-  # NOTE: Python 3 distributions are not yet working with SWIG, but this
-  # is a stub for the future
-  elif (sys.version_info[0] == 3):
-#    filename = '_openmoc.so'
-    filename = '_openmoc.cpython-{version[0]}{version[1]}mu.so'
-    filename = filename.format(version=sys.version_info)
+  if ext_suffix is None:
+    filename = '_openmoc.so'
+  else:
+    filename = '_openmoc.{0}.so'.format(ext_suffix)
 
   return filename
 
@@ -24,19 +23,11 @@ def get_openmoc_object_name():
 def get_shared_object_path():
   """Returns the name of the distutils build directory"""
 
-  # For Python 2.X.X
-  if (sys.version_info[0] == 2):
-    directory = 'build/lib.{platform}-{version[0]}.{version[1]}'
-    directory = directory.format(platform=get_platform(),
-                                     version=sys.version_info)
+  install_lib_command = install_lib(Distribution())
+  install_lib_command.initialize_options()
+  install_lib_command.finalize_options()
 
-    
-
-  # For Python 3.X.X
-  # NOTE: Python 3 distributions are not yet working with SWIG, but this is
-  # a stub for the future
-  elif (sys.version_info[0] == 3):
-    directory = 'build/lib'
+  directory = install_lib_command.build_dir
 
   return directory
 
@@ -70,10 +61,10 @@ class configuration:
   fp = 'double'
 
   # Supported C++ compilers: 'gcc', 'icpc', 'bgxlc', 'nvcc', 'all'
-  cpp_compilers = []
+  cpp_compilers = list()
 
   # Supported floating point precision levels: 'single', 'double', 'all'
-  fp_precision = []
+  fp_precision = list()
 
   # Compile using ccache (for developers needing fast recompilation)
   with_ccache = False
@@ -101,17 +92,17 @@ class configuration:
   vector_length = 8
 
   # The vector alignment used in the VectorizedSolver class when allocating
-  # aligned data structures using _mm_malloc and _mm_free
+  # aligned data structures using MM_MALLOC and MM_FREE
   vector_alignment = 16
 
   # List of C/C++/CUDA distutils.extension objects which are created based
   # on which flags are specified at compile time.
-  extensions = []
+  extensions = list()
 
   # List of the packages to install - only openmoc is guaranteed to be built
   # while the others will be built based on which flags are specified
   # at compile time
-  packages = ['openmoc', 'openmoc.intel', 'openmoc.gnu',
+  packages = ['openmoc', 'openmoc.compatible', 'openmoc.intel', 'openmoc.gnu',
               'openmoc.bgq', 'openmoc.cuda', 'openmoc.intel.double',
               'openmoc.intel.single', 'openmoc.gnu.double',
               'openmoc.gnu.single', 'openmoc.bgq.single',
@@ -124,7 +115,7 @@ class configuration:
   #############################################################################
 
   # Dictionary of source code files to compile for each extension module
-  sources = {}
+  sources = dict()
 
   sources['gcc'] = ['openmoc/openmoc_wrap.cpp',
                     'src/Cell.cpp',
@@ -136,14 +127,12 @@ class configuration:
                     'src/Quadrature.cpp',
                     'src/Solver.cpp',
                     'src/CPUSolver.cpp',
-                    'src/ThreadPrivateSolver.cpp',
                     'src/Surface.cpp',
                     'src/Timer.cpp',
                     'src/Track.cpp',
                     'src/TrackGenerator.cpp',
                     'src/Universe.cpp',
-                    'src/Cmfd.cpp',
-                    'src/Mesh.cpp']
+                    'src/Cmfd.cpp']
 
   sources['icpc'] = ['openmoc/openmoc_wrap.cpp',
                      'src/Cell.cpp',
@@ -155,16 +144,13 @@ class configuration:
                      'src/Quadrature.cpp',
                      'src/Solver.cpp',
                      'src/CPUSolver.cpp',
-                     'src/ThreadPrivateSolver.cpp',
                      'src/VectorizedSolver.cpp',
-                     'src/VectorizedPrivateSolver.cpp',
                      'src/Surface.cpp',
                      'src/Timer.cpp',
                      'src/Track.cpp',
                      'src/TrackGenerator.cpp',
                      'src/Universe.cpp',
-                     'src/Cmfd.cpp',
-                     'src/Mesh.cpp']
+                     'src/Cmfd.cpp']
 
   sources['bgxlc'] = ['openmoc/openmoc_wrap.cpp',
                       'src/Cell.cpp',
@@ -176,14 +162,12 @@ class configuration:
                       'src/Quadrature.cpp',
                       'src/Solver.cpp',
                       'src/CPUSolver.cpp',
-                      'src/ThreadPrivateSolver.cpp',
                       'src/Surface.cpp',
                       'src/Timer.cpp',
                       'src/Track.cpp',
                       'src/TrackGenerator.cpp',
                       'src/Universe.cpp',
-                      'src/Cmfd.cpp',
-                      'src/Mesh.cpp']
+                      'src/Cmfd.cpp']
 
   sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
                      'src/accel/cuda/GPUQuery.cu',
@@ -196,7 +180,7 @@ class configuration:
   #############################################################################
 
   # A dictionary of the compiler flags to use for each compiler type
-  compiler_flags = {}
+  compiler_flags = dict()
 
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                            '-std=c++0x', '-fpic']
@@ -216,7 +200,7 @@ class configuration:
   #############################################################################
 
   # A dictionary of the linker flags to use for each compiler type
-  linker_flags = {}
+  linker_flags = dict()
 
   if (get_platform()[:6] == 'macosx'):
     linker_flags['gcc'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
@@ -238,13 +222,13 @@ class configuration:
   #############################################################################
 
   # A dictionary of the shared libraries to use for each compiler type
-  shared_libraries = {}
+  shared_libraries = dict()
 
   shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
   shared_libraries['icpc'] = ['stdc++', 'iomp5', 'pthread', 'irc',
                               'imf','rt', 'mkl_rt','m',]
-  shared_libraries['nvcc'] = ['cudart']
   shared_libraries['bgxlc'] = ['stdc++', 'pthread', 'm', 'xlsmp', 'rt']
+  shared_libraries['nvcc'] = ['cudart']
 
 
   #############################################################################
@@ -253,16 +237,14 @@ class configuration:
 
   # A dictionary of the library directories to use for each compiler type
   # if not set in the LD_LIBRARY_PATH environment variable
-  library_directories = {}
+  library_directories = dict()
 
-  if (get_platform()[:6] == 'macosx'):
-    library_directories['gcc'] = [sys.exec_prefix + '/lib']
-  else:
-    library_directories['gcc'] = []
+  usr_lib = sys.exec_prefix + '/lib'
 
-  library_directories['icpc'] = []
-  library_directories['bgxlc'] = []
-  library_directories['nvcc'] = ['/usr/local/cuda/lib64']
+  library_directories['gcc'] = [usr_lib]
+  library_directories['icpc'] = [usr_lib]
+  library_directories['bgxlc'] = [usr_lib]
+  library_directories['nvcc'] = [usr_lib, '/usr/local/cuda/lib64']
 
 
   #############################################################################
@@ -271,19 +253,11 @@ class configuration:
 
   # A dictionary of the include directories to use for each compiler type
   # for header files not found from paths set in the user's environment
-  include_directories = {}
+  include_directories = dict()
 
-  if (get_platform()[:6] == 'macosx' and with_numpy):
-    include_directories['gcc'] = [sys.exec_prefix + '/lib/python' + \
-                                  str(sys.version_info[0]) + '.' + \
-                                  str(sys.version_info[1]) + \
-                                  '/site-packages/numpy/core/include']
-  else:
-    include_directories['gcc'] = []
-
-  include_directories['icpc'] =[]
-  include_directories['bgxlc'] = \
-      ['/usr/lib64/python2.6/site-packages/numpy/core/include']
+  include_directories['gcc'] = list()
+  include_directories['icpc'] = list()
+  include_directories['bgxlc'] = list()
   include_directories['nvcc'] = ['/usr/local/cuda/include']
 
 
@@ -292,7 +266,7 @@ class configuration:
   ###########################################################################
 
   # A list of the flags for SWIG
-  swig_flags = ['-c++', '-keyword', '-py3']
+  swig_flags = ['-c++', '-python', '-keyword'] #, '-keyword', '-py3']
 
 
   #############################################################################
@@ -301,12 +275,12 @@ class configuration:
 
   # A dictionary of the macros to set at compile time for each compiler type
   # and floating point precisin level
-  macros = {}
+  macros = dict()
 
-  macros['gcc'] = {}
-  macros['icpc'] = {}
-  macros['bgxlc'] = {}
-  macros['nvcc'] = {}
+  macros['gcc'] = dict()
+  macros['icpc'] = dict()
+  macros['bgxlc'] = dict()
+  macros['nvcc'] = dict()
 
   macros['gcc']['single']= [('FP_PRECISION', 'float'),
                             ('SINGLE', None),
@@ -314,13 +288,13 @@ class configuration:
                             ('VEC_LENGTH', vector_length),
                             ('VEC_ALIGNMENT', vector_alignment)]
 
-  macros['icpc']['single']= [('FP_PRECISION', 'float'), 
+  macros['icpc']['single']= [('FP_PRECISION', 'float'),
                              ('SINGLE', None),
                              ('INTEL', None),
                              ('MKL_ILP64', None),
                              ('VEC_LENGTH', vector_length),
                              ('VEC_ALIGNMENT', vector_alignment)]
-  
+
   macros['bgxlc']['single'] = [('FP_PRECISION', 'float'),
                                ('SINGLE', None),
                                ('BGXLC', None),
@@ -384,7 +358,21 @@ class configuration:
     # If the user passed in the --no-numpy flag, tell SWIG not to embed
     # NumPy typemaps in the source code
     if not self.with_numpy:
-      self.swig_flags += ['-DNO_NUMPY']
+      self.swig_flags.append('-DNO_NUMPY')
+
+    # Otherwise, obtain the NumPy include directory
+    else:
+      try:
+        numpy_include = numpy.get_include()
+
+      except AttributeError:
+        numpy_include = numpy.get_numpy_include()
+
+      # Add the NumPy include directory to the include directories
+      # list for each type of compiler
+      for cc in self.include_directories.keys():
+        self.include_directories[cc].append(numpy_include)
+
 
     # The main openmoc extension (defaults are gcc and single precision)
     self.extensions.append(

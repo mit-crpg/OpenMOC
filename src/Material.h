@@ -16,12 +16,18 @@
 #include "log.h"
 #endif
 
-#ifndef ICPC
+#ifdef ICPC
 /** Word-aligned memory allocation for Intel's compiler */
-#define _mm_free(array) free(array)
+#define MM_FREE(array) _mm_free(array)
 
 /** Word-aligned memory allocation for Intel's compiler */
-#define _mm_malloc(size,alignment) malloc(size)
+#define MM_MALLOC(size,alignment) _mm_alloc(size, alignment)
+
+#else
+
+#define MM_FREE(array) free(array)
+#define MM_MALLOC(size,alignment) malloc(size)
+
 #endif
 
 /** Error threshold for determining how close the sum of \f$ \Sigma_a \f$
@@ -42,9 +48,6 @@ int material_id();
 class Material {
 
 private:
-
-  /** A static counter for the number of Materials */
-  static int _n;
 
   /** A monotonically increasing unique ID for each Material created */
   int _uid;
@@ -104,6 +107,7 @@ public:
   Material(int id);
   virtual ~Material();
 
+  void setUid(int uid);
   int getUid() const;
   int getId() const;
   int getNumEnergyGroups() const;
@@ -117,6 +121,17 @@ public:
   FP_PRECISION* getBuckling();
   FP_PRECISION* getDifHat();
   FP_PRECISION* getDifTilde();
+  FP_PRECISION getSigmaTByGroup(int group);
+  FP_PRECISION getSigmaAByGroup(int group);
+  FP_PRECISION getSigmaSByGroup(int origin, int destination);
+  FP_PRECISION getSigmaSByGroupInline(int origin, int destination);
+  FP_PRECISION getSigmaFByGroup(int group);
+  FP_PRECISION getNuSigmaFByGroup(int group);
+  FP_PRECISION getChiByGroup(int group);
+  FP_PRECISION getDifCoefByGroup(int group);
+  FP_PRECISION getBucklingByGroup(int group);
+  FP_PRECISION getDifHatByGroup(int group, int surface);
+  FP_PRECISION getDifTildeByGroup(int group);  
   bool isFissionable();
   bool isDataAligned();
   int getNumVectorGroups();
@@ -138,7 +153,7 @@ public:
   void setSigmaAByGroup(double xs, int group);
   void setSigmaFByGroup(double xs, int group);
   void setNuSigmaFByGroup(double xs, int group);
-  void setSigmaSByGroup(double xs, int group1, int group2);
+  void setSigmaSByGroup(double xs, int origin, int destination);
   void setChiByGroup(double xs, int group);
   void setBucklingByGroup(double xs, int group);
   void setDifCoefByGroup(double xs, int group);
@@ -153,5 +168,22 @@ public:
 
   Material* clone();
 };
+
+
+/**
+ * @brief inline function for efficient mapping for scattering, from
+ *        1D as stored in memory to 2D matrix
+ * @details Encapsulates the logic for indexing into the scattering
+ *        matrix so it does not need to be repeated in other parts of 
+ *        the code.  Note that this routine is 0-based, rather than 
+ *        1-based indexing, as it is intended for use inside the code,
+ *        not by users from Python.
+ * @param origin the column index of the matrix element
+ * @param destination the row index of the matrix element
+ */
+inline FP_PRECISION Material::getSigmaSByGroupInline(
+          int origin, int destination) {
+  return _sigma_s[destination*_num_groups + origin];
+}
 
 #endif /* MATERIAL_H_ */
