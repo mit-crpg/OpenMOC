@@ -59,7 +59,7 @@ VectorizedSolver::~VectorizedSolver() {
 
   if (_old_fission_sources != NULL) {
     MM_FREE(_old_fission_sources);
-    _old_fission_sourceso = NULL;
+    _old_fission_sources = NULL;
   }
 
   if (_reduced_sources != NULL) {
