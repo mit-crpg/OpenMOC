@@ -227,21 +227,21 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
         scatter_source += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
 
       /* Set the fission source for FSR r in group G */
-      fsr_fission_source += fission_source * chi[G];
+      fsr_fission_source += fission_source * chi[G] * inverse_k_eff;
 
       reduced_sources(tid,G) = __fdividef((inverse_k_eff * fission_source 
                       * chi[G] + scatter_source) * ONE_OVER_FOUR_PI, sigma_t[G]);
     }
 
     /* Compute the norm of residuals of the sources for convergence */
-    if (fsr_fission_source > 1E-10)
+    if (fabs(fsr_fission_source) > 1E-10)
       source_residuals[threadIdx.x + blockIdx.x * blockDim.x] +=
-                      pow((fsr_fission_source - old_fission_source[tid]) 
+                      pow((fsr_fission_source - old_fission_sources[tid]) 
                       / fsr_fission_source, 2);
 
 
     /* Update the old fission source */
-    old_fission_source(tid) = fsr_fission_source;
+    old_fission_sources[tid] = fsr_fission_source;
 
     /* Increment the thread id */
     tid += blockDim.x * gridDim.x;
@@ -895,13 +895,16 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int energy_group) {
                fsr_id, energy_group);
 
   /* Get host material */
-  std::map<int, Material*> host_materials = _geometry->getMaterials();
-  Material* host_material = host_materials[FSR_materials[fsr_id]];
+  Material* host_material = _geometry->findFSRMaterial(fsr_id);
 
   /* Get cross sections and scalar flux */
-  FP_PRECISION* nu_sigma_f = host_material->_nu_sigma_f;
-  FP_PRECISION* chi = host_material->_chi;
-  FP_PRECISION* scalar_fluxes = getFSRScalarFluxes();
+  FP_PRECISION* nu_sigma_f = host_material->getNuSigmaF();
+  FP_PRECISION* sigma_s = host_material->getSigmaS();
+  FP_PRECISION* chi = host_material->getChi();
+  FP_PRECISION* fsr_scalar_fluxes = new FP_PRECISION[_num_groups];
+  cudaMemcpy((void*)fsr_scalar_fluxes, (void*)&_scalar_flux[fsr_id*_num_groups],
+             _num_groups * sizeof(FP_PRECISION),
+             cudaMemcpyDeviceToHost);
 
   /* Initialize variables */
   FP_PRECISION fission_source = 0.0;
@@ -910,22 +913,23 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int energy_group) {
   FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
 
   /* Compute total fission source for current region */
-  for (int e=0; e < _num_groups; e++)
-    fission_source += scalar_fluxes[fsr_id*_num_groups+e] * nu_sigma_f[e];
+  for (int e=0; e < _num_groups; e++){
+    fission_source += fsr_scalar_fluxes[e] * nu_sigma_f[e];
+  }
 
   fission_source *= inverse_k_eff;
 
   /* Compute total scattering source for this FSR */
-  for (int g=0; g < _num_groups; g++)
+  for (int g=0; g < _num_groups; g++){
     scatter_source += sigma_s[(energy_group-1)*(_num_groups)+g] 
-                    * scalar_fluxes[fsr_id*_num_groups+g];
+                    * fsr_scalar_fluxes[g];
+  }
 
   /* Compute the total source */
   total_source = (fission_source * chi[energy_group-1] + scatter_source) *
       ONE_OVER_FOUR_PI;
 
-  /* Delete the flux array */
-  delete [] scalar_fluxes;  
+  delete [] fsr_scalar_fluxes;
 
   return total_source;
 }
@@ -1082,10 +1086,14 @@ void GPUSolver::initializeFSRs() {
 
     /* Create a temporary FSR Material UIDs array to populate and then copy to device */
     int* FSRs_to_material_UIDs = new int[_num_FSRs];
+    _num_fissionable_FSRs = 0;
 
     /* Populate FSR Material UIDs array */
-    for (int i = 0; i < _num_FSRs; i++)
+    for (int i = 0; i < _num_FSRs; i++){
       FSRs_to_material_UIDs[i] = _geometry->findFSRMaterial(i)->getUid();
+      if (_geometry->findFSRMaterial(i)->isFissionable())
+        _num_fissionable_FSRs++;
+    }
 
     /* Initialize each FSRs volume to 0 to avoid NaNs */
     memset(temp_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
@@ -1288,7 +1296,7 @@ void GPUSolver::initializeSourceArrays() {
   try{
 
     cudaMalloc((void**)&_old_fission_sources,
-               _num_FSRs * _num_groups * sizeof(FP_PRECISION));
+               _num_FSRs * sizeof(FP_PRECISION));
 
     cudaMalloc((void**)&_reduced_sources,
                _num_FSRs * _num_groups * sizeof(FP_PRECISION));
@@ -1493,7 +1501,7 @@ void GPUSolver::flattenFSRFluxes(FP_PRECISION value) {
  */
 void GPUSolver::flattenFSRSources(FP_PRECISION value) {
 
-  int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+  int size = _num_FSRs * sizeof(FP_PRECISION);
 
   cudaMemset(_old_fission_sources, value, size);
 
