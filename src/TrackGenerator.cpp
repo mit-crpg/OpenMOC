@@ -10,6 +10,8 @@
 TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
                                const double spacing) {
 
+  setNumThreads(1);
+
   _geometry = geometry;
   setNumAzim(num_azim);
   setTrackSpacing(spacing);
@@ -41,6 +43,33 @@ TrackGenerator::~TrackGenerator() {
 
     delete [] _tracks;
   }
+}
+
+
+/**
+ * @brief Sets the number of shared memory OpenMP threads to use (>0).
+ * @param num_threads the number of threads
+ */
+void TrackGenerator::setNumThreads(int num_threads) {
+
+  if (num_threads <= 0)
+    log_printf(ERROR, "Unable to set the number of threads for the "
+               "TrackGenerator to %d since it is less than or equal to 0"
+               , num_threads);
+
+  _num_threads = num_threads;
+
+  /* Set the number of threads for OpenMP */
+  omp_set_num_threads(_num_threads);
+}
+
+
+/**
+ * @brief Returns the number of shared memory OpenMP threads in use.
+ * @return the number of threads
+ */
+int TrackGenerator::getNumThreads() {
+  return _num_threads;
 }
 
 
@@ -332,6 +361,7 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
   _tracks_filename = "";
 }
 
+
 /**
  * @brief Generates tracks for some number of azimuthal angles and track spacing
  * @details Computes the effective angles and track spacing. Computes the
@@ -428,15 +458,17 @@ void TrackGenerator::initializeTrackFileDirectory() {
   if (!stat(directory.str().c_str(), &st) == 0)
     mkdir(directory.str().c_str(), S_IRWXU);
 
-  if (_geometry->getMesh()->getCmfdOn()){
-    test_filename << directory.str() << "/tracks_"
-                  <<  _num_azim*2.0 << "_angles_"
+  if (_geometry->getCmfd() != NULL){
+    test_filename << directory.str() << "/"
+                  << _num_azim*2.0 << "_angles_"
                   << _spacing << "_cm_spacing_cmfd_"
-                  << _geometry->getMesh()->getMeshLevel() << ".data";
+                  << _geometry->getCmfd()->getNumX() 
+                  << "x" << _geometry->getCmfd()->getNumY()
+                  << ".data";
     }
   else{
-    test_filename << directory.str() << "/tracks_"
-                  <<  _num_azim*2.0 << "_angles_"
+    test_filename << directory.str() << "/"
+                  << _num_azim*2.0 << "_angles_"
                   << _spacing << "_cm_spacing.data";
   }
 
@@ -591,10 +623,10 @@ void TrackGenerator::recalibrateTracksToOrigin() {
       double y0 = _tracks[i][j].getStart()->getY();
       double x1 = _tracks[i][j].getEnd()->getX();
       double y1 = _tracks[i][j].getEnd()->getY();
-      double new_x0 = x0 - _geometry->getWidth()/2.0;
-      double new_y0 = y0 - _geometry->getHeight()/2.0;
-      double new_x1 = x1 - _geometry->getWidth()/2.0;
-      double new_y1 = y1 - _geometry->getHeight()/2.0;
+      double new_x0 = x0 + _geometry->getXMin();
+      double new_y0 = y0 + _geometry->getYMin();
+      double new_x1 = x1 + _geometry->getXMin();
+      double new_y1 = y1 + _geometry->getYMin();
       double phi = _tracks[i][j].getPhi();
 
       _tracks[i][j].setValues(new_x0, new_y0, new_x1,new_y1, phi);
@@ -969,8 +1001,8 @@ void TrackGenerator::segmentize() {
   if (!_use_input_file) {
 
     /* Loop over all Tracks */
-    #pragma omp parallel for private(track)
     for (int i=0; i < _num_azim; i++) {
+      #pragma omp parallel for private(track)
       for (int j=0; j < _num_tracks[i]; j++){
         track = &_tracks[i][j];
         log_printf(DEBUG, "Segmenting Track %d/%d with i = %d, j = %d",
@@ -992,9 +1024,9 @@ void TrackGenerator::segmentize() {
     }
   }
 
-    _contains_tracks = true;
-
-    return;
+  _contains_tracks = true;
+  
+  return;
 }
 
 
@@ -1004,6 +1036,8 @@ void TrackGenerator::segmentize() {
  *          tracing for Track segmentation in commonly simulated geometries.
  */
 void TrackGenerator::dumpTracksToFile() {
+
+  log_printf(NORMAL, "Dumping tracks to file...");
 
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to dump Tracks to a file since no Tracks have "
@@ -1016,7 +1050,7 @@ void TrackGenerator::dumpTracksToFile() {
   /* Get a string representation of the Geometry's attributes. This is used to
    * check whether or not ray tracing has been performed for this Geometry */
   std::string geometry_to_string = _geometry->toString();
-  int string_length = geometry_to_string.length();
+  int string_length = geometry_to_string.length() + 1;
 
   /* Write geometry metadata to the Track file */
   fwrite(&string_length, sizeof(int), 1, out);
@@ -1042,13 +1076,14 @@ void TrackGenerator::dumpTracksToFile() {
   int azim_angle_index;
   int num_segments;
   std::vector<segment*> _segments;
+  Cmfd* cmfd = _geometry->getCmfd();
 
   segment* curr_segment;
   double length;
   int material_id;
   int region_id;
-  int mesh_surface_fwd;
-  int mesh_surface_bwd;
+  int cmfd_surface_fwd;
+  int cmfd_surface_bwd;
 
   /* Loop over all Tracks */
   for (int i=0; i < _num_azim; i++) {
@@ -1088,19 +1123,75 @@ void TrackGenerator::dumpTracksToFile() {
         fwrite(&region_id, sizeof(int), 1, out);
 
         /* Write CMFD-related data for the Track if needed */
-        if (_geometry->getMesh()->getCmfdOn()){
-          mesh_surface_fwd = curr_segment->_mesh_surface_fwd;
-          mesh_surface_bwd = curr_segment->_mesh_surface_bwd;
-          fwrite(&mesh_surface_fwd, sizeof(int), 1, out);
-          fwrite(&mesh_surface_bwd, sizeof(int), 1, out);
+        if (cmfd != NULL){
+          cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+          cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+          fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
+          fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
         }
       }
-    }
+    }      
   }
 
+  /* Get FSR vector maps */
+  std::map<std::size_t, fsr_data> FSR_keys_map = _geometry->getFSRKeysMap();
+  std::map<std::size_t, fsr_data>::iterator iter;
+  std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
+  std::size_t fsr_key;
+  int fsr_id;
+  int fsr_counter = 0;
+  double x, y;
+
+  /* Write number of FSRs */
+  int num_FSRs = _geometry->getNumFSRs();
+  fwrite(&num_FSRs, sizeof(int), 1, out);
+
+  /* Write FSR vector maps to file */
+  for (iter = FSR_keys_map.begin(); iter != FSR_keys_map.end(); ++iter){
+
+    /* Write data to file from FSR_keys_map */
+    fsr_key = iter->first;
+    fsr_id = iter->second._fsr_id;
+    x = iter->second._point->getX();
+    y = iter->second._point->getY();
+    fwrite(&fsr_key, sizeof(std::size_t), 1, out);
+    fwrite(&fsr_id, sizeof(int), 1, out);
+    fwrite(&x, sizeof(double), 1, out);
+    fwrite(&y, sizeof(double), 1, out);
+    
+    /* Write data to file from FSRs_to_material_IDs */
+    fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
+
+    /* Write data to file from FSRs_to_keys */
+    fwrite(&(FSRs_to_keys.at(fsr_counter)), sizeof(std::size_t), 1, out);
+
+    /* Increment FSR ID counter */
+    fsr_counter++;
+  }
+
+  /* Write cmfd_fsrs vector of vectors to file */
+  if (cmfd != NULL){
+    std::vector< std::vector<int> > cell_fsrs = cmfd->getCellFSRs();
+    std::vector<int>::iterator iter;
+    int num_cells = cmfd->getNumCells();
+    fwrite(&num_cells, sizeof(int), 1, out);
+
+    /* Loop over CMFD cells */
+    for (int cell=0; cell < num_cells; cell++){
+      num_FSRs = cell_fsrs.at(cell).size(); 
+      fwrite(&num_FSRs, sizeof(int), 1, out);
+
+      /* Loop over FSRs within cell */
+      for (iter = cell_fsrs.at(cell).begin(); iter != cell_fsrs.at(cell).end();
+          ++iter)
+        fwrite(&(*iter), sizeof(int), 1, out);
+    }        
+  }   
+   
   /* Close the Track file */
   fclose(out);
-
+  
   /* Inform other the TrackGenerator::generateTracks() method that it may
    * import ray tracing data from this file if it is called and the ray
    * tracing parameters have not changed */
@@ -1145,7 +1236,7 @@ bool TrackGenerator::readTracksFromFile() {
 
   /* Check if our Geometry is exactly the same as the Geometry in the
    * Track file for this number of azimuthal angles and track spacing */
-  if (_geometry->toString().compare(geometry_to_string) != 0)
+  if (_geometry->toString().compare(std::string(geometry_to_string)) != 0)
     return false;
 
   delete [] geometry_to_string;
@@ -1180,13 +1271,14 @@ bool TrackGenerator::readTracksFromFile() {
   double phi;
   int azim_angle_index;
   int num_segments;
+  Cmfd* cmfd = _geometry->getCmfd();
 
   double length;
   int material_id;
   int region_id;
 
-  int mesh_surface_fwd;
-  int mesh_surface_bwd;
+  int cmfd_surface_fwd;
+  int cmfd_surface_bwd;
 
   /* Calculate the total number of Tracks */
   for (int i=0; i < _num_azim; i++)
@@ -1238,11 +1330,11 @@ bool TrackGenerator::readTracksFromFile() {
         curr_segment->_region_id = region_id;
 
         /* Import CMFD-related data if needed */
-        if (_geometry->getMesh()->getCmfdOn()){
-          ret = fread(&mesh_surface_fwd, sizeof(int), 1, in);
-          ret = fread(&mesh_surface_bwd, sizeof(int), 1, in);
-          curr_segment->_mesh_surface_fwd = mesh_surface_fwd;
-          curr_segment->_mesh_surface_bwd = mesh_surface_bwd;
+        if (cmfd != NULL){
+          ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
+          ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
+          curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+          curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
         }
 
         /* Add this segment to the Track */
@@ -1251,6 +1343,71 @@ bool TrackGenerator::readTracksFromFile() {
 
       uid++;
     }
+  }
+
+  /* Create FSR vector maps */
+  std::map<std::size_t, fsr_data> FSR_keys_map;
+  std::vector<int> FSRs_to_material_IDs;
+  std::vector<std::size_t> FSRs_to_keys;
+  int num_FSRs;
+  std::size_t fsr_key;
+  int fsr_key_id;
+  double x, y;
+
+  /* Get number of FSRs */
+  ret = fread(&num_FSRs, sizeof(int), 1, in);
+  _geometry->setNumFSRs(num_FSRs);
+
+  /* Read FSR vector maps from file */
+  for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++){
+
+    /* Read data from file for FSR_keys_map */
+    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
+    ret = fread(&fsr_key_id, sizeof(int), 1, in);
+    ret = fread(&x, sizeof(double), 1, in);
+    ret = fread(&y, sizeof(double), 1, in);
+    fsr_data* fsr = new fsr_data;
+    fsr->_fsr_id = fsr_key_id;
+    Point* point = new Point();
+    point->setCoords(x,y);
+    fsr->_point = point;
+    FSR_keys_map[fsr_key] = *fsr;
+
+    /* Read data from file for FSR_to_materials_IDs */
+    ret = fread(&material_id, sizeof(int), 1, in);
+    FSRs_to_material_IDs.push_back(material_id);
+
+    /* Read data from file for FSR_to_keys */
+    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
+    FSRs_to_keys.push_back(fsr_key);
+  }
+
+  /* Set FSR vector maps */
+  _geometry->setFSRKeysMap(FSR_keys_map);
+  _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
+  _geometry->setFSRsToKeys(FSRs_to_keys);
+   
+  /* Read cmfd cell_fsrs vector of vectors from file */
+  if (cmfd != NULL){
+    std::vector< std::vector<int> > cell_fsrs;
+    int num_cells, fsr_id; 
+    ret = fread(&num_cells, sizeof(int), 1, in);
+
+    /* Loop over CMFD cells */
+    for (int cell=0; cell < num_cells; cell++){
+      std::vector<int> *fsrs = new std::vector<int>;
+      cell_fsrs.push_back(*fsrs);
+      ret = fread(&num_FSRs, sizeof(int), 1, in);
+
+      /* Loop over FRSs within cell */
+      for (int fsr = 0; fsr < num_FSRs; fsr++){
+        ret = fread(&fsr_id, sizeof(int), 1, in);
+        cell_fsrs.at(cell).push_back(fsr_id);
+      }
+    }        
+
+    /* Set CMFD cell_fsrs vector of vectors */
+    cmfd->setCellFSRs(cell_fsrs);
   }
 
   /* Inform the rest of the class methods that Tracks have been initialized */

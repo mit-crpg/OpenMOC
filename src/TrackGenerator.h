@@ -32,6 +32,9 @@ class TrackGenerator {
 
 private:
 
+  /** The number of shared memory OpenMP threads */
+  int _num_threads;
+
   /** Number of azimuthal angles in \f$ [0, \pi] \f$ */
   int _num_azim;
 
@@ -94,6 +97,7 @@ public:
   TrackGenerator(Geometry* geometry, int num_azim, double spacing);
   virtual ~TrackGenerator();
 
+  /* Get parameters */
   int getNumAzim();
   double getTrackSpacing();
   Geometry* getGeometry();
@@ -106,16 +110,19 @@ public:
   FP_PRECISION getMaxOpticalLength();
   int getTotNumSegments();
   int getTotNumTracks();
+  int getNumThreads();
 
+  /* Set parameters */
   void setNumAzim(int num_azim);
   void setTrackSpacing(double spacing);
   void setGeometry(Geometry* geometry);
   void setMaxOpticalLength(FP_PRECISION max_optical_length);
+  void setNumThreads(int num_threads);
 
+  /* Worker functions */
   bool containsTracks();
   void retrieveTrackCoords(double* coords, int num_tracks);
   void retrieveSegmentCoords(double* coords, int num_segments);
-
   void generateTracks();
 };
 

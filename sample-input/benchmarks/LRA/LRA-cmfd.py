@@ -177,12 +177,23 @@ core.setLatticeCells([[26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26],
 
 
 ###############################################################################
+##########################     Creating Cmfd mesh    ##########################
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating Cmfd mesh...')
+
+cmfd = Cmfd()
+cmfd.setLatticeStructure(110,110)
+
+
+###############################################################################
 ##########################   Creating the Geometry   ##########################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
+geometry.setCmfd(cmfd)
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 geometry.addLattice(assembly1)
@@ -227,6 +238,7 @@ log.py_printf('NORMAL', 'Plotting data...')
 #plotter.plot_flat_source_regions(geometry, gridsize=500)
 #plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
 #plotter.plot_mesh_fluxes(mesh, energy_groups=[1,2,3,4,5,6,7])
+#plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
 
 log.py_printf('TITLE', 'Finished')
 
