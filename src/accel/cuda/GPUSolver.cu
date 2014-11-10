@@ -1396,7 +1396,7 @@ void GPUSolver::buildExpInterpTable(){
   FP_PRECISION tau = _track_generator->getMaxOpticalLength();
   int num_array_values =
           tau * sqrt(1. / (8. * _source_convergence_thresh * 1e-2));
-  _exp_table_spacing = tau. / num_array_values;
+  _exp_table_spacing = tau / num_array_values;
   _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
   _exp_table_size = _two_times_num_polar * num_array_values;
   _exp_table_max_index = _exp_table_size - _two_times_num_polar - 1;
