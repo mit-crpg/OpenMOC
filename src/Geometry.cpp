@@ -23,7 +23,6 @@ Geometry::Geometry() {
   _right_bc  = REFLECTIVE;
 
   _num_FSRs = 0;
-  _num_groups = 0;
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
@@ -1168,7 +1167,7 @@ void Geometry::initializeFlatSourceRegions() {
     iter->second->setUid(uid);
     uid++;
   }
-  
+
   /* Initialize CMFD */
   if (_cmfd != NULL)
     initializeCmfd();
@@ -1467,7 +1466,8 @@ void Geometry::initializeCmfd(){
   double width = getWidth();
   double cell_width = width / num_x;
   double cell_height = height / num_y;
-  
+  int num_groups = getNumEnergyGroups();
+
   /* Create CMFD lattice and set properties */
   Lattice* lattice = new Lattice(0, cell_width, cell_height);
   lattice->setNumX(num_x);
@@ -1485,12 +1485,12 @@ void Geometry::initializeCmfd(){
   /* Set CMFD mesh dimensions and number of groups */
   _cmfd->setWidth(width);
   _cmfd->setHeight(height);
-  _cmfd->setNumMOCGroups(_num_groups);
+  _cmfd->setNumMOCGroups(num_groups);
 
   /* If user did not set CMFD group structure, create CMFD group
   * structure that is the same as the MOC group structure */
   if (_cmfd->getNumCmfdGroups() == 0)
-    _cmfd->setGroupStructure(NULL, _num_groups+1);
+    _cmfd->setGroupStructure(NULL, num_groups+1);
 
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
