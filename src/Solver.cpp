@@ -18,6 +18,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _polar_times_groups = 0;
 
   _num_FSRs = 0;
+  _num_fissionable_FSRs = 0;
   _num_mesh_cells = 0;
   _FSR_volumes = NULL;
   _FSR_materials = NULL;
@@ -37,9 +38,8 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _scalar_flux = NULL;
   _fission_sources = NULL;
   _scatter_sources = NULL;
-  _source = NULL;
-  _old_source = NULL;
-  _reduced_source = NULL;
+  _old_fission_sources = NULL;
+  _reduced_sources = NULL;
   _source_residuals = NULL;
 
   _interpolate_exponential = true;
@@ -97,14 +97,11 @@ Solver::~Solver() {
   if (_scatter_sources != NULL)
     delete [] _scatter_sources;
 
-  if (_source != NULL)
-    delete [] _source;
+  if (_old_fission_sources != NULL)
+    delete [] _old_fission_sources;
 
-  if (_old_source != NULL)
-    delete [] _old_source;
-
-  if (_reduced_source != NULL)
-    delete [] _reduced_source;
+  if (_reduced_sources != NULL)
+    delete [] _reduced_sources;
 
   if (_source_residuals != NULL)
     delete [] _source_residuals;

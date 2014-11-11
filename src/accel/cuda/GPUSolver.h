@@ -21,16 +21,9 @@
 /** Indexing macro for the scalar flux in each FSR and energy group */
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
 
-/** Indexing macro for the total source in each FSR and energy group */
-#define source(tid,e) (source[(tid)*(*num_groups) + (e)])
-
-/** Indexing macro for the total source from the previous source iteration
- *  in each FSR and energy group */
-#define old_source(tid,e) (old_source[(tid)*(*num_groups) + (e)])
-
 /** Indexing macro for the total source divided by the total cross-section,
  *  \f$ \frac{Q}{\Sigma_t} \f$, in each FSR and energy group */
-#define reduced_source(tid,e) (reduced_source[(tid)*(*num_groups) + (e)])
+#define reduced_sources(tid,e) (reduced_sources[(tid)*(*num_groups) + (e)])
 
 /** Indexing macro for the azimuthal and polar weights */
 #define polar_weights(i,p) (polar_weights[(i)*(*num_polar) + (p)])
