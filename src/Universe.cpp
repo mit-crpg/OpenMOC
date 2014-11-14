@@ -1256,7 +1256,7 @@ int Lattice::getLatX(Point* point) {
   else if (lat_x < 0 || lat_x > _num_x-1)
     log_printf(ERROR, "Trying to get lattice x index for point that is "
                "outside lattice bounds.");
-  
+
   return lat_x;
 }
 

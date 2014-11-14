@@ -61,18 +61,6 @@ private:
 
   omp_lock_t* _num_FSRs_lock;
 
-  /** The minimum point along the x-axis contained by Geometry in cm */
-  double _x_min;
-
-  /** The minimum point along the y-axis contained by Geometry in cm */
-  double _y_min;
-
-  /** The maximum point along the x-axis contained by Geometry in cm */
-  double _x_max;
-
-  /** The maximum point along the y-axis contained by Geometry in cm */
-  double _y_max;
-
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
   boundaryType _top_bc;

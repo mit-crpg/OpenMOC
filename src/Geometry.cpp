@@ -1008,7 +1008,8 @@ void Geometry::initializeCmfd(){
   lattice->setWidth(cell_width, cell_height);
   lattice->setNumX(num_x);
   lattice->setNumY(num_y);
-  lattice->setOffset(_x_min + getWidth()/2.0, _y_min + getHeight()/2.0);
+  lattice->setOffset(getMinX() + getWidth()/2.0, 
+                     getMinY() + getHeight()/2.0);
   _cmfd->setLattice(lattice);
 
 
@@ -1098,7 +1099,7 @@ bool Geometry::withinBounds(LocalCoords* coords){
   double x = coords->getX();
   double y = coords->getY();
   
-  if (x < _x_min || x > _x_max || y < _y_min || y > _y_max)
+  if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY())
     return false;
   else
     return true;
