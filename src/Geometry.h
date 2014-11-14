@@ -21,6 +21,9 @@
 #include <string>
 #include <omp.h>
 #include <functional>
+#if !defined(__CUDACC__)
+#include <unordered_map>
+#endif
 #endif
 
 /**
@@ -90,7 +93,9 @@ private:
   int _num_FSRs;
 
   /** An map of FSR key hashes to unique fsr_data structs */
-  std::map<std::size_t, fsr_data> _FSR_keys_map;
+#if !defined(__CUDACC__)
+  std::unordered_map<std::size_t, fsr_data> _FSR_keys_map;
+#endif
 
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::size_t> _FSRs_to_keys;
@@ -144,19 +149,24 @@ public:
   double getMaxSegmentLength();
   double getMinSegmentLength();
   Cmfd* getCmfd();
-  std::map<std::size_t, fsr_data> getFSRKeysMap();
   std::vector<std::size_t> getFSRsToKeys();
   std::vector<int> getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
+#if !defined(__CUDACC__)
+  std::unordered_map<std::size_t, fsr_data> getFSRKeysMap();
+#endif
 
   /* Set parameters */
-  void setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map);
   void setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
   void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
   void setNumFSRs(int num_fsrs);
   void setCmfd(Cmfd* cmfd);
+
+#if !defined(__CUDACC__)
+  void setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> FSR_keys_map);
+#endif
 
   /* Find methods */
   CellBasic* findCellContainingCoords(LocalCoords* coords);
@@ -172,6 +182,7 @@ public:
   std::string toString();
   void printString();
   void initializeCmfd();
+  bool withinBounds(LocalCoords* coords);
 };
 
 #endif /* GEOMETRY_H_ */

@@ -457,7 +457,7 @@ class custom_build_ext(build_ext):
 
 # Run the distutils setup method for the complete build
 dist = setup(name = 'openmoc',
-      version = '0.1.2',
+      version = '0.1.4',
       description = 'An open source method of characteristics code for ' + \
                     'solving the 2D neutron distribution in nuclear reactors',
       author = 'Will Boyd',

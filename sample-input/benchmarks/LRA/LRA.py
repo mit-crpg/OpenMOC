@@ -30,12 +30,6 @@ log.py_printf('NORMAL', 'Importing materials data from py...')
 
 materials = materialize.materialize('LRA-materials.py')
 
-region1 = materials['region_1'].getId()
-region2 = materials['region_2'].getId()
-region3 = materials['region_3'].getId()
-region4 = materials['region_4'].getId()
-region5 = materials['region_5'].getId()
-region6 = materials['region_6'].getId()
 
 ###############################################################################
 ###########################   Creating Surfaces   #############################
@@ -61,19 +55,26 @@ planes[3].setBoundaryType(VACUUM)
 log.py_printf('NORMAL', 'Creating cells...')
 
 cells = []
-cells.append(CellBasic(universe=1, material=region1))
-cells.append(CellBasic(universe=2, material=region2))
-cells.append(CellBasic(universe=3, material=region3))
-cells.append(CellBasic(universe=4, material=region4))
-cells.append(CellBasic(universe=5, material=region5))
-cells.append(CellBasic(universe=6, material=region6))
-cells.append(CellFill(universe=21, universe_fill=31))
-cells.append(CellFill(universe=22, universe_fill=32))
-cells.append(CellFill(universe=23, universe_fill=33))
-cells.append(CellFill(universe=24, universe_fill=34))
-cells.append(CellFill(universe=25, universe_fill=35))
-cells.append(CellFill(universe=26, universe_fill=36))
-cells.append(CellFill(universe=0, universe_fill=7))
+cells.append(CellBasic())
+cells.append(CellBasic())
+cells.append(CellBasic())
+cells.append(CellBasic())
+cells.append(CellBasic())
+cells.append(CellBasic())
+cells.append(CellFill())
+cells.append(CellFill())
+cells.append(CellFill())
+cells.append(CellFill())
+cells.append(CellFill())
+cells.append(CellFill())
+cells.append(CellFill())
+
+cells[0].setMaterial(materials['region_1'])
+cells[1].setMaterial(materials['region_2'])
+cells[2].setMaterial(materials['region_3'])
+cells[3].setMaterial(materials['region_4'])
+cells[4].setMaterial(materials['region_5'])
+cells[5].setMaterial(materials['region_6'])
 
 cells[12].addSurface(halfspace=+1, surface=planes[0])
 cells[12].addSurface(halfspace=-1, surface=planes[1])
@@ -82,98 +83,189 @@ cells[12].addSurface(halfspace=-1, surface=planes[3])
 
 
 ###############################################################################
+###########################   Creating Universes   ############################
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating universes...')
+
+universes = list()
+universes.append(Universe(name='region 1'))
+universes.append(Universe(name='region 2'))
+universes.append(Universe(name='region 3'))
+universes.append(Universe(name='region 4'))
+universes.append(Universe(name='region 5'))
+universes.append(Universe(name='region 6'))
+
+universes.append(Universe(name='assembly 1'))
+universes.append(Universe(name='assembly 2'))
+universes.append(Universe(name='assembly 3'))
+universes.append(Universe(name='assembly 4'))
+universes.append(Universe(name='assembly 5'))
+universes.append(Universe(name='assembly 6'))
+universes.append(Universe(name='core'))
+root = Universe(name='root universe')
+
+universes[0].addCell(cells[0])
+universes[1].addCell(cells[1])
+universes[2].addCell(cells[2])
+universes[3].addCell(cells[3])
+universes[4].addCell(cells[4])
+universes[5].addCell(cells[5])
+universes[6].addCell(cells[6])
+universes[7].addCell(cells[7])
+universes[8].addCell(cells[8])
+universes[9].addCell(cells[9])
+universes[10].addCell(cells[10])
+universes[11].addCell(cells[11])
+root.addCell(cells[12])
+
+
+###############################################################################
 ###########################   Creating Lattices   #############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating LRA lattice...')
+log.py_printf('NORMAL', 'Creating LRA lattices...')
 
-assembly1 = Lattice(id=31, width_x=1.5, width_y=1.5)
-assembly1.setLatticeCells([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+assembly1 = Lattice(name='assembly 1')
+assembly1.setWidth(width_x=1.5, width_y=1.5)
+template = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
-assembly2 = Lattice(id=32, width_x=1.5, width_y=1.5)
-assembly2.setLatticeCells([[2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                           [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                           [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                           [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                           [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                           [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                           [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                           [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                           [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                           [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]])
-
-assembly3 = Lattice(id=33, width_x=1.5, width_y=1.5)
-assembly3.setLatticeCells([[3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                           [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                           [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                           [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                           [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                           [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                           [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                           [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                           [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                           [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]])
+for i in range(10):
+  for j in range(10):
+    template[i][j] = universes[template[i][j]-1]
+assembly1.setUniverses(template)
 
 
-assembly4 = Lattice(id=34, width_x=1.5, width_y=1.5)
-assembly4.setLatticeCells([[4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-                           [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-                           [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-                           [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-                           [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-                           [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-                           [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-                           [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-                           [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-                           [4, 4, 4, 4, 4, 4, 4, 4, 4, 4]])
+assembly2 = Lattice(name='assembly 2')
+assembly2.setWidth(width_x=1.5, width_y=1.5)
+template = [[2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]]
 
-assembly5 = Lattice(id=35, width_x=1.5, width_y=1.5)
-assembly5.setLatticeCells([[5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                           [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                           [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                           [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                           [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                           [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                           [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                           [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                           [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                           [5, 5, 5, 5, 5, 5, 5, 5, 5, 5]])
+for i in range(10):
+  for j in range(10):
+    template[i][j] = universes[template[i][j]-1]
+assembly2.setUniverses(template)
 
 
-assembly6 = Lattice(id=36, width_x=1.5, width_y=1.5)
-assembly6.setLatticeCells([[6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6]])
+assembly3 = Lattice(name='assembly 2')
+assembly3.setWidth(width_x=1.5, width_y=1.5)
+template = [[3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]]
+
+for i in range(10):
+  for j in range(10):
+    template[i][j] = universes[template[i][j]-1]
+assembly3.setUniverses(template)
 
 
-core = Lattice(id=7, width_x=15.0, width_y=15.0)
-core.setLatticeCells([[26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26],
-                         [26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26],
-                         [23, 23, 23, 23, 23, 23, 23, 26, 26, 26, 26],
-                         [23, 23, 23, 23, 23, 23, 23, 24, 26, 26, 26],
-                         [22, 21, 21, 21, 21, 22, 22, 25, 25, 26, 26],
-                         [22, 21, 21, 21, 21, 22, 22, 25, 25, 26, 26],
-                         [21, 21, 21, 21, 21, 21, 21, 23, 23, 26, 26],
-                         [21, 21, 21, 21, 21, 21, 21, 23, 23, 26, 26],
-                         [21, 21, 21, 21, 21, 21, 21, 23, 23, 26, 26],
-                         [21, 21, 21, 21, 21, 21, 21, 23, 23, 26, 26],
-                         [22, 21, 21, 21, 21, 22, 22, 23, 23, 26, 26]])
+assembly4 = Lattice(name='assembly 4')
+assembly4.setWidth(width_x=1.5, width_y=1.5)
+template = [[4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4]]
+
+for i in range(10):
+  for j in range(10):
+    template[i][j] = universes[template[i][j]-1]
+assembly4.setUniverses(template)
+
+assembly5 = Lattice(name='assembly 5')
+assembly5.setWidth(width_x=1.5, width_y=1.5)
+template = [[5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5, 5]]
+
+for i in range(10):
+  for j in range(10):
+    template[i][j] = universes[template[i][j]-1]
+assembly5.setUniverses(template)
+
+
+assembly6 = Lattice(name='assembly 6')
+assembly6.setWidth(width_x=1.5, width_y=1.5)
+template = [[6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6]]
+
+for i in range(10):
+  for j in range(10):
+    template[i][j] = universes[template[i][j]-1]
+assembly6.setUniverses(template)
+
+
+core = Lattice(name='core')
+core.setWidth(width_x=15.0, width_y=15.0)
+template = [[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+            [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+            [9, 9, 9, 9, 9, 9, 9, 12, 12, 12, 12],
+            [9, 9, 9, 9, 9, 9, 9, 10, 12, 12, 12],
+            [8, 7, 7, 7, 7, 8, 8, 11, 11, 12, 12],
+            [8, 7, 7, 7, 7, 8, 8, 11, 11, 12, 12],
+            [7, 7, 7, 7, 7, 7, 7, 9, 9, 12, 12],
+            [7, 7, 7, 7, 7, 7, 7, 9, 9, 12, 12],
+            [7, 7, 7, 7, 7, 7, 7, 9, 9, 12, 12],
+            [7, 7, 7, 7, 7, 7, 7, 9, 9, 12, 12],
+            [8, 7, 7, 7, 7, 8, 8, 9, 9, 12, 12]]
+
+for i in range(11):
+  for j in range(11):
+    template[i][j] = universes[template[i][j]-1]
+core.setUniverses(template)
+
+
+cells[6].setFill(assembly1)
+cells[7].setFill(assembly2)
+cells[8].setFill(assembly3)
+cells[9].setFill(assembly4)
+cells[10].setFill(assembly5)
+cells[11].setFill(assembly6)
+cells[12].setFill(core)
 
 
 ###############################################################################
@@ -183,17 +275,9 @@ core.setLatticeCells([[26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26],
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-for material in materials.values(): geometry.addMaterial(material)
-for cell in cells: geometry.addCell(cell)
-geometry.addLattice(assembly1)
-geometry.addLattice(assembly2)
-geometry.addLattice(assembly3)
-geometry.addLattice(assembly4)
-geometry.addLattice(assembly5)
-geometry.addLattice(assembly6)
-geometry.addLattice(core)
-
+geometry.setRootUniverse(root)
 geometry.initializeFlatSourceRegions()
+
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -202,7 +286,9 @@ geometry.initializeFlatSourceRegions()
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
+
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################

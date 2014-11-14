@@ -584,14 +584,15 @@ void Universe::removeCell(Cell* cell) {
 Cell* Universe::findCell(LocalCoords* coords) {
 
   Cell* return_cell = NULL;
+  Cell* cell;
   std::map<int, Cell*>::iterator iter;
 
   /* Sets the LocalCoord type to UNIV at this level */
- coords->setType(UNIV);
+  coords->setType(UNIV);
 
   /* Loop over all Cells in this Universe */
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    Cell* cell = iter->second;
+    cell = iter->second;
 
     if (cell->cellContainsCoords(coords)) {
 

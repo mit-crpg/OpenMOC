@@ -354,6 +354,11 @@ CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
   Universe* univ = coords->getUniverse();
   Cell* cell;
 
+  if (universe_id == 0){
+    if (!withinBounds(coords))
+      return NULL;
+  }
+
   if (univ->getType() == SIMPLE)
     cell = univ->findCell(coords);
   else
@@ -421,7 +426,7 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  */
 CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
 
-  CellBasic* cell = NULL;
+  Cell* cell = NULL;
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
   Point surf_intersection;
@@ -1033,7 +1038,7 @@ void Geometry::initializeCmfd(){
  * @brief Returns the map that maps FSR keys to FSR IDs
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
+std::unordered_map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
   return _FSR_keys_map;
 }
 
@@ -1065,7 +1070,7 @@ std::vector<int> Geometry::getFSRsToMaterialIDs() {
  * @brief Sets the _FSR_keys_map map
  * @param FSR_keys_map map of FSR keys to FSR IDs
  */
-void Geometry::setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map){
+void Geometry::setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> FSR_keys_map){
   _FSR_keys_map = FSR_keys_map;
 }
 
@@ -1085,4 +1090,16 @@ void Geometry::setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys){
  */
 void Geometry::setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs){
   _FSRs_to_material_IDs = FSRs_to_material_IDs;
+}
+
+
+bool Geometry::withinBounds(LocalCoords* coords){
+
+  double x = coords->getX();
+  double y = coords->getY();
+  
+  if (x < _x_min || x > _x_max || y < _y_min || y > _y_max)
+    return false;
+  else
+    return true;
 }
