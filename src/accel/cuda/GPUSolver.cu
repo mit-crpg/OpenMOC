@@ -910,14 +910,13 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int energy_group) {
   FP_PRECISION fission_source = 0.0;
   FP_PRECISION scatter_source = 0.0;
   FP_PRECISION total_source;
-  FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
 
   /* Compute total fission source for current region */
   for (int e=0; e < _num_groups; e++){
     fission_source += fsr_scalar_fluxes[e] * nu_sigma_f[e];
   }
 
-  fission_source *= inverse_k_eff;
+  fission_source /= _k_eff;
 
   /* Compute total scattering source for this FSR */
   for (int g=0; g < _num_groups; g++){

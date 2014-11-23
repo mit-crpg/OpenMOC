@@ -21,8 +21,8 @@
 #include <string>
 #include <omp.h>
 #include <functional>
-#if !defined(__CUDACC__)
-#include <unordered_map>
+#ifndef CUDA
+  #include <unordered_map>
 #endif
 #endif
 
@@ -93,7 +93,7 @@ private:
   int _num_groups;
 
   /** An map of FSR key hashes to unique fsr_data structs */
-#if !defined(__CUDACC__)
+#ifndef CUDA
   std::unordered_map<std::size_t, fsr_data> _FSR_keys_map;
 #endif
 
@@ -168,7 +168,7 @@ public:
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
-#if !defined(__CUDACC__)
+#ifndef CUDA
   std::unordered_map<std::size_t, fsr_data> getFSRKeysMap();
 #endif
 
@@ -177,7 +177,7 @@ public:
   void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
   void setNumFSRs(int num_fsrs);
   void setCmfd(Cmfd* cmfd);
-#if !defined(__CUDACC__)
+#ifndef CUDA
   void setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> FSR_keys_map);
 #endif
 
