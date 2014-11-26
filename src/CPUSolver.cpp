@@ -115,14 +115,13 @@ FP_PRECISION CPUSolver::getFSRSource(int fsr_id, int energy_group) {
   FP_PRECISION fission_source = 0.0;
   FP_PRECISION scatter_source = 0.0;
   FP_PRECISION total_source = 0.0;
-  FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
 
   /* Compute fission source for each group */
   if (material->isFissionable()) {
     for (int e=0; e < _num_groups; e++)
       fission_source += _scalar_flux(fsr_id,e) * nu_sigma_f[e];
     
-    fission_source *= inverse_k_eff;
+    fission_source /= _k_eff;
   }
 
   for (int g=0; g < _num_groups; g++)
@@ -659,7 +658,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
     }
 
     /* Compute the norm of residual of the source in the FSR */
-    if (fsr_fission_source > 1E-10)
+    if (fsr_fission_source > 0.0)
       _source_residuals[r] = pow((fsr_fission_source - _old_fission_sources[r])
                                  / fsr_fission_source, 2);
     
@@ -669,7 +668,8 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 
   /* Sum up the residuals from each FSR */
   source_residual = pairwise_sum<FP_PRECISION>(_source_residuals, _num_FSRs);
-  source_residual = sqrt(source_residual / (_num_fissionable_FSRs * _num_groups));
+  source_residual = sqrt(source_residual \
+                         / (_num_fissionable_FSRs * _num_groups));
   
   return source_residual;
 }

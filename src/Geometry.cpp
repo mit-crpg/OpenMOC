@@ -1069,9 +1069,16 @@ std::vector<int> Geometry::getFSRsToMaterialIDs() {
 
 /**
  * @brief Sets the _FSR_keys_map map
- * @param FSR_keys_map map of FSR keys to FSR IDs
+ * @details The _FSR_keys_map stores a hash of a std::string representing
+ *          the Lattice/Cell/Universe hierarchy for a unique region
+ *          and the associated FSR data. fsr_data is a struct that contains
+ *          a unique FSR id and a Point located in the highest level Universe
+ *          that is contained in the FSR. This method is used when the tracks 
+ *          are read from file to avoid unnecessary segmentation.  
+ * @param FSR_keys_map map of FSR keys to FSR data
  */
-void Geometry::setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> FSR_keys_map){
+void Geometry::setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> 
+                             FSR_keys_map){
   _FSR_keys_map = FSR_keys_map;
 }
 

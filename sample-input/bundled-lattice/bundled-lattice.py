@@ -132,7 +132,7 @@ root.addCell(cells[14])
 ###########################   Creating Lattices   #############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating 5 x 5 core of 17 x 17 assemblies...')
+log.py_printf('NORMAL', 'Creating 4 x 4 core of 17 x 17 assemblies...')
 
 # 1st 17x17 assembly
 a1 = Lattice(name='assembly 1')
