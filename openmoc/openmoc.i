@@ -286,6 +286,30 @@
 }
 
 
+/* Typemap for all methods which return a std::map<int, Material*>.
+ * This includes the Geometry::getAllMaterials() method, which is useful 
+ * for OpenCSG compatibility. */
+%include <std_map.i>
+%cleap std::map<int, Material*>;
+%typemap(out) std::map<int, Material*> {
+
+  $result = PyDict_New();
+  int size = $1.size();
+
+  std::map<int, Material*>::iterator iter;
+  Material* mat;
+  int mat_id;
+
+  for (iter = $1.begin(); iter != $1.end(); ++iter) {
+    mat_id = iter->first;
+    mat = iter->second;
+    PyObject* value =
+         SWIG_NewPointerObj(SWIG_as_voidptr(mat), $descriptor(Material*), 0);
+    PyDict_SetItem($result, PyInt_FromLong(mat_id), value);
+  }
+}
+
+
 /* Typemap for all methods which return a std::map<int, Universe*>.
  * This includes the Lattice::getUniqueUniverses() method which is ueseful for
  * OpenCSG compatibility. */
