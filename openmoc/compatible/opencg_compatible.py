@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import openmoc
-import opencsg
+import opencg
 import copy
 import numpy as np
 
@@ -11,7 +11,7 @@ import numpy as np
 # Values  - Materials
 OPENMOC_MATERIALS = dict()
 
-# A dictionary of all OpenCSG Materials created
+# A dictionary of all OpenCG Materials created
 # Keys    - Material IDs
 # Values  - Materials
 OPENCSG_MATERIALS = dict()
@@ -21,7 +21,7 @@ OPENCSG_MATERIALS = dict()
 # Values  - Surfaces
 OPENMOC_SURFACES = dict()
 
-# A dictionary of all OpenCSG Surfaces created
+# A dictionary of all OpenCG Surfaces created
 # Keys    - Surface IDs
 # Values  - Surfaces
 OPENCSG_SURFACES = dict()
@@ -31,7 +31,7 @@ OPENCSG_SURFACES = dict()
 # Values  - Cells
 OPENMOC_CELLS = dict()
 
-# A dictionary of all OpenCSG Cells created
+# A dictionary of all OpenCG Cells created
 # Keys    - Cell IDs
 # Values  - Cells
 OPENCSG_CELLS = dict()
@@ -41,7 +41,7 @@ OPENCSG_CELLS = dict()
 # Values  - Universes
 OPENMOC_UNIVERSES = dict()
 
-# A dictionary of all OpenCSG Universes created
+# A dictionary of all OpenCG Universes created
 # Keys    - Universes IDs
 # Values  - Universes
 OPENCSG_UNIVERSES = dict()
@@ -51,17 +51,17 @@ OPENCSG_UNIVERSES = dict()
 # Values  - Lattices
 OPENMOC_LATTICES = dict()
 
-# A dictionary of all OpenCSG Lattices created
+# A dictionary of all OpenCG Lattices created
 # Keys    - Lattice IDs
 # Values  - Lattices
 OPENCSG_LATTICES = dict()
 
 
 
-def get_opencsg_material(openmoc_material):
+def get_opencg_material(openmoc_material):
 
   if not isinstance(openmoc_material, openmoc.Material):
-    msg = 'Unable to create an OpenCSG Material from {0} ' \
+    msg = 'Unable to create an OpenCG Material from {0} ' \
           'which is not an OpenMOC Material'.format(openmoc_material)
     raise ValueError(msg)
 
@@ -72,63 +72,63 @@ def get_opencsg_material(openmoc_material):
   if material_id in OPENCSG_MATERIALS:
     return OPENCSG_MATERIALS[material_id]
 
-  # Create an OpenCSG Material to represent this OpenMOC Material
+  # Create an OpenCG Material to represent this OpenMOC Material
   name = openmoc_material.getName()
-  opencsg_material = opencsg.Material(material_id=material_id, name=name)
+  opencg_material = opencg.Material(material_id=material_id, name=name)
 
   # Add the OpenMOC Material to the global collection of all OpenMOC Materials
   OPENMOC_MATERIALS[material_id] = openmoc_material
 
-  # Add the OpenCSG Material to the global collection of all OpenCSG Materials
-  OPENCSG_MATERIALS[material_id] = opencsg_material
+  # Add the OpenCG Material to the global collection of all OpenCG Materials
+  OPENCSG_MATERIALS[material_id] = opencg_material
 
-  return opencsg_material
+  return opencg_material
 
 
-def get_openmoc_material(opencsg_material):
+def get_openmoc_material(opencg_material):
 
-  if not isinstance(opencsg_material, opencsg.Material):
+  if not isinstance(opencg_material, opencg.Material):
     msg = 'Unable to create an OpenMOC Material from {0} ' \
-          'which is not an OpenCSG Material'.format(opencsg_material)
+          'which is not an OpenCG Material'.format(opencg_material)
     raise ValueError(msg)
 
   global OPENMOC_MATERIALS
-  material_id = opencsg_material._id
+  material_id = opencg_material._id
 
   # If this Material was already created, use it
   if material_id in OPENMOC_MATERIALS:
     return OPENMOC_MATERIALS[material_id]
 
-  # Create an OpenMOC Material to represent this OpenCSG Material
-  name = opencsg_material._name
+  # Create an OpenMOC Material to represent this OpenCG Material
+  name = opencg_material._name
   openmoc_material = openmoc.Material(id=material_id, name=name)
 
   # Add the OpenMOC Material to the global collection of all OpenMOC Materials
   OPENMOC_MATERIALS[material_id] = openmoc_material
 
-  # Add the OpenCSG Material to the global collection of all OpenCSG Materials
-  OPENCSG_MATERIALS[material_id] = opencsg_material
+  # Add the OpenCG Material to the global collection of all OpenCG Materials
+  OPENCSG_MATERIALS[material_id] = opencg_material
 
   return openmoc_material
 
 
-def is_opencsg_surface_compatible(opencsg_surface):
+def is_opencg_surface_compatible(opencg_surface):
 
-  if not isinstance(opencsg_surface, opencsg.Surface):
-    msg = 'Unable to check if OpenCSG Surface is compatible' \
-          'since {0} is not a Surface'.format(opencsg_surface)
+  if not isinstance(opencg_surface, opencg.Surface):
+    msg = 'Unable to check if OpenCG Surface is compatible' \
+          'since {0} is not a Surface'.format(opencg_surface)
     raise ValueError(msg)
 
-  if opencsg_surface._type in ['z-squareprism']:
+  if opencg_surface._type in ['z-squareprism']:
     return False
   else:
     return True
 
 
-def get_opencsg_surface(openmoc_surface):
+def get_opencg_surface(openmoc_surface):
 
   if not isinstance(openmoc_surface, openmoc.Surface):
-    msg = 'Unable to create an OpenCSG Surface from {0} ' \
+    msg = 'Unable to create an OpenCG Surface from {0} ' \
           'which is not an OpenMOC Surface'.format(openmoc_surface)
     raise ValueError(msg)
 
@@ -139,7 +139,7 @@ def get_opencsg_surface(openmoc_surface):
   if surface_id in OPENCSG_SURFACES:
     return OPENCSG_SURFACES[surface_id]
 
-  # Create an OpenCSG Surface to represent this OpenMOC Surface
+  # Create an OpenCG Surface to represent this OpenMOC Surface
   name = openmoc_surface.getName()
 
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
@@ -151,7 +151,7 @@ def get_opencsg_surface(openmoc_surface):
   elif boundary == openmoc.BOUNDARY_NONE:
     boundary = 'interface'
 
-  opencsg_surface = None
+  opencg_surface = None
 
   surface_type = openmoc_surface.getSurfaceType()
 
@@ -159,54 +159,54 @@ def get_opencsg_surface(openmoc_surface):
     A = openmoc_surface.getA()
     B = openmoc_surface.getB()
     C = openmoc_surface.getC()
-    opencsg_surface = opencsg.Plane(surface_id, name, boundary, A, B, 0, C)
+    opencg_surface = opencg.Plane(surface_id, name, boundary, A, B, 0, C)
 
   elif surface_type == openmoc.XPLANE:
     x0 = openmoc_surface.getX()
-    opencsg_surface = opencsg.XPlane(surface_id, name, boundary, x0)
+    opencg_surface = opencg.XPlane(surface_id, name, boundary, x0)
 
   elif surface_type == openmoc.YPLANE:
     y0 = openmoc_surface.getY()
-    opencsg_surface = opencsg.YPlane(surface_id, name, boundary, y0)
+    opencg_surface = opencg.YPlane(surface_id, name, boundary, y0)
 
   elif surface_type == openmoc.ZPLANE:
     z0 = openmoc_surface.getZ()
-    opencsg_surface = opencsg.ZPlane(surface_id, name, boundary, z0)
+    opencg_surface = opencg.ZPlane(surface_id, name, boundary, z0)
 
   elif surface_type == openmoc.CIRCLE:
     x0 = openmoc_surface.getX0()
     y0 = openmoc_surface.getY0()
     R = openmoc_surface.getRadius()
-    opencsg_surface = opencsg.ZCylinder(surface_id, name, boundary, x0, y0, R)
+    opencg_surface = opencg.ZCylinder(surface_id, name, boundary, x0, y0, R)
 
   # Add the OpenMOC Surface to the global collection of all OpenMOC Surfaces
   OPENMOC_SURFACES[surface_id] = openmoc_surface
 
-  # Add the OpenCSG Surface to the global collection of all OpenCSG Surfaces
-  OPENCSG_SURFACES[surface_id] = opencsg_surface
+  # Add the OpenCG Surface to the global collection of all OpenCG Surfaces
+  OPENCSG_SURFACES[surface_id] = opencg_surface
 
-  return opencsg_surface
+  return opencg_surface
 
 
-def get_openmoc_surface(opencsg_surface):
+def get_openmoc_surface(opencg_surface):
 
-  if not isinstance(opencsg_surface, opencsg.Surface):
+  if not isinstance(opencg_surface, opencg.Surface):
     msg = 'Unable to create an OpenMoC Surface from {0} which ' \
-          'is not an OpenCSG Surface'.format(opencsg_surface)
+          'is not an OpenCG Surface'.format(opencg_surface)
     raise ValueError(msg)
 
   global OPENMOC_SURFACES
-  surface_id = opencsg_surface._id
+  surface_id = opencg_surface._id
 
   # If this Surface was already created, use it
   if surface_id in OPENMOC_SURFACES:
     return OPENMOC_SURFACES[surface_id]
 
-  # Create an OpenMOC Surface to represent this OpenCSG Surface
-  name = opencsg_surface._name
+  # Create an OpenMOC Surface to represent this OpenCG Surface
+  name = opencg_surface._name
 
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
-  boundary = opencsg_surface._boundary_type
+  boundary = opencg_surface._boundary_type
   if boundary == 'vacuum':
     boundary = openmoc.VACUUM
   elif boundary == 'reflective':
@@ -214,34 +214,34 @@ def get_openmoc_surface(opencsg_surface):
   elif boundary == 'interface':
     boundary = openmoc.BOUNDARY_NONE
 
-  if opencsg_surface._type == 'plane':
-    A = opencsg_surface._coeffs['A']
-    B = opencsg_surface._coeffs['B']
-    D = opencsg_surface._coeffs['D']
+  if opencg_surface._type == 'plane':
+    A = opencg_surface._coeffs['A']
+    B = opencg_surface._coeffs['B']
+    D = opencg_surface._coeffs['D']
     openmoc_surface = openmoc.Plane(A, B, D, surface_id, name)
 
-  elif opencsg_surface._type == 'x-plane':
-    x0 = opencsg_surface._coeffs['x0']
+  elif opencg_surface._type == 'x-plane':
+    x0 = opencg_surface._coeffs['x0']
     openmoc_surface = openmoc.XPlane(x0, surface_id, name)
 
-  elif opencsg_surface._type == 'y-plane':
-    y0 = opencsg_surface._coeffs['y0']
+  elif opencg_surface._type == 'y-plane':
+    y0 = opencg_surface._coeffs['y0']
     openmoc_surface = openmoc.YPlane(y0, surface_id, name)
 
-  elif opencsg_surface._type == 'z-plane':
-    z0 = opencsg_surface._coeffs['z0']
+  elif opencg_surface._type == 'z-plane':
+    z0 = opencg_surface._coeffs['z0']
     openmoc_surface = openmoc.ZPlane(z0, surface_id, name)
 
-  elif opencsg_surface._type == 'z-cylinder':
-    x0 = opencsg_surface._coeffs['x0']
-    y0 = opencsg_surface._coeffs['y0']
-    R = opencsg_surface._coeffs['R']
+  elif opencg_surface._type == 'z-cylinder':
+    x0 = opencg_surface._coeffs['x0']
+    y0 = opencg_surface._coeffs['y0']
+    R = opencg_surface._coeffs['R']
     openmoc_surface = openmoc.Circle(x0, y0, R, surface_id, name)
 
   else:
-    msg = 'Unable to create an OpenMOC Surface from an OpenCSG ' \
+    msg = 'Unable to create an OpenMOC Surface from an OpenCG ' \
           'Surface of type {0} since it is not a compatible ' \
-          'Surface type in OpenMOC'.format(opencsg_surface._type)
+          'Surface type in OpenMOC'.format(opencg_surface._type)
     raise ValueError(msg)
 
   # Set the boundary condition for this Surface
@@ -250,42 +250,42 @@ def get_openmoc_surface(opencsg_surface):
   # Add the OpenMOC Surface to the global collection of all OpenMOC Surfaces
   OPENMOC_SURFACES[surface_id] = openmoc_surface
 
-  # Add the OpenCSG Surface to the global collection of all OpenCSG Surfaces
-  OPENCSG_SURFACES[surface_id] = opencsg_surface
+  # Add the OpenCG Surface to the global collection of all OpenCG Surfaces
+  OPENCSG_SURFACES[surface_id] = opencg_surface
 
   return openmoc_surface
 
 
-def get_compatible_opencsg_surfaces(opencsg_surface):
+def get_compatible_opencg_surfaces(opencg_surface):
 
-  if not isinstance(opencsg_surface, opencsg.Surface):
+  if not isinstance(opencg_surface, opencg.Surface):
     msg = 'Unable to create an OpenMOC Surface from {0} which ' \
-          'is not an OpenCSG Surface'.format(opencsg_surface)
+          'is not an OpenCG Surface'.format(opencg_surface)
     raise ValueError(msg)
 
   global OPENMOC_SURFACES
-  surface_id = opencsg_surface._id
+  surface_id = opencg_surface._id
 
   # If this Surface was already created, use it
   if surface_id in OPENMOC_SURFACES:
     return OPENMOC_SURFACES[surface_id]
 
-  # Create an OpenMC Surface to represent this OpenCSG Surface
-  name = opencsg_surface._name
+  # Create an OpenMC Surface to represent this OpenCG Surface
+  name = opencg_surface._name
 
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
-  boundary = opencsg_surface._boundary_type
+  boundary = opencg_surface._boundary_type
 
-  if opencsg_surface._type == 'z-squareprism':
-    x0 = opencsg_surface._coeffs['x0']
-    y0 = opencsg_surface._coeffs['y0']
-    R = opencsg_surface._coeffs['R']
+  if opencg_surface._type == 'z-squareprism':
+    x0 = opencg_surface._coeffs['x0']
+    y0 = opencg_surface._coeffs['y0']
+    R = opencg_surface._coeffs['R']
 
     # Create a list of the four planes we need
-    left = opencsg.XPlane(x0=x0-R, name=name)
-    right = opencsg.XPlane(x0=x0+R, name=name)
-    bottom = opencsg.YPlane(y0=y0-R, name=name)
-    top = opencsg.YPlane(y0=y0+R, name=name)
+    left = opencg.XPlane(x0=x0-R, name=name)
+    right = opencg.XPlane(x0=x0+R, name=name)
+    bottom = opencg.YPlane(y0=y0-R, name=name)
+    top = opencg.YPlane(y0=y0+R, name=name)
 
     # Set the boundary conditions for each Surface
     left.setBoundaryType(boundary)
@@ -295,32 +295,32 @@ def get_compatible_opencsg_surfaces(opencsg_surface):
 
     surfaces = [left, right, bottom, top]
 
-  elif opencsg_surface._type in ['x-cylinder', 'y-cylinder',
+  elif opencg_surface._type in ['x-cylinder', 'y-cylinder',
                                  'x-squareprism', 'y-squareprism']:
-    msg = 'Unable to create a compatible OpenMOC Surface from an OpenCSG ' \
+    msg = 'Unable to create a compatible OpenMOC Surface from an OpenCG ' \
           'Surface of type {0} since it is not compatible with OpenMOCs 2D ' \
-          'geometry formulation on the xy-plane'.format(opencsg_surface._type)
+          'geometry formulation on the xy-plane'.format(opencg_surface._type)
     raise ValueError(msg)
 
   else:
-    msg = 'Unable to create a compatible OpenMOC Surface from an OpenCSG ' \
+    msg = 'Unable to create a compatible OpenMOC Surface from an OpenCG ' \
           'Surface of type {0} since it already a compatible ' \
-          'Surface type in OpenMC'.format(opencsg_surface._type)
+          'Surface type in OpenMC'.format(opencg_surface._type)
     raise ValueError(msg)
 
   # Add the OpenMOC Surface(s) to the global collection of all OpenMOC Surfaces
   OPENMOC_SURFACES[surface_id] = surfaces
 
-  # Add the OpenCSG Surface to the global collection of all OpenCSG Surfaces
-  OPENCSG_SURFACES[surface_id] = opencsg_surface
+  # Add the OpenCG Surface to the global collection of all OpenCG Surfaces
+  OPENCSG_SURFACES[surface_id] = opencg_surface
 
   return surfaces
 
 
-def get_opencsg_cell(openmoc_cell):
+def get_opencg_cell(openmoc_cell):
 
   if not isinstance(openmoc_cell, openmoc.Cell):
-    msg = 'Unable to create an OpenCSG Cell from {0} which ' \
+    msg = 'Unable to create an OpenCG Cell from {0} which ' \
           'is not an OpenMOC Cell'.format(openmoc_cell)
     raise ValueError(msg)
 
@@ -331,46 +331,46 @@ def get_opencsg_cell(openmoc_cell):
   if cell_id in OPENCSG_CELLS:
     return OPENCSG_CELLS[cell_id]
 
-  # Create an OpenCSG Cell to represent this OpenMC Cell
+  # Create an OpenCG Cell to represent this OpenMC Cell
   name = openmoc_cell.getName()
-  opencsg_cell = opencsg.Cell(cell_id, name)
+  opencg_cell = opencg.Cell(cell_id, name)
 
   fill = openmoc_cell._fill
 
   if (openmoc_cell.getType == openmoc.MATERIAL):
-    opencsg_cell.setFill(get_opencsg_material(fill))
+    opencg_cell.setFill(get_opencg_material(fill))
   elif (openmoc_cell._type == openmoc.FILL):
     if isinstance(fill, openmoc.Lattice):
-      opencsg_cell.setFill(get_opencsg_lattice(fill))
+      opencg_cell.setFill(get_opencg_lattice(fill))
     else:
-      opencsg_cell.setFill(get_opencsg_universe(fill))
+      opencg_cell.setFill(get_opencg_universe(fill))
 
   surfaces = openmoc_cell.getSurfaces()
 
   for surf_id, surface_halfspace in surfaces.items():
     halfspace = surface_halfspace._halfspace
     surface = surface_halfspace._surface
-    opencsg_cell.addSurface(get_opencsg_surface(surface), halfspace)
+    opencg_cell.addSurface(get_opencg_surface(surface), halfspace)
 
   # Add the OpenMOC Cell to the global collection of all OpenMOC Cells
   OPENMOC_CELLS[cell_id] = openmoc_cell
 
-  # Add the OpenCSG Cell to the global collection of all OpenCSG Cells
-  OPENCSG_CELLS[cell_id] = opencsg_cell
+  # Add the OpenCG Cell to the global collection of all OpenCG Cells
+  OPENCSG_CELLS[cell_id] = opencg_cell
 
-  return opencsg_cell
+  return opencg_cell
 
 
-def get_compatible_opencsg_cells(opencsg_cell, opencsg_surface, halfspace):
+def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
 
-  if not isinstance(opencsg_cell, opencsg.Cell):
+  if not isinstance(opencg_cell, opencg.Cell):
     msg = 'Unable to create compatible OpenMOC Cell from {0} which ' \
-          'is not an OpenCSG Cell'.format(opencsg_cell)
+          'is not an OpenCG Cell'.format(opencg_cell)
     raise ValueError(msg)
 
-  elif not isinstance(opencsg_surface, opencsg.Surface):
+  elif not isinstance(opencg_surface, opencg.Surface):
     msg = 'Unable to create compatible OpenMOC Cell since {0} is ' \
-          'not an OpenCSG Surface'.format(opencsg_surface)
+          'not an OpenCG Surface'.format(opencg_surface)
     raise ValueError(msg)
 
   elif not halfspace in [-1, +1]:
@@ -382,20 +382,20 @@ def get_compatible_opencsg_cells(opencsg_cell, opencsg_surface, halfspace):
   compatible_cells = list()
 
   # SquarePrism Surfaces
-  if opencsg_surface._type == 'z-squareprism':
+  if opencg_surface._type == 'z-squareprism':
 
     # Get the compatible Surfaces (XPlanes and YPlanes)
-    compatible_surfaces = get_compatible_opencsg_surfaces(opencsg_surface)
+    compatible_surfaces = get_compatible_opencg_surfaces(opencg_surface)
 
-    opencsg_cell.removeSurface(opencsg_surface)
+    opencg_cell.removeSurface(opencg_surface)
 
     # If Cell is inside SquarePrism, add "inside" of Surface halfspaces
     if halfspace == -1:
-      opencsg_cell.addSurface(compatible_surfaces[0], +1)
-      opencsg_cell.addSurface(compatible_surfaces[1], -1)
-      opencsg_cell.addSurface(compatible_surfaces[2], +1)
-      opencsg_cell.addSurface(compatible_surfaces[3], -1)
-      compatible_cells.append(opencsg_cell)
+      opencg_cell.addSurface(compatible_surfaces[0], +1)
+      opencg_cell.addSurface(compatible_surfaces[1], -1)
+      opencg_cell.addSurface(compatible_surfaces[2], +1)
+      opencg_cell.addSurface(compatible_surfaces[3], -1)
+      compatible_cells.append(opencg_cell)
 
     # If Cell is outside SquarePrism, add "outside" of Surface halfspaces
     else:
@@ -406,8 +406,8 @@ def get_compatible_opencsg_cells(opencsg_cell, opencsg_surface, halfspace):
 
       for clone_id in range(num_clones):
 
-        # Create a cloned OpenCSG Cell with Surfaces compatible with OpenMC
-        clone = opencsg_cell.clone()
+        # Create a cloned OpenCG Cell with Surfaces compatible with OpenMC
+        clone = opencg_cell.clone()
         compatible_cells.append(clone)
 
         # Top left subcell - add left XPlane, top YPlane
@@ -458,84 +458,84 @@ def get_compatible_opencsg_cells(opencsg_cell, opencsg_surface, halfspace):
   for cell in compatible_cells:
     cell.removeRedundantSurfaces()
 
-  # Return the list of compatible OpenCSG Cells
+  # Return the list of compatible OpenCG Cells
   return compatible_cells
 
 
-def make_opencsg_cells_compatible(opencsg_universe):
+def make_opencg_cells_compatible(opencg_universe):
 
-  if not isinstance(opencsg_universe, opencsg.Universe):
-    msg = 'Unable to make compatible OpenCSG Cells for {0} which ' \
-          'is not an OpenCSG Universe'.format(opencsg_universe)
+  if not isinstance(opencg_universe, opencg.Universe):
+    msg = 'Unable to make compatible OpenCG Cells for {0} which ' \
+          'is not an OpenCG Universe'.format(opencg_universe)
     raise ValueError(msg)
 
-  # Check all OpenCSG Cells in this Universe for compatibility with OpenMOC
-  opencsg_cells = opencsg_universe._cells
+  # Check all OpenCG Cells in this Universe for compatibility with OpenMOC
+  opencg_cells = opencg_universe._cells
 
-  for cell_id, opencsg_cell in opencsg_cells.items():
+  for cell_id, opencg_cell in opencg_cells.items():
 
-    # Check each of the OpenCSG Surfaces for OpenMOC compatibility
-    surfaces = opencsg_cell._surfaces
+    # Check each of the OpenCG Surfaces for OpenMOC compatibility
+    surfaces = opencg_cell._surfaces
 
     for surface_id in surfaces:
       surface = surfaces[surface_id][0]
       halfspace = surfaces[surface_id][1]
 
       # If this Surface is not compatible with OpenMOC, create compatible
-      # OpenCSG cells with a compatible version of this OpenCSG Surface
-      if not is_opencsg_surface_compatible(surface):
+      # OpenCG cells with a compatible version of this OpenCG Surface
+      if not is_opencg_surface_compatible(surface):
 
-        # Get the one or more OpenCSG Cells that are compatible with OpenMOC
-        # NOTE: This does not necessarily make the OpenCSG fully compatible.
+        # Get the one or more OpenCG Cells that are compatible with OpenMOC
+        # NOTE: This does not necessarily make the OpenCG fully compatible.
         #       It only removes the incompatible Surface and replaces it with
-        #       compatible OpenCSG Surface(s). The recursive call at the end
+        #       compatible OpenCG Surface(s). The recursive call at the end
         #       of this block is necessary in the event that there are more
         #       incompatible Surfaces in this Cell that are not accounted for.
-        cells = get_compatible_opencsg_cells(opencsg_cell, surface, halfspace)
+        cells = get_compatible_opencg_cells(opencg_cell, surface, halfspace)
 
-        # Remove the non-compatible OpenCSG Cell from the Universe
-        opencsg_universe.removeCell(opencsg_cell)
+        # Remove the non-compatible OpenCG Cell from the Universe
+        opencg_universe.removeCell(opencg_cell)
 
-        # Add the compatible OpenCSG Cells to the Universe
-        opencsg_universe.addCells(cells)
+        # Add the compatible OpenCG Cells to the Universe
+        opencg_universe.addCells(cells)
 
         # Make recursive call to look at the updated state of the
-        # OpenCSG Universe and return
-        return make_opencsg_cells_compatible(opencsg_universe)
+        # OpenCG Universe and return
+        return make_opencg_cells_compatible(opencg_universe)
 
-  # If all OpenCSG Cells in the OpenCSG Universe are compatible, return
+  # If all OpenCG Cells in the OpenCG Universe are compatible, return
   return
 
 
-def get_openmoc_cell(opencsg_cell):
+def get_openmoc_cell(opencg_cell):
 
-  if not isinstance(opencsg_cell, opencsg.Cell):
+  if not isinstance(opencg_cell, opencg.Cell):
     msg = 'Unable to create an OpenMOC Cell from {0} which ' \
-          'is not an OpenCSG Cell'.format(opencsg_cell)
+          'is not an OpenCG Cell'.format(opencg_cell)
     raise ValueError(msg)
 
   global OPENMOC_CELLS
-  cell_id = opencsg_cell._id
+  cell_id = opencg_cell._id
 
   # If this Cell was already created, use it
   if cell_id in OPENMOC_CELLS:
     return OPENMOC_CELLS[cell_id]
 
-  # Create an OpenMOC Cell to represent this OpenCSG Cell
-  name = opencsg_cell._name
+  # Create an OpenMOC Cell to represent this OpenCG Cell
+  name = opencg_cell._name
 
-  fill = opencsg_cell._fill
-  if opencsg_cell._type == 'universe':
+  fill = opencg_cell._fill
+  if opencg_cell._type == 'universe':
     openmoc_cell = openmoc.CellFill(cell_id, name)
     openmoc_cell.setFill(get_openmoc_universe(fill))
-  elif opencsg_cell._type == 'lattice':
+  elif opencg_cell._type == 'lattice':
     openmoc_cell = openmoc.CellFill(cell_id, name)
     openmoc_cell.setFill(get_openmoc_lattice(fill))
   else:
     openmoc_cell = openmoc.CellBasic(cell_id, name)
     openmoc_cell.setMaterial(get_openmoc_material(fill))
 
-  surfaces = opencsg_cell._surfaces
+  surfaces = opencg_cell._surfaces
 
   for surface_id in surfaces:
     surface = surfaces[surface_id][0]
@@ -545,16 +545,16 @@ def get_openmoc_cell(opencsg_cell):
   # Add the OpenMOC Cell to the global collection of all OpenMOC Cells
   OPENMOC_CELLS[cell_id] = openmoc_cell
 
-  # Add the OpenCSG Cell to the global collection of all OpenCSG Cells
-  OPENCSG_CELLS[cell_id] = opencsg_cell
+  # Add the OpenCG Cell to the global collection of all OpenCG Cells
+  OPENCSG_CELLS[cell_id] = opencg_cell
 
   return openmoc_cell
 
 
-def get_opencsg_universe(openmoc_universe):
+def get_opencg_universe(openmoc_universe):
 
   if not isinstance(openmoc_universe, openmoc.Universe):
-    msg = 'Unable to create an OpenCSG Universe from {0} which ' \
+    msg = 'Unable to create an OpenCG Universe from {0} which ' \
           'is not an OpenMOC Universe'.format(openmoc_universe)
     raise ValueError(msg)
 
@@ -565,67 +565,67 @@ def get_opencsg_universe(openmoc_universe):
   if universe_id in OPENCSG_UNIVERSES:
     return OPENCSG_UNIVERSES[universe_id]
 
-  # Create an OpenCSG Universe to represent this OpenMC Universe
+  # Create an OpenCG Universe to represent this OpenMC Universe
   name = openmoc_universe.getName()
-  opencsg_universe = opencsg.Universe(universe_id, name)
+  opencg_universe = opencg.Universe(universe_id, name)
 
-  # Convert all OpenMOC Cells in this Universe to OpenCSG Cells
+  # Convert all OpenMOC Cells in this Universe to OpenCG Cells
   openmoc_cells = openmoc_universe.getCells()
 
   for cell_id, openmoc_cell in openmoc_cells.items():
-    opencsg_cell = get_opencsg_cell(openmoc_cell)
-    opencsg_universe.addCell(opencsg_cell)
+    opencg_cell = get_opencg_cell(openmoc_cell)
+    opencg_universe.addCell(opencg_cell)
 
   # Add the OpenMOC Universe to the global collection of all OpenMOC Universes
   OPENMOC_UNIVERSES[universe_id] = openmoc_universe
 
-  # Add the OpenCSG Universe to the global collection of all OpenCSG Universes
-  OPENCSG_UNIVERSES[universe_id] = opencsg_universe
+  # Add the OpenCG Universe to the global collection of all OpenCG Universes
+  OPENCSG_UNIVERSES[universe_id] = opencg_universe
 
-  return opencsg_universe
+  return opencg_universe
 
 
-def get_openmoc_universe(opencsg_universe):
+def get_openmoc_universe(opencg_universe):
 
-  if not isinstance(opencsg_universe, opencsg.Universe):
+  if not isinstance(opencg_universe, opencg.Universe):
     msg = 'Unable to create an OpenMOC Universe from {0} which ' \
-          'is not an OpenCSG Universe'.format(opencsg_universe)
+          'is not an OpenCG Universe'.format(opencg_universe)
     raise ValueError(msg)
 
   global OPENMOC_UNIVERSES
-  universe_id = opencsg_universe._id
+  universe_id = opencg_universe._id
 
   # If this Universe was already created, use it
   if universe_id in OPENMOC_UNIVERSES:
     return OPENMOC_UNIVERSES[universe_id]
 
-  # Make all OpenCSG Cells and Surfaces in this Universe compatible with OpenMOC
-  make_opencsg_cells_compatible(opencsg_universe)
+  # Make all OpenCG Cells and Surfaces in this Universe compatible with OpenMOC
+  make_opencg_cells_compatible(opencg_universe)
 
-  # Create an OpenMOC Universe to represent this OpenCSG Universe
-  name = opencsg_universe._name
+  # Create an OpenMOC Universe to represent this OpenCG Universe
+  name = opencg_universe._name
   openmoc_universe = openmoc.Universe(universe_id, name)
 
-  # Convert all OpenCSG Cells in this Universe to OpenMC Cells
-  opencsg_cells = opencsg_universe._cells
+  # Convert all OpenCG Cells in this Universe to OpenMC Cells
+  opencg_cells = opencg_universe._cells
 
-  for cell_id, opencsg_cell in opencsg_cells.items():
-    openmoc_cell = get_openmoc_cell(opencsg_cell)
+  for cell_id, opencg_cell in opencg_cells.items():
+    openmoc_cell = get_openmoc_cell(opencg_cell)
     openmoc_universe.addCell(openmoc_cell)
 
   # Add the OpenMOC Universe to the global collection of all OpenMOC Universes
   OPENMOC_UNIVERSES[universe_id] = openmoc_universe
 
-  # Add the OpenCSG Universe to the global collection of all OpenCSG Universes
-  OPENCSG_UNIVERSES[universe_id] = opencsg_universe
+  # Add the OpenCG Universe to the global collection of all OpenCG Universes
+  OPENCSG_UNIVERSES[universe_id] = opencg_universe
 
   return openmoc_universe
 
 
-def get_opencsg_lattice(openmoc_lattice):
+def get_opencg_lattice(openmoc_lattice):
 
   if not isinstance(openmoc_lattice, openmoc.Lattice):
-    msg = 'Unable to create an OpenCSG Lattice from {0} which ' \
+    msg = 'Unable to create an OpenCG Lattice from {0} which ' \
           'is not an OpenMC Lattice'.format(openmoc_lattice)
     raise ValueError(msg)
 
@@ -636,21 +636,21 @@ def get_opencsg_lattice(openmoc_lattice):
   if lattice_id in OPENCSG_LATTICES:
     return OPENCSG_LATTICES[lattice_id]
 
-  # Create an OpenCSG Lattice to represent this OpenMC Lattice
+  # Create an OpenCG Lattice to represent this OpenMC Lattice
   name = openmoc_lattice.getName()
   dimension = [1, openmoc_lattice.getNumY(), openmoc_lattice.getNumX()]
   width = [1, openmoc_lattice.getWidthY(), openmoc_lattice.getWidthX()]
   lower_left = [-np.inf, width[1]*dimension[1]/2., width[2]*dimension[2] / 2.]
 
-  # Initialize an empty array for the OpenCSG nested Universes in this Lattice
+  # Initialize an empty array for the OpenCG nested Universes in this Lattice
   universe_array = np.ndarray(tuple(np.array(dimension)[::-1]), \
-                              dtype=opencsg.Universe)
+                              dtype=opencg.Universe)
 
-  # Create OpenCSG Universes for each unique nested Universe in this Lattice
+  # Create OpenCG Universes for each unique nested Universe in this Lattice
   unique_universes = openmoc_lattice.getUniqueUniverses()
 
   for universe_id, universe in unique_universes.items():
-    unique_universes[universe_id] = get_opencsg_universe(universe)
+    unique_universes[universe_id] = get_opencg_universe(universe)
 
   # Build the nested Universe array
   for y in range(dimension[1]):
@@ -659,51 +659,51 @@ def get_opencsg_lattice(openmoc_lattice):
       universe_id = universe.getId()
       universe_array[0][y][x] = unique_universes[universe_id]
 
-  opencsg_lattice = opencsg.Lattice(lattice_id, name)
-  opencsg_lattice.setDimension(dimension)
-  opencsg_lattice.setWidth(width)
-  opencsg_lattice.setUniverses(universe_array)
+  opencg_lattice = opencg.Lattice(lattice_id, name)
+  opencg_lattice.setDimension(dimension)
+  opencg_lattice.setWidth(width)
+  opencg_lattice.setUniverses(universe_array)
 
   offset = np.array(lower_left, dtype=np.float64) - \
            ((np.array(width, dtype=np.float64) * \
              np.array(dimension, dtype=np.float64))) / -2.0
-  opencsg_lattice.setOffset(offset)
+  opencg_lattice.setOffset(offset)
 
   # Add the OpenMOC Lattice to the global collection of all OpenMOC Lattices
   OPENMOC_LATTICES[lattice_id] = openmoc_lattice
 
-  # Add the OpenCSG Lattice to the global collection of all OpenCSG Lattices
-  OPENCSG_LATTICES[lattice_id] = opencsg_lattice
+  # Add the OpenCG Lattice to the global collection of all OpenCG Lattices
+  OPENCSG_LATTICES[lattice_id] = opencg_lattice
 
-  return opencsg_lattice
+  return opencg_lattice
 
 
-def get_openmoc_lattice(opencsg_lattice):
+def get_openmoc_lattice(opencg_lattice):
 
-  if not isinstance(opencsg_lattice, opencsg.Lattice):
+  if not isinstance(opencg_lattice, opencg.Lattice):
     msg = 'Unable to create an OpenMOC Lattice from {0} which ' \
-          'is not an OpenCSG Lattice'.format(opencsg_lattice)
+          'is not an OpenCG Lattice'.format(opencg_lattice)
     raise ValueError(msg)
 
   global OPENMOC_LATTICES
-  lattice_id = opencsg_lattice._id
+  lattice_id = opencg_lattice._id
 
   # If this Lattice was already created, use it
   if lattice_id in OPENMOC_LATTICES:
     return OPENMOC_LATTICES[lattice_id]
 
-  name = opencsg_lattice._name
-  dimension = opencsg_lattice._dimension
-  width = opencsg_lattice._width
-  offset = opencsg_lattice._offset
-  universes = opencsg_lattice._universes
+  name = opencg_lattice._name
+  dimension = opencg_lattice._dimension
+  width = opencg_lattice._width
+  offset = opencg_lattice._offset
+  universes = opencg_lattice._universes
 
   # Initialize an empty array for the OpenMOC nested Universes in this Lattice
   universe_array = np.ndarray(tuple(np.array(dimension[0:2])), \
                               dtype=openmoc.Universe)
 
   # Create OpenMOC Universes for each unique nested Universe in this Lattice
-  unique_universes = opencsg_lattice.getUniqueUniverses()
+  unique_universes = opencg_lattice.getUniqueUniverses()
 
   for universe_id, universe in unique_universes.items():
     unique_universes[universe_id] = get_openmoc_universe(universe)
@@ -722,16 +722,16 @@ def get_openmoc_lattice(opencsg_lattice):
   # Add the OpenMOC Lattice to the global collection of all OpenMOC Lattices
   OPENMOC_LATTICES[lattice_id] = openmoc_lattice
 
-  # Add the OpenCSG Lattice to the global collection of all OpenCSG Lattices
-  OPENCSG_LATTICES[lattice_id] = opencsg_lattice
+  # Add the OpenCG Lattice to the global collection of all OpenCG Lattices
+  OPENCSG_LATTICES[lattice_id] = opencg_lattice
 
   return openmoc_lattice
 
 
-def get_opencsg_geometry(openmoc_geometry):
+def get_opencg_geometry(openmoc_geometry):
 
   if not isinstance(openmoc_geometry, openmoc.Geometry):
-    msg = 'Unable to get OpenCSG geometry from {0} which is ' \
+    msg = 'Unable to get OpenCG geometry from {0} which is ' \
           'not an OpenMOC Geometry object'.format(openmoc_geometry)
     raise ValueError(msg)
 
@@ -745,31 +745,31 @@ def get_opencsg_geometry(openmoc_geometry):
   OPENMOC_LATTICES.clear()
   OPENCSG_LATTICES.clear()
 
-  opencsg.geometry.reset_auto_ids()
+  opencg.geometry.reset_auto_ids()
 
   openmoc_root_universe = openmoc_geometry.getRootUniverse()
-  opencsg_root_universe = get_opencsg_universe(openmoc_root_universe)
+  opencg_root_universe = get_opencg_universe(openmoc_root_universe)
 
-  opencsg_geometry = opencsg.Geometry()
-  opencsg_geometry.setRootUniverse(opencsg_root_universe)
-  opencsg_geometry.initializeCellOffsets()
+  opencg_geometry = opencg.Geometry()
+  opencg_geometry.setRootUniverse(opencg_root_universe)
+  opencg_geometry.initializeCellOffsets()
 
-  return opencsg_geometry
+  return opencg_geometry
 
 
-def get_openmoc_geometry(opencsg_geometry):
+def get_openmoc_geometry(opencg_geometry):
 
-  if not isinstance(opencsg_geometry, opencsg.Geometry):
+  if not isinstance(opencg_geometry, opencg.Geometry):
     msg = 'Unable to get OpenMOC geometry from {0} which is ' \
-          'not an OpenCSG Geometry object'.format(opencsg_geometry)
+          'not an OpenCG Geometry object'.format(opencg_geometry)
     raise ValueError(msg)
 
   # Deep copy the goemetry since it may be modified to make all Surfaces
   # compatible with OpenMOC's specifications
-  opencsg_geometry = copy.deepcopy(opencsg_geometry)
+  opencg_geometry = copy.deepcopy(opencg_geometry)
 
   # Update Cell bounding boxes in Geometry
-  opencsg_geometry.updateBoundingBoxes()
+  opencg_geometry.updateBoundingBoxes()
 
   # Clear dictionaries and auto-generated ID
   OPENMOC_SURFACES.clear()
@@ -783,8 +783,8 @@ def get_openmoc_geometry(opencsg_geometry):
 
   openmoc.reset_auto_ids()
 
-  opencsg_root_universe = opencsg_geometry._root_universe
-  openmoc_root_universe = get_openmoc_universe(opencsg_root_universe)
+  opencg_root_universe = opencg_geometry._root_universe
+  openmoc_root_universe = get_openmoc_universe(opencg_root_universe)
 
   openmoc_geometry = openmoc.Geometry()
   openmoc_geometry.setRootUniverse(openmoc_root_universe)
