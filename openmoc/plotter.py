@@ -551,10 +551,10 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250):
   surface = numpy.zeros((gridsize, gridsize))
 
   # Retrieve the bounding box for the Geometry
-  xmin = geometry.getXMin() + TINY_MOVE
-  xmax = geometry.getXMax() - TINY_MOVE
-  ymin = geometry.getYMin() + TINY_MOVE
-  ymax = geometry.getYMax() - TINY_MOVE
+  xmin = geometry.getMinX() + TINY_MOVE
+  xmax = geometry.getMaxX() - TINY_MOVE
+  ymin = geometry.getMinY() + TINY_MOVE
+  ymax = geometry.getMaxY() - TINY_MOVE
 
   # Initialize numpy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)
@@ -770,10 +770,10 @@ def plot_fission_rates(geometry, solver, gridsize=250):
   fission_rates_array = numpy.zeros((gridsize, gridsize))
 
   # Retrieve the bounding box for the geometry
-  xmin = geometry.getXMin() + TINY_MOVE
-  xmax = geometry.getXMax() - TINY_MOVE
-  ymin = geometry.getYMin() + TINY_MOVE
-  ymax = geometry.getYMax() - TINY_MOVE
+  xmin = geometry.getMinX() + TINY_MOVE
+  xmax = geometry.getMaxX() - TINY_MOVE
+  ymin = geometry.getMinY() + TINY_MOVE
+  ymax = geometry.getMaxY() - TINY_MOVE
 
   # Initialize numpy arrays for the grid points
   xcoords = np.linspace(xmin, xmax, gridsize)

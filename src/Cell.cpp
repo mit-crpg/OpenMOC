@@ -616,7 +616,7 @@ void CellBasic::sectorize() {
     sector->setNumSectors(0);
     sector->setNumRings(0);
 
-    log_printf(DEBUG, "Creating a new sector Cell with %d for Cell %d",
+    log_printf(DEBUG, "Creating a new sector Cell %d for Cell %d",
                sector->getId(), _id);
 
     /* Add new bounding planar Surfaces to the clone */
