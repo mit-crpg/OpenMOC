@@ -445,7 +445,7 @@ void Cmfd::computeDs(int moc_iteration){
             /* If the magnitude of d_tilde is greater than the magnitude of
              * d_hat, select new values d_tilde and d_hat to ensure the course
              * mesh equations are guaranteed to be diagonally dominant */
-            if (fabs(d_tilde) > fabs(d_hat)){
+            if (fabs(d_tilde) > fabs(d_hat) && moc_iteration != 0){
 
               if (sense == -1){
 
@@ -481,11 +481,11 @@ void Cmfd::computeDs(int moc_iteration){
           /* Perform underrelaxation on d_tilde. If first MOC iteration, solve 
            * the diffusion problem without correcting currents */
           if (moc_iteration == 0)
+            d_tilde = 0.0;
+          else
             d_tilde =
                 _materials[cell]->getDifTilde()[surface*_num_cmfd_groups + e] *
                 (1 - _relax_factor) + _relax_factor * d_tilde;
-          else
-              d_tilde = 0.0;
 
           /* Set d_hat and d_tilde */
           _materials[cell]->setDifHatByGroup(d_hat, e+1, surface);

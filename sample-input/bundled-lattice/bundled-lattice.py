@@ -96,7 +96,7 @@ cells[14].addSurface(halfspace=-1, surface=planes[3])
 ###########################   Creating Lattices   #############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating 5 x 5 core of 17 x 17 assemblies...')
+log.py_printf('NORMAL', 'Creating 4 x 4 core of 17 x 17 assemblies...')
 
 # 1st 17x17 assembly
 assembly1 = Lattice(id=7, width_x=1.0, width_y=1.0)
@@ -169,6 +169,7 @@ geometry.initializeFlatSourceRegions()
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
 
