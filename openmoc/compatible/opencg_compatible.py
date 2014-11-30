@@ -539,7 +539,8 @@ def get_openmoc_cell(opencg_cell):
 
   for surface_id in surfaces:
     surface = surfaces[surface_id][0]
-    halfspace = surfaces[surface_id][1]
+    halfspace = int(surfaces[surface_id][1])
+    print type(halfspace)
     openmoc_cell.addSurface(halfspace, get_openmoc_surface(surface))
 
   # Add the OpenMOC Cell to the global collection of all OpenMOC Cells
