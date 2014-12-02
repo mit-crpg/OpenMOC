@@ -54,7 +54,8 @@
   }
 }
 
-/* C++ casting helper method for openmoc.process computePinPowers routine */
+/* C++ casting helper method for openmoc.process computePinPowers
+ * routine and the OpenCG compatibility module */
 %inline %{
   CellFill* castCellToCellFill(Cell* cell) {
     return dynamic_cast<CellFill*>(cell);
@@ -70,6 +71,26 @@
 
   Universe* castLatticeToUniverse(Lattice* lattice) {
     return dynamic_cast<Universe*>(lattice);
+  }
+
+  Plane* castSurfaceToPlane(Surface* plane) {
+    return dynamic_cast<Plane*>(plane);
+  }
+
+  XPlane* castSurfaceToXPlane(Surface* xplane) {
+    return dynamic_cast<XPlane*>(xplane);
+  }
+
+  YPlane* castSurfaceToYPlane(Surface* yplane) {
+    return dynamic_cast<YPlane*>(yplane);
+  }
+
+  ZPlane* castSurfaceToZPlane(Surface* zplane) {
+    return dynamic_cast<ZPlane*>(zplane);
+  }
+
+  Circle* castSurfaceToCircle(Surface* circle) {
+    return dynamic_cast<Circle*>(circle);
   }
 
 %}
@@ -262,7 +283,7 @@
 
 
 /* Typemap for all methods which return a std::map<int, surface_halfspace>.
- * This includes the Cell::getSurfaces() method, which is useful for OpenCSG
+ * This includes the Cell::getSurfaces() method, which is useful for OpenCG
  * compatibility. */
 %include <std_map.i>
 %cleap std::map<int, surface_halfspace>;
@@ -288,7 +309,7 @@
 
 /* Typemap for all methods which return a std::map<int, Material*>.
  * This includes the Geometry::getAllMaterials() method, which is useful 
- * for OpenCSG compatibility. */
+ * for OpenCG compatibility. */
 %include <std_map.i>
 %cleap std::map<int, Material*>;
 %typemap(out) std::map<int, Material*> {
@@ -312,7 +333,7 @@
 
 /* Typemap for all methods which return a std::map<int, Universe*>.
  * This includes the Lattice::getUniqueUniverses() method which is ueseful for
- * OpenCSG compatibility. */
+ * OpenCG compatibility. */
 %include <std_map.i>
 %cleap std::map<int, Universe*>;
 %typemap(out) std::map<int, Universe*> {

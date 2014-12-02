@@ -156,24 +156,29 @@ def get_opencg_surface(openmoc_surface):
   surface_type = openmoc_surface.getSurfaceType()
 
   if surface_type == openmoc.PLANE:
+    openmoc_surface = openmoc.castSurfaceToPlane(openmoc_surface)
     A = openmoc_surface.getA()
     B = openmoc_surface.getB()
     C = openmoc_surface.getC()
     opencg_surface = opencg.Plane(surface_id, name, boundary, A, B, 0, C)
 
   elif surface_type == openmoc.XPLANE:
+    openmoc_surface = openmoc.castSurfaceToXPlane(openmoc_surface)
     x0 = openmoc_surface.getX()
     opencg_surface = opencg.XPlane(surface_id, name, boundary, x0)
 
   elif surface_type == openmoc.YPLANE:
+    openmoc_surface = openmoc.castSurfaceToYPlane(openmoc_surface)
     y0 = openmoc_surface.getY()
     opencg_surface = opencg.YPlane(surface_id, name, boundary, y0)
 
   elif surface_type == openmoc.ZPLANE:
+    openmoc_surface = openmoc.castSurfaceToZPlane(openmoc_surface)
     z0 = openmoc_surface.getZ()
     opencg_surface = opencg.ZPlane(surface_id, name, boundary, z0)
 
   elif surface_type == openmoc.CIRCLE:
+    openmoc_surface = openmoc.castSurfaceToCircle(openmoc_surface)
     x0 = openmoc_surface.getX0()
     y0 = openmoc_surface.getY0()
     R = openmoc_surface.getRadius()
@@ -335,11 +340,11 @@ def get_opencg_cell(openmoc_cell):
   name = openmoc_cell.getName()
   opencg_cell = opencg.Cell(cell_id, name)
 
-  fill = openmoc_cell._fill
-
-  if (openmoc_cell.getType == openmoc.MATERIAL):
+  if (openmoc_cell.getType() == openmoc.MATERIAL):
+    fill = openmoc.castCellToCellBasic(openmoc_cell).getMaterial()
     opencg_cell.setFill(get_opencg_material(fill))
-  elif (openmoc_cell._type == openmoc.FILL):
+  elif (openmoc_cell.getType() == openmoc.FILL):
+    fill = openmoc.castCellToCellFill(openmoc_cell).getFill()
     if isinstance(fill, openmoc.Lattice):
       opencg_cell.setFill(get_opencg_lattice(fill))
     else:
@@ -736,13 +741,13 @@ def get_opencg_geometry(openmoc_geometry):
     raise ValueError(msg)
 
   # Clear dictionaries and auto-generated IDs
-  OPENMOC_SURFACES.clear()
+#  OPENMOC_SURFACES.clear()
   OPENCSG_SURFACES.clear()
-  OPENMOC_CELLS.clear()
+#  OPENMOC_CELLS.clear()
   OPENCSG_CELLS.clear()
-  OPENMOC_UNIVERSES.clear()
+#  OPENMOC_UNIVERSES.clear()
   OPENCSG_UNIVERSES.clear()
-  OPENMOC_LATTICES.clear()
+#  OPENMOC_LATTICES.clear()
   OPENCSG_LATTICES.clear()
 
   opencg.geometry.reset_auto_ids()
