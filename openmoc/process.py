@@ -191,7 +191,7 @@ def compute_fission_rates(solver, use_hdf5=False):
 #
 # @code
 #          store_simulation_state(solver, fluxes=True, source=True, \
-#                                 pin_powers=True, use_hdf5=True)
+#                                 fission_rates_powers=True, use_hdf5=True)
 # @endcode
 #
 # @param solver a pointer to a Solver object
@@ -294,7 +294,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
         scalar_fluxes[i,j] = solver.getFSRScalarFlux(i,j+1)
 
   # If the user requested to store the FSR sources
-  if source:
+  if sources:
 
     # Allocate array
     sources_array = np.zeros((num_FSRs, num_groups))
@@ -315,9 +315,19 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     else:
       f = h5py.File(directory + '/' + filename + '.h5', 'w')
 
-    # Create groups for the day and time in the HDF5 file
-    day_group = f.require_group(str(month)+'-'+str(day)+'-'+str(year))
-    time_group = day_group.create_group(str(hr)+':'+str(mins)+':'+str(sec))
+    # Create groups for the day in the HDF5 file
+    day_key = '{0:02}-{1:02}-{2:02}'.format(month, day, year)
+    day_group = f.require_group(day_key)
+
+    # Create group for the time - use counter in case two simulations
+    # write simulation state at the exact same hour,minute, and second
+    time_key = '{0:02}:{1:02}:{2:02}'.format(hr, mins, sec)
+    counter = 0
+    while time_key in day_group.keys():
+      time_key = '{0:02}:{1:02}:{2:02}-{3}'.format(hr, mins, sec, counter)
+      counter += 1
+
+    time_group = day_group.require_group(time_key)
 
     # Store a note for this simulation state
     if not note is '':
