@@ -14,7 +14,7 @@ OPENMOC_MATERIALS = dict()
 # A dictionary of all OpenCG Materials created
 # Keys    - Material IDs
 # Values  - Materials
-OPENCSG_MATERIALS = dict()
+OPENCG_MATERIALS = dict()
 
 # A dictionary of all OpenMOC Surfaces created
 # Keys    - Surface IDs
@@ -24,7 +24,7 @@ OPENMOC_SURFACES = dict()
 # A dictionary of all OpenCG Surfaces created
 # Keys    - Surface IDs
 # Values  - Surfaces
-OPENCSG_SURFACES = dict()
+OPENCG_SURFACES = dict()
 
 # A dictionary of all OpenMOC Cells created
 # Keys    - Cell IDs
@@ -34,7 +34,7 @@ OPENMOC_CELLS = dict()
 # A dictionary of all OpenCG Cells created
 # Keys    - Cell IDs
 # Values  - Cells
-OPENCSG_CELLS = dict()
+OPENCG_CELLS = dict()
 
 # A dictionary of all OpenMOC Universes created
 # Keys    - Universes IDs
@@ -44,7 +44,7 @@ OPENMOC_UNIVERSES = dict()
 # A dictionary of all OpenCG Universes created
 # Keys    - Universes IDs
 # Values  - Universes
-OPENCSG_UNIVERSES = dict()
+OPENCG_UNIVERSES = dict()
 
 # A dictionary of all OpenMOC Lattices created
 # Keys    - Lattice IDs
@@ -54,7 +54,7 @@ OPENMOC_LATTICES = dict()
 # A dictionary of all OpenCG Lattices created
 # Keys    - Lattice IDs
 # Values  - Lattices
-OPENCSG_LATTICES = dict()
+OPENCG_LATTICES = dict()
 
 
 
@@ -65,12 +65,12 @@ def get_opencg_material(openmoc_material):
           'which is not an OpenMOC Material'.format(openmoc_material)
     raise ValueError(msg)
 
-  global OPENCSG_MATERIALS
+  global OPENCG_MATERIALS
   material_id = openmoc_material.getId()
 
   # If this Material was already created, use it
-  if material_id in OPENCSG_MATERIALS:
-    return OPENCSG_MATERIALS[material_id]
+  if material_id in OPENCG_MATERIALS:
+    return OPENCG_MATERIALS[material_id]
 
   # Create an OpenCG Material to represent this OpenMOC Material
   name = openmoc_material.getName()
@@ -80,7 +80,7 @@ def get_opencg_material(openmoc_material):
   OPENMOC_MATERIALS[material_id] = openmoc_material
 
   # Add the OpenCG Material to the global collection of all OpenCG Materials
-  OPENCSG_MATERIALS[material_id] = opencg_material
+  OPENCG_MATERIALS[material_id] = opencg_material
 
   return opencg_material
 
@@ -107,7 +107,7 @@ def get_openmoc_material(opencg_material):
   OPENMOC_MATERIALS[material_id] = openmoc_material
 
   # Add the OpenCG Material to the global collection of all OpenCG Materials
-  OPENCSG_MATERIALS[material_id] = opencg_material
+  OPENCG_MATERIALS[material_id] = opencg_material
 
   # FIXME
   openmoc_material.thisown = 0
@@ -135,12 +135,12 @@ def get_opencg_surface(openmoc_surface):
           'which is not an OpenMOC Surface'.format(openmoc_surface)
     raise ValueError(msg)
 
-  global OPENCSG_SURFACES
+  global OPENCG_SURFACES
   surface_id = openmoc_surface.getId()
 
   # If this Surface was already created, use it
-  if surface_id in OPENCSG_SURFACES:
-    return OPENCSG_SURFACES[surface_id]
+  if surface_id in OPENCG_SURFACES:
+    return OPENCG_SURFACES[surface_id]
 
   # Create an OpenCG Surface to represent this OpenMOC Surface
   name = openmoc_surface.getName()
@@ -191,7 +191,7 @@ def get_opencg_surface(openmoc_surface):
   OPENMOC_SURFACES[surface_id] = openmoc_surface
 
   # Add the OpenCG Surface to the global collection of all OpenCG Surfaces
-  OPENCSG_SURFACES[surface_id] = opencg_surface
+  OPENCG_SURFACES[surface_id] = opencg_surface
 
   return opencg_surface
 
@@ -259,7 +259,7 @@ def get_openmoc_surface(opencg_surface):
   OPENMOC_SURFACES[surface_id] = openmoc_surface
 
   # Add the OpenCG Surface to the global collection of all OpenCG Surfaces
-  OPENCSG_SURFACES[surface_id] = opencg_surface
+  OPENCG_SURFACES[surface_id] = opencg_surface
 
   # FIXME
   openmoc_surface.thisown = 0
@@ -323,7 +323,7 @@ def get_compatible_opencg_surfaces(opencg_surface):
   OPENMOC_SURFACES[surface_id] = surfaces
 
   # Add the OpenCG Surface to the global collection of all OpenCG Surfaces
-  OPENCSG_SURFACES[surface_id] = opencg_surface
+  OPENCG_SURFACES[surface_id] = opencg_surface
 
   return surfaces
 
@@ -335,12 +335,12 @@ def get_opencg_cell(openmoc_cell):
           'is not an OpenMOC Cell'.format(openmoc_cell)
     raise ValueError(msg)
 
-  global OPENCSG_CELLS
+  global OPENCG_CELLS
   cell_id = openmoc_cell.getId()
 
   # If this Cell was already created, use it
-  if cell_id in OPENCSG_CELLS:
-    return OPENCSG_CELLS[cell_id]
+  if cell_id in OPENCG_CELLS:
+    return OPENCG_CELLS[cell_id]
 
   # Create an OpenCG Cell to represent this OpenMC Cell
   name = openmoc_cell.getName()
@@ -367,7 +367,7 @@ def get_opencg_cell(openmoc_cell):
   OPENMOC_CELLS[cell_id] = openmoc_cell
 
   # Add the OpenCG Cell to the global collection of all OpenCG Cells
-  OPENCSG_CELLS[cell_id] = opencg_cell
+  OPENCG_CELLS[cell_id] = opencg_cell
 
   return opencg_cell
 
@@ -557,7 +557,7 @@ def get_openmoc_cell(opencg_cell):
   OPENMOC_CELLS[cell_id] = openmoc_cell
 
   # Add the OpenCG Cell to the global collection of all OpenCG Cells
-  OPENCSG_CELLS[cell_id] = opencg_cell
+  OPENCG_CELLS[cell_id] = opencg_cell
 
   # FIXME
   openmoc_cell.thisown = 0
@@ -572,12 +572,12 @@ def get_opencg_universe(openmoc_universe):
           'is not an OpenMOC Universe'.format(openmoc_universe)
     raise ValueError(msg)
 
-  global OPENCSG_UNIVERSES
+  global OPENCG_UNIVERSES
   universe_id = openmoc_universe.getId()
 
   # If this Universe was already created, use it
-  if universe_id in OPENCSG_UNIVERSES:
-    return OPENCSG_UNIVERSES[universe_id]
+  if universe_id in OPENCG_UNIVERSES:
+    return OPENCG_UNIVERSES[universe_id]
 
   # Create an OpenCG Universe to represent this OpenMC Universe
   name = openmoc_universe.getName()
@@ -594,7 +594,7 @@ def get_opencg_universe(openmoc_universe):
   OPENMOC_UNIVERSES[universe_id] = openmoc_universe
 
   # Add the OpenCG Universe to the global collection of all OpenCG Universes
-  OPENCSG_UNIVERSES[universe_id] = opencg_universe
+  OPENCG_UNIVERSES[universe_id] = opencg_universe
 
   return opencg_universe
 
@@ -631,7 +631,7 @@ def get_openmoc_universe(opencg_universe):
   OPENMOC_UNIVERSES[universe_id] = openmoc_universe
 
   # Add the OpenCG Universe to the global collection of all OpenCG Universes
-  OPENCSG_UNIVERSES[universe_id] = opencg_universe
+  OPENCG_UNIVERSES[universe_id] = opencg_universe
 
   # FIXME
   openmoc_universe.thisown = 0
@@ -646,12 +646,12 @@ def get_opencg_lattice(openmoc_lattice):
           'is not an OpenMC Lattice'.format(openmoc_lattice)
     raise ValueError(msg)
 
-  global OPENCSG_LATTICES
+  global OPENCG_LATTICES
   lattice_id = openmoc_lattice.getId()
 
   # If this Lattice was already created, use it
-  if lattice_id in OPENCSG_LATTICES:
-    return OPENCSG_LATTICES[lattice_id]
+  if lattice_id in OPENCG_LATTICES:
+    return OPENCG_LATTICES[lattice_id]
 
   # Create an OpenCG Lattice to represent this OpenMC Lattice
   name = openmoc_lattice.getName()
@@ -690,7 +690,7 @@ def get_opencg_lattice(openmoc_lattice):
   OPENMOC_LATTICES[lattice_id] = openmoc_lattice
 
   # Add the OpenCG Lattice to the global collection of all OpenCG Lattices
-  OPENCSG_LATTICES[lattice_id] = opencg_lattice
+  OPENCG_LATTICES[lattice_id] = opencg_lattice
 
   return opencg_lattice
 
@@ -740,7 +740,7 @@ def get_openmoc_lattice(opencg_lattice):
   OPENMOC_LATTICES[lattice_id] = openmoc_lattice
 
   # Add the OpenCG Lattice to the global collection of all OpenCG Lattices
-  OPENCSG_LATTICES[lattice_id] = opencg_lattice
+  OPENCG_LATTICES[lattice_id] = opencg_lattice
 
   # FIXME
   openmoc_lattice.thisown = 0
@@ -757,13 +757,13 @@ def get_opencg_geometry(openmoc_geometry):
 
   # Clear dictionaries and auto-generated IDs
   OPENMOC_SURFACES.clear()
-  OPENCSG_SURFACES.clear()
+  OPENCG_SURFACES.clear()
   OPENMOC_CELLS.clear()
-  OPENCSG_CELLS.clear()
+  OPENCG_CELLS.clear()
   OPENMOC_UNIVERSES.clear()
-  OPENCSG_UNIVERSES.clear()
+  OPENCG_UNIVERSES.clear()
   OPENMOC_LATTICES.clear()
-  OPENCSG_LATTICES.clear()
+  OPENCG_LATTICES.clear()
 
   openmoc_root_universe = openmoc_geometry.getRootUniverse()
   opencg_root_universe = get_opencg_universe(openmoc_root_universe)
@@ -791,13 +791,13 @@ def get_openmoc_geometry(opencg_geometry):
 
   # Clear dictionaries and auto-generated ID
   OPENMOC_SURFACES.clear()
-  OPENCSG_SURFACES.clear()
+  OPENCG_SURFACES.clear()
   OPENMOC_CELLS.clear()
-  OPENCSG_CELLS.clear()
+  OPENCG_CELLS.clear()
   OPENMOC_UNIVERSES.clear()
-  OPENCSG_UNIVERSES.clear()
+  OPENCG_UNIVERSES.clear()
   OPENMOC_LATTICES.clear()
-  OPENCSG_LATTICES.clear()
+  OPENCG_LATTICES.clear()
 
   opencg_root_universe = opencg_geometry._root_universe
   openmoc_root_universe = get_openmoc_universe(opencg_root_universe)
