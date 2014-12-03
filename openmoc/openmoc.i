@@ -260,7 +260,7 @@
 
 /* Typemap for all methods which return a std::map<int, Cell*>. This includes
  * the Geometry::getAllCells(), Universe::getAllCells(), etc. These methods
- * are particularly useful for OpenCSG compatibility. */
+ * are particularly useful for OpenCG compatibility. */
 %include <std_map.i>
 %cleap std::map<int, Cell*>;
 %typemap(out) std::map<int, Cell*> {
