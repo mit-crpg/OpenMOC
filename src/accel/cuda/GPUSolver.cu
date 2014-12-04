@@ -1162,7 +1162,7 @@ void GPUSolver::initializeMaterials() {
   /* Allocate memory for all dev_materials on the device */
   try{
 
-    std::map<int, Material*> host_materials=_geometry->getMaterials();
+    std::map<int, Material*> host_materials=_geometry->getAllMaterials();
     std::map<int, Material*>::iterator iter;
 
     /* Iterate through all Materials and clone them as dev_material structs

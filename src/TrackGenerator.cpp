@@ -1024,7 +1024,7 @@ void TrackGenerator::segmentize() {
   }
 
   _contains_tracks = true;
-  
+
   return;
 }
 
@@ -1129,7 +1129,7 @@ void TrackGenerator::dumpTracksToFile() {
           fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
         }
       }
-    }      
+    }
   }
 
   /* Get FSR vector maps */
@@ -1158,7 +1158,7 @@ void TrackGenerator::dumpTracksToFile() {
     fwrite(&fsr_id, sizeof(int), 1, out);
     fwrite(&x, sizeof(double), 1, out);
     fwrite(&y, sizeof(double), 1, out);
-    
+
     /* Write data to file from FSRs_to_material_IDs */
     fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
 
@@ -1178,19 +1178,19 @@ void TrackGenerator::dumpTracksToFile() {
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++){
-      num_FSRs = cell_fsrs.at(cell).size(); 
+      num_FSRs = cell_fsrs.at(cell).size();
       fwrite(&num_FSRs, sizeof(int), 1, out);
 
       /* Loop over FSRs within cell */
       for (iter = cell_fsrs.at(cell).begin(); iter != cell_fsrs.at(cell).end();
           ++iter)
         fwrite(&(*iter), sizeof(int), 1, out);
-    }        
-  }   
-   
+    }
+  }
+
   /* Close the Track file */
   fclose(out);
-  
+
   /* Inform other the TrackGenerator::generateTracks() method that it may
    * import ray tracing data from this file if it is called and the ray
    * tracing parameters have not changed */
@@ -1278,6 +1278,7 @@ bool TrackGenerator::readTracksFromFile() {
 
   int cmfd_surface_fwd;
   int cmfd_surface_bwd;
+  segment curr_segment;
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
@@ -1325,21 +1326,20 @@ bool TrackGenerator::readTracksFromFile() {
         ret = fread(&region_id, sizeof(int), 1, in);
 
         /* Initialize segment with the data */
-        segment* curr_segment = new segment;
-        curr_segment->_length = length;
-        curr_segment->_material = materials[material_id];
-        curr_segment->_region_id = region_id;
+        curr_segment._length = length;
+        curr_segment._material = materials[material_id];
+        curr_segment._region_id = region_id;
 
         /* Import CMFD-related data if needed */
         if (cmfd != NULL){
           ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
           ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
-          curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
-          curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
+          curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
+          curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
         }
 
         /* Add this segment to the Track */
-        curr_track->addSegment(curr_segment);
+        curr_track->addSegment(&curr_segment);
       }
 
       uid++;
@@ -1387,11 +1387,11 @@ bool TrackGenerator::readTracksFromFile() {
   _geometry->setFSRKeysMap(FSR_keys_map);
   _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
   _geometry->setFSRsToKeys(FSRs_to_keys);
-   
+
   /* Read cmfd cell_fsrs vector of vectors from file */
   if (cmfd != NULL){
     std::vector< std::vector<int> > cell_fsrs;
-    int num_cells, fsr_id; 
+    int num_cells, fsr_id;
     ret = fread(&num_cells, sizeof(int), 1, in);
 
     /* Loop over CMFD cells */
@@ -1405,7 +1405,7 @@ bool TrackGenerator::readTracksFromFile() {
         ret = fread(&fsr_id, sizeof(int), 1, in);
         cell_fsrs.at(cell).push_back(fsr_id);
       }
-    }        
+    }
 
     /* Set CMFD cell_fsrs vector of vectors */
     cmfd->setCellFSRs(cell_fsrs);
