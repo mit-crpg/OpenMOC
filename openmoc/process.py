@@ -126,11 +126,11 @@ def compute_fission_rates(solver, use_hdf5=False):
       # fission rate; otherwise, set the fission rate.
       while True:
         if coords.getType() is LAT:
-          key += 'LAT = ' + str(coords.getLattice()) + ' (' + \
+          key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
                  str(coords.getLatticeX()) + ', ' + \
                  str(coords.getLatticeY()) + ') : '
         else:
-          key += 'UNIV = ' + str(coords.getUniverse()) + ' : '
+          key += 'UNIV = ' + str(coords.getUniverse().getId()) + ' : '
 
         # Remove the trailing ' : ' on the end of the key if at last univ/lat
         if coords.getNext() is None:
