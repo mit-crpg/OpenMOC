@@ -802,6 +802,11 @@ CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
   int universe_id = coords->getUniverse();
   Universe* univ = _universes.at(universe_id);
 
+  if (universe_id == 0){
+    if (!withinBounds(coords))
+      return NULL;
+  }
+
   if (univ->getType() == SIMPLE)
     return static_cast<CellBasic*>(univ->findCell(coords, _universes));
   else
@@ -867,7 +872,7 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  */
 CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
 
-  CellBasic* cell = NULL;
+  Cell* cell = NULL;
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
   Point surf_intersection;
@@ -899,8 +904,8 @@ CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
       /* If we reach a LocalCoord in a Universe, find the distance to the
       * nearest cell surface */
       else{
-        Universe* universe = _universes.at(coords->getUniverse());
-        dist = universe->minSurfaceDist(coords->getPoint(), angle);
+        cell = _cells.at(coords->getCell());
+        dist = cell->minSurfaceDist(coords->getPoint(), angle, &surf_intersection);
       }
 
       /* Recheck min distance */
@@ -1502,7 +1507,7 @@ void Geometry::initializeCmfd(){
  * @brief Returns the map that maps FSR keys to FSR IDs
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
+std::unordered_map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
   return _FSR_keys_map;
 }
 
@@ -1532,9 +1537,16 @@ std::vector<int> Geometry::getFSRsToMaterialIDs() {
 
 /**
  * @brief Sets the _FSR_keys_map map
- * @param FSR_keys_map map of FSR keys to FSR IDs
+ * @details The _FSR_keys_map stores a hash of a std::string representing
+ *          the Lattice/Cell/Universe hierarchy for a unique region
+ *          and the associated FSR data. fsr_data is a struct that contains
+ *          a unique FSR id and a Point located in the highest level Universe
+ *          that is contained in the FSR. This method is used when the tracks 
+ *          are read from file to avoid unnecessary segmentation.  
+ * @param FSR_keys_map map of FSR keys to FSR data
  */
-void Geometry::setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map){
+void Geometry::setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> 
+                             FSR_keys_map){
   _FSR_keys_map = FSR_keys_map;
 }
 
@@ -1554,4 +1566,16 @@ void Geometry::setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys){
  */
 void Geometry::setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs){
   _FSRs_to_material_IDs = FSRs_to_material_IDs;
+}
+
+
+bool Geometry::withinBounds(LocalCoords* coords){
+
+  double x = coords->getX();
+  double y = coords->getY();
+  
+  if (x < _x_min || x > _x_max || y < _y_min || y > _y_max)
+    return false;
+  else
+    return true;
 }

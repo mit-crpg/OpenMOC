@@ -170,9 +170,8 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
  * @param FSR_materials an array of FSR Material UIDs
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
- * @param source an array of FSR sources from this iteration
- * @param old_source an array of current FSR sources from previous iteration
- * @param reduced_source an array of FSR sources / total xs
+ * @param old_fission_sources an array of current FSR sources from previous iteration
+ * @param reduced_sources an array of FSR sources / total xs
  * @param inverse_k_eff the inverse of keff
  * @param source_residuals an array of the FSR source residuals
  * @return the residual between this source and the previous source
@@ -180,9 +179,8 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
 __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
                                           dev_material* materials,
                                           FP_PRECISION* scalar_flux,
-                                          FP_PRECISION* source,
-                                          FP_PRECISION* old_source,
-                                          FP_PRECISION* reduced_source,
+                                          FP_PRECISION* old_fission_sources,
+                                          FP_PRECISION* reduced_sources,
                                           FP_PRECISION inverse_k_eff,
                                           FP_PRECISION* source_residuals) {
 
@@ -193,6 +191,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 
   FP_PRECISION fission_source;
   FP_PRECISION scatter_source;
+  FP_PRECISION fsr_fission_source;
 
   dev_material* curr_material;
 
@@ -213,10 +212,11 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 
     /* Initialize the fission source to zero for this FSR */
     fission_source = 0;
+    fsr_fission_source = 0.0;
 
     /* Compute total fission source for current region */
     for (int e=0; e < *num_groups; e++)
-        fission_source += scalar_flux(tid,e) * nu_sigma_f[e];
+      fission_source += scalar_flux(tid,e) * nu_sigma_f[e];
 
     /* Compute total scattering source for this FSR in group G */
     for (int G=0; G < *num_groups; G++) {
@@ -226,20 +226,22 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
       for (int g=0; g < *num_groups; g++)
         scatter_source += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
 
-      /* Set the total source for this FSR in this group */
-      source(tid,G) = (inverse_k_eff * fission_source * chi[G] +
-                      scatter_source) * ONE_OVER_FOUR_PI;
+      /* Set the fission source for FSR r in group G */
+      fsr_fission_source += fission_source * chi[G] * inverse_k_eff;
 
-      reduced_source(tid,G) = __fdividef(source(tid,G), sigma_t[G]);
-
-      /* Compute the norm of residuals of the sources for convergence */
-      if (fabs(source(tid,G)) > 1E-10)
-        source_residuals[threadIdx.x + blockIdx.x * blockDim.x] +=
-                 pow((source(tid,G) - old_source(tid,G)) / source(tid,G), 2);
-
-      /* Update the old source */
-      old_source(tid,G) = source(tid,G);
+      reduced_sources(tid,G) = __fdividef((inverse_k_eff * fission_source 
+                      * chi[G] + scatter_source) * ONE_OVER_FOUR_PI, sigma_t[G]);
     }
+
+    /* Compute the norm of residuals of the sources for convergence */
+    if (fabs(fsr_fission_source) > 1E-10)
+      source_residuals[threadIdx.x + blockIdx.x * blockDim.x] +=
+                      pow((fsr_fission_source - old_fission_sources[tid]) 
+                      / fsr_fission_source, 2);
+
+
+    /* Update the old fission source */
+    old_fission_sources[tid] = fsr_fission_source;
 
     /* Increment the thread id */
     tid += blockDim.x * gridDim.x;
@@ -388,7 +390,7 @@ __device__ FP_PRECISION computeExponential(FP_PRECISION sigma_t,
  * @param energy_group the energy group of interest
  * @param materials the array of dev_material pointers
  * @param track_flux a pointer to the Track's angular flux
- * @param reduced_source the array of FSR sources / total xs
+ * @param reduced_sources the array of FSR sources / total xs
  * @param polar_weights the array of polar Quadrature weights
  * @param _exp_table the exponential interpolation table
  * @param scalar_flux the array of FSR scalar fluxes
@@ -398,7 +400,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
                                 int energy_group,
                                 dev_material* materials,
                                 FP_PRECISION* track_flux,
-                                FP_PRECISION* reduced_source,
+                                FP_PRECISION* reduced_sources,
                                 FP_PRECISION* polar_weights,
                                 FP_PRECISION* _exp_table,
                                 FP_PRECISION* scalar_flux) {
@@ -421,7 +423,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
   for (int p=0; p < *num_polar; p++) {
     exponential = computeExponential(sigma_t[energy_group],
                                      length, _exp_table, p);
-    delta_psi = (track_flux[p] - reduced_source(fsr_id,energy_group)) *
+    delta_psi = (track_flux[p] - reduced_sources(fsr_id,energy_group)) *
                exponential;
     fsr_flux += delta_psi * polar_weights(azim_index,p);
     track_flux[p] -= delta_psi;
@@ -497,7 +499,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
  *          the scalar flux in each FSR.
  * @param scalar_flux an array of FSR scalar fluxes
  * @param boundary_flux an array of Track boundary fluxes
- * @param reduced_source an array of FSR sources / total xs
+ * @param reduced_sources an array of FSR sources / total xs
  * @param leakage an array of angular flux leakaages
  * @param materials an array of dev_material pointers
  * @param tracks an array of Tracks
@@ -508,7 +510,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
  */
 __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
                                        FP_PRECISION* boundary_flux,
-                                       FP_PRECISION* reduced_source,
+                                       FP_PRECISION* reduced_sources,
                                        FP_PRECISION* leakage,
                                        dev_material* materials,
                                        dev_track* tracks,
@@ -557,7 +559,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     for (int i=0; i < num_segments; i++) {
       curr_segment = &curr_track->_segments[i];
       scalarFluxTally(curr_segment, azim_index, energy_group, materials,
-                      track_flux, reduced_source, polar_weights,
+                      track_flux, reduced_sources, polar_weights,
                       _exp_table, scalar_flux);
     }
 
@@ -572,7 +574,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     for (int i=num_segments-1; i > -1; i--) {
       curr_segment = &curr_track->_segments[i];
       scalarFluxTally(curr_segment, azim_index, energy_group, materials,
-                      track_flux, reduced_source, polar_weights,
+                      track_flux, reduced_sources, polar_weights,
                       _exp_table, scalar_flux);
   }
 
@@ -596,13 +598,13 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
  * @brief Add the source term contribution in the transport equation to
  *        the FSR scalar flux on the GPU.
  * @param scalar_flux an array of FSR scalar fluxes
- * @param reduced_source an array of FSR sources / total xs
+ * @param reduced_sources an array of FSR sources / total xs
  * @param FSR_volumes an array of FSR volumes
  * @param FSR_materials an array of FSR material UIDs
  * @param materials an array of dev_material pointers
  */
 __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
-                                              FP_PRECISION* reduced_source,
+                                              FP_PRECISION* reduced_sources,
                                               FP_PRECISION* FSR_volumes,
                                               int* FSR_materials,
                                               dev_material* materials) {
@@ -623,7 +625,7 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
     /* Iterate over all energy groups */
     for (int i=0; i < *num_groups; i++) {
       scalar_flux(tid,i) *= 0.5;
-      scalar_flux(tid,i) = FOUR_PI * reduced_source(tid,i) +
+      scalar_flux(tid,i) = FOUR_PI * reduced_sources(tid,i) +
                     __fdividef(scalar_flux(tid,i), (sigma_t[i] * volume));
     }
 
@@ -745,19 +747,14 @@ GPUSolver::~GPUSolver() {
     _scalar_flux = NULL;
   }
 
-  if (_source != NULL) {
-    cudaFree(_source);
-    _source = NULL;
+  if (_old_fission_sources != NULL) {
+    cudaFree(_old_fission_sources);
+    _old_fission_sources = NULL;
   }
 
-  if (_old_source != NULL) {
-    cudaFree(_old_source);
-    _old_source = NULL;
-  }
-
-  if (_reduced_source != NULL) {
-    cudaFree(_reduced_source);
-    _reduced_source = NULL;
+  if (_reduced_sources != NULL) {
+    cudaFree(_reduced_sources);
+    _reduced_sources = NULL;
   }
 
   if (_fission_sources != NULL) {
@@ -897,13 +894,43 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int energy_group) {
                " group %d since energy groups are greater than 1",
                fsr_id, energy_group);
 
-  /* Copy the source for this FSR and energy group from the device */
-  FP_PRECISION fsr_source;
-  int flux_index = fsr_id * _num_groups + (energy_group - 1);
-  cudaMemcpy((void*)&fsr_source, (void*)&_source[flux_index],
-             sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
+  /* Get host material */
+  Material* host_material = _geometry->findFSRMaterial(fsr_id);
 
-  return fsr_source;
+  /* Get cross sections and scalar flux */
+  FP_PRECISION* nu_sigma_f = host_material->getNuSigmaF();
+  FP_PRECISION* sigma_s = host_material->getSigmaS();
+  FP_PRECISION* chi = host_material->getChi();
+  FP_PRECISION* fsr_scalar_fluxes = new FP_PRECISION[_num_groups];
+  cudaMemcpy((void*)fsr_scalar_fluxes, (void*)&_scalar_flux[fsr_id*_num_groups],
+             _num_groups * sizeof(FP_PRECISION),
+             cudaMemcpyDeviceToHost);
+
+  /* Initialize variables */
+  FP_PRECISION fission_source = 0.0;
+  FP_PRECISION scatter_source = 0.0;
+  FP_PRECISION total_source;
+
+  /* Compute total fission source for current region */
+  for (int e=0; e < _num_groups; e++){
+    fission_source += fsr_scalar_fluxes[e] * nu_sigma_f[e];
+  }
+
+  fission_source /= _k_eff;
+
+  /* Compute total scattering source for this FSR */
+  for (int g=0; g < _num_groups; g++){
+    scatter_source += sigma_s[(energy_group-1)*(_num_groups)+g] 
+                    * fsr_scalar_fluxes[g];
+  }
+
+  /* Compute the total source */
+  total_source = (fission_source * chi[energy_group-1] + scatter_source) *
+      ONE_OVER_FOUR_PI;
+
+  delete [] fsr_scalar_fluxes;
+
+  return total_source;
 }
 
 
@@ -1058,10 +1085,14 @@ void GPUSolver::initializeFSRs() {
 
     /* Create a temporary FSR Material UIDs array to populate and then copy to device */
     int* FSRs_to_material_UIDs = new int[_num_FSRs];
+    _num_fissionable_FSRs = 0;
 
     /* Populate FSR Material UIDs array */
-    for (int i = 0; i < _num_FSRs; i++)
+    for (int i = 0; i < _num_FSRs; i++){
       FSRs_to_material_UIDs[i] = _geometry->findFSRMaterial(i)->getUid();
+      if (_geometry->findFSRMaterial(i)->isFissionable())
+        _num_fissionable_FSRs++;
+    }
 
     /* Initialize each FSRs volume to 0 to avoid NaNs */
     memset(temp_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
@@ -1254,25 +1285,19 @@ void GPUSolver::initializeSourceArrays() {
   log_printf(INFO, "Initializing source arrays on the GPU...");
 
   /* Delete old sources arrays if they exist */
-  if (_source != NULL)
-    cudaFree(_source);
+  if (_old_fission_sources != NULL)
+    cudaFree(_old_fission_sources);
 
-  if (_old_source != NULL)
-    cudaFree(_old_source);
-
-  if (_reduced_source != NULL)
-    cudaFree(_reduced_source);
+  if (_reduced_sources != NULL)
+    cudaFree(_reduced_sources);
 
   /* Allocate memory for all source arrays on the device */
   try{
 
-    cudaMalloc((void**)&_source,
-               _num_FSRs * _num_groups * sizeof(FP_PRECISION));
+    cudaMalloc((void**)&_old_fission_sources,
+               _num_FSRs * sizeof(FP_PRECISION));
 
-    cudaMalloc((void**)&_old_source,
-               _num_FSRs * _num_groups * sizeof(FP_PRECISION));
-
-    cudaMalloc((void**)&_reduced_source,
+    cudaMalloc((void**)&_reduced_sources,
                _num_FSRs * _num_groups * sizeof(FP_PRECISION));
   }
   catch(std::exception &e) {
@@ -1476,10 +1501,9 @@ void GPUSolver::flattenFSRFluxes(FP_PRECISION value) {
  */
 void GPUSolver::flattenFSRSources(FP_PRECISION value) {
 
-  int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+  int size = _num_FSRs * sizeof(FP_PRECISION);
 
-  cudaMemset(_source, value, size);
-  cudaMemset(_old_source, value, size);
+  cudaMemset(_old_fission_sources, value, size);
 
   return;
 }
@@ -1520,13 +1544,13 @@ void GPUSolver::normalizeFluxes() {
 FP_PRECISION GPUSolver::computeFSRSources() {
 
   computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
-                                        _scalar_flux, _source, _old_source,
-                                        _reduced_source, 1.0 / _k_eff,
+                                        _scalar_flux, _old_fission_sources,
+                                        _reduced_sources, 1.0 / _k_eff,
                                         _source_residuals);
 
   FP_PRECISION residual = thrust::reduce(_source_residuals_vec.begin(),
                                          _source_residuals_vec.end());
-  residual = sqrt(residual / (_num_groups * _num_FSRs));
+  residual = sqrt(residual / (_num_groups * _num_fissionable_FSRs));
 
   return residual;
 }
@@ -1559,7 +1583,7 @@ void GPUSolver::transportSweep() {
   tid_max = (_tot_num_tracks / 2);
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, _boundary_flux,
-                                                 _reduced_source, _leakage,
+                                                 _reduced_sources, _leakage,
                                                  _materials, _dev_tracks,
                                                  _exp_table,
                                                  tid_offset, tid_max);
@@ -1569,7 +1593,7 @@ void GPUSolver::transportSweep() {
   tid_max = _tot_num_tracks;
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, _boundary_flux,
-                                                 _reduced_source, _leakage,
+                                                 _reduced_sources, _leakage,
                                                  _materials, _dev_tracks,
                                                  _exp_table,
                                                  tid_offset, tid_max);
@@ -1582,7 +1606,7 @@ void GPUSolver::transportSweep() {
  */
 void GPUSolver::addSourceToScalarFlux() {
 
-  addSourceToScalarFluxOnDevice<<<_B,_T>>>(_scalar_flux, _reduced_source,
+  addSourceToScalarFluxOnDevice<<<_B,_T>>>(_scalar_flux, _reduced_sources,
                                            _FSR_volumes, _FSR_materials,
                                            _materials);
 }

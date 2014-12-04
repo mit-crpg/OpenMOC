@@ -57,12 +57,12 @@ for plane in planes: plane.setBoundaryType(REFLECTIVE)
 log.py_printf('NORMAL', 'Creating cells...')
 
 cells = []
-cells.append(CellBasic(universe=1, material=uo2_id))
-cells.append(CellBasic(universe=1, material=water_id))
-cells.append(CellBasic(universe=2, material=uo2_id))
-cells.append(CellBasic(universe=2, material=water_id))
-cells.append(CellBasic(universe=3, material=uo2_id, sectors=8))
-cells.append(CellBasic(universe=3, material=water_id))
+cells.append(CellBasic(universe=1, material=uo2_id, rings=3, sectors=8))
+cells.append(CellBasic(universe=1, material=water_id, sectors=8))
+cells.append(CellBasic(universe=2, material=uo2_id, rings=3, sectors=8))
+cells.append(CellBasic(universe=2, material=water_id, sectors=8))
+cells.append(CellBasic(universe=3, material=uo2_id, rings=3, sectors=8))
+cells.append(CellBasic(universe=3, material=water_id, sectors=8))
 cells.append(CellFill(universe=0, universe_fill=5))
 
 cells[0].addSurface(halfspace=-1, surface=circles[0])
@@ -110,6 +110,7 @@ geometry.initializeFlatSourceRegions()
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
 ###############################################################################

@@ -1134,8 +1134,8 @@ void TrackGenerator::dumpTracksToFile() {
   }
 
   /* Get FSR vector maps */
-  std::map<std::size_t, fsr_data> FSR_keys_map = _geometry->getFSRKeysMap();
-  std::map<std::size_t, fsr_data>::iterator iter;
+  std::unordered_map<std::size_t, fsr_data> FSR_keys_map = _geometry->getFSRKeysMap();
+  std::unordered_map<std::size_t, fsr_data>::iterator iter;
   std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
   std::size_t fsr_key;
@@ -1346,7 +1346,7 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Create FSR vector maps */
-  std::map<std::size_t, fsr_data> FSR_keys_map;
+  std::unordered_map<std::size_t, fsr_data> FSR_keys_map;
   std::vector<int> FSRs_to_material_IDs;
   std::vector<std::size_t> FSRs_to_keys;
   int num_FSRs;
