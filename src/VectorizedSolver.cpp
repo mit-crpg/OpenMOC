@@ -392,7 +392,7 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
     }
 
     /* Compute the norm of residual of the source in the FSR */
-    if (fsr_fission_source > 1E-10)
+    if (fsr_fission_source > 0.0)
       _source_residuals[r] = pow((fsr_fission_source - _old_fission_sources[r])
                                   / fsr_fission_source, 2);
 
@@ -407,7 +407,8 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
   source_residual = cblas_dasum(_num_FSRs,_source_residuals,1);
   #endif
 
-  source_residual = sqrt(source_residual / (_num_fissionable_FSRs * _num_groups));
+  source_residual = sqrt(source_residual \
+                         / (_num_fissionable_FSRs * _num_groups));
 
   return source_residual;
 }
