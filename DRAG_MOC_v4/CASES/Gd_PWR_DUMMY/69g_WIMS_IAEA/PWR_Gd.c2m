@@ -1,0 +1,131 @@
+*--------------------------------------------------
+*  TEST CASE PWR_Gd.c2m
+*  15 X 15 PWR ASSEMBLY WITH BA (i.e. Gd)
+*  WIMSD4 69 GROUPS LIBRARY FILE iaea FROM WLUP
+*
+*  REF: none
+*
+*----
+*  SOLUTION BASED ON THE INTERFACE CURRENT METHOD
+*
+*  DRAGON   Keff = 1.2005
+*  OpenMOC  Keff = 1.204659 (nazim = 32,
+*                            tol   = 1-E5,
+*                            track = 0.05)                             
+*-------------------------------------------------
+*  Define STRUCTURES and MODULES used
+*----
+LINKED_LIST
+  ASSMB DISCR LIBRARY CP CALC OUT ;
+SEQ_ASCII
+  library_ss ;
+MODULE
+  LIB: GEO: SYBILT: SHI: ASM: FLU: 
+  EDI: END: ;
+
+*----
+*  Microscopic cross sections from file iaea format WIMSD4
+*----
+LIBRARY := LIB: ::
+  NMIX 9 CTRA NONE
+  MIXS LIB: WIMSD4 FIL: iaea
+  MIX 1 579.9
+    H1H2O1    = '3001'   4.76690E-2     O161   = '6016'   2.38345E-2
+    BNat1     = '1011'   2.38103E-5
+  MIX 2 579.9                        O162      = '6016'   3.06711E-4
+    Cr522     = '52'     7.54987E-5   Fe562     = '2056'   1.47624E-4
+    Zr912     = '91'     4.18621E-2
+  MIX 3 579.9
+    H1H2O3    = '3001'   4.65292E-2   O163   = '6016'   2.32646E-2
+                                     Cr523     = '52'     4.79927E-5
+    Fe563     = '2056'   4.45845E-5   Ni583     = '58'     1.13521E-4
+                                     MoNat3    = '96'     4.03755E-6
+                                     Al273     = '27'     2.35231E-6
+    Mn553     = '55'     4.15901E-7
+    BNat3     = '1011'   2.32761E-5
+    Zr913     = '91'     8.92427E-4
+  MIX 4 579.9                        O164      = '6016'   2.87335E-4
+    Cr524     = '52'     7.07291E-5   Fe564     = '2056'   1.38298E-4
+    Zr914     = '91'     3.92175E-2
+  MIX 5 579.9
+    H1H2O5    = '3001'   4.71346E-2   O165   = '6016'   2.35673E-2
+                                     Cr525     = '52'     2.24991E-5
+    Fe565     = '2056'   2.09013E-5   Ni585     = '58'     5.32188E-5
+                                     MoNat5    = '96'     1.89281E-6
+                                     Al275     = '27'     1.10277E-6
+    Mn555     = '55'     1.94976E-7
+    BNat5     = '1011'   2.35598E-5
+    Zr915     = '91'     4.18372E-4
+  MIX 6 579.9
+    H1H2O6    = '3001'   4.71676E-2   O166   = '6016'   2.35838E-2
+                                     Cr526     = '52'     2.11122E-5
+    Fe566     = '2056'   1.96130E-5   Ni586     = '58'     4.99383E-5
+                                     MoNat6    = '96'     1.77614E-6
+                                     Al276     = '27'     1.03479E-6
+    Mn556     = '55'     1.82957E-7
+    BNat6     = '1011'   2.35753E-5
+    Zr916     = '91'     3.92583E-4
+  MIX 7 933.6                        O167     = '6016'     4.49355E-2
+    U2357     = '2235'   7.39237E-4 1 
+    U2387     = '8238'   2.17285E-2 1 
+  MIX 8 933.6                        O168     = '6016'     4.49355E-2
+    U2358     = '2235'   7.39237E-4 1 
+    U2388    =  '8238'   2.17285E-2 1 
+    Gd1578    = '2157'   4.17900E-4
+    Gd1568    = '2156'   5.62500E-4
+  ;
+*----
+*  Geometry ASSMB : a 15 X 15 dummy PWR assembly
+*  contains  C1 : cell without fuel
+*            C2 : normal fuel cell
+*            C3 : BA fuel cell
+*----
+ASSMB := GEO: :: CAR2D 15 15
+  X- REFL X+ REFL Y- REFL Y+ REFL 
+  CELL C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2
+       C2 C3 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C3 C2
+       C2 C2 C2 C2 C2 C1 C2 C2 C2 C1 C2 C2 C2 C2 C2
+       C2 C2 C2 C1 C2 C2 C2 C2 C2 C2 C2 C1 C2 C2 C2
+       C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2
+       C2 C2 C1 C2 C2 C1 C2 C2 C2 C1 C2 C2 C1 C2 C2
+       C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2
+       C2 C2 C2 C2 C2 C2 C2 C1 C2 C2 C2 C2 C2 C2 C2                         
+       C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2
+       C2 C2 C1 C2 C2 C1 C2 C2 C2 C1 C2 C2 C1 C2 C2
+       C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 
+       C2 C2 C2 C1 C2 C2 C2 C2 C2 C2 C2 C1 C2 C2 C2
+       C2 C2 C2 C2 C2 C1 C2 C2 C2 C1 C2 C2 C2 C2 C2
+       C2 C3 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C3 C2
+       C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2
+       
+  ::: C1 := GEO: CARCEL 2
+    MESHX 0.0 1.26472 MESHY 0.0 1.26472
+    RADIUS 0.0 0.572435 0.613142  MIX 1 2 3 ;
+  ::: C2 := GEO: C1  RADIUS 0.0 0.412660 0.474364  MIX 7 4 5 ;
+  ::: C3 := GEO: C1  RADIUS 0.0 0.412660 0.474364  MIX 8 4 6 ;
+
+  ;
+*----
+*  Self-Shielding calculation SYBIL
+*  Transport calculation      SYBIL
+*  Flux calculation for B1 homogeneous leakage
+*  Editing using SPH model for transport-diffusion
+*----
+DISCR := SYBILT: ASSMB ::
+  TITLE 'PWR_Gd: 15 X 15 MULTICELL PWR BENCHMARK WITHOUT POISON'
+  MAXR 900  ;
+LIBRARY := SHI: LIBRARY DISCR :: EDIT 0 NOLJ ;
+CP := ASM: LIBRARY DISCR ;
+CALC := FLU: CP LIBRARY DISCR ::
+  TYPE B B1 ;
+
+OUT := EDI: LIBRARY DISCR CALC ASSMB ::
+  EDIT 3 UPS SAVE MICR RES MERGE COMP COND 4.0
+  ;
+
+library_ss := LIBRARY ;
+
+
+ECHO "test PWR_Gd.c2m completed" ;
+END: ; 
+QUIT "LIST" .

@@ -1,0 +1,15 @@
+25/10/2014 First contact with OpenMOC developers
+
+26/10/2014 DRAG_MOC_v1 sent to OpenMOC developers
+
+28/10/2014 Bug fixed in read_ss_XS_DRAG.py that did not allow the computation of up-scattering in the first column of the scattering matrices. New benchmark cases computed. Fork created in GitHub for the creation of the DRAGON branch off of develop
+
+29/10/2014 Upload of DRAGON_MOC_v2 to GitHub 
+
+01/12/2014 Creation of the class file DRAG_MOC.py, and its input file to call it (e.g. example_DRAG_MOC.py).
+This new module has the capability of creating both output format files in Python and HDF5, respectively. 
+Upload of DRAGON_MOC_v3 to GitHub
+
+06/12/2014 Simplification of DRAG_MOC.py in order to make it run faster. Different cases where benchmarked 
+between DRAGON and OpenMOC using different library formats, nuclear data and energy groups.  
+Upload of DRAGON_MOC_v4 to GitHub

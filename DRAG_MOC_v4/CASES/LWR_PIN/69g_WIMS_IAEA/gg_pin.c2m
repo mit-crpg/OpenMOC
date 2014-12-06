@@ -1,0 +1,89 @@
+*********** CASE RAN WITH DRAGON ******************
+* After reading the SS library and process it to input 
+* it to OpenMOC, the following results were obtained
+
+**************** IAEA 69g (WIMS)*********************
+*********** OpenMOC track=0.05, azim=64, tol = 1E-5
+*********** DRAGON  Keff = 1.322296 *****************
+*********** OpenMOC Keff = 1.322700 *****************
+
+
+*----
+*  TEST CASE TO OBTAIN SELF-SHIELDED (SS) MICROSCOPIC XS
+* 
+*  ASCII FILE THAT WILL CONTAIN THE SS LIBRARY -> library_ss
+*
+*----
+*  Define STRUCTURES and MODULES used
+*----
+LINKED_LIST
+  ASSMB DISCR LIBRARY CP CALC OUT ;
+SEQ_ASCII
+  library_ss ;
+MODULE
+  LIB: GEO: SYBILT: SHI: ASM: FLU: EDI: 
+  END: ;
+
+*----
+*  Microscopic cross sections from file iaea format WIMS
+*----
+
+LIBRARY := LIB: ::
+  NMIX 3 CTRA NONE
+  MIXS LIB: WIMSD4 FIL: iaea     
+  
+
+ MIX 1 579.9
+    H1H2O    = '3001'   4.76690E-2   O16_1    = '6016'   2.38345E-2
+
+  MIX 2 579.9                        O16_2     = '6016'   3.06711E-4
+    Cr52     = '52'     7.54987E-5   Fe56     =  '2056'   1.47624E-4
+    Zr91     = '91'     4.18621E-2
+ 
+  MIX 3 900.0                        O16_3     = '6016'   4.49355E-2
+    U235     = '2235'   7.39237E-4 1 
+    U238     = '8238'   2.17285E-2 1 
+ 
+  ;
+*----
+*  Geometry ASSMB : a 1 X 1 assembly
+*  contains  C1 : cell with fuel
+*            
+* Reflective BCs
+*----
+ASSMB := GEO: :: CAR2D 1 1
+  X- REFL X+ REFL Y- REFL Y+ REFL
+  CELL C1 
+
+  ::: C1 := GEO: CARCEL 2
+    MESHX 0.0 1.26472 MESHY 0.0 1.26472
+    RADIUS 0.0 0.412660 0.474364  MIX 3 2 1 ;
+
+  ;
+*----
+*  Self-Shielding calculation SYBIL
+*  Transport calculation      SYBIL
+*  Flux calculation for K 
+*----
+************* SS ****************************
+DISCR := SYBILT: ASSMB ::
+  TITLE '4 X 4 ASSEMBLY'
+  MAXR 4000 QUA2 6 3 ;
+LIBRARY := SHI: LIBRARY DISCR :: EDIT 0 ;
+**********************************************
+
+CP := ASM: LIBRARY DISCR ;
+
+********CP method************
+CALC := FLU: CP LIBRARY DISCR ::
+  TYPE K ;
+*****************************
+
+OUT := EDI: LIBRARY DISCR CALC ASSMB ::
+  EDIT 3 UPS SAVE MICR RES MERGE CELL 
+  ;
+
+library_ss := LIBRARY ;
+ECHO "run completed" ;
+END: ; 
+QUIT "LIST" .
