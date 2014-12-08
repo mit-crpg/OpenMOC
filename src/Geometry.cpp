@@ -297,6 +297,32 @@ std::map<int, Material*> Geometry::getAllMaterials() {
 
 
 /**
+ * @brief Return a std::map container of Cell IDs (keys) with Cells
+ *        pointers (values).
+ * @return a std::map of Cells indexed by Cell ID in the geometry
+ */
+std::map<int, Cell*> Geometry::getAllMaterialCells() {
+
+  std::map<int, Cell*> all_material_cells;
+  Cell* cell;
+
+  if (_root_universe != NULL) {
+    std::map<int, Cell*> all_cells = _root_universe->getAllCells();
+    std::map<int, Cell*>::iterator iter;
+
+    for (iter = all_cells.begin(); iter != all_cells.end(); ++iter) {
+      cell = (*iter).second;
+
+      if (cell->getType() == MATERIAL)
+        all_material_cells[cell->getId()] = cell;
+    }
+  }
+
+  return all_material_cells;
+}
+
+
+/**
  * @brief Returns the Universe at the root node in the CSG tree.
  * @return the root Universe
  */

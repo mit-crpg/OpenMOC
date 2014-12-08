@@ -383,8 +383,8 @@ lattices[-1].setUniverses(template)
 # 4 x 4 core to represent two bundles and water
 lattices.append(Lattice(name='full geometry'))
 lattices[-1].setWidth(width_x=21.42, width_y=21.42)
-lattices[-1].setUniverses([[universes[7], universes[8], universes[10]],
-                           [universes[8], universes[7], universes[10]],
+lattices[-1].setUniverses([[universes[7],  universes[8],  universes[10]],
+                           [universes[8],  universes[7],  universes[10]],
                            [universes[12], universes[12], universes[11]]])
 
 cells[25].setFill(lattices[0])
@@ -447,12 +447,11 @@ solver.printTimerReport()
 log.py_printf('NORMAL', 'Plotting data...')
 
 #plotter.plot_tracks(track_generator)
-#plotter.plot_materials(geometry, gridsize=500)
-#plotter.plot_cells(geometry, gridsize=500)
-#plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
-#plotter.plot_flat_source_regions(geometry, gridsize=500)
+#plotter.plot_materials(geometry, gridsize=250)
+#plotter.plot_cells(geometry, gridsize=250)
+#plotter.plot_cmfd_cells(geometry, cmfd, gridsize=250)
+#plotter.plot_flat_source_regions(geometry, gridsize=250)
 #plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
-#plotter.plot_fission_rates(geometry, solver, gridsize=500)
-#plotter.plot_mesh_fluxes(mesh, energy_groups=[1,2])
+#plotter.plot_fission_rates(geometry, solver, gridsize=250)
 
 log.py_printf('TITLE', 'Finished')

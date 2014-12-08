@@ -415,12 +415,7 @@
 %include ../src/Universe.h
 %include ../src/Cmfd.h
 
-
- //%template(NewMapInstance) ::std::map<int, Cell*>
-
-
 #define printf PySys_WriteStdout
-
 
 #ifdef DOUBLE
 typedef double FP_PRECISION;

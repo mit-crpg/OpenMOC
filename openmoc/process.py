@@ -191,7 +191,7 @@ def compute_fission_rates(solver, use_hdf5=False):
 #
 # @code
 #          store_simulation_state(solver, fluxes=True, source=True, \
-#                                 fission_rates_powers=True, use_hdf5=True)
+#                                 fission_rates=True, use_hdf5=True)
 # @endcode
 #
 # @param solver a pointer to a Solver object

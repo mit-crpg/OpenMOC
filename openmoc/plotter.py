@@ -224,7 +224,9 @@ def plot_segments(track_generator):
 # @param geometry a geometry object which has been initialized with Materials,
 #        Cells, Universes and Lattices
 # @param gridsize an optional number of grid cells for the plot
-def plot_materials(geometry, gridsize=250):
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
@@ -249,53 +251,55 @@ def plot_materials(geometry, gridsize=250):
 
   py_printf('NORMAL', 'Plotting the materials...')
 
-  # Get the number of Cells filled with Materials
-  num_materials = geometry.getNumMaterials()
-
-  # Create array of equally spaced randomized floats as a color map for plots
-  # Seed the NumPy random number generator to ensure reproducible color maps
-  numpy.random.seed(1)
-  color_map = np.linspace(0., 1., num_materials, endpoint=False)
-  numpy.random.shuffle(color_map)
-
   # Initialize a NumPy array for the surface colors
-  surface = numpy.zeros((gridsize, gridsize))
+  surface = numpy.zeros((gridsize, gridsize), numpy.int64)
 
-  # Retrieve the bounding box for the Geometry
-  xmin = geometry.getMinX() + TINY_MOVE
-  xmax = geometry.getMaxX() - TINY_MOVE
-  ymin = geometry.getMinY() + TINY_MOVE
-  ymax = geometry.getMaxY() - TINY_MOVE
-
-  # Initialize NumPy arrays for the grid points
-  xcoords = np.linspace(xmin, xmax, gridsize)
-  ycoords = np.linspace(ymin, ymax, gridsize)
+  # Retrieve the pixel coordinates
+  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
 
   # Find the <aterial IDs for each grid point
   for i in range(gridsize):
     for j in range(gridsize):
 
-      x = xcoords[i]
-      y = ycoords[j]
+      x = coords['x'][i]
+      y = coords['y'][j]
 
       point = LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       cell = geometry.findCellContainingCoords(point)
 
-      # If we did not find a Cell for this region, use a NaN "bad" number color
+      # If we did not find a Cell for this region, use a -1 "bad" number color
       if cell is None:
-        surface[j][i] = np.nan
+        surface[j][i] = -1
       else:
-        material_id = cell.getMaterial().getId()
-        surface[j][i] = color_map[material_id % num_materials]
+        surface[j][i] = cell.getMaterial().getId()
 
-  # Flip the surface vertically to align NumPy row/column indices with the
-  # orientation expected by the user
-  surface = np.flipud(surface)
+  # Get the number of Materials in the Geometry
+  materials = geometry.getAllMaterials()
+  num_materials = len(materials)
+
+  # Create array of all Material IDs and randomly (but reproducibly) permute it
+  material_ids = [material_id for material_id in materials]
+  numpy.random.seed(1)
+  numpy.random.shuffle(material_ids)
+
+  # Create an array of the colors (array indices) for each value in the surface
+  colors = np.zeros((gridsize, gridsize))
+
+  for material_id in np.unique(surface):
+    index = material_ids.index(material_id)
+    indices = np.where(surface == material_id)
+    colors[indices] = index
+
+  # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+  cmap = plt.get_cmap('spectral')
+  cmap.set_bad(alpha=0.0)
 
   # Plot a 2D color map of the Materials
   fig = plt.figure()
-  plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
+  colors = np.flipud(colors)
+  plt.imshow(colors, extent=coords['bounds'],
+             interpolation='nearest', cmap=cmap, vmin=0, vmax=num_materials)
   plt.title('Materials')
   filename = directory + 'materials.png'
   fig.savefig(filename, bbox_inches='tight')
@@ -315,7 +319,9 @@ def plot_materials(geometry, gridsize=250):
 # @param geometry a Geometry object which has been initialized with Materials,
 #        Cells, Universes and Lattices
 # @param gridsize an optional number of grid cells for the plot
-def plot_cells(geometry, gridsize=250):
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
@@ -340,57 +346,55 @@ def plot_cells(geometry, gridsize=250):
 
   py_printf('NORMAL', 'Plotting the cells...')
 
-  # Get the number of Cells
-  num_cells = geometry.getNumCells()
-
-  # Create array of equally spaced randomized floats as a color map for plots
-  # Seed the NumPy random number generator to ensure reproducible color maps
-  numpy.random.seed(1)
-  color_map = np.linspace(0., 1., num_cells, endpoint=False)
-  numpy.random.shuffle(color_map)
-
   # Initialize a NumPy array for the surface colors
-  surface = np.zeros((gridsize, gridsize))
+  surface = np.zeros((gridsize, gridsize), numpy.int64)
 
-  # Retrieve the bounding box for the Geometry
-  xmin = geometry.getMinX() + TINY_MOVE
-  xmax = geometry.getMaxX() - TINY_MOVE
-  ymin = geometry.getMinY() + TINY_MOVE
-  ymax = geometry.getMaxY() - TINY_MOVE
-
-  # Initialize numpy arrays for the grid points
-  xcoords = np.linspace(xmin, xmax, gridsize)
-  ycoords = np.linspace(ymin, ymax, gridsize)
+  # Retrieve the pixel coordinates
+  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
 
   # Find the Cell IDs for each grid point
   for i in range(gridsize):
     for j in range(gridsize):
 
-      x = xcoords[i]
-      y = ycoords[j]
+      x = coords['x'][i]
+      y = coords['y'][j]
 
       point = LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       cell = geometry.findCellContainingCoords(point)
 
-      # If we did not find a Cell for this region, use a NaN "bad" number color
+      # If we did not find a Cell for this region, use a -1 "bad" number color
       if cell is None:
-        surface[j][i] = np.nan
+        surface[j][i] = -1
       else:
-        cell_id = cell.getId()
-        surface[j][i] = color_map[cell_id % num_cells]
+        surface[j][i] = cell.getId()
+
+  # Get the number of Material Cells in the Geometry
+  material_cells = geometry.getAllMaterialCells()
+  num_cells = len(material_cells)
+
+  # Create array of all Cell IDs and randomly (but reproducibly) permute it
+  cell_ids = [cell_id for cell_id in material_cells]
+  numpy.random.seed(1)
+  numpy.random.shuffle(cell_ids)
+
+  # Create an array of the colors (array indices) for each value in the surface
+  colors = np.zeros((gridsize, gridsize))
+
+  for cell_id in np.unique(surface):
+    index = cell_ids.index(cell_id)
+    indices = np.where(surface == cell_id)
+    colors[indices] = index
 
   # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
   cmap = plt.get_cmap('spectral')
   cmap.set_bad(alpha=0.0)
 
-  # Flip the surface vertically to align NumPy row/column indices with the
-  # orientation expected by the user
-  surface = np.flipud(surface)
-
   # Plot a 2D color map of the Cells
   fig = plt.figure()
-  plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
+  colors = np.flipud(colors)
+  plt.imshow(colors, extent=coords['bounds'],
+             interpolation='nearest', cmap=cmap, vmin=0, vmax=num_cells)
   plt.title('Cells')
   filename = directory + 'cells.png'
 
@@ -412,7 +416,9 @@ def plot_cells(geometry, gridsize=250):
 # @param geometry a geometry object which has been initialized with Materials,
 #        Cells, Universes and Lattices
 # @param gridsize an optional number of grid cells for the plot
-def plot_flat_source_regions(geometry, gridsize=250):
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
@@ -444,55 +450,67 @@ def plot_flat_source_regions(geometry, gridsize=250):
     py_printf('ERROR', 'Unable to plot the flat source regions ' + \
               'since no tracks have been generated.')
 
-  # Create array of equally spaced randomized floats as a color map for plots
-  # Seed the NumPy random number generator to ensure reproducible color maps
-  numpy.random.seed(1)
-  color_map = np.linspace(0., 1., num_fsrs, endpoint=False)
-  numpy.random.shuffle(color_map)
-
   # Initialize a NumPy array for the surface colors
-  surface = numpy.zeros((gridsize, gridsize))
+  surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
 
-  # Retrieve the bounding box for the Geometry
-  xmin = geometry.getMinX() + TINY_MOVE
-  xmax = geometry.getMaxX() - TINY_MOVE
-  ymin = geometry.getMinY() + TINY_MOVE
-  ymax = geometry.getMaxY() - TINY_MOVE
-
-  # Initialize numpy arrays for the grid points
-  xcoords = np.linspace(xmin, xmax, gridsize)
-  ycoords = np.linspace(ymin, ymax, gridsize)
+  # Retrieve the pixel coordinates
+  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
 
   # Find the flat source region IDs for each grid point
   for i in range(gridsize):
     for j in range(gridsize):
 
-      x = xcoords[i]
-      y = ycoords[j]
+      x = coords['x'][i]
+      y = coords['y'][j]
 
-      coords = LocalCoords(x, y)
-      coords.setUniverse(geometry.getRootUniverse())
-      geometry.findCellContainingCoords(coords)
-      fsr_id = geometry.getFSRId(coords)
-      surface[j][i] = color_map[fsr_id % num_fsrs]
+      local_coords = LocalCoords(x, y)
+      local_coords.setUniverse(geometry.getRootUniverse())
+      geometry.findCellContainingCoords(local_coords)
+      fsr_id = geometry.getFSRId(local_coords)
 
-  # Flip the surface vertically to align NumPy row/column indices with the
-  # orientation expected by the user
-  surface = np.flipud(surface)
+      # If we did not find a region for this region, use a -1 "bad" number color
+      if fsr_id is None:
+        surface[j][i] = -1
+      else:
+       surface[j][i] = fsr_id
+
+      del local_coords
+
+  # Replace each Cell ID with a random (but reproducible) color ID
+  # NOTE: This color coding scheme only works for FSRs and CMFD cells and not
+  # for Materials and Cells. The reason is that FSRs and CMFD cells are by
+  # definition a sequence of consecutive, monotonically increasing integers.
+  # Material and Cell IDs however may be any sequence of positive integers.
+  all_ids = np.arange(num_fsrs, dtype=np.int64)
+
+  id_colors = np.arange(num_fsrs, dtype=np.int64)
+  numpy.random.seed(1)
+  np.random.shuffle(id_colors)
+
+  ids_to_colors = np.arange(num_fsrs, dtype=np.int64)
+  ids_to_colors[all_ids] = id_colors
+
+  colors = ids_to_colors.take(surface)
+
+  # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+  cmap = plt.get_cmap('spectral')
+  cmap.set_bad(alpha=0.0)
 
   # Plot a 2D color map of the flat source regions
   fig = plt.figure()
-  plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
+  colors = np.flipud(colors)
+  plt.imshow(colors, extent=coords['bounds'],
+             interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
   plt.title('Flat Source Regions')
   filename = directory + 'flat-source-regions.png'
   fig.savefig(filename, bbox_inches='tight')
 
 
 ##
-# @brief This method takes in a Geometry and Cmfd object and plots a 
+# @brief This method takes in a Geometry and Cmfd object and plots a
 #        color-coded 2D surface plot representing the CMFD cells in a geometry.
 # @details The Geometry object must be initialized with Materials, Cells,
-#          Universes and Lattices before being passed into this method. 
+#          Universes and Lattices before being passed into this method.
 #          Plotting the CMFD cells requires that segments must have been
 #          created for the geometry and FSR IDs assigned to regions. A user
 #          may invoke this function from an OpenMOC Python file as follows:
@@ -509,7 +527,9 @@ def plot_flat_source_regions(geometry, gridsize=250):
 #        flag set to true; otherwise, the map linking FSR IDs to CMFD cells
 #        would not have been created.
 # @param gridsize an optional number of grid cells for the plot
-def plot_cmfd_cells(geometry, cmfd, gridsize=250):
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
@@ -527,7 +547,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250):
   if not 'Cmfd' in str(type(cmfd)):
     py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
               'input was not a CMFD class object')
-  
+
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
               'since the gridsize %s is not an integer', str(gridsize))
@@ -538,49 +558,60 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250):
 
   py_printf('NORMAL', 'Plotting the CMFD cells...')
 
-  # Get the number of CMFD cells
-  num_cells = cmfd.getNumCells()
-
-  # Create array of equally spaced randomized floats as a color map for plots
-  # Seed the NumPy random number generator to ensure reproducible color maps
-  numpy.random.seed(1)
-  color_map = np.linspace(0., 1., num_cells, endpoint=False)
-  numpy.random.shuffle(color_map)
-
   # Initialize a NumPy array for the surface colors
-  surface = numpy.zeros((gridsize, gridsize))
+  surface = numpy.zeros((gridsize, gridsize), numpy.int64)
 
-  # Retrieve the bounding box for the Geometry
-  xmin = geometry.getMinX() + TINY_MOVE
-  xmax = geometry.getMaxX() - TINY_MOVE
-  ymin = geometry.getMinY() + TINY_MOVE
-  ymax = geometry.getMaxY() - TINY_MOVE
-
-  # Initialize numpy arrays for the grid points
-  xcoords = np.linspace(xmin, xmax, gridsize)
-  ycoords = np.linspace(ymin, ymax, gridsize)
+  # Retrieve the pixel coordinates
+  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
 
   # Find the CMFD cell ID for each grid point
   for i in range(gridsize):
     for j in range(gridsize):
 
-      x = xcoords[i]
-      y = ycoords[j]
+      x = coords['x'][i]
+      y = coords['y'][j]
 
-      coords = LocalCoords(x, y)
-      coords.setUniverse(0)
-      geometry.findCellContainingCoords(coords)
-      fsr_id = geometry.getFSRId(coords)
+      local_coords = LocalCoords(x, y)
+      local_coords.setUniverse(geometry.getRootUniverse())
+      geometry.findCellContainingCoords(local_coords)
+      fsr_id = geometry.getFSRId(local_coords)
       cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)
-      surface[j][i] = color_map[cell_id % num_cells]
 
-  # Flip the surface vertically to align NumPy row/column indices with the
-  # orientation expected by the user
-  surface = np.flipud(surface)
+      # If we did not find a cell for this point, use a -1 "bad" number color
+      if np.isnan(cell_id):
+        surface[j][i] = -1
+      else:
+       surface[j][i] = cell_id
+
+  # Get the number of CMFD cells
+  num_cmfd_cells = cmfd.getNumCells()
+#  cmfd_cells = np.arange(num_cmfd_cells, dtype=np.int64)
+
+  # Replace each Cell ID with a random (but reproducible) color ID
+  # NOTE: This color coding scheme only works for FSRs and CMFD cells and not
+  # for Materials and Cells. The reason is that FSRs and CMFD cells are by
+  # definition a sequence of consecutive, monotonically increasing integers.
+  # Material and Cell IDs however may be any sequence of positive integers.
+  all_ids = np.arange(num_cmfd_cells, dtype=np.int64)
+
+  id_colors = np.arange(num_cmfd_cells, dtype=np.int64)
+  numpy.random.seed(1)
+  np.random.shuffle(id_colors)
+
+  ids_to_colors = np.arange(num_cmfd_cells, dtype=np.int64)
+  ids_to_colors[all_ids] = id_colors
+
+  colors = ids_to_colors.take(surface)
+
+  # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+  cmap = plt.get_cmap('spectral')
+  cmap.set_bad(alpha=0.0)
 
   # Plot a 2D color map of the CMFD cells
   fig = plt.figure()
-  plt.imshow(surface, extent=[xmin, xmax, ymin, ymax])
+  colors = np.flipud(colors)
+  plt.imshow(colors, extent=coords['bounds'],
+             interpolation='nearest', cmap=cmap)
   plt.title('CMFD cells')
   filename = directory + 'cmfd-cells.png'
   fig.savefig(filename, bbox_inches='tight')
@@ -602,7 +633,10 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250):
 # @param solver a Solver object that has converged the source for the Geometry
 # @param energy_groups a Python list of integer energy groups to plot
 # @param gridsize an optional number of grid cells for the plot
-def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+def plot_fluxes(geometry, solver, energy_groups=[1],
+                gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
@@ -673,42 +707,39 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
   if not isinstance(energy_groups, list):
     energy_groups = [energy_groups]
 
-
   # Initialize a numpy array for the groupwise scalar fluxes
   fluxes = numpy.zeros((len(energy_groups), gridsize, gridsize))
 
-  # Retrieve the bounding box for the geometry
-  xmin = geometry.getMinX() + TINY_MOVE
-  xmax = geometry.getMaxX() - TINY_MOVE
-  ymin = geometry.getMinY() + TINY_MOVE
-  ymax = geometry.getMaxY() - TINY_MOVE
-
-  # Initialize numpy arrays for the grid points
-  xcoords = np.linspace(xmin, xmax, gridsize)
-  ycoords = np.linspace(ymin, ymax, gridsize)
+  # Retrieve the pixel coordinates
+  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
 
   for i in range(gridsize):
     for j in range(gridsize):
 
       # Find the flat source region IDs for each grid point
-      x = xcoords[i]
-      y = ycoords[j]
+      x = coords['x'][i]
+      y = coords['y'][j]
 
       point = LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.getFSRId(point)
 
+      # If we did not find a region for this region, use a -1 "bad" number color
+      if np.isnan(fsr_id):
+        fluxes[:,j,i] = -1
+
       # Get the scalar flux for each energy group in this FSR
-      for index, group in enumerate(energy_groups):
-        fluxes[index,j,i] = solver.getFSRScalarFlux(fsr_id, group)
+      else:
+        for index, group in enumerate(energy_groups):
+          fluxes[index,j,i] = solver.getFSRScalarFlux(fsr_id, group)
 
   # Loop over all energy group and create a plot
   for index, group in enumerate(energy_groups):
 
     # Plot a 2D color map of the flat source regions
     fig = plt.figure()
-    plt.imshow(np.flipud(fluxes[index,:,:]), extent=[xmin, xmax, ymin, ymax])
+    plt.imshow(np.flipud(fluxes[index,:,:]), extent=coords['bounds'])
     plt.colorbar()
     plt.title('Flat Source Region Scalar Flux in Group ' + str(group))
     filename = directory + 'fsr-flux-group-' + str(group) + '.png'
@@ -731,7 +762,9 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
 #        Cells, Universes and Lattices
 # @param solver a Solver object that has converged the source for the Geometry
 # @param gridsize an optional number of grid cells for the plot
-def plot_fission_rates(geometry, solver, gridsize=250):
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+def plot_fission_rates(geometry, solver, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
@@ -767,37 +800,74 @@ def plot_fission_rates(geometry, solver, gridsize=250):
   fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
 
   # Initialize a numpy array of fission rates
-  fission_rates_array = numpy.zeros((gridsize, gridsize))
+  surface = numpy.zeros((gridsize, gridsize))
 
-  # Retrieve the bounding box for the geometry
-  xmin = geometry.getMinX() + TINY_MOVE
-  xmax = geometry.getMaxX() - TINY_MOVE
-  ymin = geometry.getMinY() + TINY_MOVE
-  ymax = geometry.getMaxY() - TINY_MOVE
-
-  # Initialize numpy arrays for the grid points
-  xcoords = np.linspace(xmin, xmax, gridsize)
-  ycoords = np.linspace(ymin, ymax, gridsize)
+  # Retrieve the pixel coordinates
+  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
 
   for i in range(gridsize):
     for j in range(gridsize):
 
       # Find the flat source region IDs for each grid point
-      x = xcoords[i]
-      y = ycoords[j]
+      x = coords['y'][i]
+      y = coords['x'][j]
 
       point = LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.getFSRId(point)
 
+      # If we did not find a region for this region, use a -1 "bad" number color
+      if np.isnan(fsr_id):
+        surface[j][i] = -1
       # Get the fission rate in this FSR
-      fission_rates_array[j,i] = fission_rates[fsr_id]
+      else:
+       surface[j][i] = fission_rates[fsr_id]
 
   # Plot a 2D color map of the flat source regions fission rates
   fig = plt.figure()
-  plt.imshow(np.flipud(fission_rates_array), extent=[xmin, xmax, ymin, ymax])
+  plt.imshow(np.flipud(surface), extent=coords['bounds'])
   plt.colorbar()
   plt.title('Flat Source Region Fission Rates')
   filename = directory + 'fission-rates.png'
   fig.savefig(filename, bbox_inches='tight')
+
+
+##
+# @brief This is a helper method to define coordinates for a plotting window.
+# @details This routine builds a coordinate surface map for the plotting
+#          window defined for by the user. If no window was defined, then
+#          this routine uses the outer bounding box around the geometry as
+#          the plotting window.
+# @param geometry a Geometry object which has been initialized with Materials,
+#        Cells, Universes and Lattices
+# @param gridsize an optional number of grid cells for the plot
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+# @return a dictionary with the plotting window map and bounding box
+def get_pixel_coords(geometry, gridsize, xlim, ylim):
+
+  # initialize variables to be returned
+  bounds = [geometry.getMinX() + TINY_MOVE, geometry.getMaxX() - TINY_MOVE,
+            geometry.getMinY() + TINY_MOVE, geometry.getMaxY() - TINY_MOVE]
+  xcoords = None
+  ycoords = None
+  coords = dict()
+
+  if not xlim is None:
+    bounds[0] = xlim[0]
+    bounds[1] = xlim[1]
+
+  if not ylim is None:
+    bounds[2] = ylim[0]
+    bounds[3] = ylim[1]
+
+  xcoords = np.linspace(bounds[0], bounds[1], gridsize)
+  ycoords = np.linspace(bounds[2], bounds[3], gridsize)
+
+  # add attributes to coords dictionary
+  coords['x'] = xcoords
+  coords['y'] = ycoords
+  coords['bounds'] = bounds
+
+  return coords

@@ -383,8 +383,8 @@ lattices[-1].setUniverses(template)
 # 4 x 4 core to represent two bundles and water
 lattices.append(Lattice(name='full geometry'))
 lattices[-1].setWidth(width_x=21.42, width_y=21.42)
-lattices[-1].setUniverses([[universes[7], universes[8], universes[10]],
-                           [universes[8], universes[7], universes[10]],
+lattices[-1].setUniverses([[universes[7],  universes[8],  universes[10]],
+                           [universes[8],  universes[7],  universes[10]],
                            [universes[12], universes[12], universes[11]]])
 
 cells[25].setFill(lattices[0])

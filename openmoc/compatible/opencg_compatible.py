@@ -281,7 +281,7 @@ def get_compatible_opencg_surfaces(opencg_surface):
   if surface_id in OPENMOC_SURFACES:
     return OPENMOC_SURFACES[surface_id]
 
-  # Create an OpenMC Surface to represent this OpenCG Surface
+  # Create an OpenMOC Surface to represent this OpenCG Surface
   name = opencg_surface._name
 
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
@@ -316,7 +316,7 @@ def get_compatible_opencg_surfaces(opencg_surface):
   else:
     msg = 'Unable to create a compatible OpenMOC Surface from an OpenCG ' \
           'Surface of type {0} since it already a compatible ' \
-          'Surface type in OpenMC'.format(opencg_surface._type)
+          'Surface type in OpenMOC'.format(opencg_surface._type)
     raise ValueError(msg)
 
   # Add the OpenMOC Surface(s) to the global collection of all OpenMOC Surfaces
@@ -342,7 +342,7 @@ def get_opencg_cell(openmoc_cell):
   if cell_id in OPENCG_CELLS:
     return OPENCG_CELLS[cell_id]
 
-  # Create an OpenCG Cell to represent this OpenMC Cell
+  # Create an OpenCG Cell to represent this OpenMOC Cell
   name = openmoc_cell.getName()
   opencg_cell = opencg.Cell(cell_id, name)
 
@@ -417,7 +417,7 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
 
       for clone_id in range(num_clones):
 
-        # Create a cloned OpenCG Cell with Surfaces compatible with OpenMC
+        # Create a cloned OpenCG Cell with Surfaces compatible with OpenMOC
         clone = opencg_cell.clone()
         compatible_cells.append(clone)
 
@@ -579,7 +579,7 @@ def get_opencg_universe(openmoc_universe):
   if universe_id in OPENCG_UNIVERSES:
     return OPENCG_UNIVERSES[universe_id]
 
-  # Create an OpenCG Universe to represent this OpenMC Universe
+  # Create an OpenCG Universe to represent this OpenMOC Universe
   name = openmoc_universe.getName()
   opencg_universe = opencg.Universe(universe_id, name)
 
@@ -620,7 +620,7 @@ def get_openmoc_universe(opencg_universe):
   name = opencg_universe._name
   openmoc_universe = openmoc.Universe(universe_id, name)
 
-  # Convert all OpenCG Cells in this Universe to OpenMC Cells
+  # Convert all OpenCG Cells in this Universe to OpenMOC Cells
   opencg_cells = opencg_universe._cells
 
   for cell_id, opencg_cell in opencg_cells.items():
@@ -643,7 +643,7 @@ def get_opencg_lattice(openmoc_lattice):
 
   if not isinstance(openmoc_lattice, openmoc.Lattice):
     msg = 'Unable to create an OpenCG Lattice from {0} which ' \
-          'is not an OpenMC Lattice'.format(openmoc_lattice)
+          'is not an OpenMOC Lattice'.format(openmoc_lattice)
     raise ValueError(msg)
 
   global OPENCG_LATTICES
@@ -653,11 +653,13 @@ def get_opencg_lattice(openmoc_lattice):
   if lattice_id in OPENCG_LATTICES:
     return OPENCG_LATTICES[lattice_id]
 
-  # Create an OpenCG Lattice to represent this OpenMC Lattice
+  # Create an OpenCG Lattice to represent this OpenMOC Lattice
   name = openmoc_lattice.getName()
+  offset = openmoc_lattice.getOffset()
   dimension = [1, openmoc_lattice.getNumY(), openmoc_lattice.getNumX()]
   width = [1, openmoc_lattice.getWidthY(), openmoc_lattice.getWidthX()]
-  lower_left = [-np.inf, width[1]*dimension[1]/2., width[2]*dimension[2] / 2.]
+  lower_left = [-np.inf, width[1]*dimension[1]/2. + offset.getX(),
+                width[2]*dimension[2] / 2. + offset.getY()]
 
   # Initialize an empty array for the OpenCG nested Universes in this Lattice
   universe_array = np.ndarray(tuple(np.array(dimension)[::-1]), \

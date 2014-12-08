@@ -132,6 +132,7 @@ public:
   int getNumMaterials();
   int getNumCells();
   std::map<int, Material*> getAllMaterials();
+  std::map<int, Cell*> getAllMaterialCells();
   void setRootUniverse(Universe* root_universe);
 
   double getMaxSegmentLength();
