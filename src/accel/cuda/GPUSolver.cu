@@ -1643,12 +1643,15 @@ void GPUSolver::addSourceToScalarFlux() {
 
 
 /**
- * @brief Compute \f$ k_{eff} \f$ from the total fission and absorption rates.
+ * @brief Compute \f$ k_{eff} \f$ from the total, fission and scattering
+ *        reaction rates and leakage.
  * @details This method computes the current approximation to the
  *          multiplication factor on this iteration as follows:
- *          \f$ k_{eff} = \frac{\displaystyle\sum \displaystyle\sum \nu
- *                        \Sigma_f \Phi V}{\displaystyle\sum
- *                        \displaystyle\sum \Sigma_a \Phi V} \f$
+ *          \f$ k_{eff} = \frac{\displaystyle\sum_{i \in I}
+ *                        \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}}
+ *                        {\displaystyle\sum_{i \in I}
+ *                        \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} -
+ *                        \Sigma^S_g \Phi V_{i} - L_{i,g})} \f$
  */
 void GPUSolver::computeKeff() {
 
