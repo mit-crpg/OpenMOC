@@ -19,6 +19,7 @@ VectorizedSolver::VectorizedSolver(Geometry* geometry,
   if (_cmfd != NULL)
     log_printf(ERROR, "The VectorizedSolver is not set up to use CMFD");
 
+  _delta_psi = NULL;
   _thread_taus = NULL;
   _thread_exponentials = NULL;
 
@@ -71,6 +72,11 @@ VectorizedSolver::~VectorizedSolver() {
   if (_reduced_sources != NULL) {
     MM_FREE(_reduced_sources);
     _reduced_sources = NULL;
+  }
+
+  if (_delta_psi != NULL) {
+    MM_FREE(_delta_psi);
+    _delta_psi = NULL;
   }
 
   if (_thread_taus != NULL) {
@@ -167,6 +173,9 @@ void VectorizedSolver::initializeFluxArrays() {
   if (_scalar_flux != NULL)
     MM_FREE(_scalar_flux);
 
+  if (_delta_psi != NULL)
+    MM_FREE(_delta_psi);
+
   if (_thread_taus != NULL)
     MM_FREE(_thread_taus);
 
@@ -183,9 +192,11 @@ void VectorizedSolver::initializeFluxArrays() {
     size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
     _scalar_flux = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
+    size = _num_threads * _num_groups * sizeof(FP_PRECISION);
+    _delta_psi = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+
     size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
     _thread_taus = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the VectorizedSolver's "
@@ -640,10 +651,7 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-
-  /* The change in angular flux along this Track segment in the FSR */
-  FP_PRECISION* delta_psi = (FP_PRECISION*)MM_MALLOC(_num_groups * sizeof(FP_PRECISION), VEC_ALIGNMENT);
-
+  FP_PRECISION* delta_psi = &_delta_psi[tid*_num_groups];
   FP_PRECISION* exponentials = &_thread_exponentials[tid*_polar_times_groups];
 
   computeExponentials(curr_segment, exponentials);
@@ -679,8 +687,6 @@ void VectorizedSolver::scalarFluxTally(segment* curr_segment,
         track_flux(p,e) -= delta_psi[e];
     }
   }
-
-  MM_FREE(delta_psi);
 
   /* Atomically increment the FSR scalar flux from the temporary array */
   omp_set_lock(&_FSR_locks[fsr_id]);

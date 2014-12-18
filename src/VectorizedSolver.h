@@ -43,6 +43,9 @@ protected:
   /** Number of energy groups divided by vector widths (VEC_LENGTH) */
   int _num_vector_lengths;
 
+  /** The change in angular flux along a track segment for each energy group */
+  FP_PRECISION* _delta_psi;
+
   /** An array for the optical length for each thread in each energy group */
   FP_PRECISION* _thread_taus;
 
