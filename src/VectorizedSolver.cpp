@@ -450,24 +450,26 @@ void VectorizedSolver::addSourceToScalarFlux() {
 
 
 /**
- * @brief Compute \f$ k_{eff} \f$ from the total fission and absorption rates.
+ * @brief Compute \f$ k_{eff} \f$ from the total, fission and scattering
+ *        reaction rates and leakage.
  * @details This method computes the current approximation to the
  *          multiplication factor on this iteration as follows:
- *          \f$ k_{eff} = \frac{\displaystyle\sum \displaystyle\sum \nu
- *                        \Sigma_f \Phi V}{\displaystyle\sum
- *                        \displaystyle\sum \Sigma_a \Phi V} \f$
- *
+ *          \f$ k_{eff} = \frac{\displaystyle\sum_{i \in I}
+ *                        \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}}
+ *                        {\displaystyle\sum_{i \in I}
+ *                        \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} -
+ *                        \Sigma^S_g \Phi V_{i} - L_{i,g})} \f$
  */
 void VectorizedSolver::computeKeff() {
 
   int tid;
   Material* material;
-  FP_PRECISION* sigma_a;
-  FP_PRECISION* nu_sigma_f;
+  FP_PRECISION* sigma;
   FP_PRECISION volume;
 
-  FP_PRECISION tot_abs = 0.0;
-  FP_PRECISION tot_fission = 0.0;
+  FP_PRECISION total = 0.0;
+  FP_PRECISION fission = 0.0;
+  FP_PRECISION scatter = 0.0;
 
   int size = _num_FSRs * sizeof(FP_PRECISION);
   FP_PRECISION* FSR_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
@@ -475,15 +477,15 @@ void VectorizedSolver::computeKeff() {
   size = _num_threads * _num_groups * sizeof(FP_PRECISION);
   FP_PRECISION* group_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-  /* Loop over all FSRs and compute the volume-weighted absorption rates */
+  /* Loop over all FSRs and compute the volume-weighted total rates */
   #pragma omp parallel for private(tid, volume, \
-    material, sigma_a) schedule(guided)
+    material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     tid = omp_get_thread_num() * _num_groups;
     volume = _FSR_volumes[r];
     material = _FSR_materials[r];
-    sigma_a = material->getSigmaA();
+    sigma = material->getSigmaT();
 
     /* Loop over each energy group vector length */
     for (int v=0; v < _num_vector_lengths; v++) {
@@ -491,7 +493,7 @@ void VectorizedSolver::computeKeff() {
       /* Loop over energy groups within this vector */
       #pragma simd vectorlength(VEC_LENGTH)
       for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-        group_rates[tid+e] = sigma_a[e] * _scalar_flux(r,e);
+        group_rates[tid+e] = sigma[e] * _scalar_flux(r,e);
     }
 
     #ifdef SINGLE
@@ -501,22 +503,22 @@ void VectorizedSolver::computeKeff() {
     #endif
   }
 
-  /* Reduce absorption and fission rates across FSRs, energy groups */
+  /* Reduce total rates across FSRs, energy groups */
   #ifdef SINGLE
-  tot_abs = cblas_sasum(_num_FSRs, FSR_rates, 1);
+  total = cblas_sasum(_num_FSRs, FSR_rates, 1);
   #else
-  tot_abs = cblas_dasum(_num_FSRs, FSR_rates, 1);
+  tototal = cblas_dasum(_num_FSRs, FSR_rates, 1);
   #endif
 
   /* Loop over all FSRs and compute the volume-weighted fission rates */
   #pragma omp parallel for private(tid, volume, \
-    material, nu_sigma_f) schedule(guided)
+    material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     tid = omp_get_thread_num() * _num_groups;
     volume = _FSR_volumes[r];
     material = _FSR_materials[r];
-    nu_sigma_f = material->getNuSigmaF();
+    sigma = material->getNuSigmaF();
 
     /* Loop over each energy group vector length */
     for (int v=0; v < _num_vector_lengths; v++) {
@@ -524,7 +526,7 @@ void VectorizedSolver::computeKeff() {
       /* Loop over energy groups within this vector */
       #pragma simd vectorlength(VEC_LENGTH)
       for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-        group_rates[tid+e] = nu_sigma_f[e] * _scalar_flux(r,e);
+        group_rates[tid+e] = sigma[e] * _scalar_flux(r,e);
     }
 
     #ifdef SINGLE
@@ -536,9 +538,47 @@ void VectorizedSolver::computeKeff() {
 
   /* Reduce fission rates across FSRs */
   #ifdef SINGLE
-  tot_fission = cblas_sasum(_num_FSRs, FSR_rates, 1);
+  fission = cblas_sasum(_num_FSRs, FSR_rates, 1);
   #else
-  tot_fission = cblas_dasum(_num_FSRs, FSR_rates, 1);
+  fission = cblas_dasum(_num_FSRs, FSR_rates, 1);
+  #endif
+
+  /* Loop over all FSRs and compute the volume-weighted scatter rates */
+  #pragma omp parallel for private(tid, volume, \
+    material) schedule(guided)
+  for (int r=0; r < _num_FSRs; r++) {
+
+    tid = omp_get_thread_num() * _num_groups;
+    volume = _FSR_volumes[r];
+    material = _FSR_materials[r];
+    sigma = material->getSigmaS();
+
+    FSR_rates[r] = 0.;
+
+    for (int G=0; G < _num_groups; G++) {
+
+      /* Loop over each energy group vector length */
+      for (int v=0; v < _num_vector_lengths; v++) {
+
+        /* Loop over energy groups within this vector */
+        #pragma simd vectorlength(VEC_LENGTH)
+        for (int g=v*VEC_LENGTH; g < (v+1)*VEC_LENGTH; g++)
+          group_rates[tid+g] = sigma[G*_num_groups+g] * _scalar_flux(r,g);
+      }
+
+      #ifdef SINGLE
+      FSR_rates[r] += cblas_sasum(_num_groups, &group_rates[tid], 1) * volume;
+      #else
+      FSR_rates[r] += cblas_dasum(_num_groups, &group_rates[tid], 1) * volume;
+      #endif
+    }
+  }
+
+  /* Reduce scatter rates across FSRs */
+  #ifdef SINGLE
+  scatter = cblas_sasum(_num_FSRs, FSR_rates, 1);
+  #else
+  scatter = cblas_dasum(_num_FSRs, FSR_rates, 1);
   #endif
 
   /** Reduce leakage array across tracks, energy groups, polar angles */
@@ -550,10 +590,10 @@ void VectorizedSolver::computeKeff() {
   _leakage = cblas_dasum(size, _boundary_leakage, 1) * 0.5;
   #endif
 
-  _k_eff = tot_fission / (tot_abs + _leakage);
+  _k_eff = fission / (total - scatter + _leakage);
 
-  log_printf(DEBUG, "abs = %f, fission = %f, leakage = %f, k_eff = %f",
-             tot_abs, tot_fission, _leakage, _k_eff);
+  log_printf(DEBUG, "tot = %f, fiss = %f, scatt = %f, leakage = %f,"
+             "k_eff = %f", total, fission, scatter, _leakage, _k_eff);
 
   MM_FREE(FSR_rates);
   MM_FREE(group_rates);
