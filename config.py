@@ -385,8 +385,6 @@ class configuration:
                 define_macros = self.macros[self.cc][self.fp],
                 swig_opts = self.swig_flags + ['-D' + self.cc.upper()]))
 
-    print('swig opts = {0}'.format(self.swig_flags + ['-D' + self.cc.upper()]))
-
     # The openmoc.cuda extension if requested by the user at compile
     # time (--with-cuda)
     if self.with_cuda:
