@@ -701,8 +701,8 @@ void CPUSolver::computeKeff() {
   FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
 
   /* Loop over all FSRs and compute the volume-weighted total rates */
-  #pragma omp parallel for private(tid, volume, \
-    material, sigma) schedule(guided)
+  //  #pragma omp parallel for private(tid, volume, \
+  //   material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     tid = omp_get_thread_num() * _num_groups;
@@ -721,8 +721,8 @@ void CPUSolver::computeKeff() {
   total = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
   /* Loop over all FSRs and compute the volume-weighted fission rates */
-  #pragma omp parallel for private(tid, volume, \
-    material, sigma) schedule(guided)
+//  #pragma omp parallel for private(tid, volume,	\
+//    material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     tid = omp_get_thread_num() * _num_groups;
@@ -741,8 +741,8 @@ void CPUSolver::computeKeff() {
   fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
   /* Loop over all FSRs and compute the volume-weighted scattering rates */
-  #pragma omp parallel for private(tid, volume, \
-    material) schedule(guided)
+//  #pragma omp parallel for private(tid, volume,	\
+//    material) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     tid = omp_get_thread_num() * _num_groups;
