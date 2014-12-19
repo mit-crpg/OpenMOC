@@ -120,7 +120,7 @@ FP_PRECISION CPUSolver::getFSRSource(int fsr_id, int energy_group) {
   if (material->isFissionable()) {
     for (int e=0; e < _num_groups; e++)
       fission_source += _scalar_flux(fsr_id,e) * nu_sigma_f[e];
-    
+
     fission_source /= _k_eff;
   }
 
@@ -676,75 +676,103 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 
 
 /**
- * @brief Compute \f$ k_{eff} \f$ from the total fission and absorption rates.
+ * @brief Compute \f$ k_{eff} \f$ from the total, fission and scattering
+ *        reaction rates and leakage.
  * @details This method computes the current approximation to the
  *          multiplication factor on this iteration as follows:
- *          \f$ k_{eff} = \frac{\displaystyle\sum \displaystyle\sum \nu
- *                        \Sigma_f \Phi V}{\displaystyle\sum
- *                        \displaystyle\sum \Sigma_a \Phi V} \f$
+ *          \f$ k_{eff} = \frac{\displaystyle\sum_{i \in I}
+ *                        \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}}
+ *                        {\displaystyle\sum_{i \in I}
+ *                        \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} -
+ *                        \Sigma^S_g \Phi V_{i} - L_{i,g})} \f$
  */
 void CPUSolver::computeKeff() {
 
   int tid;
   Material* material;
-  FP_PRECISION* sigma_a;
-  FP_PRECISION* nu_sigma_f;
+  FP_PRECISION* sigma;
   FP_PRECISION volume;
 
-  FP_PRECISION tot_abs = 0.0;
-  FP_PRECISION tot_fission = 0.0;
+  FP_PRECISION total = 0.0;
+  FP_PRECISION fission = 0.0;
+  FP_PRECISION scatter = 0.0;
 
   FP_PRECISION* FSR_rates = new FP_PRECISION[_num_FSRs];
   FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
-  
-  /* Loop over all FSRs and compute the volume-weighted absorption rates */
+
+  /* Loop over all FSRs and compute the volume-weighted total rates */
   #pragma omp parallel for private(tid, volume, \
-    material, sigma_a) schedule(guided)
+    material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     tid = omp_get_thread_num() * _num_groups;
     volume = _FSR_volumes[r];
     material = _FSR_materials[r];
-    sigma_a = material->getSigmaA();
+    sigma = material->getSigmaT();
 
     for (int e=0; e < _num_groups; e++)
-      group_rates[tid+e] = sigma_a[e] * _scalar_flux(r,e);
+      group_rates[tid+e] = sigma[e] * _scalar_flux(r,e);
 
     FSR_rates[r]=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
     FSR_rates[r] *= volume;
   }
 
-  /* Reduce absorption rates across FSRs */
-  tot_abs = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
+  /* Reduce total rates across FSRs */
+  total = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
   /* Loop over all FSRs and compute the volume-weighted fission rates */
   #pragma omp parallel for private(tid, volume, \
-    material, nu_sigma_f) schedule(guided)
+    material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     tid = omp_get_thread_num() * _num_groups;
     volume = _FSR_volumes[r];
     material = _FSR_materials[r];
-    nu_sigma_f = material->getNuSigmaF();
+    sigma = material->getNuSigmaF();
 
     for (int e=0; e < _num_groups; e++)
-      group_rates[tid+e] = nu_sigma_f[e] * _scalar_flux(r,e);
+      group_rates[tid+e] = sigma[e] * _scalar_flux(r,e);
 
     FSR_rates[r]=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
     FSR_rates[r] *= volume;
   }
 
   /* Reduce fission rates across FSRs */
-  tot_fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
+  fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
+
+  /* Loop over all FSRs and compute the volume-weighted scattering rates */
+  #pragma omp parallel for private(tid, volume, \
+    material) schedule(guided)
+  for (int r=0; r < _num_FSRs; r++) {
+
+    tid = omp_get_thread_num() * _num_groups;
+    volume = _FSR_volumes[r];
+    material = _FSR_materials[r];
+
+    FSR_rates[r] = 0.;
+
+    for (int G=0; G < _num_groups; G++) {
+      for (int g=0; g < _num_groups; g++)
+        group_rates[tid+g] = material->getSigmaSByGroupInline(g,G)
+                             * _scalar_flux(r,g);
+
+      FSR_rates[r]+=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
+    }
+
+    FSR_rates[r] *= volume;
+  }
+
+  /* Reduce scattering rates across FSRs */
+  scatter = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
   /* Reduce leakage array across Tracks, energy groups, polar angles */
   int size = 2 * _tot_num_tracks * _polar_times_groups;
   _leakage = pairwise_sum<FP_PRECISION>(_boundary_leakage, size) * 0.5;
 
-  _k_eff = tot_fission / (tot_abs + _leakage);
+  _k_eff = fission / (total - scatter + _leakage);
 
-  log_printf(DEBUG, "abs = %f, fission = %f, leakage = %f, k_eff = %f",
-             tot_abs, tot_fission, _leakage, _k_eff);
+  log_printf(DEBUG, "tot = %f, fiss = %f, scatt = %f, leakage = %f,"
+             "k_eff = %f", total, fission, scatter, _leakage, _k_eff);
 
   delete [] FSR_rates;
   delete [] group_rates;
