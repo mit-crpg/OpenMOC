@@ -230,7 +230,7 @@ def get_openmoc_surface(opencg_surface):
 
   elif opencg_surface._type == 'x-plane':
     x0 = opencg_surface._coeffs['x0']
-    openmoc_surface = openmoc.XPlane(x0, surface_id, name)
+    openmoc_surface = openmoc.XPlane(x0, int(surface_id), name)
 
   elif opencg_surface._type == 'y-plane':
     y0 = opencg_surface._coeffs['y0']
@@ -801,6 +801,13 @@ def get_openmoc_geometry(opencg_geometry):
   OPENCG_UNIVERSES.clear()
   OPENMOC_LATTICES.clear()
   OPENCG_LATTICES.clear()
+
+  # Make the entire geometry "compatible" before assigning auto IDs
+  universes = opencg_geometry.getAllUniverses()
+  for universe_id, universe in universes.items():
+    make_opencg_cells_compatible(universe)
+
+  opencg_geometry.assignAutoIds()
 
   opencg_root_universe = opencg_geometry._root_universe
   openmoc_root_universe = get_openmoc_universe(opencg_root_universe)
