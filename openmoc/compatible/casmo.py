@@ -750,7 +750,6 @@ class Casmo(object):
         os.makedirs(directory)
     f = h5py.File(directory + filename, 'w')
     f.attrs['Energy Groups'] = self._energy_groups
-    #f.attrs['K-Infinity'] = self._kinf
     f.attrs['Assembly Width'] = self._width
     f.attrs['Num Microregions'] = self._num_micro_regions
     f.attrs['Fuel Pin Radii'] = self._fuel_pin_rad
