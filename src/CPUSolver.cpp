@@ -630,9 +630,9 @@ FP_PRECISION CPUSolver::computeFSRSources() {
       for (int e=0; e < _num_groups; e++)
         _fission_sources(r,e) = _scalar_flux(r,e) * nu_sigma_f[e];
 
-        fission_source = pairwise_sum<FP_PRECISION>(&_fission_sources(r,0),
-                                                     _num_groups);
-        fission_source *= inverse_k_eff;
+      fission_source = pairwise_sum<FP_PRECISION>(&_fission_sources(r,0),
+                                                  _num_groups);
+      fission_source *= inverse_k_eff;
     }
 
     else
@@ -646,8 +646,8 @@ FP_PRECISION CPUSolver::computeFSRSources() {
         _scatter_sources(tid,g) = material->getSigmaSByGroupInline(g,G)
                       * _scalar_flux(r,g);
 
-        scatter_source=pairwise_sum<FP_PRECISION>(&_scatter_sources(tid,0),
-                                                   _num_groups);
+      scatter_source=pairwise_sum<FP_PRECISION>(&_scatter_sources(tid,0),
+                                                _num_groups);
 
       /* Set the fission source for FSR r in group G */
       fsr_fission_source += fission_source * chi[G];
