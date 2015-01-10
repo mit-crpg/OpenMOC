@@ -20,13 +20,11 @@
 #include <fstream>
 #include "Quadrature.h"
 #include "log.h"
-#include "Material.h"
-#include "Surface.h"
 #include "Timer.h"
 #include "Universe.h"
+#include "Track.h"
 #include "linalg.h"
 #include "pairwise_sum.h"
-#include "Track.h"
 #endif
 
 
@@ -121,7 +119,8 @@ private:
   double _cell_height;
 
   /** Array of geometry boundaries */
-  int* _boundaries;
+	//  int* _boundaries;
+  boundaryType* _boundaries;
 
   /** Array of surface currents for each CMFD cell */
   FP_PRECISION* _surface_currents;
@@ -195,7 +194,7 @@ public:
   void setNumMOCGroups(int num_moc_groups);
   void setOpticallyThick(bool thick);
   void setMOCRelaxationFactor(FP_PRECISION relax_factor);
-  void setBoundary(int side, int boundary);
+  void setBoundary(int side, boundaryType boundary);
   void setLattice(Lattice* lattice);
   void setLatticeStructure(int num_x, int num_y);
   void setFluxUpdateOn(bool flux_update_on);

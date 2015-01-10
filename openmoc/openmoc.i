@@ -8,6 +8,7 @@
   #define SWIG_FILE_WITH_INIT
   #include "../src/Cell.h"
   #include "../src/Geometry.h"
+  #include "../src/boundary_type.h"
   #include "../src/LocalCoords.h"
   #include "../src/log.h"
   #include "../src/Material.h"
@@ -27,7 +28,6 @@
   #endif
 
   #define printf PySys_WriteStdout
-
 
   /* Exception helpers */
   static int swig_c_error_num = 0;
@@ -61,6 +61,7 @@
 /* C++ casting helper method for openmoc.process computePinPowers
  * routine and the OpenCG compatibility module */
 %inline %{
+
   CellFill* castCellToCellFill(Cell* cell) {
     return dynamic_cast<CellFill*>(cell);
   }
@@ -405,6 +406,7 @@
 %include <std_map.i>
 %include ../src/Cell.h
 %include ../src/Geometry.h
+%include ../src/boundary_type.h
 %include ../src/LocalCoords.h
 %include ../src/log.h
 %include ../src/Material.h

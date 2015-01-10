@@ -123,7 +123,7 @@ double Geometry::getMaxZ() {
  *        minimum x-coordinate in the Geometry.
  * @return the boundary conditions for the minimum x-coordinate in the Geometry
  */
-int Geometry::getMinXBoundaryType() {
+boundaryType Geometry::getMinXBoundaryType() {
   return _root_universe->getMinXBoundaryType();
 }
 
@@ -133,7 +133,7 @@ int Geometry::getMinXBoundaryType() {
  *        maximum x-coordinate in the Geometry.
  * @return the boundary conditions for the maximum z-coordinate in the Geometry
  */
-int Geometry::getMaxXBoundaryType() {
+boundaryType Geometry::getMaxXBoundaryType() {
   return _root_universe->getMaxXBoundaryType();
 }
 
@@ -143,7 +143,7 @@ int Geometry::getMaxXBoundaryType() {
  *        minimum y-coordinate in the Geometry.
  * @return the boundary conditions for the minimum y-coordinate in the Geometry
  */
-int Geometry::getMinYBoundaryType() {
+boundaryType Geometry::getMinYBoundaryType() {
   return _root_universe->getMinYBoundaryType();
 }
 
@@ -153,7 +153,7 @@ int Geometry::getMinYBoundaryType() {
  *        maximum y-coordinate in the Geometry.
  * @return the boundary conditions for the maximum y-coordinate in the Geometry
  */
-int Geometry::getMaxYBoundaryType() {
+boundaryType Geometry::getMaxYBoundaryType() {
   return _root_universe->getMaxYBoundaryType();
 }
 
@@ -163,7 +163,7 @@ int Geometry::getMaxYBoundaryType() {
  *        minimum z-coordinate in the Geometry.
  * @return the boundary conditions for the minimum z-coordinate in the Geometry
  */
-int Geometry::getMinZBoundaryType() {
+boundaryType Geometry::getMinZBoundaryType() {
   return _root_universe->getMinZBoundaryType();
 }
 
@@ -173,7 +173,7 @@ int Geometry::getMinZBoundaryType() {
  *        maximum z-coordinate in the Geometry.
  * @return the boundary conditions for the maximum z-coordinate in the Geometry
  */
-int Geometry::getMaxZBoundaryType() {
+boundaryType Geometry::getMaxZBoundaryType() {
   return _root_universe->getMaxZBoundaryType();
 }
 

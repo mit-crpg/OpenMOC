@@ -11,8 +11,8 @@
 
 #ifdef __cplusplus
 #include <limits>
-#include "Cell.h"
 #include "LocalCoords.h"
+#include "boundary_type.h"
 #endif
 
 /** Error threshold for determining how close a point needs to be to a surface
@@ -20,9 +20,8 @@
 #define ON_SURFACE_THRESH 1E-12
 
 
-/* Define for compiler */
+/* Forward declarations to resolve circular dependencies */
 class LocalCoords;
-class Cell;
 
 
 int surf_id();
@@ -51,22 +50,6 @@ enum surfaceType {
 
   /** A generalized quadratic surface */
   QUADRATIC
-};
-
-
-/**
- * @enum boundaryType
- * @brief The types of boundary conditions supported by OpenMOC for Surfaces.
- */
-enum boundaryType {
-  /** A vacuum boundary condition */
-  VACUUM,
-
-  /** A reflective boundary condition */
-  REFLECTIVE,
-
-  /** No boundary type (typically an interface between flat source regions) */
-  BOUNDARY_NONE
 };
 
 

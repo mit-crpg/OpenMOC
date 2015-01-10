@@ -14,6 +14,7 @@
 #include "Cell.h"
 #endif
 
+/* Forward declarations to resolve circular dependencies */
 class Universe;
 class Lattice;
 class Cell;

@@ -12,27 +12,25 @@
 #include <limits>
 #include <map>
 #include <vector>
-#include "Cell.h"
-#include "Surface.h"
 #include "LocalCoords.h"
+#include "boundary_type.h"
 #endif
-
 
 /** Error threshold for determining how close to the boundary of a Lattice cell
  * a Point needs to be to be considered on it */
 #define ON_LATTICE_CELL_THRESH 1E-12
 
-
 /** Distance a Point is moved to cross over a Surface into a new Cell during
  * Track segmentation */
 #define TINY_MOVE 1E-10
 
-
+/* Forward declarations to resolve circular dependencies */
 class LocalCoords;
 class Cell;
 class CellFill;
 class CellBasic;
 class Surface;
+class Material;
 
 
 int universe_id();
@@ -102,12 +100,12 @@ public:
   double getMaxY();
   double getMinZ();
   double getMaxZ();
-  int getMinXBoundaryType();
-  int getMaxXBoundaryType();
-  int getMinYBoundaryType();
-  int getMaxYBoundaryType();
-  int getMinZBoundaryType();
-  int getMaxZBoundaryType();
+  boundaryType getMinXBoundaryType();
+  boundaryType getMaxXBoundaryType();
+  boundaryType getMinYBoundaryType();
+  boundaryType getMaxYBoundaryType();
+  boundaryType getMinZBoundaryType();
+  boundaryType getMaxZBoundaryType();
 
   Cell* getCell(int cell_id);
   std::map<int, Cell*> getCells() const;

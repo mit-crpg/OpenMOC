@@ -175,7 +175,7 @@ double Cell::getMaxZ() {
  *        the minimum reachable x-coordinate in the Cell.
  * @return the boundary condition at the minimum x-coordinate
  */
-int Cell::getMinXBoundaryType() {
+boundaryType Cell::getMinXBoundaryType() {
   return _min_x_bc;
 }
 
@@ -185,7 +185,7 @@ int Cell::getMinXBoundaryType() {
  *        the maximum reachable x-coordinate in the Cell.
  * @return the boundary condition at the maximum x-coordinate
  */
-int Cell::getMaxXBoundaryType() {
+boundaryType Cell::getMaxXBoundaryType() {
   return _max_x_bc;
 }
 
@@ -195,7 +195,7 @@ int Cell::getMaxXBoundaryType() {
  *        the minimum reachable y-coordinate in the Cell.
  * @return the boundary condition at the minimum y-coordinate
  */
-int Cell::getMinYBoundaryType() {
+boundaryType Cell::getMinYBoundaryType() {
   return _min_y_bc;
 }
 
@@ -205,7 +205,7 @@ int Cell::getMinYBoundaryType() {
  *        the maximum reachable y-coordinate in the Cell.
  * @return the boundary condition at the maximum y-coordinate
  */
-int Cell::getMaxYBoundaryType() {
+boundaryType Cell::getMaxYBoundaryType() {
   return _max_y_bc;
 }
 
@@ -215,7 +215,7 @@ int Cell::getMaxYBoundaryType() {
  *        the minimum reachable z-coordinate in the Cell.
  * @return the boundary condition at the minimum z-coordinate
  */
-int Cell::getMinZBoundaryType() {
+boundaryType Cell::getMinZBoundaryType() {
   return _min_z_bc;
 }
 
@@ -225,7 +225,7 @@ int Cell::getMinZBoundaryType() {
  *        the maximum reachable z-coordinate in the Cell.
  * @return the boundary condition at the maximum z-coordinate
  */
-int Cell::getMaxZBoundaryType() {
+boundaryType Cell::getMaxZBoundaryType() {
   return _max_z_bc;
 }
 

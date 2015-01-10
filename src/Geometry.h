@@ -13,18 +13,16 @@
 #include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "LocalCoords.h"
-#include "Track.h"
-#include "Surface.h"
-#include "Cmfd.h"
 #include <sstream>
 #include <string>
 #include <omp.h>
 #include <functional>
+#include "Cmfd.h"
 #ifndef CUDA
   #include <unordered_map>
 #endif
 #endif
+
 
 /**
  * @struct fsr_data
@@ -120,12 +118,12 @@ public:
   double getMaxY();
   double getMinZ();
   double getMaxZ();
-  int getMinXBoundaryType();
-  int getMaxXBoundaryType();
-  int getMinYBoundaryType();
-  int getMaxYBoundaryType();
-  int getMinZBoundaryType();
-  int getMaxZBoundaryType();
+  boundaryType getMinXBoundaryType();
+  boundaryType getMaxXBoundaryType();
+  boundaryType getMinYBoundaryType();
+  boundaryType getMaxYBoundaryType();
+  boundaryType getMinZBoundaryType();
+  boundaryType getMaxZBoundaryType();
   Universe* getRootUniverse();
   int getNumFSRs();
   int getNumEnergyGroups();

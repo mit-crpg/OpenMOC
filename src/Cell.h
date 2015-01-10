@@ -18,9 +18,9 @@
 #include "Point.h"
 #endif
 
+/* Forward declarations to resolve circular dependencies */
 class Universe;
 class Surface;
-class LocalCoords;
 
 int cell_id();
 void reset_cell_id();
@@ -108,22 +108,22 @@ protected:
   double _max_z;
 
   /** The boundary condition at the minimum reachable x-coordinate */
-  int _min_x_bc;
+  boundaryType _min_x_bc;
 
   /** The boundary condition at the maximum reachable x-coordinate */
-  int _max_x_bc;
+  boundaryType _max_x_bc;
 
   /** The boundary condition at the minimum reachable y-coordinate */
-  int _min_y_bc;
+  boundaryType _min_y_bc;
 
   /** The boundary condition at the maximum reachable y-coordinate */
-  int _max_y_bc;
+  boundaryType _max_y_bc;
 
   /** The boundary condition at the minimum reachable z-coordinate */
-  int _min_z_bc;
+  boundaryType _min_z_bc;
 
   /** The boundary condition at the maximum reachable z-coordinate */
-  int _max_z_bc;
+  boundaryType _max_z_bc;
 
 public:
   Cell();
@@ -139,12 +139,12 @@ public:
   double getMaxY();
   double getMinZ();
   double getMaxZ();
-  int getMinXBoundaryType();
-  int getMaxXBoundaryType();
-  int getMinYBoundaryType();
-  int getMaxYBoundaryType();
-  int getMinZBoundaryType();
-  int getMaxZBoundaryType();
+  boundaryType getMinXBoundaryType();
+  boundaryType getMaxXBoundaryType();
+  boundaryType getMinYBoundaryType();
+  boundaryType getMaxYBoundaryType();
+  boundaryType getMinZBoundaryType();
+  boundaryType getMaxZBoundaryType();
   int getNumSurfaces() const;
   std::map<int, surface_halfspace> getSurfaces() const;
 
