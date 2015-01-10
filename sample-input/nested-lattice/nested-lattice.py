@@ -29,22 +29,24 @@ log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 materials = materialize.materialize('../c5g7-materials.h5')
 
 
+
 ###############################################################################
 ###########################   Creating Surfaces   #############################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circles = list()
-planes = list()
-planes.append(XPlane(x=-2.0, name='left'))
-planes.append(XPlane(x=2.0, name='right'))
-planes.append(YPlane(y=-2.0, name='top'))
-planes.append(YPlane(y=2.0, name='bottom'))
-circles.append(Circle(x=0.0, y=0.0, radius=0.4, name='large pin'))
-circles.append(Circle(x=0.0, y=0.0, radius=0.3, name='medium pin'))
-circles.append(Circle(x=0.0, y=0.0, radius=0.2, name='small pin'))
-for plane in planes: plane.setBoundaryType(REFLECTIVE)
+left = XPlane(x=-2.0, name='left')
+right = XPlane(x=2.0, name='right')
+top = YPlane(y=-2.0, name='top')
+bottom = YPlane(y=2.0, name='bottom')
+boundaries = [left, right, top, bottom]
+
+large_circle = Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
+medium_circle = Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
+small_circle = Circle(x=0.0, y=0.0, radius=0.2, name='small pin')
+
+for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
@@ -53,34 +55,37 @@ for plane in planes: plane.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cells = list()
-cells.append(CellBasic(name='large pin fuel', rings=3, sectors=8))
-cells.append(CellBasic(name='large pin moderator', sectors=8))
-cells.append(CellBasic(name='medium pin fuel', rings=3, sectors=8))
-cells.append(CellBasic(name='medium pin moderator', sectors=8))
-cells.append(CellBasic(name='small pin fuel', rings=3, sectors=8))
-cells.append(CellBasic(name='small pin moderator', sectors=8))
-cells.append(CellFill(name='lattice cell'))
-cells.append(CellFill(name='root cell'))
+large_fuel = CellBasic(name='large pin fuel', rings=3, sectors=8)
+large_fuel.setMaterial(materials['UO2'])
+large_fuel.addSurface(halfspace=-1, surface=large_circle)
 
-cells[0].setMaterial(materials['UO2'])
-cells[1].setMaterial(materials['Water'])
-cells[2].setMaterial(materials['UO2'])
-cells[3].setMaterial(materials['Water'])
-cells[4].setMaterial(materials['UO2'])
-cells[5].setMaterial(materials['Water'])
+large_moderator = CellBasic(name='large pin moderator', sectors=8)
+large_moderator.setMaterial(materials['Water'])
+large_moderator.addSurface(halfspace=+1, surface=large_circle)
 
-cells[0].addSurface(halfspace=-1, surface=circles[0])
-cells[1].addSurface(halfspace=+1, surface=circles[0])
-cells[2].addSurface(halfspace=-1, surface=circles[1])
-cells[3].addSurface(halfspace=+1, surface=circles[1])
-cells[4].addSurface(halfspace=-1, surface=circles[2])
-cells[5].addSurface(halfspace=+1, surface=circles[2])
+medium_fuel = CellBasic(name='medium pin fuel', rings=3, sectors=8)
+medium_fuel.setMaterial(materials['UO2'])
+medium_fuel.addSurface(halfspace=-1, surface=medium_circle)
 
-cells[7].addSurface(halfspace=+1, surface=planes[0])
-cells[7].addSurface(halfspace=-1, surface=planes[1])
-cells[7].addSurface(halfspace=+1, surface=planes[2])
-cells[7].addSurface(halfspace=-1, surface=planes[3])
+medium_moderator = CellBasic(name='medium pin moderator', sectors=8)
+medium_moderator.setMaterial(materials['Water'])
+medium_moderator.addSurface(halfspace=+1, surface=medium_circle)
+
+small_fuel = CellBasic(name='small pin fuel', rings=3, sectors=8)
+small_fuel.setMaterial(materials['UO2'])
+small_fuel.addSurface(halfspace=-1, surface=small_circle)
+
+small_moderator = CellBasic(name='small pin moderator', sectors=8)
+small_moderator.setMaterial(materials['Water'])
+small_moderator.addSurface(halfspace=+1, surface=small_circle)
+
+lattice_cell = CellFill(name='lattice cell')
+
+root_cell = CellFill(name='root cell')
+root_cell.addSurface(halfspace=+1, surface=boundaries[0])
+root_cell.addSurface(halfspace=-1, surface=boundaries[1])
+root_cell.addSurface(halfspace=+1, surface=boundaries[2])
+root_cell.addSurface(halfspace=-1, surface=boundaries[3])
 
 
 ###############################################################################
@@ -93,16 +98,16 @@ pin1 = Universe(name='large pin cell')
 pin2 = Universe(name='medium pin cell')
 pin3 = Universe(name='small pin cell')
 assembly = Universe(name='2x2 lattice')
-root = Universe(name='root universe')
+root_universe = Universe(name='root universe')
 
-pin1.addCell(cells[0])
-pin1.addCell(cells[1])
-pin2.addCell(cells[2])
-pin2.addCell(cells[3])
-pin3.addCell(cells[4])
-pin3.addCell(cells[5])
-assembly.addCell(cells[6])
-root.addCell(cells[7])
+pin1.addCell(large_fuel)
+pin1.addCell(large_moderator)
+pin2.addCell(medium_fuel)
+pin2.addCell(medium_moderator)
+pin3.addCell(small_fuel)
+pin3.addCell(small_moderator)
+assembly.addCell(lattice_cell)
+root_universe.addCell(root_cell)
 
 
 ###############################################################################
@@ -115,13 +120,13 @@ log.py_printf('NORMAL', 'Creating nested 2 x 2 lattices...')
 lattice = Lattice(name='2x2 lattice')
 lattice.setWidth(width_x=1.0, width_y=1.0)
 lattice.setUniverses([[pin1, pin2], [pin1, pin3]])
-cells[6].setFill(lattice)
+lattice_cell.setFill(lattice)
 
 # 2x2 core
 core = Lattice(name='2x2 core')
 core.setWidth(width_x=2.0, width_y=2.0)
 core.setUniverses([[assembly, assembly], [assembly, assembly]])
-cells[7].setFill(core)
+root_cell.setFill(core)
 
 
 ###############################################################################
@@ -131,7 +136,7 @@ cells[7].setFill(core)
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-geometry.setRootUniverse(root)
+geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
 
