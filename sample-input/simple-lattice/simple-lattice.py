@@ -53,33 +53,35 @@ for plane in planes: plane.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cells = list()
-cells.append(CellBasic(name='large pin fuel', rings=3, sectors=8))
-cells.append(CellBasic(name='large pin moderator', sectors=8))
-cells.append(CellBasic(name='medium pin fuel', rings=3, sectors=8))
-cells.append(CellBasic(name='medium pin moderator', sectors=8))
-cells.append(CellBasic(name='small pin fuel', rings=3, sectors=8))
-cells.append(CellBasic(name='small pin moderator', sectors=8))
-cells.append(CellFill(name='root cell'))
+large_fuel = CellBasic(name='large pin fuel', rings=3, sectors=8)
+large_fuel.setMaterial(materials['UO2'])
+large_fuel.addSurface(halfspace=-1, surface=circles[0])
 
-cells[0].setMaterial(materials['UO2'])
-cells[1].setMaterial(materials['Water'])
-cells[2].setMaterial(materials['UO2'])
-cells[3].setMaterial(materials['Water'])
-cells[4].setMaterial(materials['UO2'])
-cells[5].setMaterial(materials['Water'])
+large_moderator = CellBasic(name='large pin moderator', sectors=8)
+large_moderator.setMaterial(materials['Water'])
+large_moderator.addSurface(halfspace=+1, surface=circles[0])
 
-cells[0].addSurface(halfspace=-1, surface=circles[0])
-cells[1].addSurface(halfspace=+1, surface=circles[0])
-cells[2].addSurface(halfspace=-1, surface=circles[1])
-cells[3].addSurface(halfspace=+1, surface=circles[1])
-cells[4].addSurface(halfspace=-1, surface=circles[2])
-cells[5].addSurface(halfspace=+1, surface=circles[2])
+medium_fuel = CellBasic(name='medium pin fuel', rings=3, sectors=8)
+medium_fuel.setMaterial(materials['UO2'])
+medium_fuel.addSurface(halfspace=-1, surface=circles[1])
 
-cells[6].addSurface(halfspace=+1, surface=planes[0])
-cells[6].addSurface(halfspace=-1, surface=planes[1])
-cells[6].addSurface(halfspace=+1, surface=planes[2])
-cells[6].addSurface(halfspace=-1, surface=planes[3])
+medium_moderator = CellBasic(name='medium pin moderator', sectors=8)
+medium_moderator.setMaterial(materials['Water'])
+medium_moderator.addSurface(halfspace=+1, surface=circles[1])
+
+small_fuel = CellBasic(name='small pin fuel', rings=3, sectors=8)
+small_fuel.setMaterial(materials['UO2'])
+small_fuel.addSurface(halfspace=-1, surface=circles[2])
+
+small_moderator = CellBasic(name='small pin moderator', sectors=8)
+small_moderator.setMaterial(materials['Water'])
+small_moderator.addSurface(halfspace=+1, surface=circles[2])
+
+root_cell = CellFill(name='root cell')
+root_cell.addSurface(halfspace=+1, surface=planes[0])
+root_cell.addSurface(halfspace=-1, surface=planes[1])
+root_cell.addSurface(halfspace=+1, surface=planes[2])
+root_cell.addSurface(halfspace=-1, surface=planes[3])
 
 
 ###############################################################################
@@ -93,13 +95,13 @@ pin2 = Universe(name='medium pin cell')
 pin3 = Universe(name='small pin cell')
 root = Universe(name='root universe')
 
-pin1.addCell(cells[0])
-pin1.addCell(cells[1])
-pin2.addCell(cells[2])
-pin2.addCell(cells[3])
-pin3.addCell(cells[4])
-pin3.addCell(cells[5])
-root.addCell(cells[6])
+pin1.addCell(large_fuel)
+pin1.addCell(large_moderator)
+pin2.addCell(medium_fuel)
+pin2.addCell(medium_moderator)
+pin3.addCell(small_fuel)
+pin3.addCell(small_moderator)
+root.addCell(root_cell)
 
 
 ###############################################################################
@@ -114,7 +116,7 @@ lattice.setUniverses([[pin1, pin2, pin1, pin2],
                       [pin2, pin3, pin2, pin3],
                       [pin1, pin2, pin1, pin2],
                       [pin2, pin3, pin2, pin3]])
-cells[6].setFill(lattice)
+root_cell.setFill(lattice)
 
 
 ###############################################################################
