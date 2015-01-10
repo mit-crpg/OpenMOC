@@ -35,14 +35,15 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
+left = XPlane(x=-34.0, name='left')
+right = XPlane(x=34.0, name='right')
+top = YPlane(y=-34.0, name='top')
+bottom = YPlane(y=34.0, name='bottom')
+boundaries = [left, right, top, bottom]
+for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
+
 circles = list()
-planes = list()
 radii = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
-planes.append(XPlane(x=-34.0, name='left'))
-planes.append(XPlane(x=34.0, name='right'))
-planes.append(YPlane(y=-34.0, name='top'))
-planes.append(YPlane(y=34.0, name='bottom'))
-for plane in planes: plane.setBoundaryType(REFLECTIVE)
 for r in radii: circles.append(Circle(x=0.0, y=0.0, radius=r))
 
 
@@ -56,9 +57,9 @@ log.py_printf('NORMAL', 'Creating cells...')
 cells = [CellBasic() for i in range(12)]
 
 # Append 3 CellFills for the assemblies and full core
-cells.append(CellFill(name='assembly 1'))
-cells.append(CellFill(name='assembly 2'))
-cells.append(CellFill(name='full core'))
+assembly1 = CellFill(name='assembly 1')
+assembly2 = CellFill(name='assembly 2')
+root_cell = CellFill(name='full core')
 
 # Create fuel/moderator by adding the appropriate Surfaces and Materials
 cells[0].addSurface(halfspace=-1, surface=circles[0])
@@ -88,10 +89,10 @@ cells[10].setMaterial(materials['UO2'])
 cells[11].setMaterial(materials['Water'])
 
 # Add the boundary Planes to the "root" Cell
-cells[14].addSurface(halfspace=+1, surface=planes[0])
-cells[14].addSurface(halfspace=-1, surface=planes[1])
-cells[14].addSurface(halfspace=+1, surface=planes[2])
-cells[14].addSurface(halfspace=-1, surface=planes[3])
+root_cell.addSurface(halfspace=+1, surface=boundaries[0])
+root_cell.addSurface(halfspace=-1, surface=boundaries[1])
+root_cell.addSurface(halfspace=+1, surface=boundaries[2])
+root_cell.addSurface(halfspace=-1, surface=boundaries[3])
 
 
 ###############################################################################
@@ -108,7 +109,7 @@ u5 = Universe(name='pin 5')
 u6 = Universe(name='pin 6')
 u7 = Universe(name='2x2 lattice')
 u8 = Universe(name='2x2 lattice')
-root = Universe(name='root universe')
+root_universe = Universe(name='root universe')
 
 # Add the appropriate Cells to each Universe
 u1.addCell(cells[0])
@@ -123,9 +124,9 @@ u5.addCell(cells[8])
 u5.addCell(cells[9])
 u6.addCell(cells[10])
 u6.addCell(cells[11])
-u7.addCell(cells[12])
-u8.addCell(cells[13])
-root.addCell(cells[14])
+u7.addCell(assembly1)
+u8.addCell(assembly2)
+root_universe.addCell(root_cell)
 
 
 ###############################################################################
@@ -186,9 +187,9 @@ core.setUniverses([[u7, u8, u7, u8],
                    [u7, u8, u7, u8],
                    [u8, u7, u8, u7]])
 
-cells[12].setFill(a1)
-cells[13].setFill(a2)
-cells[14].setFill(core)
+assembly1.setFill(a1)
+assembly2.setFill(a2)
+root_cell.setFill(core)
 
 
 ###############################################################################
@@ -198,7 +199,7 @@ cells[14].setFill(core)
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-geometry.setRootUniverse(root)
+geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
 
