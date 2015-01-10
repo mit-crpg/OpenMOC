@@ -84,7 +84,6 @@ protected:
   cellType _cell_type;
 
   /** The ID for the Universe within which this cell resides */
-  // FIXME: Remove this
   int _universe;
 
   /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
