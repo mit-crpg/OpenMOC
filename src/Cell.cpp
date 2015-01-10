@@ -34,6 +34,7 @@ void reset_cell_id() {
  * @brief Default constructor used in rings/sectors subdivision of Cells.
  */
 Cell::Cell() {
+  _name = NULL;
 }
 
 
@@ -54,6 +55,8 @@ Cell::Cell(int id, const char* name) {
 
   _uid = _n;
   _n++;
+
+  _name = NULL;
   setName(name);
 
   /* Set a default bounding box around the Cell */
@@ -71,6 +74,9 @@ Cell::Cell(int id, const char* name) {
  */
 Cell::~Cell() {
   _surfaces.clear();
+
+  if (_name != NULL)
+    delete [] _name;
 }
 
 
@@ -249,6 +255,9 @@ std::map<int, surface_halfspace> Cell::getSurfaces() const {
  */
 void Cell::setName(const char* name) {
   int length = strlen(name);
+
+  if (_name != NULL)
+    delete [] _name;
 
   /* Initialize a character array for the Cell's name */
   _name = new char[length+1];

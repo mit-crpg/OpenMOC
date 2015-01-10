@@ -48,7 +48,9 @@ Universe::Universe(const int id, const char* name) {
   _uid = _n;
   _n++;
 
+  _name = NULL;
   setName(name);
+
   _type = SIMPLE;
 
   /* By default, the Universe's fissionability is unknown */
@@ -61,6 +63,9 @@ Universe::Universe(const int id, const char* name) {
  */
 Universe::~Universe() {
   _cells.clear();
+
+  if (_name != NULL)
+    delete [] _name;
 }
 
 
@@ -511,6 +516,9 @@ bool Universe::isFissionable() {
  */
 void Universe::setName(const char* name) {
   int length = strlen(name);
+
+  if (_name != NULL)
+    delete [] _name;
 
   /* Initialize a character array for the Universe's name */
   _name = new char[length+1];

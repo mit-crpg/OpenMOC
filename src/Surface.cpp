@@ -47,7 +47,10 @@ Surface::Surface(const int id, const char* name){
 
   _uid = _n;
   _n++;
+
+  _name = NULL;
   setName(name);
+
   _boundary_type = BOUNDARY_NONE;
 }
 
@@ -55,7 +58,10 @@ Surface::Surface(const int id, const char* name){
 /**
  * @brief Destructor.
  */
-Surface::~Surface() { }
+Surface::~Surface() {
+  if (_name != NULL)
+    delete [] _name;
+}
 
 
 /**
@@ -110,6 +116,9 @@ boundaryType Surface::getBoundaryType(){
  */
 void Surface::setName(const char* name) {
   int length = strlen(name);
+
+  if (_name != NULL)
+    delete [] _name;
 
   /* Initialize a character array for the Surface's name */
   _name = new char[length+1];

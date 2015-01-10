@@ -44,6 +44,9 @@ Material::Material(int id, const char* name) {
 
   _uid = -1;
 
+  _name = NULL;
+  setName(name);
+
   _sigma_t = NULL;
   _sigma_a = NULL;
   _sigma_s = NULL;
@@ -67,6 +70,9 @@ Material::Material(int id, const char* name) {
  * @brief Destructor deletes all cross-section data structures from memory.
  */
 Material::~Material() {
+
+  if (_name != NULL)
+    delete [] _name;
 
   /* If data is vector aligned */
   if (_data_aligned) {
@@ -561,6 +567,9 @@ int Material::getNumVectorGroups() {
  */
 void Material::setName(const char* name) {
   int length = strlen(name);
+
+  if (_name != NULL)
+    delete [] _name;
 
   /* Initialize a character array for the Material's name */
   _name = new char[length+1];
