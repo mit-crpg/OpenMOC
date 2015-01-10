@@ -53,20 +53,19 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cells = list()
-cells.append(CellBasic(name='fuel'))
-cells.append(CellBasic(name='moderator'))
-cells.append(CellFill(name='root cell'))
+fuel = CellBasic(name='fuel')
+fuel.setMaterial(materials['UO2'])
+fuel.addSurface(halfspace=-1, surface=circle)
 
-cells[0].setMaterial(materials['UO2'])
-cells[1].setMaterial(materials['Water'])
+moderator = CellBasic(name='moderator')
+moderator.setMaterial(materials['Water'])
+moderator.addSurface(halfspace=+1, surface=circle)
 
-cells[0].addSurface(halfspace=-1, surface=circle)
-cells[1].addSurface(halfspace=+1, surface=circle)
-cells[2].addSurface(halfspace=+1, surface=left)
-cells[2].addSurface(halfspace=-1, surface=right)
-cells[2].addSurface(halfspace=+1, surface=bottom)
-cells[2].addSurface(halfspace=-1, surface=top)
+root_cell = CellFill(name='root cell')
+root_cell.addSurface(halfspace=+1, surface=left)
+root_cell.addSurface(halfspace=-1, surface=right)
+root_cell.addSurface(halfspace=+1, surface=bottom)
+root_cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
@@ -75,12 +74,12 @@ cells[2].addSurface(halfspace=-1, surface=top)
 
 log.py_printf('NORMAL', 'Creating universes...')
 
-pincell = Universe(name='pin cell')
-root = Universe(name='root universe')
+pin_cell = Universe(name='pin cell')
+root_universe = Universe(name='root universe')
 
-pincell.addCell(cells[0])
-pincell.addCell(cells[1])
-root.addCell(cells[2])
+pin_cell.addCell(fuel)
+pin_cell.addCell(moderator)
+root_universe.addCell(root_cell)
 
 
 ###############################################################################
@@ -91,9 +90,9 @@ log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
 
 lattice = Lattice(name='1x1 lattice')
 lattice.setWidth(width_x=4.0, width_y=4.0)
-lattice.setUniverses([[pincell]])
+lattice.setUniverses([[pin_cell]])
 
-cells[2].setFill(lattice)
+root_cell.setFill(lattice)
 
 
 ###############################################################################
@@ -103,7 +102,7 @@ cells[2].setFill(lattice)
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-geometry.setRootUniverse(root)
+geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
 
