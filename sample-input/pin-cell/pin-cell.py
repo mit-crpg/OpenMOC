@@ -60,12 +60,10 @@ fuel.addSurface(halfspace=-1, surface=circle)
 moderator = CellBasic(name='moderator')
 moderator.setMaterial(materials['Water'])
 moderator.addSurface(halfspace=+1, surface=circle)
-
-root_cell = CellFill(name='root cell')
-root_cell.addSurface(halfspace=+1, surface=left)
-root_cell.addSurface(halfspace=-1, surface=right)
-root_cell.addSurface(halfspace=+1, surface=bottom)
-root_cell.addSurface(halfspace=-1, surface=top)
+moderator.addSurface(halfspace=+1, surface=left)
+moderator.addSurface(halfspace=-1, surface=right)
+moderator.addSurface(halfspace=+1, surface=bottom)
+moderator.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
@@ -74,25 +72,9 @@ root_cell.addSurface(halfspace=-1, surface=top)
 
 log.py_printf('NORMAL', 'Creating universes...')
 
-pin_cell = Universe(name='pin cell')
 root_universe = Universe(name='root universe')
-
-pin_cell.addCell(fuel)
-pin_cell.addCell(moderator)
-root_universe.addCell(root_cell)
-
-
-###############################################################################
-###########################   Creating Lattices   #############################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
-
-lattice = Lattice(name='1x1 lattice')
-lattice.setWidth(width_x=4.0, width_y=4.0)
-lattice.setUniverses([[pin_cell]])
-
-root_cell.setFill(lattice)
+root_universe.addCell(fuel)
+root_universe.addCell(moderator)
 
 
 ###############################################################################

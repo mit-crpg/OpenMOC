@@ -76,8 +76,8 @@ cell.addSurface(halfspace=-1, surface=top)
 
 log.py_printf('NORMAL', 'Creating universes...')
 
-root = Universe(name='root universe')
-root.addCell(cell)
+root_universe = Universe(name='root universe')
+root_universe.addCell(cell)
 
 
 ###############################################################################
@@ -87,7 +87,7 @@ root.addCell(cell)
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-geometry.setRootUniverse(root)
+geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
 

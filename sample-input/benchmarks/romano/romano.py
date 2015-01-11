@@ -72,19 +72,17 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cells = list()
-cells.append(CellBasic(name='fuel'))
-cells.append(CellBasic(name='moderator'))
+fuel_cell = CellBasic(name='fuel')
+fuel_cell.setMaterial(fuel)
+fuel_cell.addSurface(halfspace=-1, surface=circle)
 
-cells[0].setMaterial(fuel)
-cells[1].setMaterial(moderator)
-
-cells[0].addSurface(halfspace=-1, surface=circle)
-cells[1].addSurface(halfspace=+1, surface=circle)
-cells[1].addSurface(halfspace=+1, surface=left)
-cells[1].addSurface(halfspace=-1, surface=right)
-cells[1].addSurface(halfspace=+1, surface=bottom)
-cells[1].addSurface(halfspace=-1, surface=top)
+moderator_cell = CellBasic(name='moderator')
+moderator_cell.setMaterial(moderator)
+moderator_cell.addSurface(halfspace=+1, surface=circle)
+moderator_cell.addSurface(halfspace=+1, surface=left)
+moderator_cell.addSurface(halfspace=-1, surface=right)
+moderator_cell.addSurface(halfspace=+1, surface=bottom)
+moderator_cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
@@ -93,9 +91,9 @@ cells[1].addSurface(halfspace=-1, surface=top)
 
 log.py_printf('NORMAL', 'Creating universes...')
 
-root = Universe(name='root universe')
-root.addCell(cells[0])
-root.addCell(cells[1])
+root_universe = Universe(name='root universe')
+root_universe.addCell(fuel_cell)
+root_universe.addCell(moderator_cell)
 
 
 ###############################################################################
@@ -105,7 +103,7 @@ root.addCell(cells[1])
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-geometry.setRootUniverse(root)
+geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
 
