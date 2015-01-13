@@ -204,12 +204,11 @@ def compute_fission_rates(solver, use_hdf5=False):
 # @param note an additional string note to include in state file
 def store_simulation_state(solver, fluxes=False, sources=False,
                            fission_rates=False, use_hdf5=False,
-                           filename='simulation-state',
+                           filename='simulation-state', 
+                           directory = 'simulation-states',
                            append=True, note=''):
 
   import datetime
-
-  directory = 'simulation-states'
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
