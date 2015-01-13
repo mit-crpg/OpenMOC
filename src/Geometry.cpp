@@ -203,12 +203,13 @@ void Geometry::setNumFSRs(int num_fsrs) {
 int Geometry::getNumEnergyGroups() {
 
   std::map<int, Material*> materials = getAllMaterials();
-  std::map<int, Material*>::iterator iter;
-  int num_groups = materials.begin()->second->getNumEnergyGroups();
 
   if (materials.size() == 0)
     log_printf(ERROR, "Unable to return the number of energy groups from "
                "the Geometry since it does not contain any Materials");
+
+  int num_groups = materials.begin()->second->getNumEnergyGroups();
+  std::map<int, Material*>::iterator iter;
 
   for (iter = materials.begin(); iter != materials.end(); ++iter) {
     if (iter->second->getNumEnergyGroups() != num_groups)
