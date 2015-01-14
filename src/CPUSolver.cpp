@@ -399,6 +399,8 @@ void CPUSolver::initializeFSRs() {
     }
   }
 
+  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
+
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
 
@@ -411,7 +413,7 @@ void CPUSolver::initializeFSRs() {
       _num_fissionable_FSRs++;
 
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d "
-               "and volume = %f", r, _FSR_materials[r]->getUid(), 
+               "and volume = %f", r, _FSR_materials[r]->getUid(),
                _FSR_volumes[r]);
   }
 
