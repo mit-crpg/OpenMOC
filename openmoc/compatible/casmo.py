@@ -750,12 +750,12 @@ class Casmo(object):
         os.makedirs(directory)
     f = h5py.File(directory + filename, 'w')
     f.attrs['Energy Groups'] = self._energy_groups
-    f.attrs['K-Infinity'] = self._kinf
     f.attrs['Assembly Width'] = self._width
     f.attrs['Num Microregions'] = self._num_micro_regions
     f.attrs['Fuel Pin Radii'] = self._fuel_pin_rad
     f.attrs['Lattice Pitch'] = self._lattice_pitch
     big_data = f.create_group('Casmo Data')
+    big_data.create_dataset('K-Infinity', data=self._kinf)
     big_data.create_dataset('Total XS', data=self._sigt)
     big_data.create_dataset('Absorption XS', data=self._siga)
     big_data.create_dataset('Fission XS', data=self._sigf)

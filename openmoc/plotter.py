@@ -149,7 +149,7 @@ def plot_segments(track_generator):
 
   # Error checking
   if not 'TrackGenerator' in str(type(track_generator)):
-    py_printf('ERROR', 'Unable to plot Track segments since  %s was input ' + \
+    py_printf('ERROR', 'Unable to plot Track segments since %s was input ' + \
               'rather than a TrackGenerator', str(type(track_generator)))
 
   if not track_generator.containsTracks():
@@ -243,7 +243,7 @@ def plot_materials(geometry, gridsize=250):
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Materials since ' + \
-              'since the gridsize %s is not an integer', str(gridsize))
+              'since the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
     py_printf('Error', 'Unable to plot the Materials ' + \
@@ -329,7 +329,7 @@ def plot_cells(geometry, gridsize=250):
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Cells since ' + \
-                'since the gridsize %s is not an integer', str(gridsize))
+                'since the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
     py_printf('Error', 'Unable to plot the Cells ' + \
@@ -416,7 +416,7 @@ def plot_flat_source_regions(geometry, gridsize=250):
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
-              'since the gridsize %s is not an integer', str(gridsize))
+              'since the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
     py_printf('Error', 'Unable to plot the flat source regions ' + \
@@ -615,24 +615,24 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
       elif group <= 0:
         py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                  'flux since the energy_groups list contains %d which is' + \
-                 'less than the index for all energy groups', str(group))
+                 'less than the index for all energy groups', group)
 
       elif group > geometry.getNumEnergyGroups():
         py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                   'flux since the energy_groups list contains %d which is' + \
-                  ' greater than the index for all energy groups', str(group))
+                  ' greater than the index for all energy groups', group)
 
   elif is_integer(energy_groups):
     if energy_groups <= 0:
       py_printf('ERROR', 'Unable to plot the flat source region scalar ' + \
                'flux since the energy_groups argument contains %d which is' + \
-               ' less than the index for all energy groups', str(energy_groups))
+               ' less than the index for all energy groups', energy_groups)
 
     elif energy_groups > geometry.getNumEnergyGroups():
       py_printf('ERROR', 'Unable to plot the flat source region ' + \
                 'scalar flux since the energy_groups argument ' + \
                 'contains %d which is greater than the index ' + \
-                'for all energy groups', str(energy_groups))
+                'for all energy groups', energy_groups)
 
     else:
       py_printf('ERROR', 'Unable to plot the flat source region ' + \

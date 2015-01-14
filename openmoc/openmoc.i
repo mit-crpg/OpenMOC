@@ -22,6 +22,10 @@
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
 
+  #ifdef ICPC
+  #include "../src/VectorizedSolver.h"
+  #endif
+
   #define printf PySys_WriteStdout
 
 
@@ -307,6 +311,10 @@
 %include ../src/TrackGenerator.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h
+
+#ifdef ICPC
+%include "../src/VectorizedSolver.h"
+#endif
 
 
 #define printf PySys_WriteStdout

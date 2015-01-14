@@ -258,55 +258,71 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
  * @param FSR_materials an array of the FSR Material UIDs
  * @param materials an array of the dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
- * @param tot_absorption an array of FSR absorption rates
- * @param tot_fission an array of FSR fission rates
+ * @param total array of FSR total reaction rates
+ * @param fission an array of FSR fission rates
+ * @param scatter an array of FSR scattering rates
  */
-__global__ void computeFissionAndAbsorption(FP_PRECISION* FSR_volumes,
-                                            int* FSR_materials,
-                                            dev_material* materials,
-                                            FP_PRECISION* scalar_flux,
-                                            FP_PRECISION* tot_absorption,
-                                            FP_PRECISION* tot_fission) {
+__global__ void computeKeffReactionRates(FP_PRECISION* FSR_volumes,
+                                         int* FSR_materials,
+                                         dev_material* materials,
+                                         FP_PRECISION* scalar_flux,
+                                         FP_PRECISION* total,
+                                         FP_PRECISION* fission,
+                                         FP_PRECISION* scatter) {
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
   dev_material* curr_material;
+  FP_PRECISION* sigma_t;
   FP_PRECISION* nu_sigma_f;
-  FP_PRECISION* sigma_a;
+  FP_PRECISION* sigma_s;
   FP_PRECISION volume;
 
-  FP_PRECISION absorption = 0.;
-  FP_PRECISION fission = 0.;
+  FP_PRECISION tot = 0.;
+  FP_PRECISION fiss = 0.;
+  FP_PRECISION scatt = 0.;
 
   /* Iterate over all FSRs */
   while (tid < *num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
+    sigma_t = curr_material->_sigma_t;
     nu_sigma_f = curr_material->_nu_sigma_f;
-    sigma_a = curr_material->_sigma_a;
+    sigma_s = curr_material->_sigma_s;
     volume = FSR_volumes[tid];
 
-    FP_PRECISION curr_abs = 0.;
-    FP_PRECISION curr_fission = 0.;
+    FP_PRECISION curr_tot = 0.;
+    FP_PRECISION curr_fiss = 0.;
+    FP_PRECISION curr_scatt = 0.;
 
-    /* Iterate over all energy groups and update fission and absorption
+    /* Iterate over all energy groups and update total and fission
      * rates for this thread block */
     for (int e=0; e < *num_groups; e++) {
-      curr_abs += sigma_a[e] * scalar_flux(tid,e);
-      curr_fission += nu_sigma_f[e] * scalar_flux(tid,e);
+      curr_tot += sigma_t[e] * scalar_flux(tid,e);
+      curr_fiss += nu_sigma_f[e] * scalar_flux(tid,e);
     }
 
-    absorption += curr_abs * volume;
-    fission += curr_fission * volume;
+    tot += curr_tot * volume;
+    fiss += curr_fiss * volume;
+
+    /* Iterate over all energy groups and update scattering
+     * rates for this thread block */
+    for (int G=0; G < *num_groups; G++) {
+      for (int g=0; g < *num_groups; g++)
+        curr_scatt += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
+    }
+
+    scatt += curr_scatt * volume;
 
     /* Increment thread id */
     tid += blockDim.x * gridDim.x;
   }
 
-  /* Copy this thread's fission and absorption rates to global memory */
+  /* Copy this thread's total and scatter rates to global memory */
   tid = threadIdx.x + blockIdx.x * blockDim.x;
-  tot_absorption[tid] = absorption;
-  tot_fission[tid] = fission;
+  total[tid] = tot;
+  fission[tid] = fiss;
+  scatter[tid] = scatt;
 
   return;
 }
@@ -699,8 +715,9 @@ GPUSolver::GPUSolver(Geometry* geometry, TrackGenerator* track_generator) :
   _dev_tracks = NULL;
   _FSR_materials = NULL;
 
-  _tot_absorption = NULL;
-  _tot_fission = NULL;
+  _total = NULL;
+  _fission = NULL;
+  _scatter = NULL;
   _leakage = NULL;
 
   if (track_generator != NULL)
@@ -762,14 +779,19 @@ GPUSolver::~GPUSolver() {
     _fission_sources = NULL;
   }
 
-  if (_tot_absorption != NULL) {
-    _tot_absorption_vec.clear();
-    _tot_absorption = NULL;
+  if (_total != NULL) {
+    _total_vec.clear();
+    _total = NULL;
   }
 
-  if (_tot_fission != NULL) {
-    _tot_fission_vec.clear();
-    _tot_fission = NULL;
+  if (_fission != NULL) {
+    _fission_vec.clear();
+    _fission = NULL;
+  }
+
+  if (_scatter != NULL) {
+    _scatter_vec.clear();
+    _scatter = NULL;
   }
 
   if (_source_residuals != NULL) {
@@ -1321,14 +1343,19 @@ void GPUSolver::initializeThrustVectors() {
     _fission_sources_vec.clear();
   }
 
-  if (_tot_absorption != NULL) {
-    _tot_absorption = NULL;
-    _tot_absorption_vec.clear();
+  if (_total != NULL) {
+    _total = NULL;
+    _total_vec.clear();
   }
 
-  if (_tot_fission != NULL) {
-    _tot_fission = NULL;
-    _tot_fission_vec.clear();
+  if (_fission != NULL) {
+    _fission = NULL;
+    _fission_vec.clear();
+  }
+
+  if (_scatter != NULL) {
+    _scatter = NULL;
+    _scatter_vec.clear();
   }
 
   if (_source_residuals != NULL) {
@@ -1347,13 +1374,17 @@ void GPUSolver::initializeThrustVectors() {
     _fission_sources_vec.resize(_B * _T);
     _fission_sources = thrust::raw_pointer_cast(&_fission_sources_vec[0]);
 
-    /* Allocate total absorption reaction rate array on device */
-    _tot_absorption_vec.resize(_B * _T);
-    _tot_absorption = thrust::raw_pointer_cast(&_tot_absorption_vec[0]);
+    /* Allocate total reaction rate array on device */
+    _total_vec.resize(_B * _T);
+    _total = thrust::raw_pointer_cast(&_total_vec[0]);
 
     /* Allocate fission reaction rate array on device */
-    _tot_fission_vec.resize(_B * _T);
-    _tot_fission = thrust::raw_pointer_cast(&_tot_fission_vec[0]);
+    _fission_vec.resize(_B * _T);
+    _fission = thrust::raw_pointer_cast(&_fission_vec[0]);
+
+    /* Allocate scattering reaction rate array on device */
+    _scatter_vec.resize(_B * _T);
+    _scatter = thrust::raw_pointer_cast(&_scatter_vec[0]);
 
     /* Allocate source residual array on device */
     _source_residuals_vec.resize(_B * _T);
@@ -1613,50 +1644,57 @@ void GPUSolver::addSourceToScalarFlux() {
 
 
 /**
- * @brief Compute \f$ k_{eff} \f$ from the total fission and absorption rates.
+ * @brief Compute \f$ k_{eff} \f$ from the total, fission and scattering
+ *        reaction rates and leakage.
  * @details This method computes the current approximation to the
  *          multiplication factor on this iteration as follows:
- *          \f$ k_{eff} = \frac{\displaystyle\sum \displaystyle\sum \nu
- *                        \Sigma_f \Phi V}{\displaystyle\sum
- *                        \displaystyle\sum \Sigma_a \Phi V} \f$
+ *          \f$ k_{eff} = \frac{\displaystyle\sum_{i \in I}
+ *                        \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}}
+ *                        {\displaystyle\sum_{i \in I}
+ *                        \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} -
+ *                        \Sigma^S_g \Phi V_{i} - L_{i,g})} \f$
  */
 void GPUSolver::computeKeff() {
 
-  FP_PRECISION tot_absorption;
-  FP_PRECISION tot_fission;
-  FP_PRECISION tot_leakage;
+  FP_PRECISION total;
+  FP_PRECISION fission;
+  FP_PRECISION scatter;
+  FP_PRECISION leakage;
 
-  /* Compute the total fission and absorption rates on the device.
+  /* Compute the total, fission and scattering reaction rates on device.
    * This kernel stores partial rates in a Thrust vector with as many
    * entries as CUDAthreads executed by the kernel */
-  computeFissionAndAbsorption<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
-                                          _materials, _scalar_flux,
-                                          _tot_absorption, _tot_fission);
+  computeKeffReactionRates<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
+                                       _materials, _scalar_flux,
+                                       _total, _fission, _scatter);
 
   cudaDeviceSynchronize();
 
-  /* Compute the total absorption rate by reducing the partial absorption
+  /* Compute the total reaction rate by reducing the partial total
    * rates compiled in the Thrust vector */
-  tot_absorption = thrust::reduce(_tot_absorption_vec.begin(),
-                                  _tot_absorption_vec.end());
+  total = thrust::reduce(_total_vec.begin(), _total_vec.end());
 
-  /* Compute the total fission rate by reducing the partial fission
+  /* Compute the fission rate by reducing the partial fission
    * rates compiled in the Thrust vector */
-  tot_fission = thrust::reduce(_tot_fission_vec.begin(),_tot_fission_vec.end());
+  fission = thrust::reduce(_fission_vec.begin(), _fission_vec.end());
 
-  cudaMemcpy((void*)&tot_fission, (void*)_tot_fission,
+  cudaMemcpy((void*)&fission, (void*)_fission,
              _B * _T * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
+
+  /* Compute the scattering rate by reducing the partial fission
+   * rates compiled in the Thrust vector */
+  scatter = thrust::reduce(_scatter_vec.begin(), _scatter_vec.end());
 
   /* Compute the total leakage by reducing the partial leakage
    * rates compiled in the Thrust vector */
-  tot_leakage = 0.5 * thrust::reduce(_leakage_vec.begin(), _leakage_vec.end());
+  leakage = 0.5 * thrust::reduce(_leakage_vec.begin(), _leakage_vec.end());
 
 
-  /* Compute the new keff from the fission and absorption rates */
-  _k_eff = tot_fission / (tot_absorption + tot_leakage);
+  /* Compute the new keff from the total, fission, scatter and leakage */
+  _k_eff = fission / (total - scatter + leakage);
 
-  log_printf(DEBUG, "abs = %f, fiss = %f, leak = %f, keff = %f",
-             tot_absorption, tot_fission, tot_leakage, _k_eff);
+  log_printf(DEBUG, "tot = %f, fiss = %f, scatt = %f, leak = %f,"
+             " keff = %f", total, fission, scatter, leakage, _k_eff);
 }
 
 

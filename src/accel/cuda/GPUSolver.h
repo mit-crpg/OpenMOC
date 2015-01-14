@@ -74,11 +74,14 @@ private:
   /** An array of the cumulative number of Tracks for each azimuthal angle */
   int* _track_index_offsets;
 
-  /** A pointer to the Thrust vector of absorption rates in each FSR */
-  FP_PRECISION* _tot_absorption;
+  /** A pointer to the Thrust vector of total reaction rates in each FSR */
+  FP_PRECISION* _total;
 
   /** A pointer to the Thrust vector of fission rates in each FSR */
-  FP_PRECISION* _tot_fission;
+  FP_PRECISION* _fission;
+
+  /** A pointer to the Thrust vector of scatter rates in each FSR */
+  FP_PRECISION* _scatter;
 
   /** A pointer to the Thrust vector of leakages for each Track */
   FP_PRECISION* _leakage;
@@ -86,11 +89,14 @@ private:
   /** Thrust vector of fission sources in each FSR */
   thrust::device_vector<FP_PRECISION> _fission_sources_vec;
 
-  /** Thrust vector of fission rates in each FSR */
-  thrust::device_vector<FP_PRECISION> _tot_fission_vec;
+  /** Thrust vector of total reaction rates in each FSR */
+  thrust::device_vector<FP_PRECISION> _total_vec;
 
-  /** Thrust vector of absorption rates in each FSR */
-  thrust::device_vector<FP_PRECISION> _tot_absorption_vec;
+  /** Thrust vector of fission rates in each FSR */
+  thrust::device_vector<FP_PRECISION> _fission_vec;
+
+  /** Thrust vector of scatter rates in each FSR */
+  thrust::device_vector<FP_PRECISION> _scatter_vec;
 
   /** Thrust vector of source residuals in each FSR */
   thrust::device_vector<FP_PRECISION> _source_residuals_vec;
