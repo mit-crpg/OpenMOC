@@ -89,9 +89,6 @@ private:
   /** The total number of FSRs in the Geometry */
   int _num_FSRs;
 
-  /** The number of energy groups for each Material's nuclear data */
-  int _num_groups;
-
   /** An map of FSR key hashes to unique fsr_data structs */
 #ifndef CUDA
   std::unordered_map<std::size_t, fsr_data> _FSR_keys_map;
@@ -203,7 +200,7 @@ public:
   /* Other worker methods */
   void subdivideCells();
   void initializeFlatSourceRegions();
-  void segmentize(Track* track);
+  void segmentize(Track* track, FP_PRECISION max_optical_length);
   void computeFissionability(Universe* univ=NULL);
   std::string toString();
   void printString();

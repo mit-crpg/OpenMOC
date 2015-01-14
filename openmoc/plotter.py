@@ -122,6 +122,7 @@ def plot_tracks(track_generator):
       str(spacing) + '-spacing.png'
 
   fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
 
 
 ##
@@ -207,6 +208,7 @@ def plot_segments(track_generator):
       str(spacing) + '-spacing.png'
 
   fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
 
 
 
@@ -293,6 +295,7 @@ def plot_materials(geometry, gridsize=250):
   plt.title('Materials')
   filename = directory + 'materials.png'
   fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
 
 
 ##
@@ -378,6 +381,7 @@ def plot_cells(geometry, gridsize=250):
   plt.title('Cells')
   filename = directory + 'cells.png'
   fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
 
 
 
@@ -465,6 +469,7 @@ def plot_flat_source_regions(geometry, gridsize=250):
   plt.title('Flat Source Regions')
   filename = directory + 'flat-source-regions.png'
   fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
 
 
 ##
@@ -692,6 +697,7 @@ def plot_fluxes(geometry, solver, energy_groups=[1], gridsize=250):
     plt.title('Flat Source Region Scalar Flux in Group ' + str(group))
     filename = directory + 'fsr-flux-group-' + str(group) + '.png'
     fig.savefig(filename, bbox_inches='tight')
+    plt.close(fig)
 
 
 ##

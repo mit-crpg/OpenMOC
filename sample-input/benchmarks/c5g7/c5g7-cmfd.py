@@ -325,6 +325,7 @@ cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
 cmfd.setGroupStructure([1,4,8])
 
+
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
 ###############################################################################
@@ -336,8 +337,8 @@ geometry.setCmfd(cmfd)
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 for lattice in lattices: geometry.addLattice(lattice)
-
 geometry.initializeFlatSourceRegions()
+
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################

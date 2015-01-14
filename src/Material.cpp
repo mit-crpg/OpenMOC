@@ -907,7 +907,7 @@ void Material::setNuSigmaFByGroup(double xs, int group) {
                "%d which contains %d energy groups", group, _id, _num_groups);
 
   _nu_sigma_f[group-1] = xs;
-  
+
   /* Determine whether or not this Material is fissionable */
   _fissionable = false;
 

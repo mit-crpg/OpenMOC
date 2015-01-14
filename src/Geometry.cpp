@@ -23,7 +23,6 @@ Geometry::Geometry() {
   _right_bc  = REFLECTIVE;
 
   _num_FSRs = 0;
-  _num_groups = 0;
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
@@ -196,11 +195,22 @@ void Geometry::setNumFSRs(int num_fsrs) {
  * @return the number of energy groups
  */
 int Geometry::getNumEnergyGroups() {
-  if (getNumMaterials() == 0)
-    log_printf(ERROR, "Unable to return the number of energy groups from "
-               "the geometry since it does not contain any materials");
 
-  return _num_groups;
+  std::map<int, Material*>::iterator iter;
+  int num_groups = _materials.begin()->second->getNumEnergyGroups();
+
+  if (_materials.size() == 0)
+    log_printf(ERROR, "Unable to return the number of energy groups from "
+               "the Geometry since it does not contain any Materials");
+
+  for (iter = _materials.begin(); iter != _materials.end(); ++iter) {
+    if (iter->second->getNumEnergyGroups() != num_groups)
+      log_printf(ERROR, "Unable to return the number of energy groups from "
+                 "the Geometry since it contains different numbers of groups: "
+                 "%d and %d", num_groups, iter->second->getNumEnergyGroups());
+  }
+
+  return num_groups;
 }
 
 
@@ -426,19 +436,6 @@ void Geometry::setCmfd(Cmfd* cmfd){
  * @param material a pointer to a Material object
  */
 void Geometry::addMaterial(Material* material) {
-
-  /* Checks the number of energy groups */
-  if (material->getNumEnergyGroups() == 0)
-    log_printf(ERROR, "Unable to add Material %d since it does not "
-               "contain any nuclear data", material->getId());
-
-  if (_num_groups == 0)
-    _num_groups = material->getNumEnergyGroups();
-
-  else if (_num_groups != material->getNumEnergyGroups())
-    log_printf(ERROR, "Unable to add Material %d with %d energy groups to the"
-               " Geometry which contains Material(s) with %d energy groups",
-               material->getId(), material->getNumEnergyGroups(), _num_groups);
 
   try {
     /* Check that the sum of the Material's absorption and scattering
@@ -1175,7 +1172,7 @@ void Geometry::initializeFlatSourceRegions() {
     iter->second->setUid(uid);
     uid++;
   }
-  
+
   /* Initialize CMFD */
   if (_cmfd != NULL)
     initializeCmfd();
@@ -1189,8 +1186,10 @@ void Geometry::initializeFlatSourceRegions() {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
+ * @param max_optical_length the maximum optical length a segment is allowed to
+ *          have
  */
-void Geometry::segmentize(Track* track) {
+void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
@@ -1204,6 +1203,7 @@ void Geometry::segmentize(Track* track) {
   FP_PRECISION* sigma_t;
   int min_num_segments;
   int num_segments;
+  int num_groups;
 
   /* Use a LocalCoords for the start and end of each segment */
   LocalCoords segment_start(x0, y0);
@@ -1254,10 +1254,11 @@ void Geometry::segmentize(Track* track) {
     /* Compute the number of Track segments to cut this segment into to ensure
      * that it's length is small enough for the exponential table */
     min_num_segments = 1;
-    for (int e=0; e < _num_groups; e++) {
-      num_segments = ceil(segment_length * sigma_t[e] / 10.0);
+    num_groups = segment_material->getNumEnergyGroups();
+    for (int g=0; g < num_groups; g++) {
+      num_segments = ceil(segment_length * sigma_t[g] / max_optical_length);
       if (num_segments > min_num_segments)
-      min_num_segments = num_segments;
+        min_num_segments = num_segments;
     }
 
     /* "Cut up" Track segment into sub-segments such that the length of each
@@ -1470,7 +1471,8 @@ void Geometry::initializeCmfd(){
   double width = getWidth();
   double cell_width = width / num_x;
   double cell_height = height / num_y;
-  
+  int num_groups = getNumEnergyGroups();
+
   /* Create CMFD lattice and set properties */
   Lattice* lattice = new Lattice(0, cell_width, cell_height);
   lattice->setNumX(num_x);
@@ -1488,12 +1490,12 @@ void Geometry::initializeCmfd(){
   /* Set CMFD mesh dimensions and number of groups */
   _cmfd->setWidth(width);
   _cmfd->setHeight(height);
-  _cmfd->setNumMOCGroups(_num_groups);
+  _cmfd->setNumMOCGroups(num_groups);
 
   /* If user did not set CMFD group structure, create CMFD group
   * structure that is the same as the MOC group structure */
   if (_cmfd->getNumCmfdGroups() == 0)
-    _cmfd->setGroupStructure(NULL, _num_groups+1);
+    _cmfd->setGroupStructure(NULL, num_groups+1);
 
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
