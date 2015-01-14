@@ -759,8 +759,10 @@ void Geometry::initializeFlatSourceRegions() {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
+ * @param max_optical_length the maximum optical length a segment is allowed to
+ *          have
  */
-void Geometry::segmentize(Track* track) {
+void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
@@ -774,7 +776,7 @@ void Geometry::segmentize(Track* track) {
   FP_PRECISION* sigma_t;
   int min_num_segments;
   int num_segments;
-  int num_groups = getNumEnergyGroups();
+  int num_groups;
 
   /* Use a LocalCoords for the start and end of each segment */
   LocalCoords segment_start(x0, y0);
@@ -824,8 +826,9 @@ void Geometry::segmentize(Track* track) {
     /* Compute the number of Track segments to cut this segment into to ensure
      * that it's length is small enough for the exponential table */
     min_num_segments = 1;
-    for (int e=0; e < num_groups; e++) {
-      num_segments = ceil(segment_length * sigma_t[e] / 10.0);
+    num_groups = segment_material->getNumEnergyGroups();
+    for (int g=0; g < num_groups; g++) {
+      num_segments = ceil(segment_length * sigma_t[g] / max_optical_length);
       if (num_segments > min_num_segments)
         min_num_segments = num_segments;
     }

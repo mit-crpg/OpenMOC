@@ -270,10 +270,6 @@ void Solver::setGeometry(Geometry* geometry) {
     log_printf(ERROR, "Unable to set the Geometry for the Solver since the "
                "Geometry has not yet initialized FSRs");
 
-  if (geometry->getNumEnergyGroups() == 0)
-    log_printf(ERROR, "Unable to set the Geometry for the Solver "
-               "since the Geometry does noet contain any materials");
-
   _geometry = geometry;
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();

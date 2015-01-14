@@ -391,8 +391,8 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       sim_states = {}
 
     # Create strings for the day and time
-    day = str(month)+'-'+str(day)+'-'+str(year)
-    time = str(hr)+':'+str(mins)+':'+str(sec)
+    day = str(month).zfill(2)+'-'+str(day).zfill(2)+'-'+str(year)
+    time = str(hr).zfill(2)+':'+str(mins).zfill(2)+':'+str(sec).zfill(2)
 
     # Create dictionaries for this day and time within the pickled file
     if not day in sim_states.keys():
