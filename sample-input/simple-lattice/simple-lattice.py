@@ -159,9 +159,9 @@ log.py_printf('NORMAL', 'Plotting data...')
 
 #plotter.plot_tracks(track_generator)
 #plotter.plot_segments(track_generator)
-plotter.plot_materials(geometry, gridsize=500)
-plotter.plot_cells(geometry, gridsize=500)
-plotter.plot_flat_source_regions(geometry, gridsize=500)
-plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
+#plotter.plot_materials(geometry, gridsize=500)
+#plotter.plot_cells(geometry, gridsize=500)
+#plotter.plot_flat_source_regions(geometry, gridsize=500)
+#plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')
