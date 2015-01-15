@@ -13,7 +13,7 @@
 
 
 import sys
-from process import *
+from openmoc.process import *
 
 ## @var openmoc
 #  @brief The openmoc module in use in the Python script using the

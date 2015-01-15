@@ -48,7 +48,7 @@ import matplotlib.cm as cmx
 import numpy as np
 import numpy.random
 import os, sys
-from process import *
+from openmoc.process import *
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
