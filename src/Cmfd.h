@@ -24,7 +24,6 @@
 #include "Universe.h"
 #include "Track.h"
 #include "linalg.h"
-#include "pairwise_sum.h"
 #endif
 
 
@@ -110,7 +109,7 @@ private:
   FP_PRECISION* _volumes;
 
   /** Array of material pointers for CMFD cell materials */
-  Material** _materials;
+  MacroMaterial** _materials;
 
   /** Physical dimensions of the geometry and each CMFD cell */
   double _width;

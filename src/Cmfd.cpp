@@ -189,7 +189,7 @@ void Cmfd::computeXS(){
 
   /* Pointers to material objects */
   Material* fsr_material;
-  Material* cell_material;
+  MacroMaterial* cell_material;
 
   /* Loop over cmfd cells */
   #pragma omp parallel for private(volume, flux, abs, tot, nu_fis, chi, \
@@ -257,7 +257,6 @@ void Cmfd::computeXS(){
 
           fsr_material = _FSR_materials[*iter];
           volume = _FSR_volumes[*iter];
-          scat = fsr_material->getSigmaS();
           vol_tally += volume;
 
           /* Gets FSR volume, material, and cross sections */
@@ -277,7 +276,7 @@ void Cmfd::computeXS(){
           /* Scattering tallies */
           for (int g = 0; g < _num_moc_groups; g++){
             scat_tally[getCmfdGroup(g)] +=
-                scat[g*_num_moc_groups+h] * flux * volume;
+                fsr_material->getSigmaSByGroup(h+1,g+1) * flux * volume;
           }
         }
 
@@ -794,7 +793,7 @@ void Cmfd::constructMatrices(){
     
   FP_PRECISION value, volume;
   int cell, row;
-  Material* material;
+  MacroMaterial* material;
   
   /* Zero _A and _M matrices */
   matrix_zero(_M, _num_cmfd_groups*_num_cmfd_groups, _num_x*_num_y);
@@ -1132,14 +1131,14 @@ void Cmfd::initializeFlux(){
  */
 void Cmfd::initializeMaterials(){
 
-  Material* material;
+  MacroMaterial* material;
 
   try{
-    _materials = new Material*[_num_x*_num_y];
+    _materials = new MacroMaterial*[_num_x*_num_y];
 
     for (int y = 0; y < _num_y; y++){
       for (int x = 0; x < _num_x; x++){
-        material = new Material(y*_num_x+x);
+        material = new MacroMaterial(y*_num_x+x);
         material->setNumEnergyGroups(_num_cmfd_groups);
         _materials[y*_num_x+x] = material;
       }

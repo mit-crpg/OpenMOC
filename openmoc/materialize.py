@@ -101,7 +101,7 @@ def materialize(filename):
 
       py_printf('INFO', 'Importing material %s', str(name))
 
-      new_material = openmoc.Material()
+      new_material = openmoc.MacroMaterial()
       new_material.setNumEnergyGroups(int(num_groups))
 
       # Retrieve and load the cross-section data into the material object
@@ -171,7 +171,7 @@ def materialize(filename):
 
       py_printf('INFO', 'Importing material %s', str(name))
 
-      new_material = openmoc.Material()
+      new_material = openmoc.MacroMaterial()
       new_material.setNumEnergyGroups(int(num_groups))
 
       if 'Total XS' in data[name].keys():

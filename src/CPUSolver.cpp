@@ -113,7 +113,7 @@ FP_PRECISION CPUSolver::getFSRSource(int fsr_id, int energy_group) {
   FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
   FP_PRECISION* chi = material->getChi();
   FP_PRECISION fission_source = 0.0;
-  FP_PRECISION scatter_source = 0.0;
+  FP_PRECISION scatter_source;
   FP_PRECISION total_source = 0.0;
 
   /* Compute fission source for each group */
@@ -124,9 +124,8 @@ FP_PRECISION CPUSolver::getFSRSource(int fsr_id, int energy_group) {
     fission_source /= _k_eff;
   }
 
-  for (int g=0; g < _num_groups; g++)
-    scatter_source += material->getSigmaSByGroupInline(g,energy_group-1)
-        * _scalar_flux(fsr_id,g);
+  scatter_source = material->getScatterSource(energy_group-1,
+      &_scalar_flux(fsr_id,0));
 
   /* Compute the total source */
   total_source = (fission_source * chi[energy_group-1] + scatter_source) *
@@ -608,7 +607,6 @@ FP_PRECISION CPUSolver::computeFSRSources() {
   FP_PRECISION fission_source;
   FP_PRECISION fsr_fission_source;
   FP_PRECISION* nu_sigma_f;
-  FP_PRECISION* sigma_s;
   FP_PRECISION* sigma_t;
   FP_PRECISION* chi;
 
@@ -618,7 +616,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 
   /* For all FSRs, find the source */
   #pragma omp parallel for private(tid, material, nu_sigma_f, chi, \
-    sigma_s, sigma_t, fission_source, scatter_source, fsr_fission_source) \
+    sigma_t, fission_source, scatter_source, fsr_fission_source) \
     schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
@@ -626,7 +624,6 @@ FP_PRECISION CPUSolver::computeFSRSources() {
     material = _FSR_materials[r];
     nu_sigma_f = material->getNuSigmaF();
     chi = material->getChi();
-    sigma_s = material->getSigmaS();
     sigma_t = material->getSigmaT();
 
     /* Initialize the source residual to zero */
@@ -646,16 +643,9 @@ FP_PRECISION CPUSolver::computeFSRSources() {
     else
       fission_source = 0.0;
 
-    /* Compute total scattering source for group G */
     for (int G=0; G < _num_groups; G++) {
-      scatter_source = 0;
-
-      for (int g=0; g < _num_groups; g++)
-        _scatter_sources(tid,g) = material->getSigmaSByGroupInline(g,G)
-                      * _scalar_flux(r,g);
-
-      scatter_source=pairwise_sum<FP_PRECISION>(&_scatter_sources(tid,0),
-                                                _num_groups);
+      /* Compute total scattering source for group G */
+      scatter_source = material->getScatterSource(G,&_scalar_flux(r,0));
 
       /* Set the fission source for FSR r in group G */
       fsr_fission_source += fission_source * chi[G];
@@ -759,13 +749,8 @@ void CPUSolver::computeKeff() {
 
     FSR_rates[r] = 0.;
 
-    for (int G=0; G < _num_groups; G++) {
-      for (int g=0; g < _num_groups; g++)
-        group_rates[tid+g] = material->getSigmaSByGroupInline(g,G)
-                             * _scalar_flux(r,g);
-
-      FSR_rates[r]+=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
-    }
+    for (int G=0; G < _num_groups; G++)
+      FSR_rates[r] += material->getScatterSource(G,&_scalar_flux(r,0));
 
     FSR_rates[r] *= volume;
   }
