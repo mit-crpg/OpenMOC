@@ -269,7 +269,11 @@ class configuration:
   ###########################################################################
 
   # A list of the flags for SWIG
-  swig_flags = ['-c++', '-python', '-keyword', '-py3']
+  swig_flags = ['-c++', '-python', '-keyword']
+
+  # Python 3 only
+  if sys.version_info[0] == 3:
+    swig_flags.append('-py3')
 
 
   #############################################################################
