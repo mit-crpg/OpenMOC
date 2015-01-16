@@ -1,0 +1,51 @@
+Date: 13/01/2015, Time: 13:31:52
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823302746
+
+------------------------------------------------------
+Date: 13/01/2015, Time: 13:35:05
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823278904
+
+------------------------------------------------------
+Date: 13/01/2015, Time: 13:35:32
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823326588
+
+------------------------------------------------------
+Date: 13/01/2015, Time: 13:35:45
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823290825
+
+------------------------------------------------------
+Date: 13/01/2015, Time: 13:37:03
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823302746
+------------------------------------------------------
+Date: 13/01/2015, Time: 13:37:16
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823302746
+------------------------------------------------------
+Date: 13/01/2015, Time: 13:37:34
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823302746
+------------------------------------------------------
+Date: 13/01/2015, Time: 13:38:55
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823290825
+------------------------------------------------------
+Date: 13/01/2015, Time: 13:39:35
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823302746
+------------------------------------------------------
+Date: 13/01/2015, Time: 13:39:51
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823266983
+------------------------------------------------------
+Date: 13/01/2015, Time: 14:25:44
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823302746
+------------------------------------------------------
+Date: 13/01/2015, Time: 17:05:01
+Test Failed: testKeff
+Benchmark Keff is 1.18534874916, Keff found was 1.17823266983

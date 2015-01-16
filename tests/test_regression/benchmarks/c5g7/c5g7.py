@@ -1,10 +1,9 @@
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
-import openmoc.process as process
 import openmoc.materialize as materialize
 from openmoc.options import Options
-import openmoc.process as process
+
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -27,11 +26,10 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 ###########################   Creating Materials   ############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Importing materials data from py...')
+log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
 materials = materialize.materialize('../../c5g7-materials.h5')
 
-materials['UO2'].setNuSigmaFByGroup(materials['UO2'].getNuSigmaFByGroup(7)*.9, 7)
 uo2_id = materials['UO2'].getId()
 mox43_id = materials['MOX-4.3%'].getId()
 mox7_id = materials['MOX-7%'].getId()
@@ -315,30 +313,19 @@ lattices[-1].setLatticeCells([[10, 11, 15],
 
 
 ###############################################################################
-##########################     Creating Cmfd mesh    ##########################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating Cmfd mesh...')
-
-cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(0.6)
-cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(51,51)
-cmfd.setGroupStructure([1,4,8])
-
-###############################################################################
 ##########################   Creating the Geometry   ##########################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-geometry.setCmfd(cmfd)
+
 for material in materials.values(): geometry.addMaterial(material)
 for cell in cells: geometry.addCell(cell)
 for lattice in lattices: geometry.addLattice(lattice)
 
 geometry.initializeFlatSourceRegions()
+
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -347,8 +334,8 @@ geometry.initializeFlatSourceRegions()
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
+
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
@@ -360,6 +347,7 @@ solver.setNumThreads(num_threads)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
+
 ###############################################################################
 ############################   Generating Plots   #############################
 ###############################################################################
@@ -369,9 +357,7 @@ log.py_printf('NORMAL', 'Plotting data...')
 #plotter.plot_tracks(track_generator)
 #plotter.plot_materials(geometry, gridsize=500)
 #plotter.plot_cells(geometry, gridsize=500)
-#plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
 #plotter.plot_flat_source_regions(geometry, gridsize=500)
 #plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
-#plotter.plot_fission_rates(geometry, solver, gridsize=500)
 
 log.py_printf('TITLE', 'Finished')
