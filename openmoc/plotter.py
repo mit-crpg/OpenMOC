@@ -48,14 +48,15 @@ import matplotlib.cm as cmx
 import numpy as np
 import numpy.random
 import os, sys
-from openmoc.process import *
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
   from log import *
+  from process import *
 # For Python 3.X.X
 else:
   from openmoc.log import *
+  from openmoc.process import *
 
 
 ## A static variable for the output directory in which to save plots

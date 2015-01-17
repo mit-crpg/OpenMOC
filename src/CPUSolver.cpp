@@ -10,7 +10,7 @@
  * @param geometry an optional pointer to the Geometry
  * @param track_generator an optional pointer to the TrackGenerator
  */
-CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator) 
+CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator)
     : Solver(geometry, track_generator) {
 
   setNumThreads(1);
