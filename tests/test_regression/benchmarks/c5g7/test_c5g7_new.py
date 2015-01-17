@@ -1,7 +1,7 @@
-## Tests c5g7-cmfd benchmark for correct K_eff value.
+## Test c5g7 benchmark for correct Keff
+## Runs slowly (8-9 min)
 
-## Sample Test for Code Demo -- not as developed as most of the
-##  existing benchmark tests.
+## but c5g7 alone takes
 
 from openmoc import *
 import openmoc.log as log
@@ -11,19 +11,16 @@ from openmoc.options import Options
 import unittest
 import sys
 import os
-import time
-
-## This adds tests/test_regression/ to the path list so it can access and import
-## the run_regression_test module.
 
 current_directory = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(current_directory[:-21])
+sys.path.append(current_directory[:-15])
 
 from regression_test_runner import *
 
-output = open("c5g7_cmfd_failed_results_NEW.txt", "a+") # create output file in case of failures
+output = open("c5g7_failed_results.txt", "a") # create output file in case of failures
 
-def general_c5g7_cmfd_setup(sysargs):
+
+def general_c5g7_setup(sysargs):
 
     sys.argv = sysargs
 
@@ -40,11 +37,6 @@ def general_c5g7_cmfd_setup(sysargs):
     ## materials
     materials = materialize.materialize(current_directory + '/c5g7_materials.h5')
 
-
-## To Break -- change materials['UO2']
-    ## setNuSigmaFByGroup(val, group)        
-
-#    materials['UO2'].setNuSigmaFByGroup(materials['UO2'].getSigmaFByGroup(2)*.9,2)
     uo2_id = materials['UO2'].getId()
     mox43_id = materials['MOX-4.3%'].getId()
     mox7_id = materials['MOX-7%'].getId()
@@ -307,20 +299,11 @@ def general_c5g7_cmfd_setup(sysargs):
     lattices.append(Lattice(id=30, width_x=21.42, width_y=21.42))
     lattices[-1].setLatticeCells([[10, 11, 15],
                                  [11, 10, 15],
-
-
                                  [13, 13, 14]])
-
-    ## Cmfd mesh
-    cmfd = Cmfd()
-    cmfd.setMOCRelaxationFactor(0.6)
-    cmfd.setSORRelaxationFactor(1.5)
-    cmfd.setLatticeStructure(51,51)
-    cmfd.setGroupStructure([1,4,8])
 
     ## geometry
     geometry = Geometry()
-    geometry.setCmfd(cmfd)
+
     for material in materials.values(): geometry.addMaterial(material)
     for cell in cells: geometry.addCell(cell)
     for lattice in lattices: geometry.addLattice(lattice)
@@ -329,7 +312,6 @@ def general_c5g7_cmfd_setup(sysargs):
 
     ## TrackGenerator
     track_generator = TrackGenerator(geometry, num_azim, track_spacing)
-    track_generator.setNumThreads(num_threads)
     track_generator.generateTracks()
 
     ## run simulation
@@ -341,33 +323,61 @@ def general_c5g7_cmfd_setup(sysargs):
 
     return Keff
 
-def build_c5g7_cmfd_test():
+def build_c5g7_test():
 
     # assign values for use in test case instance
     test_type = 'Keff'
-    benchmark = 'c5g7_cmfd'
+    benchmark = 'c5g7'
     benchmark_value = 1.1853487491607666
     error_margin = 0.005
-    filename = 'c5g7-cmfd.py'
-    setup_func = general_c5g7_cmfd_setup
+    filename = 'c5g7.py'
+    setup_func = general_c5g7_setup
     return regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func)
 
-test_c5g7_cmfd = build_c5g7_cmfd_test()
+test_c5g7 = build_c5g7_test()
 
 if __name__ == '__main__':
     
-    c5g7_cmfd_test_suite = regression_test_suite([test_c5g7_cmfd], output)
-    c5g7_cmfd_test_suite.run_tests()
+    c5g7_test_suite = regression_test_suite([test_c5g7], output)
+    c5g7_test_suite.run_tests()
 
-## assign values for use in creating the test case object
-##test_type = 'Keff'
-##benchmark = 'c5g7_cmfd'
-##benchmark_value = 1.1853487491607666
-##Keff = general_c5g7_cmfd_setup(['c5g7-cmfd.py'])
-##Keff_1t = general_c5g7_cmfd_setup(['c5g7-cmfd.py', '--num-omp-threads', '1'])
-##error_margin = 0.005
+
+
+
+
 ##
-#### create test case object
-##test_c5g7_cmfd = regression_test_case(test_type, benchmark, benchmark_value, Keff, Keff_1t, error_margin
+##class test_c5g7(unittest.TestCase):
+##
+##    @classmethod
+##    def setUpClass(cls):
+##
+##        # got benchmark Keff from running test
+##        cls._Keff_benchmark = 1.1853487491607666
+##
+##        ## run simulation
+##        cls._Keff = general_c5g7_setup(['c5g7.py'])
+##
+##    def test_Keff(self):
+##
+##        self.assertEqual(self._Keff, self._Keff_benchmark)
+##
+##    def test_more_threads_Keff(self):
+##
+##        Keff = general_c5g7_setup(['c5g7.py', '--num-omp-threads', '5'])
+##        self.assertEqual(Keff, self._Keff_benchmark)
 
-
+#### assign values for use in creating the test case object
+##test_type = 'Keff'
+##benchmark = 'c5g7'
+##benchmark_value = 1.1853487491607666
+##Keff = general_c5g7_setup(['c5g7.py'])
+##Keff_1t = general_c5g7_setup(['c5g7.py', '--num-omp-threads', '5'])
+##error_margin = 0.0005
+##
+##test_c5g7 = regression_test_case(test_type, benchmark, benchmark_value, Keff, Keff_1t, error_margin)
+##
+##if __name__ == '__main__':
+##    # load case into suite (handles output file more completely)
+##    c5g7_test_suite = regression_test_suite([test_c5g7], output)
+##    c5g7_test_suite.run_tests()
+##

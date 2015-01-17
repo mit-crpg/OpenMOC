@@ -13,22 +13,12 @@ class regression_test_case():
       error_margin = float; acceptable margin for correct answers
     """
 
-    def __init__(self, test_type, benchmark, benchmark_value, error_margin, filename, setup_func):
+    def __init__(self, test_type, benchmark, benchmark_value, error_margin):
 
         self.test_type = test_type
         self.benchmark = benchmark
         self.benchmark_value = benchmark_value
         self.error_margin = error_margin
-        self.filename = filename
-        self.setup_func = setup_func
-
-    def set_up_test(self):
-
-        filename = self.filename
-        setup_func = self.setup_func
-    
-        self.calculated_value = setup_func([filename])
-        self.calculated_value_1t = setup_func([filename, '--num-omp-threads', '1'])
 
 class regression_test_suite():
 
@@ -73,13 +63,12 @@ class regression_test_suite():
         print 'file closed'
 
     def run_tests(self):
-        print '------------------BEGINNING REGRESSION TESTS------------------'
 
         # runs all tests and adds to output file; closes file when done
         
         for test in self.get_tests():
 
-            test.set_up_test()
+            set_up_test()
             if not run_regression_test(test, self.output, self.none_failed):
                 self.test_failed()
 
@@ -105,6 +94,8 @@ def run_regression_test(test, output, none_failed=True):
     calculated_value = test.calculated_value # float indicating value found w/ default num threads
     calculated_1t_value = test.calculated_value_1t # float indicating value found w/ 1 thread
 
+
+    ## CHANGE when pin powers has been implemented
     if test_type != 'Keff':
         print 'ERROR: Unrecognized test type'
 

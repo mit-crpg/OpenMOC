@@ -11,11 +11,18 @@ from openmoc.options import Options
 import unittest
 import sys
 import os
+import time
 
-testfail = False # variable to use when creating test file
-output = open("c5g7_cmfd_failed_results.txt", "a+") # create output file in case of failures
+## This adds tests/test_regression/ to the path list so it can access and import
+## the run_regression_test module.
 
 current_directory = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(current_directory[:-21])
+
+from regression_test_runner import run_regression_test, write_failed_results
+
+testfail = False # variable to use when creating test file
+output = open("c5g7_cmfd_failed_results2.txt", "a+") # create output file in case of failures
 
 def general_c5g7_cmfd_setup(sysargs):
 
@@ -335,7 +342,6 @@ def general_c5g7_cmfd_setup(sysargs):
 
     return Keff
 
-
 class test_c5g7_cmfd(unittest.TestCase):
 
     @classmethod
@@ -345,18 +351,20 @@ class test_c5g7_cmfd(unittest.TestCase):
         cls._Keff_benchmark = 1.1853487491607666
 
         ## run simulation
+        start = time.clock()
         cls._Keff = general_c5g7_cmfd_setup(['c5g7-cmfd.py'])
+        print 'finding Keff took ', time.clock()-start
+##        self._test_type = 'Keff'
+##        self._benchmark = 'c5g7_cmfd'
+##        self._error_margin = 0.00000
+
 
     def test_Keff(self):
-        if abs(self._Keff - self._Keff_benchmark) > 0.0005:
-            testfail = True
-            import time
-            output.write("------------------------------------------------------"+"\n")
-            output.write("Date: "+str(time.strftime("%d/%m/%Y"))+", Time: "+str(time.strftime("%H:%M:%S"))+"\n")
-            output.write("Test Failed: testKeff" + "\n")
-            output.write("Benchmark Keff is "+str(self._Keff_benchmark)+", Keff found was "+str(self._Keff)+"\n")
-            
         self.assertAlmostEqual(self._Keff, self._Keff_benchmark, 3)
+
+    def test_Keff_1t(self):
+        Keff_1t = general_c5g7_cmfd_setup(['c5g7-cmfd.py', '--num-omp-threads', '1'])
+        self.assertAlmostEqual(Keff_1t, self._Keff_benchmark, 3)
 
 test_c5g7_cmfd = unittest.TestLoader().loadTestsFromTestCase(test_c5g7_cmfd)
 

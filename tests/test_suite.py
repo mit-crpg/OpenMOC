@@ -1,13 +1,18 @@
-## import statements don't work bc the tests are in individual folders now -- fix
+## THIS WORKS AS OF 1/15/15
+
+import unittest
+
 
 import test_logger.test_log as test_log
 import test_materialize.test_materialize as test_materialize
 import test_options.test_options as test_options
 import test_regression.test_regression_suite as test_regression
-import unittest
+
+from test_regression.regression_test_runner import *
+from test_regression.test_regression_suite2 import *
 
 
-## options for if we want to run all
+## options for if we want to run all regression tests
 fullsuite = True
 
 def build_quick_test_suite():
@@ -22,19 +27,12 @@ def build_quick_test_suite():
     
     return quick_test_suite
 
-def build_full_test_suite():
+test_suite = build_quick_test_suite()
 
-    full_test_suite = build_quick_test_suite()
-    full_test_suite.addTest(test_regression.regression_suite)
+if __name__ == '__main__' and fullsuite:
+    unittest.TextTestRunner(verbosity=2).run(test_suite)
+    regression_suite.run_tests()
 
-    return full_test_suite
-
-if fullsuite:
-    test_suite = build_full_test_suite()
-
-else:
-    test_suite = build_quick_test_suite()
-
-if __name__ == '__main__':
+elif __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(test_suite)
 

@@ -7,6 +7,7 @@ import openmoc.materialize as materialize
 from openmoc.options import Options
 import unittest
 import sys
+import time
 
 current_directory = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(current_directory[:-15])
@@ -221,18 +222,21 @@ def general_LRA_setup(sysargs):
     Keff = solver.getKeff()
     return Keff
 
+def build_LRA_test():
 
-## assign values for use in creating the test case object
-test_type = 'Keff'
-benchmark = 'LRA'
-benchmark_value = 0.9962826806701051
-Keff = general_LRA_setup(['LRA.py'])
-Keff_1t = general_LRA_setup(['LRA.py', '--num-omp-threads', '1'])
-error_margin = 0.005
+    # assign values for use in test case instance
+    test_type = 'Keff'
+    benchmark = 'LRA'
+    benchmark_value = 0.9962826806701051
+    error_margin = 0.005
+    filename = 'LRA.py'
+    setup_func = general_LRA_setup
+    return regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func)
 
-## create test case object
-test_LRA = regression_test_case(test_type, benchmark, benchmark_value, Keff, Keff_1t, error_margin)
+test_LRA = build_LRA_test()
 
 if __name__ == '__main__':
-    run_regression_test(test_LRA, output)
+    
+    LRA_test_suite = regression_test_suite([test_LRA], output)
+    LRA_test_suite.run_tests()
 
