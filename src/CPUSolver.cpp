@@ -10,7 +10,7 @@
  * @param geometry an optional pointer to the Geometry
  * @param track_generator an optional pointer to the TrackGenerator
  */
-CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator) 
+CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator)
     : Solver(geometry, track_generator) {
 
   setNumThreads(1);
@@ -296,6 +296,9 @@ void CPUSolver::buildExpInterpTable() {
 
   FP_PRECISION azim_weight;
 
+  if (_polar_weights != NULL)
+    delete [] _polar_weights;
+
   _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
 
   /* Compute the total azimuthal weight for tracks at each polar angle */
@@ -308,9 +311,16 @@ void CPUSolver::buildExpInterpTable() {
       _polar_weights(i,p) = azim_weight*_quad->getMultiple(p)*FOUR_PI;
   }
 
+  /* Find largest optical path length track segment */
+  FP_PRECISION tau = _track_generator->getMaxOpticalLength();
+
+  /* Expand tau slightly to accomodate track segments which have a
+   * length very nearly equal to the maximum value */
+  tau *= 1.01;
+
   /* Set size of interpolation table */
-  int num_array_values = 10 * sqrt(1./(8.*_source_convergence_thresh*1e-2));
-  _exp_table_spacing = 10. / num_array_values;
+  int num_array_values = tau * sqrt(1./(8.*_source_convergence_thresh*1e-2));
+  _exp_table_spacing = tau / num_array_values;
   _exp_table_size = _two_times_num_polar * num_array_values;
   _exp_table_max_index = _exp_table_size - _two_times_num_polar - 1.;
 
@@ -318,6 +328,9 @@ void CPUSolver::buildExpInterpTable() {
              _exp_table_size, _exp_table_max_index);
 
   /* Allocate array for the table */
+  if (_exp_table != NULL)
+    delete [] _exp_table;
+
   _exp_table = new FP_PRECISION[_exp_table_size];
 
   FP_PRECISION expon;
@@ -368,7 +381,7 @@ void CPUSolver::initializeFSRs() {
   segment* segments;
   FP_PRECISION volume;
   Material* material;
-  Universe* univ_zero = _geometry->getUniverse(0);
+  Universe* root_universe = _geometry->getRootUniverse();
   _num_fissionable_FSRs = 0;
 
   /* Set each FSR's "volume" by accumulating the total length of all Tracks
@@ -386,6 +399,8 @@ void CPUSolver::initializeFSRs() {
     }
   }
 
+  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
+
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
 
@@ -398,7 +413,7 @@ void CPUSolver::initializeFSRs() {
       _num_fissionable_FSRs++;
 
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d "
-               "and volume = %f", r, _FSR_materials[r]->getUid(), 
+               "and volume = %f", r, _FSR_materials[r]->getUid(),
                _FSR_volumes[r]);
   }
 
@@ -536,8 +551,7 @@ void CPUSolver::normalizeFluxes() {
   FP_PRECISION norm_factor;
 
   /* Compute total fission source for each FSR, energy group */
-  #pragma omp parallel for private(volume, nu_sigma_f) \
-    reduction(+:tot_fission_source) schedule(guided)
+  #pragma omp parallel for private(volume, nu_sigma_f) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     /* Get pointers to important data structures */
@@ -661,7 +675,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
     if (fsr_fission_source > 0.0)
       _source_residuals[r] = pow((fsr_fission_source - _old_fission_sources[r])
                                  / fsr_fission_source, 2);
-    
+
     /* Update the old source */
     _old_fission_sources[r] = fsr_fission_source;
   }
@@ -670,7 +684,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
   source_residual = pairwise_sum<FP_PRECISION>(_source_residuals, _num_FSRs);
   source_residual = sqrt(source_residual \
                          / (_num_fissionable_FSRs * _num_groups));
-  
+
   return source_residual;
 }
 
@@ -837,7 +851,7 @@ void CPUSolver::transportSweep() {
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
         scalarFluxTally(curr_segment, azim_index, track_flux,
-                        thread_fsr_flux,true);
+                        thread_fsr_flux, true);
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -849,7 +863,7 @@ void CPUSolver::transportSweep() {
       for (int s=num_segments-1; s > -1; s--) {
         curr_segment = &segments[s];
         scalarFluxTally(curr_segment, azim_index, track_flux,
-                        thread_fsr_flux,false);
+                        thread_fsr_flux, false);
       }
       delete thread_fsr_flux;
 

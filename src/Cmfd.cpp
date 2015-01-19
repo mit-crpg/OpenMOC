@@ -45,6 +45,7 @@ Cmfd::Cmfd() {
   _group_indices_map = NULL;
 
   /* Initialize boundaries to be reflective */
+	//  _boundaries = new int[4];
   _boundaries = new boundaryType[4];
   _boundaries[0] = REFLECTIVE;
   _boundaries[1] = REFLECTIVE;
@@ -1027,7 +1028,7 @@ void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux){
  * @param over-relaxation factor
  */
 void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor){
-    
+
   if (SOR_factor <= 0.0 || SOR_factor >= 2.0)
     log_printf(ERROR, "The successive over-relaxation relaxation factor "
         "must be > 0 and < 2. Input value: %i", SOR_factor);
@@ -1612,7 +1613,7 @@ void Cmfd::setBoundary(int side, boundaryType boundary){
  * @param the CMFD mesh surface ID.
  * @return the boundaryType for the surface.
  */
-boundaryType Cmfd::getBoundary(int side){
+int Cmfd::getBoundary(int side){
   return _boundaries[side];
 }
 

@@ -28,28 +28,28 @@ coordType LocalCoords::getType() {
 
 
 /**
- * @brief Return the ID of the Universe within which this LocalCoords resides.
- * @return the Universe ID
+ * @brief Return the Universe within which this LocalCoords resides.
+ * @return the Universe
  */
-int LocalCoords::getUniverse() const {
+Universe* LocalCoords::getUniverse() const {
   return _universe;
 }
 
 
 /**
- * @brief Return the ID of the Cell within which this LocalCoords resides.
- * @return the Cell ID
+ * @brief Return the Cell within which this LocalCoords resides.
+ * @return the Cell
  */
-int LocalCoords::getCell() const {
+Cell* LocalCoords::getCell() const {
   return _cell;
 }
 
 
 /**
- * @brief Return the ID of the Lattice within which this LocalCoords resides.
- * @return the Lattice ID
+ * @brief Return the Lattice within which this LocalCoords resides.
+ * @return the Lattice
  */
-int LocalCoords::getLattice() const {
+Lattice* LocalCoords::getLattice() const {
   return _lattice;
 }
 
@@ -131,28 +131,28 @@ void LocalCoords::setType(coordType type) {
 
 
 /**
- * @brief Set the ID of the Universe within which this LocalCoords resides.
- * @param universe the Universe ID
+ * @brief Set the Universe within which this LocalCoords resides.
+ * @param universe the Universe
  */
-void LocalCoords::setUniverse(int universe) {
+void LocalCoords::setUniverse(Universe* universe) {
   _universe = universe;
 }
 
 
 /**
- * @brief Set the ID of the Cell within which this LocalCoords resides.
- * @param cell the Cell ID
+ * @brief Set the Cell within which this LocalCoords resides.
+ * @param cell the Cell
  */
-void LocalCoords::setCell(int cell) {
+void LocalCoords::setCell(Cell* cell) {
   _cell = cell;
 }
 
 
 /**
- * @brief Sets the ID of the Lattice within which this LocalCoords resides.
- * @param lattice the Lattice ID
+ * @brief Sets the Lattice within which this LocalCoords resides.
+ * @param lattice the Lattice
  */
-void LocalCoords::setLattice(int lattice) {
+void LocalCoords::setLattice(Lattice* lattice) {
   _lattice = lattice;
 }
 
@@ -389,23 +389,27 @@ std::string LocalCoords::toString() {
     string << "LocalCoords: level = ";
 
     if (curr->getType() == UNIV) {
-      string << " UNIVERSE, x = " << curr->getX() << ", y = "
-             << curr->getY() << ", universe = " << curr->getUniverse()
-             << ", cell = " << curr->getCell();
+      string << " UNIVERSE, x = " << curr->getX()
+             << ", y = " << curr->getY()
+             << ", universe = " << curr->getUniverse()->getId()
+             << ", cell = " << curr->getCell()->getId();
     }
     else if (curr->getType() == LAT){
-      string << " LATTICE, x = " << curr->getX() << ", y = "
-             << curr->getY() << ", universe = " << curr->getUniverse()
-             << ", lattice = " << curr->getLattice() << ", lattice_x = "
-             << curr->getLatticeX() << ", lattice_y = "
-             << curr->getLatticeY();
+      string << " LATTICE, x = " << curr->getX()
+             << ", y = " << curr->getY()
+             << ", universe = " << curr->getUniverse()->getId()
+             << ", lattice = " << curr->getLattice()->getId()
+             << ", lattice_x = " << curr->getLatticeX()
+             << ", lattice_y = " << curr->getLatticeY();
     }
     else {
-      string << " NONE, x = " << curr->getX() << ", y = " << curr->getY()
-             << ", universe = " << curr->getUniverse() << ", lattice = "
-             << curr->getLattice() << ", lattice_x = "
-             << curr->getLatticeX() << ", lattice_y = "
-             << curr->getLatticeY() << ", cell = " << curr->getCell();
+      string << " NONE, x = " << curr->getX()
+             << ", y = " << curr->getY()
+             << ", universe = " << curr->getUniverse()->getId()
+             << ", lattice = " << curr->getLattice()->getId()
+             << ", lattice_x = " << curr->getLatticeX()
+             << ", lattice_y = " << curr->getLatticeY()
+             << ", cell = " << curr->getCell();
     }
 
     string << ", next:\n";

@@ -1184,7 +1184,7 @@ void GPUSolver::initializeMaterials() {
   /* Allocate memory for all dev_materials on the device */
   try{
 
-    std::map<int, Material*> host_materials=_geometry->getMaterials();
+    std::map<int, Material*> host_materials=_geometry->getAllMaterials();
     std::map<int, Material*>::iterator iter;
 
     /* Iterate through all Materials and clone them as dev_material structs
@@ -1448,15 +1448,25 @@ void GPUSolver::buildExpInterpTable(){
                      _num_polar * sizeof(FP_PRECISION), 0,
                      cudaMemcpyHostToDevice);
 
+  /* Find largest optical path length track segment */
+  FP_PRECISION tau = _track_generator->getMaxOpticalLength();
+
+  /* Expand tau slightly to accomodate track segments which have a
+   * length very nearly equal to the maximum value */
+  tau *= 1.01;
+
   /* Set size of interpolation table */
   int num_array_values =
-          10 * sqrt(1. / (8. * _source_convergence_thresh * 1e-2));
-  _exp_table_spacing = 10. / num_array_values;
+          tau * sqrt(1. / (8. * _source_convergence_thresh * 1e-2));
+  _exp_table_spacing = tau / num_array_values;
   _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
   _exp_table_size = _two_times_num_polar * num_array_values;
   _exp_table_max_index = _exp_table_size - _two_times_num_polar - 1;
 
-  /* Allocate arrays */
+  /* Allocate array for the table */
+  if (_exp_table != NULL)
+    delete [] _exp_table;
+
   FP_PRECISION* exp_table = new FP_PRECISION[_exp_table_size];
 
   FP_PRECISION expon;

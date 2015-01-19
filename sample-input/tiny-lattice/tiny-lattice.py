@@ -6,7 +6,7 @@ from openmoc.options import Options
 
 
 ###############################################################################
-#                           Main Simulation Parameters 
+#                           Main Simulation Parameters
 ###############################################################################
 
 options = Options()
@@ -28,9 +28,6 @@ log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
 materials = materialize.materialize('../c5g7-materials.h5')
 
-uo2_id = materials['UO2'].getId()
-water_id = materials['Water'].getId()
-
 
 ###############################################################################
 #                              Creating Surfaces
@@ -38,11 +35,11 @@ water_id = materials['Water'].getId()
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(x=0.0, y=0.0, radius=0.8)
-left = XPlane(x=-2.0)
-right = XPlane(x=2.0)
-top = YPlane(y=2.0)
-bottom = YPlane(y=-2.0)
+circle = Circle(x=0.0, y=0.0, radius=0.8, name='pin')
+left = XPlane(x=-2.0, name='left')
+right = XPlane(x=2.0, name='right')
+top = YPlane(y=2.0, name='top')
+bottom = YPlane(y=-2.0, name='bottom')
 
 left.setBoundaryType(REFLECTIVE)
 right.setBoundaryType(REFLECTIVE)
@@ -56,17 +53,33 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cells = []
-cells.append(CellBasic(universe=1, material=uo2_id))
-cells.append(CellBasic(universe=1, material=water_id))
-cells.append(CellFill(universe=0, universe_fill=2))
+fuel = CellBasic(name='fuel')
+fuel.setMaterial(materials['UO2'])
+fuel.addSurface(halfspace=-1, surface=circle)
 
-cells[0].addSurface(halfspace=-1, surface=circle)
-cells[1].addSurface(halfspace=+1, surface=circle)
-cells[2].addSurface(halfspace=+1, surface=left)
-cells[2].addSurface(halfspace=-1, surface=right)
-cells[2].addSurface(halfspace=+1, surface=bottom)
-cells[2].addSurface(halfspace=-1, surface=top)
+moderator = CellBasic(name='moderator')
+moderator.setMaterial(materials['Water'])
+moderator.addSurface(halfspace=+1, surface=circle)
+
+root_cell = CellFill(name='root cell')
+root_cell.addSurface(halfspace=+1, surface=left)
+root_cell.addSurface(halfspace=-1, surface=right)
+root_cell.addSurface(halfspace=+1, surface=bottom)
+root_cell.addSurface(halfspace=-1, surface=top)
+
+
+###############################################################################
+#                            Creating Universes
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating universes...')
+
+pincell = Universe(name='pin cell')
+root_universe = Universe(name='root universe')
+
+pincell.addCell(fuel)
+pincell.addCell(moderator)
+root_universe.addCell(root_cell)
 
 
 ###############################################################################
@@ -75,8 +88,11 @@ cells[2].addSurface(halfspace=-1, surface=top)
 
 log.py_printf('NORMAL', 'Creating simple 2 x 2 lattice...')
 
-lattice = Lattice(id=2, width_x=2.0, width_y=2.0)
-lattice.setLatticeCells([[1, 1], [1, 1]])
+lattice = Lattice(name='2x2 lattice')
+lattice.setWidth(width_x=2.0, width_y=2.0)
+lattice.setUniverses([[pincell, pincell], [pincell, pincell]])
+
+root_cell.setFill(lattice)
 
 
 ###############################################################################
@@ -86,10 +102,7 @@ lattice.setLatticeCells([[1, 1], [1, 1]])
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-for material in materials.values(): geometry.addMaterial(material)
-for cell in cells: geometry.addCell(cell)
-geometry.addLattice(lattice)
-
+geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
 

@@ -13,7 +13,6 @@
 
 
 import sys
-from process import *
 
 ## @var openmoc
 #  @brief The openmoc module in use in the Python script using the
@@ -38,9 +37,11 @@ else:
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
   from log import *
+  from process import *
 # For Python 3.X.X
 else:
   from openmoc.log import *
+  from openmoc.process import *
 
 
 
@@ -93,7 +94,7 @@ def materialize(filename):
       py_printf('ERROR', 'Unable to materialize file %s since the number of' + \
                   'energy groups %s could not be converted to an integer', \
                   filename, str(num_groups))
-      
+
     material_names = list(f)
 
     # Loop over each material and
@@ -101,7 +102,7 @@ def materialize(filename):
 
       py_printf('INFO', 'Importing material %s', str(name))
 
-      new_material = openmoc.Material(openmoc.material_id())
+      new_material = openmoc.Material()
       new_material.setNumEnergyGroups(int(num_groups))
 
       # Retrieve and load the cross-section data into the material object
@@ -144,8 +145,7 @@ def materialize(filename):
   elif filename.endswith('.py'):
 
     import imp
-    
-    
+
     try:
       data = imp.load_source(filename, filename).dataset
     except IOError:
@@ -172,7 +172,7 @@ def materialize(filename):
 
       py_printf('INFO', 'Importing material %s', str(name))
 
-      new_material = openmoc.Material(openmoc.material_id())
+      new_material = openmoc.Material()
       new_material.setNumEnergyGroups(int(num_groups))
 
       if 'Total XS' in data[name].keys():

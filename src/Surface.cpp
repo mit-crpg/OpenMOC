@@ -21,25 +21,36 @@ int surf_id() {
 
 
 /**
+ * @brief Resets the auto-generated unique Surface ID counter to 10000.
+ */
+void reset_surf_id() {
+  auto_id = 10000;
+}
+
+
+/**
  * @brief Constructor assigns unique ID and user-defined ID for a Surface.
  * @details Assigns a default boundary condition for this Surface to
  *          BOUNDARY_NONE.
  * @param id an optional user-defined Surface ID
+ * @param name an optional user-defined Surface name
  */
-Surface::Surface(const int id){
+Surface::Surface(const int id, const char* name){
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
     _id = surf_id();
-  else if (id >= surf_id())
-    log_printf(ERROR, "Unable to set the ID of a surface to %d since surface "
-               "IDs greater than 10000 are probibited by OpenMOC.", id);
+
   /* Use the user-defined ID */
   else
     _id = id;
 
   _uid = _n;
   _n++;
+
+  _name = NULL;
+  setName(name);
+
   _boundary_type = BOUNDARY_NONE;
 }
 
@@ -47,7 +58,10 @@ Surface::Surface(const int id){
 /**
  * @brief Destructor.
  */
-Surface::~Surface() { }
+Surface::~Surface() {
+  if (_name != NULL)
+    delete [] _name;
+}
 
 
 /**
@@ -69,6 +83,15 @@ int Surface::getId() const {
 
 
 /**
+ * @brief Return the user-defined name of the Surface
+ * @return the Surface name
+ */
+char* Surface::getName() const {
+  return _name;
+}
+
+
+/**
  * @brief Return the type of Surface (ie, XPLANE, CIRCLE, etc).
  * @return the Surface type
  */
@@ -84,6 +107,25 @@ surfaceType Surface::getSurfaceType() {
  */
 boundaryType Surface::getBoundaryType(){
   return _boundary_type;
+}
+
+
+/**
+ * @brief Sets the name of the Surface
+ * @param name the Surface name string
+ */
+void Surface::setName(const char* name) {
+  int length = strlen(name);
+
+  if (_name != NULL)
+    delete [] _name;
+
+  /* Initialize a character array for the Surface's name */
+  _name = new char[length+1];
+
+  /* Copy the input character array Surface name to the class attribute name */
+  for (int i=0; i <= length; i++)
+    _name[i] = name[i];
 }
 
 
@@ -123,15 +165,25 @@ bool Surface::isCoordOnSurface(LocalCoords* coord) {
 
 
 /**
+ * @brief Prints a string representation of all of the Surface's objects to
+ *        the console.
+ */
+void Surface::printString() {
+  log_printf(RESULT, toString().c_str());
+}
+
+
+/**
  * @brief Constructor.
- * @param id the Surface ID
  * @param A the first coefficient in \f$ A * x + B * y + C = 0 \f$
  * @param B the second coefficient in \f$ A * x + B * y + C = 0 \f$
  * @param C the third coefficient in \f$ A * x + B * y + C = 0 \f$
+ * @param id the optional Surface ID
+ * @param name the optional name of the Surface
  */
 Plane::Plane(const double A, const double B,
-             const double C, const int id):
-  Surface(id) {
+             const double C, const int id, const char* name):
+  Surface(id, name) {
 
   _surface_type = PLANE;
   _A = A;
@@ -141,42 +193,89 @@ Plane::Plane(const double A, const double B,
 
 
 /**
- * @brief Returns the minimum x value of -INFINITY on this Surface.
+ * @brief Returns the minimum x value of -INFINITY
+ * @param halfspace the halfspace of the Surface to consider
  * @return the minimum x value of -INFINITY
  */
-double Plane::getXMin(){
-  log_printf(ERROR, "Plane::getXMin() not yet implemented");
+double Plane::getMinX(int halfspace){
   return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the maximum x value of INFINITY on this Surface.
+ * @brief Returns the maximum x value of INFINITY.
+ * @param halfspace the halfspace of the Surface to consider
  * @return the maximum x value of INFINITY
  */
-double Plane::getXMax(){
-  log_printf(ERROR, "Plane::getXMax() not yet implemented");
+double Plane::getMaxX(int halfspace){
   return std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the minimum y value of -INFINITY on this Surface.
+ * @brief Returns the minimum y value of -INFINITY
+ * @param halfspace the halfspace of the Surface to consider
  * @return the minimum y value of -INFINITY
  */
-double Plane::getYMin(){
-  log_printf(ERROR, "Plane::getYMin() not yet implemented");
+double Plane::getMinY(int halfspace){
   return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the maximum y value of INFINITY on this Surface.
+ * @brief Returns the maximum y value of INFINITY.
+ * @param halfspace the halfspace of the Surface to consider
  * @return the maximum y value of INFINITY
  */
-double Plane::getYMax(){
-  log_printf(ERROR, "Plane::getYMax() not yet implemented");
+double Plane::getMaxY(int halfspace){
   return std::numeric_limits<double>::infinity();
+}
+
+
+/**
+ * @brief Returns the minimum z value of -INFINITY
+ * @param halfspace the halfspace of the Surface to consider
+ * @return the minimum z value of -INFINITY
+ */
+double Plane::getMinZ(int halfspace){
+  return -std::numeric_limits<double>::infinity();
+}
+
+
+/**
+ * @brief Returns the maximum z value of INFINITY.
+ * @param halfspace the halfspace of the Surface to consider
+ * @return the maximum z value of INFINITY
+ */
+double Plane::getMaxZ(int halfspace){
+  return std::numeric_limits<double>::infinity();
+}
+
+
+/**
+ * @brief Returns the A coefficient multiplying x in the surface equation
+ * @return the value for the A coefficient
+ */
+double Plane::getA() {
+  return _A;
+}
+
+
+/**
+ * @brief Returns the B coefficient multiplying x in the surface equation
+ * @return the value for the B coefficient
+ */
+double Plane::getB() {
+  return _B;
+}
+
+
+/**
+ * @brief Returns the C coefficient multiplying x in the surface equation
+ * @return the value for the C coefficient
+ */
+double Plane::getC() {
+  return _C;
 }
 
 
@@ -250,30 +349,25 @@ inline int Plane::intersection(Point* point, double angle, Point* points) {
  * @return a character array of this Plane's attributes
  */
 std::string Plane::toString() {
+
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", type = PLANE " << ", A = "
-         << _A << ", B = " << _B << ", C = " << _C;
+  string << "Surface ID = " << _id
+         << ", name = " << _name
+         << ", type = PLANE "
+         << ", A = " << _A << ", B = " << _B << ", C = " << _C;
 
   return string.str();
 }
 
 
 /**
- * @brief Prints a string representation of all of the Plane's objects to
- *        the console.
- */
-void Plane::printString() {
-  log_printf(RESULT, toString().c_str());
-}
-
-
-/**
  * @brief Constructor for a Plane perpendicular to the x-axis.
- * @param id the user-defined Surface id
  * @param x the location of the Plane along the x-axis
+ * @param id the optional Surface id
+ * @param name the optional name of the XPlane
  */
-XPlane::XPlane(const double x, const int id):
+XPlane::XPlane(const double x, const int id, const char* name):
   Plane(1, 0, -x, id) {
 
   _surface_type = XPLANE;
@@ -300,38 +394,28 @@ double XPlane::getX() {
 
 
 /**
- * @brief Returns the minimum x value on the XPlane.
+ * @brief Returns the minimum x value for one of this XPlane's halfspaces.
+ * @param halfspace the halfspace of the XPlane to consider
  * @return the minimum x value
  */
-double XPlane::getXMin(){
-  return _x;
+double XPlane::getMinX(int halfspace){
+  if(halfspace == +1)
+    return _x;
+  else
+    return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the maximum x value on the XPlane.
+ * @brief Returns the maximum x value for one of this XPlane's halfspaces.
+ * @param halfspace the halfspace of the XPlane to consider
  * @return the maximum x value
  */
-double XPlane::getXMax(){
-  return _x;
-}
-
-
-/**
- * @brief Returns the minimum y value of -INFINITY on the XPlane.
- * @return the minimum y value of -INFINITY
- */
-double XPlane::getYMin(){
-  return -std::numeric_limits<double>::infinity();
-}
-
-
-/**
- * Returns the maximum y value of INFINITY on this XPlane.
- * @return the maximum y value of INFINITY
- */
-double XPlane::getYMax(){
-  return std::numeric_limits<double>::infinity();
+double XPlane::getMaxX(int halfspace){
+  if(halfspace == -1)
+    return _x;
+  else
+    return std::numeric_limits<double>::infinity();
 }
 
 
@@ -347,8 +431,11 @@ std::string XPlane::toString() {
 
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", type = XPLANE " << ", A = "
-         << _A << ", B = " << _B << ", C = " << _C << ", x = " << _x;
+  string << "Surface ID = " << _id
+         << ", name = " << _name
+         << ", type = XPLANE "
+         << ", A = " << _A << ", B = " << _B
+         << ", C = " << _C << ", x = " << _x;
 
   return string.str();
 }
@@ -356,10 +443,11 @@ std::string XPlane::toString() {
 
 /**
  * @brief Constructor for a Plane perpendicular to the y-axis.
- * @param id the surface id
  * @param y the location of the Plane along the y-axis
+ * @param id the optional Surface id
+ * @param name the optional Surface name
  */
-YPlane::YPlane(const double y, const int id):
+YPlane::YPlane(const double y, const int id, const char* name):
   Plane(0, 1, -y, id) {
 
   _surface_type = YPLANE;
@@ -384,39 +472,30 @@ double YPlane::getY() {
   return _y;
 }
 
-/**
- * @brief Returns the minimum x value of -INFINITY on this YPlane.
- * @return the minimum x value of -INFINITY
- */
-double YPlane::getXMin(){
-  return -std::numeric_limits<double>::infinity();
-}
-
 
 /**
- * @brief Returns the maximum x value of INFINITY on this YPlane.
- * @return the maximum x value of INFINITY
- */
-double YPlane::getXMax(){
-  return std::numeric_limits<double>::infinity();
-}
-
-
-/**
- * @brief Returns the minimum y value on this YPlane.
+ * @brief Returns the minimum y value for one of this YPlane's halfspaces.
+ * @param halfspace the halfspace of the YPlane to consider
  * @return the minimum y value
  */
-double YPlane::getYMin(){
-  return _y;
+double YPlane::getMinY(int halfspace){
+  if(halfspace == +1)
+    return _y;
+  else
+    return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the maximum y value on this YPlane.
+ * @brief Returns the maximum y value for one of this YPlane's halfspaces.
+ * @param halfspace the halfspace of the YPlane to consider
  * @return the maximum y value
  */
-double YPlane::getYMax(){
-  return _y;
+double YPlane::getMaxY(int halfspace){
+  if(halfspace == -1)
+    return _y;
+  else
+    return std::numeric_limits<double>::infinity();
 }
 
 
@@ -431,29 +510,24 @@ std::string YPlane::toString() {
 
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", type = YPLANE " << ", A = "
-         << _A << ", B = " << _B << ", C = " << _C << ", y = " << _y;
+  string << "Surface ID = " << _id
+         << ", name = " << _name
+         << ", type = YPLANE "
+         << ", A = " << _A << ", B = " << _B
+         << ", C = " << _C << ", y = " << _y;
 
   return string.str();
 }
 
 
 /**
- * @brief Prints a string representation of all of the YPlane's objects to
- *        the console.
- */
-void YPlane::printString() {
-  log_printf(RESULT, toString().c_str());
-}
-
-
-/**
  * @brief Constructor for a Plane perpendicular to the z-axis.
- * @param id the surface ID
  * @param z the location of the Plane along the z-axis
+ * @param id the optional Surface ID
+ * @param name the optional Surface name
  */
-ZPlane::ZPlane(const double z, const int id):
-  Plane(0, 0, -z, id) {
+ZPlane::ZPlane(const double z, const int id, const char* name):
+  Plane(0, 0, -z, id, name) {
 
   _surface_type = ZPLANE;
   _z = z;
@@ -479,39 +553,30 @@ double ZPlane::getZ() {
 
 
 /**
- * @brief Returns the minimum x value of -INFINITY on this ZPlane.
- * @return the minimum x value of -INFINITY
+ * @brief Returns the minimum z value for one of this ZPlane's halfspaces.
+ * @param halfspace the halfspace of the ZPlane to consider
+ * @return the minimum z value
  */
-double ZPlane::getXMin(){
-  return -std::numeric_limits<double>::infinity();
+double ZPlane::getMinZ(int halfspace){
+  if(halfspace == +1)
+    return _z;
+  else
+    return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Returns the maximum x value of INFINITY on this ZPlane.
- * @return the maximum x value of INFINITY
+ * @brief Returns the maximum z value for one of this ZPlane's halfspaces.
+ * @param halfspace the halfspace of the ZPlane to consider
+ * @return the maximum z value
  */
-double ZPlane::getXMax(){
-  return std::numeric_limits<double>::infinity();
+double ZPlane::getMaxZ(int halfspace){
+  if(halfspace == -1)
+    return _z;
+  else
+    return std::numeric_limits<double>::infinity();
 }
 
-
-/**
- * @brief Returns the minimum x value of -INFINITY on this ZPlane.
- * @return the minimum y value of -INFINITY
- */
-double ZPlane::getYMin(){
-  return -std::numeric_limits<double>::infinity();
-}
-
-
-/**
- * @brief Returns the maximum y value on this ZPlane.
- * @return the maximum y value
- */
-double ZPlane::getYMax(){
-  return std::numeric_limits<double>::infinity();
-}
 
 /**
  * @brief Converts this ZPlane's attributes to a character array.
@@ -522,34 +587,30 @@ double ZPlane::getYMax(){
  * @return a character array of this ZPlane's attributes
  */
 std::string ZPlane::toString() {
+
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", type = ZPLANE " << ", A = "
-         << _A << ", B = " << _B << ", C = " << _C << ", z = " << _z;
+  string << "Surface ID = " << _id
+         << ", name = " << _name
+         << ", type = ZPLANE "
+         << ", A = " << _A << ", B = " << _B
+         << ", C = " << _C << ", z = " << _z;
 
   return string.str();
 }
 
 
 /**
- * @brief Prints a string representation of all of the ZPlane's objects to
- *        the console.
- */
-void ZPlane::printString() {
-  log_printf(RESULT, toString().c_str());
-}
-
-
-/**
  * @brief constructor.
- * @param id the surface ID
  * @param x the x-coordinte of the Circle center
  * @param y the y-coordinate of the Circle center
  * @param radius the radius of the Circle
+ * @param id the optional Surface ID
+ * @param name the optional Surface name
  */
 Circle::Circle(const double x, const double y,
-               const double radius, const int id):
-  Surface(id) {
+               const double radius, const int id, const char* name):
+  Surface(id, name) {
 
   _surface_type = CIRCLE;
   _A = 1.;
@@ -578,6 +639,78 @@ double Circle::getX0() {
  */
 double Circle::getY0() {
   return _center.getY();
+}
+
+
+/**
+ * @brief Returns the minimum x value for one of this Circle's halfspaces.
+ * @param halfspace the halfspace of the Circle to consider
+ * @return the minimum x value
+ */
+double Circle::getMinX(int halfspace){
+  if (halfspace == -1)
+    return _center.getX() - _radius;
+  else
+    return -std::numeric_limits<double>::infinity();
+}
+
+
+/**
+ * @brief Returns the maximum x value for one of this Circle's halfspaces.
+ * @param halfspace the halfspace of the Circle to consider
+ * @return the maximum x value
+ */
+double Circle::getMaxX(int halfspace){
+  if (halfspace == -1)
+    return _center.getX() + _radius;
+  else
+    return std::numeric_limits<double>::infinity();
+}
+
+
+/**
+ * @brief Returns the minimum y value for one of this Circle's halfspaces.
+ * @param halfspace the halfspace of the Circle to consider
+ * @return the minimum y value
+ */
+double Circle::getMinY(int halfspace){
+  if (halfspace == -1)
+    return _center.getY() - _radius;
+  else
+    return -std::numeric_limits<double>::infinity();
+}
+
+
+/**
+ * @brief Returns the maximum y value for one of this Circle's halfspaces.
+ * @param halfspace the halfspace of the Circle to consider
+ * @return the maximum y value
+ */
+double Circle::getMaxY(int halfspace){
+  if (halfspace == -1)
+    return _center.getY() + _radius;
+  else
+    return std::numeric_limits<double>::infinity();
+}
+
+
+/**
+ * @brief Returns the minimum z value of -INFINITY.
+ * @param halfspace the halfspace of the Circle to consider
+ * @return the minimum z value of -INFINITY
+ */
+double Circle::getMinZ(int halfspace){
+  return -std::numeric_limits<double>::infinity();
+}
+
+
+/**
+ * @brief Returns the maximum z value of INFINITY.
+ * @param halfspace the halfspace of the Circle to consider
+ * @return the maximum z value of INFINITY
+ */
+double Circle::getMaxZ(int halfspace){
+  return std::numeric_limits<double>::infinity();
 }
 
 
@@ -715,56 +848,17 @@ int Circle::intersection(Point* point, double angle, Point* points) {
  * @return a character array of this Circle's attributes
  */
 std::string Circle::toString() {
+
   std::stringstream string;
 
-  string << "Surface id = " << _id << ", type = CIRCLE " << ", A = "
-         << _A << ", B = " << _B << ", C = " << _C << ", D = " << _D
-         << ", E = " << _E << ", x0 = " << _center.getX() << ", y0 = "
-         << _center.getY() << ", radius = " << _radius;
+  string << "Surface ID = " << _id
+         << ", name " << _name
+         << ", type = CIRCLE "
+         << ", A = " << _A << ", B = " << _B
+         << ", C = " << _C << ", D = " << _D << ", E = " << _E
+         << ", x0 = " << _center.getX()
+         << ", y0 = " << _center.getY()
+         << ", radius = " << _radius;
 
     return string.str();
-}
-
-
-/**
- * @brief Prints a string representation of all of the Circle's attributes to
- *        the console.
- */
-void Circle::printString() {
-  log_printf(RESULT, toString().c_str());
-}
-
-
-/**
- * @brief Returns the minimum x value on this Circle.
- * @return the minimum y value
- */
-double Circle::getXMin(){
-  return _center.getX() - _radius;
-}
-
-
-/**
- * @brief Returns the maximum x value on this Circle.
- * @return the maximum x value
- */
-double Circle::getXMax(){
-  return _center.getX() + _radius;
-}
-
-/**
- * @brief Returns the minimum y value on this Circle.
- * @return the minimum y value
- */
-double Circle::getYMin(){
-  return _center.getY() - _radius;
-}
-
-
-/**
- * @brief Returns ths maximum y value on this Circle.
- * @return the maximum y value
- */
-double Circle::getYMax(){
-  return _center.getY() + _radius;
 }

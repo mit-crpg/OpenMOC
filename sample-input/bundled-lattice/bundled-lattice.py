@@ -28,9 +28,6 @@ log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
 materials = materialize.materialize('../c5g7-materials.h5')
 
-uo2_id = materials['UO2'].getId()
-water_id = materials['Water'].getId()
-
 
 ###############################################################################
 ###########################   Creating Surfaces   #############################
@@ -38,14 +35,15 @@ water_id = materials['Water'].getId()
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circles = []
-planes = []
+left = XPlane(x=-34.0, name='left')
+right = XPlane(x=34.0, name='right')
+top = YPlane(y=-34.0, name='top')
+bottom = YPlane(y=34.0, name='bottom')
+boundaries = [left, right, top, bottom]
+for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
+
+circles = list()
 radii = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
-planes.append(XPlane(x=-34.0))
-planes.append(XPlane(x=34.0))
-planes.append(YPlane(y=-34.0))
-planes.append(YPlane(y=34.0))
-for plane in planes: plane.setBoundaryType(REFLECTIVE)
 for r in radii: circles.append(Circle(x=0.0, y=0.0, radius=r))
 
 
@@ -55,24 +53,15 @@ for r in radii: circles.append(Circle(x=0.0, y=0.0, radius=r))
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cells = []
-cells.append(CellBasic(universe=1, material=uo2_id))
-cells.append(CellBasic(universe=1, material=water_id))
-cells.append(CellBasic(universe=2, material=uo2_id))
-cells.append(CellBasic(universe=2, material=water_id))
-cells.append(CellBasic(universe=3, material=uo2_id))
-cells.append(CellBasic(universe=3, material=water_id))
-cells.append(CellBasic(universe=4, material=uo2_id))
-cells.append(CellBasic(universe=4, material=water_id))
-cells.append(CellBasic(universe=5, material=uo2_id))
-cells.append(CellBasic(universe=5, material=water_id))
-cells.append(CellBasic(universe=6, material=uo2_id))
-cells.append(CellBasic(universe=6, material=water_id))
+# Create a list of 10 CellBasic instances
+cells = [CellBasic() for i in range(12)]
 
-cells.append(CellFill(universe=9, universe_fill=7))
-cells.append(CellFill(universe=11, universe_fill=8))
-cells.append(CellFill(universe=0, universe_fill=10))
+# Append 3 CellFills for the assemblies and full core
+assembly1 = CellFill(name='assembly 1')
+assembly2 = CellFill(name='assembly 2')
+root_cell = CellFill(name='full core')
 
+# Create fuel/moderator by adding the appropriate Surfaces and Materials
 cells[0].addSurface(halfspace=-1, surface=circles[0])
 cells[1].addSurface(halfspace=+1, surface=circles[0])
 cells[2].addSurface(halfspace=-1, surface=circles[1])
@@ -86,10 +75,58 @@ cells[9].addSurface(halfspace=+1, surface=circles[4])
 cells[10].addSurface(halfspace=-1, surface=circles[5])
 cells[11].addSurface(halfspace=+1, surface=circles[5])
 
-cells[14].addSurface(halfspace=+1, surface=planes[0])
-cells[14].addSurface(halfspace=-1, surface=planes[1])
-cells[14].addSurface(halfspace=+1, surface=planes[2])
-cells[14].addSurface(halfspace=-1, surface=planes[3])
+cells[0].setMaterial(materials['UO2'])
+cells[1].setMaterial(materials['Water'])
+cells[2].setMaterial(materials['UO2'])
+cells[3].setMaterial(materials['Water'])
+cells[4].setMaterial(materials['UO2'])
+cells[5].setMaterial(materials['Water'])
+cells[6].setMaterial(materials['UO2'])
+cells[7].setMaterial(materials['Water'])
+cells[8].setMaterial(materials['UO2'])
+cells[9].setMaterial(materials['Water'])
+cells[10].setMaterial(materials['UO2'])
+cells[11].setMaterial(materials['Water'])
+
+# Add the boundary Planes to the "root" Cell
+root_cell.addSurface(halfspace=+1, surface=boundaries[0])
+root_cell.addSurface(halfspace=-1, surface=boundaries[1])
+root_cell.addSurface(halfspace=+1, surface=boundaries[2])
+root_cell.addSurface(halfspace=-1, surface=boundaries[3])
+
+
+###############################################################################
+#                            Creating Universes
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating universes...')
+
+u1 = Universe(name='pin 1')
+u2 = Universe(name='pin 2')
+u3 = Universe(name='pin 3')
+u4 = Universe(name='pin 4')
+u5 = Universe(name='pin 5')
+u6 = Universe(name='pin 6')
+u7 = Universe(name='2x2 lattice')
+u8 = Universe(name='2x2 lattice')
+root_universe = Universe(name='root universe')
+
+# Add the appropriate Cells to each Universe
+u1.addCell(cells[0])
+u1.addCell(cells[1])
+u2.addCell(cells[2])
+u2.addCell(cells[3])
+u3.addCell(cells[4])
+u3.addCell(cells[5])
+u4.addCell(cells[6])
+u4.addCell(cells[7])
+u5.addCell(cells[8])
+u5.addCell(cells[9])
+u6.addCell(cells[10])
+u6.addCell(cells[11])
+u7.addCell(assembly1)
+u8.addCell(assembly2)
+root_universe.addCell(root_cell)
 
 
 ###############################################################################
@@ -99,51 +136,60 @@ cells[14].addSurface(halfspace=-1, surface=planes[3])
 log.py_printf('NORMAL', 'Creating 4 x 4 core of 17 x 17 assemblies...')
 
 # 1st 17x17 assembly
-assembly1 = Lattice(id=7, width_x=1.0, width_y=1.0)
-assembly1.setLatticeCells([[1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1],
-                          [2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2],
-                          [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1],
-                          [2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2],
-                          [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1],
-                          [2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2],
-                          [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1],
-                          [2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2],
-                          [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1],
-                          [2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2],
-                          [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1],
-                          [2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2],
-                          [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1],
-                          [2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2],
-                          [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1],
-                          [2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2],
-                          [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1]])
+a1 = Lattice(name='assembly 1')
+a1.setWidth(width_x=1.0, width_y=1.0)
+a1.setUniverses([
+    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
+    [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
+    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
+    [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
+    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
+    [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
+    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
+    [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
+    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
+    [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
+    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
+    [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
+    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
+    [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
+    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
+    [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
+    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1]])
 
 # 2nd 17x17 assembly
-assembly2 = Lattice(id=8, width_x=1.0, width_y=1.0)
-assembly2.setLatticeCells([[4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4],
-                          [5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5],
-                          [4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4],
-                          [5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5],
-                          [4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4],
-                          [5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5],
-                          [4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4],
-                          [5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5],
-                          [4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4],
-                          [5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5],
-                          [4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4],
-                          [5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5],
-                          [4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4],
-                          [5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5],
-                          [4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4],
-                          [5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5],
-                          [4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4]])
+a2 = Lattice(name='assembly 2')
+a2.setWidth(width_x=1.0, width_y=1.0)
+a2.setUniverses([
+    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
+    [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
+    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
+    [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
+    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
+    [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
+    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
+    [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
+    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
+    [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
+    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
+    [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
+    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
+    [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
+    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
+    [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
+    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4]])
 
 # 4x4 core
-core = Lattice(id=10, width_x=17.0, width_y=17.0)
-core.setLatticeCells([[9, 11, 9, 11],
-                      [11, 9, 11, 9],
-                      [9, 11, 9, 11],
-                      [11, 9, 11, 9]])
+core = Lattice(name='full core')
+core.setWidth(width_x=17.0, width_y=17.0)
+core.setUniverses([[u7, u8, u7, u8],
+                   [u8, u7, u8, u7],
+                   [u7, u8, u7, u8],
+                   [u8, u7, u8, u7]])
+
+assembly1.setFill(a1)
+assembly2.setFill(a2)
+root_cell.setFill(core)
 
 
 ###############################################################################
@@ -153,12 +199,7 @@ core.setLatticeCells([[9, 11, 9, 11],
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-for material in materials.values(): geometry.addMaterial(material)
-for cell in cells: geometry.addCell(cell)
-geometry.addLattice(core)
-geometry.addLattice(assembly1)
-geometry.addLattice(assembly2)
-
+geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
 

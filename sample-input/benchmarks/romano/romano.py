@@ -27,8 +27,8 @@ log.py_printf('TITLE', 'Simulating HW3 from Fall 2010 22.212...')
 
 log.py_printf('NORMAL', 'Creating materials...')
 
-fuel = Material(1)
-moderator = Material(2)
+fuel = Material(name='fuel')
+moderator = Material(name='moderator')
 
 fuel.setNumEnergyGroups(1)
 moderator.setNumEnergyGroups(1)
@@ -72,27 +72,28 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cells = []
-cells.append(CellBasic(universe=1, material=1))
-cells.append(CellBasic(universe=1, material=2))
-cells.append(CellFill(universe=0, universe_fill=2))
+fuel_cell = CellBasic(name='fuel')
+fuel_cell.setMaterial(fuel)
+fuel_cell.addSurface(halfspace=-1, surface=circle)
 
-cells[0].addSurface(halfspace=-1, surface=circle)
-cells[1].addSurface(halfspace=+1, surface=circle)
-cells[2].addSurface(halfspace=+1, surface=left)
-cells[2].addSurface(halfspace=-1, surface=right)
-cells[2].addSurface(halfspace=+1, surface=bottom)
-cells[2].addSurface(halfspace=-1, surface=top)
+moderator_cell = CellBasic(name='moderator')
+moderator_cell.setMaterial(moderator)
+moderator_cell.addSurface(halfspace=+1, surface=circle)
+moderator_cell.addSurface(halfspace=+1, surface=left)
+moderator_cell.addSurface(halfspace=-1, surface=right)
+moderator_cell.addSurface(halfspace=+1, surface=bottom)
+moderator_cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
-###########################   Creating Lattices   #############################
+###########################   Creating Universes   ############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
+log.py_printf('NORMAL', 'Creating universes...')
 
-lattice = Lattice(id=2, width_x=1.27, width_y=1.27)
-lattice.setLatticeCells([[1]])
+root_universe = Universe(name='root universe')
+root_universe.addCell(fuel_cell)
+root_universe.addCell(moderator_cell)
 
 
 ###############################################################################
@@ -102,13 +103,7 @@ lattice.setLatticeCells([[1]])
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-geometry.addMaterial(fuel)
-geometry.addMaterial(moderator)
-geometry.addCell(cells[0])
-geometry.addCell(cells[1])
-geometry.addCell(cells[2])
-geometry.addLattice(lattice)
-
+geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
 

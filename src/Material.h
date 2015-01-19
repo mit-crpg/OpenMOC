@@ -38,6 +38,7 @@
 
 
 int material_id();
+void reset_material_id();
 
 
 /**
@@ -54,6 +55,9 @@ private:
 
   /** A user-defined ID for each Material created */
   int _id;
+
+  /** A user-defined name for the Material */
+  char* _name;
 
   /** The number of energy groups */
   int _num_groups;
@@ -104,12 +108,13 @@ private:
   int _num_vector_groups;
 
 public:
-  Material(int id);
+  Material(int id=0, const char* name="");
   virtual ~Material();
 
   void setUid(int uid);
   int getUid() const;
   int getId() const;
+  char* getName() const;
   int getNumEnergyGroups() const;
   FP_PRECISION* getSigmaT();
   FP_PRECISION* getSigmaA();
@@ -136,6 +141,7 @@ public:
   bool isDataAligned();
   int getNumVectorGroups();
 
+  void setName(const char* name);
   void setNumEnergyGroups(const int num_groups);
 
   void setSigmaT(double* xs, int num_groups);

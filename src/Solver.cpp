@@ -270,16 +270,12 @@ void Solver::setGeometry(Geometry* geometry) {
     log_printf(ERROR, "Unable to set the Geometry for the Solver since the "
                "Geometry has not yet initialized FSRs");
 
-  if (geometry->getNumEnergyGroups() == 0)
-    log_printf(ERROR, "Unable to set the Geometry for the Solver "
-               "since the Geometry does noet contain any materials");
-
   _geometry = geometry;
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();
   _polar_times_groups = _num_groups * _num_polar;
   _num_materials = _geometry->getNumMaterials();
-  
+
   if (_cmfd != NULL)
     _num_mesh_cells = _cmfd->getNumCells();
 }
@@ -531,7 +527,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     log_printf(NORMAL, "Iteration %d: \tk_eff = %1.6f"
                "\tres = %1.3E", i, _k_eff, residual);
 
-    normalizeFluxes();    
+    normalizeFluxes();
     residual = computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();

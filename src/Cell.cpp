@@ -23,27 +23,31 @@ int cell_id() {
 
 
 /**
+ * @brief Resets the auto-generated unique Cell ID counter to 10000.
+ */
+void reset_cell_id() {
+  auto_id = 10000;
+}
+
+
+/**
  * @brief Default constructor used in rings/sectors subdivision of Cells.
  */
 Cell::Cell() {
+  _name = NULL;
 }
 
 
 /**
  * @brief Constructor sets the unique and user-specifed IDs for this Cell.
- * @param id the user-specified Cell ID
- * @param universe the ID of the Universe within which this Cell resides
+ * @param id the user-specified optional Cell ID
+ * @param name the user-specified optional Cell name
  */
-Cell::Cell(int universe, int id) {
+Cell::Cell(int id, const char* name) {
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
     _id = cell_id();
-
-  /* If the user-defined ID is in the prohibited range, return an error */
-  else if (id >= 10000)
-    log_printf(ERROR, "Unable to set the ID of a cell to %d since cell IDs "
-               "greater than or equal to 10000 is probibited by OpenMOC.", id);
 
   /* Use the user-defined ID */
   else
@@ -51,7 +55,17 @@ Cell::Cell(int universe, int id) {
 
   _uid = _n;
   _n++;
-  _universe = universe;
+
+  _name = NULL;
+  setName(name);
+
+  /* Set a default bounding box around the Cell */
+  _min_x = -std::numeric_limits<double>::infinity();
+  _max_x = std::numeric_limits<double>::infinity();
+  _min_y = -std::numeric_limits<double>::infinity();
+  _max_y = std::numeric_limits<double>::infinity();
+  _min_z = -std::numeric_limits<double>::infinity();
+  _max_z = std::numeric_limits<double>::infinity();
 }
 
 
@@ -60,6 +74,9 @@ Cell::Cell(int universe, int id) {
  */
 Cell::~Cell() {
   _surfaces.clear();
+
+  if (_name != NULL)
+    delete [] _name;
 }
 
 
@@ -82,6 +99,15 @@ int Cell::getId() const {
 
 
 /**
+ * @brief Return the user-defined name of the Cell
+ * @return the Cell name
+ */
+char* Cell::getName() const {
+  return _name;
+}
+
+
+/**
  * @brief Return the Cell type (FILL or MATERIAL).
  * @return the Cell type
  */
@@ -91,11 +117,116 @@ cellType Cell::getType() const {
 
 
 /**
- * @brief Return the ID of the Universe within which this Cell resides.
- * @return the Universe ID
+ * @brief Return the minimum reachable x-coordinate in the Cell.
+ * @return the minimum x-coordinate
  */
-int Cell::getUniverseId() const {
-  return _universe;
+double Cell::getMinX() {
+  return _min_x;
+}
+
+
+/**
+ * @brief Return the maximum reachable x-coordinate in the Cell.
+ * @return the maximum x-coordinate
+ */
+double Cell::getMaxX() {
+  return _max_x;
+}
+
+
+/**
+ * @brief Return the minimum reachable y-coordinate in the Cell.
+ * @return the minimum y-coordinate
+ */
+double Cell::getMinY() {
+  return _min_y;
+}
+
+
+/**
+ * @brief Return the maximum reachable y-coordinate in the Cell.
+ * @return the maximum y-coordinate
+ */
+double Cell::getMaxY() {
+  return _max_y;
+}
+
+
+/**
+ * @brief Return the minimum reachable z-coordinate in the Cell.
+ * @return the minimum z-coordinate
+ */
+double Cell::getMinZ() {
+  return _min_z;
+}
+
+
+/**
+ * @brief Return the maximum reachable z-coordinate in the Cell.
+ * @return the maximum z-coordinate
+ */
+double Cell::getMaxZ() {
+  return _max_z;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the minimum reachable x-coordinate in the Cell.
+ * @return the boundary condition at the minimum x-coordinate
+ */
+boundaryType Cell::getMinXBoundaryType() {
+  return _min_x_bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the maximum reachable x-coordinate in the Cell.
+ * @return the boundary condition at the maximum x-coordinate
+ */
+boundaryType Cell::getMaxXBoundaryType() {
+  return _max_x_bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the minimum reachable y-coordinate in the Cell.
+ * @return the boundary condition at the minimum y-coordinate
+ */
+boundaryType Cell::getMinYBoundaryType() {
+  return _min_y_bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the maximum reachable y-coordinate in the Cell.
+ * @return the boundary condition at the maximum y-coordinate
+ */
+boundaryType Cell::getMaxYBoundaryType() {
+  return _max_y_bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the minimum reachable z-coordinate in the Cell.
+ * @return the boundary condition at the minimum z-coordinate
+ */
+boundaryType Cell::getMinZBoundaryType() {
+  return _min_z_bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the maximum reachable z-coordinate in the Cell.
+ * @return the boundary condition at the maximum z-coordinate
+ */
+boundaryType Cell::getMaxZBoundaryType() {
+  return _max_z_bc;
 }
 
 
@@ -119,16 +250,26 @@ std::map<int, surface_halfspace> Cell::getSurfaces() const {
 
 
 /**
- * @brief Set the ID for the Universe within which this Cell resides.
- * @param universe the Universe's user-specified ID
+ * @brief Sets the name of the Cell
+ * @param name the Cell name string
  */
-void Cell::setUniverse(int universe) {
-  _universe = universe;
+void Cell::setName(const char* name) {
+  int length = strlen(name);
+
+  if (_name != NULL)
+    delete [] _name;
+
+  /* Initialize a character array for the Cell's name */
+  _name = new char[length+1];
+
+  /* Copy the input character array Cell name to the class attribute name */
+  for (int i=0; i <= length; i++)
+    _name[i] = name[i];
 }
 
 
 /**
- * @brief Insert a Surface into this Cells container.
+ * @brief Insert a Surface into this Cell's container of bounding Surfaces.
  * @param halfspace the Surface halfspace (+/-1)
  * @param surface a pointer to the Surface
  */
@@ -141,7 +282,102 @@ void Cell::addSurface(int halfspace, Surface* surface) {
   surface_halfspace* new_surf_half = new surface_halfspace;
   new_surf_half->_surface = surface;
   new_surf_half->_halfspace = halfspace;
+
   _surfaces[surface->getId()] = *new_surf_half;
+
+  findBoundingBox();
+}
+
+
+/**
+ * @brief Removes a Surface from this Cell's container of bounding Surfaces.
+ * @param surface a pointer to the Surface to remove
+ */
+void Cell::removeSurface(Surface* surface) {
+
+  if (_surfaces.find(surface->getId()) != _surfaces.end())
+    _surfaces.erase(surface->getId());
+
+  findBoundingBox();
+}
+
+
+
+/**
+ * @brief
+ * @param
+ */
+void Cell::findBoundingBox() {
+
+  /* Set a default bounding box around the Cell */
+  _min_x = -std::numeric_limits<double>::infinity();
+  _max_x = std::numeric_limits<double>::infinity();
+  _min_y = -std::numeric_limits<double>::infinity();
+  _max_y = std::numeric_limits<double>::infinity();
+  _min_z = -std::numeric_limits<double>::infinity();
+  _max_z = std::numeric_limits<double>::infinity();
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace>::iterator iter;
+  Surface* surface;
+  int halfspace;
+  double min_x, max_x, min_y, max_y, min_z, max_z;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+
+    surface = iter->second._surface;
+    halfspace = iter->second._halfspace;
+
+    max_x = surface->getMaxX(halfspace);
+    max_y = surface->getMaxY(halfspace);
+    max_z = surface->getMaxZ(halfspace);
+
+    min_x = surface->getMinX(halfspace);
+    min_y = surface->getMinY(halfspace);
+    min_z = surface->getMinZ(halfspace);
+
+    if (max_x != std::numeric_limits<double>::infinity() && max_x < _max_x) {
+      _max_x = max_x;
+      _max_x_bc = surface->getBoundaryType();
+    }
+    if (max_y != std::numeric_limits<double>::infinity() && max_y < _max_y) {
+      _max_y = max_y;
+      _max_y_bc = surface->getBoundaryType();
+    }
+    if (max_z != std::numeric_limits<double>::infinity() && max_z < _max_z) {
+      _max_z = max_z;
+      _max_z_bc = surface->getBoundaryType();
+    }
+
+    if (min_x != -std::numeric_limits<double>::infinity() && min_x > _min_x) {
+      _min_x = min_x;
+      _min_x_bc = surface->getBoundaryType();
+    }
+    if (min_y != -std::numeric_limits<double>::infinity() && min_y > _min_y) {
+      _min_y = min_y;
+      _min_y_bc = surface->getBoundaryType();
+    }
+    if (min_z != -std::numeric_limits<double>::infinity() && min_z > _min_z) {
+      _min_z = min_z;
+      _min_z_bc = surface->getBoundaryType();
+    }
+  }
+
+  /* If we could not find a bounds for any dimension, readjust
+   * it to +/- infinity */
+  if (_max_x == -std::numeric_limits<double>::infinity())
+    _max_x = std::numeric_limits<double>::infinity();
+  if (_max_y == -std::numeric_limits<double>::infinity())
+    _max_y = std::numeric_limits<double>::infinity();
+  if (_max_z == -std::numeric_limits<double>::infinity())
+    _max_z = std::numeric_limits<double>::infinity();
+
+  if (_min_x == std::numeric_limits<double>::infinity())
+    _min_x = -std::numeric_limits<double>::infinity();
+  if (_min_y == std::numeric_limits<double>::infinity())
+    _min_y = -std::numeric_limits<double>::infinity();
+  if (_min_z == std::numeric_limits<double>::infinity())
+    _min_z = -std::numeric_limits<double>::infinity();
 }
 
 
@@ -156,6 +392,7 @@ bool Cell::cellContainsPoint(Point* point) {
 
   /* Loop over all Surfaces inside the Cell */
   std::map<int, surface_halfspace>::iterator iter;
+
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Return false if the Point is not in the correct Surface halfspace */
@@ -217,20 +454,18 @@ double Cell::minSurfaceDist(Point* point, double angle,
 
 
 /**
- * Constructor sets the user-specified and unique IDs for this CellBasic.
- * @param universe the ID for the Universe within which this CellBasic resides
- * @param material the ID for the Material which fills this CellBasic
+ * @brief Constructor sets the user-specified and unique IDs for this CellBasic.
+ * @param id the user-specified optional Cell ID
+ * @param name the user-specified optional Cell name
  * @param rings the number of equal volume rings to divide this Cell into
  *        (the default is zero)
  * @param sectors the number of angular sectors to divide this Cell into
  *        (the default is zero)
- * @param id the user-specified Cell ID
  */
-CellBasic::CellBasic(int universe, int material, int rings,
-                     int sectors, int id): Cell(universe, id) {
+CellBasic::CellBasic(int id, const char* name, int rings, int sectors):
+  Cell(id, name) {
 
   _cell_type = MATERIAL;
-  _material = material;
   setNumRings(rings);
   setNumSectors(sectors);
 }
@@ -238,10 +473,10 @@ CellBasic::CellBasic(int universe, int material, int rings,
 
 
 /**
- * @brief Return the ID of the Material filling the CellBasic.
- * @return the Material's ID
+ * @brief Return the Material filling the CellBasic.
+ * @return the Material's pointer
  */
-int CellBasic::getMaterial() const {
+Material* CellBasic::getMaterial() {
   return _material;
 }
 
@@ -261,6 +496,35 @@ int CellBasic::getNumRings() {
  */
 int CellBasic::getNumSectors() {
   return _num_sectors;
+}
+
+
+/**
+ * @brief Returns an empty std::map of Cell IDs and Cell pointers.
+ * @return empty std::map of Cell IDs and pointers
+ */
+std::map<int, Cell*> CellBasic::getAllCells() {
+  std::map<int, Cell*> cells;
+  return cells;
+}
+
+
+/**
+ * @brief Returns an empty std::map of nested Universe IDs and pointers
+ * @return empty std::map of Universe IDs and pointers
+ */
+std::map<int, Universe*> CellBasic::getAllUniverses() {
+  std::map<int, Universe*> universes;
+  return universes;
+}
+
+
+/**
+ * @brief Sets the Material filling this Cell.
+ * @param material the Material filling this Cell
+ */
+void CellBasic::setMaterial(Material* material) {
+  _material = material;
 }
 
 
@@ -296,23 +560,17 @@ void CellBasic::setNumSectors(int num_sectors) {
 
 
 /**
- * @brief Sets the ID for the Material filling this Cell.
- * @param material_id the new Material filling this Cell
- */
-void CellBasic::setMaterial(int material_id) {
-  _material = material_id;
-}
-
-
-/**
  * @brief Create a duplicate of the CellBasic.
  * @return a pointer to the clone
  */
 CellBasic* CellBasic::clone() {
 
   /* Construct new Cell */
-  CellBasic* new_cell = new CellBasic(_universe, _material,
-                                      _num_rings, _num_sectors);
+  CellBasic* new_cell = new CellBasic();
+  new_cell->setName(_name);
+  new_cell->setNumRings(_num_rings);
+  new_cell->setNumSectors(_num_sectors);
+  new_cell->setMaterial(_material);
 
   /* Loop over all of this Cell's Surfaces and add them to the clone */
   std::map<int, surface_halfspace>::iterator iter;
@@ -367,7 +625,7 @@ void CellBasic::sectorize() {
     sector->setNumSectors(0);
     sector->setNumRings(0);
 
-    log_printf(DEBUG, "Creating a new sector Cell with %d for Cell %d",
+    log_printf(DEBUG, "Creating a new sector Cell %d for Cell %d",
                sector->getId(), _id);
 
     /* Add new bounding planar Surfaces to the clone */
@@ -568,6 +826,7 @@ std::vector<CellBasic*> CellBasic::subdivideCell() {
   return _subcells;
 }
 
+
 /**
  * @brief Convert this CellBasic's attributes to a string format.
  * @return a character array of this CellBasic's attributes
@@ -576,12 +835,14 @@ std::string CellBasic::toString() {
 
   std::stringstream string;
 
-  string << "Cell id = " << _id
-         << ", type = MATERIAL, material id = " << _material
-         << ", universe = " << _universe
-         << ", num_surfaces = " << getNumSurfaces()
-         << ", num of rings = " << _num_rings
-         << ", num of sectors = " << _num_sectors;
+  string << "Cell ID = " << _id
+         << ", name = " << _name
+         << ", type = MATERIAL"
+         << ", material id = " << _material->getId()
+         << ", # surfaces = " << getNumSurfaces()
+         << ", # rings = " << _num_rings
+         << ", # sectors = " << _num_sectors;
+
 
   /* Append each of the surface ids to the string */
   std::map<int, surface_halfspace>::iterator iter;
@@ -603,34 +864,68 @@ void CellBasic::printString() {
 
 
 /**
- *  @brief CellFill constructor
- *  @param id the user-specified Cell ID
- *  @param universe the ID of the Universe within which this Cell resides
- *  @param universe_fill the ID of the Universe filling this Cell
+ * @brief CellFill constructor
+ * @param id the user-specified optional Cell ID
+ * @param name the user-specified optional Cell name
  */
-CellFill::CellFill(int universe, int universe_fill, int id):
-  Cell(universe, id) {
-
+CellFill::CellFill(int id, const char* name): Cell(id, name) {
   _cell_type = FILL;
-  _universe_fill_id = universe_fill;
-}
-
-
-/**
- * @brief Return the ID of the Universe filling this Cell.
- * @return the Universe's id
- */
-int CellFill::getUniverseFillId() const {
-  return _universe_fill_id;
 }
 
 
 /**
  * @brief Return a pointer to the Universe filling this Cell.
- * @return the universe pointer
+ * @return the Universe pointer
  */
-Universe* CellFill::getUniverseFill() const {
-  return _universe_fill;
+Universe* CellFill::getFill() const {
+  return _fill;
+}
+
+
+/**
+ * @brief Returns the std::map of Cell IDs and Cell pointers within any
+ *        nested Universes filling this Cell.
+ * @return std::map of Cell IDs and pointers
+ */
+std::map<int, Cell*> CellFill::getAllCells() {
+
+  std::map<int, Cell*> cells;
+
+  if (_cell_type == FILL && _fill != NULL) {
+    std::map<int, Cell*> nested_cells;
+
+    if (_fill->getType() == SIMPLE)
+      nested_cells = _fill->getAllCells();
+    else
+      nested_cells = static_cast<Lattice*>(_fill)->getAllCells();
+
+    cells.insert(nested_cells.begin(), nested_cells.end());
+  }
+
+  return cells;
+}
+
+
+/**
+ * @brief Returns the std::map of all nested Universe IDs and Universe pointers
+          filling this Cell.
+ * @return std::map of Universe IDs and pointers
+ */
+std::map<int, Universe*> CellFill::getAllUniverses() {
+
+  std::map<int, Universe*> universes;
+
+  if (_cell_type == FILL && _fill != NULL) {
+    universes[_fill->getId()] = _fill;
+    std::map<int, Universe*> nested_universes;
+    if (_fill->getType() == SIMPLE)
+      nested_universes = static_cast<Universe*>(_fill)->getAllUniverses();
+    else
+      nested_universes = static_cast<Lattice*>(_fill)->getAllUniverses();
+    universes.insert(nested_universes.begin(), nested_universes.end());
+  }
+
+  return universes;
 }
 
 
@@ -638,9 +933,8 @@ Universe* CellFill::getUniverseFill() const {
  * @brief Set a pointer to the Universe filling this CellFill.
  * @param universe the Universe's pointer
  */
-void CellFill::setUniverseFillPointer(Universe* universe) {
-  _universe_fill = universe;
-  _universe_fill_id = universe->getId();
+void CellFill::setFill(Universe* universe) {
+  _fill = universe;
 }
 
 
@@ -652,9 +946,11 @@ std::string CellFill::toString() {
 
   std::stringstream string;
 
-  string << "Cell id = " << _id << ", type = FILL, universe_fill = " <<
-    _universe_fill_id << ", universe = " << _universe <<
-    ", num_surfaces = " << getNumSurfaces();
+  string << "Cell ID = " << _id
+         << ", name = " << _name
+         << ", type = FILL, "
+         << ", fill = " << _fill->getId()
+         << ", # surfaces = " << getNumSurfaces();
 
   /** Add the IDs for the Surfaces in this Cell */
   std::map<int, surface_halfspace>::iterator iter;

@@ -21,6 +21,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
+  _max_optical_length = 10;
 }
 
 
@@ -408,10 +409,10 @@ void TrackGenerator::generateTracks() {
 
     /* Check to make sure that height, width of the Geometry are nonzero */
     if (_geometry->getHeight() <= 0 || _geometry->getHeight() <= 0)
-      log_printf(ERROR, "The total height and width of the Geometry must be"
-                 "must be nonzero for Track generation. Create a CellFill which"
-                 "is filled by the entire geometry and bounded by XPlanes"
-                 "and YPlanes to enable the Geometry to determine the total"
+      log_printf(ERROR, "The total height and width of the Geometry must be "
+                 "nonzero for Track generation. Create a CellFill which "
+                 "is filled by the entire geometry and bounded by XPlanes "
+                 "and YPlanes to enable the Geometry to determine the total "
                  "width and height of the model.");
 
     /* Generate Tracks, perform ray tracing across the geometry, and store
@@ -622,10 +623,10 @@ void TrackGenerator::recalibrateTracksToOrigin() {
       double y0 = _tracks[i][j].getStart()->getY();
       double x1 = _tracks[i][j].getEnd()->getX();
       double y1 = _tracks[i][j].getEnd()->getY();
-      double new_x0 = x0 + _geometry->getXMin();
-      double new_y0 = y0 + _geometry->getYMin();
-      double new_x1 = x1 + _geometry->getXMin();
-      double new_y1 = y1 + _geometry->getYMin();
+      double new_x0 = x0 + _geometry->getMinX();
+      double new_y0 = y0 + _geometry->getMinY();
+      double new_x1 = x1 + _geometry->getMinX();
+      double new_y1 = y1 + _geometry->getMinY();
       double phi = _tracks[i][j].getPhi();
 
       _tracks[i][j].setValues(new_x0, new_y0, new_x1,new_y1, phi);
@@ -727,7 +728,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(false);
           refl[j].setReflIn(false);
 
-          if (_geometry->getBCBottom() == REFLECTIVE) {
+          if (_geometry->getMinYBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j].setBCIn(1);
           }
@@ -747,7 +748,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(false);
           refl[2 * nxi - 1 - j].setReflIn(true);
 
-          if (_geometry->getBCRight() == REFLECTIVE) {
+          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[2 * nxi - 1 - j].setBCIn(1);
           }
@@ -770,7 +771,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(true);
           refl[j - nxi].setReflOut(false);
 
-          if (_geometry->getBCLeft() == REFLECTIVE) {
+          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j - nxi].setBCOut(1);
           }
@@ -790,7 +791,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(false);
           refl[j + nxi].setReflIn(true);
 
-          if (_geometry->getBCRight() == REFLECTIVE) {
+          if (_geometry->getMaxXBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[j + nxi].setBCIn(1);
           }
@@ -813,7 +814,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(true);
           refl[j - nxi].setReflOut(false);
 
-          if (_geometry->getBCLeft() == REFLECTIVE) {
+          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j - nxi].setBCOut(1);
           }
@@ -833,7 +834,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(true);
           refl[2 * nti - nxi - j - 1].setReflOut(true);
 
-          if (_geometry->getBCTop() == REFLECTIVE) {
+          if (_geometry->getMaxYBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[2 * nti - nxi - j - 1].setBCOut(1);
           }
@@ -860,7 +861,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(false);
           refl[j].setReflIn(false);
 
-          if (_geometry->getBCBottom() == REFLECTIVE) {
+          if (_geometry->getMinYBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j].setBCIn(1);
          }
@@ -880,7 +881,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(true);
           refl[nti - (nxi - nyi) + j].setReflOut(true);
 
-          if (_geometry->getBCTop() == REFLECTIVE) {
+          if (_geometry->getMaxYBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[nti - (nxi - nyi) + j].setBCOut(1);
           }
@@ -903,7 +904,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(false);
           refl[j].setReflIn(false);
 
-          if (_geometry->getBCBottom() == REFLECTIVE) {
+          if (_geometry->getMinYBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j].setBCIn(1);
           }
@@ -923,7 +924,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(false);
           refl[nxi + (nxi - j) - 1].setReflIn(true);
 
-          if (_geometry->getBCRight() == REFLECTIVE) {
+          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[nxi + (nxi - j) - 1].setBCIn(1);
           }
@@ -946,7 +947,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflIn(true);
           refl[j - nxi].setReflOut(false);
 
-          if (_geometry->getBCLeft() == REFLECTIVE) {
+          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
             curr[j].setBCIn(1);
             refl[j - nxi].setBCOut(1);
           }
@@ -966,7 +967,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(true);
           refl[nyi + (nti - j) - 1].setReflOut(true);
 
-          if (_geometry->getBCTop() == REFLECTIVE) {
+          if (_geometry->getMaxYBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[nyi + (nti - j) - 1].setBCOut(1);
           }
@@ -1006,7 +1007,7 @@ void TrackGenerator::segmentize() {
         track = &_tracks[i][j];
         log_printf(DEBUG, "Segmenting Track %d/%d with i = %d, j = %d",
         track->getUid(), _tot_num_tracks, i, j);
-        _geometry->segmentize(track);
+        _geometry->segmentize(track,_max_optical_length);
       }
     }
 
@@ -1024,7 +1025,7 @@ void TrackGenerator::segmentize() {
   }
 
   _contains_tracks = true;
-  
+
   return;
 }
 
@@ -1129,7 +1130,7 @@ void TrackGenerator::dumpTracksToFile() {
           fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
         }
       }
-    }      
+    }
   }
 
   /* Get FSR vector maps */
@@ -1158,7 +1159,7 @@ void TrackGenerator::dumpTracksToFile() {
     fwrite(&fsr_id, sizeof(int), 1, out);
     fwrite(&x, sizeof(double), 1, out);
     fwrite(&y, sizeof(double), 1, out);
-    
+
     /* Write data to file from FSRs_to_material_IDs */
     fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
 
@@ -1178,19 +1179,19 @@ void TrackGenerator::dumpTracksToFile() {
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++){
-      num_FSRs = cell_fsrs.at(cell).size(); 
+      num_FSRs = cell_fsrs.at(cell).size();
       fwrite(&num_FSRs, sizeof(int), 1, out);
 
       /* Loop over FSRs within cell */
       for (iter = cell_fsrs.at(cell).begin(); iter != cell_fsrs.at(cell).end();
           ++iter)
         fwrite(&(*iter), sizeof(int), 1, out);
-    }        
-  }   
-   
+    }
+  }
+
   /* Close the Track file */
   fclose(out);
-  
+
   /* Inform other the TrackGenerator::generateTracks() method that it may
    * import ray tracing data from this file if it is called and the ray
    * tracing parameters have not changed */
@@ -1278,6 +1279,9 @@ bool TrackGenerator::readTracksFromFile() {
 
   int cmfd_surface_fwd;
   int cmfd_surface_bwd;
+  segment curr_segment;
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
 
   /* Calculate the total number of Tracks */
   for (int i=0; i < _num_azim; i++)
@@ -1323,21 +1327,20 @@ bool TrackGenerator::readTracksFromFile() {
         ret = fread(&region_id, sizeof(int), 1, in);
 
         /* Initialize segment with the data */
-        segment* curr_segment = new segment;
-        curr_segment->_length = length;
-        curr_segment->_material = _geometry->getMaterial(material_id);
-        curr_segment->_region_id = region_id;
+        curr_segment._length = length;
+        curr_segment._material = materials[material_id];
+        curr_segment._region_id = region_id;
 
         /* Import CMFD-related data if needed */
         if (cmfd != NULL){
           ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
           ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
-          curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
-          curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
+          curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
+          curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
         }
 
         /* Add this segment to the Track */
-        curr_track->addSegment(curr_segment);
+        curr_track->addSegment(&curr_segment);
       }
 
       uid++;
@@ -1385,11 +1388,11 @@ bool TrackGenerator::readTracksFromFile() {
   _geometry->setFSRKeysMap(FSR_keys_map);
   _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
   _geometry->setFSRsToKeys(FSRs_to_keys);
-   
+
   /* Read cmfd cell_fsrs vector of vectors from file */
   if (cmfd != NULL){
     std::vector< std::vector<int> > cell_fsrs;
-    int num_cells, fsr_id; 
+    int num_cells, fsr_id;
     ret = fread(&num_cells, sizeof(int), 1, in);
 
     /* Loop over CMFD cells */
@@ -1403,7 +1406,7 @@ bool TrackGenerator::readTracksFromFile() {
         ret = fread(&fsr_id, sizeof(int), 1, in);
         cell_fsrs.at(cell).push_back(fsr_id);
       }
-    }        
+    }
 
     /* Set CMFD cell_fsrs vector of vectors */
     cmfd->setCellFSRs(cell_fsrs);
@@ -1418,3 +1421,41 @@ bool TrackGenerator::readTracksFromFile() {
 
   return true;
 }
+
+
+/**
+ * @brief Set the maximum allowable optical length for a track segment
+ * @param max_optical_length The max optical length
+ */
+void TrackGenerator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+  if (max_optical_length <= 0)
+    log_printf(ERROR, "Cannot set max optical length to %f because it "
+               "must be positive.", max_optical_length); 
+        
+  _max_optical_length = max_optical_length;
+}
+
+/**
+ * @brief Get the maximum allowable optical lenght for a track segment
+ * @return The max optical length
+ */
+FP_PRECISION TrackGenerator::getMaxOpticalLength() {
+  return _max_optical_length;
+}
+
+/**
+ * @brief Get the total number of tracks in the TrackGenerator
+ * @return the total number of tracks
+ */
+int TrackGenerator::getTotNumTracks() {
+  return _tot_num_tracks;
+}
+
+/**
+ * @brief Get the total number of track segments in the TrackGenerator
+ * @return the total number of track segments
+ */
+int TrackGenerator::getTotNumSegments() {
+  return _tot_num_segments;
+}
+

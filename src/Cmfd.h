@@ -20,13 +20,11 @@
 #include <fstream>
 #include "Quadrature.h"
 #include "log.h"
-#include "Material.h"
-#include "Surface.h"
 #include "Timer.h"
 #include "Universe.h"
+#include "Track.h"
 #include "linalg.h"
 #include "pairwise_sum.h"
-#include "Track.h"
 #endif
 
 
@@ -121,6 +119,7 @@ private:
   double _cell_height;
 
   /** Array of geometry boundaries */
+	//  int* _boundaries;
   boundaryType* _boundaries;
 
   /** Array of surface currents for each CMFD cell */
@@ -175,7 +174,7 @@ public:
   int getCmfdGroup(int group);
   bool isOpticallyThick();
   FP_PRECISION getMOCRelaxationFactor();
-  boundaryType getBoundary(int side);
+  int getBoundary(int side);
   Lattice* getLattice();
   int getNumX();
   int getNumY();
