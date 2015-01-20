@@ -601,7 +601,7 @@ void CPUSolver::normalizeFluxes() {
  *          residual for the source with respect to the source compute on
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
- *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
+ *          \f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
  *                    \left(\frac{Q^i - Q^{i-1}}{Q^i}\right)^2}{\# FSRs}} \f$
  *
  * @return the residual between this source and the previous source

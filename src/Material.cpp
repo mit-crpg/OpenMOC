@@ -147,7 +147,7 @@ Material::~Material() {
 
 /**
  * @brief Set the Material's unique ID.
- * @param the Material's unique ID
+ * @param uid the Material's unique ID
  */
 void Material::setUid(int uid) {
   _uid = uid;
