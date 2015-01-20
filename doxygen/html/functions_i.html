@@ -181,18 +181,19 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 <li>importXS()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#ad57b99516c7286a506771446811112cb">openmoc.compatible.casmo.Casmo</a>
 </li>
-<li>initialize()
-: <a class="el" href="classMesh.html#ac8378f78e7c8e5657ee8dbd12a42c2ca">Mesh</a>
+<li>initializeCellMap()
+: <a class="el" href="classCmfd.html#a3c4846b2a4a898dc8ce902c7c233563c">Cmfd</a>
 </li>
 <li>initializeCmfd()
 : <a class="el" href="classCPUSolver.html#acf1386161e001fd58d8962a4c6ad24c7">CPUSolver</a>
+, <a class="el" href="classGeometry.html#a6559869a3b188f8761cdf944c2ef2946">Geometry</a>
 , <a class="el" href="classSolver.html#afeab07b86fb26ba8be22d525cba33c4f">Solver</a>
 </li>
 <li>initializeFlatSourceRegions()
 : <a class="el" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d">Geometry</a>
 </li>
 <li>initializeFlux()
-: <a class="el" href="classMesh.html#a787f9e2f03a4d8577f0dd6ec08b539e4">Mesh</a>
+: <a class="el" href="classCmfd.html#ac156c201dab1b12de68f85a7720f749e">Cmfd</a>
 </li>
 <li>initializeFluxArrays()
 : <a class="el" href="classCPUSolver.html#a8eac5804397c5e5f95d73b19a6e4cbfd">CPUSolver</a>
@@ -200,18 +201,14 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 , <a class="el" href="classVectorizedSolver.html#a6d5bac107495fe429839826859b7dfa1">VectorizedSolver</a>
 </li>
 <li>initializeFSRs()
-: <a class="el" href="classCmfd.html#ad9986bd845448ba21625cb8adbc0b2e5">Cmfd</a>
-, <a class="el" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c">CPUSolver</a>
+: <a class="el" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c">CPUSolver</a>
 , <a class="el" href="classSolver.html#a512ac25e056b3e2d77ae9159e793babf">Solver</a>
 </li>
-<li>initializeMaterialsDiffusion()
-: <a class="el" href="classMesh.html#a1f2cf10dca78f89e9d1a59e55a18670e">Mesh</a>
+<li>initializeGroupMap()
+: <a class="el" href="classCmfd.html#a7ad43e41d38746446ae1b791e329cdf9">Cmfd</a>
 </li>
-<li>initializeMaterialsMOC()
-: <a class="el" href="classMesh.html#ab37b386a4b08be476c2930338604ad7b">Mesh</a>
-</li>
-<li>initializeMesh()
-: <a class="el" href="classGeometry.html#a46c73fdec60562eeadfb92146754f01d">Geometry</a>
+<li>initializeMaterials()
+: <a class="el" href="classCmfd.html#a9cb4ee80522d671b22c9fc76d21030d6">Cmfd</a>
 </li>
 <li>initializePolarQuadrature()
 : <a class="el" href="classCPUSolver.html#a061a09ddde28c55cda28a8734eac4c1a">CPUSolver</a>
@@ -221,9 +218,6 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 : <a class="el" href="classCPUSolver.html#a51419d540c7eea9d29c3df963cc80784">CPUSolver</a>
 , <a class="el" href="classSolver.html#a8592d819738b24a5b983e54c0a635d30">Solver</a>
 , <a class="el" href="classVectorizedSolver.html#a7287329d44d695ca91181e9484e32bca">VectorizedSolver</a>
-</li>
-<li>initializeSurfaceCurrents()
-: <a class="el" href="classMesh.html#a5394bf063964790c48d4e07b09fa071b">Mesh</a>
 </li>
 <li>intersection()
 : <a class="el" href="classCircle.html#a49e3967db73a8f068dbe6302a84370f6">Circle</a>
@@ -240,6 +234,12 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 : <a class="el" href="classMaterial.html#a518c42114378e88c9d5a198fc6bb8c00">Material</a>
 , <a class="el" href="classUniverse.html#a519ec15f1e4c7f4b5028b5166ec0e9f1">Universe</a>
 </li>
+<li>isFluxUpdateOn()
+: <a class="el" href="classCmfd.html#ad34edd48a104b4e298d23297d62a0c76">Cmfd</a>
+</li>
+<li>isOpticallyThick()
+: <a class="el" href="classCmfd.html#a2da4c83f3724832cb886d82aab16f34e">Cmfd</a>
+</li>
 <li>isPointOnSurface()
 : <a class="el" href="classSurface.html#ad996b11e3af07e6dea8081cb11ccfe0c">Surface</a>
 </li>
@@ -249,8 +249,8 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 <li>isReflOut()
 : <a class="el" href="classTrack.html#aafdc812cdaf36e09a3341284c61b8f0b">Track</a>
 </li>
-<li>isUsingCmfd()
-: <a class="el" href="classSolver.html#a972a7ae139448c1c65f51d421c816306">Solver</a>
+<li>isSymmetric()
+: <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#aec619a066bf279b6f003d4208ae166d2">openmoc.compatible.casmo.Casmo</a>
 </li>
 <li>isUsingDoublePrecision()
 : <a class="el" href="classSolver.html#a791b6f6d7ed7fd356991eb36bdf9386d">Solver</a>
@@ -270,7 +270,7 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Fri Aug 1 2014 20:45:43 by
+    <li class="footer">Generated on Tue Jan 20 2015 14:08:45 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

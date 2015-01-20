@@ -26,6 +26,7 @@ Class Attribute                    Type                            Default Value
 ``fp_precision``                   list of string                  []
 ``with_ccache``                    boolean                         False
 ``debug_mode``                     boolean                         False
+``profile_mode``                   boolean                         False
 ``with_cuda``                      boolean                         False
 ``with_numpy``                     boolean                         True
 ``sources``                        dictionary of strings           C/C++/CUDA source files flags for eac  ``Extension`` object

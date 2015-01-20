@@ -1,6 +1,6 @@
 var classVectorizedSolver =
 [
-    [ "VectorizedSolver", "classVectorizedSolver.html#a4115f20eeaf814518521c75568045794", null ],
+    [ "VectorizedSolver", "classVectorizedSolver.html#a8d24fe816af7f78a7404226c3fb284cd", null ],
     [ "~VectorizedSolver", "classVectorizedSolver.html#abcda5ede1c19f0e4c91e042c7d7a110d", null ],
     [ "addSourceToScalarFlux", "classVectorizedSolver.html#ac079f92b22b16a7584662fe36817495b", null ],
     [ "buildExpInterpTable", "classVectorizedSolver.html#a9ad74e27bc831e8616c49bb031291469", null ],
@@ -14,6 +14,7 @@ var classVectorizedSolver =
     [ "scalarFluxTally", "classVectorizedSolver.html#a861e52b6f96cd79a6a5298cefc7fe378", null ],
     [ "setGeometry", "classVectorizedSolver.html#ab4a29f8b4f8cbb4dff38ce2b85a56642", null ],
     [ "transferBoundaryFlux", "classVectorizedSolver.html#a8870d66ff12cad16d893d9f1dad0c799", null ],
+    [ "_delta_psi", "classVectorizedSolver.html#a26902a56a4aa93a0580656be36ef03cf", null ],
     [ "_num_vector_lengths", "classVectorizedSolver.html#adff1b20b7ea5cb791119fae7ee83fc1f", null ],
     [ "_thread_exponentials", "classVectorizedSolver.html#a5a9623683961869eef3a171c41fb6f81", null ],
     [ "_thread_taus", "classVectorizedSolver.html#a0a18af2566bcaee51cec4bd55a70e7e8", null ]

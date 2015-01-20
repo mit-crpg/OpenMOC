@@ -53,59 +53,50 @@
             
   <div class="section" id="introduction">
 <span id="methods-introduction"></span><h1>1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>The method of characteristics is one technique for solving partial differential equations.  MOC is one of the most common methods with real world applications in production lattice physics tools used today <a class="footnote-reference" href="#id7" id="id1">[1]</a> <a class="footnote-reference" href="#id8" id="id2">[2]</a>. The prospects for the MOC algorithm as an eventual successor to low-order diffusion-based method for reactor analysis are promising, and extensive research efforts into the efficient use of the algorithm are ongoing <a class="footnote-reference" href="#id9" id="id3">[3]</a>, <a class="footnote-reference" href="#id10" id="id4">[4]</a>, <a class="footnote-reference" href="#id11" id="id5">[5]</a>, <a class="footnote-reference" href="#id12" id="id6">[6]</a>. As a result, there is an opportunity for advanced parallel algorithms for high performance computing machines and nonlinear acceleration schemes to propel the application of MOC to full-core reactor physics calculations.</p>
+<p>The method of characteristics is one technique for solving partial differential equations.  MOC is one of the most common methods with real world applications in production lattice physics tools used today <a class="reference internal" href="#smith" id="id1">[Smith]</a>. The prospects for the MOC algorithm as an eventual successor to low-order diffusion-based method for reactor analysis are promising, and extensive research efforts into the efficient use of the algorithm are ongoing <a class="reference internal" href="#wu" id="id2">[Wu]</a>, <a class="reference internal" href="#taylor" id="id3">[Taylor]</a>, <a class="reference internal" href="#liu" id="id4">[Liu]</a>, <a class="reference internal" href="#talamo" id="id5">[Talamo]</a>. As a result, there is an opportunity for advanced parallel algorithms for high performance computing machines and nonlinear acceleration schemes to propel the application of MOC to full-core reactor physics calculations.</p>
 <p><a class="reference internal" href="method_of_characteristics.html#method-of-characteristics"><em>Section 2</em></a> describes how the method of characteristics is applied to solve the steady-state neutron transport equation in OpenMOC. <a class="reference internal" href="eigenvalue_calculations.html#eigenvalue-calculations"><em>Section 3</em></a> presents the algorithms implemented in OpenMOC to solve the MOC equations. <a class="reference internal" href="constructive_solid_geometry.html#constructive-solid-geometry"><em>Section 4</em></a> discusses the constructive solid geometry formulation used to represent geometric models in OpenMOC. <a class="reference internal" href="track_generation.html#track-generation"><em>Section 5</em></a> reviews the angular quadrature and track generation algorithm in OpenMOC. Finally, <a class="reference internal" href="parallelization.html#parallelization"><em>Section 5</em></a> outlines the parallel algorithms in OpenMOC for high performance computing platforms while <a class="reference internal" href="cmfd.html#cmfd"><em>Section 6</em></a> describes CMFD, a nonlinear acceleration method in OpenMOC.</p>
 <div class="section" id="references">
 <h2>1.1. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<table class="docutils footnote" frame="void" id="id7" rules="none">
+<table class="docutils citation" frame="void" id="smith" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><ol class="first last upperalpha simple" start="11">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Smith]</a></td><td><ol class="first last upperalpha simple" start="11">
 <li>Smith and J. D. Rhodes, &#8220;CASMO-4 Characteristics Methods for Two-Dimensional PWR and BWR Core Calculations.&#8221; <em>Transactions of the American Nuclear Society</em>, <strong>83</strong>, pp. 294 (2000).</li>
 </ol>
 </td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id8" rules="none">
+<table class="docutils citation" frame="void" id="wu" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><ol class="first last upperalpha simple" start="11">
-<li>Smith and J. D. Rhodes, &#8220;Full-Core, 2-D, LWR Core Calculations with CASMO-4E.&#8221; <strong>Proceedings of PHYSOR</strong>, Seoul, South Korea (2002).</li>
-</ol>
-</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id9" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><ol class="first last upperalpha simple" start="7">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Wu]</a></td><td><ol class="first last upperalpha simple" start="7">
 <li>Wu and R. Roy, &#8220;A New Characteristics Algorithm for 3D Transport Calculations.&#8221; <em>Annals of Nuclear Energy</em>, <strong>30</strong>, pp. 1-6 (2003).</li>
 </ol>
 </td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id10" rules="none">
+<table class="docutils citation" frame="void" id="taylor" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td><ol class="first last upperalpha simple" start="10">
+<tr><td class="label"><a class="fn-backref" href="#id3">[Taylor]</a></td><td><ol class="first last upperalpha simple" start="10">
 <li>Taylor, D. Knott and A. J. Baratta, &#8220;A Method of Characteristics Solution to the OECD/NEA 3D Neutron Transport Benchmark Problem.&#8221; <em>Proceedings of the Joint International Topical Meeting on Mathematics and Computation and Supercomputing in Nuclear Applications</em>, Monterey, CA, USA (2007).</li>
 </ol>
 </td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id11" rules="none">
+<table class="docutils citation" frame="void" id="liu" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td><ol class="first last upperalpha simple" start="26">
+<tr><td class="label"><a class="fn-backref" href="#id4">[Liu]</a></td><td><ol class="first last upperalpha simple" start="26">
 <li>Liu, H. Wu, L. Cao, Q. Chen, Y. Li, &#8220;A New Three-Dimensional Method of Characteristics for the Neutron Tansport Calculation.&#8221; <em>Annals of Nuclear Energy</em>, <strong>38</strong>, pp. 447-454 (2011).</li>
 </ol>
 </td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id12" rules="none">
+<table class="docutils citation" frame="void" id="talamo" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id6">[6]</a></td><td><ol class="first last upperalpha simple">
+<tr><td class="label"><a class="fn-backref" href="#id5">[Talamo]</a></td><td><ol class="first last upperalpha simple">
 <li>Talamo, &#8220;Numerical Solution of the Time Dependent Neutron Transport Equation by the Method of the Characteristics.&#8221; <em>Journal of Computational Physics}</em>, <strong>240</strong>, pp. 248-267 (2013).</li>
 </ol>
 </td></tr>
@@ -178,7 +169,7 @@
 
     <div class="footer">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
 <script type="text/javascript">
 

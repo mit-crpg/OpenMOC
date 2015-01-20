@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['fluxtype',['fluxType',['../Mesh_8h.html#a440dd3f1f3e84411806c942ae9df2483',1,'Mesh.h']]]
+  ['quadraturetype',['quadratureType',['../Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1',1,'Quadrature.h']]]
 ];

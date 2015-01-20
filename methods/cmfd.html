@@ -53,7 +53,7 @@
             
   <div class="section" id="coarse-mesh-finite-difference-acceleration">
 <span id="cmfd"></span><h1>7. Coarse Mesh Finite Difference Acceleration<a class="headerlink" href="#coarse-mesh-finite-difference-acceleration" title="Permalink to this headline">¶</a></h1>
-<p>While MOC offers many benefits including treatment of complex geometries and amenability to parallelization, it suffers from slow convergence which necessitates the use of acceleration methods. Numerous acceleration schemes have been proposed for MOC such as CMFD <a class="footnote-reference" href="#id7" id="id1">[1]</a>, coarse mesh rebalance (CMR) [<a class="reference internal" href="#id8">2</a>, <a class="reference internal" href="#id9">3</a>], and low order transport operator acceleration <a class="footnote-reference" href="#id10" id="id2">[4]</a> with CMFD being the most widely adopted due to its simplicity and acceleration performance. OpenMOC uses the CMFD nonlinear diffusion acceleration (NDA) scheme to reduce the number of iterations required for convergence. Acceleration schemes, such as NDA, are necessary when solving full-core problems which require thousands of power iterations in LWR problems that tend to have high dominance ratios. CMFD was first proposed by Smith <a class="footnote-reference" href="#id7" id="id3">[1]</a> and has been widely used in accelerating neutron diffusion and transport problems for many years. In particular, it has been shown that CMFD acceleration gives <img class="math" src="../_images/math/78ebd4cdaabc38007623a06192e4af8b92432fc5.png" alt="&gt;"/> 100x speedups on large LWR problems <a class="footnote-reference" href="#id13" id="id4">[7]</a>.</p>
+<p>While MOC offers many benefits including treatment of complex geometries and amenability to parallelization, it suffers from slow convergence which necessitates the use of acceleration methods. Numerous acceleration schemes have been proposed for MOC such as CMFD <a class="reference internal" href="#smith-1983" id="id1">[Smith-1983]</a>, coarse mesh rebalance (CMR) <a class="reference internal" href="#yamamoto-2002" id="id2">[Yamamoto-2002]</a>, <a class="reference internal" href="#yamamoto-2005" id="id3">[Yamamoto-2005]</a>, <a class="reference internal" href="#yamamoto-2008" id="id4">[Yamamoto-2008]</a>, <a class="reference internal" href="#lewis" id="id5">[Lewis]</a>, and low order transport operator acceleration <a class="reference internal" href="#li" id="id6">[Li]</a> with CMFD being the most widely adopted due to its simplicity and acceleration performance. OpenMOC uses the CMFD nonlinear diffusion acceleration (NDA) scheme to reduce the number of iterations required for convergence. Acceleration schemes, such as NDA, are necessary when solving full-core problems which require thousands of power iterations in LWR problems that tend to have high dominance ratios. CMFD was first proposed by Smith <a href="#id10"><span class="problematic" id="id11"><span id="id7"></span>[1]_</span></a> and has been widely used in accelerating neutron diffusion and transport problems for many years. In particular, it has been shown that CMFD acceleration gives <img class="math" src="../_images/math/78ebd4cdaabc38007623a06192e4af8b92432fc5.png" alt="&gt;"/> 100x speedups on large LWR problems <a class="reference internal" href="#smith-2002" id="id8">[Smith-2002]</a>.</p>
 <p>CMFD acceleration functions by using the solution of a coarse mesh diffusion problem to accelerate the convergence of a fine mesh transport problem. It is implemented by overlaying a 2D cartesian mesh over an FSR mesh. <a class="reference internal" href="#figure-fsr-mesh-regions"><em>Figure 1</em></a> gives an illustration of the FSR mesh layout and coarse mesh layout used for solving a 17 x 17 PWR assembly problem.</p>
 <p>CMFD acceleration functions by using the solution of a coarse mesh diffusion problem to accelerate the convergence of a fine mesh transport problem. It is implemented by overlaying a 2D cartesian mesh over an unstructured FSR mesh. <a class="reference internal" href="#figure-fsr-mesh-regions"><em>Figure 1</em></a> gives an illustration of the FSR mesh layout and coarse mesh layout used for solving a 17 x 17 PWR assembly problem.</p>
 <div class="align-center figure" id="figure-fsr-mesh-regions">
@@ -207,7 +207,7 @@ J_{\mathbf{g}}^{i+\frac{1}{2},j,-} = \left. - D_{\mathbf{g}}^{i,j} \frac{d \phi_
 </div></div>
 <div class="section" id="treatment-of-optically-thick-regions">
 <span id="optically-thick"></span><h2>7.4. Treatment of optically thick regions<a class="headerlink" href="#treatment-of-optically-thick-regions" title="Permalink to this headline">¶</a></h2>
-<p>As shown in <a class="reference internal" href="#figure-fsr-mesh-regions"><em>Figure 1</em></a> the CMFD mesh is often applied at the pin cell level with cells on the order of 1-2 cm. By conserving reaction and leakage rates within cells, CMFD guarantees preservation of area-averaged scalar fluxes and net surface currents from the MOC fixed source iteration if the CMFD equations can be converged. However, when the fine mesh cell size becomes significantly larger than the neutron mean free path in that cell, the step characteristics no longer preserve the linear infinite medium solution to the transport equation <a class="footnote-reference" href="#id14" id="id5">[8]</a>. While the nonlinear diffusion correction term in CMFD is guaranteed to preserve reaction rates and surface net currents for any choice of diffusion coefficient, convergence (and convergence rate) of the nonlinear iteration acceleration of CMFD is affected by the choice of diffusion coefficient. All flat source methods, when applied for thick optical meshes, artificially distribute neutrons in space. This is the reason that Larsen&#8217;s effective diffusion coefficient <a class="footnote-reference" href="#id14" id="id6">[8]</a> is useful in assuring that the CMFD acceleration equations have a diffusion coefficient (on the flux gradient term) that is consistent, not with the physical transport problem, but with the transport problem that is being accelerated by the CMFD equations. Larsen&#8217;s effective diffusion coefficient is precisely this term in the one-dimensional limit. The effective diffusion coefficient in the x-direction for cell <img class="math" src="../_images/math/0de78069ab15c688f6d8c6f59d5c5805bc969595.png" alt="(i,j)"/> can be expressed as:</p>
+<p>As shown in <a class="reference internal" href="#figure-fsr-mesh-regions"><em>Figure 1</em></a> the CMFD mesh is often applied at the pin cell level with cells on the order of 1-2 cm. By conserving reaction and leakage rates within cells, CMFD guarantees preservation of area-averaged scalar fluxes and net surface currents from the MOC fixed source iteration if the CMFD equations can be converged. However, when the fine mesh cell size becomes significantly larger than the neutron mean free path in that cell, the step characteristics no longer preserve the linear infinite medium solution to the transport equation <a class="reference internal" href="#larsen" id="id9">[Larsen]</a>. While the nonlinear diffusion correction term in CMFD is guaranteed to preserve reaction rates and surface net currents for any choice of diffusion coefficient, convergence (and convergence rate) of the nonlinear iteration acceleration of CMFD is affected by the choice of diffusion coefficient. All flat source methods, when applied for thick optical meshes, artificially distribute neutrons in space. This is the reason that Larsen&#8217;s effective diffusion coefficient is useful in assuring that the CMFD acceleration equations have a diffusion coefficient (on the flux gradient term) that is consistent, not with the physical transport problem, but with the transport problem that is being accelerated by the CMFD equations. Larsen&#8217;s effective diffusion coefficient is precisely this term in the one-dimensional limit. The effective diffusion coefficient in the x-direction for cell <img class="math" src="../_images/math/0de78069ab15c688f6d8c6f59d5c5805bc969595.png" alt="(i,j)"/> can be expressed as:</p>
 <div class="math" id="equation-eqn-optic-thick-d">
 <p><span class="eqno">(15)</span><img src="../_images/math/e01076042641e93504180ac735fea5760beeaebe.png" alt="D_{\mathbf{g}}^{i,j,eff,x} = D_{\mathbf{g}}^{i,j} \bigg(1 + \frac{\Delta x^{i,j} \rho_{\mathbf{g}}^{i,j,x}}{2 D_{\mathbf{g}}^{i,j}} \bigg) \\
  \rho_{\mathbf{g}}^{i,j,x} = \frac{\displaystyle\sum\limits_{p = 1}^P \cos (\theta_p) \omega_p \alpha_{{\mathbf{g}},p}^{i,j,x}}{\displaystyle\sum\limits_{p = 1}^{P} \omega_p} \\
@@ -303,73 +303,73 @@ J_{\mathbf{g}}^{i+\frac{1}{2},j,-} = \left. - D_{\mathbf{g}}^{i,j} \frac{d \phi_
 </div>
 <div class="section" id="references">
 <h2>7.8. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<table class="docutils footnote" frame="void" id="id7" rules="none">
+<table class="docutils citation" frame="void" id="smith-1983" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> <ol class="last upperalpha simple" start="11">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Smith-1983]</a></td><td><ol class="first last upperalpha simple" start="11">
 <li>Smith, &#8220;Nodal Method Storage Reduction by Non-linear Iteration.&#8221; <em>Transactions of the American Nuclear Society</em>, <strong>44</strong>, (1983).</li>
 </ol>
 </td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id8" rules="none">
+<table class="docutils citation" frame="void" id="yamamoto-2002" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[2]</td><td><ol class="first last upperalpha simple">
-<li>Yamamoto, &#8220;Generalized Coarse-Mesh Rebalance Method for Acceleration of Neutron Transport Calculations.&#8221; <em>Journal of Nuclear Science and Engineering</em>, <strong>151</strong>, pp. 274-281 (2005).</li>
-</ol>
-</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id9" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[3]</td><td><ol class="first last upperalpha simple" start="5">
-<li>Lewis and W. Miller, Jr., &#8220;Computational Methods of Neutron Transport.&#8221; <em>John Wiley &amp; Sons</em> (1984).</li>
-</ol>
-</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id10" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[4]</a></td><td><ol class="first last upperalpha simple" start="12">
-<li>Li, &#8220;A Low Order Acceleration Scheme for Solving the Neutron Transport Equation.&#8221; M.S. Thesis, Massachusetts Institute of Technology (2013).</li>
-</ol>
-</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id11" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[5]</td><td><ol class="first last upperalpha simple">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Yamamoto-2002]</a></td><td><ol class="first last upperalpha simple">
 <li>Yamamoto, &#8220;Cell Based CMFD Formulation for Acceleration of Whole-Core Method of Characteristics Calculations.&#8221; <em>Journal of the Korean Nuclear Society</em>, <strong>34</strong>, pp. 250-258 (2002).</li>
 </ol>
 </td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id12" rules="none">
+<table class="docutils citation" frame="void" id="yamamoto-2005" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[6]</td><td><ol class="first last upperalpha simple">
+<tr><td class="label"><a class="fn-backref" href="#id3">[Yamamoto-2005]</a></td><td><ol class="first last upperalpha simple">
+<li>Yamamoto, &#8220;Generalized Coarse-Mesh Rebalance Method for Acceleration of Neutron Transport Calculations.&#8221; <em>Journal of Nuclear Science and Engineering</em>, <strong>151</strong>, pp. 274-281 (2005).</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="yamamoto-2008" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[Yamamoto-2008]</a></td><td><ol class="first last upperalpha simple">
 <li>Yamamoto, &#8220;Implementation of Two-Level Coarse Mesh Finite Difference Acceleration in an Arbitrary Geometry, Two-Dimensional Discrete Ordinates Transport Method.&#8221; <em>Journal of Nuclear Science and Engineering</em>, <strong>158</strong>, pp. 289-298 (2008).</li>
 </ol>
 </td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id13" rules="none">
+<table class="docutils citation" frame="void" id="lewis" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[7]</a></td><td><ol class="first last upperalpha simple" start="11">
+<tr><td class="label"><a class="fn-backref" href="#id5">[Lewis]</a></td><td><ol class="first last upperalpha simple" start="5">
+<li>Lewis and W. Miller, Jr., &#8220;Computational Methods of Neutron Transport.&#8221; <em>John Wiley &amp; Sons</em> (1984).</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="li" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[Li]</a></td><td><ol class="first last upperalpha simple" start="12">
+<li>Li, &#8220;A Low Order Acceleration Scheme for Solving the Neutron Transport Equation.&#8221; M.S. Thesis, Massachusetts Institute of Technology (2013).</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="smith-2002" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id8">[Smith-2002]</a></td><td><ol class="first last upperalpha simple" start="11">
 <li>Smith and J. D. Rhodes, &#8220;Full-Core, 2-D, LWR Core Calculations with CASMO-4E.&#8221; <em>Proceedings of PHYSOR</em>, Seoul, South Korea (2002).</li>
 </ol>
 </td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id14" rules="none">
+<table class="docutils citation" frame="void" id="larsen" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[8]</td><td><em>(<a class="fn-backref" href="#id5">1</a>, <a class="fn-backref" href="#id6">2</a>)</em> <ol class="last upperalpha simple" start="5">
+<tr><td class="label"><a class="fn-backref" href="#id9">[Larsen]</a></td><td><ol class="first last upperalpha simple" start="5">
 <li>Larsen, &#8220;Infinite Medium Solutions to the Transport Equation, <img class="math" src="../_images/math/f39351eac08bf9287632cba622eedb8e7e8c56ad.png" alt="S_n"/> Discretization Schemes, and the Diffusion Approximation. &#8221; <em>Proceedings of the Joint International Topical Meeting on Mathematics and Computation and Supercomputing in Nuclear Applications</em>, Salt Lake City, UT, USA (2001).</li>
 </ol>
 </td></tr>
@@ -449,7 +449,7 @@ J_{\mathbf{g}}^{i+\frac{1}{2},j,-} = \left. - D_{\mathbf{g}}^{i,j} \frac{d \phi_
 
     <div class="footer">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
 <script type="text/javascript">
 

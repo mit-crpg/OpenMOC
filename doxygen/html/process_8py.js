@@ -1,7 +1,9 @@
 var process_8py =
 [
-    [ "compute_pin_powers", "process_8py.html#ad313c9844294d5e285b5943664389a0f", null ],
-    [ "compute_universe_fission_rate", "process_8py.html#a6115e946c5118ee95f71ffed07034df5", null ],
+    [ "compute_fission_rates", "process_8py.html#acea2f1a0e49d6bdd58306e50c44daa9e", null ],
+    [ "is_float", "process_8py.html#a0bb991ed58c8c4296453d6bfef08b335", null ],
+    [ "is_integer", "process_8py.html#a9eb9bbbcc51be5b4c9996558cdc04a1a", null ],
+    [ "is_string", "process_8py.html#a3853969526d6f7690325d1b5904c0bac", null ],
     [ "restore_simulation_state", "process_8py.html#a20436071e0dfd32af17c67bf86636a93", null ],
     [ "store_simulation_state", "process_8py.html#a151286616e1ef981c7488979ffd1fe06", null ],
     [ "openmoc", "process_8py.html#a69ae5ba5571b581b68e01a0b15896e16", null ]

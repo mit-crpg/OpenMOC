@@ -59,17 +59,17 @@
 <li><a class="reference external" href="http://www.h5py.org/">h5py</a> - Required only if reading/writing HDF5 data files</li>
 <li><a class="reference external" href="http://matplotlib.org/">Matplotlib</a> - Optional for plotting utilities</li>
 </ul>
-<p>Most of these are easily obtainable in Ubuntu through the package manager.</p>
+<p>Each of these are easily obtainable in Ubuntu through the package manager.</p>
 <div class="section" id="exporting-simulation-data">
 <h2>4.1. Exporting Simulation Data<a class="headerlink" href="#exporting-simulation-data" title="Permalink to this headline">¶</a></h2>
-<p>OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module provides the <tt class="docutils literal"><span class="pre">store_simulation_state(...)</span></tt> routine to export simulation data to binary output files. The only required parameter for the routine is a <tt class="docutils literal"><span class="pre">Solver</span></tt> object. Optional parameters may be used to indicate whether to store the data in HDF5 or as a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file (default), store the fluxes, sources, pin powers and more. All of the supported parameters are listed in <a class="reference internal" href="#table-store-simulation-state"><em>Table 1</em></a>, and the output variables stored in the binary file are tabulated in <a class="reference internal" href="#table-output-variables"><em>Table 2</em></a>.</p>
+<p>OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module provides the <tt class="docutils literal"><span class="pre">store_simulation_state(...)</span></tt> routine to export simulation data to binary output files. The only required parameter for the routine is a <tt class="docutils literal"><span class="pre">Solver</span></tt> object. Optional parameters may be used to indicate whether to store the data in HDF5 or as a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file (default), store the fluxes, sources, fission rates and more. All of the supported parameters are listed in <a class="reference internal" href="#table-store-simulation-state"><em>Table 1</em></a>, and the output variables stored in the binary file are tabulated in <a class="reference internal" href="#table-output-variables"><em>Table 2</em></a>.</p>
 <table border="1" class="docutils" id="table-store-simulation-state">
 <colgroup>
-<col width="14%" />
+<col width="17%" />
 <col width="18%" />
 <col width="20%" />
 <col width="10%" />
-<col width="37%" />
+<col width="36%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -98,11 +98,11 @@
 <td>Yes</td>
 <td>Whether to store the FSR sources</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">pin_powers</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">fission_rates</span></tt></td>
 <td>boolean</td>
 <td>False</td>
 <td>Yes</td>
-<td>Whether to store the pin powers</td>
+<td>Whether to store the fission rates</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">use_hdf5</span></tt></td>
 <td>boolean</td>
@@ -116,13 +116,19 @@
 <td>Yes</td>
 <td>The filename for storage</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">append</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">directory</span></tt></td>
+<td>string</td>
+<td>&#8216;simulation-states&#8217;</td>
+<td>Yes</td>
+<td>The directory for storage</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">append</span></tt></td>
 <td>boolean</td>
 <td>True</td>
 <td>Yes</td>
 <td>Append to a file or create a new one</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">note</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">note</span></tt></td>
 <td>string</td>
 <td>None</td>
 <td>Yes</td>
@@ -146,7 +152,7 @@
 <tbody valign="top">
 <tr class="row-even"><td>solver type</td>
 <td>string</td>
-<td>&#8216;CPUSolver&#8217;, &#8216;ThreadPrivateSolver&#8217;, etc.</td>
+<td>&#8216;CPUSolver&#8217;, &#8216;GPUSolver&#8217;, etc.</td>
 </tr>
 <tr class="row-odd"><td># FSRs</td>
 <td>integer</td>
@@ -288,7 +294,7 @@
 </div>
 <div class="section" id="computing-pin-powers">
 <h2>4.3. Computing Pin Powers<a class="headerlink" href="#computing-pin-powers" title="Permalink to this headline">¶</a></h2>
-<p>In some cases, a user may wish to only compute and export the pin powers for a simulation. In this case, the <tt class="docutils literal"><span class="pre">compute_pin_powers(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module  may be used. The routine takes in a <tt class="docutils literal"><span class="pre">Solver</span></tt> subclass (e.g., <tt class="docutils literal"><span class="pre">ThreadPrivateSolver</span></tt>, <tt class="docutils literal"><span class="pre">GPUSolver</span></tt>, etc.) and computes the fission rate for each universe in the geometry by summing up the fission rates in each cell in the universe. In most cases, a universe is replicated in many places throughout the geometry. To account for this, the routine will separately compute the fission rates for each unique placement of that universe in the geometry. By default, the pin powers will be exported to a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file, but may alternatively be exported to an HDF5 binary file. <a class="reference internal" href="#table-pin-powers"><em>Table 4</em></a> describes the parameters accepted by the routine.</p>
+<p>In some cases, a user may wish to only compute and export the pin powers for a simulation. In this case, the <tt class="docutils literal"><span class="pre">compute_pin_powers(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module  may be used. The routine takes in a <tt class="docutils literal"><span class="pre">Solver</span></tt> subclass (e.g., <tt class="docutils literal"><span class="pre">CPUSolver</span></tt>, <tt class="docutils literal"><span class="pre">VectorizedSolver</span></tt>, <tt class="docutils literal"><span class="pre">GPUSolver</span></tt>, etc.) and computes the fission rate for each universe in the geometry by summing up the fission rates in each cell in the universe. In most cases, a universe is replicated in many places throughout the geometry. To account for this, the routine will separately compute the fission rates for each unique placement of that universe in the geometry. By default, the pin powers will be exported to a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file, but may alternatively be exported to an HDF5 binary file. <a class="reference internal" href="#table-pin-powers"><em>Table 4</em></a> describes the parameters accepted by the routine.</p>
 <table border="1" class="docutils" id="table-pin-powers">
 <colgroup>
 <col width="26%" />
@@ -443,11 +449,11 @@
 <p>To plot the geometry color-coded by the material ID&#8217;s throughout the geometry, use the <tt class="docutils literal"><span class="pre">plot_materials(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-materials"><em>Table 7</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-materials">
 <colgroup>
-<col width="16%" />
-<col width="26%" />
-<col width="12%" />
-<col width="12%" />
-<col width="34%" />
+<col width="13%" />
+<col width="21%" />
+<col width="10%" />
+<col width="10%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -469,6 +475,18 @@
 <td>250</td>
 <td>Yes</td>
 <td>The pixel resolution</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
 </tr>
 </tbody>
 </table>
@@ -492,21 +510,17 @@
 <p class="first admonition-title">Note</p>
 <p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
 </div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The routine randomly selects a colormap at runtime. As a result, the colors in the figure will vary from run to run.</p>
-</div>
 </div>
 <div class="section" id="plotting-by-cell">
 <h3>4.4.4. Plotting by Cell<a class="headerlink" href="#plotting-by-cell" title="Permalink to this headline">¶</a></h3>
 <p>To plot the geometry color-coded by the cell ID&#8217;s throughout the geometry, use the <tt class="docutils literal"><span class="pre">plot_cells(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-cells"><em>Table 8</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-cells">
 <colgroup>
-<col width="16%" />
-<col width="26%" />
-<col width="12%" />
-<col width="12%" />
-<col width="34%" />
+<col width="13%" />
+<col width="21%" />
+<col width="10%" />
+<col width="10%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -528,6 +542,18 @@
 <td>250</td>
 <td>Yes</td>
 <td>The pixel resolution</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
 </tr>
 </tbody>
 </table>
@@ -551,21 +577,17 @@
 <p class="first admonition-title">Note</p>
 <p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
 </div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The routine randomly selects a colormap at runtime. As a result, the colors in the figure will vary from run to run.</p>
-</div>
 </div>
 <div class="section" id="plotting-by-fsr">
 <h3>4.4.5. Plotting by FSR<a class="headerlink" href="#plotting-by-fsr" title="Permalink to this headline">¶</a></h3>
 <p>To plot the geometry color-coded by the flat source region ID&#8217;s throughout the geometry, use the <tt class="docutils literal"><span class="pre">plot_flat_source_regions(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fsrs"><em>Table 9</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-fsrs">
 <colgroup>
-<col width="16%" />
-<col width="26%" />
-<col width="12%" />
-<col width="12%" />
-<col width="34%" />
+<col width="13%" />
+<col width="21%" />
+<col width="10%" />
+<col width="10%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -588,6 +610,18 @@
 <td>Yes</td>
 <td>The pixel resolution</td>
 </tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Table 9</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_flat_source_regions(...)</span></tt> routine.</p>
@@ -609,10 +643,6 @@
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The routine randomly selects a colormap at runtime. As a result, the colors in the figure will vary from run to run.</p>
 </div>
 </div>
 </div>
@@ -659,6 +689,18 @@
 <td>250</td>
 <td>Yes</td>
 <td>The pixel resolution</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
 </tr>
 </tbody>
 </table>
@@ -773,7 +815,7 @@
 
     <div class="footer">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
 <script type="text/javascript">
 

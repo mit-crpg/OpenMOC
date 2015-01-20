@@ -1,12 +1,9 @@
 var searchData=
 [
-  ['vacuum',['VACUUM',['../Surface_8h.html#a94f2bdaf8e1769faec72dbd9e7486341a227181ec341c2ea61382da6028f2754f',1,'Surface.h']]],
-  ['veccopy',['vecCopy',['../classCmfd.html#af83f3b89305fbc4bc8e0d5aab9822d90',1,'Cmfd']]],
-  ['vecmax',['vecMax',['../classCmfd.html#af2880d2006780f1a4c8844380c39e63c',1,'Cmfd']]],
-  ['vecnormal',['vecNormal',['../classCmfd.html#adbe1e69d52cc7244fe8cc02e8203cea2',1,'Cmfd']]],
-  ['vecscale',['vecScale',['../classCmfd.html#a170275051ff9c43a6011e84f1348c97e',1,'Cmfd']]],
-  ['vecset',['vecSet',['../classCmfd.html#ab526b23a3a34ed34258f0603430f59d7',1,'Cmfd']]],
-  ['vecsum',['vecSum',['../classCmfd.html#ae6e87a58709fe78ad95b3bc9e55416a8',1,'Cmfd']]],
-  ['vectorizedsolver',['VectorizedSolver',['../classVectorizedSolver.html',1,'VectorizedSolver'],['../classVectorizedSolver.html#a4115f20eeaf814518521c75568045794',1,'VectorizedSolver::VectorizedSolver()']]],
+  ['vacuum',['VACUUM',['../boundary__type_8h.html#a94f2bdaf8e1769faec72dbd9e7486341a227181ec341c2ea61382da6028f2754f',1,'boundary_type.h']]],
+  ['vector_5fcopy',['vector_copy',['../linalg_8h.html#a8042f06d914ffb508c64abd6e930e6ff',1,'linalg.h']]],
+  ['vector_5fscale',['vector_scale',['../linalg_8h.html#af940e0906a23b2704bc70adf4fb4e0e0',1,'linalg.h']]],
+  ['vector_5fzero',['vector_zero',['../linalg_8h.html#ab5189c01cbdfe2dfc24c888fb4c29e2d',1,'linalg.h']]],
+  ['vectorizedsolver',['VectorizedSolver',['../classVectorizedSolver.html',1,'VectorizedSolver'],['../classVectorizedSolver.html#a8d24fe816af7f78a7404226c3fb284cd',1,'VectorizedSolver::VectorizedSolver()']]],
   ['vectorizedsolver_2eh',['VectorizedSolver.h',['../VectorizedSolver_8h.html',1,'']]]
 ];

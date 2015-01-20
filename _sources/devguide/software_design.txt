@@ -4,7 +4,7 @@
 Software Design
 ===============
 
-OpenMOC uses a compiled language coupled with a scripting language "glue" [1]_, a methodology that has increasingly gained traction across disciplines since it enables both usability and performance. The majority of the source code is written in C/C++ as it is the most robust and well supported general purpose, high performance, compiled programming language with object-oriented features. In addition, OpenMOC's solver routines for the GPU are written in NVIDIA's CUDA programming language [2]_ - a compiled language with similar syntax to C/C++. The widely adopted Simplified Wrapper Interface Generator (SWIG) [3]_ is deployed to expose the C/C++/CUDA classes and routines to the Python scripting language. The model to couple the compiled C/C++/CUDA code to the Python scripting language is illustrated in :ref:`Figure 1 <figure_software_design>`. OpenMOC's Python interface allows for rapid prototyping and testing of code features and tight integration with the rich ecosystem of powerful data processing and visualization tools developed for Python.
+OpenMOC uses a compiled language coupled with a scripting language "glue" [Sanner]_, a methodology that has increasingly gained traction across disciplines since it enables both usability and performance. The majority of the source code is written in C/C++ as it is the most robust and well supported general purpose, high performance, compiled programming language with object-oriented features. In addition, OpenMOC's solver routines for the GPU are written in NVIDIA's CUDA programming language [CUDA]_ - a compiled language with similar syntax to C/C++. The widely adopted Simplified Wrapper Interface Generator (SWIG) [Beazley]_ is deployed to expose the C/C++/CUDA classes and routines to the Python scripting language. The model to couple the compiled C/C++/CUDA code to the Python scripting language is illustrated in :ref:`Figure 1 <figure_software_design>`. OpenMOC's Python interface allows for rapid prototyping and testing of code features and tight integration with the rich ecosystem of powerful data processing and visualization tools developed for Python.
 
 .. _figure_software_design:
 
@@ -42,9 +42,7 @@ Class                        Parent Class             Category
 ``Solver``                   N/A                      Method of Characteristics
 ``CPUSolver``                ``Solver``               Method of Characteristics
 ``GPUSolver``                ``Solver``               Method of Characteristics
-``ThreadPrivateSolver``      ``CPUSolver``            Method of Characteristics
 ``VectorizedSolver``         ``CPUSolver``            Method of Characteristics
-``VectorizedPrivateSolver``  ``VectorizedSolver``     Method of Characteristics
 ===========================  =======================  ============================
 
 **Table 1**: OpenMOC's classes.
@@ -74,6 +72,6 @@ Module                   Description
 **Table 2**: OpenMOC's Python modules.
 
 
-.. [1] M. Sanner, "Python: A Programming Language for Software Integration and Development." Journal of Molecular Graphics and Modelling, **17(1)**, pp. 57-61 (1999).
-.. [2] NVIDIA, "NVIDIA CUDA C Programming Guide." http://docs.nvidia.com/cuda/cuda-c-programming-guide/ (2013).
-.. [3] D. Beazley, "Automated Scientific Software Scripting with SWIG." Future Generation Computer Systems, **19(5)**, pp. 599-609 (2003).
+.. [Sanner] M. Sanner, "Python: A Programming Language for Software Integration and Development." Journal of Molecular Graphics and Modelling, **17(1)**, pp. 57-61 (1999).
+.. [CUDA] NVIDIA, "NVIDIA CUDA C Programming Guide." http://docs.nvidia.com/cuda/cuda-c-programming-guide/ (2013).
+.. [Beazley] D. Beazley, "Automated Scientific Software Scripting with SWIG." Future Generation Computer Systems, **19(5)**, pp. 599-609 (2003).

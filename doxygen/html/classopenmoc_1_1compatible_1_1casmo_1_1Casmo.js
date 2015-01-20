@@ -1,13 +1,17 @@
 var classopenmoc_1_1compatible_1_1casmo_1_1Casmo =
 [
     [ "__init__", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#aca9b5323ed8bd30b4594cd6b099da62f", null ],
+    [ "averageXSGenerator", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a6cfe8dcbdb0e3f2d807903b66965af7e", null ],
+    [ "checkSymmetry", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#ab1dcd605659ced81dcb7afe331471777", null ],
     [ "export", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a7314df8c39fdd32a641c041325ed591a", null ],
+    [ "exportAllXSToHDF5", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a232683aca5bcc0b1793a50d1f3894dfc", null ],
+    [ "exportAvgXSToHDF5", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a4c37d450051d766aab19a72ff1aa50a9", null ],
     [ "getAssemblyName", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a20fb3b976346caea88fb7fdaa27e3e19", null ],
     [ "getCellTypeArray", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#ad6d81899b8311bc1b9636fa258844a87", null ],
     [ "getCellTypes", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a8bbdef107ceeb7a9f974157e3c537ee7", null ],
     [ "getDirectory", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a9c831e3337ca2d9b43e1a36b1928216c", null ],
     [ "getEnergyGroups", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a9b0b5303e8f2dff4af68ebb055b5bc4d", null ],
-    [ "getFileName", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a457e70e0492943b9537cd79234cd566f", null ],
+    [ "getFilename", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a7d7711327b46363ff6ed61d6af4ce371", null ],
     [ "getFuelPinRadii", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#af2d17d0f3e234dccfd35da2f30ea7d0b", null ],
     [ "getKinf", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#ad1006b7765dc5d3010e581af2200e774", null ],
     [ "getLatticePitch", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a570ef38d4705c3a785835283eead2ad0", null ],
@@ -31,6 +35,7 @@ var classopenmoc_1_1compatible_1_1casmo_1_1Casmo =
     [ "importPinPowers", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a3cf6296f84d2fa2759259019ba8c3650", null ],
     [ "importWidth", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a883dfcd568784a06cd8fc5c6d05e0101", null ],
     [ "importXS", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#ad57b99516c7286a506771446811112cb", null ],
+    [ "isSymmetric", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#aec619a066bf279b6f003d4208ae166d2", null ],
     [ "parseCellTypeArray", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a4324b7eb9b082d75424a112e52221575", null ],
     [ "parseEnergyGroups", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#af3a0eda98acad028ebb3fbfe679d53d8", null ],
     [ "parseFuelPinRadii", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#abd03892dad0475880cc3be5a152e555d", null ],
@@ -46,7 +51,7 @@ var classopenmoc_1_1compatible_1_1casmo_1_1Casmo =
     [ "setCellTypeArray", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a6c5bf881735d67cc3d4ea3d86f37e496", null ],
     [ "setDirectory", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a4584644a1bc01cb58e39151d127e9de9", null ],
     [ "setEnergyGroups", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a430c9216bfa68bdf4274064802d7e66b", null ],
-    [ "setFileName", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a29e82cdcb044094fab176720e045c9ea", null ],
+    [ "setFilename", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a48f6b6ff7aa96f96ecbe2686ccdf2dd1", null ],
     [ "setFuelPinRadii", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a4f3e227c7d0c6d5fc0bfcc0215414d88", null ],
     [ "setKinf", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a977aa882703c4feb01abe7ec7f01a19f", null ],
     [ "setLatticePitch", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a440b48240e6f80629c982d5cf2629720", null ],
@@ -55,8 +60,8 @@ var classopenmoc_1_1compatible_1_1casmo_1_1Casmo =
     [ "setNumRegions", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#af2830abcc6a78954a97de54256f0bddb", null ],
     [ "setPinPowers", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a70caae0ccb8a2bf9393f4397e449eae5", null ],
     [ "setStringCellTypeArray", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a779176ed0130b26e843cef42ff620c5a", null ],
+    [ "setSymmetric", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#ad8d2a77a8d9e4506add6ada7ac4dd9b1", null ],
     [ "setWidth", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a4666f032db58b52a8209498a35bcb0cc", null ],
     [ "setXS", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a8d77e9ab7c22a6be710f563af89a8ae2", null ],
-    [ "stringCellTypeArray", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a767414f35974cf554fa5481f6a67b3c0", null ],
-    [ "xsToHDF5", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a00c343ab1ef32aa4b667e52f0ca1e883", null ]
+    [ "stringCellTypeArray", "classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a767414f35974cf554fa5481f6a67b3c0", null ]
 ];

@@ -11,28 +11,29 @@ This section is intended to explain in detail the recommended procedures for car
 * `Matplotlib <http://matplotlib.org/>`_ - Optional for plotting utilities
 
 
-Most of these are easily obtainable in Ubuntu through the package manager.
+Each of these are easily obtainable in Ubuntu through the package manager.
 
 -------------------------
 Exporting Simulation Data
 -------------------------
 
-OpenMOC's ``openmoc.process`` module provides the ``store_simulation_state(...)`` routine to export simulation data to binary output files. The only required parameter for the routine is a ``Solver`` object. Optional parameters may be used to indicate whether to store the data in HDF5 or as a Python pickle_ file (default), store the fluxes, sources, pin powers and more. All of the supported parameters are listed in :ref:`Table 1 <table_store_simulation_state>`, and the output variables stored in the binary file are tabulated in :ref:`Table 2 <table_output_variables>`.
+OpenMOC's ``openmoc.process`` module provides the ``store_simulation_state(...)`` routine to export simulation data to binary output files. The only required parameter for the routine is a ``Solver`` object. Optional parameters may be used to indicate whether to store the data in HDF5 or as a Python pickle_ file (default), store the fluxes, sources, fission rates and more. All of the supported parameters are listed in :ref:`Table 1 <table_store_simulation_state>`, and the output variables stored in the binary file are tabulated in :ref:`Table 2 <table_output_variables>`.
 
 .. _table_store_simulation_state:
 
-==============  ==================  ====================  ==========  ====================================
-Parameter       Type                Default               Optional    Note
-==============  ==================  ====================  ==========  ====================================
-``solver``      ``Solver`` object   None                  No
-``fluxes``      boolean             False                 Yes         Whether to store the FSR fluxes
-``sources``     boolean             False                 Yes         Whether to store the FSR sources
-``pin_powers``  boolean             False                 Yes         Whether to store the pin powers
-``use_hdf5``    boolean             False (pickle file)   Yes         Whether to use HDF5 
-``filename``    string              'simulation-state'    Yes         The filename for storage
-``append``      boolean             True                  Yes         Append to a file or create a new one
-``note``        string              None                  Yes         Any comment on the simulation
-==============  ==================  ====================  ==========  ====================================
+=================  ==================  ====================  ==========  ====================================
+Parameter          Type                Default               Optional    Note
+=================  ==================  ====================  ==========  ====================================
+``solver``         ``Solver`` object   None                  No
+``fluxes``         boolean             False                 Yes         Whether to store the FSR fluxes
+``sources``        boolean             False                 Yes         Whether to store the FSR sources
+``fission_rates``  boolean             False                 Yes         Whether to store the fission rates
+``use_hdf5``       boolean             False (pickle file)   Yes         Whether to use HDF5 
+``filename``       string              'simulation-state'    Yes         The filename for storage
+``directory``      string              'simulation-states'   Yes         The directory for storage
+``append``         boolean             True                  Yes         Append to a file or create a new one
+``note``           string              None                  Yes         Any comment on the simulation
+=================  ==================  ====================  ==========  ====================================
 
 **Table 1**: Parameters for the ``openmoc.proces.store_simulation_state(...)`` routine.
 
@@ -41,7 +42,7 @@ Parameter       Type                Default               Optional    Note
 =========================  ==============  =========================================
 Output Variable            Type            Note
 =========================  ==============  =========================================
-solver type                string          'CPUSolver', 'ThreadPrivateSolver', etc.
+solver type                string          'CPUSolver', 'GPUSolver', etc.
 # FSRs                     integer         
 # materials                integer
 # energy groups            integer
@@ -113,7 +114,7 @@ The code snippet below illustrates one possible configuration of parameters to t
 Computing Pin Powers
 --------------------
 
-In some cases, a user may wish to only compute and export the pin powers for a simulation. In this case, the ``compute_pin_powers(...)`` routine in the ``openmoc.process`` module  may be used. The routine takes in a ``Solver`` subclass (e.g., ``ThreadPrivateSolver``, ``GPUSolver``, etc.) and computes the fission rate for each universe in the geometry by summing up the fission rates in each cell in the universe. In most cases, a universe is replicated in many places throughout the geometry. To account for this, the routine will separately compute the fission rates for each unique placement of that universe in the geometry. By default, the pin powers will be exported to a Python pickle_ file, but may alternatively be exported to an HDF5 binary file. :ref:`Table 4 <table_pin_powers>` describes the parameters accepted by the routine.
+In some cases, a user may wish to only compute and export the pin powers for a simulation. In this case, the ``compute_pin_powers(...)`` routine in the ``openmoc.process`` module  may be used. The routine takes in a ``Solver`` subclass (e.g., ``CPUSolver``, ``VectorizedSolver``, ``GPUSolver``, etc.) and computes the fission rate for each universe in the geometry by summing up the fission rates in each cell in the universe. In most cases, a universe is replicated in many places throughout the geometry. To account for this, the routine will separately compute the fission rates for each unique placement of that universe in the geometry. By default, the pin powers will be exported to a Python pickle_ file, but may alternatively be exported to an HDF5 binary file. :ref:`Table 4 <table_pin_powers>` describes the parameters accepted by the routine.
 
 .. _table_pin_powers:
 
@@ -235,12 +236,14 @@ To plot the geometry color-coded by the material ID's throughout the geometry, u
 
 .. _table_plot_materials:
 
-============  ===================  =========  =========  =========================
+============  ===================  =========  =========  ========================================
 Parameter     Type                 Default    Optional   Note
-============  ===================  =========  =========  =========================
+============  ===================  =========  =========  ========================================
 ``geometry``  ``Geometry`` object  None       No         The geometry of interest
 ``gridsize``  integer              250        Yes        The pixel resolution
-============  ===================  =========  =========  =========================
+``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
+``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
+============  ===================  =========  =========  ========================================
 
 **Table 7**: Parameters for the ``openmoc.plotter.plot_materials(...)`` routine.
 
@@ -268,7 +271,6 @@ A depiction of the materials for the :file:`/OpenMOC/sample-input/large-lattice.
    **Figure 3**: A 4 :math:`\times` 4 lattice color-coded by material.
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
-.. note:: The routine randomly selects a colormap at runtime. As a result, the colors in the figure will vary from run to run.
 
 
 Plotting by Cell
@@ -277,12 +279,14 @@ To plot the geometry color-coded by the cell ID's throughout the geometry, use t
 
 .. _table_plot_cells:
 
-============  ===================  =========  =========  =========================
+============  ===================  =========  =========  ========================================
 Parameter     Type                 Default    Optional   Note
-============  ===================  =========  =========  =========================
+============  ===================  =========  =========  ========================================
 ``geometry``  ``Geometry`` object  None       No         The geometry of interest
 ``gridsize``  integer              250        Yes        The pixel resolution
-============  ===================  =========  =========  =========================
+``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
+``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
+============  ===================  =========  =========  ========================================
 
 **Table 8**: Parameters for the ``openmoc.plotter.plot_cells(...)`` routine.
 
@@ -310,7 +314,6 @@ A depiction of the cells for the :file:`/OpenMOC/sample-input/large-lattice.py` 
    **Figure 4**: A 4 :math:`\times` 4 lattice color-coded by cell.
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
-.. note:: The routine randomly selects a colormap at runtime. As a result, the colors in the figure will vary from run to run.
 
 
 Plotting by FSR
@@ -320,12 +323,14 @@ To plot the geometry color-coded by the flat source region ID's throughout the g
 
 .. _table_plot_fsrs:
 
-============  ===================  =========  =========  =========================
+============  ===================  =========  =========  ========================================
 Parameter     Type                 Default    Optional   Note
-============  ===================  =========  =========  =========================
+============  ===================  =========  =========  ========================================
 ``geometry``  ``Geometry`` object  None       No         The geometry of interest
 ``gridsize``  integer              250        Yes        The pixel resolution
-============  ===================  =========  =========  =========================
+``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
+``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
+============  ===================  =========  =========  ========================================
 
 **Table 9**: Parameters for the ``openmoc.plotter.plot_flat_source_regions(...)`` routine.
 
@@ -353,7 +358,6 @@ A depiction of the flat source regions for the :file:`/OpenMOC/sample-input/larg
    **Figure 5**: A 4 :math:`\times` 4 lattice color-coded by flat source region.
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
-.. note:: The routine randomly selects a colormap at runtime. As a result, the colors in the figure will vary from run to run.
 
 ------------------
 Flux Visualization
@@ -370,6 +374,8 @@ Parameter          Type                 Default    Optional   Note
 ``solver``         ``Solver`` object    None       No         The solver used to converge the source
 ``energy_groups``  list                 [1]        No         Create separate plots for each energy group
 ``gridsize``       integer              250        Yes        The pixel resolution
+``xlim``           float                None       Yes        The maximum :math:`x`-coordinate to plot
+``ylim``           float                None       Yes        The maximum :math:`y`-coordinate to plot
 =================  ===================  =========  =========  ============================================
 
 **Table 10**: Parameters for the ``openmoc.plotter.plot_fluxes(...)`` routine.

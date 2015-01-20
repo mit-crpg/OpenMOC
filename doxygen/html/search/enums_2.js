@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['eigenmethod',['eigenMethod',['../Cmfd_8h.html#a5d27abfc5b545ed5d08586eb52078d57',1,'Cmfd.h']]]
+  ['loglevels',['logLevels',['../log_8h.html#a5096002e05063d13577205e0bc5f0564',1,'log.h']]]
 ];

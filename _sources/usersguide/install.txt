@@ -126,6 +126,10 @@ Specifies the :envvar:`double` floating point precision level to be used for ``o
 
 Compiles with debugging symbols and information by including the :envvar:`-g` compile flag.
 
+.. option:: --profile-mode
+
+Compiles with profiling information by including the :envvar:`-p` compile flag.
+
 
 .. option:: --no-numpy
 

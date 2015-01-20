@@ -16,7 +16,7 @@ calculations in OpenMOC by outlining the algorithms used to iteratively solve th
 MOC Iteration Scheme
 ====================
 
-The MOC algorithm for the OpenMOC code presented in this thesis uses a nested iteration scheme to solve for the source and scalar flux. The inner iteration solves for an approximate scalar flux assuming a fixed source. The outer iteration computes an updated source based on the inner iteration's approximation to the flux that results from the fixed source. The remainder of this section develops the methodology for this nested iteration scheme.
+The MOC algorithm for the OpenMOC code uses a nested iteration scheme to solve for the source and scalar flux. The inner iteration solves for an approximate scalar flux assuming a fixed source. The outer iteration computes an updated source based on the inner iteration's approximation to the flux that results from the fixed source. The remainder of this section develops the methodology for this nested iteration scheme.
 
 First, define vectors of the scalar flux and source in each energy group and flat source region:
 
@@ -174,7 +174,7 @@ The algorithms described in this section require a number of floating point oper
 
    **Figure 2**: Linear interpolation of an exponential.
 
-The OpenMOC code incorporates an option to evaluate exponentials using either the compiler's exponential intrinsic function or a linear interpolation table. The following expression for the maximum approximation error :math:`\epsilon` for the linear interpolation method was discussed and validated by Yamamoto [1]_:
+The OpenMOC code incorporates an option to evaluate exponentials using either the compiler's exponential intrinsic function or a linear interpolation table. The following expression for the maximum approximation error :math:`\epsilon` for the linear interpolation method was discussed and validated by [Yamamoto]_:
 
 .. math::
    :label: exponential-error
@@ -183,7 +183,7 @@ The OpenMOC code incorporates an option to evaluate exponentials using either th
 
 In this equation, :math:`l` represents the maximum argument (power) for the exponential and :math:`N` is the number of values in the interpolation table. With respect to the MOC algorithm, :math:`\tau_{max} = \displaystyle\max_{k,i,g}(\tau_{k,i,g}) = \displaystyle\max_{k,i,g}\left(\Sigma_{i,g}^Tl_{k,i}\right)`, where the segment length :math:`l_{k,i}` is kept in the 2D azimuthal plane for reasons that will follow.
 
-The interpolation table is constructed as follows. First, :eq:`exponential-error` can be rearranged such that $\epsilon$ becomes a selectable parameter for the algorithm to achieve an arbitrarily small approximation error:
+The interpolation table is constructed as follows. First, :eq:`exponential-error` can be rearranged such that :math:`\epsilon` becomes a selectable parameter for the algorithm to achieve an arbitrarily small approximation error:
 
 .. math::
    :label: exponential-num-values
@@ -250,4 +250,4 @@ Finally, the approximation to the exponential is computed using linear interpola
 References
 ==========
 
-.. [1] A. Yamamoto, Y. Kitamura and Y. Yamane, "Computational Efficiencies of Approximated Exponential Functions for Transport Calculations of the Characteristics Method." *Annals of Nuclear Energy*, **2**, pp. 1027-1037 (2004).
+.. [Yamamoto] A. Yamamoto, Y. Kitamura and Y. Yamane, "Computational Efficiencies of Approximated Exponential Functions for Transport Calculations of the Characteristics Method." *Annals of Nuclear Energy*, **2**, pp. 1027-1037 (2004).

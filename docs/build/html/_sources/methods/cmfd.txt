@@ -4,7 +4,7 @@
 Coarse Mesh Finite Difference Acceleration
 ==========================================
 
-While MOC offers many benefits including treatment of complex geometries and amenability to parallelization, it suffers from slow convergence which necessitates the use of acceleration methods. Numerous acceleration schemes have been proposed for MOC such as CMFD [1]_, coarse mesh rebalance (CMR) [2_, 3_], and low order transport operator acceleration [4]_ with CMFD being the most widely adopted due to its simplicity and acceleration performance. OpenMOC uses the CMFD nonlinear diffusion acceleration (NDA) scheme to reduce the number of iterations required for convergence. Acceleration schemes, such as NDA, are necessary when solving full-core problems which require thousands of power iterations in LWR problems that tend to have high dominance ratios. CMFD was first proposed by Smith [1]_ and has been widely used in accelerating neutron diffusion and transport problems for many years. In particular, it has been shown that CMFD acceleration gives :math:`>` 100x speedups on large LWR problems [7]_.
+While MOC offers many benefits including treatment of complex geometries and amenability to parallelization, it suffers from slow convergence which necessitates the use of acceleration methods. Numerous acceleration schemes have been proposed for MOC such as CMFD [Smith-1983]_, coarse mesh rebalance (CMR) [Yamamoto-2002]_, [Yamamoto-2005]_, [Yamamoto-2008]_, [Lewis]_, and low order transport operator acceleration [Li]_ with CMFD being the most widely adopted due to its simplicity and acceleration performance. OpenMOC uses the CMFD nonlinear diffusion acceleration (NDA) scheme to reduce the number of iterations required for convergence. Acceleration schemes, such as NDA, are necessary when solving full-core problems which require thousands of power iterations in LWR problems that tend to have high dominance ratios. CMFD was first proposed by Smith [1]_ and has been widely used in accelerating neutron diffusion and transport problems for many years. In particular, it has been shown that CMFD acceleration gives :math:`>` 100x speedups on large LWR problems [Smith-2002]_.
 
 CMFD acceleration functions by using the solution of a coarse mesh diffusion problem to accelerate the convergence of a fine mesh transport problem. It is implemented by overlaying a 2D cartesian mesh over an FSR mesh. :ref:`Figure 1 <figure-fsr-mesh-regions>` gives an illustration of the FSR mesh layout and coarse mesh layout used for solving a 17 x 17 PWR assembly problem.
 
@@ -255,7 +255,7 @@ Where :math:`\tilde{D}` is the nonlinear diffusion coefficient correction factor
 Treatment of optically thick regions
 ====================================
 
-As shown in :ref:`Figure 1 <figure-fsr-mesh-regions>` the CMFD mesh is often applied at the pin cell level with cells on the order of 1-2 cm. By conserving reaction and leakage rates within cells, CMFD guarantees preservation of area-averaged scalar fluxes and net surface currents from the MOC fixed source iteration if the CMFD equations can be converged. However, when the fine mesh cell size becomes significantly larger than the neutron mean free path in that cell, the step characteristics no longer preserve the linear infinite medium solution to the transport equation [8]_. While the nonlinear diffusion correction term in CMFD is guaranteed to preserve reaction rates and surface net currents for any choice of diffusion coefficient, convergence (and convergence rate) of the nonlinear iteration acceleration of CMFD is affected by the choice of diffusion coefficient. All flat source methods, when applied for thick optical meshes, artificially distribute neutrons in space. This is the reason that Larsen's effective diffusion coefficient [8]_ is useful in assuring that the CMFD acceleration equations have a diffusion coefficient (on the flux gradient term) that is consistent, not with the physical transport problem, but with the transport problem that is being accelerated by the CMFD equations. Larsen's effective diffusion coefficient is precisely this term in the one-dimensional limit. The effective diffusion coefficient in the x-direction for cell :math:`(i,j)` can be expressed as:
+As shown in :ref:`Figure 1 <figure-fsr-mesh-regions>` the CMFD mesh is often applied at the pin cell level with cells on the order of 1-2 cm. By conserving reaction and leakage rates within cells, CMFD guarantees preservation of area-averaged scalar fluxes and net surface currents from the MOC fixed source iteration if the CMFD equations can be converged. However, when the fine mesh cell size becomes significantly larger than the neutron mean free path in that cell, the step characteristics no longer preserve the linear infinite medium solution to the transport equation [Larsen]_. While the nonlinear diffusion correction term in CMFD is guaranteed to preserve reaction rates and surface net currents for any choice of diffusion coefficient, convergence (and convergence rate) of the nonlinear iteration acceleration of CMFD is affected by the choice of diffusion coefficient. All flat source methods, when applied for thick optical meshes, artificially distribute neutrons in space. This is the reason that Larsen's effective diffusion coefficient is useful in assuring that the CMFD acceleration equations have a diffusion coefficient (on the flux gradient term) that is consistent, not with the physical transport problem, but with the transport problem that is being accelerated by the CMFD equations. Larsen's effective diffusion coefficient is precisely this term in the one-dimensional limit. The effective diffusion coefficient in the x-direction for cell :math:`(i,j)` can be expressed as:
 
 .. math::
    :label: eqn-optic-thick-d
@@ -443,18 +443,18 @@ Instead of splitting the corner currents during the MOC fixed source iteration, 
 References
 ==========
 
-.. [1] K. Smith, "Nodal Method Storage Reduction by Non-linear Iteration." *Transactions of the American Nuclear Society*, **44**, (1983).
+.. [Smith-1983] K. Smith, "Nodal Method Storage Reduction by Non-linear Iteration." *Transactions of the American Nuclear Society*, **44**, (1983).
 
-.. [2] A. Yamamoto, "Generalized Coarse-Mesh Rebalance Method for Acceleration of Neutron Transport Calculations." *Journal of Nuclear Science and Engineering*, **151**, pp. 274-281 (2005).
+.. [Yamamoto-2002] A. Yamamoto, "Cell Based CMFD Formulation for Acceleration of Whole-Core Method of Characteristics Calculations." *Journal of the Korean Nuclear Society*, **34**, pp. 250-258 (2002).
 
-.. [3] E. Lewis and W. Miller, Jr., "Computational Methods of Neutron Transport." *John Wiley \& Sons* (1984).
+.. [Yamamoto-2005] A. Yamamoto, "Generalized Coarse-Mesh Rebalance Method for Acceleration of Neutron Transport Calculations." *Journal of Nuclear Science and Engineering*, **151**, pp. 274-281 (2005).
 
-.. [4] L. Li, "A Low Order Acceleration Scheme for Solving the Neutron Transport Equation." M.S. Thesis, Massachusetts Institute of Technology (2013).
+.. [Yamamoto-2008] A. Yamamoto, "Implementation of Two-Level Coarse Mesh Finite Difference Acceleration in an Arbitrary Geometry, Two-Dimensional Discrete Ordinates Transport Method." *Journal of Nuclear Science and Engineering*, **158**, pp. 289-298 (2008).
 
-.. [5] A. Yamamoto, "Cell Based CMFD Formulation for Acceleration of Whole-Core Method of Characteristics Calculations." *Journal of the Korean Nuclear Society*, **34**, pp. 250-258 (2002).
+.. [Lewis] E. Lewis and W. Miller, Jr., "Computational Methods of Neutron Transport." *John Wiley \& Sons* (1984).
 
-.. [6] A. Yamamoto, "Implementation of Two-Level Coarse Mesh Finite Difference Acceleration in an Arbitrary Geometry, Two-Dimensional Discrete Ordinates Transport Method." *Journal of Nuclear Science and Engineering*, **158**, pp. 289-298 (2008).
+.. [Li] L. Li, "A Low Order Acceleration Scheme for Solving the Neutron Transport Equation." M.S. Thesis, Massachusetts Institute of Technology (2013).
 
-.. [7] K. Smith and J. D. Rhodes, "Full-Core, 2-D, LWR Core Calculations with CASMO-4E." *Proceedings of PHYSOR*, Seoul, South Korea (2002).
+.. [Smith-2002] K. Smith and J. D. Rhodes, "Full-Core, 2-D, LWR Core Calculations with CASMO-4E." *Proceedings of PHYSOR*, Seoul, South Korea (2002).
 
-.. [8] E. Larsen, "Infinite Medium Solutions to the Transport Equation, :math:`S_n` Discretization Schemes, and the Diffusion Approximation. " *Proceedings of the Joint International Topical Meeting on Mathematics and Computation and Supercomputing in Nuclear Applications*, Salt Lake City, UT, USA (2001).
+.. [Larsen] E. Larsen, "Infinite Medium Solutions to the Transport Equation, :math:`S_n` Discretization Schemes, and the Diffusion Approximation. " *Proceedings of the Joint International Topical Meeting on Mathematics and Computation and Supercomputing in Nuclear Applications*, Salt Lake City, UT, USA (2001).

@@ -37,11 +37,10 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 ".html",
-"classCmfd.html#ae6e87a58709fe78ad95b3bc9e55416a8",
-"classQuadrature.html#a3f19d76860a2d1ec8406366188449a6d",
-"classVectorizedSolver.html#a7ab9f0df852a0afd04876f6e0ec53046",
-"classopenmoc_1_1openmoc_1_1Material.html#a4dfb01123e90f0669d4aecac71225166",
-"classopenmoc_1_1openmoc_1_1Universe.html#a4969a792f3c5566ddcb5b4adb565a3d3"
+"classCmfd.html#a441f0159f7bf8a0a4c3ce2d100ec6793",
+"classPoint.html#a91ab67528ea9e1311d408237448e16c5",
+"classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21",
+"namespaces.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
@@ -154,7 +153,7 @@ function createIndent(o,domNode,node,level)
     span.style.display = 'inline-block';
     span.style.width   = 16*(level+1)+'px';
     span.style.height  = '22px';
-    span.innerHTML = '&nbsp;';
+    span.innerHTML = '&#160;';
     domNode.appendChild(span);
   } 
 }

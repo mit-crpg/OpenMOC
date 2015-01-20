@@ -4,7 +4,7 @@
 Method of Characteristics
 =========================
 
-The method of characteristics (MOC) is a widely used technique for solving partial differential equations, including the Boltzmann form of the neutron transport equation [1]_. MOC is used to solve the transport equation in 2D by discretizing both polar and azimuthal angles and integrating the multi-group characteristic form of the equation for a particular azimuthal and polar angle quadrature. The following sections detail the derivation of the characteristic form of the 2D neutron transport equation solved in the OpenMOC method of characteristics scheme [2]_.
+The method of characteristics (MOC) is a widely used technique for solving partial differential equations, including the Boltzmann form of the neutron transport equation [Askew]_. MOC is used to solve the transport equation in 2D by discretizing both polar and azimuthal angles and integrating the multi-group characteristic form of the equation for a particular azimuthal and polar angle quadrature. The following sections detail the derivation of the characteristic form of the 2D neutron transport equation solved in the OpenMOC method of characteristics scheme [Boyd]_.
 
 :ref:`Section 2.1 <section-boltzmann-eqn>` introduces the Boltzmann form of the neutron transport equation parametrized in 6-dimensional phase space over position, angle and energy. The following several sections introduce the various approximations made to this equation:
 
@@ -338,7 +338,7 @@ The Track Area Approximation
 
 The key quantity remaining to be determined is the integral over area for the FSR area-averaged scalar flux :math:`\Phi_{g,i}` in :eq:`area-averaged-scalar-flux`. The track area approximation is used to compute this value numerically. 
 
-First, define :math:`l_{k,i}=s''-s'` such that the average angular flux in FSR :math:`i` along characteristic \math:`k` is the following integral:
+First, define :math:`l_{k,i}=s''-s'` such that the average angular flux in FSR :math:`i` along characteristic :math:`k` is the following integral:
 
 .. math::
    :label: avg-angular-flux-integral
@@ -426,7 +426,7 @@ This is the form of the transport equation solved by the MOC formulation used in
 References
 ==========
 
-.. [1] J. Askew, "A Characteristics Formulation of the Neutron Transport Equation in Complicated Geometries." Technical Report AAEW-M 1108, UK Atomic Energy Establishment (1972).
+.. [Askew] J. Askew, "A Characteristics Formulation of the Neutron Transport Equation in Complicated Geometries." Technical Report AAEW-M 1108, UK Atomic Energy Establishment (1972).
 
-.. [2] W. Boyd, "Massively Parallel Algorithms for Method of Characteristics Neutral Particle Transport on Shared Memory Computer Architectures." M.S. Thesis, Massachusetts Institute of Technology (2014). 
+.. [Boyd] W. Boyd, "Massively Parallel Algorithms for Method of Characteristics Neutral Particle Transport on Shared Memory Computer Architectures." M.S. Thesis, Massachusetts Institute of Technology (2014). 
 

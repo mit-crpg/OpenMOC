@@ -4,7 +4,7 @@
 Constructive Solid Geometry
 ===========================
 
-OpenMOC uses `constructive solid geometry`_ (CSG) to represent complex reactor models in software. The constructive solid geometry formulation is the method of choice for many advanced modeling software packages, including some Computer-aided Design (CAD) implementations. CSG allows complex spatial models to be built using boolean operations - such as intersections and unions - of simple surfaces and building blocks termed *primitives*, as illustrated in :ref:`Figure 1 <figure-csg-tree>` [1]_. The constructive solid geometry approach is well suited for reactor models which typically are highly structured and contain repeating patterns. This is the case for commercial PWRs and BWRs whose cores are built out of a rectangular lattice of fuel assemblies, each of which is a rectangular lattice of fuel pins. 
+OpenMOC uses `constructive solid geometry`_ (CSG) to represent complex reactor models in software. The constructive solid geometry formulation is the method of choice for many advanced modeling software packages, including some Computer-aided Design (CAD) implementations. CSG allows complex spatial models to be built using boolean operations - such as intersections and unions - of simple surfaces and building blocks termed *primitives*, as illustrated in :ref:`Figure 1 <figure-csg-tree>` [Wikipedia]_. The constructive solid geometry approach is well suited for reactor models which typically are highly structured and contain repeating patterns. This is the case for commercial PWRs and BWRs whose cores are built out of a rectangular lattice of fuel assemblies, each of which is a rectangular lattice of fuel pins. 
 
 .. _figure-csg-tree:
 
@@ -17,7 +17,9 @@ OpenMOC uses `constructive solid geometry`_ (CSG) to represent complex reactor m
 
 There are a number of benefits to using the CSG formulation. First, CSG enables simulation codes to significantly reduce the memory footprint required to model the geometry. For example, rather than representing each fuel pin explicitly in memory, a *fuel pin primitive* is represented by a single data structure. A second major benefit to the CSG formulation is that it is a general and extensible approach which allows for ray tracing routines to be written in an abstract fashion that is independent of the primitives themselves.
 
-OpenMOC's implementation of the routines and data structures for CSG are in large part inspired by those used in the OpenMC code [2]_. The following sections describe the primitives and algorithms used for CSG modeling in OpenMOC. \autoref{sec:csg-formulation} defines the terminology and primitives used in OpenMOC. \autoref{sec:csg-track-generation} discusses the track generation and quadrature weights used in OpenMOC. Finally, \autoref{sec:csg-ray-tracing} develops the algorithms used for ray tracing and track segmentation.
+:ref:`Section 3.2 <source-update-algorithm>`
+
+OpenMOC's implementation of the routines and data structures for CSG are in large part inspired by those used in the OpenMC code. The following sections describe the primitives and algorithms used for CSG modeling in OpenMOC.
 
 
 .. _csg-formulation:
@@ -190,7 +192,7 @@ To find the intersection point along some trajectory with a Circle, substitute t
 
    d = \frac{-\Delta_{x}y - \Delta_{y}v \pm \sqrt{[-\Delta_{x}u - \Delta_{y}v]^2 - (u^2+v^2)[\Delta_{x}^2 + \Delta_{y}^2 - R^2]}}{(u^2 + v^2)}
 
-The parametrized distance is in the form of the quadratic formula, and there may be one or two real solutions, or two complex solutions. In the case of one solution, it indicates that the trajectory vector :math:`\hat{n}` merely glances the surface of the Circle. The two solution case represents a trajectory vector that intersects the Circle surface and passes through on the opposite side. Complex solutions are unphysical and represent the fact that the trajectory may not pass through the circle at all.
+The parametrized distance is in the form of the quadratic formula, and there may be one or two real solutions, or two complex solutions. In the case of one solution, it indicates that the trajectory vector :math:`\hat{n}` merely glances the surface of the Circle. The two solution case represents a trajectory vector that intersects the Circle surface and passes through on the opposite side. Complex solutions are unphysical and represent the fact that the trajectory will not pass through the circle at all.
 
 
 .. _cells:
@@ -219,9 +221,9 @@ A *cell* is defined to be the region bounded by a boolean combination of surface
 Universes
 ---------
 
-A *universe* is a collection of one or more cells that fill the entirety of the :math:`xy`-plane. Each cell may be filled with a material or a separate universe. Universes allow unique structures to be created from cells, and for simple replication of that structure throughout a model by placing it in various locations throughout the geometry. The universe-based CSG formulation in OpenMOC is similar to that used in Monte Carlo neutron transport codes such as OpenMC [2]_, MCNP [3]_ and Serpent [4]_.
+A *universe* is a collection of one or more cells that fill the entirety of the :math:`xy`-plane. Each cell may be filled with a material or a separate universe. Universes allow unique structures to be created from cells, and for simple replication of that structure throughout a model by placing it in various locations throughout the geometry. The universe-based CSG formulation in OpenMOC is similar to that used in Monte Carlo neutron transport codes such as [OpenMC]_, [MCNP]_ and [Serpent]_.
 
-A universe of 10 cells constructed from the halfspace intersections of two XPlanes, two XPlanes and one Circle surface is depicted in :ref:`Figure 6 <figure-universe-cells>`. The halfspace for each surface is indicated by ":math:`+`" or ":math:`-`" symbols, while each cell is uniquely identified by a color and number.
+A universe of 10 cells constructed from the halfspace intersections of two XPlanes, two YPlanes and one Circle surface is depicted in :ref:`Figure 6 <figure-universe-cells>`. The halfspace for each surface is indicated by ":math:`+`" or ":math:`-`" symbols, while each cell is uniquely identified by a color and number.
 
 .. _figure-universe-cells:
 
@@ -239,7 +241,7 @@ A universe of 10 cells constructed from the halfspace intersections of two XPlan
 Lattices
 --------
 
-*Lattices* are an extremely useful construct for modeling regular, repeating structures. This is especially the case for reactor cores which typically contain rectangular or hexagonal arrays of fuel pins. For this reason, lattices are a common structure in many neutron transport codes, such as OpenMC [2]_, MCNP [3]_ and Serpent [4]_.
+*Lattices* are an extremely useful construct for modeling regular, repeating structures. This is especially the case for reactor cores which typically contain rectangular or hexagonal arrays of fuel pins. For this reason, lattices are a common structure in many neutron transport codes, such as OpenMC, MCNP and Serpent.
 
 OpenMOC currently only contains a single lattice implementation for 2D Cartesian arrays. Each lattice is uniquely specified by the number of array elements along the :math:`x` and :math:`y` axes, the width and height of each lattice cell, and the universe to *fill* each lattice cell. The lattice specification represents a coordinate transformation such that the center of each lattice cell maps to the origin of the universe within it. This allows for a single universe to be replicated in some or all lattice cells without redundantly storing the universe many times in memory.
 
@@ -259,12 +261,12 @@ OpenMOC currently only contains a single lattice implementation for 2D Cartesian
 References
 ==========
 
-.. [1] Wikipedia, "Constructive Solid Geometry," http://en.wikipedia.org/wiki/Constructive_solid_geometry (2013).
+.. [Wikipedia] Wikipedia, "Constructive Solid Geometry," http://en.wikipedia.org/wiki/Constructive_solid_geometry (2013).
 
-.. [2] P. Romano and B. Forget, "The OpenMC Monte Carlo Particle Transport Code." *Annals of Nuclear Energy*, **51**, pp. 274-281 (2013).
+.. [OpenMC] P. Romano and B. Forget, "The OpenMC Monte Carlo Particle Transport Code." *Annals of Nuclear Energy*, **51**, pp. 274-281 (2013).
 
-.. [3] X-5 Monte Carlo Team, "MCNP - A General Monte Carlo N-Particle Transport Code, Version 5." *Technical Report LA-UR-03-1987*, Los Alamos National Laboratory (2008).
+.. [MCNP] X-5 Monte Carlo Team, "MCNP - A General Monte Carlo N-Particle Transport Code, Version 5." *Technical Report LA-UR-03-1987*, Los Alamos National Laboratory (2008).
 
-.. [4] J. Leppanen, "Serpent - A Continuous Energy Monte Carlo Reactor Physics Burnup Calculation Code," http://montecarlo.vtt.fi/download/Serpent_manual.pdf (2013).
+.. [Serpent] J. Leppanen, "Serpent - A Continuous Energy Monte Carlo Reactor Physics Burnup Calculation Code," http://montecarlo.vtt.fi/download/Serpent_manual.pdf (2013).
 
 .. _constructive solid geometry: http://en.wikipedia.org/wiki/Constructive_solid_geometry

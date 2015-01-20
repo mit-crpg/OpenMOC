@@ -8,7 +8,6 @@ var searchData=
   ['_7elattice',['~Lattice',['../classLattice.html#a91be54ce9927b6bc53d30a2faf760780',1,'Lattice']]],
   ['_7elocalcoords',['~LocalCoords',['../classLocalCoords.html#a1864bf1ab24fc1e785db20bc24185754',1,'LocalCoords']]],
   ['_7ematerial',['~Material',['../classMaterial.html#a2c19452d71f54075df8f5405b03129f4',1,'Material']]],
-  ['_7emesh',['~Mesh',['../classMesh.html#a5efe4da1a4c0971cfb037bd70304c303',1,'Mesh']]],
   ['_7epoint',['~Point',['../classPoint.html#a395fa04b4ec126b66fc053f829a30cc1',1,'Point']]],
   ['_7equadrature',['~Quadrature',['../classQuadrature.html#a1f523924a8cc88680aa77366a7d3a38e',1,'Quadrature']]],
   ['_7esolver',['~Solver',['../classSolver.html#aba52d3c92fafceb6fe39f937f2d73db3',1,'Solver']]],

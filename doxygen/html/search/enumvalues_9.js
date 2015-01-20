@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['material',['MATERIAL',['../Cell_8h.html#a274ceed3b07859c48505f65b1fe42328a23f8f5e62324af5f4d8f899cee8fb70d',1,'Cell.h']]],
-  ['moc',['MOC',['../Mesh_8h.html#a0cdedba974328b9119267e5e8cf77114a68bfc3f7998aafb72168d9a1a3545bb9',1,'Mesh.h']]]
+  ['normal',['NORMAL',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a50d1448013c6f17125caee18aa418af7',1,'log.h']]]
 ];

@@ -89,7 +89,7 @@ The azimuthal angle quadrature set is computed based on the fraction of azimutha
 
    w_{m} = \frac{1}{2\pi}\left[2\pi - \phi_{m} + \frac{\phi_{m} - \phi_{m-1}}{2}\right] & \;\; \text{if} \;\;\; m = M
 
-The quadrature recommended by Yamamoto [1]_ is used by default for the polar angles and weights in OpenMOC.
+The quadrature recommended by [Yamamoto]_ is used by default for the polar angles and weights in OpenMOC.
 
 
 .. _spatial-quadrature:
@@ -251,4 +251,4 @@ This algorithm relies upon the use of a small numerical parameter :math:`\epsilo
 References
 ==========
 
-.. [1] A. Yamamoto, M. Tabuchi, N. Sugimura, T. Ushio and M. Mori, "Derivation of Optimum Polar Angle Quadrature Set for the Method of Characteristics Based on Approximation Error for the Bickley Function." *Journal of Nuclear Science and Engineering*, **44(2)**, pp. 129-136 (2007).
+.. [Yamamoto] A. Yamamoto, M. Tabuchi, N. Sugimura, T. Ushio and M. Mori, "Derivation of Optimum Polar Angle Quadrature Set for the Method of Characteristics Based on Approximation Error for the Bickley Function." *Journal of Nuclear Science and Engineering*, **44(2)**, pp. 129-136 (2007).

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['reduced_5fsource',['reduced_source',['../GPUSolver_8h.html#a201104e7c4ebc64308385f741ae5143d',1,'GPUSolver.h']]]
+  ['reduced_5fsources',['reduced_sources',['../GPUSolver_8h.html#af16043dabfde8edf630658d1a93906fb',1,'GPUSolver.h']]]
 ];

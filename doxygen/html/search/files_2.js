@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['geometry_2eh',['Geometry.h',['../Geometry_8h.html',1,'']]],
-  ['gpuquery_2eh',['GPUQuery.h',['../GPUQuery_8h.html',1,'']]],
-  ['gpusolver_2eh',['GPUSolver.h',['../GPUSolver_8h.html',1,'']]]
+  ['devicematerial_2eh',['DeviceMaterial.h',['../DeviceMaterial_8h.html',1,'']]],
+  ['devicetrack_2eh',['DeviceTrack.h',['../DeviceTrack_8h.html',1,'']]]
 ];

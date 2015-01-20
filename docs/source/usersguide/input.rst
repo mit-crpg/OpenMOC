@@ -86,7 +86,7 @@ Log Level             Note
 
 Informative messages using the logging module are embedded into both the C/C++ and Python source code in OpenMOC. In addition, code users may add their own messages to the output stream in Python input files. The API documentation provides a detailed accounting of the routines available in the `logging module`_.
 
-The following code snippet illustrates how to import the logging module into Python, set the lowest log level set to :envvar:`DEBUG`, and print messages for each level to the screen.
+The following code snippet illustrates how to import the logging module into Python, set the lowest log level to :envvar:`DEBUG`, and print messages for each level to the screen.
 
 .. code-block:: python
 
@@ -120,11 +120,7 @@ And the following is the output displayed to the console and recorded in the log
   [ WARNING ]  This is a WARNING message
   [ CRITICAL]  This is a CRITICAL message
   [ UNITTEST]  This is a UNITTEST message
-  Traceback (most recent call last):
-    File "<stdin>", line 1, in <module>
-    File "openmoc/log.py", line 59, in py_printf
-      openmoc.log_printf(openmoc.ERROR, my_str % args)
-  RuntimeError: This is an ERROR message
+  [  ERROR  ]  This is an ERROR message
 
 It should be noted that the ``py_printf(...)`` routine in the logging module is based on the printf_ routine in C/C++ and accepts a variable number of arguments. In particular, this is intended to accept `formatted data`_ to embed formatted integers, floats, strings, etc. in the output message. An example of this feature in use is given below:
 
@@ -170,9 +166,8 @@ OpenMOC uses multi-group macroscopic nuclear cross-sections, provided by the use
    sigma_f = numpy.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4])
    ...
 
-   # Instantiate an OpenMOC Material class object with an
-   # automatically-generated unique ID
-   material = openmoc.Material(openmoc.material_id())
+   # Instantiate an OpenMOC Material class object with an optional string name
+   material = openmoc.Material(name='test material')
 
    # Set the number of energy groups in the material
    material.setNumEnergyGroups(num_groups)
@@ -181,8 +176,6 @@ OpenMOC uses multi-group macroscopic nuclear cross-sections, provided by the use
    material.setSigmaA(sigma_a)
    material.setSigmaT(sigma_f)
    ...
-
-.. warning:: Users may not use Material IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.
 
 For many simulations, defining the nuclear data cross-sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the ``openmoc.materialize`` module for importing nuclear data cross-sections from an HDF5_ or a Python pickle_ binary file. The ``materialize(...)`` routine is used to import data and instantiate ``Material`` objects returned via a Python dictionary_. The use of the ``openmoc.materialize`` module to import HDF5 and pickle binary files is illusrated in the following snippet:
 
@@ -207,7 +200,7 @@ For many simulations, defining the nuclear data cross-sections by hand in a Pyth
     # Retrieve the material called 'fuel' in the pickle file
     fuel = pickle_materials['fuel']
 
-The ``openmoc.materialize`` module defines a standard for cross-section data stored in binary files. First, each HDF5 file must end with the '.h5' or '.hdf5' extension. HDF5 files must include an `Energy Groups` attribute with the integer number of groups in the top level of the file data hierarchy. Finally, each material is defined as an `HDF5 group`_ with a string name to identify the material. Finally, the material group must contain the following floating point `HDF5 datasets`_:
+The ``openmoc.materialize`` module defines a standard for cross-section data stored in binary files. First, each HDF5 file must end with the '.h5' or '.hdf5' extension. HDF5 files must include an `Energy Groups` attribute with the integer number of groups in the top level of the file data hierarchy. Each material must be defined as an `HDF5 group`_ with a string name to identify the material. Finally, the material group must contain the following floating point `HDF5 datasets`_:
 
   - 'Total XS'
   - 'Absorption XS'
@@ -216,7 +209,7 @@ The ``openmoc.materialize`` module defines a standard for cross-section data sto
   - 'Nu Fission XS'
   - 'Chi'
 
-The following code snippet illustrates the use of the h5py_ Python HDF5 interface to write an HDF5 file with material cross-section data adhering to the standard expected by the ``openmoc.materialize`` module:
+To better understand the necessary HDF file structure, it may be useful to visualize the ``OpenMOC/sample-input/c5g7-materials.h5`` HDF5 file using the HDFView_ graphical tool. The following code snippet illustrates the use of the h5py_ Python HDF5 interface to write an HDF5 file with material cross-section data adhering to the standard expected by the ``openmoc.materialize`` module:
 
 .. code-block:: python
 
@@ -250,7 +243,7 @@ The following code snippet illustrates the use of the h5py_ Python HDF5 interfac
    # Close and save the HDF5 file
    f.close()
 
-Alternatively, for machine withouts HDF5 and/or h5py, materials data may be imported from a pickle_ binary file using the ``openmoc.materialize`` module. For pickle files, the materials data should be stored as a Python dictionary_. The dictionary must contain a key/value pair for the number of energy groups, and sub-dictionaries for each material's cross-sections. The following code snippet illustrates how one might populate a pickle file with material cross-section data adhering to the standard expected by the ``openmoc.materialize`` module:
+Alternatively, for machines without HDF5 and/or h5py, materials data may be imported from a pickle_ binary file using the ``openmoc.materialize`` module. For pickle files, the materials data should be stored as a Python dictionary_. The dictionary must contain a key/value pair for the number of energy groups, and sub-dictionaries for each material's cross-sections. The following code snippet illustrates how one might populate a pickle file with material cross-section data adhering to the standard expected by the ``openmoc.materialize`` module:
 
 .. code-block:: python
 
@@ -285,9 +278,6 @@ Alternatively, for machine withouts HDF5 and/or h5py, materials data may be impo
    pickle.dump(data, open('materials-data.pkl', 'wb'))
 
 
-.. note:: Users must ensure that the total cross-section is equal to the absorption and scattering cross-section in each group. OpenMOC will throw a runtime error will be thrown if this condition does not hold true when materials are added to the ``Geometry`` object.
-
-
 ----------------------
 Geometry Specification
 ----------------------
@@ -300,8 +290,6 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in :re
 
 The following sections detail how to create surfaces, cells, universes and lattices to construct a simple 4 :math:`\times` 4 pin cell lattice. 
 
-.. note:: Users should create ``Surfaces``, ``Cells``, and ``Lattices`` and add them to the ``Geometry`` in that order for correct results.
-
 
 Surfaces
 --------
@@ -310,60 +298,74 @@ In most cases, the first step towards building a reactor geometry is to create t
 
 .. code-block:: python
 
-    # Initialize circular fuel pin surface
-    circle = openmoc.Circle(x=0.0, y=0.0, radius=0.45)
+    # Initialize circular fuel pin surface with an optional string name
+    circle = openmoc.Circle(x=0.0, y=0.0, radius=0.45, name='fuel radius')
 
     # Initialize the planar surfaces bounding the entire geometry
-    left = openmoc.XPlane(x=-2.52)
-    right = openmoc.XPlane(x=2.52)
-    bottom = openmoc.YPlane(y=-2.52)
-    top = openmoc.YPlane(y=2.52)
+    # with optional string names
+    left = openmoc.XPlane(x=-2.52, name='left')
+    right = openmoc.XPlane(x=2.52, name='right')
+    bottom = openmoc.YPlane(y=-2.52, name='bottom')
+    top = openmoc.YPlane(y=2.52, name='top')
 
     # Set the boundary conditions for the bounding planes
-    left.setBoundaryType(REFLECTIVE)
-    right.setBoundaryType(REFLECTIVE)
-    bottom.setBoundaryType(REFLECTIVE)
-    top.setBoundaryType(REFLECTIVE)
+    left.setBoundaryType(openmoc.REFLECTIVE)
+    right.setBoundaryType(openmoc.REFLECTIVE)
+    bottom.setBoundaryType(openmoc.REFLECTIVE)
+    top.setBoundaryType(openmoc.REFLECTIVE)
 
 
 Cells and Universes
 -------------------
 
-The next step to create a geometry is to instantiate cells which represent unique geometric shapes and use them to construct universes. The CSG formulations for cells and universes in OpenMOC are discussed in further detail in :ref:`Cells <cells>` and :ref:`Universes <universes>`, respectively. OpenMOC provides the ``CellBasic`` class for cells which are filled by a material. The following code snippet illustrates how to create cells filled by the fuel and moderator materials in the universe with ID = 1. Next, the script adds the appropriate halfspace of the circle surface created in the preceding section to each cell.
+The next step to create a geometry is to instantiate cells which represent unique geometric shapes and use them to construct universes. The CSG formulations for cells and universes in OpenMOC are discussed in further detail in :ref:`Cells <cells>` and :ref:`Universes <universes>`, respectively. OpenMOC provides the ``CellBasic`` class for cells which are filled by a material. The following code snippet illustrates how to create cells filled by the fuel and moderator materials. Next, the script adds the appropriate halfspace of the circle surface created in the preceding section to each cell.
 
 .. code-block:: python
 
-    # Retrieve the IDs for the fuel and moderator materials
-    uo2_id = materials['Fuel'].getId()
-    water_id = materials['Water'].getId()
+    # Retrieve the fuel and moderator materials
+    uo2 = materials['UO2']
+    water = materials['Water']
 
     # Initialize the cells for the fuel pin and moderator
-    fuel = openmoc.CellBasic(universe=1, material=uo2_id)
-    moderator = openmoc.CellBasic(universe=1, material=water_id)
+    # with optional string names
+    fuel = openmoc.CellBasic(name='fuel cell')
+    moderator = openmoc.CellBasic(name='moderator cell')
+
+    # Assign the appropriate materials to fill each cell
+    fuel.setMaterial(uo2)
+    moderator.setMaterial(water)
 
     # Add the circle surface to each cell
     fuel.addSurface(halfspace=-1, surface=circle)
     moderator.addSurface(halfspace=+1, surface=circle)
 
-In addition to cells filled with materials, OpenMOC provides the ``CellFill`` class for cells which may be filled with universes. As a result, a geometry may be constructed of a hierarchy of nested cells/universes. A hierarchichal geometry permits a simple treatment of repeating geometric structures on multiple length scales (e.g., rectangular arrays of fuel pins and fuel assemblies). 
-
-OpenMOC does not place a limit on the hierarchical depth - or number of nested universe levels - that a user may define in constructing a geometry. The only limitation is that at the top of the hierarchy, a cell must be used to encapsulate the entire geometry in the universe with ID = 0. The following code snippet illustrates the creation of a ``CellFill`` which is filled by universe 10 - the lattice constructed in the next section - and which is part of universe 0. Finally, the appropriate halfspaces for the planes defined in the preceding section are added to the cell to enforce boundaries on the portion of universe 10 relevant to the geometry.
+Each universe is comprised of one or more cells. A ``Universe`` can be instantiated and each of the previously created cells added to it as shown in the following snippet.
 
 .. code-block:: python
 
-    # Initialize a cell filled by the lattice universe. This cell 
-    # resides within universe 0 which is designated for the top
-    # level nested universe in the geometry.
-    pin_cell_array = openmoc.CellFill(universe=0, universe_fill=10)
+    # Initialize a universe with an optional string name
+    pin_univ = openmoc.Universe(name='pin universe')
 
-    # Add the bounding planar surfaces to each the cell containing
-    # universe 0
-    pin_cell_array.addSurface(halfspace=+1, left)
-    pin_cell_array.addSurface(halfsapce=-1, right)
-    pin_cell_array.addSurface(halfspace=+1, bottom)
-    pin_cell_array.addSurface(halfspace=-1, top)
+    # Add each cell to the universe
+    pin_univ.addCell(fuel)
+    pin_univ.addCell(moderator)
 
-.. warning:: Users may not use Universe IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.
+In addition to cells filled with materials, OpenMOC provides the ``CellFill`` class for cells which may be filled with universes. As a result, a geometry may be constructed of a hierarchy of nested cells/universes. A hierarchichal geometry permits a simple treatment of repeating geometric structures on multiple length scales (e.g., rectangular arrays of fuel pins and fuel assemblies). 
+
+OpenMOC does not place a limit on the hierarchical depth - or number of nested universe levels - that a user may define in constructing a geometry. The only limitation is that at the top of the hierarchy, a *root* cell must encapsulate the entire geometry in a *root* universe. The following code snippet illustrates the creation of a ``CellFill`` which is filled by a lattice constructed in the next section. The appropriate halfspaces for the planes defined in the preceding section are added to the cell to enforce boundaries on the portion of the root universe relevant to the geometry.
+
+.. code-block:: python
+
+    # Initialize a cell filled by a nested lattice with an optional
+    # string name. This cell resides within the root universe. 
+    root_cell = openmoc.CellFill(name='root cell')
+    root_cell.setFill(lattice)
+
+    # Add the bounding planar surfaces to the root cell
+    root_cell.addSurface(halfspace=+1, left)
+    root_cell.addSurface(halfsapce=-1, right)
+    root_cell.addSurface(halfspace=+1, bottom)
+    root_cell.addSurface(halfspace=-1, top)
 
 
 Rings and Sectors
@@ -376,21 +378,25 @@ This type of discretization is particularly useful for codes which can make use 
 The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for a fuel pin and moderator region with optional arguments for each to the ``CellBasic`` constructor.
 
 .. code-block:: python
-		
-   # Retrieve the IDs for the fuel and moderator materials
-   uo2_id = materials['Fuel'].getId()
-   water_id = materials['Water'].getId()
-   
-   # Initialize the cells for the fuel pin and moderator
-   # Subdivide the fuel pin into 3 rings and 8 angular sectors
-   # Subdivide the moderator region into 8 angular sectors
-   fuel = openmoc.CellBasic(universe=1, material=uo2_id, rings=3, sectors=8)
-   moderator = openmoc.CellBasic(universe=1, material=water_id, sectors=8)
-   
-   # Add the circle surface to each cell
-   fuel.addSurface(halfspace=-1, surface=circle)
-   moderator.addSurface(halfspace=+1, surface=circle)
 
+    # Retrieve the fuel and moderator materials
+    uo2 = materials['UO2']
+    water = materials['Water']
+
+    # Initialize the cells for the fuel pin and moderator
+    # Subdivide the fuel region into 3 rings and 8 angular sectors
+    # Subdivide the moderator region into 8 angular sectors
+    fuel = openmoc.CellBasic(name='fuel cell', rings=3, sector=8)
+    moderator = openmoc.CellBasic(name='moderator cell', sectors=8)
+
+    # Assign the appropriate materials to fill each cell
+    fuel.setMaterial(uo2)
+    moderator.setMaterial(water)
+
+    # Add the circle surface to each cell
+    fuel.addSurface(halfspace=-1, surface=circle)
+    moderator.addSurface(halfspace=+1, surface=circle)
+   
 A pin cell without rings/sectors is illustrated on the left below, while the same pin cell with 3 equal volume rings and 8 angular sectors is displayed on the right.
 
 .. _figure_fluxes:
@@ -416,51 +422,40 @@ A pin cell without rings/sectors is illustrated on the left below, while the sam
 Lattices
 --------
 
-Once the cells for the geometry have been created, OpenMOC's ``Lattice`` class may be used to represent repeating patterns of the cells on a rectangular array. The CSG formulation for lattices is described further in :ref:`Lattices <lattices>`. In OpenMOC, the ``Lattice`` class is a subclass of the ``Universe`` class. The following code snippet illustrates the creation of a 4 :math:`\times` 4 lattice with each lattice cell filled by the universe with ID = 1. The total width and height of the lattice are defined as parameters when the lattice is initialized. The lattice dimensions are used to define the rectangular region of interest centered at the origin of each universe filling each lattice cell.
+Once the cells for the geometry have been created, OpenMOC's ``Lattice`` class may be used to represent repeating patterns of the cells on a rectangular array. The CSG formulation for lattices is described further in :ref:`Lattices <lattices>`. In OpenMOC, the ``Lattice`` class is a subclass of the ``Universe`` class. The following code snippet illustrates the creation of a 4 :math:`\times` 4 lattice with each lattice cell filled by the pin universe created earlier. The total width and height of the lattice are defined as parameters when the lattice is initialized. The lattice dimensions are used to define the rectangular region of interest centered at the origin of each universe filling each lattice cell.
 
 .. code-block:: python
 
     # Initialize the lattice for the geometry 
-    lattice = openmoc.Lattice(id=10, width_x=5.04, width_y=5.04)
+    lattice = openmoc.Lattice(name='4x4 pin lattice')
+    lattice.setWidth(width_x=5.04, width_y=5.04)
 
     # Assign each lattice cell a universe ID
-    lattice.setLatticeCells([[1, 1, 1, 1],
-                             [1, 1, 1, 1],
-                             [1, 1, 1, 1],
-                             [1, 1, 1, 1]])
+    lattice.setLatticeCells([[pin_univ, pin_univ, pin_univ, pin_univ],
+                             [pin_univ, pin_univ, pin_univ, pin_univ],
+                             [pin_univ, pin_univ, pin_univ, pin_univ],
+                             [pin_univ, pin_univ, pin_univ, pin_univ]])
 
-.. warning:: Users may not use Lattice IDs which are greater than or equal to 10,000 since these are reserved by OpenMOC for internal use only.
-
-.. warning:: ``Lattices`` are a subclass of ``Universe`` and as a result, no ``Lattice`` may have the same ID has a normal ``Universe``.
 
 Geometry
 --------
 
-The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` class. The ``Geometry`` class encapsulates all ``Materials``, ``Surfaces``, ``Cells``, ``Universes`` and ``Lattices``. The following code snippet illustrates the creation of the ``Geometry`` and the registration of each ``Material``, ``Cell`` and ``Lattice`` constructed in the preceding sections. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.
+The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` class. The ``Geometry`` class is the *root* node in a tree data structure which encapsulates all ``Materials``, ``Surfaces``, ``Cells``, ``Universes`` and ``Lattices``. The following code snippet illustrates the creation of a *root* ``CellFill`` and ``Universe`` as well as a ``Geometry`` object. Next, the root universe is registered with the geometry. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.
 
 .. code-block:: python
 
+    # Initialize the root universe object
+    root_univ = openmoc.Universe(name='root universe')
+    root_univ.addCell(root_cell)
+
     # Initialize an empty geometry object
     geometry = openmoc.Geometry()
+    
+    # Register the root universe with the geometry
+    geometry.setRootUniverse(root_univ)
 
-    # Add materials to the geometry first
-    geometry.addMaterial(materials['Fuel'])
-    geometry.addMaterial(materials['Water'])
-
-    # Next, add all cells to the geometry
-    geometry.addCell(fuel)
-    geometry.addCell(moderator)
-    geometry.addCell(pin_cell_array)
-
-    # Next, add all lattices to the geometry
-    geometry.addLattice(lattice)
-
-    # Next, initialize the flat source regions in the geometry after
-    # all materials, cells, and lattices have been added to it
+    # Initialize the flat source regions in the geometry
     geometry.initializeFlatSourceRegions()
-
-.. warning:: Users **must** add ``Materials``, ``Surfaces``, ``Cells``, and ``Lattices`` to the ``Geometry`` in that order for correct results.
-
 
 
 ----------------
@@ -487,7 +482,7 @@ MOC Source Iteration
 One of OpenMOC's ``Solver`` subclasses may be initialized given the ``Geometry`` and ``TrackGenerator`` objects created in the preceding sections. The most commonly used subclasses for OpenMOC simulations are itemized below:
 
   * ``CPUSolver`` - multi-core CPUs, memory efficient, good parallel scaling
-  * ``GPUSolver`` - GPUs, 30-50 :math:`\times` faster than CPUs [2]_
+  * ``GPUSolver`` - GPUs, 30-50 :math:`\times` faster than CPUs [GPUs]_
 
 The following code snippet illustrates the instantiation of the ``CPUSolver`` for multi-core CPUs. The code assigns runtime parameters to the solver and calls the ``convergeSource(...)`` routine to execute the :ref:`MOC Source Iteration Algorithm <figure-overall-iterative-scheme>`.
 
@@ -553,6 +548,7 @@ With those few additional lines of code, you should be able to create an input f
 .. _HDF5: http://www.hdfgroup.org/HDF5/
 .. _pickle: http://docs.python.org/2/library/pickle.html
 .. _dictionary: http://docs.python.org/2/tutorial/datastructures.html#dictionaries
+.. _HDFView: http://www.hdfgroup.org/products/java/hdfview/
 .. _h5py: http://www.h5py.org/
 .. _HDF5 group: http://www.hdfgroup.org/HDF5/doc/UG/UG_frame09Groups.html
 .. _HDF5 datasets: http://www.hdfgroup.org/HDF5/doc/UG/10_Datasets.html
@@ -561,8 +557,8 @@ With those few additional lines of code, you should be able to create an input f
 .. _unstructured mesh: http://en.wikipedia.org/wiki/Unstructured_grid
 
 
-.. [1] William Boyd, Kord Smith, Benoit Forget, and Andrew Siegel, "Parallel Performance Results for the OpenMOC Method of Characteristics Code on Multi-Core Platforms." *Submitted to the Proceedings of PHYSOR*, Kyoto, Japan (2014).
+.. [CPUs] William Boyd, Kord Smith, Benoit Forget, and Andrew Siegel, "Parallel Performance Results for the OpenMOC Method of Characteristics Code on Multi-Core Platforms." *Submitted to the Proceedings of PHYSOR*, Kyoto, Japan (2014).
 
-.. [2] William Boyd, Kord Smith, and Benoit Forget, "A Massively Parallel Method of Characteristic Neutral Particle Transport Code for GPUs." *Proc. Int'l Conf. Math. and Comp. Methods Appl. to Nucl. Sci. and Eng.*, Sun Valley, ID, USA (2013).
+.. [GPUs] William Boyd, Kord Smith, and Benoit Forget, "A Massively Parallel Method of Characteristic Neutral Particle Transport Code for GPUs." *Proc. Int'l Conf. Math. and Comp. Methods Appl. to Nucl. Sci. and Eng.*, Sun Valley, ID, USA (2013).
 
 

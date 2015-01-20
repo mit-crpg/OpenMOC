@@ -59,7 +59,7 @@ transport simulation wherein the source of neutrons includes a fissionable mater
 calculations in OpenMOC by outlining the algorithms used to iteratively solve the MOC equations for the eigenvalue <img class="math" src="../_images/math/e45162800d593c2dee55555d800d84157e75ae00.png" alt="k_{eff}"/> and eigenvector <img class="math" src="../_images/math/ac315bdc58af847fe0313de7be1de1080b5d3867.png" alt="\Phi_{g,i} \;\; \forall \; g,i"/>.</p>
 <div class="section" id="moc-iteration-scheme">
 <span id="id2"></span><h2>3.1. MOC Iteration Scheme<a class="headerlink" href="#moc-iteration-scheme" title="Permalink to this headline">¶</a></h2>
-<p>The MOC algorithm for the OpenMOC code presented in this thesis uses a nested iteration scheme to solve for the source and scalar flux. The inner iteration solves for an approximate scalar flux assuming a fixed source. The outer iteration computes an updated source based on the inner iteration&#8217;s approximation to the flux that results from the fixed source. The remainder of this section develops the methodology for this nested iteration scheme.</p>
+<p>The MOC algorithm for the OpenMOC code uses a nested iteration scheme to solve for the source and scalar flux. The inner iteration solves for an approximate scalar flux assuming a fixed source. The outer iteration computes an updated source based on the inner iteration&#8217;s approximation to the flux that results from the fixed source. The remainder of this section develops the methodology for this nested iteration scheme.</p>
 <p>First, define vectors of the scalar flux and source in each energy group and flat source region:</p>
 <div class="math" id="equation-vector-scalar-flux">
 <p><span class="eqno">(1)</span><img src="../_images/math/56d300cc07dcd220732cfc455384cf15baca56f9.png" alt="\mathbf{\Phi} = \left[\Phi_{1,1}, \Phi_{1,2}, ..., \Phi_{1,G}, \Phi_{2,1}, ..., \Phi_{I,G}\right]^T"/></p>
@@ -130,11 +130,11 @@ calculations in OpenMOC by outlining the algorithms used to iteratively solve th
 <a class="reference internal image-reference" href="../_images/exponential-tangent.png"><img alt="../_images/exponential-tangent.png" src="../_images/exponential-tangent.png" style="width: 500px;" /></a>
 <p class="caption"><strong>Figure 2</strong>: Linear interpolation of an exponential.</p>
 </div>
-<p>The OpenMOC code incorporates an option to evaluate exponentials using either the compiler&#8217;s exponential intrinsic function or a linear interpolation table. The following expression for the maximum approximation error <img class="math" src="../_images/math/19bc0073dde1bcd1a8e6a32b251e80cced668f04.png" alt="\epsilon"/> for the linear interpolation method was discussed and validated by Yamamoto <a class="footnote-reference" href="#id7" id="id6">[1]</a>:</p>
+<p>The OpenMOC code incorporates an option to evaluate exponentials using either the compiler&#8217;s exponential intrinsic function or a linear interpolation table. The following expression for the maximum approximation error <img class="math" src="../_images/math/19bc0073dde1bcd1a8e6a32b251e80cced668f04.png" alt="\epsilon"/> for the linear interpolation method was discussed and validated by <a class="reference internal" href="#yamamoto" id="id6">[Yamamoto]</a>:</p>
 <div class="math" id="equation-exponential-error">
 <p><span class="eqno">(12)</span><img src="../_images/math/5c07faabb1472f3fa8e7497cd31c6ccf987d3610.png" alt="\epsilon = \frac{1}{8}\frac{l^2}{N^2} + O\left(\frac{1}{N^2}\right) \approx \frac{1}{8}\frac{l^2}{N^2}"/></p>
 </div><p>In this equation, <img class="math" src="../_images/math/d99efde75c84ef402a92cd4497530d2366fb112f.png" alt="l"/> represents the maximum argument (power) for the exponential and <img class="math" src="../_images/math/75e27f04188974063be3230dca208cd495b77ce1.png" alt="N"/> is the number of values in the interpolation table. With respect to the MOC algorithm, <img class="math" src="../_images/math/8304b45a2f5b748de246b7242f669d8048652524.png" alt="\tau_{max} = \displaystyle\max_{k,i,g}(\tau_{k,i,g}) = \displaystyle\max_{k,i,g}\left(\Sigma_{i,g}^Tl_{k,i}\right)"/>, where the segment length <img class="math" src="../_images/math/c2fb4423e3b9e4f8e1799b5e2b124498f60a5e45.png" alt="l_{k,i}"/> is kept in the 2D azimuthal plane for reasons that will follow.</p>
-<p>The interpolation table is constructed as follows. First, <a href="#equation-exponential-error">(12)</a> can be rearranged such that $epsilon$ becomes a selectable parameter for the algorithm to achieve an arbitrarily small approximation error:</p>
+<p>The interpolation table is constructed as follows. First, <a href="#equation-exponential-error">(12)</a> can be rearranged such that <img class="math" src="../_images/math/19bc0073dde1bcd1a8e6a32b251e80cced668f04.png" alt="\epsilon"/> becomes a selectable parameter for the algorithm to achieve an arbitrarily small approximation error:</p>
 <div class="math" id="equation-exponential-num-values">
 <p><span class="eqno">(13)</span><img src="../_images/math/68503865fc28074b4d233767e0a5409d53fa5d98.png" alt="N = \frac{\tau_{max}}{\sqrt{8\epsilon}}"/></p>
 </div><p>The argument to the exponential is then subdivided into <img class="math" src="../_images/math/75e27f04188974063be3230dca208cd495b77ce1.png" alt="N"/> intervals with equal spacing <img class="math" src="../_images/math/ed1e0c15c029b529f9affed698c511146abf4f05.png" alt="\Delta_{N}"/> in logarithmic space:</p>
@@ -164,10 +164,10 @@ calculations in OpenMOC by outlining the algorithms used to iteratively solve th
 </div></div>
 <div class="section" id="references">
 <h2>3.6. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<table class="docutils footnote" frame="void" id="id7" rules="none">
+<table class="docutils citation" frame="void" id="yamamoto" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id6">[1]</a></td><td><ol class="first last upperalpha simple">
+<tr><td class="label"><a class="fn-backref" href="#id6">[Yamamoto]</a></td><td><ol class="first last upperalpha simple">
 <li>Yamamoto, Y. Kitamura and Y. Yamane, &#8220;Computational Efficiencies of Approximated Exponential Functions for Transport Calculations of the Characteristics Method.&#8221; <em>Annals of Nuclear Energy</em>, <strong>2</strong>, pp. 1027-1037 (2004).</li>
 </ol>
 </td></tr>
@@ -245,7 +245,7 @@ calculations in OpenMOC by outlining the algorithms used to iteratively solve th
 
     <div class="footer">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
 <script type="text/javascript">
 
