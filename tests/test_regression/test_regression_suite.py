@@ -60,7 +60,6 @@ for test_file in test_files_with_path:
 # dictionary mapping module names (strings) to modules
 modules_dict = sys.modules
 
-
 def build_regression_suite():
 
     reg_suite = regression_test_suite([], output)

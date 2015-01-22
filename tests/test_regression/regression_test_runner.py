@@ -2,8 +2,9 @@ import time
 import multiprocessing as mp
 import platform
 
-print_times = False
+print_times = True
 # variable for if you want it to print time taken for each individual test
+# this could be a command-line thing
 
 class regression_test_case():
 
@@ -16,7 +17,9 @@ class regression_test_case():
       error_margin = float; acceptable margin for correct answers
       filename = string; filename of the benchmark file to be acted on, i.e. 'LRA.py'
       setup_func = variable indicating the setup function (part of the test file),
-          i.e. general_h1g_setup, general_LRA_setup, etc.
+          i.e. setup_LRA, setup_romano, etc.
+      num_threads = string or int; the number of threads the test is for.
+          Should be either 1 or 'DEFAULT'.
     """
 
     def __init__(self, test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads):
