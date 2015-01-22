@@ -144,16 +144,17 @@ def run_regression_test(test, output,test_start_time, none_failed=True):
     ## fail
     if abs(calculated_value - benchmark_value) >= error_margin:
         write_failed_results(output, test, none_failed)
-        none_failed = False
+        this_test_passed = False
         
     ## pass
     elif abs(calculated_value - benchmark_value) < error_margin:
         write_passed_results(test_type, benchmark,num_threads)
+        this_test_passed = True
 
     if print_times:
         print 'Test completed in', time.clock() - test_start_time, 'seconds.'
     
-    return none_failed
+    return this_test_passed
 
 def write_failed_results(output, test, none_failed=True):
 
@@ -183,9 +184,13 @@ def write_failed_results(output, test, none_failed=True):
     print "------------------FAILURE------------------"
     print "Test Failed: "+benchmark+" "+test_type+', number of threads: '+str(num_threads)    
     print "Benchmark "+test_type+" is "+str(round(benchmark_value,5))+", Keff found was "+str(round(calculated_value,5))
+    print "-------------------------------------------"
 
 def write_passed_results(test_type, benchmark, num_threads):
-
+    
+    if num_threads == 'DEFAULT':
+        num_threads = mp.cpu_count()
+        
     print benchmark + " "+test_type+' with '+str(num_threads)+' threads ... ok'
     
 

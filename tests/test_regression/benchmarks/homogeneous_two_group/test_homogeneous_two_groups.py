@@ -13,6 +13,7 @@ current_directory = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(current_directory[:-32])
 
 from regression_test_runner import *
+from benchmark_value_dict import *
 
 def setup_homogeneous_two_groups(sysargs):
 
@@ -97,7 +98,7 @@ def setup_homogeneous_two_groups(sysargs):
 # assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'homogeneous_two_groups'
-benchmark_value = 1.723158836364746
+benchmark_value = benchmark_value_dictionary[(benchmark,test_type)]
 error_margin = 0.0001
 filename = 'homogeneous-two-groups.py'
 setup_func = setup_homogeneous_two_groups

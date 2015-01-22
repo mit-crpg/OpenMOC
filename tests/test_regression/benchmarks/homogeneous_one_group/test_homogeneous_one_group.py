@@ -11,6 +11,7 @@ current_directory = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(current_directory[:-32])
 
 from regression_test_runner import *
+from benchmark_value_dict import *
 
 def setup_homogeneous_one_group(sysargs):
     
@@ -89,7 +90,7 @@ def setup_homogeneous_one_group(sysargs):
 # assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'homogeneous_one_group'
-benchmark_value = 1.432603359222412
+benchmark_value = benchmark_value_dictionary[(benchmark,test_type)]
 error_margin = 0.0001
 filename = 'homogeneous-one-group.py'
 setup_func = setup_homogeneous_one_group
