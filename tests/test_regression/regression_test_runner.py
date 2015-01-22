@@ -61,6 +61,7 @@ class regression_test_suite():
         self.tests = tests
         self.none_failed = none_failed
         self.output = output
+        self.num_failed = 0
 
     def add_test(self, test):
         # handles both single tests and lists of test objects
@@ -71,6 +72,13 @@ class regression_test_suite():
 
     def test_failed(self):
         self.none_failed = False
+        self.num_failed += 1
+
+    def get_num_tests(self):
+        return len(self.tests)
+
+    def get_num_failed(self):
+        return self.num_failed
 
     def end_file(self):
 
@@ -89,17 +97,21 @@ class regression_test_suite():
         print 'file closed'
 
     def run_tests(self):
+
+        start_time = time.clock()
         print '------------------BEGINNING REGRESSION TESTS------------------'
 
         # runs all tests and adds to output file; closes file when done
-        
         for test in self.get_tests():
-
             test.set_up_test()
             if not run_regression_test(test, self.output, self.none_failed):
                 self.test_failed()
 
         print '------------------TESTS COMPLETE------------------'
+        duration = time.clock() - start_time
+        print 'Completed '+str(self.num_tests())+' tests in '+str(duration)+' seconds.'
+        print 'Tests passed:', self.get_num_tests() - self.get_num_failed()
+        print 'Tests failed:', self.get_num_failed()
         
         if not self.none_failed:
             self.end_file()
@@ -144,6 +156,9 @@ def write_failed_results(output, test, none_failed=True):
     calculated_value = test.calculated_value
     num_threads = test.num_threads
 
+    if num_threads == 'DEFAULT':
+        num_threads = mp.cpu_count()
+
     if none_failed:
         output.write("--------------------------FAILURE--------------------------"+"\n")
         output.write("Date: "+str(time.strftime("%d/%m/%Y"))+", Time: "+str(time.strftime("%H:%M:%S"))+"\n")
@@ -151,19 +166,18 @@ def write_failed_results(output, test, none_failed=True):
         output.write("Python version: "+platform.python_version()+"\n")
         output.write("System: "+platform.system()+"\n")
         output.write("Default num_threads: "+str(mp.cpu_count())+"\n")
-    else:
-        output.write("\n")
+
+    output.write("\n")
 
     output.write("Test Failed: "+benchmark+" "+test_type+', number of threads: '+str(num_threads)+"\n")
-    output.write("Benchmark "+test_type+" is "+str(benchmark_value)+", Keff found was "+str(calculated_value)+"\n")
+    output.write("Benchmark "+test_type+" is "+str(round(benchmark_value,5))+", Keff found was "+str(round(calculated_value,5))+"\n")
 
     print "------------------FAILURE------------------"
-    print "Test Failed: "+benchmark+" "+test_type+', number of threads: '+str(num_threads)
-    ## CHANGE THIS so it doesn't print DEFAULT, but the actual num_threads (in default case)
-    
-    print "Benchmark "+test_type+" is "+str(benchmark_value)+", Keff found was "+str(calculated_value)
+    print "Test Failed: "+benchmark+" "+test_type+', number of threads: '+str(num_threads)    
+    print "Benchmark "+test_type+" is "+str(round(benchmark_value,5))+", Keff found was "+str(round(calculated_value,5))
 
 def write_passed_results(test_type, benchmark, num_threads):
 
     print benchmark + " "+test_type+' with '+str(num_threads)+' threads ... ok'
+    
 

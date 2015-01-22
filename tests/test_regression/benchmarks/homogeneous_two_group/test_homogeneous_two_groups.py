@@ -14,8 +14,6 @@ sys.path.append(current_directory[:-32])
 
 from regression_test_runner import *
 
-output = open("H1G_failed_results.txt", "a") # create output file in case of failures
-
 def setup_homogeneous_two_groups(sysargs):
 
     ## This setup function is named by adding 'setup_' to the beginning of the benchmark name
@@ -100,7 +98,7 @@ def setup_homogeneous_two_groups(sysargs):
 test_type = 'Keff'
 benchmark = 'homogeneous_two_groups'
 benchmark_value = 1.323158836364746 # 1.723158836364746
-error_margin = 0.005
+error_margin = 0.0001
 filename = 'homogeneous-two-groups.py'
 setup_func = setup_homogeneous_two_groups
 
@@ -110,6 +108,7 @@ test_H2G_1t = regression_test_case(test_type, benchmark, benchmark_value, error_
 test_list = [test_H2G, test_H2G_1t]
 
 if __name__ == '__main__':
-    # load case into suite (handles output file more completely)
+
+    output = open("H1G_failed_results.txt", "a") # create output file in case of failures
     H2G_test_suite = regression_test_suite(test_list, output)
     H2G_test_suite.run_tests()

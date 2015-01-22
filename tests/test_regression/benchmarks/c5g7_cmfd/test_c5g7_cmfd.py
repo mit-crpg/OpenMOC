@@ -21,8 +21,6 @@ sys.path.append(current_directory[:-21])
 
 from regression_test_runner import *
 
-output = open("c5g7_cmfd_failed_results_NEW.txt", "a+") # create output file in case of failures
-
 def setup_c5g7_cmfd(sysargs):
 
     sys.argv = sysargs
@@ -345,7 +343,7 @@ def setup_c5g7_cmfd(sysargs):
 test_type = 'Keff'
 benchmark = 'c5g7_cmfd'
 benchmark_value = 1.0853487491607666 # 1.1853487491607666
-error_margin = 0.005
+error_margin = 0.0001
 filename = 'c5g7-cmfd.py'
 setup_func = setup_c5g7_cmfd
 
@@ -356,18 +354,7 @@ test_list = [test_c5g7, test_c5g7_1t]
 
 if __name__ == '__main__':
     
+    output = open("c5g7_cmfd_failed_results.txt", "a+") # create output file in case of failures
     c5g7_cmfd_test_suite = regression_test_suite(test_list, output)
     c5g7_cmfd_test_suite.run_tests()
-
-## assign values for use in creating the test case object
-##test_type = 'Keff'
-##benchmark = 'c5g7_cmfd'
-##benchmark_value = 1.1853487491607666
-##Keff = general_c5g7_cmfd_setup(['c5g7-cmfd.py'])
-##Keff_1t = general_c5g7_cmfd_setup(['c5g7-cmfd.py', '--num-omp-threads', '1'])
-##error_margin = 0.005
-##
-#### create test case object
-##test_c5g7_cmfd = regression_test_case(test_type, benchmark, benchmark_value, Keff, Keff_1t, error_margin
-
-
+    

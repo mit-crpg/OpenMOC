@@ -12,9 +12,6 @@ sys.path.append(current_directory[:-17])
 
 from regression_test_runner import *
 
-output = open("romano_failed_results.txt", "a") # create output file in case of failures
-
-
 def setup_romano(sysargs):
 
     sys.argv = sysargs
@@ -131,7 +128,7 @@ def setup_romano(sysargs):
 test_type = 'Keff'
 benchmark = 'romano'
 benchmark_value = 1.1826626300811768 # 1.2826626300811768
-error_margin = 0.005
+error_margin = 0.0001
 filename = 'romano.py'
 setup_func = setup_romano
 
@@ -141,7 +138,8 @@ test_romano_1t = regression_test_case(test_type, benchmark, benchmark_value, err
 test_list = [test_romano, test_romano_1t]
 
 if __name__ == '__main__':
-    
+
+    output = open("romano_failed_results.txt", "a") # create output file in case of failures
     romano_test_suite = regression_test_suite(test_list, output)
     romano_test_suite.run_tests()
 

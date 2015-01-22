@@ -12,8 +12,6 @@ sys.path.append(current_directory[:-32])
 
 from regression_test_runner import *
 
-output = open("H1G_failed_results.txt", "a") # create output file in case of failures
-
 def setup_homogeneous_one_group(sysargs):
     
     # run simulation w/ given command line arguments
@@ -92,7 +90,7 @@ def setup_homogeneous_one_group(sysargs):
 test_type = 'Keff'
 benchmark = 'homogeneous_one_group'
 benchmark_value = 1.422603359222412 #1.432603359222412
-error_margin = 0.005
+error_margin = 0.0001
 filename = 'homogeneous-one-group.py'
 setup_func = setup_homogeneous_one_group
 
@@ -103,24 +101,6 @@ test_list = [test_H1G, test_H1G_1t]
 
 if __name__ == '__main__':
     
+    output = open("H1G_failed_results.txt", "a") # create output file in case of failures
     H1G_test_suite = regression_test_suite(test_list, output)
     H1G_test_suite.run_tests()
-
-
-
-#### assign values for use in creating the test case object
-##test_type = 'Keff'
-##benchmark = 'homogeneous_one_group'
-##benchmark_value = 1.432603359222412
-##Keff = general_h1g_setup(['homogeneous-one-group.py'])
-##Keff_1t = general_h1g_setup(['homogeneous-one-group.py', '1'])
-##error_margin = 0.0005
-##
-##test_H1G = regression_test_case(test_type, benchmark, benchmark_value, Keff, Keff_1t, error_margin)
-##
-##
-##if __name__ == '__main__':
-##    # load case into suite (handles output file more completely)
-##    H1G_test_suite = regression_test_suite([test_H1G], output)
-##    H1G_test_suite.run_tests()
-##

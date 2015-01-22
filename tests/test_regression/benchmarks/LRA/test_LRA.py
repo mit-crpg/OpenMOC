@@ -14,8 +14,6 @@ sys.path.append(current_directory[:-15])
 
 from regression_test_runner import *
 
-output = open("LRA_failed_results2.txt", "a") # create output file in case of failures
-
 def setup_LRA(sysargs):
 
     current_directory = os.path.dirname(os.path.realpath(__file__))
@@ -226,7 +224,7 @@ def setup_LRA(sysargs):
 test_type = 'Keff'
 benchmark = 'LRA'
 benchmark_value = 0.0962826806701051 # 0.9962826806701051
-error_margin = 0.005
+error_margin = 0.0001
 filename = 'LRA.py'
 setup_func = setup_LRA
 
@@ -237,6 +235,7 @@ test_list = [test_LRA, test_LRA_1t]
 
 if __name__ == '__main__':
     
+    output = open("LRA_failed_results.txt", "a") # create output file in case of failures
     LRA_test_suite = regression_test_suite(test_list, output)
     LRA_test_suite.run_tests()
 

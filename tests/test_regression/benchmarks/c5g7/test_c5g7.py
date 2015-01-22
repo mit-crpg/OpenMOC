@@ -17,9 +17,6 @@ sys.path.append(current_directory[:-15])
 
 from regression_test_runner import *
 
-output = open("c5g7_failed_results.txt", "a") # create output file in case of failures
-
-
 def setup_c5g7(sysargs):
 
     sys.argv = sysargs
@@ -327,7 +324,7 @@ def setup_c5g7(sysargs):
 test_type = 'Keff'
 benchmark = 'c5g7'
 benchmark_value = 1.0853487491607666 #1.1853487491607666
-error_margin = 0.005
+error_margin = 0.0001
 filename = 'c5g7.py'
 setup_func = setup_c5g7
 
@@ -337,31 +334,8 @@ test_c5g7_1t = regression_test_case(test_type, benchmark, benchmark_value, error
 test_list = [test_c5g7, test_c5g7_1t]
 
 if __name__ == '__main__':
-    
+
+    output = open("c5g7_failed_results.txt", "a") # create output file in case of failures
     c5g7_test_suite = regression_test_suite(test_list, output)
     c5g7_test_suite.run_tests()
-
-
-
-
-
-##
-##class test_c5g7(unittest.TestCase):
-##
-##    @classmethod
-##    def setUpClass(cls):
-##
-##        # got benchmark Keff from running test
-##        cls._Keff_benchmark = 1.1853487491607666
-##
-##        ## run simulation
-##        cls._Keff = general_c5g7_setup(['c5g7.py'])
-##
-##    def test_Keff(self):
-##
-##        self.assertEqual(self._Keff, self._Keff_benchmark)
-##
-##    def test_more_threads_Keff(self):
-##
-##        Keff = general_c5g7_setup(['c5g7.py', '--num-omp-threads', '5'])
-##        self.assertEqual(Keff, self._Keff_benchmark)
+    

@@ -1,8 +1,0 @@
-------------------------------------------------------
-Date: 13/01/2015, Time: 17:07:46
-Test Failed: testKeff
-Benchmark Keff is 1.18534874916, Keff found was 1.17823266983
-------------------------------------------------------
-Date: 15/01/2015, Time: 17:19:53
-Test Failed: testKeff
-Benchmark Keff is 1.18534874916, Keff found was 1.17823302746
