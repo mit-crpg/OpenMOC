@@ -6,10 +6,9 @@ import unittest
 import test_logger.test_log as test_log
 import test_materialize.test_materialize as test_materialize
 import test_options.test_options as test_options
-import test_regression.test_regression_suite as test_regression
 
 from test_regression.regression_test_runner import *
-from test_regression.test_regression_suite2 import *
+from test_regression.test_regression_suite import *
 
 
 ## options for if we want to run all regression tests
