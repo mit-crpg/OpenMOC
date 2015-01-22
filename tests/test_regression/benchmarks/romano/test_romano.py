@@ -7,7 +7,15 @@ from openmoc.options import Options
 import unittest
 import sys
 
-def general_romano_setup(sysargs):
+current_directory = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(current_directory[:-17])
+
+from regression_test_runner import *
+
+output = open("romano_failed_results.txt", "a") # create output file in case of failures
+
+
+def setup_romano(sysargs):
 
     sys.argv = sysargs
 
@@ -104,28 +112,37 @@ def general_romano_setup(sysargs):
     return solver.getKeff()
 
 
-class test_romano(unittest.TestCase):
+#### assign values for use in creating the test case object
+##test_type = 'Keff'
+##benchmark = 'romano'
+##benchmark_value = 1.2826626300811768
+##Keff = general_romano_setup(['romano.py'])
+##Keff_1t = general_romano_setup(['romano.py', '--num-omp-threads', '1'])
+##error_margin = 0.0005
+##
+##test_romano = regression_test_case(test_type, benchmark, benchmark_value, Keff, Keff_1t, error_margin)
+##
+##if __name__ == '__main__':
+##    # load case into suite (handles output file more completely)
+##    romano_test_suite = regression_test_suite([test_romano], output)
+##    romano_test_suite.run_tests()
 
-    @classmethod
-    def setUpClass(cls):
+# assign values for use in test case instance
+test_type = 'Keff'
+benchmark = 'romano'
+benchmark_value = 1.1826626300811768 # 1.2826626300811768
+error_margin = 0.005
+filename = 'romano.py'
+setup_func = setup_romano
 
-        ## store desired Keff
-        cls._Keff_benchmark = 1.2826626300811768
+test_romano = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads='DEFAULT')
+test_romano_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads=1)
 
-        ## run simulation, store Keff
+test_list = [test_romano, test_romano_1t]
 
-        cls._Keff = general_romano_setup(['romano.py'])
+if __name__ == '__main__':
+    
+    romano_test_suite = regression_test_suite(test_list, output)
+    romano_test_suite.run_tests()
 
-    def test_romano_Keff(self):
 
-        self.assertEqual(self._Keff_benchmark, self._Keff)
-
-    def test_more_threads_Keff(self):
-
-        Keff = general_romano_setup(['romano.py', '--num-omp-threads', '5'])
-        self.assertEqual(self._Keff_benchmark, Keff)
-
-test_romano = unittest.TestLoader().loadTestsFromTestCase(test_romano)
-
-if __name__ == '__main__':    
-    unittest.TextTestRunner(verbosity=2).run(test_romano)

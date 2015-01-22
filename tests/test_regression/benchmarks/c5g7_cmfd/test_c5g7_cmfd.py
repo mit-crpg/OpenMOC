@@ -19,12 +19,11 @@ import time
 current_directory = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(current_directory[:-21])
 
-from regression_test_runner import run_regression_test, write_failed_results
+from regression_test_runner import *
 
-testfail = False # variable to use when creating test file
-output = open("c5g7_cmfd_failed_results2.txt", "a+") # create output file in case of failures
+output = open("c5g7_cmfd_failed_results_NEW.txt", "a+") # create output file in case of failures
 
-def general_c5g7_cmfd_setup(sysargs):
+def setup_c5g7_cmfd(sysargs):
 
     sys.argv = sysargs
 
@@ -342,35 +341,33 @@ def general_c5g7_cmfd_setup(sysargs):
 
     return Keff
 
-class test_c5g7_cmfd(unittest.TestCase):
+# assign values for use in test case instance
+test_type = 'Keff'
+benchmark = 'c5g7_cmfd'
+benchmark_value = 1.0853487491607666 # 1.1853487491607666
+error_margin = 0.005
+filename = 'c5g7-cmfd.py'
+setup_func = setup_c5g7_cmfd
 
-    @classmethod
-    def setUpClass(cls):
+test_c5g7 = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads='DEFAULT')
+test_c5g7_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads=1)
 
-        # known benchmark value
-        cls._Keff_benchmark = 1.1853487491607666
+test_list = [test_c5g7, test_c5g7_1t]
 
-        ## run simulation
-        start = time.clock()
-        cls._Keff = general_c5g7_cmfd_setup(['c5g7-cmfd.py'])
-        print 'finding Keff took ', time.clock()-start
-##        self._test_type = 'Keff'
-##        self._benchmark = 'c5g7_cmfd'
-##        self._error_margin = 0.00000
+if __name__ == '__main__':
+    
+    c5g7_cmfd_test_suite = regression_test_suite(test_list, output)
+    c5g7_cmfd_test_suite.run_tests()
 
+## assign values for use in creating the test case object
+##test_type = 'Keff'
+##benchmark = 'c5g7_cmfd'
+##benchmark_value = 1.1853487491607666
+##Keff = general_c5g7_cmfd_setup(['c5g7-cmfd.py'])
+##Keff_1t = general_c5g7_cmfd_setup(['c5g7-cmfd.py', '--num-omp-threads', '1'])
+##error_margin = 0.005
+##
+#### create test case object
+##test_c5g7_cmfd = regression_test_case(test_type, benchmark, benchmark_value, Keff, Keff_1t, error_margin
 
-    def test_Keff(self):
-        self.assertAlmostEqual(self._Keff, self._Keff_benchmark, 3)
-
-    def test_Keff_1t(self):
-        Keff_1t = general_c5g7_cmfd_setup(['c5g7-cmfd.py', '--num-omp-threads', '1'])
-        self.assertAlmostEqual(Keff_1t, self._Keff_benchmark, 3)
-
-test_c5g7_cmfd = unittest.TestLoader().loadTestsFromTestCase(test_c5g7_cmfd)
-
-if __name__ == '__main__':    
-    unittest.TextTestRunner(verbosity=3).run(test_c5g7_cmfd)
-    if testfail:
-        output.write("------------------------------------------------------"+"\n")
-    output.close()
 

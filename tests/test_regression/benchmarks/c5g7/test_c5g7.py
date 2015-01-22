@@ -13,8 +13,14 @@ import sys
 import os
 
 current_directory = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(current_directory[:-15])
 
-def general_c5g7_setup(sysargs):
+from regression_test_runner import *
+
+output = open("c5g7_failed_results.txt", "a") # create output file in case of failures
+
+
+def setup_c5g7(sysargs):
 
     sys.argv = sysargs
 
@@ -29,10 +35,7 @@ def general_c5g7_setup(sysargs):
     log.set_log_level('ERROR')
 
     ## materials
-    try:
-        materials = materialize.materialize('c5g7-materials.h5')
-    except:
-        materials = materialize.materialize(current_dictionary + '/c5g7-materials.h5')
+    materials = materialize.materialize(current_directory + '/c5g7_materials.h5')
 
     uo2_id = materials['UO2'].getId()
     mox43_id = materials['MOX-4.3%'].getId()
@@ -320,31 +323,45 @@ def general_c5g7_setup(sysargs):
 
     return Keff
 
+# assign values for use in test case instance
+test_type = 'Keff'
+benchmark = 'c5g7'
+benchmark_value = 1.0853487491607666 #1.1853487491607666
+error_margin = 0.005
+filename = 'c5g7.py'
+setup_func = setup_c5g7
 
-class test_c5g7(unittest.TestCase):
+test_c5g7 = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads='DEFAULT')
+test_c5g7_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads=1)
 
-    @classmethod
-    def setUpClass(cls):
+test_list = [test_c5g7, test_c5g7_1t]
 
-        # got benchmark Keff from running test
-        cls._Keff_benchmark = 1.1853487491607666
-
-        ## run simulation
-        cls._Keff = general_c5g7_setup(['c5g7.py'])
-
-    def test_Keff(self):
-
-        self.assertEqual(self._Keff, self._Keff_benchmark)
-
-    def test_more_threads_Keff(self):
-
-        Keff = general_c5g7_setup(['c5g7.py', '--num-omp-threads', '5'])
-        self.assertEqual(Keff, self._Keff_benchmark)
+if __name__ == '__main__':
+    
+    c5g7_test_suite = regression_test_suite(test_list, output)
+    c5g7_test_suite.run_tests()
 
 
 
-test_c5g7 = unittest.TestLoader().loadTestsFromTestCase(test_c5g7)
 
-if __name__ == '__main__':    
-    unittest.TextTestRunner(verbosity=2).run(test_c5g7)
 
+##
+##class test_c5g7(unittest.TestCase):
+##
+##    @classmethod
+##    def setUpClass(cls):
+##
+##        # got benchmark Keff from running test
+##        cls._Keff_benchmark = 1.1853487491607666
+##
+##        ## run simulation
+##        cls._Keff = general_c5g7_setup(['c5g7.py'])
+##
+##    def test_Keff(self):
+##
+##        self.assertEqual(self._Keff, self._Keff_benchmark)
+##
+##    def test_more_threads_Keff(self):
+##
+##        Keff = general_c5g7_setup(['c5g7.py', '--num-omp-threads', '5'])
+##        self.assertEqual(Keff, self._Keff_benchmark)

@@ -1,4 +1,6 @@
 import time
+import multiprocessing as mp
+import platform
 
 class regression_test_case():
 
@@ -8,37 +10,50 @@ class regression_test_case():
       test_type = string; 'Keff', 'pin powers'
       benchmark = string; 'LRA', 'c5g7-cmfd'
       benchmark_value = float; known value
-      calculated_value = float;  calculcated value with default settings
-      calculated_value_1t = float; calculated value with 1 omp thread
       error_margin = float; acceptable margin for correct answers
+      filename = string; filename of the benchmark file to be acted on, i.e. 'LRA.py'
+      setup_func = variable indicating the setup function (part of the test file),
+          i.e. general_h1g_setup, general_LRA_setup, etc.
     """
 
-    def __init__(self, test_type, benchmark, benchmark_value, error_margin, filename, setup_func):
+    def __init__(self, test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads):
 
         self.test_type = test_type
         self.benchmark = benchmark
         self.benchmark_value = benchmark_value
         self.error_margin = error_margin
-        self.filename = filename
+        self.filename = filename        
         self.setup_func = setup_func
+        self.num_threads = num_threads # this should be either 'DEFAULT' or 1
 
     def set_up_test(self):
 
+        """Calculates the Keff and Keff 1 thread of the test. This is set up
+        so that the tests are set up and then run individually instead of waiting 30 min
+        for all the simulations to run in the import statements.
+        """
+
         filename = self.filename
         setup_func = self.setup_func
-    
-        self.calculated_value = setup_func([filename])
-        self.calculated_value_1t = setup_func([filename, '--num-omp-threads', '1'])
+        num_threads = self.num_threads
+
+        if num_threads == 'DEFAULT':
+            self.calculated_value = setup_func([filename])
+        elif type(num_threads) == int:
+            self.calculated_value = setup_func([filename, '--num-omp-threads', str(num_threads)])
+        else:
+            print 'ERROR: unexpected type for num_threads (expected int or str, got', type(num_threads)
+
 
 class regression_test_suite():
 
     """A suite including a list of tests to run and a desired output file.
 
     Attributes:
-      tests = list of regression_test_case objects
+      tests = list of regression_test_case objects that comprise the suite
       output = variable referring to output filename
       none_failed = boolean referring to whether or not a test has failed thus
-          far (defaults to True)
+          far (defaults to True - meaning no test has failed thus far)
 
     """
 
@@ -48,7 +63,8 @@ class regression_test_suite():
         self.output = output
 
     def add_test(self, test):
-        self.tests.append(test)
+        # handles both single tests and lists of test objects
+        self.tests.extend(test)
 
     def get_tests(self):
         return self.tests
@@ -103,51 +119,51 @@ def run_regression_test(test, output, none_failed=True):
     benchmark_value = test.benchmark_value  # float indicating the known benchmark value
     error_margin = test.error_margin        # float indicating the margin of error to accept for passing
     calculated_value = test.calculated_value # float indicating value found w/ default num threads
-    calculated_1t_value = test.calculated_value_1t # float indicating value found w/ 1 thread
+    num_threads = test.num_threads
 
     if test_type != 'Keff':
         print 'ERROR: Unrecognized test type'
 
-    ## Test 1: test_type test with default num threads
-
     ## fail
     if abs(calculated_value - benchmark_value) >= error_margin:
-        write_failed_results(output, test_type, benchmark, benchmark_value, calculated_value, none_failed)
+        write_failed_results(output, test, none_failed)
         none_failed = False
         
     ## pass
     elif abs(calculated_value - benchmark_value) < error_margin:
-        write_passed_results(test_type, benchmark)
-
-    ## Test 2: same test_type test, but with 1 thread
-
-    ## fail
-    if abs(calculated_1t_value - benchmark_value) >= error_margin:
-        write_failed_results(output, test_type+" with 1 thread", benchmark, benchmark_value, calculated_1t_value, none_failed)
-        none_failed = False
-
-    ## pass
-    elif abs(calculated_1t_value - benchmark_value) < error_margin:
-        write_passed_results(test_type+" with 1 thread", benchmark)
+        write_passed_results(test_type, benchmark,num_threads)
 
     return none_failed
 
-def write_failed_results(output, test_type, benchmark, benchmark_value, calculated_value,none_failed=True):
+def write_failed_results(output, test, none_failed=True):
+
+    test_type = test.test_type
+    benchmark = test.benchmark
+    benchmark_value = test.benchmark_value
+    error_margin = test.error_margin
+    calculated_value = test.calculated_value
+    num_threads = test.num_threads
 
     if none_failed:
-        output.write("------------------FAILURE------------------"+"\n")
+        output.write("--------------------------FAILURE--------------------------"+"\n")
         output.write("Date: "+str(time.strftime("%d/%m/%Y"))+", Time: "+str(time.strftime("%H:%M:%S"))+"\n")
+        output.write("Platform: "+platform.platform()+"\n")
+        output.write("Python version: "+platform.python_version()+"\n")
+        output.write("System: "+platform.system()+"\n")
+        output.write("Default num_threads: "+str(mp.cpu_count())+"\n")
     else:
         output.write("\n")
 
-    output.write("Test Failed: "+benchmark+" "+test_type+ "\n")
+    output.write("Test Failed: "+benchmark+" "+test_type+', number of threads: '+str(num_threads)+"\n")
     output.write("Benchmark "+test_type+" is "+str(benchmark_value)+", Keff found was "+str(calculated_value)+"\n")
 
     print "------------------FAILURE------------------"
-    print "Test Failed: "+benchmark+" "+test_type
+    print "Test Failed: "+benchmark+" "+test_type+', number of threads: '+str(num_threads)
+    ## CHANGE THIS so it doesn't print DEFAULT, but the actual num_threads (in default case)
+    
     print "Benchmark "+test_type+" is "+str(benchmark_value)+", Keff found was "+str(calculated_value)
 
-def write_passed_results(test_type, benchmark):
+def write_passed_results(test_type, benchmark, num_threads):
 
-    print benchmark + " "+test_type+' ... ok'
+    print benchmark + " "+test_type+' with '+str(num_threads)+' threads ... ok'
 

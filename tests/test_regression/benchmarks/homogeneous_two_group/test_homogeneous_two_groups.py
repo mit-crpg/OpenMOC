@@ -9,7 +9,21 @@ from openmoc.options import Options
 import unittest
 import sys
 
-def general_h2g_setup(sysargs):
+current_directory = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(current_directory[:-32])
+
+from regression_test_runner import *
+
+output = open("H1G_failed_results.txt", "a") # create output file in case of failures
+
+def setup_homogeneous_two_groups(sysargs):
+
+    ## This setup function is named by adding 'setup_' to the beginning of the benchmark name
+    ## for this test -- see bottom of file. self.benchmark for this test is
+    ## 'homogeneous_two_group', so the function is named as seen.
+
+    ## All setup functions have unique names so that when they are called by the
+    ## regression test runner, only one function has that name. 
     
     # run simulation w/ given command line arguments
     sys.argv = sysargs
@@ -82,28 +96,20 @@ def general_h2g_setup(sysargs):
     # return Keff
     return solver.getKeff()
 
-class test_h2g(unittest.TestCase):
+# assign values for use in test case instance
+test_type = 'Keff'
+benchmark = 'homogeneous_two_groups'
+benchmark_value = 1.323158836364746 # 1.723158836364746
+error_margin = 0.005
+filename = 'homogeneous-two-groups.py'
+setup_func = setup_homogeneous_two_groups
 
-    @classmethod
-    def setUpClass(cls):
+test_H2G = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads='DEFAULT')
+test_H2G_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads=1)
 
-        cls._Keff_benchmark = 1.723158836364746
-        cls._Keff = general_h2g_setup(['homogeneous-two-groups.py'])
+test_list = [test_H2G, test_H2G_1t]
 
-    def test_h2g_Keff(self):
-
-        self.assertEqual(self._Keff, self._Keff_benchmark)
-
-    def test_h2g_Keff_more_threads(self):
-
-        Keff = general_h2g_setup(['homogeneous-one-group.py', '--num-omp-threads', '5'])
-        self.assertEqual(Keff, self._Keff_benchmark)
-
-        ## this fails, although it's close.
-        ## use small threshold instead?
-
-test_h2g = unittest.TestLoader().loadTestsFromTestCase(test_h2g)
-
-if __name__ == '__main__':    
-    unittest.TextTestRunner(verbosity=2).run(test_h2g)
-
+if __name__ == '__main__':
+    # load case into suite (handles output file more completely)
+    H2G_test_suite = regression_test_suite(test_list, output)
+    H2G_test_suite.run_tests()

@@ -1,7 +1,3 @@
-## test homogeneous-one-group
-
-## reliably works + passes
-
 import numpy
 from openmoc import *
 import openmoc.log as log
@@ -10,7 +6,15 @@ import unittest
 import sys
 import os
 
-def general_h1g_setup(sysargs):
+# these lines make sure the test_regression directory is in the path so regression_test_runner can be imported
+current_directory = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(current_directory[:-32])
+
+from regression_test_runner import *
+
+output = open("H1G_failed_results.txt", "a") # create output file in case of failures
+
+def setup_homogeneous_one_group(sysargs):
     
     # run simulation w/ given command line arguments
     sys.argv = sysargs
@@ -84,28 +88,39 @@ def general_h1g_setup(sysargs):
     # return Keff
     return solver.getKeff()
 
-class test_h1g(unittest.TestCase):
+# assign values for use in test case instance
+test_type = 'Keff'
+benchmark = 'homogeneous_one_group'
+benchmark_value = 1.422603359222412 #1.432603359222412
+error_margin = 0.005
+filename = 'homogeneous-one-group.py'
+setup_func = setup_homogeneous_one_group
 
-    @classmethod
-    def setUpClass(cls):
+test_H1G = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads = 'DEFAULT')
+test_H1G_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads = 1)
 
-        cls._Keff_benchmark = 1.432603359222412
-        cls._Keff = general_h1g_setup(['/homogeneous-one-group.py'])
-        cls._test_type = 'Keff'
-        cls._benchmark = 'homogeneous_one_group'
-        cls._error_margin = 0.00005
+test_list = [test_H1G, test_H1G_1t]
 
-    def test_h1g_Keff(self):
+if __name__ == '__main__':
+    
+    H1G_test_suite = regression_test_suite(test_list, output)
+    H1G_test_suite.run_tests()
 
-        self.assertTrue(abs(self._Keff - self._Keff_benchmark) < self._error_margin)
 
-    def test_h1g_Keff_more_threads(self):
 
-        Keff = general_h1g_setup(['homogeneous-one-group.py', '--num-omp-threads', '5'])
-        self.assertTrue(abs(Keff - self._Keff_benchmark) < self._error_margin)
-
-test_h1g = unittest.TestLoader().loadTestsFromTestCase(test_h1g)
-
-if __name__ == '__main__':    
-    unittest.TextTestRunner(verbosity=2).run(test_h1g)
-
+#### assign values for use in creating the test case object
+##test_type = 'Keff'
+##benchmark = 'homogeneous_one_group'
+##benchmark_value = 1.432603359222412
+##Keff = general_h1g_setup(['homogeneous-one-group.py'])
+##Keff_1t = general_h1g_setup(['homogeneous-one-group.py', '1'])
+##error_margin = 0.0005
+##
+##test_H1G = regression_test_case(test_type, benchmark, benchmark_value, Keff, Keff_1t, error_margin)
+##
+##
+##if __name__ == '__main__':
+##    # load case into suite (handles output file more completely)
+##    H1G_test_suite = regression_test_suite([test_H1G], output)
+##    H1G_test_suite.run_tests()
+##

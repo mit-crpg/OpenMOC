@@ -1,9 +1,3 @@
-## Test LRA benchmark
-
-## This gets different values sometimes (not reliable)
-
-## import os.cwd (current working directory) -- make sure the pointer is 
-
 import os
 
 from openmoc import *
@@ -13,9 +7,16 @@ import openmoc.materialize as materialize
 from openmoc.options import Options
 import unittest
 import sys
+import time
 
+current_directory = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(current_directory[:-15])
 
-def general_LRA_setup(sysargs):
+from regression_test_runner import *
+
+output = open("LRA_failed_results2.txt", "a") # create output file in case of failures
+
+def setup_LRA(sysargs):
 
     current_directory = os.path.dirname(os.path.realpath(__file__))
     ## print current_directory
@@ -221,26 +222,21 @@ def general_LRA_setup(sysargs):
     Keff = solver.getKeff()
     return Keff
 
-class test_LRA(unittest.TestCase):
+# assign values for use in test case instance
+test_type = 'Keff'
+benchmark = 'LRA'
+benchmark_value = 0.0962826806701051 # 0.9962826806701051
+error_margin = 0.005
+filename = 'LRA.py'
+setup_func = setup_LRA
 
-    @classmethod
-    def setUpClass(cls):
+test_LRA = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads='DEFAULT')
+test_LRA_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads=1)
 
-        cls._Keff_benchmark = 0.9962826806701051
-        
-        cls._Keff = general_LRA_setup(['LRA.py'])
+test_list = [test_LRA, test_LRA_1t]
 
-    def test_Keff(self):
-
-        self.assertAlmostEqual(self._Keff, self._Keff_benchmark,3)
-
-    def test_more_threads_Keff(self):
-
-        Keff = general_LRA_setup(['LRA.py', '--num-omp-threads', '6'])
-        self.assertAlmostEqual(Keff, self._Keff_benchmark,3)
-
-test_LRA = unittest.TestLoader().loadTestsFromTestCase(test_LRA)
-
-if __name__ == '__main__':    
-    unittest.TextTestRunner(verbosity=2).run(test_LRA)
+if __name__ == '__main__':
+    
+    LRA_test_suite = regression_test_suite(test_list, output)
+    LRA_test_suite.run_tests()
 
