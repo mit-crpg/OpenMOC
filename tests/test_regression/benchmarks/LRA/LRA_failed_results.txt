@@ -1,0 +1,26 @@
+------------------FAILURE------------------
+Date: 15/01/2015, Time: 23:12:14
+Test Failed: LRA Keff
+Benchmark Keff is 0.92628268067, Keff found was 0.993759334087
+
+Test Failed: LRA Keff with 1 thread
+Benchmark Keff with 1 thread is 0.92628268067, Keff found was 0.993759334087
+
+------------------FAILURE------------------
+Date: 16/01/2015, Time: 15:59:47
+Test Failed: LRA Keff
+Benchmark Keff is 0.92628268067, Keff found was 0.993759334087
+
+Test Failed: LRA Keff with 1 thread
+Benchmark Keff with 1 thread is 0.92628268067, Keff found was 0.993759334087
+------------------TESTS COMPLETE------------------
+
+------------------FAILURE------------------
+Date: 16/01/2015, Time: 15:59:49
+Test Failed: LRA Keff
+Benchmark Keff is 0.92628268067, Keff found was 0.993759334087
+
+Test Failed: LRA Keff with 1 thread
+Benchmark Keff with 1 thread is 0.92628268067, Keff found was 0.993759334087
+------------------TESTS COMPLETE------------------
+

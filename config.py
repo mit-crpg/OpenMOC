@@ -72,6 +72,9 @@ class configuration:
   # Compile code with debug symbols (ie, -g)
   debug_mode = False
 
+  # Compile code with debug symbols (ie, -g, -pg)
+  profile_mode = False
+
   # Build the openmoc.cuda and/or openmoc.cuda/single and/or openmoc.cuda.double
   # modules (depending on what precision levels are set for fp_precision)
   with_cuda = False
@@ -244,7 +247,7 @@ class configuration:
   library_directories['gcc'] = [usr_lib]
   library_directories['icpc'] = [usr_lib]
   library_directories['bgxlc'] = [usr_lib]
-  library_directories['nvcc'] = [usr_lib, '/usr/local/cuda/lib64']
+  library_directories['nvcc'] = [usr_lib, '/usr/local/cuda-5.5/lib64']
 
 
   #############################################################################
@@ -258,7 +261,7 @@ class configuration:
   include_directories['gcc'] = list()
   include_directories['icpc'] = list()
   include_directories['bgxlc'] = list()
-  include_directories['nvcc'] = ['/usr/local/cuda/include']
+  include_directories['nvcc'] = ['/usr/local/cuda-5.5/include']
 
 
   ###########################################################################
@@ -266,7 +269,11 @@ class configuration:
   ###########################################################################
 
   # A list of the flags for SWIG
-  swig_flags = ['-c++', '-python', '-keyword'] #, '-keyword', '-py3']
+  swig_flags = ['-c++', '-python', '-keyword']
+
+  # Python 3 only
+  if sys.version_info[0] == 3:
+    swig_flags.append('-py3')
 
 
   #############################################################################
@@ -353,6 +360,13 @@ class configuration:
     # flag to all lists of compiler flags for all distribution types
     if self.debug_mode:
       for k in self.compiler_flags:
+        self.compiler_flags[k].append('-g')
+
+    # If the user wishes to compile using profile mode, append the profiling
+    # flag to all lists of compiler flags for all distribution types
+    if self.profile_mode:
+      for k in self.compiler_flags:
+        self.compiler_flags[k].append('-pg')
         self.compiler_flags[k].append('-g')
 
     # If the user passed in the --no-numpy flag, tell SWIG not to embed

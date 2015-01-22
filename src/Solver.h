@@ -25,16 +25,9 @@
 #define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() \
                                                   + _cmfd->getCmfdGroup((e))])
 
-/** Indexing macro for the total source in each FSR and energy group */
-#define _source(r,e) (_source[(r)*_num_groups + (e)])
-
-/** Indexing macro for the total source from the previous source iteration
- *  in each FSR and energy group */
-#define _old_source(r,e) (_old_source[(r)*_num_groups + (e)])
-
 /** Indexing macro for the total source divided by the total cross-section
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
-#define _reduced_source(r,e) (_reduced_source[(r)*_num_groups + (e)])
+#define _reduced_sources(r,e) (_reduced_sources[(r)*_num_groups + (e)])
 
 /** Indexing macro for the polar quadrature weights multiplied by the
  *  azimuthal angle quadrature weights */
@@ -84,6 +77,9 @@ protected:
 
   /** The number of flat source regions */
   int _num_FSRs;
+
+  /** The number of fissionable flat source regions */
+  int _num_fissionable_FSRs;
 
   /** The number of mesh cells */
   int _num_mesh_cells;
@@ -155,14 +151,11 @@ protected:
   /** The in-scatter source in each FSR and energy group */
   FP_PRECISION* _scatter_sources;
 
-  /** The source in each FSR and energy group */
-  FP_PRECISION* _source;
-
-  /** The source in each FSR and energy group from the previous iteration */
-  FP_PRECISION* _old_source;
+  /** The old fission source in each FSR from the previous iteration */
+  FP_PRECISION* _old_fission_sources;
 
   /** Ratios of source to total cross-section for each FSR and energy group */
-  FP_PRECISION* _reduced_source;
+  FP_PRECISION* _reduced_sources;
 
   /** An array of the residuals between the old source and the new source
    *  on each iteration in each FSR and energy group */

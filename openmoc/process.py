@@ -43,30 +43,28 @@ else:
   from openmoc.log import *
 
 
-## 
+##
 # @brief This routine checks if a given value is an integer data type.
 #
 # @param val a value to check
 def is_integer(val):
-  return isinstance(val, (int, long, np.int_, np.intc, np.intp, np.int8,\
-                            np.int16, np.int32, np.int64, np.uint8, np.uint16,\
-                            np.uint32, np.uint64))
+  return isinstance(val, (int, np.int32, np.int64))
 
 
-## 
+##
 # @brief This routine checks if a given value is a string data type.
 #
 # @param val a value to check
 def is_string(val):
-  return isinstance(val, (str, np.str, np.string_))
+  return isinstance(val, (str, np.str))
 
 
-## 
+##
 # @brief This routine checks if a given value is an float data type.
 #
 # @param val a value to check
 def is_float(val):
-  return isinstance(val, (float, np.float_, np.float16, np.float32, np.float64))
+  return isinstance(val, (float, np.float32, np.float64))
 
 
 ##
@@ -76,9 +74,9 @@ def is_float(val):
 #        or python pickle file.
 # @details This routine is intended to be called by the user in Python to
 #          compute fission rates. Typically, the fission rates will represent
-#          pin powers. The routine either exports fission rates to an HDF5 
+#          pin powers. The routine either exports fission rates to an HDF5
 #          binary file or pickle file with each fission rate being indexed by
-#          a string representing the universe/lattice hierarchy. 
+#          a string representing the universe/lattice hierarchy.
 #          This routine may be called from a Python script as follows:
 #
 # @code
@@ -108,29 +106,29 @@ def compute_fission_rates(solver, use_hdf5=False):
 
   # Loop over FSRs and populate fission rates dictionary
   for fsr in range(geometry.getNumFSRs()):
-    
+
     if geometry.findFSRMaterial(fsr).isFissionable():
 
       # Get the linked list of LocalCoords
       point = geometry.getFSRPoint(fsr)
       coords = LocalCoords(point.getX(), point.getY())
-      coords.setUniverse(0)
+      coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(coords)
       coords = coords.getHighestLevel().getNext()
 
       # initialize dictionary key
       key = 'UNIV = 0 : '
-      
+
       # Parse through the linked list and create fsr key.
       # If lowest level sub dictionary already exists, then increment 
       # fission rate; otherwise, set the fission rate.
       while True:
         if coords.getType() is LAT:
-          key += 'LAT = ' + str(coords.getLattice()) + ' (' + \
+          key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
                  str(coords.getLatticeX()) + ', ' + \
                  str(coords.getLatticeY()) + ') : '
         else:
-          key += 'UNIV = ' + str(coords.getUniverse()) + ' : '
+          key += 'UNIV = ' + str(coords.getUniverse().getId()) + ' : '
 
         # Remove the trailing ' : ' on the end of the key if at last univ/lat
         if coords.getNext() is None:
@@ -167,7 +165,6 @@ def compute_fission_rates(solver, use_hdf5=False):
 
     # Pickle the fission rates to a file
     pickle.dump(fission_rates_sum, open(directory + filename + '.pkl', 'wb'))
-    
 
 ##
 # @brief This method stores all of the data for an OpenMOC simulation to a
@@ -191,8 +188,8 @@ def compute_fission_rates(solver, use_hdf5=False):
 #          This method may be called from Python as follows:
 #
 # @code
-#          store_simulation_state(solver, fluxes=True, sources=True, \
-#                                 pin_powers=True, use_hdf5=True)
+#          store_simulation_state(solver, fluxes=True, source=True, \
+#                                 fission_rates=True, use_hdf5=True)
 # @endcode
 #
 # @param solver a pointer to a Solver object
@@ -201,16 +198,16 @@ def compute_fission_rates(solver, use_hdf5=False):
 # @param fission_rates whether to store fission rates (false by default)
 # @param use_hdf5 whether to export to HDF5 (default) or Python pickle file
 # @param filename the filename to use (default is 'simulation-state.h5')
+# @param directory the directory to use (default is 'simulation-states')
 # @param append append to existing file or create new one (false by default)
 # @param note an additional string note to include in state file
 def store_simulation_state(solver, fluxes=False, sources=False,
                            fission_rates=False, use_hdf5=False,
-                           filename='simulation-state',
+                           filename='simulation-state', 
+                           directory = 'simulation-states',
                            append=True, note=''):
 
   import datetime
-
-  directory = 'simulation-states'
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -316,9 +313,19 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     else:
       f = h5py.File(directory + '/' + filename + '.h5', 'w')
 
-    # Create groups for the day and time in the HDF5 file
-    day_group = f.require_group(str(month)+'-'+str(day)+'-'+str(year))
-    time_group = day_group.create_group(str(hr)+':'+str(mins)+':'+str(sec))
+    # Create groups for the day in the HDF5 file
+    day_key = '{0:02}-{1:02}-{2:02}'.format(month, day, year)
+    day_group = f.require_group(day_key)
+
+    # Create group for the time - use counter in case two simulations
+    # write simulation state at the exact same hour,minute, and second
+    time_key = '{0:02}:{1:02}:{2:02}'.format(hr, mins, sec)
+    counter = 0
+    while time_key in day_group.keys():
+      time_key = '{0:02}:{1:02}:{2:02}-{3}'.format(hr, mins, sec, counter)
+      counter += 1
+
+    time_group = day_group.require_group(time_key)
 
     # Store a note for this simulation state
     if not note is '':
@@ -383,8 +390,8 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       sim_states = {}
 
     # Create strings for the day and time
-    day = str(month)+'-'+str(day)+'-'+str(year)
-    time = str(hr)+':'+str(mins)+':'+str(sec)
+    day = str(month).zfill(2)+'-'+str(day).zfill(2)+'-'+str(year)
+    time = str(hr).zfill(2)+':'+str(mins).zfill(2)+':'+str(sec).zfill(2)
 
     # Create dictionaries for this day and time within the pickled file
     if not day in sim_states.keys():

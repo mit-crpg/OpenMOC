@@ -34,12 +34,6 @@
  * @class CPUSolver CPUSolver.h "src/CPUSolver.h"
  * @brief This a subclass of the Solver class for multi-core CPUs using
  *        OpenMP multi-threading.
- * @details This Solver subclass uses OpenMP's multi-threading directives,
- *          including the mutual exclusion locks. Although the algorithm is
- *          more memory efficient than its ThreadPrivateSolver subclass, its
- *          parallel performance scales very poorly. As a result, this class
- *          is not recommended for general use and is primarily intended to
- *          expose the limitations of OpenMP's mutual exclusion formulation.
  */
 class CPUSolver : public Solver {
 

@@ -45,6 +45,7 @@ Cmfd::Cmfd() {
   _group_indices_map = NULL;
 
   /* Initialize boundaries to be reflective */
+	//  _boundaries = new int[4];
   _boundaries = new boundaryType[4];
   _boundaries[0] = REFLECTIVE;
   _boundaries[1] = REFLECTIVE;
@@ -445,7 +446,7 @@ void Cmfd::computeDs(int moc_iteration){
             /* If the magnitude of d_tilde is greater than the magnitude of
              * d_hat, select new values d_tilde and d_hat to ensure the course
              * mesh equations are guaranteed to be diagonally dominant */
-            if (fabs(d_tilde) > fabs(d_hat)){
+            if (fabs(d_tilde) > fabs(d_hat) && moc_iteration != 0){
 
               if (sense == -1){
 
@@ -481,11 +482,11 @@ void Cmfd::computeDs(int moc_iteration){
           /* Perform underrelaxation on d_tilde. If first MOC iteration, solve 
            * the diffusion problem without correcting currents */
           if (moc_iteration == 0)
+            d_tilde = 0.0;
+          else
             d_tilde =
                 _materials[cell]->getDifTilde()[surface*_num_cmfd_groups + e] *
                 (1 - _relax_factor) + _relax_factor * d_tilde;
-          else
-              d_tilde = 0.0;
 
           /* Set d_hat and d_tilde */
           _materials[cell]->setDifHatByGroup(d_hat, e+1, surface);
@@ -1027,7 +1028,7 @@ void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux){
  * @param over-relaxation factor
  */
 void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor){
-    
+
   if (SOR_factor <= 0.0 || SOR_factor >= 2.0)
     log_printf(ERROR, "The successive over-relaxation relaxation factor "
         "must be > 0 and < 2. Input value: %i", SOR_factor);
@@ -1612,14 +1613,14 @@ void Cmfd::setBoundary(int side, boundaryType boundary){
  * @param the CMFD mesh surface ID.
  * @return the boundaryType for the surface.
  */
-boundaryType Cmfd::getBoundary(int side){
+int Cmfd::getBoundary(int side){
   return _boundaries[side];
 }
 
 
 /**
  * @brief Return the CMFD cell ID that an FSR lies in.
- * @detail Note that a CMFD cell is not an actual Cell object; rather, a CMFD
+ * @details Note that a CMFD cell is not an actual Cell object; rather, a CMFD
  *         cell is just a way of describing each of the rectangular regions
  *         that make up a CMFD lattice. CMFD cells are numbered with 0 in the
  *         lower left corner and monotonically increasing from left to right.

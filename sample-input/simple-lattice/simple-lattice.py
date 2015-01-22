@@ -28,9 +28,6 @@ log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
 materials = materialize.materialize('../c5g7-materials.h5')
 
-uo2_id = materials['UO2'].getId()
-water_id = materials['Water'].getId()
-
 
 ###############################################################################
 ###########################   Creating Surfaces   #############################
@@ -38,16 +35,17 @@ water_id = materials['Water'].getId()
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circles = []
-planes = []
-planes.append(XPlane(x=-2.0))
-planes.append(XPlane(x=2.0))
-planes.append(YPlane(y=-2.0))
-planes.append(YPlane(y=2.0))
-circles.append(Circle(x=0.0, y=0.0, radius=0.4))
-circles.append(Circle(x=0.0, y=0.0, radius=0.3))
-circles.append(Circle(x=0.0, y=0.0, radius=0.2))
-for plane in planes: plane.setBoundaryType(REFLECTIVE)
+left = XPlane(x=-2.0, name='left')
+right = XPlane(x=2.0, name='right')
+top = YPlane(y=-2.0, name='top')
+bottom = YPlane(y=2.0, name='bottom')
+boundaries = [left, right, top, bottom]
+
+large_circle = Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
+medium_circle = Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
+small_circle = Circle(x=0.0, y=0.0, radius=0.2, name='small pin')
+
+for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
@@ -56,26 +54,55 @@ for plane in planes: plane.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cells = []
-cells.append(CellBasic(universe=1, material=uo2_id))
-cells.append(CellBasic(universe=1, material=water_id))
-cells.append(CellBasic(universe=2, material=uo2_id))
-cells.append(CellBasic(universe=2, material=water_id))
-cells.append(CellBasic(universe=3, material=uo2_id, sectors=8))
-cells.append(CellBasic(universe=3, material=water_id))
-cells.append(CellFill(universe=0, universe_fill=5))
+large_fuel = CellBasic(name='large pin fuel', rings=3, sectors=8)
+large_fuel.setMaterial(materials['UO2'])
+large_fuel.addSurface(halfspace=-1, surface=large_circle)
 
-cells[0].addSurface(halfspace=-1, surface=circles[0])
-cells[1].addSurface(halfspace=+1, surface=circles[0])
-cells[2].addSurface(halfspace=-1, surface=circles[1])
-cells[3].addSurface(halfspace=+1, surface=circles[1])
-cells[4].addSurface(halfspace=-1, surface=circles[2])
-cells[5].addSurface(halfspace=+1, surface=circles[2])
+large_moderator = CellBasic(name='large pin moderator', sectors=8)
+large_moderator.setMaterial(materials['Water'])
+large_moderator.addSurface(halfspace=+1, surface=large_circle)
 
-cells[6].addSurface(halfspace=+1, surface=planes[0])
-cells[6].addSurface(halfspace=-1, surface=planes[1])
-cells[6].addSurface(halfspace=+1, surface=planes[2])
-cells[6].addSurface(halfspace=-1, surface=planes[3])
+medium_fuel = CellBasic(name='medium pin fuel', rings=3, sectors=8)
+medium_fuel.setMaterial(materials['UO2'])
+medium_fuel.addSurface(halfspace=-1, surface=medium_circle)
+
+medium_moderator = CellBasic(name='medium pin moderator', sectors=8)
+medium_moderator.setMaterial(materials['Water'])
+medium_moderator.addSurface(halfspace=+1, surface=medium_circle)
+
+small_fuel = CellBasic(name='small pin fuel', rings=3, sectors=8)
+small_fuel.setMaterial(materials['UO2'])
+small_fuel.addSurface(halfspace=-1, surface=small_circle)
+
+small_moderator = CellBasic(name='small pin moderator', sectors=8)
+small_moderator.setMaterial(materials['Water'])
+small_moderator.addSurface(halfspace=+1, surface=small_circle)
+
+root_cell = CellFill(name='root cell')
+root_cell.addSurface(halfspace=+1, surface=boundaries[0])
+root_cell.addSurface(halfspace=-1, surface=boundaries[1])
+root_cell.addSurface(halfspace=+1, surface=boundaries[2])
+root_cell.addSurface(halfspace=-1, surface=boundaries[3])
+
+
+###############################################################################
+#                            Creating Universes
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating universes...')
+
+pin1 = Universe(name='large pin cell')
+pin2 = Universe(name='medium pin cell')
+pin3 = Universe(name='small pin cell')
+root_universe = Universe(name='root universe')
+
+pin1.addCell(large_fuel)
+pin1.addCell(large_moderator)
+pin2.addCell(medium_fuel)
+pin2.addCell(medium_moderator)
+pin3.addCell(small_fuel)
+pin3.addCell(small_moderator)
+root_universe.addCell(root_cell)
 
 
 ###############################################################################
@@ -84,11 +111,14 @@ cells[6].addSurface(halfspace=-1, surface=planes[3])
 
 log.py_printf('NORMAL', 'Creating simple 4 x 4 lattice...')
 
-lattice = Lattice(id=5, width_x=1.0, width_y=1.0)
-lattice.setLatticeCells([[1, 2, 1, 2],
-                         [2, 3, 2, 3],
-                         [1, 2, 1, 2],
-                         [2, 3, 2, 3]])
+lattice = Lattice(name='4x4 lattice')
+lattice.setWidth(width_x=1.0, width_y=1.0)
+lattice.setUniverses([[pin1, pin2, pin1, pin2],
+                      [pin2, pin3, pin2, pin3],
+                      [pin1, pin2, pin1, pin2],
+                      [pin2, pin3, pin2, pin3]])
+root_cell.setFill(lattice)
+
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -97,10 +127,7 @@ lattice.setLatticeCells([[1, 2, 1, 2],
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-for material in materials.values(): geometry.addMaterial(material)
-for cell in cells: geometry.addCell(cell)
-geometry.addLattice(lattice)
-
+geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
 ###############################################################################
@@ -110,6 +137,7 @@ geometry.initializeFlatSourceRegions()
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
 ###############################################################################
@@ -137,4 +165,3 @@ log.py_printf('NORMAL', 'Plotting data...')
 #plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')
-

@@ -18,14 +18,34 @@ int material_id() {
   return id;
 }
 
+
+/**
+ * @brief Resets the auto-generated unique Material ID counter to 10000.
+ */
+void reset_material_id() {
+  auto_id = 10000;
+}
+
+
 /**
  * @brief Constructor sets the ID and unique ID for the Material.
- * @param id the user-defined ID for the material
+ * @param id the user-specified optional Material ID
+ * @param name the user-specified optional Material name
  */
-Material::Material(int id) {
+Material::Material(int id, const char* name) {
 
-  _id = id;
+  /* If the user did not define an optional ID, create one */
+  if (id == 0)
+    _id = material_id();
+
+  /* Use the user-defined ID */
+  else
+    _id = id;
+
   _uid = -1;
+
+  _name = NULL;
+  setName(name);
 
   _sigma_t = NULL;
   _sigma_a = NULL;
@@ -50,6 +70,9 @@ Material::Material(int id) {
  * @brief Destructor deletes all cross-section data structures from memory.
  */
 Material::~Material() {
+
+  if (_name != NULL)
+    delete [] _name;
 
   /* If data is vector aligned */
   if (_data_aligned) {
@@ -124,7 +147,7 @@ Material::~Material() {
 
 /**
  * @brief Set the Material's unique ID.
- * @param the Material's unique ID
+ * @param uid the Material's unique ID
  */
 void Material::setUid(int uid) {
   _uid = uid;
@@ -145,6 +168,15 @@ int Material::getUid() const {
  */
 int Material::getId() const {
   return _id;
+}
+
+
+/**
+ * @brief Return the user-defined name of the Material
+ * @return the Material name
+ */
+char* Material::getName() const {
+  return _name;
 }
 
 
@@ -530,6 +562,25 @@ int Material::getNumVectorGroups() {
 
 
 /**
+ * @brief Sets the name of the Material
+ * @param name the Material name string
+ */
+void Material::setName(const char* name) {
+  int length = strlen(name);
+
+  if (_name != NULL)
+    delete [] _name;
+
+  /* Initialize a character array for the Material's name */
+  _name = new char[length+1];
+
+  /* Copy the input character array Material name to the class attribute name */
+  for (int i=0; i <= length; i++)
+    _name[i] = name[i];
+}
+
+
+/**
  * @brief Set the number of energy groups for this Material.
  * @param num_groups the number of energy groups.
  */
@@ -907,7 +958,7 @@ void Material::setNuSigmaFByGroup(double xs, int group) {
                "%d which contains %d energy groups", group, _id, _num_groups);
 
   _nu_sigma_f[group-1] = xs;
-  
+
   /* Determine whether or not this Material is fissionable */
   _fissionable = false;
 

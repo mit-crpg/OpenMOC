@@ -60,6 +60,9 @@ private:
   /** An integer array of the number of Tracks starting on the y-axis for each
    *  azimuthal angle */
   int* _num_y;
+  
+  /** The maximum optical length a track is allowed to have */
+  FP_PRECISION _max_optical_length;
 
   /** An array of the azimuthal angle quadrature weights */
   FP_PRECISION* _azim_weights;
@@ -104,12 +107,16 @@ public:
   int* getNumSegmentsArray();
   Track** getTracks();
   FP_PRECISION* getAzimWeights();
+  FP_PRECISION getMaxOpticalLength();
+  int getTotNumSegments();
+  int getTotNumTracks();
   int getNumThreads();
 
   /* Set parameters */
   void setNumAzim(int num_azim);
   void setTrackSpacing(double spacing);
   void setGeometry(Geometry* geometry);
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void setNumThreads(int num_threads);
 
   /* Worker functions */

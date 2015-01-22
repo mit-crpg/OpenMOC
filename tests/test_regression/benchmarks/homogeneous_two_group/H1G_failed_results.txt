@@ -1,0 +1,13 @@
+------------------FAILURE------------------
+Date: 21/01/2015, Time: 14:06:11
+Test Failed: homogeneous_two_groups Keff, number of threads: DEFAULT
+Benchmark Keff is 1.32315883636, Keff found was 1.72315883636
+------------------FAILURE------------------
+Date: 21/01/2015, Time: 14:11:36
+Test Failed: homogeneous_two_groups Keff, number of threads: DEFAULT
+Benchmark Keff is 1.32315883636, Keff found was 1.72315883636
+
+Test Failed: homogeneous_two_groups Keff, number of threads: 1
+Benchmark Keff is 1.32315883636, Keff found was 1.72315883636
+------------------TESTS COMPLETE------------------
+

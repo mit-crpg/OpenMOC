@@ -10,16 +10,20 @@
 #define CELL_H_
 
 #ifdef __cplusplus
+#include <limits>
+#include <map>
+#include <vector>
+#include "Material.h"
 #include "Surface.h"
 #include "Point.h"
-#include "LocalCoords.h"
 #endif
 
+/* Forward declarations to resolve circular dependencies */
 class Universe;
 class Surface;
-class LocalCoords;
 
 int cell_id();
+void reset_cell_id();
 
 
 /**
@@ -73,6 +77,9 @@ protected:
   /** A user-defined ID for each Cell created */
   int _id;
 
+  /** A user-defined name for the Surface */
+  char* _name;
+
   /** The type of Cell (ie MATERIAL or FILL) */
   cellType _cell_type;
 
@@ -82,19 +89,83 @@ protected:
   /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
   std::map<int, surface_halfspace> _surfaces;
 
+  /** The minimum reachable x-coordinate within the Cell */
+  double _min_x;
+
+  /** The maximum reachable x-coordinate within the Cell */
+  double _max_x;
+
+  /** The minimum reachable y-coordinate within the Cell */
+  double _min_y;
+
+  /** The maximum reachable y-coordinate within the Cell */
+  double _max_y;
+
+  /** The minimum reachable z-coordinate within the Cell */
+  double _min_z;
+
+  /** The maximum reachable z-coordinate within the Cell */
+  double _max_z;
+
+  /** The boundary condition at the minimum reachable x-coordinate */
+  boundaryType _min_x_bc;
+
+  /** The boundary condition at the maximum reachable x-coordinate */
+  boundaryType _max_x_bc;
+
+  /** The boundary condition at the minimum reachable y-coordinate */
+  boundaryType _min_y_bc;
+
+  /** The boundary condition at the maximum reachable y-coordinate */
+  boundaryType _max_y_bc;
+
+  /** The boundary condition at the minimum reachable z-coordinate */
+  boundaryType _min_z_bc;
+
+  /** The boundary condition at the maximum reachable z-coordinate */
+  boundaryType _max_z_bc;
+
 public:
   Cell();
-  Cell(int universe, int id=0);
+  Cell(int id=0, const char* name="");
   virtual ~Cell();
   int getUid() const;
   int getId() const;
+  char* getName() const;
   cellType getType() const;
-  int getUniverseId() const;
+  double getMinX();
+  double getMaxX();
+  double getMinY();
+  double getMaxY();
+  double getMinZ();
+  double getMaxZ();
+  boundaryType getMinXBoundaryType();
+  boundaryType getMaxXBoundaryType();
+  boundaryType getMinYBoundaryType();
+  boundaryType getMaxYBoundaryType();
+  boundaryType getMinZBoundaryType();
+  boundaryType getMaxZBoundaryType();
   int getNumSurfaces() const;
   std::map<int, surface_halfspace> getSurfaces() const;
 
-  void setUniverse(int universe);
+  /**
+   * @brief Returns the std::map of Cell IDs and Cell pointers within any
+   *        nested Universes filling this Cell.
+   * @return std::map of Cell IDs and pointers
+   */
+  virtual std::map<int, Cell*> getAllCells() =0;
+
+  /**
+   * @brief Returns the std::map of Universe IDs and Universe pointers within
+   *        any nested Universes filling this Universe.
+   * @return std::map of Universe IDs and pointers
+   */
+  virtual std::map<int, Universe*> getAllUniverses() =0;
+
+  void setName(const char* name);
   void addSurface(int halfspace, Surface* surface);
+  void removeSurface(Surface* surface);
+  void findBoundingBox();
 
   bool cellContainsPoint(Point* point);
   bool cellContainsCoords(LocalCoords* coords);
@@ -122,7 +193,7 @@ class CellBasic: public Cell {
 private:
 
   /** A pointer to the Material filling this Cell */
-  int _material;
+  Material* _material;
 
   /** The number of rings sub-dividing this Cell */
   int _num_rings;
@@ -143,15 +214,18 @@ private:
   void sectorize();
 
 public:
-  CellBasic(int universe, int material, int rings=0, int sectors=0, int id=0);
+  CellBasic(int id=0, const char* name="", int rings=0, int sectors=0);
 
-  int getMaterial() const;
+  Material* getMaterial();
   int getNumRings();
   int getNumSectors();
+  std::map<int, Cell*> getAllCells();
+  std::map<int, Universe*> getAllUniverses();
 
-  void setMaterial(int material_id);
+  void setMaterial(Material* material);
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);
+
   CellBasic* clone();
   std::vector<CellBasic*> subdivideCell();
 
@@ -168,19 +242,17 @@ class CellFill: public Cell {
 
 private:
 
-  /** The ID of the Universe filling this Cell */
-  int _universe_fill_id;
-
   /** The pointer to the Universe filling this Cell */
-  Universe* _universe_fill;
+  Universe* _fill;
 
 public:
-  CellFill(int universe, int universe_fill, int id=0);
+  CellFill(int id=0, const char* name="");
 
-  int getUniverseFillId() const;
-  Universe* getUniverseFill() const;
+  Universe* getFill() const;
+  std::map<int, Cell*> getAllCells();
+  std::map<int, Universe*> getAllUniverses();
 
-  void setUniverseFillPointer(Universe* universe_fill);
+  void setFill(Universe* universe_fill);
 
   std::string toString();
   void printString();

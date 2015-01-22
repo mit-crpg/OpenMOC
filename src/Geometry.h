@@ -13,15 +13,16 @@
 #include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "LocalCoords.h"
-#include "Track.h"
-#include "Surface.h"
-#include "Cmfd.h"
 #include <sstream>
 #include <string>
 #include <omp.h>
 #include <functional>
+#include "Cmfd.h"
+#ifndef CUDA
+  #include <unordered_map>
 #endif
+#endif
+
 
 /**
  * @struct fsr_data
@@ -40,6 +41,9 @@ struct fsr_data {
 
 };
 
+void reset_auto_ids();
+
+
 /**
  * @class Geometry Geometry.h "src/Geometry.h"
  * @brief The master class containing references to all geometry-related
@@ -54,18 +58,6 @@ class Geometry {
 private:
 
   omp_lock_t* _num_FSRs_lock;
-
-  /** The minimum point along the x-axis contained by Geometry in cm */
-  double _x_min;
-
-  /** The minimum point along the y-axis contained by Geometry in cm */
-  double _y_min;
-
-  /** The maximum point along the x-axis contained by Geometry in cm */
-  double _x_max;
-
-  /** The maximum point along the y-axis contained by Geometry in cm */
-  double _y_max;
 
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
@@ -86,11 +78,10 @@ private:
   /** The total number of FSRs in the Geometry */
   int _num_FSRs;
 
-  /** The number of energy groups for each Material's nuclear data */
-  int _num_groups;
-
   /** An map of FSR key hashes to unique fsr_data structs */
-  std::map<std::size_t, fsr_data> _FSR_keys_map;
+#ifndef CUDA
+  std::unordered_map<std::size_t, fsr_data> _FSR_keys_map;
+#endif
 
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::size_t> _FSRs_to_keys;
@@ -104,28 +95,17 @@ private:
   /** The minimum Track segment length in the Geometry */
   double _min_seg_length;
 
-  /** A std::map of Material IDs (keys) to Material object pointers (values) */
-  std::map<int, Material*> _materials;
-
-  /** A std::map of Surface IDs (keys) to Surface object pointers (values) */
-  std::map<int, Surface*> _surfaces;
-
-  /** A std::map of Cell IDs (keys) to Cell object pointers (values) */
-  std::map<int, Cell*> _cells;
-
-  /** A std::map of Universe IDs (keys) to Universe object pointers (values) */
-  std::map<int, Universe*> _universes;
-
-  /** A std::map of Lattice IDs (keys) to Lattice object pointers (values) */
-  std::map<int, Lattice*> _lattices;
+  /* The Universe at the root node in the CSG tree */
+  Universe* _root_universe;
 
   /** A CMFD object pointer */
   Cmfd* _cmfd;
 
-  void initializeCellFillPointers();  
+  /* A map of all Material in the Geometry for optimization purposes */
+  std::map<int, Material*> _all_materials;
+
   CellBasic* findFirstCell(LocalCoords* coords, double angle);
   CellBasic* findNextCell(LocalCoords* coords, double angle);
-
 
 public:
 
@@ -135,55 +115,48 @@ public:
   /* Get parameters */
   double getWidth();
   double getHeight();
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
-  boundaryType getBCTop();
-  boundaryType getBCBottom();
-  boundaryType getBCLeft();
-  boundaryType getBCRight();
+  double getMinX();
+  double getMaxX();
+  double getMinY();
+  double getMaxY();
+  double getMinZ();
+  double getMaxZ();
+  boundaryType getMinXBoundaryType();
+  boundaryType getMaxXBoundaryType();
+  boundaryType getMinYBoundaryType();
+  boundaryType getMaxYBoundaryType();
+  boundaryType getMinZBoundaryType();
+  boundaryType getMaxZBoundaryType();
+  Universe* getRootUniverse();
   int getNumFSRs();
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
+  std::map<int, Material*> getAllMaterials();
+  std::map<int, Cell*> getAllMaterialCells();
+  void setRootUniverse(Universe* root_universe);
+
   double getMaxSegmentLength();
   double getMinSegmentLength();
-  std::map<int, Material*> getMaterials();
-  Material* getMaterial(int id);
-  Surface* getSurface(int id);
-  Cell* getCell(int id);
-  CellBasic* getCellBasic(int id);
-  CellFill* getCellFill(int id);
-  Universe* getUniverse(int id);
-  Lattice* getLattice(int id);
   Cmfd* getCmfd();
-  std::map<std::size_t, fsr_data> getFSRKeysMap();
   std::vector<std::size_t> getFSRsToKeys();
   std::vector<int> getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
+#ifndef CUDA
+  std::unordered_map<std::size_t, fsr_data> getFSRKeysMap();
+#endif
 
   /* Set parameters */
-  void setFSRKeysMap(std::map<std::size_t, fsr_data> FSR_keys_map);
   void setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
   void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
   void setNumFSRs(int num_fsrs);
   void setCmfd(Cmfd* cmfd);
-  
-  /* Add object methods */
-  void addMaterial(Material* material);
-  void addSurface(Surface* surface);
-  void addCell(Cell *cell);
-  void addUniverse(Universe* universe);
-  void addLattice(Lattice* lattice);
 
-  /* Remove object methods */
-  void removeMaterial(int id);
-  void removeCell(int id);
-  void removeUniverse(int id);
-  void removeLattice(int id);
+#ifndef CUDA
+  void setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> FSR_keys_map);
+#endif
 
   /* Find methods */
   CellBasic* findCellContainingCoords(LocalCoords* coords);
@@ -193,12 +166,13 @@ public:
   /* Other worker methods */
   void subdivideCells();
   void initializeFlatSourceRegions();
-  void segmentize(Track* track);
+  void segmentize(Track* track, FP_PRECISION max_optical_length);
   void computeFissionability(Universe* univ=NULL);
+
   std::string toString();
   void printString();
   void initializeCmfd();
-
+  bool withinBounds(LocalCoords* coords);
 };
 
 #endif /* GEOMETRY_H_ */

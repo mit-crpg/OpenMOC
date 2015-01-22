@@ -11,8 +11,8 @@
 
 #ifdef __cplusplus
 #include <limits>
-#include "Cell.h"
 #include "LocalCoords.h"
+#include "boundary_type.h"
 #endif
 
 /** Error threshold for determining how close a point needs to be to a surface
@@ -20,12 +20,12 @@
 #define ON_SURFACE_THRESH 1E-12
 
 
-/* Define for compiler */
+/* Forward declarations to resolve circular dependencies */
 class LocalCoords;
-class Cell;
 
 
 int surf_id();
+void reset_surf_id();
 
 
 /**
@@ -53,26 +53,10 @@ enum surfaceType {
 };
 
 
-/**
- * @enum boundaryType
- * @brief The types of boundary conditions supported by OpenMOC for surfaces.
- */
-enum boundaryType {
-  /** A vacuum boundary condition */
-  VACUUM,
-
-  /** A reflective boundary condition */
-  REFLECTIVE,
-
-  /** No boundary type (typically an interface between flat source regions) */
-  BOUNDARY_NONE
-};
-
-
 
 /**
  * @class Surface Surface.h "src/Surface.h"
- * @brief Represents a general surface in the 2D xy-plane
+ * @brief Represents a general Surface in the 2D xy-plane
  * @details The Surface class and its subclasses are used to define the
  *          geometry for an OpenMOC simulation using a constructive solid
  *          geometry (CSG) formalism. Surfaces are used during ray tracing
@@ -82,55 +66,78 @@ class Surface {
 
 protected:
 
-  /** A static counter fo the number of surfaces in a simulation */
+  /** A static counter for the number of Surfaces in a simulation */
   static int _n;
 
-  /** A monotonically increasing unique ID for each surface created */
+  /** A monotonically increasing unique ID for each Surface created */
   int _uid;
 
-  /** A user-defined id for each surface created */
+  /** A user-defined id for each Surface created */
   int _id;
 
-  /** The type of surface (ie, XPLANE, CIRCLE, etc) */
+  /** A user-defined name for the Surface */
+  char* _name;
+
+  /** The type of Surface (ie, XPLANE, CIRCLE, etc) */
   surfaceType _surface_type;
 
-  /** The type of boundary condition to be used for this surface
+  /** The type of boundary condition to be used for this Surface
    *  (ie, VACUUM or REFLECTIVE) */
   boundaryType _boundary_type;
 
 public:
-  Surface(const int id=0);
+  Surface(const int id=0, const char* name="");
   virtual ~Surface();
 
   int getUid() const;
   int getId() const;
+  char* getName() const;
   surfaceType getSurfaceType();
   boundaryType getBoundaryType();
 
   /**
-   * @brief Returns the minimum x value on this Surface.
+   * @brief Returns the minimum x value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
    * @return the minimum x value
    */
-  virtual double getXMin() =0;
+  virtual double getMinX(int halfspace) =0;
 
   /**
-   * @brief Returns the maximum x value on this Surface.
+   * @brief Returns the maximum x value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
    * @return the maximum x value
    */
-  virtual double getXMax() =0;
+  virtual double getMaxX(int halfspace) =0;
 
   /**
-   * @brief Returns the minimum y value on this Surface.
+   * @brief Returns the minimum y value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
    * @return the minimum y value
    */
-  virtual double getYMin() =0;
+  virtual double getMinY(int halfspace) =0;
 
   /**
-   * @brief Returns the maximum y value on this Surface.
+   * @brief Returns the maximum y value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
    * @return the maximum y value
    */
-  virtual double getYMax() =0;
+  virtual double getMaxY(int halfspace) =0;
 
+  /**
+   * @brief Returns the minimum z value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
+   * @return the minimum z value
+   */
+  virtual double getMinZ(int halfspace) =0;
+
+  /**
+   * @brief Returns the maximum z value for one of this Surface's halfspaces.
+   * @param halfspace the halfspace of the Surface to consider
+   * @return the maximum z value
+   */
+  virtual double getMaxZ(int halfspace) =0;
+
+  void setName(const char* name);
   void setBoundaryType(const boundaryType boundary_type);
 
   /**
@@ -164,11 +171,7 @@ public:
    */
   virtual std::string toString() =0;
 
-  /**
-   * @brief Prints a string representation of all of the Surface's objects to
-   *        the console.
-   */
-  virtual void printString() =0;
+  void printString();
 };
 
 
@@ -197,18 +200,23 @@ protected:
 
 public:
 
-  Plane(const double A, const double B, const double C, const int id=0);
+  Plane(const double A, const double B, const double C,
+        const int id=0, const char* name="");
 
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinX(int halfspace);
+  double getMaxX(int halfspace);
+  double getMinY(int halfspace);
+  double getMaxY(int halfspace);
+  double getMinZ(int halfspace);
+  double getMaxZ(int halfspace);
+  double getA();
+  double getB();
+  double getC();
 
   double evaluate(const Point* point) const;
   int intersection(Point* point, double angle, Point* points);
 
   std::string toString();
-  void printString();
 };
 
 
@@ -224,15 +232,13 @@ private:
   double _x;
 
 public:
-  XPlane(const double x, const int id=0);
+  XPlane(const double x, const int id=0, const char* name="");
 
   void setX(const double x);
 
   double getX();
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinX(int halfspace);
+  double getMaxX(int halfspace);
 
   std::string toString();
 };
@@ -250,18 +256,15 @@ private:
   double _y;
 
 public:
-  YPlane(const double y, const int id=0);
+  YPlane(const double y, const int id=0, const char* name="");
 
   void setY(const double y);
 
   double getY();
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinY(int halfspace);
+  double getMaxY(int halfspace);
 
   std::string toString();
-  void printString();
 };
 
 
@@ -277,18 +280,15 @@ private:
   double _z;
 
 public:
-  ZPlane(const double z, const int id=0);
+  ZPlane(const double z, const int id=0, const char* name="");
 
   void setZ(const double z);
 
   double getZ();
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinZ(int halfspace);
+  double getMaxZ(int halfspace);
 
   std::string toString();
-  void printString();
 };
 
 
@@ -328,21 +328,23 @@ private:
   friend class Plane;
 
 public:
-  Circle(const double x, const double y, const double radius, const int id=0);
+  Circle(const double x, const double y, const double radius,
+         const int id=0, const char* name="");
 
   double getX0();
   double getY0();
   double getRadius();
-  double getXMin();
-  double getXMax();
-  double getYMin();
-  double getYMax();
+  double getMinX(int halfspace);
+  double getMaxX(int halfspace);
+  double getMinY(int halfspace);
+  double getMaxY(int halfspace);
+  double getMinZ(int halfspace);
+  double getMaxZ(int halfspace);
 
   double evaluate(const Point* point) const;
   int intersection(Point* point, double angle, Point* points);
 
   std::string toString();
-  void printString();
 };
 
 
