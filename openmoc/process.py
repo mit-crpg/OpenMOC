@@ -198,6 +198,7 @@ def compute_fission_rates(solver, use_hdf5=False):
 # @param fission_rates whether to store fission rates (false by default)
 # @param use_hdf5 whether to export to HDF5 (default) or Python pickle file
 # @param filename the filename to use (default is 'simulation-state.h5')
+# @param directory the directory to use (default is 'simulation-states')
 # @param append append to existing file or create new one (false by default)
 # @param note an additional string note to include in state file
 def store_simulation_state(solver, fluxes=False, sources=False,

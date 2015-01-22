@@ -304,8 +304,7 @@ void Cell::removeSurface(Surface* surface) {
 
 
 /**
- * @brief
- * @param
+ * @brief Finds and stores a bounding box for the entire geometry.
  */
 void Cell::findBoundingBox() {
 

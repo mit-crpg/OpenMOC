@@ -9,6 +9,7 @@
  * @brief Copy a vector to another vector.
  * @param vector_from vector to be copied
  * @param vector_to vector to receive copied data
+ * @param length length of vector
  */
 template <typename T>
 inline void vector_copy(T* vector_from, T* vector_to, int length){
@@ -20,9 +21,9 @@ inline void vector_copy(T* vector_from, T* vector_to, int length){
 
 /**
  * @brief Assign all elements in a matrix to zero.
- * @param mat matrix to be zeroed
+ * @param matrix matrix to be zeroed
  * @param width width of matrix row
- * @param height height of matrix copy
+ * @param length length of matrix column
  */
 template <typename T>
 inline void matrix_zero(T** matrix, int width, int length){
@@ -36,7 +37,7 @@ inline void matrix_zero(T** matrix, int width, int length){
 
 /**
  * @brief Assign all elements in a matrix to zero.
- * @param vecotr vector to be zeroed
+ * @param vector vector to be zeroed
  * @param length length of vector
  */
 template <typename T>

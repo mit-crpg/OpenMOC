@@ -164,8 +164,8 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
  *          residual for the source with respect to the source compute on
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
- *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{\# FSRs}}} \f$
+ *          \f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}}} $\f
  *
  * @param FSR_materials an array of FSR Material UIDs
  * @param materials an array of dev_material pointers
@@ -1577,7 +1577,7 @@ void GPUSolver::normalizeFluxes() {
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
  *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{\# FSRs}}} \f$
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{\# FSRs}}} /f$
  *
  * @return the residual between this source and the previous source
  */

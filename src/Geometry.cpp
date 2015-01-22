@@ -359,7 +359,7 @@ void Geometry::setRootUniverse(Universe* root_universe) {
 
 /**
  * @brief Sets the pointer to a CMFD object used for acceleration.
- * @param A pointer to the CMFD object
+ * @param cmfd a pointer to the CMFD object
  */
 void Geometry::setCmfd(Cmfd* cmfd){
   _cmfd = cmfd;
@@ -645,11 +645,11 @@ Point* Geometry::getFSRPoint(int fsr_id) {
 /**
  * @brief Generate a string FSR "key" that identifies an FSR by its
  *        unique hierarchical lattice/universe/cell structure.
- * @detail Since not all FSRs will reside on the absolute lowest universe
- *         level and Cells might overlap other cells, it is important to
- *         have a method for uniquely identifying FSRs. This method
- *         createds a unique FSR key by constructing a structured string
- *         that describes the hierarchy of lattices/universes/cells.
+ * @details Since not all FSRs will reside on the absolute lowest universe
+ *          level and Cells might overlap other cells, it is important to
+ *          have a method for uniquely identifying FSRs. This method
+ *          creates a unique FSR key by constructing a structured string
+ *          that describes the hierarchy of lattices/universes/cells.
  * @param coords a LocalCoords object pointer
  * @return the FSR key
  */
@@ -1145,11 +1145,16 @@ void Geometry::setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs){
 }
 
 
+/**
+ * @brief Determins whether a point is within the bounding box of the geometry.
+ * @param coords a populated LocalCoords linked list
+ * @return boolean indicating whether the coords is within the geometry
+ */
 bool Geometry::withinBounds(LocalCoords* coords){
 
   double x = coords->getX();
   double y = coords->getY();
-  
+
   if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY())
     return false;
   else
