@@ -89,7 +89,7 @@ def setup_homogeneous_one_group(sysargs):
 # assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'homogeneous_one_group'
-benchmark_value = 1.422603359222412 #1.432603359222412
+benchmark_value = 1.432603359222412
 error_margin = 0.0001
 filename = 'homogeneous-one-group.py'
 setup_func = setup_homogeneous_one_group

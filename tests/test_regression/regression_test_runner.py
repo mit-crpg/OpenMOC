@@ -2,6 +2,9 @@ import time
 import multiprocessing as mp
 import platform
 
+print_times = False
+# variable for if you want it to print time taken for each individual test
+
 class regression_test_case():
 
     """Single regression test case to be handled as part of a suite.
@@ -94,7 +97,6 @@ class regression_test_suite():
         
         output = self.output
         output.close()
-        print 'file closed'
 
     def run_tests(self):
 
@@ -103,13 +105,16 @@ class regression_test_suite():
 
         # runs all tests and adds to output file; closes file when done
         for test in self.get_tests():
+
+            test_start_time = time.clock()
             test.set_up_test()
-            if not run_regression_test(test, self.output, self.none_failed):
+            if not run_regression_test(test, self.output, test_start_time, self.none_failed):
                 self.test_failed()
+            
 
         print '------------------TESTS COMPLETE------------------'
         duration = time.clock() - start_time
-        print 'Completed '+str(self.num_tests())+' tests in '+str(duration)+' seconds.'
+        print 'Completed '+str(self.get_num_tests())+' tests in '+str(duration)+' seconds.'
         print 'Tests passed:', self.get_num_tests() - self.get_num_failed()
         print 'Tests failed:', self.get_num_failed()
         
@@ -118,7 +123,7 @@ class regression_test_suite():
             
         self.close_file()
 
-def run_regression_test(test, output, none_failed=True):
+def run_regression_test(test, output,test_start_time, none_failed=True):
 
     # test = a test object
     # output = a variable referring to the file that is open and being written to
@@ -145,6 +150,9 @@ def run_regression_test(test, output, none_failed=True):
     elif abs(calculated_value - benchmark_value) < error_margin:
         write_passed_results(test_type, benchmark,num_threads)
 
+    if print_times:
+        print 'Test completed in', time.clock() - test_start_time, 'seconds.'
+    
     return none_failed
 
 def write_failed_results(output, test, none_failed=True):

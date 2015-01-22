@@ -127,7 +127,7 @@ def setup_romano(sysargs):
 # assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'romano'
-benchmark_value = 1.1826626300811768 # 1.2826626300811768
+benchmark_value = 1.2826626300811768
 error_margin = 0.0001
 filename = 'romano.py'
 setup_func = setup_romano

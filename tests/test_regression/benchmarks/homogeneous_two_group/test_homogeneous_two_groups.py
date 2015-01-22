@@ -97,7 +97,7 @@ def setup_homogeneous_two_groups(sysargs):
 # assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'homogeneous_two_groups'
-benchmark_value = 1.323158836364746 # 1.723158836364746
+benchmark_value = 1.723158836364746
 error_margin = 0.0001
 filename = 'homogeneous-two-groups.py'
 setup_func = setup_homogeneous_two_groups

@@ -342,7 +342,7 @@ def setup_c5g7_cmfd(sysargs):
 # assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'c5g7_cmfd'
-benchmark_value = 1.0853487491607666 # 1.1853487491607666
+benchmark_value = 1.1853487491607666
 error_margin = 0.0001
 filename = 'c5g7-cmfd.py'
 setup_func = setup_c5g7_cmfd

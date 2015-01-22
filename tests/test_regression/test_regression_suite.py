@@ -44,11 +44,12 @@ def build_regression_suite():
         test_module = modules_dict[test_file]
         regression_suite.add_test(test_module.test_list)
     
-    print 'added all tests to suite'
+    print 'Added all tests to suite.'
     return regression_suite
 
 regression_suite = build_regression_suite()
 
 if __name__ == '__main__':
+    
     regression_suite.run_tests()
     print 'Ran all tests in', time.clock() - start, 'seconds'

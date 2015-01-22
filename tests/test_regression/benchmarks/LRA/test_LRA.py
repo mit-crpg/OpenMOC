@@ -223,7 +223,7 @@ def setup_LRA(sysargs):
 # assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'LRA'
-benchmark_value = 0.0962826806701051 # 0.9962826806701051
+benchmark_value = 0.9962826806701051
 error_margin = 0.0001
 filename = 'LRA.py'
 setup_func = setup_LRA
