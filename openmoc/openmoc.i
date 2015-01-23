@@ -12,6 +12,7 @@
   #include "../src/LocalCoords.h"
   #include "../src/log.h"
   #include "../src/Material.h"
+  #include "../src/Isotope.h"
   #include "../src/Point.h"
   #include "../src/Quadrature.h"
   #include "../src/Solver.h"
@@ -410,6 +411,7 @@
 %include ../src/LocalCoords.h
 %include ../src/log.h
 %include ../src/Material.h
+%include ../src/Isotope.h
 %include ../src/Point.h
 %include ../src/Quadrature.h
 %include ../src/Solver.h

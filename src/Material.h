@@ -15,6 +15,7 @@
 #include <math.h>
 #include "log.h"
 #include "pairwise_sum.h"
+#include "Isotope.h"
 #endif
 
 #ifdef ICPC
@@ -67,7 +68,7 @@ protected:
   /** A user-defined name for the Material */
   char* _name;
 
-  /** The type of Material */
+  /** Enum for identifying the Material type */
   materialType _material_type;
 
   /** The number of energy groups */
@@ -251,6 +252,39 @@ inline void MacroMaterial::setSigmaSByGroupInline(
   _sigma_s[destination*_num_groups + origin] = xs;
 }
 
+
+
+/**
+ * @class IsoMaterial Material.h "src/Material.h"
+ * @brief The Material class represents a unique material and its relevant
+ *        nuclear data (i.e., multigroup cross-sections) for neutron transport.
+ */
+class IsoMaterial : public Material {
+
+private:
+  std::vector<Isotope*> _isotopes;
+  std::vector<FP_PRECISION> _num_dens;
+  int _num_isotopes;
+
+
+public:
+  IsoMaterial(int id=0, const char* name="");
+  ~IsoMaterial();
+  
+  void addIsotope(Isotope* isotope, FP_PRECISION number_density);
+  Isotope* getIsotope(int index);
+  std::vector<Isotope*> getIsotopes();
+  
+  void checkSigmaT();
+  
+  FP_PRECISION getScatterSource(int group, FP_PRECISION* flux);
+  FP_PRECISION getSigmaSByGroup(int origin, int destination);
+  
+  int getNumIsotopes();
+    
+  IsoMaterial* clone();
+
+};
 
 
 

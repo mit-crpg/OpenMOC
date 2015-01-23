@@ -54,6 +54,8 @@ Material::Material(int id, const char* name) {
   _sigma_f = NULL;
   _nu_sigma_f = NULL;
   _chi = NULL;
+  
+  _num_groups = 0;
 
   _fissionable = false;
 
@@ -1617,3 +1619,73 @@ MacroMaterial* MacroMaterial::clone(){
 
   return clone;
 }
+
+
+/* ************************************************************************** */
+
+IsoMaterial::IsoMaterial(int id, const char* name) : Material(id,name) {
+    
+  _material_type = ISO_MATERIAL;
+  
+  _num_isotopes = 0;
+  
+  return;
+}
+
+
+IsoMaterial::~IsoMaterial() {
+  return;
+}
+  
+void IsoMaterial:: addIsotope(Isotope* isotope, FP_PRECISION number_density) {
+  int num_groups = isotope->getNumEnergyGroups();
+  
+  if (_num_groups==0)
+    setNumEnergyGroups(num_groups);
+  else
+    log_printf(ERROR,"Cannot add Isotope %d because it has %d energy groups "
+               "and other isotopes in Material have %d.", isotope->getId(),
+               num_groups, _num_groups);
+  
+  _isotopes.push_back(isotope);
+  _num_dens.push_back(number_density);
+  
+  _num_isotopes++;
+}
+
+
+
+Isotope* IsoMaterial::getIsotope(int index) {
+  return _isotopes[index];
+}
+
+
+std::vector<Isotope*> IsoMaterial::getIsotopes() {
+  return _isotopes;
+}
+  
+void IsoMaterial::checkSigmaT() {
+  return;
+}
+  
+FP_PRECISION IsoMaterial::getScatterSource(int group, FP_PRECISION* flux) {
+  log_printf(ERROR,"getScatterSource not yet implemented.");
+}
+
+
+FP_PRECISION IsoMaterial::getSigmaSByGroup(int origin, int destination) {
+  log_printf(ERROR,"getSigmaSByGroup not yet implemented.");
+}
+
+  
+int IsoMaterial::getNumIsotopes() {
+  return _num_isotopes;
+}
+    
+IsoMaterial* IsoMaterial::clone() {
+  log_printf(ERROR,"clone not yet implemented.");
+}
+
+
+
+
