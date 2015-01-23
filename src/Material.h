@@ -274,6 +274,8 @@ public:
   void addIsotope(Isotope* isotope, FP_PRECISION number_density);
   Isotope* getIsotope(int index);
   std::vector<Isotope*> getIsotopes();
+  FP_PRECISION getNumberDensity(int index);
+  std::vector<FP_PRECISION> getNumberDensities();
   
   void checkSigmaT();
   

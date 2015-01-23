@@ -1623,6 +1623,12 @@ MacroMaterial* MacroMaterial::clone(){
 
 /* ************************************************************************** */
 
+
+/**
+ * @brief Constructor sets the ID and unique ID for the Material.
+ * @param id the user-specified optional Material ID
+ * @param name the user-specified optional Material name
+ */
 IsoMaterial::IsoMaterial(int id, const char* name) : Material(id,name) {
     
   _material_type = ISO_MATERIAL;
@@ -1633,10 +1639,23 @@ IsoMaterial::IsoMaterial(int id, const char* name) : Material(id,name) {
 }
 
 
+/**
+ * @brief Destructor: clears dynamically allocated memory.
+ */
 IsoMaterial::~IsoMaterial() {
+  
+  _isotopes.clear();
+  _num_dens.clear();
+  
   return;
 }
-  
+
+
+/**
+ * @brief Add an isotope to the Material.
+ * @param isotope Pointer to the Isotope to be added
+ * @param number_density the number density of the Isotope in the Material
+ */  
 void IsoMaterial:: addIsotope(Isotope* isotope, FP_PRECISION number_density) {
   int num_groups = isotope->getNumEnergyGroups();
   
@@ -1654,36 +1673,154 @@ void IsoMaterial:: addIsotope(Isotope* isotope, FP_PRECISION number_density) {
 }
 
 
+/**
+ * @brief Get specific number density from Material
+ * @param index The index of the material to be retrieved
+ * @return the number density
+ */
+FP_PRECISION IsoMaterial::getNumberDensity(int index) {
+  if (index > _num_isotopes-1)
+    log_printf(ERROR,"Cannot return Isotope with index %d because there are "
+               "only %d isotopes in the Material.", index,
+               _num_isotopes);
 
+  return _num_dens[index];
+}
+
+
+/**
+ * @brief Get vector of number densities from Material
+ * @return vector of number densities
+ */
+std::vector<FP_PRECISION> IsoMaterial::getNumberDensities() {
+  return _num_dens;
+}
+
+
+/**
+ * @brief Get specific Isotope from Material
+ * @param index The index of the material to be retrieved
+ * @return Pointer to the isotope requested
+ */
 Isotope* IsoMaterial::getIsotope(int index) {
+  if (index > _num_isotopes-1)
+    log_printf(ERROR,"Cannot return Isotope with index %d because there are "
+               "only %d isotopes in the Material.", index,
+               _num_isotopes);
+
   return _isotopes[index];
 }
 
 
+/**
+ * @brief Get vector of Isotopes from Material
+ * @return vector of Isotopes
+ */
 std::vector<Isotope*> IsoMaterial::getIsotopes() {
   return _isotopes;
 }
   
+  
+  
+/**
+ * @brief Checks if the total cross-section for this Material is equal to the
+ *        absorption plus scattering cross-sections for all energy groups.
+ * @details If the total cross-section does not equal the absorption plus
+ *          scattering cross-section within SIGMA_T_THRESH then this method
+ *          exits OpenMOC.
+ */
 void IsoMaterial::checkSigmaT() {
+  if (_num_groups == 0)
+    log_printf(ERROR, "Unable to verify Material %d's total cross-section "
+              "since the number of energy groups has not been set", _id);
+              
+  if (_num_isotopes == 0)
+    log_printf(ERROR, "Unable to verify Material %d's total cross-section "
+              "since no isotopes have been added.", _id);
+
+  FP_PRECISION calc_sigma_t;
+
+  /* Loop over all energy groups */
+  for (int i=0; i < _num_groups; i++) {
+
+    /* Initialize the calculated total xs to the absorption xs */
+    calc_sigma_t = _sigma_a[i];
+
+    /* Increment calculated total xs by scatter xs for each energy group */
+    for (int j=0; j < _num_groups; j++)
+      calc_sigma_t += getSigmaSByGroup(i+1,j+1);
+
+    /* Check if the calculated and total match up to certain threshold */
+    if (fabs(calc_sigma_t - _sigma_t[i]) > SIGMA_T_THRESH) {
+      log_printf(ERROR, "Material id = %d has a different total cross-section "
+                 "than the sum of its scattering and absorption cross-sections "
+                 "for group %d: sigma_t = %f, calc_sigma_t = %f",
+                 _id, i+1, _sigma_t[i], calc_sigma_t);
+    }
+  }
+  
   return;
 }
   
-FP_PRECISION IsoMaterial::getScatterSource(int group, FP_PRECISION* flux) {
-  log_printf(ERROR,"getScatterSource not yet implemented.");
-}
-
-
-FP_PRECISION IsoMaterial::getSigmaSByGroup(int origin, int destination) {
-  log_printf(ERROR,"getSigmaSByGroup not yet implemented.");
-}
-
   
+/**
+ * @brief Get the group to group scatter cross section for given groups
+ * @details Sums the contribution from each isotope
+ * @param origin the column index of the scattering matrix
+ * @param destination the row index of the scatteirng matrix
+ * @return the group to group scatter cross section
+ */     
+FP_PRECISION IsoMaterial::getScatterSource(int group, FP_PRECISION* flux) {
+  FP_PRECISION Q = 0;
+  
+  /* sum scatter source for each isotope */
+  for (int i=0; i < _num_isotopes; i++)
+      Q += _isotopes[i]->getScatterSource(group,flux)*_num_dens[i];
+  
+  return Q;
+}
+
+
+/**
+ * @brief Get the group to group scatter cross section for given groups
+ * @details Sums the contribution from each isotope
+ * @param origin the column index of the scattering matrix
+ * @param destination the row index of the scatteirng matrix
+ * @return the group to group scatter cross section
+ */  
+FP_PRECISION IsoMaterial::getSigmaSByGroup(int origin, int destination) {
+  FP_PRECISION xs = 0;
+
+  /* sum scatter xs for each isotope */
+  for (int i=0; i < _num_isotopes; i++)
+      xs += _isotopes[i]->getSigmaSByGroup(origin,destination)*_num_dens[i];
+  
+  return xs;
+}
+
+
+/**
+ * @brief Get the number of isotopes in the Material.
+ * @return the number of isotopes
+ */    
 int IsoMaterial::getNumIsotopes() {
   return _num_isotopes;
 }
-    
+
+
+/**
+ * @brief Create a duplicate of the IsoMaterial.
+ * @return a pointer to the clone
+ */    
 IsoMaterial* IsoMaterial::clone() {
-  log_printf(ERROR,"clone not yet implemented.");
+  IsoMaterial* clone = new IsoMaterial(getId(),getName());
+  
+  /* Add each isotope in original Material to cloned Material */
+  for (int i=0; i<_num_isotopes; i++)
+    clone->addIsotope(_isotopes[i],_num_dens[i]);
+    
+  return clone;
+  
 }
 
 

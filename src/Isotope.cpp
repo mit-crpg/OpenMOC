@@ -406,18 +406,18 @@ void Isotope::setSigmaS(double* xs, int num_groups_squared) {
 /**
  * @brief Set the isotope's scattering cross-section for some energy group.
  * @param xs the scattering cross-section (\f$ \Sigma_s [cm^1] \f$)
- * @param group1 the row index in the scattering matrix
- * @param group2 the column index in the scattering matrix
+ * @param origin the column index in the scattering matrix
+ * @param destination the row index in the scattering matrix
  */
 void Isotope::setSigmaSByGroup(double xs, int origin, int destination) {
 
   if (origin <= 0 || destination <= 0 || origin > _num_groups 
                   || destination > _num_groups)
     log_printf(ERROR, "Unable to set sigma_s for group %d,%d for isotope "
-                 "%d which contains %d energy groups", group1, group2, _uid,
-                 _num_groups);
+                 "%d which contains %d energy groups", origin, destination, 
+                 _uid, _num_groups);
 
-  _sigma_s[_num_groups*(group1-1) + (group2-1)] = xs;
+  _sigma_s[_num_groups*(destination-1) + (origin-1)] = xs;
 }
 
 
@@ -547,14 +547,10 @@ FP_PRECISION Isotope::getScatterSource(int group, FP_PRECISION* flux) {
   
   FP_PRECISION scatter_source = 0;
   
-  /* assume no upscattering */
-  int max_group = group;
-  
   /* loop over origin groups */
-  for (int g=0; g <= max_group; g++)
-    scatter_source += getSigmaSByGroup(g+1, group+1) * flux[g];
-    
   /* Note: could switch to pairwise sum if needed */
+  for (int g=0; g < _num_groups; g++)
+    scatter_source += getSigmaSByGroup(g+1, group+1) * flux[g];
                                    
   return scatter_source;  
   
