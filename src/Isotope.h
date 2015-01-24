@@ -68,12 +68,14 @@ protected:
 
   
 public:
-   Isotope(int id);
+  Isotope(int id=0, const char* name="");
   ~Isotope();
   
   int getUid() const;
   int getId() const;
   int getNumEnergyGroups() const;
+  char* getName() const;
+  void setName(const char* name);
   
   FP_PRECISION* getSigmaT();
   FP_PRECISION* getSigmaA(); 
@@ -95,7 +97,7 @@ public:
   void setSigmaT(double* xs, int num_groups);
   void setSigmaA(double* xs, int num_groups);
   void setSigmaF(double* xs, int num_groups);
-  void setSigmaS(double* xs, int num_groups_squared);
+  void setSigmaS(double* xs, int num_groups);
   void setNuSigmaF(double* xs, int num_groups);
   void setChi(double* xs, int num_groups);
   
@@ -105,6 +107,8 @@ public:
   void setSigmaFByGroup(double xs, int group);
   void setNuSigmaFByGroup(double xs, int group);
   void setChiByGroup(double xs, int group);
+  
+  bool isFissionable();
 
   
 };

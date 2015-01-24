@@ -4,13 +4,17 @@ int Isotope::_n = 0;
 
 
 /**
- * @brief Constructor sets the ID and unique ID for the Material.
- * @param id the user-specified optional Material ID
+ * @brief Constructor sets the ID, unique ID, and name for the Isotope.
+ * @param id the user-specified optional Isotope ID
+ * @param name the user-specified name for the Isotope
  */
-Isotope::Isotope(int id) {
+Isotope::Isotope(int id, const char* name) {
   _uid = _n;
   _id = id;
   _n++;
+  
+  _name = NULL;
+  setName(name);
   
   _sigma_t = NULL;
   _sigma_a = NULL;
@@ -64,6 +68,34 @@ int Isotope::getUid() const {
  */
 int Isotope::getId() const {
   return _id;
+}
+
+
+/**
+ * @brief Return the user-defined name of the Isotope
+ * @return the Isotope name
+ */
+char* Isotope::getName() const {
+  return _name;
+}
+
+
+/**
+ * @brief Sets the name of the Isotope
+ * @param name the Isotope name string
+ */
+void Isotope::setName(const char* name) {
+  int length = strlen(name);
+
+  if (_name != NULL)
+    delete [] _name;
+
+  /* Initialize a character array for the Isotope's name */
+  _name = new char[length+1];
+
+  /* Copy the input character array Isotope name to the class attribute name */
+  for (int i=0; i <= length; i++)
+    _name[i] = name[i];
 }
 
 
@@ -542,7 +574,12 @@ void Isotope::setChiByGroup(double xs, int group) {
 }
 
 
-
+/**
+ * @brief Get the scatter source for an isotope
+ * @param group The energy group
+ * @param flux Pointer to the array of flux values
+ * @return The scatter source
+ */
 FP_PRECISION Isotope::getScatterSource(int group, FP_PRECISION* flux) {
   
   FP_PRECISION scatter_source = 0;
@@ -556,3 +593,12 @@ FP_PRECISION Isotope::getScatterSource(int group, FP_PRECISION* flux) {
   
 }
 
+
+/**
+ * @brief Returns whether or not the Isotope contains a fissionable (non-zero)
+ *        fission cross-section.
+ * @return true if fissionable, false otherwise
+ */
+bool Isotope::isFissionable() {
+  return _fissionable;
+}

@@ -29,14 +29,17 @@ log.py_printf('HEADER', 'The reference keff = 1.43...')
 
 log.py_printf('NORMAL', 'Creating materials...')
 
-infinite_medium = MacroMaterial(name='1-group infinite medium')
-infinite_medium.setNumEnergyGroups(1)
-infinite_medium.setSigmaA(numpy.array([0.069389522]))
-infinite_medium.setSigmaF(numpy.array([0.0414198575]))
-infinite_medium.setNuSigmaF(numpy.array([0.0994076580]))
-infinite_medium.setSigmaS(numpy.array([0.383259177]))
-infinite_medium.setChi(numpy.array([1.0]))
-infinite_medium.setSigmaT(numpy.array([0.452648699]))
+iso = Isotope(name='1-group infinite medium isotope')
+iso.setNumEnergyGroups(1)
+iso.setSigmaA(numpy.array([0.069389522]))
+iso.setSigmaF(numpy.array([0.0414198575]))
+iso.setNuSigmaF(numpy.array([0.0994076580]))
+iso.setSigmaS(numpy.array([0.383259177]))
+iso.setChi(numpy.array([1.0]))
+iso.setSigmaT(numpy.array([0.452648699]))
+
+infinite_medium = IsoMaterial(name='1-group infinite medium')
+infinite_medium.addIsotope(iso,1.0)
 
 
 ###############################################################################

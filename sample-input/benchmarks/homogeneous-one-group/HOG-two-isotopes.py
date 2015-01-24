@@ -29,14 +29,28 @@ log.py_printf('HEADER', 'The reference keff = 1.43...')
 
 log.py_printf('NORMAL', 'Creating materials...')
 
-infinite_medium = MacroMaterial(name='1-group infinite medium')
-infinite_medium.setNumEnergyGroups(1)
-infinite_medium.setSigmaA(numpy.array([0.069389522]))
-infinite_medium.setSigmaF(numpy.array([0.0414198575]))
-infinite_medium.setNuSigmaF(numpy.array([0.0994076580]))
-infinite_medium.setSigmaS(numpy.array([0.383259177]))
-infinite_medium.setChi(numpy.array([1.0]))
-infinite_medium.setSigmaT(numpy.array([0.452648699]))
+iso1 = Isotope(name='isotope #1')
+iso1.setNumEnergyGroups(1)
+iso1.setSigmaA(numpy.array([0.069389522]))
+iso1.setSigmaF(numpy.array([0.0414198575]))
+iso1.setNuSigmaF(numpy.array([0.0994076580]))
+iso1.setSigmaS(numpy.array([0.383259177]))
+iso1.setChi(numpy.array([1.0]))
+iso1.setSigmaT(numpy.array([0.452648699]))
+
+iso2 = Isotope(name='isotope #2')
+iso2.setNumEnergyGroups(1)
+iso2.setSigmaA(numpy.array([0.069389522]))
+iso2.setSigmaF(numpy.array([0.0414198575]))
+iso2.setNuSigmaF(numpy.array([0.0994076580]))
+iso2.setSigmaS(numpy.array([0.383259177]))
+iso2.setChi(numpy.array([1.0]))
+iso2.setSigmaT(numpy.array([0.452648699]))
+
+
+infinite_medium = IsoMaterial(name='1-group infinite medium')
+infinite_medium.addIsotope(iso1,1.0)
+infinite_medium.addIsotope(iso2,1.0)
 
 
 ###############################################################################

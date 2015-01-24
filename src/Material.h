@@ -265,7 +265,7 @@ private:
   std::vector<Isotope*> _isotopes;
   std::vector<FP_PRECISION> _num_dens;
   int _num_isotopes;
-
+  bool _chi_set;
 
 public:
   IsoMaterial(int id=0, const char* name="");

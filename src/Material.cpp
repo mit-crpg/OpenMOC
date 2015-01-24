@@ -1653,21 +1653,41 @@ IsoMaterial::~IsoMaterial() {
 
 /**
  * @brief Add an isotope to the Material.
+ * @details Add the isotope's contributions to the stored cross sections
  * @param isotope Pointer to the Isotope to be added
  * @param number_density the number density of the Isotope in the Material
  */  
 void IsoMaterial:: addIsotope(Isotope* isotope, FP_PRECISION number_density) {
   int num_groups = isotope->getNumEnergyGroups();
+  bool chi_set = false;
   
-  if (_num_groups==0)
+  if (_num_groups==0) {
     setNumEnergyGroups(num_groups);
-  else
+    _chi_set = false;
+  }
+  if (num_groups != _num_groups)
     log_printf(ERROR,"Cannot add Isotope %d because it has %d energy groups "
                "and other isotopes in Material have %d.", isotope->getId(),
                num_groups, _num_groups);
   
   _isotopes.push_back(isotope);
   _num_dens.push_back(number_density);
+  
+  for (int g=0; g<_num_groups; g++) {
+    _sigma_t[g] += isotope->getSigmaTByGroup(g+1)*number_density;
+    _sigma_a[g] += isotope->getSigmaAByGroup(g+1)*number_density;
+    _sigma_f[g] += isotope->getSigmaFByGroup(g+1)*number_density;
+    _nu_sigma_f[g] += isotope->getNuSigmaFByGroup(g+1)*number_density;
+    if (not _chi_set) {
+      _chi[g] = isotope->getChiByGroup(g+1);
+      if (_chi[g] > 0) chi_set = true;
+    }
+  }
+  
+  if (chi_set) _chi_set = true;
+  
+  if (isotope->isFissionable())
+    _fissionable = true;
   
   _num_isotopes++;
 }
