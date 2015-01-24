@@ -43,30 +43,28 @@ else:
   from openmoc.log import *
 
 
-## 
+##
 # @brief This routine checks if a given value is an integer data type.
 #
 # @param val a value to check
 def is_integer(val):
-  return isinstance(val, (int, long, np.int_, np.intc, np.intp, np.int8,\
-                            np.int16, np.int32, np.int64, np.uint8, np.uint16,\
-                            np.uint32, np.uint64))
+  return isinstance(val, (int, np.int32, np.int64))
 
 
-## 
+##
 # @brief This routine checks if a given value is a string data type.
 #
 # @param val a value to check
 def is_string(val):
-  return isinstance(val, (str, np.str, np.string_))
+  return isinstance(val, (str, np.str))
 
 
-## 
+##
 # @brief This routine checks if a given value is an float data type.
 #
 # @param val a value to check
 def is_float(val):
-  return isinstance(val, (float, np.float_, np.float16, np.float32, np.float64))
+  return isinstance(val, (float, np.float32, np.float64))
 
 
 ##
@@ -76,9 +74,9 @@ def is_float(val):
 #        or python pickle file.
 # @details This routine is intended to be called by the user in Python to
 #          compute fission rates. Typically, the fission rates will represent
-#          pin powers. The routine either exports fission rates to an HDF5 
+#          pin powers. The routine either exports fission rates to an HDF5
 #          binary file or pickle file with each fission rate being indexed by
-#          a string representing the universe/lattice hierarchy. 
+#          a string representing the universe/lattice hierarchy.
 #          This routine may be called from a Python script as follows:
 #
 # @code
@@ -200,6 +198,7 @@ def compute_fission_rates(solver, use_hdf5=False):
 # @param fission_rates whether to store fission rates (false by default)
 # @param use_hdf5 whether to export to HDF5 (default) or Python pickle file
 # @param filename the filename to use (default is 'simulation-state.h5')
+# @param directory the directory to use (default is 'simulation-states')
 # @param append append to existing file or create new one (false by default)
 # @param note an additional string note to include in state file
 def store_simulation_state(solver, fluxes=False, sources=False,

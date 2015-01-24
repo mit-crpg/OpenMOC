@@ -164,8 +164,8 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
  *          residual for the source with respect to the source compute on
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
- *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{\# FSRs}}} \f$
+ *          \f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}}} $\f
  *
  * @param FSR_materials an array of FSR Material UIDs
  * @param materials an array of dev_material pointers
@@ -1448,8 +1448,14 @@ void GPUSolver::buildExpInterpTable(){
                      _num_polar * sizeof(FP_PRECISION), 0,
                      cudaMemcpyHostToDevice);
 
-  /* Set size of interpolation table */
+  /* Find largest optical path length track segment */
   FP_PRECISION tau = _track_generator->getMaxOpticalLength();
+
+  /* Expand tau slightly to accomodate track segments which have a
+   * length very nearly equal to the maximum value */
+  tau *= 1.01;
+
+  /* Set size of interpolation table */
   int num_array_values =
           tau * sqrt(1. / (8. * _source_convergence_thresh * 1e-2));
   _exp_table_spacing = tau / num_array_values;
@@ -1457,7 +1463,10 @@ void GPUSolver::buildExpInterpTable(){
   _exp_table_size = _two_times_num_polar * num_array_values;
   _exp_table_max_index = _exp_table_size - _two_times_num_polar - 1;
 
-  /* Allocate arrays */
+  /* Allocate array for the table */
+  if (_exp_table != NULL)
+    delete [] _exp_table;
+
   FP_PRECISION* exp_table = new FP_PRECISION[_exp_table_size];
 
   FP_PRECISION expon;
@@ -1568,7 +1577,7 @@ void GPUSolver::normalizeFluxes() {
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
  *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{\# FSRs}}} \f$
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{\# FSRs}}} /f$
  *
  * @return the residual between this source and the previous source
  */

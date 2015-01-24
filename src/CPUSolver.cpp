@@ -10,7 +10,7 @@
  * @param geometry an optional pointer to the Geometry
  * @param track_generator an optional pointer to the TrackGenerator
  */
-CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator) 
+CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator)
     : Solver(geometry, track_generator) {
 
   setNumThreads(1);
@@ -300,8 +300,6 @@ void CPUSolver::buildExpInterpTable() {
 
   _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
 
-  FP_PRECISION tau = _track_generator->getMaxOpticalLength();
-
   /* Compute the total azimuthal weight for tracks at each polar angle */
   #pragma omp parallel for private(azim_weight) schedule(guided)
   for (int i=0; i < _num_azim; i++) {
@@ -311,6 +309,13 @@ void CPUSolver::buildExpInterpTable() {
     for (int p=0; p < _num_polar; p++)
       _polar_weights(i,p) = azim_weight*_quad->getMultiple(p)*FOUR_PI;
   }
+
+  /* Find largest optical path length track segment */
+  FP_PRECISION tau = _track_generator->getMaxOpticalLength();
+
+  /* Expand tau slightly to accomodate track segments which have a
+   * length very nearly equal to the maximum value */
+  tau *= 1.01;
 
   /* Set size of interpolation table */
   int num_array_values = tau * sqrt(1./(8.*_source_convergence_thresh*1e-2));
@@ -393,6 +398,8 @@ void CPUSolver::initializeFSRs() {
     }
   }
 
+  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
+
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
 
@@ -405,7 +412,7 @@ void CPUSolver::initializeFSRs() {
       _num_fissionable_FSRs++;
 
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d "
-               "and volume = %f", r, _FSR_materials[r]->getUid(), 
+               "and volume = %f", r, _FSR_materials[r]->getUid(),
                _FSR_volumes[r]);
   }
 
@@ -543,8 +550,7 @@ void CPUSolver::normalizeFluxes() {
   FP_PRECISION norm_factor;
 
   /* Compute total fission source for each FSR, energy group */
-  #pragma omp parallel for private(volume, nu_sigma_f) \
-    reduction(+:tot_fission_source) schedule(guided)
+  #pragma omp parallel for private(volume, nu_sigma_f) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     /* Get pointers to important data structures */
@@ -594,7 +600,7 @@ void CPUSolver::normalizeFluxes() {
  *          residual for the source with respect to the source compute on
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
- *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
+ *          \f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
  *                    \left(\frac{Q^i - Q^{i-1}}{Q^i}\right)^2}{\# FSRs}} \f$
  *
  * @return the residual between this source and the previous source
@@ -659,7 +665,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
     if (fsr_fission_source > 0.0)
       _source_residuals[r] = pow((fsr_fission_source - _old_fission_sources[r])
                                  / fsr_fission_source, 2);
-    
+
     /* Update the old source */
     _old_fission_sources[r] = fsr_fission_source;
   }
@@ -668,7 +674,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
   source_residual = pairwise_sum<FP_PRECISION>(_source_residuals, _num_FSRs);
   source_residual = sqrt(source_residual \
                          / (_num_fissionable_FSRs * _num_groups));
-  
+
   return source_residual;
 }
 
@@ -830,7 +836,7 @@ void CPUSolver::transportSweep() {
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
         scalarFluxTally(curr_segment, azim_index, track_flux,
-                        thread_fsr_flux,true);
+                        thread_fsr_flux, true);
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -842,7 +848,7 @@ void CPUSolver::transportSweep() {
       for (int s=num_segments-1; s > -1; s--) {
         curr_segment = &segments[s];
         scalarFluxTally(curr_segment, azim_index, track_flux,
-                        thread_fsr_flux,false);
+                        thread_fsr_flux, false);
       }
       delete thread_fsr_flux;
 

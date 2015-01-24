@@ -1046,9 +1046,9 @@ void Lattice::setNumY(int num_y) {
 
 
 /**
- * @brief
- * @param
- * @param
+ * @brief Set the width of each Lattice cell.
+ * @param width_x the width along the x-axis in centimeters
+ * @param width_y the width along the y-axis in centimeters
  */
 void Lattice::setWidth(double width_x, double width_y) {
 

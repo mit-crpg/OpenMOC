@@ -1619,7 +1619,7 @@ int Cmfd::getBoundary(int side){
 
 /**
  * @brief Return the CMFD cell ID that an FSR lies in.
- * @detail Note that a CMFD cell is not an actual Cell object; rather, a CMFD
+ * @details Note that a CMFD cell is not an actual Cell object; rather, a CMFD
  *         cell is just a way of describing each of the rectangular regions
  *         that make up a CMFD lattice. CMFD cells are numbered with 0 in the
  *         lower left corner and monotonically increasing from left to right.

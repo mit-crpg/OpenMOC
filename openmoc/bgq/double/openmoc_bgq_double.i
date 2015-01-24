@@ -37,6 +37,7 @@
 %}
 
 %warnfilter(506) log_printf(logLevel level, const char *format, ...);
+%warnfilter(511) swig::SwigPyIterator;
 
 %exception {
   try {

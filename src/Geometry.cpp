@@ -227,7 +227,14 @@ int Geometry::getNumEnergyGroups() {
  * @return the number of Materials
  */
 int Geometry::getNumMaterials() {
-  std::map<int, Material*> all_materials = getAllMaterials();
+
+  std::map<int, Material*> all_materials;
+
+  if (_all_materials.size() == 0)
+    all_materials = getAllMaterials();
+  else
+    all_materials = _all_materials;
+
   int num_materials = all_materials.size();
   return num_materials;
 }
@@ -352,7 +359,7 @@ void Geometry::setRootUniverse(Universe* root_universe) {
 
 /**
  * @brief Sets the pointer to a CMFD object used for acceleration.
- * @param A pointer to the CMFD object
+ * @param cmfd a pointer to the CMFD object
  */
 void Geometry::setCmfd(Cmfd* cmfd){
   _cmfd = cmfd;
@@ -424,15 +431,22 @@ CellBasic* Geometry::findFirstCell(LocalCoords* coords, double angle) {
 
 /**
  * @brief Find the Material for a flat source region ID.
- * @details  This method finds the fsr_id within the 
+ * @details  This method finds the fsr_id within the
  *           _FSR_to_material_IDs map and returns the corresponding
  *           pointer to the Material object.
  * @param fsr_id a FSR id
  * @return a pointer to the Material that this FSR is in
  */
 Material* Geometry::findFSRMaterial(int fsr_id) {
-  std::map<int, Material*> materials = getAllMaterials();
-  return materials[_FSRs_to_material_IDs.at(fsr_id)];
+
+  std::map<int, Material*> all_materials;
+
+  if (_all_materials.size() == 0)
+    all_materials = getAllMaterials();
+  else
+    all_materials = _all_materials;
+
+  return all_materials[_FSRs_to_material_IDs.at(fsr_id)];
 }
 
 
@@ -631,11 +645,11 @@ Point* Geometry::getFSRPoint(int fsr_id) {
 /**
  * @brief Generate a string FSR "key" that identifies an FSR by its
  *        unique hierarchical lattice/universe/cell structure.
- * @detail Since not all FSRs will reside on the absolute lowest universe
- *         level and Cells might overlap other cells, it is important to
- *         have a method for uniquely identifying FSRs. This method
- *         createds a unique FSR key by constructing a structured string
- *         that describes the hierarchy of lattices/universes/cells.
+ * @details Since not all FSRs will reside on the absolute lowest universe
+ *          level and Cells might overlap other cells, it is important to
+ *          have a method for uniquely identifying FSRs. This method
+ *          creates a unique FSR key by constructing a structured string
+ *          that describes the hierarchy of lattices/universes/cells.
  * @param coords a LocalCoords object pointer
  * @return the FSR key
  */
@@ -738,10 +752,10 @@ void Geometry::initializeFlatSourceRegions() {
   subdivideCells();
 
   /* Assign UIDs to materials */
-  std::map<int, Material*> materials = getAllMaterials();
+  _all_materials = getAllMaterials();
   std::map<int, Material*>::iterator iter;
   int uid = 0;
-  for (iter = materials.begin(); iter != materials.end(); ++iter){
+  for (iter = _all_materials.begin(); iter != _all_materials.end(); ++iter){
     iter->second->setUid(uid);
     uid++;
   }
@@ -1131,11 +1145,16 @@ void Geometry::setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs){
 }
 
 
+/**
+ * @brief Determins whether a point is within the bounding box of the geometry.
+ * @param coords a populated LocalCoords linked list
+ * @return boolean indicating whether the coords is within the geometry
+ */
 bool Geometry::withinBounds(LocalCoords* coords){
 
   double x = coords->getX();
   double y = coords->getY();
-  
+
   if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY())
     return false;
   else

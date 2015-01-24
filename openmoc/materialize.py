@@ -13,7 +13,6 @@
 
 
 import sys
-from process import *
 
 ## @var openmoc
 #  @brief The openmoc module in use in the Python script using the
@@ -38,9 +37,11 @@ else:
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
   from log import *
+  from process import *
 # For Python 3.X.X
 else:
   from openmoc.log import *
+  from openmoc.process import *
 
 
 

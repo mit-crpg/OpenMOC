@@ -19,7 +19,7 @@
 #endif
 
 #ifdef ICPC
-/** Word-aligned memory allocation for Intel's compiler */
+/** Word-aligned memory deallocationallocation for Intel's compiler */
 #define MM_FREE(array) _mm_free(array)
 
 /** Word-aligned memory allocation for Intel's compiler */
@@ -27,7 +27,10 @@
 
 #else
 
+/** Word-aligned memory deallocation for GNU's compiler */
 #define MM_FREE(array) free(array)
+
+/** Word-aligned memory allocation for GNU's compiler */
 #define MM_MALLOC(size,alignment) malloc(size)
 
 #endif
