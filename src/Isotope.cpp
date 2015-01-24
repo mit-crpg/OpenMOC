@@ -333,10 +333,13 @@ void Isotope::setNumEnergyGroups(const int num_groups) {
   _chi = new FP_PRECISION[_num_groups];
   
 
-  for (int g = 0; g < _num_groups; g++){
-    _chi[g] = 0.0;
-    _nu_sigma_f[g] = 0.0;
-  }
+  /* Assign the null vector to each data array */
+  memset(_sigma_t, 0.0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_sigma_a, 0.0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_sigma_s, 0.0, sizeof(FP_PRECISION) * _num_groups*_num_groups);
+  memset(_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_nu_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_chi, 0.0, sizeof(FP_PRECISION) * _num_groups);
 }
 
 

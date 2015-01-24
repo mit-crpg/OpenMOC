@@ -31,26 +31,21 @@ log.py_printf('NORMAL', 'Creating materials...')
 
 iso1 = Isotope(name='isotope #1')
 iso1.setNumEnergyGroups(1)
-iso1.setSigmaA(numpy.array([0.069389522]))
+iso1.setSigmaA(numpy.array([0.059389522]))
 iso1.setSigmaF(numpy.array([0.0414198575]))
 iso1.setNuSigmaF(numpy.array([0.0994076580]))
 iso1.setSigmaS(numpy.array([0.383259177]))
 iso1.setChi(numpy.array([1.0]))
-iso1.setSigmaT(numpy.array([0.452648699]))
+iso1.setSigmaT(numpy.array([0.442648699]))
 
 iso2 = Isotope(name='isotope #2')
 iso2.setNumEnergyGroups(1)
-iso2.setSigmaA(numpy.array([0.069389522]))
-iso2.setSigmaF(numpy.array([0.0414198575]))
-iso2.setNuSigmaF(numpy.array([0.0994076580]))
-iso2.setSigmaS(numpy.array([0.383259177]))
-iso2.setChi(numpy.array([1.0]))
-iso2.setSigmaT(numpy.array([0.452648699]))
-
+iso2.setSigmaA(numpy.array([0.02]))
+iso2.setSigmaT(numpy.array([0.02]))
 
 infinite_medium = IsoMaterial(name='1-group infinite medium')
 infinite_medium.addIsotope(iso1,1.0)
-infinite_medium.addIsotope(iso2,1.0)
+infinite_medium.addIsotope(iso2,0.5)
 
 
 ###############################################################################
