@@ -726,7 +726,6 @@ GPUSolver::GPUSolver(Geometry* geometry, TrackGenerator* track_generator) :
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
-
 }
 
 
