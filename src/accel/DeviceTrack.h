@@ -25,8 +25,8 @@ struct dev_segment {
   /** The length of the segment (cm) */
   FP_PRECISION _length;
 
-  /** A pointer to the Material in which this segment resides */
-  int _material_uid;
+  /** An index into the _materials array that contains Material pointers */
+  int _material_index;
 
   /** The ID for flat source region in which this segment resides */
   int _region_uid;

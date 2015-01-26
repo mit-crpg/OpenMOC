@@ -104,6 +104,9 @@ private:
   /** Thrust vector of leakages for each track */
   thrust::device_vector<FP_PRECISION> _leakage_vec;
 
+  /** Map of Material IDs to indices in _materials array */
+  std::map<int, int> _material_IDs_to_indices;
+
   void initializePolarQuadrature();
   void initializeFSRs();
   void initializeMaterials();

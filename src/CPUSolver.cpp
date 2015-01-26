@@ -413,7 +413,7 @@ void CPUSolver::initializeFSRs() {
       _num_fissionable_FSRs++;
 
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d "
-               "and volume = %f", r, _FSR_materials[r]->getUid(),
+               "and volume = %f", r, _FSR_materials[r]->getId(),
                _FSR_volumes[r]);
   }
 

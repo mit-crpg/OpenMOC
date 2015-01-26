@@ -12,14 +12,11 @@
  */
 void clone_material_on_gpu(Material* material_h, dev_material* material_d) {
 
-  /* Copy over the Material's ID and UID */
+  /* Copy over the Material's ID */
   int id = material_h->getId();
-  int uid = material_h->getUid();
   int num_groups = material_h->getNumEnergyGroups();
 
   cudaMemcpy((void*)&material_d->_id, (void*)&id, sizeof(int),
-             cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)&material_d->_uid, (void*)&uid, sizeof(int),
              cudaMemcpyHostToDevice);
 
   /* Allocate memory on the device for each dev_material data array */
@@ -71,15 +68,20 @@ void clone_material_on_gpu(Material* material_h, dev_material* material_d) {
 
 
 /**
- * @brief Given a pointer to a Track on the host and a dev_track on
- *        the GPU, copy all of the class attributes and segments from
- *        the Track object on the host to the GPU.  @details This
- *        routine is called by the GPUSolver::initializeTracks()
- *        private class method and is not intended to be called
- *        directly.  @param track_h pointer to a Track on the host
- *        @param track_d pointer to a dev_track on the GPU
+ * @brief Given a pointer to a Track on the host, a dev_track on
+ *        the GPU, and the map of material IDs to indices in the 
+ *        _materials array, copy all of the class attributes and 
+ *        segments from the Track object on the host to the GPU.  
+ * @details This routine is called by the GPUSolver::initializeTracks()
+ *          private class method and is not intended to be called
+ *          directly.  
+ * @param track_h pointer to a Track on the host
+ * @param track_d pointer to a dev_track on the GPU
+ * @param material_IDs_to_indices map of material IDs to indices
+ *        in the _materials array.
  */
-void clone_track_on_gpu(Track* track_h, dev_track* track_d) {
+void clone_track_on_gpu(Track* track_h, dev_track* track_d, 
+     			std::map<int, int> &material_IDs_to_indices) {
 
   dev_segment* dev_segments;
   dev_segment* host_segments = new dev_segment[track_h->getNumSegments()];
@@ -101,7 +103,8 @@ void clone_track_on_gpu(Track* track_h, dev_track* track_d) {
     segment* curr = track_h->getSegment(s);
     host_segments[s]._length = curr->_length;
     host_segments[s]._region_uid = curr->_region_id;
-    host_segments[s]._material_uid = curr->_material->getUid();
+    host_segments[s]._material_index = 
+      material_IDs_to_indices[curr->_material->getId()];
   }
 
   cudaMemcpy((void*)dev_segments, (void*)host_segments,
