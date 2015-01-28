@@ -137,7 +137,6 @@ public:
 
   virtual void alignData();
 
-  //~ virtual Material* clone() =0;
 };
 
 
@@ -259,15 +258,22 @@ inline void MacroMaterial::setSigmaSByGroupInline(
 
 /**
  * @class IsoMaterial Material.h "src/Material.h"
- * @brief The Material class represents a unique material and its relevant
- *        nuclear data (i.e., multigroup cross-sections) for neutron transport.
+ * @brief The IsoMaterial class represents a unique material, defined as a set
+ *        of Isotopes.
  */
 class IsoMaterial : public Material {
 
 private:
+  /** The vector of Isotopes contained in the Material */
   std::vector<Isotope*> _isotopes;
+  
+  /** The vector of number densities associated with the Isotopes */
   std::vector<FP_PRECISION> _num_dens;
+  
+  /** The number of Isotopes in the Material */
   int _num_isotopes;
+  
+  /** A flag for whether the fission spectrum has been set */
   bool _chi_set;
 
 public:

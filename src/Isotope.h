@@ -18,7 +18,6 @@
 #include "log.h"
 #endif
 
-
 /**
  * @class Isotope Isotope.h "src/Isotope.h"
  * @brief The Isotope class represents an istope and its relevant
@@ -28,16 +27,16 @@ class Isotope {
 
 protected:
 
-  /** A static counter for the number of materials in a simulation */
+  /** A static counter for the number of Isotopes in a simulation */
   static int _n;
 
-  /** A monotonically increasing unique ID for each Material created */
+  /** A monotonically increasing unique ID for each Isotope created */
   int _uid;
 
-  /** A user-defined ID for each Material created */
+  /** A user-defined ID for each Isotope created */
   int _id;
 
-  /** A user-defined name for the Material */
+  /** A user-defined name for the Isotope */
   char* _name;
 
   /** The number of energy groups */
