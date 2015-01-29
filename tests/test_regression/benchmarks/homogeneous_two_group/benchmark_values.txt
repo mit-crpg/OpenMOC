@@ -1,0 +1,2 @@
+# Homogeneous two groups
+Keff,1.432603359222412

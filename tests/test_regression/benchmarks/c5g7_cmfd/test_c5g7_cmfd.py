@@ -22,11 +22,14 @@ sys.path.append(current_directory[:-21])
 from regression_test_runner import *
 from benchmark_value_dict import *
 
-def setup_c5g7_cmfd(sysargs):
+def setup(sysargs):
 
     sys.argv = sysargs
 
-    ## parameters
+    ###############################################################################
+    #######################   Main Simulation Parameters   ########################
+    ###############################################################################
+
     options = Options()
 
     num_threads = options.getNumThreads()
@@ -34,304 +37,300 @@ def setup_c5g7_cmfd(sysargs):
     num_azim = options.getNumAzimAngles()
     tolerance = options.getTolerance()
     max_iters = options.getMaxIterations()
+
     log.set_log_level('ERROR')
 
-    ## materials
-    materials = materialize.materialize(current_directory + '/c5g7_materials.h5')
+
+    ###############################################################################
+    ###########################   Creating Materials   ############################
+    ###############################################################################
+
+    materials = materialize.materialize(current_directory+'/c5g7-materials.h5')
+
+    ###############################################################################
+    ###########################   Creating Surfaces   #############################
+    ###############################################################################
 
 
-## To Break -- change materials['UO2']
-    ## setNuSigmaFByGroup(val, group)        
+    left = XPlane(x=-32.13, name='left')
+    right = XPlane(x=32.13, name='right')
+    top = YPlane(y=32.13, name='top')
+    bottom = YPlane(y=-32.13, name='bottom')
+    left.setBoundaryType(REFLECTIVE)
+    right.setBoundaryType(VACUUM)
+    top.setBoundaryType(REFLECTIVE)
+    bottom.setBoundaryType(VACUUM)
+    boundaries = [left, right, top, bottom]
 
-#    materials['UO2'].setNuSigmaFByGroup(materials['UO2'].getSigmaFByGroup(2)*.9,2)
-    uo2_id = materials['UO2'].getId()
-    mox43_id = materials['MOX-4.3%'].getId()
-    mox7_id = materials['MOX-7%'].getId()
-    mox87_id = materials['MOX-8.7%'].getId()
-    guide_tube_id = materials['Guide Tube'].getId()
-    fiss_id = materials['Fission Chamber'].getId()
-    water_id = materials['Water'].getId()
-        
-    ## surfaces
-
-    circles = []
-    planes = []
-    planes.append(XPlane(x=-32.13))
-    planes.append(XPlane(x=32.13))
-    planes.append(YPlane(y=-32.13))
-    planes.append(YPlane(y=32.13))
-    circles.append(Circle(x=0., y=0., radius=0.54))
-    circles.append(Circle(x=0., y=0., radius=0.58))
-    circles.append(Circle(x=0., y=0., radius=0.62))
-    planes[0].setBoundaryType(REFLECTIVE)
-    planes[1].setBoundaryType(VACUUM)
-    planes[2].setBoundaryType(VACUUM)
-    planes[3].setBoundaryType(REFLECTIVE)
-
-    ## cells
-    cells = []
-
-    # UO2 pin cells
-    cells.append(CellBasic(universe=1, material=uo2_id, rings=3, sectors=8))
-    cells.append(CellBasic(universe=1, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=1, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=1, material=water_id, sectors=8))
-    cells[0].addSurface(-1, circles[0])
-    cells[1].addSurface(+1, circles[0])
-    cells[1].addSurface(-1, circles[1])
-    cells[2].addSurface(+1, circles[1])
-    cells[2].addSurface(-1, circles[2])
-    cells[3].addSurface(+1, circles[2])
+    # Create Circles for the fuel as well as to discretize the moderator into rings
+    fuel_radius = Circle(x=0.0, y=0.0, radius=0.54)
+    moderator_inner_radius = Circle(x=0.0, y=0.0, radius=0.62)
+    moderator_outer_radius = Circle(x=0.0, y=0.0, radius=0.58)
 
 
-    # 4.3% MOX pin cells
-    cells.append(CellBasic(universe=2, material=mox43_id, rings=3, sectors=8))
-    cells.append(CellBasic(universe=2, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=2, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=2, material=water_id, sectors=8))
-    cells[4].addSurface(-1, circles[0])
-    cells[5].addSurface(+1, circles[0])
-    cells[5].addSurface(-1, circles[1])
-    cells[6].addSurface(+1, circles[1])
-    cells[6].addSurface(-1, circles[2])
-    cells[7].addSurface(+1, circles[2])
+    ###############################################################################
+    ######################   Creating Cells and Universes   #######################
+    ###############################################################################
 
 
-    # 7% MOX pin cells
-    cells.append(CellBasic(universe=3, material=mox7_id, rings=3, sectors=8))
-    cells.append(CellBasic(universe=3, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=3, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=3, material=water_id, sectors=8))
-    cells[8].addSurface(-1, circles[0])
-    cells[9].addSurface(+1, circles[0])
-    cells[9].addSurface(-1, circles[1])
-    cells[10].addSurface(+1, circles[1])
-    cells[10].addSurface(-1, circles[2])
-    cells[11].addSurface(+1, circles[2])
+    # Moderator rings
+    moderator_ring1 = CellBasic(sectors=8)
+    moderator_ring2 = CellBasic(sectors=8)
+    moderator_ring3 = CellBasic(sectors=8)
+    moderator_ring1.setMaterial(materials['Water'])
+    moderator_ring2.setMaterial(materials['Water'])
+    moderator_ring3.setMaterial(materials['Water'])
+    moderator_ring1.addSurface(+1, fuel_radius)
+    moderator_ring1.addSurface(-1, moderator_inner_radius)
+    moderator_ring2.addSurface(+1, moderator_inner_radius)
+    moderator_ring2.addSurface(-1, moderator_outer_radius)
+    moderator_ring3.addSurface(+1, moderator_outer_radius)
+
+    # UO2 pin cell
+    uo2_cell = CellBasic(rings=3, sectors=8)
+    uo2_cell.setMaterial(materials['UO2'])
+    uo2_cell.addSurface(-1, fuel_radius)
+
+    uo2 = Universe(name='UO2')
+    uo2.addCell(uo2_cell)
+    uo2.addCell(moderator_ring1)
+    uo2.addCell(moderator_ring2)
+    uo2.addCell(moderator_ring3)
+
+    # 4.3% MOX pin cell
+    mox43_cell = CellBasic(rings=3, sectors=8)
+    mox43_cell.setMaterial(materials['MOX-4.3%'])
+    mox43_cell.addSurface(-1, fuel_radius)
+
+    mox43 = Universe(name='MOX-4.3%')
+    mox43.addCell(mox43_cell)
+    mox43.addCell(moderator_ring1)
+    mox43.addCell(moderator_ring2)
+    mox43.addCell(moderator_ring3)
+
+    # 7% MOX pin cell
+    mox7_cell = CellBasic(rings=3, sectors=8)
+    mox7_cell.setMaterial(materials['MOX-7%'])
+    mox7_cell.addSurface(-1, fuel_radius)
+
+    mox7 = Universe(name='MOX-7%')
+    mox7.addCell(mox7_cell)
+    mox7.addCell(moderator_ring1)
+    mox7.addCell(moderator_ring2)
+    mox7.addCell(moderator_ring3)
+
+    # 8.7% MOX pin cell
+    mox87_cell = CellBasic(rings=3, sectors=8)
+    mox87_cell.setMaterial(materials['MOX-8.7%'])
+    mox87_cell.addSurface(-1, fuel_radius)
+
+    mox87 = Universe(name='MOX-8.7%')
+    mox87.addCell(mox87_cell)
+    mox87.addCell(moderator_ring1)
+    mox87.addCell(moderator_ring2)
+    mox87.addCell(moderator_ring3)
+
+    # Fission chamber pin cell
+    fission_chamber_cell = CellBasic(rings=3, sectors=8)
+    fission_chamber_cell.setMaterial(materials['Fission Chamber'])
+    fission_chamber_cell.addSurface(-1, fuel_radius)
+
+    fission_chamber = Universe(name='Fission Chamber')
+    fission_chamber.addCell(fission_chamber_cell)
+    fission_chamber.addCell(moderator_ring1)
+    fission_chamber.addCell(moderator_ring2)
+    fission_chamber.addCell(moderator_ring3)
+
+    # Guide tube pin cell
+    guide_tube_cell = CellBasic(rings=3, sectors=8)
+    guide_tube_cell.setMaterial(materials['Guide Tube'])
+    guide_tube_cell.addSurface(-1, fuel_radius)
+
+    guide_tube = Universe(name='Guide Tube')
+    guide_tube.addCell(guide_tube_cell)
+    guide_tube.addCell(moderator_ring1)
+    guide_tube.addCell(moderator_ring2)
+    guide_tube.addCell(moderator_ring3)
+
+    # Reflector
+    reflector_cell = CellBasic(name='moderator')
+    reflector_cell.setMaterial(materials['Water'])
+
+    reflector = Universe(name='Reflector')
+    reflector.addCell(reflector_cell)
+
+    # CellFills
+    assembly1_cell = CellFill(name='Assembly 1')
+    assembly2_cell = CellFill(name='Assembly 2')
+    refined_reflector_cell = CellFill(name='Semi-Finely Spaced Reflector')
+    right_reflector_cell = CellFill(name='Right Reflector')
+    corner_reflector_cell = CellFill(name='Bottom Corner Reflector')
+    bottom_reflector_cell = CellFill(name='Bottom Reflector')
+
+    assembly1 = Universe(name='Assembly 1')
+    assembly2 = Universe(name='Assembly 2')
+    refined_reflector = Universe(name='Semi-Finely Spaced Moderator')
+    right_reflector = Universe(name='Right Reflector')
+    corner_reflector = Universe(name='Bottom Corner Reflector')
+    bottom_reflector = Universe(name='Bottom Reflector')
+
+    assembly1.addCell(assembly1_cell)
+    assembly2.addCell(assembly2_cell)
+    refined_reflector.addCell(refined_reflector_cell)
+    right_reflector.addCell(right_reflector_cell)
+    corner_reflector.addCell(corner_reflector_cell)
+    bottom_reflector.addCell(bottom_reflector_cell)
+
+    # Root Cell/Universe
+    root_cell = CellFill(name='Full Geometry')
+    root_cell.addSurface(+1, boundaries[0])
+    root_cell.addSurface(-1, boundaries[1])
+    root_cell.addSurface(-1, boundaries[2])
+    root_cell.addSurface(+1, boundaries[3])
+
+    root_universe = Universe(name='Root Universe')
+    root_universe.addCell(root_cell)
 
 
-    # 8.7% MOX pin cells
-    cells.append(CellBasic(universe=4, material=mox87_id, rings=3, sectors=8))
-    cells.append(CellBasic(universe=4, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=4, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=4, material=water_id, sectors=8))
-    cells[12].addSurface(-1, circles[0])
-    cells[13].addSurface(+1, circles[0])
-    cells[13].addSurface(-1, circles[1])
-    cells[14].addSurface(+1, circles[1])
-    cells[14].addSurface(-1, circles[2])
-    cells[15].addSurface(+1, circles[2])
+    ###############################################################################
+    ###########################   Creating Lattices   #############################
+    ###############################################################################
 
-    # Fission chamber pin cells
-    cells.append(CellBasic(universe=5, material=fiss_id, rings=3, sectors=8))
-    cells.append(CellBasic(universe=5, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=5, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=5, material=water_id, sectors=8))
-    cells[16].addSurface(-1, circles[0])
-    cells[17].addSurface(+1, circles[0])
-    cells[17].addSurface(-1, circles[1])
-    cells[18].addSurface(+1, circles[1])
-    cells[18].addSurface(-1, circles[2])
-    cells[19].addSurface(+1, circles[2])
 
-    # Guide tube pin cells
-    cells.append(CellBasic(universe=6, material=guide_tube_id, rings=3, sectors=8))
-    cells.append(CellBasic(universe=6, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=6, material=water_id, sectors=8))
-    cells.append(CellBasic(universe=6, material=water_id, sectors=8))
-    cells[20].addSurface(-1, circles[0])
-    cells[21].addSurface(+1, circles[0])
-    cells[21].addSurface(-1, circles[1])
-    cells[22].addSurface(+1, circles[1])
-    cells[22].addSurface(-1, circles[2])
-    cells[23].addSurface(+1, circles[2])
-
-    # Moderator cell
-    cells.append(CellBasic(universe=7, material=water_id))
-
-    # Top left, bottom right lattice
-    cells.append(CellFill(universe=10, universe_fill=20))
-
-    # Top right, bottom left lattice
-    cells.append(CellFill(universe=11, universe_fill=21))
-
-    # Moderator lattice - semi-finely spaced
-    cells.append(CellFill(universe=12, universe_fill=23))
-
-    # Moderator lattice - bottom of geometry
-    cells.append(CellFill(universe=13, universe_fill=24))
-
-    # Moderator lattice - bottom corner of geometry
-    cells.append(CellFill(universe=14, universe_fill=25))
-
-    # Moderator lattice right side of geometry
-    cells.append(CellFill(universe=15, universe_fill=26))
-
-    # Full geometry
-    cells.append(CellFill(universe=0, universe_fill=30))
-    cells[-1].addSurface(+1, planes[0])
-    cells[-1].addSurface(-1, planes[1])
-    cells[-1].addSurface(+1, planes[2])
-    cells[-1].addSurface(-1, planes[3])
-
-    ## lattices
-    lattices = []
+    lattices = list()
 
     # Top left, bottom right 17 x 17 assemblies
-    lattices.append(Lattice(id=20, width_x=1.26, width_y=1.26))
-    lattices[-1].setLatticeCells(
-        [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-         [1, 1, 1, 1, 1, 6, 1, 1, 6, 1, 1, 6, 1, 1, 1, 1, 1],
-         [1, 1, 1, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 1, 1, 1],
-         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-         [1, 1, 6, 1, 1, 6, 1, 1, 6, 1, 1, 6, 1, 1, 6, 1, 1],
-         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-         [1, 1, 6, 1, 1, 6, 1, 1, 5, 1, 1, 6, 1, 1, 6, 1, 1],
-         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-         [1, 1, 6, 1, 1, 6, 1, 1, 6, 1, 1, 6, 1, 1, 6, 1, 1],
-         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-         [1, 1, 1, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 1, 1, 1],
-         [1, 1, 1, 1, 1, 6, 1, 1, 6, 1, 1, 6, 1, 1, 1, 1, 1],
-         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+    lattices.append(Lattice(name='Assembly 1'))
+    lattices[-1].setWidth(width_x=1.26, width_y=1.26)
+    template = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1],
+                [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 2, 1, 1, 2, 1, 1, 3, 1, 1, 2, 1, 1, 2, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+                [1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
+    universes = {1 : uo2, 2 : guide_tube, 3 : fission_chamber}
+    for i in range(17):
+      for j in range(17):
+        template[i][j] = universes[template[i][j]]
+    lattices[-1].setUniverses(template)
+    assembly1_cell.setFill(lattices[-1])
 
-    # Top right, bottom left 17 x 17 assemblies 
-    lattices.append(Lattice(id=21, width_x=1.26, width_y=1.26))
-    lattices[-1].setLatticeCells(
-        [[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-         [2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2],
-         [2, 3, 3, 3, 3, 6, 3, 3, 6, 3, 3, 6, 3, 3, 3, 3, 2],
-         [2, 3, 3, 6, 3, 4, 4, 4, 4, 4, 4, 4, 3, 6, 3, 3, 2],
-         [2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 2],
-         [2, 3, 6, 4, 4, 6, 4, 4, 6, 4, 4, 6, 4, 4, 6, 3, 2],
-         [2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 2],
-         [2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 2],
-         [2, 3, 6, 4, 4, 6, 4, 4, 5, 4, 4, 6, 4, 4, 6, 3, 2],
-         [2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 2],
-         [2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 2],
-         [2, 3, 6, 4, 4, 6, 4, 4, 6, 4, 4, 6, 4, 4, 6, 3, 2],
-         [2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 2],
-         [2, 3, 3, 6, 3, 4, 4, 4, 4, 4, 4, 4, 3, 6, 3, 3, 2],
-         [2, 3, 3, 3, 3, 6, 3, 3, 6, 3, 3, 6, 3, 3, 3, 3, 2],
-         [2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2],
-         [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]])
-
+    # Top right, bottom left 17 x 17 assemblies
+    lattices.append(Lattice(name='Assembly 2'))
+    lattices[-1].setWidth(width_x=1.26, width_y=1.26)
+    template = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1],
+                [1, 2, 2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 2, 4, 2, 2, 1],
+                [1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1],
+                [1, 2, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 2, 1],
+                [1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1],
+                [1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1],
+                [1, 2, 4, 3, 3, 4, 3, 3, 5, 3, 3, 4, 3, 3, 4, 2, 1],
+                [1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1],
+                [1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1],
+                [1, 2, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 2, 1],
+                [1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1],
+                [1, 2, 2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 2, 4, 2, 2, 1],
+                [1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1],
+                [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+    universes = {1 : mox43, 2 : mox7, 3 : mox87,
+                 4 : guide_tube, 5 : fission_chamber}
+    for i in range(17):
+      for j in range(17):
+        template[i][j] = universes[template[i][j]]
+    lattices[-1].setUniverses(template)
+    assembly2_cell.setFill(lattices[-1])
 
     # Sliced up water cells - semi finely spaced
-    lattices.append(Lattice(id=23, width_x=0.126, width_y=0.126))
-    lattices[-1].setLatticeCells(
-        [[7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7]])
-
+    lattices.append(Lattice(name='Semi-Finely Spaced Reflector'))
+    lattices[-1].setWidth(width_x=0.126, width_y=0.126)
+    template = [[reflector] * 10] * 10
+    lattices[-1].setUniverses(template)
+    refined_reflector_cell.setFill(lattices[-1])
 
     # Sliced up water cells - right side of geometry
-    lattices.append(Lattice(id=26, width_x=1.26, width_y=1.26))
-    lattices[-1].setLatticeCells(
-        [[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7]])
-
+    lattices.append(Lattice(name='Right Reflector'))
+    lattices[-1].setWidth(width_x=1.26, width_y=1.26)
+    template = [[refined_reflector] * 11 + [reflector] * 6] * 17
+    lattices[-1].setUniverses(template)
+    right_reflector_cell.setFill(lattices[-1])
 
     # Sliced up water cells for bottom corner of geometry
-    lattices.append(Lattice(id=25, width_x=1.26, width_y=1.26))
-    lattices[-1].setLatticeCells(
-        [[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]])
-
+    lattices.append(Lattice(name='Bottom Corner Reflector'))
+    lattices[-1].setWidth(width_x=1.26, width_y=1.26)
+    template = [[refined_reflector] * 11 + [reflector] * 6] * 11
+    template += [[reflector] * 17] * 6
+    lattices[-1].setUniverses(template)
+    corner_reflector_cell.setFill(lattices[-1])
 
     # Sliced up water cells for bottom of geometry
-    lattices.append(Lattice(id=24, width_x=1.26, width_y=1.26))
-    lattices[-1].setLatticeCells(
-        [[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]])
-
+    lattices.append(Lattice(name='Bottom Reflector'))
+    lattices[-1].setWidth(width_x=1.26, width_y=1.26)
+    template = [[refined_reflector] * 17] * 11
+    template += [[reflector] * 17] * 6
+    lattices[-1].setUniverses(template)
+    bottom_reflector_cell.setFill(lattices[-1])
 
     # 4 x 4 core to represent two bundles and water
-    lattices.append(Lattice(id=30, width_x=21.42, width_y=21.42))
-    lattices[-1].setLatticeCells([[10, 11, 15],
-                                 [11, 10, 15],
+    lattices.append(Lattice(name='Full Geometry'))
+    lattices[-1].setWidth(width_x=21.42, width_y=21.42)
+    lattices[-1].setUniverses([
+         [assembly1,        assembly2,        right_reflector],
+         [assembly2,        assembly1,        right_reflector],
+         [bottom_reflector, bottom_reflector, corner_reflector]])
+    root_cell.setFill(lattices[-1])
 
 
-                                 [13, 13, 14]])
+    ###############################################################################
+    ##########################     Creating Cmfd mesh    ##########################
+    ###############################################################################
 
-    ## Cmfd mesh
+
     cmfd = Cmfd()
     cmfd.setMOCRelaxationFactor(0.6)
     cmfd.setSORRelaxationFactor(1.5)
     cmfd.setLatticeStructure(51,51)
     cmfd.setGroupStructure([1,4,8])
 
-    ## geometry
-    geometry = Geometry()
-    geometry.setCmfd(cmfd)
-    for material in materials.values(): geometry.addMaterial(material)
-    for cell in cells: geometry.addCell(cell)
-    for lattice in lattices: geometry.addLattice(lattice)
 
+    ###############################################################################
+    ##########################   Creating the Geometry   ##########################
+    ###############################################################################
+
+
+    geometry = Geometry()
+    geometry.setRootUniverse(root_universe)
+    geometry.setCmfd(cmfd)
     geometry.initializeFlatSourceRegions()
 
-    ## TrackGenerator
+
+    ###############################################################################
+    ########################   Creating the TrackGenerator   ######################
+    ###############################################################################
+
+
     track_generator = TrackGenerator(geometry, num_azim, track_spacing)
     track_generator.setNumThreads(num_threads)
     track_generator.generateTracks()
 
-    ## run simulation
+    ###############################################################################
+    ###########################   Running a Simulation   ##########################
+    ###############################################################################
+
     solver = CPUSolver(geometry, track_generator)
     solver.setSourceConvergenceThreshold(tolerance)
     solver.setNumThreads(num_threads)
@@ -343,15 +342,16 @@ def setup_c5g7_cmfd(sysargs):
 # assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'c5g7_cmfd'
-benchmark_value = benchmark_value_dictionary[(benchmark,test_type)]
+benchmark_value = benchmark_val
+print benchmark_value, 'is the Keff found for', benchmark
 error_margin = 0.0001
 filename = 'c5g7-cmfd.py'
-setup_func = setup_c5g7_cmfd
+#setup_func = setup_c5g7_cmfd
 
 test_c5g7 = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads='DEFAULT')
 test_c5g7_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads=1)
 
-test_list = [test_c5g7, test_c5g7_1t]
+test_list = [(test_c5g7, __name__), (test_c5g7_1t, __name__)]
 
 if __name__ == '__main__':
     

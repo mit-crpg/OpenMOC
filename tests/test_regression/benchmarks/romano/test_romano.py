@@ -17,8 +17,10 @@ def setup_romano(sysargs):
 
     sys.argv = sysargs
 
-    ## parameters
-    
+    ###############################################################################
+    #######################   Main Simulation Parameters   ########################
+    ###############################################################################
+
     options = Options()
 
     num_threads = options.getNumThreads()
@@ -29,10 +31,13 @@ def setup_romano(sysargs):
 
     log.set_log_level('ERROR')
 
-    ## create materials
 
-    fuel = Material(1)
-    moderator = Material(2)
+    ###############################################################################
+    ###########################   Creating Materials   ############################
+    ###############################################################################
+
+    fuel = Material(name='fuel')
+    moderator = Material(name='moderator')
 
     fuel.setNumEnergyGroups(1)
     moderator.setNumEnergyGroups(1)
@@ -51,8 +56,11 @@ def setup_romano(sysargs):
     moderator.setSigmaS(numpy.array([0.837794542]))
     moderator.setChi(numpy.array([1.0]))
 
-    ## create surfaces
-    
+
+    ###############################################################################
+    ###########################   Creating Surfaces   #############################
+    ###############################################################################
+
     circle = Circle(x=0.0, y=0.0, radius=0.4)
     left = XPlane(x=-0.635)
     right = XPlane(x=0.635)
@@ -64,43 +72,54 @@ def setup_romano(sysargs):
     top.setBoundaryType(REFLECTIVE)
     bottom.setBoundaryType(REFLECTIVE)
 
-    ## create cells
 
-    cells = []
-    cells.append(CellBasic(universe=1, material=1))
-    cells.append(CellBasic(universe=1, material=2))
-    cells.append(CellFill(universe=0, universe_fill=2))
+    ###############################################################################
+    #############################   Creating Cells   ##############################
+    ###############################################################################
 
-    cells[0].addSurface(halfspace=-1, surface=circle)
-    cells[1].addSurface(halfspace=+1, surface=circle)
-    cells[2].addSurface(halfspace=+1, surface=left)
-    cells[2].addSurface(halfspace=-1, surface=right)
-    cells[2].addSurface(halfspace=+1, surface=bottom)
-    cells[2].addSurface(halfspace=-1, surface=top)
+    fuel_cell = CellBasic(name='fuel')
+    fuel_cell.setMaterial(fuel)
+    fuel_cell.addSurface(halfspace=-1, surface=circle)
 
-    ## create lattice
+    moderator_cell = CellBasic(name='moderator')
+    moderator_cell.setMaterial(moderator)
+    moderator_cell.addSurface(halfspace=+1, surface=circle)
+    moderator_cell.addSurface(halfspace=+1, surface=left)
+    moderator_cell.addSurface(halfspace=-1, surface=right)
+    moderator_cell.addSurface(halfspace=+1, surface=bottom)
+    moderator_cell.addSurface(halfspace=-1, surface=top)
 
-    lattice = Lattice(id=2, width_x=1.27, width_y=1.27)
-    lattice.setLatticeCells([[1]])
 
-    ## create geometry
+    ###############################################################################
+    ###########################   Creating Universes   ############################
+    ###############################################################################
+
+    root_universe = Universe(name='root universe')
+    root_universe.addCell(fuel_cell)
+    root_universe.addCell(moderator_cell)
+
+
+    ###############################################################################
+    ##########################   Creating the Geometry   ##########################
+    ###############################################################################
 
     geometry = Geometry()
-    geometry.addMaterial(fuel)
-    geometry.addMaterial(moderator)
-    geometry.addCell(cells[0])
-    geometry.addCell(cells[1])
-    geometry.addCell(cells[2])
-    geometry.addLattice(lattice)
-
+    geometry.setRootUniverse(root_universe)
     geometry.initializeFlatSourceRegions()
 
-    ## create TrackGenerator
+
+    ###############################################################################
+    ########################   Creating the TrackGenerator   ######################
+    ###############################################################################
 
     track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+    track_generator.setNumThreads(num_threads)
     track_generator.generateTracks()
 
-    ## run simulation
+
+    ###############################################################################
+    ###########################   Running a Simulation   ##########################
+    ###############################################################################
 
     solver = CPUSolver(geometry, track_generator)
     solver.setNumThreads(num_threads)
@@ -110,33 +129,18 @@ def setup_romano(sysargs):
     return solver.getKeff()
 
 
-#### assign values for use in creating the test case object
-##test_type = 'Keff'
-##benchmark = 'romano'
-##benchmark_value = 1.2826626300811768
-##Keff = general_romano_setup(['romano.py'])
-##Keff_1t = general_romano_setup(['romano.py', '--num-omp-threads', '1'])
-##error_margin = 0.0005
-##
-##test_romano = regression_test_case(test_type, benchmark, benchmark_value, Keff, Keff_1t, error_margin)
-##
-##if __name__ == '__main__':
-##    # load case into suite (handles output file more completely)
-##    romano_test_suite = regression_test_suite([test_romano], output)
-##    romano_test_suite.run_tests()
-
-# assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'romano'
-benchmark_value = benchmark_value_dictionary[(benchmark,test_type)]
+benchmark_value = benchmark_val
+print benchmark_value, 'is the Keff found for', benchmark
 error_margin = 0.0001
 filename = 'romano.py'
-setup_func = setup_romano
+#setup_func = setup_romano
 
-test_romano = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads='DEFAULT')
+test_romano_case = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads='DEFAULT')
 test_romano_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads=1)
 
-test_list = [test_romano, test_romano_1t]
+test_list = [(test_romano_case, test_romano), (test_romano_1t, test_romano)]
 
 if __name__ == '__main__':
 

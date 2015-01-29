@@ -15,27 +15,33 @@ sys.path.append(current_directory[:-32])
 from regression_test_runner import *
 from benchmark_value_dict import *
 
-def setup_homogeneous_two_groups(sysargs):
+def setup(sysargs):
 
-    ## This setup function is named by adding 'setup_' to the beginning of the benchmark name
-    ## for this test -- see bottom of file. self.benchmark for this test is
-    ## 'homogeneous_two_group', so the function is named as seen.
+    ###############################################################################
+    #######################   Main Simulation Parameters   ########################
+    ###############################################################################
 
-    ## All setup functions have unique names so that when they are called by the
-    ## regression test runner, only one function has that name. 
-    
-    # run simulation w/ given command line arguments
-    sys.argv = sysargs
     options = Options()
+
     num_threads = options.getNumThreads()
     track_spacing = options.getTrackSpacing()
     num_azim = options.getNumAzimAngles()
     tolerance = options.getTolerance()
     max_iters = options.getMaxIterations()
-    log.set_log_level('ERROR')
-    
-    # materials   
-    infinite_medium = Material(1)
+
+    log.set_log_level('NORMAL')
+
+    log.py_printf('TITLE', 'Simulating a two group homogeneous infinite medium...')
+    log.py_printf('HEADER', 'The reference keff = 1.72...')
+
+
+    ###############################################################################
+    ###########################   Creating Materials   ############################
+    ###############################################################################
+
+    log.py_printf('NORMAL', 'Creating materials...')
+
+    infinite_medium = Material(name='2-group infinite medium')
     infinite_medium.setNumEnergyGroups(2)
     infinite_medium.setSigmaA(numpy.array([0.0038, 0.184]))
     infinite_medium.setSigmaF(numpy.array([0.000625, 0.135416667]))
@@ -44,49 +50,74 @@ def setup_homogeneous_two_groups(sysargs):
     infinite_medium.setChi(numpy.array([1.0, 0.0]))
     infinite_medium.setSigmaT(numpy.array([0.2208, 1.604]))
 
-    # surfaces
-    circle = Circle(x=0.0, y=0.0, radius=50.0)
-    left = XPlane(x=-100.0)
-    right = XPlane(x=100.0)
-    top = YPlane(y=100.0)
-    bottom = YPlane(y=-100.0)
+
+    ###############################################################################
+    ###########################   Creating Surfaces   #############################
+    ###############################################################################
+
+    log.py_printf('NORMAL', 'Creating surfaces...')
+
+    left = XPlane(x=-100.0, name='left')
+    right = XPlane(x=100.0, name='right')
+    top = YPlane(y=100.0, name='top')
+    bottom = YPlane(y=-100.0, name='bottom')
 
     left.setBoundaryType(REFLECTIVE)
     right.setBoundaryType(REFLECTIVE)
     top.setBoundaryType(REFLECTIVE)
     bottom.setBoundaryType(REFLECTIVE)
 
-    # cells
-    cells = []
-    cells.append(CellBasic(universe=1, material=1))
-    cells.append(CellBasic(universe=1, material=1))
-    cells.append(CellFill(universe=0, universe_fill=2))
 
-    cells[0].addSurface(halfspace=-1, surface=circle)
-    cells[1].addSurface(halfspace=+1, surface=circle)
-    cells[2].addSurface(halfspace=+1, surface=left)
-    cells[2].addSurface(halfspace=-1, surface=right)
-    cells[2].addSurface(halfspace=+1, surface=bottom)
-    cells[2].addSurface(halfspace=-1, surface=top)
+    ###############################################################################
+    #############################   Creating Cells   ##############################
+    ###############################################################################
 
-    # lattices
-    lattice = Lattice(id=2, width_x=200.0, width_y=200.0)
-    lattice.setLatticeCells([[1]])
+    log.py_printf('NORMAL', 'Creating cells...')
 
-    # geometry
+    cell = CellBasic()
+    cell.setMaterial(infinite_medium)
+    cell.addSurface(halfspace=+1, surface=left)
+    cell.addSurface(halfspace=-1, surface=right)
+    cell.addSurface(halfspace=+1, surface=bottom)
+    cell.addSurface(halfspace=-1, surface=top)
+
+
+    ###############################################################################
+    #                            Creating Universes
+    ###############################################################################
+
+    log.py_printf('NORMAL', 'Creating universes...')
+
+    root_universe = Universe(name='root universe')
+    root_universe.addCell(cell)
+
+
+    ###############################################################################
+    ##########################   Creating the Geometry   ##########################
+    ###############################################################################
+
+    log.py_printf('NORMAL', 'Creating geometry...')
+
     geometry = Geometry()
-    geometry.addMaterial(infinite_medium)
-    geometry.addCell(cells[0])
-    geometry.addCell(cells[1])
-    geometry.addCell(cells[2])
-    geometry.addLattice(lattice)
+    geometry.setRootUniverse(root_universe)
     geometry.initializeFlatSourceRegions()
 
-    # TrackGenerator
+
+    ###############################################################################
+    ########################   Creating the TrackGenerator   ######################
+    ###############################################################################
+
+    log.py_printf('NORMAL', 'Initializing the track generator...')
+
     track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+    track_generator.setNumThreads(num_threads)
     track_generator.generateTracks()
 
-    # run simulation
+
+    ###############################################################################
+    ###########################   Running a Simulation   ##########################
+    ###############################################################################
+
     solver = CPUSolver(geometry, track_generator)
     solver.setNumThreads(num_threads)
     solver.setSourceConvergenceThreshold(tolerance)
@@ -98,15 +129,16 @@ def setup_homogeneous_two_groups(sysargs):
 # assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'homogeneous_two_groups'
-benchmark_value = benchmark_value_dictionary[(benchmark,test_type)]
+benchmark_value = benchmark_val
+print benchmark_value, 'is the Keff found for', benchmark
 error_margin = 0.0001
 filename = 'homogeneous-two-groups.py'
-setup_func = setup_homogeneous_two_groups
+#setup_func = setup_homogeneous_two_groups
 
 test_H2G = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads='DEFAULT')
 test_H2G_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads=1)
 
-test_list = [test_H2G, test_H2G_1t]
+test_list = [(test_H2G, __name__), (test_H2G_1t, __name__)]
 
 if __name__ == '__main__':
 

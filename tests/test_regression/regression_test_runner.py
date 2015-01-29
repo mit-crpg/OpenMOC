@@ -1,6 +1,7 @@
 import time
 import multiprocessing as mp
 import platform
+import sys
 
 print_times = True
 # variable for if you want it to print time taken for each individual test
@@ -22,17 +23,17 @@ class regression_test_case():
           Should be either 1 or 'DEFAULT'.
     """
 
-    def __init__(self, test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads):
+    def __init__(self, test_type, benchmark, benchmark_value, error_margin, filename, num_threads):
 
         self.test_type = test_type
         self.benchmark = benchmark
         self.benchmark_value = benchmark_value
         self.error_margin = error_margin
         self.filename = filename        
-        self.setup_func = setup_func
+ #       self.setup_func = setup_func
         self.num_threads = num_threads # this should be either 'DEFAULT' or 1
 
-    def set_up_test(self):
+    def set_up_test(self, test_mod):
 
         """Calculates the Keff and Keff 1 thread of the test. This is set up
         so that the tests are set up and then run individually instead of waiting 30 min
@@ -40,13 +41,15 @@ class regression_test_case():
         """
 
         filename = self.filename
-        setup_func = self.setup_func
         num_threads = self.num_threads
 
+        module_dict = sys.modules
+        test_module = module_dict[test_mod]
+
         if num_threads == 'DEFAULT':
-            self.calculated_value = setup_func([filename])
+            self.calculated_value = test_module.setup([filename])
         elif type(num_threads) == int:
-            self.calculated_value = setup_func([filename, '--num-omp-threads', str(num_threads)])
+            self.calculated_value = test_module.setup([filename, '--num-omp-threads', str(num_threads)])
         else:
             print 'ERROR: unexpected type for num_threads (expected int or str, got', type(num_threads)
 
@@ -56,7 +59,8 @@ class regression_test_suite():
     """A suite including a list of tests to run and a desired output file.
 
     Attributes:
-      tests = list of regression_test_case objects that comprise the suite
+      tests = list of tuples: test[0] is regression_test_case instance,
+          test[1] is the name of the module whose setup routine will be used 
       output = variable referring to output filename
       none_failed = boolean referring to whether or not a test has failed thus
           far (defaults to True - meaning no test has failed thus far)
@@ -107,10 +111,12 @@ class regression_test_suite():
         print '------------------BEGINNING REGRESSION TESTS------------------'
 
         # runs all tests and adds to output file; closes file when done
-        for test in self.get_tests():
+        for test_tuple in self.get_tests():
 
+            test = test_tuple[0]
+            test_mod = test_tuple[1]
             test_start_time = time.clock()
-            test.set_up_test()
+            test.set_up_test(test_mod)
             if not run_regression_test(test, self.output, test_start_time, self.none_failed):
                 self.test_failed()
             

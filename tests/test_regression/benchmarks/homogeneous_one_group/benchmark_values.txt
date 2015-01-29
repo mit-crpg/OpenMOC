@@ -1,0 +1,2 @@
+# Homogeneous one group
+Keff,1.432603359222412

@@ -29,7 +29,7 @@ log.py_printf('HEADER', 'The reference keff = 1.72...')
 
 log.py_printf('NORMAL', 'Creating materials...')
 
-infinite_medium = Material(1)
+infinite_medium = Material(name='2-group infinite medium')
 infinite_medium.setNumEnergyGroups(2)
 infinite_medium.setSigmaA(numpy.array([0.0038, 0.184]))
 infinite_medium.setSigmaF(numpy.array([0.000625, 0.135416667]))
@@ -45,11 +45,10 @@ infinite_medium.setSigmaT(numpy.array([0.2208, 1.604]))
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(x=0.0, y=0.0, radius=50.0)
-left = XPlane(x=-100.0)
-right = XPlane(x=100.0)
-top = YPlane(y=100.0)
-bottom = YPlane(y=-100.0)
+left = XPlane(x=-100.0, name='left')
+right = XPlane(x=100.0, name='right')
+top = YPlane(y=100.0, name='top')
+bottom = YPlane(y=-100.0, name='bottom')
 
 left.setBoundaryType(REFLECTIVE)
 right.setBoundaryType(REFLECTIVE)
@@ -63,27 +62,22 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cells = []
-cells.append(CellBasic(universe=1, material=1))
-cells.append(CellBasic(universe=1, material=1))
-cells.append(CellFill(universe=0, universe_fill=2))
-
-cells[0].addSurface(halfspace=-1, surface=circle)
-cells[1].addSurface(halfspace=+1, surface=circle)
-cells[2].addSurface(halfspace=+1, surface=left)
-cells[2].addSurface(halfspace=-1, surface=right)
-cells[2].addSurface(halfspace=+1, surface=bottom)
-cells[2].addSurface(halfspace=-1, surface=top)
+cell = CellBasic()
+cell.setMaterial(infinite_medium)
+cell.addSurface(halfspace=+1, surface=left)
+cell.addSurface(halfspace=-1, surface=right)
+cell.addSurface(halfspace=+1, surface=bottom)
+cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
-###########################   Creating Lattices   #############################
+#                            Creating Universes
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
+log.py_printf('NORMAL', 'Creating universes...')
 
-lattice = Lattice(id=2, width_x=200.0, width_y=200.0)
-lattice.setLatticeCells([[1]])
+root_universe = Universe(name='root universe')
+root_universe.addCell(cell)
 
 
 ###############################################################################
@@ -93,11 +87,7 @@ lattice.setLatticeCells([[1]])
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-geometry.addMaterial(infinite_medium)
-geometry.addCell(cells[0])
-geometry.addCell(cells[1])
-geometry.addCell(cells[2])
-geometry.addLattice(lattice)
+geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
 
@@ -108,6 +98,7 @@ geometry.initializeFlatSourceRegions()
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
 
