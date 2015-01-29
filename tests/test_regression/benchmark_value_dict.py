@@ -8,6 +8,8 @@ print current_directory
 
 def read_file_to_list():
 
+    # this doesnt work when running suite - cant find file
+
     val_file = open('benchmark_values.txt','r')
     file_line_list = []
     
@@ -51,10 +53,11 @@ def update_Keff(Keff_value):
     val_file.close()
     
 
-    
+## this doesnt really work when importing during suite
 
 line_list = read_file_to_list()
 benchmark_value_dictionary = create_dict(line_list)
 print 'getting Keff'
 benchmark_val = get_Keff(line_list)
 print 'Keff found was', benchmark_val
+

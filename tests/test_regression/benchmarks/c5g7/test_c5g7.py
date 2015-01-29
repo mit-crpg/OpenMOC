@@ -14,9 +14,10 @@ current_directory = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0,current_directory[:-15])
 sys.path.insert(0,current_directory)
 
-
 from regression_test_runner import *
 from benchmark_value_dict import *
+
+line_list = read_file_to_list()
 
 def setup(sysargs):
 
@@ -42,7 +43,7 @@ def setup(sysargs):
     ###############################################################################
 
 
-    materials = materialize.materialize(current_directory+'/c5g7-materials.h5')
+    materials = materialize.materialize(current_directory+'/c5g7_materials.h5')
 
 
     ###############################################################################
@@ -318,16 +319,16 @@ def setup(sysargs):
 # assign values for use in test case instance
 test_type = 'Keff'
 benchmark = 'c5g7'
-benchmark_value = benchmark_val
+benchmark_value = 2
 print benchmark_value, 'is the Keff found for', benchmark
 error_margin = 0.0001
 filename = 'c5g7.py'
 #setup_func = setup_c5g7
 
-test_c5g7_case = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads='DEFAULT')
-test_c5g7_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, setup_func, num_threads=1)
+test_c5g7_case = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, num_threads='DEFAULT')
+test_c5g7_1t = regression_test_case(test_type, benchmark, benchmark_value, error_margin, filename, num_threads=1)
 
-test_list = [(test_c5g7_case, test_c5g7), (test_c5g7_1t, test_c5g7)]
+test_list = [(test_c5g7_case, __name__), (test_c5g7_1t, __name__)]
 
 if __name__ == '__main__':
 

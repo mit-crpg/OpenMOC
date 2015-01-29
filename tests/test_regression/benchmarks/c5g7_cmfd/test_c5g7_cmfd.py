@@ -45,7 +45,7 @@ def setup(sysargs):
     ###########################   Creating Materials   ############################
     ###############################################################################
 
-    materials = materialize.materialize(current_directory+'/c5g7-materials.h5')
+    materials = materialize.materialize(current_directory+'/c5g7_materials.h5')
 
     ###############################################################################
     ###########################   Creating Surfaces   #############################
