@@ -16,6 +16,7 @@
 #include <omp.h>
 #include <vector>
 #include "log.h"
+#include "pairwise_sum.h"
 #endif
 
 /**
@@ -114,5 +115,5 @@ public:
 
 
 
-#endif
+#endif /* ISOTOPE_H_ */
 

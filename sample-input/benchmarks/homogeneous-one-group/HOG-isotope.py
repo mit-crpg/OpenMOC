@@ -39,7 +39,7 @@ iso.setChi(numpy.array([1.0]))
 iso.setSigmaT(numpy.array([0.452648699]))
 
 infinite_medium = IsoMaterial(name='1-group infinite medium')
-infinite_medium.addIsotope(iso,1.0)
+infinite_medium.addIsotope(iso,1.0)     # number density in a/b-cm
 
 
 ###############################################################################

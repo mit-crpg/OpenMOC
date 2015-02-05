@@ -44,8 +44,8 @@ iso2.setSigmaA(numpy.array([0.02]))
 iso2.setSigmaT(numpy.array([0.02]))
 
 infinite_medium = IsoMaterial(name='1-group infinite medium')
-infinite_medium.addIsotope(iso1,1.0)
-infinite_medium.addIsotope(iso2,0.5)
+infinite_medium.addIsotope(iso1,1.0)        # number density in a/b-cm
+infinite_medium.addIsotope(iso2,0.5)        # number density in a/b-cm
 
 
 ###############################################################################

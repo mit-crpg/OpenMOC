@@ -34,7 +34,7 @@ void reset_material_id() {
  */
 Material::Material(int id, const char* name) {
 
-  _material_type = GENERIC_MATERIAL;
+  _material_type = GENERIC;
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
@@ -520,7 +520,7 @@ void Material::alignData() {
  */
 MacroMaterial::MacroMaterial(int id, const char* name) : Material(id,name) {
     
-  _material_type = MACRO_MATERIAL;
+  _material_type = MACRO;
   
   _sigma_s = NULL;
   _dif_coef = NULL;
@@ -545,6 +545,20 @@ MacroMaterial::~MacroMaterial() {
     if (_sigma_s != NULL)
       delete [] _sigma_s;
   }
+  
+  if (_dif_coef != NULL)
+    delete [] _dif_coef;
+  
+  if (_dif_hat != NULL)
+    delete [] _dif_hat;
+  
+  if (_dif_tilde != NULL)
+    delete [] _dif_tilde;
+    
+  if (_buckling != NULL)
+    delete [] _buckling;
+  
+  
 }
 
 
@@ -951,7 +965,7 @@ void MacroMaterial::setSigmaS(double* xs, int num_groups_squared) {
 
   for (int dest=0; dest < _num_groups; dest++) {
     for (int orig=0; orig < _num_groups; orig++)
-      setSigmaSByGroupInline(xs[orig*_num_groups+dest],orig,dest);
+      setSigmaSByGroup(xs[orig*_num_groups+dest],orig+1,dest+1);
   }
 }
 
@@ -970,7 +984,7 @@ void MacroMaterial::setSigmaSByGroup(double xs, int origin, int destination) {
                "which contains %d energy groups",
                origin, destination, _id, _num_groups);
 
-  setSigmaSByGroupInline(xs,origin-1,destination-1);
+  _sigma_s[(destination-1)*_num_groups + origin-1] = xs;
 }
 
 
@@ -1433,7 +1447,7 @@ void MacroMaterial::checkSigmaT() {
 
     /* Check if the calculated and total match up to certain threshold */
     if (fabs(calc_sigma_t - _sigma_t[i]) > SIGMA_T_THRESH) {
-      log_printf(ERROR, "Material id = %d has a different total cross-section "
+      log_printf(WARNING, "Material id = %d has a different total cross-section "
                  "than the sum of its scattering and absorption cross-sections "
                  "for group %d: sigma_t = %f, calc_sigma_t = %f",
                  _id, i+1, _sigma_t[i], calc_sigma_t);
@@ -1631,7 +1645,7 @@ MacroMaterial* MacroMaterial::clone(){
  */
 IsoMaterial::IsoMaterial(int id, const char* name) : Material(id,name) {
     
-  _material_type = ISO_MATERIAL;
+  _material_type = ISO;
   
   _num_isotopes = 0;
   
@@ -1654,7 +1668,7 @@ IsoMaterial::~IsoMaterial() {
 /**
  * @brief Add an isotope to the Material.
  * @details Add the isotope's contributions to the stored cross sections
- * @param isotope Pointer to the Isotope to be added
+ * @param isotope pointer to the Isotope to be added
  * @param number_density the number density of the Isotope in the Material
  */  
 void IsoMaterial:: addIsotope(Isotope* isotope, FP_PRECISION number_density) {
@@ -1694,8 +1708,8 @@ void IsoMaterial:: addIsotope(Isotope* isotope, FP_PRECISION number_density) {
 
 
 /**
- * @brief Get specific number density from Material
- * @param index The index of the material to be retrieved
+ * @brief Get specific Isotope's number density from Material
+ * @param index the index of the Isotope whose number density is to be retrieved
  * @return the number density
  */
 FP_PRECISION IsoMaterial::getNumberDensity(int index) {
@@ -1717,9 +1731,33 @@ std::vector<FP_PRECISION> IsoMaterial::getNumberDensities() {
 }
 
 
+/** 
+ * @brief Get the index of a given Isotope in the Material
+ * @param isotope the Isotope whose index is desired
+ * @return the index or -1 if not present
+ */
+int IsoMaterial::getIsotopeIndex(Isotope* isotope) {
+
+  Isotope* curr_iso;
+  
+  for (int i=0; i<_num_isotopes; i++) {
+    curr_iso = getIsotope(i);
+    if (curr_iso->getId() == isotope->getId())
+      return i;
+  }
+  
+  log_printf(WARNING,"Isotope %d is not present in Material %d",
+    isotope->getId(), _id);
+  return -1;
+    
+  
+}
+
+
+
 /**
  * @brief Get specific Isotope from Material
- * @param index The index of the material to be retrieved
+ * @param index The index of the Isotope to be retrieved
  * @return Pointer to the isotope requested
  */
 Isotope* IsoMaterial::getIsotope(int index) {
@@ -1772,7 +1810,7 @@ void IsoMaterial::checkSigmaT() {
 
     /* Check if the calculated and total match up to certain threshold */
     if (fabs(calc_sigma_t - _sigma_t[i]) > SIGMA_T_THRESH) {
-      log_printf(ERROR, "Material id = %d has a different total cross-section "
+      log_printf(WARNING, "Material id = %d has a different total cross-section "
                  "than the sum of its scattering and absorption cross-sections "
                  "for group %d: sigma_t = %f, calc_sigma_t = %f",
                  _id, i+1, _sigma_t[i], calc_sigma_t);
@@ -1787,7 +1825,7 @@ void IsoMaterial::checkSigmaT() {
  * @brief Get the group to group scatter cross section for given groups
  * @details Sums the contribution from each isotope
  * @param origin the column index of the scattering matrix
- * @param destination the row index of the scatteirng matrix
+ * @param destination the row index of the scattering matrix
  * @return the group to group scatter cross section
  */     
 FP_PRECISION IsoMaterial::getScatterSource(int group, FP_PRECISION* flux) {

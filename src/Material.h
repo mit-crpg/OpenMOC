@@ -46,10 +46,9 @@ int material_id();
 void reset_material_id();
 
 enum materialType {
-  GENERIC_MATERIAL,
-  MACRO_MATERIAL,
-  ISO_MATERIAL,
-  SUBGROUP_MATERIAL
+  GENERIC,
+  MACRO,
+  ISO
 };
 
 
@@ -203,7 +202,6 @@ public:
   void setSigmaFByGroup(double xs, int group);
   void setNuSigmaFByGroup(double xs, int group);
   void setSigmaSByGroup(double xs, int origin, int destination);
-  void setSigmaSByGroupInline(double xs, int origin, int destination);
   void setChiByGroup(double xs, int group);
   void setDifCoefByGroup(double xs, int group);
   void setDifHatByGroup(double xs, int group, int surface);
@@ -238,25 +236,6 @@ inline FP_PRECISION MacroMaterial::getSigmaSByGroupInline(
 
 
 /**
- * @brief inline function for efficient mapping for scattering, from
- *        1D as stored in memory to 2D matrix
- * @details Encapsulates the logic for indexing into the scattering
- *        matrix so it does not need to be repeated in other parts of 
- *        the code.  Note that this routine is 0-based, rather than 
- *        1-based indexing, as it is intended for use inside the code,
- *        not by users from Python.
- * @param xs the cross section value
- * @param origin the column index of the matrix element
- * @param destination the row index of the matrix element
- */
-inline void MacroMaterial::setSigmaSByGroupInline(
-          double xs, int origin, int destination) {
-  _sigma_s[destination*_num_groups + origin] = xs;
-}
-
-
-
-/**
  * @class IsoMaterial Material.h "src/Material.h"
  * @brief The IsoMaterial class represents a unique material, defined as a set
  *        of Isotopes.
@@ -285,6 +264,7 @@ public:
   std::vector<Isotope*> getIsotopes();
   FP_PRECISION getNumberDensity(int index);
   std::vector<FP_PRECISION> getNumberDensities();
+  int getIsotopeIndex(Isotope* isotope);
   
   void checkSigmaT();
   
