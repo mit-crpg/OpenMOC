@@ -7,7 +7,7 @@ Publications
 
 Journals
 =========
-- William Boyd, Samuel Shaner, Lulu Li, Benoit Forget, and Kord Smith, "The OpenMOC Method of Characteristics Neutral Particle Transport Code." *Annals of Nuclear Energy*, accepted for publication (2014).
+- William Boyd, Samuel Shaner, Lulu Li, Benoit Forget, and Kord Smith, "The OpenMOC Method of Characteristics Neutral Particle Transport Code." *Annals of Nuclear Energy*, 68 (2014): 43--52.
 
 
 Conference Papers

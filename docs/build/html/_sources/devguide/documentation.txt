@@ -118,7 +118,7 @@ The :file:`configure.sh` script automatically adds your newly generated HTML fil
 .. code-block:: none
 
     cd sphinx
-    git add .
+    git add -A
     git add -f _images/*
     git add -f _images/math*
     git add -f doxygen/html/* .

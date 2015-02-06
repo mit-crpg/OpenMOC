@@ -132,7 +132,7 @@ cp -rf docs/build/html/. .
 <h2>6.3. Version Control for New Documentation<a class="headerlink" href="#version-control-for-new-documentation" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="file docutils literal"><span class="pre">configure.sh</span></tt> script automatically adds your newly generated HTML files and image files to Git for tracking of the <tt class="docutils literal"><span class="pre">gh-pages</span></tt> branch using the following console commands:</p>
 <div class="highlight-none"><div class="highlight"><pre>cd sphinx
-git add .
+git add -A
 git add -f _images/*
 git add -f _images/math*
 git add -f doxygen/html/* .
