@@ -42,8 +42,6 @@ Material::Material(int id, const char* name) {
   else
     _id = id;
 
-  _uid = -1;
-
   _name = NULL;
   setName(name);
 
@@ -144,23 +142,6 @@ Material::~Material() {
   }
 }
 
-
-/**
- * @brief Set the Material's unique ID.
- * @param uid the Material's unique ID
- */
-void Material::setUid(int uid) {
-  _uid = uid;
-}
-
-
-/**
- * @brief Return the Material's unique ID.
- * @return the Material's unique ID
- */
-int Material::getUid() const {
-  return _uid;
-}
 
 /**
  * @brief Return the Material's user-defined ID
@@ -397,7 +378,7 @@ FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
   if (origin <= 0 || destination <= 0 || origin > _num_groups || destination > _num_groups)
     log_printf(ERROR, "Unable to get sigma_s for group %d,%d for Material %d "
                "which contains %d energy groups",
-               origin, destination, _uid, _num_groups);
+               origin, destination, _id, _num_groups);
    
   return getSigmaSByGroupInline(origin-1,destination-1);
   

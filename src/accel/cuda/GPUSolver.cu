@@ -23,6 +23,7 @@ __constant__ FP_PRECISION sinthetas[MAX_POLAR_ANGLES];
 
 /** An array of the weights for the polar angles from the Quadrature set */
 __constant__ FP_PRECISION polar_weights[MAX_POLAR_ANGLES*MAX_AZIM_ANGLES];
+
 /** A pointer to an array with the number of tracks per azimuthal angle */
 __constant__ int num_tracks[MAX_AZIM_ANGLES/2];
 
@@ -69,7 +70,7 @@ __device__ int round_to_int(double x) {
 /**
  * @brief Compute the total fission source from all FSRs on the GPU.
  * @param FSR_volumes an array of FSR volumes
- * @param FSR_materials an array of FSR Material UIDs
+ * @param FSR_materials an array of FSR Material indices
  * @param materials an array of dev_materials on the device
  * @param scalar_flux the scalar flux in each FSR and energy group
  * @param fission_sources array of fission sources in each FSR and energy group
@@ -167,7 +168,7 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
  *          \f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
  *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}}} $\f
  *
- * @param FSR_materials an array of FSR Material UIDs
+ * @param FSR_materials an array of FSR Material indices
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
  * @param old_fission_sources an array of current FSR sources from previous iteration
@@ -255,7 +256,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
  * @brief Compute the total fission source from all FSRs and energy groups
  *        on the GPU.
  * @param FSR_volumes an array of the FSR volumes
- * @param FSR_materials an array of the FSR Material UIDs
+ * @param FSR_materials an array of the FSR Material indices
  * @param materials an array of the dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
  * @param total array of FSR total reaction rates
@@ -423,7 +424,7 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
 
   int fsr_id = curr_segment->_region_uid;
   FP_PRECISION length = curr_segment->_length;
-  dev_material* curr_material = &materials[curr_segment->_material_uid];
+  dev_material* curr_material = &materials[curr_segment->_material_index];
   FP_PRECISION *sigma_t = curr_material->_sigma_t;
 
   /* The change in angular flux long this Track segment in this FSR */
@@ -616,7 +617,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
  * @param scalar_flux an array of FSR scalar fluxes
  * @param reduced_sources an array of FSR sources / total xs
  * @param FSR_volumes an array of FSR volumes
- * @param FSR_materials an array of FSR material UIDs
+ * @param FSR_materials an array of FSR material indices
  * @param materials an array of dev_material pointers
  */
 __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
@@ -660,7 +661,7 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
  *          GPUSolver::computeFSRFissionRates(...) method.
  * @param fission_rates an array to store the fission rates
  * @param fission_rates an array in which to store the FSR fission rates
- * @param FSR_materials an array of FSR material UIDs
+ * @param FSR_materials an array of FSR material indices
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
  */
@@ -720,11 +721,11 @@ GPUSolver::GPUSolver(Geometry* geometry, TrackGenerator* track_generator) :
   _scatter = NULL;
   _leakage = NULL;
 
-  if (track_generator != NULL)
-    setTrackGenerator(track_generator);
-
   if (geometry != NULL)
     setGeometry(geometry);
+
+  if (track_generator != NULL)
+    setTrackGenerator(track_generator);
 }
 
 
@@ -1098,20 +1099,24 @@ void GPUSolver::initializeFSRs() {
   /* Allocate memory for all FSR volumes and dev_materials on the device */
   try{
 
-    /* Allocate memory on device for FSR volumes and Material UIDs */
+    /* Allocate memory on device for FSR volumes and Material indices */
     cudaMalloc((void**)&_FSR_volumes, _num_FSRs * sizeof(FP_PRECISION));
     cudaMalloc((void**)&_FSR_materials, _num_FSRs * sizeof(int));
 
     /* Create a temporary FSR array to populate and then copy to device */
     FP_PRECISION* temp_FSR_volumes = new FP_PRECISION[_num_FSRs];
 
-    /* Create a temporary FSR Material UIDs array to populate and then copy to device */
-    int* FSRs_to_material_UIDs = new int[_num_FSRs];
+    /* Create a temporary FSR to material indices array to populate and then 
+     * copy to device */
+    int* FSRs_to_material_indices = new int[_num_FSRs];
+
+    /* Initialize num fissionable FSRs counter */
     _num_fissionable_FSRs = 0;
 
-    /* Populate FSR Material UIDs array */
+    /* Populate FSR Material indices array */
     for (int i = 0; i < _num_FSRs; i++){
-      FSRs_to_material_UIDs[i] = _geometry->findFSRMaterial(i)->getUid();
+      FSRs_to_material_indices[i] = _material_IDs_to_indices[_geometry->
+        findFSRMaterial(i)->getId()];
       if (_geometry->findFSRMaterial(i)->isFissionable())
         _num_fissionable_FSRs++;
     }
@@ -1148,18 +1153,18 @@ void GPUSolver::initializeFSRs() {
     /* Copy the temporary array of FSRs to the device */
     cudaMemcpy((void*)_FSR_volumes, (void*)temp_FSR_volumes,
       _num_FSRs * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)_FSR_materials, (void*)FSRs_to_material_UIDs,
+    cudaMemcpy((void*)_FSR_materials, (void*)FSRs_to_material_indices,
       _num_FSRs * sizeof(int), cudaMemcpyHostToDevice);
 
     /* Copy the number of FSRs into constant memory on the GPU */
     cudaMemcpyToSymbol(num_FSRs, (void*)&_num_FSRs, sizeof(int), 0,
       cudaMemcpyHostToDevice);
 
-    /* Free the temporary array of FSRs on the host */
+    /* Free the temporary array of FSR volumes on the host */
     free(temp_FSR_volumes);
 
-    /* Free the temporary array of FSR Material IDs on the host */
-    free(FSRs_to_material_UIDs);     
+    /* Free the temporary array of FSRs to material indices on the host */
+    free(FSRs_to_material_indices);
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the GPUSolver's FSRs "
@@ -1172,6 +1177,12 @@ void GPUSolver::initializeFSRs() {
 
 /**
  * @brief Allocates data on the GPU for all Materials data.
+ * @details This method loops over the materials in the host_materials map.
+ *          Since cuda does not support std::map data types on the device (GPU), 
+ *          the materials map must be converted to an array and a map created
+ *          that maps a material ID to an indice in the new materials array. In
+ *          initializeTracks, this map is used to convert the Material ID
+ *          associated with every segment to an index in the materials array.
  */
 void GPUSolver::initializeMaterials() {
 
@@ -1186,12 +1197,16 @@ void GPUSolver::initializeMaterials() {
 
     std::map<int, Material*> host_materials=_geometry->getAllMaterials();
     std::map<int, Material*>::iterator iter;
-
+    int material_index = 0;
+    
     /* Iterate through all Materials and clone them as dev_material structs
      * on the device */
     cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
-    for (iter=host_materials.begin(); iter != host_materials.end(); ++iter)
-      clone_material_on_gpu(iter->second, &_materials[iter->second->getUid()]);
+    for (iter=host_materials.begin(); iter != host_materials.end(); ++iter){
+      clone_material_on_gpu(iter->second, &_materials[material_index]);
+      _material_IDs_to_indices[iter->second->getId()] = material_index;
+      material_index++;
+    }
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the GPUSolver's "
@@ -1222,7 +1237,7 @@ void GPUSolver::initializeTracks() {
 
     for (int i=0; i < _tot_num_tracks; i++) {
 
-      clone_track_on_gpu(_tracks[i], &_dev_tracks[i]);
+      clone_track_on_gpu(_tracks[i], &_dev_tracks[i], _material_IDs_to_indices);
 
       /* Make Track reflective */
       index = computeScalarTrackIndex(_tracks[i]->getTrackInI(),
