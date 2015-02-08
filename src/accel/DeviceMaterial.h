@@ -21,9 +21,6 @@
  */
 struct dev_material {
 
-  /** A monotonically increasing unique ID for each Material created */
-  int _uid;
-
   /** A user-defined ID for each Material created */
   int _id;
 
