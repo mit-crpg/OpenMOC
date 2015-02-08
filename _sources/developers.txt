@@ -16,9 +16,12 @@ Development Team
 
 * **Nathan Gibson** (@PrezNattyGibbs) has been a member of the OpenMOC development team since the fall of 2013 and is a Ph.D. candidate in the NSE Department at MIT. His research focuses on using ultrafine energy discretization to account for self-shielding effects. He is implementing these methods as well as legacy self-shielding methods into OpenMOC.
 
-- **Prof. Benoit Forget** is Associate Professor of Nuclear Science and Engineering at MIT. He leads research in a variety of reactor physics topics ranging from deterministic to stochastic methods and is a leading advisor for the OpenMOC development team.
 
-* **Prof. Kord Smith** is the Korea Electric Power Company (KEPCO) Professor of the Practice of Nuclear Science and Engineering at MIT. He is Chief Scientist for the DOE’s Office of Science, Center for Exascale Simulation of Advanced Reactors (CESAR), and a leading advisor for the OpenMOC development team.
+- **Geoffrey Gunow** (@geogunow) is a PhD candidate in MIT's NSE Department working on implementing a 3D MOC solver into OpenMOC using an axially-quadratic source approximation. He joined the development team in June 2014 and co-authored SimpleMOC_, a mini-app that prototypes the performance of a 3D MOC solver.
+
+* **Prof. Benoit Forget** is Associate Professor of Nuclear Science and Engineering at MIT. He leads research in a variety of reactor physics topics ranging from deterministic to stochastic methods and is a leading advisor for the OpenMOC development team.
+
+- **Prof. Kord Smith** is the Korea Electric Power Company (KEPCO) Professor of the Practice of Nuclear Science and Engineering at MIT. He is Chief Scientist for the DOE’s Office of Science, Center for Exascale Simulation of Advanced Reactors (CESAR), and a leading advisor for the OpenMOC development team.
 
 `Argonne National Laboratory`_
 ------------------------------
@@ -34,3 +37,4 @@ Development Team
 .. _Kord Smith: http://web.mit.edu/nse/people/faculty/smith.html
 .. _Andrew Siegel: http://www.mcs.anl.gov/person/andrew-siegel
 .. _OpenMC: https://mit-crpg.github.io/openmc/
+.. _SimpleMOC: https://github.com/ANL-CESAR/SimpleMOC
