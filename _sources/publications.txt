@@ -7,9 +7,10 @@ Publications
 
 Journals
 =========
-- William Boyd, Samuel Shaner, Lulu Li, Benoit Forget, and Kord Smith, "The OpenMOC Method of Characteristics Neutral Particle Transport Code." *Annals of Nuclear Energy*, 68 (2014): 43--52.
 
 - Matthew Everson and Benoit Forget, "The Source Equivalence Acceleration Method." *Annals of Nuclear Energy*, 76 (2015): 177--129.
+
+- William Boyd, Samuel Shaner, Lulu Li, Benoit Forget, and Kord Smith, "The OpenMOC Method of Characteristics Neutral Particle Transport Code." *Annals of Nuclear Energy*, 68 (2014): 43--52.
 
 Conference Papers
 =================
