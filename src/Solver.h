@@ -203,6 +203,15 @@ protected:
 
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
+  
+  /** Fixed source data */
+  std::vector<FP_PRECISION*> _fixed_source;
+  
+  /** The number of FSRs that have fixed source data */
+  int _num_fixed_sources;
+  
+  /** Mapping of FSRs to fixed sources */
+  int* _fsr_to_source;
 
   int round_to_int(float x);
   int round_to_int(double x);
@@ -267,6 +276,7 @@ protected:
    * @return the residual between this source and the previous source
    */
   virtual FP_PRECISION computeFSRSources() =0;
+  virtual FP_PRECISION computeFSRSourcesForFixedSource();
 
   /**
    * @brief Compute \f$ k_{eff} \f$ from total fission and absorption rates
@@ -334,11 +344,15 @@ public:
   virtual void setPolarQuadratureType(quadratureType quadrature_type);
   virtual void setNumPolarAngles(int num_polar);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
+  void addFixedSourceByGroupToFSR(int group, int fsr, FP_PRECISION source);
+  void addFixedSourceByGroupToCell(int group, Cell* cell, FP_PRECISION source);
+  void addFixedSourceByGroupToMaterial(int group, Material* material, FP_PRECISION source);
 
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
   virtual FP_PRECISION convergeSource(int max_iterations);
+  void solveFixedSource(int max_iterations);
 
 /**
  * @brief Computes the volume-weighted, energy integrated fission rate in
