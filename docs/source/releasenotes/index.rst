@@ -13,3 +13,4 @@ bugs fixed, and known issues for each successive release.
     notes_0.1.1
     notes_0.1.2
     notes_0.1.3
+    notes_0.1.4
