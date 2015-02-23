@@ -475,7 +475,10 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
 
 def make_opencg_cells_compatible(opencg_universe):
 
-  if not isinstance(opencg_universe, opencg.Universe):
+  if isinstance(opencg_universe, opencg.Lattice):
+    return
+
+  elif not isinstance(opencg_universe, opencg.Universe):
     msg = 'Unable to make compatible OpenCG Cells for {0} which ' \
           'is not an OpenCG Universe'.format(opencg_universe)
     raise ValueError(msg)
