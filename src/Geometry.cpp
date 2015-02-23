@@ -739,26 +739,19 @@ void Geometry::subdivideCells() {
 
 /**
  * @brief Compute the number of flat source regions in the Geometry and
- *        initialize arrays for FSR IDs and maps.
+ *        initialize CMFD.
  * @details This method is intended to be called by the user before initiating
  *          source iteration. This method first subdivides all Cells by calling
- *          the Geometry::subdivideCells() method. Then it computes the total
- *          number of FSRs in the Geometry and initializes integer arrays of
- *          maps to Cells and Materials UIDs/IDs indexed by FSR IDs.
+ *          the Geometry::subdivideCells() method. Then it initializes the CMFD
+ *          object. 
  */
 void Geometry::initializeFlatSourceRegions() {
 
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 
-  /* Assign UIDs to materials */
+  /* Create map of Material IDs to Material pointers */
   _all_materials = getAllMaterials();
-  std::map<int, Material*>::iterator iter;
-  int uid = 0;
-  for (iter = _all_materials.begin(); iter != _all_materials.end(); ++iter){
-    iter->second->setUid(uid);
-    uid++;
-  }
 
   /* Initialize CMFD */
   if (_cmfd != NULL)
