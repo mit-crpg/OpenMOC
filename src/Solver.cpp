@@ -44,6 +44,9 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
 
   _interpolate_exponential = true;
   _exp_table = NULL;
+  
+  _num_fixed_sources = 0;
+  _fsr_to_source = NULL;
 
   if (geometry != NULL){
     _cmfd = geometry->getCmfd();
@@ -111,6 +114,16 @@ Solver::~Solver() {
 
   if (_quad != NULL)
     delete _quad;
+    
+  if (_fsr_to_source != NULL)
+    delete [] _fsr_to_source;
+  
+  if (_fixed_source.size() != 0) {
+    int n = _fixed_source.size();
+    for (int i=0; i<n; i++)
+      delete [] _fixed_source[i];
+    _fixed_source.clear();
+  }
 }
 
 
@@ -634,4 +647,175 @@ void Solver::printTimerReport() {
 
   log_printf(RESULT, "%s", msg.str().c_str());
   log_printf(SEPARATOR, "-");
+}
+
+void Solver::addFixedSourceByGroupToFSR(int group, int fsr, FP_PRECISION source) {
+  
+  // check for valid group, fsr
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR,"Cannot add fixed source for group %d, as there are only "
+               "%d groups in the problem.", group, _num_groups);
+  if (fsr < 0 || fsr >= _num_FSRs)
+    log_printf(ERROR,"Cannot add fixed source for FSR %d, as there are only "
+               "%d fixed sources in the geometry.", fsr, _num_FSRs);
+  
+  
+  // check if this is the first fixed source
+  if (_num_fixed_sources == 0) {
+    // delete existing fixed sources if needed
+    if (_fsr_to_source != NULL)
+      delete [] _fsr_to_source;
+    if (_fixed_source.size() != 0) {
+      int n = _fixed_source.size();
+      for (int i=0; i<n; i++)
+        delete [] _fixed_source[i];
+      _fixed_source.clear();
+    }
+    
+    // allocate and initialize the fixed sources
+    _fsr_to_source = new int[_num_FSRs];
+    for (int r=0; r<_num_FSRs; r++)
+      _fsr_to_source[r] = -1;
+  }
+  
+  // if no fixed source for FSR, create one
+  if (_fsr_to_source[fsr] == -1) {
+    _fsr_to_source[fsr] = _num_fixed_sources;
+    _num_fixed_sources++;
+    
+    FP_PRECISION* fixed_source = new FP_PRECISION[_num_groups];
+    memset(fixed_source, 0.0, sizeof(FP_PRECISION) * _num_groups);
+    fixed_source[group-1] = source;
+    
+    _fixed_source.push_back(fixed_source);
+  }
+  
+  // otherwise, add source to existing fixed source
+  else {
+    int i = _fsr_to_source[fsr];
+    _fixed_source[i][group-1] += source;
+  }
+  
+}
+
+
+void Solver::addFixedSourceByGroupToCell(int group, Cell* cell, FP_PRECISION source) {
+
+  if (cell->getType() == FILL) {
+    std::map<int, Cell*> cells = cell->getAllCells();
+    std::map<int, Cell*>::iterator iter;
+    for (iter = cells.begin(); iter != cells.end(); ++iter)
+      addFixedSourceByGroupToCell(group,iter->second,source);
+  }
+
+  else {
+    CellBasic* fsr_cell;
+    
+    for (int r=0; r<_num_FSRs; r++) {
+      fsr_cell = _geometry->findCellContainingFSR(r);
+      if (cell->getId() == fsr_cell->getId())
+        addFixedSourceByGroupToFSR(group,r,source);
+    }
+    
+  }
+
+}
+
+
+void Solver::addFixedSourceByGroupToMaterial(int group, Material* material, FP_PRECISION source) {
+
+  Material* fsr_matl;
+  
+  for (int r=0; r<_num_FSRs; r++) {
+    fsr_matl = _geometry->findFSRMaterial(r);
+    if (material->getId() == fsr_matl->getId())
+      addFixedSourceByGroupToFSR(group,r,source);
+  }
+
+}
+
+
+/**
+ * @brief Solves fixed source problem
+ */
+void Solver::solveFixedSource(int max_iterations) {
+
+  /* Error checking */
+  if (_geometry == NULL)
+    log_printf(ERROR, "The Solver is unable to converge the source "
+               "since it does not contain a Geometry");
+
+  if (_track_generator == NULL)
+    log_printf(ERROR, "The Solver is unable to converge the source "
+               "since it does not contain a TrackGenerator");
+               
+  if (_fsr_to_source == NULL) {
+    // allocate and initialize the fixed sources
+    _fsr_to_source = new int[_num_FSRs];
+    for (int r=0; r<_num_FSRs; r++)
+      _fsr_to_source[r] = -1;
+  }
+
+  log_printf(NORMAL, "Solving the fixed source problem...");
+
+  /* Clear all timing data from a previous simulation run */
+  clearTimerSplits();
+
+  /* Start the timer to record the total time to converge the source */
+  _timer->startTimer();
+
+  /* Counter for the number of iterations to converge the source */
+  _num_iterations = 0;
+
+  /* The residual on the source */
+  FP_PRECISION residual = 0.0;
+
+  /* Initialize data structures */
+  initializePolarQuadrature();
+  initializeFluxArrays();
+  initializeSourceArrays();
+  buildExpInterpTable();
+  initializeFSRs();
+
+  /* Check that each FSR has at least one segment crossing it */
+  checkTrackSpacing();
+
+  /* Set scalar flux to unity for each region */
+  flattenFSRSources(1.0);
+  flattenFSRFluxes(1.0);
+  zeroTrackFluxes();
+
+  /* Source iteration loop */
+  for (int i=0; i < max_iterations; i++) {
+
+    log_printf(NORMAL, "Iteration %d: "
+               "\tres = %1.3E", i, residual);
+
+    residual = computeFSRSourcesForFixedSource();
+    transportSweep();
+    addSourceToScalarFlux();
+
+    _num_iterations++;
+
+    /* Check for convergence */
+    if (i > 1 && residual < _source_convergence_thresh) {
+      _timer->stopTimer();
+      _timer->recordSplit("Total time to converge the source");
+      return;
+    }
+  
+  }
+
+  _timer->stopTimer();
+  _timer->recordSplit("Total time to converge the source");
+
+  log_printf(WARNING, "Unable to converge the source after %d iterations",
+             max_iterations);
+
+  return;
+}
+
+FP_PRECISION Solver::computeFSRSourcesForFixedSource() {
+  log_printf(ERROR, "Should not be calling "
+             "Solver::computeFSRSourcesForFixedSource()");
 }

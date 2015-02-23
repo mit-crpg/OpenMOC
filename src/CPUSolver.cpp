@@ -1138,3 +1138,80 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   return;
 }
+
+
+
+/**
+ * @brief Compute the FSR sources for the fixed source calculation
+ */
+FP_PRECISION CPUSolver::computeFSRSourcesForFixedSource() {
+
+  int tid;
+  Material* material;
+  FP_PRECISION scatter_source;
+  FP_PRECISION* fixed_source;
+  FP_PRECISION group_fixed_source;
+  FP_PRECISION* sigma_s;
+  FP_PRECISION* sigma_t;
+  FP_PRECISION total_flux;
+
+  FP_PRECISION source_residual = 0.0;
+
+  /* For all FSRs, find the source */
+  #pragma omp parallel for private(tid, material, \
+    sigma_s, sigma_t, fixed_source, scatter_source, total_flux) \
+    schedule(guided)
+  for (int r=0; r < _num_FSRs; r++) {
+
+    tid = omp_get_thread_num();
+    material = _FSR_materials[r];
+    if (_fsr_to_source[r] == -1)
+      fixed_source = NULL;
+    else
+      fixed_source = _fixed_source[_fsr_to_source[r]];
+    sigma_s = material->getSigmaS();
+    sigma_t = material->getSigmaT();
+
+    /* Initialize the source residual to zero */
+    _source_residuals[r] = 0.;
+    total_flux = 0.;
+
+    /* Compute total scattering source for group G */
+    for (int G=0; G < _num_groups; G++) {
+      scatter_source = 0;
+
+      for (int g=0; g < _num_groups; g++)
+        _scatter_sources(tid,g) = material->getSigmaSByGroupInline(g,G)
+                      * _scalar_flux(r,g);
+
+      scatter_source=pairwise_sum<FP_PRECISION>(&_scatter_sources(tid,0),
+                                                _num_groups);
+
+      if (fixed_source == NULL)
+        group_fixed_source = 0.0;
+      else
+        group_fixed_source = fixed_source[G];
+
+
+      /* Set the reduced source for FSR r in group G */
+      _reduced_sources(r,G) = (group_fixed_source + scatter_source) *
+                      ONE_OVER_FOUR_PI / sigma_t[G];
+                      
+      total_flux += _scalar_flux(r,G);
+    }
+
+    /* Compute the norm of residual of the source in the FSR */
+    _source_residuals[r] = pow((total_flux - _old_fission_sources[r])
+                                 / total_flux, 2);
+
+    /* Update the old source */
+    _old_fission_sources[r] = total_flux;
+  }
+
+  /* Sum up the residuals from each FSR */
+  source_residual = pairwise_sum<FP_PRECISION>(_source_residuals, _num_FSRs);
+  source_residual = sqrt(source_residual \
+                         / (_num_FSRs * _num_groups));
+
+  return source_residual;
+}

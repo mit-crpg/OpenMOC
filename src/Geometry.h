@@ -162,6 +162,7 @@ public:
   CellBasic* findCellContainingCoords(LocalCoords* coords);
   Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
+  CellBasic* findCellContainingFSR(int fsr_id);
 
   /* Other worker methods */
   void subdivideCells();

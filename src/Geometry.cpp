@@ -1153,3 +1153,17 @@ bool Geometry::withinBounds(LocalCoords* coords){
   else
     return true;
 }
+
+
+
+CellBasic* Geometry::findCellContainingFSR(int fsr_id){
+
+  Point* point = _FSR_keys_map[_FSRs_to_keys[fsr_id]]._point;
+  LocalCoords* coords = new LocalCoords(point->getX(), point->getY());
+  coords->setUniverse(_root_universe);
+  CellBasic* cell = findCellContainingCoords(coords);
+
+  delete coords;
+
+  return cell;
+}
