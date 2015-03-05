@@ -268,7 +268,7 @@
  * the Geometry::getAllCells(), Universe::getAllCells(), etc. These methods
  * are particularly useful for OpenCG compatibility. */
 %include <std_map.i>
-%cleap std::map<int, Cell*>;
+%clear std::map<int, Cell*>;
 %typemap(out) std::map<int, Cell*> {
 
   $result = PyDict_New();
@@ -292,7 +292,7 @@
  * This includes the Cell::getSurfaces() method, which is useful for OpenCG
  * compatibility. */
 %include <std_map.i>
-%cleap std::map<int, surface_halfspace>;
+%clear std::map<int, surface_halfspace>;
 %typemap(out) std::map<int, surface_halfspace> {
 
   $result = PyDict_New();
@@ -317,7 +317,7 @@
  * This includes the Geometry::getAllMaterials() method, which is useful 
  * for OpenCG compatibility. */
 %include <std_map.i>
-%cleap std::map<int, Material*>;
+%clear std::map<int, Material*>;
 %typemap(out) std::map<int, Material*> {
 
   $result = PyDict_New();
@@ -341,7 +341,7 @@
  * This includes the Lattice::getUniqueUniverses() method which is ueseful for
  * OpenCG compatibility. */
 %include <std_map.i>
-%cleap std::map<int, Universe*>;
+%clear std::map<int, Universe*>;
 %typemap(out) std::map<int, Universe*> {
 
   $result = PyDict_New();
