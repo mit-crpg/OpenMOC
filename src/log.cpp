@@ -459,13 +459,8 @@ void log_printf(logLevel level, const char* format, ...) {
     log_file.close();
 
     /* Write the log message to the shell */
-    std::cout << msg_string;
+    printf(msg_string.c_str());
   }
-
-
-  /* If the message was a runtime error, exit the program */
-  if (level == ERROR)
-    exit(1);
 }
 
 
