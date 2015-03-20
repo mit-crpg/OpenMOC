@@ -248,7 +248,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memdesc:a8a81fa7b3dec100737f1dcc566f4d2ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subidivides all Cells in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> into rings and angular sectors.  <a href="#a8a81fa7b3dec100737f1dcc566f4d2ca">More...</a><br/></td></tr>
 <tr class="separator:a8a81fa7b3dec100737f1dcc566f4d2ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad951597b0a94c3f4c43db865ae30218d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d">initializeFlatSourceRegions</a> ()</td></tr>
-<tr class="memdesc:ad951597b0a94c3f4c43db865ae30218d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the number of flat source regions in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> and initialize arrays for FSR IDs and maps.  <a href="#ad951597b0a94c3f4c43db865ae30218d">More...</a><br/></td></tr>
+<tr class="memdesc:ad951597b0a94c3f4c43db865ae30218d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the number of flat source regions in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> and initialize CMFD.  <a href="#ad951597b0a94c3f4c43db865ae30218d">More...</a><br/></td></tr>
 <tr class="separator:ad951597b0a94c3f4c43db865ae30218d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a052c00d155e0e0c24ec4481d85600d8b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a052c00d155e0e0c24ec4481d85600d8b">segmentize</a> (<a class="el" href="classTrack.html">Track</a> *track, FP_PRECISION max_optical_length)</td></tr>
 <tr class="memdesc:a052c00d155e0e0c24ec4481d85600d8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method performs ray tracing to create <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segments within each flat source region in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a>.  <a href="#a052c00d155e0e0c24ec4481d85600d8b">More...</a><br/></td></tr>
@@ -952,8 +952,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
       </table>
 </div><div class="memdoc">
 
-<p>Compute the number of flat source regions in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> and initialize arrays for FSR IDs and maps. </p>
-<p>This method is intended to be called by the user before initiating source iteration. This method first subdivides all Cells by calling the <a class="el" href="classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca" title="Subidivides all Cells in the Geometry into rings and angular sectors. ">Geometry::subdivideCells()</a> method. Then it computes the total number of FSRs in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> and initializes integer arrays of maps to Cells and Materials UIDs/IDs indexed by FSR IDs. </p>
+<p>Compute the number of flat source regions in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> and initialize CMFD. </p>
+<p>This method is intended to be called by the user before initiating source iteration. This method first subdivides all Cells by calling the <a class="el" href="classGeometry.html#a8a81fa7b3dec100737f1dcc566f4d2ca" title="Subidivides all Cells in the Geometry into rings and angular sectors. ">Geometry::subdivideCells()</a> method. Then it initializes the CMFD object. </p>
 
 </div>
 </div>
@@ -1170,7 +1170,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Subidivides all Cells in the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> into rings and angular sectors. </p>
-<p>This method is called by the <a class="el" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize arrays for FSR IDs and maps...">Geometry::initializeFlatSourceRegions()</a> method but may also be called by the user in Python if needed:</p>
+<p>This method is called by the <a class="el" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d" title="Compute the number of flat source regions in the Geometry and initialize CMFD. ">Geometry::initializeFlatSourceRegions()</a> method but may also be called by the user in Python if needed:</p>
 <div class="fragment"><div class="line">geometry.subdivideCells()</div>
 </div><!-- fragment --> 
 </div>
@@ -1220,8 +1220,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/<a class="el" href="Geometry_8h_source.html">Geometry.h</a></li>
-<li>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/Geometry.cpp</li>
+<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Geometry_8h_source.html">Geometry.h</a></li>
+<li>/home/wboyd/Desktop/OpenMOC/src/Geometry.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1229,7 +1229,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classGeometry.html">Geometry</a></li>
-    <li class="footer">Generated on Mon Feb 16 2015 00:17:49 by
+    <li class="footer">Generated on Fri Mar 20 2015 11:21:10 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

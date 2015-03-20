@@ -16,7 +16,7 @@ var searchData=
   ['cleartimersplits',['clearTimerSplits',['../classSolver.html#a4f6e2e3069aa9404fefd62be376e8390',1,'Solver']]],
   ['clone',['clone',['../classCellBasic.html#a11467ff4cc874cb9688ff12feef184a6',1,'CellBasic::clone()'],['../classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64',1,'Material::clone()'],['../classUniverse.html#a6f7c4480848e68b07ce2a6844b450f90',1,'Universe::clone()']]],
   ['clone_5fmaterial_5fon_5fgpu',['clone_material_on_gpu',['../clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a',1,'clone.cu']]],
-  ['clone_5ftrack_5fon_5fgpu',['clone_track_on_gpu',['../clone_8h.html#a1abe8d5d92a34a0a5f289a0f6df61a3e',1,'clone.cu']]],
+  ['clone_5ftrack_5fon_5fgpu',['clone_track_on_gpu',['../clone_8h.html#aa26dee95aa6869b621fa09a724089840',1,'clone.cu']]],
   ['cmfd',['Cmfd',['../classCmfd.html#a3a347126d75052556da0db33ff8a3955',1,'Cmfd']]],
   ['compute_5ffission_5frates',['compute_fission_rates',['../namespaceopenmoc_1_1process.html#acea2f1a0e49d6bdd58306e50c44daa9e',1,'openmoc::process']]],
   ['computediffcorrect',['computeDiffCorrect',['../classCmfd.html#ae022102b7f4c2f14559b6e3f87607dfd',1,'Cmfd']]],

@@ -7,7 +7,7 @@ Data Processing and Visualization
 This section is intended to explain in detail the recommended procedures for carrying out common tasks with OpenMOC. While several utilities of varying complexity are provided to help automate the process, in many cases it will be extremely beneficial to do some coding in Python to quickly obtain results. In these cases, and for many of the provided utilities, it is necessary for your Python installation to contain:
 
 * `Numpy <http://www.numpy.org/>`_ - Required for array-based data manipulation and processing
-* `h5py <http://www.h5py.org/>`_ - Required only if reading/writing HDF5 data files
+* `h5py <http://www.h5py.org/>`_ - Required only if reading/writing HDF5_ data files
 * `Matplotlib <http://matplotlib.org/>`_ - Optional for plotting utilities
 
 
@@ -17,7 +17,7 @@ Each of these are easily obtainable in Ubuntu through the package manager.
 Exporting Simulation Data
 -------------------------
 
-OpenMOC's ``openmoc.process`` module provides the ``store_simulation_state(...)`` routine to export simulation data to binary output files. The only required parameter for the routine is a ``Solver`` object. Optional parameters may be used to indicate whether to store the data in HDF5 or as a Python pickle_ file (default), store the fluxes, sources, fission rates and more. All of the supported parameters are listed in :ref:`Table 1 <table_store_simulation_state>`, and the output variables stored in the binary file are tabulated in :ref:`Table 2 <table_output_variables>`.
+OpenMOC's ``openmoc.process`` module provides the ``store_simulation_state(...)`` routine to export simulation data to binary output files. The only required parameter for the routine is a ``Solver`` object. Optional parameters may be used to indicate whether to store the data in HDF5_ or as a Python pickle_ file (default), store the fluxes, sources, fission rates and more. All of the supported parameters are listed in :ref:`Table 1 <table_store_simulation_state>`, and the output variables stored in the binary file are tabulated in :ref:`Table 2 <table_output_variables>`.
 
 .. _table_store_simulation_state:
 
@@ -28,7 +28,7 @@ Parameter          Type                Default               Optional    Note
 ``fluxes``         boolean             False                 Yes         Whether to store the FSR fluxes
 ``sources``        boolean             False                 Yes         Whether to store the FSR sources
 ``fission_rates``  boolean             False                 Yes         Whether to store the fission rates
-``use_hdf5``       boolean             False (pickle file)   Yes         Whether to use HDF5 
+``use_hdf5``       boolean             False (pickle file)   Yes         Whether to use HDF5_ 
 ``filename``       string              'simulation-state'    Yes         The filename for storage
 ``directory``      string              'simulation-states'   Yes         The directory for storage
 ``append``         boolean             True                  Yes         Append to a file or create a new one
@@ -110,13 +110,13 @@ The code snippet below illustrates one possible configuration of parameters to t
     simulation_state = proc.restore_simulation_state(filename='states.h5')
 
 
---------------------
-Computing Pin Powers
---------------------
+-----------------------
+Computing Fission Rates
+-----------------------
 
-In some cases, a user may wish to only compute and export the pin powers for a simulation. In this case, the ``compute_pin_powers(...)`` routine in the ``openmoc.process`` module  may be used. The routine takes in a ``Solver`` subclass (e.g., ``CPUSolver``, ``VectorizedSolver``, ``GPUSolver``, etc.) and computes the fission rate for each universe in the geometry by summing up the fission rates in each cell in the universe. In most cases, a universe is replicated in many places throughout the geometry. To account for this, the routine will separately compute the fission rates for each unique placement of that universe in the geometry. By default, the pin powers will be exported to a Python pickle_ file, but may alternatively be exported to an HDF5 binary file. :ref:`Table 4 <table_pin_powers>` describes the parameters accepted by the routine.
+In some cases, a user may wish to only compute and export the fission rates in each flat source region for a simulation. In this case, the ``compute_fission_rates(...)`` routine in the ``openmoc.process`` module  may be used. The routine takes in a ``Solver`` subclass (e.g., ``CPUSolver``, ``VectorizedSolver``, ``GPUSolver``, etc.) and computes the fission rate for each ``Universe`` in the ``Geometry`` by summing up the fission rates in each ``Cell`` in the ``Universe``. In most cases, a ``Universe`` is replicated in many places throughout the ``Geometry``. To account for this, the routine will separately compute the fission rates for each unique placement of that ``Universe`` in the ``Geometry``. By default, the fission rates will be exported to a Python pickle_ file, but may alternatively be exported to an HDF5_ binary file. Each fission rate will be indexed by a string representing the "path" of ``Universes``, ``Lattices`` and ``Lattice`` cell indices traversed through the ``Geometry`` to reach the flat source region of interest. :ref:`Table 4 <table_fission_rates>` describes the parameters accepted by the routine.
 
-.. _table_pin_powers:
+.. _table_fission_rates:
 
 ============  ==================  ========  =========
 Parameter     Type                Default   Optional
@@ -125,7 +125,7 @@ Parameter     Type                Default   Optional
 ``use_hdf5``  boolean             False     Yes
 ============  ==================  ========  =========
 
-**Table 4**: Parameters for the ``openmoc.process.compute_pin_powers(...)`` routine.
+**Table 4**: Parameters for the ``openmoc.process.compute_fission_rates(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -136,11 +136,11 @@ The code snippet below illustrates one possible configuration of parameters to t
     # Setup and run simulation
     ...
 
-    # Compute and export the pin powers
-    proc.compute_pin_powers(solver, use_hdf5=True)
+    # Compute and export the flat source region fission rates
+    proc.compute_fission_rates(solver, use_hdf5=True)
 
-.. note:: The pin powers are computed for each nested universe level in the hierarchical geometry model.
-.. note:: The pin powers are NOT normalized in any way - this is left to the user's discretion during data processing.
+.. note:: The fission rates are computed for each nested universe level in the hierarchical geometry model.
+.. note:: The fission rates are not normalized in any way - this is left to the user's discretion during data processing.
 
 
 ----------------------
@@ -419,4 +419,5 @@ A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/
 
 .. _dictionary: http://docs.python.org/2/library/stdtypes.html#mapping-types-dict
 .. _pickle: http://docs.python.org/2/library/pickle.html
+.. _HDF5: http://www.hdfgroup.org/HDF5/
 .. _segmentation fault: http://en.wikipedia.org/wiki/Segmentation_fault

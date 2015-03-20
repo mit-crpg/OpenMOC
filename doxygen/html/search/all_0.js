@@ -39,7 +39,7 @@ var searchData=
   ['_5fleakage',['_leakage',['../classSolver.html#ab1d00b7a1ac0cddd6e0d88cc309a97aa',1,'Solver']]],
   ['_5flength',['_length',['../structdev__segment.html#a2aac6afa16185fef69c96c7dcb964d68',1,'dev_segment::_length()'],['../structsegment.html#a50c5a635c531d34ad3435ebcc3b6f593',1,'segment::_length()']]],
   ['_5fmaterial',['_material',['../structsegment.html#a0f8836fedfacd554b9fd650e7e89a4c0',1,'segment']]],
-  ['_5fmaterial_5fuid',['_material_uid',['../structdev__segment.html#a0385feac05b7d6f5d25bb175a17a72dd',1,'dev_segment']]],
+  ['_5fmaterial_5findex',['_material_index',['../structdev__segment.html#a1b45996006044feaa193568a648be8eb',1,'dev_segment']]],
   ['_5fmax_5fx',['_max_x',['../classCell.html#a8f4756251289b95aeb64b08e0f61894f',1,'Cell']]],
   ['_5fmax_5fx_5fbc',['_max_x_bc',['../classCell.html#aae59f983d54d3f19c342ce943f5448e2',1,'Cell']]],
   ['_5fmax_5fy',['_max_y',['../classCell.html#af7c29f29a1e436eebc6081c85a93b007',1,'Cell']]],
@@ -103,6 +103,6 @@ var searchData=
   ['_5ftracks',['_tracks',['../classSolver.html#a775ed41fc1268312c8fb25ec994e1351',1,'Solver']]],
   ['_5ftwo_5ftimes_5fnum_5fpolar',['_two_times_num_polar',['../classSolver.html#a5f9e45e5d2a93bc3b18ca2659b95ac6a',1,'Solver']]],
   ['_5ftype',['_type',['../classUniverse.html#ab982650a751c2aae8ebc26e150b71cd1',1,'Universe']]],
-  ['_5fuid',['_uid',['../structdev__material.html#ad820cbdb14d4d04533a3045f9194dbc0',1,'dev_material::_uid()'],['../structdev__track.html#a922879f6909e3ec74c40a368b34f527e',1,'dev_track::_uid()'],['../classCell.html#a0a8d52810c4b5f992d50347dbc0e2be7',1,'Cell::_uid()'],['../classSurface.html#aea05fdb4d9e26103dfb66c6833f66b4a',1,'Surface::_uid()'],['../classUniverse.html#acb6ca8f4d22766140cd8d8c92e6cfd81',1,'Universe::_uid()']]],
+  ['_5fuid',['_uid',['../structdev__track.html#a922879f6909e3ec74c40a368b34f527e',1,'dev_track::_uid()'],['../classCell.html#a0a8d52810c4b5f992d50347dbc0e2be7',1,'Cell::_uid()'],['../classSurface.html#aea05fdb4d9e26103dfb66c6833f66b4a',1,'Surface::_uid()'],['../classUniverse.html#acb6ca8f4d22766140cd8d8c92e6cfd81',1,'Universe::_uid()']]],
   ['_5funiverse',['_universe',['../classCell.html#abebfee25524f8429acd698f206d1cf58',1,'Cell']]]
 ];

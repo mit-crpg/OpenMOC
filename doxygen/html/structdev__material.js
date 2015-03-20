@@ -8,6 +8,5 @@ var structdev__material =
     [ "_sigma_a", "structdev__material.html#a8ce73ccc101b0ab9b8c7fa770c101980", null ],
     [ "_sigma_f", "structdev__material.html#a8fbd6f04e4aacd09933c1feeafc90fff", null ],
     [ "_sigma_s", "structdev__material.html#ae3bff1238df4a0525fdeb62b6844e00d", null ],
-    [ "_sigma_t", "structdev__material.html#a0732a4eb6589a5d81b5e8224f8650e6e", null ],
-    [ "_uid", "structdev__material.html#ad820cbdb14d4d04533a3045f9194dbc0", null ]
+    [ "_sigma_t", "structdev__material.html#a0732a4eb6589a5d81b5e8224f8650e6e", null ]
 ];

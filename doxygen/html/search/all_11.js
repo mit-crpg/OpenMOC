@@ -111,7 +111,7 @@ var searchData=
   ['settrackoutj',['setTrackOutJ',['../classTrack.html#abba61551453ca5cf77044807e8b281c0',1,'Track']]],
   ['settrackspacing',['setTrackSpacing',['../classTrackGenerator.html#aa7692a0e2fab2d8cbc14c5c8b65add6f',1,'TrackGenerator']]],
   ['settype',['setType',['../classLocalCoords.html#a5eb0104c614b60dee59177afbf5a1d09',1,'LocalCoords::setType()'],['../classUniverse.html#a9a2868fbdf186f4842db3c71c1c77373',1,'Universe::setType()']]],
-  ['setuid',['setUid',['../classMaterial.html#a1088856ae1343f1d8dd393c0c99fb136',1,'Material::setUid()'],['../classTrack.html#a3d6a4e83e7ea6b28be81b9344d6bcd92',1,'Track::setUid()']]],
+  ['setuid',['setUid',['../classTrack.html#a3d6a4e83e7ea6b28be81b9344d6bcd92',1,'Track']]],
   ['setuniverse',['setUniverse',['../classLocalCoords.html#a607f615b9417cdf4655715896a31bd4b',1,'LocalCoords']]],
   ['setuniverses',['setUniverses',['../classLattice.html#a4421a1905e4bdce2a7d92c6d661fe367',1,'Lattice']]],
   ['setvalues',['setValues',['../classTrack.html#a321e6d98cba4d260b7ca787013f85186',1,'Track']]],

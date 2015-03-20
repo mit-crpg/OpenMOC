@@ -30,7 +30,6 @@ var classMaterial =
     [ "getSigmaSByGroupInline", "classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a", null ],
     [ "getSigmaT", "classMaterial.html#a0bb70f99202814861516d5d7db94321e", null ],
     [ "getSigmaTByGroup", "classMaterial.html#a3382e0de3100906526d6b2e7182ab3f9", null ],
-    [ "getUid", "classMaterial.html#a95de130b248a20f9237793ab92e494a3", null ],
     [ "isDataAligned", "classMaterial.html#a2e0a8759604823c08a695cce843120d4", null ],
     [ "isFissionable", "classMaterial.html#a518c42114378e88c9d5a198fc6bb8c00", null ],
     [ "printString", "classMaterial.html#a5901b75e048d7b55616a3f53a983390e", null ],
@@ -56,6 +55,5 @@ var classMaterial =
     [ "setSigmaSByGroup", "classMaterial.html#a4dfe71b8c5319ac13e66c8efdd15ed56", null ],
     [ "setSigmaT", "classMaterial.html#a2949b239adb57bd0053ab9e4e5bd9d65", null ],
     [ "setSigmaTByGroup", "classMaterial.html#a61fd26dde452e699b2b2531b993d2cab", null ],
-    [ "setUid", "classMaterial.html#a1088856ae1343f1d8dd393c0c99fb136", null ],
     [ "toString", "classMaterial.html#a72f180d85439497ffc732718166e5634", null ]
 ];

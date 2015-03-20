@@ -1,7 +1,5 @@
 var NAVTREEINDEX4 =
 {
-"namespaces.html":[0,0],
-"options_8py.html":[2,0,0,3],
 "pages.html":[],
 "pairwise__sum_8h.html":[2,0,1,10],
 "pairwise__sum_8h.html#a586358f0e3e86b72e2df18c2041407b3":[2,0,1,10,0],
@@ -21,12 +19,11 @@ var NAVTREEINDEX4 =
 "structdev__material.html#a8ce73ccc101b0ab9b8c7fa770c101980":[1,0,8,5],
 "structdev__material.html#a8fbd6f04e4aacd09933c1feeafc90fff":[1,0,8,6],
 "structdev__material.html#ab2682ed840a0e5ec8bcfd23a19245d22":[1,0,8,2],
-"structdev__material.html#ad820cbdb14d4d04533a3045f9194dbc0":[1,0,8,9],
 "structdev__material.html#ae3bff1238df4a0525fdeb62b6844e00d":[1,0,8,7],
 "structdev__material.html#ae846f8ce44173143eb64e79641e51f7c":[1,0,8,1],
 "structdev__material.html#af9f2265405224912ad9345c65df893ec":[1,0,8,0],
 "structdev__segment.html":[1,0,9],
-"structdev__segment.html#a0385feac05b7d6f5d25bb175a17a72dd":[1,0,9,1],
+"structdev__segment.html#a1b45996006044feaa193568a648be8eb":[1,0,9,1],
 "structdev__segment.html#a2aac6afa16185fef69c96c7dcb964d68":[1,0,9,0],
 "structdev__segment.html#a986cb48a5ac6eb7b26791b828d363ee3":[1,0,9,2],
 "structdev__track.html":[1,0,10],
