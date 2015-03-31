@@ -53,7 +53,7 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-fuel = CellBasic(name='fuel', rings=3, sectors=8)
+fuel = CellBasic(name='fuel')
 fuel.setMaterial(materials['UO2'])
 fuel.addSurface(halfspace=-1, surface=circle)
 
@@ -120,7 +120,7 @@ log.py_printf('NORMAL', 'Plotting data...')
 #plotter.plot_segments(track_generator)
 #plotter.plot_materials(geometry, gridsize=500)
 #plotter.plot_cells(geometry, gridsize=500)
-plotter.plot_flat_source_regions(geometry, gridsize=500)
+#plotter.plot_flat_source_regions(geometry, gridsize=500)
 #plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')
