@@ -484,6 +484,7 @@ std::map<int, Universe*> Universe::getAllUniverses() {
   std::map<int, Cell*> cells = getAllCells();
 
   std::map<int, Universe*> universes;
+  universes[_id] = this;
   std::map<int, Cell*>::iterator iter;
   Cell* cell;
 
