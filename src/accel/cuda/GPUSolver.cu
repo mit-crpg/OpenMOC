@@ -235,7 +235,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
                                  * chi[G] + scatter_source) * ONE_OVER_FOUR_PI, 
                                  sigma_t[G]);
       else
-        reduced_sources = 0.;
+        reduced_sources(tid,G) = 0.;
     }
 
     /* Compute the norm of residuals of the sources for convergence */
