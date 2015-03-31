@@ -407,8 +407,12 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
       /* Set the total source for FSR r in group G */
       fsr_fission_source += fission_source * chi[G]; 
 
-      _reduced_sources(r,G) = (fission_source * chi[G] + scatter_source)
-                        * ONE_OVER_FOUR_PI / sigma_t[G];
+      /* Set the reduced source for FSR r in group G */
+      if (sigma_t[G] > 0)
+        _reduced_sources(r,G) = (fission_source * chi[G] + scatter_source) *
+                        ONE_OVER_FOUR_PI / sigma_t[G];
+      else
+        _reduced_sources(r,G) = 0.;
     }
 
     /* Compute the norm of residual of the source in the FSR */
@@ -469,6 +473,12 @@ void VectorizedSolver::addSourceToScalarFlux() {
       #pragma simd vectorlength(VEC_LENGTH)
       for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
         _scalar_flux(r,e) += FOUR_PI * _reduced_sources(r,e);
+
+      /* Convert NaNs to zero for zero cross-section regions */
+      for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
+        if (sigma_t[e] <= 0.)
+          _scalar_flux(r,e) = 0.
+
     }
   }
 

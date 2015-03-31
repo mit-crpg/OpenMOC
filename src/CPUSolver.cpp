@@ -667,8 +667,11 @@ FP_PRECISION CPUSolver::computeFSRSources() {
       fsr_fission_source += fission_source * chi[G];
 
       /* Set the reduced source for FSR r in group G */
-      _reduced_sources(r,G) = (fission_source * chi[G] + scatter_source) *
-                      ONE_OVER_FOUR_PI / sigma_t[G];
+      if (sigma_t[G] > 0)
+        _reduced_sources(r,G) = (fission_source * chi[G] + scatter_source) *
+                        ONE_OVER_FOUR_PI / sigma_t[G];
+      else
+        _reduced_sources(r,G) = 0.;
     }
 
     /* Compute the norm of residual of the source in the FSR */
@@ -1090,8 +1093,12 @@ void CPUSolver::addSourceToScalarFlux() {
 
       for (int e=0; e < _num_groups; e++) {
         _scalar_flux(r,e) *= 0.5;
-        _scalar_flux(r,e) = FOUR_PI * _reduced_sources(r,e) +
-                            (_scalar_flux(r,e) / (sigma_t[e] * volume));
+
+        if (sigma_t[e] > 0.)
+          _scalar_flux(r,e) = FOUR_PI * _reduced_sources(r,e) +
+                              (_scalar_flux(r,e) / (sigma_t[e] * volume));
+        else
+          _scalar_flux(r,e) = 0.;
     }
   }
 
