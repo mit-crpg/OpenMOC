@@ -517,7 +517,7 @@ std::string create_multiline_msg(std::string level, std::string message) {
       line_length -= 4;
 
     /* Update substring indices */
-    start = end + 1;
+    start = end;
     end += line_length + 1;
   }
 
