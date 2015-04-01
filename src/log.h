@@ -25,7 +25,10 @@
 #include <math.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "Python.h"
 #endif
+
+#define printf PySys_WriteStdout
 
 /**
  * @enum logLevels
