@@ -462,7 +462,7 @@ void log_printf(logLevel level, const char* format, ...) {
     if (level == ERROR)
       throw std::logic_error(msg_string.c_str());
     else 
-     std::cout << msg_string;
+      printf("%s", msg_string.c_str());
   }
 }
 
