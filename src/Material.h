@@ -16,6 +16,9 @@
 #include "log.h"
 #endif
 
+/** The minimum allowable total cross-section value for any group */
+#define ZERO_SIGMA_T 1E-10
+
 #ifdef ICPC
 /** Word-aligned memory deallocationallocation for Intel's compiler */
 #define MM_FREE(array) _mm_free(array)

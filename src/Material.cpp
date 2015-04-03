@@ -664,6 +664,10 @@ void Material::setNumEnergyGroups(const int num_groups) {
  *          material.setSigmaT(sigma_t)
  * @endcode
  *
+ *          NOTE: This routine will override an zero-valued cross-sections 
+ *          (i.e., in void or gap regions) with a minimum value of 1E-10 to
+ *          void numerical issues in the MOC solver.
+ *
  * @param xs the array of total cross-sections
  * @param num_groups the number of energy groups
  */
@@ -671,10 +675,17 @@ void Material::setSigmaT(double* xs, int num_groups) {
 
   if (_num_groups != num_groups)
     log_printf(ERROR, "Unable to set sigma_t with %d groups for Material "
-               "%d which contains %d energy groups", num_groups, _id, _num_groups);
+               "%d which contains %d energy groups", num_groups, 
+               _id, _num_groups);
 
-  for (int i=0; i < _num_groups; i++)
-    _sigma_t[i] = FP_PRECISION(xs[i]);
+  for (int i=0; i < _num_groups; i++) {
+
+    /* If the cross-section is too small (e.g., zero) */
+    if (fabs(xs[i]) < ZERO_SIGMA_T)
+      _sigma_t[i] = FP_PRECISION(ZERO_SIGMA_T);
+    else
+      _sigma_t[i] = FP_PRECISION(xs[i]);
+  }
 }
 
 
