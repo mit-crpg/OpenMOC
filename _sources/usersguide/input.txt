@@ -277,6 +277,7 @@ Alternatively, for machines without HDF5 and/or h5py, materials data may be impo
    # Dump the Python dictionary of materials data to a pickle file
    pickle.dump(data, open('materials-data.pkl', 'wb'))
 
+.. note:: Users should note that OpenMOC will assign a minimum value of 1E-10 to all total cross-sections assigned to a ``Material`` object. This prevents numerical divide-by-zero issues in the ``Solver``, and is a useful sanity check when modeling (nearly) void regions - *e.g.*, a fuel pin cell "gap."
 
 ----------------------
 Geometry Specification

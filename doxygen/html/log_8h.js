@@ -1,5 +1,6 @@
 var log_8h =
 [
+    [ "printf", "log_8h.html#a3cb9f0894fab1c8fbb0753c9c7c2a8d9", null ],
     [ "logLevel", "log_8h.html#a474fc5e1d06d669823896ac6258fbc0d", null ],
     [ "logLevels", "log_8h.html#a5096002e05063d13577205e0bc5f0564", [
       [ "DEBUG", "log_8h.html#a5096002e05063d13577205e0bc5f0564a0593585da9181e972974c1274d8f2b4f", null ],

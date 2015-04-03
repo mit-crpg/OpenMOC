@@ -1,5 +1,6 @@
 var NAVTREEINDEX2 =
 {
+"classPoint.html#aac5008459bf0e0053ce744a69187bae7":[1,0,18,5],
 "classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f":[1,0,18,7],
 "classPoint.html#ad92f2337b839a94ce97dcdb439b4325a":[1,0,18,0],
 "classPoint.html#adcad60af16d638970a0d0f5b775ed00f":[1,0,18,2],
@@ -248,6 +249,5 @@ var NAVTREEINDEX2 =
 "classUniverse.html#addfbcb961bfc0ab4af57bfc08be230f0":[1,0,27,21],
 "classUniverse.html#adefba501ce58307b8f04f496d3a91aff":[1,0,27,34],
 "classUniverse.html#ae02ffd5fa32aa99a65c7919b054f2c97":[1,0,27,13],
-"classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21":[1,0,27,12],
-"classUniverse.html#ae3952c88390eda788da540d421d0b139":[1,0,27,36]
+"classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21":[1,0,27,12]
 };
