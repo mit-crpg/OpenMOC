@@ -620,8 +620,8 @@ def parse_convergence_data(filename, directory=''):
               'not an existing OpenMOC log file'.format(filename))
 
   # Compile regular expressions to find the residual and eigenvalue data
-  res = re.compile('res = ([0-9].[0-9]+E[+|-][0-9]+)')
-  keff = re.compile('k_eff = ([0-9]+.[0-9]+)')
+  res = re.compile(b'res = ([0-9].[0-9]+E[+|-][0-9]+)')
+  keff = re.compile(b'k_eff = ([0-9]+.[0-9]+)')
 
   # Parse the eigenvalues
   with open(filename, 'r+') as f:
