@@ -1,6 +1,5 @@
 var NAVTREEINDEX4 =
 {
-"namespaces.html":[0,0],
 "options_8py.html":[2,0,0,3],
 "pages.html":[],
 "pairwise__sum_8h.html":[2,0,1,10],

@@ -363,14 +363,18 @@ A depiction of the flat source regions for the :file:`/OpenMOC/sample-input/larg
 Flux Visualization
 ------------------
 
-To plot the flat source region scalar fluxes, use the ``plot_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 10 <table_plot_fluxes>`.
+The ``openmoc.plotter`` module includes routines to plot the scalar flux in space and energy, as detailed in the following sections.
 
-.. _table_plot_fluxes:
+Flux in Space
+-------------
+
+To plot the flat source region scalar fluxes in space, use the ``plot_spatial_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 10 <table_plot_fluxes_space>`.
+
+.. _table_plot_fluxes_space:
 
 =================  ===================  =========  =========  ============================================
 Parameter          Type                 Default    Optional   Note
 =================  ===================  =========  =========  ============================================
-``geometry``       ``Geometry`` object  None       No         The geometry of interest
 ``solver``         ``Solver`` object    None       No         The solver used to converge the source
 ``energy_groups``  list                 [1]        No         Create separate plots for each energy group
 ``gridsize``       integer              250        Yes        The pixel resolution
@@ -378,7 +382,7 @@ Parameter          Type                 Default    Optional   Note
 ``ylim``           float                None       Yes        The maximum :math:`y`-coordinate to plot
 =================  ===================  =========  =========  ============================================
 
-**Table 10**: Parameters for the ``openmoc.plotter.plot_fluxes(...)`` routine.
+**Table 10**: Parameters for the ``openmoc.plotter.plot_spatial_fluxes(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -393,11 +397,11 @@ The code snippet below illustrates one possible configuration of parameters to t
     ...
 
     # Plot the fluxes for energy groups 1 and 7 in 500 x 500 pixel images
-    plot.plot_fluxes(geometry, solver, energy_groups=[1,7], gridsize=500)
+    plot.plot_spatial_fluxes(solver, energy_groups=[1,7], gridsize=500)
 
-A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py`) is illustrated in :ref:`Figure 6 <figure_fluxes>`.
+A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py`) is illustrated in :ref:`Figure 6 <figure_spatial_fluxes>`.
 
-.. _figure_fluxes:
+.. _figure_spatial_fluxes:
 
 .. table:: 
 
@@ -415,6 +419,56 @@ A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
 
+
+Flux in Energy
+--------------
+
+To plot the flux in energy for one or more flat source regions, use the ``plot_energy_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 11 <table_plot_fluxes_energy>`.
+
+.. _table_plot_fluxes_energy:
+
+=================  ===================  =========  =========  ============================================
+Parameter          Type                 Default    Optional   Note
+=================  ===================  =========  =========  ============================================
+``solver``         ``Solver`` object    None       No         The solver used to converge the source
+``fsrs``           list                 None       No         The flat source region IDs of interest
+``group_bounds``   list                 None       Yes        The sequential bounds for each energy group
+``norm``           boolean              True       Yes        Whether to normalize the flux across energy
+``loglog``         boolean              True       Yes        Whether to use a log-log plotting scale
+=================  ===================  =========  =========  ============================================
+
+**Table 11**: Parameters for the ``openmoc.plotter.plot_energy_fluxes(...)`` routine.
+
+The code snippet below illustrates one possible configuration of parameters to the routine.
+
+.. code-block:: python
+
+    import openmoc.plotter as plot
+
+    # Setup geomery and generate tracks
+    ...
+
+    # Setup solver and converge the source
+    ...
+
+    # Plot the fluxes vs. energy for flat source regions 0 and 1
+    plot.plot_energy_fluxes(solver, fsrs=[0,1])
+
+A depiction of the normalized 7-group fluxes for the sample pin cell problem (:file:`/OpenMOC/sample-input/pin-cell/pin-cell.py`) is illustrated in :ref:`Figure 7 <figure_energy_fluxes>`.
+
+.. _figure_energy_fluxes:
+
+.. table:: 
+
+   +------------------------------------------+-----------------------------------------+
+   | .. _figa:                                | .. _figb:                               |
+   |                                          |                                         |
+   | .. image:: ../../img/flux-fsr-0.png      | .. image:: ../../img/flux-fsr-1.png     |
+   |   :width: 72 %                           |   :width: 75 %                          |
+   |   :align: center                         |   :align: center                        |
+   +------------------------------------------+-----------------------------------------+ 
+
+**Figure 7**: The normalized moderator and fuel flux for a simple PWR pin cell problem.
 
 
 .. _dictionary: http://docs.python.org/2/library/stdtypes.html#mapping-types-dict
