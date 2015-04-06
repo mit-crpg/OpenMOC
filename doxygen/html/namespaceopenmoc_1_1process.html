@@ -132,6 +132,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a20436071e0dfd32af17c67bf86636a93"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceopenmoc_1_1process.html#a20436071e0dfd32af17c67bf86636a93">restore_simulation_state</a></td></tr>
 <tr class="memdesc:a20436071e0dfd32af17c67bf86636a93"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method restores all of the data for an OpenMOC simulation from a a binary file for downstream data processing to a Python dictionary.  <a href="#a20436071e0dfd32af17c67bf86636a93">More...</a><br/></td></tr>
 <tr class="separator:a20436071e0dfd32af17c67bf86636a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92ec556440ef86fce9d69b1b0b2c010a"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceopenmoc_1_1process.html#a92ec556440ef86fce9d69b1b0b2c010a">parse_convergence_data</a></td></tr>
+<tr class="memdesc:a92ec556440ef86fce9d69b1b0b2c010a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse an OpenMOC log file to obtain a simulation's convergence data.  <a href="#a92ec556440ef86fce9d69b1b0b2c010a">More...</a><br/></td></tr>
+<tr class="separator:a92ec556440ef86fce9d69b1b0b2c010a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -252,6 +255,45 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="a92ec556440ef86fce9d69b1b0b2c010a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def openmoc.process.parse_convergence_data </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>directory</em> = <code>''</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Parse an OpenMOC log file to obtain a simulation's convergence data. </p>
+<p>This method compiles the eigenvalue and source residuals from each iteration of an OpenMOC simulation. This data is inserted into a Python dictionary under the key names 'eigenvalues' and 'residuals', along with an integer <code># iters</code>, and returned to the user.</p>
+<p>This method may be called from Python as follows: </p>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<a class="code" href="namespaceopenmoc_1_1process.html#a92ec556440ef86fce9d69b1b0b2c010a">parse_convergence_data</a>(filename=<span class="stringliteral">&#39;openmoc-XX-XX-XXXX--XX:XX:XX.log&#39;</span>)</div>
+</div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">filename</td><td>the OpenMOC log filename string </td></tr>
+    <tr><td class="paramname">directory</td><td>the directory where to find the log file </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a Python dictionary of key/value pairs for convergence data </dd></dl>
 
 </div>
 </div>
@@ -405,7 +447,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>openmoc</b></li><li class="navelem"><a class="el" href="namespaceopenmoc_1_1process.html">process</a></li>
-    <li class="footer">Generated on Mon Apr 6 2015 12:24:15 by
+    <li class="footer">Generated on Mon Apr 6 2015 12:28:38 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
