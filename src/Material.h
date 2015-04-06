@@ -17,11 +17,11 @@
 #endif
 
 /** A negligible cross-section value to over-ride user-defined
- *  cross-sectionsvery near zero (e.g., within (-1E-10, 1E-10)) */
+ *  cross-sections very near zero (e.g., within (-1E-10, 1E-10)) */
 #define ZERO_SIGMA_T 1E-10
 
 #ifdef ICPC
-/** Word-aligned memory deallocationallocation for Intel's compiler */
+/** Word-aligned memory allocation for Intel's compiler */
 #define MM_FREE(array) _mm_free(array)
 
 /** Word-aligned memory allocation for Intel's compiler */
