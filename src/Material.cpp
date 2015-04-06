@@ -680,7 +680,7 @@ void Material::setSigmaT(double* xs, int num_groups) {
 
   for (int i=0; i < _num_groups; i++) {
 
-    /* If the cross-section is too small (e.g., zero) */
+    /* If the cross-section is near zero (e.g., within (-1E-10, 1E-10)) */
     if (fabs(xs[i]) < ZERO_SIGMA_T)
       _sigma_t[i] = FP_PRECISION(ZERO_SIGMA_T);
     else
