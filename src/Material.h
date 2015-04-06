@@ -16,7 +16,8 @@
 #include "log.h"
 #endif
 
-/** The minimum allowable total cross-section value for any group */
+/** A negligible cross-section value to over-ride user-defined
+ *  cross-sectionsvery near zero (e.g., within (-1E-10, 1E-10)) */
 #define ZERO_SIGMA_T 1E-10
 
 #ifdef ICPC
