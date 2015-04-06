@@ -623,7 +623,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 
 
 ##
-# @brief This method takes in a Geometry object and plots a color-coded 2D
+# @brief This method takes in a Solver object and plots a color-coded 2D
 #        surface plot representing the flat source region scalar fluxes.
 # @details The Solver must have converged the flat source sources prior to
 #          calling this routine. A user may invoke this function from an 
@@ -727,7 +727,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
 
 
 ##
-# @brief This method takes in a Geometry object and plots the scalar
+# @brief This method takes in a Solver object and plots the scalar
 #        flux vs. energy for one or more flat source regions.
 # @details The Solver must have converged the flat source sources prior to
 #          calling this routine. The routine will generate a step plot of the
