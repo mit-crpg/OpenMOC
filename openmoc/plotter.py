@@ -625,13 +625,14 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 
 ##
 # @brief This method takes in a Geometry object and plots a color-coded 2D
-#        surface plot representing the flat source regions in the Geometry.
-# @details The geometry object must be initialized with Materials, Cells,
-#          Universes and Lattices before being passed into this method. A user
-#          may invoke this function from an OpenMOC Python file as follows:
+#        surface plot representing the flat source region scalar fluxes.
+# @details The Solver must have converged the flat source sources prior to
+#          calling this routine. A user may invoke this function from an 
+#          OpenMOC Python file as follows:
 #
 # @code
-#         openmoc.plotter.plot_fluxes(geometry, solver, energy_groups=[1,7])
+#         openmoc.plotter.plot_spatial_fluxes(geometry, solver, 
+#                                             energy_groups=[1,7])
 # @endcode
 #
 # @param geometry a Geometry object which has been initialized with Materials,
@@ -641,8 +642,8 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_fluxes(geometry, solver, energy_groups=[1],
-                gridsize=250, xlim=None, ylim=None):
+def plot_spatial_fluxes(geometry, solver, energy_groups=[1],
+                        gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
@@ -878,3 +879,138 @@ def get_pixel_coords(geometry, gridsize, xlim, ylim):
   coords['bounds'] = bounds
 
   return coords
+
+
+##
+# @brief This method takes in a Geometry object and plots the scalar
+#        flux vs. energy for one or more flat source regions.
+# @details The Solver must have converged the flat source sources prior to
+#          calling this routine. The routine will generate a step plot of the
+#          flat flux across each energy group. 
+#
+#          An optional parameter for the energy group bounds may be input. 
+#          The group bounds should be input in increasing order of energy.
+#          If group bounds are not specified, the routine will use equal 
+#          width steps for each energy group.
+#
+#          A user may invoke this function from an OpenMOC Python file 
+#          as follows:
+#
+# @code
+#         openmoc.plotter.plot_energy_fluxes(solver, fsrs=[1,5,20],
+#                                            group_bounds=[0., 0.625, 2e7])
+# @endcode
+#
+# @param solver a Solver object that has converged the source for the Geometry
+# @param fsrs the flat source region IDs of interest
+# @param group_bounds an optional Python list of the energy group bounds (eV)
+# @param normalize a boolean indicating whether to normalize the flux
+def plot_energy_fluxes(solver, fsrs, group_bounds=None, normalize=True):
+
+  global subdirectory
+
+  directory = get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  if not 'Solver' in str(type(solver)):
+    py_printf('ERROR', 'Unable to plot the flux vs. energy ' + \
+              'since input did not contain a Solver class object')
+
+  geometry = solver.getGeometry()
+  num_fsrs = geometry.getNumFSRs()
+  num_groups = geometry.getNumEnergyGroups()
+
+  if isinstance(fsrs, (tuple, list, np.ndarray)):
+    for fsr in fsrs:
+      if not is_integer(fsr):
+        py_printf('ERROR', 'Unable to plot the flux vs. energy since ' + \
+                  'the fsrs contains %s which is not an int', str(fsr))
+
+      elif fsr < 0:
+        py_printf('ERROR', 'Unable to plot the flux vs. energy since ' + \
+                  'the fsrs contains %d which is less than zero', fsr)
+
+      elif fsr >= num_fsrs:
+        py_printf('ERROR', 'Unable to plot the flux vs. energy since ' + \
+                  'the fsrs contains %d which is greater than the ' + \
+                  'total number of FSRs %d', fsr, num_fsrs)
+
+  else:
+    py_printf('ERROR', 'Unable to plot the flux vs. energy since ' + \
+              'the fsrs is not a Python tuple, list or NumPy array')
+
+  if isinstance(group_bounds, (tuple, list, np.ndarray)):
+
+    if not all(low < up for low, up in zip(group_bounds, group_bounds[1:])):
+      py_printf('ERROR', 'Unable to plot hte flux vs. energy since the ' + \
+                'energy group bounds are not monotonically increasing')
+
+    elif len(group_bounds) != geometry.getNumEnergyGroups()+1:
+      py_printf('ERROR', 'Unable to plot the flux vs. energy since the ' + \
+                'group bounds does not correspond to %d groups', num_groups)
+
+    for bound in group_bounds:
+      if not is_integer(bound) and not is_float(bound):
+        py_printf('ERROR', 'Unable to plot the flux vs. energy since the ' + \
+                  'group bounds contains %s which is not a number', str(fsr))
+
+      elif bound < 0:
+        py_printf('ERROR', 'Unable to plot the flux vs. energy since the ' + \
+                  'group bounds contains %f which is less than zero', bound)
+
+  elif not group_bounds is None:
+    py_printf('ERROR', 'Unable to plot the flux vs. energy since ' + \
+              'the group bounds is not a Python tuple, list or NumPy array')
+
+  py_printf('NORMAL', 'Plotting the scalar fluxes vs. energy...')
+
+  # Compute difference in energy bounds for each group
+  group_deltas = np.ediff1d(group_bounds)
+  group_bounds = np.flipud(group_bounds)
+  group_deltas = np.flipud(group_deltas)
+ 
+  # Iterate over all flat source regions
+  for fsr in fsrs:
+
+    # Allocate memory for an array of this FSR's fluxes
+    fluxes = np.zeros(num_groups, dtype=np.float)
+
+    # Extract the flux in each energy group
+    for group in range(num_groups):
+        fluxes[group] = solver.getFSRScalarFlux(fsr, group+1)
+
+    # Normalize fluxes to the total integrated flux
+    if normalize:
+      fluxes /= np.sum(group_deltas * fluxes)
+
+    # Initialize a separate plot for this FSR's fluxes
+    fig = plt.figure()
+
+    # Draw horizontal/vertical lines on the plot for each energy group
+    for group in range(num_groups):
+    
+      # Horizontal line
+      plt.loglog(group_bounds[group:group+2], [fluxes[group]]*2, 
+                 linewidth=3, c='b', label='openmoc', linestyle='-')
+
+      # Vertical lines
+      if group < num_groups - 1:
+        plt.loglog([group_bounds[group+1]]*2, fluxes[group:group+2], 
+                   c='b', linestyle='--')
+
+    plt.xlabel('Energy')
+    plt.ylabel('Flux')
+    plt.xlim((min(group_bounds), max(group_bounds)))
+    plt.grid()
+
+    if normalize:
+      plt.title('Normalized Flux ({0} groups)'.format(num_groups))
+    else:
+      plt.title('Flux ({0} groups)'.format(num_groups))
+
+    filename = directory + 'flux-fsr-' + str(fsr) + '.png'
+    plt.savefig(filename, bbox_inches='tight')
+    plt.close(fig)
