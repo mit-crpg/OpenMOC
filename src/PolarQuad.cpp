@@ -316,24 +316,24 @@ void TYPolarQuad::initialize() {
   /* Tabulated values for the sine thetas and weights for the
    * Tabuchi-Yamamoto polar angle quadrature */
   if (_num_polar == 1) {
-    _sin_thetas[0] = 0.798184;
-    _weights[0] = 1.0;
+    sin_thetas[0] = 0.798184;
+    weights[0] = 1.0;
   }
 
   else if (_num_polar == 2) {
-    _sin_thetas[0] = 0.363900;
-    _sin_thetas[1] = 0.899900;
-    _weights[0] = 0.212854;
-    _weights[1] = 0.787146;
+    sin_thetas[0] = 0.363900;
+    sin_thetas[1] = 0.899900;
+    weights[0] = 0.212854;
+    weights[1] = 0.787146;
   }
 
   else if (_num_polar == 3) {
-    _sin_thetas[0] = 0.166648;
-    _sin_thetas[1] = 0.537707;
-    _sin_thetas[2] = 0.932954;
-    _weights[0] = 0.046233;
-    _weights[1] = 0.283619;
-    _weights[2] = 0.670148;
+    sin_thetas[0] = 0.166648;
+    sin_thetas[1] = 0.537707;
+    sin_thetas[2] = 0.932954;
+    weights[0] = 0.046233;
+    weights[1] = 0.283619;
+    weights[2] = 0.670148;
   }
 
   /* Set the arrays of sin thetas and weights */
@@ -386,19 +386,19 @@ void LeonardPolarQuad::initialize() {
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
   if (_num_polar == 2) {
-    _sin_thetas[0] = 0.273658;
-    _sin_thetas[1] = 0.865714;
-    _weights[0] = 0.139473;
-    _weights[1] = 0.860527;
+    sin_thetas[0] = 0.273658;
+    sin_thetas[1] = 0.865714;
+    weights[0] = 0.139473;
+    weights[1] = 0.860527;
   }
 
   else if (_num_polar == 3) {
-    _sin_thetas[0] = 0.099812;
-    _sin_thetas[1] = 0.395534;
-    _sin_thetas[2] = 0.891439;
-    _weights[0] = 0.017620;
-    _weights[1] = 0.188561;
-    _weights[2] = 0.793819;
+    sin_thetas[0] = 0.099812;
+    sin_thetas[1] = 0.395534;
+    sin_thetas[2] = 0.891439;
+    weights[0] = 0.017620;
+    weights[1] = 0.188561;
+    weights[2] = 0.793819;
   }
 
   /* Set the arrays of sin thetas and weights */
@@ -452,58 +452,58 @@ void GLPolarQuad::initialize() {
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
   if (_num_polar == 1) {
-    _sin_thetas[0] = 0.5773502691;
-    _weights[0] = 1.0;
+    sin_thetas[0] = 0.5773502691;
+    weights[0] = 1.0;
   }
   else if (_num_polar == 2) {
-    _sin_thetas[0] = 0.3399810435;
-    _sin_thetas[1] = 0.8611363115;
-    _weights[0] = 0.6521451549;
-    _weights[1] = 0.3478548451;
+    sin_thetas[0] = 0.3399810435;
+    sin_thetas[1] = 0.8611363115;
+    weights[0] = 0.6521451549;
+    weights[1] = 0.3478548451;
   }
   else if (_num_polar == 3) {
-    _sin_thetas[0] = 0.2386191860;
-    _sin_thetas[1] = 0.6612093864;
-    _sin_thetas[2] = 0.9324695142;
-    _weights[0] = 0.4679139346;
-    _weights[1] = 0.3607615730;
-    _weights[2] = 0.1713244924;
+    sin_thetas[0] = 0.2386191860;
+    sin_thetas[1] = 0.6612093864;
+    sin_thetas[2] = 0.9324695142;
+    weights[0] = 0.4679139346;
+    weights[1] = 0.3607615730;
+    weights[2] = 0.1713244924;
   }
   else if (_num_polar == 4) {
-    _sin_thetas[0] = 0.1834346424;
-    _sin_thetas[1] = 0.5255324099;
-    _sin_thetas[2] = 0.7966664774;
-    _sin_thetas[3] = 0.9602898564;
-    _weights[0] = 0.3626837834;
-    _weights[1] = 0.3137066459;
-    _weights[2] = 0.2223810344;
-    _weights[3] = 0.1012285363;
+    sin_thetas[0] = 0.1834346424;
+    sin_thetas[1] = 0.5255324099;
+    sin_thetas[2] = 0.7966664774;
+    sin_thetas[3] = 0.9602898564;
+    weights[0] = 0.3626837834;
+    weights[1] = 0.3137066459;
+    weights[2] = 0.2223810344;
+    weights[3] = 0.1012285363;
   }
   else if (_num_polar == 5) {
-    _sin_thetas[0] = 0.1488743387;
-    _sin_thetas[1] = 0.4333953941;
-    _sin_thetas[2] = 0.6794095682;
-    _sin_thetas[3] = 0.8650633666;
-    _sin_thetas[4] = 0.9739065285;
-    _weights[0] = 0.2955242247;
-    _weights[1] = 0.2692667193;
-    _weights[2] = 0.2190863625;
-    _weights[3] = 0.1494513492;
-    _weights[4] = 0.0666713443;
+    sin_thetas[0] = 0.1488743387;
+    sin_thetas[1] = 0.4333953941;
+    sin_thetas[2] = 0.6794095682;
+    sin_thetas[3] = 0.8650633666;
+    sin_thetas[4] = 0.9739065285;
+    weights[0] = 0.2955242247;
+    weights[1] = 0.2692667193;
+    weights[2] = 0.2190863625;
+    weights[3] = 0.1494513492;
+    weights[4] = 0.0666713443;
   }
   else if (_num_polar == 6) {
-    _sin_thetas[0] = 0.1252334085;
-    _sin_thetas[1] = 0.3678314989;
-    _sin_thetas[2] = 0.5873179542;
-    _sin_thetas[3] = 0.7699026741;
-    _sin_thetas[4] = 0.9041172563;
-    _sin_thetas[5] = 0.9815606342;
-    _weights[0] = 0.2491470458;
-    _weights[1] = 0.2334925365;
-    _weights[2] = 0.2031674267;
-    _weights[3] = 0.1600783286;
-    _weights[4] = 0.1069393260;
-    _weights[5] = 0.0471753364;
+    sin_thetas[0] = 0.1252334085;
+    sin_thetas[1] = 0.3678314989;
+    sin_thetas[2] = 0.5873179542;
+    sin_thetas[3] = 0.7699026741;
+    sin_thetas[4] = 0.9041172563;
+    sin_thetas[5] = 0.9815606342;
+    weights[0] = 0.2491470458;
+    weights[1] = 0.2334925365;
+    weights[2] = 0.2031674267;
+    weights[3] = 0.1600783286;
+    weights[4] = 0.1069393260;
+    weights[5] = 0.0471753364;
   }
 
   /* Set the arrays of sin thetas and weights */
