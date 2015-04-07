@@ -294,6 +294,7 @@ public:
   virtual ~Solver();
 
   Geometry* getGeometry();
+  FP_PRECISION getFSRVolume(int fsr_id);
   TrackGenerator* getTrackGenerator();
   int getNumPolarAngles();
   quadratureType getPolarQuadratureType();

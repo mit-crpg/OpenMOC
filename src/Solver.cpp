@@ -129,6 +129,25 @@ Geometry* Solver::getGeometry() {
 
 
 /**
+ * @brief Returns the calculated volume for a flat source region.
+ * @param fsr_id the flat source region ID of interest
+ * @return the flat source region volume
+ */
+FP_PRECISION Solver::getFSRVolume(int fsr_id) {
+
+  if (fsr_id < 0 || fsr_id > _num_FSRs)
+    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
+               "IDs lie in the range (0, %d)", fsr_id, _num_FSRs);
+
+  else if (_FSR_volumes == NULL)
+    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
+               "volumes have not yet been computed", fsr_id);
+
+  return _FSR_volumes[fsr_id];
+}
+
+
+/**
  * @brief Returns a pointer to the TrackGenerator.
  * @return a pointer to the TrackGenerator
  */
