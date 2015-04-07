@@ -53,6 +53,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     setTrackGenerator(track_generator);
 
   /* Default polar quadrature */
+  _user_polar_quad = false;
   _polar_quad = new TYPolarQuad();
   _num_polar = 3;
   _two_times_num_polar = 2 * _num_polar;
@@ -108,7 +109,7 @@ Solver::~Solver() {
   if (_exp_table != NULL)
     delete [] _exp_table;
 
-  if (_polar_quad != NULL)
+  if (_polar_quad != NULL && !_user_polar_quad)
     delete _polar_quad;
 }
 
@@ -280,6 +281,7 @@ void Solver::setGeometry(Geometry* geometry) {
  *
  * @code
  *          track_generator.generateTracks()
+ *          solver.setTrackGenerator(track_generator)
  * @endcode
  *
  * @param track_generator a pointer to a TrackGenerator object
@@ -306,6 +308,31 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
       counter++;
     }
   }
+}
+
+
+/**
+ * @brief Assign a PolarQuad object to the Solver.
+ * @details This routine allows use of a PolarQuad with any polar angle
+ *          quadrature. Alternatively, this routine may take in any subclass
+ *          of the PolarQuad parent class, including TYPolarQuad (default),
+ *          LeonardPolarQuad, GLPolarQuad, etc.
+ *
+ *          Users may assign a PolarQuad object to the Solver from 
+ *          Python script as follows:
+ *
+ * @code
+ *          polar_quad = openmoc.LeonardPolarQuad()
+ *          polar_quad.setNumPolarAngles(2)
+ *          solver.setPolarQuadrature(polar_quad)
+ * @endcode
+ *
+ * @param polar_quad a pointer to a PolarQuad object
+ */
+void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
+  _user_polar_quad = true;
+  _polar_quad = polar_quad;
+  setNumPolarAngles(polar_quad->getNumPolarAngles());
 }
 
 

@@ -1,6 +1,9 @@
 /**
  * @file PolarQuad.h
  * @brief The PolarQuad abstract class and subclasses.
+ * @details The PolarQuad subclasses are defined with tabulated or functional
+ *          quadrature sets given in the "Lattice Physics Computations", 
+ *          Handbook of Nuclear Engineering, Dave Knott, Akio Yamamoto, 2010.
  * @date April 6, 2015
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
 */

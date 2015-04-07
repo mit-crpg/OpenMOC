@@ -102,6 +102,9 @@ protected:
   /** A pointer to a polar quadrature */
   PolarQuad* _polar_quad;
 
+  /** A boolean indicating if a user-defined PolarQuad was assigned */
+  bool _user_polar_quad;
+
   /** The number of polar angles */
   int _num_polar;
 
@@ -324,6 +327,7 @@ public:
 
   virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
+  virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setNumPolarAngles(int num_polar);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
 

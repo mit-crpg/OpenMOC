@@ -554,7 +554,7 @@ void EqualWeightPolarQuad::initialize() {
   /* Generate the sin thetas and weights using equations 420-422 of the
    * DOE Nucl. Eng. Handbook "Lattice Physics Computations" */
   for (int p=0; p < _num_polar; p++) {
-    sin_theta_b = sin_theta_a - (2. / _num_polar);
+    sin_theta_b = sin_theta_a - (1. / _num_polar);
     sin_thetas[p] = 0.5 * (sin_theta_a + sin_theta_b);
     weights[p] = sin_theta_a - sin_theta_b;
     sin_theta_a = sin_theta_b;
@@ -604,7 +604,7 @@ void EqualAnglePolarQuad::initialize() {
 
   double sin_theta_a, sin_theta_b;
   double theta_a, theta_b;
-  double delta_theta = M_PI / _num_polar;
+  double delta_theta = M_PI / (2. * _num_polar);
   theta_a = 0.;
 
   /* Generate the sin thetas and weights using equations 420-422 of the
