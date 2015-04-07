@@ -35,6 +35,8 @@ private:
   /** An array of the sines multipled by the weights */
   FP_PRECISION* _multiples;
 
+  void precomputeMultiples();
+
 public:
 
   PolarQuad();
@@ -68,13 +70,9 @@ class TYPolarQuad : public PolarQuad {
 private:
 
 public:
-
   TYPolarQuad();
-  virtual ~TYPolarQuad();
-
-  void setNumPolarAngles();
+  void setNumPolarAngles(const int num_polar);
   void initialize();
-    
 }
 
 
@@ -87,10 +85,8 @@ class LeonardPolarQuad : public PolarQuad {
 private:
 
 public:
-
   LeonardPolarQuad();
-  virtual ~LeonardPolarQuad();
-  void setNumPolarAngles();
+  void setNumPolarAngles(const int num_polar);
   void initialize();
 }
 
@@ -106,8 +102,7 @@ private:
 
 public:
   GLPolarQuad();
-  virtual ~GLPolarQuad();
-  void setNumPolarAngles();
+  void setNumPolarAngles(const int num_polar);
   void initialize();
 }
 
@@ -122,9 +117,8 @@ class EqualAnglePolarQuad : public PolarQuad {
 private:
 
 public:
-
   EqualAnglePolarQuad(int num_polar);
-  virtual ~EqualAnglePolarQuad();
+  void setNumPolarAngles(const int num_polar);
   void initialize();
 }
 
@@ -139,9 +133,8 @@ class EqualWeightPolarQuad : public PolarQuad {
 private:
 
 public:
-
   EqualWeightPolarQuad(int num_polar);
-  virtual ~EqualWeightPolarQuad();
+  void setNumPolarAngles(const int num_polar);
   void initialize();
 }
 

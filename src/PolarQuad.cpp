@@ -11,54 +11,6 @@ PolarQuad::PolarQuad() {
   _weights = NULL;
   _multiples = NULL;
 
-  if (num_polar_angles != 1 && num_polar_angles != 2 && num_polar_angles != 3)
-    log_printf(ERROR, "Unable to set the number of polar angles to %d. Only"
-               "1, 2 and 3 polar angles are supported by OpenMOC.");
-
-  _num_polar = num_polar;
-
-  /** Initialize memory for arrays */
-  _sinthetas = new FP_PRECISION[_num_polar];
-  _weights = new FP_PRECISION[_num_polar];
-  _multiples = new FP_PRECISION[_num_polar];
-
-  /* If Quadrature type is TABUCHI */
-  if (type == TABUCHI) {
-
-    _type = TABUCHI;
-
-    if (_num_polar == 1) {
-      _sinthetas[0] = 0.798184;
-      _weights[0] = 1.0;
-      _multiples[0] = _sinthetas[0] * _weights[0];
-    }
-
-    else if (_num_polar == 2) {
-      _sinthetas[0] = 0.363900;
-      _sinthetas[1] = 0.899900;
-      _weights[0] = 0.212854;
-      _weights[1] = 0.787146;
-      _multiples[0] = _sinthetas[0] * _weights[0];
-      _multiples[1] = _sinthetas[1] * _weights[1];
-    }
-
-    else if (_num_polar == 3) {
-      _sinthetas[0] = 0.166648;
-      _sinthetas[1] = 0.537707;
-      _sinthetas[2] = 0.932954;
-      _weights[0] = 0.046233;
-      _weights[1] = 0.283619;
-      _weights[2] = 0.670148;
-      _multiples[0] = _sinthetas[0] * _weights[0];
-      _multiples[1] = _sinthetas[1] * _weights[1];
-      _multiples[2] = _sinthetas[2] * _weights[2];
-    }
-
-    else
-      log_printf(ERROR, "TABUCHI type polar Quadrature supports 1, 2, or "
-                 "3 polar angles but %d are defined", _num_polar);
-  }
-
   /* If quadrature type is LEONARD */
   else if (type == LEONARD) {
 
@@ -91,10 +43,6 @@ PolarQuad::PolarQuad() {
     }
 
   }
-
-  else
-    log_printf(ERROR, "LEONARD and TABUCHI polar Quadrature types "
-               "supported, but unknown type given");
 }
 
 
@@ -105,7 +53,7 @@ PolarQuad::PolarQuad() {
 PolarQuad::~PolarQuad() {
 
   if (_sin_thetas != NULL)
-    delete [] _sinthetas;
+    delete [] _sin_thetas;
 
   if (_weights != NULL)
     delete [] _weights;
@@ -239,6 +187,14 @@ void PolarQuad::setSinThetas(FP_PRECISION* sin_thetas, int num_polar) {
     log_printf(ERROR, "Unable to set %d sin thetas for PolarQuad "
                "with %d polar angles", num_polar, _num_polar);
 
+  /* Deallocate memory if it was allocated previously */
+  if (_sin_thetas != NULL)
+    delete [] _sin_thetas;
+
+  /* Initialize memory for arrays */
+  _sinthetas = new FP_PRECISION[_num_polar];
+
+  /* Extract sin thetas from user input */
   for (int i=0; i < _num_polar; i++)
     _sin_thetas[i] = FP_PRECISION(sin_thetas[i]);
 
@@ -258,7 +214,7 @@ void PolarQuad::setSinThetas(FP_PRECISION* sin_thetas, int num_polar) {
  * @code
  *          weights = numpy.array([0.05, 0.1, 0.15, ... ])
  *          polar_quad = openmoc.PolarQuad()
- *          polar_quad.setNumPolarAngles(len(sin_thetas))
+ *          polar_quad.setNumPolarAngles(len(weights))
  *          polar_quad.setWeights(weights)
  * @endcode
  *
@@ -271,11 +227,51 @@ void PolarQuad::setWeights(FP_PRECISION* weights, int num_polar) {
     log_printf(ERROR, "Unable to set %d weights for PolarQuad "
                "with %d polar angles", num_polar, _num_polar);
 
+  /* Deallocate memory if it was allocated previously */
+  if (_weights != NULL)
+    delete [] _weights;
+
+  /* Initialize memory for arrays */
+  _weights = new FP_PRECISION[_num_polar];
+
+  /* Extract weights from user input */
   for (int i=0; i < _num_polar; i++)
     _weights[i] = FP_PRECISION(weights[i]);
 }
 
+
+/**
+ * @brief Dummy routine to initialize the polar quadrature.
+ * @details The parent class routine simply checks that the number of polar
+ *          angles has been set by the user and returns;
+ */
 void PolarQuad::initialize() {
+  if (_num_polar == 0)
+    log_printf(ERROR, "Unable to initialize PolarQuad with zero polar angles. "
+               "Set the number of polar angles before initialization.");
+
+  return;
+}
+
+
+/**
+ * @brief This private routine computes the produce of the sine thetas and
+ *        weights for each angle in the polar quadrature.
+ * @details Note that this routine must be called after populating the
+ *          sine thetas and weights arrays.
+ */
+void precomputeMultiples() {
+
+  /* Deallocate memory if it was allocated previously */
+  if (_multiples != NULL)
+    delete [] _multiples;
+
+  /* Initialize memory for arrays */
+  _multiples = new FP_PRECISION[_num_polar];
+
+  /* Compute multiples of sine thetas and weights */
+  for (int p=0; p < _num_polar; p++)
+    _multiples[p] = _sin_thetas[p] * _weights[p];
 }
 
 
@@ -296,7 +292,7 @@ std::string PolarQuad::toString() {
   string << "\n\tsin thetas = ";
   if (_sin_thetas != NULL) {
     for (int p = 0; p < _num_polar; p++)
-      string << _sinthetas[p] << ", ";
+      string << _sin_thetas[p] << ", ";
   }
 
   string << "\n\tweights = ";
@@ -313,3 +309,75 @@ std::string PolarQuad::toString() {
 
   return string.str();
 }
+
+
+
+/**
+ * @brief Dummy constructor sets the default number of angles to zero.
+ */
+TYPolarQuad::TYPolarQuad(): PolarQuad() { }
+
+
+/**
+ * @brief Set the number of polar angles to initialize.
+ * @param num_polar the number of polar angles (maximum 3)
+ */
+void TYPolarQuad::setNumPolarAngles(const int num_polar) {
+
+  if (num_polar > 3)
+    log_printf(ERROR, "Unable to set the number of polar angles to %d "
+               "for TYPolarQuad (max 3 angles)", num_polar);
+
+  _num_polar = num_polar;
+}
+
+
+/**
+ * @brief Routine to initialize the polar quadrature.
+ * @details This routine uses the tabulated values for the Tabuchi-Yamamoto
+ *          polar angle quadrature, including the sine thetas and weights.
+ */
+void TYPolarQuad::initialize() {
+
+  /* Call parent class initialize routine */
+  initialize();
+
+  /* Allocate temporary arrays for tabulated quadrature values */
+  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
+  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+
+  /* Tabulated values for the sine thetas and weights for the
+   * Tabuchi-Yamamoto polar angle quadrature */
+  if (_num_polar == 1) {
+    _sinthetas[0] = 0.798184;
+    _weights[0] = 1.0;
+  }
+
+  else if (_num_polar == 2) {
+    _sin_thetas[0] = 0.363900;
+    _sin_thetas[1] = 0.899900;
+    _weights[0] = 0.212854;
+    _weights[1] = 0.787146;
+  }
+
+  else if (_num_polar == 3) {
+    _sin_thetas[0] = 0.166648;
+    _sin_thetas[1] = 0.537707;
+    _sin_thetas[2] = 0.932954;
+    _weights[0] = 0.046233;
+    _weights[1] = 0.283619;
+    _weights[2] = 0.670148;
+  }
+
+  /* Set the arrays of sin thetas and weights */
+  setSinThetas(sin_thetas, _num_polar);
+  setWeights(weights, _num_polar);
+
+  /* Deallocate temporary arrays */
+  delete [] sin_thetas;
+  delete [] weights;
+
+  /* Compute the product of the sine thetas and weights */
+  precomputeMultiples();
+}
+
