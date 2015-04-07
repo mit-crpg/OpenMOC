@@ -109,22 +109,6 @@ public:
 
 
 /**
- * @class EqualAnglePolarQuad PolarQuad.h "src/PolarQuad.h"
- * @brief Equal angle polar quadrature.
- */
-class EqualAnglePolarQuad : public PolarQuad { 
-
-private:
-
-public:
-  EqualAnglePolarQuad(int num_polar);
-  void setNumPolarAngles(const int num_polar);
-  void initialize();
-}
-
-
-
-/**
  * @class EqualWeightPolarQuad PolarQuad.h "src/PolarQuad.h"
  * @brief Equal weight polar quadrature.
  */
@@ -134,6 +118,22 @@ private:
 
 public:
   EqualWeightPolarQuad(int num_polar);
+  void setNumPolarAngles(const int num_polar);
+  void initialize();
+}
+
+
+
+/**
+ * @class EqualAnglePolarQuad PolarQuad.h "src/PolarQuad.h"
+ * @brief Equal angle polar quadrature.
+ */
+class EqualAnglePolarQuad : public PolarQuad { 
+
+private:
+
+public:
+  EqualAnglePolarQuad(int num_polar);
   void setNumPolarAngles(const int num_polar);
   void initialize();
 }

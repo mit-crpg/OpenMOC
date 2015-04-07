@@ -571,3 +571,61 @@ void EqualWeightPolarQuad::initialize() {
   /* Compute the product of the sine thetas and weights */
   precomputeMultiples();
 }
+
+
+
+/**
+ * @brief Dummy constructor calls the parent constructor.
+ */
+EqualAnglePolarQuad()::EqualAnglePolarQuad : PolarQuad() { }
+
+
+/**
+ * @brief Set the number of polar angles to initialize.
+ * @param num_polar the number of polar angles
+ */
+void EqualAnglePolarQuad::setNumPolarAngles(const int num_polar) {
+  setNumPolarAngles(num_polar);
+}
+
+
+/**
+ * @brief Routine to initialize the polar quadrature.
+ * @details This routine generates the sine thetas and weights.
+ */
+void EqualAnglePolarQuad::initialize() {
+
+  /* Call parent class initialize routine */
+  initialize();
+
+  /* Allocate temporary arrays for tabulated quadrature values */
+  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
+  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+
+  double sin_theta_a, sin_theta_b;
+  double theta_a, theta_b;
+  double delta_theta = M_PI / _num_polar;
+  theta_a = 0.;
+
+  /* Generate the sin thetas and weights using equations 420-422 of the
+   * DOE Nucl. Eng. Handbook "Lattice Physics Computations" */
+  for (int p=0; p < _num_polar; p++) {
+    theta_b = theta_a + delta_theta;
+    sin_theta_a = cos(theta_a);
+    sin_theta_b = cos(theta_b);
+    sin_thetas[p] = 0.5 * (sin_theta_a + sin_theta_b);
+    weights[p] = sin_theta_a - sin_theta_b;
+    theta_a = theta_b;
+  }
+
+  /* Set the arrays of sin thetas and weights */
+  setSinThetas(sin_thetas, _num_polar);
+  setWeights(weights, _num_polar);
+
+  /* Deallocate temporary arrays */
+  delete [] sin_thetas;
+  delete [] weights;
+
+  /* Compute the product of the sine thetas and weights */
+  precomputeMultiples();
+}
