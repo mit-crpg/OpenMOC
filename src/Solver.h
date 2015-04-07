@@ -207,7 +207,7 @@ protected:
   int round_to_int(float x);
   int round_to_int(double x);
 
-  void initializePolarQuadrature();
+  virtual void initializePolarQuadrature();
 
   /**
    * @brief Initializes Track boundary angular flux and leakage and
