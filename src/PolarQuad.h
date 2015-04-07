@@ -50,11 +50,11 @@ public:
   FP_PRECISION* getWeights();
   FP_PRECISION* getMultiples();
 
-  void setNumPolarAngles(const int num_polar);
+  virtual void setNumPolarAngles(const int num_polar);
   void setSinThetas(FP_PRECISION* sin_thetas, int num_polar);
   void setWeights(FP_PRECISION* weights, int num_polar);
 
-  void initialize();
+  virtual void initialize();
 
   std::string toString();
 };

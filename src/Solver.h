@@ -12,7 +12,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Timer.h"
-#include "Quadrature.h"
+#include "PolarQuad.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"
 #endif
@@ -100,7 +100,7 @@ protected:
   int _num_materials;
 
   /** A pointer to a polar quadrature */
-  Quadrature* _quad;
+  PolarQuad* _polar_quad;
 
   /** The number of polar angles */
   int _num_polar;
@@ -110,9 +110,6 @@ protected:
 
   /** The number of polar angles times energy groups */
   int _polar_times_groups;
-
-  /** The type of polar quadrature (TABUCHI or LEONARD) */
-  quadratureType _quadrature_type;
 
   /** A pointer to the 2D ragged array of Tracks */
   Track** _tracks;
@@ -207,10 +204,7 @@ protected:
   int round_to_int(float x);
   int round_to_int(double x);
 
-  /**
-   * @brief Creates a polar quadrature object for the Solver.
-   */
-  virtual void initializePolarQuadrature() =0;
+  void initializePolarQuadrature();
 
   /**
    * @brief Initializes Track boundary angular flux and leakage and
@@ -296,7 +290,6 @@ public:
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
   int getNumPolarAngles();
-  quadratureType getPolarQuadratureType();
   int getNumIterations();
   double getTotalTime();
   FP_PRECISION getKeff();
@@ -331,7 +324,6 @@ public:
 
   virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setPolarQuadratureType(quadratureType quadrature_type);
   virtual void setNumPolarAngles(int num_polar);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
 

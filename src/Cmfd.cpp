@@ -13,7 +13,7 @@
 Cmfd::Cmfd() {
 
   /* Initialize Geometry and Mesh-related attribute */
-  _quad = NULL;
+  _polar_quad = NULL;
   _SOR_factor = 1.0;
 
   /* Global variables used in solving CMFD problem */
@@ -979,11 +979,11 @@ FP_PRECISION Cmfd::computeDiffCorrect(FP_PRECISION d, FP_PRECISION h){
     rho = 0.0;
 
     /* Loop over polar angles */
-    for (int p = 0; p < _quad->getNumPolarAngles(); p++){
-      mu = cos(asin(_quad->getSinTheta(p)));
+    for (int p = 0; p < _num_polar; p++){
+      mu = cos(asin(_polar_quad->getSinTheta(p)));
       expon = exp(- h / (3 * d * mu));
       alpha = (1 + expon) / (1 - expon) - 2 * (3 * d * mu) / h;
-      rho += mu * _quad->getWeight(p) * alpha;
+      rho += mu * _polar_quad->getWeight(p) * alpha;
     }
 
     /* Compute correction factor, F */
@@ -1701,19 +1701,17 @@ void Cmfd::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 
 
 /**
- * @brief Sets the type of polar angle quadrature set to use (ie, TABUCHI
- *        or LEONARD).
- * @param the polar angle quadrature type
- * @param the number of polar angles
+ * @brief Sets the PolarQuad object in use by the MOC Solver.
+ * @param polar_quad a PolarQuad object pointer from the Solver
  */
-void Cmfd::setPolarQuadrature(quadratureType quadrature_type, int num_polar) {
+void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
 
   /* Deletes the old Quadrature if one existed */
-  if (_quad != NULL)
+  if (_polar_quad != NULL)
     delete _quad;
 
-  _quad = new Quadrature(quadrature_type, num_polar);
-  _num_polar = num_polar;
+  _polar_quad = polar_quad;
+  _num_polar = polar_quad->getNumPolarAngles();
 }
 
 

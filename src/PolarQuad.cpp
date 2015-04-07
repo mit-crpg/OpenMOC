@@ -227,7 +227,7 @@ void PolarQuad::initialize() {
  * @details Note that this routine must be called after populating the
  *          sine thetas and weights arrays.
  */
-void precomputeMultiples() {
+void PolarQuad::precomputeMultiples() {
 
   /* Deallocate memory if it was allocated previously */
   if (_multiples != NULL)
@@ -295,7 +295,7 @@ void TYPolarQuad::setNumPolarAngles(const int num_polar) {
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
                "for TYPolarQuad (max 3 angles)", num_polar);
 
-  setNumPolarAngles(num_polar);
+  PolarQuad::setNumPolarAngles(num_polar);
 }
 
 
@@ -307,7 +307,7 @@ void TYPolarQuad::setNumPolarAngles(const int num_polar) {
 void TYPolarQuad::initialize() {
 
   /* Call parent class initialize routine */
-  initialize();
+  PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
   FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
@@ -337,15 +337,15 @@ void TYPolarQuad::initialize() {
   }
 
   /* Set the arrays of sin thetas and weights */
-  setSinThetas(sin_thetas, _num_polar);
-  setWeights(weights, _num_polar);
+  PolarQuad::setSinThetas(sin_thetas, _num_polar);
+  PolarQuad::setWeights(weights, _num_polar);
 
   /* Deallocate temporary arrays */
   delete [] sin_thetas;
   delete [] weights;
 
   /* Compute the product of the sine thetas and weights */
-  precomputeMultiples();
+  PolarQuad::precomputeMultiples();
 }
 
 
@@ -365,7 +365,7 @@ void LeonardPolarQuad::setNumPolarAngles(const int num_polar) {
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
                "for LeonardPolarQuad (2 or 3 angles)", num_polar);
 
-  setNumPolarAngles(num_polar);
+  PolarQuad::setNumPolarAngles(num_polar);
 }
 
 
@@ -377,7 +377,7 @@ void LeonardPolarQuad::setNumPolarAngles(const int num_polar) {
 void LeonardPolarQuad::initialize() {
 
   /* Call parent class initialize routine */
-  initialize();
+  PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
   FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
@@ -402,15 +402,15 @@ void LeonardPolarQuad::initialize() {
   }
 
   /* Set the arrays of sin thetas and weights */
-  setSinThetas(sin_thetas, _num_polar);
-  setWeights(weights, _num_polar);
+  PolarQuad::setSinThetas(sin_thetas, _num_polar);
+  PolarQuad::setWeights(weights, _num_polar);
 
   /* Deallocate temporary arrays */
   delete [] sin_thetas;
   delete [] weights;
 
   /* Compute the product of the sine thetas and weights */
-  precomputeMultiples();
+  PolarQuad::precomputeMultiples();
 }
 
 
@@ -431,7 +431,7 @@ void GLPolarQuad::setNumPolarAngles(const int num_polar) {
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
                "for GLPolarQuad (max 6 angles)", num_polar);
 
-  setNumPolarAngles(num_polar);
+  PolarQuad::setNumPolarAngles(num_polar);
 }
 
 
@@ -443,7 +443,7 @@ void GLPolarQuad::setNumPolarAngles(const int num_polar) {
 void GLPolarQuad::initialize() {
 
   /* Call parent class initialize routine */
-  initialize();
+  PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
   FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
@@ -507,15 +507,15 @@ void GLPolarQuad::initialize() {
   }
 
   /* Set the arrays of sin thetas and weights */
-  setSinThetas(sin_thetas, _num_polar);
-  setWeights(weights, _num_polar);
+  PolarQuad::setSinThetas(sin_thetas, _num_polar);
+  PolarQuad::setWeights(weights, _num_polar);
 
   /* Deallocate temporary arrays */
   delete [] sin_thetas;
   delete [] weights;
 
   /* Compute the product of the sine thetas and weights */
-  precomputeMultiples();
+  PolarQuad::precomputeMultiples();
 }
 
 
@@ -531,7 +531,7 @@ EqualWeightPolarQuad()::EqualWeightPolarQuad : PolarQuad() { }
  * @param num_polar the number of polar angles
  */
 void EqualWeightPolarQuad::setNumPolarAngles(const int num_polar) {
-  setNumPolarAngles(num_polar);
+  PolarQuad::setNumPolarAngles(num_polar);
 }
 
 
@@ -542,7 +542,7 @@ void EqualWeightPolarQuad::setNumPolarAngles(const int num_polar) {
 void EqualWeightPolarQuad::initialize() {
 
   /* Call parent class initialize routine */
-  initialize();
+  PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
   FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
@@ -561,15 +561,15 @@ void EqualWeightPolarQuad::initialize() {
   }
 
   /* Set the arrays of sin thetas and weights */
-  setSinThetas(sin_thetas, _num_polar);
-  setWeights(weights, _num_polar);
+  PolarQuad::setSinThetas(sin_thetas, _num_polar);
+  PolarQuad::setWeights(weights, _num_polar);
 
   /* Deallocate temporary arrays */
   delete [] sin_thetas;
   delete [] weights;
 
   /* Compute the product of the sine thetas and weights */
-  precomputeMultiples();
+  PolarQuad::precomputeMultiples();
 }
 
 
@@ -585,7 +585,7 @@ EqualAnglePolarQuad()::EqualAnglePolarQuad : PolarQuad() { }
  * @param num_polar the number of polar angles
  */
 void EqualAnglePolarQuad::setNumPolarAngles(const int num_polar) {
-  setNumPolarAngles(num_polar);
+  PolarQuad::setNumPolarAngles(num_polar);
 }
 
 
@@ -596,7 +596,7 @@ void EqualAnglePolarQuad::setNumPolarAngles(const int num_polar) {
 void EqualAnglePolarQuad::initialize() {
 
   /* Call parent class initialize routine */
-  initialize();
+  PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
   FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
@@ -619,13 +619,13 @@ void EqualAnglePolarQuad::initialize() {
   }
 
   /* Set the arrays of sin thetas and weights */
-  setSinThetas(sin_thetas, _num_polar);
-  setWeights(weights, _num_polar);
+  PolarQuad::setSinThetas(sin_thetas, _num_polar);
+  PolarQuad::setWeights(weights, _num_polar);
 
   /* Deallocate temporary arrays */
   delete [] sin_thetas;
   delete [] weights;
 
   /* Compute the product of the sine thetas and weights */
-  precomputeMultiples();
+  PolarQuad::precomputeMultiples();
 }
