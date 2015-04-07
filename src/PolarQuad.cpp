@@ -10,39 +10,6 @@ PolarQuad::PolarQuad() {
   _sin_thetas = NULL;
   _weights = NULL;
   _multiples = NULL;
-
-  /* If quadrature type is LEONARD */
-  else if (type == LEONARD) {
-
-    _type = LEONARD;
-
-    if (_num_polar == 2) {
-      _sinthetas[0] = 0.273658;
-      _sinthetas[1] = 0.865714;
-      _weights[0] = 0.139473;
-      _weights[1] = 0.860527;
-      _multiples[0] = _sinthetas[0] * _weights[0];
-      _multiples[1] = _sinthetas[1] * _weights[1];
-    }
-
-    else if (_num_polar == 3) {
-      _sinthetas[0] = 0.099812;
-      _sinthetas[1] = 0.395534;
-      _sinthetas[2] = 0.891439;
-      _weights[0] = 0.017620;
-      _weights[1] = 0.188561;
-      _weights[2] = 0.793819;
-      _multiples[0] = _sinthetas[0] * _weights[0];
-      _multiples[1] = _sinthetas[1] * _weights[1];
-      _multiples[2] = _sinthetas[2] * _weights[2];
-    }
-
-    else {
-      log_printf(ERROR, "LEONARD type polar Quadrature supports 2, or 3"
-                 "polar angles but %d are defined", _num_polar);
-    }
-
-  }
 }
 
 
@@ -313,7 +280,7 @@ std::string PolarQuad::toString() {
 
 
 /**
- * @brief Dummy constructor sets the default number of angles to zero.
+ * @brief Dummy constructor calls the parent constructor.
  */
 TYPolarQuad::TYPolarQuad(): PolarQuad() { }
 
@@ -380,4 +347,70 @@ void TYPolarQuad::initialize() {
   /* Compute the product of the sine thetas and weights */
   precomputeMultiples();
 }
+
+
+/**
+ * @brief Dummy constructor calls the parent constructor.
+ */
+LeonardPolarQuad()::LeonadPolarQuad : PolarQuad;
+
+
+/**
+ * @brief Set the number of polar angles to initialize.
+ * @param num_polar the number of polar angles (maximum 3)
+ */
+void LeonardPolarQuad::setNumPolarAngles(const int num_polar) {
+
+  if (num_polar < 2 || num_polar > 3)
+    log_printf(ERROR, "Unable to set the number of polar angles to %d "
+               "for LeonardPolarQuad (2 or 3 angles)", num_polar);
+
+  _num_polar = num_polar;
+}
+
+
+/**
+ * @brief Routine to initialize the polar quadrature.
+ * @details This routine uses the tabulated values for the Leonard
+ *          polar angle quadrature, including the sine thetas and weights.
+ */
+void LeonardPolarQuad::initialize() {
+
+  /* Call parent class initialize routine */
+  initialize();
+
+  /* Allocate temporary arrays for tabulated quadrature values */
+  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
+  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+
+  /* Tabulated values for the sine thetas and weights for the
+   * Leonard polar angle quadrature */
+  if (_num_polar == 2) {
+    _sinthetas[0] = 0.273658;
+    _sinthetas[1] = 0.865714;
+    _weights[0] = 0.139473;
+    _weights[1] = 0.860527;
+  }
+
+  else if (_num_polar == 3) {
+    _sinthetas[0] = 0.099812;
+    _sinthetas[1] = 0.395534;
+    _sinthetas[2] = 0.891439;
+    _weights[0] = 0.017620;
+    _weights[1] = 0.188561;
+    _weights[2] = 0.793819;
+  }
+
+  /* Set the arrays of sin thetas and weights */
+  setSinThetas(sin_thetas, _num_polar);
+  setWeights(weights, _num_polar);
+
+  /* Deallocate temporary arrays */
+  delete [] sin_thetas;
+  delete [] weights;
+
+  /* Compute the product of the sine thetas and weights */
+  precomputeMultiples();
+}
+
 
