@@ -367,6 +367,8 @@ void Solver::initializePolarQuadrature() {
   /* Initialize the PolarQuad object */
   _polar_quad->setNumPolarAngles(_num_polar);
   _polar_quad->initialize();
+
+  _polar_times_groups = _num_groups * _num_polar;
 }
 
 
