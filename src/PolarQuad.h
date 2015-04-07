@@ -18,6 +18,10 @@
 #endif
 
 
+/** Tolerance for difference of the sum of polar weights with respect to 1.0 */
+#define POLAR_WEIGHT_SUM_TOL 1E-5
+
+
 /**
  * @class PolarQuad PolarQuad.h "src/PolarQuad.h"
  * @brief The arbitrary polar quadrature parent class.

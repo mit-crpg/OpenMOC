@@ -162,8 +162,8 @@ void PolarQuad::setSinThetas(FP_PRECISION* sin_thetas, int num_polar) {
   _sin_thetas = new FP_PRECISION[_num_polar];
 
   /* Extract sin thetas from user input */
-  for (int i=0; i < _num_polar; i++)
-    _sin_thetas[i] = FP_PRECISION(sin_thetas[i]);
+  for (int p=0; p < _num_polar; p++)
+    _sin_thetas[p] = FP_PRECISION(sin_thetas[p]);
 
 }
 
@@ -200,10 +200,17 @@ void PolarQuad::setWeights(FP_PRECISION* weights, int num_polar) {
 
   /* Initialize memory for arrays */
   _weights = new FP_PRECISION[_num_polar];
+  double tot_weight = 0.;
 
   /* Extract weights from user input */
-  for (int i=0; i < _num_polar; i++)
-    _weights[i] = FP_PRECISION(weights[i]);
+  for (int p=0; p < _num_polar; p++) {
+    _weights[p] = FP_PRECISION(weights[p]);
+    tot_weight += _weights[p];
+  }  
+
+  /* Check that weights sum to 1 (half of the symmetric polar domain) */
+  if (fabs(tot_weight - 1.0) > POLAR_WEIGHT_SUM_TOL)
+    log_printf(ERROR, "The polar weights sum to %f instead of 1.0", tot_weight);
 }
 
 
