@@ -295,7 +295,7 @@ void TYPolarQuad::setNumPolarAngles(const int num_polar) {
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
                "for TYPolarQuad (max 3 angles)", num_polar);
 
-  _num_polar = num_polar;
+  setNumPolarAngles(num_polar);
 }
 
 
@@ -316,7 +316,7 @@ void TYPolarQuad::initialize() {
   /* Tabulated values for the sine thetas and weights for the
    * Tabuchi-Yamamoto polar angle quadrature */
   if (_num_polar == 1) {
-    _sinthetas[0] = 0.798184;
+    _sin_thetas[0] = 0.798184;
     _weights[0] = 1.0;
   }
 
@@ -357,7 +357,7 @@ LeonardPolarQuad()::LeonadPolarQuad : PolarQuad;
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles (maximum 3)
+ * @param num_polar the number of polar angles (2 or 3)
  */
 void LeonardPolarQuad::setNumPolarAngles(const int num_polar) {
 
@@ -365,7 +365,7 @@ void LeonardPolarQuad::setNumPolarAngles(const int num_polar) {
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
                "for LeonardPolarQuad (2 or 3 angles)", num_polar);
 
-  _num_polar = num_polar;
+  setNumPolarAngles(num_polar);
 }
 
 
@@ -386,16 +386,16 @@ void LeonardPolarQuad::initialize() {
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
   if (_num_polar == 2) {
-    _sinthetas[0] = 0.273658;
-    _sinthetas[1] = 0.865714;
+    _sin_thetas[0] = 0.273658;
+    _sin_thetas[1] = 0.865714;
     _weights[0] = 0.139473;
     _weights[1] = 0.860527;
   }
 
   else if (_num_polar == 3) {
-    _sinthetas[0] = 0.099812;
-    _sinthetas[1] = 0.395534;
-    _sinthetas[2] = 0.891439;
+    _sin_thetas[0] = 0.099812;
+    _sin_thetas[1] = 0.395534;
+    _sin_thetas[2] = 0.891439;
     _weights[0] = 0.017620;
     _weights[1] = 0.188561;
     _weights[2] = 0.793819;
@@ -414,3 +414,106 @@ void LeonardPolarQuad::initialize() {
 }
 
 
+
+/**
+ * @brief Dummy constructor calls the parent constructor.
+ */
+GLPolarQuad()::GLPolarQuad : PolarQuad;
+
+
+/**
+ * @brief Set the number of polar angles to initialize.
+ * @param num_polar the number of polar angles (maximum 6)
+ */
+void GLPolarQuad::setNumPolarAngles(const int num_polar) {
+
+  if (num_polar > 6)
+    log_printf(ERROR, "Unable to set the number of polar angles to %d "
+               "for GLPolarQuad (max 6 angles)", num_polar);
+
+  setNumPolarAngles(num_polar);
+}
+
+
+/**
+ * @brief Routine to initialize the polar quadrature.
+ * @details This routine uses the tabulated values for the Gauss-Legendre
+ *          polar angle quadrature, including the sine thetas and weights.
+ */
+void GLPolarQuad::initialize() {
+
+  /* Call parent class initialize routine */
+  initialize();
+
+  /* Allocate temporary arrays for tabulated quadrature values */
+  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
+  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+
+  /* Tabulated values for the sine thetas and weights for the
+   * Leonard polar angle quadrature */
+  if (_num_polar == 1) {
+    _sin_thetas[0] = 0.5773502691
+    _weights[0] = 1.0;
+  }
+  else if (_num_polar == 2) {
+    _sin_thetas[0] = 0.3399810435;
+    _sin_thetas[1] = 0.8611363115;
+    _weights[0] = 0.6521451549;
+    _weights[1] = 0.3478548451;
+  }
+  else if (_num_polar == 3) {
+    _sin_thetas[0] = 0.2386191860;
+    _sin_thetas[1] = 0.6612093864;
+    _sin_thetas[2] = 0.9324695142;
+    _weights[0] = 0.4679139346;
+    _weights[1] = 0.3607615730;
+    _weights[2] = 0.1713244924;
+  }
+  else if (_num_polar == 4) {
+    _sin_thetas[0] = 0.1834346424;
+    _sin_thetas[1] = 0.5255324099;
+    _sin_thetas[2] = 0.7966664774;
+    _sin_thetas[3] = 0.9602898564;
+    _weights[0] = 0.3626837834;
+    _weights[1] = 0.3137066459;
+    _weights[2] = 0.2223810344;
+    _weights[3] = 0.1012285363;
+  }
+  else if (_num_polar == 5) {
+    _sin_thetas[0] = 0.1488743387;
+    _sin_thetas[1] = 0.4333953941;
+    _sin_thetas[2] = 0.6794095682;
+    _sin_thetas[3] = 0.8650633666;
+    _sin_thetas[4] = 0.9739065285;
+    _weights[0] = 0.2955242247;
+    _weights[1] = 0.2692667193;
+    _weights[2] = 0.2190863625;
+    _weights[3] = 0.1494513492;
+    _weights[4] = 0.0666713443;
+  }
+  else if (_num_polar == 6) {
+    _sin_thetas[0] = 0.1252334085;
+    _sin_thetas[1] = 0.3678314989;
+    _sin_thetas[2] = 0.5873179542;
+    _sin_thetas[3] = 0.7699026741;
+    _sin_thetas[4] = 0.9041172563;
+    _sin_thetas[5] = 0.9815606342;
+    _weights[0] = 0.2491470458;
+    _weights[1] = 0.2334925365;
+    _weights[2] = 0.2031674267;
+    _weights[3] = 0.1600783286;
+    _weights[4] = 0.1069393260;
+    _weights[5] = 0.0471753364;
+  }
+
+  /* Set the arrays of sin thetas and weights */
+  setSinThetas(sin_thetas, _num_polar);
+  setWeights(weights, _num_polar);
+
+  /* Deallocate temporary arrays */
+  delete [] sin_thetas;
+  delete [] weights;
+
+  /* Compute the product of the sine thetas and weights */
+  precomputeMultiples();
+}
