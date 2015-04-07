@@ -352,7 +352,7 @@ void TYPolarQuad::initialize() {
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-LeonardPolarQuad()::LeonadPolarQuad : PolarQuad;
+LeonardPolarQuad()::LeonadPolarQuad : PolarQuad() { }
 
 
 /**
@@ -418,7 +418,7 @@ void LeonardPolarQuad::initialize() {
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-GLPolarQuad()::GLPolarQuad : PolarQuad;
+GLPolarQuad()::GLPolarQuad : PolarQuad() { }
 
 
 /**
@@ -504,6 +504,60 @@ void GLPolarQuad::initialize() {
     _weights[3] = 0.1600783286;
     _weights[4] = 0.1069393260;
     _weights[5] = 0.0471753364;
+  }
+
+  /* Set the arrays of sin thetas and weights */
+  setSinThetas(sin_thetas, _num_polar);
+  setWeights(weights, _num_polar);
+
+  /* Deallocate temporary arrays */
+  delete [] sin_thetas;
+  delete [] weights;
+
+  /* Compute the product of the sine thetas and weights */
+  precomputeMultiples();
+}
+
+
+
+/**
+ * @brief Dummy constructor calls the parent constructor.
+ */
+EqualWeightPolarQuad()::EqualWeightPolarQuad : PolarQuad() { }
+
+
+/**
+ * @brief Set the number of polar angles to initialize.
+ * @param num_polar the number of polar angles
+ */
+void EqualWeightPolarQuad::setNumPolarAngles(const int num_polar) {
+  setNumPolarAngles(num_polar);
+}
+
+
+/**
+ * @brief Routine to initialize the polar quadrature.
+ * @details This routine generates the sine thetas and weights.
+ */
+void EqualWeightPolarQuad::initialize() {
+
+  /* Call parent class initialize routine */
+  initialize();
+
+  /* Allocate temporary arrays for tabulated quadrature values */
+  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
+  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+
+  double sin_theta_a, sin_theta_b;
+  sin_theta_a = 1.;
+
+  /* Generate the sin thetas and weights using equations 420-422 of the
+   * DOE Nucl. Eng. Handbook "Lattice Physics Computations" */
+  for (int p=0; p < _num_polar; p++) {
+    sin_theta_b = sin_theta_a - (2. / _num_polar);
+    sin_thetas[p] = 0.5 * (sin_theta_a + sin_theta_b);
+    weights[p] = sin_theta_a - sin_theta_b;
+    sin_theta_a = sin_theta_b;
   }
 
   /* Set the arrays of sin thetas and weights */
