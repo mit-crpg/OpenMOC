@@ -1439,7 +1439,7 @@ void GPUSolver::buildExpInterpTable(){
 
   /* Copy the sines of the polar angles which is needed if the user
    * requested the use of the exp intrinsic to evaluate exponentials */
-  cudaMemcpyToSymbol(sinthetas, (void*)_quad->getSinThetas(),
+  cudaMemcpyToSymbol(sinthetas, (void*)_polar_quad->getSinThetas(),
                      _num_polar * sizeof(FP_PRECISION), 0,
                      cudaMemcpyHostToDevice);
 
@@ -1471,9 +1471,10 @@ void GPUSolver::buildExpInterpTable(){
   /* Create exponential interpolation table */
   for (int i = 0; i < num_array_values; i ++){
     for (int p = 0; p < _num_polar; p++){
-      expon = exp(- (i * _exp_table_spacing) / _quad->getSinTheta(p));
-      slope = - expon / _quad->getSinTheta(p);
-      intercept = expon * (1 + (i * _exp_table_spacing)/_quad->getSinTheta(p));
+      expon = exp(- (i * _exp_table_spacing) / _polar_quad->getSinTheta(p));
+      slope = - expon / _polar_quad->getSinTheta(p);
+      intercept = expon * (1 + (i * _exp_table_spacing) / 
+                  _polar_quad->getSinTheta(p));
       exp_table[_two_times_num_polar * i + 2 * p] = slope;
       exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
     }
