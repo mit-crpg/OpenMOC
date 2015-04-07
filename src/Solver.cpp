@@ -386,6 +386,8 @@ void Solver::useExponentialIntrinsic() {
  */
 void Solver::initializePolarQuadrature() {
 
+  FP_PRECISION azim_weight;
+
   /* Create Tabuchi-Yamamoto polar quadrature if a
    * PolarQuad was not assigned by the user */
   if (_polar_quad == NULL)
@@ -394,8 +396,23 @@ void Solver::initializePolarQuadrature() {
   /* Initialize the PolarQuad object */
   _polar_quad->setNumPolarAngles(_num_polar);
   _polar_quad->initialize();
-
   _polar_times_groups = _num_groups * _num_polar;
+
+  /* Deallocate polar weights if previously assigned */
+  if (_polar_weights != NULL)
+    delete [] _polar_weights;
+
+  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
+
+  /* Compute the total azimuthal weight for tracks at each polar angle */
+  #pragma omp parallel for private(azim_weight) schedule(guided)
+  for (int i=0; i < _num_azim; i++) {
+    azim_weight = _azim_weights[i];
+
+    for (int p=0; p < _num_polar; p++)
+      _polar_weights(i,p) = 
+           azim_weight * _polar_quad->getMultiple(p) * FOUR_PI;
+  }
 }
 
 

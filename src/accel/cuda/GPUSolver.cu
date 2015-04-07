@@ -1038,12 +1038,7 @@ void GPUSolver::initializePolarQuadrature() {
 
   log_printf(INFO, "Initializing polar quadrature on the GPU...");
 
-  /* Deletes the old Quadrature if one existed */
-  if (_quad != NULL)
-    delete _quad;
-
-  _quad = new Quadrature(_quadrature_type, _num_polar);
-  _polar_times_groups = _num_groups * _num_polar;
+  Solver::initializePolarQuadrature();
 
   /* Copy the number of polar angles to constant memory on the GPU */
   cudaMemcpyToSymbol(num_polar, (void*)&_num_polar, sizeof(int), 0,
@@ -1057,21 +1052,6 @@ void GPUSolver::initializePolarQuadrature() {
    * on the GPU */
   cudaMemcpyToSymbol(polar_times_groups, (void*)&_polar_times_groups,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
-
-  /* Compute polar times azimuthal angle weights */
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights =
-      (FP_PRECISION*)malloc(_num_polar * _num_azim * sizeof(FP_PRECISION));
-
-  FP_PRECISION* multiples = _quad->getMultiples();
-  FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
-
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_polar; j++)
-      _polar_weights[i*_num_polar+j] = azim_weights[i]*multiples[j]*FOUR_PI;
-  }
 
   /* Copy the polar weights to constant memory on the GPU */
   cudaMemcpyToSymbol(polar_weights, (void*)_polar_weights,

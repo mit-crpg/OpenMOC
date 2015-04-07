@@ -278,24 +278,6 @@ void CPUSolver::buildExpInterpTable() {
 
   log_printf(INFO, "Building exponential interpolation table...");
 
-  FP_PRECISION azim_weight;
-
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
-
-  /* Compute the total azimuthal weight for tracks at each polar angle */
-  #pragma omp parallel for private(azim_weight) schedule(guided)
-  for (int i=0; i < _num_azim; i++) {
-
-    azim_weight = _azim_weights[i];
-
-    for (int p=0; p < _num_polar; p++)
-      _polar_weights(i,p) = 
-           azim_weight * _polar_quad->getMultiple(p) * FOUR_PI;
-  }
-
   /* Find largest optical path length track segment */
   FP_PRECISION tau = _track_generator->getMaxOpticalLength();
 
