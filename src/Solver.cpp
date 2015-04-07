@@ -53,7 +53,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     setTrackGenerator(track_generator);
 
   /* Default polar quadrature */
-  _polar_quad = TYPolarQuad();
+  _polar_quad = new TYPolarQuad();
   _num_polar = 3;
   _two_times_num_polar = 2 * _num_polar;
 
@@ -357,12 +357,12 @@ void Solver::useExponentialIntrinsic() {
  * @details Deletes memory for old Quadrature if one was allocated for a
  *          previous simulation.
  */
-void CPUSolver::initializePolarQuadrature() {
+void Solver::initializePolarQuadrature() {
 
   /* Create Tabuchi-Yamamoto polar quadrature if a
    * PolarQuad was not assigned by the user */
   if (_polar_quad == NULL)
-    _polar_quad = TYPolarQuad();
+    _polar_quad = new TYPolarQuad();
 
   /* Initialize the PolarQuad object */
   _polar_quad->setNumPolarAngles(_num_polar);

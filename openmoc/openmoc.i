@@ -13,7 +13,7 @@
   #include "../src/log.h"
   #include "../src/Material.h"
   #include "../src/Point.h"
-  #include "../src/Quadrature.h"
+  #include "../src/PolarQuad.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
   #include "../src/Surface.h"
@@ -412,7 +412,7 @@
 %include ../src/log.h
 %include ../src/Material.h
 %include ../src/Point.h
-%include ../src/Quadrature.h
+%include ../src/PolarQuad.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
 %include ../src/Surface.h

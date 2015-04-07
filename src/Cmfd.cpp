@@ -1708,7 +1708,7 @@ void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
 
   /* Deletes the old Quadrature if one existed */
   if (_polar_quad != NULL)
-    delete _quad;
+    delete _polar_quad;
 
   _polar_quad = polar_quad;
   _num_polar = polar_quad->getNumPolarAngles();

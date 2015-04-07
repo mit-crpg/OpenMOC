@@ -159,7 +159,7 @@ void PolarQuad::setSinThetas(FP_PRECISION* sin_thetas, int num_polar) {
     delete [] _sin_thetas;
 
   /* Initialize memory for arrays */
-  _sinthetas = new FP_PRECISION[_num_polar];
+  _sin_thetas = new FP_PRECISION[_num_polar];
 
   /* Extract sin thetas from user input */
   for (int i=0; i < _num_polar; i++)
@@ -352,7 +352,7 @@ void TYPolarQuad::initialize() {
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-LeonardPolarQuad()::LeonadPolarQuad : PolarQuad() { }
+LeonardPolarQuad::LeonardPolarQuad(): PolarQuad() { }
 
 
 /**
@@ -418,7 +418,7 @@ void LeonardPolarQuad::initialize() {
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-GLPolarQuad()::GLPolarQuad : PolarQuad() { }
+GLPolarQuad::GLPolarQuad(): PolarQuad() { }
 
 
 /**
@@ -452,7 +452,7 @@ void GLPolarQuad::initialize() {
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
   if (_num_polar == 1) {
-    _sin_thetas[0] = 0.5773502691
+    _sin_thetas[0] = 0.5773502691;
     _weights[0] = 1.0;
   }
   else if (_num_polar == 2) {
@@ -523,7 +523,7 @@ void GLPolarQuad::initialize() {
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-EqualWeightPolarQuad()::EqualWeightPolarQuad : PolarQuad() { }
+EqualWeightPolarQuad::EqualWeightPolarQuad(): PolarQuad() { }
 
 
 /**
@@ -577,7 +577,7 @@ void EqualWeightPolarQuad::initialize() {
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-EqualAnglePolarQuad()::EqualAnglePolarQuad : PolarQuad() { }
+EqualAnglePolarQuad::EqualAnglePolarQuad(): PolarQuad() { }
 
 
 /**
