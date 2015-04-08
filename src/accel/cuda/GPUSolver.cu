@@ -1089,6 +1089,8 @@ void GPUSolver::initializeFSRs() {
 
   log_printf(INFO, "Initializing FSRs on the GPU...");
 
+  Solver::initializeFSRs();
+
   /* Delete old FSRs array if it exists */
   if (_FSR_volumes != NULL)
     cudaFree(_FSR_volumes);

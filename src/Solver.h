@@ -228,13 +228,8 @@ protected:
    */
   virtual void buildExpInterpTable() =0;
 
-  /**
-   * @brief Initializes the volumes and Material arrays for each FSR.
-   */
-  virtual void initializeFSRs() =0;
-
+  virtual void initializeFSRs();
   virtual void initializeCmfd();
-
   virtual void checkTrackSpacing();
 
   /**

@@ -52,7 +52,6 @@ protected:
   void initializeSourceArrays();
   void initializePolarQuadrature();
   void buildExpInterpTable();
-  void initializeFSRs();
   void initializeCmfd();
 
   void zeroTrackFluxes();
