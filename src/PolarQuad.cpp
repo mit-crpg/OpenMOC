@@ -5,7 +5,6 @@
  * @brief Dummy constructor sets the default number of angles to zero.
  */
 PolarQuad::PolarQuad() {
-
   _num_polar = 0;
   _sin_thetas = NULL;
   _weights = NULL;
@@ -48,8 +47,12 @@ int PolarQuad::getNumPolarAngles() const {
 FP_PRECISION PolarQuad::getSinTheta(const int n) const {
 
   if (n < 0 || n >= _num_polar)
-    log_printf(ERROR, "Attempted to retrieve sin theta for polar angle = %d"
-               " but only %d polar angles are defined", n, _num_polar);
+    log_printf(ERROR, "Attempted to retrieve sin theta for polar angle = "
+               "%d but only %d polar angles are defined", n, _num_polar);
+
+  else if (_sin_thetas == NULL)
+    log_printf(ERROR, "Attempted to retrieve sin theta for polar angle = %d "
+               "but the sin thetas have not been initialized", n);
 
   return _sin_thetas[n];
 }
@@ -63,8 +66,12 @@ FP_PRECISION PolarQuad::getSinTheta(const int n) const {
 FP_PRECISION PolarQuad::getWeight(const int n) const {
 
   if (n < 0 || n >= _num_polar)
-    log_printf(ERROR, "Attempted to retrieve the weight for polar angle = %d "
-               "but only %d polar angles are defined", n, _num_polar);
+    log_printf(ERROR, "Attempted to retrieve the weight for polar angle = "
+               "%d but only %d polar angles are defined", n, _num_polar);
+
+  else if (_weights == NULL)
+    log_printf(ERROR, "Attempted to retrieve weight for polar angle = %d "
+               "but the weights have not been initialized", n);
 
   return _weights[n];
 }
@@ -79,8 +86,12 @@ FP_PRECISION PolarQuad::getWeight(const int n) const {
 FP_PRECISION PolarQuad::getMultiple(const int n) const {
 
   if (n < 0 || n >= _num_polar)
-    log_printf(ERROR, "Attempted to retrieve the multiple for polar angle = %d"
-               "but only %d polar angles are defined", n, _num_polar);
+    log_printf(ERROR, "Attempted to retrieve the multiple for polar angle = "
+               "%d but only %d polar angles are defined", n, _num_polar);
+
+  else if (_multiples == NULL)
+    log_printf(ERROR, "Attempted to retrieve multiple for polar angle = %d "
+               "but the multiples have not been initialized", n);
 
   return _multiples[n];
 }
@@ -91,6 +102,11 @@ FP_PRECISION PolarQuad::getMultiple(const int n) const {
  * @return a pointer to the array of \f$ sin\theta_{p} \f$
  */
 FP_PRECISION* PolarQuad::getSinThetas() {
+
+  if (_sin_thetas == NULL)
+    log_printf(ERROR, "Attempted to retrieve the sin thetas array "
+               "but it has not been initialized");
+
   return _sin_thetas;
 }
 
@@ -100,6 +116,11 @@ FP_PRECISION* PolarQuad::getSinThetas() {
  * @return a pointer to the polar weights array
  */
 FP_PRECISION* PolarQuad::getWeights() {
+
+  if (_weights == NULL)
+    log_printf(ERROR, "Attempted to retrieve the weights array "
+               "but it has not been initialized");
+
   return _weights;
 }
 
@@ -110,6 +131,11 @@ FP_PRECISION* PolarQuad::getWeights() {
  * @return a pointer to the multiples array
  */
 FP_PRECISION* PolarQuad::getMultiples() {
+
+  if (_multiples == NULL)
+    log_printf(ERROR, "Attempted to retrieve the multiples array "
+               "but it has not been initialized");
+
   return _multiples;
 }
 
@@ -224,7 +250,8 @@ void PolarQuad::initialize() {
     log_printf(ERROR, "Unable to initialize PolarQuad with zero polar angles. "
                "Set the number of polar angles before initialization.");
 
-  return;
+  if (_sin_thetas != NULL && _weights != NULL)
+    precomputeMultiples();
 }
 
 
