@@ -148,7 +148,7 @@ void PolarQuad::setNumPolarAngles(const int num_polar) {
  * @param sin_thetas the array of sines of each polar angle
  * @param num_polar the number of polar angles
  */
-void PolarQuad::setSinThetas(FP_PRECISION* sin_thetas, int num_polar) {
+void PolarQuad::setSinThetas(double* sin_thetas, int num_polar) {
 
   if (_num_polar != num_polar)
     log_printf(ERROR, "Unable to set %d sin thetas for PolarQuad "
@@ -188,7 +188,7 @@ void PolarQuad::setSinThetas(FP_PRECISION* sin_thetas, int num_polar) {
  * @param weights the array of weights for each polar angle
  * @param num_polar the number of polar angles
  */
-void PolarQuad::setWeights(FP_PRECISION* weights, int num_polar) {
+void PolarQuad::setWeights(double* weights, int num_polar) {
 
   if (_num_polar != num_polar)
     log_printf(ERROR, "Unable to set %d weights for PolarQuad "
@@ -317,8 +317,8 @@ void TYPolarQuad::initialize() {
   PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+  double* sin_thetas = new double[_num_polar];
+  double* weights = new double[_num_polar];
 
   /* Tabulated values for the sine thetas and weights for the
    * Tabuchi-Yamamoto polar angle quadrature */
@@ -387,8 +387,8 @@ void LeonardPolarQuad::initialize() {
   PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+  double* sin_thetas = new double[_num_polar];
+  double* weights = new double[_num_polar];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
@@ -453,8 +453,8 @@ void GLPolarQuad::initialize() {
   PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+  double* sin_thetas = new double[_num_polar];
+  double* weights = new double[_num_polar];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
@@ -552,8 +552,8 @@ void EqualWeightPolarQuad::initialize() {
   PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+  double* sin_thetas = new double[_num_polar];
+  double* weights = new double[_num_polar];
 
   double sin_theta_a, sin_theta_b;
   sin_theta_a = 1.;
@@ -606,8 +606,8 @@ void EqualAnglePolarQuad::initialize() {
   PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+  double* sin_thetas = new double[_num_polar];
+  double* weights = new double[_num_polar];
 
   double sin_theta_a, sin_theta_b;
   double theta_a, theta_b;
