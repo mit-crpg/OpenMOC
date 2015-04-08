@@ -5,7 +5,6 @@
  * @brief Dummy constructor sets the default number of angles to zero.
  */
 PolarQuad::PolarQuad() {
-
   _num_polar = 0;
   _sin_thetas = NULL;
   _weights = NULL;
@@ -48,8 +47,12 @@ int PolarQuad::getNumPolarAngles() const {
 FP_PRECISION PolarQuad::getSinTheta(const int n) const {
 
   if (n < 0 || n >= _num_polar)
-    log_printf(ERROR, "Attempted to retrieve sin theta for polar angle = %d"
-               " but only %d polar angles are defined", n, _num_polar);
+    log_printf(ERROR, "Attempted to retrieve sin theta for polar angle = "
+               "%d but only %d polar angles are defined", n, _num_polar);
+
+  else if (_sin_thetas == NULL)
+    log_printf(ERROR, "Attempted to retrieve sin theta for polar angle = %d "
+               "but the sin thetas have not been initialized", n);
 
   return _sin_thetas[n];
 }
@@ -63,8 +66,12 @@ FP_PRECISION PolarQuad::getSinTheta(const int n) const {
 FP_PRECISION PolarQuad::getWeight(const int n) const {
 
   if (n < 0 || n >= _num_polar)
-    log_printf(ERROR, "Attempted to retrieve the weight for polar angle = %d "
-               "but only %d polar angles are defined", n, _num_polar);
+    log_printf(ERROR, "Attempted to retrieve the weight for polar angle = "
+               "%d but only %d polar angles are defined", n, _num_polar);
+
+  else if (_weights == NULL)
+    log_printf(ERROR, "Attempted to retrieve weight for polar angle = %d "
+               "but the weights have not been initialized", n);
 
   return _weights[n];
 }
@@ -79,8 +86,12 @@ FP_PRECISION PolarQuad::getWeight(const int n) const {
 FP_PRECISION PolarQuad::getMultiple(const int n) const {
 
   if (n < 0 || n >= _num_polar)
-    log_printf(ERROR, "Attempted to retrieve the multiple for polar angle = %d"
-               "but only %d polar angles are defined", n, _num_polar);
+    log_printf(ERROR, "Attempted to retrieve the multiple for polar angle = "
+               "%d but only %d polar angles are defined", n, _num_polar);
+
+  else if (_multiples == NULL)
+    log_printf(ERROR, "Attempted to retrieve multiple for polar angle = %d "
+               "but the multiples have not been initialized", n);
 
   return _multiples[n];
 }
@@ -91,6 +102,11 @@ FP_PRECISION PolarQuad::getMultiple(const int n) const {
  * @return a pointer to the array of \f$ sin\theta_{p} \f$
  */
 FP_PRECISION* PolarQuad::getSinThetas() {
+
+  if (_sin_thetas == NULL)
+    log_printf(ERROR, "Attempted to retrieve the sin thetas array "
+               "but it has not been initialized");
+
   return _sin_thetas;
 }
 
@@ -100,6 +116,11 @@ FP_PRECISION* PolarQuad::getSinThetas() {
  * @return a pointer to the polar weights array
  */
 FP_PRECISION* PolarQuad::getWeights() {
+
+  if (_weights == NULL)
+    log_printf(ERROR, "Attempted to retrieve the weights array "
+               "but it has not been initialized");
+
   return _weights;
 }
 
@@ -110,6 +131,11 @@ FP_PRECISION* PolarQuad::getWeights() {
  * @return a pointer to the multiples array
  */
 FP_PRECISION* PolarQuad::getMultiples() {
+
+  if (_multiples == NULL)
+    log_printf(ERROR, "Attempted to retrieve the multiples array "
+               "but it has not been initialized");
+
   return _multiples;
 }
 
@@ -148,7 +174,7 @@ void PolarQuad::setNumPolarAngles(const int num_polar) {
  * @param sin_thetas the array of sines of each polar angle
  * @param num_polar the number of polar angles
  */
-void PolarQuad::setSinThetas(FP_PRECISION* sin_thetas, int num_polar) {
+void PolarQuad::setSinThetas(double* sin_thetas, int num_polar) {
 
   if (_num_polar != num_polar)
     log_printf(ERROR, "Unable to set %d sin thetas for PolarQuad "
@@ -188,7 +214,7 @@ void PolarQuad::setSinThetas(FP_PRECISION* sin_thetas, int num_polar) {
  * @param weights the array of weights for each polar angle
  * @param num_polar the number of polar angles
  */
-void PolarQuad::setWeights(FP_PRECISION* weights, int num_polar) {
+void PolarQuad::setWeights(double* weights, int num_polar) {
 
   if (_num_polar != num_polar)
     log_printf(ERROR, "Unable to set %d weights for PolarQuad "
@@ -224,7 +250,8 @@ void PolarQuad::initialize() {
     log_printf(ERROR, "Unable to initialize PolarQuad with zero polar angles. "
                "Set the number of polar angles before initialization.");
 
-  return;
+  if (_sin_thetas != NULL && _weights != NULL)
+    precomputeMultiples();
 }
 
 
@@ -317,8 +344,8 @@ void TYPolarQuad::initialize() {
   PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+  double* sin_thetas = new double[_num_polar];
+  double* weights = new double[_num_polar];
 
   /* Tabulated values for the sine thetas and weights for the
    * Tabuchi-Yamamoto polar angle quadrature */
@@ -387,8 +414,8 @@ void LeonardPolarQuad::initialize() {
   PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+  double* sin_thetas = new double[_num_polar];
+  double* weights = new double[_num_polar];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
@@ -453,45 +480,45 @@ void GLPolarQuad::initialize() {
   PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+  double* sin_thetas = new double[_num_polar];
+  double* weights = new double[_num_polar];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
   if (_num_polar == 1) {
-    sin_thetas[0] = 0.5773502691;
+    sin_thetas[0] = sin(acos(0.5773502691));
     weights[0] = 1.0;
   }
   else if (_num_polar == 2) {
-    sin_thetas[0] = 0.3399810435;
-    sin_thetas[1] = 0.8611363115;
+    sin_thetas[0] = sin(acos(0.3399810435));
+    sin_thetas[1] = sin(acos(0.8611363115));
     weights[0] = 0.6521451549;
     weights[1] = 0.3478548451;
   }
   else if (_num_polar == 3) {
-    sin_thetas[0] = 0.2386191860;
-    sin_thetas[1] = 0.6612093864;
-    sin_thetas[2] = 0.9324695142;
+    sin_thetas[0] = sin(acos(0.2386191860));
+    sin_thetas[1] = sin(acos(0.6612093864));
+    sin_thetas[2] = sin(acos(0.9324695142));
     weights[0] = 0.4679139346;
     weights[1] = 0.3607615730;
     weights[2] = 0.1713244924;
   }
   else if (_num_polar == 4) {
-    sin_thetas[0] = 0.1834346424;
-    sin_thetas[1] = 0.5255324099;
-    sin_thetas[2] = 0.7966664774;
-    sin_thetas[3] = 0.9602898564;
+    sin_thetas[0] = sin(acos(0.1834346424));
+    sin_thetas[1] = sin(acos(0.5255324099));
+    sin_thetas[2] = sin(acos(0.7966664774));
+    sin_thetas[3] = sin(acos(0.9602898564));
     weights[0] = 0.3626837834;
     weights[1] = 0.3137066459;
     weights[2] = 0.2223810344;
     weights[3] = 0.1012285363;
   }
   else if (_num_polar == 5) {
-    sin_thetas[0] = 0.1488743387;
-    sin_thetas[1] = 0.4333953941;
-    sin_thetas[2] = 0.6794095682;
-    sin_thetas[3] = 0.8650633666;
-    sin_thetas[4] = 0.9739065285;
+    sin_thetas[0] = sin(acos(0.1488743387));
+    sin_thetas[1] = sin(acos(0.4333953941));
+    sin_thetas[2] = sin(acos(0.6794095682));
+    sin_thetas[3] = sin(acos(0.8650633666));
+    sin_thetas[4] = sin(acos(0.9739065285));
     weights[0] = 0.2955242247;
     weights[1] = 0.2692667193;
     weights[2] = 0.2190863625;
@@ -499,12 +526,12 @@ void GLPolarQuad::initialize() {
     weights[4] = 0.0666713443;
   }
   else if (_num_polar == 6) {
-    sin_thetas[0] = 0.1252334085;
-    sin_thetas[1] = 0.3678314989;
-    sin_thetas[2] = 0.5873179542;
-    sin_thetas[3] = 0.7699026741;
-    sin_thetas[4] = 0.9041172563;
-    sin_thetas[5] = 0.9815606342;
+    sin_thetas[0] = sin(acos(0.1252334085));
+    sin_thetas[1] = sin(acos(0.3678314989));
+    sin_thetas[2] = sin(acos(0.5873179542));
+    sin_thetas[3] = sin(acos(0.7699026741));
+    sin_thetas[4] = sin(acos(0.9041172563));
+    sin_thetas[5] = sin(acos(0.9815606342));
     weights[0] = 0.2491470458;
     weights[1] = 0.2334925365;
     weights[2] = 0.2031674267;
@@ -552,19 +579,19 @@ void EqualWeightPolarQuad::initialize() {
   PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+  double* sin_thetas = new double[_num_polar];
+  double* weights = new double[_num_polar];
 
-  double sin_theta_a, sin_theta_b;
-  sin_theta_a = 1.;
+  double cos_theta_a, cos_theta_b;
+  cos_theta_a = 1.;
 
   /* Generate the sin thetas and weights using equations 420-422 of the
    * DOE Nucl. Eng. Handbook "Lattice Physics Computations" */
   for (int p=0; p < _num_polar; p++) {
-    sin_theta_b = sin_theta_a - (1. / _num_polar);
-    sin_thetas[p] = 0.5 * (sin_theta_a + sin_theta_b);
-    weights[p] = sin_theta_a - sin_theta_b;
-    sin_theta_a = sin_theta_b;
+    cos_theta_b = cos_theta_a - (1. / _num_polar);
+    sin_thetas[p] = sin(acos(0.5 * (cos_theta_a + cos_theta_b)));
+    weights[p] = cos_theta_a - cos_theta_b;
+    cos_theta_a = cos_theta_b;
   }
 
   /* Set the arrays of sin thetas and weights */
@@ -606,10 +633,10 @@ void EqualAnglePolarQuad::initialize() {
   PolarQuad::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* sin_thetas = new FP_PRECISION[_num_polar];
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar];
+  double* sin_thetas = new double[_num_polar];
+  double* weights = new double[_num_polar];
 
-  double sin_theta_a, sin_theta_b;
+  double cos_theta_a, cos_theta_b;
   double theta_a, theta_b;
   double delta_theta = M_PI / (2. * _num_polar);
   theta_a = 0.;
@@ -618,10 +645,10 @@ void EqualAnglePolarQuad::initialize() {
    * DOE Nucl. Eng. Handbook "Lattice Physics Computations" */
   for (int p=0; p < _num_polar; p++) {
     theta_b = theta_a + delta_theta;
-    sin_theta_a = cos(theta_a);
-    sin_theta_b = cos(theta_b);
-    sin_thetas[p] = 0.5 * (sin_theta_a + sin_theta_b);
-    weights[p] = sin_theta_a - sin_theta_b;
+    cos_theta_a = cos(theta_a);
+    cos_theta_b = cos(theta_b);
+    sin_thetas[p] = sin(acos((0.5 * (cos_theta_a + cos_theta_b))));
+    weights[p] = cos_theta_a - cos_theta_b;
     theta_a = theta_b;
   }
 

@@ -261,6 +261,16 @@
  * getCellIds method for the data processing routines in openmoc.process */
 %apply (int* ARGOUT_ARRAY1, int DIM1) {(int* cell_ids, int num_cells)}
 
+/* The typemap used to match the method signature for the 
+ * PolarQuad::setSinThetas method. This allows users to set the polar angle 
+ * quadrature sine thetas using a NumPy array */
+%apply (double* IN_ARRAY1, int DIM1) {(double* sin_thetas, int num_polar)}
+
+/* The typemap used to match the method signature for the 
+ * PolarQuad::setWeights method. This allows users to set the polar angle 
+ * quadrature weights using a NumPy array */
+%apply (double* IN_ARRAY1, int DIM1) {(double* weights, int num_polar)}
+
 #endif
 
 

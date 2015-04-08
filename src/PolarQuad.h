@@ -58,8 +58,8 @@ public:
   FP_PRECISION* getMultiples();
 
   virtual void setNumPolarAngles(const int num_polar);
-  void setSinThetas(FP_PRECISION* sin_thetas, int num_polar);
-  void setWeights(FP_PRECISION* weights, int num_polar);
+  void setSinThetas(double* sin_thetas, int num_polar);
+  void setWeights(double* weights, int num_polar);
 
   virtual void initialize();
 
