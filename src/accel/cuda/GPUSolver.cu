@@ -1067,7 +1067,7 @@ void GPUSolver::initializePolarQuadrature() {
  */
 void GPUSolver::initializeFSRs() {
 
-  log_printf(INFO, "Initializing FSRs on the GPU...");
+  log_printf(NORMAL, "Initializing FSRs on the GPU...");
 
   /* Delete old FSRs array if it exists */
   if (_FSR_volumes != NULL) {

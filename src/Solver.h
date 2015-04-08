@@ -207,8 +207,6 @@ protected:
   int round_to_int(float x);
   int round_to_int(double x);
 
-  void initializePolarQuadrature();
-
   /**
    * @brief Initializes Track boundary angular flux and leakage and
    *        FSR scalar flux arrays.
@@ -225,6 +223,7 @@ protected:
    */
   virtual void buildExpInterpTable() =0;
 
+  virtual void initializePolarQuadrature();
   virtual void initializeFSRs();
   virtual void initializeCmfd();
   virtual void checkTrackSpacing();
