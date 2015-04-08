@@ -325,11 +325,6 @@ track_generator.generateTracks()
 solver = CPUSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
-
-polar_quad = openmoc.LeonardPolarQuad()
-polar_quad.setNumPolarAngles(3)
-solver.setPolarQuadrature(polar_quad)
-
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
