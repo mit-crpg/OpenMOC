@@ -468,7 +468,7 @@
 <td><tt class="docutils literal"><span class="pre">Geometry</span></tt> object</td>
 <td>None</td>
 <td>No</td>
-<td>The geometry of interest</td>
+<td>The <tt class="docutils literal"><span class="pre">Geometry</span></tt> of interest</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
 <td>integer</td>
@@ -494,7 +494,7 @@
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
 
-<span class="c"># Setup geomery</span>
+<span class="c"># Setup geometry</span>
 <span class="o">...</span>
 
 <span class="c"># Plot a 500 x 500 pixel image of the materials</span>
@@ -535,7 +535,7 @@
 <td><tt class="docutils literal"><span class="pre">Geometry</span></tt> object</td>
 <td>None</td>
 <td>No</td>
-<td>The geometry of interest</td>
+<td>The <tt class="docutils literal"><span class="pre">Geometry</span></tt> of interest</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
 <td>integer</td>
@@ -561,7 +561,7 @@
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
 
-<span class="c"># Setup geomery</span>
+<span class="c"># Setup geometry</span>
 <span class="o">...</span>
 
 <span class="c"># Plot a 500 x 500 pixel image of the cells</span>
@@ -602,7 +602,7 @@
 <td><tt class="docutils literal"><span class="pre">Geometry</span></tt> object</td>
 <td>None</td>
 <td>No</td>
-<td>The geometry of interest</td>
+<td>The <tt class="docutils literal"><span class="pre">Geometry</span></tt> of interest</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
 <td>integer</td>
@@ -628,7 +628,7 @@
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
 
-<span class="c"># Setup geomery</span>
+<span class="c"># Setup geometry</span>
 <span class="o">...</span>
 
 <span class="c"># Plot a 500 x 500 pixel image of the flat source regions</span>
@@ -645,13 +645,96 @@
 <p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
 </div>
 </div>
+<div class="section" id="plotting-by-cmfd-cell">
+<h3>4.4.6. Plotting by CMFD Cell<a class="headerlink" href="#plotting-by-cmfd-cell" title="Permalink to this headline">¶</a></h3>
+<p>To plot the geometry color-coded by the CMFD cells throughout the geometry, use the <tt class="docutils literal"><span class="pre">plot_cmfd_cells(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-cmfd-cells"><em>Table 10</em></a>.</p>
+<table border="1" class="docutils" id="table-plot-cmfd-cells">
+<colgroup>
+<col width="13%" />
+<col width="21%" />
+<col width="10%" />
+<col width="10%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">geometry</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Geometry</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>The <tt class="docutils literal"><span class="pre">Geometry</span></tt> of interest</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">cmfd</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">CMFD</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>The <tt class="docutils literal"><span class="pre">CMFD</span></tt> of interest</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
+<td>integer</td>
+<td>250</td>
+<td>Yes</td>
+<td>The pixel resolution</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 10</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_cmfd_cells(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+
+<span class="c"># Setup geometry and cmfd</span>
+<span class="o">...</span>
+
+<span class="c"># Plot a 500 x 500 pixel image of the CMFD cells</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">plot_cmfd_cells</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">cmfd</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A depiction of the flat source regions and CMFD cells for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7/c5g7-cmfd.py</span></tt> example input file is illustrated in <a class="reference internal" href="#figure-cmfd-cells"><em>Figure 6</em></a>.</p>
+<table border="1" class="docutils" id="figure-cmfd-cells">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/c5g7-fsrs.png" id="figa"><img alt="../_images/c5g7-fsrs.png" class="align-center" id="figa" src="../_images/c5g7-fsrs.png" style="width: 70%;" /></a>
+</td>
+<td><a class="first last reference internal image-reference" href="../_images/c5g7-cmfd-cells.png" id="figb"><img alt="../_images/c5g7-cmfd-cells.png" class="align-center" id="figb" src="../_images/c5g7-cmfd-cells.png" style="width: 64%;" /></a>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Figure 6</strong>: The flat source regions and CMFD cells for the C5G7 benchmark problem.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
+</div>
+</div>
 </div>
 <div class="section" id="flux-visualization">
 <h2>4.5. Flux Visualization<a class="headerlink" href="#flux-visualization" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module includes routines to plot the scalar flux in space and energy, as detailed in the following sections.</p>
 <div class="section" id="flux-in-space">
 <h3>4.5.1. Flux in Space<a class="headerlink" href="#flux-in-space" title="Permalink to this headline">¶</a></h3>
-<p>To plot the flat source region scalar fluxes in space, use the <tt class="docutils literal"><span class="pre">plot_spatial_fluxes(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fluxes-space"><em>Table 10</em></a>.</p>
+<p>To plot the flat source region scalar fluxes in space, use the <tt class="docutils literal"><span class="pre">plot_spatial_fluxes(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fluxes-space"><em>Table 11</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-fluxes-space">
 <colgroup>
 <col width="17%" />
@@ -701,11 +784,11 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Table 10</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_spatial_fluxes(...)</span></tt> routine.</p>
+<p><strong>Table 11</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_spatial_fluxes(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
 
-<span class="c"># Setup geomery and generate tracks</span>
+<span class="c"># Setup geometry and generate tracks</span>
 <span class="o">...</span>
 
 <span class="c"># Setup solver and converge the source</span>
@@ -715,21 +798,21 @@
 <span class="n">plot</span><span class="o">.</span><span class="n">plot_spatial_fluxes</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">energy_groups</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py</span></tt>) is illustrated in <a class="reference internal" href="#figure-spatial-fluxes"><em>Figure 6</em></a>.</p>
+<p>A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7</span></tt>) is illustrated in <a class="reference internal" href="#figure-spatial-fluxes"><em>Figure 7</em></a>.</p>
 <table border="1" class="docutils" id="figure-spatial-fluxes">
 <colgroup>
 <col width="51%" />
 <col width="49%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/flux-group-1.png" id="figa"><img alt="../_images/flux-group-1.png" class="align-center" id="figa" src="../_images/flux-group-1.png" style="width: 72%;" /></a>
+<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/flux-group-1.png" id="id1"><img alt="../_images/flux-group-1.png" class="align-center" id="id1" src="../_images/flux-group-1.png" style="width: 72%;" /></a>
 </td>
-<td><a class="first last reference internal image-reference" href="../_images/flux-group-7.png" id="figb"><img alt="../_images/flux-group-7.png" class="align-center" id="figb" src="../_images/flux-group-7.png" style="width: 75%;" /></a>
+<td><a class="first last reference internal image-reference" href="../_images/flux-group-7.png" id="id2"><img alt="../_images/flux-group-7.png" class="align-center" id="id2" src="../_images/flux-group-7.png" style="width: 75%;" /></a>
 </td>
 </tr>
 </tbody>
 </table>
-<p><strong>Figure 6</strong>: The fast and thermal fluxes in the C5G7 benchmark problem.</p>
+<p><strong>Figure 7</strong>: The fast and thermal fluxes in the C5G7 benchmark problem.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
@@ -737,7 +820,7 @@
 </div>
 <div class="section" id="flux-in-energy">
 <h3>4.5.2. Flux in Energy<a class="headerlink" href="#flux-in-energy" title="Permalink to this headline">¶</a></h3>
-<p>To plot the flux in energy for one or more flat source regions, use the <tt class="docutils literal"><span class="pre">plot_energy_fluxes(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fluxes-energy"><em>Table 11</em></a>.</p>
+<p>To plot the flux in energy for one or more flat source regions, use the <tt class="docutils literal"><span class="pre">plot_energy_fluxes(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fluxes-energy"><em>Table 12</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-fluxes-energy">
 <colgroup>
 <col width="17%" />
@@ -787,11 +870,11 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Table 11</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_energy_fluxes(...)</span></tt> routine.</p>
+<p><strong>Table 12</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_energy_fluxes(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
 
-<span class="c"># Setup geomery and generate tracks</span>
+<span class="c"># Setup geometry and generate tracks</span>
 <span class="o">...</span>
 
 <span class="c"># Setup solver and converge the source</span>
@@ -801,21 +884,21 @@
 <span class="n">plot</span><span class="o">.</span><span class="n">plot_energy_fluxes</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">fsrs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>A depiction of the normalized 7-group fluxes for the sample pin cell problem (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/pin-cell/pin-cell.py</span></tt>) is illustrated in <a class="reference internal" href="#figure-energy-fluxes"><em>Figure 7</em></a>.</p>
+<p>A depiction of the normalized 7-group fluxes for the sample pin cell problem (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/pin-cell/pin-cell.py</span></tt>) is illustrated in <a class="reference internal" href="#figure-energy-fluxes"><em>Figure 8</em></a>.</p>
 <table border="1" class="docutils" id="figure-energy-fluxes">
 <colgroup>
 <col width="51%" />
 <col width="49%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/flux-fsr-0.png" id="id1"><img alt="../_images/flux-fsr-0.png" class="align-center" id="id1" src="../_images/flux-fsr-0.png" style="width: 72%;" /></a>
+<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/flux-fsr-0.png" id="id3"><img alt="../_images/flux-fsr-0.png" class="align-center" id="id3" src="../_images/flux-fsr-0.png" style="width: 72%;" /></a>
 </td>
-<td><a class="first last reference internal image-reference" href="../_images/flux-fsr-1.png" id="id2"><img alt="../_images/flux-fsr-1.png" class="align-center" id="id2" src="../_images/flux-fsr-1.png" style="width: 75%;" /></a>
+<td><a class="first last reference internal image-reference" href="../_images/flux-fsr-1.png" id="id4"><img alt="../_images/flux-fsr-1.png" class="align-center" id="id4" src="../_images/flux-fsr-1.png" style="width: 75%;" /></a>
 </td>
 </tr>
 </tbody>
 </table>
-<p><strong>Figure 7</strong>: The normalized moderator and fuel flux for a simple PWR pin cell problem.</p>
+<p><strong>Figure 8</strong>: The normalized moderator and fuel flux for a simple PWR pin cell problem.</p>
 </div>
 </div>
 </div>
@@ -841,6 +924,7 @@
 <li><a class="reference internal" href="#plotting-by-material">4.4.3. Plotting by Material</a></li>
 <li><a class="reference internal" href="#plotting-by-cell">4.4.4. Plotting by Cell</a></li>
 <li><a class="reference internal" href="#plotting-by-fsr">4.4.5. Plotting by FSR</a></li>
+<li><a class="reference internal" href="#plotting-by-cmfd-cell">4.4.6. Plotting by CMFD Cell</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#flux-visualization">4.5. Flux Visualization</a><ul>

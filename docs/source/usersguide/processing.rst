@@ -239,7 +239,7 @@ To plot the geometry color-coded by the material ID's throughout the geometry, u
 ============  ===================  =========  =========  ========================================
 Parameter     Type                 Default    Optional   Note
 ============  ===================  =========  =========  ========================================
-``geometry``  ``Geometry`` object  None       No         The geometry of interest
+``geometry``  ``Geometry`` object  None       No         The ``Geometry`` of interest
 ``gridsize``  integer              250        Yes        The pixel resolution
 ``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
 ``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
@@ -253,7 +253,7 @@ The code snippet below illustrates one possible configuration of parameters to t
 
     import openmoc.plotter as plot
 
-    # Setup geomery
+    # Setup geometry
     ...
 
     # Plot a 500 x 500 pixel image of the materials
@@ -282,7 +282,7 @@ To plot the geometry color-coded by the cell ID's throughout the geometry, use t
 ============  ===================  =========  =========  ========================================
 Parameter     Type                 Default    Optional   Note
 ============  ===================  =========  =========  ========================================
-``geometry``  ``Geometry`` object  None       No         The geometry of interest
+``geometry``  ``Geometry`` object  None       No         The ``Geometry`` of interest
 ``gridsize``  integer              250        Yes        The pixel resolution
 ``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
 ``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
@@ -296,7 +296,7 @@ The code snippet below illustrates one possible configuration of parameters to t
 
     import openmoc.plotter as plot
 
-    # Setup geomery
+    # Setup geometry
     ...
 
     # Plot a 500 x 500 pixel image of the cells
@@ -326,7 +326,7 @@ To plot the geometry color-coded by the flat source region ID's throughout the g
 ============  ===================  =========  =========  ========================================
 Parameter     Type                 Default    Optional   Note
 ============  ===================  =========  =========  ========================================
-``geometry``  ``Geometry`` object  None       No         The geometry of interest
+``geometry``  ``Geometry`` object  None       No         The ``Geometry`` of interest
 ``gridsize``  integer              250        Yes        The pixel resolution
 ``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
 ``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
@@ -340,7 +340,7 @@ The code snippet below illustrates one possible configuration of parameters to t
 
     import openmoc.plotter as plot
 
-    # Setup geomery
+    # Setup geometry
     ...
 
     # Plot a 500 x 500 pixel image of the flat source regions
@@ -359,6 +359,58 @@ A depiction of the flat source regions for the :file:`/OpenMOC/sample-input/larg
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
 
+
+Plotting by CMFD Cell
+---------------------
+
+To plot the geometry color-coded by the CMFD cells throughout the geometry, use the ``plot_cmfd_cells(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 10 <table_plot_cmfd_cells>`.
+
+.. _table_plot_cmfd_cells:
+
+============  ===================  =========  =========  ========================================
+Parameter     Type                 Default    Optional   Note
+============  ===================  =========  =========  ========================================
+``geometry``  ``Geometry`` object  None       No         The ``Geometry`` of interest
+``cmfd``      ``CMFD`` object      None       No         The ``CMFD`` of interest
+``gridsize``  integer              250        Yes        The pixel resolution
+``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
+``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
+============  ===================  =========  =========  ========================================
+
+**Table 10**: Parameters for the ``openmoc.plotter.plot_cmfd_cells(...)`` routine.
+
+The code snippet below illustrates one possible configuration of parameters to the routine.
+
+.. code-block:: python
+
+    import openmoc.plotter as plot
+
+    # Setup geometry and cmfd
+    ...
+
+    # Plot a 500 x 500 pixel image of the CMFD cells
+    plot.plot_cmfd_cells(geometry, cmfd, gridsize=500)
+
+A depiction of the flat source regions and CMFD cells for the :file:`/OpenMOC/sample-input/benchmarks/c5g7/c5g7-cmfd.py` example input file is illustrated in :ref:`Figure 6 <figure_cmfd_cells>`.
+
+.. _figure_cmfd_cells:
+
+.. table:: 
+
+   +------------------------------------------+---------------------------------------------+
+   | .. _figa:                                | .. _figb:                                   |
+   |                                          |                                             |
+   | .. image:: ../../img/c5g7-fsrs.png       | .. image:: ../../img/c5g7-cmfd-cells.png    |
+   |   :width: 70 %                           |   :width: 64 %                              |
+   |   :align: center                         |   :align: center                            |
+   +------------------------------------------+---------------------------------------------+ 
+
+**Figure 6**: The flat source regions and CMFD cells for the C5G7 benchmark problem.
+
+
+.. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
+
+
 ------------------
 Flux Visualization
 ------------------
@@ -368,7 +420,7 @@ The ``openmoc.plotter`` module includes routines to plot the scalar flux in spac
 Flux in Space
 -------------
 
-To plot the flat source region scalar fluxes in space, use the ``plot_spatial_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 10 <table_plot_fluxes_space>`.
+To plot the flat source region scalar fluxes in space, use the ``plot_spatial_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 11 <table_plot_fluxes_space>`.
 
 .. _table_plot_fluxes_space:
 
@@ -382,7 +434,7 @@ Parameter          Type                 Default    Optional   Note
 ``ylim``           float                None       Yes        The maximum :math:`y`-coordinate to plot
 =================  ===================  =========  =========  ============================================
 
-**Table 10**: Parameters for the ``openmoc.plotter.plot_spatial_fluxes(...)`` routine.
+**Table 11**: Parameters for the ``openmoc.plotter.plot_spatial_fluxes(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -390,7 +442,7 @@ The code snippet below illustrates one possible configuration of parameters to t
 
     import openmoc.plotter as plot
 
-    # Setup geomery and generate tracks
+    # Setup geometry and generate tracks
     ...
 
     # Setup solver and converge the source
@@ -399,7 +451,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     # Plot the fluxes for energy groups 1 and 7 in 500 x 500 pixel images
     plot.plot_spatial_fluxes(solver, energy_groups=[1,7], gridsize=500)
 
-A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7/c5g7.py`) is illustrated in :ref:`Figure 6 <figure_spatial_fluxes>`.
+A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7`) is illustrated in :ref:`Figure 7 <figure_spatial_fluxes>`.
 
 .. _figure_spatial_fluxes:
 
@@ -413,8 +465,7 @@ A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/
    |   :align: center                         |   :align: center                        |
    +------------------------------------------+-----------------------------------------+ 
 
-
-**Figure 6**: The fast and thermal fluxes in the C5G7 benchmark problem.
+**Figure 7**: The fast and thermal fluxes in the C5G7 benchmark problem.
 
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
@@ -423,7 +474,7 @@ A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/
 Flux in Energy
 --------------
 
-To plot the flux in energy for one or more flat source regions, use the ``plot_energy_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 11 <table_plot_fluxes_energy>`.
+To plot the flux in energy for one or more flat source regions, use the ``plot_energy_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 12 <table_plot_fluxes_energy>`.
 
 .. _table_plot_fluxes_energy:
 
@@ -437,7 +488,7 @@ Parameter          Type                 Default    Optional   Note
 ``loglog``         boolean              True       Yes        Whether to use a log-log plotting scale
 =================  ===================  =========  =========  ============================================
 
-**Table 11**: Parameters for the ``openmoc.plotter.plot_energy_fluxes(...)`` routine.
+**Table 12**: Parameters for the ``openmoc.plotter.plot_energy_fluxes(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -445,7 +496,7 @@ The code snippet below illustrates one possible configuration of parameters to t
 
     import openmoc.plotter as plot
 
-    # Setup geomery and generate tracks
+    # Setup geometry and generate tracks
     ...
 
     # Setup solver and converge the source
@@ -454,7 +505,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     # Plot the fluxes vs. energy for flat source regions 0 and 1
     plot.plot_energy_fluxes(solver, fsrs=[0,1])
 
-A depiction of the normalized 7-group fluxes for the sample pin cell problem (:file:`/OpenMOC/sample-input/pin-cell/pin-cell.py`) is illustrated in :ref:`Figure 7 <figure_energy_fluxes>`.
+A depiction of the normalized 7-group fluxes for the sample pin cell problem (:file:`/OpenMOC/sample-input/pin-cell/pin-cell.py`) is illustrated in :ref:`Figure 8 <figure_energy_fluxes>`.
 
 .. _figure_energy_fluxes:
 
@@ -468,7 +519,7 @@ A depiction of the normalized 7-group fluxes for the sample pin cell problem (:f
    |   :align: center                         |   :align: center                        |
    +------------------------------------------+-----------------------------------------+ 
 
-**Figure 7**: The normalized moderator and fuel flux for a simple PWR pin cell problem.
+**Figure 8**: The normalized moderator and fuel flux for a simple PWR pin cell problem.
 
 
 .. _dictionary: http://docs.python.org/2/library/stdtypes.html#mapping-types-dict
