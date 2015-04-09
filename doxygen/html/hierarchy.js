@@ -17,8 +17,14 @@ var hierarchy =
     ] ],
     [ "openmoc.options.Options", "classopenmoc_1_1options_1_1Options.html", null ],
     [ "Point", "classPoint.html", null ],
+    [ "PolarQuad", "classPolarQuad.html", [
+      [ "EqualAnglePolarQuad", "classEqualAnglePolarQuad.html", null ],
+      [ "EqualWeightPolarQuad", "classEqualWeightPolarQuad.html", null ],
+      [ "GLPolarQuad", "classGLPolarQuad.html", null ],
+      [ "LeonardPolarQuad", "classLeonardPolarQuad.html", null ],
+      [ "TYPolarQuad", "classTYPolarQuad.html", null ]
+    ] ],
     [ "casmo.py", "classcasmo_1_1py.html", null ],
-    [ "Quadrature", "classQuadrature.html", null ],
     [ "segment", "structsegment.html", null ],
     [ "Solver", "classSolver.html", [
       [ "CPUSolver", "classCPUSolver.html", [

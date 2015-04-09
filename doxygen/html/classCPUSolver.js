@@ -18,7 +18,6 @@ var classCPUSolver =
     [ "initializeCmfd", "classCPUSolver.html#acf1386161e001fd58d8962a4c6ad24c7", null ],
     [ "initializeFluxArrays", "classCPUSolver.html#a8eac5804397c5e5f95d73b19a6e4cbfd", null ],
     [ "initializeFSRs", "classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c", null ],
-    [ "initializePolarQuadrature", "classCPUSolver.html#a061a09ddde28c55cda28a8734eac4c1a", null ],
     [ "initializeSourceArrays", "classCPUSolver.html#a51419d540c7eea9d29c3df963cc80784", null ],
     [ "normalizeFluxes", "classCPUSolver.html#aadf42a3cc81fc4641d259aee546e48c3", null ],
     [ "scalarFluxTally", "classCPUSolver.html#a8e650f416c07cb0dc6ef6ccbd7e8f8d8", null ],

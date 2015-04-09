@@ -15,6 +15,8 @@ var searchData=
   ['parsexs',['parseXS',['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a7e9811a407a15d8450514567e0cea423',1,'openmoc::compatible::casmo::Casmo']]],
   ['plane',['Plane',['../classPlane.html#aa4ac97cf9433c1f6fc6c3371481e973e',1,'Plane']]],
   ['point',['Point',['../classPoint.html#ad92f2337b839a94ce97dcdb439b4325a',1,'Point']]],
+  ['polarquad',['PolarQuad',['../classPolarQuad.html#a60e5e0162df4dd7a7cd6d37ad1b4a28b',1,'PolarQuad']]],
+  ['precomputemultiples',['precomputeMultiples',['../classPolarQuad.html#ad2d7a059bf5ba8023b16fd2366adff84',1,'PolarQuad']]],
   ['print_5fbasic_5fgpu_5finfo',['print_basic_gpu_info',['../GPUQuery_8h.html#ac23c23be7f71ea9d86e4e41817755201',1,'GPUQuery.cu']]],
   ['print_5fdetailed_5fgpu_5finfo',['print_detailed_gpu_info',['../GPUQuery_8h.html#a5c804f7a235b0dd34dc5821552a45cde',1,'GPUQuery.cu']]],
   ['printsplits',['printSplits',['../classTimer.html#a38dd3a8f7acae35cc31490173c8c27f0',1,'Timer']]],

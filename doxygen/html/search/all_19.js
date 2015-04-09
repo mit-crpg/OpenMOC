@@ -9,7 +9,7 @@ var searchData=
   ['_7elocalcoords',['~LocalCoords',['../classLocalCoords.html#a1864bf1ab24fc1e785db20bc24185754',1,'LocalCoords']]],
   ['_7ematerial',['~Material',['../classMaterial.html#a2c19452d71f54075df8f5405b03129f4',1,'Material']]],
   ['_7epoint',['~Point',['../classPoint.html#a395fa04b4ec126b66fc053f829a30cc1',1,'Point']]],
-  ['_7equadrature',['~Quadrature',['../classQuadrature.html#a1f523924a8cc88680aa77366a7d3a38e',1,'Quadrature']]],
+  ['_7epolarquad',['~PolarQuad',['../classPolarQuad.html#a43e18de4cc3ae4ca1bf2a3589dfa0557',1,'PolarQuad']]],
   ['_7esolver',['~Solver',['../classSolver.html#aba52d3c92fafceb6fe39f937f2d73db3',1,'Solver']]],
   ['_7esurface',['~Surface',['../classSurface.html#a89de75c95cb550d432f3ea4ed1429db0',1,'Surface']]],
   ['_7etimer',['~Timer',['../classTimer.html#ad3c95ce902fce977d280256256856d64',1,'Timer']]],

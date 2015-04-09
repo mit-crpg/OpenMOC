@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['geometry',['Geometry',['../classGeometry.html',1,'']]],
-  ['gpusolver',['GPUSolver',['../classGPUSolver.html',1,'']]]
+  ['fsr_5fdata',['fsr_data',['../structfsr__data.html',1,'']]]
 ];

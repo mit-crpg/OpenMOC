@@ -275,9 +275,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:ae0405a0c0998d8943e2f8ea94a645940"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ae0405a0c0998d8943e2f8ea94a645940">setSourceConvergenceThreshold</a> (FP_PRECISION source_thresh)</td></tr>
 <tr class="memdesc:ae0405a0c0998d8943e2f8ea94a645940"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the threshold for CMFD source convergence (&gt;0)  <a href="#ae0405a0c0998d8943e2f8ea94a645940">More...</a><br/></td></tr>
 <tr class="separator:ae0405a0c0998d8943e2f8ea94a645940"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a00592e43c29405818e41252e76d6cf43"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a00592e43c29405818e41252e76d6cf43">setPolarQuadrature</a> (<a class="el" href="Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1">quadratureType</a> quadrature_type, int num_polar)</td></tr>
-<tr class="memdesc:a00592e43c29405818e41252e76d6cf43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the type of polar angle quadrature set to use (ie, TABUCHI or LEONARD).  <a href="#a00592e43c29405818e41252e76d6cf43">More...</a><br/></td></tr>
-<tr class="separator:a00592e43c29405818e41252e76d6cf43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af627cf3f19294692da2db7ee2666e566"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#af627cf3f19294692da2db7ee2666e566">setPolarQuadrature</a> (<a class="el" href="classPolarQuad.html">PolarQuad</a> *polar_quad)</td></tr>
+<tr class="memdesc:af627cf3f19294692da2db7ee2666e566"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object in use by the MOC <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>.  <a href="#af627cf3f19294692da2db7ee2666e566">More...</a><br/></td></tr>
+<tr class="separator:af627cf3f19294692da2db7ee2666e566"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ee1d060957c194d7d91e1b6c8192ac4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a1ee1d060957c194d7d91e1b6c8192ac4">setFSRMaterials</a> (<a class="el" href="classMaterial.html">Material</a> **FSR_materials)</td></tr>
 <tr class="memdesc:a1ee1d060957c194d7d91e1b6c8192ac4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the FSR materials array pointer.  <a href="#a1ee1d060957c194d7d91e1b6c8192ac4">More...</a><br/></td></tr>
 <tr class="separator:a1ee1d060957c194d7d91e1b6c8192ac4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1341,35 +1341,24 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="a00592e43c29405818e41252e76d6cf43"></a>
+<a class="anchor" id="af627cf3f19294692da2db7ee2666e566"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void Cmfd::setPolarQuadrature </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1">quadratureType</a>&#160;</td>
-          <td class="paramname"><em>quadrature_type</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramtype"><a class="el" href="classPolarQuad.html">PolarQuad</a> *&#160;</td>
+          <td class="paramname"><em>polar_quad</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>num_polar</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Sets the type of polar angle quadrature set to use (ie, TABUCHI or LEONARD). </p>
+<p>Sets the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object in use by the MOC <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">the</td><td>polar angle quadrature type </td></tr>
-    <tr><td class="paramname">the</td><td>number of polar angles </td></tr>
+    <tr><td class="paramname">polar_quad</td><td>a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object pointer from the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> </td></tr>
   </table>
   </dd>
 </dl>
@@ -1543,7 +1532,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCmfd.html">Cmfd</a></li>
-    <li class="footer">Generated on Mon Apr 6 2015 12:32:47 by
+    <li class="footer">Generated on Thu Apr 9 2015 13:33:49 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

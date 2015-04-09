@@ -42,6 +42,7 @@ var searchData=
   ['convertfsridtocmfdcell',['convertFSRIdToCmfdCell',['../classCmfd.html#a441f0159f7bf8a0a4c3ce2d100ec6793',1,'Cmfd']]],
   ['coordtype',['coordType',['../LocalCoords_8h.html#a9b2c6f3fe231906f231afd6ae7293871',1,'LocalCoords.h']]],
   ['copycoords',['copyCoords',['../classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8',1,'LocalCoords']]],
+  ['correctfsrvolume',['correctFSRVolume',['../classSolver.html#ae901fae104f40db858e8c20dab679f51',1,'Solver']]],
   ['cpusolver',['CPUSolver',['../classCPUSolver.html',1,'CPUSolver'],['../classCPUSolver.html#a7a3a562bc1ec3f99ce834e6ee7f54fef',1,'CPUSolver::CPUSolver()']]],
   ['cpusolver_2eh',['CPUSolver.h',['../CPUSolver_8h.html',1,'']]],
   ['create_5fmultiline_5fmsg',['create_multiline_msg',['../log_8h.html#a60b17cac0a6ec19ed74a1244caab226d',1,'log.cpp']]],

@@ -64,9 +64,9 @@ and `Volume II`_. You may also find it helpful to review the following terms:
 
 .. _git: http://git-scm.com/
 .. _git tutorials: http://git-scm.com/documentation
-.. _Reactor Concepts Manual: http://web.mit.edu/romano7/www/reactor_concepts.pdf
-.. _Volume I: http://www.hss.doe.gov/nuclearsafety/techstds/docs/handbook/h1019v1.pdf
-.. _Volume II: http://www.hss.doe.gov/nuclearsafety/techstds/docs/handbook/h1019v2.pdf
+.. _Reactor Concepts Manual: http://www.amazon.com/Electrical-Generation-Concepts-Technical-Training/dp/B009XXK564
+.. _Volume I: http://energy.gov/sites/prod/files/2013/06/f2/h1019v1.pdf
+.. _Volume II: http://energy.gov/sites/prod/files/2013/06/f2/h1019v2.pdf
 .. _OpenMOC source code: https://github.com/mit-crpg/OpenMOC
 .. _GitHub: https://github.com/
 .. _bug reports: https://github.com/mit-crpg/OpenMOC/issues

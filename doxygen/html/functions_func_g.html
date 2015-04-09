@@ -96,7 +96,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func_m.html#index_m"><span>m</span></a></li>
       <li><a href="functions_func_n.html#index_n"><span>n</span></a></li>
       <li><a href="functions_func_p.html#index_p"><span>p</span></a></li>
-      <li><a href="functions_func_q.html#index_q"><span>q</span></a></li>
       <li><a href="functions_func_r.html#index_r"><span>r</span></a></li>
       <li><a href="functions_func_s.html#index_s"><span>s</span></a></li>
       <li><a href="functions_func_t.html#index_t"><span>t</span></a></li>
@@ -314,6 +313,9 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <li>getFSRsToMaterialIDs()
 : <a class="el" href="classGeometry.html#a608b3db4e1e828b4c1c5f761a6f667b7">Geometry</a>
 </li>
+<li>getFSRVolume()
+: <a class="el" href="classSolver.html#ad14694fca25ade5e6841916e22354e87">Solver</a>
+</li>
 <li>getFuelPinRadii()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#af2d17d0f3e234dccfd35da2f30ea7d0b">openmoc.compatible.casmo.Casmo</a>
 </li>
@@ -485,10 +487,10 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 : <a class="el" href="classCmfd.html#ac19e3fc5c6c2ca4d36c2cadf4014ecac">Cmfd</a>
 </li>
 <li>getMultiple()
-: <a class="el" href="classQuadrature.html#a3f19d76860a2d1ec8406366188449a6d">Quadrature</a>
+: <a class="el" href="classPolarQuad.html#abda0f844b49645ee34293317ed87ea6a">PolarQuad</a>
 </li>
 <li>getMultiples()
-: <a class="el" href="classQuadrature.html#abe4b4b49360a9fd5723e65fd35fb3ab9">Quadrature</a>
+: <a class="el" href="classPolarQuad.html#ab53a1ba9ce2d050b827d2e0943b4ca9d">PolarQuad</a>
 </li>
 <li>getName()
 : <a class="el" href="classCell.html#a14352efeff52a8ce73618927af257fd8">Cell</a>
@@ -530,7 +532,7 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 : <a class="el" href="classCmfd.html#a808413e5a4af79a28878e438f8c8ed2a">Cmfd</a>
 </li>
 <li>getNumPolarAngles()
-: <a class="el" href="classQuadrature.html#a4f6664557a9fe290b1d6f9ca6d847c8e">Quadrature</a>
+: <a class="el" href="classPolarQuad.html#a8a00eb720071e02cbd95fbfc8c16861d">PolarQuad</a>
 , <a class="el" href="classSolver.html#ae3012e43ec82aea38b7ff0c26a6e5003">Solver</a>
 </li>
 <li>getNumRegions()
@@ -603,9 +605,6 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <li>getPoint()
 : <a class="el" href="classLocalCoords.html#aff39b0f4a6cd5de5347ab154000d349b">LocalCoords</a>
 </li>
-<li>getPolarQuadratureType()
-: <a class="el" href="classSolver.html#a8810de68de50b5f4881e89e68733960a">Solver</a>
-</li>
 <li>getPrev()
 : <a class="el" href="classLocalCoords.html#a41901845738accab675e9a021185fcc5">LocalCoords</a>
 </li>
@@ -649,10 +648,10 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 : <a class="el" href="classMaterial.html#a3382e0de3100906526d6b2e7182ab3f9">Material</a>
 </li>
 <li>getSinTheta()
-: <a class="el" href="classQuadrature.html#a891c96ac4127b45461832bd72cbaf364">Quadrature</a>
+: <a class="el" href="classPolarQuad.html#a1bbe26ef165d6c362167ce6d6e63c25e">PolarQuad</a>
 </li>
 <li>getSinThetas()
-: <a class="el" href="classQuadrature.html#a678dfcec6a74deeff5369c42ba7748aa">Quadrature</a>
+: <a class="el" href="classPolarQuad.html#ac847c69ba09c4f2480641d4002d979e7">PolarQuad</a>
 </li>
 <li>getSourceConvergenceThreshold()
 : <a class="el" href="classSolver.html#af3ec5e2776910329b6502e9fc06d533b">Solver</a>
@@ -721,7 +720,6 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <li>getType()
 : <a class="el" href="classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0">Cell</a>
 , <a class="el" href="classLocalCoords.html#a756dbd3f1b8fa9084f584b593af2b066">LocalCoords</a>
-, <a class="el" href="classQuadrature.html#afcd83d1504f903a3a829f1c2743b08ff">Quadrature</a>
 , <a class="el" href="classUniverse.html#a6cbde58618cfcec5f72780b2911ab97b">Universe</a>
 </li>
 <li>getUid()
@@ -741,10 +739,10 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 : <a class="el" href="classLattice.html#ab5e3b6812c4c7e478e5ded4acc5d3819">Lattice</a>
 </li>
 <li>getWeight()
-: <a class="el" href="classQuadrature.html#a7dde6379ad5b6b02cbc2aea3f5f9bce5">Quadrature</a>
+: <a class="el" href="classPolarQuad.html#a2b07103d69ead074a4adb99221ec4363">PolarQuad</a>
 </li>
 <li>getWeights()
-: <a class="el" href="classQuadrature.html#a770430bb480b1f8381b5bf83e5f7f881">Quadrature</a>
+: <a class="el" href="classPolarQuad.html#aa8889056c24a5f667246633f97c0a479">PolarQuad</a>
 </li>
 <li>getWidth()
 : <a class="el" href="classGeometry.html#a8a7afceb0905b411d296c57fb0f8f3ba">Geometry</a>
@@ -778,6 +776,9 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <li>getZ()
 : <a class="el" href="classZPlane.html#abd5aa541a5803dfb52af8d156c06cb6d">ZPlane</a>
 </li>
+<li>GLPolarQuad()
+: <a class="el" href="classGLPolarQuad.html#a37f23e09308db83cc54606bc31968213">GLPolarQuad</a>
+</li>
 <li>GPUSolver()
 : <a class="el" href="classGPUSolver.html#aa5ff8fd4f0a2901aab68ae57da1415bc">GPUSolver</a>
 </li>
@@ -787,7 +788,7 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Mon Apr 6 2015 12:32:47 by
+    <li class="footer">Generated on Thu Apr 9 2015 13:33:49 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

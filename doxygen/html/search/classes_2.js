@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['fsr_5fdata',['fsr_data',['../structfsr__data.html',1,'']]]
+  ['equalanglepolarquad',['EqualAnglePolarQuad',['../classEqualAnglePolarQuad.html',1,'']]],
+  ['equalweightpolarquad',['EqualWeightPolarQuad',['../classEqualWeightPolarQuad.html',1,'']]]
 ];

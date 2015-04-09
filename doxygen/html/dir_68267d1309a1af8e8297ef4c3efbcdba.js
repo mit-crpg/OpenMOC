@@ -16,7 +16,7 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "Point.h", "Point_8h.html", [
       [ "Point", "classPoint.html", "classPoint" ]
     ] ],
-    [ "Quadrature.h", "Quadrature_8h.html", "Quadrature_8h" ],
+    [ "PolarQuad.h", "PolarQuad_8h.html", "PolarQuad_8h" ],
     [ "Solver.h", "Solver_8h.html", "Solver_8h" ],
     [ "Surface.h", "Surface_8h.html", "Surface_8h" ],
     [ "Timer.h", "Timer_8h.html", [

@@ -2,7 +2,7 @@ var searchData=
 [
   ['lat',['LAT',['../LocalCoords_8h.html#a9b2c6f3fe231906f231afd6ae7293871a40df096e8ca19a820dbd94de79e97b3b',1,'LocalCoords.h']]],
   ['lattice',['Lattice',['../classLattice.html',1,'Lattice'],['../classLattice.html#aeb23419f808ae758da6081584bd347bc',1,'Lattice::Lattice()'],['../Universe_8h.html#a123911615dcd5c50bea706d32683a02aa339a8cc891972f1e75bb948454f358be',1,'LATTICE():&#160;Universe.h']]],
-  ['leonard',['LEONARD',['../Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1ade2f2a195b3ba81b776e30661f522740',1,'Quadrature.h']]],
+  ['leonardpolarquad',['LeonardPolarQuad',['../classLeonardPolarQuad.html',1,'LeonardPolarQuad'],['../classLeonardPolarQuad.html#a8f7a05795ed34143840c2202c6622eb1',1,'LeonardPolarQuad::LeonardPolarQuad()']]],
   ['linalg_2eh',['linalg.h',['../linalg_8h.html',1,'']]],
   ['linearsolve',['linearSolve',['../classCmfd.html#a91b918938971340f64763dd946dae5b8',1,'Cmfd']]],
   ['localcoords',['LocalCoords',['../classLocalCoords.html',1,'LocalCoords'],['../classLocalCoords.html#ab0d2336c8312720fd28aefd09f6f7da0',1,'LocalCoords::LocalCoords()']]],

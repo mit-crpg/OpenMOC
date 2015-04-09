@@ -129,15 +129,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afd394d9603d0ceba175d96a53f54d7fa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGeometry.html">Geometry</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#afd394d9603d0ceba175d96a53f54d7fa">getGeometry</a> ()</td></tr>
 <tr class="memdesc:afd394d9603d0ceba175d96a53f54d7fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a>.  <a href="#afd394d9603d0ceba175d96a53f54d7fa">More...</a><br/></td></tr>
 <tr class="separator:afd394d9603d0ceba175d96a53f54d7fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad14694fca25ade5e6841916e22354e87"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ad14694fca25ade5e6841916e22354e87">getFSRVolume</a> (int fsr_id)</td></tr>
+<tr class="memdesc:ad14694fca25ade5e6841916e22354e87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the calculated volume for a flat source region.  <a href="#ad14694fca25ade5e6841916e22354e87">More...</a><br/></td></tr>
+<tr class="separator:ad14694fca25ade5e6841916e22354e87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac47a004e88d7fde15880ab8c2b08e754"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classTrackGenerator.html">TrackGenerator</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac47a004e88d7fde15880ab8c2b08e754">getTrackGenerator</a> ()</td></tr>
 <tr class="memdesc:ac47a004e88d7fde15880ab8c2b08e754"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a>.  <a href="#ac47a004e88d7fde15880ab8c2b08e754">More...</a><br/></td></tr>
 <tr class="separator:ac47a004e88d7fde15880ab8c2b08e754"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3012e43ec82aea38b7ff0c26a6e5003"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ae3012e43ec82aea38b7ff0c26a6e5003">getNumPolarAngles</a> ()</td></tr>
-<tr class="memdesc:ae3012e43ec82aea38b7ff0c26a6e5003"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of angles used for the polar quadrature (1,2,3).  <a href="#ae3012e43ec82aea38b7ff0c26a6e5003">More...</a><br/></td></tr>
+<tr class="memdesc:ae3012e43ec82aea38b7ff0c26a6e5003"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of angles used for the polar quadrature.  <a href="#ae3012e43ec82aea38b7ff0c26a6e5003">More...</a><br/></td></tr>
 <tr class="separator:ae3012e43ec82aea38b7ff0c26a6e5003"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8810de68de50b5f4881e89e68733960a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1">quadratureType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a8810de68de50b5f4881e89e68733960a">getPolarQuadratureType</a> ()</td></tr>
-<tr class="memdesc:a8810de68de50b5f4881e89e68733960a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the type of polar quadrature in use (TABUCHI or LEONARD).  <a href="#a8810de68de50b5f4881e89e68733960a">More...</a><br/></td></tr>
-<tr class="separator:a8810de68de50b5f4881e89e68733960a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e2f2f30ca4bae8871b30bb188a29b38"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a4e2f2f30ca4bae8871b30bb188a29b38">getNumIterations</a> ()</td></tr>
 <tr class="memdesc:a4e2f2f30ca4bae8871b30bb188a29b38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of source iterations to converge the source.  <a href="#a4e2f2f30ca4bae8871b30bb188a29b38">More...</a><br/></td></tr>
 <tr class="separator:a4e2f2f30ca4bae8871b30bb188a29b38"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -177,15 +177,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac07cee2fe04515dc8e4d2980d567c4c5"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5">setTrackGenerator</a> (<a class="el" href="classTrackGenerator.html">TrackGenerator</a> *track_generator)</td></tr>
 <tr class="memdesc:ac07cee2fe04515dc8e4d2980d567c4c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>'s <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> with characteristic Tracks.  <a href="#ac07cee2fe04515dc8e4d2980d567c4c5">More...</a><br/></td></tr>
 <tr class="separator:ac07cee2fe04515dc8e4d2980d567c4c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa602cd57f7b72f13050920f2c752815e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#aa602cd57f7b72f13050920f2c752815e">setPolarQuadratureType</a> (<a class="el" href="Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1">quadratureType</a> quadrature_type)</td></tr>
-<tr class="memdesc:aa602cd57f7b72f13050920f2c752815e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the type of polar angle quadrature set to use (ie, TABUCHI or LEONARD).  <a href="#aa602cd57f7b72f13050920f2c752815e">More...</a><br/></td></tr>
-<tr class="separator:aa602cd57f7b72f13050920f2c752815e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93ca4d4d31e0a104576cc0513277c4e1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a93ca4d4d31e0a104576cc0513277c4e1">setPolarQuadrature</a> (<a class="el" href="classPolarQuad.html">PolarQuad</a> *polar_quad)</td></tr>
+<tr class="memdesc:a93ca4d4d31e0a104576cc0513277c4e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>.  <a href="#a93ca4d4d31e0a104576cc0513277c4e1">More...</a><br/></td></tr>
+<tr class="separator:a93ca4d4d31e0a104576cc0513277c4e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a069e8bf490a2f5de391f57cd9e7224ed"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a069e8bf490a2f5de391f57cd9e7224ed">setNumPolarAngles</a> (int num_polar)</td></tr>
-<tr class="memdesc:a069e8bf490a2f5de391f57cd9e7224ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the number of polar angles to use (only 1, 2, or 3 currently supported). The default of 3 angles is recommended.  <a href="#a069e8bf490a2f5de391f57cd9e7224ed">More...</a><br/></td></tr>
+<tr class="memdesc:a069e8bf490a2f5de391f57cd9e7224ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the number of polar angles to use.  <a href="#a069e8bf490a2f5de391f57cd9e7224ed">More...</a><br/></td></tr>
 <tr class="separator:a069e8bf490a2f5de391f57cd9e7224ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaace17535420183bd7c699b0a10c1e01"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#aaace17535420183bd7c699b0a10c1e01">setSourceConvergenceThreshold</a> (FP_PRECISION source_thresh)</td></tr>
 <tr class="memdesc:aaace17535420183bd7c699b0a10c1e01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the threshold for source convergence (&gt;0)  <a href="#aaace17535420183bd7c699b0a10c1e01">More...</a><br/></td></tr>
 <tr class="separator:aaace17535420183bd7c699b0a10c1e01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae901fae104f40db858e8c20dab679f51"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ae901fae104f40db858e8c20dab679f51">correctFSRVolume</a> (int fsr_id, FP_PRECISION fsr_volume)</td></tr>
+<tr class="memdesc:ae901fae104f40db858e8c20dab679f51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a correct volume for some flat source region.  <a href="#ae901fae104f40db858e8c20dab679f51">More...</a><br/></td></tr>
+<tr class="separator:ae901fae104f40db858e8c20dab679f51"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a627f677bdb8a621a632b581bc976b2a5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a627f677bdb8a621a632b581bc976b2a5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a627f677bdb8a621a632b581bc976b2a5">useExponentialInterpolation</a> ()</td></tr>
 <tr class="memdesc:a627f677bdb8a621a632b581bc976b2a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Informs the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> to use linear interpolation to compute the exponential in the transport equation. <br/></td></tr>
@@ -213,10 +216,6 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:a9392165690f9506ed555e0c710fbdb52"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a9392165690f9506ed555e0c710fbdb52">round_to_int</a> (double x)</td></tr>
 <tr class="memdesc:a9392165690f9506ed555e0c710fbdb52"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rounds a double precision floating point value to an integer.  <a href="#a9392165690f9506ed555e0c710fbdb52">More...</a><br/></td></tr>
 <tr class="separator:a9392165690f9506ed555e0c710fbdb52"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6591b996eb837e0c4184424e48e191a3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6591b996eb837e0c4184424e48e191a3"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a6591b996eb837e0c4184424e48e191a3">initializePolarQuadrature</a> ()=0</td></tr>
-<tr class="memdesc:a6591b996eb837e0c4184424e48e191a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a polar quadrature object for the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>. <br/></td></tr>
-<tr class="separator:a6591b996eb837e0c4184424e48e191a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a916eb7ef96140e1ea2d22bb9d1c86240"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a916eb7ef96140e1ea2d22bb9d1c86240">initializeFluxArrays</a> ()=0</td></tr>
 <tr class="memdesc:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular flux and leakage and FSR scalar flux arrays. <br/></td></tr>
@@ -229,10 +228,12 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a7098d5d9fde857934ce0f867164f9d2e">buildExpInterpTable</a> ()=0</td></tr>
 <tr class="memdesc:a7098d5d9fde857934ce0f867164f9d2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds the exponential linear interpolation table. <br/></td></tr>
 <tr class="separator:a7098d5d9fde857934ce0f867164f9d2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a512ac25e056b3e2d77ae9159e793babf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a512ac25e056b3e2d77ae9159e793babf"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a512ac25e056b3e2d77ae9159e793babf">initializeFSRs</a> ()=0</td></tr>
-<tr class="memdesc:a512ac25e056b3e2d77ae9159e793babf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the volumes and <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> arrays for each FSR. <br/></td></tr>
-<tr class="separator:a512ac25e056b3e2d77ae9159e793babf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d29853ed722d7484588842a55b80226"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a2d29853ed722d7484588842a55b80226">initializePolarQuadrature</a> ()</td></tr>
+<tr class="memdesc:a2d29853ed722d7484588842a55b80226"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates object for the solver.  <a href="#a2d29853ed722d7484588842a55b80226">More...</a><br/></td></tr>
+<tr class="separator:a2d29853ed722d7484588842a55b80226"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2699642abb92e66bf17be4d9009ee6c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ad2699642abb92e66bf17be4d9009ee6c">initializeFSRs</a> ()</td></tr>
+<tr class="memdesc:ad2699642abb92e66bf17be4d9009ee6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the FSR volumes and Materials array.  <a href="#ad2699642abb92e66bf17be4d9009ee6c">More...</a><br/></td></tr>
+<tr class="separator:ad2699642abb92e66bf17be4d9009ee6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afeab07b86fb26ba8be22d525cba33c4f"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#afeab07b86fb26ba8be22d525cba33c4f">initializeCmfd</a> ()</td></tr>
 <tr class="memdesc:afeab07b86fb26ba8be22d525cba33c4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> object for acceleratiion prior to source iteration.  <a href="#afeab07b86fb26ba8be22d525cba33c4f">More...</a><br/></td></tr>
 <tr class="separator:afeab07b86fb26ba8be22d525cba33c4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -295,16 +296,16 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:ae323198b6be6ddc402c53784c5a89b7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b17e508bd721f49a382673efcd8ae1b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a5b17e508bd721f49a382673efcd8ae1b">_num_materials</a></td></tr>
 <tr class="separator:a5b17e508bd721f49a382673efcd8ae1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4cf19c17278e367f44c6e735e437103d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classQuadrature.html">Quadrature</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a4cf19c17278e367f44c6e735e437103d">_quad</a></td></tr>
-<tr class="separator:a4cf19c17278e367f44c6e735e437103d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac650aca701b521e193836711adc1703f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classPolarQuad.html">PolarQuad</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac650aca701b521e193836711adc1703f">_polar_quad</a></td></tr>
+<tr class="separator:ac650aca701b521e193836711adc1703f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1f22a0b48917197634d9fa56cdfaa1d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ad1f22a0b48917197634d9fa56cdfaa1d">_user_polar_quad</a></td></tr>
+<tr class="separator:ad1f22a0b48917197634d9fa56cdfaa1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49cc179a9f47c5ca5f6d19c954d680ad"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a49cc179a9f47c5ca5f6d19c954d680ad">_num_polar</a></td></tr>
 <tr class="separator:a49cc179a9f47c5ca5f6d19c954d680ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f9e45e5d2a93bc3b18ca2659b95ac6a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a5f9e45e5d2a93bc3b18ca2659b95ac6a">_two_times_num_polar</a></td></tr>
 <tr class="separator:a5f9e45e5d2a93bc3b18ca2659b95ac6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84ce3dbf9e3c4a86773161e7c92b1da1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a84ce3dbf9e3c4a86773161e7c92b1da1">_polar_times_groups</a></td></tr>
 <tr class="separator:a84ce3dbf9e3c4a86773161e7c92b1da1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c8910d870254066e9ba89c75c3a1003"><td class="memItemLeft" align="right" valign="top"><a class="el" href="Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1">quadratureType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a3c8910d870254066e9ba89c75c3a1003">_quadrature_type</a></td></tr>
-<tr class="separator:a3c8910d870254066e9ba89c75c3a1003"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a775ed41fc1268312c8fb25ec994e1351"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classTrack.html">Track</a> **&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a775ed41fc1268312c8fb25ec994e1351">_tracks</a></td></tr>
 <tr class="separator:a775ed41fc1268312c8fb25ec994e1351"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a564e918dc20cdc12f40e15a86fffefc2"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a564e918dc20cdc12f40e15a86fffefc2">_num_tracks</a></td></tr>
@@ -566,6 +567,50 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ae901fae104f40db858e8c20dab679f51"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Solver::correctFSRVolume </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>fsr_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FP_PRECISION&#160;</td>
+          <td class="paramname"><em>fsr_volume</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assign a correct volume for some flat source region. </p>
+<p>This routine adjusts the length of each track segment crossing a flat source region such that the integrated volume is identical to the true volumed assigned by the user. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fsr_id</td><td>the ID of the flat source region of interest </td></tr>
+    <tr><td class="paramname">fsr_volume</td><td>the correct flat source region volume to use </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a148137c97310ee2df94a4fd3fe35456f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -754,6 +799,31 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ad14694fca25ade5e6841916e22354e87"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">FP_PRECISION Solver::getFSRVolume </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>fsr_id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the calculated volume for a flat source region. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fsr_id</td><td>the flat source region ID of interest </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the flat source region volume </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="afd394d9603d0ceba175d96a53f54d7fa"></a>
 <div class="memitem">
 <div class="memproto">
@@ -821,26 +891,8 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Returns the number of angles used for the polar quadrature (1,2,3). </p>
+<p>Returns the number of angles used for the polar quadrature. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of polar angles </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a8810de68de50b5f4881e89e68733960a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1">quadratureType</a> Solver::getPolarQuadratureType </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Returns the type of polar quadrature in use (TABUCHI or LEONARD). </p>
-<dl class="section return"><dt>Returns</dt><dd>the type of polar quadrature </dd></dl>
 
 </div>
 </div>
@@ -923,6 +975,60 @@ Protected Attributes</h2></td></tr>
 <p>Instantiates a dummy <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> object if one was not assigned to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> by the user and initializes FSRs, materials, fluxes and the Mesh object. This method is for internal use only and is called by the <a class="el" href="classSolver.html#af8358a66a7cbd56339211f80a2365678" title="Computes keff by performing a series of transport sweep and source updates. ">Solver::convergeSource()</a> method and should not be called directly by the user. </p>
 
 <p>Reimplemented in <a class="el" href="classCPUSolver.html#acf1386161e001fd58d8962a4c6ad24c7">CPUSolver</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ad2699642abb92e66bf17be4d9009ee6c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Solver::initializeFSRs </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Initializes the FSR volumes and Materials array. </p>
+<p>This method assigns each FSR a unique, monotonically increasing ID, sets the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> for each FSR, and assigns a volume based on the cumulative length of all of the segments inside the FSR. </p>
+
+<p>Reimplemented in <a class="el" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c">CPUSolver</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a2d29853ed722d7484588842a55b80226"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Solver::initializePolarQuadrature </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Creates object for the solver. </p>
+<p>Deletes memory for old Quadrature if one was allocated for a previous simulation. </p>
 
 </div>
 </div>
@@ -1123,7 +1229,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Sets the number of polar angles to use (only 1, 2, or 3 currently supported). The default of 3 angles is recommended. </p>
+<p>Sets the number of polar angles to use. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">num_polar</td><td>the number of polar angles </td></tr>
@@ -1133,7 +1239,7 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aa602cd57f7b72f13050920f2c752815e"></a>
+<a class="anchor" id="a93ca4d4d31e0a104576cc0513277c4e1"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -1141,10 +1247,10 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Solver::setPolarQuadratureType </td>
+          <td class="memname">void Solver::setPolarQuadrature </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1">quadratureType</a>&#160;</td>
-          <td class="paramname"><em>quadrature_type</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classPolarQuad.html">PolarQuad</a> *&#160;</td>
+          <td class="paramname"><em>polar_quad</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -1155,10 +1261,15 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Sets the type of polar angle quadrature set to use (ie, TABUCHI or LEONARD). </p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Assign a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>. </p>
+<p>This routine allows use of a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> with any polar angle quadrature. Alternatively, this routine may take in any subclass of the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> parent class, including <a class="el" href="classTYPolarQuad.html" title="Tabuchi-Yamamoto&#39;s polar quadrature. ">TYPolarQuad</a> (default), <a class="el" href="classLeonardPolarQuad.html" title="Leonard&#39;s polar quadrature. ">LeonardPolarQuad</a>, <a class="el" href="classGLPolarQuad.html" title="Gauss-Legendre&#39;s polar quadrature. ">GLPolarQuad</a>, etc.</p>
+<p>Users may assign a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> from Python script as follows:</p>
+<div class="fragment"><div class="line">polar_quad = <a class="code" href="namespaceopenmoc_1_1log.html#aba53740608da72a6ff5857ab332fc48d">openmoc</a>.LeonardPolarQuad()</div>
+<div class="line">polar_quad.setNumPolarAngles(2)</div>
+<div class="line">solver.setPolarQuadrature(polar_quad)</div>
+</div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">quadrature_type</td><td>the polar angle quadrature type </td></tr>
+    <tr><td class="paramname">polar_quad</td><td>a pointer to a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object </td></tr>
   </table>
   </dd>
 </dl>
@@ -1222,6 +1333,7 @@ Protected Attributes</h2></td></tr>
 <p>Sets the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>'s <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> with characteristic Tracks. </p>
 <p>The <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> must already have generated Tracks and have used ray tracing to segmentize them across the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a>. This should be initated in Python prior to assigning the <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>:</p>
 <div class="fragment"><div class="line">track_generator.generateTracks()</div>
+<div class="line">solver.setTrackGenerator(track_generator)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">track_generator</td><td>a pointer to a <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> object </td></tr>
@@ -1801,6 +1913,27 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ac650aca701b521e193836711adc1703f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classPolarQuad.html">PolarQuad</a>* Solver::_polar_quad</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>A pointer to a polar quadrature </p>
+
+</div>
+</div>
 <a class="anchor" id="a84ce3dbf9e3c4a86773161e7c92b1da1"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1840,48 +1973,6 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <p>The weights for each polar angle in the polar angle quadrature </p>
-
-</div>
-</div>
-<a class="anchor" id="a4cf19c17278e367f44c6e735e437103d"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classQuadrature.html">Quadrature</a>* Solver::_quad</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>A pointer to a polar quadrature </p>
-
-</div>
-</div>
-<a class="anchor" id="a3c8910d870254066e9ba89c75c3a1003"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1">quadratureType</a> Solver::_quadrature_type</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>The type of polar quadrature (TABUCHI or LEONARD) </p>
 
 </div>
 </div>
@@ -2137,6 +2228,27 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ad1f22a0b48917197634d9fa56cdfaa1d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Solver::_user_polar_quad</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>A boolean indicating if a user-defined <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> was assigned </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/<a class="el" href="Solver_8h_source.html">Solver.h</a></li>
 <li>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/Solver.cpp</li>
@@ -2147,7 +2259,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classSolver.html">Solver</a></li>
-    <li class="footer">Generated on Mon Apr 6 2015 12:32:47 by
+    <li class="footer">Generated on Thu Apr 9 2015 13:33:49 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

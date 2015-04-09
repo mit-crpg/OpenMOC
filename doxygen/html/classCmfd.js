@@ -47,7 +47,7 @@ var classCmfd =
     [ "setNumX", "classCmfd.html#a3d6e0cbee571c1a6799371bb8e5d73d6", null ],
     [ "setNumY", "classCmfd.html#a3ecee3886f2cb0f93d3c4c1a4818788f", null ],
     [ "setOpticallyThick", "classCmfd.html#a1c853270dd97fb560fd96b34a5b73a04", null ],
-    [ "setPolarQuadrature", "classCmfd.html#a00592e43c29405818e41252e76d6cf43", null ],
+    [ "setPolarQuadrature", "classCmfd.html#af627cf3f19294692da2db7ee2666e566", null ],
     [ "setSORRelaxationFactor", "classCmfd.html#ab85d945c77c019bcc9991730247760e4", null ],
     [ "setSourceConvergenceThreshold", "classCmfd.html#ae0405a0c0998d8943e2f8ea94a645940", null ],
     [ "setSurfaceCurrents", "classCmfd.html#a96bec1b89bb98ad2d50c07cb90f40fff", null ],

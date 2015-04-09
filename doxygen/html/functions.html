@@ -96,7 +96,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_m.html#index_m"><span>m</span></a></li>
       <li><a href="functions_n.html#index_n"><span>n</span></a></li>
       <li><a href="functions_p.html#index_p"><span>p</span></a></li>
-      <li><a href="functions_q.html#index_q"><span>q</span></a></li>
       <li><a href="functions_r.html#index_r"><span>r</span></a></li>
       <li><a href="functions_s.html#index_s"><span>s</span></a></li>
       <li><a href="functions_t.html#index_t"><span>t</span></a></li>
@@ -303,6 +302,9 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <li>_min_z_bc
 : <a class="el" href="classCell.html#a5bef655cbc929e571ee511cc12aac6a4">Cell</a>
 </li>
+<li>_multiples
+: <a class="el" href="classPolarQuad.html#a3307273df5c411116e6b247f14590009">PolarQuad</a>
+</li>
 <li>_n
 : <a class="el" href="classCell.html#a541f3c7c6a6dfe20a650c695bd7d9e6e">Cell</a>
 , <a class="el" href="classSurface.html#af29013bb2235204f570e86d62bca4a1f">Surface</a>
@@ -341,7 +343,8 @@ $(document).ready(function(){initNavTree('functions.html','');});
 : <a class="el" href="classSolver.html#a9454babdc3f94a6bd15f25900df86c7e">Solver</a>
 </li>
 <li>_num_polar
-: <a class="el" href="classSolver.html#a49cc179a9f47c5ca5f6d19c954d680ad">Solver</a>
+: <a class="el" href="classPolarQuad.html#a61d32fe3277ea33dbdf94db082c7c64b">PolarQuad</a>
+, <a class="el" href="classSolver.html#a49cc179a9f47c5ca5f6d19c954d680ad">Solver</a>
 </li>
 <li>_num_segments
 : <a class="el" href="structdev__track.html#a257b1a4150d11de2e2a2809c2713de6c">dev_track</a>
@@ -361,17 +364,14 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <li>_point
 : <a class="el" href="structfsr__data.html#a725800e3793e3de9f60914cfcfdfdfbd">fsr_data</a>
 </li>
+<li>_polar_quad
+: <a class="el" href="classSolver.html#ac650aca701b521e193836711adc1703f">Solver</a>
+</li>
 <li>_polar_times_groups
 : <a class="el" href="classSolver.html#a84ce3dbf9e3c4a86773161e7c92b1da1">Solver</a>
 </li>
 <li>_polar_weights
 : <a class="el" href="classSolver.html#a8407ebcfee31a54a67e6d5ca2e3d4e6b">Solver</a>
-</li>
-<li>_quad
-: <a class="el" href="classSolver.html#a4cf19c17278e367f44c6e735e437103d">Solver</a>
-</li>
-<li>_quadrature_type
-: <a class="el" href="classSolver.html#a3c8910d870254066e9ba89c75c3a1003">Solver</a>
 </li>
 <li>_reduced_sources
 : <a class="el" href="classSolver.html#ac445e2199893a9bf003f754aab0320f3">Solver</a>
@@ -411,6 +411,9 @@ $(document).ready(function(){initNavTree('functions.html','');});
 </li>
 <li>_sigma_t
 : <a class="el" href="structdev__material.html#a0732a4eb6589a5d81b5e8224f8650e6e">dev_material</a>
+</li>
+<li>_sin_thetas
+: <a class="el" href="classPolarQuad.html#ade38f95777eac1dbf186aa3bfebea9e4">PolarQuad</a>
 </li>
 <li>_source_convergence_thresh
 : <a class="el" href="classSolver.html#a4aa4d18f980bbb098f839835e5e2f35d">Solver</a>
@@ -469,13 +472,19 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <li>_universe
 : <a class="el" href="classCell.html#abebfee25524f8429acd698f206d1cf58">Cell</a>
 </li>
+<li>_user_polar_quad
+: <a class="el" href="classSolver.html#ad1f22a0b48917197634d9fa56cdfaa1d">Solver</a>
+</li>
+<li>_weights
+: <a class="el" href="classPolarQuad.html#a16958c4b93315626d27494cbc02c933e">PolarQuad</a>
+</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Mon Apr 6 2015 12:32:47 by
+    <li class="footer">Generated on Thu Apr 9 2015 13:33:49 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
