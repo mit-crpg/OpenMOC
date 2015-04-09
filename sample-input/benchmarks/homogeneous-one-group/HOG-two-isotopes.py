@@ -19,24 +19,33 @@ max_iters = options.getMaxIterations()
 
 log.set_log_level('NORMAL')
 
-log.py_printf('TITLE', 'Simulating a two group homogeneous infinite medium...')
-log.py_printf('HEADER', 'The reference keff = 1.72...')
+log.py_printf('TITLE', 'Simulating a one group homogeneous infinite medium...')
+log.py_printf('HEADER', 'The reference keff = 1.43...')
 
 
 ###############################################################################
-###########################   Creating Materials   ############################
+#######################   Main Simulation Parameters   ########################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating materials...')
 
-infinite_medium = MacroMaterial(name='2-group infinite medium')
-infinite_medium.setNumEnergyGroups(2)
-infinite_medium.setSigmaA(numpy.array([0.0038, 0.184]))
-infinite_medium.setSigmaF(numpy.array([0.000625, 0.135416667]))
-infinite_medium.setNuSigmaF(numpy.array([0.0015, 0.325]))
-infinite_medium.setSigmaS(numpy.array([0.1, 0.117, 0.0, 1.42]))
-infinite_medium.setChi(numpy.array([1.0, 0.0]))
-infinite_medium.setSigmaT(numpy.array([0.2208, 1.604]))
+iso1 = Isotope(name='isotope #1')
+iso1.setNumEnergyGroups(1)
+iso1.setSigmaA(numpy.array([0.059389522]))
+iso1.setSigmaF(numpy.array([0.0414198575]))
+iso1.setNuSigmaF(numpy.array([0.0994076580]))
+iso1.setSigmaS(numpy.array([0.383259177]))
+iso1.setChi(numpy.array([1.0]))
+iso1.setSigmaT(numpy.array([0.442648699]))
+
+iso2 = Isotope(name='isotope #2')
+iso2.setNumEnergyGroups(1)
+iso2.setSigmaA(numpy.array([0.02]))
+iso2.setSigmaT(numpy.array([0.02]))
+
+infinite_medium = IsoMaterial(name='1-group infinite medium')
+infinite_medium.addIsotope(iso1,1.0)        # number density in a/b-cm
+infinite_medium.addIsotope(iso2,0.5)        # number density in a/b-cm
 
 
 ###############################################################################

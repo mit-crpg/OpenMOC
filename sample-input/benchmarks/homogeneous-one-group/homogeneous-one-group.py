@@ -29,7 +29,7 @@ log.py_printf('HEADER', 'The reference keff = 1.43...')
 
 log.py_printf('NORMAL', 'Creating materials...')
 
-infinite_medium = Material(name='1-group infinite medium')
+infinite_medium = MacroMaterial(name='1-group infinite medium')
 infinite_medium.setNumEnergyGroups(1)
 infinite_medium.setSigmaA(numpy.array([0.069389522]))
 infinite_medium.setSigmaF(numpy.array([0.0414198575]))

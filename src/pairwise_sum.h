@@ -15,6 +15,10 @@
  * @param length the length of the array
  * @return the sum of all numbers in the array
  */
+ 
+#ifndef PAIRWISE_SUM_H_
+#define PAIRWISE_SUM_H_ 
+ 
 template <typename T>
 inline T pairwise_sum(T* vector, int length) {
 
@@ -37,3 +41,5 @@ inline T pairwise_sum(T* vector, int length) {
 
   return sum;
 }
+
+#endif /* PAIRWISE_SUM_H_ */

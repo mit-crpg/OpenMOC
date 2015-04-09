@@ -27,8 +27,8 @@ log.py_printf('TITLE', 'Simulating HW3 from Fall 2010 22.212...')
 
 log.py_printf('NORMAL', 'Creating materials...')
 
-fuel = Material(name='fuel')
-moderator = Material(name='moderator')
+fuel = MacroMaterial(name='fuel')
+moderator = MacroMaterial(name='moderator')
 
 fuel.setNumEnergyGroups(1)
 moderator.setNumEnergyGroups(1)

@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include "log.h"
+#include "pairwise_sum.h"
+#include "Isotope.h"
 #endif
 
 #ifdef ICPC
@@ -43,6 +45,12 @@
 int material_id();
 void reset_material_id();
 
+enum materialType {
+  GENERIC,
+  MACRO,
+  ISO
+};
+
 
 /**
  * @class Material Material.h "src/Material.h"
@@ -51,13 +59,16 @@ void reset_material_id();
  */
 class Material {
 
-private:
+protected:
 
   /** A user-defined ID for each Material created */
   int _id;
 
   /** A user-defined name for the Material */
   char* _name;
+
+  /** Enum for identifying the Material type */
+  materialType _material_type;
 
   /** The number of energy groups */
   int _num_groups;
@@ -68,10 +79,6 @@ private:
   /** An array of the absorption cross-sections for each energy group */
   FP_PRECISION* _sigma_a;
 
-  /** A 2D array of the scattering cross-section matrix. The first index is
-   *  row number and second index is column number */
-  FP_PRECISION* _sigma_s;
-
   /** An array of the fission cross-sections for each energy group */
   FP_PRECISION* _sigma_f;
 
@@ -81,20 +88,6 @@ private:
 
   /** An array of the chi \f$ \chi \f$ values for each energy group */
   FP_PRECISION* _chi;
-
-  /** An array of the diffusion coefficients for each energy group */
-  FP_PRECISION* _dif_coef;
-
-  /** An array of the diffusion coefficients for each energy group */
-  FP_PRECISION* _buckling;
-
-  /** An array of the diffusion coefficient for each energy group
-   *  for each surface */
-  FP_PRECISION* _dif_hat;
-
-  /** An array of the CMFD correction to the diffusion coefficient values
-   *  for each energy group for each surface */
-  FP_PRECISION* _dif_tilde;
 
   /** A boolean representing whether or not this Material contains a non-zero
    *  fission cross-section and is fissionable */
@@ -113,33 +106,79 @@ public:
 
   int getId() const;
   char* getName() const;
+  materialType getMaterialType() const;
   int getNumEnergyGroups() const;
   FP_PRECISION* getSigmaT();
   FP_PRECISION* getSigmaA();
-  FP_PRECISION* getSigmaS();
   FP_PRECISION* getSigmaF();
   FP_PRECISION* getNuSigmaF();
   FP_PRECISION* getChi();
-  FP_PRECISION* getDifCoef();
-  FP_PRECISION* getBuckling();
-  FP_PRECISION* getDifHat();
-  FP_PRECISION* getDifTilde();
   FP_PRECISION getSigmaTByGroup(int group);
   FP_PRECISION getSigmaAByGroup(int group);
-  FP_PRECISION getSigmaSByGroup(int origin, int destination);
-  FP_PRECISION getSigmaSByGroupInline(int origin, int destination);
+  virtual FP_PRECISION getSigmaSByGroup(int origin, int destination) =0;
+  virtual FP_PRECISION getScatterSource(int group, FP_PRECISION* flux) =0;
   FP_PRECISION getSigmaFByGroup(int group);
   FP_PRECISION getNuSigmaFByGroup(int group);
   FP_PRECISION getChiByGroup(int group);
+  bool isFissionable();
+  bool isDataAligned();
+  int getNumVectorGroups();
+  
+  void setName(const char* name);
+  virtual void setNumEnergyGroups(const int num_groups);
+
+  virtual void checkSigmaT() =0;
+
+  virtual void alignData();
+
+};
+
+
+
+/**
+ * @class MacroMaterial Material.h "src/Material.h"
+ * @brief The Material class represents a unique material and its relevant
+ *        nuclear data (i.e., multigroup cross-sections) for neutron transport.
+ */
+class MacroMaterial : public Material {
+
+private:
+
+  /** A 2D array of the scattering cross-section matrix. The first index is
+   *  row number and second index is column number */
+  FP_PRECISION* _sigma_s;
+
+  /** An array of the diffusion coefficients for each energy group */
+  FP_PRECISION* _dif_coef;
+
+  /** An array of the diffusion coefficients for each energy group */
+  FP_PRECISION* _buckling;
+
+  /** An array of the diffusion coefficient for each energy group
+   *  for each surface */
+  FP_PRECISION* _dif_hat;
+
+  /** An array of the CMFD correction to the diffusion coefficient values
+   *  for each energy group for each surface */
+  FP_PRECISION* _dif_tilde;
+
+public:
+  MacroMaterial(int id=0, const char* name="");
+  virtual ~MacroMaterial();
+
+  FP_PRECISION* getSigmaS();
+  FP_PRECISION* getDifCoef();
+  FP_PRECISION* getDifHat();
+  FP_PRECISION* getDifTilde();
+  FP_PRECISION* getBuckling();
+  FP_PRECISION getSigmaSByGroup(int origin, int destination);
+  FP_PRECISION getSigmaSByGroupInline(int origin, int destination);
+  FP_PRECISION getScatterSource(int group, FP_PRECISION* flux);
   FP_PRECISION getDifCoefByGroup(int group);
   FP_PRECISION getBucklingByGroup(int group);
   FP_PRECISION getDifHatByGroup(int group, int surface);
   FP_PRECISION getDifTildeByGroup(int group);  
-  bool isFissionable();
-  bool isDataAligned();
-  int getNumVectorGroups();
 
-  void setName(const char* name);
   void setNumEnergyGroups(const int num_groups);
 
   void setSigmaT(double* xs, int num_groups);
@@ -148,10 +187,10 @@ public:
   void setSigmaF(double* xs, int num_groups);
   void setNuSigmaF(double* xs, int num_groups);
   void setChi(double* xs, int num_groups);
-  void setBuckling(double* xs, int num_groups);
   void setDifCoef(double* xs, int num_groups);
   void setDifHat(double* xs, int num_groups);
   void setDifTilde(double* xs, int num_groups);
+  void setBuckling(double* xs, int num_groups);
 
   void setSigmaTByGroup(double xs, int group);
   void setSigmaAByGroup(double xs, int group);
@@ -159,18 +198,18 @@ public:
   void setNuSigmaFByGroup(double xs, int group);
   void setSigmaSByGroup(double xs, int origin, int destination);
   void setChiByGroup(double xs, int group);
-  void setBucklingByGroup(double xs, int group);
   void setDifCoefByGroup(double xs, int group);
   void setDifHatByGroup(double xs, int group, int surface);
   void setDifTildeByGroup(double xs, int group, int surface);
+  void setBucklingByGroup(double xs, int group);
 
   void checkSigmaT();
   std::string toString();
   void printString();
-
+  
   void alignData();
 
-  Material* clone();
+  MacroMaterial* clone();
 };
 
 
@@ -185,9 +224,54 @@ public:
  * @param origin the column index of the matrix element
  * @param destination the row index of the matrix element
  */
-inline FP_PRECISION Material::getSigmaSByGroupInline(
+inline FP_PRECISION MacroMaterial::getSigmaSByGroupInline(
           int origin, int destination) {
   return _sigma_s[destination*_num_groups + origin];
 }
+
+
+/**
+ * @class IsoMaterial Material.h "src/Material.h"
+ * @brief The IsoMaterial class represents a unique material, defined as a set
+ *        of Isotopes.
+ */
+class IsoMaterial : public Material {
+
+private:
+  /** The vector of Isotopes contained in the Material */
+  std::vector<Isotope*> _isotopes;
+  
+  /** The vector of number densities associated with the Isotopes */
+  std::vector<FP_PRECISION> _num_dens;
+  
+  /** The number of Isotopes in the Material */
+  int _num_isotopes;
+  
+  /** A flag for whether the fission spectrum has been set */
+  bool _chi_set;
+
+public:
+  IsoMaterial(int id=0, const char* name="");
+  ~IsoMaterial();
+  
+  void addIsotope(Isotope* isotope, FP_PRECISION number_density);
+  Isotope* getIsotope(int index);
+  std::vector<Isotope*> getIsotopes();
+  FP_PRECISION getNumberDensity(int index);
+  std::vector<FP_PRECISION> getNumberDensities();
+  int getIsotopeIndex(Isotope* isotope);
+  
+  void checkSigmaT();
+  
+  FP_PRECISION getScatterSource(int group, FP_PRECISION* flux);
+  FP_PRECISION getSigmaSByGroup(int origin, int destination);
+  
+  int getNumIsotopes();
+    
+  IsoMaterial* clone();
+
+};
+
+
 
 #endif /* MATERIAL_H_ */
