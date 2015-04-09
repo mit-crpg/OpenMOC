@@ -649,7 +649,7 @@ void Solver::printTimerReport() {
   num_digits += (int) log10((double) num_segments);
   num_digits += (int) log10((double) _num_FSRs);
 
-  num_digits = 67 - num_digits;
+  num_digits = 66 - num_digits;
   num_digits /= 4;
 
   std::stringstream msg;
