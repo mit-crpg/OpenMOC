@@ -711,7 +711,6 @@ void Material::setSigmaTByGroup(double xs, int group) {
     }
     else
       _sigma_t[group-1] = FP_PRECISION(xs);
-  }
 }
 
 
