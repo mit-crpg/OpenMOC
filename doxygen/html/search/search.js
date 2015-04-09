@@ -17,7 +17,7 @@ var indexSectionsWithContent =
   7: "bclsu",
   8: "bcdefhilmnpqrstuvwxyz",
   9: "cps",
-  10: "_befmoprst"
+  10: "_befmoprstz"
 };
 
 var indexSectionNames =

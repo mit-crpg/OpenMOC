@@ -38,7 +38,6 @@ var classSolver =
     [ "round_to_int", "classSolver.html#a8f7cc45e7a9e8cb034d9c7bb284bff74", null ],
     [ "round_to_int", "classSolver.html#a9392165690f9506ed555e0c710fbdb52", null ],
     [ "setGeometry", "classSolver.html#a117012c7ecaf59b70fa6b489562acc65", null ],
-    [ "setNumPolarAngles", "classSolver.html#a069e8bf490a2f5de391f57cd9e7224ed", null ],
     [ "setPolarQuadrature", "classSolver.html#a93ca4d4d31e0a104576cc0513277c4e1", null ],
     [ "setSourceConvergenceThreshold", "classSolver.html#aaace17535420183bd7c699b0a10c1e01", null ],
     [ "setTrackGenerator", "classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5", null ],

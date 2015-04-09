@@ -24,7 +24,7 @@ In some cases, the symbolic links for the code are not established correctly and
       setLogfileName('log/openmoc-' + current_time + '.log');
   NameError: name 'setLogfileName' is not defined
 
-This error is commonly seen by new users after just installing the code. As noted in the :ref:`Installation and Configuration <usersguide_install>`, some Python distributions require that OpenMOC be installed twice the first time it is installed. The recommended solution in this case would be to execute the installation command twice in sequence::
+This error is commonly seen by new users after just installing the code. As noted in the :ref:`Installation and Configuration <install>`, some Python distributions require that OpenMOC be installed twice the first time it is installed. The recommended solution in this case would be to execute the installation command twice in sequence::
 
   python setup.py install --user
   python setup.py install --user

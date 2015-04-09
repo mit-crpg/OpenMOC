@@ -7,6 +7,7 @@ Publications
 
 Journals
 =========
+- William Boyd, Andrew Siegel, Benoit Forget and Kord Smith, "Parallel Performance Results for the OpenMOC Neutron Transport Code on Multi-Core Platforms." Submitted to the *Int'l Journ. of High Perf. Comp. Appl.*, 2015.
 
 - Matthew Everson and Benoit Forget, "The Source Equivalence Acceleration Method." *Annals of Nuclear Energy*, 76 (2015): 177--129.
 
