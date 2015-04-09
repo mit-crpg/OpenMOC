@@ -328,7 +328,6 @@ public:
   virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
-  virtual void setNumPolarAngles(int num_polar);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
 
   void useExponentialInterpolation();

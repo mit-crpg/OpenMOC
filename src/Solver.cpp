@@ -332,16 +332,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
   _user_polar_quad = true;
   _polar_quad = polar_quad;
-  setNumPolarAngles(polar_quad->getNumPolarAngles());
-}
-
-
-/**
- * @brief Sets the number of polar angles to use
- * @param num_polar the number of polar angles
- */
-void Solver::setNumPolarAngles(int num_polar) {
-  _num_polar = num_polar;
+  _num_polar = _polar_quad->getNumPolarAngles();
   _two_times_num_polar = 2 * _num_polar;
   _polar_times_groups = _num_groups * _num_polar;
 }

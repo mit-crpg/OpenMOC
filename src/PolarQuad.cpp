@@ -158,7 +158,7 @@ void PolarQuad::setNumPolarAngles(const int num_polar) {
  * @brief Set the PolarQuad's array of sines of each polar angle.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the PolarQuad's sin thetas in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of polar angles) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          PolarQuad's sin thetas. An example of how this function might be
@@ -188,9 +188,12 @@ void PolarQuad::setSinThetas(double* sin_thetas, int num_polar) {
   _sin_thetas = new FP_PRECISION[_num_polar];
 
   /* Extract sin thetas from user input */
-  for (int p=0; p < _num_polar; p++)
+  for (int p=0; p < _num_polar; p++) {
+    if (sin_thetas[p] < 0. || sin_thetas[p] > 1.)
+      log_printf(ERROR, "Unable to set sin theta to %f which is "
+                 "not in the range [0,1]", sin_thetas[p]);
     _sin_thetas[p] = FP_PRECISION(sin_thetas[p]);
-
+  }
 }
 
 
@@ -198,7 +201,7 @@ void PolarQuad::setSinThetas(double* sin_thetas, int num_polar) {
  * @brief Set the PolarQuad's array of weights for each angle.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the PolarQuad's angular weights in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of polar angles) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          PolarQuad's weights. An example of how this function might be
@@ -302,7 +305,7 @@ std::string PolarQuad::toString() {
       string << _weights[p] << ", ";
   }
 
-  string << "\n\tmultiples= ";
+  string << "\n\tmultiples = ";
   if (_multiples != NULL) {
     for (int p = 0; p < _num_polar; p++)
       string << _multiples[p] << ", ";
