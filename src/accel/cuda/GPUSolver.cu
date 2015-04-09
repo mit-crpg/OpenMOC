@@ -231,7 +231,8 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
       fsr_fission_source += fission_source * chi[G] * inverse_k_eff;
 
       reduced_sources(tid,G) = __fdividef((inverse_k_eff * fission_source 
-                      * chi[G] + scatter_source) * ONE_OVER_FOUR_PI, sigma_t[G]);
+                               * chi[G] + scatter_source) * ONE_OVER_FOUR_PI, 
+                               sigma_t[G]);
     }
 
     /* Compute the norm of residuals of the sources for convergence */
@@ -643,7 +644,8 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
     for (int i=0; i < *num_groups; i++) {
       scalar_flux(tid,i) *= 0.5;
       scalar_flux(tid,i) = FOUR_PI * reduced_sources(tid,i) +
-                    __fdividef(scalar_flux(tid,i), (sigma_t[i] * volume));
+                           __fdividef(scalar_flux(tid,i), 
+                           (sigma_t[i] * volume));
     }
 
     /* Increment thread id */
