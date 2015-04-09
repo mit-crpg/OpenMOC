@@ -672,10 +672,10 @@
 <td>The <tt class="docutils literal"><span class="pre">Geometry</span></tt> of interest</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">cmfd</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">CMFD</span></tt> object</td>
+<td><tt class="docutils literal"><span class="pre">Cmfd</span></tt> object</td>
 <td>None</td>
 <td>No</td>
-<td>The <tt class="docutils literal"><span class="pre">CMFD</span></tt> of interest</td>
+<td>The <tt class="docutils literal"><span class="pre">Cmfd</span></tt> of interest</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
 <td>integer</td>
@@ -756,7 +756,7 @@
 <td><tt class="docutils literal"><span class="pre">Solver</span></tt> object</td>
 <td>None</td>
 <td>No</td>
-<td>The solver used to converge the source</td>
+<td>The <tt class="docutils literal"><span class="pre">Solver</span></tt> used to converge the source</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">energy_groups</span></tt></td>
 <td>list</td>
@@ -842,7 +842,7 @@
 <td><tt class="docutils literal"><span class="pre">Solver</span></tt> object</td>
 <td>None</td>
 <td>No</td>
-<td>The solver used to converge the source</td>
+<td>The <tt class="docutils literal"><span class="pre">Solver</span></tt> used to converge the source</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">fsrs</span></tt></td>
 <td>list</td>
@@ -901,6 +901,76 @@
 <p><strong>Figure 8</strong>: The normalized moderator and fuel flux for a simple PWR pin cell problem.</p>
 </div>
 </div>
+<div class="section" id="fission-rate-visualization">
+<h2>4.6. Fission Rate Visualization<a class="headerlink" href="#fission-rate-visualization" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module includes routines to plot the energy-integrated fission rates in each flat source region. To plot the fission rates, use the <tt class="docutils literal"><span class="pre">plot_fission_rates(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fission-rates"><em>Table 11</em></a>.</p>
+<table border="1" class="docutils" id="table-plot-fission-rates">
+<colgroup>
+<col width="17%" />
+<col width="19%" />
+<col width="9%" />
+<col width="9%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt> object</td>
+<td>None</td>
+<td>No</td>
+<td>The <tt class="docutils literal"><span class="pre">Solver</span></tt> used to converge the source</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
+<td>integer</td>
+<td>250</td>
+<td>Yes</td>
+<td>The pixel resolution</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>Yes</td>
+<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 11</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_fission_rates(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+
+<span class="c"># Setup geometry and generate tracks</span>
+<span class="o">...</span>
+
+<span class="c"># Setup solver and converge the source</span>
+<span class="o">...</span>
+
+<span class="c"># Plot the fission rates in each FSR in a 500 x 500 pixel image</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">plot_fission_rates</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A depiction of the energy-integrated FSR fission rates for the C5G7 benchmark (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7</span></tt>) is illustrated in <a class="reference internal" href="#figure-fission-rates"><em>Figure 9</em></a>.</p>
+<div class="align-center figure" id="figure-fission-rates">
+<a class="reference internal image-reference" href="../_images/fission-rates.png"><img alt="../_images/fission-rates.png" src="../_images/fission-rates.png" style="width: 400px;" /></a>
+</div>
+<p><strong>Figure 9</strong>: The energy-integrated FSR fission rates in the C5G7 benchmark problem.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
+</div>
+</div>
 </div>
 
 
@@ -932,6 +1002,7 @@
 <li><a class="reference internal" href="#flux-in-energy">4.5.2. Flux in Energy</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#fission-rate-visualization">4.6. Fission Rate Visualization</a></li>
 </ul>
 </li>
 </ul>

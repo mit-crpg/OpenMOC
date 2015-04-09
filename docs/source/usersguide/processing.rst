@@ -371,7 +371,7 @@ To plot the geometry color-coded by the CMFD cells throughout the geometry, use 
 Parameter     Type                 Default    Optional   Note
 ============  ===================  =========  =========  ========================================
 ``geometry``  ``Geometry`` object  None       No         The ``Geometry`` of interest
-``cmfd``      ``CMFD`` object      None       No         The ``CMFD`` of interest
+``cmfd``      ``Cmfd`` object      None       No         The ``Cmfd`` of interest
 ``gridsize``  integer              250        Yes        The pixel resolution
 ``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
 ``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
@@ -427,7 +427,7 @@ To plot the flat source region scalar fluxes in space, use the ``plot_spatial_fl
 =================  ===================  =========  =========  ============================================
 Parameter          Type                 Default    Optional   Note
 =================  ===================  =========  =========  ============================================
-``solver``         ``Solver`` object    None       No         The solver used to converge the source
+``solver``         ``Solver`` object    None       No         The ``Solver`` used to converge the source
 ``energy_groups``  list                 [1]        No         Create separate plots for each energy group
 ``gridsize``       integer              250        Yes        The pixel resolution
 ``xlim``           float                None       Yes        The maximum :math:`x`-coordinate to plot
@@ -481,7 +481,7 @@ To plot the flux in energy for one or more flat source regions, use the ``plot_e
 =================  ===================  =========  =========  ============================================
 Parameter          Type                 Default    Optional   Note
 =================  ===================  =========  =========  ============================================
-``solver``         ``Solver`` object    None       No         The solver used to converge the source
+``solver``         ``Solver`` object    None       No         The ``Solver`` used to converge the source
 ``fsrs``           list                 None       No         The flat source region IDs of interest
 ``group_bounds``   list                 None       Yes        The sequential bounds for each energy group
 ``norm``           boolean              True       Yes        Whether to normalize the flux across energy
@@ -520,6 +520,55 @@ A depiction of the normalized 7-group fluxes for the sample pin cell problem (:f
    +------------------------------------------+-----------------------------------------+ 
 
 **Figure 8**: The normalized moderator and fuel flux for a simple PWR pin cell problem.
+
+
+--------------------------
+Fission Rate Visualization
+--------------------------
+
+The ``openmoc.plotter`` module includes routines to plot the energy-integrated fission rates in each flat source region. To plot the fission rates, use the ``plot_fission_rates(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 11 <table_plot_fission_rates>`.
+
+.. _table_plot_fission_rates:
+
+=================  ===================  =========  =========  ============================================
+Parameter          Type                 Default    Optional   Note
+=================  ===================  =========  =========  ============================================
+``solver``         ``Solver`` object    None       No         The ``Solver`` used to converge the source
+``gridsize``       integer              250        Yes        The pixel resolution
+``xlim``           float                None       Yes        The maximum :math:`x`-coordinate to plot
+``ylim``           float                None       Yes        The maximum :math:`y`-coordinate to plot
+=================  ===================  =========  =========  ============================================
+
+**Table 11**: Parameters for the ``openmoc.plotter.plot_fission_rates(...)`` routine.
+
+The code snippet below illustrates one possible configuration of parameters to the routine.
+
+.. code-block:: python
+
+    import openmoc.plotter as plot
+
+    # Setup geometry and generate tracks
+    ...
+
+    # Setup solver and converge the source
+    ...
+
+    # Plot the fission rates in each FSR in a 500 x 500 pixel image
+    plot.plot_fission_rates(solver, gridsize=500)
+
+A depiction of the energy-integrated FSR fission rates for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7`) is illustrated in :ref:`Figure 9 <figure_fission_rates>`.
+
+.. _figure_fission_rates:
+
+.. figure:: ../../img/fission-rates.png
+   :align: center
+   :figclass: align-center
+   :width: 400px
+
+**Figure 9**: The energy-integrated FSR fission rates in the C5G7 benchmark problem.
+
+
+.. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
 
 
 .. _dictionary: http://docs.python.org/2/library/stdtypes.html#mapping-types-dict
