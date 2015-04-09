@@ -652,7 +652,7 @@ void Material::setNumEnergyGroups(const int num_groups) {
  * @brief Set the Material's array of total cross-sections.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of energy groups) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          Material's total cross-sections. An example of how this function
@@ -665,7 +665,7 @@ void Material::setNumEnergyGroups(const int num_groups) {
  * @endcode
  *
  *          NOTE: This routine will override an zero-valued cross-sections 
- *          (i.e., in void or gap regions) with a minimum value of 1E-10 to
+ *          (e.g., in void or gap regions) with a minimum value of 1E-10 to
  *          void numerical issues in the MOC solver.
  *
  * @param xs the array of total cross-sections
@@ -719,7 +719,7 @@ void Material::setSigmaTByGroup(double xs, int group) {
  * @brief Set the Material's array of absorption scattering cross-sections.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of energy groups) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          Material's absorption cross-sections. An example of how this
@@ -791,7 +791,7 @@ void Material::setSigmaAByGroup(double xs, int group) {
  * 
  *          This method is a helper function to allow OpenMOC users to assign
  *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the square of the number of energy groups) as input to this 
  *          function. This function then fills the NumPy array with the data 
  *          values for the Material's scattering cross-sections. An example 
@@ -845,7 +845,7 @@ void Material::setSigmaSByGroup(double xs, int origin, int destination) {
  * @brief Set the Material's array of fission cross-sections.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of energy groups) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          Material's fission cross-sections. An example of how this
@@ -939,7 +939,7 @@ void Material::setNuSigmaF(double* xs, int num_groups) {
  *        for some energy group.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of energy groups) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          Material's nu*fission cross-sections. An example of how this
@@ -979,7 +979,7 @@ void Material::setNuSigmaFByGroup(double xs, int group) {
  * @brief Set the Material's array of chi \f$ \chi \f$ values.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of energy groups) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          Material's chi distribution. An example of how this function might
@@ -1032,7 +1032,7 @@ void Material::setChiByGroup(double xs, int group) {
  * @brief Set the Material's array of diffusion coefficients.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of energy groups) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          Material's diffusion coefficients. An example of how this
@@ -1089,7 +1089,7 @@ void Material::setDifCoefByGroup(double xs, int group) {
  * @brief Set the Material's array of diffusion coefficients.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of energy groups) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          Material's buckling coefficients. An example of how this function
@@ -1145,7 +1145,7 @@ void Material::setBucklingByGroup(double xs, int group) {
  * @brief Set the Material's array of diffusion coefficients.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of energy groups) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          Material's surface diffusion coefficients. An example of how this
@@ -1205,7 +1205,7 @@ void Material::setDifHatByGroup(double xs, int group, int surface) {
  * @brief Set the Material's array of diffusion coefficients.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (i.e., a float64 array the length
+ *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of energy groups) as input to this function. This
  *          function then fills the NumPy array with the data values for the
  *          Material's CMFD corrected diffusion coefficients. An example of how
