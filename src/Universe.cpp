@@ -1079,11 +1079,11 @@ void Lattice::setWidth(double width_x, double width_y) {
  *                                   [u2, u3, u2, u3]])
  * @endcode
  *
- * @param num_x the number of Lattice cells along x
  * @param num_y the number of Lattice cells along y
+ * @param num_x the number of Lattice cells along x
  * @param universes the array of Universes for each Lattice cell
  */
-void Lattice::setUniverses(int num_x, int num_y, Universe** universes) {
+void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
 
   /* Clear any Universes in the Lattice (from a previous run) */
   for (int i=0; i < _num_x; i++)
