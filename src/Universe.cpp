@@ -1105,7 +1105,6 @@ void Lattice::setUniverses(int num_x, int num_y, Universe** universes) {
     _universes.push_back(std::vector< std::pair<int, Universe*> >());
 
     for (int j = 0; j < _num_x; j++){
-      printf("i = %d, j = %d, index = %d\n", i, j, (_num_y-1-i)*_num_x + j);
       universe = universes[(_num_y-1-i)*_num_x + j];
       _universes.at(i).push_back(std::pair<int, Universe*>
                                  (universe->getId(), universe));
