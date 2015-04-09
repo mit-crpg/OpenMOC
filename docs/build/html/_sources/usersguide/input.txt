@@ -74,7 +74,7 @@ Log Level             Note
 :envvar:`NORMAL`      A brief progress update on run progress
 :envvar:`SEPARATOR`   A message of a single line of characters
 :envvar:`HEADER`      A message centered within a single line of characters
-:envvar:`TITLE`       A message sandwiched between two lines of characters
+:envvar:`TITLE`       A message between two lines of characters
 :envvar:`WARNING`     A message to warn the user
 :envvar:`CRITICAL`    A message to warn of critical program conditions
 :envvar:`RESULT`      A message containing program results
@@ -415,7 +415,7 @@ A pin cell without rings/sectors is illustrated on the left below, while the sam
 
 .. note:: Circular rings may **only** be used in ``CellBasic`` objects which form the interior of a ``Circle`` surface, such as a fuel pin.
 
-.. note:: Each subdivided region will be filled by the **same material** as the ``CellBasic`` object created by the user in the Python script.
+.. note:: Each subdivided region will be filled by the **same Material** as the ``CellBasic`` object created by the user in the Python script.
 
 
 

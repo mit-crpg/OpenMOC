@@ -225,7 +225,7 @@ A depiction of the segments for the :file:`/OpenMOC/sample-input/large-lattice.p
 
    **Figure 2**: The segments crossing a a 4 :math:`\times` 4 lattice.
 
-.. warning:: This routine will require a long time for large geometries or fine track discretization. In addition, the Matplotlib consumes a substantial amount of memory to plot the segments and may throw a `segmentation fault`_ for large geometries.
+.. warning:: This routine will require a long time for large geometries or fine track discretization. In addition, Matplotlib consumes a substantial amount of memory to plot the segments and may throw a `segmentation fault`_ for large geometries.
 .. note:: The runtime required by the plotting routine scales with the number of segments, which is proportional to the number of flat source regions and number of azimuthal angles and inversely proportional the track spacing.
 
 
