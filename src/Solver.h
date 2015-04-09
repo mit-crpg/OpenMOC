@@ -324,7 +324,6 @@ public:
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
-  virtual void correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume);
 
   void useExponentialInterpolation();
   void useExponentialIntrinsic();

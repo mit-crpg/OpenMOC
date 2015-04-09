@@ -372,65 +372,6 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 
 
 /**
- * @brief Assign a correct volume for some flat source region.
- * @details This routine adjusts the length of each track segment crossing
- *          a flat source region such that the integrated volume is identical
- *          to the true volumed assigned by the user.
- * @param fsr_id the ID of the flat source region of interest
- * @param fsr_volume the correct flat source region volume to use
- */
-void Solver::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
-
-  if (_track_generator == NULL)
-    log_printf(ERROR, "Unable to correct the volume for FSR %d since a "
-               "TrackGenerator has not been assigned to the Solver", fsr_id);
-
-  else if (_geometry == NULL)
-    log_printf(ERROR, "Unable to correct the volume for FSR %d since a "
-               "Geometry has not been assigned to the Solver", fsr_id);
-
-  else if (fsr_id < 0 || fsr_id > _geometry->getNumFSRs())
-    log_printf(ERROR, "Unable to correct the volume for FSR %d since the FSR "
-               "IDs lie in the range (0, %d)", fsr_id, _num_FSRs);
-
-  int num_segments;
-  segment* curr_segment;
-  segment* segments;
-  FP_PRECISION volume = 0;
-
-  /* Compute the current estimated volume for the flat source region */
-  for (int i=0; i < _tot_num_tracks; i++) {
-
-    int azim_index = _tracks[i]->getAzimAngleIndex();
-    num_segments = _tracks[i]->getNumSegments();
-    segments = _tracks[i]->getSegments();
-
-    for (int s=0; s < num_segments; s++) {
-      curr_segment = &segments[s];
-      if (curr_segment->_region_id == fsr_id)
-        volume += curr_segment->_length * _azim_weights[azim_index];
-    }
-  }
-
-  /* Compute correction factor to the volume */
-  double corr_factor = fsr_volume / _FSR_volumes[fsr_id];
-
-  /* Correct the length of each segment which crosses the FSR */
-  for (int i=0; i < _tot_num_tracks; i++) {
-
-    num_segments = _tracks[i]->getNumSegments();
-    segments = _tracks[i]->getSegments();
-
-    for (int s=0; s < num_segments; s++) {
-      curr_segment = &segments[s];
-      if (curr_segment->_region_id == fsr_id)
-        curr_segment->_length *= corr_factor;
-    }
-  }
-}
-
-
-/**
  * @brief Informs the Solver to use linear interpolation to compute the
  *        exponential in the transport equation.
  */
@@ -465,48 +406,28 @@ void Solver::initializeFSRs() {
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
-  _FSR_volumes = (FP_PRECISION*)calloc(_num_FSRs, sizeof(FP_PRECISION));
+  /* Get an array of volumes indexed by FSR  */
+  _FSR_volumes = _track_generator->getFSRVolumes();
+
+  /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
-  int num_segments;
-  segment* curr_segment;
-  segment* segments;
-  FP_PRECISION volume;
-  Material* material;
-  Universe* root_universe = _geometry->getRootUniverse();
-  _num_fissionable_FSRs = 0;
-
-  /* Set each FSR's "volume" by accumulating the total length of all Tracks
-   * inside the FSR. Loop over azimuthal angles, Tracks and Track segments. */
-  for (int i=0; i < _tot_num_tracks; i++) {
-
-    int azim_index = _tracks[i]->getAzimAngleIndex();
-    num_segments = _tracks[i]->getNumSegments();
-    segments = _tracks[i]->getSegments();
-
-    for (int s=0; s < num_segments; s++) {
-      curr_segment = &segments[s];
-      volume = curr_segment->_length * _azim_weights[azim_index];
-      _FSR_volumes[curr_segment->_region_id] += volume;
-    }
-  }
-
+  /* Compute the number of fissionable Materials */
   std::map<int, Material*> all_materials = _geometry->getAllMaterials();
+  _num_fissionable_FSRs = 0;
 
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
 
     /* Assign the Material corresponding to this FSR */
-    material = _geometry->findFSRMaterial(r);
-    _FSR_materials[r] = material;
+    _FSR_materials[r] =  _geometry->findFSRMaterial(r);
 
     /* Increment number of fissionable FSRs */
-    if (material->isFissionable())
+    if (_FSR_materials[r]->isFissionable())
       _num_fissionable_FSRs++;
 
-    log_printf(DEBUG, "FSR ID = %d has Material ID = %d "
-               "and volume = %f", r, _FSR_materials[r]->getId(),
-               _FSR_volumes[r]);
+    log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
+               r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
 
   return;
