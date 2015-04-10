@@ -39,7 +39,7 @@
 #define ONE_OVER_FOUR_PI 0.0795774715
 
 /** The maximum number of polar angles to reserve constant memory on GPU */
-#define MAX_POLAR_ANGLES 3
+#define MAX_POLAR_ANGLES 10
 
 /** The maximum number of azimuthal angles to reserve constant memory on GPU */
 #define MAX_AZIM_ANGLES 256

@@ -24,7 +24,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _FSR_materials = NULL;
   _surface_currents = NULL;
 
-  _quad = NULL;
   _track_generator = NULL;
   _geometry = NULL;
   _cmfd = NULL;
@@ -54,7 +53,8 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
     setTrackGenerator(track_generator);
 
   /* Default polar quadrature */
-  _quadrature_type = TABUCHI;
+  _user_polar_quad = false;
+  _polar_quad = new TYPolarQuad();
   _num_polar = 3;
   _two_times_num_polar = 2 * _num_polar;
 
@@ -109,8 +109,8 @@ Solver::~Solver() {
   if (_exp_table != NULL)
     delete [] _exp_table;
 
-  if (_quad != NULL)
-    delete _quad;
+  if (_polar_quad != NULL && !_user_polar_quad)
+    delete _polar_quad;
 }
 
 
@@ -143,20 +143,11 @@ TrackGenerator* Solver::getTrackGenerator() {
 
 
 /**
- * @brief Returns the number of angles used for the polar quadrature (1,2,3).
+ * @brief Returns the number of angles used for the polar quadrature.
  * @return the number of polar angles
  */
 int Solver::getNumPolarAngles() {
   return _num_polar;
-}
-
-
-/**
- * @brief Returns the type of polar quadrature in use (TABUCHI or LEONARD).
- * @return the type of polar quadrature
- */
-quadratureType Solver::getPolarQuadratureType() {
-  return _quadrature_type;
 }
 
 
@@ -290,6 +281,7 @@ void Solver::setGeometry(Geometry* geometry) {
  *
  * @code
  *          track_generator.generateTracks()
+ *          solver.setTrackGenerator(track_generator)
  * @endcode
  *
  * @param track_generator a pointer to a TrackGenerator object
@@ -320,31 +312,27 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
 
 /**
- * @brief Sets the type of polar angle quadrature set to use (ie, TABUCHI
- *        or LEONARD).
- * @param quadrature_type the polar angle quadrature type
+ * @brief Assign a PolarQuad object to the Solver.
+ * @details This routine allows use of a PolarQuad with any polar angle
+ *          quadrature. Alternatively, this routine may take in any subclass
+ *          of the PolarQuad parent class, including TYPolarQuad (default),
+ *          LeonardPolarQuad, GLPolarQuad, etc.
+ *
+ *          Users may assign a PolarQuad object to the Solver from 
+ *          Python script as follows:
+ *
+ * @code
+ *          polar_quad = openmoc.LeonardPolarQuad()
+ *          polar_quad.setNumPolarAngles(2)
+ *          solver.setPolarQuadrature(polar_quad)
+ * @endcode
+ *
+ * @param polar_quad a pointer to a PolarQuad object
  */
-void Solver::setPolarQuadratureType(quadratureType quadrature_type) {
-  _quadrature_type = quadrature_type;
-}
-
-
-/**
- * @brief Sets the number of polar angles to use (only 1, 2, or 3 currently
- *        supported). The default of 3 angles is recommended.
- * @param num_polar the number of polar angles
- */
-void Solver::setNumPolarAngles(int num_polar) {
-
-  if (num_polar <= 0)
-    log_printf(ERROR, "Unable to set the Solver's number of polar angles "
-               "to %d since this is a negative number", num_polar);
-
-  if (num_polar > 3)
-    log_printf(ERROR, "Unable to set the Solver's number of polar angles to %d"
-               "since only 1, 2 or 3 are currently supported", num_polar);
-
-  _num_polar = num_polar;
+void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
+  _user_polar_quad = true;
+  _polar_quad = polar_quad;
+  _num_polar = _polar_quad->getNumPolarAngles();
   _two_times_num_polar = 2 * _num_polar;
   _polar_times_groups = _num_groups * _num_polar;
 }
@@ -383,6 +371,43 @@ void Solver::useExponentialIntrinsic() {
 
 
 /**
+ * @brief Creates  object for the solver.
+ * @details Deletes memory for old Quadrature if one was allocated for a
+ *          previous simulation.
+ */
+void Solver::initializePolarQuadrature() {
+
+  FP_PRECISION azim_weight;
+
+  /* Create Tabuchi-Yamamoto polar quadrature if a
+   * PolarQuad was not assigned by the user */
+  if (_polar_quad == NULL)
+    _polar_quad = new TYPolarQuad();
+
+  /* Initialize the PolarQuad object */
+  _polar_quad->setNumPolarAngles(_num_polar);
+  _polar_quad->initialize();
+  _polar_times_groups = _num_groups * _num_polar;
+
+  /* Deallocate polar weights if previously assigned */
+  if (_polar_weights != NULL)
+    delete [] _polar_weights;
+
+  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
+
+  /* Compute the total azimuthal weight for tracks at each polar angle */
+  #pragma omp parallel for private(azim_weight) schedule(guided)
+  for (int i=0; i < _num_azim; i++) {
+    azim_weight = _azim_weights[i];
+
+    for (int p=0; p < _num_polar; p++)
+      _polar_weights(i,p) = 
+           azim_weight * _polar_quad->getMultiple(p) * FOUR_PI;
+  }
+}
+
+
+/**
  * @brief Initializes a Cmfd object for acceleratiion prior to source iteration.
  * @details Instantiates a dummy Cmfd object if one was not assigned to
  *          the Solver by the user and initializes FSRs, materials, fluxes
@@ -399,7 +424,7 @@ void Solver::initializeCmfd(){
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
-  _cmfd->setPolarQuadrature(_quadrature_type, _num_polar);
+  _cmfd->setPolarQuadrature(_polar_quad);
 }
 
 

@@ -1040,12 +1040,13 @@ void GPUSolver::initializePolarQuadrature() {
 
   log_printf(INFO, "Initializing polar quadrature on the GPU...");
 
-  /* Deletes the old Quadrature if one existed */
-  if (_quad != NULL)
-    delete _quad;
+  Solver::initializePolarQuadrature();
 
-  _quad = new Quadrature(_quadrature_type, _num_polar);
-  _polar_times_groups = _num_groups * _num_polar;
+  if (_num_polar > MAX_POLAR_ANGLES)
+    log_printf(ERROR, "Unable to initialize a polar quadrature with %d "
+               "angles for the GPUSolver which is limited to %d polar "
+               "angles. Update the MAX_POLAR_ANGLES macro in GPUSolver.h "
+               "and recompile.", _num_polar, MAX_POLAR_ANGLES);
 
   /* Copy the number of polar angles to constant memory on the GPU */
   cudaMemcpyToSymbol(num_polar, (void*)&_num_polar, sizeof(int), 0,
@@ -1059,21 +1060,6 @@ void GPUSolver::initializePolarQuadrature() {
    * on the GPU */
   cudaMemcpyToSymbol(polar_times_groups, (void*)&_polar_times_groups,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
-
-  /* Compute polar times azimuthal angle weights */
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights =
-      (FP_PRECISION*)malloc(_num_polar * _num_azim * sizeof(FP_PRECISION));
-
-  FP_PRECISION* multiples = _quad->getMultiples();
-  FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
-
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_polar; j++)
-      _polar_weights[i*_num_polar+j] = azim_weights[i]*multiples[j]*FOUR_PI;
-  }
 
   /* Copy the polar weights to constant memory on the GPU */
   cudaMemcpyToSymbol(polar_weights, (void*)_polar_weights,
@@ -1461,7 +1447,7 @@ void GPUSolver::buildExpInterpTable(){
 
   /* Copy the sines of the polar angles which is needed if the user
    * requested the use of the exp intrinsic to evaluate exponentials */
-  cudaMemcpyToSymbol(sinthetas, (void*)_quad->getSinThetas(),
+  cudaMemcpyToSymbol(sinthetas, (void*)_polar_quad->getSinThetas(),
                      _num_polar * sizeof(FP_PRECISION), 0,
                      cudaMemcpyHostToDevice);
 
@@ -1493,9 +1479,10 @@ void GPUSolver::buildExpInterpTable(){
   /* Create exponential interpolation table */
   for (int i = 0; i < num_array_values; i ++){
     for (int p = 0; p < _num_polar; p++){
-      expon = exp(- (i * _exp_table_spacing) / _quad->getSinTheta(p));
-      slope = - expon / _quad->getSinTheta(p);
-      intercept = expon * (1 + (i * _exp_table_spacing)/_quad->getSinTheta(p));
+      expon = exp(- (i * _exp_table_spacing) / _polar_quad->getSinTheta(p));
+      slope = - expon / _polar_quad->getSinTheta(p);
+      intercept = expon * (1 + (i * _exp_table_spacing) / 
+                  _polar_quad->getSinTheta(p));
       exp_table[_two_times_num_polar * i + 2 * p] = slope;
       exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
     }
