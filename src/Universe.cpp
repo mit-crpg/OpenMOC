@@ -801,7 +801,7 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
  */
 Lattice::~Lattice() {
 
-  for (int i=0; i < _num_x; i++)
+  for (int i=0; i < _num_y; i++)
     _universes.at(i).clear();
 
   _universes.clear();
@@ -1079,11 +1079,11 @@ void Lattice::setWidth(double width_x, double width_y) {
  *                                   [u2, u3, u2, u3]])
  * @endcode
  *
- * @param num_x the number of Lattice cells along x
  * @param num_y the number of Lattice cells along y
+ * @param num_x the number of Lattice cells along x
  * @param universes the array of Universes for each Lattice cell
  */
-void Lattice::setUniverses(int num_x, int num_y, Universe** universes) {
+void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
 
   /* Clear any Universes in the Lattice (from a previous run) */
   for (int i=0; i < _num_x; i++)
@@ -1092,7 +1092,7 @@ void Lattice::setUniverses(int num_x, int num_y, Universe** universes) {
   _universes.clear();
 
   /* Set the Lattice dimensions */
-  setNumX(num_y);
+  setNumX(num_x);
   setNumY(num_y);
 
   Universe* universe;
@@ -1104,7 +1104,7 @@ void Lattice::setUniverses(int num_x, int num_y, Universe** universes) {
 
     _universes.push_back(std::vector< std::pair<int, Universe*> >());
 
-    for (int j = 0; j< _num_x; j++){
+    for (int j = 0; j < _num_x; j++){
       universe = universes[(_num_y-1-i)*_num_x + j];
       _universes.at(i).push_back(std::pair<int, Universe*>
                                  (universe->getId(), universe));
