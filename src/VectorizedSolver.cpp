@@ -407,8 +407,8 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
       /* Set the total source for FSR r in group G */
       fsr_fission_source += fission_source * chi[G]; 
 
-      _reduced_sources(r,G) = (fission_source * chi[G] + scatter_source)
-                        * ONE_OVER_FOUR_PI / sigma_t[G];
+      _reduced_sources(r,G) = (fission_source * chi[G] + scatter_source) *
+                              ONE_OVER_FOUR_PI / sigma_t[G];
     }
 
     /* Compute the norm of residual of the source in the FSR */
