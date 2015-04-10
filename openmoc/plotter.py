@@ -791,7 +791,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
   if isinstance(group_bounds, (tuple, list, np.ndarray)):
 
     if not all(low < up for low, up in zip(group_bounds, group_bounds[1:])):
-      py_printf('ERROR', 'Unable to plot hte flux vs. energy since the ' + \
+      py_printf('ERROR', 'Unable to plot the flux vs. energy since the ' + \
                 'energy group bounds are not monotonically increasing')
 
     elif len(group_bounds) != geometry.getNumEnergyGroups()+1:
