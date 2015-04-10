@@ -185,6 +185,28 @@ void CPUSolver::setNumThreads(int num_threads) {
 
 
 /**
+ * @brief Initializes the FSR volumes and Materials array.
+ * @details This method assigns each FSR a unique, monotonically increasing
+ *          ID, sets the Material for each FSR, and assigns a volume based on
+ *          the cumulative length of all of the segments inside the FSR.
+ */
+void CPUSolver::initializeFSRs() {
+
+  Solver::initializeFSRs();
+
+  /* Allocate array of mutex locks for each FSR */
+  _FSR_locks = new omp_lock_t[_num_FSRs];
+
+  /* Loop over all FSRs to initialize OpenMP locks */
+  #pragma omp parallel for schedule(guided)
+  for (int r=0; r < _num_FSRs; r++)
+    omp_init_lock(&_FSR_locks[r]);
+
+  return;
+}
+
+
+/**
  * @brief Allocates memory for Track boundary angular flux and leakage
  *        and FSR scalar flux arrays.
  * @details Deletes memory for old flux arrays if they were allocated for a
@@ -267,130 +289,6 @@ void CPUSolver::initializeSourceArrays() {
                "sources array. Backtrace:%s", e.what());
   }
 
-}
-
-
-/**
- * @brief Builds a linear interpolation table to compute exponentials for
- *        each segment of each Track for each polar angle.
- */
-void CPUSolver::buildExpInterpTable() {
-
-  log_printf(INFO, "Building exponential interpolation table...");
-
-  /* Find largest optical path length track segment */
-  FP_PRECISION tau = _track_generator->getMaxOpticalLength();
-
-  /* Expand tau slightly to accomodate track segments which have a
-   * length very nearly equal to the maximum value */
-  tau *= 1.01;
-
-  /* Set size of interpolation table */
-  int num_array_values = tau * sqrt(1./(8.*_source_convergence_thresh*1e-2));
-  _exp_table_spacing = tau / num_array_values;
-  _exp_table_size = _two_times_num_polar * num_array_values;
-  _exp_table_max_index = _exp_table_size - _two_times_num_polar - 1.;
-
-  log_printf(DEBUG, "Exponential interpolation table size: %i, max index: %i",
-             _exp_table_size, _exp_table_max_index);
-
-  /* Allocate array for the table */
-  if (_exp_table != NULL)
-    delete [] _exp_table;
-
-  _exp_table = new FP_PRECISION[_exp_table_size];
-
-  FP_PRECISION expon;
-  FP_PRECISION intercept;
-  FP_PRECISION slope;
-
-  /* Create exponential linear interpolation table */
-  for (int i=0; i < num_array_values; i ++){
-    for (int p=0; p < _num_polar; p++){
-      expon = exp(- (i * _exp_table_spacing) / _polar_quad->getSinTheta(p));
-      slope = - expon / _polar_quad->getSinTheta(p);
-      intercept = expon * (1 + (i * _exp_table_spacing) / 
-                  _polar_quad->getSinTheta(p));
-      _exp_table[_two_times_num_polar * i + 2 * p] = slope;
-      _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
-    }
-  }
-
-  /* Compute the reciprocal of the table entry spacing */
-  _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
-
-  return;
-}
-
-
-/**
- * @brief Initializes the FSR volumes and Materials array.
- * @details This method assigns each FSR a unique, monotonically increasing
- *          ID, sets the Material for each FSR, and assigns a volume based on
- *          the cumulative length of all of the segments inside the FSR.
- */
-void CPUSolver::initializeFSRs() {
-
-  log_printf(INFO, "Initializing flat source regions...");
-
-  /* Delete old FSR arrays if they exist */
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
-  if (_FSR_materials != NULL)
-    delete [] _FSR_materials;
-
-  _FSR_volumes = (FP_PRECISION*)calloc(_num_FSRs, sizeof(FP_PRECISION));
-  _FSR_materials = new Material*[_num_FSRs];
-  _FSR_locks = new omp_lock_t[_num_FSRs];
-
-  int num_segments;
-  segment* curr_segment;
-  segment* segments;
-  FP_PRECISION volume;
-  Material* material;
-  Universe* root_universe = _geometry->getRootUniverse();
-  _num_fissionable_FSRs = 0;
-
-  /* Set each FSR's "volume" by accumulating the total length of all Tracks
-   * inside the FSR. Loop over azimuthal angles, Tracks and Track segments. */
-  for (int i=0; i < _tot_num_tracks; i++) {
-
-    int azim_index = _tracks[i]->getAzimAngleIndex();
-    num_segments = _tracks[i]->getNumSegments();
-    segments = _tracks[i]->getSegments();
-
-    for (int s=0; s < num_segments; s++) {
-      curr_segment = &segments[s];
-      volume = curr_segment->_length * _azim_weights[azim_index];
-      _FSR_volumes[curr_segment->_region_id] += volume;
-    }
-  }
-
-  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
-
-  /* Loop over all FSRs to extract FSR material pointers */
-  for (int r=0; r < _num_FSRs; r++) {
-
-    /* Assign the Material corresponding to this FSR */
-    material = _geometry->findFSRMaterial(r);
-    _FSR_materials[r] = material;
-
-    /* Increment number of fissionable FSRs */
-    if (material->isFissionable())
-      _num_fissionable_FSRs++;
-
-    log_printf(DEBUG, "FSR ID = %d has Material ID = %d "
-               "and volume = %f", r, _FSR_materials[r]->getId(),
-               _FSR_volumes[r]);
-  }
-
-  /* Loop over all FSRs to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++)
-    omp_init_lock(&_FSR_locks[r]);
-
-  return;
 }
 
 
@@ -877,8 +775,8 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 
     /* Loop over polar angles */
     for (int p=0; p < _num_polar; p++){
-      exponential = computeExponential(sigma_t[e], length, p);
-      delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e))*exponential;
+      exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, p);
+      delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
       fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
       track_flux(p,e) -= delta_psi;
     }
@@ -945,45 +843,6 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
   omp_unset_lock(&_FSR_locks[fsr_id]);
 
   return;
-}
-
-
-/**
- * @brief Computes the exponential term in the transport equation for a
- *        Track segment.
- * @details This method computes \f$ 1 - exp(-l\Sigma^T_g/sin(\theta_p)) \f$
- *          for a segment with total group cross-section and for some polar
- *          angle. This method uses either a linear interpolation table
- *          (default) or the exponential intrinsic exp(...) function if
- *          requested by the user through a call to the
- *          Solver::useExponentialIntrinsic()  routine.
- * @param sigma_t the total group cross-section at this energy
- * @param length the length of the Track segment projected in the xy-plane
- * @param p the polar angle index
- * @return the evaluated exponential
- */
-FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
-                                           FP_PRECISION length, int p) {
-
-  FP_PRECISION exponential;
-  FP_PRECISION tau = sigma_t * length;
-
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate_exponential) {
-    int index;
-    index = round_to_int(tau * _inverse_exp_table_spacing);
-    index *= _two_times_num_polar;
-    exponential = (1. - (_exp_table[index+2 * p] * tau +
-                  _exp_table[index + 2 * p +1]));
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION sintheta = _polar_quad->getSinTheta(p);
-    exponential = 1.0 - exp(- tau / sintheta);
-  }
-
-  return exponential;
 }
 
 

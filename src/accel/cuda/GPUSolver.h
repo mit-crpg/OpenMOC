@@ -39,7 +39,7 @@
 #define ONE_OVER_FOUR_PI 0.0795774715
 
 /** The maximum number of polar angles to reserve constant memory on GPU */
-#define MAX_POLAR_ANGLES 3
+#define MAX_POLAR_ANGLES 10
 
 /** The maximum number of azimuthal angles to reserve constant memory on GPU */
 #define MAX_AZIM_ANGLES 256
@@ -108,13 +108,13 @@ private:
   std::map<int, int> _material_IDs_to_indices;
 
   void initializePolarQuadrature();
+  void initializeExpEvaluator();
   void initializeFSRs();
   void initializeMaterials();
   void initializeTracks();
   void initializeFluxArrays();
   void initializeSourceArrays();
   void initializeThrustVectors();
-  void buildExpInterpTable();
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);

@@ -81,7 +81,6 @@ protected:
 public:
   VectorizedSolver(Geometry* geometry=NULL,
                    TrackGenerator* track_generator=NULL);
-
   virtual ~VectorizedSolver();
 
   int getNumVectorWidths();

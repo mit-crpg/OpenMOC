@@ -128,6 +128,7 @@ class configuration:
                     'src/Material.cpp',
                     'src/Point.cpp',
                     'src/PolarQuad.cpp',
+                    'src/ExpEvaluator.cpp',
                     'src/Solver.cpp',
                     'src/CPUSolver.cpp',
                     'src/Surface.cpp',
@@ -145,6 +146,7 @@ class configuration:
                      'src/Material.cpp',
                      'src/Point.cpp',
                      'src/PolarQuad.cpp',
+                     'src/ExpEvaluator.cpp',
                      'src/Solver.cpp',
                      'src/CPUSolver.cpp',
                      'src/VectorizedSolver.cpp',
@@ -163,6 +165,7 @@ class configuration:
                       'src/Material.cpp',
                       'src/Point.cpp',
                       'src/PolarQuad.cpp',
+                      'src/ExpEvaluator.cpp',
                       'src/Solver.cpp',
                       'src/CPUSolver.cpp',
                       'src/Surface.cpp',
@@ -173,6 +176,7 @@ class configuration:
                       'src/Cmfd.cpp']
 
   sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
+                     'src/ExpEvaluator.cpp',
                      'src/accel/cuda/GPUQuery.cu',
                      'src/accel/cuda/clone.cu',
                      'src/accel/cuda/GPUSolver.cu']

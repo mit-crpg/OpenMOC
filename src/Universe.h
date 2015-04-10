@@ -12,17 +12,11 @@
 #include <limits>
 #include <map>
 #include <vector>
+#include "constants.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"
 #endif
 
-/** Error threshold for determining how close to the boundary of a Lattice cell
- * a Point needs to be to be considered on it */
-#define ON_LATTICE_CELL_THRESH 1E-12
-
-/** Distance a Point is moved to cross over a Surface into a new Cell during
- * Track segmentation */
-#define TINY_MOVE 1E-10
 
 /* Forward declarations to resolve circular dependencies */
 class LocalCoords;

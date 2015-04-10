@@ -1,0 +1,138 @@
+#include "ExpEvaluator.h"
+ 
+
+/**
+ * @brief Constructor initializes array pointers to NULL.
+ */
+ExpEvaluator::ExpEvaluator() { 
+  _exp_table = NULL;
+  _polar_quad = NULL;
+}
+
+
+/**
+ * @brief Destructor deletes table for linear interpolation of exponentials 
+ */
+ExpEvaluator::~ExpEvaluator() {
+  if (_exp_table != NULL)
+    delete [] _exp_table;
+}
+
+
+/**
+ * @brief Set the PolarQuad to use when computing exponentials.
+ */
+void ExpEvaluator::setPolarQuadrature(PolarQuad* polar_quad) {
+  _polar_quad = polar_quad;
+  _two_times_num_polar = 2 * _polar_quad->getNumPolarAngles();
+}
+
+
+/**
+ * @brief Use linear interpolation to compute exponentials.
+ */
+void ExpEvaluator::useExponentialInterpolation() {
+  _interpolate_exponential = true;
+}
+
+
+/**
+ * @brief Use the exponential intrinsic exp(...) to compute exponentials.
+ */
+void ExpEvaluator::useExponentialIntrinsic() {
+  _interpolate_exponential = false;
+}
+
+
+/**
+ * @brief Returns whether the ExpEvaluator uses linear interpolation to
+ *        compute exponentials.
+ * @return true if so, false otherwise
+ */
+bool ExpEvaluator::isUsingExponentialInterpolation() {
+  return _interpolate_exponential;
+}
+
+
+/**
+ * @brief If using linear interpolation, builds the table for each polar angle.
+ * @param max_tau the maximum optical path length in the input range
+ * @param tolerance the minimum acceptable interpolation accuracy
+ */
+void ExpEvaluator::initialize(double max_tau, double tolerance) {
+
+  /* If no exponential table is needed, return */
+  if (!_interpolate_exponential)
+    return;
+
+  log_printf(INFO, "Initializing exponential interpolation table...");
+
+  /* Expand max tau slightly to avoid roundoff error approximation */
+  max_tau *= 1.01;
+
+  /* Set size of interpolation table */
+  int num_polar = _polar_quad->getNumPolarAngles();
+  int num_array_values = max_tau * sqrt(1. / (8.e-2 * tolerance));
+  int table_size = 2 * num_polar * num_array_values;
+  _exp_table_spacing = max_tau / num_array_values;
+
+  /* Allocate array for the table */
+  if (_exp_table != NULL)
+    delete [] _exp_table;
+
+  _exp_table = new FP_PRECISION[table_size];
+
+  FP_PRECISION expon;
+  FP_PRECISION intercept;
+  FP_PRECISION slope;
+  FP_PRECISION sin_theta;
+
+  /* Create exponential linear interpolation table */
+  for (int i=0; i < num_array_values; i ++){
+    for (int p=0; p < num_polar; p++){
+      sin_theta = _polar_quad->getSinTheta(p);
+      expon = exp(- (i * _exp_table_spacing) / sin_theta);
+      slope = - expon / sin_theta;
+      intercept = expon * (1 + (i * _exp_table_spacing) / sin_theta);
+      _exp_table[_two_times_num_polar * i + 2 * p] = slope;
+      _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
+    }
+  }
+
+  /* Compute the reciprocal of the table entry spacing */
+  _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
+}
+
+
+/**
+ * @brief Computes the exponential term for a optical length and polar angle. 
+ * @details This method computes \f$ 1 - exp(-\tau/sin(\theta_p)) \f$
+ *          for some optical path length and polar angle. This method
+ *          uses either a linear interpolation table (default) or the
+ *          exponential intrinsic exp(...) function.
+ * @param tau the optical path length (e.g., sigma_t times length)
+ * @param polar the polar angle index
+ * @return the evaluated exponential
+ */
+CUDA_CALLABLE FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, 
+                                                            int polar) {
+
+  FP_PRECISION exponential;
+
+  /* Evaluate the exponential using the lookup table - linear interpolation */
+  if (_interpolate_exponential) {
+    int index;
+    index = round_to_int(tau * _inverse_exp_table_spacing);
+    index *= _two_times_num_polar;
+    exponential = (1. - (_exp_table[index+2 * polar] * tau +
+                  _exp_table[index + 2 * polar + 1]));
+  }
+
+  /* Evalute the exponential using the intrinsic exp(...) function */
+  else {
+    FP_PRECISION sintheta = _polar_quad->getSinTheta(polar);
+    exponential = 1.0 - exp(- tau / sintheta);
+  }
+
+  return exponential;
+}
