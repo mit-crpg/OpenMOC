@@ -1042,6 +1042,12 @@ void GPUSolver::initializePolarQuadrature() {
 
   Solver::initializePolarQuadrature();
 
+  if (_num_polar > MAX_POLAR_ANGLES)
+    log_printf(ERROR, "Unable to initialize a polar quadrature with %d "
+               "angles for the GPUSolver which is limited to %d polar "
+               "angles. Update the MAX_POLAR_ANGLES macro in GPUSolver.h "
+               "and recompile.", _num_polar, MAX_POLAR_ANGLES);
+
   /* Copy the number of polar angles to constant memory on the GPU */
   cudaMemcpyToSymbol(num_polar, (void*)&_num_polar, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
