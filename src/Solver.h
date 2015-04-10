@@ -12,7 +12,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Timer.h"
-#include "Quadrature.h"
+#include "PolarQuad.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"
 #endif
@@ -100,7 +100,10 @@ protected:
   int _num_materials;
 
   /** A pointer to a polar quadrature */
-  Quadrature* _quad;
+  PolarQuad* _polar_quad;
+
+  /** A boolean indicating if a user-defined PolarQuad was assigned */
+  bool _user_polar_quad;
 
   /** The number of polar angles */
   int _num_polar;
@@ -110,9 +113,6 @@ protected:
 
   /** The number of polar angles times energy groups */
   int _polar_times_groups;
-
-  /** The type of polar quadrature (TABUCHI or LEONARD) */
-  quadratureType _quadrature_type;
 
   /** A pointer to the 2D ragged array of Tracks */
   Track** _tracks;
@@ -217,11 +217,6 @@ protected:
   int round_to_int(double x);
 
   /**
-   * @brief Creates a polar quadrature object for the Solver.
-   */
-  virtual void initializePolarQuadrature() =0;
-
-  /**
    * @brief Initializes Track boundary angular flux and leakage and
    *        FSR scalar flux arrays.
    */
@@ -237,13 +232,9 @@ protected:
    */
   virtual void buildExpInterpTable() =0;
 
-  /**
-   * @brief Initializes the volumes and Material arrays for each FSR.
-   */
-  virtual void initializeFSRs() =0;
-
+  virtual void initializePolarQuadrature();
+  virtual void initializeFSRs();
   virtual void initializeCmfd();
-
   virtual void checkTrackSpacing();
 
   /**
@@ -304,9 +295,9 @@ public:
   virtual ~Solver();
 
   Geometry* getGeometry();
+  FP_PRECISION getFSRVolume(int fsr_id);
   TrackGenerator* getTrackGenerator();
   int getNumPolarAngles();
-  quadratureType getPolarQuadratureType();
   int getNumIterations();
   double getTotalTime();
   FP_PRECISION getKeff();
@@ -341,8 +332,7 @@ public:
 
   virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setPolarQuadratureType(quadratureType quadrature_type);
-  virtual void setNumPolarAngles(int num_polar);
+  virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
   void addFixedSourceByGroupToFSR(int group, int fsr, FP_PRECISION source);
   void addFixedSourceByGroupToCell(int group, Cell* cell, FP_PRECISION source);

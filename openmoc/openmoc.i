@@ -13,7 +13,7 @@
   #include "../src/log.h"
   #include "../src/Material.h"
   #include "../src/Point.h"
-  #include "../src/Quadrature.h"
+  #include "../src/PolarQuad.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
   #include "../src/Surface.h"
@@ -261,6 +261,16 @@
  * getCellIds method for the data processing routines in openmoc.process */
 %apply (int* ARGOUT_ARRAY1, int DIM1) {(int* cell_ids, int num_cells)}
 
+/* The typemap used to match the method signature for the 
+ * PolarQuad::setSinThetas method. This allows users to set the polar angle 
+ * quadrature sine thetas using a NumPy array */
+%apply (double* IN_ARRAY1, int DIM1) {(double* sin_thetas, int num_polar)}
+
+/* The typemap used to match the method signature for the 
+ * PolarQuad::setWeights method. This allows users to set the polar angle 
+ * quadrature weights using a NumPy array */
+%apply (double* IN_ARRAY1, int DIM1) {(double* weights, int num_polar)}
+
 #endif
 
 
@@ -268,7 +278,7 @@
  * the Geometry::getAllCells(), Universe::getAllCells(), etc. These methods
  * are particularly useful for OpenCG compatibility. */
 %include <std_map.i>
-%cleap std::map<int, Cell*>;
+%clear std::map<int, Cell*>;
 %typemap(out) std::map<int, Cell*> {
 
   $result = PyDict_New();
@@ -292,7 +302,7 @@
  * This includes the Cell::getSurfaces() method, which is useful for OpenCG
  * compatibility. */
 %include <std_map.i>
-%cleap std::map<int, surface_halfspace>;
+%clear std::map<int, surface_halfspace>;
 %typemap(out) std::map<int, surface_halfspace> {
 
   $result = PyDict_New();
@@ -317,7 +327,7 @@
  * This includes the Geometry::getAllMaterials() method, which is useful 
  * for OpenCG compatibility. */
 %include <std_map.i>
-%cleap std::map<int, Material*>;
+%clear std::map<int, Material*>;
 %typemap(out) std::map<int, Material*> {
 
   $result = PyDict_New();
@@ -341,7 +351,7 @@
  * This includes the Lattice::getUniqueUniverses() method which is ueseful for
  * OpenCG compatibility. */
 %include <std_map.i>
-%cleap std::map<int, Universe*>;
+%clear std::map<int, Universe*>;
 %typemap(out) std::map<int, Universe*> {
 
   $result = PyDict_New();
@@ -412,7 +422,7 @@
 %include ../src/log.h
 %include ../src/Material.h
 %include ../src/Point.h
-%include ../src/Quadrature.h
+%include ../src/PolarQuad.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
 %include ../src/Surface.h

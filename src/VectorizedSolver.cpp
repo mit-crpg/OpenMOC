@@ -407,8 +407,8 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
       /* Set the total source for FSR r in group G */
       fsr_fission_source += fission_source * chi[G]; 
 
-      _reduced_sources(r,G) = (fission_source * chi[G] + scatter_source)
-                        * ONE_OVER_FOUR_PI / sigma_t[G];
+      _reduced_sources(r,G) = (fission_source * chi[G] + scatter_source) *
+                              ONE_OVER_FOUR_PI / sigma_t[G];
     }
 
     /* Compute the norm of residual of the source in the FSR */
@@ -739,7 +739,7 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
 
     int tid = omp_get_thread_num();
 
-    FP_PRECISION* sinthetas = _quad->getSinThetas();
+    FP_PRECISION* sinthetas = _polar_quad->getSinThetas();
     FP_PRECISION* taus = &_thread_taus[tid*_polar_times_groups];
 
     /* Initialize the tau argument for the exponentials */

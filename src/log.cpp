@@ -412,7 +412,7 @@ void log_printf(logLevel level, const char* format, ...) {
         vsprintf(message, format, args);
         va_end(args);
         std::string msg = std::string(message);
-        std::string level_prefix = "[  ERROR  ]  ";
+        std::string level_prefix = "";
 
         /* If message is too long for a line, split into many lines */
         if (int(msg.length()) > line_length)
@@ -459,13 +459,11 @@ void log_printf(logLevel level, const char* format, ...) {
     log_file.close();
 
     /* Write the log message to the shell */
-    std::cout << msg_string;
+    if (level == ERROR)
+      throw std::logic_error(msg_string.c_str());
+    else 
+      printf("%s", msg_string.c_str());
   }
-
-
-  /* If the message was a runtime error, exit the program */
-  if (level == ERROR)
-    exit(1);
 }
 
 
@@ -519,7 +517,7 @@ std::string create_multiline_msg(std::string level, std::string message) {
       line_length -= 4;
 
     /* Update substring indices */
-    start = end + 1;
+    start = end;
     end += line_length + 1;
   }
 
