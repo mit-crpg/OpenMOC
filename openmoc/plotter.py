@@ -720,7 +720,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
     fig = plt.figure()
     plt.imshow(np.flipud(fluxes[index,:,:]), extent=coords['bounds'])
     plt.colorbar()
-    plt.title('FSR Scalar Flux (Group {0}'.format(group))
+    plt.title('FSR Scalar Flux (Group {0})'.format(group))
     filename = directory + 'fsr-flux-group-' + str(group) + '.png'
     fig.savefig(filename, bbox_inches='tight')
     plt.close(fig)
