@@ -1,0 +1,12 @@
+--------------------------FAILURE--------------------------
+Date: 21/01/2015, Time: 20:59:00
+Platform: Darwin-14.0.0-x86_64-i386-64bit
+Python version: 2.7.7
+System: Darwin
+Default num_threads: 4
+
+Test Failed: c5g7_cmfd Keff, number of threads: 4
+Benchmark Keff is 1.08535, Keff found was 1.18512
+
+Test Failed: c5g7_cmfd Keff, number of threads: 1
+Benchmark Keff is 1.08535, Keff found was 1.18512

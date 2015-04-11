@@ -96,6 +96,7 @@ class Options:
                                   'num-thread-blocks=',
                                   'num-gpu-threads='])
 
+
     except getopt.GetoptError as err:
       py_printf('ERROR', str(err))
       pass

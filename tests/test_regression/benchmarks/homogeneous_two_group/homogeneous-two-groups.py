@@ -1,7 +1,7 @@
+import numpy
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
-import openmoc.materialize as materialize
 from openmoc.options import Options
 
 
@@ -19,14 +19,24 @@ max_iters = options.getMaxIterations()
 
 log.set_log_level('NORMAL')
 
+log.py_printf('TITLE', 'Simulating a two group homogeneous infinite medium...')
+log.py_printf('HEADER', 'The reference keff = 1.72...')
+
 
 ###############################################################################
 ###########################   Creating Materials   ############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Importing materials data from HDF5...')
+log.py_printf('NORMAL', 'Creating materials...')
 
-materials = materialize.materialize('../c5g7-materials.h5')
+infinite_medium = Material(name='2-group infinite medium')
+infinite_medium.setNumEnergyGroups(2)
+infinite_medium.setSigmaA(numpy.array([0.0038, 0.184]))
+infinite_medium.setSigmaF(numpy.array([0.000625, 0.135416667]))
+infinite_medium.setNuSigmaF(numpy.array([0.0015, 0.325]))
+infinite_medium.setSigmaS(numpy.array([0.1, 0.117, 0.0, 1.42]))
+infinite_medium.setChi(numpy.array([1.0, 0.0]))
+infinite_medium.setSigmaT(numpy.array([0.2208, 1.604]))
 
 
 ###############################################################################
@@ -35,11 +45,10 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(x=0.0, y=0.0, radius=1.0, name='pin')
-left = XPlane(x=-2.0, name='left')
-right = XPlane(x=2.0, name='right')
-top = YPlane(y=2.0, name='top')
-bottom = YPlane(y=-2.0, name='bottom')
+left = XPlane(x=-100.0, name='left')
+right = XPlane(x=100.0, name='right')
+top = YPlane(y=100.0, name='top')
+bottom = YPlane(y=-100.0, name='bottom')
 
 left.setBoundaryType(REFLECTIVE)
 right.setBoundaryType(REFLECTIVE)
@@ -53,28 +62,22 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-fuel = CellBasic(name='fuel')
-fuel.setMaterial(materials['UO2'])
-fuel.addSurface(halfspace=-1, surface=circle)
-
-moderator = CellBasic(name='moderator')
-moderator.setMaterial(materials['Water'])
-moderator.addSurface(halfspace=+1, surface=circle)
-moderator.addSurface(halfspace=+1, surface=left)
-moderator.addSurface(halfspace=-1, surface=right)
-moderator.addSurface(halfspace=+1, surface=bottom)
-moderator.addSurface(halfspace=-1, surface=top)
+cell = CellBasic()
+cell.setMaterial(infinite_medium)
+cell.addSurface(halfspace=+1, surface=left)
+cell.addSurface(halfspace=-1, surface=right)
+cell.addSurface(halfspace=+1, surface=bottom)
+cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
-###########################   Creating Universes   ############################
+#                            Creating Universes
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating universes...')
 
 root_universe = Universe(name='root universe')
-root_universe.addCell(fuel)
-root_universe.addCell(moderator)
+root_universe.addCell(cell)
 
 
 ###############################################################################
@@ -103,25 +106,10 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = ThreadPrivateSolver(geometry, track_generator)
+solver = CPUSolver(geometry, track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 solver.convergeSource(max_iters)
 solver.printTimerReport()
-
-
-###############################################################################
-############################   Generating Plots   #############################
-###############################################################################
-
-log.py_printf('NORMAL', 'Plotting data...')
-
-#plotter.plot_tracks(track_generator)
-#plotter.plot_segments(track_generator)
-#plotter.plot_materials(geometry, gridsize=500)
-#plotter.plot_cells(geometry, gridsize=500)
-#plotter.plot_flat_source_regions(geometry, gridsize=500)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-#plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
 
 log.py_printf('TITLE', 'Finished')

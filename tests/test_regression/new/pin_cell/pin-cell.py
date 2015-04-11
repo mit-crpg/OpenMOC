@@ -28,6 +28,9 @@ log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
 materials = materialize.materialize('../c5g7-materials.h5')
 
+uo2_id = materials['UO2'].getId()
+water_id = materials['Water'].getId()
+
 
 ###############################################################################
 ###########################   Creating Surfaces   #############################
@@ -35,11 +38,11 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(x=0.0, y=0.0, radius=1.0, name='pin')
-left = XPlane(x=-2.0, name='left')
-right = XPlane(x=2.0, name='right')
-top = YPlane(y=2.0, name='top')
-bottom = YPlane(y=-2.0, name='bottom')
+circle = Circle(x=0.0, y=0.0, radius=1.0)
+left = XPlane(x=-2.0)
+right = XPlane(x=2.0)
+top = YPlane(y=2.0)
+bottom = YPlane(y=-2.0)
 
 left.setBoundaryType(REFLECTIVE)
 right.setBoundaryType(REFLECTIVE)
@@ -53,28 +56,27 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-fuel = CellBasic(name='fuel')
-fuel.setMaterial(materials['UO2'])
-fuel.addSurface(halfspace=-1, surface=circle)
+cells = []
+cells.append(CellBasic(universe=1, material=uo2_id))
+cells.append(CellBasic(universe=1, material=water_id))
+cells.append(CellFill(universe=0, universe_fill=2))
 
-moderator = CellBasic(name='moderator')
-moderator.setMaterial(materials['Water'])
-moderator.addSurface(halfspace=+1, surface=circle)
-moderator.addSurface(halfspace=+1, surface=left)
-moderator.addSurface(halfspace=-1, surface=right)
-moderator.addSurface(halfspace=+1, surface=bottom)
-moderator.addSurface(halfspace=-1, surface=top)
+cells[0].addSurface(halfspace=-1, surface=circle)
+cells[1].addSurface(halfspace=+1, surface=circle)
+cells[2].addSurface(halfspace=+1, surface=left)
+cells[2].addSurface(halfspace=-1, surface=right)
+cells[2].addSurface(halfspace=+1, surface=bottom)
+cells[2].addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
-###########################   Creating Universes   ############################
+###########################   Creating Lattices   #############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating universes...')
+log.py_printf('NORMAL', 'Creating simple pin cell lattice...')
 
-root_universe = Universe(name='root universe')
-root_universe.addCell(fuel)
-root_universe.addCell(moderator)
+lattice = Lattice(id=2, width_x=4.0, width_y=4.0)
+lattice.setLatticeCells([[1]])
 
 
 ###############################################################################
@@ -84,7 +86,10 @@ root_universe.addCell(moderator)
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
-geometry.setRootUniverse(root_universe)
+for material in materials.values(): geometry.addMaterial(material)
+for cell in cells: geometry.addCell(cell)
+geometry.addLattice(lattice)
+
 geometry.initializeFlatSourceRegions()
 
 
@@ -95,7 +100,6 @@ geometry.initializeFlatSourceRegions()
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
 
@@ -121,7 +125,6 @@ log.py_printf('NORMAL', 'Plotting data...')
 #plotter.plot_materials(geometry, gridsize=500)
 #plotter.plot_cells(geometry, gridsize=500)
 #plotter.plot_flat_source_regions(geometry, gridsize=500)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-#plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
+#plotter.plot_fluxes(geometry, solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')

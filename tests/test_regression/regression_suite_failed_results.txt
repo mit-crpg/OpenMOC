@@ -1,0 +1,40 @@
+--------------------------FAILURE--------------------------
+Date: 21/01/2015, Time: 21:38:32
+Platform: Darwin-14.0.0-x86_64-i386-64bit
+Python version: 2.7.7
+System: Darwin
+Default num_threads: 4
+
+Test Failed: c5g7_cmfd Keff, number of threads: 4
+Benchmark Keff is 1.18535, Keff found was 1.18512
+
+Test Failed: c5g7_cmfd Keff, number of threads: 1
+Benchmark Keff is 1.18535, Keff found was 1.18512
+
+Test Failed: LRA Keff, number of threads: 4
+Benchmark Keff is 0.99628, Keff found was 0.99376
+
+Test Failed: LRA Keff, number of threads: 1
+Benchmark Keff is 0.99628, Keff found was 0.99376
+------------------TESTS COMPLETE------------------
+
+--------------------------FAILURE--------------------------
+Date: 21/01/2015, Time: 22:24:28
+Platform: Darwin-14.0.0-x86_64-i386-64bit
+Python version: 2.7.7
+System: Darwin
+Default num_threads: 4
+
+Test Failed: c5g7_cmfd Keff, number of threads: 4
+Benchmark Keff is 1.18535, Keff found was 1.18512
+
+Test Failed: c5g7_cmfd Keff, number of threads: 1
+Benchmark Keff is 1.18535, Keff found was 1.18512
+
+Test Failed: LRA Keff, number of threads: 4
+Benchmark Keff is 0.99628, Keff found was 0.99376
+
+Test Failed: LRA Keff, number of threads: 1
+Benchmark Keff is 0.99628, Keff found was 0.99376
+------------------TESTS COMPLETE------------------
+
