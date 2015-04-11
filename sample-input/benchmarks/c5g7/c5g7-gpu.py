@@ -18,7 +18,7 @@ num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 
-log.set_log_level('NORMAL')
+log.set_log_level('INFO')
 
 log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 

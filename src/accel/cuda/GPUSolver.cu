@@ -720,9 +720,9 @@ GPUSolver::~GPUSolver() {
     _leakage = NULL;
   }
 
-  if (_exp_evaluator != NULL) {
-    delete _exp_evaluator;
-  }
+//  if (_exp_evaluator != NULL) {
+//    delete _exp_evaluator;
+//  }
 }
 
 
@@ -998,14 +998,16 @@ void GPUSolver::initializeExpEvaluator(){
 //    delete [] _exp_table;
 
   /* Allocate memory for a GPUExpEvaluator on the device */
-  GPUExpEvaluator* dev_exp_evaluator = new GPUExpEvaluator();
+//  GPUExpEvaluator* dev_exp_evaluator = new GPUExpEvaluator();
+  GPUExpEvaluator* dev_exp_evaluator;
+  cudaMalloc((void**)&dev_exp_evaluator, sizeof(GPUExpEvaluator));
 
   /* Clone ExpEvaluator from the host into GPUExpEvaluator on the device */
   clone_exp_evaluator(_exp_evaluator, dev_exp_evaluator);
 
   /* Copy the GPUExpEvaluator into constant memory on the GPU */
   cudaMemcpyToSymbol(exp_evaluator, (void*)&dev_exp_evaluator, 
-                     sizeof(GPUExpEvaluator), 0, cudaMemcpyHostToDevice);
+                     sizeof(GPUExpEvaluator), 0, cudaMemcpyDeviceToDevice);
   
   return;
 }
@@ -1103,11 +1105,14 @@ void GPUSolver::initializeMaterials() {
     std::map<int, Material*> host_materials=_geometry->getAllMaterials();
     std::map<int, Material*>::iterator iter;
     int material_index = 0;
+
+    printf("going into materials loop. # materials = %d\n", _num_materials);
     
     /* Iterate through all Materials and clone them as dev_material structs
      * on the device */
     cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
     for (iter=host_materials.begin(); iter != host_materials.end(); ++iter){
+      printf("this material\n");
       clone_material(iter->second, &_materials[material_index]);
       _material_IDs_to_indices[iter->second->getId()] = material_index;
       material_index++;
