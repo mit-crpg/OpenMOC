@@ -31,26 +31,67 @@ void ExpEvaluator::setPolarQuadrature(PolarQuad* polar_quad) {
 /**
  * @brief Use linear interpolation to compute exponentials.
  */
-void ExpEvaluator::useExponentialInterpolation() {
-  _interpolate_exponential = true;
+void ExpEvaluator::useInterpolation() {
+  _interpolate = true;
 }
 
 
 /**
  * @brief Use the exponential intrinsic exp(...) to compute exponentials.
  */
-void ExpEvaluator::useExponentialIntrinsic() {
-  _interpolate_exponential = false;
+void ExpEvaluator::useIntrinsic() {
+  _interpolate = false;
 }
 
 
 /**
- * @brief Returns whether the ExpEvaluator uses linear interpolation to
- *        compute exponentials.
+ * @brief Returns true if using linear interpolation to compute exponentials.
  * @return true if so, false otherwise
  */
-bool ExpEvaluator::isUsingExponentialInterpolation() {
-  return _interpolate_exponential;
+bool ExpEvaluator::isUsingInterpolation() {
+  return _interpolate;
+}
+
+
+/**
+ * @brief Returns the exponential table spacing.
+ * @return exponential table spacing
+ */
+FP_PRECISION ExpEvaluator::getTableSpacing() {
+
+  if (_exp_table == NULL)
+    log_printf(ERROR, "Unable to return the exponential table spacing "
+               "since it has not yet been initialized");
+
+  return 1.0 / _inverse_exp_table_spacing;
+}
+
+
+/**
+ *
+ *
+ */
+int ExpEvaluator::getTableSize() {
+
+  if (_exp_table == NULL)
+    log_printf(ERROR, "Unable to return exponential table size "
+               "since it has not yet been initialized");
+
+  return _table_size;
+}
+
+
+/**
+ * @brief Returns a pointer to the exponential interpolation table.
+ * @return pointer to the exponential interpolation table
+ */
+FP_PRECISION* ExpEvaluator::getExpTable() {
+
+  if (_exp_table == NULL)
+    log_printf(ERROR, "Unable to return exponential table "
+               "since it has not yet been initialized");
+
+  return _exp_table;
 }
 
 
@@ -62,7 +103,7 @@ bool ExpEvaluator::isUsingExponentialInterpolation() {
 void ExpEvaluator::initialize(double max_tau, double tolerance) {
 
   /* If no exponential table is needed, return */
-  if (!_interpolate_exponential)
+  if (!_interpolate)
     return;
 
   log_printf(INFO, "Initializing exponential interpolation table...");
@@ -73,14 +114,17 @@ void ExpEvaluator::initialize(double max_tau, double tolerance) {
   /* Set size of interpolation table */
   int num_polar = _polar_quad->getNumPolarAngles();
   int num_array_values = max_tau * sqrt(1. / (8.e-2 * tolerance));
-  int table_size = 2 * num_polar * num_array_values;
-  _exp_table_spacing = max_tau / num_array_values;
+  FP_PRECISION exp_table_spacing = max_tau / num_array_values;
+
+  /* Compute the reciprocal of the table entry spacing */
+  _inverse_exp_table_spacing = 1.0 / exp_table_spacing;
 
   /* Allocate array for the table */
   if (_exp_table != NULL)
     delete [] _exp_table;
 
-  _exp_table = new FP_PRECISION[table_size];
+  _table_size = 2 * num_polar * num_array_values;
+  _exp_table = new FP_PRECISION[_table_size];
 
   FP_PRECISION expon;
   FP_PRECISION intercept;
@@ -88,19 +132,16 @@ void ExpEvaluator::initialize(double max_tau, double tolerance) {
   FP_PRECISION sin_theta;
 
   /* Create exponential linear interpolation table */
-  for (int i=0; i < num_array_values; i ++){
+  for (int i=0; i < num_array_values; i++){
     for (int p=0; p < num_polar; p++){
       sin_theta = _polar_quad->getSinTheta(p);
-      expon = exp(- (i * _exp_table_spacing) / sin_theta);
+      expon = exp(- (i * exp_table_spacing) / sin_theta);
       slope = - expon / sin_theta;
-      intercept = expon * (1 + (i * _exp_table_spacing) / sin_theta);
+      intercept = expon * (1 + (i * exp_table_spacing) / sin_theta);
       _exp_table[_two_times_num_polar * i + 2 * p] = slope;
       _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
     }
   }
-
-  /* Compute the reciprocal of the table entry spacing */
-  _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
 }
 
 
@@ -114,17 +155,16 @@ void ExpEvaluator::initialize(double max_tau, double tolerance) {
  * @param polar the polar angle index
  * @return the evaluated exponential
  */
-CUDA_CALLABLE FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, 
-                                                            int polar) {
+FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int polar) {
 
   FP_PRECISION exponential;
 
   /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate_exponential) {
+  if (_interpolate) {
     int index;
     index = round_to_int(tau * _inverse_exp_table_spacing);
     index *= _two_times_num_polar;
-    exponential = (1. - (_exp_table[index+2 * polar] * tau +
+    exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                   _exp_table[index + 2 * polar + 1]));
   }
 

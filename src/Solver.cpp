@@ -223,7 +223,7 @@ bool Solver::isUsingDoublePrecision() {
  * @return true if so, false otherwise
  */
 bool Solver::isUsingExponentialInterpolation() {
-  return _exp_evaluator->isUsingExponentialInterpolation();
+  return _exp_evaluator->isUsingInterpolation();
 }
 
 
@@ -343,7 +343,7 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
  *        exponential in the transport equation.
  */
 void Solver::useExponentialInterpolation() {
-  _exp_evaluator->useExponentialInterpolation();
+  _exp_evaluator->useInterpolation();
 }
 
 
@@ -352,7 +352,7 @@ void Solver::useExponentialInterpolation() {
  *        to compute the exponential in the transport equation
  */
 void Solver::useExponentialIntrinsic() {
-  _exp_evaluator->useExponentialIntrinsic();
+  _exp_evaluator->useIntrinsic();
 }
 
 
