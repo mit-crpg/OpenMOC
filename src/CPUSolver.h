@@ -45,17 +45,12 @@ protected:
   /** OpenMP mutual exclusion locks for atomic FSR scalar flux updates */
   omp_lock_t* _FSR_locks;
 
-  /** OpenMP mutual exclusion locks for atomic surface current updates */
-  omp_lock_t* _cmfd_surface_locks;
-
   void initializeFluxArrays();
   void initializeSourceArrays();
   void initializeFSRs();
-  void initializeCmfd();
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
-  void zeroSurfaceCurrents();
   void flattenFSRSources(FP_PRECISION value);
   void normalizeFluxes();
   FP_PRECISION computeFSRSources();
@@ -94,7 +89,6 @@ public:
   FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
   FP_PRECISION* getFSRScalarFluxes();
   FP_PRECISION getFSRSource(int fsr_id, int energy_group);
-  FP_PRECISION* getSurfaceCurrents();
 
   void setNumThreads(int num_threads);
 

@@ -18,10 +18,8 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
 
   _num_FSRs = 0;
   _num_fissionable_FSRs = 0;
-  _num_mesh_cells = 0;
   _FSR_volumes = NULL;
   _FSR_materials = NULL;
-  _surface_currents = NULL;
 
   _track_generator = NULL;
   _geometry = NULL;
@@ -252,9 +250,6 @@ void Solver::setGeometry(Geometry* geometry) {
   _num_groups = _geometry->getNumEnergyGroups();
   _polar_times_groups = _num_groups * _num_polar;
   _num_materials = _geometry->getNumMaterials();
-
-  if (_cmfd != NULL)
-    _num_mesh_cells = _cmfd->getNumCells();
 }
 
 
@@ -467,6 +462,9 @@ void Solver::initializeCmfd(){
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
+
+  //FIXME: Perhaps all arrays should be initi
+  _cmfd->initializeSurfaceCurrents();
 }
 
 

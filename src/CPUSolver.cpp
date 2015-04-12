@@ -16,7 +16,6 @@ CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator)
   setNumThreads(1);
 
   _FSR_locks = NULL;
-  _cmfd_surface_locks = NULL;
 }
 
 
@@ -26,15 +25,8 @@ CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator)
  *        to deletes arrays for fluxes and sources.
  */
 CPUSolver::~CPUSolver() {
-
   if (_FSR_locks != NULL)
     delete [] _FSR_locks;
-
-  if (_cmfd_surface_locks != NULL)
-    delete [] _cmfd_surface_locks;
-
-  if (_surface_currents != NULL)
-    delete [] _surface_currents;
 }
 
 
@@ -149,21 +141,6 @@ FP_PRECISION* CPUSolver::getFSRScalarFluxes() {
                "since it has not yet been allocated in memory");
 
   return _scalar_flux;
-}
-
-
-/**
- * @brief Return a surface current array indexed by Cmfd Mesh surface IDs
- *        and energy groups.
- * @return an array of Cmfd Mesh cell surface currents
- */
-FP_PRECISION* CPUSolver::getSurfaceCurrents() {
-
-  if (_surface_currents == NULL)
-    log_printf(ERROR, "Unable to returns the Solver's Cmfd Mesh surface "
-               "currents array since it has not yet been allocated in memory");
-
-  return _surface_currents;
 }
 
 
@@ -292,50 +269,6 @@ void CPUSolver::initializeSourceArrays() {
 }
 
 
-/*
- * @brief Initializes Cmfd object for acceleration prior to source iteration.
- * @details Instantiates a dummy Cmfd object if one was not assigned to
- *          the Solver by the user and initializes FSRs, Materials, fluxes
- *          and the Mesh. This method intializes a global array for the
- *          surface currents.
- */
-void CPUSolver::initializeCmfd() {
-
-  /* Call parent class method */
-  Solver::initializeCmfd();
-
-  /* Delete old Cmfd surface currents array it it exists */
-  if (_surface_currents != NULL)
-    delete [] _surface_currents;
-
-  int size;
-
-  /* Allocate memory for the Cmfd Mesh surface currents array */
-  try{
-
-    /* Allocate an array for the Cmfd Mesh surface currents */
-    size = _num_mesh_cells * _cmfd->getNumCmfdGroups() * 8;
-    _surface_currents = new FP_PRECISION[size];
-  }
-  catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for the Solver's Cmfd "
-               "surface currents. Backtrace:%s", e.what());
-  }
-
-  _cmfd->setSurfaceCurrents(_surface_currents);
-
-  /* Initialize an array of OpenMP locks for each Cmfd Mesh surface */ 
-  _cmfd_surface_locks = new omp_lock_t[_num_mesh_cells * 8];
-
-  /* Loop over all mesh cell surfaces to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_mesh_cells*8; r++)
-    omp_init_lock(&_cmfd_surface_locks[r]);
-
-  return;
-}
-
-
 /**
  * @brief Zero each Track's boundary fluxes for each energy group and polar
  *        angle in the "forward" and "reverse" directions.
@@ -367,24 +300,6 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
   for (int r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++)
       _scalar_flux(r,e) = value;
-  }
-
-  return;
-}
-
-
- /**
-  * @brief Set the Cmfd Mesh surface currents for each Mesh cell and energy
-  *        group to zero.
-  */
-void CPUSolver::zeroSurfaceCurrents() {
-
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_mesh_cells; r++) {
-    for (int s=0; s < 8; s++) {
-      for (int e=0; e < _num_groups; e++)
-        _surface_currents(r*8+s,e) = 0.0;
-    }
   }
 
   return;
@@ -684,7 +599,7 @@ void CPUSolver::transportSweep() {
   flattenFSRFluxes(0.0);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    zeroSurfaceCurrents();
+    _cmfd->zeroSurfaceCurrents();
 
   /* Loop over azimuthal angle halfspaces */
   for (int i=0; i < 2; i++) {
@@ -765,72 +680,18 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 
   /* The change in angular flux along this Track segment in the FSR */
   FP_PRECISION delta_psi;
+  FP_PRECISION surf_current;
   FP_PRECISION exponential;
 
   /* Set the FSR scalar flux buffer to zero */
   memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
-  /* Loop over energy groups */
   for (int e=0; e < _num_groups; e++) {
-
-    /* Loop over polar angles */
     for (int p=0; p < _num_polar; p++){
       exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, p);
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
       fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
       track_flux(p,e) -= delta_psi;
-    }
-  }
-
-  if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
-    if (curr_segment->_cmfd_surface_fwd != -1 && fwd){
-
-      int pe = 0;
-
-      /* Atomically increment the Cmfd Mesh surface current from the
-       * temporary array using mutual exclusion locks */
-      omp_set_lock(&_cmfd_surface_locks[curr_segment->_cmfd_surface_fwd]);
-
-      /* Loop over energy groups */
-      for (int e = 0; e < _num_groups; e++) {
-
-        /* Loop over polar angles */
-        for (int p = 0; p < _num_polar; p++){
-
-          /* Increment current (polar and azimuthal weighted flux, group) */
-          _surface_currents(curr_segment->_cmfd_surface_fwd,e) +=
-              track_flux(p,e)*_polar_weights(azim_index,p)/2.0;
-          pe++;
-        }
-      }
-
-      /* Release Cmfd Mesh surface mutual exclusion lock */
-      omp_unset_lock(&_cmfd_surface_locks[curr_segment->_cmfd_surface_fwd]);
-
-    }
-    else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd){
-
-      int pe = 0;
-
-      /* Atomically increment the Cmfd Mesh surface current from the
-       * temporary array using mutual exclusion locks */
-      omp_set_lock(&_cmfd_surface_locks[curr_segment->_cmfd_surface_bwd]);
-
-      /* Loop over energy groups */
-      for (int e = 0; e < _num_groups; e++) {
-
-        /* Loop over polar angles */
-        for (int p = 0; p < _num_polar; p++){
-
-          /* Increment current (polar and azimuthal weighted flux, group) */
-          _surface_currents(curr_segment->_cmfd_surface_bwd,e) +=
-              track_flux(p,e)*_polar_weights(azim_index,p)/2.0;
-          pe++;
-        }
-      }
-
-      /* Release Cmfd Mesh surface mutual exclusion lock */
-      omp_unset_lock(&_cmfd_surface_locks[curr_segment->_cmfd_surface_bwd]);
     }
   }
 
@@ -841,6 +702,17 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
       _scalar_flux(fsr_id,e) += fsr_flux[e];
   }
   omp_unset_lock(&_FSR_locks[fsr_id]);
+
+  /* Tally surface currents if CMFD is in use */
+  /* NOTE: This means that locks are turned on/off much more often */
+  if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
+    for (int e=0; e < _num_groups; e++) {
+      for (int p=0; p < _num_polar; p++){
+        surf_current = track_flux(p,e) * _polar_weights(azim_index,p) / 2.0;
+        _cmfd->tallySurfaceCurrent(curr_segment, surf_current, fwd, e);
+      }
+    }
+  }
 
   return;
 }
