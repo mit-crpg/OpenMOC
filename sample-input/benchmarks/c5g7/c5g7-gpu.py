@@ -310,7 +310,6 @@ track_generator.generateTracks()
 
 solver = GPUSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
-#solver.useExponentialIntrinsic()
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 
