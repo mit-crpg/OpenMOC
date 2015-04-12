@@ -160,9 +160,6 @@ protected:
   /** The current iteration's approximation to k-effective */
   FP_PRECISION _k_eff;
 
-  /** An array of k-effective at each iteration */
-  std::vector<FP_PRECISION> _residual_vector;
-
   /** The total leakage across vacuum boundaries */
   FP_PRECISION _leakage;
 
