@@ -356,7 +356,7 @@ void Solver::useExponentialIntrinsic() {
 }
 
 
-/**
+/** 
  * @brief Initializes new PolarQuad object.
  * @details Deletes memory old PolarQuad if one was previously allocated.
  */

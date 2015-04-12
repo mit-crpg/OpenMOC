@@ -292,7 +292,7 @@ void CPUSolver::initializeSourceArrays() {
 }
 
 
-/**
+/*
  * @brief Initializes Cmfd object for acceleration prior to source iteration.
  * @details Instantiates a dummy Cmfd object if one was not assigned to
  *          the Solver by the user and initializes FSRs, Materials, fluxes
