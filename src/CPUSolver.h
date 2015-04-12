@@ -63,7 +63,7 @@ protected:
    * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
    * @param fwd
    */
-  virtual void scalarFluxTally(segment* curr_segment, int azim_index,
+  virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
                                FP_PRECISION* track_flux, FP_PRECISION* fsr_flux,
                                bool fwd);
 

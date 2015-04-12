@@ -332,7 +332,7 @@ __device__ double atomicAdd(double* address, double val) {
  * @param polar_weights the array of polar Quadrature weights
  * @param scalar_flux the array of FSR scalar fluxes
  */
-__device__ void scalarFluxTally(dev_segment* curr_segment,
+__device__ void tallyScalarFlux(dev_segment* curr_segment,
                                 int azim_index,
                                 int energy_group,
                                 dev_material* materials,
@@ -490,7 +490,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     /* Loop over each Track segment in forward direction */
     for (int i=0; i < num_segments; i++) {
       curr_segment = &curr_track->_segments[i];
-      scalarFluxTally(curr_segment, azim_index, energy_group, materials,
+      tallyScalarFlux(curr_segment, azim_index, energy_group, materials,
                       track_flux, reduced_sources, polar_weights, scalar_flux);
     }
 
@@ -504,7 +504,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
     for (int i=num_segments-1; i > -1; i--) {
       curr_segment = &curr_track->_segments[i];
-      scalarFluxTally(curr_segment, azim_index, energy_group, materials,
+      tallyScalarFlux(curr_segment, azim_index, energy_group, materials,
                       track_flux, reduced_sources, polar_weights, scalar_flux);
   }
 

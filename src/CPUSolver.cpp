@@ -630,7 +630,7 @@ void CPUSolver::transportSweep() {
       /* Loop over each Track segment in forward direction */
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
-        scalarFluxTally(curr_segment, azim_index, track_flux,
+        tallyScalarFlux(curr_segment, azim_index, track_flux,
                         thread_fsr_flux, true);
       }
 
@@ -642,7 +642,7 @@ void CPUSolver::transportSweep() {
 
       for (int s=num_segments-1; s > -1; s--) {
         curr_segment = &segments[s];
-        scalarFluxTally(curr_segment, azim_index, track_flux,
+        tallyScalarFlux(curr_segment, azim_index, track_flux,
                         thread_fsr_flux, false);
       }
       delete thread_fsr_flux;
@@ -667,7 +667,7 @@ void CPUSolver::transportSweep() {
  * @param fsr_flux a pointer to the temporary FSR flux buffer
  * @param fwd
  */
-void CPUSolver::scalarFluxTally(segment* curr_segment,
+void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index,
                                 FP_PRECISION* track_flux,
                                 FP_PRECISION* fsr_flux,

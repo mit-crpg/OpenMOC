@@ -45,6 +45,9 @@ private:
 
   /** Twice the number of polar angles */
   int _two_times_num_polar;
+
+  int round_to_int(float x);
+  int round_to_int(double x);
   
 public:
 
@@ -70,7 +73,7 @@ public:
  * @param x a float precision floating point value
  * @brief the rounded integer value
  */
-inline int round_to_int(float x) {
+inline int ExpEvaluator::round_to_int(float x) {
   return lrintf(x);
 }
 
@@ -80,7 +83,7 @@ inline int round_to_int(float x) {
  * @param x a double precision floating point value
  * @brief the rounded integer value
  */
-inline int round_to_int(double x) {
+inline int ExpEvaluator::round_to_int(double x) {
   return lrint(x);
 }
 
