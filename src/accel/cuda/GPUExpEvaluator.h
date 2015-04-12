@@ -21,9 +21,6 @@
 #define MAX_POLAR_ANGLES 10
 
 
-void clone_exp_evaluator(ExpEvaluator* evaluator_h,
-                         GPUExpEvaluator* evaluator_d);
-
 /**
  * @class GPUExpEvaluator GPUExpEvaluator.h "src/accel/cuda/ExpEvaluator.h"
  * @brief This is a class for evaluating exponentials on GPUs.
@@ -44,6 +41,10 @@ public:
 
   __device__ FP_PRECISION computeExponential(FP_PRECISION tau, int polar);
 };
+
+
+void clone_exp_evaluator(ExpEvaluator* evaluator_h,
+                         GPUExpEvaluator* evaluator_d);
 
 
 #endif /* EXPEVALUATOR_H_ */
