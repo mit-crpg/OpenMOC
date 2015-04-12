@@ -20,7 +20,9 @@
  * @class ExpEvaluator ExpEvaluator.h "src/ExpEvaluator.h"
  * @brief This is a class for evaluating exponentials.
  * @details The ExpEvaluator includes different algorithms to evaluate
- *          exponentials with varying degrees of accuracy and speed.
+ *          exponentials with varying degrees of accuracy and speed. This
+ *          is a helper class for the Solver and its subclasses and it not
+ *          intended to be initialized as a standalone object.
  */
 class ExpEvaluator {
 
@@ -83,4 +85,4 @@ inline int round_to_int(double x) {
 }
 
 
-#endif /* EXPEVALUATOR_H_ */
+ #endif /* EXPEVALUATOR_H_ */

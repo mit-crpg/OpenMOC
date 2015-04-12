@@ -3,6 +3,8 @@
 
 /**
  * @brief Constructor initializes array pointers to NULL.
+ * @details The constructor sets the interpolation scheme as the default
+ *          for computing exponentials.
  */
 ExpEvaluator::ExpEvaluator() { 
   _interpolate = true;
@@ -22,6 +24,7 @@ ExpEvaluator::~ExpEvaluator() {
 
 /**
  * @brief Set the PolarQuad to use when computing exponentials.
+ * @param polar_quad a PolarQuad object pointer
  */
 void ExpEvaluator::setPolarQuadrature(PolarQuad* polar_quad) {
   _polar_quad = polar_quad;
@@ -69,7 +72,8 @@ FP_PRECISION ExpEvaluator::getTableSpacing() {
 
 
 /**
- *
+ * @brief Get the number of entries in the exponential interpolation table.
+ * @param entries in the interpolation table
  *
  */
 int ExpEvaluator::getTableSize() {

@@ -34,7 +34,15 @@ __device__ inline int round_to_int_d(double x) {
 }
 
 
-//FIXME
+/**
+ * @brief Given a pointer to an ExpEvaluator on the host and a 
+ *        GPUExpEvaluator on the GPU, copy all of the properties from 
+*         the ExpEvaluator object on the host to the GPU.
+ * @details This routine is called by the GPUSolver::initializeExpEvaluator()
+ *          private class method and is not intended to be called directly.
+ * @param eavluator_h pointer to a ExpEvaluator on the host
+ * @param evaluator_d pointer to a GPUExpEvaluator on the GPU
+ */
 void clone_exp_evaluator(ExpEvaluator* evaluator_h,
                          GPUExpEvaluator* evaluator_d) {
 

@@ -16,15 +16,21 @@
 #include "../../ExpEvaluator.h"
 #endif
 
+
 /** The maximum number of polar angles to reserve constant memory on GPU */
 #define MAX_POLAR_ANGLES 10
 
+
+void clone_exp_evaluator(ExpEvaluator* evaluator_h,
+                         GPUExpEvaluator* evaluator_d);
 
 /**
  * @class GPUExpEvaluator GPUExpEvaluator.h "src/accel/cuda/ExpEvaluator.h"
  * @brief This is a class for evaluating exponentials on GPUs.
  * @details The ExpEvaluator includes different algorithms to evaluate
- *          exponentials with varying degrees of accuracy and speed.
+ *          exponentials with varying degrees of accuracy and speed. This
+ *          is a helper class for the Solver and its subclasses and it not
+ *          intended to be initialized as a standalone object.
  */
 class GPUExpEvaluator {
 
@@ -36,13 +42,8 @@ public:
   /** The exponential linear interpolation table */
   FP_PRECISION* _exp_table;
 
-
   __device__ FP_PRECISION computeExponential(FP_PRECISION tau, int polar);
 };
-
-
-void clone_exp_evaluator(ExpEvaluator* evaluator_h,
-                         GPUExpEvaluator* evaluator_d);
 
 
 #endif /* EXPEVALUATOR_H_ */
