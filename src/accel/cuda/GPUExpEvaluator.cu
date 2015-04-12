@@ -44,35 +44,24 @@ void clone_exp_evaluator(ExpEvaluator* evaluator_h,
   cudaMemcpyToSymbol(interpolate, (void*)&interpolate_exp,
                      sizeof(bool), 0, cudaMemcpyHostToDevice);
 
-  /* Allocate memory for the interpolation table on the device */
   if (evaluator_h->isUsingInterpolation()) {
 
     /* Copy inverse table spacing to constant memory on the device */
     FP_PRECISION inverse_spacing_h = 1.0 / evaluator_h->getTableSpacing();
     cudaMemcpyToSymbol(inverse_exp_table_spacing, (void*)&inverse_spacing_h,
                        sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
-    
 
+    /* Allocate memory for the interpolation table on the device */
     int exp_table_size_h = evaluator_h->getTableSize();
     FP_PRECISION* exp_table_h = evaluator_h->getExpTable();
 
-    printf("exp table size = %d\n", exp_table_size_h);
-  
     FP_PRECISION* exp_table_d;
     cudaMalloc((void**)&exp_table_d, exp_table_size_h * sizeof(FP_PRECISION));
-    cudaMemcpy((void**)exp_table_d, (void*)exp_table_h,
+    cudaMemcpy((void*)exp_table_d, (void*)exp_table_h,
                exp_table_size_h * sizeof(FP_PRECISION), 
                cudaMemcpyHostToDevice);
-
-    /* Transfer exponential interpolation table pointer to GPUExpEvaluator */
-//    cudaMemcpy((void*)&material_d->_sigma_t, (void*)&sigma_t, sizeof(double*),
-//               cudaMemcpyHostToDevice);
-
-    cudaMemcpy((void*)&evaluator_d->_exp_table, (void*)&exp_table_d, sizeof(FP_PRECISION*),
-               cudaMemcpyHostToDevice);
-
-
-//    evaluator_d->_exp_table = &exp_table_d;
+    cudaMemcpy((void*)&evaluator_d->_exp_table, (void*)&exp_table_d, 
+               sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
   }
 
   return;
@@ -102,6 +91,7 @@ __device__ FP_PRECISION GPUExpEvaluator::computeExponential(FP_PRECISION tau,
 
     index = round_to_int_d(tau * (*inverse_exp_table_spacing));
     index *= (*two_times_num_polar);
+
     exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                          _exp_table[index + 2 * polar +1]));
   }

@@ -18,7 +18,7 @@ num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 
-log.set_log_level('INFO')
+log.set_log_level('NORMAL')
 
 log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
@@ -310,6 +310,7 @@ track_generator.generateTracks()
 
 solver = GPUSolver(geometry, track_generator)
 solver.setSourceConvergenceThreshold(tolerance)
+#solver.useExponentialIntrinsic()
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 

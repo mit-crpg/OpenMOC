@@ -5,6 +5,7 @@
  * @brief Constructor initializes array pointers to NULL.
  */
 ExpEvaluator::ExpEvaluator() { 
+  _interpolate = true;
   _exp_table = NULL;
   _polar_quad = NULL;
 }

@@ -27,9 +27,8 @@ __constant__ FP_PRECISION polar_weights[MAX_POLAR_ANGLES*MAX_AZIM_ANGLES];
 /** The total number of Tracks */
 __constant__ int tot_num_tracks[1];
 
-//FIXME
 /** An GPUExpEvaluator object to compute exponentials */
-__device__ __constant__ GPUExpEvaluator exp_evaluator;
+__constant__ GPUExpEvaluator exp_evaluator;
 
 
 /**
@@ -719,10 +718,6 @@ GPUSolver::~GPUSolver() {
     _leakage_vec.clear();
     _leakage = NULL;
   }
-
-//  if (_exp_evaluator != NULL) {
-//    delete _exp_evaluator;
-//  }
 }
 
 
@@ -992,13 +987,9 @@ void GPUSolver::initializeExpEvaluator(){
 
   Solver::initializeExpEvaluator();
 
-  //FIXME
-  /* Allocate array for the table */
-//  if (_exp_table != NULL)
-//    delete [] _exp_table;
+  log_printf(INFO, "Initializing the exponential evaluator on the GPU...");
 
   /* Allocate memory for a GPUExpEvaluator on the device */
-//  GPUExpEvaluator* dev_exp_evaluator = new GPUExpEvaluator();
   GPUExpEvaluator* dev_exp_evaluator;
   cudaMalloc((void**)&dev_exp_evaluator, sizeof(GPUExpEvaluator));
 
@@ -1006,9 +997,9 @@ void GPUSolver::initializeExpEvaluator(){
   clone_exp_evaluator(_exp_evaluator, dev_exp_evaluator);
 
   /* Copy the GPUExpEvaluator into constant memory on the GPU */
-  cudaMemcpyToSymbol(exp_evaluator, (void*)&dev_exp_evaluator, 
+  cudaMemcpyToSymbol(exp_evaluator, (void*)dev_exp_evaluator, 
                      sizeof(GPUExpEvaluator), 0, cudaMemcpyDeviceToDevice);
-  
+
   return;
 }
 
@@ -1106,13 +1097,10 @@ void GPUSolver::initializeMaterials() {
     std::map<int, Material*>::iterator iter;
     int material_index = 0;
 
-    printf("going into materials loop. # materials = %d\n", _num_materials);
-    
     /* Iterate through all Materials and clone them as dev_material structs
      * on the device */
     cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
     for (iter=host_materials.begin(); iter != host_materials.end(); ++iter){
-      printf("this material\n");
       clone_material(iter->second, &_materials[material_index]);
       _material_IDs_to_indices[iter->second->getId()] = material_index;
       material_index++;

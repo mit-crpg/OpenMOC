@@ -20,6 +20,7 @@
 #include "clone.h"
 #include "GPUExpEvaluator.h"
 
+
 /** Indexing macro for the scalar flux in each FSR and energy group */
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
 
