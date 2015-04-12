@@ -7,14 +7,12 @@
  *          and azimuthal angles from the Geometry and TrackGenerator if
  *          passed in as parameters by the user. The constructor initalizes
  *          the number of OpenMP threads to a default of 1.
- * @param geometry an optional pointer to the Geometry
  * @param track_generator an optional pointer to the TrackGenerator
  */
-CPUSolver::CPUSolver(Geometry* geometry, TrackGenerator* track_generator)
-    : Solver(geometry, track_generator) {
+CPUSolver::CPUSolver(TrackGenerator* track_generator)
+  : Solver(track_generator) {
 
   setNumThreads(1);
-
   _FSR_locks = NULL;
 }
 
@@ -214,8 +212,7 @@ void CPUSolver::initializeFluxArrays() {
     _scalar_flux = new FP_PRECISION[size];
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for the Solver's fluxes. "
-               "Backtrace:%s", e.what());
+    log_printf(ERROR, "Could not allocate memory for the Solver's fluxes");
   }
 }
 
@@ -263,9 +260,8 @@ void CPUSolver::initializeSourceArrays() {
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the solver's FSR "
-               "sources array. Backtrace:%s", e.what());
+               "sources array");
   }
-
 }
 
 
@@ -285,8 +281,6 @@ void CPUSolver::zeroTrackFluxes() {
       }
     }
   }
-
-  return;
 }
 
 
@@ -630,8 +624,8 @@ void CPUSolver::transportSweep() {
       /* Loop over each Track segment in forward direction */
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
-        tallyScalarFlux(curr_segment, azim_index, track_flux,
-                        thread_fsr_flux, true);
+        tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
+        tallySurfaceCurrent(curr_segment, azim_index, track_flux, true);
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -642,8 +636,8 @@ void CPUSolver::transportSweep() {
 
       for (int s=num_segments-1; s > -1; s--) {
         curr_segment = &segments[s];
-        tallyScalarFlux(curr_segment, azim_index, track_flux,
-                        thread_fsr_flux, false);
+        tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
+        tallySurfaceCurrent(curr_segment, azim_index, track_flux, false);
       }
       delete thread_fsr_flux;
 
@@ -667,20 +661,16 @@ void CPUSolver::transportSweep() {
  * @param fsr_flux a pointer to the temporary FSR flux buffer
  * @param fwd
  */
-void CPUSolver::tallyScalarFlux(segment* curr_segment,
-                                int azim_index,
+void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
                                 FP_PRECISION* track_flux,
-                                FP_PRECISION* fsr_flux,
-                                bool fwd){
+                                FP_PRECISION* fsr_flux){
 
-  int tid = omp_get_thread_num();
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
   /* The change in angular flux along this Track segment in the FSR */
   FP_PRECISION delta_psi;
-  FP_PRECISION surf_current;
   FP_PRECISION exponential;
 
   /* Set the FSR scalar flux buffer to zero */
@@ -703,19 +693,44 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   }
   omp_unset_lock(&_FSR_locks[fsr_id]);
 
+  return;
+}
+
+
+/**
+ * @brief Tallies the current contribution from this segment across the
+ *        the appropriate CMFD mesh cell surface.
+ * @param curr_segment a pointer to the Track segment of interest
+ * @param azim_index a pointer to the azimuthal angle index for this segment
+ * @param track_flux a pointer to the Track's angular flux
+ * @param fwd
+ */
+void CPUSolver::tallySurfaceCurrent(segment* curr_segment,
+                                    int azim_index,
+                                    FP_PRECISION* track_flux,
+                                    bool fwd){
+
+  FP_PRECISION surf_current;
+
   /* Tally surface currents if CMFD is in use */
-  /* NOTE: This means that locks are turned on/off much more often */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
+
     for (int e=0; e < _num_groups; e++) {
-      for (int p=0; p < _num_polar; p++){
-        surf_current = track_flux(p,e) * _polar_weights(azim_index,p) / 2.0;
-        _cmfd->tallySurfaceCurrent(curr_segment, surf_current, fwd, e);
-      }
+      surf_current = 0.;
+
+      for (int p=0; p < _num_polar; p++)
+        surf_current += track_flux(p,e) * _polar_weights(azim_index,p);
+
+      surf_current /= 2.;
+      _cmfd->tallySurfaceCurrent(curr_segment, surf_current, fwd, e);
     }
   }
 
   return;
 }
+
+
+
 
 
 /**

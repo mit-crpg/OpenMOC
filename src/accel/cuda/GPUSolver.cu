@@ -610,17 +610,13 @@ __global__ void computeFSRFissionRatesOnDevice(double* fission_rates,
 
 /**
  * @brief Constructor initializes arrays for dev_tracks and dev_materials..
- * @details The constructor retrieves the number of energy groups and FSRs
- *          and azimuthal angles from the Geometry and TrackGenerator if
- *          passed in as parameters by the user. The constructor initalizes
- *          the number of CUDA threads and thread blocks each to a default
- *          of 64.
- * @param geometry an optional pointer to the Geometry
+ * @details The constructor initalizes the number of CUDA threads and thread 
+ *          blocks each to a default of 64.
  * @param track_generator an optional pointer to the TrackjGenerator
  */
-GPUSolver::GPUSolver(Geometry* geometry, TrackGenerator* track_generator) :
+GPUSolver::GPUSolver(TrackGenerator* track_generator) :
 
-  Solver(geometry, track_generator) {
+  Solver(track_generator) {
 
   /* The default number of thread blocks and threads per thread block */
   _B = 64;
@@ -634,9 +630,6 @@ GPUSolver::GPUSolver(Geometry* geometry, TrackGenerator* track_generator) :
   _fission = NULL;
   _scatter = NULL;
   _leakage = NULL;
-
-  if (geometry != NULL)
-    setGeometry(geometry);
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);

@@ -165,6 +165,7 @@ public:
   void initializeFlux();
   void initializeMaterials();
   void initializeSurfaceCurrents();
+
   void rescaleFlux();
   void linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x, FP_PRECISION* vec_b,
                    FP_PRECISION conv, int max_iter=10000);
@@ -175,10 +176,9 @@ public:
   void addFSRToCell(int cmfd_cell, int fsr_id);
   void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
                           int num_tracks);
-  //FIXME
-  void tallySurfaceCurrent(segment* curr_segment, 
-                           FP_PRECISION current, bool fwd, int e);
   void zeroSurfaceCurrents();
+  void tallySurfaceCurrent(segment* curr_segment, FP_PRECISION current, 
+                           bool fwd, int e);
 
   /* Get parameters */
   int getNumCmfdGroups();

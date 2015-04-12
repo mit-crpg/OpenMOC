@@ -240,12 +240,14 @@ protected:
 
 
 public:
-  Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
+  Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
+  virtual void setGeometry(Geometry* geometry);
+
   Geometry* getGeometry();
-  FP_PRECISION getFSRVolume(int fsr_id);
   TrackGenerator* getTrackGenerator();
+  FP_PRECISION getFSRVolume(int fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
   double getTotalTime();
@@ -277,7 +279,6 @@ public:
    */
   virtual FP_PRECISION getFSRSource(int fsr_id, int energy_group) =0;
 
-  virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
