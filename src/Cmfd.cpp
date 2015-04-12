@@ -1185,7 +1185,7 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment,
     omp_set_lock(&_surface_locks[curr_segment->_cmfd_surface_bwd]);
 
     /* Increment current (polar and azimuthal weighted flux, group) */
-    _surface_currents(curr_segment->_cmfd_surface_fwd, e) += current;
+    _surface_currents(curr_segment->_cmfd_surface_bwd, e) += current;
 
     /* Release Cmfd Mesh surface mutual exclusion lock */
     omp_unset_lock(&_surface_locks[curr_segment->_cmfd_surface_bwd]);
