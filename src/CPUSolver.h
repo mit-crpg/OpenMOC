@@ -102,7 +102,7 @@ public:
   FP_PRECISION getFSRSource(int fsr_id, int energy_group);
 
   void setNumThreads(int num_threads);
-  virtual void addFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };

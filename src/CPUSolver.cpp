@@ -165,10 +165,10 @@ void CPUSolver::setNumThreads(int num_threads) {
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void CPUSolver::addFixedSourceByFSR(int fsr_id, int group, 
+void CPUSolver::setFixedSourceByFSR(int fsr_id, int group, 
                                     FP_PRECISION source) {
 
-  Solver::addFixedSourceByFSR(fsr_id, group, source);
+  Solver::setFixedSourceByFSR(fsr_id, group, source);
 
   /* Allocate the fixed sources array if not yet allocated */
   if (_fixed_sources == NULL) {

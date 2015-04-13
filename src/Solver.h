@@ -280,9 +280,9 @@ public:
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
-  virtual void addFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
-  void addFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
-  void addFixedSourceByMaterial(Material* material, int group, 
+  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
+  void setFixedSourceByMaterial(Material* material, int group, 
                                 FP_PRECISION source);
 
   void useExponentialInterpolation();

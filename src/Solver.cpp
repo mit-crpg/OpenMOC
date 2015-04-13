@@ -330,15 +330,15 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void Solver::addFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
+void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
   
   if (group <= 0 || group > _num_groups)
-    log_printf(ERROR,"Cannot add fixed source for group %d, as there are only "
-               "%d groups in the problem", group, _num_groups);
+    log_printf(ERROR,"Unable to set fixed source for group %d in "
+               "in a %d group problem", group, _num_groups);
 
   if (fsr_id < 0 || fsr_id >= _num_FSRs)
-    log_printf(ERROR,"Cannot add fixed source for FSR %d, as there are only "
-               "%d fixed sources in the geometry", fsr_id, _num_FSRs);
+    log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
+               "%d FSRs in the geometry", fsr_id, _num_FSRs);
 }
 
 
@@ -350,7 +350,7 @@ void Solver::addFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void Solver::addFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
+void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
 
   /* If the Cell is filled by a Universe, recursively
    * add the source to all Cells within it */
@@ -358,7 +358,7 @@ void Solver::addFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
     std::map<int, Cell*> cells = cell->getAllCells();
     std::map<int, Cell*>::iterator iter;
     for (iter = cells.begin(); iter != cells.end(); ++iter)
-      addFixedSourceByCell(iter->second, group, source);
+      setFixedSourceByCell(iter->second, group, source);
   }
 
   /* If the Cell is filled by a Material, add the 
@@ -369,7 +369,7 @@ void Solver::addFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
     for (int r=0; r < _num_FSRs; r++) {
       fsr_cell = _geometry->findCellContainingFSR(r);
       if (cell->getId() == fsr_cell->getId())
-        addFixedSourceByFSR(r, group, source);
+        setFixedSourceByFSR(r, group, source);
     }
   }
 }
@@ -383,7 +383,7 @@ void Solver::addFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void Solver::addFixedSourceByMaterial(Material* material, int group, 
+void Solver::setFixedSourceByMaterial(Material* material, int group, 
                                       FP_PRECISION source) {
 
   Material* fsr_material;
@@ -392,7 +392,7 @@ void Solver::addFixedSourceByMaterial(Material* material, int group,
   for (int r=0; r < _num_FSRs; r++) {
     fsr_material = _geometry->findFSRMaterial(r);
     if (material->getId() == fsr_material->getId())
-      addFixedSourceByFSR(group, r, source);
+      setFixedSourceByFSR(group, r, source);
   }
 }
 
