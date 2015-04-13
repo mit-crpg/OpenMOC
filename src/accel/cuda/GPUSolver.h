@@ -71,29 +71,23 @@ private:
   /** An array of the cumulative number of Tracks for each azimuthal angle */
   int* _track_index_offsets;
 
-  /** A pointer to the Thrust vector of fission rates in each FSR */
-  FP_PRECISION* _fission_sources;
-
-  /** A pointer to the Thrust vector of scatter rates in each FSR */
-  FP_PRECISION* _scatter_sources;
+  /** Thrust vector of leakages for each track */
+  thrust::device_vector<FP_PRECISION> _boundary_leakage_vec;
 
   /** Thrust vector of fission sources in each FSR */
   thrust::device_vector<FP_PRECISION> _fission_sources_vec;
 
   /** Thrust vector of total reaction rates in each FSR */
-  thrust::device_vector<FP_PRECISION> _total_vec;
+  thrust::device_vector<FP_PRECISION> _total;
 
   /** Thrust vector of fission rates in each FSR */
-  thrust::device_vector<FP_PRECISION> _fission_vec;
+  thrust::device_vector<FP_PRECISION> _fission;
 
   /** Thrust vector of scatter rates in each FSR */
-  thrust::device_vector<FP_PRECISION> _scatter_vec;
+  thrust::device_vector<FP_PRECISION> _scatter;
 
   /** Thrust vector of source residuals in each FSR */
-  thrust::device_vector<FP_PRECISION> _source_residuals_vec;
-
-  /** Thrust vector of leakages for each track */
-  thrust::device_vector<FP_PRECISION> _boundary_leakage_vec;
+  thrust::device_vector<FP_PRECISION> _source_residuals;
 
   /** Map of Material IDs to indices in _materials array */
   std::map<int, int> _material_IDs_to_indices;

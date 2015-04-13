@@ -626,8 +626,6 @@ GPUSolver::GPUSolver(TrackGenerator* track_generator) :
   _dev_tracks = NULL;
   _FSR_materials = NULL;
 
-  _boundary_leakage = NULL;
-
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
 }
@@ -679,29 +677,12 @@ GPUSolver::~GPUSolver() {
     _reduced_sources = NULL;
   }
 
-  if (_fission_sources != NULL) {
-    _fission_sources_vec.clear();
-    _fission_sources = NULL;
-  }
-
-//  if (_total_vec != NULL)
-    _total_vec.clear();
-
-//  if (_fission_vec != NULL)
-    _fission_vec.clear();
-
-//  if (_scatter_vec != NULL)
-    _scatter_vec.clear();
-
-  if (_source_residuals != NULL) {
-    _source_residuals_vec.clear();
-    _source_residuals = NULL;
-  }
-
-  if (_boundary_leakage != NULL) {
-    _boundary_leakage_vec.clear();
-    _boundary_leakage = NULL;
-  }
+  _source_residuals.clear();
+  _fission_sources_vec.clear();
+  _boundary_leakage_vec.clear();
+  _total.clear();
+  _fission.clear();
+  _scatter.clear();
 }
 
 
@@ -1220,53 +1201,28 @@ void GPUSolver::initializeThrustVectors() {
 
   log_printf(INFO, "Initializing Thrust vectors on the GPU...");
 
-  /* Delete old vectors if they exist */
-  if (_fission_sources != NULL) {
-    _fission_sources = NULL;
-    _fission_sources_vec.clear();
-  }
-
-//  if (_total_vec != NULL)
-    _total_vec.clear();
-
-//  if (_fission_vec != NULL)
-    _fission_vec.clear();
-
-//  if (_scatter_vec != NULL)
-    _scatter_vec.clear();
-
-  if (_source_residuals != NULL) {
-    _source_residuals = NULL;
-    _source_residuals_vec.clear();
-  }
-
-  if (_boundary_leakage != NULL) {
-    _boundary_leakage = NULL;
-    _boundary_leakage_vec.clear();
-  }
+  _source_residuals.clear();
+  _boundary_leakage_vec.clear();
+  _fission_sources_vec.clear();
+  _total.clear();
+  _fission.clear();
+  _scatter.clear();
 
   /* Allocate memory for fission, absorption and source vectors on device */
   try{
     /* Allocate fission source array on device */
     _fission_sources_vec.resize(_B * _T);
-    _fission_sources = thrust::raw_pointer_cast(&_fission_sources_vec[0]);
 
-    /* Allocate total reaction rate array on device */
-    _total_vec.resize(_B * _T);
-
-    /* Allocate fission reaction rate array on device */
-    _fission_vec.resize(_B * _T);
-
-    /* Allocate scattering reaction rate array on device */
-    _scatter_vec.resize(_B * _T);
+    /* Allocate total, fission and scatter reaction rate vectors on device */
+    _total.resize(_B * _T);
+    _fission.resize(_B * _T);
+    _scatter.resize(_B * _T);
 
     /* Allocate source residual array on device */
-    _source_residuals_vec.resize(_B * _T);
-    _source_residuals = thrust::raw_pointer_cast(&_source_residuals_vec[0]);
+    _source_residuals.resize(_B * _T);
 
     /* Allocate leakage array on device */
     _boundary_leakage_vec.resize(_B * _T);
-    _boundary_leakage = thrust::raw_pointer_cast(&_boundary_leakage_vec[0]);
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the GPUSolver's "
@@ -1351,11 +1307,14 @@ void GPUSolver::normalizeFluxes() {
 
   int shared_mem = sizeof(FP_PRECISION) * _T;
 
+  FP_PRECISION* fission_sources = 
+       thrust::raw_pointer_cast(&_fission_sources_vec[0]);
+
   computeFissionSourcesOnDevice<<<_B, _T, shared_mem>>>(_FSR_volumes,
                                                         _FSR_materials,
                                                         _materials,
                                                         _scalar_flux,
-                                                        _fission_sources);
+                                                        fission_sources);
 
   FP_PRECISION norm_factor = 1.0 / thrust::reduce(_fission_sources_vec.begin(),
                                                   _fission_sources_vec.end());
@@ -1377,13 +1336,16 @@ void GPUSolver::normalizeFluxes() {
  */
 FP_PRECISION GPUSolver::computeFSRSources() {
 
+  FP_PRECISION* source_residuals = 
+       thrust::raw_pointer_cast(&_source_residuals[0]);
+
   computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
                                         _scalar_flux, _old_fission_sources,
                                         _reduced_sources, 1.0 / _k_eff,
-                                        _source_residuals);
+                                        source_residuals);
 
-  FP_PRECISION residual = thrust::reduce(_source_residuals_vec.begin(),
-                                         _source_residuals_vec.end());
+  FP_PRECISION residual = thrust::reduce(_source_residuals.begin(),
+                                         _source_residuals.end());
   residual = sqrt(residual / (_num_groups * _num_fissionable_FSRs));
 
   return residual;
@@ -1417,9 +1379,12 @@ void GPUSolver::transportSweep() {
   tid_offset = 0;
   tid_max = (_tot_num_tracks / 2);
 
+  FP_PRECISION* boundary_leakage = 
+       thrust::raw_pointer_cast(&_boundary_leakage_vec[0]);
+
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, _boundary_flux,
                                                  _reduced_sources, 
-                                                 _boundary_leakage,
+                                                 boundary_leakage,
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
 
@@ -1429,7 +1394,7 @@ void GPUSolver::transportSweep() {
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, _boundary_flux,
                                                  _reduced_sources, 
-                                                 _boundary_leakage,
+                                                 boundary_leakage,
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
 }
@@ -1461,38 +1426,28 @@ void GPUSolver::addSourceToScalarFlux() {
 void GPUSolver::computeKeff() {
 
   FP_PRECISION total, fission, scatter, leakage;
-  FP_PRECISION* total_vec = thrust::raw_pointer_cast(&_total_vec[0]);
-  FP_PRECISION* fission_vec = thrust::raw_pointer_cast(&_fission_vec[0]);
-  FP_PRECISION* scatter_vec = thrust::raw_pointer_cast(&_scatter_vec[0]);
+  FP_PRECISION* total_ptr = thrust::raw_pointer_cast(&_total[0]);
+  FP_PRECISION* fission_ptr = thrust::raw_pointer_cast(&_fission[0]);
+  FP_PRECISION* scatter_ptr = thrust::raw_pointer_cast(&_scatter[0]);
 
   /* Compute the total, fission and scattering reaction rates on device.
    * This kernel stores partial rates in a Thrust vector with as many
    * entries as CUDAthreads executed by the kernel */
   computeKeffReactionRates<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
                                        _materials, _scalar_flux,
-                                       total_vec, fission_vec, scatter_vec);
+                                       total_ptr, fission_ptr, scatter_ptr);
 
   cudaDeviceSynchronize();
 
-  /* Compute the total reaction rate by reducing the partial total
-   * rates compiled in the Thrust vector */
-  total = thrust::reduce(_total_vec.begin(), _total_vec.end());
-
-  /* Compute the fission rate by reducing the partial fission
-   * rates compiled in the Thrust vector */
-  fission = thrust::reduce(_fission_vec.begin(), _fission_vec.end());
-
-  //FIXME
-//  cudaMemcpy((void*)&fission, (void*)_fission,
-//             _B * _T * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-
-  /* Compute the scattering rate by reducing the partial fission
-   * rates compiled in the Thrust vector */
-  scatter = thrust::reduce(_scatter_vec.begin(), _scatter_vec.end());
+  /* Compute the total, fission and scatter reaction rates by 
+   * reducing the partial rates compiled in the Thrust vectors */
+  total = thrust::reduce(_total.begin(), _total.end());
+  fission = thrust::reduce(_fission.begin(), _fission.end());
+  scatter = thrust::reduce(_scatter.begin(), _scatter.end());
 
   /* Compute the total leakage by reducing the partial leakage
    * rates compiled in the Thrust vector */
-  leakage = 0.5 * thrust::reduce(_boundary_leakage_vec.begin(), 
+  leakage = 0.5 * thrust::reduce(_boundary_leakage_vec.begin(),
                                  _boundary_leakage_vec.end());
 
 
