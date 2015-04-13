@@ -50,6 +50,9 @@
  *  for each FSR and energy group */
 #define _scatter_sources(r,e) (_scatter_sources[(r)*_num_groups + (e)])
 
+/** Indexing scheme for fixed sources for each FSR and energy group */
+#define _fixed_sources(r,e) (_fixed_sources[(r)*_num_groups + (e)])
+
 
 /**
  * @class Solver Solver.h "src/Solver.h"
@@ -136,6 +139,9 @@ protected:
   /** The in-scatter source in each FSR and energy group */
   FP_PRECISION* _scatter_sources;
 
+  /** Optional user-specified fixed sources in each FSR and energy group */
+  FP_PRECISION* _fixed_sources;
+
   /** The old fission source in each FSR from the previous iteration */
   FP_PRECISION* _old_fission_sources;
 
@@ -148,9 +154,6 @@ protected:
 
   /** The current iteration's approximation to k-effective */
   FP_PRECISION _k_eff;
-
-  /** The total leakage across vacuum boundaries */
-  FP_PRECISION _leakage;
 
   /** The number of source iterations needed to reach convergence */
   int _num_iterations;

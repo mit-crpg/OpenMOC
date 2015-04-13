@@ -54,7 +54,8 @@ protected:
   void flattenFSRSources(FP_PRECISION value);
   void normalizeFluxes();
   FP_PRECISION computeFSRSources();
-  FP_PRECISION computeFSRSourcesForFixedSource();
+  //FIXME
+  //  FP_PRECISION computeFSRSourcesForFixedSource();
 
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
