@@ -22,7 +22,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _exp_evaluator = new ExpEvaluator();
 
   _tracks = NULL;
-  _azim_weights = NULL;
   _polar_weights = NULL;
   _boundary_flux = NULL;
   _boundary_leakage = NULL;
@@ -30,12 +29,10 @@ Solver::Solver(TrackGenerator* track_generator) {
   _scalar_flux = NULL;
   _fission_sources = NULL;
   _scatter_sources = NULL;
+  _fixed_sources = NULL;
   _old_fission_sources = NULL;
   _reduced_sources = NULL;
   _source_residuals = NULL;
-  
-  _num_fixed_sources = 0;
-  _fsr_to_source = NULL;
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
@@ -52,7 +49,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _converged_source = false;
 
   _timer = new Timer();
-
 }
 
 
@@ -86,6 +82,9 @@ Solver::~Solver() {
   if (_scatter_sources != NULL)
     delete [] _scatter_sources;
 
+  if (_fixed_sources != NULL)
+    delete [] _fixed_sources;
+
   if (_old_fission_sources != NULL)
     delete [] _old_fission_sources;
 
@@ -94,16 +93,6 @@ Solver::~Solver() {
 
   if (_source_residuals != NULL)
     delete [] _source_residuals;
-    
-  if (_fsr_to_source != NULL)
-    delete [] _fsr_to_source;
-  
-  if (_fixed_source.size() != 0) {
-    int n = _fixed_source.size();
-    for (int i=0; i<n; i++)
-      delete [] _fixed_source[i];
-    _fixed_source.clear();
-  }
 
   if (_exp_evaluator != NULL)
     delete _exp_evaluator;
@@ -273,16 +262,15 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
   _track_generator = track_generator;
   _num_azim = _track_generator->getNumAzim() / 2;
-  _num_tracks = _track_generator->getNumTracksArray();
+  int* num_tracks = _track_generator->getNumTracksArray();
   _tot_num_tracks = _track_generator->getNumTracks();
-  _azim_weights = _track_generator->getAzimWeights();
   _tracks = new Track*[_tot_num_tracks];
 
   /* Initialize the tracks array */
   int counter = 0;
 
   for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
+    for (int j=0; j < num_tracks[i]; j++) {
       _tracks[counter] = &_track_generator->getTracks()[i][j];
       counter++;
     }
@@ -335,6 +323,81 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 
 
 /**
+ * @brief Assign a fixed source for a flat source region and energy group.
+ * @details This is a helper routine to perform error checking for the
+ *          subclasses which store the source in the appropriate array.
+ * @param fsr_id the flat source region ID
+ * @param group the energy group
+ * @param source the volume-averaged source in this group
+ */
+void Solver::addFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
+  
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR,"Cannot add fixed source for group %d, as there are only "
+               "%d groups in the problem", group, _num_groups);
+
+  if (fsr_id < 0 || fsr_id >= _num_FSRs)
+    log_printf(ERROR,"Cannot add fixed source for FSR %d, as there are only "
+               "%d fixed sources in the geometry", fsr_id, _num_FSRs);
+}
+
+
+/**
+ * @brief Assign a fixed source for a Cell and energy group.
+ * @details This routine will add the fixed source to all instances of the
+ *          Cell in the geometry (e.g., all FSRs for this Cell).
+ * @param fsr_id the Cell of interest
+ * @param group the energy group
+ * @param source the volume-averaged source in this group
+ */
+void Solver::addFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
+
+  /* If the Cell is filled by a Universe, recursively
+   * add the source to all Cells within it */
+  if (cell->getType() == FILL) {
+    std::map<int, Cell*> cells = cell->getAllCells();
+    std::map<int, Cell*>::iterator iter;
+    for (iter = cells.begin(); iter != cells.end(); ++iter)
+      addFixedSourceByCell(iter->second, group, source);
+  }
+
+  /* If the Cell is filled by a Material, add the 
+   * source to all FSRs for this Cell */
+  else {
+    CellBasic* fsr_cell;
+    
+    for (int r=0; r < _num_FSRs; r++) {
+      fsr_cell = _geometry->findCellContainingFSR(r);
+      if (cell->getId() == fsr_cell->getId())
+        addFixedSourceByFSR(r, group, source);
+    }
+  }
+}
+
+
+/**
+ * @brief Assign a fixed source for a Material and energy group.
+ * @details This routine will add the fixed source to all instances of the
+ *          Material in the geometry (e.g., all FSRs with this Material).
+ * @param fsr_id the Material of interest
+ * @param group the energy group
+ * @param source the volume-averaged source in this group
+ */
+void Solver::addFixedSourceByMaterial(Material* material, int group, 
+                                      FP_PRECISION source) {
+
+  Material* fsr_material;
+
+  /* Add the source to all FSRs for this Material */
+  for (int r=0; r < _num_FSRs; r++) {
+    fsr_material = _geometry->findFSRMaterial(r);
+    if (material->getId() == fsr_material->getId())
+      addFixedSourceByFSR(group, r, source);
+  }
+}
+
+
+/**
  * @brief Informs the Solver to use linear interpolation to compute the
  *        exponential in the transport equation.
  */
@@ -359,6 +422,7 @@ void Solver::useExponentialIntrinsic() {
 void Solver::initializePolarQuadrature() {
 
   FP_PRECISION azim_weight;
+  FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
 
   /* Create Tabuchi-Yamamoto polar quadrature if a
    * PolarQuad was not assigned by the user */
@@ -379,7 +443,7 @@ void Solver::initializePolarQuadrature() {
   /* Compute the total azimuthal weight for tracks at each polar angle */
   #pragma omp parallel for private(azim_weight) schedule(guided)
   for (int i=0; i < _num_azim; i++) {
-    azim_weight = _azim_weights[i];
+    azim_weight = azim_weights[i];
 
     for (int p=0; p < _num_polar; p++)
       _polar_weights(i,p) = 
@@ -532,9 +596,8 @@ void Solver::checkTrackSpacing() {
  * @endcode
  *
  * @param max_iterations the maximum number of source iterations to allow
- * @return the value of the computed eigenvalue \f$ k_{eff} \f$
  */
-FP_PRECISION Solver::convergeSource(int max_iterations) {
+void Solver::convergeSource(int max_iterations) {
 
   /* Error checking */
   if (_geometry == NULL)
@@ -607,17 +670,14 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     if (i > 1 && residual < _source_convergence_thresh) {
       _timer->stopTimer();
       _timer->recordSplit("Total time to converge the source");
-      return _k_eff;
+      return;
     }
   }
 
   _timer->stopTimer();
   _timer->recordSplit("Total time to converge the source");
 
-  log_printf(WARNING, "Unable to converge the source after %d iterations",
-             max_iterations);
-
-  return _k_eff;
+  log_printf(WARNING, "Unable to converge the source");
 }
 
 
@@ -697,91 +757,6 @@ void Solver::printTimerReport() {
   log_printf(SEPARATOR, "-");
 }
 
-void Solver::addFixedSourceByGroupToFSR(int group, int fsr, FP_PRECISION source) {
-  
-  // check for valid group, fsr
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR,"Cannot add fixed source for group %d, as there are only "
-               "%d groups in the problem.", group, _num_groups);
-  if (fsr < 0 || fsr >= _num_FSRs)
-    log_printf(ERROR,"Cannot add fixed source for FSR %d, as there are only "
-               "%d fixed sources in the geometry.", fsr, _num_FSRs);
-  
-  
-  // check if this is the first fixed source
-  if (_num_fixed_sources == 0) {
-    // delete existing fixed sources if needed
-    if (_fsr_to_source != NULL)
-      delete [] _fsr_to_source;
-    if (_fixed_source.size() != 0) {
-      int n = _fixed_source.size();
-      for (int i=0; i<n; i++)
-        delete [] _fixed_source[i];
-      _fixed_source.clear();
-    }
-    
-    // allocate and initialize the fixed sources
-    _fsr_to_source = new int[_num_FSRs];
-    for (int r=0; r<_num_FSRs; r++)
-      _fsr_to_source[r] = -1;
-  }
-  
-  // if no fixed source for FSR, create one
-  if (_fsr_to_source[fsr] == -1) {
-    _fsr_to_source[fsr] = _num_fixed_sources;
-    _num_fixed_sources++;
-    
-    FP_PRECISION* fixed_source = new FP_PRECISION[_num_groups];
-    memset(fixed_source, 0.0, sizeof(FP_PRECISION) * _num_groups);
-    fixed_source[group-1] = source;
-    
-    _fixed_source.push_back(fixed_source);
-  }
-  
-  // otherwise, add source to existing fixed source
-  else {
-    int i = _fsr_to_source[fsr];
-    _fixed_source[i][group-1] += source;
-  }
-  
-}
-
-
-void Solver::addFixedSourceByGroupToCell(int group, Cell* cell, FP_PRECISION source) {
-
-  if (cell->getType() == FILL) {
-    std::map<int, Cell*> cells = cell->getAllCells();
-    std::map<int, Cell*>::iterator iter;
-    for (iter = cells.begin(); iter != cells.end(); ++iter)
-      addFixedSourceByGroupToCell(group,iter->second,source);
-  }
-
-  else {
-    CellBasic* fsr_cell;
-    
-    for (int r=0; r<_num_FSRs; r++) {
-      fsr_cell = _geometry->findCellContainingFSR(r);
-      if (cell->getId() == fsr_cell->getId())
-        addFixedSourceByGroupToFSR(group,r,source);
-    }
-    
-  }
-
-}
-
-
-void Solver::addFixedSourceByGroupToMaterial(int group, Material* material, FP_PRECISION source) {
-
-  Material* fsr_matl;
-  
-  for (int r=0; r<_num_FSRs; r++) {
-    fsr_matl = _geometry->findFSRMaterial(r);
-    if (material->getId() == fsr_matl->getId())
-      addFixedSourceByGroupToFSR(group,r,source);
-  }
-
-}
-
 
 /**
  * @brief Solves fixed source problem
@@ -796,13 +771,13 @@ void Solver::solveFixedSource(int max_iterations) {
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to converge the source "
                "since it does not contain a TrackGenerator");
-               
-  if (_fsr_to_source == NULL) {
+
+  //  if (_fsr_to_source == NULL) {
     // allocate and initialize the fixed sources
-    _fsr_to_source = new int[_num_FSRs];
-    for (int r=0; r<_num_FSRs; r++)
-      _fsr_to_source[r] = -1;
-  }
+  //    _fsr_to_source = new int[_num_FSRs];
+  //   for (int r=0; r<_num_FSRs; r++)
+  //    _fsr_to_source[r] = -1;
+  // }
 
   log_printf(NORMAL, "Solving the fixed source problem...");
 

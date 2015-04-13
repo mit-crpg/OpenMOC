@@ -1210,11 +1210,12 @@ void GPUSolver::initializeThrustVectors() {
 int GPUSolver::computeScalarTrackIndex(int i, int j) {
 
   int index = 0, p = 0;
+  int* num_tracks = _track_generator->getNumTracksArray();
 
   /* Iterate over each azimuthal angle and increment index by the number of
    * Tracks at each angle */
   while (p < i) {
-    index += _num_tracks[p];
+    index += num_tracks[p];
     p++;
   }
 

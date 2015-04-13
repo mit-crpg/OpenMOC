@@ -160,6 +160,29 @@ void CPUSolver::setNumThreads(int num_threads) {
 
 
 /**
+ * @brief Assign a fixed source for a flat source region and energy group.
+ * @param fsr_id the flat source region ID
+ * @param group the energy group
+ * @param source the volume-averaged source in this group
+ */
+void CPUSolver::addFixedSourceByFSR(int fsr_id, int group, 
+                                    FP_PRECISION source) {
+
+  Solver::addFixedSourceByFSR(fsr_id, group, source);
+
+  /* Allocate the fixed sources array if not yet allocated */
+  if (_fixed_sources == NULL) {
+    int size = _num_FSRs * _num_groups;
+    _fixed_sources = new FP_PRECISION[size];
+    memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
+  }
+
+  /* Store the fixed source for this FSR and energy group */
+  _fixed_sources(fsr_id,group-1) = source;  
+}
+
+
+/**
  * @brief Initializes the FSR volumes and Materials array.
  * @details This method assigns each FSR a unique, monotonically increasing
  *          ID, sets the Material for each FSR, and assigns a volume based on
@@ -249,6 +272,12 @@ void CPUSolver::initializeSourceArrays() {
     size = _num_FSRs * _num_groups;
     _fission_sources = new FP_PRECISION[size];
     _reduced_sources = new FP_PRECISION[size];
+
+    /* If no fixed sources were assigned by the user, use a zeroes array */
+    if (_fixed_sources == NULL) {
+      _fixed_sources = new FP_PRECISION[size];
+      memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
+    }
 
     size = _num_threads * _num_groups;
     _scatter_sources = new FP_PRECISION[size];

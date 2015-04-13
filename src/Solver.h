@@ -108,14 +108,8 @@ protected:
   /** A pointer to the 2D ragged array of Tracks */
   Track** _tracks;
 
-  /** A pointer to an array with the number of Tracks per azimuthal angle */
-  int* _num_tracks;
-
   /** The total number of Tracks */
   int _tot_num_tracks;
-
-  /** The weights for each azimuthal angle */
-  FP_PRECISION* _azim_weights;
 
   /** The weights for each polar angle in the polar angle quadrature */
   FP_PRECISION* _polar_weights;
@@ -172,15 +166,6 @@ protected:
 
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
-  
-  /** Fixed source data */
-  std::vector<FP_PRECISION*> _fixed_source;
-  
-  /** The number of FSRs that have fixed source data */
-  int _num_fixed_sources;
-  
-  /** Mapping of FSRs to fixed sources */
-  int* _fsr_to_source;
 
   /**
    * @brief Initializes Track boundary angular flux and leakage and
@@ -295,15 +280,16 @@ public:
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
-  void addFixedSourceByGroupToFSR(int group, int fsr, FP_PRECISION source);
-  void addFixedSourceByGroupToCell(int group, Cell* cell, FP_PRECISION source);
-  void addFixedSourceByGroupToMaterial(int group, Material* material, FP_PRECISION source);
+  virtual void addFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  void addFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
+  void addFixedSourceByMaterial(Material* material, int group, 
+                                FP_PRECISION source);
 
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
-  virtual FP_PRECISION convergeSource(int max_iterations);
-  void solveFixedSource(int max_iterations);
+  virtual void convergeSource(int max_iterations);
+  virtual void solveFixedSource(int max_iterations);
 
 /**
  * @brief Computes the volume-weighted, energy integrated fission rate in
