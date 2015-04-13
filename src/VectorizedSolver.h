@@ -59,7 +59,7 @@ protected:
 
   void normalizeFluxes();
   FP_PRECISION computeFSRSources();
-  void scalarFluxTally(segment* curr_segment, int azim_index,
+  void tallyScalarFlux(segment* curr_segment, int azim_index,
                        FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
   void transferBoundaryFlux(int track_id, int azim_index, bool direction,
                             FP_PRECISION* track_flux);
