@@ -8,8 +8,8 @@
 VectorizedSolver::VectorizedSolver(TrackGenerator* track_generator) :
   CPUSolver(track_generator) {
 
-  if (_cmfd != NULL)
-    log_printf(ERROR, "The VectorizedSolver is not set up to use CMFD");
+  //  if (_cmfd != NULL)
+    //    log_printf(ERROR, "The VectorizedSolver is not set up to use CMFD");
 
   _delta_psi = NULL;
   _thread_taus = NULL;
