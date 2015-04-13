@@ -72,10 +72,10 @@ private:
   int* _track_index_offsets;
 
   /** Thrust vector of leakages for each track */
-  thrust::device_vector<FP_PRECISION> _boundary_leakage_vec;
+  thrust::device_vector<FP_PRECISION> _boundary_leakage;
 
   /** Thrust vector of fission sources in each FSR */
-  thrust::device_vector<FP_PRECISION> _fission_sources_vec;
+  thrust::device_vector<FP_PRECISION> _fission_sources;
 
   /** Thrust vector of total reaction rates in each FSR */
   thrust::device_vector<FP_PRECISION> _total;
