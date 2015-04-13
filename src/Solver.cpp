@@ -2,31 +2,24 @@
 /**
  * @brief Constructor initializes an empty Solver class with array pointers
  *        set to NULL.
- * @details If the constructor receives Geometry and TrackGenerator 
- *          objects it will retrieve the number of energy groups
- *          and FSRs from the Geometry and azimuthal angles from the
- *          TrackGenerator.
- * @param geometry an optional pointer to a Geometry object
  * @param track_generator an optional pointer to a TrackGenerator object
  */
-Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
+Solver::Solver(TrackGenerator* track_generator) {
 
   /* Default values */
   _num_materials = 0;
   _num_groups = 0;
   _num_azim = 0;
-  _polar_times_groups = 0;
 
   _num_FSRs = 0;
   _num_fissionable_FSRs = 0;
-  _num_mesh_cells = 0;
   _FSR_volumes = NULL;
   _FSR_materials = NULL;
-  _surface_currents = NULL;
 
   _track_generator = NULL;
   _geometry = NULL;
   _cmfd = NULL;
+  _exp_evaluator = new ExpEvaluator();
 
   _tracks = NULL;
   _azim_weights = NULL;
@@ -40,17 +33,9 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _old_fission_sources = NULL;
   _reduced_sources = NULL;
   _source_residuals = NULL;
-
-  _interpolate_exponential = true;
-  _exp_table = NULL;
   
   _num_fixed_sources = 0;
   _fsr_to_source = NULL;
-
-  if (geometry != NULL){
-    _cmfd = geometry->getCmfd();
-    setGeometry(geometry);
-  }
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
@@ -60,6 +45,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _polar_quad = new TYPolarQuad();
   _num_polar = 3;
   _two_times_num_polar = 2 * _num_polar;
+  _polar_times_groups = 0;
 
   _num_iterations = 0;
   _source_convergence_thresh = 1E-3;
@@ -108,9 +94,6 @@ Solver::~Solver() {
 
   if (_source_residuals != NULL)
     delete [] _source_residuals;
-
-  if (_exp_table != NULL)
-    delete [] _exp_table;
     
   if (_fsr_to_source != NULL)
     delete [] _fsr_to_source;
@@ -121,6 +104,9 @@ Solver::~Solver() {
       delete [] _fixed_source[i];
     _fixed_source.clear();
   }
+
+  if (_exp_evaluator != NULL)
+    delete _exp_evaluator;
 
   if (_polar_quad != NULL && !_user_polar_quad)
     delete _polar_quad;
@@ -141,6 +127,21 @@ Geometry* Solver::getGeometry() {
 }
 
 
+
+/**
+ * @brief Returns a pointer to the TrackGenerator.
+ * @return a pointer to the TrackGenerator
+ */
+TrackGenerator* Solver::getTrackGenerator() {
+
+  if (_track_generator == NULL)
+    log_printf(ERROR, "Unable to return the Solver's TrackGenetrator "
+               "since it has not yet been set");
+
+  return _track_generator;
+}
+
+
 /**
  * @brief Returns the calculated volume for a flat source region.
  * @param fsr_id the flat source region ID of interest
@@ -157,20 +158,6 @@ FP_PRECISION Solver::getFSRVolume(int fsr_id) {
                "volumes have not yet been computed", fsr_id);
 
   return _FSR_volumes[fsr_id];
-}
-
-
-/**
- * @brief Returns a pointer to the TrackGenerator.
- * @return a pointer to the TrackGenerator
- */
-TrackGenerator* Solver::getTrackGenerator() {
-
-  if (_track_generator == NULL)
-    log_printf(ERROR, "Unable to return the Solver's TrackGenetrator "
-               "since it has not yet been set");
-
-  return _track_generator;
 }
 
 
@@ -220,19 +207,6 @@ FP_PRECISION Solver::getSourceConvergenceThreshold() {
 
 
 /**
- * @brief Returns whether the Solver is using single floating point precision.
- * @return true if so, false otherwise
- */
-bool Solver::isUsingSinglePrecision() {
-#ifdef SINGLE
-  return true;
-#else
-  return false;
-#endif
-}
-
-
-/**
  * @brief Returns whether the solver is using double floating point precision.
  * @return true if so, false otherwise
  */
@@ -248,43 +222,17 @@ bool Solver::isUsingDoublePrecision() {
 /**
  * @brief Returns whether the Solver uses linear interpolation to
  *        compute exponentials.
- * @details The Solver uses linear interpolation to compute exponentials by
- *          default. The Solver::useExponentialIntrinsic() routine can be
- *          called to use the C++ exponential intrinsic routine instead. The
- *          Solver::useExponentialInterpolation() routine may be called to
- *          return to using linear interpolation.
  * @return true if so, false otherwise
  */
 bool Solver::isUsingExponentialInterpolation() {
-  return _interpolate_exponential;
-}
-
-
-/**
- * @brief Returns whether the Solver uses the exponential intrinsic exp(...)
- *        routine to compute exponentials.
- * @details The Solver uses linear interpolation to compute exponentials by
- *          default. The Solver::useExponentialIntrinsic() routine can be
- *          called to use the C++ exponential intrinsic routine instead.
- * @return true if so, false otherwise
- */
-bool Solver::isUsingExponentialIntrinsic() {
-  return !_interpolate_exponential;
+  return _exp_evaluator->isUsingInterpolation();
 }
 
 
 /**
  * @brief Sets the Geometry for the Solver.
- * @details The Geometry must already have initialized FSR offset maps
- *          and segmentized the TrackGenerator's tracks. Each of these
- *          should be initiated in Python prior to assigning a Geometry
- *          to the Solver:
- *
- * @code
- *          geometry.initializeFlatSourceRegions()
- *          track_generator.generateTracks()
- * @endcode
- *
+ * @details This is a private setter method for the Solver and is not
+ *          intended to be called by the user.
  * @param geometry a pointer to a Geometry object
  */
 void Solver::setGeometry(Geometry* geometry) {
@@ -294,13 +242,11 @@ void Solver::setGeometry(Geometry* geometry) {
                "Geometry has not yet initialized FSRs");
 
   _geometry = geometry;
+  _cmfd = geometry->getCmfd();
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();
   _polar_times_groups = _num_groups * _num_polar;
   _num_materials = _geometry->getNumMaterials();
-
-  if (_cmfd != NULL)
-    _num_mesh_cells = _cmfd->getNumCells();
 }
 
 
@@ -312,6 +258,7 @@ void Solver::setGeometry(Geometry* geometry) {
  *          to the Solver:
  *
  * @code
+ *          geometry.initializeFlatSourceRegions()
  *          track_generator.generateTracks()
  *          solver.setTrackGenerator(track_generator)
  * @endcode
@@ -340,6 +287,9 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
       counter++;
     }
   }
+
+  /* Retrieve and store the Geometry from the TrackGenerator */  
+  setGeometry(_track_generator->getGeometry());
 }
 
 
@@ -389,7 +339,7 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
  *        exponential in the transport equation.
  */
 void Solver::useExponentialInterpolation() {
-  _interpolate_exponential = true;
+  _exp_evaluator->useInterpolation();
 }
 
 
@@ -398,7 +348,55 @@ void Solver::useExponentialInterpolation() {
  *        to compute the exponential in the transport equation
  */
 void Solver::useExponentialIntrinsic() {
-  _interpolate_exponential = false;
+  _exp_evaluator->useIntrinsic();
+}
+
+
+/** 
+ * @brief Initializes new PolarQuad object.
+ * @details Deletes memory old PolarQuad if one was previously allocated.
+ */
+void Solver::initializePolarQuadrature() {
+
+  FP_PRECISION azim_weight;
+
+  /* Create Tabuchi-Yamamoto polar quadrature if a
+   * PolarQuad was not assigned by the user */
+  if (_polar_quad == NULL)
+    _polar_quad = new TYPolarQuad();
+
+  /* Initialize the PolarQuad object */
+  _polar_quad->setNumPolarAngles(_num_polar);
+  _polar_quad->initialize();
+  _polar_times_groups = _num_groups * _num_polar;
+
+  /* Deallocate polar weights if previously assigned */
+  if (_polar_weights != NULL)
+    delete [] _polar_weights;
+
+  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
+
+  /* Compute the total azimuthal weight for tracks at each polar angle */
+  #pragma omp parallel for private(azim_weight) schedule(guided)
+  for (int i=0; i < _num_azim; i++) {
+    azim_weight = _azim_weights[i];
+
+    for (int p=0; p < _num_polar; p++)
+      _polar_weights(i,p) = 
+           azim_weight * _polar_quad->getMultiple(p) * FOUR_PI;
+  }
+}
+
+
+/**
+ * @brief Initializes new ExpEvaluator object to compute exponentials.
+ */
+void Solver::initializeExpEvaluator() {
+  double max_tau = _track_generator->getMaxOpticalLength();
+  double tolerance = _source_convergence_thresh;
+
+  _exp_evaluator->setPolarQuadrature(_polar_quad);
+  _exp_evaluator->initialize(max_tau, tolerance);
 }
 
 
@@ -448,43 +446,6 @@ void Solver::initializeFSRs() {
 
 
 /**
- * @brief Creates  object for the solver.
- * @details Deletes memory for old Quadrature if one was allocated for a
- *          previous simulation.
- */
-void Solver::initializePolarQuadrature() {
-
-  FP_PRECISION azim_weight;
-
-  /* Create Tabuchi-Yamamoto polar quadrature if a
-   * PolarQuad was not assigned by the user */
-  if (_polar_quad == NULL)
-    _polar_quad = new TYPolarQuad();
-
-  /* Initialize the PolarQuad object */
-  _polar_quad->setNumPolarAngles(_num_polar);
-  _polar_quad->initialize();
-  _polar_times_groups = _num_groups * _num_polar;
-
-  /* Deallocate polar weights if previously assigned */
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
-
-  /* Compute the total azimuthal weight for tracks at each polar angle */
-  #pragma omp parallel for private(azim_weight) schedule(guided)
-  for (int i=0; i < _num_azim; i++) {
-    azim_weight = _azim_weights[i];
-
-    for (int p=0; p < _num_polar; p++)
-      _polar_weights(i,p) = 
-           azim_weight * _polar_quad->getMultiple(p) * FOUR_PI;
-  }
-}
-
-
-/**
  * @brief Initializes a Cmfd object for acceleratiion prior to source iteration.
  * @details Instantiates a dummy Cmfd object if one was not assigned to
  *          the Solver by the user and initializes FSRs, materials, fluxes
@@ -502,8 +463,8 @@ void Solver::initializeCmfd(){
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
+  _cmfd->initializeSurfaceCurrents();
 }
-
 
 
 /**
@@ -598,18 +559,16 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
   /* An initial guess for the eigenvalue */
   _k_eff = 1.0;
 
-  /* The residual on the source */
+  /* The new/old residuals on the fission source */
   FP_PRECISION residual = 0.0;
-
-  /* The old residual and k_eff */
   FP_PRECISION residual_old = 1.0;
   FP_PRECISION keff_old = 1.0;
 
   /* Initialize data structures */
   initializePolarQuadrature();
+  initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  buildExpInterpTable();
   initializeFSRs();
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
@@ -861,9 +820,9 @@ void Solver::solveFixedSource(int max_iterations) {
 
   /* Initialize data structures */
   initializePolarQuadrature();
+  initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  buildExpInterpTable();
   initializeFSRs();
 
   /* Check that each FSR has at least one segment crossing it */

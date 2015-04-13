@@ -14,12 +14,9 @@
 
 #ifdef __cplusplus
 #include <sstream>
+#include "constants.h"
 #include "log.h"
 #endif
-
-
-/** Tolerance for difference of the sum of polar weights with respect to 1.0 */
-#define POLAR_WEIGHT_SUM_TOL 1E-5
 
 
 /**

@@ -11,13 +11,10 @@
 
 #ifdef __cplusplus
 #include <limits>
+#include "constants.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"
 #endif
-
-/** Error threshold for determining how close a point needs to be to a surface
- * to be considered on it */
-#define ON_SURFACE_THRESH 1E-12
 
 
 /* Forward declarations to resolve circular dependencies */

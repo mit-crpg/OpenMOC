@@ -641,7 +641,7 @@ return;
  * @param fsr_flux a pointer to the temporary FSR flux buffer
  * @param fwd
  */
-void VectorizedSolver::scalarFluxTally(segment* curr_segment,
+void VectorizedSolver::tallyScalarFlux(segment* curr_segment,
                                        int azim_index,
                                        FP_PRECISION* track_flux,
                                        FP_PRECISION* fsr_flux,
