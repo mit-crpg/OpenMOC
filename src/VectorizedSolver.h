@@ -68,8 +68,7 @@ protected:
   void computeExponentials(segment* curr_segment, FP_PRECISION* exponentials);
 
 public:
-  VectorizedSolver(Geometry* geometry=NULL,
-                   TrackGenerator* track_generator=NULL);
+  VectorizedSolver(TrackGenerator* track_generator=NULL);
   virtual ~VectorizedSolver();
 
   int getNumVectorWidths();
