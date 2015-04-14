@@ -45,7 +45,6 @@ int CPUSolver::getNumThreads() {
  */
 FP_PRECISION CPUSolver::getFSRScalarFlux(int fsr_id, int group) {
 
-  /* Error checking */
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
                "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
@@ -79,7 +78,6 @@ FP_PRECISION CPUSolver::getFSRScalarFlux(int fsr_id, int group) {
  */
 FP_PRECISION CPUSolver::getFSRSource(int fsr_id, int group) {
 
-  /* Error checking */
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a source for FSR ID = %d "
                "since the max FSR ID = %d", fsr_id, _num_FSRs-1);

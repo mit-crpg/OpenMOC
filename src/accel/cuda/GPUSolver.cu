@@ -125,11 +125,13 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
  *          \f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}}} $\f
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}
+ *                    {# FSRs \times # groups}}} $\f
  *
  * @param FSR_materials an array of FSR Material indices
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
+ * @param fixed_sources an array of fixed (user-defined) sources
  * @param old_fission_sources an array of current FSR sources from previous iteration
  * @param reduced_sources an array of FSR sources / total xs
  * @param inverse_k_eff the inverse of keff
@@ -139,6 +141,7 @@ __global__ void normalizeFluxesOnDevice(FP_PRECISION* scalar_flux,
 __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
                                           dev_material* materials,
                                           FP_PRECISION* scalar_flux,
+                                          FP_PRECISION* fixed_sources,
                                           FP_PRECISION* old_fission_sources,
                                           FP_PRECISION* reduced_sources,
                                           FP_PRECISION inverse_k_eff,
@@ -149,10 +152,11 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
   /* Reset the residual for the old and new fission sources to zero */
   source_residuals[threadIdx.x + blockIdx.x * blockDim.x] = 0.0;
 
-  FP_PRECISION fission_source, scatter_source, fsr_fission_source;
+  FP_PRECISION fission_source;
+  FP_PRECISION scatter_source;
+  FP_PRECISION fsr_fission_source;
 
   dev_material* curr_material;
-
   FP_PRECISION* nu_sigma_f;
   FP_PRECISION* sigma_s;
   FP_PRECISION* sigma_t;
@@ -172,24 +176,25 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
     fission_source = 0;
     fsr_fission_source = 0.0;
 
-    /* Compute total fission source for current region */
+    /* Compute total fission source for current FSR */
     for (int e=0; e < *num_groups; e++)
       fission_source += scalar_flux(tid,e) * nu_sigma_f[e];
 
+    fission_source *= inverse_k_eff;
+
     /* Compute total scattering source for this FSR in group G */
     for (int G=0; G < *num_groups; G++) {
-
       scatter_source = 0;
 
       for (int g=0; g < *num_groups; g++)
         scatter_source += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
 
       /* Set the fission source for FSR r in group G */
-      fsr_fission_source += fission_source * chi[G] * inverse_k_eff;
-
-      reduced_sources(tid,G) = __fdividef((inverse_k_eff * fission_source 
-                               * chi[G] + scatter_source) * ONE_OVER_FOUR_PI, 
-                               sigma_t[G]);
+      fsr_fission_source += fission_source * chi[G];
+      reduced_sources(tid,G) = fission_source * chi[G];
+      reduced_sources(tid,G) += scatter_source + fixed_sources(tid,G);
+      reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
+      reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
     }
 
     /* Compute the norm of residuals of the sources for convergence */
@@ -550,7 +555,7 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
 
 
 /**
- * @brief Computes the volume-weighted, energy integrated fission rate in
+ * @brief Computes the volume-averaged, energy integrated fission rate in
  *        each FSR and stores them in an array indexed by FSR ID on the GPU.
  * @details This is a helper method for the
  *          GPUSolver::computeFSRFissionRates(...) method.
@@ -569,7 +574,7 @@ __global__ void computeFSRFissionRatesOnDevice(double* fission_rates,
   dev_material* curr_material;
   FP_PRECISION* sigma_f;
 
-  /* Loop over all FSRs and compute the volume-weighted fission rate */
+  /* Loop over all FSRs and compute the volume-averaged fission rate */
   while (tid < *num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
@@ -604,9 +609,6 @@ GPUSolver::GPUSolver(TrackGenerator* track_generator) :
   _materials = NULL;
   _dev_tracks = NULL;
   _FSR_materials = NULL;
-
-  if (track_generator != NULL)
-    setTrackGenerator(track_generator);
 }
 
 
@@ -659,6 +661,7 @@ GPUSolver::~GPUSolver() {
   /* Clear Thrust vectors's memory on the device */
   _source_residuals.clear();
   _fission_sources.clear();
+  _fixed_sources.clear();
   _boundary_leakage.clear();
   _total.clear();
   _fission.clear();
@@ -687,34 +690,33 @@ int GPUSolver::getNumThreadsPerBlock() {
 /**
  * @brief Returns the FSR scalar flux for some energy group.
  * @param fsr_id the ID for the FSR of interest
- * @param energy_group the energy group of interest
+ * @param group the energy group of interest
  */
-FP_PRECISION GPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
+FP_PRECISION GPUSolver::getFSRScalarFlux(int fsr_id, int group) {
 
-  /* Error checking */
   if (fsr_id >= _num_FSRs)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR id = %d in energy"
-               " group %d since the solver only contains FSR with IDs greater "
-               "than or equal to %d", fsr_id, energy_group, _num_FSRs-1);
+    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
+               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
 
-  if (fsr_id < 0)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR id = %d in energy"
-               " group %d since FSRs do not have negative IDs",
-               fsr_id, energy_group);
+  else if (fsr_id < 0)
+    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
+               "since FSRs do not have negative IDs", fsr_id);
 
-  if (energy_group-1 >= _num_groups)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR id = %d in energy"
-               " group %d since the solver only has %d energy groups",
-               fsr_id, energy_group, _num_groups);
+  else if (group-1 >= _num_groups)
+    log_printf(ERROR, "Unable to return a scalar flux in group %d "
+               "since there are only %d groups", group, _num_groups);
 
-  if (energy_group <= 0)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR id = %d in energy"
-               " group %d since energy groups are greater than 1",
-               fsr_id, energy_group);
+  else if (group <= 0)
+    log_printf(ERROR, "Unable to return a scalar flux in group %d "
+               "since groups must be greater or equal to 1", group);
+
+  else if (_scalar_flux == NULL)
+    log_printf(ERROR, "Unable to return a scalar flux"
+               "since it has not yet been computed");
 
   /* Copy the scalar flux for this FSR and energy group from the device */
   FP_PRECISION fsr_scalar_flux;
-  int flux_index = fsr_id * _num_groups + (energy_group - 1);
+  int flux_index = fsr_id * _num_groups + (group - 1);
   cudaMemcpy((void*)&fsr_scalar_flux, (void*)&_scalar_flux[flux_index],
              sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
 
@@ -730,8 +732,8 @@ FP_PRECISION GPUSolver::getFSRScalarFlux(int fsr_id, int energy_group) {
 FP_PRECISION* GPUSolver::getFSRScalarFluxes() {
 
   if (_scalar_flux == NULL)
-    log_printf(ERROR, "Unable to returns the GPUSolver's scalar flux "
-               "array since it has not yet been allocated in memory");
+    log_printf(ERROR, "Unable to return FSR scalar flux array "
+               "since it has not yet been allocated in memory");
 
   /* Copy the scalar flux for all FSRs from the device to the host */
   FP_PRECISION* fsr_scalar_fluxes = new FP_PRECISION[_num_FSRs * _num_groups];
@@ -746,30 +748,29 @@ FP_PRECISION* GPUSolver::getFSRScalarFluxes() {
 /**
  * @brief Returns the FSR source for some energy group.
  * @param fsr_id the ID for the FSR of interest
- * @param energy_group the energy group of interest
+ * @param group the energy group of interest
  */
-FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int energy_group) {
+FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int group) {
 
-  /* Error checking */
   if (fsr_id >= _num_FSRs)
-    log_printf(ERROR, "Unable to return a source for FSR id = %d in energy"
-      " group %d since the solver only contains FSR with IDs greater than "
-      "or equal to %d", fsr_id, energy_group, _num_FSRs-1);
+    log_printf(ERROR, "Unable to return a source for FSR ID = %d "
+               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
 
-  if (fsr_id < 0)
-    log_printf(ERROR, "Unable to return a source for FSR id = %d in energy"
-               " group %d since FSRs do not have negative IDs",
-               fsr_id, energy_group);
+  else if (fsr_id < 0)
+    log_printf(ERROR, "Unable to return a source for FSR ID = %d "
+               "since FSRs do not have negative IDs", fsr_id);
 
-  if (energy_group-1 >= _num_groups)
-    log_printf(ERROR, "Unable to return a source for FSR id = %d in energy"
-              " group %d since the solver only has %d energy groups",
-               fsr_id, energy_group, _num_groups);
+  else if (group-1 >= _num_groups)
+    log_printf(ERROR, "Unable to return a source in group %d "
+               "since there are only %d groups", group, _num_groups);
 
-  if (energy_group <= 0)
-    log_printf(ERROR, "Unable to return a source for FSR id = %d in energy"
-               " group %d since energy groups are greater than 1",
-               fsr_id, energy_group);
+  else if (group <= 0)
+    log_printf(ERROR, "Unable to return a source in group %d "
+               "since groups must be greater or equal to 1", group);
+
+  else if (_scalar_flux == NULL)
+    log_printf(ERROR, "Unable to return a source "
+               "since it has not yet been computed");
 
   /* Get host material */
   Material* host_material = _geometry->findFSRMaterial(fsr_id);
@@ -780,34 +781,29 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int energy_group) {
   FP_PRECISION* chi = host_material->getChi();
   FP_PRECISION* fsr_scalar_fluxes = new FP_PRECISION[_num_groups];
   cudaMemcpy((void*)fsr_scalar_fluxes, (void*)&_scalar_flux[fsr_id*_num_groups],
-             _num_groups * sizeof(FP_PRECISION),
-             cudaMemcpyDeviceToHost);
+             _num_groups * sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
 
-  /* Initialize variables */
-  FP_PRECISION fission_source = 0.0;
-  FP_PRECISION scatter_source = 0.0;
-  FP_PRECISION total_source;
+  FP_PRECISION source = 0.0;
 
-  /* Compute total fission source for current region */
+  /* Compute fission source */
   for (int e=0; e < _num_groups; e++)
-    fission_source += fsr_scalar_fluxes[e] * nu_sigma_f[e];
+    source += fsr_scalar_fluxes[e] * nu_sigma_f[e];
 
-  fission_source /= _k_eff;
+  source /= _k_eff * chi[group-1];
 
-  /* Compute total scattering source for this FSR */
+  /* Compute scatter source */
   for (int g=0; g < _num_groups; g++)
-    scatter_source += sigma_s[(energy_group-1)*(_num_groups)+g] 
-                    * fsr_scalar_fluxes[g];
+    source += sigma_s[(group-1)*(_num_groups)+g] 
+              * fsr_scalar_fluxes[g];
 
-  /* Compute the total source */
-  total_source = (fission_source * chi[energy_group-1] + scatter_source) *
-      ONE_OVER_FOUR_PI;
+  /* Compute fixed source (if specified by user) */
+  source += _fixed_sources(fsr_id,group-1);
 
-  delete [] fsr_scalar_fluxes;
+  /* Normalize to solid angle for isotropic approximation */
+  source *= ONE_OVER_FOUR_PI;
 
-  return total_source;
+  return source;
 }
-
 
 
 /**
@@ -839,18 +835,35 @@ void GPUSolver::setNumThreadsPerBlock(int num_threads) {
 
 
 /**
- * @brief Sets the Geometry pointer for the GPUSolver.
- * @details The Geometry must already have initialized FSR offset maps
- *          and segmentized the TrackGenerator's tracks. Each of these
- *          should be initiated in Python prior to assigning a Geometry
- *          to the GPUSolver:
- *
- * @code
- *          geometry.initializeFlatSourceRegions()
- *          track_generator.generateTracks()
- * @endcode
- *
- * @param geometry a pointer to a Geometry
+ * @brief Assign a fixed source for a flat source region and energy group.
+ * @details Fixed sources should be scaled to reflect the fact that OpenMOC 
+ *          normalizes the scalar flux such that the total energy- and 
+ *          volume-integrated production rate sums to 1.0.
+ * @param fsr_id the flat source region ID
+ * @param group the energy group
+ * @param source the volume-averaged source in this group
+ */
+void GPUSolver::setFixedSourceByFSR(int fsr_id, int group, 
+                                    FP_PRECISION source) {
+
+  Solver::setFixedSourceByFSR(fsr_id, group, source);
+
+  /* Allocate the fixed sources Thrust vector if not yet allocated */
+  if (_fixed_sources.size() == 0) {
+    _fixed_sources.resize(_num_FSRs * _num_groups);
+    thrust::fill(_fixed_sources.begin(), _fixed_sources.end(), 0.0);
+  }
+
+  /* Store the fixed source for this FSR and energy group */
+  _fixed_sources(fsr_id,group-1) = source;  
+}
+
+
+/**
+ * @brief Sets the Geometry for the Solver.
+ * @details This is a private setter method for the Solver and is not
+ *          intended to be called by the user.
+ * @param geometry a pointer to a Geometry object
  */
 void GPUSolver::setGeometry(Geometry* geometry) {
 
@@ -865,17 +878,19 @@ void GPUSolver::setGeometry(Geometry* geometry) {
 
 
 /**
- * @brief Sets the TrackGenerator with characteristic tracks for the GPUSolver.
+ * @brief Sets the Solver's TrackGenerator with characteristic Tracks.
  * @details The TrackGenerator must already have generated Tracks and have
  *          used ray tracing to segmentize them across the Geometry. This
  *          should be initated in Python prior to assigning the TrackGenerator
- *          to the GPUSolver:
+ *          to the Solver:
  *
  * @code
+ *          geometry.initializeFlatSourceRegions()
  *          track_generator.generateTracks()
+ *          solver.setTrackGenerator(track_generator)
  * @endcode
  *
- * @param track_generator a pointer to a TrackGenerator
+ * @param track_generator a pointer to a TrackGenerator object
  */
 void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
   Solver::setTrackGenerator(track_generator);
@@ -1008,7 +1023,7 @@ void GPUSolver::initializeFSRs() {
     free(FSRs_to_material_indices);
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for FSRs on the GPU");
+    log_printf(ERROR, "Could not allocate memory for FSRs on GPU");
   }
 
   initializeThrustVectors();
@@ -1049,7 +1064,7 @@ void GPUSolver::initializeMaterials() {
     }
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for Materials on the GPU");
+    log_printf(ERROR, "Could not allocate memory for Materials on GPU");
   }
 }
 
@@ -1100,7 +1115,7 @@ void GPUSolver::initializeTracks() {
   }
 
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for Tracks on the GPU");
+    log_printf(ERROR, "Could not allocate memory for Tracks on GPU");
   }
 }
 
@@ -1130,7 +1145,7 @@ void GPUSolver::initializeFluxArrays() {
                _num_FSRs * _num_groups * sizeof(FP_PRECISION));
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for fluxes on the GPU");
+    log_printf(ERROR, "Could not allocate memory for fluxes on GPU");
   }
 }
 
@@ -1161,7 +1176,7 @@ void GPUSolver::initializeSourceArrays() {
                _num_FSRs * _num_groups * sizeof(FP_PRECISION));
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for FSR sources on GPU");
+    log_printf(ERROR, "Could not allocate memory for sources on GPU");
   }
 }
 
@@ -1191,6 +1206,11 @@ void GPUSolver::initializeThrustVectors() {
     _fission.resize(_B * _T);
     _scatter.resize(_B * _T);
 
+    /* Allocate the fixed sources Thrust vector if not yet allocated */
+    if (_fixed_sources.size() == 0) {
+      _fixed_sources.resize(_num_FSRs * _num_groups);
+      thrust::fill(_fixed_sources.begin(), _fixed_sources.end(), 0.0);
+    }
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Unable to allocate memory for Thrust vectors on GPU");
@@ -1252,12 +1272,8 @@ void GPUSolver::flattenFSRFluxes(FP_PRECISION value) {
  * @param value the value to assign to each FSR source
  */
 void GPUSolver::flattenFSRSources(FP_PRECISION value) {
-
   int size = _num_FSRs * sizeof(FP_PRECISION);
-
   cudaMemset(_old_fission_sources, value, size);
-
-  return;
 }
 
 
@@ -1292,17 +1308,21 @@ void GPUSolver::normalizeFluxes() {
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
  *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{\# FSRs}}} /f$
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}
+ *                    {\# FSRs \times # groups}}} /f$
  *
  * @return the residual between this source and the previous source
  */
 FP_PRECISION GPUSolver::computeFSRSources() {
 
+  FP_PRECISION* fixed_sources = 
+       thrust::raw_pointer_cast(&_fixed_sources[0]);
   FP_PRECISION* source_residuals = 
        thrust::raw_pointer_cast(&_source_residuals[0]);
 
   computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
-                                        _scalar_flux, _old_fission_sources,
+                                        _scalar_flux, fixed_sources,
+                                        _old_fission_sources,
                                         _reduced_sources, 1.0 / _k_eff,
                                         source_residuals);
 
@@ -1419,7 +1439,7 @@ void GPUSolver::computeKeff() {
 
 
 /**
- * @brief Computes the volume-weighted, energy integrated fission rate in
+ * @brief Computes the volume-averaged, energy-integrated fission rate in
  *        each FSR and stores them in an array indexed by FSR ID.
  * @details This is a helper method for SWIG to allow users to retrieve
  *          FSR fission rates as a NumPy array. An example of how this method
@@ -1454,6 +1474,4 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   /* Deallocate the memory assigned to store the fission rates on the device */
   cudaFree(dev_fission_rates);
-
-  return;
 }

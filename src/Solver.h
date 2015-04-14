@@ -214,8 +214,6 @@ protected:
    * @return the residual between this source and the previous source
    */
   virtual FP_PRECISION computeFSRSources() =0;
-  //FIXME
-  //  virtual FP_PRECISION computeFSRSourcesForFixedSource();
 
   /**
    * @brief Compute \f$ k_{eff} \f$ from total fission and absorption rates
@@ -259,10 +257,10 @@ public:
   /**
    * @brief Returns the scalar flux for a FSR and energy group.
    * @param fsr_id the ID for the FSR of interest
-   * @param energy_group the energy group of interest
+   * @param group the energy group of interest
    * @return the FSR scalar flux
    */
-  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group) =0;
+  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group) =0;
 
   /**
    * @brief Returns an array of the scalar flux in each FSR and energy group.
@@ -273,10 +271,10 @@ public:
   /**
    * @brief Returns the source for a FSR and energy group.
    * @param fsr_id the ID for the FSR of interest
-   * @param energy_group the energy group of interest
+   * @param group the energy group of interest
    * @return the FSR source
    */
-  virtual FP_PRECISION getFSRSource(int fsr_id, int energy_group) =0;
+  virtual FP_PRECISION getFSRSource(int fsr_id, int group) =0;
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);

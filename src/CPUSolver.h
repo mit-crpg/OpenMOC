@@ -97,9 +97,9 @@ public:
   virtual ~CPUSolver();
 
   int getNumThreads();
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
+  FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
   FP_PRECISION* getFSRScalarFluxes();
-  FP_PRECISION getFSRSource(int fsr_id, int energy_group);
+  FP_PRECISION getFSRSource(int fsr_id, int group);
 
   void setNumThreads(int num_threads);
   virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);

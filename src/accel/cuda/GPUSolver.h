@@ -28,15 +28,15 @@
  *  \f$ \frac{Q}{\Sigma_t} \f$, in each FSR and energy group */
 #define reduced_sources(tid,e) (reduced_sources[(tid)*(*num_groups) + (e)])
 
+/** Indexing scheme for fixed sources for each FSR and energy group */
+#define fixed_sources(r,e) (fixed_sources[(r)*(*num_groups) + (e)])
+
 /** Indexing macro for the azimuthal and polar weights */
 #define polar_weights(i,p) (polar_weights[(i)*(*num_polar) + (p)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for a given Track */
 #define boundary_flux(t,pe2) (boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])
-
-/** The maximum number of polar angles to reserve constant memory on GPU */
-#define MAX_POLAR_ANGLES 10
 
 /** The maximum number of azimuthal angles to reserve constant memory on GPU */
 #define MAX_AZIM_ANGLES 256
@@ -76,6 +76,9 @@ private:
 
   /** Thrust vector of fission sources in each FSR */
   thrust::device_vector<FP_PRECISION> _fission_sources;
+
+  /** Thrust vector of fixed sources in each FSR */
+  thrust::device_vector<FP_PRECISION> _fixed_sources;
 
   /** Thrust vector of total reaction rates in each FSR */
   thrust::device_vector<FP_PRECISION> _total;
@@ -119,12 +122,14 @@ public:
 
   int getNumThreadBlocks();
   int getNumThreadsPerBlock();
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
+  FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
   FP_PRECISION* getFSRScalarFluxes();
-  FP_PRECISION getFSRSource(int fsr_id, int energy_group);
+  FP_PRECISION getFSRSource(int fsr_id, int group);
 
   void setNumThreadBlocks(int num_blocks);
   void setNumThreadsPerBlock(int num_threads);
+  void setFixedSourceByFSR(int fsr_id, int group, 
+                           FP_PRECISION source);
   void setGeometry(Geometry* geometry);
   void setTrackGenerator(TrackGenerator* track_generator);
 
