@@ -155,8 +155,8 @@ protected:
   /** Whether or not the Solver has converged the source */
   bool _converged_source;
 
-  /** The tolerance for converging the source */
-  FP_PRECISION _source_convergence_thresh;
+  /** The tolerance for converging the source/flux */
+  FP_PRECISION _converge_thresh;
 
   /** En ExpEvaluator to compute exponentials in the transport equation */
   ExpEvaluator* _exp_evaluator;
@@ -214,7 +214,8 @@ protected:
    * @return the residual between this source and the previous source
    */
   virtual FP_PRECISION computeFSRSources() =0;
-  virtual FP_PRECISION computeFSRSourcesForFixedSource();
+  //FIXME
+  //  virtual FP_PRECISION computeFSRSourcesForFixedSource();
 
   /**
    * @brief Compute \f$ k_{eff} \f$ from total fission and absorption rates
@@ -289,7 +290,7 @@ public:
   void useExponentialIntrinsic();
 
   virtual void convergeSource(int max_iterations);
-  virtual void solveFixedSource(int max_iterations);
+  virtual void convergeFlux(int max_iterations);
 
 /**
  * @brief Computes the volume-weighted, energy integrated fission rate in

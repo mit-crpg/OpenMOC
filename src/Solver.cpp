@@ -45,7 +45,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _polar_times_groups = 0;
 
   _num_iterations = 0;
-  _source_convergence_thresh = 1E-3;
+  _converge_thresh = 1E-5;
   _converged_source = false;
 
   _timer = new Timer();
@@ -191,7 +191,7 @@ FP_PRECISION Solver::getKeff() {
  * @return the threshold for source convergence
  */
 FP_PRECISION Solver::getSourceConvergenceThreshold() {
-  return _source_convergence_thresh;
+  return _converge_thresh;
 }
 
 
@@ -309,16 +309,17 @@ void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
 
 
 /**
- * @brief Sets the threshold for source convergence (>0)
- * @param source_thresh the threshold for source convergence
+ * @brief Sets the threshold for source/flux convergence (>0)
+ * @brief The default threshold for convergence is 1E-5.
+ * @param source_thresh the threshold for source/flux convergence
  */
 void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 
   if (source_thresh <= 0.0)
-    log_printf(ERROR, "Unable to set the source convergence threshold to %f"
-               "since the threshold must be a positive number", source_thresh);
+    log_printf(ERROR, "Unable to set the convergence threshold to %f "
+               "since it is not a positive number", source_thresh);
 
-  _source_convergence_thresh = source_thresh;
+  _converge_thresh = source_thresh;
 }
 
 
@@ -457,7 +458,7 @@ void Solver::initializePolarQuadrature() {
  */
 void Solver::initializeExpEvaluator() {
   double max_tau = _track_generator->getMaxOpticalLength();
-  double tolerance = _source_convergence_thresh;
+  double tolerance = _converge_thresh;
 
   _exp_evaluator->setPolarQuadrature(_polar_quad);
   _exp_evaluator->initialize(max_tau, tolerance);
@@ -504,8 +505,6 @@ void Solver::initializeFSRs() {
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
-
-  return;
 }
 
 
@@ -599,11 +598,6 @@ void Solver::checkTrackSpacing() {
  */
 void Solver::convergeSource(int max_iterations) {
 
-  /* Error checking */
-  if (_geometry == NULL)
-    log_printf(ERROR, "The Solver is unable to converge the source "
-               "since it does not contain a Geometry");
-
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to converge the source "
                "since it does not contain a TrackGenerator");
@@ -624,8 +618,6 @@ void Solver::convergeSource(int max_iterations) {
 
   /* The new/old residuals on the fission source */
   FP_PRECISION residual = 0.0;
-  FP_PRECISION residual_old = 1.0;
-  FP_PRECISION keff_old = 1.0;
 
   /* Initialize data structures */
   initializePolarQuadrature();
@@ -667,17 +659,17 @@ void Solver::convergeSource(int max_iterations) {
     _num_iterations++;
 
     /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _source_convergence_thresh) {
+    if (i > 1 && residual < _converge_thresh) {
       _timer->stopTimer();
       _timer->recordSplit("Total time to converge the source");
       return;
     }
   }
 
+  log_printf(WARNING, "Unable to converge the source");
+
   _timer->stopTimer();
   _timer->recordSplit("Total time to converge the source");
-
-  log_printf(WARNING, "Unable to converge the source");
 }
 
 
@@ -760,35 +752,33 @@ void Solver::printTimerReport() {
 
 /**
  * @brief Solves fixed source problem
+ * @code
+ *          max_iters = 1000
+ *          solver.convergeFlux(max_iters)
+ * @endcode
+ *
+ * @param max_iterations the maximum number of iterations to allow
  */
-void Solver::solveFixedSource(int max_iterations) {
-
-  /* Error checking */
-  if (_geometry == NULL)
-    log_printf(ERROR, "The Solver is unable to converge the source "
-               "since it does not contain a Geometry");
+void Solver::convergeFlux(int max_iterations) {
 
   if (_track_generator == NULL)
-    log_printf(ERROR, "The Solver is unable to converge the source "
+    log_printf(ERROR, "The Solver is unable to converge the flux "
                "since it does not contain a TrackGenerator");
 
-  //  if (_fsr_to_source == NULL) {
-    // allocate and initialize the fixed sources
-  //    _fsr_to_source = new int[_num_FSRs];
-  //   for (int r=0; r<_num_FSRs; r++)
-  //    _fsr_to_source[r] = -1;
-  // }
-
-  log_printf(NORMAL, "Solving the fixed source problem...");
+  log_printf(NORMAL, "Converging the flux...");
 
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
 
-  /* Start the timer to record the total time to converge the source */
+  /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
 
-  /* Counter for the number of iterations to converge the source */
+  /* Counter for the number of iterations to converge the flux */
   _num_iterations = 0;
+
+  //FIXME
+  /* An initial guess for the eigenvalue */
+  //  _k_eff = 1.0;
 
   /* The residual on the source */
   FP_PRECISION residual = 0.0;
@@ -799,6 +789,12 @@ void Solver::solveFixedSource(int max_iterations) {
   initializeFluxArrays();
   initializeSourceArrays();
   initializeFSRs();
+
+  //FIXME
+  /*
+  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
+    initializeCmfd();
+  */
 
   /* Check that each FSR has at least one segment crossing it */
   checkTrackSpacing();
@@ -811,34 +807,37 @@ void Solver::solveFixedSource(int max_iterations) {
   /* Source iteration loop */
   for (int i=0; i < max_iterations; i++) {
 
-    log_printf(NORMAL, "Iteration %d: "
-               "\tres = %1.3E", i, residual);
+    log_printf(NORMAL, "Iteration %d: \tres = %1.3E", i, residual);
 
-    residual = computeFSRSourcesForFixedSource();
+    //FIXME
+    //    residual = computeFSRSourcesForFixedSource();
+    residual = computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
+
+    //FIXME
+    /* Solve CMFD diffusion problem and update MOC flux */
+    /*
+    if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
+      _k_eff = _cmfd->computeKeff(i);
+      _cmfd->updateBoundaryFlux(_tracks, _boundary_flux, _tot_num_tracks);
+    }
+    else
+      computeKeff();
+    */
 
     _num_iterations++;
 
     /* Check for convergence */
-    if (i > 1 && residual < _source_convergence_thresh) {
+    if (i > 1 && residual < _converge_thresh) {
       _timer->stopTimer();
-      _timer->recordSplit("Total time to converge the source");
+      _timer->recordSplit("Total time to converge the flux");
       return;
     }
-  
   }
 
   _timer->stopTimer();
-  _timer->recordSplit("Total time to converge the source");
+  _timer->recordSplit("Total time to converge the flux");
 
-  log_printf(WARNING, "Unable to converge the source after %d iterations",
-             max_iterations);
-
-  return;
-}
-
-FP_PRECISION Solver::computeFSRSourcesForFixedSource() {
-  log_printf(ERROR, "Should not be calling "
-             "Solver::computeFSRSourcesForFixedSource()");
+  log_printf(WARNING, "Unable to converge the flux");
 }
