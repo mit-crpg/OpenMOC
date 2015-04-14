@@ -8,15 +8,12 @@
 VectorizedSolver::VectorizedSolver(TrackGenerator* track_generator) :
   CPUSolver(track_generator) {
 
-  //  if (_cmfd != NULL)
-    //    log_printf(ERROR, "The VectorizedSolver is not set up to use CMFD");
+  if (_cmfd != NULL)
+    log_printf(ERROR, "The VectorizedSolver is not yet configured for CMFD");
 
   _delta_psi = NULL;
   _thread_taus = NULL;
   _thread_exponentials = NULL;
-
-  if (track_generator != NULL)
-    setTrackGenerator(track_generator);
 
   vmlSetMode(VML_EP);
 }
@@ -91,6 +88,32 @@ VectorizedSolver::~VectorizedSolver() {
  */
 int VectorizedSolver::getNumVectorWidths() {
   return _num_vector_lengths;
+}
+
+
+/**
+ * @brief Assign a fixed source for a flat source region and energy group.
+ * @details Fixed sources should be scaled to reflect the fact that OpenMOC 
+ *          normalizes the scalar flux such that the total energy- and 
+ *          volume-integrated production rate sums to 1.0.
+ * @param fsr_id the flat source region ID
+ * @param group the energy group
+ * @param source the volume-averaged source in this group
+ */
+void VectorizedSolver::setFixedSourceByFSR(int fsr_id, int group, 
+                                    FP_PRECISION source) {
+
+  Solver::setFixedSourceByFSR(fsr_id, group, source);
+
+  /* Allocate the fixed sources array if not yet allocated */
+  if (_fixed_sources == NULL) {
+    int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+    _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
+  }
+
+  /* Store the fixed source for this FSR and energy group */
+  _fixed_sources(fsr_id,group-1) = source;  
 }
 
 
@@ -225,6 +248,12 @@ void VectorizedSolver::initializeSourceArrays() {
     _fission_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
     _reduced_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
+    /* Allocate the fixed sources array if not yet allocated */
+    if (_fixed_sources == NULL) {
+      _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+      memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
+    }
+
     size = _num_threads * _num_groups * sizeof(FP_PRECISION);
     _scatter_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
@@ -316,7 +345,8 @@ void VectorizedSolver::normalizeFluxes() {
  *          the previous iteration is computed and returned. The residual
  *          is determined as follows:
  *          \f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}}} $\f
+ *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}
+ *                    {# FSRs \times # groups}}} $\f
  *
  * @return the residual between this source and the previous source
  */
@@ -333,7 +363,6 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
   Material* material;
 
   FP_PRECISION source_residual = 0.0;
-
   FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
 
   /* For all FSRs, find the source */
@@ -394,10 +423,11 @@ FP_PRECISION VectorizedSolver::computeFSRSources() {
       #endif
 
       /* Set the total source for FSR r in group G */
-      fsr_fission_source += fission_source * chi[G]; 
+      fsr_fission_source += fission_source * chi[G];
+      _reduced_sources(r,G) = fission_source * chi[G];
+      _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
+      _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
 
-      _reduced_sources(r,G) = (fission_source * chi[G] + scatter_source) *
-                              ONE_OVER_FOUR_PI / sigma_t[G];
     }
 
     /* Compute the norm of residual of the source in the FSR */
@@ -482,10 +512,7 @@ void VectorizedSolver::computeKeff() {
   Material* material;
   FP_PRECISION* sigma;
   FP_PRECISION volume;
-
-  FP_PRECISION total = 0.0;
-  FP_PRECISION fission = 0.0;
-  FP_PRECISION scatter = 0.0;
+  FP_PRECISION total, fission, scatter, leakage;
 
   int size = _num_FSRs * sizeof(FP_PRECISION);
   FP_PRECISION* FSR_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
@@ -601,20 +628,18 @@ void VectorizedSolver::computeKeff() {
   size = 2 * _tot_num_tracks * _polar_times_groups;
 
   #ifdef SINGLE
-  _leakage = cblas_sasum(size, _boundary_leakage, 1) * 0.5;
+  leakage = cblas_sasum(size, _boundary_leakage, 1) * 0.5;
   #else
-  _leakage = cblas_dasum(size, _boundary_leakage, 1) * 0.5;
+  leakage = cblas_dasum(size, _boundary_leakage, 1) * 0.5;
   #endif
 
-  _k_eff = fission / (total - scatter + _leakage);
+  _k_eff = fission / (total - scatter + leakage);
 
-  log_printf(DEBUG, "tot = %f, fiss = %f, scatt = %f, leakage = %f,"
-             "k_eff = %f", total, fission, scatter, _leakage, _k_eff);
+  log_printf(DEBUG, "tot = %f, fiss = %f, scatt = %f, leak = %f,"
+             "k_eff = %f", total, fission, scatter, leakage, _k_eff);
 
   MM_FREE(FSR_rates);
   MM_FREE(group_rates);
-
-return;
 }
 
 
@@ -685,8 +710,6 @@ void VectorizedSolver::tallyScalarFlux(segment* curr_segment,
     #endif
   }
   omp_unset_lock(&_FSR_locks[fsr_id]);
-
-  return;
 }
 
 

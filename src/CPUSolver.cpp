@@ -400,7 +400,6 @@ void CPUSolver::normalizeFluxes() {
 FP_PRECISION CPUSolver::computeFSRSources() {
 
   int tid;
-  Material* material;
   FP_PRECISION scatter_source;
   FP_PRECISION fission_source;
   FP_PRECISION fsr_fission_source;
@@ -408,6 +407,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
   FP_PRECISION* sigma_s;
   FP_PRECISION* sigma_t;
   FP_PRECISION* chi;
+  Material* material;
 
   FP_PRECISION source_residual = 0.0;
   FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
@@ -494,7 +494,7 @@ void CPUSolver::computeKeff() {
   FP_PRECISION* sigma;
   FP_PRECISION volume;
 
-  FP_PRECISION total = 0., fission = 0., scatter = 0., leakage = 0.;
+  FP_PRECISION total, fission, scatter, leakage;
   FP_PRECISION* FSR_rates = new FP_PRECISION[_num_FSRs];
   FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
 
