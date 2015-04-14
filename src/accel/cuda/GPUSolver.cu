@@ -609,6 +609,9 @@ GPUSolver::GPUSolver(TrackGenerator* track_generator) :
   _materials = NULL;
   _dev_tracks = NULL;
   _FSR_materials = NULL;
+
+  if (track_generator != NULL)
+    setTrackGenerator(track_generator);
 }
 
 
