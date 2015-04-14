@@ -523,14 +523,13 @@ void TrackGenerator::generateTracks() {
       _tracks = new Track*[_num_azim];
     }
     catch (std::exception &e) {
-      log_printf(ERROR, "Unable to allocate memory for TrackGenerator. "
-                 "Backtrace:\n%s", e.what());
+      log_printf(ERROR, "Unable to allocate memory for TrackGenerator");
     }
 
     /* Check to make sure that height, width of the Geometry are nonzero */
     if (_geometry->getHeight() <= 0 || _geometry->getHeight() <= 0)
       log_printf(ERROR, "The total height and width of the Geometry must be "
-                 "nonzero for Track generation. Create a CellFill which "
+                 "non-zero for Track generation. Create a CellFill which "
                  "is filled by the entire geometry and bounded by XPlanes "
                  "and YPlanes to enable the Geometry to determine the total "
                  "width and height of the model.");
@@ -544,8 +543,7 @@ void TrackGenerator::generateTracks() {
       dumpTracksToFile();
     }
     catch (std::exception &e) {
-      log_printf(ERROR, "Unable to allocate memory needed to generate "
-                 "Tracks. Backtrace:\n%s", e.what());
+      log_printf(ERROR, "Unable to allocate memory for Tracks");
     }
   }
 
@@ -1126,7 +1124,7 @@ void TrackGenerator::segmentize() {
       for (int j=0; j < _num_tracks[i]; j++){
         track = &_tracks[i][j];
         log_printf(DEBUG, "Segmenting Track %d/%d with i = %d, j = %d",
-        track->getUid(), _tot_num_tracks, i, j);
+                   track->getUid(), _tot_num_tracks, i, j);
         _geometry->segmentize(track,_max_optical_length);
       }
     }

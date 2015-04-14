@@ -613,8 +613,7 @@ int Geometry::getFSRId(LocalCoords* coords) {
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
-               "geometry with finer track laydown. "
-               "Backtrace:%s", fsr_key.c_str(), e.what());
+               "geometry with finer track spacing", fsr_key.c_str());
   }
 
   return fsr_id;
@@ -634,8 +633,7 @@ Point* Geometry::getFSRPoint(int fsr_id) {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._point;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find characteristic point in FSR: %i. "
-               "Backtrace:%s", fsr_id, e.what());
+    log_printf(ERROR, "Could not find characteristic point in FSR %d", fsr_id);
   }
 
   return point;
@@ -839,7 +837,7 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
       if (num_segments > min_num_segments)
         min_num_segments = num_segments;
     }
-
+    
     /* "Cut up" Track segment into sub-segments such that the length of each
      * does not exceed the size of the exponential table in the Solver */
     for (int i=0; i < min_num_segments; i++) {

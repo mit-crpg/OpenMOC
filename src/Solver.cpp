@@ -626,6 +626,10 @@ void Solver::convergeSource(int max_iterations) {
   initializeSourceArrays();
   initializeFSRs();
 
+  if (_num_fissionable_FSRs == 0.0)
+    log_printf(ERROR, "The Solver is unable to converge the "
+               "source without fissionable flat source regions");
+
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     initializeCmfd();
 
