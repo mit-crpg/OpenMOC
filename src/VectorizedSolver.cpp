@@ -512,7 +512,7 @@ void VectorizedSolver::computeKeff() {
   Material* material;
   FP_PRECISION* sigma;
   FP_PRECISION volume;
-  FP_PRECISION total, fission, scatter;
+  FP_PRECISION total, fission, scatter, leakage;
 
   int size = _num_FSRs * sizeof(FP_PRECISION);
   FP_PRECISION* FSR_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
@@ -628,15 +628,15 @@ void VectorizedSolver::computeKeff() {
   size = 2 * _tot_num_tracks * _polar_times_groups;
 
   #ifdef SINGLE
-  _leakage = cblas_sasum(size, _boundary_leakage, 1) * 0.5;
+  leakage = cblas_sasum(size, _boundary_leakage, 1) * 0.5;
   #else
-  _leakage = cblas_dasum(size, _boundary_leakage, 1) * 0.5;
+  leakage = cblas_dasum(size, _boundary_leakage, 1) * 0.5;
   #endif
 
-  _k_eff = fission / (total - scatter + _leakage);
+  _k_eff = fission / (total - scatter + leakage);
 
   log_printf(DEBUG, "tot = %f, fiss = %f, scatt = %f, leak = %f,"
-             "k_eff = %f", total, fission, scatter, _leakage, _k_eff);
+             "k_eff = %f", total, fission, scatter, leakage, _k_eff);
 
   MM_FREE(FSR_rates);
   MM_FREE(group_rates);

@@ -494,7 +494,7 @@ void CPUSolver::computeKeff() {
   FP_PRECISION* sigma;
   FP_PRECISION volume;
 
-  FP_PRECISION total = 0., fission = 0., scatter = 0., leakage = 0.;
+  FP_PRECISION total, fission, scatter, leakage;
   FP_PRECISION* FSR_rates = new FP_PRECISION[_num_FSRs];
   FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
 
