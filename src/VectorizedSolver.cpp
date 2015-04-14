@@ -15,6 +15,9 @@ VectorizedSolver::VectorizedSolver(TrackGenerator* track_generator) :
   _thread_taus = NULL;
   _thread_exponentials = NULL;
 
+  if (track_generator != NULL)
+    setTrackGenerator(track_generator);
+
   vmlSetMode(VML_EP);
 }
 
