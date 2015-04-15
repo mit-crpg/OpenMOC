@@ -37,16 +37,10 @@ struct segment {
   /** The ID for the mesh surface crossed by the Track start point */
   int _cmfd_surface_bwd;
 
-  /**
-   * @brief The overloaded equality conditional operator.
-   * @param rhs the right hand side segment
-   * @return true if the segment pointers match, false otherwise
-   */
-  bool operator==(const segment* rhs) const {
-    if (this == rhs)
-      return true;
-    else
-      return false;
+  /** Constructor initializes CMFD surfaces */
+  segment() {
+    _cmfd_surface_fwd = -1;
+    _cmfd_surface_bwd = -1;
   }
 };
 
@@ -166,8 +160,8 @@ public:
 
   bool contains(Point* point);
   void addSegment(segment* to_add);
-  void removeSegment(segment* to_remove);
-  void insertSegment(segment* first, segment* second);
+  void removeSegment(int index);
+  void insertSegment(int index, segment* segment);
   void clearSegments();
   std::string toString();
 };

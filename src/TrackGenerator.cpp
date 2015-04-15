@@ -501,14 +501,13 @@ void TrackGenerator::generateTracks() {
       _tracks = new Track*[_num_azim];
     }
     catch (std::exception &e) {
-      log_printf(ERROR, "Unable to allocate memory for TrackGenerator. "
-                 "Backtrace:\n%s", e.what());
+      log_printf(ERROR, "Unable to allocate memory for TrackGenerator");
     }
 
     /* Check to make sure that height, width of the Geometry are nonzero */
     if (_geometry->getHeight() <= 0 || _geometry->getHeight() <= 0)
       log_printf(ERROR, "The total height and width of the Geometry must be "
-                 "nonzero for Track generation. Create a CellFill which "
+                 "non-zero for Track generation. Create a CellFill which "
                  "is filled by the entire geometry and bounded by XPlanes "
                  "and YPlanes to enable the Geometry to determine the total "
                  "width and height of the model.");
@@ -522,8 +521,7 @@ void TrackGenerator::generateTracks() {
       dumpTracksToFile();
     }
     catch (std::exception &e) {
-      log_printf(ERROR, "Unable to allocate memory needed to generate "
-                 "Tracks. Backtrace:\n%s", e.what());
+      log_printf(ERROR, "Unable to allocate memory for Tracks");
     }
   }
 
@@ -1652,20 +1650,16 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           /* Assign CMFD surface boundaries */
           if (k == 0)
             new_segment->_cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
-          else
-            new_segment->_cmfd_surface_bwd = -1;
 
           if (k == min_num_cuts-1)
             new_segment->_cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
-          else
-            new_segment->_cmfd_surface_fwd = -1;
 
           /* Insert the new segment to the Track */
-          _tracks[i][j].insertSegment(curr_segment, new_segment);
+          _tracks[i][j].insertSegment(s+k+1, new_segment);
         }
 
         /* Remove the original segment from the Track */
-        _tracks[i][j].removeSegment(curr_segment);
+        _tracks[i][j].removeSegment(s);
       }
     }
   }
