@@ -202,9 +202,8 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
   FP_PRECISION *FSR_volumes = new FP_PRECISION[num_FSRs];
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
-  int azim_index, num_segments;
+  int azim_index;
   segment* curr_segment;
-  segment* segments;
   FP_PRECISION volume;
 
   /* Calculate each FSR's "volume" by accumulating the total length of * 
@@ -213,11 +212,9 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
     for (int j=0; j < _num_tracks[i]; j++) {
 
       azim_index = _tracks[i][j].getAzimAngleIndex();
-      num_segments = _tracks[i][j].getNumSegments();
-      segments = _tracks[i][j].getSegments();
 
-      for (int s=0; s < num_segments; s++) {
-        curr_segment = &segments[s];
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+        curr_segment = _tracks[i][j].getSegment(s);
         volume = curr_segment->_length * _azim_weights[azim_index];
         FSR_volumes[curr_segment->_region_id] += volume;
       }
@@ -243,21 +240,16 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR IDs "
                "lie in the range (0, %d)", fsr_id, _geometry->getNumFSRs());
 
-  int azim_index, num_segments;
+  int azim_index;
   segment* curr_segment;
-  segment* segments;
   FP_PRECISION volume;
 
   /* Calculate the FSR's "volume" by accumulating the total length of * 
    * all Track segments multipled by the Track "widths" for the FSR.  */
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
-
-      num_segments = _tracks[i][j].getNumSegments();
-      segments = _tracks[i][j].getSegments();
-
-      for (int s=0; s < num_segments; s++) {
-        curr_segment = &segments[s];
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+        curr_segment = _tracks[i][j].getSegment(s);
         if (curr_segment->_region_id == fsr_id)
           volume += curr_segment->_length * _azim_weights[azim_index];
       }
@@ -265,6 +257,38 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
   }
 
   return volume;
+}
+
+
+/**
+ * @brief Finds and returns the maximum optical length amongst all segments.
+ * @return the maximum optical path length
+ */
+FP_PRECISION TrackGenerator::getMaxOpticalLength() {
+
+  segment* curr_segment;
+  FP_PRECISION length;
+  Material* material;
+  FP_PRECISION* sigma_t;
+  FP_PRECISION max_optical_length = 0.;
+
+  /* Iterate over all tracks, segments, groups to find max optical length */
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++) {
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+
+        curr_segment = _tracks[i][j].getSegment(s);
+        length = curr_segment->_length;
+        material = curr_segment->_material;
+        sigma_t = material->getSigmaT();
+
+        for (int e=0; e < material->getNumEnergyGroups(); e++)
+          max_optical_length = std::max(max_optical_length, length*sigma_t[e]);
+      }
+    }
+  }
+
+  return max_optical_length;
 }
 
 

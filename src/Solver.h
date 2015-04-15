@@ -182,6 +182,7 @@ protected:
   virtual void initializeSourceArrays() =0;
 
   virtual void initializePolarQuadrature();
+  virtual void initializeMaxOpticalLength();
   virtual void initializeExpEvaluator();
   virtual void initializeFSRs();
   virtual void countFissionableFSRs();
