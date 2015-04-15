@@ -1608,7 +1608,8 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
   int num_cuts, min_num_cuts;
   segment* curr_segment;
 
-  FP_PRECISION tau, length;
+  FP_PRECISION length, tau;
+  int fsr_id;
   Material* material;
   FP_PRECISION* sigma_t;
   int num_groups;
@@ -1622,6 +1623,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
         curr_segment = _tracks[i][j].getSegment(s);
         material = curr_segment->_material;
         length = curr_segment->_length;
+        fsr_id = curr_segment->_region_id;
         
         /* Compute number of segments to split this segment into */
         min_num_cuts = 1;
@@ -1645,7 +1647,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           segment* new_segment = new segment;
           new_segment->_material = material;
           new_segment->_length = length / FP_PRECISION(min_num_cuts);
-          new_segment->_region_id = curr_segment->_region_id;
+          new_segment->_region_id = fsr_id;
 
           /* Assign CMFD surface boundaries */
           if (k == 0)
