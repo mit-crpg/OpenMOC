@@ -10,6 +10,7 @@
 
 #ifdef __cplusplus
 #include <vector>
+#include <algorithm>
 #include "Point.h"
 #include "Material.h"
 #endif
@@ -35,6 +36,18 @@ struct segment {
 
   /** The ID for the mesh surface crossed by the Track start point */
   int _cmfd_surface_bwd;
+
+  /**
+   * @brief The overloaded equality conditional operator.
+   * @param rhs the right hand side segment
+   * @return true if the segment pointers match, false otherwise
+   */
+  bool operator==(const segment* rhs) const {
+    if (this == rhs)
+      return true;
+    else
+      return false;
+  }
 };
 
 
@@ -152,7 +165,9 @@ public:
   bool getBCOut() const;
 
   bool contains(Point* point);
-  void addSegment(segment* segment);
+  void addSegment(segment* to_add);
+  void removeSegment(segment* to_remove);
+  void insertSegment(segment* first, segment* second);
   void clearSegments();
   std::string toString();
 };
@@ -196,7 +211,7 @@ inline segment* Track::getSegment(int segment) {
 
   /* If Track doesn't contain this segment, exits program */
   if (segment >= (int)_segments.size())
-    log_printf(ERROR, "Attempted to retrieve segment s = %d but Track only"
+    log_printf(ERROR, "Attempted to retrieve segment s = %d but Track only "
                "has %d segments", segment, _segments.size());
 
   return &_segments[segment];

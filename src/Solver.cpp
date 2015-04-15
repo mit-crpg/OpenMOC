@@ -20,6 +20,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _geometry = NULL;
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
+  _max_optical_length = 10;
 
   _tracks = NULL;
   _polar_weights = NULL;
@@ -196,6 +197,15 @@ FP_PRECISION Solver::getSourceConvergenceThreshold() {
 
 
 /**
+ * @brief Get the maximum allowable optical length for a track segment
+ * @return The max optical length
+ */
+FP_PRECISION Solver::getMaxOpticalLength() {
+  return _max_optical_length;
+}
+
+
+/**
  * @brief Returns whether the solver is using double floating point precision.
  * @return true if so, false otherwise
  */
@@ -236,6 +246,20 @@ void Solver::setGeometry(Geometry* geometry) {
   _num_groups = _geometry->getNumEnergyGroups();
   _polar_times_groups = _num_groups * _num_polar;
   _num_materials = _geometry->getNumMaterials();
+}
+
+
+/**
+ * @brief Set the maximum allowable optical length for a track segment
+ * @param max_optical_length The max optical length
+ */
+void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+
+  if (max_optical_length <= 0)
+    log_printf(ERROR, "Cannot set max optical length to %f because it "
+               "must be positive.", max_optical_length); 
+        
+  _max_optical_length = max_optical_length;
 }
 
 
@@ -457,11 +481,11 @@ void Solver::initializePolarQuadrature() {
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
 void Solver::initializeExpEvaluator() {
-  double max_tau = _track_generator->getMaxOpticalLength();
-  double tolerance = _converge_thresh;
-
   _exp_evaluator->setPolarQuadrature(_polar_quad);
-  _exp_evaluator->initialize(max_tau, tolerance);
+  _exp_evaluator->initialize(_max_optical_length, _converge_thresh);
+
+  if (_exp_evaluator->isUsingInterpolation())
+    _track_generator->splitSegments(_max_optical_length);
 }
 
 
@@ -571,8 +595,8 @@ void Solver::checkTrackSpacing() {
 
     if (FSR_segment_tallies[r] == 0) {
       log_printf(ERROR, "No tracks were tallied inside FSR id = %d. Please "
-                 "reduce your track spacing, increase the number of azimuthal"
-                 "angles, or increase the size of the FSRs", r);
+                 "reduce your track spacing, increase the number of "
+                 "azimuthal angles, or increase the size of the FSRs", r);
     }
   }
 

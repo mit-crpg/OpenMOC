@@ -68,17 +68,57 @@ void Track::setAzimAngleIndex(const int index) {
  * @brief Adds a segment pointer to this Track's list of segments.
  * @details This method assumes that segments are added in order of their
  *          starting location from the Track's start point.
- * @param segment a pointer to the segment
+ * @param to_add a pointer to the segment to add
  */
-void Track::addSegment(segment* segment) {
-
+void Track::addSegment(segment* to_add) {
   try {
-    _segments.push_back(*segment);
+    _segments.push_back(*to_add);
   }
   catch (std::exception &e) {
-      log_printf(ERROR, "Unable to add a segment to Track. Backtrace:"
-                 "\n%s", e.what());
+    log_printf(ERROR, "Unable to add a segment to Track");
   }
+}
+
+
+/**
+ * @brief Removes a segment pointer from this Track's list of segments.
+ * @param to_remove a pointer to the segment to remove
+ */
+void Track::removeSegment(segment* to_remove) {
+
+  std::vector<segment>::iterator iter;
+  iter = std::find(_segments.begin(), _segments.end(), to_remove);
+
+  try {
+    if (iter != _segments.end())
+      _segments.erase(iter);
+  }
+  catch (std::exception &e) {
+    log_printf(ERROR, "Unable to remove a segment from Track");
+  }  
+}
+
+
+/**
+ * @brief Inserts a segment pointer into this Track's list of segments.
+ * @details This method appends the new segment directly behind another
+ *          segment in the Track. This is a helper method for the
+ *          TrackGenerator::splitTracks(...) routine.
+ * @param first a pointer to the segment to append behind
+ * @param second a pointer to the segment to insert
+ */
+void Track::insertSegment(segment* first, segment* second) {
+
+  std::vector<segment>::iterator iter;
+  iter = std::find(_segments.begin(), _segments.end(), first);
+
+  try {
+    if (iter != _segments.end())
+      _segments.insert(iter+1, *second);
+  }
+  catch (std::exception &e) {
+    log_printf(ERROR, "Unable to insert a segment into Track");
+  }  
 }
 
 

@@ -20,9 +20,6 @@ Geometry::Geometry() {
 
   _num_FSRs = 0;
 
-  _max_seg_length = 0;
-  _min_seg_length = std::numeric_limits<double>::infinity();
-
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
 
@@ -254,24 +251,6 @@ int Geometry::getNumCells() {
   }
 
   return num_cells;
-}
-
-
-/**
- * @brief Return the max Track segment length computed during segmentation (cm)
- * @return max Track segment length (cm)
- */
-double Geometry::getMaxSegmentLength() {
-  return _max_seg_length;
-}
-
-
-/**
- * @brief Return the min Track segment length computed during segmentation (cm)
- * @return min Track segment length (cm)
- */
-double Geometry::getMinSegmentLength() {
-  return _min_seg_length;
 }
 
 
@@ -764,33 +743,29 @@ void Geometry::initializeFlatSourceRegions() {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
- * @param max_optical_length the maximum optical length a segment is allowed to
- *          have
  */
-void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
+void Geometry::segmentize(Track* track) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
   double y0 = track->getStart()->getY();
   double phi = track->getPhi();
+  double delta_x, delta_y;
 
   /* Length of each segment */
-  FP_PRECISION segment_length;
-  Material* segment_material;
+  FP_PRECISION length;
+  Material* material;
   int fsr_id;
-  FP_PRECISION* sigma_t;
-  int min_num_segments;
   int num_segments;
-  int num_groups;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords segment_start(x0, y0);
-  LocalCoords segment_end(x0, y0);
-  segment_start.setUniverse(_root_universe);
-  segment_end.setUniverse(_root_universe);
+  LocalCoords start(x0, y0);
+  LocalCoords end(x0, y0);
+  start.setUniverse(_root_universe);
+  end.setUniverse(_root_universe);
 
   /* Find the Cell containing the Track starting Point */
-  Cell* curr = findFirstCell(&segment_end, phi);
+  Cell* curr = findFirstCell(&end, phi);
   Cell* prev;
 
   /* If starting Point was outside the bounds of the Geometry */
@@ -803,110 +778,62 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
    * Geometry */
   while (curr != NULL) {
 
-    segment_end.copyCoords(&segment_start);
+    end.copyCoords(&start);
 
     /* Find the next Cell along the Track's trajectory */
     prev = curr;
-    curr = findNextCell(&segment_end, phi);
+    curr = findNextCell(&end, phi);
 
-    /* Checks to make sure that new Segment does not have the same start
-     * and end Points */
-    if (segment_start.getX() == segment_end.getX() &&
-      segment_start.getY() == segment_end.getY()) {
+    /* Checks that segment does not have the same start and end Points */
+    if (start.getX() == end.getX() && start.getY() == end.getY())
+      log_printf(ERROR, "Created segment with same start and end "
+                 "point: x = %f, y = %f", start.getX(), start.getY());
 
-      log_printf(ERROR, "Created a Track segment with the same start and end "
-                 "point: x = %f, y = %f", segment_start.getX(),
-                  segment_start.getY());
+    /* Find the segment length, Material and FSR ID */
+    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    material = static_cast<CellBasic*>(prev)->getMaterial();
+    fsr_id = findFSRId(&start);
+
+    /* Create a new Track segment */
+    segment* new_segment = new segment;
+    new_segment->_material = material;
+    new_segment->_length = length;
+    new_segment->_region_id = fsr_id;
+
+    log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
+               start.getX(), start.getY(), end.getX(), end.getY());
+
+    /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
+    if (_cmfd != NULL){
+
+      /* Find cmfd cell that segment lies in */
+      int cmfd_cell = _cmfd->findCmfdCell(&start);
+
+      /* Reverse nudge from surface to determine whether segment start or end
+       * points lie on a CMFD surface. */
+      delta_x = cos(phi) * TINY_MOVE;
+      delta_y = sin(phi) * TINY_MOVE;
+      start.adjustCoords(-delta_x, -delta_y);
+      end.adjustCoords(-delta_x, -delta_y);
+
+      new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell,&end);
+      new_segment->_cmfd_surface_bwd = _cmfd->findCmfdSurface(cmfd_cell,&start);
     }
 
-    /* Find the segment length between the segment's start and end points */
-    segment_length = FP_PRECISION(segment_end.getPoint()
-                      ->distanceToPoint(segment_start.getPoint()));
-    segment_material = static_cast<CellBasic*>(prev)->getMaterial();
-    sigma_t = segment_material->getSigmaT();
+    /* Add the segment to the Track */
+    track->addSegment(new_segment);
 
-    /* Find the ID of the FSR that contains the segment */
-    fsr_id = findFSRId(&segment_start);
-
-    /* Compute the number of Track segments to cut this segment into to ensure
-     * that it's length is small enough for the exponential table */
-    min_num_segments = 1;
-    num_groups = segment_material->getNumEnergyGroups();
-    for (int g=0; g < num_groups; g++) {
-      num_segments = ceil(segment_length * sigma_t[g] / max_optical_length);
-      if (num_segments > min_num_segments)
-        min_num_segments = num_segments;
-    }
-    
-    /* "Cut up" Track segment into sub-segments such that the length of each
-     * does not exceed the size of the exponential table in the Solver */
-    for (int i=0; i < min_num_segments; i++) {
-
-      /* Create a new Track segment */
-      segment* new_segment = new segment;
-      new_segment->_material = segment_material;
-      new_segment->_length = segment_length / FP_PRECISION(min_num_segments);
-
-      /* Update the max and min segment lengths */
-      if (segment_length > _max_seg_length)
-        _max_seg_length = segment_length;
-      if (segment_length < _min_seg_length)
-        _min_seg_length = segment_length;
-
-      log_printf(DEBUG, "segment start x = %f, y = %f, segment end "
-                 "x = %f, y = %f", segment_start.getX(), segment_start.getY(),
-                 segment_end.getX(), segment_end.getY());
-
-      new_segment->_region_id = fsr_id;
-
-      /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
-      if (_cmfd != NULL){
-
-        /* Find cmfd cell that segment lies in */
-        int cmfd_cell = _cmfd->findCmfdCell(&segment_start);
-
-        /* Reverse nudge from surface to determine whether segment start or end
-         * points lie on a cmfd surface. */
-        double delta_x = cos(phi) * TINY_MOVE;
-        double delta_y = sin(phi) * TINY_MOVE;
-        segment_start.adjustCoords(-delta_x, -delta_y);
-        segment_end.adjustCoords(-delta_x, -delta_y);
-
-        if (i == min_num_segments-1)
-          new_segment->_cmfd_surface_fwd =
-              _cmfd->findCmfdSurface(cmfd_cell, &segment_end);
-        else
-          new_segment->_cmfd_surface_fwd = -1;
-
-        if (i == 0)
-          new_segment->_cmfd_surface_bwd =
-              _cmfd->findCmfdSurface(cmfd_cell, &segment_start);
-        else
-          new_segment->_cmfd_surface_bwd = -1;
-
-        /* Re-nudge segments from surface. */
-        segment_start.adjustCoords(delta_x, delta_y);
-        segment_end.adjustCoords(delta_x, delta_y);
-
-      }
-
-      /* Add the segment to the Track */
-      track->addSegment(new_segment);
-
-    }
+    /* Re-nudge segments from surface */
+    start.adjustCoords(delta_x, delta_y);
+    end.adjustCoords(delta_x, delta_y);
   }
 
   log_printf(DEBUG, "Created %d segments for Track: %s",
              track->getNumSegments(), track->toString().c_str());
 
   /* Truncate the linked list for the LocalCoords */
-  segment_start.prune();
-  segment_end.prune();
-
-  log_printf(DEBUG, "Track %d max. segment length: %f",
-             track->getUid(), _max_seg_length);
-  log_printf(DEBUG, "Track %d min. segment length: %f",
-             track->getUid(), _min_seg_length);
+  start.prune();
+  end.prune();
 
   return;
 }
