@@ -649,8 +649,8 @@ void Solver::computeEigenvalue(int max_iterations) {
   initializeFSRs();
 
   if (_num_fissionable_FSRs == 0.0)
-    log_printf(ERROR, "The Solver is unable to converge the "
-               "source without fissionable flat source regions");
+    log_printf(ERROR, "The Solver is unable to compute the "
+               "eigenvalue without fissionable FSRs");
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     initializeCmfd();
@@ -687,15 +687,15 @@ void Solver::computeEigenvalue(int max_iterations) {
     /* Check for convergence of the fission source distribution */
     if (i > 1 && residual < _converge_thresh) {
       _timer->stopTimer();
-      _timer->recordSplit("Total time to converge the source");
+      _timer->recordSplit("Total time");
       return;
     }
   }
 
-  log_printf(WARNING, "Unable to converge the source");
+  log_printf(WARNING, "Unable to converge the source distribution");
 
   _timer->stopTimer();
-  _timer->recordSplit("Total time to converge the source");
+  _timer->recordSplit("Total time");
 }
 
 
@@ -704,7 +704,7 @@ void Solver::computeEigenvalue(int max_iterations) {
  *        code in the source convergence loop.
  */
 void Solver::clearTimerSplits() {
-  _timer->clearSplit("Total time to converge the source");
+  _timer->clearSplit("Total time");
 }
 
 
@@ -718,16 +718,10 @@ void Solver::printTimerReport() {
   log_printf(TITLE, "TIMING REPORT");
 
   /* Get the total runtime */
-  double tot_time = _timer->getSplit("Total time to converge the source");
+  double tot_time = _timer->getSplit("Total time");
   msg_string = "Total time to solution";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
-
-  /* Time per unknown */
-  double time_per_unknown = tot_time / (_num_FSRs * _num_groups);
-  msg_string = "Solution time per unknown";
-  msg_string.resize(53, '.');
-  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_unknown);
 
   /* Time per iteration */
   double time_per_iter = tot_time / _num_iterations;

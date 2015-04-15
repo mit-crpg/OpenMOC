@@ -238,7 +238,6 @@ protected:
 
   void clearTimerSplits();
 
-
 public:
   Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
@@ -293,7 +292,7 @@ public:
   void useExponentialIntrinsic();
 
   virtual void computeEigenvalue(int max_iterations);
-  //  virtual void computeFlux(int max_iterations);
+ //  virtual void computeFlux(int max_iterations);
   virtual void convergeFlux(int max_iterations);
 
 /**
