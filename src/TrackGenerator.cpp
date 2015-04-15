@@ -1607,7 +1607,6 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
     log_printf(ERROR, "Unable to split segments since "
 	       "tracks have not yet been generated");
 
-  int num_segments;
   int num_cuts, min_num_cuts;
   segment* curr_segment;
 
@@ -1619,10 +1618,6 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
   /* Iterate over all Tracks */
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
-
-      num_segments = _tracks[i][j].getNumSegments();
-
-      /* Iterate over all segments in this Track */
       for (int s=0; s < _tracks[i][j].getNumSegments(); s+=min_num_cuts) {
 
         /* Extract data from this segment to compute it optical length */
@@ -1635,12 +1630,15 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
         num_groups = material->getNumEnergyGroups();
         sigma_t = material->getSigmaT();
 
-        /* Compute maximum optical length for the segment */
         for (int g=0; g < num_groups; g++) {
           tau = length * sigma_t[g];
           num_cuts = ceil(tau / max_optical_length);
           min_num_cuts = std::max(num_cuts, min_num_cuts);
         }
+
+        /* If the segment does not subdivisions, go to next segment */
+        if (min_num_cuts == 1)
+          continue;
 
         /* Split the segment into sub-segments */
         for (int k=0; k < min_num_cuts; k++) {
