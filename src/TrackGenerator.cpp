@@ -1650,20 +1650,16 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           /* Assign CMFD surface boundaries */
           if (k == 0)
             new_segment->_cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
-          else
-            new_segment->_cmfd_surface_bwd = -1;
 
           if (k == min_num_cuts-1)
             new_segment->_cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
-          else
-            new_segment->_cmfd_surface_fwd = -1;
 
           /* Insert the new segment to the Track */
-          _tracks[i][j].insertSegment(curr_segment, new_segment);
+          _tracks[i][j].insertSegment(s+k+1, new_segment);
         }
 
         /* Remove the original segment from the Track */
-        _tracks[i][j].removeSegment(curr_segment);
+        _tracks[i][j].removeSegment(s);
       }
     }
   }

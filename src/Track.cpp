@@ -81,17 +81,12 @@ void Track::addSegment(segment* to_add) {
 
 
 /**
- * @brief Removes a segment pointer from this Track's list of segments.
- * @param to_remove a pointer to the segment to remove
+ * @brief Removes a segment from this Track's list of segments.
+ * @param index the index of the segment to remove
  */
-void Track::removeSegment(segment* to_remove) {
-
-  std::vector<segment>::iterator iter;
-  iter = std::find(_segments.begin(), _segments.end(), to_remove);
-
+void Track::removeSegment(int index) {
   try {
-    if (iter != _segments.end())
-      _segments.erase(iter);
+    _segments.erase(_segments.begin()+index);
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Unable to remove a segment from Track");
@@ -104,17 +99,12 @@ void Track::removeSegment(segment* to_remove) {
  * @details This method appends the new segment directly behind another
  *          segment in the Track. This is a helper method for the
  *          TrackGenerator::splitTracks(...) routine.
- * @param first a pointer to the segment to append behind
- * @param second a pointer to the segment to insert
+ * @param index the index of the segment to insert behind in the list
+ * @param segment a pointer to the segment to insert
  */
-void Track::insertSegment(segment* first, segment* second) {
-
-  std::vector<segment>::iterator iter;
-  iter = std::find(_segments.begin(), _segments.end(), first);
-
+void Track::insertSegment(int index, segment* segment) {
   try {
-    if (iter != _segments.end())
-      _segments.insert(iter+1, *second);
+    _segments.insert(_segments.begin()+index, *segment);
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Unable to insert a segment into Track");
