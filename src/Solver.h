@@ -175,6 +175,9 @@ protected:
   /** The tolerance for converging the source */
   FP_PRECISION _source_convergence_thresh;
 
+  /** The maximum optical length a track is allowed to have */
+  FP_PRECISION _max_optical_length;
+
   /** En ExpEvaluator to compute exponentials in the transport equation */
   ExpEvaluator* _exp_evaluator;
 
@@ -265,6 +268,7 @@ public:
   double getTotalTime();
   FP_PRECISION getKeff();
   FP_PRECISION getSourceConvergenceThreshold();
+  FP_PRECISION getMaxOpticalLength();
 
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
@@ -296,6 +300,7 @@ public:
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
 
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 

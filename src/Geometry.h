@@ -89,12 +89,6 @@ private:
   /** A vector of Material IDs indexed by FSR IDs */
   std::vector<int> _FSRs_to_material_IDs;
 
-  /** The maximum Track segment length in the Geometry */
-  double _max_seg_length;
-
-  /** The minimum Track segment length in the Geometry */
-  double _min_seg_length;
-
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
 
@@ -136,8 +130,6 @@ public:
   std::map<int, Cell*> getAllMaterialCells();
   void setRootUniverse(Universe* root_universe);
 
-  double getMaxSegmentLength();
-  double getMinSegmentLength();
   Cmfd* getCmfd();
   std::vector<std::size_t> getFSRsToKeys();
   std::vector<int> getFSRsToMaterialIDs();
@@ -166,7 +158,7 @@ public:
   /* Other worker methods */
   void subdivideCells();
   void initializeFlatSourceRegions();
-  void segmentize(Track* track, FP_PRECISION max_optical_length);
+  void segmentize(Track* track);
   void computeFissionability(Universe* univ=NULL);
 
   std::string toString();
