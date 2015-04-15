@@ -125,7 +125,7 @@ track_generator.generateTracks()
 solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
-solver.convergeSource(max_iters)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 log.py_printf('TITLE', 'Finished')

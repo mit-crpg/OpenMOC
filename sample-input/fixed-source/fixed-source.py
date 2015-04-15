@@ -51,7 +51,6 @@ for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
 log.py_printf('NORMAL', 'Creating cells...')
 
 moderator_cell = CellBasic(name='moderator')
-#moderator_cell.setMaterial(materials['Water'])
 moderator_cell.setMaterial(Material())
 
 root_cell = CellFill(name='root cell')

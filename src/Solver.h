@@ -292,7 +292,8 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
-  virtual void convergeSource(int max_iterations);
+  virtual void computeEigenvalue(int max_iterations);
+  //  virtual void computeFlux(int max_iterations);
   virtual void convergeFlux(int max_iterations);
 
 /**

@@ -536,9 +536,8 @@ void Solver::initializeFSRs() {
  * @brief Initializes a Cmfd object for acceleratiion prior to source iteration.
  * @details Instantiates a dummy Cmfd object if one was not assigned to
  *          the Solver by the user and initializes FSRs, materials, fluxes
- *          and the Mesh object. This method is for internal use only and is
- *          called by the Solver::convergeSource() method and should not be
- *          called directly by the user.
+ *          and the Mesh object. This method is for internal use only
+ *          and should not be called directly by the user.
  */
 void Solver::initializeCmfd(){
 
@@ -557,8 +556,7 @@ void Solver::initializeCmfd(){
 /**
  * @brief Checks that each FSR has at least one Track segment crossing it
  *        and if not, throws an exception and prints an error message.
- * @details This method is for internal use only and is called by the
- *          Solver::convergeSource() method and should not be called
+ * @details This method is for internal use only and should not be called
  *          directly by the user.
  */
 void Solver::checkTrackSpacing() {
@@ -615,18 +613,18 @@ void Solver::checkTrackSpacing() {
  *
  * @code
  *          max_iters = 1000
- *          solver.convergeSource(max_iters)
+ *          solver.computeEigenvalue(max_iters)
  * @endcode
  *
  * @param max_iterations the maximum number of source iterations to allow
  */
-void Solver::convergeSource(int max_iterations) {
+void Solver::computeEigenvalue(int max_iterations) {
 
   if (_track_generator == NULL)
-    log_printf(ERROR, "The Solver is unable to converge the source "
+    log_printf(ERROR, "The Solver is unable to compute the eigenvalue "
                "since it does not contain a TrackGenerator");
 
-  log_printf(NORMAL, "Converging the source...");
+  log_printf(NORMAL, "Computing the eigenvalue...");
 
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
