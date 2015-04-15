@@ -666,6 +666,7 @@ void Solver::computeFlux(int max_iterations) {
 
   /* Initialize data structures */
   initializePolarQuadrature();
+  initializeMaxOpticalLength();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
