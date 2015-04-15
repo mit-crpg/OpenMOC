@@ -512,22 +512,35 @@ void Solver::initializeFSRs() {
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
-  /* Compute the number of fissionable Materials */
-  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
-  _num_fissionable_FSRs = 0;
-
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
 
     /* Assign the Material corresponding to this FSR */
     _FSR_materials[r] =  _geometry->findFSRMaterial(r);
 
-    /* Increment number of fissionable FSRs */
-    if (_FSR_materials[r]->isFissionable())
-      _num_fissionable_FSRs++;
-
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
+  }
+}
+
+
+/**
+ * @brief Counts the number of fissionable flat source regions.
+ * @details This routine is used by the Solver::computeEigenvalue(...) 
+ *          routine which uses the number of fissionable FSRs to normalize
+ *          the residual on the fission source distribution.
+ */
+void Solver::countFissionableFSRs() {
+
+  log_printf(INFO, "Counting fissionable FSRs...");
+
+  /* Count the number of fissionable FSRs */
+  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
+  _num_fissionable_FSRs = 0;
+
+  for (int r=0; r < _num_FSRs; r++) {
+    if (_FSR_materials[r]->isFissionable())
+      _num_fissionable_FSRs++;
   }
 }
 
@@ -603,6 +616,77 @@ void Solver::checkTrackSpacing() {
 
 
 /**
+ * @brief
+ * @code
+ *          max_iters = 1000
+ *          solver.computeFlux(max_iters)
+ * @endcode
+ *
+ * @param max_iterations the maximum number of iterations to allow
+ */
+void Solver::computeFlux(int max_iterations) {
+
+  if (_track_generator == NULL)
+    log_printf(ERROR, "The Solver is unable to compute the flux "
+               "since it does not contain a TrackGenerator");
+
+  log_printf(NORMAL, "Computing the flux...");
+
+  /* Clear all timing data from a previous simulation run */
+  clearTimerSplits();
+
+  /* Start the timer to record the total time to converge the flux */
+  _timer->startTimer();
+
+  /* Counter for the number of iterations to converge the flux */
+  _num_iterations = 0;
+
+  /* The residual on the source */
+  FP_PRECISION residual = 1.0;
+
+  /* Initialize data structures */
+  initializePolarQuadrature();
+  initializeExpEvaluator();
+  initializeFluxArrays();
+  initializeSourceArrays();
+  initializeFSRs();
+
+  /* Check that each FSR has at least one segment crossing it */
+  checkTrackSpacing();
+
+  /* Set scalar flux to unity for each region */
+  flattenFSRSources(0.0);
+  flattenFSRFluxes(1.0);
+  zeroTrackFluxes();
+
+  /* Source iteration loop */
+  for (int i=0; i < max_iterations; i++) {
+
+    log_printf(NORMAL, "Iteration %d: \tres = %1.3E", i, residual);
+
+    residual = computeFSRSources();
+    residual = 1.0;
+    transportSweep();
+    addSourceToScalarFlux();
+
+    _num_iterations++;
+
+    /* Check for convergence of the fission source distribution */
+    if (i > 1 && residual < _converge_thresh) {
+      _timer->stopTimer();
+      _timer->recordSplit("Total time");
+      return;
+    }
+  }
+
+  log_printf(WARNING, "Unable to converge the flux");
+
+  _timer->stopTimer();
+  _timer->recordSplit("Total time");
+}
+
+
+/**
  * @brief Computes keff by performing a series of transport sweep and
  *        source updates.
  * @details This is the main method exposed to the user through the Python
@@ -648,15 +732,17 @@ void Solver::computeEigenvalue(int max_iterations) {
   initializeSourceArrays();
   initializeFSRs();
 
+  /* Check that there are fissionable material(s) */
+  countFissionableFSRs();
   if (_num_fissionable_FSRs == 0.0)
     log_printf(ERROR, "The Solver is unable to compute the "
                "eigenvalue without fissionable FSRs");
 
-  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    initializeCmfd();
-
   /* Check that each FSR has at least one segment crossing it */
   checkTrackSpacing();
+
+  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
+    initializeCmfd();
 
   /* Set scalar flux to unity for each region */
   flattenFSRSources(1.0);
@@ -767,97 +853,4 @@ void Solver::printTimerReport() {
 
   log_printf(RESULT, "%s", msg.str().c_str());
   log_printf(SEPARATOR, "-");
-}
-
-
-/**
- * @brief Solves fixed source problem
- * @code
- *          max_iters = 1000
- *          solver.convergeFlux(max_iters)
- * @endcode
- *
- * @param max_iterations the maximum number of iterations to allow
- */
-void Solver::convergeFlux(int max_iterations) {
-
-  if (_track_generator == NULL)
-    log_printf(ERROR, "The Solver is unable to converge the flux "
-               "since it does not contain a TrackGenerator");
-
-  log_printf(NORMAL, "Converging the flux...");
-
-  /* Clear all timing data from a previous simulation run */
-  clearTimerSplits();
-
-  /* Start the timer to record the total time to converge the flux */
-  _timer->startTimer();
-
-  /* Counter for the number of iterations to converge the flux */
-  _num_iterations = 0;
-
-  //FIXME
-  /* An initial guess for the eigenvalue */
-  //  _k_eff = 1.0;
-
-  /* The residual on the source */
-  FP_PRECISION residual = 0.0;
-
-  /* Initialize data structures */
-  initializePolarQuadrature();
-  initializeExpEvaluator();
-  initializeFluxArrays();
-  initializeSourceArrays();
-  initializeFSRs();
-
-  //FIXME
-  /*
-  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    initializeCmfd();
-  */
-
-  /* Check that each FSR has at least one segment crossing it */
-  checkTrackSpacing();
-
-  /* Set scalar flux to unity for each region */
-  flattenFSRSources(1.0);
-  flattenFSRFluxes(1.0);
-  zeroTrackFluxes();
-
-  /* Source iteration loop */
-  for (int i=0; i < max_iterations; i++) {
-
-    log_printf(NORMAL, "Iteration %d: \tres = %1.3E", i, residual);
-
-    //FIXME
-    //    residual = computeFSRSourcesForFixedSource();
-    residual = computeFSRSources();
-    transportSweep();
-    addSourceToScalarFlux();
-
-    //FIXME
-    /* Solve CMFD diffusion problem and update MOC flux */
-    /*
-    if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
-      _k_eff = _cmfd->computeKeff(i);
-      _cmfd->updateBoundaryFlux(_tracks, _boundary_flux, _tot_num_tracks);
-    }
-    else
-      computeKeff();
-    */
-
-    _num_iterations++;
-
-    /* Check for convergence */
-    if (i > 1 && residual < _converge_thresh) {
-      _timer->stopTimer();
-      _timer->recordSplit("Total time to converge the flux");
-      return;
-    }
-  }
-
-  _timer->stopTimer();
-  _timer->recordSplit("Total time to converge the flux");
-
-  log_printf(WARNING, "Unable to converge the flux");
 }

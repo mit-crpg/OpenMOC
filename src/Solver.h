@@ -184,6 +184,7 @@ protected:
   virtual void initializePolarQuadrature();
   virtual void initializeExpEvaluator();
   virtual void initializeFSRs();
+  virtual void countFissionableFSRs();
   virtual void initializeCmfd();
   virtual void checkTrackSpacing();
 
@@ -292,8 +293,8 @@ public:
   void useExponentialIntrinsic();
 
   virtual void computeEigenvalue(int max_iterations);
- //  virtual void computeFlux(int max_iterations);
-  virtual void convergeFlux(int max_iterations);
+  virtual void computeFlux(int max_iterations);
+  //  virtual void convergeFlux(int max_iterations);
 
 /**
  * @brief Computes the volume-weighted, energy integrated fission rate in

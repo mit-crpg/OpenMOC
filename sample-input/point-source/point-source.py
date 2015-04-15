@@ -35,13 +35,13 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = XPlane(x=-10.0, name='left')
-right = XPlane(x=10.0, name='right')
-top = YPlane(y=-10.0, name='top')
-bottom = YPlane(y=10.0, name='bottom')
+left = XPlane(x=-20.0, name='left')
+right = XPlane(x=20.0, name='right')
+top = YPlane(y=-20.0, name='top')
+bottom = YPlane(y=20.0, name='bottom')
 boundaries = [left, right, top, bottom]
 
-for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
+for boundary in boundaries: boundary.setBoundaryType(VACUUM)
 
 
 ###############################################################################
@@ -50,8 +50,11 @@ for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-moderator_cell = CellBasic(name='moderator')
-moderator_cell.setMaterial(Material())
+water_cell = CellBasic(name='water')
+water_cell.setMaterial(materials['Water'])
+
+source_cell = CellBasic(name='source')
+source_cell.setMaterial(materials['Water'])
 
 root_cell = CellFill(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=boundaries[0])
@@ -66,10 +69,12 @@ root_cell.addSurface(halfspace=-1, surface=boundaries[3])
 
 log.py_printf('NORMAL', 'Creating universes...')
 
-moderator_univ = Universe(name='moderator')
+water_univ = Universe(name='water')
+source_univ = Universe(name='source')
 root_universe = Universe(name='root universe')
 
-moderator_univ.addCell(moderator_cell)
+water_univ.addCell(water_cell)
+source_univ.addCell(source_cell)
 root_universe.addCell(root_cell)
 
 
@@ -77,13 +82,14 @@ root_universe.addCell(root_cell)
 ###########################   Creating Lattices   #############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating simple 4 x 4 lattice...')
-
-num_x = 10
-num_y = 10
+num_x = 200
+num_y = 200
 width_x = (root_universe.getMaxX() - root_universe.getMinX()) / num_y
 width_y = (root_universe.getMaxY() - root_universe.getMinY()) / num_x
-universes = [[moderator_univ]*num_x]*num_y
+universes = [[water_univ]*num_x for _ in range(num_y)]
+universes[15][15] = source_univ
+
+log.py_printf('NORMAL', 'Creating a {0}x{0} lattice...'.format(num_x, num_y))
 
 lattice = Lattice(name='{0}x{1} lattice'.format(num_x, num_y))
 lattice.setWidth(width_x=width_x, width_y=width_y)
@@ -121,9 +127,9 @@ solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
 
-solver.setFixedSourceByFSR(25, 7, 1.0)
+solver.setFixedSourceByCell(source_cell, 1, 1.0)
 
-solver.convergeSource(max_iters)
+solver.computeFlux(max_iters)
 solver.printTimerReport()
 
 
@@ -133,9 +139,9 @@ solver.printTimerReport()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-plotter.plot_materials(geometry, gridsize=250)
-plotter.plot_cells(geometry, gridsize=250)
-plotter.plot_flat_source_regions(geometry, gridsize=250)
+#plotter.plot_materials(geometry, gridsize=250)
+#plotter.plot_cells(geometry, gridsize=250)
+#plotter.plot_flat_source_regions(geometry, gridsize=250)
 plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')
