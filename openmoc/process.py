@@ -242,12 +242,12 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   else:
     precision = 'single'
 
-  # Determine whether we are using the exponential intrinsic or
+  # Determine whether we are using the exponential
   # linear interpolation for exponential evaluations
-  if solver.isUsingExponentialIntrinsic():
-      method = 'exp intrinsic'
-  else:
+  if solver.isUsingExponentialInterpolation():
     method = 'linear interpolation'
+  else:
+    method = 'exp intrinsic'
 
   # Determine whether the Solver has initialized Coarse Mesh Finite
   # Difference Acceleration (CMFD)
@@ -270,7 +270,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   num_azim = track_generator.getNumAzim()
   num_polar = solver.getNumPolarAngles()
   num_iters = solver.getNumIterations()
-  thresh = solver.getSourceConvergenceThreshold()
+  thresh = solver.getConvergenceThreshold()
   tot_time = solver.getTotalTime()
   keff = solver.getKeff()
 

@@ -15,9 +15,6 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _geometry = geometry;
   setNumAzim(num_azim);
   setTrackSpacing(spacing);
-  _tot_num_tracks = 0;
-  _tot_num_segments = 0;
-  _num_segments = NULL;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
@@ -32,7 +29,6 @@ TrackGenerator::~TrackGenerator() {
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_segments;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
@@ -79,18 +75,20 @@ Geometry* TrackGenerator::getGeometry() {
 }
 
 
-/**
- * @brief Return the total number of Tracks across the Geometry.
- * @return the total number of Tracks
- */
 int TrackGenerator::getNumTracks() {
-
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the total number of Tracks since "
                "Tracks have not yet been generated.");
 
-  return _tot_num_tracks;
+  int num_tracks = 0;
+
+  for (int i=0; i < _num_azim; i++) {
+    num_tracks += _num_tracks[i];
+  }
+
+  return num_tracks;
 }
+
 
 /**
  * @brief Return an array of the number of Tracks for each azimuthal angle.
@@ -110,25 +108,18 @@ int* TrackGenerator::getNumTracksArray() {
  * @return the total number of Track segments
  */
 int TrackGenerator::getNumSegments() {
-
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the total number of segments since "
                "Tracks have not yet been generated.");
 
-  return _tot_num_segments;
-}
+  int num_segments = 0;
 
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++)
+      num_segments += _tracks[i][j].getNumSegments();
+  }
 
-/**
- * @brief Return an array of the number of segments per Track.
- * @return array with the number of segments per Track
- */
-int* TrackGenerator::getNumSegmentsArray() {
-  if (!_contains_tracks)
-    log_printf(ERROR, "Unable to return the array of the number of segments "
-               "per Track since Tracks have not yet been generated.");
-
-  return _num_segments;
+  return num_segments;
 }
 
 
@@ -157,23 +148,6 @@ FP_PRECISION* TrackGenerator::getAzimWeights() {
                "weights since Tracks have not yet been generated.");
 
   return _azim_weights;
-}
-
-
-/**
- * @brief Get the total number of tracks in the TrackGenerator
- * @return the total number of tracks
- */
-int TrackGenerator::getTotNumTracks() {
-  return _tot_num_tracks;
-}
-
-/**
- * @brief Get the total number of track segments in the TrackGenerator
- * @return the total number of track segments
- */
-int TrackGenerator::getTotNumSegments() {
-  return _tot_num_segments;
 }
 
 
@@ -343,8 +317,6 @@ void TrackGenerator::setTrackSpacing(double spacing) {
                "TrackGenerator.", spacing);
 
   _spacing = spacing;
-  _tot_num_tracks = 0;
-  _tot_num_segments = 0;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
@@ -357,8 +329,6 @@ void TrackGenerator::setTrackSpacing(double spacing) {
  */
 void TrackGenerator::setGeometry(Geometry* geometry) {
   _geometry = geometry;
-  _tot_num_tracks = 0;
-  _tot_num_segments = 0;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
@@ -500,7 +470,6 @@ void TrackGenerator::generateTracks() {
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_segments;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
@@ -732,8 +701,6 @@ void TrackGenerator::recalibrateTracksToOrigin() {
   int uid = 0;
 
   for (int i = 0; i < _num_azim; i++) {
-    _tot_num_tracks += _num_tracks[i];
-
     for (int j = 0; j < _num_tracks[i]; j++) {
 
       _tracks[i][j].setUid(uid);
@@ -1113,9 +1080,6 @@ void TrackGenerator::segmentize() {
 
   Track* track;
 
-  if (_num_segments != NULL)
-    delete [] _num_segments;
-
   /* This section loops over all Track and segmentizes each one if the
    * Tracks were not read in from an input file */
   if (!_use_input_file) {
@@ -1125,21 +1089,8 @@ void TrackGenerator::segmentize() {
       #pragma omp parallel for private(track)
       for (int j=0; j < _num_tracks[i]; j++){
         track = &_tracks[i][j];
-        log_printf(DEBUG, "Segmenting Track %d/%d with i = %d, j = %d",
-                   track->getUid(), _tot_num_tracks, i, j);
+        log_printf(DEBUG, "Segmenting Track %d", track->getUid());
         _geometry->segmentize(track);
-      }
-    }
-
-    /* Compute the total number of segments in the simulation */
-    _num_segments = new int[_tot_num_tracks];
-    _tot_num_segments = 0;
-
-    for (int i=0; i < _num_azim; i++) {
-      for (int j=0; j < _num_tracks[i]; j++) {
-        track = &_tracks[i][j];
-        _num_segments[track->getUid()] = track->getNumSegments();
-        _tot_num_segments += _num_segments[track->getUid()];
       }
     }
   }
@@ -1332,7 +1283,6 @@ bool TrackGenerator::readTracksFromFile() {
   /* Deletes Tracks arrays if tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_segments;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
@@ -1403,15 +1353,7 @@ bool TrackGenerator::readTracksFromFile() {
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
-  /* Calculate the total number of Tracks */
-  for (int i=0; i < _num_azim; i++)
-    _tot_num_tracks += _num_tracks[i];
-
-  /* Allocate memory for the number of segments per Track array */
-  _num_segments = new int[_tot_num_tracks];
-
   int uid = 0;
-  _tot_num_segments = 0;
 
   /* Loop over Tracks */
   for (int i=0; i < _num_azim; i++) {
@@ -1428,9 +1370,6 @@ bool TrackGenerator::readTracksFromFile() {
       ret = fread(&phi, sizeof(double), 1, in);
       ret = fread(&azim_angle_index, sizeof(int), 1, in);
       ret = fread(&num_segments, sizeof(int), 1, in);
-
-      _tot_num_segments += num_segments;
-      _num_segments[uid] += num_segments;
 
       /* Initialize a Track with this data */
       curr_track = &_tracks[i][j];

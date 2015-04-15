@@ -152,14 +152,8 @@ protected:
   /** The number of source iterations needed to reach convergence */
   int _num_iterations;
 
-  /** Whether or not the Solver has converged the source */
-  bool _converged_source;
-
   /** The tolerance for converging the source/flux */
   FP_PRECISION _converge_thresh;
-
-  /** The maximum optical length a track is allowed to have */
-  FP_PRECISION _max_optical_length;
 
   /** En ExpEvaluator to compute exponentials in the transport equation */
   ExpEvaluator* _exp_evaluator;
@@ -182,7 +176,6 @@ protected:
   virtual void initializeSourceArrays() =0;
 
   virtual void initializePolarQuadrature();
-  virtual void initializeMaxOpticalLength();
   virtual void initializeExpEvaluator();
   virtual void initializeFSRs();
   virtual void countFissionableFSRs();
@@ -253,7 +246,7 @@ public:
   int getNumIterations();
   double getTotalTime();
   FP_PRECISION getKeff();
-  FP_PRECISION getSourceConvergenceThreshold();
+  FP_PRECISION getConvergenceThreshold();
   FP_PRECISION getMaxOpticalLength();
 
   bool isUsingDoublePrecision();
@@ -283,7 +276,7 @@ public:
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
-  virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
+  virtual void setConvergenceThreshold(FP_PRECISION threshold);
   virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
   void setFixedSourceByMaterial(Material* material, int group, 

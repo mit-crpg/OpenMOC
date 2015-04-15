@@ -309,7 +309,7 @@ track_generator.generateTracks()
 ###############################################################################
 
 solver = GPUSolver(track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
+solver.setConvergenceThreshold(tolerance)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 

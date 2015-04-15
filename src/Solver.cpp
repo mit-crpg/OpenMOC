@@ -20,7 +20,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _geometry = NULL;
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
-  _max_optical_length = 0;
 
   _tracks = NULL;
   _polar_weights = NULL;
@@ -47,7 +46,6 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   _num_iterations = 0;
   _converge_thresh = 1E-5;
-  _converged_source = false;
 
   _timer = new Timer();
 }
@@ -188,10 +186,10 @@ FP_PRECISION Solver::getKeff() {
 
 
 /**
- * @brief Returns the threshold for source convergence.
- * @return the threshold for source convergence
+ * @brief Returns the threshold for source/flux convergence.
+ * @return the threshold for source/flux convergence
  */
-FP_PRECISION Solver::getSourceConvergenceThreshold() {
+FP_PRECISION Solver::getConvergenceThreshold() {
   return _converge_thresh;
 }
 
@@ -201,7 +199,7 @@ FP_PRECISION Solver::getSourceConvergenceThreshold() {
  * @return The max optical length
  */
 FP_PRECISION Solver::getMaxOpticalLength() {
-  return _max_optical_length;
+  return _exp_evaluator->getMaxOpticalLength();
 }
 
 
@@ -254,12 +252,7 @@ void Solver::setGeometry(Geometry* geometry) {
  * @param max_optical_length The max optical length
  */
 void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
-
-  if (max_optical_length <= 0)
-    log_printf(ERROR, "Cannot set max optical length to %f because it "
-               "must be positive.", max_optical_length); 
-        
-  _max_optical_length = max_optical_length;
+  _exp_evaluator->setMaxOpticalLength(max_optical_length);
 }
 
 
@@ -333,17 +326,17 @@ void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
 
 
 /**
- * @brief Sets the threshold for source/flux convergence (>0)
+ * @brief Sets the threshold for source/flux convergence.
  * @brief The default threshold for convergence is 1E-5.
  * @param source_thresh the threshold for source/flux convergence
  */
-void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
+void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
 
-  if (source_thresh <= 0.0)
+  if (threshold <= 0.0)
     log_printf(ERROR, "Unable to set the convergence threshold to %f "
-               "since it is not a positive number", source_thresh);
+               "since it is not a positive number", threshold);
 
-  _converge_thresh = source_thresh;
+  _converge_thresh = threshold;
 }
 
 
@@ -478,34 +471,24 @@ void Solver::initializePolarQuadrature() {
 
 
 /**
- * @brief Initialize the maximum optical length.
- * @details This method is used to appropriately size the exponential 
- *          interpolation table (if in use).
- */
-void Solver::initializeMaxOpticalLength() {
-
-  /* Get the maximum optical length in the Track segments */
-  FP_PRECISION max_optical_length = _track_generator->getMaxOpticalLength();
-
-  /* If the user did not specify a maximum optical length */
-  if (_max_optical_length == 0.)
-    _max_optical_length = std::min(max_optical_length, MAX_OPTICAL_LENGTH);
-
-  /* If the user specified a maximum optical length */
-  else
-    _max_optical_length = std::min(max_optical_length, _max_optical_length);
-}
-
-
-/**
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
 void Solver::initializeExpEvaluator() {
-  _exp_evaluator->setPolarQuadrature(_polar_quad);
-  _exp_evaluator->initialize(_max_optical_length, _converge_thresh);
 
-  if (_exp_evaluator->isUsingInterpolation())
-    _track_generator->splitSegments(_max_optical_length);
+  _exp_evaluator->setPolarQuadrature(_polar_quad);
+
+  /* Initialize exponential interpolation table if in use */
+  if (_exp_evaluator->isUsingInterpolation()) {
+
+    FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
+    FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
+    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
+
+    _exp_evaluator->setMaxOpticalLength(max_tau);  
+    _exp_evaluator->initialize(_converge_thresh);
+
+    _track_generator->splitSegments(max_tau);
+  }
 }
 
 
@@ -666,7 +649,6 @@ void Solver::computeFlux(int max_iterations) {
 
   /* Initialize data structures */
   initializePolarQuadrature();
-  initializeMaxOpticalLength();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
@@ -748,7 +730,6 @@ void Solver::computeEigenvalue(int max_iterations) {
 
   /* Initialize data structures */
   initializePolarQuadrature();
-  initializeMaxOpticalLength();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
