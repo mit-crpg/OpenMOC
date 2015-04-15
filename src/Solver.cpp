@@ -27,7 +27,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _geometry = NULL;
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
-  _max_optical_length = 10;
+  _max_optical_length = 0;
 
   _tracks = NULL;
   _azim_weights = NULL;
@@ -417,6 +417,26 @@ void Solver::initializePolarQuadrature() {
 
 
 /**
+ * @brief Initialize the maximum optical length.
+ * @details This method is used to appropriately size the exponential 
+ *          interpolation table (if in use).
+ */
+void Solver::initializeMaxOpticalLength() {
+
+  /* Get the maximum optical length in the Track segments */
+  FP_PRECISION max_optical_length = _track_generator->getMaxOpticalLength();
+
+  /* If the user did not specify a maximum optical length */
+  if (_max_optical_length == 0.)
+    _max_optical_length = std::min(max_optical_length, MAX_OPTICAL_LENGTH);
+
+  /* If the user specified a maximum optical length */
+  else
+    _max_optical_length = std::min(max_optical_length, _max_optical_length);
+}
+
+
+/**
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
 void Solver::initializeExpEvaluator() {
@@ -596,6 +616,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 
   /* Initialize data structures */
   initializePolarQuadrature();
+  initializeMaxOpticalLength();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();

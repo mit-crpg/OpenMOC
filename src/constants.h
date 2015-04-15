@@ -35,5 +35,8 @@
 /** Tolerance for difference of the sum of polar weights with respect to 1.0 */
 #define POLAR_WEIGHT_SUM_TOL 1E-5
 
+/** The default maximum optical path length */
+#define MAX_OPTICAL_LENGTH FP_PRECISION(10.)
+
 
 #endif /* CONSTANTS_H_ */

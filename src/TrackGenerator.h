@@ -110,6 +110,7 @@ public:
   int getNumThreads();
   FP_PRECISION* getFSRVolumes();
   FP_PRECISION getFSRVolume(int fsr_id);
+  FP_PRECISION getMaxOpticalLength();
 
   /* Set parameters */
   void setNumAzim(int num_azim);
