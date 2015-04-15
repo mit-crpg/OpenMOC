@@ -175,9 +175,6 @@ protected:
   /** The tolerance for converging the source */
   FP_PRECISION _source_convergence_thresh;
 
-  /** The maximum optical length a track is allowed to have */
-  FP_PRECISION _max_optical_length;
-
   /** En ExpEvaluator to compute exponentials in the transport equation */
   ExpEvaluator* _exp_evaluator;
 
@@ -199,7 +196,6 @@ protected:
   virtual void initializeSourceArrays() =0;
 
   virtual void initializePolarQuadrature();
-  virtual void initializeMaxOpticalLength();
   virtual void initializeExpEvaluator();
   virtual void initializeFSRs();
   virtual void initializeCmfd();

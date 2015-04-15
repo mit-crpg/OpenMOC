@@ -10,6 +10,7 @@ ExpEvaluator::ExpEvaluator() {
   _interpolate = true;
   _exp_table = NULL;
   _polar_quad = NULL;
+  _max_optical_length = MAX_OPTICAL_LENGTH;
 }
 
 
@@ -33,6 +34,21 @@ void ExpEvaluator::setPolarQuadrature(PolarQuad* polar_quad) {
 
 
 /**
+ * @brief Sets the maximum optical length covered in the exponential
+ *        interpolation table.
+ * @param max_optical_length the maximum optical length
+ */
+void ExpEvaluator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+
+  if (max_optical_length <= 0)
+    log_printf(ERROR, "Cannot set max optical length to %f because it "
+               "must be positive.", max_optical_length); 
+
+  _max_optical_length = max_optical_length;
+}
+
+
+/**
  * @brief Use linear interpolation to compute exponentials.
  */
 void ExpEvaluator::useInterpolation() {
@@ -45,6 +61,16 @@ void ExpEvaluator::useInterpolation() {
  */
 void ExpEvaluator::useIntrinsic() {
   _interpolate = false;
+}
+
+
+/**
+ * @brief Gets the maximum optical length covered with the exponential 
+ *        interpolation table.
+ * @return max_optical_length the maximum optical length
+ */
+FP_PRECISION ExpEvaluator::getMaxOpticalLength() {
+  return _max_optical_length;
 }
 
 
@@ -102,10 +128,9 @@ FP_PRECISION* ExpEvaluator::getExpTable() {
 
 /**
  * @brief If using linear interpolation, builds the table for each polar angle.
- * @param max_tau the maximum optical path length in the input range
  * @param tolerance the minimum acceptable interpolation accuracy
  */
-void ExpEvaluator::initialize(double max_tau, double tolerance) {
+void ExpEvaluator::initialize(double tolerance) {
 
   /* If no exponential table is needed, return */
   if (!_interpolate)
@@ -114,12 +139,12 @@ void ExpEvaluator::initialize(double max_tau, double tolerance) {
   log_printf(INFO, "Initializing exponential interpolation table...");
 
   /* Expand max tau slightly to avoid roundoff error approximation */
-  max_tau *= 1.01;
+  _max_optical_length *= 1.01;
 
   /* Set size of interpolation table */
   int num_polar = _polar_quad->getNumPolarAngles();
-  int num_array_values = max_tau * sqrt(1. / (8.e-2 * tolerance));
-  FP_PRECISION exp_table_spacing = max_tau / num_array_values;
+  int num_array_values = _max_optical_length * sqrt(1. / (8.e-2 * tolerance));
+  FP_PRECISION exp_table_spacing = _max_optical_length / num_array_values;
 
   /* Compute the reciprocal of the table entry spacing */
   _inverse_exp_table_spacing = 1.0 / exp_table_spacing;

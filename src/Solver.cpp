@@ -27,7 +27,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _geometry = NULL;
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
-  _max_optical_length = 0;
 
   _tracks = NULL;
   _azim_weights = NULL;
@@ -210,7 +209,7 @@ FP_PRECISION Solver::getSourceConvergenceThreshold() {
  * @return The max optical length
  */
 FP_PRECISION Solver::getMaxOpticalLength() {
-  return _max_optical_length;
+  return _exp_evaluator->getMaxOpticalLength();
 }
 
 
@@ -273,12 +272,7 @@ void Solver::setGeometry(Geometry* geometry) {
  * @param max_optical_length The max optical length
  */
 void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
-
-  if (max_optical_length <= 0)
-    log_printf(ERROR, "Cannot set max optical length to %f because it "
-               "must be positive.", max_optical_length); 
-        
-  _max_optical_length = max_optical_length;
+  _exp_evaluator->setMaxOpticalLength(max_optical_length);
 }
 
 
@@ -417,34 +411,24 @@ void Solver::initializePolarQuadrature() {
 
 
 /**
- * @brief Initialize the maximum optical length.
- * @details This method is used to appropriately size the exponential 
- *          interpolation table (if in use).
- */
-void Solver::initializeMaxOpticalLength() {
-
-  /* Get the maximum optical length in the Track segments */
-  FP_PRECISION max_optical_length = _track_generator->getMaxOpticalLength();
-
-  /* If the user did not specify a maximum optical length */
-  if (_max_optical_length == 0.)
-    _max_optical_length = std::min(max_optical_length, MAX_OPTICAL_LENGTH);
-
-  /* If the user specified a maximum optical length */
-  else
-    _max_optical_length = std::min(max_optical_length, _max_optical_length);
-}
-
-
-/**
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
 void Solver::initializeExpEvaluator() {
-  _exp_evaluator->setPolarQuadrature(_polar_quad);
-  _exp_evaluator->initialize(_max_optical_length, _source_convergence_thresh);
 
-  if (_exp_evaluator->isUsingInterpolation())
-    _track_generator->splitSegments(_max_optical_length);
+  _exp_evaluator->setPolarQuadrature(_polar_quad);
+
+  /* Initialize exponential interpolation table if in use */
+  if (_exp_evaluator->isUsingInterpolation()) {
+
+    FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
+    FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
+    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
+
+    _exp_evaluator->setMaxOpticalLength(max_tau);  
+    _exp_evaluator->initialize(_source_convergence_thresh);
+
+    _track_generator->splitSegments(max_tau);
+  }
 }
 
 
@@ -616,7 +600,6 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 
   /* Initialize data structures */
   initializePolarQuadrature();
-  initializeMaxOpticalLength();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();

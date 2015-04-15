@@ -44,15 +44,6 @@ private:
   /** An integer array of the number of Tracks for each azimuthal angle */
   int* _num_tracks;
 
-  /** The total number of Tracks for all azimuthal angles */
-  int _tot_num_tracks;
-
-  /** An integer array of the number of segments per Track  */
-  int* _num_segments;
-
-  /** The total number of segments for all Tracks */
-  int _tot_num_segments;
-
   /** An integer array of the number of Tracks starting on the x-axis for each
    *  azimuthal angle */
   int* _num_x;
@@ -102,11 +93,8 @@ public:
   int getNumTracks();
   int* getNumTracksArray();
   int getNumSegments();
-  int* getNumSegmentsArray();
   Track** getTracks();
   FP_PRECISION* getAzimWeights();
-  int getTotNumSegments();
-  int getTotNumTracks();
   int getNumThreads();
   FP_PRECISION* getFSRVolumes();
   FP_PRECISION getFSRVolume(int fsr_id);
