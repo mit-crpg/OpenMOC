@@ -61,7 +61,6 @@ protected:
   void computeFSRSources();
   void addSourceToScalarFlux();
   void computeKeff();
-  FP_PRECISION computeResidual(residualType res_type);
 
   void tallyScalarFlux(segment* curr_segment, int azim_index,
                        FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);

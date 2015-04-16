@@ -173,7 +173,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
                "have not yet been generated");
 
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION *FSR_volumes = new FP_PRECISION[num_FSRs];
+  FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
   int azim_index;

@@ -53,6 +53,11 @@ VectorizedSolver::~VectorizedSolver() {
     _reduced_sources = NULL;
   }
 
+  if (_fixed_sources != NULL) {
+    MM_FREE(_fixed_sources);
+    _fixed_sources = NULL;
+  }
+
   if (_delta_psi != NULL) {
     MM_FREE(_delta_psi);
     _delta_psi = NULL;
@@ -67,7 +72,6 @@ VectorizedSolver::~VectorizedSolver() {
     MM_FREE(_thread_exponentials);
     _thread_exponentials = NULL;
   }
-
 }
 
 
@@ -234,7 +238,7 @@ void VectorizedSolver::initializeSourceArrays() {
     /* Allocate the fixed sources array if not yet allocated */
     if (_fixed_sources == NULL) {
       _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-      memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
+      memset(_fixed_sources, 0.0, size);
     }
   }
   catch(std::exception &e) {
@@ -255,7 +259,7 @@ void VectorizedSolver::normalizeFluxes() {
   FP_PRECISION norm_factor;
 
   int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-  fission_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* fission_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* Compute total fission source for each FSR, energy group */
   #pragma omp parallel for private(volume, nu_sigma_f)  \
@@ -282,7 +286,7 @@ void VectorizedSolver::normalizeFluxes() {
   }
 
   /* Compute the total fission source */
-  int size = _num_FSRs * _num_groups;
+  size = _num_FSRs * _num_groups;
   #ifdef SINGLE
   tot_fission_source = cblas_sasum(size, fission_sources, 1);
   #else
@@ -335,9 +339,9 @@ void VectorizedSolver::computeFSRSources() {
   Material* material;
 
   int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-  fission_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* fission_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   size = _num_threads * _num_groups * sizeof(FP_PRECISION);
-  scatter_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* scatter_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* For all FSRs, find the source */
   #pragma omp parallel for private(material, nu_sigma_f, chi, \
@@ -350,10 +354,6 @@ void VectorizedSolver::computeFSRSources() {
     chi = material->getChi();
     sigma_s = material->getSigmaS();
     sigma_t = material->getSigmaT();
-
-    /* Initialize the source residual to zero */
-    _source_residuals[r] = 0.;
-    fsr_fission_source = 0.0;
 
     /* Compute fission source for each group */
     if (material->isFissionable()) {
@@ -371,7 +371,7 @@ void VectorizedSolver::computeFSRSources() {
       fission_source = cblas_dasum(_num_groups, &fission_sources(r,0), 1);
       #endif
 
-      fission_source /= inverse_k_eff;
+      fission_source /= _k_eff;
     }
 
     else
