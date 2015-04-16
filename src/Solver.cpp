@@ -239,8 +239,8 @@ FP_PRECISION Solver::getFSRScalarFlux(int fsr_id, int group) {
                "since groups must be greater or equal to 1", group);
 
   else if (_scalar_flux == NULL)
-    log_printf(ERROR, "Unable to return a scalar flux"
-               "since it has not yet been computed");
+    log_printf(ERROR, "Unable to return a scalar flux "
+             "since it has not yet been computed");
 
   return _scalar_flux(fsr_id,group-1);
 }
