@@ -106,7 +106,7 @@ void VectorizedSolver::setFixedSourceByFSR(int fsr_id, int group,
   if (_fixed_sources == NULL) {
     int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
     _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-    memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
+    memset(_fixed_sources, 0.0, size);
   }
 
   /* Store the fixed source for this FSR and energy group */
