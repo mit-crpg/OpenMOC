@@ -332,12 +332,10 @@ void CPUSolver::computeFSRSources() {
 
 
 /**
- *          residual for the source with respect to the source from the
- *          previous iteration is computed and returned. The residual
- *          is determined as follows:
- *          \f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}}{Q^i}\right)^2}
- *                    {\# FSRs \times # groups}} \f$
+ * @brief Computes the residual between source/flux iterations.
+ * @param res_type the type of residuals to compute 
+ *        (FLUX, FISSION_SOURCE, TOTAL_SOURCE)
+ * @return the average residual in each FSR
  */
 double CPUSolver::computeResidual(residualType res_type) {
 

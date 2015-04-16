@@ -31,31 +31,54 @@ __constant__ int tot_num_tracks[1];
 __constant__ GPUExpEvaluator exp_evaluator;
 
 
-//FIXME
-// --- Operator for testing nan values
-struct isnan_test { 
-  __device__ bool operator()(const double a) const {
-    return isnan(a);
-  }
-
-  __device__ bool operator()(const float a) const {
-    return isnan(a);
-  }
-};
-
-
-//FIXME
-// --- Operator for testing inf values
+/**
+ * @brief A struct used to check if a value on the GPU is equal to INF.
+ * @details This is used as a predicate in Thrust routines.
+ */
 struct isinf_test { 
-  __host__ __device__ bool operator()(const double a) const {
+  /**
+   * @brief Checks if a double precision value is INF.
+   * @param a the value to check
+   * @return true if equal to INF, false otherwise
+   */
+  __host__ __device__ bool operator()(double a) {
     return isinf(a);
   }
 
-  __host__ __device__ bool operator()(const float a) const {
+  /**
+   * @brief Checks if a single precision value is INF.
+   * @param a the value to check
+   * @return true if equal to INF, false otherwise
+   */
+  __host__ __device__ bool operator()(float a) {
     return isinf(a);
   }
 };
 
+
+/**
+ * @brief A struct used to check if a value on the GPU is equal to NaN.
+ * @details This is used as a predicate in Thrust routines.
+ */
+struct isnan_test { 
+  /**
+   * @brief Checks if a double precision value is NaN.
+   * @param a the value to check
+   * @return true if equal to NaN, false otherwise
+   */
+  __host__ __device__ bool operator()(double a) {
+    return isnan(a);
+  }
+
+  /**
+   * @brief Checks if a single precision value is NaN.
+   * @param a the value to check
+   * @return true if equal to NaN, false otherwise
+   */
+  __host__ __device__ bool operator()(float a) {
+    return isnan(a);
+  }
+};
 
 
 /**
@@ -174,126 +197,6 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
     tid += blockDim.x * gridDim.x;
   }
 }
-
-
-
-/**
- *          residual for the source with respect to the source from the
- *          previous iteration is computed and returned. The residual
- *          is determined as follows:
- *          \f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}}{Q^i}\right)^2}
- *                    {\# FSRs \times # groups}} \f$
- */
-double GPUSolver::computeResidual(residualType res_type) {
-
-  int norm;
-  double residual;
-  isinf_test inf_test;
-  thrust::device_vector<double> residuals;
-
-  if (res_type == FLUX) {
-
-    norm = _num_FSRs * _num_groups;
-
-    residuals.resize(_num_FSRs * _num_groups);
-    thrust::device_vector<FP_PRECISION> fp_residuals(_num_FSRs * _num_groups);
-
-    thrust::transform(_scalar_flux.begin(), _scalar_flux.end(),
-                      _old_scalar_flux.begin(), fp_residuals.begin(),
-                      thrust::minus<FP_PRECISION>());
-    thrust::transform(fp_residuals.begin(), fp_residuals.end(),
-                      _old_scalar_flux.begin(), fp_residuals.begin(),
-                      thrust::divides<FP_PRECISION>());
-
-    thrust::copy(fp_residuals.begin(), fp_residuals.end(), residuals.begin());
-  }
-
-  else if (res_type == FISSION_SOURCE) {
-
-    norm = _num_fissionable_FSRs * _num_groups;
-
-    residuals.resize(_num_FSRs);
-    thrust::device_vector<double> new_fission_sources_vec(_num_FSRs);
-    thrust::device_vector<double> old_fission_sources_vec(_num_FSRs);
-
-    double* old_fission_sources = 
-         thrust::raw_pointer_cast(&old_fission_sources_vec[0]);
-    double* new_fission_sources = 
-         thrust::raw_pointer_cast(&new_fission_sources_vec[0]);
-
-    computeFSRFissionRates(old_fission_sources, _num_FSRs);
-    computeFSRFissionRates(new_fission_sources, _num_FSRs);
-
-    thrust::transform(new_fission_sources_vec.begin(), 
-                      new_fission_sources_vec.end(),
-                      old_fission_sources_vec.begin(), residuals.begin(),
-                      thrust::minus<double>());
-    thrust::transform(residuals.begin(), residuals.end(),
-                      old_fission_sources_vec.begin(), residuals.begin(),
-                      thrust::divides<double>());
-
-    old_fission_sources_vec.clear();
-    new_fission_sources_vec.clear();
-  }
-
-  else if (res_type == TOTAL_SOURCE) {
-
-    norm = _num_FSRs * _num_groups;
-
-    residuals.resize(_num_FSRs);
-    thrust::device_vector<FP_PRECISION> fp_residuals(_num_FSRs * _num_groups);
-
-    thrust::device_vector<FP_PRECISION> new_sources_vec(_num_FSRs);
-    thrust::device_vector<FP_PRECISION> old_sources_vec(_num_FSRs);
-
-    FP_PRECISION* old_sources = 
-         thrust::raw_pointer_cast(&old_sources_vec[0]);
-    FP_PRECISION* new_sources = 
-         thrust::raw_pointer_cast(&new_sources_vec[0]);
-    FP_PRECISION* scalar_flux = 
-         thrust::raw_pointer_cast(&_scalar_flux[0]);
-    FP_PRECISION* fixed_sources = 
-         thrust::raw_pointer_cast(&_fixed_sources[0]);
-
-    computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
-                                          scalar_flux, fixed_sources,
-                                          old_sources, 1.0 / _k_eff);
-    computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
-                                          scalar_flux, fixed_sources,
-                                          new_sources, 1.0 / _k_eff);
-
-    thrust::transform(new_sources_vec.begin(), new_sources_vec.end(),
-                      old_sources_vec.begin(), fp_residuals.begin(),
-                      thrust::minus<FP_PRECISION>());
-    thrust::transform(fp_residuals.begin(), fp_residuals.end(),
-                      old_sources_vec.begin(), fp_residuals.begin(),
-                      thrust::divides<FP_PRECISION>());
-
-    new_sources_vec.clear();
-    old_sources_vec.clear();
-
-    thrust::copy(fp_residuals.begin(), fp_residuals.end(), residuals.begin());
-  }
-
-  /* Replace INF values (divide by zero) with 0. */ 
-  thrust::replace_if(residuals.begin(), residuals.end(), inf_test, 0);
-
-  /* Sum up the squared residuals and normalize */
-  thrust::transform(residuals.begin(), residuals.end(),
-                    residuals.begin(), residuals.begin(),
-                    thrust::multiplies<double>());
-  residual = thrust::reduce(residuals.begin(), residuals.end());
-
-  /* Deallocate memory for residuals vector */
-  residuals.clear();
-
-  residual = sqrt(residual / norm);
-  return residual;
-}
-
-
-
 
 
 /**
@@ -1080,7 +983,7 @@ void GPUSolver::initializeFluxArrays() {
     _boundary_flux.resize(size);
     _boundary_leakage.resize(_B * _T);
 
-    size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+    size = _num_FSRs * _num_groups;
     _scalar_flux.resize(size);
     _old_scalar_flux.resize(size);
   }
@@ -1363,6 +1266,155 @@ void GPUSolver::computeKeff() {
   total_vec.clear();
   fission_vec.clear();
   scatter_vec.clear();
+}
+
+
+/**
+ * @brief Computes the residual between source/flux iterations.
+ * @param res_type the type of residuals to compute 
+ *        (FLUX, FISSION_SOURCE, TOTAL_SOURCE)
+ * @return the average residual in each flat source region
+ */
+double GPUSolver::computeResidual(residualType res_type) {
+
+  int norm;
+  double residual;
+  isinf_test inf_test;
+  isnan_test nan_test;
+  thrust::device_vector<double> residuals;
+
+  if (res_type == FLUX) {
+
+    norm = _num_FSRs * _num_groups;
+
+    /* Allocate Thrust vector for residuals on the GPU */
+    residuals.resize(_num_FSRs * _num_groups);
+    thrust::device_vector<FP_PRECISION> fp_residuals(_num_FSRs * _num_groups);
+
+    /* Compute the relative flux change in each FSR and group */
+    thrust::transform(_scalar_flux.begin(), _scalar_flux.end(),
+                      _old_scalar_flux.begin(), fp_residuals.begin(),
+                      thrust::minus<FP_PRECISION>());
+    thrust::transform(fp_residuals.begin(), fp_residuals.end(),
+                      _old_scalar_flux.begin(), fp_residuals.begin(),
+                      thrust::divides<FP_PRECISION>());
+
+    /* Copy the FP_PRECISION residual to the double precision residual */
+    thrust::copy(fp_residuals.begin(), fp_residuals.end(), residuals.begin());
+  }
+
+  else if (res_type == FISSION_SOURCE) {
+
+    norm = _num_fissionable_FSRs * _num_groups;
+
+    /* Allocate Thrust vector for residuals on the GPU */
+    residuals.resize(_num_FSRs);
+
+    /* Allocate Thrust vector for fission sources on the GPU */
+    thrust::device_vector<double> new_fission_sources_vec(_num_FSRs);
+    thrust::device_vector<double> old_fission_sources_vec(_num_FSRs);
+    
+    /* Cast Thrust vectors as array pointers */
+    double* old_fission_sources = 
+         thrust::raw_pointer_cast(&old_fission_sources_vec[0]);
+    double* new_fission_sources = 
+         thrust::raw_pointer_cast(&new_fission_sources_vec[0]);
+    FP_PRECISION* scalar_flux = 
+         thrust::raw_pointer_cast(&_scalar_flux[0]);
+    FP_PRECISION* old_scalar_flux = 
+         thrust::raw_pointer_cast(&_old_scalar_flux[0]);
+
+    /* Compute the old and new fission rates on the device */
+    computeFSRFissionRatesOnDevice<<<_B,_T>>>(old_fission_sources,
+                                              _FSR_materials,
+                                              _materials,
+                                              old_scalar_flux);
+    computeFSRFissionRatesOnDevice<<<_B,_T>>>(new_fission_sources,
+                                              _FSR_materials,
+                                              _materials,
+                                              scalar_flux);
+
+    /* Compute the relative fission rate change in each FSR */
+    thrust::transform(new_fission_sources_vec.begin(), 
+                      new_fission_sources_vec.end(),
+                      old_fission_sources_vec.begin(), residuals.begin(),
+                      thrust::minus<double>());
+    thrust::transform(residuals.begin(), residuals.end(),
+                      old_fission_sources_vec.begin(), residuals.begin(),
+                      thrust::divides<double>());
+
+    /* Deallocate memory for Thrust vectors */
+    old_fission_sources_vec.clear();
+    new_fission_sources_vec.clear();
+  }
+
+  else if (res_type == TOTAL_SOURCE) {
+
+    norm = _num_FSRs * _num_groups;
+
+    /* Allocate Thrust vector for residuals on the GPU */
+    residuals.resize(_num_FSRs);
+    thrust::device_vector<FP_PRECISION> fp_residuals(_num_FSRs * _num_groups);
+
+    /* Allocate Thrust vector for total sources on the GPU */
+    thrust::device_vector<FP_PRECISION> new_sources_vec(_num_FSRs * _num_groups);
+    thrust::device_vector<FP_PRECISION> old_sources_vec(_num_FSRs * _num_groups);
+
+    /* Cast Thrust vectors as array pointers */
+    FP_PRECISION* old_sources = 
+         thrust::raw_pointer_cast(&old_sources_vec[0]);
+    FP_PRECISION* new_sources = 
+         thrust::raw_pointer_cast(&new_sources_vec[0]);
+    FP_PRECISION* scalar_flux = 
+         thrust::raw_pointer_cast(&_scalar_flux[0]);
+    FP_PRECISION* old_scalar_flux = 
+         thrust::raw_pointer_cast(&_old_scalar_flux[0]);
+    FP_PRECISION* fixed_sources = 
+         thrust::raw_pointer_cast(&_fixed_sources[0]);
+
+    /* Compute the old and new total sources on the device */
+    computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
+                                          old_scalar_flux, fixed_sources,
+                                          old_sources, 1.0 / _k_eff);
+    computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
+                                          scalar_flux, fixed_sources,
+                                          new_sources, 1.0 / _k_eff);
+
+    /* Compute the relative total source change in each FSR and group */
+    thrust::transform(new_sources_vec.begin(), new_sources_vec.end(),
+                      old_sources_vec.begin(), fp_residuals.begin(),
+                      thrust::minus<FP_PRECISION>());
+    thrust::transform(fp_residuals.begin(), fp_residuals.end(),
+                      old_sources_vec.begin(), fp_residuals.begin(),
+                      thrust::divides<FP_PRECISION>());
+
+    /* Deallocate memory for Thrust vectors */
+    new_sources_vec.clear();
+    old_sources_vec.clear();
+
+    /* Copy the FP_PRECISION residual to the double precision residual */
+    thrust::copy(fp_residuals.begin(), fp_residuals.end(), residuals.begin());
+  }
+
+  /* Replace INF and NaN values (from divide by zero) with 0. */ 
+  thrust::replace_if(residuals.begin(), residuals.end(), inf_test, 0);
+  thrust::replace_if(residuals.begin(), residuals.end(), nan_test, 0);
+
+  /* Square the residuals */
+  thrust::transform(residuals.begin(), residuals.end(),
+                    residuals.begin(), residuals.begin(),
+                    thrust::multiplies<double>());
+
+  /* Sum up the residuals */
+  residual = thrust::reduce(residuals.begin(), residuals.end());
+
+  /* Deallocate memory for residuals vector */
+  residuals.clear();
+
+  /* Normalize the residual */
+  residual = sqrt(residual / norm);
+
+  return residual;
 }
 
 
