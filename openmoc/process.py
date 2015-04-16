@@ -342,7 +342,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     time_group.create_dataset('# azimuthal angles', data=num_azim)
     time_group.create_dataset('# polar angles', data=num_polar)
     time_group.create_dataset('# iterations', data=num_iters)
-    time_group.create_dataset('source residual threshold', data=thresh)
+    time_group.create_dataset('convergence threshold', data=thresh)
     time_group.create_dataset('exponential', data=method)
     time_group.create_dataset('floating point', data=precision)
     time_group.create_dataset('CMFD', data=cmfd)
@@ -415,7 +415,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     state['# azimuthal angles'] = num_azim
     state['# polar angles'] = num_polar
     state['# iterations'] = num_iters
-    state['source residual threshold'] = thresh
+    state['convergence threshold'] = thresh
     state['exponential'] = method
     state['floating point'] = precision
     state['CMFD'] = cmfd

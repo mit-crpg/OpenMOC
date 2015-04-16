@@ -51,11 +51,11 @@ protected:
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
-  void flattenFSRSources(FP_PRECISION value);
+  void storeFSRFluxes();
   void normalizeFluxes();
-  FP_PRECISION computeFSRSources();
   //FIXME
-  //  FP_PRECISION computeFSRSourcesForFixedSource();
+  void computeFSRSources();
+  double computeResidual(residualType res_type);
 
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
@@ -98,7 +98,6 @@ public:
 
   int getNumThreads();
   FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
-  FP_PRECISION* getFSRScalarFluxes();
   FP_PRECISION getFSRSource(int fsr_id, int group);
 
   void setNumThreads(int num_threads);

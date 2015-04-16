@@ -27,12 +27,9 @@ Solver::Solver(TrackGenerator* track_generator) {
   _boundary_leakage = NULL;
 
   _scalar_flux = NULL;
-  _fission_sources = NULL;
-  _scatter_sources = NULL;
+  _old_scalar_flux = NULL;
   _fixed_sources = NULL;
-  _old_fission_sources = NULL;
   _reduced_sources = NULL;
-  _source_residuals = NULL;
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
@@ -75,23 +72,14 @@ Solver::~Solver() {
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
 
-  if (_fission_sources != NULL)
-    delete [] _fission_sources;
-
-  if (_scatter_sources != NULL)
-    delete [] _scatter_sources;
+  if (_old_scalar_flux != NULL)
+    delete [] _old_scalar_flux;
 
   if (_fixed_sources != NULL)
     delete [] _fixed_sources;
 
-  if (_old_fission_sources != NULL)
-    delete [] _old_fission_sources;
-
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
-
-  if (_source_residuals != NULL)
-    delete [] _source_residuals;
 
   if (_exp_evaluator != NULL)
     delete _exp_evaluator;
@@ -205,7 +193,7 @@ FP_PRECISION Solver::getMaxOpticalLength() {
 
 /**
  * @brief Returns whether the solver is using double floating point precision.
- * @return true if so, false otherwise
+ * @return true if using double precision float point arithmetic
  */
 bool Solver::isUsingDoublePrecision() {
 #ifdef DOUBLE
@@ -219,7 +207,7 @@ bool Solver::isUsingDoublePrecision() {
 /**
  * @brief Returns whether the Solver uses linear interpolation to
  *        compute exponentials.
- * @return true if so, false otherwise
+ * @return true if using linear interpolation to compute exponentials
  */
 bool Solver::isUsingExponentialInterpolation() {
   return _exp_evaluator->isUsingInterpolation();
@@ -352,7 +340,7 @@ void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
   
   if (group <= 0 || group > _num_groups)
     log_printf(ERROR,"Unable to set fixed source for group %d in "
-               "in a %d group problem", group, _num_groups);
+               "in a %d energy group problem", group, _num_groups);
 
   if (fsr_id < 0 || fsr_id >= _num_FSRs)
     log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
@@ -370,8 +358,7 @@ void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
  */
 void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
 
-  /* If the Cell is filled by a Universe, recursively
-   * add the source to all Cells within it */
+  /* Recursively add the source to all Cells within a FILL type Cell */
   if (cell->getType() == FILL) {
     std::map<int, Cell*> cells = cell->getAllCells();
     std::map<int, Cell*>::iterator iter;
@@ -379,8 +366,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
       setFixedSourceByCell(iter->second, group, source);
   }
 
-  /* If the Cell is filled by a Material, add the 
-   * source to all FSRs for this Cell */
+  /* Aadd the source to all FSRs for this MATERIAL type Cell */
   else {
     CellBasic* fsr_cell;
     
@@ -425,8 +411,8 @@ void Solver::useExponentialInterpolation() {
 
 
 /**
- * @brief Informs the Solver to use the exponential intrinsic exp(...) function
- *        to compute the exponential in the transport equation
+ * @brief Informs the Solver to use the exponential intrinsic exp(...)
+ *        function to compute the exponential in the transport equation.
  */
 void Solver::useExponentialIntrinsic() {
   _exp_evaluator->useIntrinsic();
@@ -434,12 +420,11 @@ void Solver::useExponentialIntrinsic() {
 
 
 /** 
- * @brief Initializes new PolarQuad object.
+ * @brief Initializes a new PolarQuad object.
  * @details Deletes memory old PolarQuad if one was previously allocated.
  */
 void Solver::initializePolarQuadrature() {
 
-  FP_PRECISION azim_weight;
   FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
 
   /* Create Tabuchi-Yamamoto polar quadrature if a
@@ -459,13 +444,11 @@ void Solver::initializePolarQuadrature() {
   _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
 
   /* Compute the total azimuthal weight for tracks at each polar angle */
-  #pragma omp parallel for private(azim_weight) schedule(guided)
+  #pragma omp parallel for schedule(guided)
   for (int i=0; i < _num_azim; i++) {
-    azim_weight = azim_weights[i];
-
     for (int p=0; p < _num_polar; p++)
       _polar_weights(i,p) = 
-           azim_weight * _polar_quad->getMultiple(p) * FOUR_PI;
+           azim_weights[i] * _polar_quad->getMultiple(p) * FOUR_PI;
   }
 }
 
@@ -477,17 +460,19 @@ void Solver::initializeExpEvaluator() {
 
   _exp_evaluator->setPolarQuadrature(_polar_quad);
 
-  /* Initialize exponential interpolation table if in use */
   if (_exp_evaluator->isUsingInterpolation()) {
 
+    /* Find minimum of optional user-specified and actual max taus */
     FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
     FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
     FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
 
+    /* Split Track segments so that none has a greater optical length */
+    _track_generator->splitSegments(max_tau);
+
+    /* Initialize exponential interpolation table */
     _exp_evaluator->setMaxOpticalLength(max_tau);  
     _exp_evaluator->initialize(_converge_thresh);
-
-    _track_generator->splitSegments(max_tau);
   }
 }
 
@@ -545,6 +530,10 @@ void Solver::countFissionableFSRs() {
     if (_FSR_materials[r]->isFissionable())
       _num_fissionable_FSRs++;
   }
+
+  if (_num_fissionable_FSRs == 0)
+    log_printf(ERROR, "The Solver is unable to compute the "
+               "eigenvalue without fissionable FSRs");
 }
 
 
@@ -570,64 +559,15 @@ void Solver::initializeCmfd(){
 
 
 /**
- * @brief Checks that each FSR has at least one Track segment crossing it
- *        and if not, throws an exception and prints an error message.
- * @details This method is for internal use only and should not be called
- *          directly by the user.
- */
-void Solver::checkTrackSpacing() {
-
-  int* FSR_segment_tallies = new int[_num_FSRs];
-  int num_segments;
-  segment* curr_segment;
-  segment* segments;
-  Cell* cell;
-
-  /* Set each tally to zero to begin with */
-  #pragma omp parallel for
-  for (int r=0; r < _num_FSRs; r++)
-    FSR_segment_tallies[r] = 0;
-
-  /* Iterate over all azimuthal angles, all tracks, and all Track segments
-   * and tally each segment in the corresponding FSR */
-  #pragma omp parallel for private (num_segments, curr_segment)
-  for (int i=0; i < _tot_num_tracks; i++) {
-
-    num_segments = _tracks[i]->getNumSegments();
-    segments = _tracks[i]->getSegments();
-
-    for (int s=0; s < num_segments; s++) {
-      curr_segment = &segments[s];
-      FSR_segment_tallies[curr_segment->_region_id]++;
-    }
-  }
-
-  /* Loop over all FSRs and if one FSR does not have tracks in it, print
-   * error message to the screen and exit program */
-  #pragma omp parallel for private (cell)
-  for (int r=0; r < _num_FSRs; r++) {
-
-    if (FSR_segment_tallies[r] == 0) {
-      log_printf(ERROR, "No tracks were tallied inside FSR id = %d. Please "
-                 "reduce your track spacing, increase the number of "
-                 "azimuthal angles, or increase the size of the FSRs", r);
-    }
-  }
-
-  delete [] FSR_segment_tallies;
-}
-
-
-/**
  * @brief
  * @code
  *          max_iters = 1000
  *          solver.computeFlux(max_iters)
  * @endcode
  *
- * @param max_iterations the maximum number of iterations to allow
+ * @param max_iters the maximum number of iterations to allow
  */
-void Solver::computeFlux(int max_iterations) {
+void Solver::computeFlux(int max_iters, residualType res_type) {
 
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to compute the flux "
@@ -641,11 +581,7 @@ void Solver::computeFlux(int max_iterations) {
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
 
-  /* Counter for the number of iterations to converge the flux */
-  _num_iterations = 0;
-
-  /* The residual on the source */
-  FP_PRECISION residual = 1.0;
+  FP_PRECISION residual;
 
   /* Initialize data structures */
   initializePolarQuadrature();
@@ -654,28 +590,24 @@ void Solver::computeFlux(int max_iterations) {
   initializeSourceArrays();
   initializeFSRs();
 
-  /* Check that each FSR has at least one segment crossing it */
-  checkTrackSpacing();
-
-  /* Set scalar flux to unity for each region */
-  flattenFSRSources(0.0);
+  /* Guess unity scalar flux for each region */
   flattenFSRFluxes(1.0);
   zeroTrackFluxes();
 
   /* Source iteration loop */
-  for (int i=0; i < max_iterations; i++) {
+  for (int i=0; i < max_iters; i++) {
 
-    log_printf(NORMAL, "Iteration %d: \tres = %1.3E", i, residual);
-
-    residual = computeFSRSources();
-    residual = 1.0;
+    computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
+    residual = computeResidual(res_type);
+    storeFSRFluxes();
 
-    _num_iterations++;
+    log_printf(NORMAL, "Iteration %d:\tres = %1.3E", i, residual);
 
     /* Check for convergence of the fission source distribution */
     if (i > 1 && residual < _converge_thresh) {
+      _num_iterations = i;
       _timer->stopTimer();
       _timer->recordSplit("Total time");
       return;
@@ -684,6 +616,7 @@ void Solver::computeFlux(int max_iterations) {
 
   log_printf(WARNING, "Unable to converge the flux");
 
+  _num_iterations = max_iters;
   _timer->stopTimer();
   _timer->recordSplit("Total time");
 }
@@ -693,19 +626,19 @@ void Solver::computeFlux(int max_iterations) {
  * @brief Computes keff by performing a series of transport sweep and
  *        source updates.
  * @details This is the main method exposed to the user through the Python
- *          interface to run a simulation. The method makes an initial guess
- *          for the scalar and boundary fluxes and peforms transport sweeps
- *          and source updates until convergence. The method may be called
- *          by the user from Python as follows:
+ *          interface to perform an eigenvalue calculation. The method makes 
+ *          an initial guess for the scalar and boundary fluxes and peforms 
+ *          transport sweeps and source updates until convergence. The method 
+ *          may be called by the user from Python as follows:
  *
  * @code
  *          max_iters = 1000
  *          solver.computeEigenvalue(max_iters)
  * @endcode
  *
- * @param max_iterations the maximum number of source iterations to allow
+ * @param max_iters the maximum number of source iterations to allow
  */
-void Solver::computeEigenvalue(int max_iterations) {
+void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to compute the eigenvalue "
@@ -719,14 +652,10 @@ void Solver::computeEigenvalue(int max_iterations) {
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();
 
-  /* Counter for the number of iterations to converge the source */
-  _num_iterations = 0;
+  FP_PRECISION residual;
 
   /* An initial guess for the eigenvalue */
   _k_eff = 1.0;
-
-  /* The new/old residuals on the fission source */
-  FP_PRECISION residual = 0.0;
 
   /* Initialize data structures */
   initializePolarQuadrature();
@@ -734,32 +663,20 @@ void Solver::computeEigenvalue(int max_iterations) {
   initializeFluxArrays();
   initializeSourceArrays();
   initializeFSRs();
-
-  /* Check that there are fissionable material(s) */
   countFissionableFSRs();
-  if (_num_fissionable_FSRs == 0.0)
-    log_printf(ERROR, "The Solver is unable to compute the "
-               "eigenvalue without fissionable FSRs");
-
-  /* Check that each FSR has at least one segment crossing it */
-  checkTrackSpacing();
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     initializeCmfd();
 
   /* Set scalar flux to unity for each region */
-  flattenFSRSources(1.0);
   flattenFSRFluxes(1.0);
   zeroTrackFluxes();
 
   /* Source iteration loop */
-  for (int i=0; i < max_iterations; i++) {
-
-    log_printf(NORMAL, "Iteration %d: \tk_eff = %1.6f"
-               "\tres = %1.3E", i, _k_eff, residual);
+  for (int i=0; i < max_iters; i++) {
 
     normalizeFluxes();
-    residual = computeFSRSources();
+    computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
 
@@ -771,10 +688,15 @@ void Solver::computeEigenvalue(int max_iterations) {
     else
       computeKeff();
 
-    _num_iterations++;
+    residual = computeResidual(res_type);
+    storeFSRFluxes();
+
+    log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
+               "\tres = %1.3E", i, _k_eff, residual);
 
     /* Check for convergence of the fission source distribution */
     if (i > 1 && residual < _converge_thresh) {
+      _num_iterations = i;
       _timer->stopTimer();
       _timer->recordSplit("Total time");
       return;
@@ -783,6 +705,7 @@ void Solver::computeEigenvalue(int max_iterations) {
 
   log_printf(WARNING, "Unable to converge the source distribution");
 
+  _num_iterations = max_iters;
   _timer->stopTimer();
   _timer->recordSplit("Total time");
 }
