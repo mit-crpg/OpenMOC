@@ -53,8 +53,10 @@ protected:
   void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();
   void normalizeFluxes();
-  //FIXME
   void computeFSRSources();
+  void transportSweep();
+  void addSourceToScalarFlux();
+  void computeKeff();
   double computeResidual(residualType res_type);
 
   /**
@@ -85,20 +87,13 @@ protected:
    * @param track_flux a pointer to the Track's outgoing angular flux
    */
   virtual void transferBoundaryFlux(int track_id, int azim_index,
-                                    bool direction,
-                                    FP_PRECISION* track_flux);
-
-  void addSourceToScalarFlux();
-  void computeKeff();
-  void transportSweep();
+                                    bool direction, FP_PRECISION* track_flux);
 
 public:
   CPUSolver(TrackGenerator* track_generator=NULL);
   virtual ~CPUSolver();
 
   int getNumThreads();
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
-  FP_PRECISION getFSRSource(int fsr_id, int group);
 
   void setNumThreads(int num_threads);
   virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);

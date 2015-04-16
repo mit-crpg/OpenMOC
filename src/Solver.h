@@ -265,21 +265,8 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
 
-  /**
-   * @brief Returns the scalar flux for a FSR and energy group.
-   * @param fsr_id the ID for the FSR of interest
-   * @param group the energy group of interest
-   * @return the FSR scalar flux
-   */
-  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group) =0;
-
-  /**
-   * @brief Returns the source for a FSR and energy group.
-   * @param fsr_id the ID for the FSR of interest
-   * @param group the energy group of interest
-   * @return the FSR source
-   */
-  virtual FP_PRECISION getFSRSource(int fsr_id, int group) =0;
+  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
+  virtual FP_PRECISION getFSRSource(int fsr_id, int group);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
@@ -294,7 +281,6 @@ public:
 
   void computeEigenvalue(int max_iters, residualType res_type=FISSION_SOURCE);
   void computeFlux(int max_iters, residualType res_type=FLUX);
-  //  virtual void convergeFlux(int max_iterations);
 
  /**
   * @brief Computes the volume-weighted, energy integrated fission rate in

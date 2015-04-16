@@ -215,6 +215,94 @@ bool Solver::isUsingExponentialInterpolation() {
 
 
 /**
+ * @brief Returns the scalar flux for some FSR and energy group.
+ * @param fsr_id the ID for the FSR of interest
+ * @param group the energy group of interest
+ * @return the FSR scalar flux
+ */
+FP_PRECISION Solver::getFSRScalarFlux(int fsr_id, int group) {
+
+  if (fsr_id >= _num_FSRs)
+    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
+               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
+
+  else if (fsr_id < 0)
+    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
+               "since FSRs do not have negative IDs", fsr_id);
+
+  else if (group-1 >= _num_groups)
+    log_printf(ERROR, "Unable to return a scalar flux in group %d "
+               "since there are only %d groups", group, _num_groups);
+
+  else if (group <= 0)
+    log_printf(ERROR, "Unable to return a scalar flux in group %d "
+               "since groups must be greater or equal to 1", group);
+
+  else if (_scalar_flux == NULL)
+    log_printf(ERROR, "Unable to return a scalar flux"
+               "since it has not yet been computed");
+
+  return _scalar_flux(fsr_id,group-1);
+}
+
+
+/**
+ * @brief Returns the source for some energy group for a flat source region
+ * @details This is a helper routine used by the openmoc.process module.
+ * @param fsr_id the ID for the FSR of interest
+ * @param group the energy group of interest
+ * @return the flat source region source
+ */
+FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
+
+  if (fsr_id >= _num_FSRs)
+    log_printf(ERROR, "Unable to return a source for FSR ID = %d "
+               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
+
+  else if (fsr_id < 0)
+    log_printf(ERROR, "Unable to return a source for FSR ID = %d "
+               "since FSRs do not have negative IDs", fsr_id);
+
+  else if (group-1 >= _num_groups)
+    log_printf(ERROR, "Unable to return a source in group %d "
+               "since there are only %d groups", group, _num_groups);
+
+  else if (group <= 0)
+    log_printf(ERROR, "Unable to return a source in group %d "
+               "since groups must be greater or equal to 1", group);
+
+  else if (_scalar_flux == NULL)
+    log_printf(ERROR, "Unable to return a source "
+               "since it has not yet been computed");
+ 
+  Material* material = _FSR_materials[fsr_id];
+  FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
+  FP_PRECISION* chi = material->getChi();
+  FP_PRECISION source = 0.;
+
+  /* Compute fission source */
+  if (material->isFissionable()) {
+    for (int e=0; e < _num_groups; e++)
+      source += _scalar_flux(fsr_id,e) * nu_sigma_f[e];
+    source /= _k_eff * chi[group-1];
+  }
+
+  /* Compute scatter source */
+  for (int g=0; g < _num_groups; g++)
+    source += material->getSigmaSByGroupInline(g,group-1)
+              * _scalar_flux(fsr_id,g);
+
+  /* Add in fixed source (if specified by user) */
+  source += _fixed_sources(fsr_id,group-1);
+
+  /* Normalize to solid angle for isotropic approximation */
+  source *= ONE_OVER_FOUR_PI;
+
+  return source;
+}
+
+
+/**
  * @brief Sets the Geometry for the Solver.
  * @details This is a private setter method for the Solver and is not
  *          intended to be called by the user.
