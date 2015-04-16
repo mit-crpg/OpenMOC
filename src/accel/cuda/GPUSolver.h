@@ -17,6 +17,7 @@
 #include <thrust/copy.h>
 #include <thrust/fill.h>
 #include <thrust/reduce.h>
+#include <thrust/replace.h>
 #include <thrust/functional.h>
 #include <thrust/iterator/constant_iterator.h>
 #include <sm_13_double_functions.h>
@@ -114,7 +115,7 @@ private:
   void transportSweep();
   void addSourceToScalarFlux();
   void computeKeff();
-  //  double computeResidual(residualType res_type); //FIXME
+  double computeResidual(residualType res_type);
 
 public:
 

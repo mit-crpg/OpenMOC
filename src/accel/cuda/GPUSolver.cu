@@ -31,6 +31,33 @@ __constant__ int tot_num_tracks[1];
 __constant__ GPUExpEvaluator exp_evaluator;
 
 
+//FIXME
+// --- Operator for testing nan values
+struct isnan_test { 
+  __device__ bool operator()(const double a) const {
+    return isnan(a);
+  }
+
+  __device__ bool operator()(const float a) const {
+    return isnan(a);
+  }
+};
+
+
+//FIXME
+// --- Operator for testing inf values
+struct isinf_test { 
+  __host__ __device__ bool operator()(const double a) const {
+    return isinf(a);
+  }
+
+  __host__ __device__ bool operator()(const float a) const {
+    return isinf(a);
+  }
+};
+
+
+
 /**
  * @brief Compute the total fission source from all FSRs.
  * @param FSR_volumes an array of FSR volumes
@@ -147,6 +174,126 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
     tid += blockDim.x * gridDim.x;
   }
 }
+
+
+
+/**
+ *          residual for the source with respect to the source from the
+ *          previous iteration is computed and returned. The residual
+ *          is determined as follows:
+ *          \f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
+ *                    \left(\frac{Q^i - Q^{i-1}}{Q^i}\right)^2}
+ *                    {\# FSRs \times # groups}} \f$
+ */
+double GPUSolver::computeResidual(residualType res_type) {
+
+  int norm;
+  double residual;
+  isinf_test inf_test;
+  thrust::device_vector<double> residuals;
+
+  if (res_type == FLUX) {
+
+    norm = _num_FSRs * _num_groups;
+
+    residuals.resize(_num_FSRs * _num_groups);
+    thrust::device_vector<FP_PRECISION> fp_residuals(_num_FSRs * _num_groups);
+
+    thrust::transform(_scalar_flux.begin(), _scalar_flux.end(),
+                      _old_scalar_flux.begin(), fp_residuals.begin(),
+                      thrust::minus<FP_PRECISION>());
+    thrust::transform(fp_residuals.begin(), fp_residuals.end(),
+                      _old_scalar_flux.begin(), fp_residuals.begin(),
+                      thrust::divides<FP_PRECISION>());
+
+    thrust::copy(fp_residuals.begin(), fp_residuals.end(), residuals.begin());
+  }
+
+  else if (res_type == FISSION_SOURCE) {
+
+    norm = _num_fissionable_FSRs * _num_groups;
+
+    residuals.resize(_num_FSRs);
+    thrust::device_vector<double> new_fission_sources_vec(_num_FSRs);
+    thrust::device_vector<double> old_fission_sources_vec(_num_FSRs);
+
+    double* old_fission_sources = 
+         thrust::raw_pointer_cast(&old_fission_sources_vec[0]);
+    double* new_fission_sources = 
+         thrust::raw_pointer_cast(&new_fission_sources_vec[0]);
+
+    computeFSRFissionRates(old_fission_sources, _num_FSRs);
+    computeFSRFissionRates(new_fission_sources, _num_FSRs);
+
+    thrust::transform(new_fission_sources_vec.begin(), 
+                      new_fission_sources_vec.end(),
+                      old_fission_sources_vec.begin(), residuals.begin(),
+                      thrust::minus<double>());
+    thrust::transform(residuals.begin(), residuals.end(),
+                      old_fission_sources_vec.begin(), residuals.begin(),
+                      thrust::divides<double>());
+
+    old_fission_sources_vec.clear();
+    new_fission_sources_vec.clear();
+  }
+
+  else if (res_type == TOTAL_SOURCE) {
+
+    norm = _num_FSRs * _num_groups;
+
+    residuals.resize(_num_FSRs);
+    thrust::device_vector<FP_PRECISION> fp_residuals(_num_FSRs * _num_groups);
+
+    thrust::device_vector<FP_PRECISION> new_sources_vec(_num_FSRs);
+    thrust::device_vector<FP_PRECISION> old_sources_vec(_num_FSRs);
+
+    FP_PRECISION* old_sources = 
+         thrust::raw_pointer_cast(&old_sources_vec[0]);
+    FP_PRECISION* new_sources = 
+         thrust::raw_pointer_cast(&new_sources_vec[0]);
+    FP_PRECISION* scalar_flux = 
+         thrust::raw_pointer_cast(&_scalar_flux[0]);
+    FP_PRECISION* fixed_sources = 
+         thrust::raw_pointer_cast(&_fixed_sources[0]);
+
+    computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
+                                          scalar_flux, fixed_sources,
+                                          old_sources, 1.0 / _k_eff);
+    computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
+                                          scalar_flux, fixed_sources,
+                                          new_sources, 1.0 / _k_eff);
+
+    thrust::transform(new_sources_vec.begin(), new_sources_vec.end(),
+                      old_sources_vec.begin(), fp_residuals.begin(),
+                      thrust::minus<FP_PRECISION>());
+    thrust::transform(fp_residuals.begin(), fp_residuals.end(),
+                      old_sources_vec.begin(), fp_residuals.begin(),
+                      thrust::divides<FP_PRECISION>());
+
+    new_sources_vec.clear();
+    old_sources_vec.clear();
+
+    thrust::copy(fp_residuals.begin(), fp_residuals.end(), residuals.begin());
+  }
+
+  /* Replace INF values (divide by zero) with 0. */ 
+  thrust::replace_if(residuals.begin(), residuals.end(), inf_test, 0);
+
+  /* Sum up the squared residuals and normalize */
+  thrust::transform(residuals.begin(), residuals.end(),
+                    residuals.begin(), residuals.begin(),
+                    thrust::multiplies<double>());
+  residual = thrust::reduce(residuals.begin(), residuals.end());
+
+  /* Deallocate memory for residuals vector */
+  residuals.clear();
+
+  residual = sqrt(residual / norm);
+  return residual;
+}
+
+
+
 
 
 /**
@@ -504,19 +651,19 @@ __global__ void computeFSRFissionRatesOnDevice(double* fission_rates,
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
   dev_material* curr_material;
-  FP_PRECISION* sigma_f;
+  FP_PRECISION* nu_sigma_f;
 
   /* Loop over all FSRs and compute the volume-averaged fission rate */
   while (tid < *num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
-    sigma_f = curr_material->_sigma_f;
+    nu_sigma_f = curr_material->_nu_sigma_f;
 
     /* Initialize the fission rate for this FSR to zero */
     fission_rates[tid] = 0.0;
 
     for (int i=0; i < *num_groups; i++)
-      fission_rates[tid] += sigma_f[i] * scalar_flux(tid,i);
+      fission_rates[tid] += scalar_flux(tid,i) * nu_sigma_f[i];
 
     /* Increment thread id */
     tid += blockDim.x * gridDim.x;
