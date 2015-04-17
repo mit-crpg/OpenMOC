@@ -1376,7 +1376,7 @@ void GPUSolver::computeKeff() {
 /**
  * @brief Computes the residual between source/flux iterations.
  * @param res_type the type of residuals to compute 
- *        (FLUX, FISSION_SOURCE, TOTAL_SOURCE)
+ *        (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)
  * @return the average residual in each flat source region
  */
 double GPUSolver::computeResidual(residualType res_type) {
@@ -1387,7 +1387,7 @@ double GPUSolver::computeResidual(residualType res_type) {
   isnan_test nan_test;
   thrust::device_vector<double> residuals;
 
-  if (res_type == FLUX) {
+  if (res_type == SCALAR_FLUX) {
 
     norm = _num_FSRs * _num_groups;
 

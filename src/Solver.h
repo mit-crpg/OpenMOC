@@ -63,8 +63,8 @@
 */
 enum residualType {
 
-  /** A residual on the flux distribution */
-  FLUX,
+  /** A residual on the scalar flux distribution */
+  SCALAR_FLUX,
 
   /** A residual on the fission source distribution */
   FISSION_SOURCE,
@@ -280,7 +280,8 @@ public:
   void useExponentialIntrinsic();
 
   void computeEigenvalue(int max_iters, residualType res_type=FISSION_SOURCE);
-  void computeFlux(int max_iters, residualType res_type=FLUX);
+  //  void computeSource(int max_iters, residualType res_type=TOTAL_SOURCE);
+  void computeFlux(int max_iters, residualType res_type=SCALAR_FLUX);
 
  /**
   * @brief Computes the volume-weighted, energy integrated fission rate in
