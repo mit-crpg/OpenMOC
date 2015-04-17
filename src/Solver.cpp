@@ -692,6 +692,10 @@ void Solver::computeFlux(int max_iters, residualType res_type) {
   initializeFSRs();
   zeroTrackFluxes();
 
+  //FIXME: This is just a hack!!!!
+  flattenFSRFluxes(0.0);
+  computeFSRSources();
+
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
