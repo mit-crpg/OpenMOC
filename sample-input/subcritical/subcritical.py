@@ -6,7 +6,7 @@ from openmoc.options import Options
 
 
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#                          Main Simulation Parameters
 ###############################################################################
 
 options = Options()
@@ -21,7 +21,7 @@ log.set_log_level('NORMAL')
 
 
 ###############################################################################
-###########################   Creating Materials   ############################
+#                            Creating Materials
 ###############################################################################
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
@@ -30,22 +30,22 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 
 ###############################################################################
-###########################   Creating Surfaces   #############################
+#                            Creating Surfaces
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = XPlane(x=-20.0, name='left')
-right = XPlane(x=20.0, name='right')
-bottom = YPlane(y=-20.0, name='top')
-top = YPlane(y=20.0, name='bottom')
+left = XPlane(x=-5.0, name='left')
+right = XPlane(x=5.0, name='right')
+bottom = YPlane(y=-5.0, name='top')
+top = YPlane(y=5.0, name='bottom')
 boundaries = [left, right, top, bottom]
 
 for boundary in boundaries: boundary.setBoundaryType(VACUUM)
 
 
 ###############################################################################
-#############################   Creating Cells   ##############################
+#                             Creating Cells
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
@@ -67,7 +67,7 @@ root_cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
-#                            Creating Universes
+#                             Creating Universes
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating universes...')
@@ -84,14 +84,15 @@ root_universe.addCell(root_cell)
 
 
 ###############################################################################
-###########################   Creating Lattices   #############################
+#                            Creating Lattices
 ###############################################################################
 
-num_x = 200
-num_y = 200
+num_x = 100
+num_y = 100
 width_x = (root_universe.getMaxX() - root_universe.getMinX()) / num_y
 width_y = (root_universe.getMaxY() - root_universe.getMinY()) / num_x
 universes = [[water_univ]*num_x for _ in range(num_y)]
+
 universes[15][15] = source_univ
 
 for i in range(50,56):
@@ -107,7 +108,7 @@ root_cell.setFill(lattice)
 
 
 ###############################################################################
-##########################   Creating the Geometry   ##########################
+#                         Creating the Geometry
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
@@ -118,7 +119,7 @@ geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+#                          Creating the TrackGenerator
 ###############################################################################
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
@@ -129,19 +130,19 @@ track_generator.generateTracks()
 
 
 ###############################################################################
-###########################   Running a Simulation   ##########################
+#                            Running a Simulation
 ###############################################################################
 
 solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
-solver.setFixedSourceByCell(source_cell, 1, 1.0)
+solver.setFixedSourceByCell(source_cell, group=3, source=1e-2)
 solver.computeSource(max_iters, k_eff=0.6)
 solver.printTimerReport()
 
 
 ###############################################################################
-############################   Generating Plots   #############################
+#                             Generating Plots
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')

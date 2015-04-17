@@ -6,8 +6,9 @@ import openmoc.materialize as materialize
 from openmoc.options import Options
 import openmoc.process as process
 
+
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#                          Main Simulation Parameters
 ###############################################################################
 
 options = Options()
@@ -24,7 +25,7 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
 
 ###############################################################################
-###########################   Creating Materials   ############################
+#                            Creating Materials
 ###############################################################################
 
 log.py_printf('NORMAL', 'Importing materials data from py...')
@@ -33,7 +34,7 @@ materials = materialize.materialize('../../c5g7-materials.h5')
 
 
 ###############################################################################
-###########################   Creating Surfaces   #############################
+#                            Creating Surfaces
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
@@ -55,7 +56,7 @@ moderator_outer_radius = Circle(x=0.0, y=0.0, radius=0.58)
 
 
 ###############################################################################
-######################   Creating Cells and Universes   #######################
+#                        Creating Cells and Universes
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
@@ -180,7 +181,7 @@ root_universe.addCell(root_cell)
 
 
 ###############################################################################
-###########################   Creating Lattices   #############################
+#                            Creating Lattices
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating lattices...')
@@ -284,7 +285,7 @@ root_cell.setFill(lattices[-1])
 
 
 ###############################################################################
-##########################     Creating Cmfd mesh    ##########################
+#                              Creating Cmfd mesh
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
@@ -297,7 +298,7 @@ cmfd.setGroupStructure([1,4,8])
 
 
 ###############################################################################
-##########################   Creating the Geometry   ##########################
+#                         Creating the Geometry
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
@@ -309,7 +310,7 @@ geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+#                          Creating the TrackGenerator
 ###############################################################################
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
@@ -318,8 +319,9 @@ track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
+
 ###############################################################################
-###########################   Running a Simulation   ##########################
+#                            Running a Simulation
 ###############################################################################
 
 solver = CPUSolver(track_generator)
@@ -328,18 +330,18 @@ solver.setNumThreads(num_threads)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
+
 ###############################################################################
-############################   Generating Plots   #############################
+#                             Generating Plots
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plot_tracks(track_generator)
-#plotter.plot_materials(geometry, gridsize=250)
-#plotter.plot_cells(geometry, gridsize=250)
-#plotter.plot_cmfd_cells(geometry, cmfd, gridsize=250)
-#plotter.plot_flat_source_regions(geometry, gridsize=250)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-#plotter.plot_fission_rates(solver, gridsize=250)
+plotter.plot_materials(geometry, gridsize=250)
+plotter.plot_cells(geometry, gridsize=250)
+plotter.plot_cmfd_cells(geometry, cmfd, gridsize=250)
+plotter.plot_flat_source_regions(geometry, gridsize=250)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+plotter.plot_fission_rates(solver, gridsize=250)
 
 log.py_printf('TITLE', 'Finished')

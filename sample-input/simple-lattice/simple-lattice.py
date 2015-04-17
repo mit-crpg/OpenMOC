@@ -6,7 +6,7 @@ from openmoc.options import Options
 
 
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#                          Main Simulation Parameters
 ###############################################################################
 
 options = Options()
@@ -21,7 +21,7 @@ log.set_log_level('NORMAL')
 
 
 ###############################################################################
-###########################   Creating Materials   ############################
+#                            Creating Materials
 ###############################################################################
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
@@ -30,7 +30,7 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 
 ###############################################################################
-###########################   Creating Surfaces   #############################
+#                            Creating Surfaces
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
@@ -49,7 +49,7 @@ for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
-#############################   Creating Cells   ##############################
+#                             Creating Cells
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
@@ -106,7 +106,7 @@ root_universe.addCell(root_cell)
 
 
 ###############################################################################
-###########################   Creating Lattices   #############################
+#                            Creating Lattices
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating simple 4 x 4 lattice...')
@@ -121,7 +121,7 @@ root_cell.setFill(lattice)
 
 
 ###############################################################################
-##########################   Creating the Geometry   ##########################
+#                         Creating the Geometry
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
@@ -130,8 +130,9 @@ geometry = Geometry()
 geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
+
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+#                          Creating the TrackGenerator
 ###############################################################################
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
@@ -140,8 +141,9 @@ track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
+
 ###############################################################################
-###########################   Running a Simulation   ##########################
+#                            Running a Simulation
 ###############################################################################
 
 solver = CPUSolver(track_generator)
@@ -152,16 +154,15 @@ solver.printTimerReport()
 
 
 ###############################################################################
-############################   Generating Plots   #############################
+#                             Generating Plots
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plot_tracks(track_generator)
-#plotter.plot_segments(track_generator)
-#plotter.plot_materials(geometry, gridsize=500)
-#plotter.plot_cells(geometry, gridsize=500)
-#plotter.plot_flat_source_regions(geometry, gridsize=500)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+plotter.plot_segments(track_generator)
+plotter.plot_materials(geometry, gridsize=500)
+plotter.plot_cells(geometry, gridsize=500)
+plotter.plot_flat_source_regions(geometry, gridsize=500)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')
