@@ -37,8 +37,8 @@ log.py_printf('NORMAL', 'Creating surfaces...')
 
 left = XPlane(x=-20.0, name='left')
 right = XPlane(x=20.0, name='right')
-top = YPlane(y=-20.0, name='top')
-bottom = YPlane(y=20.0, name='bottom')
+top = YPlane(y=20.0, name='top')
+bottom = YPlane(y=-20.0, name='bottom')
 boundaries = [left, right, top, bottom]
 
 for boundary in boundaries: boundary.setBoundaryType(VACUUM)
@@ -57,10 +57,10 @@ source_cell = CellBasic(name='source')
 source_cell.setMaterial(materials['Water'])
 
 root_cell = CellFill(name='root cell')
-root_cell.addSurface(halfspace=+1, surface=boundaries[0])
-root_cell.addSurface(halfspace=-1, surface=boundaries[1])
-root_cell.addSurface(halfspace=+1, surface=boundaries[2])
-root_cell.addSurface(halfspace=-1, surface=boundaries[3])
+root_cell.addSurface(halfspace=+1, surface=left)
+root_cell.addSurface(halfspace=-1, surface=right)
+root_cell.addSurface(halfspace=+1, surface=bottom)
+root_cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
