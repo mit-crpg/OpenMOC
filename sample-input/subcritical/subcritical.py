@@ -43,6 +43,9 @@ boundaries = [left, right, top, bottom]
 
 for boundary in boundaries: boundary.setBoundaryType(VACUUM)
 
+left.setBoundaryType(REFLECTIVE)
+top.setBoundaryType(REFLECTIVE)
+
 
 ###############################################################################
 #############################   Creating Cells   ##############################
@@ -52,6 +55,9 @@ log.py_printf('NORMAL', 'Creating cells...')
 
 water_cell = CellBasic(name='water')
 water_cell.setMaterial(materials['Water'])
+
+fuel_cell = CellBasic(name='fuel')
+fuel_cell.setMaterial(materials['UO2'])
 
 source_cell = CellBasic(name='source')
 source_cell.setMaterial(materials['Water'])
@@ -70,10 +76,12 @@ root_cell.addSurface(halfspace=-1, surface=boundaries[3])
 log.py_printf('NORMAL', 'Creating universes...')
 
 water_univ = Universe(name='water')
+fuel_univ = Universe(name='fuel')
 source_univ = Universe(name='source')
 root_universe = Universe(name='root universe')
 
 water_univ.addCell(water_cell)
+fuel_univ.addCell(fuel_cell)
 source_univ.addCell(source_cell)
 root_universe.addCell(root_cell)
 
@@ -88,6 +96,10 @@ width_x = (root_universe.getMaxX() - root_universe.getMinX()) / num_y
 width_y = (root_universe.getMaxY() - root_universe.getMinY()) / num_x
 universes = [[water_univ]*num_x for _ in range(num_y)]
 universes[15][15] = source_univ
+
+for i in range(50,56):
+  for j in range(50,56):
+    universes[i][j] = fuel_univ
 
 log.py_printf('NORMAL', 'Creating a {0}x{0} lattice...'.format(num_x, num_y))
 
@@ -127,7 +139,7 @@ solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
 solver.setFixedSourceByCell(source_cell, 1, 1.0)
-solver.computeSource(max_iters)
+solver.computeSource(max_iters, k_eff=0.6)
 solver.printTimerReport()
 
 
