@@ -129,7 +129,7 @@ solver.setConvergenceThreshold(tolerance)
 
 solver.setFixedSourceByCell(source_cell, 1, 1.0)
 
-solver.computeFlux(max_iters)
+solver.computeSource(max_iters)
 solver.printTimerReport()
 
 

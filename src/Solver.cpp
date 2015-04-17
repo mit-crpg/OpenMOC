@@ -647,13 +647,26 @@ void Solver::initializeCmfd(){
 
 
 /**
- * @brief
+ * @brief Computes the scalar flux distribution by performing a series of 
+ *        transport sweeps with a pre-defined fixed source.
+ * @details This is the main method exposed to the user through the Python
+ *          interface to compute the source distribution, e.g., for a fixed
+ *          and/or external source calculation. This routine makes an initial 
+ *          guess for the scalar and boundary fluxes and performs transport 
+ *          sweeps and source updates until convergence. By default, this 
+ *          method will perform a maximum of 1000 source iterations with 
+ *          a 1E-5 threshold on the average integrated FSR total source,
+ *          but these values may be freely defined by the user at runtime.
+ *
+ *          This method may be called by the user from Python as follows:
+ *
  * @code
- *          max_iters = 1000
- *          solver.computeFlux(max_iters)
+ *          solver.computeFlux(max_iters=100, res_type=TOTAL_SOURCE)
  * @endcode
  *
- * @param max_iters the maximum number of iterations to allow
+ * @param max_iters the maximum number of source iterations to allow
+ * @param k_eff the sub/super-critical eigenvalue (default 1.0)
+ * @param res_type the type of residual used for the convergence criterion
  */
 void Solver::computeFlux(int max_iters, residualType res_type) {
 
@@ -669,6 +682,84 @@ void Solver::computeFlux(int max_iters, residualType res_type) {
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
 
+  FP_PRECISION residual;
+
+  /* Initialize data structures */
+  initializePolarQuadrature();
+  initializeExpEvaluator();
+  initializeFluxArrays();
+  initializeSourceArrays();
+  initializeFSRs();
+  zeroTrackFluxes();
+
+  /* Source iteration loop */
+  for (int i=0; i < max_iters; i++) {
+
+    transportSweep();
+    addSourceToScalarFlux();
+    residual = computeResidual(res_type);
+    storeFSRFluxes();
+
+    log_printf(NORMAL, "Iteration %d:\tres = %1.3E", i, residual);
+
+    /* Check for convergence of the fission source distribution */
+    if (i > 1 && residual < _converge_thresh) {
+      _num_iterations = i;
+      _timer->stopTimer();
+      _timer->recordSplit("Total time");
+      return;
+    }
+  }
+
+  log_printf(WARNING, "Unable to converge the flux");
+
+  _num_iterations = max_iters;
+  _timer->stopTimer();
+  _timer->recordSplit("Total time");
+}
+
+
+/**
+ * @brief Computes the total source distribution by performing a series of 
+ *        transport sweep and source updates.
+ * @details This is the main method exposed to the user through the Python
+ *          interface to compute the source distribution, e.g., for a fixed
+ *          and/or external source calculation. This routine makes an initial 
+ *          guess for the scalar and boundary fluxes and performs transport 
+ *          sweeps and source updates until convergence. By default, this 
+ *          method will perform a maximum of 1000 source iterations with 
+ *          a 1E-5 threshold on the average integrated FSR total source,
+ *          but these values may be freely defined by the user at runtime.
+ *
+ *          This method may be called by the user from Python as follows:
+ *
+ * @code
+ *          solver.computeSource(max_iters=100, res_type=TOTAL_SOURCE)
+ * @endcode
+ *
+ * @param max_iters the maximum number of source iterations to allow
+ * @param k_eff the sub/super-critical eigenvalue (default 1.0)
+ * @param res_type the type of residual used for the convergence criterion
+ */
+void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
+
+  if (_track_generator == NULL)
+    log_printf(ERROR, "The Solver is unable to compute the source "
+               "since it does not contain a TrackGenerator");
+
+  else if (k_eff <= 0.)
+    log_printf(ERROR, "The Solver is unable to compute the source with "
+               "keff = %f since it is not a positive value", k_eff);
+
+  log_printf(NORMAL, "Computing the source...");
+
+  /* Clear all timing data from a previous simulation run */
+  clearTimerSplits();
+
+  /* Start the timer to record the total time to converge the flux */
+  _timer->startTimer();
+
+  _k_eff = k_eff;
   FP_PRECISION residual;
 
   /* Initialize data structures */
@@ -702,7 +793,7 @@ void Solver::computeFlux(int max_iters, residualType res_type) {
     }
   }
 
-  log_printf(WARNING, "Unable to converge the flux");
+  log_printf(WARNING, "Unable to converge the source");
 
   _num_iterations = max_iters;
   _timer->stopTimer();
@@ -715,16 +806,20 @@ void Solver::computeFlux(int max_iters, residualType res_type) {
  *        source updates.
  * @details This is the main method exposed to the user through the Python
  *          interface to perform an eigenvalue calculation. The method makes 
- *          an initial guess for the scalar and boundary fluxes and peforms 
- *          transport sweeps and source updates until convergence. The method 
- *          may be called by the user from Python as follows:
+ *          an initial guess for the scalar and boundary fluxes and performs 
+ *          transport sweeps and source updates until convergence. By default,
+ *          this method will perform a maximum of 1000 source iterations with 
+ *          a 1E-5 threshold on the average integrated FSR fission source,
+ *          but these values may be freely defined by the user at runtime.
+ *
+ *          This method may be called by the user from Python as follows:
  *
  * @code
- *          max_iters = 1000
- *          solver.computeEigenvalue(max_iters)
+ *          solver.computeEigenvalue(max_iters=100, res_type=FISSION_SOURCE)
  * @endcode
  *
  * @param max_iters the maximum number of source iterations to allow
+ * @param res_type the type of residual used for the convergence criterion
  */
 void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
@@ -767,6 +862,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
+    residual = computeResidual(res_type);
+    storeFSRFluxes();
 
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
@@ -775,9 +872,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     }
     else
       computeKeff();
-
-    residual = computeResidual(res_type);
-    storeFSRFluxes();
 
     log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
                "\tres = %1.3E", i, _k_eff, residual);

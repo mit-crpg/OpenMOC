@@ -279,9 +279,11 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
-  void computeEigenvalue(int max_iters, residualType res_type=FISSION_SOURCE);
-  //  void computeSource(int max_iters, residualType res_type=TOTAL_SOURCE);
-  void computeFlux(int max_iters, residualType res_type=SCALAR_FLUX);
+  void computeFlux(int max_iters=1000, residualType res_type=SCALAR_FLUX);
+  void computeSource(int max_iters=1000, double k_eff=1.0, 
+                     residualType res_type=TOTAL_SOURCE);
+  void computeEigenvalue(int max_iters=1000, 
+                         residualType res_type=FISSION_SOURCE);
 
  /**
   * @brief Computes the volume-weighted, energy integrated fission rate in
