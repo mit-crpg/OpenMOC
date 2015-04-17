@@ -160,7 +160,7 @@ int Solver::getNumIterations() {
  * @return the time to converge the source (seconds)
  */
 double Solver::getTotalTime() {
-  return _timer->getSplit("Total time to converge the source");
+  return _timer->getSplit("Total time");
 }
 
 
