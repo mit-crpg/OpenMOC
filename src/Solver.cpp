@@ -648,27 +648,57 @@ void Solver::initializeCmfd(){
 
 /**
  * @brief Computes the scalar flux distribution by performing a series of 
- *        transport sweeps with a pre-defined fixed source.
+ *        transport sweeps.
  * @details This is the main method exposed to the user through the Python
- *          interface to compute the source distribution, e.g., for a fixed
- *          and/or external source calculation. This routine makes an initial 
- *          guess for the scalar and boundary fluxes and performs transport 
- *          sweeps and source updates until convergence. By default, this 
- *          method will perform a maximum of 1000 source iterations with 
- *          a 1E-5 threshold on the average integrated FSR total source,
- *          but these values may be freely defined by the user at runtime.
+ *          interface to compute the scalar flux distribution, e.g., for a 
+ *          fixed ource calculation. This routine makes an initial guess for
+ *          scalar and boundary fluxes and performs transport sweep until 
+ *          convergence. 
  *
- *          This method may be called by the user from Python as follows:
+ *          By default, this method will perform a maximum of 1000 transport
+ *          sweeps with a 1E-5 threshold on the average FSR scalar flux. These
+ *          values may be freely modified by the user at runtime.
+ *
+ *          The only_fixed_source runtime parameter may be used to control
+ *          the type of source distribution used in the calculation. By 
+ *          default, this paramter is true and only the fixed sources specified
+ *          by the user will be considered. Alternatively, when the parameter
+ *          is false, the source will be computed as the scattering and fission
+ *          sources resulting from a previously computed flux distribution
+ *          (e.g., an eigenvalue calculation) in addition to any user-defined
+ *          fixed sources.
+ *
+ *          This method may be called by the user to compute the scalar flux 
+ *          for a fixed source distribution from Python as follows:
  *
  * @code
- *          solver.computeFlux(max_iters=100, res_type=TOTAL_SOURCE)
+ *          // Assign fixed sources
+ *          // ...
+ * 
+ *          // Find the flux distribution resulting from the fixed sources
+ *          solver.computeFlux(max_iters=100)
  * @endcode
  *
+ *          Alternatively, as described above, this method may be called by
+ *          the user in Python to compute the flux from a superposition of
+ *          fixed and / or eigenvalue sources as follows:
+ *
+ * @code
+ *          // Solve for sources and scalar flux distribution
+ *          solver.computeEigenvalue(max_iters=1000)
+ *
+ *          // Add fixed source(s)
+ *          // ...
+ *          
+ *          // Find fluxes from superposition of eigenvalue and fixed sources
+ *          solver.computeFlux(max_iters=100, only_fixed_source=False)
+ * @endcode
+ *
+ *
  * @param max_iters the maximum number of source iterations to allow
- * @param k_eff the sub/super-critical eigenvalue (default 1.0)
- * @param res_type the type of residual used for the convergence criterion
+ * @param only_fixed_source use only fixed sources (true by default)
  */
-void Solver::computeFlux(int max_iters, residualType res_type) {
+void Solver::computeFlux(int max_iters, bool only_fixed_source) {
 
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to compute the flux "
@@ -687,13 +717,20 @@ void Solver::computeFlux(int max_iters, residualType res_type) {
   /* Initialize data structures */
   initializePolarQuadrature();
   initializeExpEvaluator();
-  initializeFluxArrays();
+
+  /* Initialize new flux arrays if a) the user requested the use of 
+   * only fixed sources or b) no previous simulation was performed which
+   * initialized and computed the flux (e.g., an eigenvalue calculation) */
+  if (only_fixed_source || _num_iterations == 0) {
+    initializeFluxArrays();
+    flattenFSRFluxes(0.0);
+  }
+
   initializeSourceArrays();
   initializeFSRs();
   zeroTrackFluxes();
 
-  //FIXME: This is just a hack!!!!
-  flattenFSRFluxes(0.0);
+  /* Compute the sum of fixed, total and scattering sources */
   computeFSRSources();
 
   /* Source iteration loop */
@@ -701,7 +738,7 @@ void Solver::computeFlux(int max_iters, residualType res_type) {
 
     transportSweep();
     addSourceToScalarFlux();
-    residual = computeResidual(res_type);
+    residual = computeResidual(SCALAR_FLUX);
     storeFSRFluxes();
 
     log_printf(NORMAL, "Iteration %d:\tres = %1.3E", i, residual);
@@ -730,15 +767,29 @@ void Solver::computeFlux(int max_iters, residualType res_type) {
  *          interface to compute the source distribution, e.g., for a fixed
  *          and/or external source calculation. This routine makes an initial 
  *          guess for the scalar and boundary fluxes and performs transport 
- *          sweeps and source updates until convergence. By default, this 
- *          method will perform a maximum of 1000 source iterations with 
- *          a 1E-5 threshold on the average integrated FSR total source,
- *          but these values may be freely defined by the user at runtime.
+ *          sweeps and source updates until convergence. 
+ *
+ *          By default, this method will perform a maximum of 1000 transport
+ *          sweeps with a 1E-5 threshold on the integrated FSR total source. 
+ *          These values may be freely modified by the user at runtime.
+ *
+ *          The k_eff parameter may be used for fixed source calculations
+ *          with fissionable material (e.g., start-up in a reactor from
+ *          a fixed external source). In this case, the user must "guess"
+ *          the critical eigenvalue to be be used to scale the fission source.
+ *
+ *          The res_type parameter may be used to control the convergence
+ *          criterion - SCALAR_FLUX, TOTAL_SOURCE (default) and FISSION_SOURCE
+ *          are all supported options in OpenMOC at this time.
  *
  *          This method may be called by the user from Python as follows:
  *
  * @code
- *          solver.computeSource(max_iters=100, res_type=TOTAL_SOURCE)
+ *          // Assign fixed sources
+ *          // ...
+ * 
+ *          // Find the flux distribution resulting from the fixed sources
+ *          solver.computeFlux(max_iters=100, k_eff=0.981)
  * @endcode
  *
  * @param max_iters the maximum number of source iterations to allow
@@ -811,12 +862,15 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
  * @details This is the main method exposed to the user through the Python
  *          interface to perform an eigenvalue calculation. The method makes 
  *          an initial guess for the scalar and boundary fluxes and performs 
- *          transport sweeps and source updates until convergence. By default,
- *          this method will perform a maximum of 1000 source iterations with 
- *          a 1E-5 threshold on the average integrated FSR fission source,
- *          but these values may be freely defined by the user at runtime.
+ *          transport sweeps and source updates until convergence.
  *
- *          This method may be called by the user from Python as follows:
+ *          By default, this method will perform a maximum of 1000 transport
+ *          sweeps with a 1E-5 threshold on the integrated FSR fission source. 
+ *          These values may be freely modified by the user at runtime.
+ *
+ *          The res_type parameter may be used to control the convergence
+ *          criterion - SCALAR_FLUX, TOTAL_SOURCE and FISSION_SOURCE (default)
+ *          are all supported options in OpenMOC at this time.
  *
  * @code
  *          solver.computeEigenvalue(max_iters=100, res_type=FISSION_SOURCE)
