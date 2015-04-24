@@ -19,6 +19,8 @@ https://mit-crpg.github.io/OpenMOC/. If you would like to
 contribute to the OpenMOC project, please `contact`_ the 
 development team.
 
+For a guided example, see a demonstration `IPython Notebook`_.
+
 ------------
 Installation
 ------------
@@ -30,12 +32,12 @@ User's Guide.
 Troubleshooting
 ---------------
 
-If you run into problems installing or running OpenMOC, 
-please post your issue to the Google Group `users forum`_. 
+Join the OpenMOC `users group`_ to ask questions and discuss
+methods and simulation workflows.
 
---------
-Citation
---------
+--------------
+Citing OpenMOC
+--------------
 
 Please cite OpenMOC in your publications if it helps your research:
 
@@ -59,5 +61,6 @@ OpenMOC is approved for distribution under the MIT/X license_.
 .. _installation instructions: https://mit-crpg.github.io/OpenMOC/usersguide/install.html
 .. _license: https://mit-crpg.github.io/OpenMOC/license.html
 .. _Nuclear Science & Engineering Department: http://web.mit.edu/nse/
+.. _IPython Notebook: http://nbviewer.ipython.org/gist/anonymous/abbce6824bceda49a615
 .. _contact: https://mit-crpg.github.io/OpenMOC/developers.html
-.. _users forum: https://groups.google.com/forum/#!forum/openmoc-users
+.. _users group: forum: https://groups.google.com/forum/#!forum/openmoc-users
