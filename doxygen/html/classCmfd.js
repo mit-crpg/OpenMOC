@@ -27,6 +27,7 @@ var classCmfd =
     [ "initializeFlux", "classCmfd.html#ac156c201dab1b12de68f85a7720f749e", null ],
     [ "initializeGroupMap", "classCmfd.html#a7ad43e41d38746446ae1b791e329cdf9", null ],
     [ "initializeMaterials", "classCmfd.html#a9cb4ee80522d671b22c9fc76d21030d6", null ],
+    [ "initializeSurfaceCurrents", "classCmfd.html#a42424012ea60bdc3180117276b303efe", null ],
     [ "isFluxUpdateOn", "classCmfd.html#ad34edd48a104b4e298d23297d62a0c76", null ],
     [ "isOpticallyThick", "classCmfd.html#a2da4c83f3724832cb886d82aab16f34e", null ],
     [ "linearSolve", "classCmfd.html#a91b918938971340f64763dd946dae5b8", null ],
@@ -50,9 +51,10 @@ var classCmfd =
     [ "setPolarQuadrature", "classCmfd.html#af627cf3f19294692da2db7ee2666e566", null ],
     [ "setSORRelaxationFactor", "classCmfd.html#ab85d945c77c019bcc9991730247760e4", null ],
     [ "setSourceConvergenceThreshold", "classCmfd.html#ae0405a0c0998d8943e2f8ea94a645940", null ],
-    [ "setSurfaceCurrents", "classCmfd.html#a96bec1b89bb98ad2d50c07cb90f40fff", null ],
     [ "setWidth", "classCmfd.html#adf041f216499a54f4b9f75811dddae5a", null ],
     [ "splitCorners", "classCmfd.html#a418318efb5fe2ac12b8df151dc990cc0", null ],
+    [ "tallySurfaceCurrent", "classCmfd.html#a697125015610825bf997812f68d616f9", null ],
     [ "updateBoundaryFlux", "classCmfd.html#a8e2162ab4e1b55d2240f5c41184d73d3", null ],
-    [ "updateMOCFlux", "classCmfd.html#a92498d14632389804569ef690a126942", null ]
+    [ "updateMOCFlux", "classCmfd.html#a92498d14632389804569ef690a126942", null ],
+    [ "zeroSurfaceCurrents", "classCmfd.html#aef6f6ce5e9c3226a973198923242b2e2", null ]
 ];

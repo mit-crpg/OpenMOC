@@ -8,8 +8,12 @@ var hierarchy =
     [ "dev_material", "structdev__material.html", null ],
     [ "dev_segment", "structdev__segment.html", null ],
     [ "dev_track", "structdev__track.html", null ],
+    [ "ExpEvaluator", "classExpEvaluator.html", null ],
     [ "fsr_data", "structfsr__data.html", null ],
     [ "Geometry", "classGeometry.html", null ],
+    [ "GPUExpEvaluator", "classGPUExpEvaluator.html", null ],
+    [ "isinf_test", "structisinf__test.html", null ],
+    [ "isnan_test", "structisnan__test.html", null ],
     [ "LocalCoords", "classLocalCoords.html", null ],
     [ "Material", "classMaterial.html", null ],
     [ "object", null, [

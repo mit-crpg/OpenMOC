@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['segment',['segment',['../structsegment.html',1,'']]],
-  ['solver',['Solver',['../classSolver.html',1,'']]],
-  ['surface',['Surface',['../classSurface.html',1,'']]],
-  ['surface_5fhalfspace',['surface_halfspace',['../structsurface__halfspace.html',1,'']]]
+  ['plane',['Plane',['../classPlane.html',1,'']]],
+  ['point',['Point',['../classPoint.html',1,'']]],
+  ['polarquad',['PolarQuad',['../classPolarQuad.html',1,'']]],
+  ['py',['py',['../classcasmo_1_1py.html',1,'casmo']]]
 ];

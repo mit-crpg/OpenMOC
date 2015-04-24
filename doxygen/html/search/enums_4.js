@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['universetype',['universeType',['../Universe_8h.html#a123911615dcd5c50bea706d32683a02a',1,'Universe.h']]]
+  ['surfacetype',['surfaceType',['../Surface_8h.html#a669341e8f044e9051db22e680c1b81df',1,'Surface.h']]]
 ];

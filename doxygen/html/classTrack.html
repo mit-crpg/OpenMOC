@@ -221,9 +221,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a99ae10a8b0b25640a9041f85a1acd663"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrack.html#a99ae10a8b0b25640a9041f85a1acd663">contains</a> (<a class="el" href="classPoint.html">Point</a> *point)</td></tr>
 <tr class="memdesc:a99ae10a8b0b25640a9041f85a1acd663"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether a <a class="el" href="classPoint.html" title="Class to represent a 2D point in space. ">Point</a> is contained along this <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>.  <a href="#a99ae10a8b0b25640a9041f85a1acd663">More...</a><br/></td></tr>
 <tr class="separator:a99ae10a8b0b25640a9041f85a1acd663"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08af057318f555da880a391718837ea0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrack.html#a08af057318f555da880a391718837ea0">addSegment</a> (<a class="el" href="structsegment.html">segment</a> *<a class="el" href="structsegment.html">segment</a>)</td></tr>
-<tr class="memdesc:a08af057318f555da880a391718837ea0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a segment pointer to this <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s list of segments.  <a href="#a08af057318f555da880a391718837ea0">More...</a><br/></td></tr>
-<tr class="separator:a08af057318f555da880a391718837ea0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af10963fb25999a8d7763deb52d6ecdd8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrack.html#af10963fb25999a8d7763deb52d6ecdd8">addSegment</a> (<a class="el" href="structsegment.html">segment</a> *to_add)</td></tr>
+<tr class="memdesc:af10963fb25999a8d7763deb52d6ecdd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a segment pointer to this <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s list of segments.  <a href="#af10963fb25999a8d7763deb52d6ecdd8">More...</a><br/></td></tr>
+<tr class="separator:af10963fb25999a8d7763deb52d6ecdd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a737072b0a1bdcd2b9c0820ecdcaaf246"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrack.html#a737072b0a1bdcd2b9c0820ecdcaaf246">removeSegment</a> (int index)</td></tr>
+<tr class="memdesc:a737072b0a1bdcd2b9c0820ecdcaaf246"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a segment from this <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s list of segments.  <a href="#a737072b0a1bdcd2b9c0820ecdcaaf246">More...</a><br/></td></tr>
+<tr class="separator:a737072b0a1bdcd2b9c0820ecdcaaf246"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed734c59e9c0d5d8cab33c34a5ebfdda"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrack.html#aed734c59e9c0d5d8cab33c34a5ebfdda">insertSegment</a> (int index, <a class="el" href="structsegment.html">segment</a> *<a class="el" href="structsegment.html">segment</a>)</td></tr>
+<tr class="memdesc:aed734c59e9c0d5d8cab33c34a5ebfdda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserts a segment pointer into this <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s list of segments.  <a href="#aed734c59e9c0d5d8cab33c34a5ebfdda">More...</a><br/></td></tr>
+<tr class="separator:aed734c59e9c0d5d8cab33c34a5ebfdda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b0805ef586042609ee71ca07f41a85c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1b0805ef586042609ee71ca07f41a85c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrack.html#a1b0805ef586042609ee71ca07f41a85c">clearSegments</a> ()</td></tr>
 <tr class="memdesc:a1b0805ef586042609ee71ca07f41a85c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes each of this <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s segments. <br/></td></tr>
@@ -236,7 +242,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <div class="textblock"><p>A <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> represents a characteristic line across the geometry. </p>
 <p>A <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> has particular starting and ending points on the boundaries of the geometry and an azimuthal angle. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a08af057318f555da880a391718837ea0"></a>
+<a class="anchor" id="af10963fb25999a8d7763deb52d6ecdd8"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -244,7 +250,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
           <td class="memname">void Track::addSegment </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structsegment.html">segment</a> *&#160;</td>
-          <td class="paramname"><em>segment</em></td><td>)</td>
+          <td class="paramname"><em>to_add</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -254,7 +260,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>This method assumes that segments are added in order of their starting location from the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s start point. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">segment</td><td>a pointer to the segment </td></tr>
+    <tr><td class="paramname">to_add</td><td>a pointer to the segment to add </td></tr>
   </table>
   </dd>
 </dl>
@@ -630,6 +636,42 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
+<a class="anchor" id="aed734c59e9c0d5d8cab33c34a5ebfdda"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Track::insertSegment </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structsegment.html">segment</a> *&#160;</td>
+          <td class="paramname"><em>segment</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inserts a segment pointer into this <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s list of segments. </p>
+<p>This method appends the new segment directly behind another segment in the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>. This is a helper method for the TrackGenerator::splitTracks(...) routine. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>the index of the segment to insert behind in the list </td></tr>
+    <tr><td class="paramname">segment</td><td>a pointer to the segment to insert </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="ac553046c3f61abb50c00d9c16ed045a0"></a>
 <div class="memitem">
 <div class="memproto">
@@ -663,6 +705,30 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 <p>Returns whether to give the outgoing flux to the "forward" (false) or "reverse" (true) direction of the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> reflecting out of this one along its "reverse" direction. </p>
 <dl class="section return"><dt>Returns</dt><dd>"forward" (false) "reverse" (true) direction of outgoing <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a737072b0a1bdcd2b9c0820ecdcaaf246"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Track::removeSegment </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes a segment from this <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s list of segments. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>the index of the segment to remove </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -1069,7 +1135,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classTrack.html">Track</a></li>
-    <li class="footer">Generated on Thu Apr 9 2015 15:01:40 by
+    <li class="footer">Generated on Thu Apr 23 2015 23:39:53 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

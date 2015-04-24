@@ -149,8 +149,11 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>_boundary_leakage
 : <a class="el" href="Solver_8h.html#a6c166546861725df33b4e3eea491dab5">Solver.h</a>
 </li>
-<li>_fission_sources
-: <a class="el" href="Solver_8h.html#aa39e20548bfb214c9f1bb294da829fd7">Solver.h</a>
+<li>_fixed_sources
+: <a class="el" href="Solver_8h.html#a991cd83ccd910cf48245efb0aecd9b6a">Solver.h</a>
+</li>
+<li>_old_scalar_flux
+: <a class="el" href="Solver_8h.html#ac7da59fbd14942e33392c046ecc6673a">Solver.h</a>
 </li>
 <li>_polar_weights
 : <a class="el" href="Solver_8h.html#a82337e9687f8a593b4b68772853353c6">Solver.h</a>
@@ -161,11 +164,8 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>_scalar_flux
 : <a class="el" href="Solver_8h.html#a3d16df105bf900bad9d2b5a6061aa06d">Solver.h</a>
 </li>
-<li>_scatter_sources
-: <a class="el" href="Solver_8h.html#a39e01aad71440f7e74d0bdfa70fc20fa">Solver.h</a>
-</li>
 <li>_surface_currents
-: <a class="el" href="Solver_8h.html#a7e54944e94810750bab24ebb38c71090">Solver.h</a>
+: <a class="el" href="Cmfd_8h.html#a7e54944e94810750bab24ebb38c71090">Cmfd.h</a>
 </li>
 </ul>
 
@@ -200,11 +200,14 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>CIRCLE
 : <a class="el" href="Surface_8h.html#a669341e8f044e9051db22e680c1b81dfaa79c827759ea48f0735386c4b1188911">Surface.h</a>
 </li>
-<li>clone_material_on_gpu()
-: <a class="el" href="clone_8h.html#a25d70b9ce81a05a9d74d97e6f7e1de9a">clone.h</a>
+<li>clone_exp_evaluator()
+: <a class="el" href="GPUExpEvaluator_8h.html#ab2e74dbf66fb36b6a14f55d731b9b206">GPUExpEvaluator.h</a>
 </li>
-<li>clone_track_on_gpu()
-: <a class="el" href="clone_8h.html#aa26dee95aa6869b621fa09a724089840">clone.h</a>
+<li>clone_material()
+: <a class="el" href="clone_8h.html#a22451c7855aa5fea4d1c1e559568aad0">clone.h</a>
+</li>
+<li>clone_track()
+: <a class="el" href="clone_8h.html#ae29f348094139e4dbaf3069d12e22c2b">clone.h</a>
 </li>
 <li>coordType
 : <a class="el" href="LocalCoords_8h.html#a9b2c6f3fe231906f231afd6ae7293871">LocalCoords.h</a>
@@ -239,9 +242,17 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>FILL
 : <a class="el" href="Cell_8h.html#a274ceed3b07859c48505f65b1fe42328a1d3754a297a681486f8cb3138a27c28b">Cell.h</a>
 </li>
+<li>FISSION_SOURCE
+: <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea3c5a6f8b21a5becfe1e6756d8b492cea">Solver.h</a>
+</li>
+<li>fission_sources
+: <a class="el" href="Solver_8h.html#a11f42402c5f44216def0ab6d5c564843">Solver.h</a>
+</li>
+<li>fixed_sources
+: <a class="el" href="GPUSolver_8h.html#ac94c3f974b76a8708623f6c394415a62">GPUSolver.h</a>
+</li>
 <li>FOUR_PI
-: <a class="el" href="Solver_8h.html#ac6b39b7a27b735f3a62be33f38041985">Solver.h</a>
-, <a class="el" href="GPUSolver_8h.html#ac6b39b7a27b735f3a62be33f38041985">GPUSolver.h</a>
+: <a class="el" href="constants_8h.html#ac6b39b7a27b735f3a62be33f38041985">constants.h</a>
 </li>
 </ul>
 
@@ -323,8 +334,11 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>MAX_AZIM_ANGLES
 : <a class="el" href="GPUSolver_8h.html#a13ab74d9229f8b9544ae9decc54163da">GPUSolver.h</a>
 </li>
+<li>MAX_OPTICAL_LENGTH
+: <a class="el" href="constants_8h.html#a895b93c581aefe76e1ccc425bb95a8c5">constants.h</a>
+</li>
 <li>MAX_POLAR_ANGLES
-: <a class="el" href="GPUSolver_8h.html#a91b4cb58a59ec4578195cd7787dacf66">GPUSolver.h</a>
+: <a class="el" href="GPUExpEvaluator_8h.html#a91b4cb58a59ec4578195cd7787dacf66">GPUExpEvaluator.h</a>
 </li>
 <li>MM_FREE
 : <a class="el" href="Material_8h.html#afda8a5444c5cccc2ecc9b27267d50941">Material.h</a>
@@ -343,15 +357,17 @@ $(document).ready(function(){initNavTree('globals.html','');});
 
 
 <h3><a class="anchor" id="index_o"></a>- o -</h3><ul>
+<li>old_scalar_flux
+: <a class="el" href="GPUSolver_8h.html#a847d50773dbb17bf6cacdffdde229065">GPUSolver.h</a>
+</li>
 <li>ON_LATTICE_CELL_THRESH
-: <a class="el" href="Universe_8h.html#ad8a93cce3a9cd77aa9fc698dd9af26e7">Universe.h</a>
+: <a class="el" href="constants_8h.html#ad8a93cce3a9cd77aa9fc698dd9af26e7">constants.h</a>
 </li>
 <li>ON_SURFACE_THRESH
-: <a class="el" href="Surface_8h.html#a5ff2a7fbf6ba25f47f298c79f39dc4f8">Surface.h</a>
+: <a class="el" href="constants_8h.html#a5ff2a7fbf6ba25f47f298c79f39dc4f8">constants.h</a>
 </li>
 <li>ONE_OVER_FOUR_PI
-: <a class="el" href="GPUSolver_8h.html#a662cb71fde841f2762641d9f82e1fbb5">GPUSolver.h</a>
-, <a class="el" href="Solver_8h.html#a662cb71fde841f2762641d9f82e1fbb5">Solver.h</a>
+: <a class="el" href="constants_8h.html#a662cb71fde841f2762641d9f82e1fbb5">constants.h</a>
 </li>
 </ul>
 
@@ -364,7 +380,7 @@ $(document).ready(function(){initNavTree('globals.html','');});
 : <a class="el" href="Surface_8h.html#a669341e8f044e9051db22e680c1b81dfa67572d1492c84d8d417b61e864f13f24">Surface.h</a>
 </li>
 <li>POLAR_WEIGHT_SUM_TOL
-: <a class="el" href="PolarQuad_8h.html#a4b8b14232fe86e7e5d8c1e7b55421137">PolarQuad.h</a>
+: <a class="el" href="constants_8h.html#a4b8b14232fe86e7e5d8c1e7b55421137">constants.h</a>
 </li>
 <li>polar_weights
 : <a class="el" href="GPUSolver_8h.html#a818d2da0930d46b3fe53eff8bb60ea1f">GPUSolver.h</a>
@@ -407,15 +423,27 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>reset_universe_id()
 : <a class="el" href="Universe_8h.html#aa28b6af91940e7a6d3ab828bb0cebe3f">Universe.h</a>
 </li>
+<li>residualType
+: <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">Solver.h</a>
+</li>
 <li>RESULT
 : <a class="el" href="log_8h.html#a5096002e05063d13577205e0bc5f0564a7186ecefe792fdae9fec0a42f105ad6b">log.h</a>
+</li>
+<li>round_to_int()
+: <a class="el" href="ExpEvaluator_8h.html#a50ee4d4946888926bdf5a920129a322a">ExpEvaluator.h</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_s"></a>- s -</h3><ul>
+<li>SCALAR_FLUX
+: <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea64f8e8426d0253e204dc87806fdfdb1e">Solver.h</a>
+</li>
 <li>scalar_flux
 : <a class="el" href="GPUSolver_8h.html#a4089c9be8cf297ccf942eb8c29cca415">GPUSolver.h</a>
+</li>
+<li>scatter_sources
+: <a class="el" href="Solver_8h.html#a04ce2f64386e3d29011f5bdc23ee7f0e">Solver.h</a>
 </li>
 <li>SEPARATOR
 : <a class="el" href="log_8h.html#a5096002e05063d13577205e0bc5f0564ac22e1a44f0ddbc929cfea45e49d20f84">log.h</a>
@@ -445,7 +473,7 @@ $(document).ready(function(){initNavTree('globals.html','');});
 : <a class="el" href="log_8h.html#a317f56bbd4a69ab1d000ad8aad6b9d0d">log.h</a>
 </li>
 <li>SIGMA_T_THRESH
-: <a class="el" href="Material_8h.html#ae9c3eb98c50e150b93f8428cc6bdf3ca">Material.h</a>
+: <a class="el" href="constants_8h.html#ae9c3eb98c50e150b93f8428cc6bdf3ca">constants.h</a>
 </li>
 <li>SIMPLE
 : <a class="el" href="Universe_8h.html#a123911615dcd5c50bea706d32683a02aa1a6b6e9893ec9e5d9710335b4c74d3f6">Universe.h</a>
@@ -464,10 +492,13 @@ $(document).ready(function(){initNavTree('globals.html','');});
 : <a class="el" href="VectorizedSolver_8h.html#a3c1eee3367b6bf3d9a00f66369aba5ed">VectorizedSolver.h</a>
 </li>
 <li>TINY_MOVE
-: <a class="el" href="Universe_8h.html#a481c7dad5dc2bb9070235752daa421c6">Universe.h</a>
+: <a class="el" href="constants_8h.html#a481c7dad5dc2bb9070235752daa421c6">constants.h</a>
 </li>
 <li>TITLE
 : <a class="el" href="log_8h.html#a5096002e05063d13577205e0bc5f0564a0a041e18d712f7b239eac5375daf4a05">log.h</a>
+</li>
+<li>TOTAL_SOURCE
+: <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5beab4e45e4756d98c5d8a86e6bb41934828">Solver.h</a>
 </li>
 <li>track_flux
 : <a class="el" href="CPUSolver_8h.html#a2143506339a36528e1c9d7e27501897f">CPUSolver.h</a>
@@ -536,7 +567,7 @@ $(document).ready(function(){initNavTree('globals.html','');});
 
 <h3><a class="anchor" id="index_z"></a>- z -</h3><ul>
 <li>ZERO_SIGMA_T
-: <a class="el" href="Material_8h.html#a40828c3842687236790de1dbcc10336b">Material.h</a>
+: <a class="el" href="constants_8h.html#a40828c3842687236790de1dbcc10336b">constants.h</a>
 </li>
 <li>ZPLANE
 : <a class="el" href="Surface_8h.html#a669341e8f044e9051db22e680c1b81dfab8a67003c4c98688a7ae46205a6731d4">Surface.h</a>
@@ -547,7 +578,7 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Apr 9 2015 15:01:40 by
+    <li class="footer">Generated on Thu Apr 23 2015 23:39:53 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

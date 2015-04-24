@@ -1,11 +1,14 @@
 var searchData=
 [
+  ['tallyscalarflux',['tallyScalarFlux',['../classCPUSolver.html#a4ec079d6fe1ad40fdf2f124e106c4f0a',1,'CPUSolver::tallyScalarFlux()'],['../classVectorizedSolver.html#a79482c301560318bc3f0c7670783c0fc',1,'VectorizedSolver::tallyScalarFlux()']]],
+  ['tallysurfacecurrent',['tallySurfaceCurrent',['../classCmfd.html#a697125015610825bf997812f68d616f9',1,'Cmfd::tallySurfaceCurrent()'],['../classCPUSolver.html#af7afb01d1e66a83fb317102a58308532',1,'CPUSolver::tallySurfaceCurrent()']]],
   ['taus',['taus',['../VectorizedSolver_8h.html#a3c1eee3367b6bf3d9a00f66369aba5ed',1,'VectorizedSolver.h']]],
   ['timer',['Timer',['../classTimer.html',1,'Timer'],['../classTimer.html#a5f16e8da27d2a5a5242dead46de05d97',1,'Timer::Timer()']]],
   ['timer_2eh',['Timer.h',['../Timer_8h.html',1,'']]],
-  ['tiny_5fmove',['TINY_MOVE',['../Universe_8h.html#a481c7dad5dc2bb9070235752daa421c6',1,'Universe.h']]],
+  ['tiny_5fmove',['TINY_MOVE',['../constants_8h.html#a481c7dad5dc2bb9070235752daa421c6',1,'constants.h']]],
   ['title',['TITLE',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a0a041e18d712f7b239eac5375daf4a05',1,'log.h']]],
   ['tostring',['toString',['../classCell.html#a4a84efc6a82f7abe42d9a6dc990c70e6',1,'Cell::toString()'],['../classCellBasic.html#a7c9a65e73c5c9004c2b75f40ab19e4b3',1,'CellBasic::toString()'],['../classCellFill.html#ac37b3795b89ffdd71315610e99100f8b',1,'CellFill::toString()'],['../classGeometry.html#ae247a0c9686286fa941142e803d289f1',1,'Geometry::toString()'],['../classLocalCoords.html#a82104907b1705c31fbc12e61deb77cf5',1,'LocalCoords::toString()'],['../classMaterial.html#a72f180d85439497ffc732718166e5634',1,'Material::toString()'],['../classPoint.html#a1b3a350eb0e65c9b6605e00134771225',1,'Point::toString()'],['../classPolarQuad.html#aa62958c57652b12edde35791074200e1',1,'PolarQuad::toString()'],['../classSurface.html#a7275a4ce4c6d96fd90b5c1916cf9ae37',1,'Surface::toString()'],['../classPlane.html#ae953389291ab7fff7a1745c86977a3ae',1,'Plane::toString()'],['../classXPlane.html#a8f02479cb1ca1dc6e4d79d4fe1d26543',1,'XPlane::toString()'],['../classYPlane.html#a90e984e54368bc0508c82e86b05de286',1,'YPlane::toString()'],['../classZPlane.html#a7a55a5e5c3d7d1279844263e77010c40',1,'ZPlane::toString()'],['../classCircle.html#aea2207f792f532c1a92bfba37adcee5e',1,'Circle::toString()'],['../classTrack.html#abc465cc8bc4d568c7031667cb831825e',1,'Track::toString()'],['../classUniverse.html#a9bc78841d661eb12afa51ca04ae31368',1,'Universe::toString()'],['../classLattice.html#a85eb51407b84e29d55f300e06b29f9b4',1,'Lattice::toString()']]],
+  ['total_5fsource',['TOTAL_SOURCE',['../Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5beab4e45e4756d98c5d8a86e6bb41934828',1,'Solver.h']]],
   ['track',['Track',['../classTrack.html',1,'']]],
   ['track_2eh',['Track.h',['../Track_8h.html',1,'']]],
   ['track_5fflux',['track_flux',['../CPUSolver_8h.html#a2143506339a36528e1c9d7e27501897f',1,'CPUSolver.h']]],

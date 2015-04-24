@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['vectorizedsolver',['VectorizedSolver',['../classVectorizedSolver.html',1,'']]]
+  ['universe',['Universe',['../classUniverse.html',1,'']]]
 ];

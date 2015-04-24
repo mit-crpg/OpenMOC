@@ -111,11 +111,17 @@ $(document).ready(function(){initNavTree('GPUSolver_8h.html','');});
 
 <p>The <a class="el" href="classGPUSolver.html" title="This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs). ">GPUSolver</a> class and CUDA physics kernels.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;thrust/reduce.h&gt;</code><br/>
-<code>#include &lt;thrust/device_vector.h&gt;</code><br/>
+<div class="textblock"><code>#include &lt;thrust/device_vector.h&gt;</code><br/>
+<code>#include &lt;thrust/copy.h&gt;</code><br/>
+<code>#include &lt;thrust/fill.h&gt;</code><br/>
+<code>#include &lt;thrust/reduce.h&gt;</code><br/>
+<code>#include &lt;thrust/replace.h&gt;</code><br/>
+<code>#include &lt;thrust/functional.h&gt;</code><br/>
+<code>#include &lt;thrust/iterator/constant_iterator.h&gt;</code><br/>
 <code>#include &lt;sm_13_double_functions.h&gt;</code><br/>
 <code>#include &lt;sm_20_atomic_functions.h&gt;</code><br/>
 <code>#include &quot;<a class="el" href="clone_8h_source.html">clone.h</a>&quot;</code><br/>
+<code>#include &quot;<a class="el" href="GPUExpEvaluator_8h_source.html">GPUExpEvaluator.h</a>&quot;</code><br/>
 </div>
 <p><a href="GPUSolver_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -129,18 +135,16 @@ Classes</h2></td></tr>
 Macros</h2></td></tr>
 <tr class="memitem:a4089c9be8cf297ccf942eb8c29cca415"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a4089c9be8cf297ccf942eb8c29cca415">scalar_flux</a>(tid, e)&#160;&#160;&#160;(scalar_flux[(tid)*(*num_groups) + (e)])</td></tr>
 <tr class="separator:a4089c9be8cf297ccf942eb8c29cca415"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a847d50773dbb17bf6cacdffdde229065"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a847d50773dbb17bf6cacdffdde229065">old_scalar_flux</a>(tid, e)&#160;&#160;&#160;(old_scalar_flux[(tid)*(*num_groups) + (e)])</td></tr>
+<tr class="separator:a847d50773dbb17bf6cacdffdde229065"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af16043dabfde8edf630658d1a93906fb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#af16043dabfde8edf630658d1a93906fb">reduced_sources</a>(tid, e)&#160;&#160;&#160;(reduced_sources[(tid)*(*num_groups) + (e)])</td></tr>
 <tr class="separator:af16043dabfde8edf630658d1a93906fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac94c3f974b76a8708623f6c394415a62"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#ac94c3f974b76a8708623f6c394415a62">fixed_sources</a>(r, e)&#160;&#160;&#160;(fixed_sources[(r)*(*num_groups) + (e)])</td></tr>
+<tr class="separator:ac94c3f974b76a8708623f6c394415a62"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a818d2da0930d46b3fe53eff8bb60ea1f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a818d2da0930d46b3fe53eff8bb60ea1f">polar_weights</a>(i, p)&#160;&#160;&#160;(polar_weights[(i)*(*num_polar) + (p)])</td></tr>
 <tr class="separator:a818d2da0930d46b3fe53eff8bb60ea1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d0f44838c549b1382bbcd5efa2b57ee"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a2d0f44838c549b1382bbcd5efa2b57ee">boundary_flux</a>(t, pe2)&#160;&#160;&#160;(boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])</td></tr>
 <tr class="separator:a2d0f44838c549b1382bbcd5efa2b57ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6b39b7a27b735f3a62be33f38041985"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#ac6b39b7a27b735f3a62be33f38041985">FOUR_PI</a>&#160;&#160;&#160;12.5663706143</td></tr>
-<tr class="separator:ac6b39b7a27b735f3a62be33f38041985"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a662cb71fde841f2762641d9f82e1fbb5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a662cb71fde841f2762641d9f82e1fbb5">ONE_OVER_FOUR_PI</a>&#160;&#160;&#160;0.0795774715</td></tr>
-<tr class="separator:a662cb71fde841f2762641d9f82e1fbb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91b4cb58a59ec4578195cd7787dacf66"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a91b4cb58a59ec4578195cd7787dacf66">MAX_POLAR_ANGLES</a>&#160;&#160;&#160;3</td></tr>
-<tr class="separator:a91b4cb58a59ec4578195cd7787dacf66"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13ab74d9229f8b9544ae9decc54163da"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a13ab74d9229f8b9544ae9decc54163da">MAX_AZIM_ANGLES</a>&#160;&#160;&#160;256</td></tr>
 <tr class="separator:a13ab74d9229f8b9544ae9decc54163da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -176,16 +180,30 @@ Macros</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ac6b39b7a27b735f3a62be33f38041985"></a>
+<a class="anchor" id="ac94c3f974b76a8708623f6c394415a62"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define FOUR_PI&#160;&#160;&#160;12.5663706143</td>
+          <td class="memname">#define fixed_sources</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">r, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">e&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;(fixed_sources[(r)*(*num_groups) + (e)])</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>The value of 4pi: <img class="formulaInl" alt="$ 4\pi $" src="form_7.png"/> </p>
+<p>Indexing scheme for fixed sources for each FSR and energy group </p>
 
 </div>
 </div>
@@ -202,29 +220,30 @@ Macros</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a91b4cb58a59ec4578195cd7787dacf66"></a>
+<a class="anchor" id="a847d50773dbb17bf6cacdffdde229065"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define MAX_POLAR_ANGLES&#160;&#160;&#160;3</td>
+          <td class="memname">#define old_scalar_flux</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">tid, </td>
         </tr>
-      </table>
-</div><div class="memdoc">
-<p>The maximum number of polar angles to reserve constant memory on GPU </p>
-
-</div>
-</div>
-<a class="anchor" id="a662cb71fde841f2762641d9f82e1fbb5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
         <tr>
-          <td class="memname">#define ONE_OVER_FOUR_PI&#160;&#160;&#160;0.0795774715</td>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">e&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;(old_scalar_flux[(tid)*(*num_groups) + (e)])</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>The values of 1 divided by 4pi: <img class="formulaInl" alt="$ \frac{1}{4\pi} $" src="form_8.png"/> </p>
+<p>Indexing macro for the old scalar flux in each FSR and energy group </p>
 
 </div>
 </div>
@@ -315,7 +334,7 @@ Macros</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_1ea949864ab1faf245facc269e7b2721.html">accel</a></li><li class="navelem"><a class="el" href="dir_e42498f83ad2e028b83ea18abff69fa1.html">cuda</a></li><li class="navelem"><a class="el" href="GPUSolver_8h.html">GPUSolver.h</a></li>
-    <li class="footer">Generated on Thu Apr 9 2015 15:01:40 by
+    <li class="footer">Generated on Thu Apr 23 2015 23:39:53 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

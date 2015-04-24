@@ -1,7 +1,4 @@
 var searchData=
 [
-  ['plane',['Plane',['../classPlane.html',1,'']]],
-  ['point',['Point',['../classPoint.html',1,'']]],
-  ['polarquad',['PolarQuad',['../classPolarQuad.html',1,'']]],
-  ['py',['py',['../classcasmo_1_1py.html',1,'casmo']]]
+  ['options',['Options',['../classopenmoc_1_1options_1_1Options.html',1,'openmoc::options']]]
 ];

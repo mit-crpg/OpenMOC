@@ -85,7 +85,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="functions.html#index__"><span>_</span></a></li>
       <li><a href="functions_a.html#index_a"><span>a</span></a></li>
-      <li><a href="functions_b.html#index_b"><span>b</span></a></li>
       <li><a href="functions_c.html#index_c"><span>c</span></a></li>
       <li><a href="functions_d.html#index_d"><span>d</span></a></li>
       <li><a href="functions_e.html#index_e"><span>e</span></a></li>
@@ -95,6 +94,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_l.html#index_l"><span>l</span></a></li>
       <li><a href="functions_m.html#index_m"><span>m</span></a></li>
       <li><a href="functions_n.html#index_n"><span>n</span></a></li>
+      <li><a href="functions_o.html#index_o"><span>o</span></a></li>
       <li><a href="functions_p.html#index_p"><span>p</span></a></li>
       <li><a href="functions_r.html#index_r"><span>r</span></a></li>
       <li><a href="functions_s.html#index_s"><span>s</span></a></li>
@@ -183,6 +183,7 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 <li>initialize()
 : <a class="el" href="classEqualAnglePolarQuad.html#a7936adcccc9661b87924a7e4a706579e">EqualAnglePolarQuad</a>
 , <a class="el" href="classEqualWeightPolarQuad.html#a43fcdc2ef42a3baa55371f6dbcc2a435">EqualWeightPolarQuad</a>
+, <a class="el" href="classExpEvaluator.html#ab907cb7faf44f4bff39770f27078e7a8">ExpEvaluator</a>
 , <a class="el" href="classGLPolarQuad.html#aec21d498d903095dc1846008573bd4e4">GLPolarQuad</a>
 , <a class="el" href="classLeonardPolarQuad.html#a49cc835530a6dfe7e35fc3073bf38dcd">LeonardPolarQuad</a>
 , <a class="el" href="classPolarQuad.html#a8ed714e2c4a27501a48834d1753421ea">PolarQuad</a>
@@ -192,9 +193,12 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 : <a class="el" href="classCmfd.html#a3c4846b2a4a898dc8ce902c7c233563c">Cmfd</a>
 </li>
 <li>initializeCmfd()
-: <a class="el" href="classCPUSolver.html#acf1386161e001fd58d8962a4c6ad24c7">CPUSolver</a>
-, <a class="el" href="classGeometry.html#a6559869a3b188f8761cdf944c2ef2946">Geometry</a>
+: <a class="el" href="classGeometry.html#a6559869a3b188f8761cdf944c2ef2946">Geometry</a>
 , <a class="el" href="classSolver.html#afeab07b86fb26ba8be22d525cba33c4f">Solver</a>
+</li>
+<li>initializeExpEvaluator()
+: <a class="el" href="classSolver.html#ac9fcaef2cfecf9eca6a0ddc2895064c5">Solver</a>
+, <a class="el" href="classVectorizedSolver.html#ac0cd0a8734b880230ec1e4eaf7941707">VectorizedSolver</a>
 </li>
 <li>initializeFlatSourceRegions()
 : <a class="el" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d">Geometry</a>
@@ -224,6 +228,9 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 : <a class="el" href="classCPUSolver.html#a51419d540c7eea9d29c3df963cc80784">CPUSolver</a>
 , <a class="el" href="classSolver.html#a8592d819738b24a5b983e54c0a635d30">Solver</a>
 , <a class="el" href="classVectorizedSolver.html#a7287329d44d695ca91181e9484e32bca">VectorizedSolver</a>
+</li>
+<li>insertSegment()
+: <a class="el" href="classTrack.html#aed734c59e9c0d5d8cab33c34a5ebfdda">Track</a>
 </li>
 <li>intersection()
 : <a class="el" href="classCircle.html#a49e3967db73a8f068dbe6302a84370f6">Circle</a>
@@ -264,11 +271,8 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 <li>isUsingExponentialInterpolation()
 : <a class="el" href="classSolver.html#a62c73dba0380643a9d359cfe844bef11">Solver</a>
 </li>
-<li>isUsingExponentialIntrinsic()
-: <a class="el" href="classSolver.html#ae86cb4a6791fc953156f114667a04983">Solver</a>
-</li>
-<li>isUsingSinglePrecision()
-: <a class="el" href="classSolver.html#a167c30a4b8107dc490ddcc7c6279dc79">Solver</a>
+<li>isUsingInterpolation()
+: <a class="el" href="classExpEvaluator.html#ae9a355734c74f5ee9a3ae73408af5bca">ExpEvaluator</a>
 </li>
 </ul>
 </div><!-- contents -->
@@ -276,7 +280,7 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Apr 9 2015 15:01:40 by
+    <li class="footer">Generated on Thu Apr 23 2015 23:39:53 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

@@ -9,7 +9,8 @@ var searchData=
   ['matrix_5fmultiplication',['matrix_multiplication',['../linalg_8h.html#a43338349c584b2ec2b8be8fb147a1013',1,'linalg.h']]],
   ['matrix_5fzero',['matrix_zero',['../linalg_8h.html#a9e22ba533640a3e8122c1ef0f2f65765',1,'linalg.h']]],
   ['max_5fazim_5fangles',['MAX_AZIM_ANGLES',['../GPUSolver_8h.html#a13ab74d9229f8b9544ae9decc54163da',1,'GPUSolver.h']]],
-  ['max_5fpolar_5fangles',['MAX_POLAR_ANGLES',['../GPUSolver_8h.html#a91b4cb58a59ec4578195cd7787dacf66',1,'GPUSolver.h']]],
+  ['max_5foptical_5flength',['MAX_OPTICAL_LENGTH',['../constants_8h.html#a895b93c581aefe76e1ccc425bb95a8c5',1,'constants.h']]],
+  ['max_5fpolar_5fangles',['MAX_POLAR_ANGLES',['../GPUExpEvaluator_8h.html#a91b4cb58a59ec4578195cd7787dacf66',1,'GPUExpEvaluator.h']]],
   ['minsurfacedist',['minSurfaceDist',['../classCell.html#adf41aafa99278a759d8d6ae826c7330e',1,'Cell::minSurfaceDist()'],['../classUniverse.html#aaeb10eb025773d2ce1e15747b88f5de8',1,'Universe::minSurfaceDist()'],['../classLattice.html#a68148ab388f066e9bd0f4c88fb571880',1,'Lattice::minSurfaceDist()']]],
   ['mm_5ffree',['MM_FREE',['../Material_8h.html#afda8a5444c5cccc2ecc9b27267d50941',1,'Material.h']]],
   ['mm_5fmalloc',['MM_MALLOC',['../Material_8h.html#a220714f7c065824989b348cfa4f211dd',1,'Material.h']]]

@@ -2,6 +2,7 @@ var searchData=
 [
   ['recordsplit',['recordSplit',['../classTimer.html#a613c775ca0b0b08f7cf1a6c165a6b6f7',1,'Timer']]],
   ['removecell',['removeCell',['../classUniverse.html#a7e975a08b2839c53d50d85da2a06e6f5',1,'Universe']]],
+  ['removesegment',['removeSegment',['../classTrack.html#a737072b0a1bdcd2b9c0820ecdcaaf246',1,'Track']]],
   ['removesurface',['removeSurface',['../classCell.html#a6254264e4ed84221fde52717b8185e11',1,'Cell']]],
   ['rescaleflux',['rescaleFlux',['../classCmfd.html#ae2c98ca17f124ff28422060c52c22894',1,'Cmfd']]],
   ['reset_5fauto_5fids',['reset_auto_ids',['../Geometry_8h.html#a8fc5282936b42f4031b8a41d5c24b7e7',1,'Geometry.cpp']]],
@@ -12,5 +13,5 @@ var searchData=
   ['restore_5fsimulation_5fstate',['restore_simulation_state',['../namespaceopenmoc_1_1process.html#a20436071e0dfd32af17c67bf86636a93',1,'openmoc::process']]],
   ['retrievesegmentcoords',['retrieveSegmentCoords',['../classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504',1,'TrackGenerator']]],
   ['retrievetrackcoords',['retrieveTrackCoords',['../classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935',1,'TrackGenerator']]],
-  ['round_5fto_5fint',['round_to_int',['../classSolver.html#a8f7cc45e7a9e8cb034d9c7bb284bff74',1,'Solver::round_to_int(float x)'],['../classSolver.html#a9392165690f9506ed555e0c710fbdb52',1,'Solver::round_to_int(double x)']]]
+  ['round_5fto_5fint',['round_to_int',['../ExpEvaluator_8h.html#a50ee4d4946888926bdf5a920129a322a',1,'round_to_int(float x):&#160;ExpEvaluator.h'],['../ExpEvaluator_8h.html#a8590e8a8b1ed480ea8151611eae72d2f',1,'round_to_int(double x):&#160;ExpEvaluator.h']]]
 ];

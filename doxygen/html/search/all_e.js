@@ -17,7 +17,7 @@ var searchData=
   ['plane',['Plane',['../classPlane.html',1,'Plane'],['../classCircle.html#a89c71bac3ec153ca700e1cd69900b6ce',1,'Circle::Plane()'],['../classPlane.html#aa4ac97cf9433c1f6fc6c3371481e973e',1,'Plane::Plane()'],['../Surface_8h.html#a669341e8f044e9051db22e680c1b81dfa67572d1492c84d8d417b61e864f13f24',1,'PLANE():&#160;Surface.h']]],
   ['point',['Point',['../classPoint.html',1,'Point'],['../classPoint.html#ad92f2337b839a94ce97dcdb439b4325a',1,'Point::Point()']]],
   ['point_2eh',['Point.h',['../Point_8h.html',1,'']]],
-  ['polar_5fweight_5fsum_5ftol',['POLAR_WEIGHT_SUM_TOL',['../PolarQuad_8h.html#a4b8b14232fe86e7e5d8c1e7b55421137',1,'PolarQuad.h']]],
+  ['polar_5fweight_5fsum_5ftol',['POLAR_WEIGHT_SUM_TOL',['../constants_8h.html#a4b8b14232fe86e7e5d8c1e7b55421137',1,'constants.h']]],
   ['polar_5fweights',['polar_weights',['../GPUSolver_8h.html#a818d2da0930d46b3fe53eff8bb60ea1f',1,'GPUSolver.h']]],
   ['polarquad',['PolarQuad',['../classPolarQuad.html',1,'PolarQuad'],['../classPolarQuad.html#a60e5e0162df4dd7a7cd6d37ad1b4a28b',1,'PolarQuad::PolarQuad()']]],
   ['polarquad_2eh',['PolarQuad.h',['../PolarQuad_8h.html',1,'']]],

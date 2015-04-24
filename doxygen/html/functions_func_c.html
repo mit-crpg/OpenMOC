@@ -85,7 +85,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="functions_func.html#index__"><span>_</span></a></li>
       <li><a href="functions_func_a.html#index_a"><span>a</span></a></li>
-      <li><a href="functions_func_b.html#index_b"><span>b</span></a></li>
       <li class="current"><a href="functions_func_c.html#index_c"><span>c</span></a></li>
       <li><a href="functions_func_d.html#index_d"><span>d</span></a></li>
       <li><a href="functions_func_e.html#index_e"><span>e</span></a></li>
@@ -95,6 +94,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func_l.html#index_l"><span>l</span></a></li>
       <li><a href="functions_func_m.html#index_m"><span>m</span></a></li>
       <li><a href="functions_func_n.html#index_n"><span>n</span></a></li>
+      <li><a href="functions_func_o.html#index_o"><span>o</span></a></li>
       <li><a href="functions_func_p.html#index_p"><span>p</span></a></li>
       <li><a href="functions_func_r.html#index_r"><span>r</span></a></li>
       <li><a href="functions_func_s.html#index_s"><span>s</span></a></li>
@@ -162,9 +162,6 @@ $(document).ready(function(){initNavTree('functions_func_c.html','');});
 <li>checkSymmetry()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#ab1dcd605659ced81dcb7afe331471777">openmoc.compatible.casmo.Casmo</a>
 </li>
-<li>checkTrackSpacing()
-: <a class="el" href="classSolver.html#a4ab290c6ca1d74230bf885cfc7f58b7a">Solver</a>
-</li>
 <li>Circle()
 : <a class="el" href="classCircle.html#a12a61433361c906cfa5d2e75dc9154d6">Circle</a>
 </li>
@@ -194,14 +191,21 @@ $(document).ready(function(){initNavTree('functions_func_c.html','');});
 <li>computeDs()
 : <a class="el" href="classCmfd.html#a4f466e0d69f3ea01060e39dcecb2c9e4">Cmfd</a>
 </li>
+<li>computeEigenvalue()
+: <a class="el" href="classSolver.html#a18bf2e85828184e7df442b7d31296d99">Solver</a>
+</li>
 <li>computeExponential()
-: <a class="el" href="classCPUSolver.html#ad64552120ee1c620d2be06df2888b35f">CPUSolver</a>
+: <a class="el" href="classExpEvaluator.html#acc4face2843cc5fc240303b89dc48bd6">ExpEvaluator</a>
+, <a class="el" href="classGPUExpEvaluator.html#a85ac9f2d55d828f56213bb96e4394e8c">GPUExpEvaluator</a>
 </li>
 <li>computeExponentials()
-: <a class="el" href="classVectorizedSolver.html#abba9186ad669a2eed70fd8458666eab2">VectorizedSolver</a>
+: <a class="el" href="classVectorizedSolver.html#a80ca92d2ba15b7b9d1fe1dd63304499b">VectorizedSolver</a>
 </li>
 <li>computeFissionability()
 : <a class="el" href="classGeometry.html#aa9177c6e58e051484a24c093914b853c">Geometry</a>
+</li>
+<li>computeFlux()
+: <a class="el" href="classSolver.html#a277d69530a46b6d42fdf1e968cf768b6">Solver</a>
 </li>
 <li>computeFSRFissionRates()
 : <a class="el" href="classCPUSolver.html#abea717cf58791486dd3201b55fa36170">CPUSolver</a>
@@ -209,9 +213,9 @@ $(document).ready(function(){initNavTree('functions_func_c.html','');});
 , <a class="el" href="classSolver.html#a1bb7fc290b71e0010d9ab17c1e3fb6e8">Solver</a>
 </li>
 <li>computeFSRSources()
-: <a class="el" href="classCPUSolver.html#add777a473fdeaf1bf2928c5d05168c85">CPUSolver</a>
-, <a class="el" href="classSolver.html#af3265d25938ee473633e193bc59202c8">Solver</a>
-, <a class="el" href="classVectorizedSolver.html#a14a159d804a2b94f1442e6cb6046e4f0">VectorizedSolver</a>
+: <a class="el" href="classCPUSolver.html#a642eef9bc24f88eefc478185f431d87b">CPUSolver</a>
+, <a class="el" href="classSolver.html#ae2cd5efe819275adf36380121c9064d1">Solver</a>
+, <a class="el" href="classVectorizedSolver.html#a73734326fb86b26d4d0b4e681b3932fc">VectorizedSolver</a>
 </li>
 <li>computeKeff()
 : <a class="el" href="classCmfd.html#acbf4ad78315a368599795bbb6ba697bd">Cmfd</a>
@@ -219,8 +223,12 @@ $(document).ready(function(){initNavTree('functions_func_c.html','');});
 , <a class="el" href="classSolver.html#a7d0c4632edff104979002eb21d38d794">Solver</a>
 , <a class="el" href="classVectorizedSolver.html#a7ab9f0df852a0afd04876f6e0ec53046">VectorizedSolver</a>
 </li>
-<li>computeScalarTrackIndex()
-: <a class="el" href="classGPUSolver.html#ab13674b177d6c094669abe852950667b">GPUSolver</a>
+<li>computeResidual()
+: <a class="el" href="classCPUSolver.html#ac6438df84b52fa1f0e3a98e6288e84c1">CPUSolver</a>
+, <a class="el" href="classSolver.html#a512f94968837c403b90ed20af326036a">Solver</a>
+</li>
+<li>computeSource()
+: <a class="el" href="classSolver.html#a63f18f0140ee0dc90a18757bce9734a8">Solver</a>
 </li>
 <li>computeXS()
 : <a class="el" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c">Cmfd</a>
@@ -234,9 +242,6 @@ $(document).ready(function(){initNavTree('functions_func_c.html','');});
 <li>containsTracks()
 : <a class="el" href="classTrackGenerator.html#a5ec836ced3479a5aae51132809a3d7b4">TrackGenerator</a>
 </li>
-<li>convergeSource()
-: <a class="el" href="classSolver.html#af8358a66a7cbd56339211f80a2365678">Solver</a>
-</li>
 <li>convertFSRIdToCmfdCell()
 : <a class="el" href="classCmfd.html#a441f0159f7bf8a0a4c3ce2d100ec6793">Cmfd</a>
 </li>
@@ -244,10 +249,13 @@ $(document).ready(function(){initNavTree('functions_func_c.html','');});
 : <a class="el" href="classLocalCoords.html#a5a5ed42ca7ccf274f548134f9d56d9f8">LocalCoords</a>
 </li>
 <li>correctFSRVolume()
-: <a class="el" href="classSolver.html#ae901fae104f40db858e8c20dab679f51">Solver</a>
+: <a class="el" href="classTrackGenerator.html#ada93a9235bb47415053c65245dbd8568">TrackGenerator</a>
+</li>
+<li>countFissionableFSRs()
+: <a class="el" href="classSolver.html#a43d38c4f178863d57fa5957180906851">Solver</a>
 </li>
 <li>CPUSolver()
-: <a class="el" href="classCPUSolver.html#a7a3a562bc1ec3f99ce834e6ee7f54fef">CPUSolver</a>
+: <a class="el" href="classCPUSolver.html#a9b19a45fb3063c8feaf3642a0325b8a3">CPUSolver</a>
 </li>
 </ul>
 </div><!-- contents -->
@@ -255,7 +263,7 @@ $(document).ready(function(){initNavTree('functions_func_c.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Apr 9 2015 15:01:40 by
+    <li class="footer">Generated on Thu Apr 23 2015 23:39:53 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

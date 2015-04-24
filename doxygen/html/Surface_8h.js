@@ -6,7 +6,6 @@ var Surface_8h =
     [ "YPlane", "classYPlane.html", "classYPlane" ],
     [ "ZPlane", "classZPlane.html", "classZPlane" ],
     [ "Circle", "classCircle.html", "classCircle" ],
-    [ "ON_SURFACE_THRESH", "Surface_8h.html#a5ff2a7fbf6ba25f47f298c79f39dc4f8", null ],
     [ "surfaceType", "Surface_8h.html#a669341e8f044e9051db22e680c1b81df", [
       [ "PLANE", "Surface_8h.html#a669341e8f044e9051db22e680c1b81dfa67572d1492c84d8d417b61e864f13f24", null ],
       [ "CIRCLE", "Surface_8h.html#a669341e8f044e9051db22e680c1b81dfaa79c827759ea48f0735386c4b1188911", null ],

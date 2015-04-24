@@ -1,5 +1,6 @@
 var structsegment =
 [
+    [ "segment", "structsegment.html#a52879a61f133f8cd3b0afbb1a4ca5de2", null ],
     [ "_cmfd_surface_bwd", "structsegment.html#a702938e8b2fca619edd3d4437fbb45f5", null ],
     [ "_cmfd_surface_fwd", "structsegment.html#adb1ca6980006607db9de5b37eaf2c851", null ],
     [ "_length", "structsegment.html#a50c5a635c531d34ad3435ebcc3b6f593", null ],

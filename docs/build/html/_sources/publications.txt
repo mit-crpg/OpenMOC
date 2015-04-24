@@ -4,10 +4,29 @@
 Publications
 ============
 
+Citing OpenMOC
+==============
+
+Please cite OpenMOC in your publications if it helps your research:
+
+.. code-block:: latex
+
+    @article{openmoc2014,
+      Author = {Boyd, William and Shaner, Samuel and Li, Lulu and Forget, Benoit and Smith, Kord},
+      Journal = {Annals of Nuclear Energy},
+      Title = {The OpenMOC Method of Characteristics Neutral Particle Transport Code},
+      volume = {68},
+      pages = {43--52},
+      Year = {2014}
+    }
+
+Citations are tracked automatically by `Google Scholar`_.
+
+.. _Google Scholar: https://scholar.google.com/scholar?cites=3139736083643679686&as_sdt=40000005&sciodt=0,22&hl=en
 
 Journals
 =========
-- William Boyd, Andrew Siegel, Benoit Forget and Kord Smith, "Parallel Performance Results for the OpenMOC Neutron Transport Code on Multi-Core Platforms." Submitted to the *Int'l Journ. of High Perf. Comp. Appl.*, 2015.
+- William Boyd, Andrew Siegel, Benoit Forget and Kord Smith, "Parallel Performance Results for the OpenMOC Neutron Transport Code on Multi-Core Platforms." Accepted for publication in the *Int'l Journ. of High Perf. Comp. Appl.*, 2015.
 
 - Matthew Everson and Benoit Forget, "The Source Equivalence Acceleration Method." *Annals of Nuclear Energy*, 76 (2015): 177--129.
 
@@ -15,6 +34,9 @@ Journals
 
 Conference Papers
 =================
+
+- William Boyd, Kazutomo Yoshii and Andrew Siegel, "Energy Efficiency of High-Performance Computing Platforms for Neutron Transport Calculations." *Trans. of the Amer. Nucl. Soc.*, ANS Summer Meeting, San Antonio, TX, USA June (2015).
+
 - William Boyd, Kord Smith, Benoit Forget, and Andrew Siegel, "Parallel Performance Results for the OpenMOC Method of Characteristics Code on Multi-Core Platforms." *Proceedings of PHYSOR*, Kyoto, Japan (2014).
 
 - Lulu Li, Kord Smith, and Benoit Forget, "Low Order Nonlinear Transport Acceleration Scheme for the Method of Characteristics." *Proceedings of PHYSOR*, Kyoto, Japan (2014).

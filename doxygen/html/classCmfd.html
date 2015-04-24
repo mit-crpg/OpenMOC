@@ -160,6 +160,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a9cb4ee80522d671b22c9fc76d21030d6">initializeMaterials</a> ()</td></tr>
 <tr class="memdesc:a9cb4ee80522d671b22c9fc76d21030d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the CMFD materials. <br/></td></tr>
 <tr class="separator:a9cb4ee80522d671b22c9fc76d21030d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42424012ea60bdc3180117276b303efe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a42424012ea60bdc3180117276b303efe"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>initializeSurfaceCurrents</b> ()</td></tr>
+<tr class="separator:a42424012ea60bdc3180117276b303efe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2c98ca17f124ff28422060c52c22894"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2c98ca17f124ff28422060c52c22894"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ae2c98ca17f124ff28422060c52c22894">rescaleFlux</a> ()</td></tr>
 <tr class="memdesc:ae2c98ca17f124ff28422060c52c22894"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rescale the initial and converged flux arrays. <br/></td></tr>
@@ -185,6 +188,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a8e2162ab4e1b55d2240f5c41184d73d3">updateBoundaryFlux</a> (<a class="el" href="classTrack.html">Track</a> **tracks, FP_PRECISION *<a class="el" href="GPUSolver_8h.html#a2d0f44838c549b1382bbcd5efa2b57ee">boundary_flux</a>, int num_tracks)</td></tr>
 <tr class="memdesc:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the MOC boundary fluxes.  <a href="#a8e2162ab4e1b55d2240f5c41184d73d3">More...</a><br/></td></tr>
 <tr class="separator:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef6f6ce5e9c3226a973198923242b2e2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef6f6ce5e9c3226a973198923242b2e2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#aef6f6ce5e9c3226a973198923242b2e2">zeroSurfaceCurrents</a> ()</td></tr>
+<tr class="memdesc:aef6f6ce5e9c3226a973198923242b2e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zero the surface currents for each mesh cell and energy group. <br/></td></tr>
+<tr class="separator:aef6f6ce5e9c3226a973198923242b2e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a697125015610825bf997812f68d616f9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a697125015610825bf997812f68d616f9">tallySurfaceCurrent</a> (<a class="el" href="structsegment.html">segment</a> *curr_segment, FP_PRECISION current, bool fwd, int e)</td></tr>
+<tr class="separator:a697125015610825bf997812f68d616f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27180e282a7f0eb4d9459b75ddc8b31e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a27180e282a7f0eb4d9459b75ddc8b31e">getNumCmfdGroups</a> ()</td></tr>
 <tr class="memdesc:a27180e282a7f0eb4d9459b75ddc8b31e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of coarse CMFD energy groups.  <a href="#a27180e282a7f0eb4d9459b75ddc8b31e">More...</a><br/></td></tr>
 <tr class="separator:a27180e282a7f0eb4d9459b75ddc8b31e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -242,9 +251,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a3ecee3886f2cb0f93d3c4c1a4818788f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a3ecee3886f2cb0f93d3c4c1a4818788f">setNumY</a> (int num_y)</td></tr>
 <tr class="memdesc:a3ecee3886f2cb0f93d3c4c1a4818788f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the number of Mesh cells in a column.  <a href="#a3ecee3886f2cb0f93d3c4c1a4818788f">More...</a><br/></td></tr>
 <tr class="separator:a3ecee3886f2cb0f93d3c4c1a4818788f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a96bec1b89bb98ad2d50c07cb90f40fff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a96bec1b89bb98ad2d50c07cb90f40fff">setSurfaceCurrents</a> (FP_PRECISION *surface_currents)</td></tr>
-<tr class="memdesc:a96bec1b89bb98ad2d50c07cb90f40fff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the pointer to the Mesh surface currents array.  <a href="#a96bec1b89bb98ad2d50c07cb90f40fff">More...</a><br/></td></tr>
-<tr class="separator:a96bec1b89bb98ad2d50c07cb90f40fff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa539a4c48c694c63c03063fb1e2bb9c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#aaa539a4c48c694c63c03063fb1e2bb9c">setNumFSRs</a> (int num_fsrs)</td></tr>
 <tr class="memdesc:aaa539a4c48c694c63c03063fb1e2bb9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">set the number of FSRs.  <a href="#aaa539a4c48c694c63c03063fb1e2bb9c">More...</a><br/></td></tr>
 <tr class="separator:aaa539a4c48c694c63c03063fb1e2bb9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1413,30 +1419,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="a96bec1b89bb98ad2d50c07cb90f40fff"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Cmfd::setSurfaceCurrents </td>
-          <td>(</td>
-          <td class="paramtype">FP_PRECISION *&#160;</td>
-          <td class="paramname"><em>surface_currents</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set the pointer to the Mesh surface currents array. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">pointer</td><td>to the surface currents array </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a class="anchor" id="adf041f216499a54f4b9f75811dddae5a"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1476,6 +1458,53 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 <p>Split the currents of the Mesh cell corners to the nearby surfaces. </p>
 <p>left bottom corner -&gt; bottom surface and left surface of mesh cell below; right bottom corner -&gt; bottom surface and right surface of mesh cell below; right top corner -&gt; right surface and top surface of mesh cell to the right; left top corner -&gt; left surface and top surface of mesh cell to the left. The currents tallied on a corner is split equally to the adjoining surfaces. </p>
+
+</div>
+</div>
+<a class="anchor" id="a697125015610825bf997812f68d616f9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cmfd::tallySurfaceCurrent </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structsegment.html">segment</a> *&#160;</td>
+          <td class="paramname"><em>curr_segment</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FP_PRECISION&#160;</td>
+          <td class="paramname"><em>current</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>fwd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>e</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">curr_segment</td><td>the current <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segment </td></tr>
+    <tr><td class="paramname">current</td><td>the current to tally </td></tr>
+    <tr><td class="paramname">fwd</td><td>boolean indicating direction of integration along segment </td></tr>
+    <tr><td class="paramname">e</td><td>the MOC energy group index </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -1532,7 +1561,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCmfd.html">Cmfd</a></li>
-    <li class="footer">Generated on Thu Apr 9 2015 15:01:40 by
+    <li class="footer">Generated on Thu Apr 23 2015 23:39:53 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

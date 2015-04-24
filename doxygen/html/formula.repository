@@ -37,3 +37,4 @@
 \form#36:$ k_{eff} = \frac{\displaystyle\sum_{i \in I} \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}} {\displaystyle\sum_{i \in I} \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} - \Sigma^S_g \Phi V_{i} - L_{i,g})} $
 \form#37:$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}}} $
 \form#38:$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum \left(\frac{Q^i - Q^{i-1}}{Q^i}\right)^2}{\# FSRs}} $
+\form#39:$ 1 - exp(-\tau/sin(\theta_p)) $

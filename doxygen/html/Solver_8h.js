@@ -3,12 +3,16 @@ var Solver_8h =
     [ "Solver", "classSolver.html", "classSolver" ],
     [ "_boundary_flux", "Solver_8h.html#a15b0f5dc814186a0e514b36f753d3bf6", null ],
     [ "_boundary_leakage", "Solver_8h.html#a6c166546861725df33b4e3eea491dab5", null ],
-    [ "_fission_sources", "Solver_8h.html#aa39e20548bfb214c9f1bb294da829fd7", null ],
+    [ "_fixed_sources", "Solver_8h.html#a991cd83ccd910cf48245efb0aecd9b6a", null ],
+    [ "_old_scalar_flux", "Solver_8h.html#ac7da59fbd14942e33392c046ecc6673a", null ],
     [ "_polar_weights", "Solver_8h.html#a82337e9687f8a593b4b68772853353c6", null ],
     [ "_reduced_sources", "Solver_8h.html#a703206a382e1eae1bc7198894cf829ac", null ],
     [ "_scalar_flux", "Solver_8h.html#a3d16df105bf900bad9d2b5a6061aa06d", null ],
-    [ "_scatter_sources", "Solver_8h.html#a39e01aad71440f7e74d0bdfa70fc20fa", null ],
-    [ "_surface_currents", "Solver_8h.html#a7e54944e94810750bab24ebb38c71090", null ],
-    [ "FOUR_PI", "Solver_8h.html#ac6b39b7a27b735f3a62be33f38041985", null ],
-    [ "ONE_OVER_FOUR_PI", "Solver_8h.html#a662cb71fde841f2762641d9f82e1fbb5", null ]
+    [ "fission_sources", "Solver_8h.html#a11f42402c5f44216def0ab6d5c564843", null ],
+    [ "scatter_sources", "Solver_8h.html#a04ce2f64386e3d29011f5bdc23ee7f0e", null ],
+    [ "residualType", "Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be", [
+      [ "SCALAR_FLUX", "Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea64f8e8426d0253e204dc87806fdfdb1e", null ],
+      [ "FISSION_SOURCE", "Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea3c5a6f8b21a5becfe1e6756d8b492cea", null ],
+      [ "TOTAL_SOURCE", "Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5beab4e45e4756d98c5d8a86e6bb41934828", null ]
+    ] ]
 ];

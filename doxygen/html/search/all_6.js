@@ -8,8 +8,10 @@ var searchData=
   ['findcmfdsurface',['findCmfdSurface',['../classCmfd.html#aaad6d00dc8cc0b44ac56995e382e3853',1,'Cmfd']]],
   ['findfsrid',['findFSRId',['../classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05',1,'Geometry']]],
   ['findfsrmaterial',['findFSRMaterial',['../classGeometry.html#ae4c38f0407ddfd91427c63420bb41c48',1,'Geometry']]],
+  ['fission_5fsource',['FISSION_SOURCE',['../Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea3c5a6f8b21a5becfe1e6756d8b492cea',1,'Solver.h']]],
+  ['fission_5fsources',['fission_sources',['../Solver_8h.html#a11f42402c5f44216def0ab6d5c564843',1,'Solver.h']]],
+  ['fixed_5fsources',['fixed_sources',['../GPUSolver_8h.html#ac94c3f974b76a8708623f6c394415a62',1,'GPUSolver.h']]],
   ['flattenfsrfluxes',['flattenFSRFluxes',['../classCPUSolver.html#a154cbd82754abdadb2ca57068ec12102',1,'CPUSolver::flattenFSRFluxes()'],['../classSolver.html#a148137c97310ee2df94a4fd3fe35456f',1,'Solver::flattenFSRFluxes()']]],
-  ['flattenfsrsources',['flattenFSRSources',['../classCPUSolver.html#a50b87bcfca1e6e3399ad75a8c9fd6337',1,'CPUSolver::flattenFSRSources()'],['../classSolver.html#a906c202ff2b3e38443f333964efa2342',1,'Solver::flattenFSRSources()']]],
-  ['four_5fpi',['FOUR_PI',['../GPUSolver_8h.html#ac6b39b7a27b735f3a62be33f38041985',1,'FOUR_PI():&#160;GPUSolver.h'],['../Solver_8h.html#ac6b39b7a27b735f3a62be33f38041985',1,'FOUR_PI():&#160;Solver.h']]],
+  ['four_5fpi',['FOUR_PI',['../constants_8h.html#ac6b39b7a27b735f3a62be33f38041985',1,'constants.h']]],
   ['fsr_5fdata',['fsr_data',['../structfsr__data.html',1,'']]]
 ];

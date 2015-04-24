@@ -85,7 +85,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="functions_func.html#index__"><span>_</span></a></li>
       <li><a href="functions_func_a.html#index_a"><span>a</span></a></li>
-      <li><a href="functions_func_b.html#index_b"><span>b</span></a></li>
       <li><a href="functions_func_c.html#index_c"><span>c</span></a></li>
       <li><a href="functions_func_d.html#index_d"><span>d</span></a></li>
       <li><a href="functions_func_e.html#index_e"><span>e</span></a></li>
@@ -95,6 +94,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func_l.html#index_l"><span>l</span></a></li>
       <li><a href="functions_func_m.html#index_m"><span>m</span></a></li>
       <li><a href="functions_func_n.html#index_n"><span>n</span></a></li>
+      <li><a href="functions_func_o.html#index_o"><span>o</span></a></li>
       <li><a href="functions_func_p.html#index_p"><span>p</span></a></li>
       <li><a href="functions_func_r.html#index_r"><span>r</span></a></li>
       <li class="current"><a href="functions_func_s.html#index_s"><span>s</span></a></li>
@@ -141,12 +141,11 @@ $(document).ready(function(){initNavTree('functions_func_s.html','');});
 &#160;
 
 <h3><a class="anchor" id="index_s"></a>- s -</h3><ul>
-<li>scalarFluxTally()
-: <a class="el" href="classCPUSolver.html#a8e650f416c07cb0dc6ef6ccbd7e8f8d8">CPUSolver</a>
-, <a class="el" href="classVectorizedSolver.html#a861e52b6f96cd79a6a5298cefc7fe378">VectorizedSolver</a>
+<li>segment()
+: <a class="el" href="structsegment.html#a52879a61f133f8cd3b0afbb1a4ca5de2">segment</a>
 </li>
 <li>segmentize()
-: <a class="el" href="classGeometry.html#a052c00d155e0e0c24ec4481d85600d8b">Geometry</a>
+: <a class="el" href="classGeometry.html#a21a092d997179d6bea6c66f592faa6de">Geometry</a>
 </li>
 <li>setAssemblyName()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a20244f31565c168ce5c906f4aed467f5">openmoc.compatible.casmo.Casmo</a>
@@ -193,6 +192,9 @@ $(document).ready(function(){initNavTree('functions_func_s.html','');});
 <li>setCmfd()
 : <a class="el" href="classGeometry.html#a85b885809ef6d59190139b8d1477e69d">Geometry</a>
 </li>
+<li>setConvergenceThreshold()
+: <a class="el" href="classSolver.html#a235919c465bd0b4d9c976acd06efafeb">Solver</a>
+</li>
 <li>setCoords()
 : <a class="el" href="classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a">Point</a>
 </li>
@@ -228,6 +230,18 @@ $(document).ready(function(){initNavTree('functions_func_s.html','');});
 </li>
 <li>setFissionability()
 : <a class="el" href="classUniverse.html#a124179ed92827532c7aecbf51d8c1f42">Universe</a>
+</li>
+<li>setFixedSourceByCell()
+: <a class="el" href="classSolver.html#a8cae18c37e49e7a947069b765fd73fd1">Solver</a>
+</li>
+<li>setFixedSourceByFSR()
+: <a class="el" href="classCPUSolver.html#a18c43c545aef7cea6807c07ea3ca803d">CPUSolver</a>
+, <a class="el" href="classGPUSolver.html#aec246df7ad4feefeecfb8e55d4d04a79">GPUSolver</a>
+, <a class="el" href="classSolver.html#a555f77789f36a78cad34df412300e6e7">Solver</a>
+, <a class="el" href="classVectorizedSolver.html#a7beb263e020c0ff2d32f6f16c4f99378">VectorizedSolver</a>
+</li>
+<li>setFixedSourceByMaterial()
+: <a class="el" href="classSolver.html#a90bcc873e0e1aef08ba1f07fd35b689b">Solver</a>
 </li>
 <li>setFluxUpdateOn()
 : <a class="el" href="classCmfd.html#a459a6eb36630be32613849dce640316a">Cmfd</a>
@@ -291,7 +305,8 @@ $(document).ready(function(){initNavTree('functions_func_s.html','');});
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#ad2380771e87341534528a132db6c5468">openmoc.compatible.casmo.Casmo</a>
 </li>
 <li>setMaxOpticalLength()
-: <a class="el" href="classTrackGenerator.html#a81f356a893d5a2d902a4da79022c3957">TrackGenerator</a>
+: <a class="el" href="classExpEvaluator.html#a5d80d3b514c570fe0319a49f402d5608">ExpEvaluator</a>
+, <a class="el" href="classSolver.html#acb1473a223c4c6d4f5c683e2f6ef1442">Solver</a>
 </li>
 <li>setMinMicroregions()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a878519c61ebc016b5288224bf34cc2ff">openmoc.compatible.casmo.Casmo</a>
@@ -376,6 +391,7 @@ $(document).ready(function(){initNavTree('functions_func_s.html','');});
 </li>
 <li>setPolarQuadrature()
 : <a class="el" href="classCmfd.html#af627cf3f19294692da2db7ee2666e566">Cmfd</a>
+, <a class="el" href="classExpEvaluator.html#adb0f2dbbfa74d27900e28199c9572c41">ExpEvaluator</a>
 , <a class="el" href="classSolver.html#a93ca4d4d31e0a104576cc0513277c4e1">Solver</a>
 </li>
 <li>setPrev()
@@ -422,13 +438,9 @@ $(document).ready(function(){initNavTree('functions_func_s.html','');});
 </li>
 <li>setSourceConvergenceThreshold()
 : <a class="el" href="classCmfd.html#ae0405a0c0998d8943e2f8ea94a645940">Cmfd</a>
-, <a class="el" href="classSolver.html#aaace17535420183bd7c699b0a10c1e01">Solver</a>
 </li>
 <li>setStringCellTypeArray()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a779176ed0130b26e843cef42ff620c5a">openmoc.compatible.casmo.Casmo</a>
-</li>
-<li>setSurfaceCurrents()
-: <a class="el" href="classCmfd.html#a96bec1b89bb98ad2d50c07cb90f40fff">Cmfd</a>
 </li>
 <li>setSymmetric()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#ad8d2a77a8d9e4506add6ada7ac4dd9b1">openmoc.compatible.casmo.Casmo</a>
@@ -499,16 +511,23 @@ $(document).ready(function(){initNavTree('functions_func_s.html','');});
 : <a class="el" href="classZPlane.html#a96d7d97847aefd832bad4d78a0ba5bd0">ZPlane</a>
 </li>
 <li>Solver()
-: <a class="el" href="classSolver.html#a950a0ef510e9eb4a92984473c668c198">Solver</a>
+: <a class="el" href="classSolver.html#ac87af9a410e4f9f819268f7dc434f001">Solver</a>
 </li>
 <li>splitCorners()
 : <a class="el" href="classCmfd.html#a418318efb5fe2ac12b8df151dc990cc0">Cmfd</a>
+</li>
+<li>splitSegments()
+: <a class="el" href="classTrackGenerator.html#ad9d0376ab33786f99fb3d2afadae3314">TrackGenerator</a>
 </li>
 <li>startTimer()
 : <a class="el" href="classTimer.html#aa8c887576ec3b0d68c10ebf4097c367c">Timer</a>
 </li>
 <li>stopTimer()
 : <a class="el" href="classTimer.html#a27f97da1b1d19ad74a847703ca25c455">Timer</a>
+</li>
+<li>storeFSRFluxes()
+: <a class="el" href="classCPUSolver.html#a21b4f65d1d529a83abf0c1c6d3bef5ae">CPUSolver</a>
+, <a class="el" href="classSolver.html#ab8f98e89b175f356512ab112e04d07b0">Solver</a>
 </li>
 <li>stringCellTypeArray()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a767414f35974cf554fa5481f6a67b3c0">openmoc.compatible.casmo.Casmo</a>
@@ -529,7 +548,7 @@ $(document).ready(function(){initNavTree('functions_func_s.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Apr 9 2015 15:01:40 by
+    <li class="footer">Generated on Thu Apr 23 2015 23:39:53 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
