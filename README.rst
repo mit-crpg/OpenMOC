@@ -34,6 +34,23 @@ first review the `FAQ`_ in the User's Guide. If you are
 unable to find a solution to your problem there, please 
 `contact`_ one of the developers.
 
+--------
+Citation
+--------
+
+Please cite OpenMOC in your publications if it helps your research:
+
+.. code-block:: latex
+
+    @article{openmoc2014,
+      author = {Boyd, William and Shaner, Samuel and Li, Lulu and Forget, Benoit and Smith, Kord},
+      journal = {Annals of Nuclear Energy},
+      title = {The OpenMOC Method of Characteristics Neutral Particle Transport Code},
+      volume = {68},
+      pages = {43--52},
+      year = {2014}
+    }
+
 -------
 License
 -------
