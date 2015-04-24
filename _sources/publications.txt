@@ -12,12 +12,12 @@ Please cite OpenMOC in your publications if it helps your research:
 .. code-block:: latex
 
     @article{openmoc2014,
-      Author = {Boyd, William and Shaner, Samuel and Li, Lulu and Forget, Benoit and Smith, Kord},
-      Journal = {Annals of Nuclear Energy},
-      Title = {The OpenMOC Method of Characteristics Neutral Particle Transport Code},
+      author = {Boyd, William and Shaner, Samuel and Li, Lulu and Forget, Benoit and Smith, Kord},
+      journal = {Annals of Nuclear Energy},
+      title = {The OpenMOC Method of Characteristics Neutral Particle Transport Code},
       volume = {68},
       pages = {43--52},
-      Year = {2014}
+      year = {2014}
     }
 
 Citations are tracked automatically by `Google Scholar`_.
