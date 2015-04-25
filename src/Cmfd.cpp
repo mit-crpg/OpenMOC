@@ -38,6 +38,8 @@ Cmfd::Cmfd() {
   /* Set matrices and arrays to NULL */
   _A = NULL;
   _M = NULL;
+  _old_flux = NULL;
+  _new_flux = NULL;
   _flux_temp = NULL;
   _old_source = NULL;
   _new_source = NULL;
