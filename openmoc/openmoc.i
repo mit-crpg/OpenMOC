@@ -6,6 +6,7 @@
 
 %{
   #define SWIG_FILE_WITH_INIT
+  #include <cstddef>
   #include "../src/Cell.h"
   #include "../src/Geometry.h"
   #include "../src/boundary_type.h"

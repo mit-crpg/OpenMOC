@@ -10,6 +10,14 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "Python.h"
+#include "log.h"
+#include "Timer.h"
+#include "Universe.h"
+#include "Track.h"
+#include "Quadrature.h"
+#include "linalg.h"
+#include "pairwise_sum.h"
 #include <utility>
 #include <math.h>
 #include <limits.h>
@@ -18,13 +26,6 @@
 #include <queue>
 #include <iostream>
 #include <fstream>
-#include "Quadrature.h"
-#include "log.h"
-#include "Timer.h"
-#include "Universe.h"
-#include "Track.h"
-#include "linalg.h"
-#include "pairwise_sum.h"
 #endif
 
 

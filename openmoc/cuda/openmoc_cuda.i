@@ -2,6 +2,7 @@
 
 %{
   #define SWIG_FILE_WITH_INIT
+  #include <cstddef>
   #include "../../src/Solver.h"
   #include "../../src/accel/cuda/GPUSolver.h"
   #include "../../src/accel/cuda/GPUQuery.h"
