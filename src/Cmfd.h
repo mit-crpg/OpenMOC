@@ -15,7 +15,7 @@
 #include "Timer.h"
 #include "Universe.h"
 #include "Track.h"
-#include "Quadrature.h"
+#include "PolarQuad.h"
 #include "linalg.h"
 #include "pairwise_sum.h"
 #include <utility>
@@ -37,8 +37,8 @@ class Cmfd {
 
 private:
 
-  /** Pointer to polar Quadrature object */
-  Quadrature* _quad;
+  /** Pointer to polar quadrature object */
+  PolarQuad* _polar_quad;
 
   /** The keff eigenvalue */
   FP_PRECISION _k_eff;
@@ -201,7 +201,7 @@ public:
   void setFluxUpdateOn(bool flux_update_on);
   void setGroupStructure(int* group_indices, int length_group_indices);
   void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
-  void setPolarQuadrature(quadratureType quadrature_type, int num_polar);
+  void setPolarQuadrature(PolarQuad* polar_quad);
   
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
