@@ -617,8 +617,7 @@ int Geometry::getFSRId(LocalCoords* coords) {
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
-               "geometry with finer track laydown. "
-               "Backtrace:%s", fsr_key.c_str(), e.what());
+               "geometry with finer track laydown.", fsr_key.c_str());
   }
 
   return fsr_id;
@@ -638,8 +637,8 @@ Point* Geometry::getFSRPoint(int fsr_id) {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._point;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find characteristic point in FSR: %i. "
-               "Backtrace:%s", fsr_id, e.what());
+    log_printf(ERROR, "Could not find characteristic point in FSR: %i.",
+               fsr_id);
   }
 
   return point;
@@ -659,8 +658,7 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._centroid;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find centroid in FSR: %i. "
-               "Backtrace:%s", fsr_id, e.what());
+    log_printf(ERROR, "Could not find centroid in FSR: %i.", fsr_id);
   }
 
   return point;
