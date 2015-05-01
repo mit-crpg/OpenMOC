@@ -108,7 +108,7 @@ private:
 
   CellBasic* findFirstCell(LocalCoords* coords, double angle);
   CellBasic* findNextCell(LocalCoords* coords, double angle);
-  
+
 public:
 
   Geometry();
@@ -172,7 +172,7 @@ public:
   void segmentize(Track* track, FP_PRECISION max_optical_length);
   void computeFissionability(Universe* univ=NULL);
   void setFSRCentroid(int fsr, Point* centroid);
-  
+
   std::string toString();
   void printString();
   void initializeCmfd();

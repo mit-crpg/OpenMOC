@@ -432,7 +432,7 @@ void CPUSolver::initializeFSRs() {
   #pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++)
     omp_init_lock(&_FSR_locks[r]);
-  
+
   return;
 }
 

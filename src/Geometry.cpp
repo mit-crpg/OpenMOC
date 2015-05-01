@@ -647,9 +647,9 @@ Point* Geometry::getFSRPoint(int fsr_id) {
 
 
 /**
- * @brief Return the characteristic point for a given FSR ID
+ * @brief Return the centroid for a given FSR ID
  * @param fsr_id the FSR ID
- * @return the FSR's characteristic point
+ * @return the FSR's centroid
  */
 Point* Geometry::getFSRCentroid(int fsr_id) {
 
@@ -804,7 +804,7 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
   /* Distance track is nudged from surface */
   double nudge_x = cos(phi) * TINY_MOVE;
   double nudge_y = sin(phi) * TINY_MOVE;
-  
+
   /* Length of each segment */
   FP_PRECISION segment_length;
   Material* segment_material;
@@ -813,7 +813,7 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
   int min_num_segments;
   int num_segments;
   int num_groups;
-  
+
   /* Use a LocalCoords for the start and end of each segment */
   LocalCoords segment_start(x0, y0);
   LocalCoords segment_end(x0, y0);
@@ -858,7 +858,7 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
 
     /* Find the ID of the FSR that contains the segment */
     fsr_id = findFSRId(&segment_start);
-        
+
     /* Compute the number of Track segments to cut this segment into to ensure
      * that it's length is small enough for the exponential table */
     min_num_segments = 1;
@@ -918,7 +918,7 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
         segment_end.adjustCoords(nudge_x, nudge_y);
 
       }
-      
+
       /* Add the segment to the Track */
       track->addSegment(new_segment);
 

@@ -515,12 +515,13 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
 ##
 # @brief This method takes in a Geometry object and plots a color-coded 2D
 #        surface plot representing the flat source regions in the Geometry.
+#        The FSR centroids are plotted as black circles on top of the FSRs.
 # @details The Geometry object must be initialized with Materials, Cells,
 #          Universes and Lattices before being passed into this method. A user
 #          may invoke this function from an OpenMOC Python file as follows:
 #
 # @code
-#         openmoc.plotter.plot_flat_source_regions(geometry)
+#         openmoc.plotter.plot_centroids(geometry)
 # @endcode
 #
 # @param geometry a geometry object which has been initialized with Materials,
@@ -540,15 +541,15 @@ def plot_centroids(geometry, gridsize=250, xlim=None, ylim=None):
 
   # Error checking
   if not 'Geometry' in str(type(geometry)):
-    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+    py_printf('ERROR', 'Unable to plot the centroids since ' + \
               'input was not a geometry class object')
 
   if not is_integer(gridsize):
-    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+    py_printf('ERROR', 'Unable to plot the centroids since ' + \
               'since the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
-    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+    py_printf('ERROR', 'Unable to plot the centroids ' + \
               'with a negative gridsize (%d)', gridsize)
 
   py_printf('NORMAL', 'Plotting the centroids...')
@@ -557,7 +558,7 @@ def plot_centroids(geometry, gridsize=250, xlim=None, ylim=None):
   num_fsrs = geometry.getNumFSRs()
 
   if num_fsrs == 0:
-    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+    py_printf('ERROR', 'Unable to plot the centroids ' + \
               'since no tracks have been generated.')
 
   # Initialize a NumPy array for the surface colors
@@ -612,12 +613,12 @@ def plot_centroids(geometry, gridsize=250, xlim=None, ylim=None):
   plt.imshow(colors, extent=coords['bounds'],
              interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
 
-  # Plot centroids on top of imshow
+  # Plot centroids on top of 2D FSR color map
   for r in range(geometry.getNumFSRs()):
     point = geometry.getFSRCentroid(r)
     plt.plot([point.getX()], [point.getY()], 'ko', markersize=2)
   
-  plt.title('Flat Source Regions')
+  plt.title('Centroids')
   filename = directory + 'centroids.png'
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
