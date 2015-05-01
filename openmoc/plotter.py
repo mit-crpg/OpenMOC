@@ -513,6 +513,117 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
 
 
 ##
+# @brief This method takes in a Geometry object and plots a color-coded 2D
+#        surface plot representing the flat source regions in the Geometry.
+# @details The Geometry object must be initialized with Materials, Cells,
+#          Universes and Lattices before being passed into this method. A user
+#          may invoke this function from an OpenMOC Python file as follows:
+#
+# @code
+#         openmoc.plotter.plot_flat_source_regions(geometry)
+# @endcode
+#
+# @param geometry a geometry object which has been initialized with Materials,
+#        Cells, Universes and Lattices
+# @param gridsize an optional number of grid cells for the plot
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+def plot_centroids(geometry, gridsize=250, xlim=None, ylim=None):
+
+  global subdirectory
+
+  directory = get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'Geometry' in str(type(geometry)):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'input was not a geometry class object')
+
+  if not is_integer(gridsize):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'since the gridsize %d is not an integer', gridsize)
+
+  if gridsize <= 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'with a negative gridsize (%d)', gridsize)
+
+  py_printf('NORMAL', 'Plotting the centroids...')
+
+  # Get the number of flat source regions
+  num_fsrs = geometry.getNumFSRs()
+
+  if num_fsrs == 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'since no tracks have been generated.')
+
+  # Initialize a NumPy array for the surface colors
+  surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
+
+  # Retrieve the pixel coordinates
+  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+
+  # Find the flat source region IDs for each grid point
+  for i in range(gridsize):
+    for j in range(gridsize):
+
+      x = coords['x'][i]
+      y = coords['y'][j]
+
+      local_coords = LocalCoords(x, y)
+      local_coords.setUniverse(geometry.getRootUniverse())
+      geometry.findCellContainingCoords(local_coords)
+      fsr_id = geometry.getFSRId(local_coords)
+
+      # If we did not find a region for this region, use a -1 "bad" number color
+      if fsr_id is None:
+        surface[j][i] = -1
+      else:
+       surface[j][i] = fsr_id
+
+      del local_coords
+
+  # Replace each Cell ID with a random (but reproducible) color ID
+  # NOTE: This color coding scheme only works for FSRs and CMFD cells and not
+  # for Materials and Cells. The reason is that FSRs and CMFD cells are by
+  # definition a sequence of consecutive, monotonically increasing integers.
+  # Material and Cell IDs however may be any sequence of positive integers.
+  all_ids = np.arange(num_fsrs, dtype=np.int64)
+
+  id_colors = np.arange(num_fsrs, dtype=np.int64)
+  numpy.random.seed(1)
+  np.random.shuffle(id_colors)
+
+  ids_to_colors = np.arange(num_fsrs, dtype=np.int64)
+  ids_to_colors[all_ids] = id_colors
+
+  colors = ids_to_colors.take(surface)
+
+  # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+  cmap = plt.get_cmap('spectral')
+  cmap.set_bad(alpha=0.0)
+
+  # Plot a 2D color map of the flat source regions
+  fig = plt.figure()
+  colors = np.flipud(colors)
+  plt.imshow(colors, extent=coords['bounds'],
+             interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
+
+  # Plot centroids on top of imshow
+  for r in range(geometry.getNumFSRs()):
+    point = geometry.getFSRCentroid(r)
+    plt.plot([point.getX()], [point.getY()], 'ko', markersize=2)
+  
+  plt.title('Flat Source Regions')
+  filename = directory + 'centroids.png'
+  fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
+  
+
+##
 # @brief This method takes in a Geometry and Cmfd object and plots a
 #        color-coded 2D surface plot representing the CMFD cells in a geometry.
 # @details The Geometry object must be initialized with Materials, Cells,

@@ -565,10 +565,14 @@ int Geometry::findFSRId(LocalCoords* coords) {
       fsr_id = _num_FSRs;
       fsr_data* fsr = new fsr_data;
       fsr->_fsr_id = fsr_id;
+
+      /* Create characteristic point */
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(), 
                        coords->getHighestLevel()->getY());
       fsr->_point = point;
+
+      /* Add fsr to maps */
       _FSR_keys_map[fsr_key_hash] = *fsr;
       _FSRs_to_keys.push_back(fsr_key_hash);
       _FSRs_to_material_IDs.push_back(cell->getMaterial()->getId());
@@ -635,6 +639,27 @@ Point* Geometry::getFSRPoint(int fsr_id) {
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not find characteristic point in FSR: %i. "
+               "Backtrace:%s", fsr_id, e.what());
+  }
+
+  return point;
+}
+
+
+/**
+ * @brief Return the characteristic point for a given FSR ID
+ * @param fsr_id the FSR ID
+ * @return the FSR's characteristic point
+ */
+Point* Geometry::getFSRCentroid(int fsr_id) {
+
+  Point* point;
+
+  try{
+    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._centroid;
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not find centroid in FSR: %i. "
                "Backtrace:%s", fsr_id, e.what());
   }
 
@@ -776,6 +801,10 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
   double y0 = track->getStart()->getY();
   double phi = track->getPhi();
 
+  /* Distance track is nudged from surface */
+  double nudge_x = cos(phi) * TINY_MOVE;
+  double nudge_y = sin(phi) * TINY_MOVE;
+  
   /* Length of each segment */
   FP_PRECISION segment_length;
   Material* segment_material;
@@ -784,7 +813,7 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
   int min_num_segments;
   int num_segments;
   int num_groups;
-
+  
   /* Use a LocalCoords for the start and end of each segment */
   LocalCoords segment_start(x0, y0);
   LocalCoords segment_end(x0, y0);
@@ -829,7 +858,7 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
 
     /* Find the ID of the FSR that contains the segment */
     fsr_id = findFSRId(&segment_start);
-
+        
     /* Compute the number of Track segments to cut this segment into to ensure
      * that it's length is small enough for the exponential table */
     min_num_segments = 1;
@@ -869,10 +898,8 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
 
         /* Reverse nudge from surface to determine whether segment start or end
          * points lie on a cmfd surface. */
-        double delta_x = cos(phi) * TINY_MOVE;
-        double delta_y = sin(phi) * TINY_MOVE;
-        segment_start.adjustCoords(-delta_x, -delta_y);
-        segment_end.adjustCoords(-delta_x, -delta_y);
+        segment_start.adjustCoords(-nudge_x, -nudge_y);
+        segment_end.adjustCoords(-nudge_x, -nudge_y);
 
         if (i == min_num_segments-1)
           new_segment->_cmfd_surface_fwd =
@@ -887,11 +914,11 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
           new_segment->_cmfd_surface_bwd = -1;
 
         /* Re-nudge segments from surface. */
-        segment_start.adjustCoords(delta_x, delta_y);
-        segment_end.adjustCoords(delta_x, delta_y);
+        segment_start.adjustCoords(nudge_x, nudge_y);
+        segment_end.adjustCoords(nudge_x, nudge_y);
 
       }
-
+      
       /* Add the segment to the Track */
       track->addSegment(new_segment);
 
@@ -1152,4 +1179,16 @@ bool Geometry::withinBounds(LocalCoords* coords){
     return false;
   else
     return true;
+}
+
+
+void Geometry::setFSRCentroid(int fsr, Point* centroid){
+
+  /* Create centroid point */
+  Point* point = new Point();
+  point->setX(centroid->getX());
+  point->setY(centroid->getY());
+  _FSR_keys_map[_FSRs_to_keys[fsr]]._centroid = point;
+  
+  log_printf(NORMAL, "FSR: %i, Centroid: (%f, %f)", fsr, centroid->getX(), centroid->getY());
 }

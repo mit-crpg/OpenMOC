@@ -351,12 +351,15 @@ void CPUSolver::initializeFSRs() {
   Material* material;
   Universe* root_universe = _geometry->getRootUniverse();
   _num_fissionable_FSRs = 0;
-
+  int azim_index;
+  double azim_weight;
+  int fsr;
+  
   /* Set each FSR's "volume" by accumulating the total length of all Tracks
    * inside the FSR. Loop over azimuthal angles, Tracks and Track segments. */
   for (int i=0; i < _tot_num_tracks; i++) {
 
-    int azim_index = _tracks[i]->getAzimAngleIndex();
+    azim_index = _tracks[i]->getAzimAngleIndex();
     num_segments = _tracks[i]->getNumSegments();
     segments = _tracks[i]->getSegments();
 
@@ -366,6 +369,46 @@ void CPUSolver::initializeFSRs() {
       _FSR_volumes[curr_segment->_region_id] += volume;
     }
   }
+
+  Point** centroids = new Point*[_num_FSRs];
+  for (int r=0; r < _num_FSRs; r++){
+    centroids[r] = new Point();
+    centroids[r]->setCoords(0.0, 0.0);
+  }
+
+  /* Set the fsr centroid */    
+  for (int i=0; i < _tot_num_tracks; i++) {
+
+    azim_index = _tracks[i]->getAzimAngleIndex();
+    azim_weight = _track_generator->getAzimWeights()[azim_index];
+    num_segments = _tracks[i]->getNumSegments();
+    segments = _tracks[i]->getSegments();
+
+    double x = _tracks[i]->getStart()->getX();
+    double y = _tracks[i]->getStart()->getY();
+    double phi = _tracks[i]->getPhi();
+    
+    for (int s=0; s < num_segments; s++) {
+      curr_segment = &segments[s];
+      fsr = curr_segment->_region_id;
+      volume = _FSR_volumes[fsr];
+      centroids[fsr]->setX(centroids[fsr]->getX() + azim_weight *
+                         (x + cos(phi) * curr_segment->_length / 2.0) *
+                         curr_segment->_length / _FSR_volumes[fsr]);
+      centroids[fsr]->setY(centroids[fsr]->getY() + azim_weight *
+                         (y + sin(phi) * curr_segment->_length / 2.0) *
+                         curr_segment->_length / _FSR_volumes[fsr]);
+
+      x += cos(phi) * curr_segment->_length;
+      y += sin(phi) * curr_segment->_length;
+    }
+  }
+
+  for (int r=0; r < _num_FSRs; r++){
+    _geometry->setFSRCentroid(r, centroids[r]);
+    delete centroids[r];
+  }
+  delete [] centroids;
 
   std::map<int, Material*> all_materials = _geometry->getAllMaterials();
 
@@ -389,7 +432,7 @@ void CPUSolver::initializeFSRs() {
   #pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++)
     omp_init_lock(&_FSR_locks[r]);
-
+  
   return;
 }
 
