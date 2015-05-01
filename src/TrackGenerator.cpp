@@ -47,33 +47,6 @@ TrackGenerator::~TrackGenerator() {
 
 
 /**
- * @brief Sets the number of shared memory OpenMP threads to use (>0).
- * @param num_threads the number of threads
- */
-void TrackGenerator::setNumThreads(int num_threads) {
-
-  if (num_threads <= 0)
-    log_printf(ERROR, "Unable to set the number of threads for the "
-               "TrackGenerator to %d since it is less than or equal to 0"
-               , num_threads);
-
-  _num_threads = num_threads;
-
-  /* Set the number of threads for OpenMP */
-  omp_set_num_threads(_num_threads);
-}
-
-
-/**
- * @brief Returns the number of shared memory OpenMP threads in use.
- * @return the number of threads
- */
-int TrackGenerator::getNumThreads() {
-  return _num_threads;
-}
-
-
-/**
  * @brief Return the number of azimuthal angles in \f$ [0, 2\pi] \f$
  * @return the number of azimuthal angles in \f$ 2\pi \f$
  */
@@ -185,6 +158,208 @@ FP_PRECISION* TrackGenerator::getAzimWeights() {
                "weights since Tracks have not yet been generated.");
 
   return _azim_weights;
+}
+
+
+/**
+ * @brief Get the maximum allowable optical lenght for a track segment
+ * @return The max optical length
+ */
+FP_PRECISION TrackGenerator::getMaxOpticalLength() {
+  return _max_optical_length;
+}
+
+/**
+ * @brief Get the total number of tracks in the TrackGenerator
+ * @return the total number of tracks
+ */
+int TrackGenerator::getTotNumTracks() {
+  return _tot_num_tracks;
+}
+
+/**
+ * @brief Get the total number of track segments in the TrackGenerator
+ * @return the total number of track segments
+ */
+int TrackGenerator::getTotNumSegments() {
+  return _tot_num_segments;
+}
+
+
+/**
+ * @brief Returns the number of shared memory OpenMP threads in use.
+ * @return the number of threads
+ */
+int TrackGenerator::getNumThreads() {
+  return _num_threads;
+}
+
+
+/**
+ * @brief Computes and returns an array of volumes indexed by FSR.
+ * @details Note: It is the function caller's responsibility to deallocate
+ *          the memory reserved for the FSR volume array.
+ * @return a pointer to the array of FSR volumes
+ */
+FP_PRECISION* TrackGenerator::getFSRVolumes() {
+
+  if (!containsTracks())
+    log_printf(ERROR, "Unable to get the FSR volumes since tracks "
+               "have not yet been generated");
+
+  int num_FSRs = _geometry->getNumFSRs();
+  FP_PRECISION *FSR_volumes = new FP_PRECISION[num_FSRs];
+  memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
+
+  int azim_index, num_segments;
+  segment* curr_segment;
+  segment* segments;
+  FP_PRECISION volume;
+
+  /* Calculate each FSR's "volume" by accumulating the total length of * 
+   * all Track segments multipled by the Track "widths" for each FSR.  */
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++) {
+
+      azim_index = _tracks[i][j].getAzimAngleIndex();
+      num_segments = _tracks[i][j].getNumSegments();
+      segments = _tracks[i][j].getSegments();
+
+      for (int s=0; s < num_segments; s++) {
+        curr_segment = &segments[s];
+        volume = curr_segment->_length * _azim_weights[azim_index];
+        FSR_volumes[curr_segment->_region_id] += volume;
+      }
+    }
+  }
+
+  return FSR_volumes;
+}
+
+
+/**
+ * @brief Computes and returns the volume of an FSR.
+ * @param fsr_id the ID for the FSR of interest
+ * @return the FSR volume
+ */
+FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
+
+  if (!containsTracks())
+    log_printf(ERROR, "Unable to get the FSR %d volume since tracks "
+               "have not yet been generated");
+
+  else if (fsr_id < 0 || fsr_id > _geometry->getNumFSRs())
+    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR IDs "
+               "lie in the range (0, %d)", fsr_id, _geometry->getNumFSRs());
+
+  int azim_index, num_segments;
+  segment* curr_segment;
+  segment* segments;
+  FP_PRECISION volume;
+
+  /* Calculate the FSR's "volume" by accumulating the total length of * 
+   * all Track segments multipled by the Track "widths" for the FSR.  */
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++) {
+
+      num_segments = _tracks[i][j].getNumSegments();
+      segments = _tracks[i][j].getSegments();
+
+      for (int s=0; s < num_segments; s++) {
+        curr_segment = &segments[s];
+        if (curr_segment->_region_id == fsr_id)
+          volume += curr_segment->_length * _azim_weights[azim_index];
+      }
+    }
+  }
+
+  return volume;
+}
+
+
+/**
+ * @brief Sets the number of shared memory OpenMP threads to use (>0).
+ * @param num_threads the number of threads
+ */
+void TrackGenerator::setNumThreads(int num_threads) {
+
+  if (num_threads <= 0)
+    log_printf(ERROR, "Unable to set the number of threads for the "
+               "TrackGenerator to %d since it is less than or equal to 0"
+               , num_threads);
+
+  _num_threads = num_threads;
+
+  /* Set the number of threads for OpenMP */
+  omp_set_num_threads(_num_threads);
+}
+
+
+/**
+ * @brief Set the number of azimuthal angles in \f$ [0, 2\pi] \f$.
+ * @param num_azim the number of azimuthal angles in \f$ 2\pi \f$
+ */
+void TrackGenerator::setNumAzim(int num_azim) {
+
+  if (num_azim < 0)
+    log_printf(ERROR, "Unable to set a negative number of azimuthal angles "
+               "%d for the TrackGenerator.", num_azim);
+
+  if (num_azim % 4 != 0)
+    log_printf(ERROR, "Unable to set the number of azimuthal angles to %d for "
+               "the TrackGenerator since it is not a multiple of 4", num_azim);
+
+  /* Subdivide out angles in [pi,2pi] */
+  _num_azim = num_azim / 2.0;
+
+  _contains_tracks = false;
+  _use_input_file = false;
+  _tracks_filename = "";
+}
+
+
+/**
+ * @brief Set the suggested track spacing (cm).
+ * @param spacing the suggested track spacing
+ */
+void TrackGenerator::setTrackSpacing(double spacing) {
+  if (spacing < 0)
+    log_printf(ERROR, "Unable to set a negative track spacing %f for the "
+               "TrackGenerator.", spacing);
+
+  _spacing = spacing;
+  _tot_num_tracks = 0;
+  _tot_num_segments = 0;
+  _contains_tracks = false;
+  _use_input_file = false;
+  _tracks_filename = "";
+}
+
+
+/**
+ * @brief Set a pointer to the Geometry to use for track generation.
+ * @param geometry a pointer to the Geometry
+ */
+void TrackGenerator::setGeometry(Geometry* geometry) {
+  _geometry = geometry;
+  _tot_num_tracks = 0;
+  _tot_num_segments = 0;
+  _contains_tracks = false;
+  _use_input_file = false;
+  _tracks_filename = "";
+}
+
+
+/**
+ * @brief Set the maximum allowable optical length for a track segment
+ * @param max_optical_length The max optical length
+ */
+void TrackGenerator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+  if (max_optical_length <= 0)
+    log_printf(ERROR, "Cannot set max optical length to %f because it "
+               "must be positive.", max_optical_length); 
+        
+  _max_optical_length = max_optical_length;
 }
 
 
@@ -304,61 +479,6 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
   }
 
     return;
-}
-
-
-/**
- * @brief Set the number of azimuthal angles in \f$ [0, 2\pi] \f$.
- * @param num_azim the number of azimuthal angles in \f$ 2\pi \f$
- */
-void TrackGenerator::setNumAzim(int num_azim) {
-
-  if (num_azim < 0)
-    log_printf(ERROR, "Unable to set a negative number of azimuthal angles "
-               "%d for the TrackGenerator.", num_azim);
-
-  if (num_azim % 4 != 0)
-    log_printf(ERROR, "Unable to set the number of azimuthal angles to %d for "
-               "the TrackGenerator since it is not a multiple of 4", num_azim);
-
-  /* Subdivide out angles in [pi,2pi] */
-  _num_azim = num_azim / 2.0;
-
-  _contains_tracks = false;
-  _use_input_file = false;
-  _tracks_filename = "";
-}
-
-
-/**
- * @brief Set the suggested track spacing (cm).
- * @param spacing the suggested track spacing
- */
-void TrackGenerator::setTrackSpacing(double spacing) {
-  if (spacing < 0)
-    log_printf(ERROR, "Unable to set a negative track spacing %f for the "
-               "TrackGenerator.", spacing);
-
-  _spacing = spacing;
-  _tot_num_tracks = 0;
-  _tot_num_segments = 0;
-  _contains_tracks = false;
-  _use_input_file = false;
-  _tracks_filename = "";
-}
-
-
-/**
- * @brief Set a pointer to the Geometry to use for track generation.
- * @param geometry a pointer to the Geometry
- */
-void TrackGenerator::setGeometry(Geometry* geometry) {
-  _geometry = geometry;
-  _tot_num_tracks = 0;
-  _tot_num_segments = 0;
-  _contains_tracks = false;
-  _use_input_file = false;
-  _tracks_filename = "";
 }
 
 
@@ -1424,38 +1544,128 @@ bool TrackGenerator::readTracksFromFile() {
 
 
 /**
- * @brief Set the maximum allowable optical length for a track segment
- * @param max_optical_length The max optical length
+ * @brief Assign a correct volume for some FSR.
+ * @details This routine adjusts the length of each track segment crossing
+ *          a FSR such that the integrated volume is identical to the true
+ *          volume assigned by the user.
+ * @param fsr_id the ID of the FSR of interest
+ * @param fsr_volume the correct FSR volume to use
  */
-void TrackGenerator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
-  if (max_optical_length <= 0)
-    log_printf(ERROR, "Cannot set max optical length to %f because it "
-               "must be positive.", max_optical_length); 
-        
-  _max_optical_length = max_optical_length;
+void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
+
+  /* Compute the current volume approximation for the flat source region */
+  FP_PRECISION curr_volume = getFSRVolume(fsr_id);
+
+  log_printf(INFO, "Correcting FSR %d volume from %f to %f", 
+             fsr_id, curr_volume, fsr_volume);
+
+  int num_segments, azim_index;
+  double dx_eff, d_eff;
+  double volume, corr_factor;
+  segment* curr_segment;
+  segment* segments;
+
+  /* Correct volume separately for each azimuthal angle */
+  for (int i=0; i < _num_azim; i++) {
+
+    /* Initialize volume to zero for this azimuthal angle */
+    volume = 0;
+
+    /* Compute effective track spacing for this azimuthal angle */
+    dx_eff = (_geometry->getWidth() / _num_x[i]);
+    d_eff = (dx_eff * sin(_tracks[i][0].getPhi()));
+
+    /* Compute the current estimated volume of the FSR for this angle */
+    for (int j=0; j < _num_tracks[i]; j++) {
+
+      num_segments = _tracks[i][j].getNumSegments();
+      segments = _tracks[i][j].getSegments();
+
+      for (int s=0; s < num_segments; s++) {
+        curr_segment = &segments[s];
+        if (curr_segment->_region_id == fsr_id)
+          volume += curr_segment->_length * d_eff;
+      }
+    }
+
+    /* Compute correction factor to the volume */
+    corr_factor = fsr_volume / volume;
+
+    log_printf(DEBUG, "Volume correction factor for FSR %d and azim "
+               "angle %d is %f", fsr_id, i, corr_factor);
+
+    /* Correct the length of each segment which crosses the FSR */
+    for (int j=0; j < _num_tracks[i]; j++) {
+
+      num_segments = _tracks[i][j].getNumSegments();
+      segments = _tracks[i][j].getSegments();
+
+      for (int s=0; s < num_segments; s++) {
+        curr_segment = &segments[s];
+        if (curr_segment->_region_id == fsr_id)
+          curr_segment->_length *= corr_factor;
+      }
+    }
+  }
 }
+
 
 /**
- * @brief Get the maximum allowable optical lenght for a track segment
- * @return The max optical length
+ * @brief Generates the numerical centroids of the FSRs.
+ * @details This routine generates the numerical centroids of the FSRs
+ *          by weighting the average x and y values of each segment in the
+ *          FSR by the segment's length and azimuthal weight. The numerical
+ *          centroid fomula can be found in R. Ferrer et. al. "Linear Source
+ *          Approximation in CASMO 5", PHYSOR 2012.
  */
-FP_PRECISION TrackGenerator::getMaxOpticalLength() {
-  return _max_optical_length;
-}
+void TrackGenerator::generateFSRCentroids(){
 
-/**
- * @brief Get the total number of tracks in the TrackGenerator
- * @return the total number of tracks
- */
-int TrackGenerator::getTotNumTracks() {
-  return _tot_num_tracks;
-}
+  int num_FSRs = _geometry->getNumFSRs();
 
-/**
- * @brief Get the total number of track segments in the TrackGenerator
- * @return the total number of track segments
- */
-int TrackGenerator::getTotNumSegments() {
-  return _tot_num_segments;
-}
+  /* Get FSR Volumes */
+  FP_PRECISION* FSR_volumes = getFSRVolumes();
 
+  /* Create temporary array of centroids and initialize to origin */
+  Point** centroids = new Point*[num_FSRs];
+  for (int r=0; r < num_FSRs; r++){
+    centroids[r] = new Point();
+    centroids[r]->setCoords(0.0, 0.0);
+  }
+
+  /* Generate the fsr centroids */
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++) {
+
+      int num_segments = _tracks[i][j].getNumSegments();
+      segment* segments = _tracks[i][j].getSegments();
+      double x = _tracks[i][j].getStart()->getX();
+      double y = _tracks[i][j].getStart()->getY();
+      double phi = _tracks[i][j].getPhi();
+
+      for (int s=0; s < num_segments; s++) {
+        segment* curr_segment = &segments[s];
+        int fsr = curr_segment->_region_id;
+        double volume = FSR_volumes[fsr];
+        centroids[fsr]->setX(centroids[fsr]->getX() + _azim_weights[i] *
+                             (x + cos(phi) * curr_segment->_length / 2.0) *
+                             curr_segment->_length / FSR_volumes[fsr]);
+        centroids[fsr]->setY(centroids[fsr]->getY() + _azim_weights[i] *
+                             (y + sin(phi) * curr_segment->_length / 2.0) *
+                             curr_segment->_length / FSR_volumes[fsr]);
+
+        x += cos(phi) * curr_segment->_length;
+        y += sin(phi) * curr_segment->_length;
+      }
+    }
+  }
+
+  /* Set the centroid for the FSR */
+  for (int r=0; r < num_FSRs; r++){
+    _geometry->setFSRCentroid(r, centroids[r]);
+    delete centroids[r];
+  }
+
+  /* Delete temporary array of centroids and FSR volumes */
+  delete [] centroids;
+  delete [] FSR_volumes;
+}

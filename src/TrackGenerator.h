@@ -94,6 +94,7 @@ private:
   bool readTracksFromFile();
 
 public:
+
   TrackGenerator(Geometry* geometry, int num_azim, double spacing);
   virtual ~TrackGenerator();
 
@@ -111,6 +112,8 @@ public:
   int getTotNumSegments();
   int getTotNumTracks();
   int getNumThreads();
+  FP_PRECISION* getFSRVolumes();
+  FP_PRECISION getFSRVolume(int fsr_id);
 
   /* Set parameters */
   void setNumAzim(int num_azim);
@@ -124,6 +127,8 @@ public:
   void retrieveTrackCoords(double* coords, int num_tracks);
   void retrieveSegmentCoords(double* coords, int num_segments);
   void generateTracks();
+  void correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume);
+  void generateFSRCentroids();
 };
 
 #endif /* TRACKGENERATOR_H_ */

@@ -561,8 +561,10 @@ def plot_centroids(geometry, gridsize=250, xlim=None, ylim=None):
     py_printf('ERROR', 'Unable to plot the centroids ' + \
               'since no tracks have been generated.')
 
-  # Initialize a NumPy array for the surface colors
+  # Initialize a NumPy array for the surface colors and empty list of centroids
   surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
+  centroids_x = []
+  centroids_y = []
 
   # Retrieve the pixel coordinates
   coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
@@ -616,7 +618,26 @@ def plot_centroids(geometry, gridsize=250, xlim=None, ylim=None):
   # Plot centroids on top of 2D FSR color map
   for r in range(geometry.getNumFSRs()):
     point = geometry.getFSRCentroid(r)
-    plt.plot([point.getX()], [point.getY()], 'ko', markersize=2)
+    x = point.getX()
+    y = point.getY()
+    
+    if xlim is None and ylim is None:
+      centroids_x.append(x)
+      centroids_y.append(y)
+    elif xlim is not None and ylim is not None:
+      if x >= xlim[0] and x <= xlim[1] and y >= ylim[0] and y <= ylim[1]:
+        centroids_x.append(x)
+        centroids_y.append(y)
+    elif xlim is not None:
+      if x >= xlim[0] and x <= xlim[1]:
+        centroids_x.append(x)
+        centroids_y.append(y)
+    else:
+      if y >= ylim[0] and y <= ylim[1]:
+        centroids_x.append(x)
+        centroids_y.append(y)
+        
+  plt.plot(centroids_x, centroids_y, 'ko', markersize=2)
   
   plt.title('Centroids')
   filename = directory + 'centroids.png'

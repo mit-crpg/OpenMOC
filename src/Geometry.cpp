@@ -561,7 +561,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       fsr_id = _FSR_keys_map.at(fsr_key_hash)._fsr_id;
     else{
 
-        /* Add FSR information to FSR key map and FSR_to vectors */
+      /* Add FSR information to FSR key map and FSR_to vectors */
       fsr_id = _num_FSRs;
       fsr_data* fsr = new fsr_data;
       fsr->_fsr_id = fsr_id;
@@ -1189,6 +1189,4 @@ void Geometry::setFSRCentroid(int fsr, Point* centroid){
   point->setX(centroid->getX());
   point->setY(centroid->getY());
   _FSR_keys_map[_FSRs_to_keys[fsr]]._centroid = point;
-  
-  log_printf(NORMAL, "FSR: %i, Centroid: (%f, %f)", fsr, centroid->getX(), centroid->getY());
 }
