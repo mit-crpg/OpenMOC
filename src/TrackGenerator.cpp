@@ -162,7 +162,7 @@ FP_PRECISION* TrackGenerator::getAzimWeights() {
 
 
 /**
- * @brief Get the maximum allowable optical lenght for a track segment
+ * @brief Get the maximum allowable optical length for a track segment
  * @return The max optical length
  */
 FP_PRECISION TrackGenerator::getMaxOpticalLength() {
