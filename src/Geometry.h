@@ -23,6 +23,7 @@
 #endif
 #endif
 
+class Cmfd;
 
 /**
  * @struct fsr_data

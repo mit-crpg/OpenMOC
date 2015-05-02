@@ -14,6 +14,7 @@ Cmfd::Cmfd() {
 
   /* Initialize Geometry and Mesh-related attribute */
   _polar_quad = NULL;
+  _geometry = NULL;
   _SOR_factor = 1.0;
 
   /* Global variables used in solving CMFD problem */
@@ -25,6 +26,8 @@ Cmfd::Cmfd() {
   _cell_width = 0.;
   _cell_height = 0.;
   _flux_update_on = true;
+  _centroid_update_on = true;
+  _k_nearest = 3;
   _optically_thick = false;
   _SOR_factor = 1.0;
   _num_FSRs = 0;
@@ -45,7 +48,6 @@ Cmfd::Cmfd() {
   _group_indices_map = NULL;
 
   /* Initialize boundaries to be reflective */
-	//  _boundaries = new int[4];
   _boundaries = new boundaryType[4];
   _boundaries[0] = REFLECTIVE;
   _boundaries[1] = REFLECTIVE;
@@ -949,12 +951,12 @@ void Cmfd::updateMOCFlux(){
           iter != _cell_fsrs.at(i).end(); ++iter) {
 
           /* Set new flux in FSR */
-            _FSR_fluxes[*iter*_num_moc_groups+h] = getFluxRatio(i,h)
+          _FSR_fluxes[*iter*_num_moc_groups+h] = getUpdateRatio(i,h, *iter)
              * _FSR_fluxes[*iter*_num_moc_groups+h];
 
           log_printf(DEBUG, "Updating flux in FSR: %i, cell: %i, group: "
                      "%i, ratio: %f", *iter ,i, h,
-                     getFluxRatio(i,h));
+                     getUpdateRatio(i,h, *iter));
         }
       }
     }
@@ -1687,6 +1689,26 @@ bool Cmfd::isFluxUpdateOn(){
 
 
 /**
+ * @brief Set flag indicating whether to use FSR centroids to update
+ *        the MOC flux.
+ * @param Flag saying whether to use centroids to update MOC flux.
+ */
+void Cmfd::setCentroidUpdateOn(bool centroid_update_on){
+  _centroid_update_on = centroid_update_on;
+}
+
+
+/**
+ * @brief Get flag indicating whether to use FSR centroids to update
+ *        the MOC flux.
+ * @return Flag saying whether to use centroids to update MOC flux.
+ */
+bool Cmfd::isCentroidUpdateOn(){
+ return _centroid_update_on;
+}
+
+
+/**
  * @brief Sets the threshold for CMFD source convergence (>0)
  * @param the threshold for source convergence
  */
@@ -1715,19 +1737,216 @@ void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
 }
 
 
+FP_PRECISION Cmfd::getFluxRatio(int cmfd_cell, int moc_group){
+
+  int cmfd_group = _group_indices_map[moc_group];
+  FP_PRECISION old_flux = _old_flux[cmfd_cell*_num_cmfd_groups + cmfd_group];
+  FP_PRECISION new_flux = _new_flux[cmfd_cell*_num_cmfd_groups + cmfd_group];
+  return new_flux / old_flux;
+}
+
+
+void Cmfd::generateKNearestStencils(){
+
+  std::vector< std::pair<int, FP_PRECISION> >::iterator iter2;
+  std::vector<int>::iterator iter;
+  Point* centroid;
+
+  /* Loop over mesh cells */
+  for (int i = 0; i < _num_x*_num_y; i++){
+
+    /* Loop over FRSs in mesh cell */
+    for (iter = _cell_fsrs.at(i).begin();
+         iter != _cell_fsrs.at(i).end(); ++iter) {
+
+      /* Get centroid */
+      centroid = _geometry->getFSRCentroid(*iter);
+
+      /* Create new stencil */
+      std::vector< std::pair<int, FP_PRECISION> > *stencil = new std::vector< std::pair<int, FP_PRECISION> >;
+      _k_nearest_stencils[*iter] = (*stencil);
+
+      /* Get distance to all cells that touch current cell */
+      for (int j=0; j < 9; j++)
+        _k_nearest_stencils[*iter].push_back( std::make_pair<int, FP_PRECISION>(int(j), getDistanceToCentroid(centroid, i, j)) );
+
+      /* Sort the distances */
+      std::sort(_k_nearest_stencils[*iter].begin(), _k_nearest_stencils[*iter].end(), stencilCompare);
+
+      /* Remove non-existent cells */
+      iter2 = _k_nearest_stencils[*iter].begin();
+      while (iter2 != _k_nearest_stencils[*iter].end()){
+        if (iter2->second == std::numeric_limits<FP_PRECISION>::max())
+          iter2 = _k_nearest_stencils[*iter].erase(iter2++);
+        else
+          ++iter2;
+      }
+
+      /* Resize stencil to be of size <= _k_nearest */
+      _k_nearest_stencils[*iter].resize(std::min(_k_nearest, int(_k_nearest_stencils[*iter].size())));
+    }
+  }
+}
+
+
 /**
  * @brief Get the new to old flux ratio for a CMFD cell.
  * @param the CMFD cell ID
  * @param the MOC energy group
  * @return the flux ratio
  */
-FP_PRECISION Cmfd::getFluxRatio(int cmfd_cell, int moc_group){
+FP_PRECISION Cmfd::getUpdateRatio(int cmfd_cell, int moc_group, int fsr){
 
-  int cmfd_group = _group_indices_map[moc_group];
-  FP_PRECISION old_flux = _old_flux[cmfd_cell*_num_cmfd_groups + cmfd_group];
-  FP_PRECISION new_flux = _new_flux[cmfd_cell*_num_cmfd_groups + cmfd_group];
-  FP_PRECISION ratio = new_flux / old_flux;
+  FP_PRECISION ratio = 0.0;
+  FP_PRECISION total_distance = 1.e-10;
+  std::vector< std::pair<int, FP_PRECISION> >::iterator iter;
+
+  if (_centroid_update_on){
+
+    /* Compute the total distance for the stencil */
+    for (iter = _k_nearest_stencils[fsr].begin(); iter < _k_nearest_stencils[fsr].end(); ++iter)
+      total_distance += iter->second;
+
+    /* Compute the ratio */
+    for (iter = _k_nearest_stencils[fsr].begin(); iter != _k_nearest_stencils[fsr].end(); ++iter){
+
+      /* LOWER LEFT CORNER */
+      if (iter->first == 0)
+        ratio += (1.0 - iter->second/total_distance) *
+          getFluxRatio(cmfd_cell - _num_x - 1, moc_group);
+
+      /* BOTTOM SIDE */
+      else if (iter->first == 1)
+        ratio += (1.0 - iter->second/total_distance) *
+          getFluxRatio(cmfd_cell - _num_x, moc_group);
+
+      /* LOWER RIGHT CORNER */
+      else if (iter->first == 2)
+        ratio += (1.0 - iter->second/total_distance) *
+          getFluxRatio(cmfd_cell - _num_x + 1, moc_group);
+
+      /* LEFT SIDE */
+      else if (iter->first == 3)
+        ratio += (1.0 - iter->second/total_distance) *
+          getFluxRatio(cmfd_cell - 1, moc_group);
+
+      /* RIGHT SIDE */
+      else if (iter->first == 5)
+        ratio += (1.0 - iter->second/total_distance) *
+          getFluxRatio(cmfd_cell + 1, moc_group);
+
+      /* UPPER LEFT CORNER */
+      else if (iter->first == 6)
+        ratio += (1.0 - iter->second/total_distance) *
+          getFluxRatio(cmfd_cell + _num_x - 1, moc_group);
+
+      /* TOP SIDE */
+      else if (iter->first == 7)
+        ratio += (1.0 - iter->second/total_distance) *
+          getFluxRatio(cmfd_cell + _num_x, moc_group);
+
+      /* TOP RIGHT CORNER */
+      else if (iter->first == 8)
+        ratio += (1.0 - iter->second/total_distance) *
+          getFluxRatio(cmfd_cell + _num_x + 1, moc_group);
+    }
+
+    /* INTERNAL */
+    if (_k_nearest_stencils[fsr].size() == 1)
+      ratio += getFluxRatio(cmfd_cell, moc_group);
+    else{
+      ratio += (1.0 - _k_nearest_stencils[fsr][0].second/total_distance) *
+        getFluxRatio(cmfd_cell, moc_group);
+      ratio /= (_k_nearest_stencils[fsr].size() - 1);
+    }
+  }
+  else
+    ratio = getFluxRatio(cmfd_cell, moc_group);
+
   return ratio;
+}
+
+
+/**
+ * @brief Get the new to old flux ratio for a CMFD cell.
+ * @param the CMFD cell ID
+ * @param the MOC energy group
+ * @return the flux ratio
+ */
+FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell, int stencil_index){
+
+  int x = cell % _num_x;
+  int y = cell / _num_x;
+  FP_PRECISION dist_x, dist_y;
+  bool found = false;
+
+  /* LOWER LEFT CORNER */
+  if (x > 0 && y > 0 && stencil_index == 0){
+    dist_x = pow(centroid->getX() - (-_width/2.0  + (x - 0.5)*_cell_width ), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y - 0.5)*_cell_height), 2.0);
+    found = true;
+  }
+
+  /* BOTTOM SIDE */
+  else if (y > 0 && stencil_index == 1){
+    dist_x = pow(centroid->getX() - (-_width/2.0  + (x + 0.5)*_cell_width ), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y - 0.5)*_cell_height), 2.0);
+    found = true;
+  }
+
+  /* LOWER RIGHT CORNER */
+  else if (x < _num_x - 1 && y > 0 && stencil_index == 2){
+    dist_x = pow(centroid->getX() - (-_width/2.0  + (x + 1.5)*_cell_width ), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y - 0.5)*_cell_height), 2.0);
+    found = true;
+  }
+
+  /* LEFT SIDE */
+  else if (x > 0 && stencil_index == 3){
+    dist_x = pow(centroid->getX() - (-_width/2.0  + (x - 0.5)*_cell_width ), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 0.5)*_cell_height), 2.0);
+    found = true;
+  }
+
+  /* CURRENT */
+  else if (stencil_index == 4){
+    dist_x = pow(centroid->getX() - (-_width/2.0  + (x + 0.5)*_cell_width ), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 0.5)*_cell_height), 2.0);
+    found = true;
+  }
+
+  /* RIGHT SIDE */
+  else if (x < _num_x - 1 && stencil_index == 5){
+    dist_x = pow(centroid->getX() - (-_width/2.0  + (x + 1.5)*_cell_width ), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 0.5)*_cell_height), 2.0);
+    found = true;
+  }
+
+  /* UPPER LEFT CORNER */
+  else if (x > 0 && y < _num_y - 1 && stencil_index == 6){
+    dist_x = pow(centroid->getX() - (-_width/2.0  + (x - 0.5)*_cell_width ), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 1.5)*_cell_height), 2.0);
+    found = true;
+  }
+
+  /* TOP SIDE */
+  else if (y < _num_y - 1 && stencil_index == 7){
+    dist_x = pow(centroid->getX() - (-_width/2.0  + (x + 0.5)*_cell_width ), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 1.5)*_cell_height), 2.0);
+    found = true;
+  }
+
+  /* UPPER RIGHT CORNER */
+  else if (x < _num_x - 1 && y < _num_y - 1 && stencil_index == 8){
+    dist_x = pow(centroid->getX() - (-_width/2.0  + (x + 1.5)*_cell_width ), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 1.5)*_cell_height), 2.0);
+    found = true;
+  }
+
+  if (found)
+    return pow(dist_x + dist_y, 0.5);
+  else
+    return std::numeric_limits<FP_PRECISION>::max();
 }
 
 
@@ -1787,4 +2006,19 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
       }
     }
   }
+}
+
+
+void Cmfd::setGeometry(Geometry* geometry){
+  _geometry = geometry;
+}
+
+
+void Cmfd::setKNearest(int k_nearest){
+
+  if (_k_nearest < 1 || k_nearest > 9)
+    log_printf(ERROR, "Unable to set CMFD k-nearest to %i. k-nearest "
+               "must be between 1 and 9.", k_nearest);
+  else
+    _k_nearest = k_nearest;
 }
