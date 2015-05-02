@@ -23,6 +23,7 @@
 #endif
 #endif
 
+/** Forward declaration of Cmfd class */
 class Cmfd;
 
 /**

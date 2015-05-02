@@ -29,10 +29,12 @@
 #include "Geometry.h"
 #endif
 
+/** Forward declaration of Geometry class */
 class Geometry;
 
+/** Comparitor for sorting k-nearest stencil std::pair objects */
 inline bool stencilCompare(const std::pair<int, FP_PRECISION>& firstElem,
-                    const std::pair<int, FP_PRECISION>& secondElem){
+                           const std::pair<int, FP_PRECISION>& secondElem){
   return firstElem.second < secondElem.second;
 }
 
