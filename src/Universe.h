@@ -9,11 +9,12 @@
 #define UNIVERSE_H_
 
 #ifdef __cplusplus
+#include "Python.h"
+#include "LocalCoords.h"
+#include "boundary_type.h"
 #include <limits>
 #include <map>
 #include <vector>
-#include "LocalCoords.h"
-#include "boundary_type.h"
 #endif
 
 /** Error threshold for determining how close to the boundary of a Lattice cell

@@ -10,11 +10,12 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include "Python.h"
 #include "Timer.h"
 #include "PolarQuad.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"
+#include <math.h>
 #endif
 
 /** Indexing macro for the scalar flux in each FSR and energy group */

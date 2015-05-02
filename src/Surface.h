@@ -10,9 +10,10 @@
 #define SURFACE_H_
 
 #ifdef __cplusplus
-#include <limits>
+#include "Python.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"
+#include <limits>
 #endif
 
 /** Error threshold for determining how close a point needs to be to a surface
