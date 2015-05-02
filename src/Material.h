@@ -9,11 +9,12 @@
 #define MATERIAL_H_
 
 #ifdef __cplusplus
+#include "Python.h"
+#include "log.h"
 #include <sstream>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include "log.h"
 #endif
 
 /** A negligible cross-section value to over-ride user-defined
