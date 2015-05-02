@@ -48,10 +48,10 @@ protected:
   /** OpenMP mutual exclusion locks for atomic surface current updates */
   omp_lock_t* _cmfd_surface_locks;
 
+  void initializeFSRs();
   void initializeFluxArrays();
   void initializeSourceArrays();
   void buildExpInterpTable();
-  void initializeFSRs();
   void initializeCmfd();
 
   void zeroTrackFluxes();

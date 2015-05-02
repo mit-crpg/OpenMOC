@@ -185,6 +185,28 @@ void CPUSolver::setNumThreads(int num_threads) {
 
 
 /**
+ * @brief Initializes the FSR volumes and Materials array.
+ * @details This method assigns each FSR a unique, monotonically increasing
+ *          ID, sets the Material for each FSR, and assigns a volume based on
+ *          the cumulative length of all of the segments inside the FSR.
+ */
+void CPUSolver::initializeFSRs() {
+
+  Solver::initializeFSRs();
+
+  /* Allocate array of mutex locks for each FSR */
+  _FSR_locks = new omp_lock_t[_num_FSRs];
+
+  /* Loop over all FSRs to initialize OpenMP locks */
+  #pragma omp parallel for schedule(guided)
+  for (int r=0; r < _num_FSRs; r++)
+    omp_init_lock(&_FSR_locks[r]);
+
+  return;
+}
+
+
+/**
  * @brief Allocates memory for Track boundary angular flux and leakage
  *        and FSR scalar flux arrays.
  * @details Deletes memory for old flux arrays if they were allocated for a
@@ -318,77 +340,6 @@ void CPUSolver::buildExpInterpTable() {
 
   /* Compute the reciprocal of the table entry spacing */
   _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
-
-  return;
-}
-
-
-/**
- * @brief Initializes the FSR volumes and Materials array.
- * @details This method assigns each FSR a unique, monotonically increasing
- *          ID, sets the Material for each FSR, and assigns a volume based on
- *          the cumulative length of all of the segments inside the FSR.
- */
-void CPUSolver::initializeFSRs() {
-
-  log_printf(INFO, "Initializing flat source regions...");
-
-  /* Delete old FSR arrays if they exist */
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
-  if (_FSR_materials != NULL)
-    delete [] _FSR_materials;
-
-  _FSR_volumes = (FP_PRECISION*)calloc(_num_FSRs, sizeof(FP_PRECISION));
-  _FSR_materials = new Material*[_num_FSRs];
-  _FSR_locks = new omp_lock_t[_num_FSRs];
-
-  int num_segments;
-  segment* curr_segment;
-  segment* segments;
-  FP_PRECISION volume;
-  Material* material;
-  Universe* root_universe = _geometry->getRootUniverse();
-  _num_fissionable_FSRs = 0;
-
-  /* Set each FSR's "volume" by accumulating the total length of all Tracks
-   * inside the FSR. Loop over azimuthal angles, Tracks and Track segments. */
-  for (int i=0; i < _tot_num_tracks; i++) {
-
-    int azim_index = _tracks[i]->getAzimAngleIndex();
-    num_segments = _tracks[i]->getNumSegments();
-    segments = _tracks[i]->getSegments();
-
-    for (int s=0; s < num_segments; s++) {
-      curr_segment = &segments[s];
-      volume = curr_segment->_length * _azim_weights[azim_index];
-      _FSR_volumes[curr_segment->_region_id] += volume;
-    }
-  }
-
-  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
-
-  /* Loop over all FSRs to extract FSR material pointers */
-  for (int r=0; r < _num_FSRs; r++) {
-
-    /* Assign the Material corresponding to this FSR */
-    material = _geometry->findFSRMaterial(r);
-    _FSR_materials[r] = material;
-
-    /* Increment number of fissionable FSRs */
-    if (material->isFissionable())
-      _num_fissionable_FSRs++;
-
-    log_printf(DEBUG, "FSR ID = %d has Material ID = %d "
-               "and volume = %f", r, _FSR_materials[r]->getId(),
-               _FSR_volumes[r]);
-  }
-
-  /* Loop over all FSRs to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++)
-    omp_init_lock(&_FSR_locks[r]);
 
   return;
 }
