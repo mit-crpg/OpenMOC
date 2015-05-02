@@ -207,8 +207,6 @@ protected:
   int round_to_int(float x);
   int round_to_int(double x);
 
-  virtual void initializePolarQuadrature();
-
   /**
    * @brief Initializes Track boundary angular flux and leakage and
    *        FSR scalar flux arrays.
@@ -225,13 +223,9 @@ protected:
    */
   virtual void buildExpInterpTable() =0;
 
-  /**
-   * @brief Initializes the volumes and Material arrays for each FSR.
-   */
-  virtual void initializeFSRs() =0;
-
+  virtual void initializePolarQuadrature();
+  virtual void initializeFSRs();
   virtual void initializeCmfd();
-
   virtual void checkTrackSpacing();
 
   /**
@@ -291,6 +285,7 @@ public:
   virtual ~Solver();
 
   Geometry* getGeometry();
+  FP_PRECISION getFSRVolume(int fsr_id);
   TrackGenerator* getTrackGenerator();
   int getNumPolarAngles();
   int getNumIterations();

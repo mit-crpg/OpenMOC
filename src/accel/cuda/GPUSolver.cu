@@ -1075,71 +1075,43 @@ void GPUSolver::initializePolarQuadrature() {
  */
 void GPUSolver::initializeFSRs() {
 
-  log_printf(INFO, "Initializing FSRs on the GPU...");
+  log_printf(NORMAL, "Initializing FSRs on the GPU...");
 
   /* Delete old FSRs array if it exists */
-  if (_FSR_volumes != NULL)
+  if (_FSR_volumes != NULL) {
     cudaFree(_FSR_volumes);
+    _FSR_volumes = NULL;
+  }
 
-  if (_FSR_materials != NULL)
+  if (_FSR_materials != NULL) {
     cudaFree(_FSR_materials);
+    _FSR_materials = NULL;
+  }
+
+  Solver::initializeFSRs();
 
   /* Allocate memory for all FSR volumes and dev_materials on the device */
   try{
+
+    /* Store pointers to arrays of FSR data created on the host by the 
+     * the parent class Solver::initializeFSRs() routine */
+    FP_PRECISION* host_FSR_volumes = _FSR_volumes;
+    int* host_FSR_materials = _FSR_materials;
 
     /* Allocate memory on device for FSR volumes and Material indices */
     cudaMalloc((void**)&_FSR_volumes, _num_FSRs * sizeof(FP_PRECISION));
     cudaMalloc((void**)&_FSR_materials, _num_FSRs * sizeof(int));
 
-    /* Create a temporary FSR array to populate and then copy to device */
-    FP_PRECISION* temp_FSR_volumes = new FP_PRECISION[_num_FSRs];
-
-    /* Create a temporary FSR to material indices array to populate and then 
-     * copy to device */
+    /* Create a temporary FSR to material indices array */
     int* FSRs_to_material_indices = new int[_num_FSRs];
 
-    /* Initialize num fissionable FSRs counter */
-    _num_fissionable_FSRs = 0;
-
     /* Populate FSR Material indices array */
-    for (int i = 0; i < _num_FSRs; i++){
+    for (int i = 0; i < _num_FSRs; i++)
       FSRs_to_material_indices[i] = _material_IDs_to_indices[_geometry->
         findFSRMaterial(i)->getId()];
-      if (_geometry->findFSRMaterial(i)->isFissionable())
-        _num_fissionable_FSRs++;
-    }
 
-    /* Initialize each FSRs volume to 0 to avoid NaNs */
-    memset(temp_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
-
-    Track* track;
-    int num_segments;
-    segment* curr_segment;
-    segment* segments;
-    FP_PRECISION volume;
-
-    FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
-
-    /* Set each FSR's volume by accumulating the total length of all Tracks
-     * inside the FSR. Iterate over azimuthal angle, Track, Track segment*/
-    for (int i=0; i < _num_azim; i++) {
-      for (int j=0; j < _num_tracks[i]; j++) {
-
-        track = &_track_generator->getTracks()[i][j];
-        num_segments = track->getNumSegments();
-        segments = track->getSegments();
-
-        /* Iterate over the Track's segments to update FSR volumes */
-        for (int s = 0; s < num_segments; s++) {
-          curr_segment = &segments[s];
-          volume = curr_segment->_length * azim_weights[i];
-          temp_FSR_volumes[curr_segment->_region_id] += volume;
-        }
-      }
-    }
-
-    /* Copy the temporary array of FSRs to the device */
-    cudaMemcpy((void*)_FSR_volumes, (void*)temp_FSR_volumes,
+    /* Copy the arrays of FSR data to the device */
+    cudaMemcpy((void*)_FSR_volumes, (void*)host_FSR_volumes,
       _num_FSRs * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
     cudaMemcpy((void*)_FSR_materials, (void*)FSRs_to_material_indices,
       _num_FSRs * sizeof(int), cudaMemcpyHostToDevice);
@@ -1148,8 +1120,9 @@ void GPUSolver::initializeFSRs() {
     cudaMemcpyToSymbol(num_FSRs, (void*)&_num_FSRs, sizeof(int), 0,
       cudaMemcpyHostToDevice);
 
-    /* Free the temporary array of FSR volumes on the host */
-    free(temp_FSR_volumes);
+    /* Free the array of FSRs data allocated by the Solver parent class */
+    free(host_FSR_volumes);
+    free(host_FSR_materials);
 
     /* Free the temporary array of FSRs to material indices on the host */
     free(FSRs_to_material_indices);

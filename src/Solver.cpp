@@ -129,6 +129,25 @@ Geometry* Solver::getGeometry() {
 
 
 /**
+ * @brief Returns the calculated volume for a flat source region.
+ * @param fsr_id the flat source region ID of interest
+ * @return the flat source region volume
+ */
+FP_PRECISION Solver::getFSRVolume(int fsr_id) {
+
+  if (fsr_id < 0 || fsr_id > _num_FSRs)
+    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
+               "IDs lie in the range (0, %d)", fsr_id, _num_FSRs);
+
+  else if (_FSR_volumes == NULL)
+    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
+               "volumes have not yet been computed", fsr_id);
+
+  return _FSR_volumes[fsr_id];
+}
+
+
+/**
  * @brief Returns a pointer to the TrackGenerator.
  * @return a pointer to the TrackGenerator
  */
@@ -367,6 +386,50 @@ void Solver::useExponentialInterpolation() {
  */
 void Solver::useExponentialIntrinsic() {
   _interpolate_exponential = false;
+}
+
+
+/**
+ * @brief Initializes the FSR volumes and Materials array.
+ * @details This method assigns each FSR a unique, monotonically increasing
+ *          ID, sets the Material for each FSR, and assigns a volume based on
+ *          the cumulative length of all of the segments inside the FSR.
+ */
+void Solver::initializeFSRs() {
+
+  log_printf(INFO, "Initializing flat source regions...");
+
+  /* Delete old FSR arrays if they exist */
+  if (_FSR_volumes != NULL)
+    delete [] _FSR_volumes;
+
+  if (_FSR_materials != NULL)
+    delete [] _FSR_materials;
+
+  /* Get an array of volumes indexed by FSR  */
+  _FSR_volumes = _track_generator->getFSRVolumes();
+
+  /* Allocate an array of Material pointers indexed by FSR */
+  _FSR_materials = new Material*[_num_FSRs];
+
+  /* Compute the number of fissionable Materials */
+  _num_fissionable_FSRs = 0;
+
+  /* Loop over all FSRs to extract FSR material pointers */
+  for (int r=0; r < _num_FSRs; r++) {
+
+    /* Assign the Material corresponding to this FSR */
+    _FSR_materials[r] = _geometry->findFSRMaterial(r);
+
+    /* Increment number of fissionable FSRs */
+    if (_FSR_materials[r]->isFissionable())
+      _num_fissionable_FSRs++;
+
+    log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
+               r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
+  }
+
+  return;
 }
 
 
