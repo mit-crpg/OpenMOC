@@ -9,12 +9,13 @@
 #define MATERIAL_H_
 
 #ifdef __cplusplus
+#include "Python.h"
+#include "constants.h"
+#include "log.h"
 #include <sstream>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include "constants.h"
-#include "log.h"
 #endif
 
 #ifdef ICPC

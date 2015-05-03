@@ -10,12 +10,13 @@
 #define CELL_H_
 
 #ifdef __cplusplus
-#include <limits>
-#include <map>
-#include <vector>
+#include "Python.h"
 #include "Material.h"
 #include "Surface.h"
 #include "Point.h"
+#include <limits>
+#include <map>
+#include <vector>
 #endif
 
 /* Forward declarations to resolve circular dependencies */

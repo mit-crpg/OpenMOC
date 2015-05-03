@@ -11,6 +11,7 @@
 #define GPUQUERY_H_
 
 #ifdef __cplusplus
+#include "Python.h"
 #include "../../log.h"
 #endif
 

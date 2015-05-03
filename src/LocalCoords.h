@@ -9,6 +9,7 @@
 #define LOCALCOORDS_H_
 
 #ifdef __cplusplus
+#include "Python.h"
 #include "Point.h"
 #include "Universe.h"
 #include "Cell.h"

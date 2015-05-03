@@ -9,12 +9,13 @@
 #define UNIVERSE_H_
 
 #ifdef __cplusplus
-#include <limits>
-#include <map>
-#include <vector>
+#include "Python.h"
 #include "constants.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"
+#include <limits>
+#include <map>
+#include <vector>
 #endif
 
 
