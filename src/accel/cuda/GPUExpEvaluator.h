@@ -17,10 +17,6 @@
 #endif
 
 
-/** The maximum number of polar angles to reserve constant memory on GPU */
-#define MAX_POLAR_ANGLES 10
-
-
 /**
  * @class GPUExpEvaluator GPUExpEvaluator.h "src/accel/cuda/ExpEvaluator.h"
  * @brief This is a class for evaluating exponentials on GPUs.

@@ -36,12 +36,6 @@
  *  group for a given Track */
 #define boundary_flux(t,pe2) (boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])
 
-/** The maximum number of polar angles to reserve constant memory on GPU */
-#define MAX_POLAR_ANGLES 10
-
-/** The maximum number of azimuthal angles to reserve constant memory on GPU */
-#define MAX_AZIM_ANGLES 256
-
 
 /**
  * @class GPUSolver GPUSolver.h "openmoc/src/dev/gpu/GPUSolver.h"
@@ -59,6 +53,9 @@ private:
 
   /** The number of threads per thread block */
   int _T;
+
+  /** Twice the number of polar angles */
+  int _two_times_num_polar;
 
   /** The FSR Material pointers index by FSR ID */
   int* _FSR_materials;
@@ -144,10 +141,10 @@ public:
    */
   int getNumThreadBlocks();
 
-/**
- * @brief Returns the number of threads per block to execute on the GPU.
- * @return the number of threads per block
- */
+  /**
+   * @brief Returns the number of threads per block to execute on the GPU.
+   * @return the number of threads per block
+   */
   int getNumThreadsPerBlock();
 
   FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);

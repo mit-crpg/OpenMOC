@@ -53,7 +53,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _user_polar_quad = false;
   _polar_quad = new TYPolarQuad();
   _num_polar = 3;
-  _two_times_num_polar = 2 * _num_polar;
   _polar_times_groups = 0;
 
   _num_iterations = 0;
@@ -319,7 +318,6 @@ void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
   _user_polar_quad = true;
   _polar_quad = polar_quad;
   _num_polar = _polar_quad->getNumPolarAngles();
-  _two_times_num_polar = 2 * _num_polar;
   _polar_times_groups = _num_groups * _num_polar;
 }
 
@@ -363,11 +361,6 @@ void Solver::useExponentialIntrinsic() {
 void Solver::initializePolarQuadrature() {
 
   FP_PRECISION azim_weight;
-
-  /* Create Tabuchi-Yamamoto polar quadrature if a
-   * PolarQuad was not assigned by the user */
-  if (_polar_quad == NULL)
-    _polar_quad = new TYPolarQuad();
 
   /* Initialize the PolarQuad object */
   _polar_quad->setNumPolarAngles(_num_polar);
