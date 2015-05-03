@@ -11,10 +11,10 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "Solver.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
-#include "Solver.h"
 #endif
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
@@ -48,11 +48,10 @@ protected:
   /** OpenMP mutual exclusion locks for atomic surface current updates */
   omp_lock_t* _cmfd_surface_locks;
 
+  void initializeFSRs();
   void initializeFluxArrays();
   void initializeSourceArrays();
-  void initializePolarQuadrature();
   void buildExpInterpTable();
-  void initializeFSRs();
   void initializeCmfd();
 
   void zeroTrackFluxes();

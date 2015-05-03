@@ -2,13 +2,14 @@
 
 %{
   #define SWIG_FILE_WITH_INIT
+  #include <cstddef>
   #include "../../../src/Cell.h"
   #include "../../../src/Geometry.h"
   #include "../../../src/LocalCoords.h"
   #include "../../../src/log.h"
   #include "../../../src/Material.h"
   #include "../../../src/Point.h"
-  #include "../../../src/Quadrature.h"
+  #include "../../../src/PolarQuad.h"
   #include "../../../src/Solver.h"
   #include "../../../src/CPUSolver.h"
   #include "../../../src/VectorizedSolver.h"
@@ -253,7 +254,7 @@
 %include ../../../src/log.h
 %include ../../../src/Material.h
 %include ../../../src/Point.h
-%include ../../../src/Quadrature.h
+%include ../../../src/PolarQuad.h
 %include ../../../src/Solver.h
 %include ../../../src/CPUSolver.h
 %include ../../../src/VectorizedSolver.h
