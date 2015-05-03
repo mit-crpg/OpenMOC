@@ -91,8 +91,6 @@ __device__ FP_PRECISION GPUExpEvaluator::computeExponential(FP_PRECISION tau,
 
   FP_PRECISION exponential;
 
-  #ifdef CUDA
-
   /* Evaluate the exponential using the linear interpolation table */
   if (*interpolate) {
     int index;
@@ -112,7 +110,6 @@ __device__ FP_PRECISION GPUExpEvaluator::computeExponential(FP_PRECISION tau,
     exponential = 1.0 - exp(- tau / sin_thetas[polar]);
     #endif
   }
-  #endif
 
   return exponential;
 }

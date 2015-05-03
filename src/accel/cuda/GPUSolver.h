@@ -9,6 +9,7 @@
 #define GPUSOLVER_H_
 
 #ifdef __cplusplus
+#include "Python.h"
 #include "../../constants.h"
 #include "../../Solver.h"
 #endif

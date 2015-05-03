@@ -411,14 +411,13 @@ void Solver::initializeFSRs() {
   _FSR_materials = new Material*[_num_FSRs];
 
   /* Compute the number of fissionable Materials */
-  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
   _num_fissionable_FSRs = 0;
 
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
 
     /* Assign the Material corresponding to this FSR */
-    _FSR_materials[r] =  _geometry->findFSRMaterial(r);
+    _FSR_materials[r] = _geometry->findFSRMaterial(r);
 
     /* Increment number of fissionable FSRs */
     if (_FSR_materials[r]->isFissionable())
