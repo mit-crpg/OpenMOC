@@ -2,6 +2,8 @@
 
 %{
   #define SWIG_FILE_WITH_INIT
+  #include <cstddef>
+  #include "../../../src/constants.h"
   #include "../../../src/Solver.h"
   #include "../../../src/accel/cuda/GPUSolver.h"
   #include "../../../src/accel/cuda/GPUQuery.h"
@@ -52,6 +54,8 @@
 
 
 %include <exception.i>
+%include <std_map.i>
+%include ../../../src/constants.h
 %include ../../../src/Solver.h
 %include ../../../src/accel/cuda/GPUSolver.h
 %include ../../../src/accel/cuda/GPUQuery.h

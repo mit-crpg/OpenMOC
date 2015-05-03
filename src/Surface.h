@@ -10,14 +10,12 @@
 #define SURFACE_H_
 
 #ifdef __cplusplus
-#include <limits>
+#include "Python.h"
+#include "constants.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"
+#include <limits>
 #endif
-
-/** Error threshold for determining how close a point needs to be to a surface
- * to be considered on it */
-#define ON_SURFACE_THRESH 1E-12
 
 
 /* Forward declarations to resolve circular dependencies */

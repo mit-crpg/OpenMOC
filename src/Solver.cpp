@@ -15,7 +15,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _num_materials = 0;
   _num_groups = 0;
   _num_azim = 0;
-  _polar_times_groups = 0;
 
   _num_FSRs = 0;
   _num_fissionable_FSRs = 0;
@@ -27,6 +26,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _track_generator = NULL;
   _geometry = NULL;
   _cmfd = NULL;
+  _exp_evaluator = new ExpEvaluator();
 
   _tracks = NULL;
   _azim_weights = NULL;
@@ -41,9 +41,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _reduced_sources = NULL;
   _source_residuals = NULL;
 
-  _interpolate_exponential = true;
-  _exp_table = NULL;
-
   if (geometry != NULL){
     _cmfd = geometry->getCmfd();
     setGeometry(geometry);
@@ -56,7 +53,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _user_polar_quad = false;
   _polar_quad = new TYPolarQuad();
   _num_polar = 3;
-  _two_times_num_polar = 2 * _num_polar;
+  _polar_times_groups = 0;
 
   _num_iterations = 0;
   _source_convergence_thresh = 1E-3;
@@ -106,8 +103,8 @@ Solver::~Solver() {
   if (_source_residuals != NULL)
     delete [] _source_residuals;
 
-  if (_exp_table != NULL)
-    delete [] _exp_table;
+  if (_exp_evaluator != NULL)
+    delete _exp_evaluator;
 
   if (_polar_quad != NULL && !_user_polar_quad)
     delete _polar_quad;
@@ -207,19 +204,6 @@ FP_PRECISION Solver::getSourceConvergenceThreshold() {
 
 
 /**
- * @brief Returns whether the Solver is using single floating point precision.
- * @return true if so, false otherwise
- */
-bool Solver::isUsingSinglePrecision() {
-#ifdef SINGLE
-  return true;
-#else
-  return false;
-#endif
-}
-
-
-/**
  * @brief Returns whether the solver is using double floating point precision.
  * @return true if so, false otherwise
  */
@@ -235,28 +219,10 @@ bool Solver::isUsingDoublePrecision() {
 /**
  * @brief Returns whether the Solver uses linear interpolation to
  *        compute exponentials.
- * @details The Solver uses linear interpolation to compute exponentials by
- *          default. The Solver::useExponentialIntrinsic() routine can be
- *          called to use the C++ exponential intrinsic routine instead. The
- *          Solver::useExponentialInterpolation() routine may be called to
- *          return to using linear interpolation.
  * @return true if so, false otherwise
  */
 bool Solver::isUsingExponentialInterpolation() {
-  return _interpolate_exponential;
-}
-
-
-/**
- * @brief Returns whether the Solver uses the exponential intrinsic exp(...)
- *        routine to compute exponentials.
- * @details The Solver uses linear interpolation to compute exponentials by
- *          default. The Solver::useExponentialIntrinsic() routine can be
- *          called to use the C++ exponential intrinsic routine instead.
- * @return true if so, false otherwise
- */
-bool Solver::isUsingExponentialIntrinsic() {
-  return !_interpolate_exponential;
+  return _exp_evaluator->isUsingInterpolation();
 }
 
 
@@ -352,7 +318,6 @@ void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
   _user_polar_quad = true;
   _polar_quad = polar_quad;
   _num_polar = _polar_quad->getNumPolarAngles();
-  _two_times_num_polar = 2 * _num_polar;
   _polar_times_groups = _num_groups * _num_polar;
 }
 
@@ -376,7 +341,7 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
  *        exponential in the transport equation.
  */
 void Solver::useExponentialInterpolation() {
-  _interpolate_exponential = true;
+  _exp_evaluator->useInterpolation();
 }
 
 
@@ -385,7 +350,50 @@ void Solver::useExponentialInterpolation() {
  *        to compute the exponential in the transport equation
  */
 void Solver::useExponentialIntrinsic() {
-  _interpolate_exponential = false;
+  _exp_evaluator->useIntrinsic();
+}
+
+
+/** 
+ * @brief Initializes new PolarQuad object.
+ * @details Deletes memory old PolarQuad if one was previously allocated.
+ */
+void Solver::initializePolarQuadrature() {
+
+  FP_PRECISION azim_weight;
+
+  /* Initialize the PolarQuad object */
+  _polar_quad->setNumPolarAngles(_num_polar);
+  _polar_quad->initialize();
+  _polar_times_groups = _num_groups * _num_polar;
+
+  /* Deallocate polar weights if previously assigned */
+  if (_polar_weights != NULL)
+    delete [] _polar_weights;
+
+  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
+
+  /* Compute the total azimuthal weight for tracks at each polar angle */
+  #pragma omp parallel for private(azim_weight) schedule(guided)
+  for (int i=0; i < _num_azim; i++) {
+    azim_weight = _azim_weights[i];
+
+    for (int p=0; p < _num_polar; p++)
+      _polar_weights(i,p) = 
+           azim_weight * _polar_quad->getMultiple(p) * FOUR_PI;
+  }
+}
+
+
+/**
+ * @brief Initializes new ExpEvaluator object to compute exponentials.
+ */
+void Solver::initializeExpEvaluator() {
+  double max_tau = _track_generator->getMaxOpticalLength();
+  double tolerance = _source_convergence_thresh;
+
+  _exp_evaluator->setPolarQuadrature(_polar_quad);
+  _exp_evaluator->initialize(max_tau, tolerance);
 }
 
 
@@ -430,43 +438,6 @@ void Solver::initializeFSRs() {
   }
 
   return;
-}
-
-
-/**
- * @brief Creates  object for the solver.
- * @details Deletes memory for old Quadrature if one was allocated for a
- *          previous simulation.
- */
-void Solver::initializePolarQuadrature() {
-
-  FP_PRECISION azim_weight;
-
-  /* Create Tabuchi-Yamamoto polar quadrature if a
-   * PolarQuad was not assigned by the user */
-  if (_polar_quad == NULL)
-    _polar_quad = new TYPolarQuad();
-
-  /* Initialize the PolarQuad object */
-  _polar_quad->setNumPolarAngles(_num_polar);
-  _polar_quad->initialize();
-  _polar_times_groups = _num_groups * _num_polar;
-
-  /* Deallocate polar weights if previously assigned */
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
-
-  /* Compute the total azimuthal weight for tracks at each polar angle */
-  #pragma omp parallel for private(azim_weight) schedule(guided)
-  for (int i=0; i < _num_azim; i++) {
-    azim_weight = _azim_weights[i];
-
-    for (int p=0; p < _num_polar; p++)
-      _polar_weights(i,p) = 
-           azim_weight * _polar_quad->getMultiple(p) * FOUR_PI;
-  }
 }
 
 
@@ -593,9 +564,9 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 
   /* Initialize data structures */
   initializePolarQuadrature();
+  initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  buildExpInterpTable();
   initializeFSRs();
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())

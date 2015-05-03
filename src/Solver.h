@@ -10,11 +10,14 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include "Python.h"
+#include "constants.h"
 #include "Timer.h"
 #include "PolarQuad.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"
+#include "ExpEvaluator.h"
+#include <math.h>
 #endif
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
@@ -52,12 +55,6 @@
 /** Indexing scheme for the total in-scatter source (\f$ \Sigma_s\Phi \f$)
  *  for each FSR and energy group */
 #define _scatter_sources(r,e) (_scatter_sources[(r)*_num_groups + (e)])
-
-/** The value of 4pi: \f$ 4\pi \f$ */
-#define FOUR_PI 12.5663706143
-
-/** The values of 1 divided by 4pi: \f$ \frac{1}{4\pi} \f$ */
-#define ONE_OVER_FOUR_PI 0.0795774715
 
 
 /**
@@ -107,9 +104,6 @@ protected:
 
   /** The number of polar angles */
   int _num_polar;
-
-  /** Twice the number of polar angles */
-  int _two_times_num_polar;
 
   /** The number of polar angles times energy groups */
   int _polar_times_groups;
@@ -179,33 +173,14 @@ protected:
   /** The tolerance for converging the source */
   FP_PRECISION _source_convergence_thresh;
 
-  /** A boolean indicating whether or not to use linear interpolation
-   *  to comptue the exponential in the transport equation */
-  bool _interpolate_exponential;
-
-  /** The exponential linear interpolation table */
-  FP_PRECISION* _exp_table;
-
-  /** The size of the exponential linear interpolation table */
-  int _exp_table_size;
-
-  /** The maximum index of the exponential linear interpolation table */
-  int _exp_table_max_index;
-
-  /** The spacing for the exponential linear interpolation table */
-  FP_PRECISION _exp_table_spacing;
-
-  /** The inverse spacing for the exponential linear interpolation table */
-  FP_PRECISION _inverse_exp_table_spacing;
+  /** En ExpEvaluator to compute exponentials in the transport equation */
+  ExpEvaluator* _exp_evaluator;
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;
 
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
-
-  int round_to_int(float x);
-  int round_to_int(double x);
 
   /**
    * @brief Initializes Track boundary angular flux and leakage and
@@ -218,12 +193,8 @@ protected:
    */
   virtual void initializeSourceArrays() =0;
 
-  /**
-   * @brief Builds the exponential linear interpolation table.
-   */
-  virtual void buildExpInterpTable() =0;
-
   virtual void initializePolarQuadrature();
+  virtual void initializeExpEvaluator();
   virtual void initializeFSRs();
   virtual void initializeCmfd();
   virtual void checkTrackSpacing();
@@ -293,10 +264,8 @@ public:
   FP_PRECISION getKeff();
   FP_PRECISION getSourceConvergenceThreshold();
 
-  bool isUsingSinglePrecision();
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
-  bool isUsingExponentialIntrinsic();
 
   /**
    * @brief Returns the scalar flux for a FSR and energy group.
@@ -350,26 +319,6 @@ public:
 
   void printTimerReport();
 };
-
-
-/**
- * @brief Rounds a single precision floating point value to an integer.
- * @param x a float precision floating point value
- * @brief the rounded integer value
- */
-inline int Solver::round_to_int(float x) {
-  return lrintf(x);
-}
-
-
-/**
- * @brief Rounds a double precision floating point value to an integer.
- * @param x a double precision floating point value
- * @brief the rounded integer value
- */
-inline int Solver::round_to_int(double x) {
-  return lrint(x);
-}
 
 
 #endif /* SOLVER_H_ */
