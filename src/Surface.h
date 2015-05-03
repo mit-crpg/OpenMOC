@@ -10,10 +10,11 @@
 #define SURFACE_H_
 
 #ifdef __cplusplus
-#include <limits>
+#include "Python.h"
 #include "constants.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"
+#include <limits>
 #endif
 
 

@@ -11,10 +11,10 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "Solver.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
-#include "Solver.h"
 #endif
 
 /** Indexing macro for the angular fluxes for each polar angle and energy

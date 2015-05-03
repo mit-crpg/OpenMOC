@@ -152,6 +152,31 @@ FP_PRECISION* TrackGenerator::getAzimWeights() {
 
 
 /**
+ * @brief Get the maximum allowable optical length for a track segment
+ * @return The max optical length
+ */
+FP_PRECISION TrackGenerator::getMaxOpticalLength() {
+  return _max_optical_length;
+}
+
+/**
+ * @brief Get the total number of tracks in the TrackGenerator
+ * @return the total number of tracks
+ */
+int TrackGenerator::getTotNumTracks() {
+  return _tot_num_tracks;
+}
+
+/**
+ * @brief Get the total number of track segments in the TrackGenerator
+ * @return the total number of track segments
+ */
+int TrackGenerator::getTotNumSegments() {
+  return _tot_num_segments;
+}
+
+
+/**
  * @brief Returns the number of shared memory OpenMP threads in use.
  * @return the number of threads
  */
@@ -1503,7 +1528,7 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
              fsr_id, curr_volume, fsr_volume);
 
   int num_segments, azim_index;
-  double dx_eff, dy_eff, d_eff;
+  double dx_eff, d_eff;
   double volume, corr_factor;
   segment* curr_segment;
   segment* segments;
@@ -1516,7 +1541,6 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
 
     /* Compute effective track spacing for this azimuthal angle */
     dx_eff = (_geometry->getWidth() / _num_x[i]);
-    dy_eff = (_geometry->getHeight() / _num_y[i]);
     d_eff = (dx_eff * sin(_tracks[i][0].getPhi()));
 
     /* Compute the current estimated volume of the FSR for this angle */

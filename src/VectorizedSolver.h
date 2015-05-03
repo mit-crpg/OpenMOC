@@ -11,11 +11,11 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "CPUSolver.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
 #include <mkl.h>
-#include "CPUSolver.h"
 #endif
 
 /** Indexing scheme for the optical length (\f$ l\Sigma_t \f$) for a

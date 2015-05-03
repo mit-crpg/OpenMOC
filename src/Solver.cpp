@@ -588,11 +588,14 @@ void Solver::initializeFSRs() {
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
+  /* Compute the number of fissionable Materials */
+  _num_fissionable_FSRs = 0;
+
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
 
     /* Assign the Material corresponding to this FSR */
-    _FSR_materials[r] =  _geometry->findFSRMaterial(r);
+    _FSR_materials[r] = _geometry->findFSRMaterial(r);
 
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);

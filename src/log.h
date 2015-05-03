@@ -12,6 +12,7 @@
 #define LOG_H_
 
 #ifdef __cplusplus
+#include "Python.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -26,7 +27,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <omp.h>
-#include "Python.h"
 #endif
 
 #define printf PySys_WriteStdout
