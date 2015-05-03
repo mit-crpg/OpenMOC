@@ -10,7 +10,7 @@
  * @param material_h pointer to a Material on the host
  * @param material_d pointer to a dev_material on the GPU
  */
-void clone_material_on_gpu(Material* material_h, dev_material* material_d) {
+void clone_material(Material* material_h, dev_material* material_d) {
 
   /* Copy over the Material's ID */
   int id = material_h->getId();
@@ -80,8 +80,8 @@ void clone_material_on_gpu(Material* material_h, dev_material* material_d) {
  * @param material_IDs_to_indices map of material IDs to indices
  *        in the _materials array.
  */
-void clone_track_on_gpu(Track* track_h, dev_track* track_d, 
-     			std::map<int, int> &material_IDs_to_indices) {
+void clone_track(Track* track_h, dev_track* track_d, 
+     		 std::map<int, int> &material_IDs_to_indices) {
 
   dev_segment* dev_segments;
   dev_segment* host_segments = new dev_segment[track_h->getNumSegments()];

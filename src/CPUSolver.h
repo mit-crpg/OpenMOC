@@ -48,10 +48,9 @@ protected:
   /** OpenMP mutual exclusion locks for atomic surface current updates */
   omp_lock_t* _cmfd_surface_locks;
 
-  void initializeFSRs();
   void initializeFluxArrays();
   void initializeSourceArrays();
-  void buildExpInterpTable();
+  void initializeFSRs();
   void initializeCmfd();
 
   void zeroTrackFluxes();
@@ -86,21 +85,6 @@ protected:
   void addSourceToScalarFlux();
   void computeKeff();
   void transportSweep();
-
-  /**
-   * @brief Computes the exponential term in the transport equation for a
-   *        track segment.
-   * @details This method uses either a linear interpolation table (default)
-   *          or the exponential intrinsic exp(...) function if requested by
-   *          the user through a call to the Solver::useExponentialIntrinsic()
-   *          routine.
-   * @param sigma_t the total group cross-section at this energy
-   * @param length the length of the Track segment projected in the xy-plane
-   * @param p the polar angle index
-   * @return the evaluated exponential
-   */
-  virtual FP_PRECISION computeExponential(FP_PRECISION sigma_t,
-                                          FP_PRECISION length, int p);
 
 public:
   CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);

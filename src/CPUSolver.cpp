@@ -292,60 +292,7 @@ void CPUSolver::initializeSourceArrays() {
 }
 
 
-/**
- * @brief Builds a linear interpolation table to compute exponentials for
- *        each segment of each Track for each polar angle.
- */
-void CPUSolver::buildExpInterpTable() {
-
-  log_printf(INFO, "Building exponential interpolation table...");
-
-  /* Find largest optical path length track segment */
-  FP_PRECISION tau = _track_generator->getMaxOpticalLength();
-
-  /* Expand tau slightly to accomodate track segments which have a
-   * length very nearly equal to the maximum value */
-  tau *= 1.01;
-
-  /* Set size of interpolation table */
-  int num_array_values = tau * sqrt(1./(8.*_source_convergence_thresh*1e-2));
-  _exp_table_spacing = tau / num_array_values;
-  _exp_table_size = _two_times_num_polar * num_array_values;
-  _exp_table_max_index = _exp_table_size - _two_times_num_polar - 1.;
-
-  log_printf(DEBUG, "Exponential interpolation table size: %i, max index: %i",
-             _exp_table_size, _exp_table_max_index);
-
-  /* Allocate array for the table */
-  if (_exp_table != NULL)
-    delete [] _exp_table;
-
-  _exp_table = new FP_PRECISION[_exp_table_size];
-
-  FP_PRECISION expon;
-  FP_PRECISION intercept;
-  FP_PRECISION slope;
-
-  /* Create exponential linear interpolation table */
-  for (int i=0; i < num_array_values; i ++){
-    for (int p=0; p < _num_polar; p++){
-      expon = exp(- (i * _exp_table_spacing) / _polar_quad->getSinTheta(p));
-      slope = - expon / _polar_quad->getSinTheta(p);
-      intercept = expon * (1 + (i * _exp_table_spacing) / 
-                  _polar_quad->getSinTheta(p));
-      _exp_table[_two_times_num_polar * i + 2 * p] = slope;
-      _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
-    }
-  }
-
-  /* Compute the reciprocal of the table entry spacing */
-  _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
-
-  return;
-}
-
-
-/**
+/*
  * @brief Initializes Cmfd object for acceleration prior to source iteration.
  * @details Instantiates a dummy Cmfd object if one was not assigned to
  *          the Solver by the user and initializes FSRs, Materials, fluxes
@@ -828,8 +775,8 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 
     /* Loop over polar angles */
     for (int p=0; p < _num_polar; p++){
-      exponential = computeExponential(sigma_t[e], length, p);
-      delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e))*exponential;
+      exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, p);
+      delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
       fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
       track_flux(p,e) -= delta_psi;
     }
@@ -896,45 +843,6 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
   omp_unset_lock(&_FSR_locks[fsr_id]);
 
   return;
-}
-
-
-/**
- * @brief Computes the exponential term in the transport equation for a
- *        Track segment.
- * @details This method computes \f$ 1 - exp(-l\Sigma^T_g/sin(\theta_p)) \f$
- *          for a segment with total group cross-section and for some polar
- *          angle. This method uses either a linear interpolation table
- *          (default) or the exponential intrinsic exp(...) function if
- *          requested by the user through a call to the
- *          Solver::useExponentialIntrinsic()  routine.
- * @param sigma_t the total group cross-section at this energy
- * @param length the length of the Track segment projected in the xy-plane
- * @param p the polar angle index
- * @return the evaluated exponential
- */
-FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
-                                           FP_PRECISION length, int p) {
-
-  FP_PRECISION exponential;
-  FP_PRECISION tau = sigma_t * length;
-
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate_exponential) {
-    int index;
-    index = round_to_int(tau * _inverse_exp_table_spacing);
-    index *= _two_times_num_polar;
-    exponential = (1. - (_exp_table[index+2 * p] * tau +
-                  _exp_table[index + 2 * p +1]));
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION sintheta = _polar_quad->getSinTheta(p);
-    exponential = 1.0 - exp(- tau / sintheta);
-  }
-
-  return exponential;
 }
 
 

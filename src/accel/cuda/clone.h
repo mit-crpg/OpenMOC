@@ -10,6 +10,6 @@
 #include "../DeviceTrack.h"
 #include <map>
 
-void clone_material_on_gpu(Material* material_h, dev_material* material_d);
-void clone_track_on_gpu(Track* track_h, dev_track* track_d, 
+void clone_material(Material* material_h, dev_material* material_d);
+void clone_track(Track* track_h, dev_track* track_d, 
                         std::map<int, int> &material_IDs_to_indices);
