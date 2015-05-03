@@ -10,22 +10,18 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include "Python.h"
 #include "constants.h"
 #include "Timer.h"
 #include "PolarQuad.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"
 #include "ExpEvaluator.h"
+#include <math.h>
 #endif
 
 /** Indexing macro for the scalar flux in each FSR and energy grou */
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
-
-/** Indexing macro for the surface currents for each CMFD Mesh surface and
- *  each energy group */
-#define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() \
-                                                  + _cmfd->getCmfdGroup((e))])
 
 /** Indexing macro for the total source divided by the total cross-section
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
@@ -76,9 +72,6 @@ protected:
 
   /** The number of fissionable flat source regions */
   int _num_fissionable_FSRs;
-
-  /** The number of mesh cells */
-  int _num_mesh_cells;
 
   /** The FSR "volumes" (i.e., areas) indexed by FSR UID */
   FP_PRECISION* _FSR_volumes;
@@ -138,9 +131,6 @@ protected:
   /** The scalar flux for each energy group in each FSR */
   FP_PRECISION* _scalar_flux;
 
-  /** The CMFD Mesh surface currents in each energy group */
-  FP_PRECISION* _surface_currents;
-
   /** The fission source in each FSR and energy group */
   FP_PRECISION* _fission_sources;
 
@@ -159,9 +149,6 @@ protected:
 
   /** The current iteration's approximation to k-effective */
   FP_PRECISION _k_eff;
-
-  /** An array of k-effective at each iteration */
-  std::vector<FP_PRECISION> _residual_vector;
 
   /** The total leakage across vacuum boundaries */
   FP_PRECISION _leakage;
@@ -254,12 +241,14 @@ protected:
 
 
 public:
-  Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
+  Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
+  virtual void setGeometry(Geometry* geometry);
+
   Geometry* getGeometry();
-  FP_PRECISION getFSRVolume(int fsr_id);
   TrackGenerator* getTrackGenerator();
+  FP_PRECISION getFSRVolume(int fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
   double getTotalTime();
@@ -292,7 +281,6 @@ public:
    */
   virtual FP_PRECISION getFSRSource(int fsr_id, int energy_group) =0;
 
-  virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);

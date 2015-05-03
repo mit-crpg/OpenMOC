@@ -6,6 +6,7 @@
 
 %{
   #define SWIG_FILE_WITH_INIT
+  #include <cstddef>
   #include "../src/constants.h"
   #include "../src/Cell.h"
   #include "../src/Geometry.h"
@@ -388,7 +389,7 @@
   $3 = (Universe**) malloc(($1 * $2) * sizeof(Universe*)); // universes
 
   /* Loop over x */
-  for (int i = 0; i < $2; i++) {
+  for (int i = 0; i < $1; i++) {
 
     /* Get the inner list in the nested list for the lattice */
     PyObject* outer_list = PyList_GetItem($input,i);
@@ -396,19 +397,19 @@
     /* Check that the length of this list is the same as the length
      * of the first list */
     if (PySequence_Length(outer_list) != $2) {
-      PyErr_SetString(PyExc_ValueError, "Size mismatch. Expected $1 x $2 "
-                      "elements for Lattice\n");
+      PyErr_SetString(PyExc_ValueError, "Size mismatch in Universes "
+                      "list for Lattice which must be a 2D list of lists");
       return NULL;
     }
 
     /* Loop over y */
-    for (int j =0; j < $1; j++) {
+    for (int j =0; j < $2; j++) {
       /* Extract the value from the list at this location and convert
        * SWIG wrapper to pointer to underlying C++ class instance */
-      PyObject* o = PyList_GetItem(outer_list,j);
+      PyObject* o = PyList_GetItem(outer_list, j);
       void *p1 = 0;
       SWIG_ConvertPtr(o, &p1, SWIGTYPE_p_Universe, 0 | 0);
-      $3[i*$1+j] = (Universe*) p1;
+      $3[i*$2+j] = (Universe*) p1;
     }
   }
 }

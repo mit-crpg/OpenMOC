@@ -9,7 +9,8 @@
 #define GEOMETRY_H_
 
 #ifdef __cplusplus
-#include <limits.h>
+#include "Python.h"
+#include "Cmfd.h"
 #include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -17,7 +18,6 @@
 #include <string>
 #include <omp.h>
 #include <functional>
-#include "Cmfd.h"
 #ifndef CUDA
   #include <unordered_map>
 #endif

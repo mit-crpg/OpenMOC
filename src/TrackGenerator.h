@@ -11,13 +11,14 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "Python.h"
+#include "Track.h"
+#include "Geometry.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
 #include <omp.h>
-#include "Track.h"
-#include "Geometry.h"
 #endif
 
 

@@ -13,9 +13,10 @@
 #define POLARQUAD_H_
 
 #ifdef __cplusplus
-#include <sstream>
+#include "Python.h"
 #include "constants.h"
 #include "log.h"
+#include <sstream>
 #endif
 
 

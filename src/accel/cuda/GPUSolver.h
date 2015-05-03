@@ -9,6 +9,7 @@
 #define GPUSOLVER_H_
 
 #ifdef __cplusplus
+#include "Python.h"
 #include "../../constants.h"
 #include "../../Solver.h"
 #endif
@@ -126,15 +127,12 @@ public:
 
   /**
    * @brief Constructor initializes arrays for dev_tracks and dev_materials..
-   * @details The constructor retrieves the number of energy groups and FSRs
-   *          and azimuthal angles from the Geometry and TrackGenerator if
-   *          passed in as parameters by the user. The constructor initalizes
-   *          the number of CUDA threads and thread blocks each to a default
-   *          of 64.
+   * @details The constructor initalizes the number of CUDA threads and 
+   *          thread blocks each to a default of 64.
    * @param geometry an optional pointer to the Geometry
    * @param track_generator an optional pointer to the TrackjGenerator
    */
-  GPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);
+  GPUSolver(TrackGenerator* track_generator=NULL);
   virtual ~GPUSolver();
 
   /**
