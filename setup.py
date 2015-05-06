@@ -476,11 +476,11 @@ class custom_build_ext(build_ext):
 
 # Run the distutils setup method for the complete build
 dist = setup(name = 'openmoc',
-      version = '0.1.4a',
+      version = '0.1.4b',
       description = 'An open source method of characteristics code for ' + \
                     'solving the 2D neutron distribution in nuclear reactors',
       url = 'https://github.com/mit-crpg/OpenMOC',
-      download_url = 'https://github.com/mit-crpg/OpenMOC/tarball/v0.1.4a',
+      download_url = 'https://github.com/mit-crpg/OpenMOC/tarball/v0.1.4b',
 
       # Set the C/C++/CUDA extension modules built in setup_extension_modules()
       # in config.py based on the user-defined flags at compile time
