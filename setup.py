@@ -1,9 +1,28 @@
-from distutils.core import setup
-from distutils.command.build_ext import build_ext
-from distutils.command.build_py import build_py
-from distutils.command.install import install
+'''
+The setup script for OpenMOC
+'''
+
 from distutils.errors import DistutilsOptionError
 import os, string
+
+# Use setuptools only if the user opts-in by setting the USE_SETUPTOOLS.
+# This ensures consistent behavior but allows for advanced usage with
+# virtualenv, buildout, pip and others.
+with_setuptools = False
+if 'USE_SETUPTOOLS' in os.environ or 'pip' in __file__:
+  with_setuptools = True
+
+if with_setuptools:
+  from setuptools import setup
+  from setuptools.command.build_ext import build_ext
+  from setuptools.command.build_py import build_py
+  from setuptools.command.install import install
+else:
+  from distutils.core import setup
+  from distutils.command.build_ext import build_ext
+  from distutils.command.build_py import build_py
+  from distutils.command.install import install
+
 import config
 
 
