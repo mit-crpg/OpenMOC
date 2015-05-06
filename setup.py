@@ -490,6 +490,9 @@ dist = setup(name = 'openmoc',
       # (ie, openmoc.log, openmoc.materialize, etc)
       packages = config.packages,
 
+      # Include SWIG interface files in package - this is important for PyPI
+      package_data = {'' : ['*.i*']},
+
       # Inject our custom compiler and linker triggers
       cmdclass={ 'build_ext': custom_build_ext,
                  'install': custom_install}
