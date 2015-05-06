@@ -2,10 +2,12 @@
 OpenMOC
 =======
 
-.. image:: https://img.shields.io/badge/Powered%20by-OpenMOC-blue.svg
+.. image:: https://img.shields.io/badge/powered%20by-OpenMOC-blue.svg
     :target: https://mit-crpg.github.io/OpenMOC/
 .. image:: https://img.shields.io/badge/license-MIT%20License-green.svg    
     :target: https://mit-crpg.github.io/OpenMOC/license.html
+.. image:: https://img.shields.io/badge/anucene-Elsevier-orange.svg
+    :target: http://www.sciencedirect.com/science/article/pii/S0306454913006634
 
 Welcome to the OpenMOC repository! OpenMOC is a simulation tool for 
 solving for the flux, power distribution, and multiplication factor 
