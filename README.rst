@@ -4,6 +4,8 @@ OpenMOC
 
 .. image:: https://img.shields.io/badge/powered%20by-OpenMOC-blue.svg
     :target: https://mit-crpg.github.io/OpenMOC/
+.. image:: https://img.shields.io/badge/pypi-v0.1.4b-orange.svg
+    :target: https://pypi.python.org/pypi/openmoc/0.1.4b
 .. image:: https://img.shields.io/badge/license-MIT%20License-green.svg    
     :target: https://mit-crpg.github.io/OpenMOC/license.html
 .. image:: https://img.shields.io/badge/anucene-Elsevier-orange.svg
