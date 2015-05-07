@@ -152,7 +152,7 @@ protected:
   FP_PRECISION* _reduced_sources;
 
   /** An array of the residuals between the old source and the new source
-   *  on each iteration in each FSR and energy group */
+   *  on each iteration in each FSR */
   FP_PRECISION* _source_residuals;
 
   /** The current iteration's approximation to k-effective */
