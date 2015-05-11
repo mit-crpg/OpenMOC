@@ -16,7 +16,6 @@
 
 #include <thrust/reduce.h>
 #include <thrust/device_vector.h>
-#include <sm_13_double_functions.h>
 #include <sm_20_atomic_functions.h>
 #include "clone.h"
 #include "GPUExpEvaluator.h"
