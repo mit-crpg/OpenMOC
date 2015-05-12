@@ -9,6 +9,8 @@
 #define TIMER_H_
 
 #ifdef __cplusplus
+#include "Python.h"
+#include "log.h"
 #include <time.h>
 #include <omp.h>
 #include <iostream>
@@ -18,7 +20,6 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "log.h"
 #endif
 
 

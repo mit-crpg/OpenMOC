@@ -127,7 +127,7 @@ class configuration:
                     'src/log.cpp',
                     'src/Material.cpp',
                     'src/Point.cpp',
-                    'src/Quadrature.cpp',
+                    'src/PolarQuad.cpp',
                     'src/Solver.cpp',
                     'src/CPUSolver.cpp',
                     'src/Surface.cpp',
@@ -144,7 +144,7 @@ class configuration:
                      'src/log.cpp',
                      'src/Material.cpp',
                      'src/Point.cpp',
-                     'src/Quadrature.cpp',
+                     'src/PolarQuad.cpp',
                      'src/Solver.cpp',
                      'src/CPUSolver.cpp',
                      'src/VectorizedSolver.cpp',
@@ -162,7 +162,7 @@ class configuration:
                       'src/log.cpp',
                       'src/Material.cpp',
                       'src/Point.cpp',
-                      'src/Quadrature.cpp',
+                      'src/PolarQuad.cpp',
                       'src/Solver.cpp',
                       'src/CPUSolver.cpp',
                       'src/Surface.cpp',
@@ -247,7 +247,7 @@ class configuration:
   library_directories['gcc'] = [usr_lib]
   library_directories['icpc'] = [usr_lib]
   library_directories['bgxlc'] = [usr_lib]
-  library_directories['nvcc'] = [usr_lib, '/usr/local/cuda-5.5/lib64']
+  library_directories['nvcc'] = [usr_lib, '/usr/local/cuda/lib64']
 
 
   #############################################################################
@@ -261,7 +261,7 @@ class configuration:
   include_directories['gcc'] = list()
   include_directories['icpc'] = list()
   include_directories['bgxlc'] = list()
-  include_directories['nvcc'] = ['/usr/local/cuda-5.5/include']
+  include_directories['nvcc'] = ['/usr/local/cuda/include']
 
 
   ###########################################################################

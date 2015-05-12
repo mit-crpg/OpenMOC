@@ -33,7 +33,7 @@ else:
   from openmoc import *
 
 import numpy as np
-import os
+import os, re, mmap
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -436,7 +436,8 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 
     if fission_rates:
       compute_fission_rates(solver, False)      
-      state['fission-rates'] = pickle.load(file('fission-rates/fission-rates.pkl', 'rb'))
+      state['fission-rates'] = \
+        pickle.load(file('fission-rates/fission-rates.pkl', 'rb'))
 
     # Pickle the simulation states to a file
     pickle.dump(sim_states, open(filename, 'wb'))
@@ -444,14 +445,6 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     # Pickle the simulation states to a file
     pickle.dump(sim_states, open(filename, 'wb'))
 
-
-##
-# @brief
-# @details
-
-##
-# @brief
-# @details
 
 ##
 # @brief This method restores all of the data for an OpenMOC simulation from a
@@ -480,7 +473,13 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 # @param directory the directory where to find the simulation state file
 # @return a Python dictionary of key/value pairs for simulation state data
 def restore_simulation_state(filename='simulation-state.h5',
-                              directory='simulation-states'):
+                             directory='simulation-states'):
+
+  filename = directory + '/' + filename
+
+  if not os.path.isfile(filename):
+    py_printf('ERROR', 'Unable restore simulation state since "{0}" ' + \
+              'is not an existing simulation state file'.format(filename))
 
   # If using HDF5
   if '.h5' in filename or '.hdf5' in filename:
@@ -488,7 +487,7 @@ def restore_simulation_state(filename='simulation-state.h5',
     import h5py
 
     # Create a file handle
-    f = h5py.File(directory + '/' + filename, 'r')
+    f = h5py.File(filename, 'r')
 
     states = {}
 
@@ -507,7 +506,6 @@ def restore_simulation_state(filename='simulation-state.h5',
         state = states[day][time]
 
         # Extract simulation data and store it in the sub-dictionary
-
         solver_type = str(dataset['solver type'])
         state['solver type'] = solver_type
 
@@ -583,7 +581,6 @@ def restore_simulation_state(filename='simulation-state.h5',
     import pickle
 
     # Load the dictionary from the pickle file
-    filename = directory + '/' + filename
     states = pickle.load(file(filename, 'rb'))
 
     return states
@@ -595,3 +592,57 @@ def restore_simulation_state(filename='simulation-state.h5',
               '*.h5, *.hdf5, and *.pkl files are supported', filename)
 
     return {}
+
+
+##
+# @brief Parse an OpenMOC log file to obtain a simulation's convergence data.
+# @details This method compiles the eigenvalue and source residuals from each
+#          iteration of an OpenMOC simulation. This data is inserted into a 
+#          Python dictionary under the key names 'eigenvalues' and 'residuals',
+#          along with an integer `# iters`, and returned to the user.
+#
+#          This method may be called from Python as follows:
+# @code
+#          parse_convergence_data(filename='openmoc-XX-XX-XXXX--XX:XX:XX.log')
+# @endcode
+#
+# @param filename the OpenMOC log filename string
+# @param directory the directory where to find the log file
+# @return a Python dictionary of key/value pairs for convergence data
+def parse_convergence_data(filename, directory=''):
+
+  # If the user specified a directory
+  if len(directory) > 0:
+    filename = directory + '/' + filename
+
+  if not os.path.isfile(filename):
+    py_printf('ERROR', 'Unable to parse convergence data since "{0}" is ' + \
+              'not an existing OpenMOC log file'.format(filename))
+
+  # Compile regular expressions to find the residual and eigenvalue data
+  res = re.compile(b'res = ([0-9].[0-9]+E[+|-][0-9]+)')
+  keff = re.compile(b'k_eff = ([0-9]+.[0-9]+)')
+
+  # Parse the eigenvalues
+  with open(filename, 'r+') as f:
+    data = mmap.mmap(f.fileno(), 0)
+    eigenvalues = keff.findall(data)
+
+  # Parse the source residuals
+  with open(filename, 'r+') as f:
+    data = mmap.mmap(f.fileno(), 0)
+    residuals = res.findall(data)
+
+  # Create NumPy arrays of the data
+  eigenvalues = np.array([float(eigenvalue) for eigenvalue in eigenvalues])
+  residuals = np.array([float(residual) for residual in residuals])
+
+  # Find the total number of source iterations
+  num_iters = len(residuals)
+
+  # Store the data in a dictionary to return to the user
+  convergence_data = dict()
+  convergence_data['# iters'] = num_iters
+  convergence_data['eigenvalues'] = eigenvalues
+  convergence_data['residuals'] = residuals
+  return convergence_data

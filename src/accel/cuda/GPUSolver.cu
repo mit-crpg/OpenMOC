@@ -231,7 +231,8 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
       fsr_fission_source += fission_source * chi[G] * inverse_k_eff;
 
       reduced_sources(tid,G) = __fdividef((inverse_k_eff * fission_source 
-                      * chi[G] + scatter_source) * ONE_OVER_FOUR_PI, sigma_t[G]);
+                               * chi[G] + scatter_source) * ONE_OVER_FOUR_PI, 
+                               sigma_t[G]);
     }
 
     /* Compute the norm of residuals of the sources for convergence */
@@ -643,7 +644,8 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
     for (int i=0; i < *num_groups; i++) {
       scalar_flux(tid,i) *= 0.5;
       scalar_flux(tid,i) = FOUR_PI * reduced_sources(tid,i) +
-                    __fdividef(scalar_flux(tid,i), (sigma_t[i] * volume));
+                           __fdividef(scalar_flux(tid,i), 
+                           (sigma_t[i] * volume));
     }
 
     /* Increment thread id */
@@ -1038,12 +1040,13 @@ void GPUSolver::initializePolarQuadrature() {
 
   log_printf(INFO, "Initializing polar quadrature on the GPU...");
 
-  /* Deletes the old Quadrature if one existed */
-  if (_quad != NULL)
-    delete _quad;
+  Solver::initializePolarQuadrature();
 
-  _quad = new Quadrature(_quadrature_type, _num_polar);
-  _polar_times_groups = _num_groups * _num_polar;
+  if (_num_polar > MAX_POLAR_ANGLES)
+    log_printf(ERROR, "Unable to initialize a polar quadrature with %d "
+               "angles for the GPUSolver which is limited to %d polar "
+               "angles. Update the MAX_POLAR_ANGLES macro in GPUSolver.h "
+               "and recompile.", _num_polar, MAX_POLAR_ANGLES);
 
   /* Copy the number of polar angles to constant memory on the GPU */
   cudaMemcpyToSymbol(num_polar, (void*)&_num_polar, sizeof(int), 0,
@@ -1057,21 +1060,6 @@ void GPUSolver::initializePolarQuadrature() {
    * on the GPU */
   cudaMemcpyToSymbol(polar_times_groups, (void*)&_polar_times_groups,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
-
-  /* Compute polar times azimuthal angle weights */
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights =
-      (FP_PRECISION*)malloc(_num_polar * _num_azim * sizeof(FP_PRECISION));
-
-  FP_PRECISION* multiples = _quad->getMultiples();
-  FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
-
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_polar; j++)
-      _polar_weights[i*_num_polar+j] = azim_weights[i]*multiples[j]*FOUR_PI;
-  }
 
   /* Copy the polar weights to constant memory on the GPU */
   cudaMemcpyToSymbol(polar_weights, (void*)_polar_weights,
@@ -1087,71 +1075,43 @@ void GPUSolver::initializePolarQuadrature() {
  */
 void GPUSolver::initializeFSRs() {
 
-  log_printf(INFO, "Initializing FSRs on the GPU...");
+  log_printf(NORMAL, "Initializing FSRs on the GPU...");
 
   /* Delete old FSRs array if it exists */
-  if (_FSR_volumes != NULL)
+  if (_FSR_volumes != NULL) {
     cudaFree(_FSR_volumes);
+    _FSR_volumes = NULL;
+  }
 
-  if (_FSR_materials != NULL)
+  if (_FSR_materials != NULL) {
     cudaFree(_FSR_materials);
+    _FSR_materials = NULL;
+  }
+
+  Solver::initializeFSRs();
 
   /* Allocate memory for all FSR volumes and dev_materials on the device */
   try{
+
+    /* Store pointers to arrays of FSR data created on the host by the 
+     * the parent class Solver::initializeFSRs() routine */
+    FP_PRECISION* host_FSR_volumes = _FSR_volumes;
+    int* host_FSR_materials = _FSR_materials;
 
     /* Allocate memory on device for FSR volumes and Material indices */
     cudaMalloc((void**)&_FSR_volumes, _num_FSRs * sizeof(FP_PRECISION));
     cudaMalloc((void**)&_FSR_materials, _num_FSRs * sizeof(int));
 
-    /* Create a temporary FSR array to populate and then copy to device */
-    FP_PRECISION* temp_FSR_volumes = new FP_PRECISION[_num_FSRs];
-
-    /* Create a temporary FSR to material indices array to populate and then 
-     * copy to device */
+    /* Create a temporary FSR to material indices array */
     int* FSRs_to_material_indices = new int[_num_FSRs];
 
-    /* Initialize num fissionable FSRs counter */
-    _num_fissionable_FSRs = 0;
-
     /* Populate FSR Material indices array */
-    for (int i = 0; i < _num_FSRs; i++){
+    for (int i = 0; i < _num_FSRs; i++)
       FSRs_to_material_indices[i] = _material_IDs_to_indices[_geometry->
         findFSRMaterial(i)->getId()];
-      if (_geometry->findFSRMaterial(i)->isFissionable())
-        _num_fissionable_FSRs++;
-    }
 
-    /* Initialize each FSRs volume to 0 to avoid NaNs */
-    memset(temp_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
-
-    Track* track;
-    int num_segments;
-    segment* curr_segment;
-    segment* segments;
-    FP_PRECISION volume;
-
-    FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
-
-    /* Set each FSR's volume by accumulating the total length of all Tracks
-     * inside the FSR. Iterate over azimuthal angle, Track, Track segment*/
-    for (int i=0; i < _num_azim; i++) {
-      for (int j=0; j < _num_tracks[i]; j++) {
-
-        track = &_track_generator->getTracks()[i][j];
-        num_segments = track->getNumSegments();
-        segments = track->getSegments();
-
-        /* Iterate over the Track's segments to update FSR volumes */
-        for (int s = 0; s < num_segments; s++) {
-          curr_segment = &segments[s];
-          volume = curr_segment->_length * azim_weights[i];
-          temp_FSR_volumes[curr_segment->_region_id] += volume;
-        }
-      }
-    }
-
-    /* Copy the temporary array of FSRs to the device */
-    cudaMemcpy((void*)_FSR_volumes, (void*)temp_FSR_volumes,
+    /* Copy the arrays of FSR data to the device */
+    cudaMemcpy((void*)_FSR_volumes, (void*)host_FSR_volumes,
       _num_FSRs * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
     cudaMemcpy((void*)_FSR_materials, (void*)FSRs_to_material_indices,
       _num_FSRs * sizeof(int), cudaMemcpyHostToDevice);
@@ -1160,8 +1120,9 @@ void GPUSolver::initializeFSRs() {
     cudaMemcpyToSymbol(num_FSRs, (void*)&_num_FSRs, sizeof(int), 0,
       cudaMemcpyHostToDevice);
 
-    /* Free the temporary array of FSR volumes on the host */
-    free(temp_FSR_volumes);
+    /* Free the array of FSRs data allocated by the Solver parent class */
+    free(host_FSR_volumes);
+    free(host_FSR_materials);
 
     /* Free the temporary array of FSRs to material indices on the host */
     free(FSRs_to_material_indices);
@@ -1459,7 +1420,7 @@ void GPUSolver::buildExpInterpTable(){
 
   /* Copy the sines of the polar angles which is needed if the user
    * requested the use of the exp intrinsic to evaluate exponentials */
-  cudaMemcpyToSymbol(sinthetas, (void*)_quad->getSinThetas(),
+  cudaMemcpyToSymbol(sinthetas, (void*)_polar_quad->getSinThetas(),
                      _num_polar * sizeof(FP_PRECISION), 0,
                      cudaMemcpyHostToDevice);
 
@@ -1491,9 +1452,10 @@ void GPUSolver::buildExpInterpTable(){
   /* Create exponential interpolation table */
   for (int i = 0; i < num_array_values; i ++){
     for (int p = 0; p < _num_polar; p++){
-      expon = exp(- (i * _exp_table_spacing) / _quad->getSinTheta(p));
-      slope = - expon / _quad->getSinTheta(p);
-      intercept = expon * (1 + (i * _exp_table_spacing)/_quad->getSinTheta(p));
+      expon = exp(- (i * _exp_table_spacing) / _polar_quad->getSinTheta(p));
+      slope = - expon / _polar_quad->getSinTheta(p);
+      intercept = expon * (1 + (i * _exp_table_spacing) / 
+                  _polar_quad->getSinTheta(p));
       exp_table[_two_times_num_polar * i + 2 * p] = slope;
       exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
     }

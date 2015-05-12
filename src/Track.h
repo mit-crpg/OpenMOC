@@ -9,9 +9,10 @@
 #define TRACK_H_
 
 #ifdef __cplusplus
-#include <vector>
+#include "Python.h"
 #include "Point.h"
 #include "Material.h"
+#include <vector>
 #endif
 
 /**

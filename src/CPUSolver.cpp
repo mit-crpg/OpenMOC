@@ -185,6 +185,28 @@ void CPUSolver::setNumThreads(int num_threads) {
 
 
 /**
+ * @brief Initializes the FSR volumes and Materials array.
+ * @details This method assigns each FSR a unique, monotonically increasing
+ *          ID, sets the Material for each FSR, and assigns a volume based on
+ *          the cumulative length of all of the segments inside the FSR.
+ */
+void CPUSolver::initializeFSRs() {
+
+  Solver::initializeFSRs();
+
+  /* Allocate array of mutex locks for each FSR */
+  _FSR_locks = new omp_lock_t[_num_FSRs];
+
+  /* Loop over all FSRs to initialize OpenMP locks */
+  #pragma omp parallel for schedule(guided)
+  for (int r=0; r < _num_FSRs; r++)
+    omp_init_lock(&_FSR_locks[r]);
+
+  return;
+}
+
+
+/**
  * @brief Allocates memory for Track boundary angular flux and leakage
  *        and FSR scalar flux arrays.
  * @details Deletes memory for old flux arrays if they were allocated for a
@@ -271,45 +293,12 @@ void CPUSolver::initializeSourceArrays() {
 
 
 /**
- * @brief Creates a polar Quadrature object for the solver.
- * @details Deletes memory for old Quadrature if one was allocated for a
- *          previous simulation.
- */
-void CPUSolver::initializePolarQuadrature() {
-
-  /* Deletes the old Quadrature if one existed */
-  if (_quad != NULL)
-    delete _quad;
-
-  _quad = new Quadrature(_quadrature_type, _num_polar);
-  _polar_times_groups = _num_groups * _num_polar;
-}
-
-
-/**
  * @brief Builds a linear interpolation table to compute exponentials for
  *        each segment of each Track for each polar angle.
  */
 void CPUSolver::buildExpInterpTable() {
 
   log_printf(INFO, "Building exponential interpolation table...");
-
-  FP_PRECISION azim_weight;
-
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
-
-  /* Compute the total azimuthal weight for tracks at each polar angle */
-  #pragma omp parallel for private(azim_weight) schedule(guided)
-  for (int i=0; i < _num_azim; i++) {
-
-    azim_weight = _azim_weights[i];
-
-    for (int p=0; p < _num_polar; p++)
-      _polar_weights(i,p) = azim_weight*_quad->getMultiple(p)*FOUR_PI;
-  }
 
   /* Find largest optical path length track segment */
   FP_PRECISION tau = _track_generator->getMaxOpticalLength();
@@ -340,9 +329,10 @@ void CPUSolver::buildExpInterpTable() {
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i ++){
     for (int p=0; p < _num_polar; p++){
-      expon = exp(- (i * _exp_table_spacing) / _quad->getSinTheta(p));
-      slope = - expon / _quad->getSinTheta(p);
-      intercept = expon * (1 + (i * _exp_table_spacing)/_quad->getSinTheta(p));
+      expon = exp(- (i * _exp_table_spacing) / _polar_quad->getSinTheta(p));
+      slope = - expon / _polar_quad->getSinTheta(p);
+      intercept = expon * (1 + (i * _exp_table_spacing) / 
+                  _polar_quad->getSinTheta(p));
       _exp_table[_two_times_num_polar * i + 2 * p] = slope;
       _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
     }
@@ -350,77 +340,6 @@ void CPUSolver::buildExpInterpTable() {
 
   /* Compute the reciprocal of the table entry spacing */
   _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
-
-  return;
-}
-
-
-/**
- * @brief Initializes the FSR volumes and Materials array.
- * @details This method assigns each FSR a unique, monotonically increasing
- *          ID, sets the Material for each FSR, and assigns a volume based on
- *          the cumulative length of all of the segments inside the FSR.
- */
-void CPUSolver::initializeFSRs() {
-
-  log_printf(INFO, "Initializing flat source regions...");
-
-  /* Delete old FSR arrays if they exist */
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
-  if (_FSR_materials != NULL)
-    delete [] _FSR_materials;
-
-  _FSR_volumes = (FP_PRECISION*)calloc(_num_FSRs, sizeof(FP_PRECISION));
-  _FSR_materials = new Material*[_num_FSRs];
-  _FSR_locks = new omp_lock_t[_num_FSRs];
-
-  int num_segments;
-  segment* curr_segment;
-  segment* segments;
-  FP_PRECISION volume;
-  Material* material;
-  Universe* root_universe = _geometry->getRootUniverse();
-  _num_fissionable_FSRs = 0;
-
-  /* Set each FSR's "volume" by accumulating the total length of all Tracks
-   * inside the FSR. Loop over azimuthal angles, Tracks and Track segments. */
-  for (int i=0; i < _tot_num_tracks; i++) {
-
-    int azim_index = _tracks[i]->getAzimAngleIndex();
-    num_segments = _tracks[i]->getNumSegments();
-    segments = _tracks[i]->getSegments();
-
-    for (int s=0; s < num_segments; s++) {
-      curr_segment = &segments[s];
-      volume = curr_segment->_length * _azim_weights[azim_index];
-      _FSR_volumes[curr_segment->_region_id] += volume;
-    }
-  }
-
-  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
-
-  /* Loop over all FSRs to extract FSR material pointers */
-  for (int r=0; r < _num_FSRs; r++) {
-
-    /* Assign the Material corresponding to this FSR */
-    material = _geometry->findFSRMaterial(r);
-    _FSR_materials[r] = material;
-
-    /* Increment number of fissionable FSRs */
-    if (material->isFissionable())
-      _num_fissionable_FSRs++;
-
-    log_printf(DEBUG, "FSR ID = %d has Material ID = %d "
-               "and volume = %f", r, _FSR_materials[r]->getId(),
-               _FSR_volumes[r]);
-  }
-
-  /* Loop over all FSRs to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++)
-    omp_init_lock(&_FSR_locks[r]);
 
   return;
 }
@@ -666,9 +585,8 @@ FP_PRECISION CPUSolver::computeFSRSources() {
       /* Set the fission source for FSR r in group G */
       fsr_fission_source += fission_source * chi[G];
 
-      /* Set the reduced source for FSR r in group G */
       _reduced_sources(r,G) = (fission_source * chi[G] + scatter_source) *
-                      ONE_OVER_FOUR_PI / sigma_t[G];
+                              ONE_OVER_FOUR_PI / sigma_t[G];
     }
 
     /* Compute the norm of residual of the source in the FSR */
@@ -1012,7 +930,7 @@ FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
 
   /* Evalute the exponential using the intrinsic exp(...) function */
   else {
-    FP_PRECISION sintheta = _quad->getSinTheta(p);
+    FP_PRECISION sintheta = _polar_quad->getSinTheta(p);
     exponential = 1.0 - exp(- tau / sintheta);
   }
 

@@ -847,7 +847,7 @@ std::string CellBasic::toString() {
   std::map<int, surface_halfspace>::iterator iter;
   string << ", surface ids = ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string << iter->first << ", ";
+    string << iter->second._halfspace * iter->first << ", ";
 
   return string.str();
 }
@@ -955,7 +955,7 @@ std::string CellFill::toString() {
   std::map<int, surface_halfspace>::iterator iter;
   string << ", surface ids = ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string << iter->first << ", ";
+    string <<  iter->second._halfspace * iter->first << ", ";
 
   return string.str();
 }

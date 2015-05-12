@@ -9,9 +9,10 @@
 #define POINT_H_
 
 #ifdef __cplusplus
+#include "Python.h"
+#include "log.h"
 #include <math.h>
 #include <sstream>
-#include "log.h"
 #endif
 
 /**

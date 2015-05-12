@@ -11,13 +11,14 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "Python.h"
+#include "Track.h"
+#include "Geometry.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
 #include <omp.h>
-#include "Track.h"
-#include "Geometry.h"
 #endif
 
 
@@ -94,6 +95,7 @@ private:
   bool readTracksFromFile();
 
 public:
+
   TrackGenerator(Geometry* geometry, int num_azim, double spacing);
   virtual ~TrackGenerator();
 
@@ -111,6 +113,8 @@ public:
   int getTotNumSegments();
   int getTotNumTracks();
   int getNumThreads();
+  FP_PRECISION* getFSRVolumes();
+  FP_PRECISION getFSRVolume(int fsr_id);
 
   /* Set parameters */
   void setNumAzim(int num_azim);
@@ -124,6 +128,7 @@ public:
   void retrieveTrackCoords(double* coords, int num_tracks);
   void retrieveSegmentCoords(double* coords, int num_segments);
   void generateTracks();
+  void correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume);
 };
 
 #endif /* TRACKGENERATOR_H_ */
