@@ -6,10 +6,11 @@
   #define PySys_WriteStdout printf
 
   #include <cstddef>
-  #include "../../src/Solver.h"
-  #include "../../src/accel/cuda/GPUSolver.h"
-  #include "../../src/accel/cuda/GPUQuery.h"
-  #include "../../src/accel/cuda/clone.h"
+  #include "../../../src/constants.h"
+  #include "../../../src/Solver.h"
+  #include "../../../src/accel/cuda/GPUSolver.h"
+  #include "../../../src/accel/cuda/GPUQuery.h"
+  #include "../../../src/accel/cuda/clone.h"
 
   /* Exception helpers */
   static int swig_c_error_num = 0;
@@ -57,6 +58,7 @@
 
 %include <exception.i>
 %include <std_map.i>
+%include ../../../src/constants.h
 %include ../../../src/Solver.h
 %include ../../../src/accel/cuda/GPUSolver.h
 %include ../../../src/accel/cuda/GPUQuery.h
