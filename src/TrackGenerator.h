@@ -129,6 +129,7 @@ public:
   void retrieveSegmentCoords(double* coords, int num_segments);
   void generateTracks();
   void correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume);
+  void splitSegments(FP_PRECISION max_optical_length);
 };
 
 #endif /* TRACKGENERATOR_H_ */

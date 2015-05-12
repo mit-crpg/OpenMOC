@@ -154,6 +154,8 @@ public:
 
   bool contains(Point* point);
   void addSegment(segment* segment);
+  void removeSegment(int index);
+  void insertSegment(int index, segment* segment);
   void clearSegments();
   std::string toString();
 };
