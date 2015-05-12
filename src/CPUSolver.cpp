@@ -701,32 +701,17 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
  * @brief Tallies the current contribution from this segment across the
  *        the appropriate CMFD mesh cell surface.
  * @param curr_segment a pointer to the Track segment of interest
- * @param azim_index a pointer to the azimuthal angle index for this segment
+ * @param azim_index the azimuthal index for this segmenbt
  * @param track_flux a pointer to the Track's angular flux
- * @param fwd
+ * @param fwd boolean indicating direction of integration along segment
  */
-void CPUSolver::tallySurfaceCurrent(segment* curr_segment,
-                                    int azim_index,
-                                    FP_PRECISION* track_flux,
-                                    bool fwd){
-
-  FP_PRECISION surf_current;
+void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
+                                    FP_PRECISION* track_flux, bool fwd){
 
   /* Tally surface currents if CMFD is in use */
-  if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
-
-    for (int e=0; e < _num_groups; e++) {
-      surf_current = 0.;
-
-      for (int p=0; p < _num_polar; p++)
-        surf_current += track_flux(p,e) * _polar_weights(azim_index,p);
-
-      surf_current /= 2.;
-      _cmfd->tallySurfaceCurrent(curr_segment, surf_current, fwd, e);
-    }
-  }
-
-  return;
+  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
+    _cmfd->tallySurfaceCurrent(curr_segment, track_flux, 
+                               &_polar_weights[azim_index], fwd);
 }
 
 

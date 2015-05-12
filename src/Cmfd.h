@@ -29,6 +29,12 @@
 #endif
 
 
+#undef track_flux
+
+/** Indexing macro for the angular fluxes for each polar angle and energy
+ *  group for either the forward or reverse direction for a given Track */ 
+#define track_flux(p,e) (track_flux[(p)*_num_moc_groups + (e)])
+
 /** Indexing macro for the surface currents for each CMFD Mesh surface and
  *  each energy group */
 #define _surface_currents(r,e) (_surface_currents[(r)*_num_cmfd_groups \
@@ -178,8 +184,8 @@ public:
   void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
                           int num_tracks);
   void zeroSurfaceCurrents();
-  void tallySurfaceCurrent(segment* curr_segment, FP_PRECISION current, 
-                           bool fwd, int e);
+  void tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
+                           FP_PRECISION* polar_weights, bool fwd);
 
   /* Get parameters */
   int getNumCmfdGroups();
