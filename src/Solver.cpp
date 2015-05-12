@@ -41,7 +41,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _user_polar_quad = false;
   _polar_quad = new TYPolarQuad();
   _num_polar = 3;
-  _two_times_num_polar = 2 * _num_polar;
   _polar_times_groups = 0;
 
   _num_iterations = 0;
@@ -302,7 +301,6 @@ void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
   _user_polar_quad = true;
   _polar_quad = polar_quad;
   _num_polar = _polar_quad->getNumPolarAngles();
-  _two_times_num_polar = 2 * _num_polar;
   _polar_times_groups = _num_groups * _num_polar;
 }
 
@@ -318,6 +316,27 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
                "since the threshold must be a positive number", source_thresh);
 
   _source_convergence_thresh = source_thresh;
+}
+
+
+/**
+ * @brief Set the maximum allowable optical length for a track segment
+ * @param max_optical_length The max optical length
+ */
+void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+  _exp_evaluator->setMaxOpticalLength(max_optical_length);
+}
+
+
+/**
+ * @brief Set the precision, or maximum allowable approximation error, of the
+ *        the exponential interpolation table.
+ * @details By default, the precision is 1E-5 based on the analysis in 
+ *          Yamamoto's 2003 paper.
+ * @param precision the precision of the exponential interpolation table,
+ */
+void Solver::setExpPrecision(FP_PRECISION precision) {
+  _exp_evaluator->setExpPrecision(precision);
 }
 
 
@@ -347,11 +366,6 @@ void Solver::initializePolarQuadrature() {
 
   FP_PRECISION azim_weight;
 
-  /* Create Tabuchi-Yamamoto polar quadrature if a
-   * PolarQuad was not assigned by the user */
-  if (_polar_quad == NULL)
-    _polar_quad = new TYPolarQuad();
-
   /* Initialize the PolarQuad object */
   _polar_quad->setNumPolarAngles(_num_polar);
   _polar_quad->initialize();
@@ -379,11 +393,23 @@ void Solver::initializePolarQuadrature() {
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
 void Solver::initializeExpEvaluator() {
-  double max_tau = _track_generator->getMaxOpticalLength();
-  double tolerance = _source_convergence_thresh;
 
   _exp_evaluator->setPolarQuadrature(_polar_quad);
-  _exp_evaluator->initialize(max_tau, tolerance);
+
+  if (_exp_evaluator->isUsingInterpolation()) {
+
+    /* Find minimum of optional user-specified and actual max taus */
+    FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
+    FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
+    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
+
+    /* Split Track segments so that none has a greater optical length */
+    _track_generator->splitSegments(max_tau);
+
+    /* Initialize exponential interpolation table */
+    _exp_evaluator->setMaxOpticalLength(max_tau);  
+    _exp_evaluator->initialize();
+  }
 }
 
 

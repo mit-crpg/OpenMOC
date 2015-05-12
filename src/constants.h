@@ -35,5 +35,19 @@
 /** Tolerance for difference of the sum of polar weights with respect to 1.0 */
 #define POLAR_WEIGHT_SUM_TOL 1E-5
 
+/** The default maximum optical path length */
+#define MAX_OPTICAL_LENGTH FP_PRECISION(10.)
+
+/** The minimum acceptable precision for exponential evaluations from
+ *  the ExpEvaluator's linear interpolation table. This default precision
+ *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */
+#define EXP_PRECISION FP_PRECISION(1E-5)
+
+/** The maximum number of polar angles to reserve constant memory on GPU */
+#define MAX_POLAR_ANGLES_GPU 10
+
+/** The maximum number of azimuthal angles to reserve constant memory on GPU */
+#define MAX_AZIM_ANGLES_GPU 256
+
 
 #endif /* CONSTANTS_H_ */

@@ -3,7 +3,6 @@
 %{
   #define SWIG_FILE_WITH_INIT
   #include <cstddef>
-  #include "../../../src/constants.h"
   #include "../../../src/Cell.h"
   #include "../../../src/Geometry.h"
   #include "../../../src/LocalCoords.h"
@@ -251,7 +250,6 @@
 
 %include <exception.i>
 %include <std_map.i>
-%include ../../../src/constants.h
 %include ../../../src/Cell.h
 %include ../../../src/Geometry.h
 %include ../../../src/LocalCoords.h
@@ -269,4 +267,3 @@
 %include ../../../src/Cmfd.h
 
 typedef float FP_PRECISION;
-

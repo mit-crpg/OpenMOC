@@ -8,7 +8,7 @@ __constant__ bool interpolate[1];
 __constant__ FP_PRECISION inverse_exp_table_spacing[1];
 
 /** An array for the sines of the polar angle in the polar Quadrature set */
-extern __constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES];
+extern __constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES_GPU];
 
 /** Twice the number of polar angles */
 extern __constant__ int two_times_num_polar[1];

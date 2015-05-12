@@ -1,6 +1,15 @@
-=================================================================
-OpenMOC Method of Characteristics Neutral Particle Transport Code
-=================================================================
+=======
+OpenMOC
+=======
+
+.. image:: https://img.shields.io/badge/powered%20by-OpenMOC-blue.svg
+    :target: https://mit-crpg.github.io/OpenMOC/
+.. image:: https://img.shields.io/badge/pypi-v0.1.4b-orange.svg
+    :target: https://pypi.python.org/pypi/openmoc/0.1.4b
+.. image:: https://img.shields.io/badge/license-MIT%20License-brightgreen.svg    
+    :target: https://mit-crpg.github.io/OpenMOC/license.html
+.. image:: https://img.shields.io/badge/anucene-Elsevier-lightgray.svg
+    :target: http://www.sciencedirect.com/science/article/pii/S0306454913006634
 
 Welcome to the OpenMOC repository! OpenMOC is a simulation tool for 
 solving for the flux, power distribution, and multiplication factor 
