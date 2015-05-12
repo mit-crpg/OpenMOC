@@ -70,7 +70,7 @@ public:
   int getTableSize();
   FP_PRECISION* getExpTable();
 
-  void initialize(double tolerance);
+  void initialize();
   FP_PRECISION computeExponential(FP_PRECISION tau, int polar);
 };
 

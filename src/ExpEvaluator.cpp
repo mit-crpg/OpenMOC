@@ -158,7 +158,7 @@ FP_PRECISION* ExpEvaluator::getExpTable() {
  * @brief If using linear interpolation, builds the table for each polar angle.
  * @param tolerance the minimum acceptable interpolation accuracy
  */
-void ExpEvaluator::initialize(double tolerance) {
+void ExpEvaluator::initialize() {
 
   /* If no exponential table is needed, return */
   if (!_interpolate)

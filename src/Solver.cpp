@@ -337,6 +337,27 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 
 
 /**
+ * @brief Set the maximum allowable optical length for a track segment
+ * @param max_optical_length The max optical length
+ */
+void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+  _exp_evaluator->setMaxOpticalLength(max_optical_length);
+}
+
+
+/**
+ * @brief Set the precision, or maximum allowable approximation error, of the
+ *        the exponential interpolation table.
+ * @details By default, the precision is 1E-5 based on the analysis in 
+ *          Yamamoto's 2003 paper.
+ * @param precision the precision of the exponential interpolation table,
+ */
+void Solver::setExpPrecision(FP_PRECISION precision) {
+  _exp_evaluator->setExpPrecision(precision);
+}
+
+
+/**
  * @brief Informs the Solver to use linear interpolation to compute the
  *        exponential in the transport equation.
  */
@@ -389,11 +410,23 @@ void Solver::initializePolarQuadrature() {
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
 void Solver::initializeExpEvaluator() {
-  double max_tau = _track_generator->getMaxOpticalLength();
-  double tolerance = _source_convergence_thresh;
 
   _exp_evaluator->setPolarQuadrature(_polar_quad);
-  _exp_evaluator->initialize(tolerance);
+
+  if (_exp_evaluator->isUsingInterpolation()) {
+
+    /* Find minimum of optional user-specified and actual max taus */
+    FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
+    FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
+    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
+
+    /* Split Track segments so that none has a greater optical length */
+    _track_generator->splitSegments(max_tau);
+
+    /* Initialize exponential interpolation table */
+    _exp_evaluator->setMaxOpticalLength(max_tau);  
+    _exp_evaluator->initialize();
+  }
 }
 
 
