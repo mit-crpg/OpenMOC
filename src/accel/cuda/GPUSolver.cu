@@ -960,7 +960,7 @@ void GPUSolver::initializePolarQuadrature() {
                      cudaMemcpyHostToDevice);
 
   /* Copy twice the number of polar angles to constant memory on the GPU */
-  _two_times_num_polar = 2 * _num_polar * _num_groups;
+  _two_times_num_polar = 2 * _num_polar;
   cudaMemcpyToSymbol(two_times_num_polar, (void*)&_two_times_num_polar,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
