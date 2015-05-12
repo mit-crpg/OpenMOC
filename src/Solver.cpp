@@ -193,6 +193,15 @@ FP_PRECISION Solver::getSourceConvergenceThreshold() {
 
 
 /**
+ * @brief Get the maximum allowable optical length for a track segment
+ * @return The max optical length
+ */
+FP_PRECISION Solver::getMaxOpticalLength() {
+  return _exp_evaluator->getMaxOpticalLength();
+}
+
+
+/**
  * @brief Returns whether the solver is using double floating point precision.
  * @return true if so, false otherwise
  */
@@ -396,9 +405,9 @@ void Solver::initializeExpEvaluator() {
 
   _exp_evaluator->setPolarQuadrature(_polar_quad);
 
+  /* Initialize exponential interpolation table if in use */
   if (_exp_evaluator->isUsingInterpolation()) {
 
-    /* Find minimum of optional user-specified and actual max taus */
     FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
     FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
     FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
@@ -520,8 +529,8 @@ void Solver::checkTrackSpacing() {
 
     if (FSR_segment_tallies[r] == 0) {
       log_printf(ERROR, "No tracks were tallied inside FSR id = %d. Please "
-                 "reduce your track spacing, increase the number of azimuthal"
-                 "angles, or increase the size of the FSRs", r);
+                 "reduce your track spacing, increase the number of "
+                 "azimuthal angles, or increase the size of the FSRs", r);
     }
   }
 

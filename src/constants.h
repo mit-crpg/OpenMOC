@@ -54,5 +54,4 @@
 
 #endif
 
-
 #endif /* CONSTANTS_H_ */

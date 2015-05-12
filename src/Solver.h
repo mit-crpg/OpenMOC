@@ -251,6 +251,7 @@ public:
   double getTotalTime();
   FP_PRECISION getKeff();
   FP_PRECISION getSourceConvergenceThreshold();
+  FP_PRECISION getMaxOpticalLength();
 
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
