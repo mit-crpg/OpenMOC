@@ -1608,3 +1608,82 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
     }
   }
 }
+
+
+/**
+ * @brief Splits Track segments into sub-segments for a user-defined
+ *        maximum optical length for the problem.
+ * @details This routine is needed so that all segment lengths fit
+ *          within the exponential interpolation table used in the MOC
+ *          transport sweep.
+ * @param max_optical_length the maximum optical length
+ */
+void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
+
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to split segments since "
+	       "tracks have not yet been generated");
+
+  int num_cuts, min_num_cuts;
+  segment* curr_segment;
+
+  FP_PRECISION length, tau;
+  int fsr_id;
+  Material* material;
+  FP_PRECISION* sigma_t;
+  int num_groups;
+
+  /* Iterate over all Tracks */
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++) {
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s+=min_num_cuts) {
+
+        /* Extract data from this segment to compute it optical length */
+        curr_segment = _tracks[i][j].getSegment(s);
+        material = curr_segment->_material;
+        length = curr_segment->_length;
+        fsr_id = curr_segment->_region_id;
+        
+        /* Compute number of segments to split this segment into */
+        min_num_cuts = 1;
+        num_groups = material->getNumEnergyGroups();
+        sigma_t = material->getSigmaT();
+
+        for (int g=0; g < num_groups; g++) {
+          tau = length * sigma_t[g];
+          num_cuts = ceil(tau / max_optical_length);
+          min_num_cuts = std::max(num_cuts, min_num_cuts);
+        }
+
+        /* If the segment does not need subdivisions, go to next segment */
+        if (min_num_cuts == 1)
+          continue;
+
+        /* Split the segment into sub-segments */
+        for (int k=0; k < min_num_cuts; k++) {
+
+          /* Create a new Track segment */
+          segment* new_segment = new segment;
+          new_segment->_material = material;
+          new_segment->_length = length / FP_PRECISION(min_num_cuts);
+          new_segment->_region_id = fsr_id;
+          new_segment->_cmfd_surface_bwd = -1;
+          new_segment->_cmfd_surface_fwd = -1;
+
+          /* Assign CMFD surface boundaries */
+          if (k == 0)
+            new_segment->_cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+
+          if (k == min_num_cuts-1)
+            new_segment->_cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+
+          /* Insert the new segment to the Track */
+          _tracks[i][j].insertSegment(s+k+1, new_segment);
+        }
+
+        /* Remove the original segment from the Track */
+        _tracks[i][j].removeSegment(s);
+      }
+    }
+  }
+}
