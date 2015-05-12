@@ -14,6 +14,8 @@
 #include "../../Solver.h"
 #endif
 
+#define PySys_WriteStdout printf
+
 #include <thrust/reduce.h>
 #include <thrust/device_vector.h>
 #include <sm_20_atomic_functions.h>
