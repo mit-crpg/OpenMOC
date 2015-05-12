@@ -711,7 +711,7 @@ void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
   /* Tally surface currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->tallySurfaceCurrent(curr_segment, track_flux, 
-                               &_polar_weights[azim_index], fwd);
+                               &_polar_weights(azim_index,0), fwd);
 }
 
 
