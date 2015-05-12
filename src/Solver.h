@@ -11,20 +11,17 @@
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include "Python.h"
+#include "constants.h"
 #include "Timer.h"
 #include "PolarQuad.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"
+#include "ExpEvaluator.h"
 #include <math.h>
 #endif
 
-/** Indexing macro for the scalar flux in each FSR and energy group */
+/** Indexing macro for the scalar flux in each FSR and energy grou */
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
-
-/** Indexing macro for the surface currents for each CMFD Mesh surface and
- *  each energy group */
-#define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() \
-                                                  + _cmfd->getCmfdGroup((e))])
 
 /** Indexing macro for the total source divided by the total cross-section
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
@@ -54,12 +51,6 @@
  *  for each FSR and energy group */
 #define _scatter_sources(r,e) (_scatter_sources[(r)*_num_groups + (e)])
 
-/** The value of 4pi: \f$ 4\pi \f$ */
-#define FOUR_PI 12.5663706143
-
-/** The values of 1 divided by 4pi: \f$ \frac{1}{4\pi} \f$ */
-#define ONE_OVER_FOUR_PI 0.0795774715
-
 
 /**
  * @class Solver Solver.h "src/Solver.h"
@@ -81,9 +72,6 @@ protected:
 
   /** The number of fissionable flat source regions */
   int _num_fissionable_FSRs;
-
-  /** The number of mesh cells */
-  int _num_mesh_cells;
 
   /** The FSR "volumes" (i.e., areas) indexed by FSR UID */
   FP_PRECISION* _FSR_volumes;
@@ -143,9 +131,6 @@ protected:
   /** The scalar flux for each energy group in each FSR */
   FP_PRECISION* _scalar_flux;
 
-  /** The CMFD Mesh surface currents in each energy group */
-  FP_PRECISION* _surface_currents;
-
   /** The fission source in each FSR and energy group */
   FP_PRECISION* _fission_sources;
 
@@ -165,9 +150,6 @@ protected:
   /** The current iteration's approximation to k-effective */
   FP_PRECISION _k_eff;
 
-  /** An array of k-effective at each iteration */
-  std::vector<FP_PRECISION> _residual_vector;
-
   /** The total leakage across vacuum boundaries */
   FP_PRECISION _leakage;
 
@@ -180,33 +162,14 @@ protected:
   /** The tolerance for converging the source */
   FP_PRECISION _source_convergence_thresh;
 
-  /** A boolean indicating whether or not to use linear interpolation
-   *  to comptue the exponential in the transport equation */
-  bool _interpolate_exponential;
-
-  /** The exponential linear interpolation table */
-  FP_PRECISION* _exp_table;
-
-  /** The size of the exponential linear interpolation table */
-  int _exp_table_size;
-
-  /** The maximum index of the exponential linear interpolation table */
-  int _exp_table_max_index;
-
-  /** The spacing for the exponential linear interpolation table */
-  FP_PRECISION _exp_table_spacing;
-
-  /** The inverse spacing for the exponential linear interpolation table */
-  FP_PRECISION _inverse_exp_table_spacing;
+  /** En ExpEvaluator to compute exponentials in the transport equation */
+  ExpEvaluator* _exp_evaluator;
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;
 
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
-
-  int round_to_int(float x);
-  int round_to_int(double x);
 
   /**
    * @brief Initializes Track boundary angular flux and leakage and
@@ -219,12 +182,8 @@ protected:
    */
   virtual void initializeSourceArrays() =0;
 
-  /**
-   * @brief Builds the exponential linear interpolation table.
-   */
-  virtual void buildExpInterpTable() =0;
-
   virtual void initializePolarQuadrature();
+  virtual void initializeExpEvaluator();
   virtual void initializeFSRs();
   virtual void initializeCmfd();
   virtual void checkTrackSpacing();
@@ -282,22 +241,23 @@ protected:
 
 
 public:
-  Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
+  Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
+  virtual void setGeometry(Geometry* geometry);
+
   Geometry* getGeometry();
-  FP_PRECISION getFSRVolume(int fsr_id);
   TrackGenerator* getTrackGenerator();
+  FP_PRECISION getFSRVolume(int fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
   double getTotalTime();
   FP_PRECISION getKeff();
   FP_PRECISION getSourceConvergenceThreshold();
+  FP_PRECISION getMaxOpticalLength();
 
-  bool isUsingSinglePrecision();
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
-  bool isUsingExponentialIntrinsic();
 
   /**
    * @brief Returns the scalar flux for a FSR and energy group.
@@ -321,11 +281,11 @@ public:
    */
   virtual FP_PRECISION getFSRSource(int fsr_id, int energy_group) =0;
 
-  virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
 
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
@@ -351,26 +311,6 @@ public:
 
   void printTimerReport();
 };
-
-
-/**
- * @brief Rounds a single precision floating point value to an integer.
- * @param x a float precision floating point value
- * @brief the rounded integer value
- */
-inline int Solver::round_to_int(float x) {
-  return lrintf(x);
-}
-
-
-/**
- * @brief Rounds a double precision floating point value to an integer.
- * @param x a double precision floating point value
- * @brief the rounded integer value
- */
-inline int Solver::round_to_int(double x) {
-  return lrint(x);
-}
 
 
 #endif /* SOLVER_H_ */

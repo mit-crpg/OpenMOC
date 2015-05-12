@@ -29,6 +29,12 @@
 #endif
 
 
+/** Indexing macro for the surface currents for each CMFD Mesh surface and
+ *  each energy group */
+#define _surface_currents(r,e) (_surface_currents[(r)*_num_cmfd_groups \
+						  + getCmfdGroup((e))])
+
+
 /**
  * @class Cmfd Cmfd.h "src/Cmfd.h"
  * @brief A class for Coarse Mesh Finite Difference (CMFD) acceleration.
@@ -120,11 +126,13 @@ private:
   double _cell_height;
 
   /** Array of geometry boundaries */
-	//  int* _boundaries;
   boundaryType* _boundaries;
 
   /** Array of surface currents for each CMFD cell */
   FP_PRECISION* _surface_currents;
+
+  /** OpenMP mutual exclusion locks for atomic surface current updates */
+  omp_lock_t* _surface_locks;
 
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
@@ -157,6 +165,8 @@ public:
   void initializeGroupMap();
   void initializeFlux();
   void initializeMaterials();
+  void initializeSurfaceCurrents();
+
   void rescaleFlux();
   void linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x, FP_PRECISION* vec_b,
                    FP_PRECISION conv, int max_iter=10000);
@@ -167,6 +177,9 @@ public:
   void addFSRToCell(int cmfd_cell, int fsr_id);
   void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
                           int num_tracks);
+  void zeroSurfaceCurrents();
+  void tallySurfaceCurrent(segment* curr_segment, FP_PRECISION current, 
+                           bool fwd, int e);
 
   /* Get parameters */
   int getNumCmfdGroups();
@@ -190,7 +203,6 @@ public:
   void setHeight(double height);
   void setNumX(int num_x);
   void setNumY(int num_y);
-  void setSurfaceCurrents(FP_PRECISION* surface_currents);
   void setNumFSRs(int num_fsrs);
   void setNumMOCGroups(int num_moc_groups);
   void setOpticallyThick(bool thick);

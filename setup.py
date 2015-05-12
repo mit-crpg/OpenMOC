@@ -395,8 +395,8 @@ def customize_linker(self):
 
     # If the filename for the extension contains cuda, use g++ to link
     if 'cuda' in output_filename:
-      self.set_executable('linker_so', 'g++')
-      self.set_executable('linker_exe', 'g++')
+      self.set_executable('linker_so', 'nvcc')
+      self.set_executable('linker_exe', 'nvcc')
 
     # Now call distutils-defined link method
     super_link(target_desc, objects,

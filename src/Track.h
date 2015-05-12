@@ -13,6 +13,7 @@
 #include "Point.h"
 #include "Material.h"
 #include <vector>
+#include <algorithm>
 #endif
 
 /**
@@ -36,6 +37,12 @@ struct segment {
 
   /** The ID for the mesh surface crossed by the Track start point */
   int _cmfd_surface_bwd;
+
+  /** Constructor initializes CMFD surfaces */
+  segment() {
+    _cmfd_surface_fwd = -1;
+    _cmfd_surface_bwd = -1;
+  }
 };
 
 
@@ -153,7 +160,9 @@ public:
   bool getBCOut() const;
 
   bool contains(Point* point);
-  void addSegment(segment* segment);
+  void addSegment(segment* to_add);
+  void removeSegment(int index);
+  void insertSegment(int index, segment* segment);
   void clearSegments();
   std::string toString();
 };
@@ -197,7 +206,7 @@ inline segment* Track::getSegment(int segment) {
 
   /* If Track doesn't contain this segment, exits program */
   if (segment >= (int)_segments.size())
-    log_printf(ERROR, "Attempted to retrieve segment s = %d but Track only"
+    log_printf(ERROR, "Attempted to retrieve segment s = %d but Track only "
                "has %d segments", segment, _segments.size());
 
   return &_segments[segment];

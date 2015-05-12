@@ -10,6 +10,7 @@
 
 #ifdef __cplusplus
 #include "Python.h"
+#include "../../constants.h"
 #include "../../Solver.h"
 #endif
 
@@ -18,6 +19,8 @@
 #include <sm_13_double_functions.h>
 #include <sm_20_atomic_functions.h>
 #include "clone.h"
+#include "GPUExpEvaluator.h"
+
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
@@ -32,12 +35,6 @@
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for a given Track */
 #define boundary_flux(t,pe2) (boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])
-
-/** The value of 4pi: \f$ 4\pi \f$ */
-#define FOUR_PI 12.5663706143
-
-/** The values of 1 divided by 4pi: \f$ \frac{1}{4\pi} \f$ */
-#define ONE_OVER_FOUR_PI 0.0795774715
 
 /** The maximum number of polar angles to reserve constant memory on GPU */
 #define MAX_POLAR_ANGLES 10
@@ -109,13 +106,13 @@ private:
   std::map<int, int> _material_IDs_to_indices;
 
   void initializePolarQuadrature();
+  void initializeExpEvaluator();
   void initializeFSRs();
   void initializeMaterials();
   void initializeTracks();
   void initializeFluxArrays();
   void initializeSourceArrays();
   void initializeThrustVectors();
-  void buildExpInterpTable();
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
@@ -130,15 +127,12 @@ public:
 
   /**
    * @brief Constructor initializes arrays for dev_tracks and dev_materials..
-   * @details The constructor retrieves the number of energy groups and FSRs
-   *          and azimuthal angles from the Geometry and TrackGenerator if
-   *          passed in as parameters by the user. The constructor initalizes
-   *          the number of CUDA threads and thread blocks each to a default
-   *          of 64.
+   * @details The constructor initalizes the number of CUDA threads and 
+   *          thread blocks each to a default of 64.
    * @param geometry an optional pointer to the Geometry
    * @param track_generator an optional pointer to the TrackjGenerator
    */
-  GPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);
+  GPUSolver(TrackGenerator* track_generator=NULL);
   virtual ~GPUSolver();
 
   /**
