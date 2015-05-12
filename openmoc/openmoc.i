@@ -7,7 +7,6 @@
 %{
   #define SWIG_FILE_WITH_INIT
   #include <cstddef>
-  #include "../src/constants.h"
   #include "../src/Cell.h"
   #include "../src/Geometry.h"
   #include "../src/boundary_type.h"
@@ -417,7 +416,6 @@
 
 %include <exception.i>
 %include <std_map.i>
-%include ../src/constants.h
 %include ../src/Cell.h
 %include ../src/Geometry.h
 %include ../src/boundary_type.h

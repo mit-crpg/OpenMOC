@@ -393,7 +393,7 @@ void Solver::initializeExpEvaluator() {
   double tolerance = _source_convergence_thresh;
 
   _exp_evaluator->setPolarQuadrature(_polar_quad);
-  _exp_evaluator->initialize(max_tau, tolerance);
+  _exp_evaluator->initialize(tolerance);
 }
 
 
