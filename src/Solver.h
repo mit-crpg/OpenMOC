@@ -294,6 +294,8 @@ public:
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
 
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
+  void setExpPrecision(FP_PRECISION precision);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 

@@ -45,6 +45,12 @@ private:
 
   /** Twice the number of polar angles */
   int _two_times_num_polar;
+
+  /** The maximum optical length a track is allowed to have */
+  FP_PRECISION _max_optical_length;
+
+  /** The maximum acceptable approximation error for exponentials */
+  FP_PRECISION _exp_precision;
   
 public:
 
@@ -52,15 +58,19 @@ public:
   virtual ~ExpEvaluator();
 
   void setPolarQuadrature(PolarQuad* polar_quad);
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
+  void setExpPrecision(FP_PRECISION exp_precision);
   void useInterpolation();
   void useIntrinsic();
 
+  FP_PRECISION getMaxOpticalLength();
+  FP_PRECISION getExpPrecision();
   bool isUsingInterpolation();
   FP_PRECISION getTableSpacing();
   int getTableSize();
   FP_PRECISION* getExpTable();
 
-  void initialize(double max_tau, double tolerance);
+  void initialize();
   FP_PRECISION computeExponential(FP_PRECISION tau, int polar);
 };
 
