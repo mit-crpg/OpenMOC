@@ -2,29 +2,18 @@
 
 
 /**
- * @brief Constructor initializes empty arrays for source, flux, etc.
- * @details The construcor retrieves the number of energy groups and FSRs
- *          and azimuthal angles from the Geometry and TrackGenerator if
- *          they were provided by the user, and uses this to initialize
- *          empty arrays for the FSRs, boundary angular fluxes, FSR scalar
- *          fluxes, FSR sources and FSR fission rates. The constructor
- *          initalizes the number of threads to a default of 1.
- * @param geometry an optional pointer to the Geometry object
+ * @brief Constructor initializes NULL arrays for source, flux, etc.
  * @param track_generator an optional pointer to a TrackGenerator object
  */
-VectorizedSolver::VectorizedSolver(Geometry* geometry,
-                                   TrackGenerator* track_generator) :
-  CPUSolver(geometry, track_generator) {
+VectorizedSolver::VectorizedSolver(TrackGenerator* track_generator) :
+  CPUSolver(track_generator) {
 
-  if (_cmfd != NULL)
-    log_printf(ERROR, "The VectorizedSolver is not set up to use CMFD");
+  //  if (_cmfd != NULL)
+    //    log_printf(ERROR, "The VectorizedSolver is not set up to use CMFD");
 
   _delta_psi = NULL;
   _thread_taus = NULL;
   _thread_exponentials = NULL;
-
-  if (geometry != NULL)
-    setGeometry(geometry);
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
@@ -107,7 +96,7 @@ int VectorizedSolver::getNumVectorWidths() {
 
 /**
  * @brief Sets the Geometry for the Solver and aligns all Material
- * cross-section data for SIMD vector instructions.
+ *        cross-section data for SIMD vector instructions.
  * @param geometry a pointer to the Geometry
  */
 void VectorizedSolver::setGeometry(Geometry* geometry) {
@@ -640,7 +629,7 @@ return;
  * @param track_flux a pointer to the Track's angular flux
  * @param fsr_flux a pointer to the temporary FSR flux buffer
  */
-void VectorizedSolver::scalarFluxTally(segment* curr_segment,
+void VectorizedSolver::tallyScalarFlux(segment* curr_segment,
                                        int azim_index,
                                        FP_PRECISION* track_flux,
                                        FP_PRECISION* fsr_flux){

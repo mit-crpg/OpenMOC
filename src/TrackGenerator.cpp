@@ -15,13 +15,9 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _geometry = geometry;
   setNumAzim(num_azim);
   setTrackSpacing(spacing);
-  _tot_num_tracks = 0;
-  _tot_num_segments = 0;
-  _num_segments = NULL;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
-  _max_optical_length = 10;
 }
 
 
@@ -33,7 +29,6 @@ TrackGenerator::~TrackGenerator() {
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_segments;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
@@ -80,18 +75,20 @@ Geometry* TrackGenerator::getGeometry() {
 }
 
 
-/**
- * @brief Return the total number of Tracks across the Geometry.
- * @return the total number of Tracks
- */
 int TrackGenerator::getNumTracks() {
-
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the total number of Tracks since "
                "Tracks have not yet been generated.");
 
-  return _tot_num_tracks;
+  int num_tracks = 0;
+
+  for (int i=0; i < _num_azim; i++) {
+    num_tracks += _num_tracks[i];
+  }
+
+  return num_tracks;
 }
+
 
 /**
  * @brief Return an array of the number of Tracks for each azimuthal angle.
@@ -111,25 +108,18 @@ int* TrackGenerator::getNumTracksArray() {
  * @return the total number of Track segments
  */
 int TrackGenerator::getNumSegments() {
-
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the total number of segments since "
                "Tracks have not yet been generated.");
 
-  return _tot_num_segments;
-}
+  int num_segments = 0;
 
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++)
+      num_segments += _tracks[i][j].getNumSegments();
+  }
 
-/**
- * @brief Return an array of the number of segments per Track.
- * @return array with the number of segments per Track
- */
-int* TrackGenerator::getNumSegmentsArray() {
-  if (!_contains_tracks)
-    log_printf(ERROR, "Unable to return the array of the number of segments "
-               "per Track since Tracks have not yet been generated.");
-
-  return _num_segments;
+  return num_segments;
 }
 
 
@@ -162,31 +152,6 @@ FP_PRECISION* TrackGenerator::getAzimWeights() {
 
 
 /**
- * @brief Get the maximum allowable optical length for a track segment
- * @return The max optical length
- */
-FP_PRECISION TrackGenerator::getMaxOpticalLength() {
-  return _max_optical_length;
-}
-
-/**
- * @brief Get the total number of tracks in the TrackGenerator
- * @return the total number of tracks
- */
-int TrackGenerator::getTotNumTracks() {
-  return _tot_num_tracks;
-}
-
-/**
- * @brief Get the total number of track segments in the TrackGenerator
- * @return the total number of track segments
- */
-int TrackGenerator::getTotNumSegments() {
-  return _tot_num_segments;
-}
-
-
-/**
  * @brief Returns the number of shared memory OpenMP threads in use.
  * @return the number of threads
  */
@@ -211,9 +176,8 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
   FP_PRECISION *FSR_volumes = new FP_PRECISION[num_FSRs];
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
-  int azim_index, num_segments;
+  int azim_index;
   segment* curr_segment;
-  segment* segments;
   FP_PRECISION volume;
 
   /* Calculate each FSR's "volume" by accumulating the total length of * 
@@ -222,11 +186,9 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
     for (int j=0; j < _num_tracks[i]; j++) {
 
       azim_index = _tracks[i][j].getAzimAngleIndex();
-      num_segments = _tracks[i][j].getNumSegments();
-      segments = _tracks[i][j].getSegments();
 
-      for (int s=0; s < num_segments; s++) {
-        curr_segment = &segments[s];
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+        curr_segment = _tracks[i][j].getSegment(s);
         volume = curr_segment->_length * _azim_weights[azim_index];
         FSR_volumes[curr_segment->_region_id] += volume;
       }
@@ -252,21 +214,16 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR IDs "
                "lie in the range (0, %d)", fsr_id, _geometry->getNumFSRs());
 
-  int azim_index, num_segments;
+  int azim_index;
   segment* curr_segment;
-  segment* segments;
   FP_PRECISION volume;
 
   /* Calculate the FSR's "volume" by accumulating the total length of * 
    * all Track segments multipled by the Track "widths" for the FSR.  */
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
-
-      num_segments = _tracks[i][j].getNumSegments();
-      segments = _tracks[i][j].getSegments();
-
-      for (int s=0; s < num_segments; s++) {
-        curr_segment = &segments[s];
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+        curr_segment = _tracks[i][j].getSegment(s);
         if (curr_segment->_region_id == fsr_id)
           volume += curr_segment->_length * _azim_weights[azim_index];
       }
@@ -274,6 +231,38 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
   }
 
   return volume;
+}
+
+
+/**
+ * @brief Finds and returns the maximum optical length amongst all segments.
+ * @return the maximum optical path length
+ */
+FP_PRECISION TrackGenerator::getMaxOpticalLength() {
+
+  segment* curr_segment;
+  FP_PRECISION length;
+  Material* material;
+  FP_PRECISION* sigma_t;
+  FP_PRECISION max_optical_length = 0.;
+
+  /* Iterate over all tracks, segments, groups to find max optical length */
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++) {
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+
+        curr_segment = _tracks[i][j].getSegment(s);
+        length = curr_segment->_length;
+        material = curr_segment->_material;
+        sigma_t = material->getSigmaT();
+
+        for (int e=0; e < material->getNumEnergyGroups(); e++)
+          max_optical_length = std::max(max_optical_length, length*sigma_t[e]);
+      }
+    }
+  }
+
+  return max_optical_length;
 }
 
 
@@ -328,8 +317,6 @@ void TrackGenerator::setTrackSpacing(double spacing) {
                "TrackGenerator.", spacing);
 
   _spacing = spacing;
-  _tot_num_tracks = 0;
-  _tot_num_segments = 0;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
@@ -342,24 +329,9 @@ void TrackGenerator::setTrackSpacing(double spacing) {
  */
 void TrackGenerator::setGeometry(Geometry* geometry) {
   _geometry = geometry;
-  _tot_num_tracks = 0;
-  _tot_num_segments = 0;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
-}
-
-
-/**
- * @brief Set the maximum allowable optical length for a track segment
- * @param max_optical_length The max optical length
- */
-void TrackGenerator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
-  if (max_optical_length <= 0)
-    log_printf(ERROR, "Cannot set max optical length to %f because it "
-               "must be positive.", max_optical_length); 
-        
-  _max_optical_length = max_optical_length;
 }
 
 
@@ -498,7 +470,6 @@ void TrackGenerator::generateTracks() {
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_segments;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
@@ -523,14 +494,13 @@ void TrackGenerator::generateTracks() {
       _tracks = new Track*[_num_azim];
     }
     catch (std::exception &e) {
-      log_printf(ERROR, "Unable to allocate memory for TrackGenerator. "
-                 "Backtrace:\n%s", e.what());
+      log_printf(ERROR, "Unable to allocate memory for TrackGenerator");
     }
 
     /* Check to make sure that height, width of the Geometry are nonzero */
     if (_geometry->getHeight() <= 0 || _geometry->getHeight() <= 0)
       log_printf(ERROR, "The total height and width of the Geometry must be "
-                 "nonzero for Track generation. Create a CellFill which "
+                 "non-zero for Track generation. Create a CellFill which "
                  "is filled by the entire geometry and bounded by XPlanes "
                  "and YPlanes to enable the Geometry to determine the total "
                  "width and height of the model.");
@@ -544,8 +514,7 @@ void TrackGenerator::generateTracks() {
       dumpTracksToFile();
     }
     catch (std::exception &e) {
-      log_printf(ERROR, "Unable to allocate memory needed to generate "
-                 "Tracks. Backtrace:\n%s", e.what());
+      log_printf(ERROR, "Unable to allocate memory for Tracks");
     }
   }
 
@@ -732,8 +701,6 @@ void TrackGenerator::recalibrateTracksToOrigin() {
   int uid = 0;
 
   for (int i = 0; i < _num_azim; i++) {
-    _tot_num_tracks += _num_tracks[i];
-
     for (int j = 0; j < _num_tracks[i]; j++) {
 
       _tracks[i][j].setUid(uid);
@@ -1113,33 +1080,17 @@ void TrackGenerator::segmentize() {
 
   Track* track;
 
-  if (_num_segments != NULL)
-    delete [] _num_segments;
-
   /* This section loops over all Track and segmentizes each one if the
    * Tracks were not read in from an input file */
   if (!_use_input_file) {
 
     /* Loop over all Tracks */
     for (int i=0; i < _num_azim; i++) {
-      #pragma omp parallel for private(track)
+      #pragma omp parallel for firstprivate(track)
       for (int j=0; j < _num_tracks[i]; j++){
         track = &_tracks[i][j];
-        log_printf(DEBUG, "Segmenting Track %d/%d with i = %d, j = %d",
-        track->getUid(), _tot_num_tracks, i, j);
-        _geometry->segmentize(track,_max_optical_length);
-      }
-    }
-
-    /* Compute the total number of segments in the simulation */
-    _num_segments = new int[_tot_num_tracks];
-    _tot_num_segments = 0;
-
-    for (int i=0; i < _num_azim; i++) {
-      for (int j=0; j < _num_tracks[i]; j++) {
-        track = &_tracks[i][j];
-        _num_segments[track->getUid()] = track->getNumSegments();
-        _tot_num_segments += _num_segments[track->getUid()];
+        log_printf(DEBUG, "Segmenting Track %d", track->getUid());
+        _geometry->segmentize(track);
       }
     }
   }
@@ -1332,7 +1283,6 @@ bool TrackGenerator::readTracksFromFile() {
   /* Deletes Tracks arrays if tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_segments;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
@@ -1403,15 +1353,7 @@ bool TrackGenerator::readTracksFromFile() {
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
-  /* Calculate the total number of Tracks */
-  for (int i=0; i < _num_azim; i++)
-    _tot_num_tracks += _num_tracks[i];
-
-  /* Allocate memory for the number of segments per Track array */
-  _num_segments = new int[_tot_num_tracks];
-
   int uid = 0;
-  _tot_num_segments = 0;
 
   /* Loop over Tracks */
   for (int i=0; i < _num_azim; i++) {
@@ -1428,9 +1370,6 @@ bool TrackGenerator::readTracksFromFile() {
       ret = fread(&phi, sizeof(double), 1, in);
       ret = fread(&azim_angle_index, sizeof(int), 1, in);
       ret = fread(&num_segments, sizeof(int), 1, in);
-
-      _tot_num_segments += num_segments;
-      _num_segments[uid] += num_segments;
 
       /* Initialize a Track with this data */
       curr_track = &_tracks[i][j];
@@ -1553,6 +1492,10 @@ bool TrackGenerator::readTracksFromFile() {
  */
 void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
 
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to correct FSR volume since "
+	       "tracks have not yet been generated");
+
   /* Compute the current volume approximation for the flat source region */
   FP_PRECISION curr_volume = getFSRVolume(fsr_id);
 
@@ -1655,7 +1598,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           min_num_cuts = std::max(num_cuts, min_num_cuts);
         }
 
-        /* If the segment does not subdivisions, go to next segment */
+        /* If the segment does not need subdivisions, go to next segment */
         if (min_num_cuts == 1)
           continue;
 
@@ -1667,6 +1610,8 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           new_segment->_material = material;
           new_segment->_length = length / FP_PRECISION(min_num_cuts);
           new_segment->_region_id = fsr_id;
+          new_segment->_cmfd_surface_bwd = -1;
+          new_segment->_cmfd_surface_fwd = -1;
 
           /* Assign CMFD surface boundaries */
           if (k == 0)
