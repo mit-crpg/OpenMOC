@@ -1610,8 +1610,6 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           new_segment->_material = material;
           new_segment->_length = length / FP_PRECISION(min_num_cuts);
           new_segment->_region_id = fsr_id;
-          new_segment->_cmfd_surface_bwd = -1;
-          new_segment->_cmfd_surface_fwd = -1;
 
           /* Assign CMFD surface boundaries */
           if (k == 0)
