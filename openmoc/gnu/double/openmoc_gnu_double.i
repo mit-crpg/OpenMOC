@@ -13,6 +13,7 @@
   #include "../../../src/PolarQuad.h"
   #include "../../../src/CPUSolver.h"
   #include "../../../src/Solver.h"
+  #include "../../../src/boundary_type.h"
   #include "../../../src/Surface.h"
   #include "../../../src/Timer.h"
   #include "../../../src/Track.h"
