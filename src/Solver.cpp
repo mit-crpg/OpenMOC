@@ -2,14 +2,9 @@
 /**
  * @brief Constructor initializes an empty Solver class with array pointers
  *        set to NULL.
- * @details If the constructor receives Geometry and TrackGenerator 
- *          objects it will retrieve the number of energy groups
- *          and FSRs from the Geometry and azimuthal angles from the
- *          TrackGenerator.
- * @param geometry an optional pointer to a Geometry object
  * @param track_generator an optional pointer to a TrackGenerator object
  */
-Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
+Solver::Solver(TrackGenerator* track_generator) {
 
   /* Default values */
   _num_materials = 0;
@@ -18,10 +13,8 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
 
   _num_FSRs = 0;
   _num_fissionable_FSRs = 0;
-  _num_mesh_cells = 0;
   _FSR_volumes = NULL;
   _FSR_materials = NULL;
-  _surface_currents = NULL;
 
   _track_generator = NULL;
   _geometry = NULL;
@@ -40,11 +33,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _old_fission_sources = NULL;
   _reduced_sources = NULL;
   _source_residuals = NULL;
-
-  if (geometry != NULL){
-    _cmfd = geometry->getCmfd();
-    setGeometry(geometry);
-  }
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
@@ -125,6 +113,21 @@ Geometry* Solver::getGeometry() {
 }
 
 
+
+/**
+ * @brief Returns a pointer to the TrackGenerator.
+ * @return a pointer to the TrackGenerator
+ */
+TrackGenerator* Solver::getTrackGenerator() {
+
+  if (_track_generator == NULL)
+    log_printf(ERROR, "Unable to return the Solver's TrackGenetrator "
+               "since it has not yet been set");
+
+  return _track_generator;
+}
+
+
 /**
  * @brief Returns the calculated volume for a flat source region.
  * @param fsr_id the flat source region ID of interest
@@ -141,20 +144,6 @@ FP_PRECISION Solver::getFSRVolume(int fsr_id) {
                "volumes have not yet been computed", fsr_id);
 
   return _FSR_volumes[fsr_id];
-}
-
-
-/**
- * @brief Returns a pointer to the TrackGenerator.
- * @return a pointer to the TrackGenerator
- */
-TrackGenerator* Solver::getTrackGenerator() {
-
-  if (_track_generator == NULL)
-    log_printf(ERROR, "Unable to return the Solver's TrackGenetrator "
-               "since it has not yet been set");
-
-  return _track_generator;
 }
 
 
@@ -204,6 +193,15 @@ FP_PRECISION Solver::getSourceConvergenceThreshold() {
 
 
 /**
+ * @brief Get the maximum allowable optical length for a track segment
+ * @return The max optical length
+ */
+FP_PRECISION Solver::getMaxOpticalLength() {
+  return _exp_evaluator->getMaxOpticalLength();
+}
+
+
+/**
  * @brief Returns whether the solver is using double floating point precision.
  * @return true if so, false otherwise
  */
@@ -228,16 +226,8 @@ bool Solver::isUsingExponentialInterpolation() {
 
 /**
  * @brief Sets the Geometry for the Solver.
- * @details The Geometry must already have initialized FSR offset maps
- *          and segmentized the TrackGenerator's tracks. Each of these
- *          should be initiated in Python prior to assigning a Geometry
- *          to the Solver:
- *
- * @code
- *          geometry.initializeFlatSourceRegions()
- *          track_generator.generateTracks()
- * @endcode
- *
+ * @details This is a private setter method for the Solver and is not
+ *          intended to be called by the user.
  * @param geometry a pointer to a Geometry object
  */
 void Solver::setGeometry(Geometry* geometry) {
@@ -247,13 +237,11 @@ void Solver::setGeometry(Geometry* geometry) {
                "Geometry has not yet initialized FSRs");
 
   _geometry = geometry;
+  _cmfd = geometry->getCmfd();
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();
   _polar_times_groups = _num_groups * _num_polar;
   _num_materials = _geometry->getNumMaterials();
-
-  if (_cmfd != NULL)
-    _num_mesh_cells = _cmfd->getNumCells();
 }
 
 
@@ -265,6 +253,7 @@ void Solver::setGeometry(Geometry* geometry) {
  *          to the Solver:
  *
  * @code
+ *          geometry.initializeFlatSourceRegions()
  *          track_generator.generateTracks()
  *          solver.setTrackGenerator(track_generator)
  * @endcode
@@ -293,6 +282,9 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
       counter++;
     }
   }
+
+  /* Retrieve and store the Geometry from the TrackGenerator */  
+  setGeometry(_track_generator->getGeometry());
 }
 
 
@@ -413,9 +405,9 @@ void Solver::initializeExpEvaluator() {
 
   _exp_evaluator->setPolarQuadrature(_polar_quad);
 
+  /* Initialize exponential interpolation table if in use */
   if (_exp_evaluator->isUsingInterpolation()) {
 
-    /* Find minimum of optional user-specified and actual max taus */
     FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
     FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
     FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
@@ -492,8 +484,8 @@ void Solver::initializeCmfd(){
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
+  _cmfd->initializeSurfaceCurrents();
 }
-
 
 
 /**
@@ -537,8 +529,8 @@ void Solver::checkTrackSpacing() {
 
     if (FSR_segment_tallies[r] == 0) {
       log_printf(ERROR, "No tracks were tallied inside FSR id = %d. Please "
-                 "reduce your track spacing, increase the number of azimuthal"
-                 "angles, or increase the size of the FSRs", r);
+                 "reduce your track spacing, increase the number of "
+                 "azimuthal angles, or increase the size of the FSRs", r);
     }
   }
 
@@ -588,10 +580,8 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
   /* An initial guess for the eigenvalue */
   _k_eff = 1.0;
 
-  /* The residual on the source */
+  /* The new/old residuals on the fission source */
   FP_PRECISION residual = 0.0;
-
-  /* The old residual and k_eff */
   FP_PRECISION residual_old = 1.0;
   FP_PRECISION keff_old = 1.0;
 
