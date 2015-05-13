@@ -14,6 +14,8 @@ import sys
 #         openmoc.plotter module.
 openmoc = ''
 
+print('whoa!!!')
+
 # Determine which OpenMOC module is being used
 if 'openmoc.gnu.double' in sys.modules:
   openmoc = sys.modules['openmoc.gnu.double']
@@ -28,7 +30,7 @@ elif 'openmoc.bgq.double' in sys.modules:
 elif 'openmoc.bgq.single' in sys.modules:
   openmoc = sys.modules['openmoc.bgq.single']
 else:
-  from openmoc import *
+  import openmoc
 
 
 import matplotlib
@@ -62,6 +64,8 @@ else:
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
 
+TINY_MOVE = openmoc.TINY_MOVE
+
 
 ##
 # @brief Plots the characteristic tracks from an OpenMOC simulation.
@@ -78,7 +82,7 @@ def plot_tracks(track_generator):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -142,7 +146,7 @@ def plot_segments(track_generator):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -233,7 +237,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -267,7 +271,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      point = LocalCoords(x, y)
+      point = openmoc.LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       cell = geometry.findCellContainingCoords(point)
 
@@ -329,7 +333,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -363,7 +367,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      point = LocalCoords(x, y)
+      point = openmoc.LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       cell = geometry.findCellContainingCoords(point)
 
@@ -427,7 +431,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -468,7 +472,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      local_coords = LocalCoords(x, y)
+      local_coords = openmoc.LocalCoords(x, y)
       local_coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(local_coords)
       fsr_id = geometry.getFSRId(local_coords)
@@ -539,7 +543,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -577,7 +581,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      local_coords = LocalCoords(x, y)
+      local_coords = openmoc.LocalCoords(x, y)
       local_coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(local_coords)
       fsr_id = geometry.getFSRId(local_coords)
@@ -643,7 +647,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -699,7 +703,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
       x = coords['x'][i]
       y = coords['y'][j]
 
-      point = LocalCoords(x, y)
+      point = openmoc.LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.getFSRId(point)
@@ -755,7 +759,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -891,7 +895,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -930,7 +934,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
       x = coords['y'][i]
       y = coords['x'][j]
 
-      point = LocalCoords(x, y)
+      point = openmoc.LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.getFSRId(point)

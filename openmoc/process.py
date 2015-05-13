@@ -30,7 +30,7 @@ elif 'openmoc.bgq.double' in sys.modules:
 elif 'openmoc.bgq.single' in sys.modules:
   openmoc = sys.modules['openmoc.bgq.single']
 else:
-  from openmoc import *
+  import openmoc
 
 import numpy as np
 import os, re, mmap
@@ -88,7 +88,7 @@ def is_float(val):
 def compute_fission_rates(solver, use_hdf5=False):
 
   # create directory and filename
-  directory = get_output_directory() + '/fission-rates/'
+  directory = openmoc.get_output_directory() + '/fission-rates/'
   filename = 'fission-rates'
 
   # Make directory if it does not exist
@@ -111,7 +111,7 @@ def compute_fission_rates(solver, use_hdf5=False):
 
       # Get the linked list of LocalCoords
       point = geometry.getFSRPoint(fsr)
-      coords = LocalCoords(point.getX(), point.getY())
+      coords = openmoc.LocalCoords(point.getX(), point.getY())
       coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(coords)
       coords = coords.getHighestLevel().getNext()
@@ -123,7 +123,7 @@ def compute_fission_rates(solver, use_hdf5=False):
       # If lowest level sub dictionary already exists, then increment 
       # fission rate; otherwise, set the fission rate.
       while True:
-        if coords.getType() is LAT:
+        if coords.getType() is openmoc.LAT:
           key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
                  str(coords.getLatticeX()) + ', ' + \
                  str(coords.getLatticeY()) + ') : '
@@ -244,10 +244,10 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 
   # Determine whether we are using the exponential intrinsic or
   # linear interpolation for exponential evaluations
-  if solver.isUsingExponentialIntrinsic():
-      method = 'exp intrinsic'
-  else:
+  if solver.isUsingExponentialInterpolation():
     method = 'linear interpolation'
+  else:
+    method = 'exp intrinsic'
 
   # Determine whether the Solver has initialized Coarse Mesh Finite
   # Difference Acceleration (CMFD)
