@@ -1,4 +1,8 @@
-%module openmoc_intel_double
+%define DOCSTRING 
+"A method of characteristics code for nuclear reactor physics calculations."
+%enddef
+
+%module(docstring=DOCSTRING) openmoc_intel_double
 
 %{
   #define SWIG_FILE_WITH_INIT
@@ -22,6 +26,8 @@
   #include "../../../src/Universe.h"
   #include "../../../src/Cmfd.h"
 
+  #define printf PySys_WriteStdout
+
   /* Exception helpers */
   static int swig_c_error_num = 0;
   static char swig_c_err_msg[1024];
@@ -38,6 +44,7 @@
     swig_c_error_num = 1;
     strncpy(swig_c_err_msg, msg, 1024);
   }
+
 %}
 
 %warnfilter(506) log_printf(logLevel level, const char *format, ...);
@@ -47,12 +54,14 @@
   try {
     $function
   } catch (const std::exception &e) {
-    SWIG_exception(SWIG_RuntimeError, e.what());
+      SWIG_exception(SWIG_RuntimeError, e.what());
   }
 }
 
-/* C++ casting helper method for openmoc.process computePinPowers routine */
+/* C++ casting helper method for openmoc.process computePinPowers
+ * routine and the OpenCG compatibility module */
 %inline %{
+
   CellFill* castCellToCellFill(Cell* cell) {
     return dynamic_cast<CellFill*>(cell);
   }
@@ -69,6 +78,26 @@
     return dynamic_cast<Universe*>(lattice);
   }
 
+  Plane* castSurfaceToPlane(Surface* plane) {
+    return dynamic_cast<Plane*>(plane);
+  }
+
+  XPlane* castSurfaceToXPlane(Surface* xplane) {
+    return dynamic_cast<XPlane*>(xplane);
+  }
+
+  YPlane* castSurfaceToYPlane(Surface* yplane) {
+    return dynamic_cast<YPlane*>(yplane);
+  }
+
+  ZPlane* castSurfaceToZPlane(Surface* zplane) {
+    return dynamic_cast<ZPlane*>(zplane);
+  }
+
+  Circle* castSurfaceToCircle(Surface* circle) {
+    return dynamic_cast<Circle*>(circle);
+  }
+
 %}
 
 
@@ -79,8 +108,6 @@
  * this into their code, so if --no-numpy is passed in we use SWIG typemaps to
  * allow users to pass in arrays of data as Python lists. */
 #ifdef NO_NUMPY
-
-%include typemaps.i
 
 
 /* Typemap for the Material::set_____XS(double* xs, int num_groups)
@@ -103,8 +130,7 @@
     /* Extract the value from the list at this location */
     PyObject *o = PySequence_GetItem($input,i);
 
-    /* If the value is a number, cast it as an int and set the
-     * input array value */
+    /* If value is a number, cast it as an int and set the input array value */
     if (PyNumber_Check(o)) {
       $1[i] = (double) PyFloat_AsDouble(o);
     }
@@ -138,70 +164,54 @@
     /* Extract the value from the list at this location */
     PyObject *o = PySequence_GetItem($input,i);
 
-    /* If the value is a number, cast it as an int and set the
-     * input array value */
+    /* If value is a number, cast it as an int and set input array value */
     if (PyNumber_Check(o)) {
       $1[i] = (float) PyFloat_AsFloat(o);
     }
     else {
       free($1);
       PyErr_SetString(PyExc_ValueError,"Expected a list of numbers "
-                       "for cross-section values\n");
+                      "for cross-section values\n");
       return NULL;
     }
   }
 }
 
 
-/* Typemap for Lattice::setLatticeCells(int num_x, int num_y, int* universes)
- * method - allows users to pass in Python lists of Universe IDs for each
- * lattice cell */
-%typemap(in) (int num_x, int num_y, int* universes) {
+/* Typemap for the Cmfd::setGroupStructure
+ * (int* group_indices, int length_group_indices)
+ * method - allows users to pass in a Python list of group indices
+ * for each CMFD energy group */
+%typemap(in) (int* group_indices, int length_group_indices) {
 
   if (!PyList_Check($input)) {
-    PyErr_SetString(PyExc_ValueError,"Expected a Python list of integers "
-                    "for the Lattice cells");
+    PyErr_SetString(PyExc_ValueError,"Expected a Python list of values "
+                    "for the group indices array");
     return NULL;
   }
 
-  $1 = PySequence_Length($input);  // num_x
-  $2 = PySequence_Length(PyList_GetItem($input,0)); // num_y
-  $3 = (int*) malloc(($1 * $2) * sizeof(int));  // universes
+  $2 = PySequence_Length($input);  // length_group_indices
+  $1 = (int*) malloc($2 * sizeof(int));  // group indices array
 
   /* Loop over x */
   for (int i = 0; i < $2; i++) {
 
-    /* Get the inner list in the nested list for the lattice */
-    PyObject* outer_list = PySequence_GetItem($input,i);
+    /* Extract the value from the list at this location */
+    PyObject *o = PySequence_GetItem($input,i);
 
-    /* Check that the length of this list is the same as the length
-     * of the first list */
-    if (PySequence_Length(outer_list) != $2) {
-      PyErr_SetString(PyExc_ValueError, "Size mismatch. Expected $1 x $2 "
-                      "elements for Lattice\n");
-      return NULL;
+    /* If value is a number, cast it as an int and set the input array value */
+    if (PyNumber_Check(o)) {
+      $1[i] = (int) PyInt_AS_LONG(o);
     }
-
-    /* Loop over y */
-    for (int j =0; j < $1; j++) {
-
-      /* Extract the value from the list at this location */
-      PyObject *o = PySequence_GetItem(outer_list,j);
-
-      /* If the value is a number, cast it as an int and set the
-       * input array value */
-      if (PyNumber_Check(o)) {
-        $3[i*$1 + j] = (int) PyInt_AS_LONG(o);
-      }
-      else {
-        free($3);
-        PyErr_SetString(PyExc_ValueError,"Expected a list of numbers as "
-                        "Universe IDs when constructing Lattice cells\n");
-        return NULL;
-      }
+    else {
+      free($1);
+      PyErr_SetString(PyExc_ValueError,"Expected a list of numbers "
+                      "for group indices values\n");
+      return NULL;
     }
   }
 }
+
 
 
 /* If the user did not pass in the --no-numpy flag, then NumPy typemaps will be
@@ -212,27 +222,31 @@
 
 %include "../../numpy.i"
 
-
 %init %{
-     import_array();
+  import_array();
 %}
 
-/* The typemape used to match the method signature for the
+/* The typemap used to match the method signature for the
  * Lattice::setLatticeCells setter method. This allows users to set the lattice
  * cells (universe IDs) using a 2D NumPy array */
 %apply (int DIM1, int DIM2, int* IN_ARRAY2) {(int num_x, int num_y, int* universes)}
+
+/* The typemap used to match the method signature for the
+ * Cmfd::setGroupStructure method. This allows users to set the CMFD group 
+ * structure using a NumPy array */
+%apply (int* IN_ARRAY1, int DIM1) {(int* group_indices, int length_group_indices)}
 
 /* The typemap used to match the method signature for the Material
  * cross-section setter methods. This allows users to set the cross-sections
  * using NumPy arrays */
 %apply (double* IN_ARRAY1, int DIM1) {(double* xs, int num_groups)}
 
-/* The typemape used to match the method signature for the TrackGenerator's
+/* The typemap used to match the method signature for the TrackGenerator's
  * getter methods for track start and end coordinates for the plotting
  * routines in openmoc.plotter */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
 
-/* The typemape used to match the method signature for the TrackGenerator's
+/* The typemap used to match the method signature for the TrackGenerator's
  * getter methods for track segment start and end coordinates for the plotting
  * routines in openmoc.plotter */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
@@ -246,7 +260,156 @@
  * getCellIds method for the data processing routines in openmoc.process */
 %apply (int* ARGOUT_ARRAY1, int DIM1) {(int* cell_ids, int num_cells)}
 
+/* The typemap used to match the method signature for the 
+ * PolarQuad::setSinThetas method. This allows users to set the polar angle 
+ * quadrature sine thetas using a NumPy array */
+%apply (double* IN_ARRAY1, int DIM1) {(double* sin_thetas, int num_polar)}
+
+/* The typemap used to match the method signature for the 
+ * PolarQuad::setWeights method. This allows users to set the polar angle 
+ * quadrature weights using a NumPy array */
+%apply (double* IN_ARRAY1, int DIM1) {(double* weights, int num_polar)}
+
 #endif
+
+
+/* Typemap for all methods which return a std::map<int, Cell*>. This includes
+ * the Geometry::getAllCells(), Universe::getAllCells(), etc. These methods
+ * are particularly useful for OpenCG compatibility. */
+%include <std_map.i>
+%clear std::map<int, Cell*>;
+%typemap(out) std::map<int, Cell*> {
+
+  $result = PyDict_New();
+  int size = $1.size();
+
+  std::map<int, Cell*>::iterator iter;
+  Cell* cell;
+  int cell_id;
+
+  for (iter = $1.begin(); iter != $1.end(); ++iter) {
+    cell_id = iter->first;
+    cell = iter->second;
+    PyObject* value =
+         SWIG_NewPointerObj(SWIG_as_voidptr(cell), $descriptor(Cell*), 0);
+    PyDict_SetItem($result, PyInt_FromLong(cell_id), value);
+  }
+}
+
+
+/* Typemap for all methods which return a std::map<int, surface_halfspace>.
+ * This includes the Cell::getSurfaces() method, which is useful for OpenCG
+ * compatibility. */
+%include <std_map.i>
+%clear std::map<int, surface_halfspace>;
+%typemap(out) std::map<int, surface_halfspace> {
+
+  $result = PyDict_New();
+  int size = $1.size();
+
+  std::map<int, surface_halfspace>::iterator iter;
+  surface_halfspace* surf;
+  int surf_id;
+
+  for (iter = $1.begin(); iter != $1.end(); ++iter) {
+    surf_id = iter->first;
+    surf = &iter->second;
+    PyObject* value =
+         SWIG_NewPointerObj(SWIG_as_voidptr(surf),
+                            $descriptor(surface_halfspace*), 0);
+    PyDict_SetItem($result, PyInt_FromLong(surf_id), value);
+  }
+}
+
+
+/* Typemap for all methods which return a std::map<int, Material*>.
+ * This includes the Geometry::getAllMaterials() method, which is useful 
+ * for OpenCG compatibility. */
+%include <std_map.i>
+%clear std::map<int, Material*>;
+%typemap(out) std::map<int, Material*> {
+
+  $result = PyDict_New();
+  int size = $1.size();
+
+  std::map<int, Material*>::iterator iter;
+  Material* mat;
+  int mat_id;
+
+  for (iter = $1.begin(); iter != $1.end(); ++iter) {
+    mat_id = iter->first;
+    mat = iter->second;
+    PyObject* value =
+         SWIG_NewPointerObj(SWIG_as_voidptr(mat), $descriptor(Material*), 0);
+    PyDict_SetItem($result, PyInt_FromLong(mat_id), value);
+  }
+}
+
+
+/* Typemap for all methods which return a std::map<int, Universe*>.
+ * This includes the Lattice::getUniqueUniverses() method which is ueseful for
+ * OpenCG compatibility. */
+%include <std_map.i>
+%clear std::map<int, Universe*>;
+%typemap(out) std::map<int, Universe*> {
+
+  $result = PyDict_New();
+  int size = $1.size();
+
+  std::map<int, Universe*>::iterator iter;
+  Universe* univ;
+  int univ_id;
+
+  for (iter = $1.begin(); iter != $1.end(); ++iter) {
+    univ_id = iter->first;
+    univ = iter->second;
+    PyObject* value =
+         SWIG_NewPointerObj(SWIG_as_voidptr(univ), $descriptor(Universe*), 0);
+    PyDict_SetItem($result, PyInt_FromLong(univ_id), value);
+  }
+}
+
+
+/* Typemap for Lattice::setUniverses(int num_x, int num_y, Universe** universes)
+ * method - allows users to pass in Python lists of Universes for each
+ * lattice cell */
+%typemap(in) (int num_x, int num_y, Universe** universes) {
+
+  if (!PyList_Check($input)) {
+    PyErr_SetString(PyExc_ValueError,"Expected a Python list of integers "
+                    "for the Lattice cells");
+    return NULL;
+  }
+
+  $1 = PySequence_Length($input);  // num_x
+  $2 = PySequence_Length(PyList_GetItem($input,0)); // num_y
+  $3 = (Universe**) malloc(($1 * $2) * sizeof(Universe*)); // universes
+
+  /* Loop over x */
+  for (int i = 0; i < $1; i++) {
+
+    /* Get the inner list in the nested list for the lattice */
+    PyObject* outer_list = PyList_GetItem($input,i);
+
+    /* Check that the length of this list is the same as the length
+     * of the first list */
+    if (PySequence_Length(outer_list) != $2) {
+      PyErr_SetString(PyExc_ValueError, "Size mismatch in Universes "
+                      "list for Lattice which must be a 2D list of lists");
+      return NULL;
+    }
+
+    /* Loop over y */
+    for (int j =0; j < $2; j++) {
+      /* Extract the value from the list at this location and convert
+       * SWIG wrapper to pointer to underlying C++ class instance */
+      PyObject* o = PyList_GetItem(outer_list, j);
+      void *p1 = 0;
+      SWIG_ConvertPtr(o, &p1, SWIGTYPE_p_Universe, 0 | 0);
+      $3[i*$2+j] = (Universe*) p1;
+    }
+  }
+}
 
 
 %include <exception.i>
@@ -269,5 +432,7 @@
 %include ../../../src/TrackGenerator.h
 %include ../../../src/Universe.h
 %include ../../../src/Cmfd.h
+
+#define printf PySys_WriteStdout
 
 typedef double FP_PRECISION;
