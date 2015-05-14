@@ -11,6 +11,7 @@ ExpEvaluator::ExpEvaluator() {
   _exp_table = NULL;
   _polar_quad = NULL;
   _max_optical_length = MAX_OPTICAL_LENGTH;
+  _exp_precision = EXP_PRECISION;
 }
 
 
@@ -49,6 +50,24 @@ void ExpEvaluator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
 
 
 /**
+ * @brief Sets the maximum acceptable approximation error for exponentials.
+ * @details This routine only affects the construction of the linear
+ *          interpolation table for exponentials, if in use. By default,
+ *          a value of 1E-5 is used for the table, as recommended by the
+ *          analysis of Yamamoto in his 2004 paper on the subject.
+ * @param exp_precision the maximum exponential approximation error
+ */
+void ExpEvaluator::setExpPrecision(FP_PRECISION exp_precision) {
+
+  if (exp_precision <= 0)
+    log_printf(ERROR, "Cannot set exp precision to %f because it "
+               "must be positive.", exp_precision); 
+
+  _exp_precision = exp_precision;
+}
+
+
+/**
  * @brief Use linear interpolation to compute exponentials.
  */
 void ExpEvaluator::useInterpolation() {
@@ -71,6 +90,15 @@ void ExpEvaluator::useIntrinsic() {
  */
 FP_PRECISION ExpEvaluator::getMaxOpticalLength() {
   return _max_optical_length;
+}
+
+
+/**
+ * @brief Gets the maximum acceptable approximation error for exponentials.
+ * @return the maximum exponential approximation error
+ */
+FP_PRECISION ExpEvaluator::getExpPrecision() {
+  return _exp_precision;
 }
 
 
@@ -130,7 +158,7 @@ FP_PRECISION* ExpEvaluator::getExpTable() {
  * @brief If using linear interpolation, builds the table for each polar angle.
  * @param tolerance the minimum acceptable interpolation accuracy
  */
-void ExpEvaluator::initialize(double tolerance) {
+void ExpEvaluator::initialize() {
 
   /* If no exponential table is needed, return */
   if (!_interpolate)
@@ -143,7 +171,7 @@ void ExpEvaluator::initialize(double tolerance) {
 
   /* Set size of interpolation table */
   int num_polar = _polar_quad->getNumPolarAngles();
-  int num_array_values = _max_optical_length * sqrt(1. / (8.e-2 * tolerance));
+  int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
   FP_PRECISION exp_table_spacing = _max_optical_length / num_array_values;
 
   /* Compute the reciprocal of the table entry spacing */

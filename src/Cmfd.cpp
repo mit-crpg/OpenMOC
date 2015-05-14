@@ -1842,38 +1842,59 @@ void Cmfd::zeroSurfaceCurrents() {
 
 
 /**
- * @brief 
+ * @brief Tallies the current contribution from this segment across the
+ *        the appropriate CMFD mesh cell surface.
  * @param curr_segment the current Track segment
- * @param current the current to tally
+ * @param track_flux the outgoing angular flux for this segment
+ * @param polar_weights array of polar weights for some azimuthal angle
  * @param fwd boolean indicating direction of integration along segment
- * @param e the MOC energy group index
  */
-void Cmfd::tallySurfaceCurrent(segment* curr_segment, 
-                               FP_PRECISION current, bool fwd, int e) {
+void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
+                               FP_PRECISION* polar_weights, bool fwd) {
+
+  FP_PRECISION surf_current;
+  int surf_id;
 
   if (curr_segment->_cmfd_surface_fwd != -1 && fwd){
 
-    /* Atomically increment the Cmfd Mesh surface current from the
-     * temporary array using mutual exclusion locks */
-    omp_set_lock(&_surface_locks[curr_segment->_cmfd_surface_fwd]);
+    surf_id = curr_segment->_cmfd_surface_fwd;
 
-    /* Increment current (polar and azimuthal weighted flux, group) */
-    _surface_currents(curr_segment->_cmfd_surface_fwd, e) += current;
+    for (int e=0; e < _num_moc_groups; e++) {
+      surf_current = 0.;
 
-    /* Release Cmfd Mesh surface mutual exclusion lock */
-    omp_unset_lock(&_surface_locks[curr_segment->_cmfd_surface_fwd]);
+      for (int p=0; p < _num_polar; p++)
+        surf_current += track_flux(p,e) * polar_weights[p];
 
+      /* Atomically increment the Cmfd Mesh surface current from the
+       * temporary array using mutual exclusion locks */
+      omp_set_lock(&_surface_locks[surf_id]);
+
+      /* Increment current (polar and azimuthal weighted flux, group) */
+      _surface_currents(surf_id, e) += surf_current / 2.;
+
+      /* Release Cmfd Mesh surface mutual exclusion lock */
+      omp_unset_lock(&_surface_locks[surf_id]);
+    }
   }
   else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd){
 
-    /* Atomically increment the Cmfd Mesh surface current from the
-     * temporary array using mutual exclusion locks */
-    omp_set_lock(&_surface_locks[curr_segment->_cmfd_surface_bwd]);
+    surf_id = curr_segment->_cmfd_surface_bwd;
 
-    /* Increment current (polar and azimuthal weighted flux, group) */
-    _surface_currents(curr_segment->_cmfd_surface_bwd, e) += current;
+    for (int e=0; e < _num_moc_groups; e++) {
+      surf_current = 0.;
 
-    /* Release Cmfd Mesh surface mutual exclusion lock */
-    omp_unset_lock(&_surface_locks[curr_segment->_cmfd_surface_bwd]);
+      for (int p=0; p < _num_polar; p++)
+        surf_current += track_flux(p,e) * polar_weights[p];
+
+      /* Atomically increment the Cmfd Mesh surface current from the
+       * temporary array using mutual exclusion locks */
+      omp_set_lock(&_surface_locks[surf_id]);
+
+      /* Increment current (polar and azimuthal weighted flux, group) */
+      _surface_currents(surf_id, e) += surf_current / 2.;
+
+      /* Release Cmfd Mesh surface mutual exclusion lock */
+      omp_unset_lock(&_surface_locks[surf_id]);
+    }
   }
 }

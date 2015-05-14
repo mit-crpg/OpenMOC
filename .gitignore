@@ -61,14 +61,15 @@ plots
 plots/*
 */plots
 */plots/*
-pin-powers
-pin-powers/*
-*/pin-powers
-*/pin-powers/*
+fission-rates
+fission-rates/*
+*/fission-rates
+*/fission-rates/*
 simulation-state*
 simulation-state/*
 */simulation-state*
 */simulation-state*/*
+
 
 *.data
 */*.data

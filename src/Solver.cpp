@@ -38,7 +38,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _user_polar_quad = false;
   _polar_quad = new TYPolarQuad();
   _num_polar = 3;
-  _two_times_num_polar = 2 * _num_polar;
   _polar_times_groups = 0;
 
   _num_iterations = 0;
@@ -324,15 +323,6 @@ void Solver::setGeometry(Geometry* geometry) {
 
 
 /**
- * @brief Set the maximum allowable optical length for a track segment
- * @param max_optical_length The max optical length
- */
-void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
-  _exp_evaluator->setMaxOpticalLength(max_optical_length);
-}
-
-
-/**
  * @brief Sets the Solver's TrackGenerator with characteristic Tracks.
  * @details The TrackGenerator must already have generated Tracks and have
  *          used ray tracing to segmentize them across the Geometry. This
@@ -396,7 +386,6 @@ void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
   _user_polar_quad = true;
   _polar_quad = polar_quad;
   _num_polar = _polar_quad->getNumPolarAngles();
-  _two_times_num_polar = 2 * _num_polar;
   _polar_times_groups = _num_groups * _num_polar;
 }
 
@@ -490,6 +479,27 @@ void Solver::setFixedSourceByMaterial(Material* material, int group,
 
 
 /**
+ * @brief Set the maximum allowable optical length for a track segment
+ * @param max_optical_length The max optical length
+ */
+void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+  _exp_evaluator->setMaxOpticalLength(max_optical_length);
+}
+
+
+/**
+ * @brief Set the precision, or maximum allowable approximation error, of the
+ *        the exponential interpolation table.
+ * @details By default, the precision is 1E-5 based on the analysis in 
+ *          Yamamoto's 2003 paper.
+ * @param precision the precision of the exponential interpolation table,
+ */
+void Solver::setExpPrecision(FP_PRECISION precision) {
+  _exp_evaluator->setExpPrecision(precision);
+}
+
+
+/**
  * @brief Informs the Solver to use linear interpolation to compute the
  *        exponential in the transport equation.
  */
@@ -514,11 +524,6 @@ void Solver::useExponentialIntrinsic() {
 void Solver::initializePolarQuadrature() {
 
   FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
-
-  /* Create Tabuchi-Yamamoto polar quadrature if a
-   * PolarQuad was not assigned by the user */
-  if (_polar_quad == NULL)
-    _polar_quad = new TYPolarQuad();
 
   /* Initialize the PolarQuad object */
   _polar_quad->setNumPolarAngles(_num_polar);
@@ -560,7 +565,7 @@ void Solver::initializeExpEvaluator() {
 
     /* Initialize exponential interpolation table */
     _exp_evaluator->setMaxOpticalLength(max_tau);  
-    _exp_evaluator->initialize(_converge_thresh);
+    _exp_evaluator->initialize();
   }
 }
 

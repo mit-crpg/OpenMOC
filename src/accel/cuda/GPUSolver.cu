@@ -18,11 +18,11 @@ __constant__ int two_times_num_polar[1];
 /** The number of polar angles times energy groups */
 __constant__ int polar_times_groups[1];
 
-/** An array for the sines of the polar angle in the polar quadrature set */
-__constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES];
+/** An array for the sines of the polar angle in the polar Quadrature set */
+__constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES_GPU];
 
-/** An array of the weights for the polar angles from the quadrature set */
-__constant__ FP_PRECISION polar_weights[MAX_POLAR_ANGLES*MAX_AZIM_ANGLES];
+/** An array of the weights for the polar angles from the Quadrature set */
+__constant__ FP_PRECISION polar_weights[MAX_POLAR_ANGLES_GPU*MAX_AZIM_ANGLES_GPU];
 
 /** The total number of Tracks */
 __constant__ int tot_num_tracks[1];
@@ -856,17 +856,18 @@ void GPUSolver::initializePolarQuadrature() {
 
   Solver::initializePolarQuadrature();
 
-  if (_num_polar > MAX_POLAR_ANGLES)
+  if (_num_polar > MAX_POLAR_ANGLES_GPU)
     log_printf(ERROR, "Unable to initialize a polar quadrature with %d "
                "angles for the GPUSolver which is limited to %d polar "
-               "angles. Update the MAX_POLAR_ANGLES macro in GPUSolver.h "
-               "and recompile.", _num_polar, MAX_POLAR_ANGLES);
+               "angles. Update the MAX_POLAR_ANGLES_GPU macro in constants.h "
+               "and recompile.", _num_polar, MAX_POLAR_ANGLES_GPU);
 
   /* Copy the number of polar angles to constant memory on the GPU */
   cudaMemcpyToSymbol(num_polar, (void*)&_num_polar, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
 
   /* Copy twice the number of polar angles to constant memory on the GPU */
+  _two_times_num_polar = 2 * _num_polar;
   cudaMemcpyToSymbol(two_times_num_polar, (void*)&_two_times_num_polar,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 

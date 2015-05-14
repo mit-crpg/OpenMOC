@@ -152,31 +152,6 @@ FP_PRECISION* TrackGenerator::getAzimWeights() {
 
 
 /**
- * @brief Get the maximum allowable optical length for a track segment
- * @return The max optical length
- */
-FP_PRECISION TrackGenerator::getMaxOpticalLength() {
-  return _max_optical_length;
-}
-
-/**
- * @brief Get the total number of tracks in the TrackGenerator
- * @return the total number of tracks
- */
-int TrackGenerator::getTotNumTracks() {
-  return _tot_num_tracks;
-}
-
-/**
- * @brief Get the total number of track segments in the TrackGenerator
- * @return the total number of track segments
- */
-int TrackGenerator::getTotNumSegments() {
-  return _tot_num_segments;
-}
-
-
-/**
  * @brief Returns the number of shared memory OpenMP threads in use.
  * @return the number of threads
  */
@@ -1111,7 +1086,7 @@ void TrackGenerator::segmentize() {
 
     /* Loop over all Tracks */
     for (int i=0; i < _num_azim; i++) {
-      #pragma omp parallel for private(track)
+      #pragma omp parallel for firstprivate(track)
       for (int j=0; j < _num_tracks[i]; j++){
         track = &_tracks[i][j];
         log_printf(DEBUG, "Segmenting Track %d", track->getUid());
@@ -1623,7 +1598,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           min_num_cuts = std::max(num_cuts, min_num_cuts);
         }
 
-        /* If the segment does not subdivisions, go to next segment */
+        /* If the segment does not need subdivisions, go to next segment */
         if (min_num_cuts == 1)
           continue;
 

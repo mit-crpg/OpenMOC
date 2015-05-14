@@ -1,9 +1,28 @@
-from distutils.core import setup
-from distutils.command.build_ext import build_ext
-from distutils.command.build_py import build_py
-from distutils.command.install import install
+'''
+The setup script for OpenMOC
+'''
+
 from distutils.errors import DistutilsOptionError
 import os, string
+
+# Use setuptools only if the user opts-in by setting the USE_SETUPTOOLS.
+# This ensures consistent behavior but allows for advanced usage with
+# virtualenv, buildout, pip and others.
+with_setuptools = False
+if 'USE_SETUPTOOLS' in os.environ or 'pip' in __file__:
+  with_setuptools = True
+
+if with_setuptools:
+  from setuptools import setup
+  from setuptools.command.build_ext import build_ext
+  from setuptools.command.build_py import build_py
+  from setuptools.command.install import install
+else:
+  from distutils.core import setup
+  from distutils.command.build_ext import build_ext
+  from distutils.command.build_py import build_py
+  from distutils.command.install import install
+
 import config
 
 
@@ -374,7 +393,7 @@ def customize_linker(self):
       self.set_executable('linker_so', 'bgxlc++_r')
       self.set_executable('linker_exe', 'bgxlc++_r')
 
-    # If the filename for the extension contains cuda, use g++ to link
+    # If the filename for the extension contains cuda, use nvcc to link
     if 'cuda' in output_filename:
       self.set_executable('linker_so', 'nvcc')
       self.set_executable('linker_exe', 'nvcc')
@@ -457,10 +476,11 @@ class custom_build_ext(build_ext):
 
 # Run the distutils setup method for the complete build
 dist = setup(name = 'openmoc',
-      version = '0.1.4',
+      version = '0.1.4b',
       description = 'An open source method of characteristics code for ' + \
                     'solving the 2D neutron distribution in nuclear reactors',
       url = 'https://github.com/mit-crpg/OpenMOC',
+      download_url = 'https://github.com/mit-crpg/OpenMOC/tarball/v0.1.4b',
 
       # Set the C/C++/CUDA extension modules built in setup_extension_modules()
       # in config.py based on the user-defined flags at compile time
@@ -469,6 +489,9 @@ dist = setup(name = 'openmoc',
       # Extract all of the Python packages for OpenMOC
       # (ie, openmoc.log, openmoc.materialize, etc)
       packages = config.packages,
+
+      # Include SWIG interface files in package - this is important for PyPI
+      package_data = {'' : ['*.i*']},
 
       # Inject our custom compiler and linker triggers
       cmdclass={ 'build_ext': custom_build_ext,

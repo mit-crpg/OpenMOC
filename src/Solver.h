@@ -20,7 +20,7 @@
 #include <math.h>
 #endif
 
-/** Indexing macro for the scalar flux in each FSR and energy grou */
+/** Indexing macro for the scalar flux in each FSR and energy group */
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
 
 /** Indexing macro for the old scalar flux in each FSR and energy group */
@@ -119,9 +119,6 @@ protected:
 
   /** The number of polar angles */
   int _num_polar;
-
-  /** Twice the number of polar angles */
-  int _two_times_num_polar;
 
   /** The number of polar angles times energy groups */
   int _polar_times_groups;
@@ -277,6 +274,7 @@ public:
   void setFixedSourceByMaterial(Material* material, int group, 
                                 FP_PRECISION source);
   void setMaxOpticalLength(FP_PRECISION max_optical_length);
+  void setExpPrecision(FP_PRECISION precision);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
