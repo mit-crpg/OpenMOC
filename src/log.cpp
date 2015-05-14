@@ -70,6 +70,13 @@ static int line_length = 67;
 
 
 /**
+ * @var log_error_lock
+ * @brief OpenMP mutex lock for ERROR messages which throw exceptions
+ */
+static omp_lock_t log_error_lock;
+
+
+/**
  * @brief Sets the output directory for log files.
  * @details If the directory does not exist, it creates it for the user.
  * @param directory a character array for the log file directory
@@ -84,6 +91,9 @@ void set_output_directory(char* directory) {
     mkdir(directory, S_IRWXU);
     mkdir((output_directory+"/log").c_str(), S_IRWXU);
   }
+
+  /* Initialize OpenMP mutex lock for ERROR messages with exceptions */
+  omp_init_lock(&log_error_lock);
 
   return;
 }
@@ -459,8 +469,13 @@ void log_printf(logLevel level, const char* format, ...) {
     log_file.close();
 
     /* Write the log message to the shell */
-    if (level == ERROR)
-      throw std::logic_error(msg_string.c_str());
+    if (level == ERROR) {
+      omp_set_lock(&log_error_lock);
+      {
+        throw std::logic_error(msg_string.c_str());
+      }
+      omp_unset_lock(&log_error_lock);
+    }
     else 
       printf("%s", msg_string.c_str());
   }
