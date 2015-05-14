@@ -2,8 +2,11 @@
 The setup script for OpenMOC
 '''
 
-from distutils.errors import DistutilsOptionError
 import os, string
+from distutils.errors import DistutilsOptionError
+import distutils.ccompiler
+import multiprocessing
+import multiprocessing.pool as pool
 
 # Use setuptools only if the user opts-in by setting the USE_SETUPTOOLS.
 # This ensures consistent behavior but allows for advanced usage with
@@ -407,6 +410,37 @@ def customize_linker(self):
 
   # Inject our redefined link method into the class
   self.link = link
+
+
+# monkey-patch for parallel compilation
+def parallel_compile(self, sources, output_dir=None, macros=None, 
+                     include_dirs=None, debug=0, extra_preargs=None, 
+                     extra_postargs=None, depends=None):
+  """A parallel version of the Distutils compile method
+
+  Note that this routine is modified from StackOverflow post #11013851
+  """
+
+  # Copy args from distutils.ccompiler.CCompiler directly
+  macros, objects, extra_postargs, pp_opts, build = \
+       self._setup_compile(output_dir, macros, include_dirs, 
+                           sources, depends, extra_postargs)
+  cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
+  num_cpus = multiprocessing.cpu_count()
+
+  # Define routine for each thread to use to compile on its own
+  def _single_compile(obj):
+      try: src, ext = build[obj]
+      except KeyError: return
+      self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+
+  # Convert thread mapping to C/C++/CUDA objects to a list and return
+  list(pool.ThreadPool(num_cpus).imap(_single_compile, objects))
+  return objects
+
+
+# Inject parallel_compile to override distutils sequential compile method
+distutils.ccompiler.CCompiler.compile=parallel_compile
 
 
 # Run the customize_compiler to inject redefined and customized _compile and
