@@ -14,8 +14,6 @@ import sys
 #         openmoc.plotter module.
 openmoc = ''
 
-print('whoa!!!')
-
 # Determine which OpenMOC module is being used
 if 'openmoc.gnu.double' in sys.modules:
   openmoc = sys.modules['openmoc.gnu.double']
