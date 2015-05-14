@@ -1403,7 +1403,7 @@ FP_PRECISION GPUSolver::computeFSRSources() {
 
   FP_PRECISION residual = thrust::reduce(_source_residuals_vec.begin(),
                                          _source_residuals_vec.end());
-  residual = sqrt(residual / (_num_groups * _num_fissionable_FSRs));
+  residual = sqrt(residual / _num_fissionable_FSRs);
 
   return residual;
 }

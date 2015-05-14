@@ -106,6 +106,11 @@ track_generator.generateTracks()
 solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setSourceConvergenceThreshold(tolerance)
+
+polar_quad = LeonardPolarQuad()
+polar_quad.setNumPolarAngles(2)
+solver.setPolarQuadrature(polar_quad)
+
 solver.convergeSource(max_iters)
 solver.printTimerReport()
 

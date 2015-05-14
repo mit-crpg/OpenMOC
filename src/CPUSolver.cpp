@@ -456,8 +456,7 @@ FP_PRECISION CPUSolver::computeFSRSources() {
 
   /* Sum up the residuals from each FSR */
   source_residual = pairwise_sum<FP_PRECISION>(_source_residuals, _num_FSRs);
-  source_residual = sqrt(source_residual \
-                         / (_num_fissionable_FSRs * _num_groups));
+  source_residual = sqrt(source_residual / _num_fissionable_FSRs);
 
   return source_residual;
 }
