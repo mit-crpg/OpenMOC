@@ -87,7 +87,7 @@ num_y = 200
 width_x = (root_universe.getMaxX() - root_universe.getMinX()) / num_y
 width_y = (root_universe.getMaxY() - root_universe.getMinY()) / num_x
 universes = [[water_univ]*num_x for _ in range(num_y)]
-universes[15][15] = source_univ
+universes[num_x/5][num_y/5] = source_univ
 
 log.py_printf('NORMAL', 'Creating a {0}x{0} lattice...'.format(num_x, num_y))
 
