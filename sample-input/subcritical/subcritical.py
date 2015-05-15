@@ -1,3 +1,4 @@
+import numpy as np
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
@@ -87,16 +88,32 @@ root_universe.addCell(root_cell)
 #                            Creating Lattices
 ###############################################################################
 
+# Number of lattice cells
 num_x = 100
 num_y = 100
+
+# Compute widths of each lattice cell
 width_x = (root_universe.getMaxX() - root_universe.getMinX()) / num_y
 width_y = (root_universe.getMaxY() - root_universe.getMinY()) / num_x
+
+# Create 2D array of Universes in each lattice cell
 universes = [[water_univ]*num_x for _ in range(num_y)]
 
-universes[15][15] = source_univ
+# Place fixed source Universe at (x=10, y=10)
+source_x = 2.5
+source_y = 2.5
+lat_x = (root_universe.getMaxX() - source_x) / width_x
+lat_y = (root_universe.getMaxY() - source_y) / width_y
+universes[int(lat_x)][int(lat_y)] = source_univ
 
-for i in range(50,56):
-  for j in range(50,56):
+# Place fuel Universes at (x=[-0.5, 0.5], y=[-0.5,0.5])
+fuel_x = np.array([-0.5,0.5])
+fuel_y = np.array([-0.5,0.5])
+lat_x = (root_universe.getMaxX() - fuel_x) / width_x
+lat_y = (root_universe.getMaxY() - fuel_y) / width_y
+
+for i in np.arange(lat_x[1], lat_x[0], dtype=np.int):
+  for j in np.arange(lat_y[1], lat_y[0], dtype=np.int):
     universes[i][j] = fuel_univ
 
 log.py_printf('NORMAL', 'Creating a {0}x{0} lattice...'.format(num_x, num_y))
