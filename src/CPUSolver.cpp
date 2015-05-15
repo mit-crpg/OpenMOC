@@ -74,6 +74,11 @@ void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
     memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
   }
 
+  /* Warn the user if a fixed source has already been assigned to this FSR */
+  if (_fixed_sources(fsr_id,group-1) != 0.)
+    log_printf(WARNING, "Over-riding fixed source %f in FSR ID=%d with %f",
+               _fixed_sources(fsr_id,group-1), fsr_id, source);
+
   /* Store the fixed source for this FSR and energy group */
   _fixed_sources(fsr_id,group-1) = source;  
 }
