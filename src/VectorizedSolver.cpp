@@ -507,7 +507,7 @@ void VectorizedSolver::computeKeff() {
   total = cblas_dasum(_num_FSRs, FSR_rates, 1);
   #endif
 
-  /* Loop over all FSRs and compute the volume-weighted fission rates */
+  /* Loop over all FSRs and compute the volume-weighted nu-fission rates */
   #pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
@@ -533,7 +533,7 @@ void VectorizedSolver::computeKeff() {
     #endif
   }
 
-  /* Reduce fission rates across FSRs */
+  /* Reduce nu-fission rates across FSRs */
   #ifdef SINGLE
   fission = cblas_sasum(_num_FSRs, FSR_rates, 1);
   #else

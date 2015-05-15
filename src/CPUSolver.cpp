@@ -485,7 +485,7 @@ void CPUSolver::computeKeff() {
   /* Reduce total rates across FSRs */
   total = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
-  /* Loop over all FSRs and compute the volume-integrated fission rates */
+  /* Loop over all FSRs and compute the volume-integrated nu-fission rates */
   #pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
@@ -762,19 +762,19 @@ void CPUSolver::addSourceToScalarFlux() {
 
 
 /**
- * @brief Computes the volume-averaged, energy-integrated fission rate in
+ * @brief Computes the volume-averaged, energy-integrated nu-fission rate in
  *        each FSR and stores them in an array indexed by FSR ID.
  * @details This is a helper method for SWIG to allow users to retrieve
- *          FSR fission rates as a NumPy array. An example of how this method 
- *          can be called from Python is as follows:
+ *          FSR nu-fission rates as a NumPy array. An example of how this 
+ *          method can be called from Python is as follows:
  *
  * @code
  *          num_FSRs = geometry.getNumFSRs()
  *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
  * @endcode
  *
- * @param fission_rates an array to store the fission rates (implicitly passed
- *                      in as a NumPy array from Python)
+ * @param fission_rates an array to store the nu-fission rates (implicitly 
+ *                      passed in as a NumPy array from Python)
  * @param num_FSRs the number of FSRs passed in from Python
  */
 void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
@@ -791,7 +791,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
   for (int r=0; r < _num_FSRs; r++)
     fission_rates[r] = 0.0;
 
-  /* Loop over all FSRs and compute the volume-averaged fission rate */
+  /* Loop over all FSRs and compute the volume-averaged nu-fission rate */
   #pragma omp parallel for private (nu_sigma_f) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
     nu_sigma_f = _FSR_materials[r]->getNuSigmaF();

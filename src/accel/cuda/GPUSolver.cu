@@ -206,7 +206,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
  * @param materials an array of the dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
  * @param total array of FSR total reaction rates
- * @param fission an array of FSR fission rates
+ * @param fission an array of FSR nu-fission rates
  * @param scatter an array of FSR scattering rates
  */
 __global__ void computeKeffReactionRates(FP_PRECISION* FSR_volumes,
@@ -537,12 +537,12 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
 
 
 /**
- * @brief Computes the volume-averaged, energy integrated fission rate in
+ * @brief Computes the volume-averaged, energy integrated nu-fission rate in
  *        each FSR and stores them in an array indexed by FSR ID on the GPU.
  * @details This is a helper method for the
  *          GPUSolver::computeFSRFissionRates(...) method.
- * @param fission_rates an array to store the fission rates
- * @param fission_rates an array in which to store the FSR fission rates
+ * @param fission_rates an array to store the nu-fission rates
+ * @param fission_rates an array in which to store the FSR nu-fission rates
  * @param FSR_materials an array of FSR material indices
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
@@ -556,13 +556,13 @@ __global__ void computeFSRFissionRatesOnDevice(double* fission_rates,
   dev_material* curr_material;
   FP_PRECISION* nu_sigma_f;
 
-  /* Loop over all FSRs and compute the volume-averaged fission rate */
+  /* Loop over all FSRs and compute the volume-averaged nu-fission rate */
   while (tid < *num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
     nu_sigma_f = curr_material->_nu_sigma_f;
 
-    /* Initialize the fission rate for this FSR to zero */
+    /* Initialize the nu-fission rate for this FSR to zero */
     fission_rates[tid] = 0.0;
 
     for (int i=0; i < *num_groups; i++)
@@ -804,9 +804,11 @@ void GPUSolver::setFixedSourceByFSR(int fsr_id, int group,
   }
 
   /* Warn the user if a fixed source has already been assigned to this FSR */
-  if (_fixed_sources(fsr_id,group-1) != 0.)
+  if (_fixed_sources(fsr_id,group-1) != 0.) {
+    FP_PRECISION old_source = _fixed_sources(fsr_id,group-1);
     log_printf(WARNING, "Over-riding fixed source %f in FSR ID=%d with %f",
-               _fixed_sources(fsr_id,group-1), fsr_id, source);
+               old_source, fsr_id, source);
+  }
 
   /* Store the fixed source for this FSR and energy group */
   _fixed_sources(fsr_id,group-1) = source;  
@@ -1434,7 +1436,7 @@ double GPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* old_scalar_flux = 
          thrust::raw_pointer_cast(&_old_scalar_flux[0]);
 
-    /* Compute the old and new fission rates on the device */
+    /* Compute the old and new nu-fission rates on the device */
     computeFSRFissionRatesOnDevice<<<_B,_T>>>(old_fission_sources,
                                               _FSR_materials,
                                               _materials,
@@ -1444,7 +1446,7 @@ double GPUSolver::computeResidual(residualType res_type) {
                                               _materials,
                                               scalar_flux);
 
-    /* Compute the relative fission rate change in each FSR */
+    /* Compute the relative nu-fission rate change in each FSR */
     thrust::transform(new_fission_sources_vec.begin(), 
                       new_fission_sources_vec.end(),
                       old_fission_sources_vec.begin(), residuals.begin(),
@@ -1529,10 +1531,10 @@ double GPUSolver::computeResidual(residualType res_type) {
 
 
 /**
- * @brief Computes the volume-averaged, energy-integrated fission rate in
+ * @brief Computes the volume-averaged, energy-integrated nu-fission rate in
  *        each FSR and stores them in an array indexed by FSR ID.
  * @details This is a helper method for SWIG to allow users to retrieve
- *          FSR fission rates as a NumPy array. An example of how this method
+ *          FSR nu-fission rates as a NumPy array. An example of how this method
  *          can be called from Python is as follows:
  *
  * @code
@@ -1540,28 +1542,28 @@ double GPUSolver::computeResidual(residualType res_type) {
  *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
  * @endcode
  *
- * @param fission_rates an array to store the fission rates (implicitly passed
- *                      in as a NumPy array from Python)
+ * @param fission_rates an array to store the nu-fission rates (implicitly 
+ *                      passed in as a NumPy array from Python)
  * @param num_FSRs the number of FSRs passed in from Python
  */
 void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   log_printf(INFO, "Computing FSR fission rates...");
 
-  /* Allocate memory for the FSR fission rates on the device */
+  /* Allocate memory for the FSR nu-fission rates on the device */
   double* dev_fission_rates;
   cudaMalloc((void**)&dev_fission_rates, _num_FSRs * sizeof(double));
 
   FP_PRECISION* scalar_flux = 
        thrust::raw_pointer_cast(&_scalar_flux[0]);
 
-  /* Compute the FSR fission rates on the device */
+  /* Compute the FSR nu-fission rates on the device */
   computeFSRFissionRatesOnDevice<<<_B,_T>>>(dev_fission_rates,
                                            _FSR_materials,
                                            _materials,
                                            scalar_flux);
 
-  /* Copy the fission rate array from the device to the host */
+  /* Copy the nu-fission rate array from the device to the host */
   cudaMemcpy((void*)fission_rates, (void*)dev_fission_rates,
              _num_FSRs * sizeof(double), cudaMemcpyDeviceToHost);
 

@@ -659,7 +659,7 @@ void Solver::initializeCmfd(){
  *        transport sweeps.
  * @details This is the main method exposed to the user through the Python
  *          interface to compute the scalar flux distribution, e.g., for a 
- *          fixed ource calculation. This routine makes an initial guess for
+ *          fixed source calculation. This routine makes an initial guess for
  *          scalar and boundary fluxes and performs transport sweep until 
  *          convergence. 
  *
