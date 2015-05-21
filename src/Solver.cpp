@@ -473,7 +473,7 @@ void Solver::setFixedSourceByMaterial(Material* material, int group,
   for (int r=0; r < _num_FSRs; r++) {
     fsr_material = _geometry->findFSRMaterial(r);
     if (material->getId() == fsr_material->getId())
-      setFixedSourceByFSR(group, r, source);
+      setFixedSourceByFSR(r, group, source);
   }
 }
 
