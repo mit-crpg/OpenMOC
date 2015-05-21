@@ -63,6 +63,11 @@ VectorizedSolver::~VectorizedSolver() {
     _reduced_sources = NULL;
   }
 
+  if (_source_residuals != NULL) {
+    MM_FREE(_source_residuals);
+    _source_residuals = NULL;
+  }
+
   if (_delta_psi != NULL) {
     MM_FREE(_delta_psi);
     _delta_psi = NULL;
@@ -77,7 +82,6 @@ VectorizedSolver::~VectorizedSolver() {
     MM_FREE(_thread_exponentials);
     _thread_exponentials = NULL;
   }
-
 }
 
 

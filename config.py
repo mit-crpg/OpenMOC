@@ -196,9 +196,10 @@ class configuration:
                              '-Qunused-arguments',
                              '-Wno-deprecated-register',
                              '-Wno-parentheses-equality']
-  compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip', '-openmp',
-                           '-xhost', '-std=c++0x', '-fpic', '--ccache-skip',
-                             '-openmp-report', '-vec-report']
+  compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip', 
+                           '-openmp', '-xhost', '-std=c++11', 
+                           '--ccache-skip', '-fpic',
+                           '-openmp-report', '-vec-report']
   compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', '-qreport',
                              '-qsimd=auto', '-qtune=qp', '-qunroll=auto',
                              '-qsmp=omp', '-qpic']
