@@ -18,9 +18,7 @@
 #include <string>
 #include <omp.h>
 #include <functional>
-#ifndef NVCC
-  #include <unordered_map>
-#endif
+#include <unordered_map>
 #endif
 
 
