@@ -189,8 +189,8 @@ def customize_compiler(self):
 
       postargs = config.compiler_flags['clang']
 
-    # If INTEL is a defined macro and the source is C++, use icpc
-    elif '-DINTEL' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+    # If ICPC is a defined macro and the source is C++, use icpc
+    elif '-DICPC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
       if config.with_ccache:
         self.set_executable('compiler_so', 'ccache icpc')
       else:
@@ -207,7 +207,7 @@ def customize_compiler(self):
 
       postargs = config.compiler_flags['bgxlc']
 
-    # If CUDA is a defined macro and the source is C++, compile
+    # If NVCC is a defined macro and the source is C++, compile
     # SWIG-wrapped CUDA code with gcc
     elif '-DNVCC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
       if config.with_ccache:
@@ -217,7 +217,7 @@ def customize_compiler(self):
 
       postargs = config.compiler_flags['gcc']
 
-    # If CUDA is a defined macro and the source is CUDA, use nvcc
+    # If NVCC is a defined macro and the source is CUDA, use nvcc
     elif '-DNVCC' in pp_opts and os.path.splitext(src)[1] == '.cu':
       if config.with_ccache:
         self.set_executable('compiler_so', 'ccache nvcc')
@@ -267,7 +267,7 @@ def customize_linker(self):
       self.set_executable('linker_exe', 'g++')
 
     # If the linker receives -openmp as an option, then the objects
-    # are built by a GNU compiler
+    # are built by an Intel compiler
     if '-openmp' in extra_postargs:
       self.set_executable('linker_so', 'icpc')
     self.set_executable('linker_exe', 'icpc')

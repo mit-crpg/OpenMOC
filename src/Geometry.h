@@ -18,7 +18,7 @@
 #include <string>
 #include <omp.h>
 #include <functional>
-#ifndef CUDA
+#ifndef NVCC
   #include <unordered_map>
 #endif
 #endif

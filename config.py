@@ -190,7 +190,7 @@ class configuration:
   compiler_flags = dict()
 
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
-                           '-std=c++0x', '-fpic']
+                           '-std=c++11', '-fpic']
   compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11', 
                              '-fopenmp', '-fpic',
                              '-Qunused-arguments',

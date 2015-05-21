@@ -1,4 +1,8 @@
-%module openmoc_cuda
+%define DOCSTRING 
+"A method of characteristics code for nuclear reactor physics calculations."
+%enddef
+
+%module(docstring=DOCSTRING) openmoc_cuda
 
 %{
   #define SWIG_FILE_WITH_INIT
@@ -64,4 +68,8 @@
 
 #define PySys_WriteStdout printf
 
+#ifdef DOUBLE
+typedef double FP_PRECISION;
+#else
 typedef float FP_PRECISION;
+#endif
