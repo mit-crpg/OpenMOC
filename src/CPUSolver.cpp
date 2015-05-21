@@ -730,7 +730,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     for (int p=0; p < _num_polar; p++) {
       track_out_flux(p,e) = track_flux(p,e) * bc;
       track_leakage(p,e) = track_flux(p,e) *
-                           _polar_weights(azim_index,p) * (!bc);
+                           _polar_weights(azim_index,p) * (1-bc);
     }
   }
 }

@@ -792,7 +792,7 @@ void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
       /* Loop over energy groups within this vector */
       #pragma simd vectorlength(VEC_LENGTH)
       for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-        track_leakage(p,e) *= _polar_weights(azim_index,p) * (!bc);
+        track_leakage(p,e) *= _polar_weights(azim_index,p) * (1-bc);
     }
   }
 }

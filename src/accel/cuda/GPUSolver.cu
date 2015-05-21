@@ -392,7 +392,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
   /* Put Track's flux in the shared memory temporary flux array */
   for (int p=0; p < *num_polar; p++) {
     track_out_flux[p] = track_flux[p] * bc;
-    leakage[0] += track_flux[p] * polar_weights(azim_index,p) * (!bc);
+    leakage[0] += track_flux[p] * polar_weights(azim_index,p) * (1-bc);
   }
 }
 
