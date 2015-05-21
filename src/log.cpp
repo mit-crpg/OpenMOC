@@ -87,7 +87,7 @@ void set_output_directory(char* directory) {
 
   /* Check to see if directory exists - if not, create it */
   struct stat st;
-  if (!stat(directory, &st) == 0) {
+  if ((!stat(directory, &st)) == 0) {
     mkdir(directory, S_IRWXU);
     mkdir((output_directory+"/log").c_str(), S_IRWXU);
   }
@@ -441,7 +441,7 @@ void log_printf(logLevel level, const char* format, ...) {
        * written to a "log" subdirectory. Create it if it doesn't exist */
       if (output_directory.compare(".") == 0) {
         struct stat st;
-        if (!stat("log", &st) == 0)
+        if ((!stat("log", &st)) == 0)
           mkdir("log", S_IRWXU);
       }
 

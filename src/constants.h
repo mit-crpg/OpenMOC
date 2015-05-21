@@ -44,7 +44,7 @@
 #define EXP_PRECISION FP_PRECISION(1E-5)
 
 
-#ifdef CUDA
+#ifdef NVCC
 
 /** The maximum number of polar angles to reserve constant memory on GPU */
 #define MAX_POLAR_ANGLES_GPU 10
