@@ -79,9 +79,6 @@ class configuration:
   # modules (depending on what precision levels are set for fp_precision)
   with_cuda = False
 
-  # Compile with PAPI instrumentation
-  with_papi = False
-
   # Compile with NumPy typemaps and the C API to allow users to pass NumPy
   # arrays to/from the C++ source code
   with_numpy = True

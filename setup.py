@@ -67,7 +67,6 @@ class custom_install(install):
     ('debug-mode', None, "Build with debugging symbols"),
     ('profile-mode', None, "Build with profiling symbols"),
     ('with-ccache', None, "Build with ccache for rapid recompilation"),
-    ('with-papi', None, 'Build modules with PAPI instrumentation'),
     ('no-numpy', None, 'Build modules without NumPy C API')
   ]
 
@@ -85,7 +84,6 @@ class custom_install(install):
                      'debug-mode',
                      'profile-mode',
                      'with-ccache',
-                     'with-papi',
                      'no-numpy']
 
   # Include all of the boolean options provided by distutils for the
@@ -125,7 +123,6 @@ class custom_install(install):
     self.debug_mode = False
     self.profile_mode = False
     self.with_ccache = False
-    self.with_papi = False
     self.no_numpy = False
 
 
@@ -149,7 +146,6 @@ class custom_install(install):
     config.debug_mode = self.debug_mode
     config.profile_mode = self.profile_mode
     config.with_ccache = self.with_ccache
-    config.with_papi = self.with_papi
     config.with_numpy = not self.no_numpy
 
     # Check that the user specified a supported C++ compiler
