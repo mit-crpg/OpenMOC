@@ -153,7 +153,7 @@ def customize_compiler(self):
   """Inject redefined _compile method into distutils
 
   This method enables us to choose compilers based on the macros defined
-  in the compiler flags (ie, '-DGNU', '-DCUDA', etc), or on the
+  in the compiler flags (ie, '-DGCC', '-DNVCC', etc), or on the
   source extension (ie, *.cpp, *.cu, etc.).
 
   Adapted from Robert McGibbon's CUDA distutils setup provided in open source
@@ -171,8 +171,8 @@ def customize_compiler(self):
   # based on source extension, so we add that functionality here
   def _compile(obj, src, ext, cc_args, extra_postargs, pp_opts):
 
-    # If GNU is a defined macro and the source is C++, use gcc
-    if '-DGNU' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+    # If GCC is a defined macro and the source is C++, use gcc
+    if '-DGCC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
       if config.with_ccache:
         self.set_executable('compiler_so', 'ccache gcc')
       else:
@@ -209,7 +209,7 @@ def customize_compiler(self):
 
     # If CUDA is a defined macro and the source is C++, compile
     # SWIG-wrapped CUDA code with gcc
-    elif '-DCUDA' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+    elif '-DNVCC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
       if config.with_ccache:
         self.set_executable('compiler_so', 'ccache gcc')
       else:
@@ -218,7 +218,7 @@ def customize_compiler(self):
       postargs = config.compiler_flags['gcc']
 
     # If CUDA is a defined macro and the source is CUDA, use nvcc
-    elif '-DCUDA' in pp_opts and os.path.splitext(src)[1] == '.cu':
+    elif '-DNVCC' in pp_opts and os.path.splitext(src)[1] == '.cu':
       if config.with_ccache:
         self.set_executable('compiler_so', 'ccache nvcc')
       else:
