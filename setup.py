@@ -171,8 +171,8 @@ def customize_compiler(self):
   # based on source extension, so we add that functionality here
   def _compile(obj, src, ext, cc_args, extra_postargs, pp_opts):
 
-    # If GCC is a defined macro and the source is C++, use gcc
-    if '-DGCC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+    # If compiler is GNU's gcc and the source is C++, use gcc
+    if config.cc == 'gcc' and os.path.splitext(src)[1] == '.cpp':
       if config.with_ccache:
         self.set_executable('compiler_so', 'ccache gcc')
       else:
@@ -180,8 +180,8 @@ def customize_compiler(self):
 
       postargs = config.compiler_flags['gcc']
 
-    # If CLANG is a defined macro and the source is C++, use clang
-    elif '-DCLANG' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+    # If compiler is Apple's clang and the source is C++, use clang
+    elif config.cc == 'clang' and os.path.splitext(src)[1] == '.cpp':
       if config.with_ccache:
         self.set_executable('compiler_so', 'ccache clang')
       else:
@@ -189,8 +189,8 @@ def customize_compiler(self):
 
       postargs = config.compiler_flags['clang']
 
-    # If ICPC is a defined macro and the source is C++, use icpc
-    elif '-DICPC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+    # If compiler is Intel's icpc and the source is C++, use icpc
+    elif config.cc == 'icpc' and os.path.splitext(src)[1] == '.cpp':
       if config.with_ccache:
         self.set_executable('compiler_so', 'ccache icpc')
       else:
@@ -198,8 +198,8 @@ def customize_compiler(self):
 
       postargs = config.compiler_flags['icpc']
 
-    # If BGXLC is a defined macro and the source is C++, use bgxlc
-    elif '-DBGXLC' in pp_opts and os.path.splitext(src)[1] == '.cpp':
+    # If compiler is IBM's bgxlc and the source is C++, use bgxlc
+    elif config.cc == 'bgxlc' and os.path.splitext(src)[1] == '.cpp':
       if config.with_ccache:
         self.set_executable('compiler_so', 'bgxlc++_r')
       else:
@@ -259,27 +259,24 @@ def customize_linker(self):
            export_symbols=None, debug=0, extra_preargs=None,
            extra_postargs=None, build_temp=None, target_lang=None):
 
-    # If the linker receives -fopenmp as an option, then the objects
-    # are built by a GNU compiler
-    # FIXME: this will not work with clang
-    if '-fopenmp' in extra_postargs:
-      self.set_executable('linker_so', 'g++')
-      self.set_executable('linker_exe', 'g++')
+    if config.cc == 'gcc':
+      self.set_executable('linker_so', 'gcc')
+      self.set_executable('linker_exe', 'gcc')
 
-    # If the linker receives -openmp as an option, then the objects
-    # are built by an Intel compiler
-    if '-openmp' in extra_postargs:
+    elif config.cc == 'clang':
+      self.set_executable('linker_so', 'clang')
+      self.set_executable('linker_exe', 'clang')
+
+    elif config.cc == 'icpc':
       self.set_executable('linker_so', 'icpc')
-    self.set_executable('linker_exe', 'icpc')
+      self.set_executable('linker_exe', 'icpc')
 
-    # If the linker receives -qmkshrobj as an option, then the objects
-    # are build by an IBM compiler
-    if '-qmkshrobj' in extra_postargs:
+    elif config.cc == 'bgxlc':
       self.set_executable('linker_so', 'bgxlc++_r')
       self.set_executable('linker_exe', 'bgxlc++_r')
 
     # If the filename for the extension contains cuda, use nvcc to link
-    if 'cuda' in output_filename:
+    elif 'cuda' in output_filename:
       self.set_executable('linker_so', 'nvcc')
       self.set_executable('linker_exe', 'nvcc')
 

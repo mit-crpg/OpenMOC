@@ -192,7 +192,7 @@ class configuration:
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                            '-std=c++11', '-fpic']
   compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11', 
-                             '-fopenmp', '-fpic',
+                             '-fopenmp', '-fvectorize', '-fpic',
                              '-Qunused-arguments',
                              '-Wno-deprecated-register',
                              '-Wno-parentheses-equality']
