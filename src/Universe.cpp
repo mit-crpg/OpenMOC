@@ -460,45 +460,6 @@ std::map<int, Universe*> Universe::getAllUniverses() {
 
 
 /**
- * @brief Returns the std::map of all Surface IDs and Surface pointers
-          within the Cells of this Universe.
- * @return std::map of Surface IDs and pointers
- */
-std::map<int, Surface*> Universe::getAllSurfaces() {
-
-  /* If this routine was previously called, return memoized Surfaces */
-  if (_all_surfaces.size() > 0)
-    return _all_surfaces;
-
-  /* Get all Cells in this Universe */
-  std::map<int, Cell*> cells = getAllCells();
-
-  Cell* cell;
-  Surface* surface;
-  std::map<int, Cell*>::iterator iter1;
-  std::map<int, surface_halfspace>::iterator iter2;
-
-  /* Append all Surfaces containing within each Cell to the map */
-  for (iter1 = cells.begin(); iter1 != cells.end(); ++iter1) {
-
-    /* Get the collection of surface_halfspace structs from this Cell */
-    cell = (*iter1).second;
-    std::map<int, surface_halfspace> surfaces = cell->getSurfaces();
-
-    /* Extract the Surface pointers and add them to the map */
-    for (iter2 = surfaces.begin(); iter2 != surfaces.end(); ++iter2) {
-      surface = (*iter2).second._surface;
-      _all_surfaces.insert(std::pair<int, Surface*>(surface->getId(), surface));
-    }
-  }
-
-  return _all_surfaces;
-}
-
-
-
-
-/**
  * @brief Returns true if the Universe contains a Cell filled by a fissionable
  *        Material and false otherwise.
  * @details This method should not be called prior to the calling of the
@@ -568,9 +529,6 @@ void Universe::addCell(Cell* cell) {
     log_printf(ERROR, "Unable to add Cell with ID = %d to Universe with"
                " ID = %d. Backtrace:\n%s", cell, _id, e.what());
   }
-
-  /* Reset the memoized collection of Surfaces */
-  _all_surfaces.clear();
 }
 
 
@@ -622,15 +580,15 @@ Cell* Universe::findCell(LocalCoords* coords, bool neighbors) {
     cell = iter->second;
 
     //    if (neighbors)
-    //      printf("neighbor cell id = %d\n", cell->getId());
+      //    printf("neighbor cell id = %d\n", cell->getId());
 
     /* If this Universe does not contain the neighbor Cell, continue */
     if (_cells.find(cell->getId()) == _cells.end()) {
-      //      printf("the universe doesn't contain this neighbor cell\n");
+      printf("the universe doesn't contain this neighbor cell\n");
       continue;
     }
 
-    if (cell->cellContainsCoords(coords)) {
+    if (cell->containsCoords(coords)) {
 
       //      if (neighbors)
       //        printf("found coords in neighbor cell!!!\n");
@@ -686,16 +644,18 @@ Cell* Universe::findCell(LocalCoords* coords, bool neighbors) {
 double Universe::minSurfaceDist(Point* point, double angle) {
 
   Point min_intersection;
-  std::map<int, Surface*> all_surfaces = getAllSurfaces();
-  std::map<int, Surface*>::iterator iter;
+  Cell* cell;
+  std::map<int, Cell*>::iterator iter;
   double dist;
   double min_dist = INFINITY;
-  Surface* surface;
 
-  for (iter = all_surfaces.begin(); iter != all_surfaces.end(); ++iter) {
-    surface = iter->second;
-    dist = surface->getMinDistance(point, angle, &min_intersection);
-    min_dist = std::min(dist, min_dist);
+  /* Loop over all Cells in this Universe */
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    cell = iter->second;
+    if (cell->containsPoint(point)) {
+      min_dist = iter->second->minSurfaceDist(point, angle, &min_intersection);
+      //      min_dist = std::min(dist, min_dist);
+    }
   }
 
   return min_dist;

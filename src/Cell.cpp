@@ -542,7 +542,7 @@ void Cell::findBoundingBox() {
  *          the Cell if it is on the same side of every Surface in the Cell.
  * @param point a pointer to a Point
  */
-bool Cell::cellContainsPoint(Point* point) {
+bool Cell::containsPoint(Point* point) {
 
   /* Loop over all Surfaces inside the Cell */
   std::map<int, surface_halfspace>::iterator iter;
@@ -566,8 +566,8 @@ bool Cell::cellContainsPoint(Point* point) {
  *          the Cell if it is on the same side of every Surface in the Cell.
  * @param coords a pointer to a localcoord
  */
-bool Cell::cellContainsCoords(LocalCoords* coords) {
-  return cellContainsPoint(coords->getPoint());
+bool Cell::containsCoords(LocalCoords* coords) {
+  return containsPoint(coords->getPoint());
 }
 
 

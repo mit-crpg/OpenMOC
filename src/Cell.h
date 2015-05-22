@@ -173,8 +173,8 @@ public:
   void addNeighborCell(Cell* cell);
 
   void findBoundingBox();
-  bool cellContainsPoint(Point* point);
-  bool cellContainsCoords(LocalCoords* coords);
+  bool containsPoint(Point* point);
+  bool containsCoords(LocalCoords* coords);
   double minSurfaceDist(Point* point, double angle, Point* min_intersection);
 
   Cell* clone();

@@ -79,9 +79,6 @@ protected:
    *  with a non-zero fission cross-section and is fissionable */
   bool _fissionable;
 
-  /** A collection of all Surfaces to optimize ray tracing */
-  std::map<int, Surface*> _all_surfaces;
-
 public:
 
   Universe(const int id=0, const char* name="");
@@ -109,7 +106,6 @@ public:
   std::map<int, Cell*> getAllCells();
   std::map<int, Material*> getAllMaterials();
   std::map<int, Universe*> getAllUniverses();
-  std::map<int, Surface*> getAllSurfaces();
   bool isFissionable();
 
   void setName(const char* name);
