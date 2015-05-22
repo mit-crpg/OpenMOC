@@ -53,13 +53,13 @@ for r in radii: circles.append(Circle(x=0.0, y=0.0, radius=r))
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-# Create a list of 10 CellBasic instances
-cells = [CellBasic() for i in range(12)]
+# Create a list of 10 Cell instances
+cells = [Cell() for i in range(12)]
 
 # Append 3 CellFills for the assemblies and full core
-assembly1 = CellFill(name='assembly 1')
-assembly2 = CellFill(name='assembly 2')
-root_cell = CellFill(name='full core')
+assembly1 = Cell(name='assembly 1')
+assembly2 = Cell(name='assembly 2')
+root_cell = Cell(name='full core')
 
 # Create fuel/moderator by adding the appropriate Surfaces and Materials
 cells[0].addSurface(halfspace=-1, surface=circles[0])
@@ -75,18 +75,18 @@ cells[9].addSurface(halfspace=+1, surface=circles[4])
 cells[10].addSurface(halfspace=-1, surface=circles[5])
 cells[11].addSurface(halfspace=+1, surface=circles[5])
 
-cells[0].setMaterial(materials['UO2'])
-cells[1].setMaterial(materials['Water'])
-cells[2].setMaterial(materials['UO2'])
-cells[3].setMaterial(materials['Water'])
-cells[4].setMaterial(materials['UO2'])
-cells[5].setMaterial(materials['Water'])
-cells[6].setMaterial(materials['UO2'])
-cells[7].setMaterial(materials['Water'])
-cells[8].setMaterial(materials['UO2'])
-cells[9].setMaterial(materials['Water'])
-cells[10].setMaterial(materials['UO2'])
-cells[11].setMaterial(materials['Water'])
+cells[0].setFill(materials['UO2'])
+cells[1].setFill(materials['Water'])
+cells[2].setFill(materials['UO2'])
+cells[3].setFill(materials['Water'])
+cells[4].setFill(materials['UO2'])
+cells[5].setFill(materials['Water'])
+cells[6].setFill(materials['UO2'])
+cells[7].setFill(materials['Water'])
+cells[8].setFill(materials['UO2'])
+cells[9].setFill(materials['Water'])
+cells[10].setFill(materials['UO2'])
+cells[11].setFill(materials['Water'])
 
 # Add the boundary Planes to the "root" Cell
 root_cell.addSurface(halfspace=+1, surface=boundaries[0])

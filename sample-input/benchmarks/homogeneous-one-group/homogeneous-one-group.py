@@ -62,8 +62,8 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cell = CellBasic()
-cell.setMaterial(infinite_medium)
+cell = Cell()
+cell.setFill(infinite_medium)
 cell.addSurface(halfspace=+1, surface=left)
 cell.addSurface(halfspace=-1, surface=right)
 cell.addSurface(halfspace=+1, surface=bottom)

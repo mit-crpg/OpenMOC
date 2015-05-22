@@ -72,12 +72,12 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-fuel_cell = CellBasic(name='fuel')
-fuel_cell.setMaterial(fuel)
+fuel_cell = Cell(name='fuel')
+fuel_cell.setFill(fuel)
 fuel_cell.addSurface(halfspace=-1, surface=circle)
 
-moderator_cell = CellBasic(name='moderator')
-moderator_cell.setMaterial(moderator)
+moderator_cell = Cell(name='moderator')
+moderator_cell.setFill(moderator)
 moderator_cell.addSurface(halfspace=+1, surface=circle)
 moderator_cell.addSurface(halfspace=+1, surface=left)
 moderator_cell.addSurface(halfspace=-1, surface=right)

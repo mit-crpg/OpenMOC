@@ -54,48 +54,48 @@ top.setBoundaryType(VACUUM)
 log.py_printf('NORMAL', 'Creating cells...')
 
 # Region 1
-region1_cell = CellBasic(name='region 1')
-region1_cell.setMaterial(materials['region_1'])
+region1_cell = Cell(name='region 1')
+region1_cell.setFill(materials['region_1'])
 region1 = Universe(name='region 1')
 region1.addCell(region1_cell)
 
 # Region 2
-region2_cell = CellBasic(name='region 2')
-region2_cell.setMaterial(materials['region_2'])
+region2_cell = Cell(name='region 2')
+region2_cell.setFill(materials['region_2'])
 region2 = Universe(name='region 2')
 region2.addCell(region2_cell)
 
 # Region 3
-region3_cell = CellBasic(name='region 3')
-region3_cell.setMaterial(materials['region_3'])
+region3_cell = Cell(name='region 3')
+region3_cell.setFill(materials['region_3'])
 region3 = Universe(name='region 3')
 region3.addCell(region3_cell)
 
 # Region 4
-region4_cell = CellBasic(name='region 4')
-region4_cell.setMaterial(materials['region_4'])
+region4_cell = Cell(name='region 4')
+region4_cell.setFill(materials['region_4'])
 region4 = Universe(name='region 4')
 region4.addCell(region4_cell)
 
 # Region 5
-region5_cell = CellBasic(name='region 5')
-region5_cell.setMaterial(materials['region_5'])
+region5_cell = Cell(name='region 5')
+region5_cell.setFill(materials['region_5'])
 region5 = Universe(name='region 5')
 region5.addCell(region5_cell)
 
 # Region 5
-region6_cell = CellBasic(name='region 6')
-region6_cell.setMaterial(materials['region_6'])
+region6_cell = Cell(name='region 6')
+region6_cell.setFill(materials['region_6'])
 region6 = Universe(name='region 6')
 region6.addCell(region6_cell)
 
-# CellFills
-assembly1_cell = CellFill(name='assembly 1')
-assembly2_cell = CellFill(name='assembly 2')
-assembly3_cell = CellFill(name='assembly 3')
-assembly4_cell = CellFill(name='assembly 4')
-assembly5_cell = CellFill(name='assembly 5')
-assembly6_cell = CellFill(name='assembly 6')
+# Cells
+assembly1_cell = Cell(name='assembly 1')
+assembly2_cell = Cell(name='assembly 2')
+assembly3_cell = Cell(name='assembly 3')
+assembly4_cell = Cell(name='assembly 4')
+assembly5_cell = Cell(name='assembly 5')
+assembly6_cell = Cell(name='assembly 6')
 
 assembly1 = Universe(name='assembly 1')
 assembly2 = Universe(name='assembly 2')
@@ -112,7 +112,7 @@ assembly5.addCell(assembly5_cell)
 assembly6.addCell(assembly6_cell)
 
 # Root cell/universe
-root_cell = CellFill(name='root cell')
+root_cell = Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=left)
 root_cell.addSurface(halfspace=-1, surface=right)
 root_cell.addSurface(halfspace=+1, surface=bottom)
@@ -249,7 +249,6 @@ plotter.plot_materials(geometry, gridsize=500)
 plotter.plot_cells(geometry, gridsize=500)
 plotter.plot_flat_source_regions(geometry, gridsize=500)
 plotter.plot_spatial_fluxes(solver, energy_groups=[1,2])
-plotter.plot_mesh_fluxes(mesh, energy_groups=[1,2])
 plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
 
 log.py_printf('TITLE', 'Finished')

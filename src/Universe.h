@@ -22,8 +22,6 @@
 /* Forward declarations to resolve circular dependencies */
 class LocalCoords;
 class Cell;
-class CellFill;
-class CellBasic;
 class Surface;
 class Material;
 
@@ -104,8 +102,6 @@ public:
 
   Cell* getCell(int cell_id);
   std::map<int, Cell*> getCells() const;
-  CellFill* getCellFill(int cell_id);
-  CellBasic* getCellBasic(int cell_id);
   std::map<int, Cell*> getAllCells();
   std::map<int, Material*> getAllMaterials();
   std::map<int, Universe*> getAllUniverses();

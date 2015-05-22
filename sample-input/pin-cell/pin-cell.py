@@ -53,12 +53,12 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-fuel = CellBasic(name='fuel')
-fuel.setMaterial(materials['UO2'])
+fuel = Cell(name='fuel')
+fuel.setFill(materials['UO2'])
 fuel.addSurface(halfspace=-1, surface=circle)
 
-moderator = CellBasic(name='moderator')
-moderator.setMaterial(materials['Water'])
+moderator = Cell(name='moderator')
+moderator.setFill(materials['Water'])
 moderator.addSurface(halfspace=+1, surface=circle)
 moderator.addSurface(halfspace=+1, surface=left)
 moderator.addSurface(halfspace=-1, surface=right)

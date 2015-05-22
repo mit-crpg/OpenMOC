@@ -51,16 +51,16 @@ for boundary in boundaries: boundary.setBoundaryType(VACUUM)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-water_cell = CellBasic(name='water')
-water_cell.setMaterial(materials['Water'])
+water_cell = Cell(name='water')
+water_cell.setFill(materials['Water'])
 
-fuel_cell = CellBasic(name='fuel')
-fuel_cell.setMaterial(materials['UO2'])
+fuel_cell = Cell(name='fuel')
+fuel_cell.setFill(materials['UO2'])
 
-source_cell = CellBasic(name='source')
-source_cell.setMaterial(materials['Water'])
+source_cell = Cell(name='source')
+source_cell.setFill(materials['Water'])
 
-root_cell = CellFill(name='root cell')
+root_cell = Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=left)
 root_cell.addSurface(halfspace=-1, surface=right)
 root_cell.addSurface(halfspace=+1, surface=bottom)

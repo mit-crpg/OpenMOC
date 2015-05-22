@@ -273,7 +273,7 @@ std::map<int, Material*> Geometry::getAllMaterials() {
       cell = (*iter).second;
 
       if (cell->getType() == MATERIAL) {
-        material = static_cast<CellBasic*>(cell)->getMaterial();
+        material = cell->getFillMaterial();
         all_materials[material->getId()] = material;
       }
     }
@@ -362,7 +362,7 @@ void Geometry::setCmfd(Cmfd* cmfd){
  * @param coords pointer to a LocalCoords object
  * @return returns a pointer to a Cell if found, NULL if no Cell found
  */
-CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
+Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
 
   Universe* univ = coords->getUniverse();
   Cell* cell;
@@ -377,7 +377,7 @@ CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
   else
     cell = static_cast<Lattice*>(univ)->findCell(coords);
 
-  return static_cast<CellBasic*>(cell);
+  return cell;
 }
 
 
@@ -400,7 +400,7 @@ CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @param angle the angle for a trajectory projected from the LocalCoords
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
-CellBasic* Geometry::findFirstCell(LocalCoords* coords, double angle) {
+Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
   double delta_x = cos(angle) * TINY_MOVE;
   double delta_y = sin(angle) * TINY_MOVE;
   coords->adjustCoords(delta_x, delta_y);
@@ -444,7 +444,7 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  * @param angle the angle of the trajectory
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
-CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
+Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
 
   Cell* cell = NULL;
   double dist;
@@ -530,7 +530,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   if (_FSR_keys_map.find(fsr_key_hash) == _FSR_keys_map.end()){
 
     /* Get the cell that contains coords */
-    CellBasic* cell = findCellContainingCoords(curr);
+    Cell* cell = findCellContainingCoords(curr);
     
     /* Get the lock */
     omp_set_lock(_num_FSRs_lock);
@@ -550,7 +550,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       fsr->_point = point;
       _FSR_keys_map[fsr_key_hash] = *fsr;
       _FSRs_to_keys.push_back(fsr_key_hash);
-      _FSRs_to_material_IDs.push_back(cell->getMaterial()->getId());
+      _FSRs_to_material_IDs.push_back(cell->getFillMaterial()->getId());
 
       /* If CMFD acceleration is on, add FSR to CMFD cell */
       if (_cmfd != NULL){
@@ -791,7 +791,7 @@ void Geometry::segmentize(Track* track) {
 
     /* Find the segment length, Material and FSR ID */
     length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
-    material = static_cast<CellBasic*>(prev)->getMaterial();
+    material = prev->getFillMaterial();
     fsr_id = findFSRId(&start);
 
     /* Create a new Track segment */
@@ -841,7 +841,7 @@ void Geometry::segmentize(Track* track) {
 
 /**
  * @brief Determines the fissionability of each Universe within this Geometry.
- * @details A Universe is determined fissionable if it contains a CellBasic
+ * @details A Universe is determined fissionable if it contains a Cell
  *          filled by a Material with a non-zero fission cross-section. Note
  *          that this method recurses through all Universes at each level in
  *          the nested Universe hierarchy. Users should only call this method
@@ -1081,12 +1081,12 @@ bool Geometry::withinBounds(LocalCoords* coords){
 
 
 
-CellBasic* Geometry::findCellContainingFSR(int fsr_id){
+Cell* Geometry::findCellContainingFSR(int fsr_id){
 
   Point* point = _FSR_keys_map[_FSRs_to_keys[fsr_id]]._point;
   LocalCoords* coords = new LocalCoords(point->getX(), point->getY());
   coords->setUniverse(_root_universe);
-  CellBasic* cell = findCellContainingCoords(coords);
+  Cell* cell = findCellContainingCoords(coords);
 
   delete coords;
 
