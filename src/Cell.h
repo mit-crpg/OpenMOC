@@ -15,8 +15,6 @@
 #include "Surface.h"
 #include "Point.h"
 #include <limits>
-#include <map>
-#include <vector>
 #endif
 
 /* Forward declarations to resolve circular dependencies */
@@ -128,6 +126,9 @@ private:
 
   /** The boundary condition at the maximum reachable z-coordinate */
   boundaryType _max_z_bc;
+
+  /* Vector of neighboring Cells */
+  std::vector<Cell*> _neighbor_cells;
 
   void ringify(std::vector<Cell*>* subcells);
   void sectorize(std::vector<Cell*>* subcells);

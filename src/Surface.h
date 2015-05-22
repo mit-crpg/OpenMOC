@@ -15,11 +15,14 @@
 #include "LocalCoords.h"
 #include "boundary_type.h"
 #include <limits>
+#include <map>
+#include <vector>
 #endif
 
 
 /* Forward declarations to resolve circular dependencies */
 class LocalCoords;
+class Cell;
 
 
 int surf_id();
@@ -82,6 +85,9 @@ protected:
   /** The type of boundary condition to be used for this Surface
    *  (ie, VACUUM or REFLECTIVE) */
   boundaryType _boundary_type;
+
+  /* Vector of neighboring Cells */
+  std::map<int, std::vector<Cell*>* > _neighbor_cells;
 
 public:
   Surface(const int id=0, const char* name="");
