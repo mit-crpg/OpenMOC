@@ -640,25 +640,13 @@ void Universe::subdivideCells() {
   std::map<int, Cell*>::iterator iter1;
 
   while (iter1 != _cells.end()) {
-
     for (iter1 = _cells.begin(); iter1 != _cells.end(); ++iter1) {
 
       if (((*iter1).second)->getType() == MATERIAL) {
         Cell* cell = (*iter1).second;
 
-        if (cell->getNumRings() > 0 || cell->getNumSectors() > 0) {
-          std::vector<Cell*> newcells = cell->subdivideCell();
-
-          log_printf(DEBUG, "Cell %d in Universe %d has %d subcells",
-                     cell->getId(), _id, newcells.size());
-
-          std::vector<Cell*>::iterator iter2;
-          for (iter2=newcells.begin(); iter2!=newcells.end(); ++iter2)
-            addCell((*iter2));
-
-          _cells.erase(iter1);
-          break;
-        }
+        if (cell->getNumRings() > 0 || cell->getNumSectors() > 0)
+          cell->subdivideCell();
       }
     }
   }

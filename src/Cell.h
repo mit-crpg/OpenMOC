@@ -129,17 +129,8 @@ private:
   /** The boundary condition at the maximum reachable z-coordinate */
   boundaryType _max_z_bc;
 
-  /** A container of all Cell clones created for rings */
-  std::vector<Cell*> _rings;
-
-  /** A container of all Cell clones created for angular sectors */
-  std::vector<Cell*> _sectors;
-
-  /** A container of all Cell clones created for rings and sectors */
-  std::vector<Cell*> _subcells;
-
-  void ringify();
-  void sectorize();
+  void ringify(std::vector<Cell*>* subcells);
+  void sectorize(std::vector<Cell*>* subcells);
 
 public:
   Cell(int id=0, const char* name="");
@@ -183,7 +174,7 @@ public:
   double minSurfaceDist(Point* point, double angle, Point* min_intersection);
 
   Cell* clone();
-  std::vector<Cell*> subdivideCell();
+  void subdivideCell();
 
   std::string toString();
   void printString();

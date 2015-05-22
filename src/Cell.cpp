@@ -619,8 +619,9 @@ Cell* Cell::clone() {
 
 /**
  * @brief Subdivides the Cell into clones for fuel pin angular sectors.
+ * @param subcells an empty vector to store all subcells
  */
-void Cell::sectorize() {
+void Cell::sectorize(std::vector<Cell*>* subcells) {
 
   /* If the user didn't request any sectors, don't make any */
   if (_num_sectors == 0)
@@ -630,7 +631,7 @@ void Cell::sectorize() {
   double delta_azim = 2. * M_PI / _num_sectors;
   double A, B;
 
-  /* A container for each of the bouding planes for the sector Cells */
+  /* A container for each of the bounding planes for the sector Cells */
   std::vector<Plane*> planes;
 
   log_printf(DEBUG, "Sectorizing Cell %d with %d sectors",_id, _num_sectors);
@@ -674,19 +675,16 @@ void Cell::sectorize() {
     }
 
     /* Store the clone in the parent Cell's container of sector Cells */
-    _sectors.push_back(sector);
+    subcells->push_back(sector);
   }
-
-  /* Store all of the sectors in the parent Cell's subcells container */
-  _subcells.clear();
-  _subcells.insert(_subcells.end(), _sectors.begin(), _sectors.end());
 }
 
 
 /**
  * @brief Subdivides the Cell into clones for fuel pin rings.
+ * @param subcells an empty vector to store all subcells
  */
-void Cell::ringify() {
+void Cell::ringify(std::vector<Cell*>* subcells) {
 
   /* If the user didn't request any rings, don't make any */
   if (_num_rings == 0)
@@ -704,6 +702,7 @@ void Cell::ringify() {
   int halfspace1 = 0;
   int halfspace2 = 0;
   std::vector<Circle*> circles;
+  std::vector<Cell*> rings;
 
   /* See if the Cell contains 1 or 2 CIRCLE Surfaces */
   std::map<int, surface_halfspace>::iterator iter1;
@@ -792,8 +791,8 @@ void Cell::ringify() {
   for (iter2 = circles.begin(); iter2 != circles.end(); ++iter2) {
 
     /* Create Circles for each of the sectorized Cells */
-    if (_sectors.size() != 0) {
-      for (iter3 = _sectors.begin(); iter3 != _sectors.end(); ++iter3) {
+    if (subcells->size() != 0) {
+      for (iter3 = subcells->begin(); iter3 != subcells->end(); ++iter3) {
         log_printf(DEBUG, "Creating a new ring in sector Cell %d",
                    (*iter3)->getId());
 
@@ -807,14 +806,14 @@ void Cell::ringify() {
 
         /* Look ahead and check if we have an inner Circle to add */
         if (iter2+1 == circles.end()) {
-          _rings.push_back(ring);
+          rings.push_back(ring);
           continue;
         }
         else
           ring->addSurface(+1, *(iter2+1));
 
         /* Store the clone in the parent Cell's container of ring Cells */
-        _rings.push_back(ring);
+        rings.push_back(ring);
       }
     }
 
@@ -832,20 +831,20 @@ void Cell::ringify() {
 
       /* Look ahead and check if we have an inner Circle to add */
       if (iter2+1 == circles.end()) {
-        _rings.push_back(ring);
+        rings.push_back(ring);
         break;
       }
       else
         ring->addSurface(+1, *(iter2+1));
 
       /* Store the clone in the parent Cell's container of ring Cells */
-      _rings.push_back(ring);
+      rings.push_back(ring);
     }
   }
 
   /* Store all of the rings in the parent Cell's subcells container */
-  _subcells.clear();
-  _subcells.insert(_subcells.end(), _rings.begin(), _rings.end());
+  subcells->clear();
+  subcells->insert(subcells->end(), rings.begin(), rings.end());
 }
 
 
@@ -855,10 +854,28 @@ void Cell::ringify() {
  *          this Cell's subdivided ring and sector Cells.
  * @return a vector of Cell pointers to the new subdivided Cells
  */
-std::vector<Cell*> Cell::subdivideCell() {
-  sectorize();
-  ringify();
-  return _subcells;
+void Cell::subdivideCell() {
+
+  /** A container of all Cell clones created for rings and sectors */
+  std::vector<Cell*>* subcells = new std::vector<Cell*>();
+
+  sectorize(subcells);
+  ringify(subcells);
+
+  /* Put any ring / sector subcells in a new Universe fill */
+  if (subcells->size() != 0) {
+
+    /* Create a new Universe to contain all of the subcells */
+    Universe* new_fill = new Universe();
+
+    /* Add each subcell to the new Universe fill */
+    std::vector<Cell*>::iterator iter;
+    for (iter = subcells->begin(); iter != subcells->end(); ++iter)
+      new_fill->addCell(*iter);
+
+    /* Set the new Universe as the fill for this Cell */
+    setFill(new_fill);
+  }
 }
 
 
