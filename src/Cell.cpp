@@ -440,6 +440,17 @@ void Cell::removeSurface(Surface* surface) {
 }
 
 
+/**
+ * @brief Add a neighboring Cell to this Cell's collection of neighbors.
+ * @param cell a pointer to the neighboring Cell
+ */
+void Cell::addNeighborCell(Cell* cell) {
+
+  /* Add the neighbor Cell if the collection does not already contain it*/
+  if (std::find(_neighbors.begin(), _neighbors.end(), cell) != _neighbors.end())
+    _neighbors.push_back(cell);
+}
+
 
 /**
  * @brief Finds and stores a bounding box for the entire geometry.

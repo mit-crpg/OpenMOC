@@ -128,7 +128,7 @@ private:
   boundaryType _max_z_bc;
 
   /* Vector of neighboring Cells */
-  std::vector<Cell*> _neighbor_cells;
+  std::vector<Cell*> _neighbors;
 
   void ringify(std::vector<Cell*>* subcells);
   void sectorize(std::vector<Cell*>* subcells);
@@ -169,6 +169,8 @@ public:
   void setNumSectors(int num_sectors);
   void addSurface(int halfspace, Surface* surface);
   void removeSurface(Surface* surface);
+  void addNeighborCell(Cell* cell);
+
   void findBoundingBox();
   bool cellContainsPoint(Point* point);
   bool cellContainsCoords(LocalCoords* coords);
