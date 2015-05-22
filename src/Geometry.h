@@ -151,7 +151,7 @@ public:
 #endif
 
   /* Find methods */
-  Cell* findCellContainingCoords(LocalCoords* coords);
+  Cell* findCellContainingCoords(LocalCoords* coords, bool neighbors=false);
   Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
   Cell* findCellContainingFSR(int fsr_id);

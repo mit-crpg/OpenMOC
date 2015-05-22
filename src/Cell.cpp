@@ -287,6 +287,15 @@ std::map<int, surface_halfspace> Cell::getSurfaces() const {
 
 
 /**
+ * @brief Return the std::map of neighbor Cells to this Cell.
+ * @return std::map of neighbor Cell pointers
+ */
+std::map<int, Cell*> Cell::getNeighbors() const {
+  return _neighbors;
+}
+
+
+/**
  * @brief Returns the std::map of Cell IDs and Cell pointers within any
  *        nested Universes filling this Cell.
  * @return std::map of Cell IDs and pointers
@@ -445,13 +454,7 @@ void Cell::removeSurface(Surface* surface) {
  * @param cell a pointer to the neighboring Cell
  */
 void Cell::addNeighborCell(Cell* cell) {
-
-  /* Add the neighbor Cell if the collection does not already contain it*/
-  if (std::find(_neighbors.begin(), _neighbors.end(), cell) == _neighbors.end())
-    _neighbors.push_back(cell);
-
-  /* Sort the neighbors to facilitate set intersections during ray tracing */
-  std::sort(_neighbors.begin(), _neighbors.end());
+  _neighbors.insert(std::pair<int, Cell*>(cell->getId(), cell));
 }
 
 

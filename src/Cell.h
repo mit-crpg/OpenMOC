@@ -128,7 +128,7 @@ private:
   boundaryType _max_z_bc;
 
   /* Vector of neighboring Cells */
-  std::vector<Cell*> _neighbors;
+  std::map<int, Cell*> _neighbors;
 
   void ringify(std::vector<Cell*>* subcells);
   void sectorize(std::vector<Cell*>* subcells);
@@ -158,6 +158,7 @@ public:
   boundaryType getMaxZBoundaryType();
   int getNumSurfaces() const;
   std::map<int, surface_halfspace> getSurfaces() const;
+  std::map<int, Cell*> getNeighbors() const;
 
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();

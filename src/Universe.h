@@ -24,6 +24,7 @@ class LocalCoords;
 class Cell;
 class Surface;
 class Material;
+struct surface_halfspace;
 
 
 int universe_id();
@@ -71,12 +72,15 @@ protected:
   /** The type of Universe (ie, SIMPLE or LATTICE) */
   universeType _type;
 
-  /** A collection of Cell IDs and Cell pointers */
+  /** A collection of Cell IDs and Cell pointers in this Universe */
   std::map<int, Cell*> _cells;
 
   /** A boolean representing whether or not this Universe contains a Material
    *  with a non-zero fission cross-section and is fissionable */
   bool _fissionable;
+
+  /** A collection of all Surfaces to optimize ray tracing */
+  std::map<int, Surface*> _all_surfaces;
 
 public:
 
@@ -105,6 +109,7 @@ public:
   std::map<int, Cell*> getAllCells();
   std::map<int, Material*> getAllMaterials();
   std::map<int, Universe*> getAllUniverses();
+  std::map<int, Surface*> getAllSurfaces();
   bool isFissionable();
 
   void setName(const char* name);
@@ -112,7 +117,7 @@ public:
   void addCell(Cell* cell);
   void removeCell(Cell* cell);
 
-  Cell* findCell(LocalCoords* coords);
+  Cell* findCell(LocalCoords* coords, bool neighbors=false);
   void setFissionability(bool fissionable);
   double minSurfaceDist(Point* point, double angle);
   void subdivideCells();

@@ -360,20 +360,21 @@ void Geometry::setCmfd(Cmfd* cmfd){
  *          otherwise it will return a pointer to the Cell that is found by the
  *          recursive Geometry::findCell(...) method.
  * @param coords pointer to a LocalCoords object
+ * @param neighbors indicates whether to use neighbor cells (false by default)
  * @return returns a pointer to a Cell if found, NULL if no Cell found
  */
-Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
+Cell* Geometry::findCellContainingCoords(LocalCoords* coords, bool neighbors) {
 
   Universe* univ = coords->getUniverse();
   Cell* cell;
 
-  if (universe_id == 0){
+  if (univ == _root_universe){
     if (!withinBounds(coords))
       return NULL;
   }
 
   if (univ->getType() == SIMPLE)
-    cell = univ->findCell(coords);
+    cell = univ->findCell(coords, neighbors);
   else
     cell = static_cast<Lattice*>(univ)->findCell(coords);
 
@@ -451,11 +452,11 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
   double min_dist = std::numeric_limits<double>::infinity();
   Point surf_intersection;
 
-  /* Find the current Cell */
-  cell = findCellContainingCoords(coords);
-
   /* Get lowest level coords */
   coords = coords->getLowestLevel();
+
+  /* Get the current Cell */
+  cell = coords->getCell();
 
   /* If the current coords is not in any Cell, return NULL */
   if (cell == NULL)
@@ -505,7 +506,9 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
     double delta_x = cos(angle) * (min_dist + TINY_MOVE);
     double delta_y = sin(angle) * (min_dist + TINY_MOVE);
     coords->adjustCoords(delta_x, delta_y);
-    return findCellContainingCoords(coords);
+
+    //FIXME: This should use the neighbor cell!!!
+    return findCellContainingCoords(coords, true);
   }
 }
 
