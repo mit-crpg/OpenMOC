@@ -449,6 +449,9 @@ void Cell::addNeighborCell(Cell* cell) {
   /* Add the neighbor Cell if the collection does not already contain it*/
   if (std::find(_neighbors.begin(), _neighbors.end(), cell) == _neighbors.end())
     _neighbors.push_back(cell);
+
+  /* Sort the neighbors to facilitate set intersections during ray tracing */
+  std::sort(_neighbors.begin(), _neighbors.end());
 }
 
 
