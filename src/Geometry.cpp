@@ -724,6 +724,9 @@ void Geometry::initializeFlatSourceRegions() {
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 
+  /* Build collections of neighbor Cells for optimized ray tracing */
+  _root_universe->buildNeighbors();
+
   /* Create map of Material IDs to Material pointers */
   _all_materials = getAllMaterials();
 

@@ -447,7 +447,7 @@ void Cell::removeSurface(Surface* surface) {
 void Cell::addNeighborCell(Cell* cell) {
 
   /* Add the neighbor Cell if the collection does not already contain it*/
-  if (std::find(_neighbors.begin(), _neighbors.end(), cell) != _neighbors.end())
+  if (std::find(_neighbors.begin(), _neighbors.end(), cell) == _neighbors.end())
     _neighbors.push_back(cell);
 }
 
@@ -903,7 +903,7 @@ void Cell::buildNeighbors() {
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second._surface;
     halfspace = iter->second._halfspace;
-    surface->addNeighborCell(halfspace, this);   
+    surface->addNeighborCell(halfspace, this);
   }
 
   /* Make recursive call to the Cell's fill Universe */

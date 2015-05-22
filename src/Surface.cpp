@@ -158,7 +158,7 @@ void Surface::addNeighborCell(int halfspace, Cell* cell) {
   std::vector<Cell*>* neighbors = _neighbors[halfspace];
 
   /* Add the neighbor Cell if the collection does not already contain it*/
-  if (std::find(neighbors->begin(), neighbors->end(), cell) != neighbors->end())
+  if (std::find(neighbors->begin(), neighbors->end(), cell) == neighbors->end())
     neighbors->push_back(cell);
 
   /* Update Cells with the neighbor Cells on the opposite Surface halfspace */
