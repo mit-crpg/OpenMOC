@@ -891,6 +891,33 @@ void Cell::subdivideCell() {
 
 
 /**
+ * @brief Build a collection of neighboring Cells for optimized ray tracing.
+ */
+void Cell::buildNeighbors() {
+
+  Surface* surface;
+  int halfspace;
+
+  /* Add this Cell to all of the Surfaces in this Cell */
+  std::map<int, surface_halfspace>::iterator iter;
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second._surface;
+    halfspace = iter->second._halfspace;
+    surface->addNeighborCell(halfspace, this);   
+  }
+
+  /* Make recursive call to the Cell's fill Universe */
+  if (_cell_type == FILL) {
+    Universe* fill = static_cast<Universe*>(_fill);
+    if (fill->getType() == SIMPLE)
+      static_cast<Universe*>(fill)->buildNeighbors();
+    else
+      static_cast<Lattice*>(fill)->buildNeighbors();
+  }
+}
+
+
+/**
  * @brief Convert this Cell's attributes to a string format.
  * @return a character array of this Cell's attributes
  */

@@ -178,6 +178,7 @@ public:
 
   Cell* clone();
   void subdivideCell();
+  void buildNeighbors();
 
   std::string toString();
   void printString();

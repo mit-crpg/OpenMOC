@@ -116,6 +116,7 @@ public:
   void setFissionability(bool fissionable);
   double minSurfaceDist(Point* point, double angle);
   void subdivideCells();
+  void buildNeighbors();
 
   std::string toString();
   void printString();
@@ -178,6 +179,7 @@ public:
   void setNumY(int num_y);
   void setWidth(double width_x, double width_y);
   void setUniverses(int num_x, int num_y, Universe** universes);
+  void buildNeighbors();
 
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);

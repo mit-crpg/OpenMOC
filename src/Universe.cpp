@@ -654,6 +654,19 @@ void Universe::subdivideCells() {
 
 
 /**
+ * @brief Builds collections of neighboring Cells for all Cells in this 
+ *        Universe for optimized ray tracing.
+ */
+void Universe::buildNeighbors() {
+
+  /* Loop over all of the Universe's Cells and make recursive call */
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    iter->second->buildNeighbors();
+}
+
+
+/**
  * @brief Convert the member attributes of this Universe to a character array.
  * @return a character array representing the Universe's attributes
  */
@@ -1057,6 +1070,23 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
     }
   }
 }
+
+
+/**
+ * @brief Builds collections of neighboring Cells for all Cells in each
+ *        Universe in the Lattice for optimized ray tracing.
+ */
+void Lattice::buildNeighbors() {
+
+  /* Get list of unique Universes in this Lattice */
+  std::map<int, Universe*> universes = getUniqueUniverses();  
+
+  /* Loop over each Universe and make recursive call */
+  std::map<int, Universe*>::iterator iter;
+  for (iter = universes.begin(); iter != universes.end(); ++iter)
+    iter->second->buildNeighbors();
+}
+
 
 
 /**
