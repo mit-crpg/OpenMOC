@@ -175,7 +175,7 @@ public:
   void findBoundingBox();
   bool containsPoint(Point* point);
   bool containsCoords(LocalCoords* coords);
-  double minSurfaceDist(Point* point, double angle, Point* min_intersection);
+  double minSurfaceDist(Point* point, double angle);
 
   Cell* clone();
   void subdivideCell();

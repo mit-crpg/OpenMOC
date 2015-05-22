@@ -633,36 +633,6 @@ Cell* Universe::findCell(LocalCoords* coords, bool neighbors) {
 
 
 /**
- * @brief Finds the distance to the nearest surface.
- * @details Loops over all the cells within the universe and computes
- *          the distance to each one following the direction of the track.
- *          Returns distance to nearest next cell's nearest surface.
- * @param point a pointer to a starting point
- * @param angle the azimuthal angle of the track
- * @return the distance to the nearest surface
- */
-double Universe::minSurfaceDist(Point* point, double angle) {
-
-  Point min_intersection;
-  Cell* cell;
-  std::map<int, Cell*>::iterator iter;
-  double dist;
-  double min_dist = INFINITY;
-
-  /* Loop over all Cells in this Universe */
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    cell = iter->second;
-    if (cell->containsPoint(point)) {
-      min_dist = iter->second->minSurfaceDist(point, angle, &min_intersection);
-      //      min_dist = std::min(dist, min_dist);
-    }
-  }
-
-  return min_dist;
-}
-
-
-/**
  * @brief Subdivides all of the Cells within this Universe into rings
  *        and angular sectors.
  */

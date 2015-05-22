@@ -479,8 +479,8 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
       else{
-        Universe* universe = coords->getUniverse();
-        dist = universe->minSurfaceDist(coords->getPoint(), angle);
+        Cell* cell = coords->getCell();
+        dist = cell->minSurfaceDist(coords->getPoint(), angle);
       }
 
       /* Recheck min distance */

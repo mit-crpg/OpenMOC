@@ -115,7 +115,6 @@ public:
 
   Cell* findCell(LocalCoords* coords, bool neighbors=false);
   void setFissionability(bool fissionable);
-  double minSurfaceDist(Point* point, double angle);
   void subdivideCells();
   void buildNeighbors();
 
