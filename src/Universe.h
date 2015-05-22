@@ -113,7 +113,7 @@ public:
   void addCell(Cell* cell);
   void removeCell(Cell* cell);
 
-  Cell* findCell(LocalCoords* coords, bool neighbors=false);
+  Cell* findCell(LocalCoords* coords);
   void setFissionability(bool fissionable);
   void subdivideCells();
   void buildNeighbors();
@@ -194,6 +194,36 @@ public:
   std::string toString();
   void printString();
 };
+
+
+
+/**
+ * @brief A helper struct for the Universe::findCell() method.
+ * @details This is used to insert a Universe's Cells to the back of a vector
+ *          of neighbor Cells in Universe::findCell() routine. This works in
+ *          symbiosis with the second method template defined below.
+ */
+template<typename tPair>
+struct second_t {
+  typename tPair::second_type operator()(const tPair& p) const {
+    return p.second;
+  }
+};
+
+
+/**
+ * @brief A helper routine for the Universe::findCell() method.
+ * @details This is used to insert a Universe's Cells to the back of a vector
+ *          of neighbor Cells in Universe::findCell() routine. This works in
+ *          symbiosis with the second_t struct template defined above.
+ * @param map a std::map iterator
+ * @return the second element in the iterator (e.g., map value)
+ */
+template<typename tMap> 
+second_t<typename tMap::value_type> second(const tMap& map) {
+  return second_t<typename tMap::value_type>();
+}
+
 
 #endif /* UNIVERSE_H_ */
 

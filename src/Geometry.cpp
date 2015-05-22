@@ -360,10 +360,9 @@ void Geometry::setCmfd(Cmfd* cmfd){
  *          otherwise it will return a pointer to the Cell that is found by the
  *          recursive Geometry::findCell(...) method.
  * @param coords pointer to a LocalCoords object
- * @param neighbors indicates whether to use neighbor cells (false by default)
  * @return returns a pointer to a Cell if found, NULL if no Cell found
  */
-Cell* Geometry::findCellContainingCoords(LocalCoords* coords, bool neighbors) {
+Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
 
   Universe* univ = coords->getUniverse();
   Cell* cell;
@@ -374,7 +373,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords, bool neighbors) {
   }
 
   if (univ->getType() == SIMPLE)
-    cell = univ->findCell(coords, neighbors);
+    cell = univ->findCell(coords);
   else
     cell = static_cast<Lattice*>(univ)->findCell(coords);
 
@@ -507,8 +506,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
     double delta_y = sin(angle) * (min_dist + TINY_MOVE);
     coords->adjustCoords(delta_x, delta_y);
 
-    //FIXME: This should use the neighbor cell!!!
-    return findCellContainingCoords(coords, true);
+    return findCellContainingCoords(coords);
   }
 }
 

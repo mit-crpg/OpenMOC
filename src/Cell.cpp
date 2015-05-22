@@ -287,10 +287,10 @@ std::map<int, surface_halfspace> Cell::getSurfaces() const {
 
 
 /**
- * @brief Return the std::map of neighbor Cells to this Cell.
- * @return std::map of neighbor Cell pointers
+ * @brief Return the std::vector of neighbor Cells to this Cell.
+ * @return std::vector of neighbor Cell pointers
  */
-std::map<int, Cell*> Cell::getNeighbors() const {
+std::vector<Cell*> Cell::getNeighbors() const {
   return _neighbors;
 }
 
@@ -454,7 +454,10 @@ void Cell::removeSurface(Surface* surface) {
  * @param cell a pointer to the neighboring Cell
  */
 void Cell::addNeighborCell(Cell* cell) {
-  _neighbors.insert(std::pair<int, Cell*>(cell->getId(), cell));
+
+  /* Add the neighbor Cell if it is not already in the collection */
+  if (std::find(_neighbors.begin(), _neighbors.end(), cell) == _neighbors.end())
+    _neighbors.push_back(cell);
 }
 
 

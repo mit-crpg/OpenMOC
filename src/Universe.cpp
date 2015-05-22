@@ -5,7 +5,6 @@ int Universe::_n = 0;
 
 static int auto_id = 10000;
 
-
 /**
  * @brief Returns an auto-generated unique Universe ID.
  * @details This method is intended as a utility method for user's writing
@@ -548,50 +547,32 @@ void Universe::removeCell(Cell* cell) {
  *          checking each of this Universe's Cells. Returns NULL if the
  *          LocalCoords is not in any of the Cells.
  * @param coords a pointer to the LocalCoords of interest
- * @param neighbors indicates whether to use neighbor cells (false by default)
  * @return a pointer the Cell where the LocalCoords is located
  */
-Cell* Universe::findCell(LocalCoords* coords, bool neighbors) {
+Cell* Universe::findCell(LocalCoords* coords) {
 
-  Cell* return_cell = NULL;
   Cell* cell;
-  std::map<int, Cell*>::iterator iter;
+  Cell* return_cell = NULL;
+  std::vector<Cell*> cells;
+  std::vector<Cell*>::iterator iter;
 
   /* Sets the LocalCoord type to UNIV at this level */
   coords->setType(UNIV);
 
-  /* Initialize map of Cell pointers to look through */
-  std::map<int, Cell*> cells;
-
   /* If the LocalCoords is populated with Universe/Cell already, we assume
    * that we are looking for the location in a neighboring Cell */
-  if (neighbors) {
+  if (coords->getCell() != NULL)
     cells = coords->getCell()->getNeighbors();
-    //    printf("cell id = %d, univ id = %d\n", coords->getCell()->getId(), _id);
-    //    printf("# neighbors = %d\n", cells.size());
-  }
-  else
-    cells = _cells;
+
+  /* Add all of Universe's Cells to the back of neighbor Cells vector */
+  std::transform(_cells.begin(), _cells.end(), 
+                 std::back_inserter(cells), second(_cells));
   
-  cells = _cells;
-
-  /* Loop over all candidate Cells */
+  /* Loop over all Cells */
   for (iter = cells.begin(); iter != cells.end(); ++iter) {
-    cell = iter->second;
-
-    //    if (neighbors)
-      //    printf("neighbor cell id = %d\n", cell->getId());
-
-    /* If this Universe does not contain the neighbor Cell, continue */
-    if (_cells.find(cell->getId()) == _cells.end()) {
-      printf("the universe doesn't contain this neighbor cell\n");
-      continue;
-    }
+    cell = (*iter);
 
     if (cell->containsCoords(coords)) {
-
-      //      if (neighbors)
-      //        printf("found coords in neighbor cell!!!\n");
 
       /* Set the Cell on this level */
       coords->setCell(cell);
