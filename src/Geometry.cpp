@@ -703,9 +703,6 @@ void Geometry::subdivideCells() {
   std::map<int, Universe*> all_universes = _root_universe->getAllUniverses();
   std::map<int, Universe*>::iterator iter;
 
-  std::map<int, Cell*>::iterator iter1;
-  std::map<int, Cell*> cells;
-
   /* Loop over all Universe in the Geometry and instruct each to inform
    * their Cells to subdivide into rings and sectors as specified by
    * the user during Cell instantiation */
