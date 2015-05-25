@@ -1,17 +1,18 @@
 /**
  * @file Track.h
- * @brief The Track class.
- * @date January 19, 2012
- * @author William Boyd, MIT Course, 22 (wboyd@mit.edu)
+ * @brief The generic Track class.
+ * @date May 16, 2015
+ * @author Samuel Shaner, MIT Course, 22 (shaner@mit.edu)
  */
 
 #ifndef TRACK_H_
 #define TRACK_H_
 
 #ifdef __cplusplus
-#include <vector>
+#include "Python.h"
 #include "Point.h"
 #include "Material.h"
+#include <vector>
 #endif
 
 /**
@@ -37,16 +38,16 @@ struct segment {
   int _cmfd_surface_bwd;
 };
 
-
 /**
  * @class Track Track.h "src/Track.h"
  * @brief A Track represents a characteristic line across the geometry.
  * @details A Track has particular starting and ending points on the
- *          boundaries of the geometry and an azimuthal angle.
+ *          boundaries of the geometry and an azimuthal and polar angle.
  */
 class Track {
 
-private:
+protected:
+  
   /** A monotonically increasing unique ID for each Track created */
   int _uid;
 
@@ -59,49 +60,25 @@ private:
   /** The azimuthal angle for the Track */
   double _phi;
 
-  /** The azimuthal angle index into the global 2D ragged array of Tracks */
-  int _azim_angle_index;
+  /** The azimuthal angle index into the _2D_tracks and _3D_tracks ragged arrays */
+  int _azim_index;
+
+  /** The cycle # index into the the TrackGenerator ragged arrays */
+  int _cycle_number;
+  
+  /** The train index into the the TrackGenerator _2D_tracks and _3D_tracks ragged arrays */
+  int _train_index;
 
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
+  
+  /** The indices into the _2D_tracks and _3D_tracks array that this track 
+   * reflects forward into */
+  int _track_in_train_index;
 
-  /** The Track which reflects out of this Track along its "forward"
-   * direction for reflective boundary conditions. */
-  Track* _track_in;
-
-  /** The Track which reflects out of this Track along its "reverse"
-   * direction for reflective boundary conditions. */
-  Track* _track_out;
-
-  /** The first index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "forward" direction for
-   *  reflective boundary conditions. */
-  int _track_in_i;
-
-  /** The second index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "forward" direction for
-   *  reflective boundary conditions. */
-  int  _track_in_j;
-
-  /** The first index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "reverse" direction for
-   *  reflective boundary conditions. */
-  int _track_out_i;
-
-  /** The second index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "reverse" direction for
-   *  reflective boundary conditions */
-  int _track_out_j;
-
-  /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the Track reflecting out of this one
-   *  along its "forward" direction for reflective boundary conditions.*/
-  bool _refl_in;
-
-  /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the Track reflecting out of this one
-   *  along its "forward" direction for reflective boundary conditions. */
-  bool _refl_out;
+  /** The indices into the _2D_tracks and _3D_tracks array that this track 
+   * reflects backward into */
+  int _track_out_train_index;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
@@ -113,65 +90,63 @@ private:
    *  conditions. */
   bool  _bc_out;
 
+  Track* _track_out;
+  Track* _track_in;
+  
 public:
   Track();
   virtual ~Track();
-  void setValues(const double start_x, const double start_y,
-                 const double end_x, const double end_y, const double phi);
+
   void setUid(int uid);
   void setPhi(const double phi);
-  void setAzimAngleIndex(const int index);
-  void setReflIn(const bool refl_in);
-  void setReflOut(const bool refl_out);
+  void setAzimIndex(const int index);
+  void setCycleNumber(const int index);
+  void setTrainIndex(const int index);
+
+  void setTrackInTrainIndex(const int index);
+  void setTrackOutTrainIndex(const int index);
+
   void setBCIn(const bool bc_in);
   void setBCOut(const bool bc_out);
-  void setTrackIn(Track *track_in);
-  void setTrackOut(Track *track_out);
-  void setTrackInI(int i);
-  void setTrackInJ(int j);
-  void setTrackOutI(int i);
-  void setTrackOutJ(int j);
 
+  void setTrackIn(Track* track_in);
+  void setTrackOut(Track* track_out);
+  
   int getUid();
   Point* getEnd();
   Point* getStart();
   double getPhi() const;
-  int getAzimAngleIndex() const;
-  segment* getSegment(int s);
-  segment* getSegments();
-  int getNumSegments();
-  Track *getTrackIn() const;
-  Track *getTrackOut() const;
-  int getTrackInI() const;
-  int getTrackInJ() const;
-  int getTrackOutI() const;
-  int getTrackOutJ() const;
-  bool isReflIn() const;
-  bool isReflOut() const;
+  double getLength();
+  
+  int getAzimIndex() const;
+  int getCycleNumber() const;
+  int getTrainIndex() const;
+
+  int getTrackInTrainIndex() const;
+  int getTrackOutTrainIndex() const;
+
+  Track* getTrackIn();
+  Track* getTrackOut();
+  
   bool getBCIn() const;
   bool getBCOut() const;
 
-  bool contains(Point* point);
+  segment* getSegment(int s);
+  segment* getSegments();
+  int getNumSegments();
+
+  /* Worker functions */
   void addSegment(segment* segment);
   void clearSegments();
-  std::string toString();
+  virtual std::string toString()=0;
 };
-
-
-/**
- * @brief Return the Track's unique ID
- * @return the Track's unique ID
- */
-inline int Track::getUid() {
-  return _uid;
-}
 
 
 /**
  * @brief Returns the incoming Track.
  * @return a pointer to the incoming Track
  */
-inline Track* Track::getTrackIn() const {
+inline Track* Track::getTrackIn() {
   return _track_in;
 }
 
@@ -180,8 +155,17 @@ inline Track* Track::getTrackIn() const {
  * @brief Returns the outgoing Track
  * @return a pointer to the outgoing Track
  */
-inline Track* Track::getTrackOut() const {
+inline Track* Track::getTrackOut() {
   return _track_out;
+}
+
+
+/**
+ * @brief Return the Track's unique ID
+ * @return the Track's unique ID
+ */
+inline int Track::getUid() {
+  return _uid;
 }
 
 
@@ -220,6 +204,5 @@ inline segment* Track::getSegments() {
 inline int Track::getNumSegments() {
   return _segments.size();
 }
-
 
 #endif /* TRACK_H_ */

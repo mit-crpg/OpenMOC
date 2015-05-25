@@ -10,14 +10,12 @@
 #define SURFACE_H_
 
 #ifdef __cplusplus
-#include <limits>
+#include "Python.h"
+#include "constants.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"
+#include <limits>
 #endif
-
-/** Error threshold for determining how close a point needs to be to a surface
- * to be considered on it */
-#define ON_SURFACE_THRESH 1E-12
 
 
 /* Forward declarations to resolve circular dependencies */
@@ -151,17 +149,19 @@ public:
 
   /**
    * @brief Finds the intersection Point with this Surface from a given
-   *        Point and trajectory defined by an angle.
+   *        Point and trajectory defined by an azim and polar.
    * @param point pointer to the Point of interest
-   * @param angle the angle defining the trajectory in radians
+   * @param azim the azimuthal angle defining the trajectory in radians
+   * @param polar the polar angle defining the trajectory in radians
    * @param points pointer to a Point to store the intersection Point
    * @return the number of intersection Points (0 or 1)
    */
-  virtual int intersection(Point* point, double angle, Point* points) =0;
+  virtual int intersection(Point* point, double azim, double polar, Point* points) =0;
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
-  double getMinDistance(Point* point, double angle, Point* intersection);
+  double getMinDistance(Point* point, Point* intersection,
+                        double azim, double polar=M_PI_2);
 
   /**
    * @brief Converts this Surface's attributes to a character array.
@@ -189,8 +189,11 @@ protected:
   /** The coefficient for the linear term in y */
   double _B;
 
-  /** The constant offset */
+  /** The coefficient for the linear term in z */
   double _C;
+
+  /** The constant offset */
+  double _D;
 
   /** The Plane is a friend of class Surface */
   friend class Surface;
@@ -200,7 +203,7 @@ protected:
 
 public:
 
-  Plane(const double A, const double B, const double C,
+  Plane(const double A, const double B, const double C, const double D,
         const int id=0, const char* name="");
 
   double getMinX(int halfspace);
@@ -212,9 +215,10 @@ public:
   double getA();
   double getB();
   double getC();
+  double getD();
 
   double evaluate(const Point* point) const;
-  int intersection(Point* point, double angle, Point* points);
+  int intersection(Point* point, double azim, double polar, Point* points);
 
   std::string toString();
 };
@@ -342,7 +346,7 @@ public:
   double getMaxZ(int halfspace);
 
   double evaluate(const Point* point) const;
-  int intersection(Point* point, double angle, Point* points);
+  int intersection(Point* point, double azim, double polar, Point* points);
 
   std::string toString();
 };
@@ -351,21 +355,22 @@ public:
 /**
  * @brief Finds the minimum distance to a Surface.
  * @details Finds the miniumum distance to a Surface from a Point with a
- *          given trajectory defined by an angle to this Surface. If the
+ *          given trajectory defined by an azim/polar to this Surface. If the
  *          trajectory will not intersect the Surface, returns INFINITY.
  * @param point a pointer to the Point of interest
- * @param angle the angle defining the trajectory in radians
+ * @param azim the azimuthal angle defining the trajectory in radians
+ * @param polar the polar angle defining the trajectory in radians
  * @param intersection a pointer to a Point for storing the intersection
  * @return the minimum distance to the Surface
  */
-inline double Surface::getMinDistance(Point* point, double angle,
-                                      Point* intersection) {
+inline double Surface::getMinDistance(Point* point, Point* intersection,
+                                      double azim, double polar) {
 
   /* Point array for intersections with this Surface */
   Point intersections[2];
 
   /* Find the intersection Point(s) */
-  int num_inters = this->intersection(point, angle, intersections);
+  int num_inters = this->intersection(point, azim, polar, intersections);
   double distance = INFINITY;
 
   /* If there is one intersection Point */
@@ -373,6 +378,7 @@ inline double Surface::getMinDistance(Point* point, double angle,
     distance = intersections[0].distanceToPoint(point);
     intersection->setX(intersections[0].getX());
     intersection->setY(intersections[0].getY());
+    intersection->setZ(intersections[0].getZ());
   }
 
   /* If there are two intersection Points */
@@ -385,11 +391,13 @@ inline double Surface::getMinDistance(Point* point, double angle,
       distance = dist1;
       intersection->setX(intersections[0].getX());
       intersection->setY(intersections[0].getY());
+      intersection->setZ(intersections[0].getZ());
     }
     else {
       distance = dist2;
       intersection->setX(intersections[1].getX());
       intersection->setY(intersections[1].getY());
+      intersection->setZ(intersections[1].getZ());
     }
   }
 
@@ -405,9 +413,8 @@ inline double Surface::getMinDistance(Point* point, double angle,
 inline double Plane::evaluate(const Point* point) const {
   double x = point->getX();
   double y = point->getY();
-
-  //TODO: does not support ZPlanes
-  return (_A * x + _B * y + _C);
+  double z = point->getZ();
+  return (_A * x + _B * y + _C * z + _D);
 }
 
 

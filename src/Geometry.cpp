@@ -47,6 +47,15 @@ Geometry::~Geometry() {
 
 
 /**
+ * @brief Returns the total width (x extent) of the Geometry in cm.
+ * @return the total width of the Geometry (cm)
+ */
+double Geometry::getWidth() {
+  return (getMaxX() - getMinX());
+}
+
+
+/**
  * @brief Returns the total height (y extent) of the Geometry in cm.
  * @return the total height of the Geometry (cm)
  */
@@ -56,11 +65,11 @@ double Geometry::getHeight() {
 
 
 /**
- * @brief Returns the total width (x extent) of the Geometry in cm.
- * @return the total width of the Geometry (cm)
+ * @brief Returns the total dept (z extent) of the Geometry in cm.
+ * @return the total depth of the Geometry (cm)
  */
-double Geometry::getWidth() {
-  return (getMaxX() - getMinX());
+double Geometry::getDepth() {
+  return (getMaxZ() - getMinZ());
 }
 
 
@@ -421,10 +430,11 @@ CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @param angle the angle for a trajectory projected from the LocalCoords
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
-CellBasic* Geometry::findFirstCell(LocalCoords* coords, double angle) {
-  double delta_x = cos(angle) * TINY_MOVE;
-  double delta_y = sin(angle) * TINY_MOVE;
-  coords->adjustCoords(delta_x, delta_y);
+CellBasic* Geometry::findFirstCell(LocalCoords* coords, double azim, double polar) {
+  double delta_x = cos(azim) * sin(polar) * TINY_MOVE;
+  double delta_y = sin(azim) * sin(polar) * TINY_MOVE;
+  double delta_z = cos(polar) * TINY_MOVE;
+  coords->adjustCoords(delta_x, delta_y, delta_z);
   return findCellContainingCoords(coords);
 }
 
@@ -465,7 +475,7 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  * @param angle the angle of the trajectory
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
-CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
+CellBasic* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
 
   Cell* cell = NULL;
   double dist;
@@ -494,18 +504,18 @@ CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
        * nearest lattice cell boundary */
       if (coords->getType() == LAT) {
         Lattice* lattice = coords->getLattice();
-        dist = lattice->minSurfaceDist(coords->getPoint(), angle);
+        dist = lattice->minSurfaceDist(coords->getPoint(), azim, polar);
       }
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
       else{
         Universe* universe = coords->getUniverse();
-        dist = universe->minSurfaceDist(coords->getPoint(), angle);
+        dist = universe->minSurfaceDist(coords->getPoint(), azim, polar);
       }
 
       /* Recheck min distance */
       min_dist = std::min(dist, min_dist);
-
+        
       /* Ascend one level */
       if (coords->getUniverse() == _root_universe)
         break;
@@ -518,14 +528,15 @@ CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
     /* Check for distance to nearest CMFD mesh cell boundary */
     if (_cmfd != NULL){
       Lattice* lattice = _cmfd->getLattice();
-      dist = lattice->minSurfaceDist(coords->getPoint(), angle);
+      dist = lattice->minSurfaceDist(coords->getPoint(), azim, polar);
       min_dist = std::min(dist, min_dist);
     }
 
     /* Move point and get next cell */
-    double delta_x = cos(angle) * (min_dist + TINY_MOVE);
-    double delta_y = sin(angle) * (min_dist + TINY_MOVE);
-    coords->adjustCoords(delta_x, delta_y);
+    double delta_x = cos(azim) * sin(polar) * (min_dist + TINY_MOVE);
+    double delta_y = sin(azim) * sin(polar) * (min_dist + TINY_MOVE);
+    double delta_z = cos(polar) * (min_dist + TINY_MOVE);
+    coords->adjustCoords(delta_x, delta_y, delta_z);
     return findCellContainingCoords(coords);
   }
 }
@@ -567,7 +578,8 @@ int Geometry::findFSRId(LocalCoords* coords) {
       fsr->_fsr_id = fsr_id;
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(), 
-                       coords->getHighestLevel()->getY());
+                       coords->getHighestLevel()->getY(),
+                       coords->getHighestLevel()->getZ());
       fsr->_point = point;
       _FSR_keys_map[fsr_key_hash] = *fsr;
       _FSRs_to_keys.push_back(fsr_key_hash);
@@ -665,6 +677,9 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
       key << "CMFD = (" << curr_level_key.str() << ", ";
       curr_level_key.str(std::string());
       curr_level_key << _cmfd->getLattice()->getLatY(curr->getPoint());
+      key << curr_level_key.str() << ", ";
+      curr_level_key.str(std::string());
+      curr_level_key << _cmfd->getLattice()->getLatZ(curr->getPoint());
       key << curr_level_key.str() << ") : ";
   }
 
@@ -685,6 +700,9 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
       key << curr_level_key.str() << ", ";
       curr_level_key.str(std::string());
       curr_level_key << curr->getLatticeY();
+      key << curr_level_key.str() << ", ";
+      curr_level_key.str(std::string());
+      curr_level_key << curr->getLatticeZ();
       key << curr_level_key.str() << ") : ";
     }
     else{
@@ -769,13 +787,14 @@ void Geometry::initializeFlatSourceRegions() {
  * @param max_optical_length the maximum optical length a segment is allowed to
  *          have
  */
-void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
+void Geometry::segmentize2D(Track2D* track, FP_PRECISION max_optical_length, double z_level) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
   double y0 = track->getStart()->getY();
+  double z0 = z_level;
   double phi = track->getPhi();
-
+  
   /* Length of each segment */
   FP_PRECISION segment_length;
   Material* segment_material;
@@ -786,8 +805,8 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
   int num_groups;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords segment_start(x0, y0);
-  LocalCoords segment_end(x0, y0);
+  LocalCoords segment_start(x0, y0, z0);
+  LocalCoords segment_end(x0, y0, z0);
   segment_start.setUniverse(_root_universe);
   segment_end.setUniverse(_root_universe);
 
@@ -798,7 +817,7 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
     log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track: %s", track->toString().c_str());
+               "of this Track2D: %s", track->toString().c_str());
 
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the
@@ -816,7 +835,7 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
     if (segment_start.getX() == segment_end.getX() &&
       segment_start.getY() == segment_end.getY()) {
 
-      log_printf(ERROR, "Created a Track segment with the same start and end "
+      log_printf(ERROR, "Created a Track2D segment with the same start and end "
                  "point: x = %f, y = %f", segment_start.getX(),
                   segment_start.getY());
     }
@@ -898,16 +917,176 @@ void Geometry::segmentize(Track* track, FP_PRECISION max_optical_length) {
     }
   }
 
-  log_printf(DEBUG, "Created %d segments for Track: %s",
+  log_printf(DEBUG, "Created %d segments for Track2D: %s",
              track->getNumSegments(), track->toString().c_str());
 
   /* Truncate the linked list for the LocalCoords */
   segment_start.prune();
   segment_end.prune();
 
-  log_printf(DEBUG, "Track %d max. segment length: %f",
+  log_printf(DEBUG, "Track2D %d max. segment length: %f",
              track->getUid(), _max_seg_length);
-  log_printf(DEBUG, "Track %d min. segment length: %f",
+  log_printf(DEBUG, "Track2D %d min. segment length: %f",
+             track->getUid(), _min_seg_length);
+
+  return;
+}
+
+
+/**
+ * @brief This method performs ray tracing to create Track segments within each
+ *        flat source region in the Geometry.
+ * @details This method starts at the beginning of a Track and finds successive
+ *          intersection points with FSRs as the Track crosses through the
+ *          Geometry and creates segment structs and adds them to the Track.
+ * @param track a pointer to a track to segmentize
+ * @param max_optical_length the maximum optical length a segment is allowed to
+ *          have
+ */
+void Geometry::segmentize3D(Track3D* track, FP_PRECISION max_optical_length) {
+
+  /* Track starting Point coordinates and azimuthal angle */
+  double x0 = track->getStart()->getX();
+  double y0 = track->getStart()->getY();
+  double z0 = track->getStart()->getZ();
+  double phi = track->getPhi();
+  double theta = track->getTheta();
+
+  /* Length of each segment */
+  FP_PRECISION segment_length;
+  Material* segment_material;
+  int fsr_id;
+  FP_PRECISION* sigma_t;
+  int min_num_segments;
+  int num_segments;
+  int num_groups;
+
+  /* Use a LocalCoords for the start and end of each segment */
+  LocalCoords segment_start(x0, y0, z0);
+  LocalCoords segment_end(x0, y0, z0);
+  segment_start.setUniverse(_root_universe);
+  segment_end.setUniverse(_root_universe);
+
+  /* Find the Cell containing the Track starting Point */
+  Cell* curr = findFirstCell(&segment_end, phi, theta);
+  Cell* prev;
+
+  /* If starting Point was outside the bounds of the Geometry */
+  if (curr == NULL)
+    log_printf(ERROR, "Could not find a Cell containing the start Point "
+               "of this Track3D: %s", track->toString().c_str());
+
+  /* While the end of the segment's LocalCoords is still within the Geometry,
+   * move it to the next Cell, create a new segment, and add it to the
+   * Geometry */
+  while (curr != NULL) {
+
+    segment_end.copyCoords(&segment_start);
+
+    /* Find the next Cell along the Track's trajectory */
+    prev = curr;
+    curr = findNextCell(&segment_end, phi, theta);
+    
+    /* Checks to make sure that new Segment does not have the same start
+     * and end Points */
+    if (segment_start.getX() == segment_end.getX() &&
+        segment_start.getY() == segment_end.getY() &&
+        segment_start.getZ() == segment_end.getZ()) {
+
+      log_printf(ERROR, "Created a Track3D segment with the same start and end "
+                 "point: x = %f, y = %f, z = %f", segment_start.getX(),
+                 segment_start.getY(), segment_start.getZ());
+    }
+
+    /* Find the segment length between the segment's start and end points */
+    segment_length = FP_PRECISION(segment_end.getPoint()
+                      ->distanceToPoint(segment_start.getPoint()));
+    segment_material = static_cast<CellBasic*>(prev)->getMaterial();
+    sigma_t = segment_material->getSigmaT();
+
+    /* Find the ID of the FSR that contains the segment */
+    fsr_id = findFSRId(&segment_start);
+
+    /* Compute the number of Track segments to cut this segment into to ensure
+     * that it's length is small enough for the exponential table */
+    min_num_segments = 1;
+    num_groups = segment_material->getNumEnergyGroups();
+    for (int g=0; g < num_groups; g++) {
+      num_segments = ceil(segment_length * sigma_t[g] / max_optical_length);
+      if (num_segments > min_num_segments)
+        min_num_segments = num_segments;
+    }
+
+    /* "Cut up" Track segment into sub-segments such that the length of each
+     * does not exceed the size of the exponential table in the Solver */
+    for (int i=0; i < min_num_segments; i++) {
+
+      /* Create a new Track segment */
+      segment* new_segment = new segment;
+      new_segment->_material = segment_material;
+      new_segment->_length = segment_length / FP_PRECISION(min_num_segments);
+
+      /* Update the max and min segment lengths */
+      if (segment_length > _max_seg_length)
+        _max_seg_length = segment_length;
+      if (segment_length < _min_seg_length)
+        _min_seg_length = segment_length;
+
+      log_printf(DEBUG, "segment start x = %f, y = %f, z = %f, segment end "
+                 "x = %f, y = %f, z = %f", segment_start.getX(), segment_start.getY(),
+                 segment_start.getZ(), segment_end.getX(), segment_end.getY(),
+                 segment_end.getZ());
+
+      new_segment->_region_id = fsr_id;
+
+      /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
+      if (_cmfd != NULL){
+
+        /* Find cmfd cell that segment lies in */
+        int cmfd_cell = _cmfd->findCmfdCell(&segment_start);
+
+        /* Reverse nudge from surface to determine whether segment start or end
+         * points lie on a cmfd surface. */
+        double delta_x = cos(phi) * sin(theta) * TINY_MOVE;
+        double delta_y = sin(phi) * sin(theta) * TINY_MOVE;
+        double delta_z = cos(theta) * TINY_MOVE;
+        segment_start.adjustCoords(-delta_x, -delta_y, -delta_z);
+        segment_end.adjustCoords(-delta_x, -delta_y, -delta_z);
+
+        if (i == min_num_segments-1)
+          new_segment->_cmfd_surface_fwd =
+              _cmfd->findCmfdSurface(cmfd_cell, &segment_end);
+        else
+          new_segment->_cmfd_surface_fwd = -1;
+
+        if (i == 0)
+          new_segment->_cmfd_surface_bwd =
+              _cmfd->findCmfdSurface(cmfd_cell, &segment_start);
+        else
+          new_segment->_cmfd_surface_bwd = -1;
+
+        /* Re-nudge segments from surface. */
+        segment_start.adjustCoords(delta_x, delta_y, delta_z);
+        segment_end.adjustCoords(delta_x, delta_y, delta_z);
+
+      }
+
+      /* Add the segment to the Track */
+      track->addSegment(new_segment);
+
+    }
+  }
+
+  log_printf(DEBUG, "Created %d segments for Track3D: %s",
+             track->getNumSegments(), track->toString().c_str());
+
+  /* Truncate the linked list for the LocalCoords */
+  segment_start.prune();
+  segment_end.prune();
+
+  log_printf(DEBUG, "Track3D %d max. segment length: %f",
+             track->getUid(), _max_seg_length);
+  log_printf(DEBUG, "Track3D %d min. segment length: %f",
              track->getUid(), _min_seg_length);
 
   return;
@@ -1035,30 +1214,43 @@ void Geometry::initializeCmfd(){
   /* Get information about geometry and CMFD mesh */
   int num_x = _cmfd->getNumX();
   int num_y = _cmfd->getNumY();
+  int num_z = _cmfd->getNumZ();
   double height = getHeight();
   double width = getWidth();
+  double depth;
+  
+  if (getDepth() < 1.e6)
+    depth = getDepth();
+  else
+    depth = 1.0;
+
   double cell_width = width / num_x;
   double cell_height = height / num_y;
+  double cell_depth = depth / num_z;
 
   /* Create CMFD lattice and set properties */
   Lattice* lattice = new Lattice();
-  lattice->setWidth(cell_width, cell_height);
+  lattice->setWidth(cell_width, cell_height, cell_depth);
   lattice->setNumX(num_x);
   lattice->setNumY(num_y);
-  lattice->setOffset(getMinX() + getWidth()/2.0, 
-                     getMinY() + getHeight()/2.0);
+  lattice->setNumZ(num_z);
+  lattice->setOffset(getMinX() + width/2.0, 
+                     getMinY() + height/2.0,
+                     getMinZ() + depth/2.0);
   _cmfd->setLattice(lattice);
 
-
   /* Set CMFD mesh boundary conditions */
-  _cmfd->setBoundary(0, getMinXBoundaryType());
-  _cmfd->setBoundary(1, getMinYBoundaryType());
-  _cmfd->setBoundary(2, getMaxXBoundaryType());
-  _cmfd->setBoundary(3, getMaxYBoundaryType());
+  _cmfd->setBoundary(SURFACE_X_MIN, getMinXBoundaryType());
+  _cmfd->setBoundary(SURFACE_Y_MIN, getMinYBoundaryType());
+  _cmfd->setBoundary(SURFACE_Z_MIN, getMinZBoundaryType());
+  _cmfd->setBoundary(SURFACE_X_MAX, getMaxXBoundaryType());
+  _cmfd->setBoundary(SURFACE_Y_MAX, getMaxYBoundaryType());
+  _cmfd->setBoundary(SURFACE_Z_MAX, getMaxZBoundaryType());
 
   /* Set CMFD mesh dimensions and number of groups */
   _cmfd->setWidth(width);
   _cmfd->setHeight(height);
+  _cmfd->setDepth(depth);
   _cmfd->setNumMOCGroups(getNumEnergyGroups());
 
   /* If user did not set CMFD group structure, create CMFD group
@@ -1147,8 +1339,10 @@ bool Geometry::withinBounds(LocalCoords* coords){
 
   double x = coords->getX();
   double y = coords->getY();
-
-  if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY())
+  double z = coords->getZ();
+  
+  if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY()
+      || z < getMinZ() || z > getMaxZ())
     return false;
   else
     return true;

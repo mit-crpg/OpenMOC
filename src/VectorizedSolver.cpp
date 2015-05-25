@@ -123,7 +123,7 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
 
   _polar_times_groups = _num_groups * _num_polar;
 
-  std::map<int, Material*> materials = geometry->getMaterials();
+  std::map<int, Material*> materials = geometry->getAllMaterials();
   std::map<int, Material*>::iterator iter;
 
   /* Iterate over each Material and replace its cross-section with a new one
@@ -136,9 +136,9 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
 /**
  * @brief Allocates memory for the exponential linear interpolation table.
  */
-void VectorizedSolver::buildExpInterpTable() {
+void VectorizedSolver::initializeExpEvaluator() {
 
-  CPUSolver::buildExpInterpTable();
+  CPUSolver::initializeExpEvaluator();
 
   /* Deallocates memory for the exponentials if it was allocated for a
    * previous simulation */
@@ -534,7 +534,7 @@ void VectorizedSolver::computeKeff() {
   #ifdef SINGLE
   total = cblas_sasum(_num_FSRs, FSR_rates, 1);
   #else
-  tototal = cblas_dasum(_num_FSRs, FSR_rates, 1);
+  total = cblas_dasum(_num_FSRs, FSR_rates, 1);
   #endif
 
   /* Loop over all FSRs and compute the volume-weighted fission rates */
@@ -631,7 +631,7 @@ return;
 
 
 /**
- * @brief Computes the contribution to the FSR scalar flux from a Track segment.
+ * @brief Computes the contribution to the FSR scalar flux from a segment.
  * @details This method integrates the angular flux for a Track segment across
  *        energy groups and polar angles, and tallies it into the FSR scalar
  *        flux, and updates the Track's angular flux.
@@ -639,18 +639,14 @@ return;
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param track_flux a pointer to the Track's angular flux
  * @param fsr_flux a pointer to the temporary FSR flux buffer
- * @param fwd
  */
 void VectorizedSolver::scalarFluxTally(segment* curr_segment,
                                        int azim_index,
                                        FP_PRECISION* track_flux,
-                                       FP_PRECISION* fsr_flux,
-                                       bool fwd){
+                                       FP_PRECISION* fsr_flux){
 
   int tid = omp_get_thread_num();
   int fsr_id = curr_segment->_region_id;
-  FP_PRECISION length = curr_segment->_length;
-  FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   FP_PRECISION* delta_psi = &_delta_psi[tid*_num_groups];
   FP_PRECISION* exponentials = &_thread_exponentials[tid*_polar_times_groups];
 
@@ -719,18 +715,13 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
   /* Evaluate the exponentials using the linear interpolation table */
-  if (_interpolate_exponential) {
+  if (_exp_evaluator->isUsingInterpolation()) {
     FP_PRECISION tau;
-    int index;
 
     for (int e=0; e < _num_groups; e++) {
-      for (int p=0; p < _num_polar; p++) {
-        tau = sigma_t[e] * length;
-        index = round_to_int(tau * _inverse_exp_table_spacing);
-        index *= _two_times_num_polar;
-        exponentials(p,e) = (1. - (_exp_table[index+2 * p] * tau +
-                             _exp_table[index + 2 * p +1]));
-      }
+      tau = length * sigma_t[e];
+      for (int p=0; p < _num_polar; p++)
+        exponentials(p,e) = _exp_evaluator->computeExponential(tau, p);
     }
   }
 
@@ -738,8 +729,7 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
   else {
 
     int tid = omp_get_thread_num();
-
-    FP_PRECISION* sinthetas = _quad->getSinThetas();
+    FP_PRECISION* sin_thetas = _polar_quad->getSinThetas();
     FP_PRECISION* taus = &_thread_taus[tid*_polar_times_groups];
 
     /* Initialize the tau argument for the exponentials */
@@ -753,7 +743,7 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
 
         #pragma simd vectorlength(VEC_LENGTH)
         for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-          taus(p,e) /= sinthetas[p];
+          taus(p,e) /= sin_thetas[p];
       }
     }
 

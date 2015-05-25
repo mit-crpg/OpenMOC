@@ -128,11 +128,17 @@ class configuration:
                     'src/Material.cpp',
                     'src/Point.cpp',
                     'src/Quadrature.cpp',
+                    'src/ExpEvaluator.cpp',
                     'src/Solver.cpp',
                     'src/CPUSolver.cpp',
                     'src/Surface.cpp',
                     'src/Timer.cpp',
                     'src/Track.cpp',
+                    'src/Track2D.cpp',
+                    'src/Track3D.cpp',
+                    'src/Vector.cpp',
+                    'src/Matrix.cpp',
+                    'src/linalg.cpp',
                     'src/TrackGenerator.cpp',
                     'src/Universe.cpp',
                     'src/Cmfd.cpp']
@@ -145,12 +151,15 @@ class configuration:
                      'src/Material.cpp',
                      'src/Point.cpp',
                      'src/Quadrature.cpp',
+                     'src/ExpEvaluator.cpp',
                      'src/Solver.cpp',
                      'src/CPUSolver.cpp',
                      'src/VectorizedSolver.cpp',
                      'src/Surface.cpp',
                      'src/Timer.cpp',
                      'src/Track.cpp',
+                     'src/Track2D.cpp',
+                     'src/Track3D.cpp',
                      'src/TrackGenerator.cpp',
                      'src/Universe.cpp',
                      'src/Cmfd.cpp']
@@ -163,16 +172,20 @@ class configuration:
                       'src/Material.cpp',
                       'src/Point.cpp',
                       'src/Quadrature.cpp',
+                      'src/ExpEvaluator.cpp',
                       'src/Solver.cpp',
                       'src/CPUSolver.cpp',
                       'src/Surface.cpp',
                       'src/Timer.cpp',
                       'src/Track.cpp',
+                      'src/Track2D.cpp',
+                      'src/Track3D.cpp',
                       'src/TrackGenerator.cpp',
                       'src/Universe.cpp',
                       'src/Cmfd.cpp']
 
   sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
+                     'src/accel/cuda/GPUExpEvaluator.cu',
                      'src/accel/cuda/GPUQuery.cu',
                      'src/accel/cuda/clone.cu',
                      'src/accel/cuda/GPUSolver.cu']
@@ -193,7 +206,8 @@ class configuration:
   compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', '-qreport',
                              '-qsimd=auto', '-qtune=qp', '-qunroll=auto',
                              '-qsmp=omp', '-qpic']
-  compiler_flags['nvcc'] =  ['-c', '-O3', '--compiler-options', '-fpic',
+  compiler_flags['nvcc'] =  ['--relocatable-device-code', 'true', 
+                             '-c', '-O3', '--compiler-options', '-fpic',
                              '-gencode=arch=compute_20,code=sm_20',
                              '-gencode=arch=compute_30,code=sm_30']
 
@@ -231,7 +245,7 @@ class configuration:
   shared_libraries['icpc'] = ['stdc++', 'iomp5', 'pthread', 'irc',
                               'imf','rt', 'mkl_rt','m',]
   shared_libraries['bgxlc'] = ['stdc++', 'pthread', 'm', 'xlsmp', 'rt']
-  shared_libraries['nvcc'] = ['cudart']
+  shared_libraries['nvcc'] = ['cudadevrt', 'cudart']
 
 
   #############################################################################

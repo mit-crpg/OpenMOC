@@ -32,16 +32,17 @@ else:
 
 
 import matplotlib
+from mpl_toolkits.mplot3d import Axes3D
 
 # force headless backend, or set 'backend' to 'Agg'
 # in your ~/.matplotlib/matplotlibrc
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
 
 # Force non-interactive mode, or set 'interactive' to False
 # in your ~/.matplotlib/matplotlibrc
-plt.ioff()
+#plt.ioff()
 
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
@@ -97,9 +98,9 @@ def plot_tracks(track_generator):
 
   # Retrieve data from TrackGenerator
   num_azim = track_generator.getNumAzim()
-  spacing = track_generator.getTrackSpacing()
-  num_tracks = track_generator.getNumTracks()
-  coords = track_generator.retrieveTrackCoords(num_tracks*4)
+  spacing = track_generator.getDesiredAzimSpacing()
+  num_tracks = track_generator.getNum2DTracks()
+  coords = track_generator.retrieveTrackCoords2D(num_tracks*4)
 
   # Convert data to NumPy arrays
   coords = np.array(coords)
@@ -153,18 +154,19 @@ def plot_segments(track_generator):
     py_printf('ERROR', 'Unable to plot Track segments since %s was input ' + \
               'rather than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.containsTracks():
+  if not track_generator.contains2DTracks():
     py_printf('ERROR', 'Unable to plot Track segments since the ' + \
               'TrackGenerator has not yet generated Tracks.')
 
-  py_printf('NORMAL', 'Plotting the track segments...')
+  py_printf('NORMAL', 'Plotting the 2d track segments...')
 
   # Retrieve data from TrackGenerator
   num_azim = track_generator.getNumAzim()
-  spacing = track_generator.getTrackSpacing()
-  num_segments = track_generator.getNumSegments()
+  spacing = track_generator.getDesiredAzimSpacing()
+  num_segments = track_generator.getNum2DSegments()
+  print num_segments
   num_fsrs = track_generator.getGeometry().getNumFSRs()
-  coords = track_generator.retrieveSegmentCoords(num_segments*5)
+  coords = track_generator.retrieve2DSegmentCoords(num_segments*5)
 
   # Convert data to NumPy arrays
   coords = np.array(coords)
@@ -211,6 +213,85 @@ def plot_segments(track_generator):
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
 
+
+def plot_segments_3d(track_generator):
+
+  global subdirectory
+
+  directory = get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'TrackGenerator' in str(type(track_generator)):
+    py_printf('ERROR', 'Unable to plot Track segments since %s was input ' + \
+              'rather than a TrackGenerator', str(type(track_generator)))
+
+  if not track_generator.contains2DTracks():
+    py_printf('ERROR', 'Unable to plot Track segments since the ' + \
+              'TrackGenerator has not yet generated Tracks.')
+
+  py_printf('NORMAL', 'Plotting the 3d track segments...')
+
+  # Retrieve data from TrackGenerator
+  num_azim = track_generator.getNumAzim()
+  spacing = track_generator.getDesiredAzimSpacing()
+  num_segments = track_generator.getNum3DSegments()
+  num_fsrs = track_generator.getGeometry().getNumFSRs()
+  coords = track_generator.retrieve3DSegmentCoords(num_segments*7)
+
+  # Convert data to NumPy arrays
+  coords = np.array(coords)
+  x = numpy.zeros(num_segments*2)
+  y = numpy.zeros(num_segments*2)
+  z = numpy.zeros(num_segments*2)
+  fsrs = numpy.zeros(num_segments)
+
+  for i in range(num_segments):
+    fsrs[i] = coords[i*7]
+    x[i*2] = coords[i*7+1]
+    y[i*2] = coords[i*7+2]
+    z[i*2] = coords[i*7+3]
+    x[i*2+1] = coords[i*7+4]
+    y[i*2+1] = coords[i*7+5]
+    z[i*2+1] = coords[i*7+6]
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_fsrs, endpoint=False)
+  numpy.random.shuffle(color_map)
+
+  # Make figure of line segments for each track
+  fig = plt.figure()
+  ax = fig.gca(projection ='3d')
+  
+  for i in range(num_segments):
+
+    # Create a color map corresponding to FSR IDs
+    jet = cm = plt.get_cmap('jet')
+    cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
+    scalarMap = cmx.ScalarMappable(norm=cNorm)
+    color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
+    plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], [z[i*2], z[i*2+1]], c=color)
+
+  #plt.xlim([x.min(), x.max()])
+  #plt.ylim([y.min(), y.max()])
+
+  title = 'Segments for ' + str(num_azim) + ' angles and ' + str(spacing) + \
+        ' cm spacing'
+
+  plt.title(title)
+
+  filename = directory + '3d-segments-' + str(num_azim) + '-angles-' + \
+      str(spacing) + '-spacing.png'
+
+  plt.show()
+  fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
+  
 
 
 ##
@@ -720,7 +801,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
     fig = plt.figure()
     plt.imshow(np.flipud(fluxes[index,:,:]), extent=coords['bounds'])
     plt.colorbar()
-    plt.title('FSR Scalar Flux (Group {0}'.format(group))
+    plt.title('FSR Scalar Flux (Group {0})'.format(group))
     filename = directory + 'fsr-flux-group-' + str(group) + '.png'
     fig.savefig(filename, bbox_inches='tight')
     plt.close(fig)
@@ -791,7 +872,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
   if isinstance(group_bounds, (tuple, list, np.ndarray)):
 
     if not all(low < up for low, up in zip(group_bounds, group_bounds[1:])):
-      py_printf('ERROR', 'Unable to plot hte flux vs. energy since the ' + \
+      py_printf('ERROR', 'Unable to plot the flux vs. energy since the ' + \
                 'energy group bounds are not monotonically increasing')
 
     elif len(group_bounds) != geometry.getNumEnergyGroups()+1:
@@ -950,6 +1031,201 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
   filename = directory + 'fission-rates.png'
   fig.savefig(filename, bbox_inches='tight')
 
+
+##
+# @brief Plots the characteristic tracks from an OpenMOC simulation.
+# @details This method requires that Tracks have been generated by a
+#          TrackGenerator object. A user may invoke this function from
+#          an OpenMOC Python file as follows:
+#
+# @code
+#         openmoc.plotter.plot_tracks(track_generator)
+# @endcode
+#
+# @param track_generator the TrackGenerator which has generated Tracks
+def plot_tracks_3d(track_generator):
+
+  global subdirectory
+
+  directory = get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'TrackGenerator' in str(type(track_generator)):
+    py_printf('ERROR', 'Unable to plot Tracks since %s was input rather ' + \
+              'than a TrackGenerator', str(type(track_generator)))
+
+  if not track_generator.containsTracks():
+    py_printf('ERROR', 'Unable to plot Tracks since the track ' + \
+              'generator has not yet generated tracks')
+
+  py_printf('NORMAL', 'Plotting the tracks...')
+
+  # Retrieve data from TrackGenerator
+  num_azim = track_generator.getNumAzim()
+  num_polar = track_generator.getNumPolar()
+  azim_spacing = track_generator.getDesiredAzimSpacing()
+  polar_spacing = track_generator.getDesiredPolarSpacing()
+  num_tracks = track_generator.getNumTracks()
+  coords = track_generator.retrieveTrackCoords(num_tracks*6)
+
+  # Convert data to NumPy arrays
+  coords = np.array(coords)
+  x = coords[0::3]
+  y = coords[1::3]
+  z = coords[2::3]
+
+  # Make figure of line segments for each Track
+  fig = plt.figure()
+  ax = fig.gca(projection ='3d')
+  for i in range(num_tracks):
+    ax.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], [z[i*2], z[i*2+1]], 'b-')
+
+  #plt.xlim([x.min(), x.max()])
+  #plt.ylim([y.min(), y.max()])
+
+  title = 'Tracks for (' + str(num_azim) + ', ' + str(num_polar) + ') angles and ('\
+          + str(azim_spacing) + ', ' + str(polar_spacing) + ') cm spacing'
+
+  plt.title(title)
+
+  filename = directory + '3Dtracks-' + str(num_azim) + '-angles-' + \
+      str(azim_spacing) + '-spacing.png'
+
+  plt.show()
+  fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
+
+
+def plot_quadrature(quadrature):
+
+  global subdirectory
+
+  directory = get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'Quad' in str(type(quadrature)):
+    py_printf('ERROR', 'Unable to plot the quadrature since %s was input rather ' + \
+              'than a Quadrature object', str(type(quadrature)))
+
+  py_printf('NORMAL', 'Plotting the quadrature...')
+
+  # Retrieve data from TrackGenerator
+  num_azim = quadrature.getNumAzimAngles()
+  num_polar = quadrature.getNumPolarAngles()
+
+  phis = np.zeros(num_azim/4)
+  thetas = np.zeros((num_azim/4,num_polar/2))
+
+  for a in range(num_azim/4):
+    phis[a] = quadrature.getPhi(a)
+    for p in range(num_polar/2):
+      thetas[a][p] = quadrature.getTheta(a,p)      
+  
+  # Make figure of line segments for each Track
+  fig = plt.figure()
+  ax = fig.gca(projection ='3d')
+
+  # Plot one octant of the unit sphere
+  u = np.linspace(0, np.pi/2.0, 100)
+  v = np.linspace(0, np.pi/2.0, 100)
+  x = np.outer(np.cos(u), np.sin(v))
+  y = np.outer(np.sin(u), np.sin(v))
+  z = np.outer(np.ones(np.size(u)), np.cos(v))
+  ax.plot_wireframe(x, y, z,  rstride=5, cstride=5, color='k', linewidth=0.1)
+
+  for a in range(num_azim/4):
+    for p in range(num_polar/2):
+      ax.scatter(np.cos(phis[a]) * np.sin(thetas[a][p]), np.sin(phis[a]) *
+                 np.sin(thetas[a][p]), np.cos(thetas[a][p]), s=50, color='b')
+
+  title = ''
+  filename = 'quadrature.png'
+  if quadrature.getQuadratureType() is TABUCHI_YAMAMOTO:
+    title = 'TABUCHI YAMAMOTO with ' + str(num_azim) + ' azim and ' + str(num_polar) + ' polar angles'
+    filename = directory + 'quad-TY-' + str(num_azim) + '-azim-' + str(num_polar) + '-polar.png'
+  if quadrature.getQuadratureType() is LEONARD:
+    title = 'LEONARD with ' + str(num_azim) + ' azim and ' + str(num_polar) + ' polar angles'
+    filename = directory + 'quad-LEONARD-' + str(num_azim) + '-azim-' + str(num_polar) + '-polar.png'
+  if quadrature.getQuadratureType() is GAUSS_LEGENDRE:
+    title = 'GAUSS LEGENDRE with ' + str(num_azim) + ' azim and ' + str(num_polar) + ' polar angles'
+    filename = directory + 'quad-GL-' + str(num_azim) + '-azim-' + str(num_polar) + '-polar.png'
+  if quadrature.getQuadratureType() is EQUAL_WEIGHT:
+    title = 'EQUAL WEIGHT with ' + str(num_azim) + ' azim and ' + str(num_polar) + ' polar angles'
+    filename = directory + 'quad-EQ-WGT-' + str(num_azim) + '-azim-' + str(num_polar) + '-polar.png'
+  if quadrature.getQuadratureType() is EQUAL_ANGLE:
+    title = 'EQUAL ANGLE with ' + str(num_azim) + ' azim and ' + str(num_polar) + ' polar angles'
+    filename = directory + 'quad-EQ-ANGLE-' + str(num_azim) + '-azim-' + str(num_polar) + '-polar.png'
+    
+  plt.title(title)
+  ax.view_init(elev=30, azim=45)
+  fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
+  
+
+def plot_tracks_3d_range(track_generator, first_track, last_track):
+
+  global subdirectory
+
+  directory = get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'TrackGenerator' in str(type(track_generator)):
+    py_printf('ERROR', 'Unable to plot Tracks since %s was input rather ' + \
+              'than a TrackGenerator', str(type(track_generator)))
+
+  if not track_generator.containsTracks():
+    py_printf('ERROR', 'Unable to plot Tracks since the track ' + \
+              'generator has not yet generated tracks')
+
+  py_printf('NORMAL', 'Plotting the tracks...')
+
+  # Retrieve data from TrackGenerator
+  num_azim = track_generator.getNumAzim()
+  num_polar = track_generator.getNumPolar()
+  azim_spacing = track_generator.getDesiredAzimSpacing()
+  polar_spacing = track_generator.getDesiredPolarSpacing()
+  num_tracks = track_generator.getNumTracks()
+  coords = track_generator.retrieveTrackCoords(num_tracks*6)
+
+  # Convert data to NumPy arrays
+  coords = np.array(coords)
+  x = coords[0::3]
+  y = coords[1::3]
+  z = coords[2::3]
+
+  # Make figure of line segments for each Track
+  fig = plt.figure()
+  ax = fig.gca(projection ='3d')
+  for i in range(first_track, last_track):
+    ax.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], [z[i*2], z[i*2+1]], 'b-')
+
+  #plt.xlim([x.min(), x.max()])
+  #plt.ylim([y.min(), y.max()])
+
+  title = str(last_track-first_track) + ' tracks for (' + str(num_azim) + ', ' + str(num_polar) + ') angles and ('\
+          + str(azim_spacing) + ', ' + str(polar_spacing) + ') cm spacing'
+
+  plt.title(title)
+
+  filename = directory + 'some3Dtracks-' + str(num_azim) + '-angles-' + \
+      str(azim_spacing) + '-spacing.png'
+
+  plt.show()
+  fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
+  
 
 ##
 # @brief This is a helper method to define coordinates for a plotting window.

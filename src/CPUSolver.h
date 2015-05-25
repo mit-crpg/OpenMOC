@@ -11,23 +11,23 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "Solver.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
-#include "Solver.h"
 #endif
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for either the forward or reverse direction for a given Track */ 
-#define track_flux(p,e) (track_flux[(p)*_num_groups + (e)])
+#define track_flux(pe) (track_flux[(pe)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for the outgoing reflective track from a given Track */
-#define track_out_flux(p,e) (track_out_flux[(p)*_num_groups + (e)])
+#define track_out_flux(pe) (track_out_flux[(pe)])
 
 /** Indexing macro for the leakage for each polar angle and energy group
  *  for either the forward or reverse direction for a given Track */
-#define track_leakage(p,e) (track_leakage[(p)*_num_groups + (e)])
+#define track_leakage(pe) (track_leakage[(pe)])
 
 
 /**
@@ -50,8 +50,6 @@ protected:
 
   void initializeFluxArrays();
   void initializeSourceArrays();
-  void initializePolarQuadrature();
-  void buildExpInterpTable();
   void initializeFSRs();
   void initializeCmfd();
 
@@ -70,7 +68,7 @@ protected:
    * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
    * @param fwd
    */
-  virtual void scalarFluxTally(segment* curr_segment, int azim_index,
+  virtual void scalarFluxTally(segment* curr_segment, int azim_index, int polar_index,
                                FP_PRECISION* track_flux, FP_PRECISION* fsr_flux,
                                bool fwd);
 
@@ -81,27 +79,12 @@ protected:
    * @param direction the Track direction (forward - true, reverse - false)
    * @param track_flux a pointer to the Track's outgoing angular flux
    */
-  virtual void transferBoundaryFlux(int track_id, int azim_index,
+  virtual void transferBoundaryFlux(int track_id, int azim_index, int polar_index,
                                     bool direction,
                                     FP_PRECISION* track_flux);
   void addSourceToScalarFlux();
   void computeKeff();
   void transportSweep();
-
-  /**
-   * @brief Computes the exponential term in the transport equation for a
-   *        track segment.
-   * @details This method uses either a linear interpolation table (default)
-   *          or the exponential intrinsic exp(...) function if requested by
-   *          the user through a call to the Solver::useExponentialIntrinsic()
-   *          routine.
-   * @param sigma_t the total group cross-section at this energy
-   * @param length the length of the Track segment projected in the xy-plane
-   * @param p the polar angle index
-   * @return the evaluated exponential
-   */
-  virtual FP_PRECISION computeExponential(FP_PRECISION sigma_t,
-                                          FP_PRECISION length, int p);
 
 public:
   CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);
@@ -111,7 +94,7 @@ public:
   FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
   FP_PRECISION* getFSRScalarFluxes();
   FP_PRECISION getFSRSource(int fsr_id, int energy_group);
-  FP_PRECISION* getSurfaceCurrents();
+  Vector* getSurfaceCurrents();
 
   void setNumThreads(int num_threads);
 

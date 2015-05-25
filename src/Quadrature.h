@@ -1,7 +1,10 @@
 /**
  * @file Quadrature.h
- * @brief The Quadrature class.
- * @date January 20, 2012
+ * @brief The Quadrature abstract class and subclasses.
+ * @details The Quadrature subclasses are defined with tabulated or functional
+ *          quadrature sets given in the "Lattice Physics Computations", 
+ *          Handbook of Nuclear Engineering, Dave Knott, Akio Yamamoto, 2010.
+ * @date April 6, 2015
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
 */
 
@@ -10,60 +13,182 @@
 #define QUADRATURE_H_
 
 #ifdef __cplusplus
-#include <sstream>
+#include "Python.h"
+#include "constants.h"
 #include "log.h"
+#include <sstream>
 #endif
+
 
 /**
  * @enum quadratureType
- * @brief The type of polar quadrature.
+ * @brief The types of quadrature sets supported by OpenMOC.
  */
 enum quadratureType {
-  /** The Leonard type polar quadrature */
+  TABUCHI_YAMAMOTO,
   LEONARD,
-
-  /** The Tabuchi-Yamamoto polar quadrature */
-  TABUCHI
+  GAUSS_LEGENDRE,
+  EQUAL_WEIGHT,
+  EQUAL_ANGLE
 };
 
 
 /**
  * @class Quadrature Quadrature.h "src/Quadrature.h"
- * @brief Stores values for a variety of polar quadratures which may be used.
+ * @brief The arbitrary quadrature parent class.
  */
 class Quadrature {
 
-private:
-  /** The type of polar quadrature (LEONARD or TABUCHI) */
-  quadratureType _type;
+protected:
 
-  /** The number of polar angles */
-  int _num_polar_angles;
+  /** The quadrature type being used */
+  quadratureType _quad_type;
+  
+  /** The number of azimuthal angles in (0, 2*PI) */
+  int _num_azim;
 
-  /** An array of the sine of the polar angles from the quadrature set */
-  FP_PRECISION* _sinthetas;
+  /** The number of polar angles in (0, PI) */
+  int _num_polar;
 
-  /** An array of the weights for the polar angles from the quadrature set */
-  FP_PRECISION* _weights;
+  /** An array of the sines of quadrature polar angles */
+  FP_PRECISION** _sin_thetas;
 
-  /** An array of the sine multipled by the weight for the polar angles from
-   *  the quadrature set */
-  FP_PRECISION* _multiples;
+  /** An array of the quadrature polar angles */
+  FP_PRECISION** _thetas;
 
+  /** An array of the quadrature azimuthal angles */
+  FP_PRECISION* _phis;
+  
+  /** An array of the quadrature azimuthal weights */
+  FP_PRECISION* _azim_weights;
+
+  /** An array of the quadrature polar weights */
+  FP_PRECISION** _polar_weights;
+
+  /** An array of the sines multipled by the weights */
+  FP_PRECISION** _multiples;
+  
 public:
 
-  Quadrature(quadratureType type=TABUCHI, int num_polar_angles=3);
+  Quadrature();
   virtual ~Quadrature();
 
   int getNumPolarAngles() const;
-  quadratureType getType() const;
-  FP_PRECISION getSinTheta(const int n) const;
-  FP_PRECISION getWeight(const int n) const;
-  FP_PRECISION getMultiple(const int n) const;
-  FP_PRECISION* getSinThetas();
-  FP_PRECISION* getWeights();
-  FP_PRECISION* getMultiples();
+  int getNumAzimAngles() const;
+  FP_PRECISION getSinTheta(int azim, int polar);
+  FP_PRECISION getTheta(int azim, int polar);
+  FP_PRECISION getPhi(int azim);
+  FP_PRECISION getAzimWeight(int azim);
+  FP_PRECISION getPolarWeight(int azim, int polar);
+  FP_PRECISION getMultiple(int azim, int polar);
+  FP_PRECISION** getSinThetas();
+  FP_PRECISION** getThetas();
+  FP_PRECISION* getPhis();
+  FP_PRECISION* getAzimWeights();
+  FP_PRECISION** getPolarWeights();
+  FP_PRECISION** getMultiples();
+  int getFirstOctantPolar(int polar);
+  int getFirstOctantAzim(int azim);
+  quadratureType getQuadratureType();
+  int getOrthant(int azim, int polar);
+  
+  virtual void setNumAzimAngles(const int num_azim);
+  virtual void setNumPolarAngles(const int num_polar);
+  void setThetas(double* thetas, int num_azim_times_polar);
+  void setPolarWeights(double* weights, int num_azim_times_polar);
+  void setTheta(double theta, int azim, int polar);
+  void setPhi(double phi, int azim);
+  void setAzimWeight(double weight, int azim);
+  void setPolarWeight(double weight, int azim, int polar);
+  
+  virtual void initialize();
+  virtual void precomputeWeights();
+  
   std::string toString();
+};
+
+
+
+/**
+ * @class TYPolarQuad Quadrature.h "src/Quadrature.h"
+ * @brief Tabuchi-Yamamoto's polar quadrature.
+ */
+class TYPolarQuad: public Quadrature {
+
+private:
+
+public:
+  TYPolarQuad();
+  void setNumPolarAngles(const int num_polar);
+  void initialize();
+  void precomputeWeights();
+};
+
+
+/**
+ * @class LeonardPolarQuad Quadrature.h "src/Quadrature.h"
+ * @brief Leonard's polar quadrature.
+ */
+class LeonardPolarQuad: public Quadrature { 
+
+private:
+
+public:
+  LeonardPolarQuad();
+  void setNumPolarAngles(const int num_polar);
+  void initialize();
+  void precomputeWeights();
+};
+
+
+
+/**
+ * @class GLPolarQuad Quadrature.h "src/Quadrature.h"
+ * @brief Gauss-Legendre's polar quadrature.
+ */
+class GLPolarQuad: public Quadrature { 
+
+private:
+
+public:
+  GLPolarQuad();
+  void setNumPolarAngles(const int num_polar);
+  void initialize();
+  void precomputeWeights();
+};
+
+
+
+/**
+ * @class EqualWeightPolarQuad Quadrature.h "src/Quadrature.h"
+ * @brief Equal weight polar quadrature.
+ */
+class EqualWeightPolarQuad: public Quadrature { 
+
+private:
+
+public:
+  EqualWeightPolarQuad();
+  void setNumPolarAngles(const int num_polar);
+  void initialize();
+  void precomputeWeights();
+};
+
+
+
+/**
+ * @class EqualAnglePolarQuad Quadrature.h "src/Quadrature.h"
+ * @brief Equal angle polar quadrature.
+ */
+class EqualAnglePolarQuad: public Quadrature { 
+
+private:
+
+public:
+  EqualAnglePolarQuad();
+  void setNumPolarAngles(const int num_polar);
+  void initialize();
+  void precomputeWeights();
 };
 
 

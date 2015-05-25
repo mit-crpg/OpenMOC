@@ -11,13 +11,15 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "Python.h"
+#include "Track2D.h"
+#include "Track3D.h"
+#include "Geometry.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
 #include <omp.h>
-#include "Track.h"
-#include "Geometry.h"
 #endif
 
 
@@ -32,98 +34,162 @@ class TrackGenerator {
 
 private:
 
+  /** The quadrature set */
+  Quadrature* _quadrature;
+  
   /** The number of shared memory OpenMP threads */
   int _num_threads;
 
-  /** Number of azimuthal angles in \f$ [0, \pi] \f$ */
+  /** Number of azimuthal angles in \f$ [0, 2 \pi] \f$ */
   int _num_azim;
 
-  /** The track spacing (cm) */
-  double _spacing;
+  /** Number of polar angles in \f$ [0, \pi] \f$ */
+  int _num_polar;
 
-  /** An integer array of the number of Tracks for each azimuthal angle */
-  int* _num_tracks;
+  /** The requested track azimuthal spacing (cm) */
+  double _azim_spacing;
 
-  /** The total number of Tracks for all azimuthal angles */
-  int _tot_num_tracks;
+  /** The requested track polar spacing (cm) */
+  double _polar_spacing;
 
-  /** An integer array of the number of segments per Track  */
-  int* _num_segments;
+  /** The actual track azimuthal spacing for each azimuthal angle (cm) */
+  double* _azim_spacings;
+
+  /** The actual track polar spacing (cm) by (azim, polar) */
+  double** _polar_spacings;
+
+  /** An integer array of the number of Tracks in a cycle for each azimuthal angle */
+  int* _tracks_per_cycle;
+
+  /** A ragged array of the number of tracks in each lz plane */
+  int**** _tracks_per_plane;
+
+  /* An array of the number of cycles for each azimuthal angle */
+  int* _cycles_per_azim;
+
+  /* An array of the cycle length of each cycle for each azimuthal angle */
+  double* _cycle_length;
+  
+  /** The total number of Tracks for all azimuthal and polar angles */
+  int _num_2D_tracks;
+  int _num_3D_tracks;
 
   /** The total number of segments for all Tracks */
-  int _tot_num_segments;
+  int _num_2D_segments;
+  int _num_3D_segments;
 
-  /** An integer array of the number of Tracks starting on the x-axis for each
-   *  azimuthal angle */
+  /** An integer array of the number of Tracks starting on each axis */
   int* _num_x;
-
-  /** An integer array of the number of Tracks starting on the y-axis for each
-   *  azimuthal angle */
   int* _num_y;
+  int** _num_z;
+  int** _num_l;
+  double* _dx_eff;
+  double* _dy_eff;
+  double** _dz_eff;
+  double** _dl_eff;
   
   /** The maximum optical length a track is allowed to have */
   FP_PRECISION _max_optical_length;
 
-  /** An array of the azimuthal angle quadrature weights */
-  FP_PRECISION* _azim_weights;
+  /** A 3D ragged array of 2D tracks (azim, cycle #, cycle index) */
+  Track2D*** _tracks_2D;
 
-  /** A 2D ragged array of Tracks */
-  Track** _tracks;
-
+  /** A ragged array of 3D tracks (azim, cycle #, polar, lz index, train index) */
+  Track3D***** _tracks_3D;
+  
   /** Pointer to the Geometry */
   Geometry* _geometry;
 
   /** Boolean for whether to use Track input file (true) or not (false) */
   bool _use_input_file;
 
+  /** Boolean for whether to solve 3D (true) or 2D (false) problem */
+  bool _solve_3D;
+
+  /** The z level where the 3D tracks should be generated */
+  double _z_level;
+  
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
 
   /** Boolean whether the Tracks have been generated (true) or not (false) */
-  bool _contains_tracks;
-
-  void computeEndPoint(Point* start, Point* end,  const double phi,
-                       const double width, const double height);
-
-  void initializeTrackFileDirectory();
-  void initializeTracks();
-  void recalibrateTracksToOrigin();
-  void initializeBoundaryConditions();
-  void segmentize();
-  void dumpTracksToFile();
-  bool readTracksFromFile();
-
+  bool _contains_2D_tracks;
+  bool _contains_3D_tracks;
+  void initialize2DTracks();
+  void initialize3DTracks();
+  void recalibrate2DTracksToOrigin();
+  void recalibrate3DTracksToOrigin();
+  void segmentize2D();
+  void segmentize3D();
+  void decomposeLZTrack(Track3D* track, double l_start, double l_end,
+                        int azim, int cycle, int polar, int lz_index);
+  double findTrackEndPoint(Track2D* track, double phi, int azim_index);
+  double convertLtoX(double l, int azim, int cycle);
+  double convertLtoY(double l, int azim, int cycle);
+  
 public:
-  TrackGenerator(Geometry* geometry, int num_azim, double spacing);
+
+  TrackGenerator(Geometry* geometry, int num_azim, int num_polar,
+                 double azim_spacing, double polar_spacing);
   virtual ~TrackGenerator();
 
   /* Get parameters */
   int getNumAzim();
-  double getTrackSpacing();
+  int getNumPolar();
+  double getDesiredAzimSpacing();
+  double getDesiredPolarSpacing();
   Geometry* getGeometry();
-  int getNumTracks();
-  int* getNumTracksArray();
-  int getNumSegments();
-  int* getNumSegmentsArray();
-  Track** getTracks();
-  FP_PRECISION* getAzimWeights();
+  int getNum2DTracks();
+  int getNum3DTracks();
+  int getNum2DSegments();
+  int getNum3DSegments();
+  Track2D*** get2DTracks();
+  Track3D***** get3DTracks();
+  double* getAzimSpacings();
+  double getAzimSpacing(int azim);
+  double** getPolarSpacings();
+  double getPolarSpacing(int azim, int polar);
   FP_PRECISION getMaxOpticalLength();
-  int getTotNumSegments();
-  int getTotNumTracks();
   int getNumThreads();
-
+  int* getTracksPerCycle();
+  int**** getTracksPerPlane();
+  int* getCyclesPerAzim();
+  double getCycleLength(int azim);
+  int getNumX(int azim);
+  int getNumY(int azim);
+  int getNumZ(int azim, int polar);
+  int getNumL(int azim, int polar);
+  FP_PRECISION* get2DFSRVolumes();
+  FP_PRECISION get2DFSRVolume(int fsr_id);
+  FP_PRECISION* get3DFSRVolumes();
+  FP_PRECISION get3DFSRVolume(int fsr_id);
+  double getZLevel();
+  Quadrature* getQuadrature();
+  
   /* Set parameters */
+  void setNumThreads(int num_threads);
   void setNumAzim(int num_azim);
-  void setTrackSpacing(double spacing);
+  void setNumPolar(int num_polar);
+  void setDesiredAzimSpacing(double spacing);
+  void setDesiredPolarSpacing(double spacing);
   void setGeometry(Geometry* geometry);
   void setMaxOpticalLength(FP_PRECISION max_optical_length);
-  void setNumThreads(int num_threads);
+  void setSolve2D();
+  void setSolve3D();
+  void setZLevel(double z_level);
+  void setQuadrature(Quadrature* quadrature);
 
   /* Worker functions */
-  bool containsTracks();
-  void retrieveTrackCoords(double* coords, int num_tracks);
-  void retrieveSegmentCoords(double* coords, int num_segments);
+  bool contains2DTracks();
+  bool contains3DTracks();
+  void retrieve2DTrackCoords(double* coords, int num_tracks);
+  void retrieve3DTrackCoords(double* coords, int num_tracks);
+  void retrieve2DSegmentCoords(double* coords, int num_segments);
+  void retrieve3DSegmentCoords(double* coords, int num_segments);
   void generateTracks();
+  double leastCommonMultiple(double a, double b);
+  bool isSolve2D();
+  bool isSolve3D();
 };
 
 #endif /* TRACKGENERATOR_H_ */

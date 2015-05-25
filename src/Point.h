@@ -9,9 +9,10 @@
 #define POINT_H_
 
 #ifdef __cplusplus
+#include "Python.h"
+#include "log.h"
 #include <math.h>
 #include <sstream>
-#include "log.h"
 #endif
 
 /**
@@ -22,21 +23,21 @@ class Point {
 
 private:
 
-  /** The Point's x-coordinate */
-  double _x;
-
-  /** The Point's y-coordinate */
-  double _y;
-
+  /** The Point's xyz coordinates */
+  double* _xyz;
+  
 public:
   Point();
   virtual ~Point();
-  void setCoords(const double x, const double y);
+  void setCoords(const double x, const double y, const double z=0.0);
   double getX() const;
   double getY() const;
+  double getZ() const;
+  double* getXYZ() const;
   void setX(const double x);
   void setY(const double y);
-  double distance(const double x, const double y) const;
+  void setZ(const double z);
+  double distance(const double x, const double y, const double z) const;
   double distanceToPoint(const Point* point);
   std::string toString();
 };
@@ -46,10 +47,12 @@ public:
  * @brief Initializes a Point with two-dimensional coordinates.
  * @param x x-coordinate
  * @param y y-coordinate
+ * @param z z-coordinate
  */
-inline void Point::setCoords(const double x, const double y) {
-  _x = x;
-  _y = y;
+inline void Point::setCoords(const double x, const double y, const double z) {
+  _xyz[0] = x;
+  _xyz[1] = y;
+  _xyz[2] = z;
 }
 
 
@@ -58,7 +61,7 @@ inline void Point::setCoords(const double x, const double y) {
  * @return the x-coordinate
  */
 inline double Point::getX() const {
-  return _x;
+  return _xyz[0];
 }
 
 
@@ -67,7 +70,25 @@ inline double Point::getX() const {
  * @return the y-coordinate
  */
 inline double Point::getY() const {
-  return _y;
+  return _xyz[1];
+}
+
+
+/**
+ * @brief Returns this Point's z-coordinate.
+ * @return the z-coordinate
+ */
+inline double Point::getZ() const {
+  return _xyz[2];
+}
+
+
+/**
+ * @brief Returns this Point's x-coordinate.
+ * @return the x-coordinate
+ */
+inline double* Point::getXYZ() const {
+  return _xyz;
 }
 
 
@@ -76,7 +97,7 @@ inline double Point::getY() const {
  * @param x the new x-coordinate
  */
 inline void Point::setX(const double x) {
-  _x = x;
+  _xyz[0] = x;
 }
 
 
@@ -85,7 +106,16 @@ inline void Point::setX(const double x) {
  * @param y the new y-coordinate
  */
 inline void Point::setY(const double y) {
-  _y = y;
+  _xyz[1] = y;
+}
+
+
+/**
+ * @brief Set the Point's z-coordinate
+ * @param z the new z-coordinate
+ */
+inline void Point::setZ(const double z) {
+  _xyz[2] = z;
 }
 
 
@@ -95,10 +125,11 @@ inline void Point::setY(const double y) {
  * @param y the y-coordinate of the Point of interest
  * @return distance to the Point of interest
  */
-inline double Point::distance(const double x, const double y) const {
-  double deltax = _x - x;
-  double deltay = _y - y;
-  return sqrt(deltax*deltax + deltay*deltay);
+inline double Point::distance(const double x, const double y, const double z) const {
+  double deltax = _xyz[0] - x;
+  double deltay = _xyz[1] - y;
+  double deltaz = _xyz[2] - z;
+  return sqrt(deltax*deltax + deltay*deltay + deltaz*deltaz);
 }
 
 
@@ -108,9 +139,10 @@ inline double Point::distance(const double x, const double y) const {
  * @return distance to the Point of interest
  */
 inline double Point::distanceToPoint(const Point* point) {
-  double deltax = _x - point->_x;
-  double deltay = _y - point->_y;
-  return sqrt(deltax*deltax + deltay*deltay);
+  double deltax = _xyz[0] - point->getX();
+  double deltay = _xyz[1] - point->getY();
+  double deltaz = _xyz[2] - point->getZ();
+  return sqrt(deltax*deltax + deltay*deltay + deltaz*deltaz);
 }
 
 

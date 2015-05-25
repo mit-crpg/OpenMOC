@@ -422,11 +422,12 @@ bool Cell::cellContainsCoords(LocalCoords* coords) {
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
  * @param point the Point of interest
- * @param angle the angle of the trajectory (in radians from \f$[0,2\pi]\f$)
+ * @param azim the azimuthal angle of the trajectory (in radians from \f$[0,2\pi]\f$)
+ * @param polar the polar angle of the trajectory (in radians from \f$[0,\pi]\f$)
  * @param min_intersection a pointer to the intersection Point that is found
  */
-double Cell::minSurfaceDist(Point* point, double angle,
-                            Point* min_intersection) {
+double Cell::minSurfaceDist(Point* point, Point* min_intersection,
+                            double azim, double polar) {
 
   double min_dist = INFINITY;
   double d;
@@ -438,13 +439,14 @@ double Cell::minSurfaceDist(Point* point, double angle,
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Find the minimum distance from this surface to this Point */
-    d = iter->second._surface->getMinDistance(point, angle, &intersection);
+    d = iter->second._surface->getMinDistance(point, &intersection, azim, polar);
 
     /* If the distance to Cell is less than current min distance, update */
     if (d < min_dist) {
       min_dist = d;
       min_intersection->setX(intersection.getX());
       min_intersection->setY(intersection.getY());
+      min_intersection->setZ(intersection.getZ());
     }
   }
 
@@ -608,7 +610,7 @@ void CellBasic::sectorize() {
     /* Instantiate the plane */
     A = cos(azim_angle);
     B = sin(azim_angle);
-    Plane* plane = new Plane(A, B, 0.);
+    Plane* plane = new Plane(A, B, 0., 0.);
     planes.push_back(plane);
 
     log_printf(DEBUG, "Created sector Plane id = %d, angle = %f, A = %f, "

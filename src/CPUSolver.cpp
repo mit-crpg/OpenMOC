@@ -32,9 +32,6 @@ CPUSolver::~CPUSolver() {
 
   if (_cmfd_surface_locks != NULL)
     delete [] _cmfd_surface_locks;
-
-  if (_surface_currents != NULL)
-    delete [] _surface_currents;
 }
 
 
@@ -157,7 +154,7 @@ FP_PRECISION* CPUSolver::getFSRScalarFluxes() {
  *        and energy groups.
  * @return an array of Cmfd Mesh cell surface currents
  */
-FP_PRECISION* CPUSolver::getSurfaceCurrents() {
+Vector* CPUSolver::getSurfaceCurrents() {
 
   if (_surface_currents == NULL)
     log_printf(ERROR, "Unable to returns the Solver's Cmfd Mesh surface "
@@ -185,6 +182,28 @@ void CPUSolver::setNumThreads(int num_threads) {
 
 
 /**
+ * @brief Initializes the FSR volumes and Materials array.
+ * @details This method assigns each FSR a unique, monotonically increasing
+ *          ID, sets the Material for each FSR, and assigns a volume based on
+ *          the cumulative length of all of the segments inside the FSR.
+ */
+void CPUSolver::initializeFSRs() {
+
+  Solver::initializeFSRs();
+
+  /* Allocate array of mutex locks for each FSR */
+  _FSR_locks = new omp_lock_t[_num_FSRs];
+
+  /* Loop over all FSRs to initialize OpenMP locks */
+  #pragma omp parallel for schedule(guided)
+  for (int r=0; r < _num_FSRs; r++)
+    omp_init_lock(&_FSR_locks[r]);
+
+  return;
+}
+
+
+/**
  * @brief Allocates memory for Track boundary angular flux and leakage
  *        and FSR scalar flux arrays.
  * @details Deletes memory for old flux arrays if they were allocated for a
@@ -206,7 +225,8 @@ void CPUSolver::initializeFluxArrays() {
 
   /* Allocate memory for the Track boundary flux and leakage arrays */
   try{
-    size = 2 * _tot_num_tracks * _polar_times_groups;
+    size = 2 * _tot_num_tracks * _fluxes_per_track;
+      
     _boundary_flux = new FP_PRECISION[size];
     _boundary_leakage = new FP_PRECISION[size];
 
@@ -270,163 +290,7 @@ void CPUSolver::initializeSourceArrays() {
 }
 
 
-/**
- * @brief Creates a polar Quadrature object for the solver.
- * @details Deletes memory for old Quadrature if one was allocated for a
- *          previous simulation.
- */
-void CPUSolver::initializePolarQuadrature() {
-
-  /* Deletes the old Quadrature if one existed */
-  if (_quad != NULL)
-    delete _quad;
-
-  _quad = new Quadrature(_quadrature_type, _num_polar);
-  _polar_times_groups = _num_groups * _num_polar;
-}
-
-
-/**
- * @brief Builds a linear interpolation table to compute exponentials for
- *        each segment of each Track for each polar angle.
- */
-void CPUSolver::buildExpInterpTable() {
-
-  log_printf(INFO, "Building exponential interpolation table...");
-
-  FP_PRECISION azim_weight;
-
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
-
-  /* Compute the total azimuthal weight for tracks at each polar angle */
-  #pragma omp parallel for private(azim_weight) schedule(guided)
-  for (int i=0; i < _num_azim; i++) {
-
-    azim_weight = _azim_weights[i];
-
-    for (int p=0; p < _num_polar; p++)
-      _polar_weights(i,p) = azim_weight*_quad->getMultiple(p)*FOUR_PI;
-  }
-
-  /* Find largest optical path length track segment */
-  FP_PRECISION tau = _track_generator->getMaxOpticalLength();
-
-  /* Expand tau slightly to accomodate track segments which have a
-   * length very nearly equal to the maximum value */
-  tau *= 1.01;
-
-  /* Set size of interpolation table */
-  int num_array_values = tau * sqrt(1./(8.*_source_convergence_thresh*1e-2));
-  _exp_table_spacing = tau / num_array_values;
-  _exp_table_size = _two_times_num_polar * num_array_values;
-  _exp_table_max_index = _exp_table_size - _two_times_num_polar - 1.;
-
-  log_printf(DEBUG, "Exponential interpolation table size: %i, max index: %i",
-             _exp_table_size, _exp_table_max_index);
-
-  /* Allocate array for the table */
-  if (_exp_table != NULL)
-    delete [] _exp_table;
-
-  _exp_table = new FP_PRECISION[_exp_table_size];
-
-  FP_PRECISION expon;
-  FP_PRECISION intercept;
-  FP_PRECISION slope;
-
-  /* Create exponential linear interpolation table */
-  for (int i=0; i < num_array_values; i ++){
-    for (int p=0; p < _num_polar; p++){
-      expon = exp(- (i * _exp_table_spacing) / _quad->getSinTheta(p));
-      slope = - expon / _quad->getSinTheta(p);
-      intercept = expon * (1 + (i * _exp_table_spacing)/_quad->getSinTheta(p));
-      _exp_table[_two_times_num_polar * i + 2 * p] = slope;
-      _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
-    }
-  }
-
-  /* Compute the reciprocal of the table entry spacing */
-  _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
-
-  return;
-}
-
-
-/**
- * @brief Initializes the FSR volumes and Materials array.
- * @details This method assigns each FSR a unique, monotonically increasing
- *          ID, sets the Material for each FSR, and assigns a volume based on
- *          the cumulative length of all of the segments inside the FSR.
- */
-void CPUSolver::initializeFSRs() {
-
-  log_printf(INFO, "Initializing flat source regions...");
-
-  /* Delete old FSR arrays if they exist */
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
-  if (_FSR_materials != NULL)
-    delete [] _FSR_materials;
-
-  _FSR_volumes = (FP_PRECISION*)calloc(_num_FSRs, sizeof(FP_PRECISION));
-  _FSR_materials = new Material*[_num_FSRs];
-  _FSR_locks = new omp_lock_t[_num_FSRs];
-
-  int num_segments;
-  segment* curr_segment;
-  segment* segments;
-  FP_PRECISION volume;
-  Material* material;
-  Universe* root_universe = _geometry->getRootUniverse();
-  _num_fissionable_FSRs = 0;
-
-  /* Set each FSR's "volume" by accumulating the total length of all Tracks
-   * inside the FSR. Loop over azimuthal angles, Tracks and Track segments. */
-  for (int i=0; i < _tot_num_tracks; i++) {
-
-    int azim_index = _tracks[i]->getAzimAngleIndex();
-    num_segments = _tracks[i]->getNumSegments();
-    segments = _tracks[i]->getSegments();
-
-    for (int s=0; s < num_segments; s++) {
-      curr_segment = &segments[s];
-      volume = curr_segment->_length * _azim_weights[azim_index];
-      _FSR_volumes[curr_segment->_region_id] += volume;
-    }
-  }
-
-  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
-
-  /* Loop over all FSRs to extract FSR material pointers */
-  for (int r=0; r < _num_FSRs; r++) {
-
-    /* Assign the Material corresponding to this FSR */
-    material = _geometry->findFSRMaterial(r);
-    _FSR_materials[r] = material;
-
-    /* Increment number of fissionable FSRs */
-    if (material->isFissionable())
-      _num_fissionable_FSRs++;
-
-    log_printf(DEBUG, "FSR ID = %d has Material ID = %d "
-               "and volume = %f", r, _FSR_materials[r]->getId(),
-               _FSR_volumes[r]);
-  }
-
-  /* Loop over all FSRs to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++)
-    omp_init_lock(&_FSR_locks[r]);
-
-  return;
-}
-
-
-/**
+/*
  * @brief Initializes Cmfd object for acceleration prior to source iteration.
  * @details Instantiates a dummy Cmfd object if one was not assigned to
  *          the Solver by the user and initializes FSRs, Materials, fluxes
@@ -440,7 +304,7 @@ void CPUSolver::initializeCmfd() {
 
   /* Delete old Cmfd surface currents array it it exists */
   if (_surface_currents != NULL)
-    delete [] _surface_currents;
+    delete _surface_currents;
 
   int size;
 
@@ -448,8 +312,9 @@ void CPUSolver::initializeCmfd() {
   try{
 
     /* Allocate an array for the Cmfd Mesh surface currents */
-    size = _num_mesh_cells * _cmfd->getNumCmfdGroups() * 8;
-    _surface_currents = new FP_PRECISION[size];
+    _surface_currents = new Vector(_cmfd->getNumX(), _cmfd->getNumY(),
+                                   _cmfd->getNumZ(),
+                                   _cmfd->getNumCmfdGroups() * NUM_SURFACES);
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the Solver's Cmfd "
@@ -459,11 +324,11 @@ void CPUSolver::initializeCmfd() {
   _cmfd->setSurfaceCurrents(_surface_currents);
 
   /* Initialize an array of OpenMP locks for each Cmfd Mesh surface */ 
-  _cmfd_surface_locks = new omp_lock_t[_num_mesh_cells * 8];
+  _cmfd_surface_locks = new omp_lock_t[_num_mesh_cells * NUM_SURFACES];
 
   /* Loop over all mesh cell surfaces to initialize OpenMP locks */
   #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_mesh_cells*8; r++)
+  for (int r=0; r < _num_mesh_cells*NUM_SURFACES; r++)
     omp_init_lock(&_cmfd_surface_locks[r]);
 
   return;
@@ -479,14 +344,11 @@ void CPUSolver::zeroTrackFluxes() {
   #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int p=0; p < _num_polar; p++) {
-        for (int e=0; e < _num_groups; e++) {
-          _boundary_flux(t,d,p,e) = 0.0;
-        }
-      }
+      for (int pe=0; pe < _fluxes_per_track; pe++)
+        _boundary_flux(t,d,pe) = 0.0;
     }
   }
-
+  
   return;
 }
 
@@ -513,13 +375,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
   */
 void CPUSolver::zeroSurfaceCurrents() {
 
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_mesh_cells; r++) {
-    for (int s=0; s < 8; s++) {
-      for (int e=0; e < _num_groups; e++)
-        _surface_currents(r*8+s,e) = 0.0;
-    }
-  }
+  _surface_currents->clear();
 
   return;
 }
@@ -582,11 +438,8 @@ void CPUSolver::normalizeFluxes() {
   #pragma omp parallel for schedule(guided)
   for (int i=0; i < _tot_num_tracks; i++) {
     for (int j=0; j < 2; j++) {
-      for (int p=0; p < _num_polar; p++) {
-        for (int e=0; e < _num_groups; e++) {
-          _boundary_flux(i,j,p,e) *= norm_factor;
-        }
-      }
+      for (int pe=0; pe < _fluxes_per_track; pe++)
+        _boundary_flux(i,j,pe) *= norm_factor;
     }
   }
 
@@ -779,7 +632,7 @@ void CPUSolver::computeKeff() {
   scatter = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
   /* Reduce leakage array across Tracks, energy groups, polar angles */
-  int size = 2 * _tot_num_tracks * _polar_times_groups;
+  int size = 2 * _tot_num_tracks * _fluxes_per_track;
   _leakage = pairwise_sum<FP_PRECISION>(_boundary_leakage, size) * 0.5;
 
   _k_eff = fission / (total - scatter + _leakage);
@@ -806,7 +659,7 @@ void CPUSolver::transportSweep() {
   int tid;
   int min_track, max_track;
   Track* curr_track;
-  int azim_index;
+  int azim_index, polar_index;
   int num_segments;
   segment* curr_segment;
   segment* segments;
@@ -820,54 +673,100 @@ void CPUSolver::transportSweep() {
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     zeroSurfaceCurrents();
 
-  /* Loop over azimuthal angle halfspaces */
-  for (int i=0; i < 2; i++) {
-
-    /* Compute the minimum and maximum Track IDs corresponding to
-     * this azimuthal angular halfspace */
-    min_track = i * (_tot_num_tracks / 2);
-    max_track = (i + 1) * (_tot_num_tracks / 2);
-
-    /* Loop over each thread within this azimuthal angle halfspace */
-    #pragma omp parallel for private(curr_track, azim_index, num_segments, \
-      curr_segment, segments, track_flux, tid) schedule(guided)
-    for (int track_id=min_track; track_id < max_track; track_id++) {
-
-      tid = omp_get_thread_num();
-
-      /* Use local array accumulator to prevent false sharing*/
-      FP_PRECISION* thread_fsr_flux;
-      thread_fsr_flux = new FP_PRECISION[_num_groups];
-
-      /* Initialize local pointers to important data structures */
-      curr_track = _tracks[track_id];
-      azim_index = curr_track->getAzimAngleIndex();
-      num_segments = curr_track->getNumSegments();
-      segments = curr_track->getSegments();
-      track_flux = &_boundary_flux(track_id,0,0,0);
-
-      /* Loop over each Track segment in forward direction */
-      for (int s=0; s < num_segments; s++) {
-        curr_segment = &segments[s];
-        scalarFluxTally(curr_segment, azim_index, track_flux,
-                        thread_fsr_flux, true);
+  /* Loop over azimuthal angles */
+  #pragma omp parallel for private(curr_track, azim_index, polar_index, num_segments, \
+                                   curr_segment, segments, track_flux, tid, \
+                                   max_track, min_track) schedule(guided)  
+  for (int a=0; a < _num_azim/4; a++) {
+    
+    /* Loop over the cycles for this azimuthal angle */
+    for (int c=0; c < _cycles_per_azim[a]; c++){
+      
+      /* Compute the minimum and maximum Track IDs corresponding to
+       * this azimuthal angular halfspace */
+      min_track = _num_tracks[a][c];
+      
+      if (c < _cycles_per_azim[a] - 1)
+        max_track = _num_tracks[a][c+1];
+      else if (a < _num_azim/4 - 1)
+        max_track = _num_tracks[a+1][0];
+      else
+        max_track = _tot_num_tracks;
+      
+      /* Loop over each thread within this azimuthal angle halfspace */
+      for (int track_id=min_track; track_id < max_track; track_id++) {
+        
+        tid = omp_get_thread_num();
+        
+        curr_track = _tracks[track_id];
+        azim_index = curr_track->getAzimIndex();
+        
+        /* Get the polar index */
+        if (_solve_3D)
+          polar_index = static_cast<Track3D*>(_tracks[track_id])->getPolarIndex();
+        else
+          polar_index = 0;
+        
+        azim_index = _quad->getFirstOctantAzim(azim_index);
+        
+        /* Use local array accumulator to prevent false sharing*/
+        FP_PRECISION* thread_fsr_flux;
+        thread_fsr_flux = new FP_PRECISION[_num_groups];
+        
+        /* Initialize local pointers to important data structures */
+        num_segments = curr_track->getNumSegments();
+        segments = curr_track->getSegments();
+        track_flux = &_boundary_flux(track_id,0,0);
+        
+        /* Loop over each Track segment in forward direction */
+        for (int s=0; s < num_segments; s++) {
+          curr_segment = &segments[s];
+          scalarFluxTally(curr_segment, azim_index, polar_index, track_flux,
+                          thread_fsr_flux, true);
+        }
+        
+        delete thread_fsr_flux;
+        
+        /* Transfer boundary angular flux to outgoing Track */
+        transferBoundaryFlux(track_id, azim_index, polar_index, true, track_flux);
       }
 
-      /* Transfer boundary angular flux to outgoing Track */
-      transferBoundaryFlux(track_id, azim_index, true, track_flux);
-
-      /* Loop over each Track segment in reverse direction */
-      track_flux += _polar_times_groups;
-
-      for (int s=num_segments-1; s > -1; s--) {
-        curr_segment = &segments[s];
-        scalarFluxTally(curr_segment, azim_index, track_flux,
-                        thread_fsr_flux, false);
+      for (int track_id=max_track-1; track_id >= min_track; track_id--) {
+          
+        tid = omp_get_thread_num();
+        
+        curr_track = _tracks[track_id];
+        azim_index = curr_track->getAzimIndex();
+        
+        /* Get the polar index */
+        if (_solve_3D)
+          polar_index = static_cast<Track3D*>(_tracks[track_id])->getPolarIndex();
+        else
+          polar_index = 0;
+                    
+        azim_index = _quad->getFirstOctantAzim(azim_index);
+        
+        /* Use local array accumulator to prevent false sharing*/
+        FP_PRECISION* thread_fsr_flux;
+        thread_fsr_flux = new FP_PRECISION[_num_groups];
+        
+        /* Initialize local pointers to important data structures */
+        num_segments = curr_track->getNumSegments();
+        segments = curr_track->getSegments();
+        track_flux = &_boundary_flux(track_id,1,0);
+        
+        /* Loop over each Track segment in reverse direction */
+        for (int s=num_segments-1; s > -1; s--) {
+          curr_segment = &segments[s];
+          scalarFluxTally(curr_segment, azim_index, polar_index, track_flux,
+                          thread_fsr_flux, false);
+        }
+        
+        delete thread_fsr_flux;
+        
+        /* Transfer boundary angular flux to outgoing Track */
+        transferBoundaryFlux(track_id, azim_index, polar_index, false, track_flux);
       }
-      delete thread_fsr_flux;
-
-      /* Transfer boundary angular flux to outgoing Track */
-      transferBoundaryFlux(track_id, azim_index, false, track_flux);
     }
   }
 
@@ -887,7 +786,7 @@ void CPUSolver::transportSweep() {
  * @param fwd
  */
 void CPUSolver::scalarFluxTally(segment* curr_segment,
-                                int azim_index,
+                                int azim_index, int polar_index,
                                 FP_PRECISION* track_flux,
                                 FP_PRECISION* fsr_flux,
                                 bool fwd){
@@ -896,7 +795,9 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-
+  int p, pe;
+  int a = azim_index;
+  
   /* The change in angular flux along this Track segment in the FSR */
   FP_PRECISION delta_psi;
   FP_PRECISION exponential;
@@ -904,37 +805,61 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
   /* Set the FSR scalar flux buffer to zero */
   memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
-  /* Loop over energy groups */
-  for (int e=0; e < _num_groups; e++) {
+  if (_solve_3D){
+    p = _quad->getFirstOctantPolar(polar_index);
+    for (int e=0; e < _num_groups; e++){
+      exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, a, p);
+      delta_psi = (track_flux(e)-_reduced_sources(fsr_id,e)) * exponential;
+      fsr_flux[e] += delta_psi * _azim_spacings[a] * _polar_spacings[a][p] *
+        _quad->getMultiple(a,p) * 4.0 * M_PI;
+      track_flux(e) -= delta_psi;
+    }
+  }
+  else{
 
-    /* Loop over polar angles */
-    for (int p=0; p < _num_polar; p++){
-      exponential = computeExponential(sigma_t[e], length, p);
-      delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e))*exponential;
-      fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
-      track_flux(p,e) -= delta_psi;
+    pe = 0;
+    
+    /* Loop over energy groups */
+    for (int e=0; e < _num_groups; e++) {
+      
+      /* Loop over polar angles */
+      for (p=0; p < _num_polar/2; p++){
+        exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, a, p);
+        delta_psi = (track_flux(pe)-_reduced_sources(fsr_id,e)) * exponential;
+        fsr_flux[e] += delta_psi * 2.0 * _azim_spacings[a] * _quad->getMultiple(a, p)
+          * 4.0 * M_PI;
+        track_flux(pe) -= delta_psi;
+        pe++;
+      }
     }
   }
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
     if (curr_segment->_cmfd_surface_fwd != -1 && fwd){
 
-      int pe = 0;
-
+      pe = 0;
+      
       /* Atomically increment the Cmfd Mesh surface current from the
        * temporary array using mutual exclusion locks */
       omp_set_lock(&_cmfd_surface_locks[curr_segment->_cmfd_surface_fwd]);
 
-      /* Loop over energy groups */
-      for (int e = 0; e < _num_groups; e++) {
-
-        /* Loop over polar angles */
-        for (int p = 0; p < _num_polar; p++){
-
-          /* Increment current (polar and azimuthal weighted flux, group) */
-          _surface_currents(curr_segment->_cmfd_surface_fwd,e) +=
-              track_flux(p,e)*_polar_weights(azim_index,p)/2.0;
-          pe++;
+      if (_solve_3D){
+        for (int e=0; e < _num_groups; e++){
+          _surface_currents(curr_segment->_cmfd_surface_fwd,e,
+                            track_flux(e) * _azim_spacings[a] * _polar_spacings[a][p] *
+                            _quad->getMultiple(a,p) * 2.0 * M_PI);
+        }
+      }
+      else{
+        for (int e = 0; e < _num_groups; e++) {
+          for (int p = 0; p < _num_polar/2; p++){
+            
+            /* Increment current (polar and azimuthal weighted flux, group) */
+            _surface_currents(curr_segment->_cmfd_surface_fwd,e,
+                              track_flux(pe) * _azim_spacings[a] * _quad->getMultiple(a, p)
+                              * 4.0 * M_PI);
+            pe++;
+          }
         }
       }
 
@@ -944,22 +869,29 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
     }
     else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd){
 
-      int pe = 0;
+      pe = 0;
 
       /* Atomically increment the Cmfd Mesh surface current from the
        * temporary array using mutual exclusion locks */
       omp_set_lock(&_cmfd_surface_locks[curr_segment->_cmfd_surface_bwd]);
 
-      /* Loop over energy groups */
-      for (int e = 0; e < _num_groups; e++) {
-
-        /* Loop over polar angles */
-        for (int p = 0; p < _num_polar; p++){
-
-          /* Increment current (polar and azimuthal weighted flux, group) */
-          _surface_currents(curr_segment->_cmfd_surface_bwd,e) +=
-              track_flux(p,e)*_polar_weights(azim_index,p)/2.0;
-          pe++;
+      if (_solve_3D){
+        for (int e=0; e < _num_groups; e++){
+          _surface_currents(curr_segment->_cmfd_surface_bwd,e,
+                            track_flux(e) * _azim_spacings[a] * _polar_spacings[a][p] *
+                            _quad->getMultiple(a,p) * 2.0 * M_PI);
+        }
+      }
+      else{
+        for (int e = 0; e < _num_groups; e++) {
+          for (int p = 0; p < _num_polar/2; p++){
+            
+            /* Increment current (polar and azimuthal weighted flux, group) */
+            _surface_currents(curr_segment->_cmfd_surface_bwd,e,
+                              track_flux(pe) * _azim_spacings[a] * _quad->getMultiple(a, p)
+                              * 4.0 * M_PI);
+            pe++;
+          }
         }
       }
 
@@ -981,45 +913,6 @@ void CPUSolver::scalarFluxTally(segment* curr_segment,
 
 
 /**
- * @brief Computes the exponential term in the transport equation for a
- *        Track segment.
- * @details This method computes \f$ 1 - exp(-l\Sigma^T_g/sin(\theta_p)) \f$
- *          for a segment with total group cross-section and for some polar
- *          angle. This method uses either a linear interpolation table
- *          (default) or the exponential intrinsic exp(...) function if
- *          requested by the user through a call to the
- *          Solver::useExponentialIntrinsic()  routine.
- * @param sigma_t the total group cross-section at this energy
- * @param length the length of the Track segment projected in the xy-plane
- * @param p the polar angle index
- * @return the evaluated exponential
- */
-FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
-                                           FP_PRECISION length, int p) {
-
-  FP_PRECISION exponential;
-  FP_PRECISION tau = sigma_t * length;
-
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate_exponential) {
-    int index;
-    index = round_to_int(tau * _inverse_exp_table_spacing);
-    index *= _two_times_num_polar;
-    exponential = (1. - (_exp_table[index+2 * p] * tau +
-                  _exp_table[index + 2 * p +1]));
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION sintheta = _quad->getSinTheta(p);
-    exponential = 1.0 - exp(- tau / sintheta);
-  }
-
-  return exponential;
-}
-
-
-/**
  * @brief Updates the boundary flux for a Track given boundary conditions.
  * @details For reflective boundary conditions, the outgoing boundary flux
  *          for the Track is given to the reflecting Track. For vacuum
@@ -1030,20 +923,21 @@ FP_PRECISION CPUSolver::computeExponential(FP_PRECISION sigma_t,
  * @param track_flux a pointer to the Track's outgoing angular flux
  */
 void CPUSolver::transferBoundaryFlux(int track_id,
-                                     int azim_index,
+                                     int azim_index, int polar_index,
                                      bool direction,
                                      FP_PRECISION* track_flux) {
   int start;
   int bc;
   FP_PRECISION* track_leakage;
   int track_out_id;
-
+  int a = azim_index;
+  
   /* Extract boundary conditions for this Track and the pointer to the
    * outgoing reflective Track, and index into the leakage array */
 
   /* For the "forward" direction */
   if (direction) {
-    start = _tracks[track_id]->isReflOut() * _polar_times_groups;
+    start = 0;
     bc = (int)_tracks[track_id]->getBCOut();
     track_leakage = &_boundary_leakage(track_id,0);
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
@@ -1051,20 +945,36 @@ void CPUSolver::transferBoundaryFlux(int track_id,
 
   /* For the "reverse" direction */
   else {
-    start = _tracks[track_id]->isReflIn() * _polar_times_groups;
+    start = _fluxes_per_track;
     bc = (int)_tracks[track_id]->getBCIn();
-    track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
+    track_leakage = &_boundary_leakage(track_id,_fluxes_per_track);
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
-  FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
+  FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,start);
 
-  /* Loop over polar angles and energy groups */
-  for (int e=0; e < _num_groups; e++) {
-    for (int p=0; p < _num_polar; p++) {
-      track_out_flux(p,e) = track_flux(p,e) * bc;
-      track_leakage(p,e) = track_flux(p,e) *
-                            _polar_weights(azim_index,p) * (!bc);
+  if (_solve_3D){
+    int p = _quad->getFirstOctantPolar(polar_index);
+    for (int e=0; e < _num_groups; e++){
+      track_out_flux(e) = track_flux(e) * bc;
+      track_leakage(e) = track_flux(e) * (!bc) *
+        _azim_spacings[a] * _polar_spacings[a][p] *
+        _quad->getMultiple(a,p) * 4.0 * M_PI;
+    }
+  }
+  else{
+
+    int pe = 0;
+
+    /* Loop over polar angles and energy groups */
+    for (int e=0; e < _num_groups; e++) {
+      for (int p=0; p < _num_polar/2; p++) {
+        track_out_flux(pe) = track_flux(pe) * bc;
+        track_leakage(pe) = track_flux(pe) * (!bc) * 
+          2.0 * _azim_spacings[a] * _quad->getMultiple(a, p)
+          * 4.0 * M_PI;
+        pe++;
+      }
     }
   }
 }

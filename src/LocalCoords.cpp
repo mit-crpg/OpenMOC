@@ -5,8 +5,8 @@
  * @param x the x-coordinate
  * @param y the y-coordinate
  */
-LocalCoords::LocalCoords(double x, double y) {
-  _coords.setCoords(x, y);
+LocalCoords::LocalCoords(double x, double y, double z) {
+  _coords.setCoords(x, y, z);
   _next = NULL;
   _prev = NULL;
 }
@@ -74,6 +74,16 @@ int LocalCoords::getLatticeY() const {
 
 
 /**
+ * @brief Return the third index of the Lattice cell within which this
+ *        LocalCoords resides.
+ * @return the third Lattice cell index
+ */
+int LocalCoords::getLatticeZ() const {
+  return _lattice_z;
+}
+
+
+/**
  * @brief Returns the x-coordinate for this LocalCoords location.
  * @return the x-coordinate of this LocalCoords location
  */
@@ -88,6 +98,15 @@ double LocalCoords::getX() const {
  */
 double LocalCoords::getY() const {
   return _coords.getY();
+}
+
+
+/**
+ * @brief Returns the z-coordinate for this LocalCoords location.
+ * @return the z-coordinate of this LocalCoords location
+ */
+double LocalCoords::getZ() const {
+  return _coords.getZ();
 }
 
 
@@ -178,6 +197,16 @@ void LocalCoords::setLatticeY(int lattice_y) {
 
 
 /**
+ * @brief Sets the z index for the Lattice cell within which this
+ *        LocalCoords resides.
+ * @param lattice_z the z Lattice cell index
+ */
+void LocalCoords::setLatticeZ(int lattice_z) {
+  _lattice_z = lattice_z;
+}
+
+
+/**
  * @brief Set the x-coordinate for this LocalCoords.
  * @param x the x-coordinate
  */
@@ -192,6 +221,15 @@ void LocalCoords::setX(double x) {
  */
 void LocalCoords::setY(double y) {
   _coords.setY(y);
+}
+
+
+/**
+ * @brief Set the z-coordinate for this LocalCoords.
+ * @param z the z-coordinate
+ */
+void LocalCoords::setZ(double z) {
+  _coords.setZ(z);
 }
 
 
@@ -260,14 +298,16 @@ LocalCoords* LocalCoords::getHighestLevel() {
  *          translation to each element.
  * @param delta_x amount we wish to move x by
  * @param delta_y amount we wish to move y by
+ * @param delta_z amount we wish to move z by
  */
-void LocalCoords::adjustCoords(double delta_x, double delta_y) {
+void LocalCoords::adjustCoords(double delta_x, double delta_y, double delta_z) {
 
   /* Forward direction along linked list */
   LocalCoords* curr = this;
   while (curr != NULL) {
     curr->setX(curr->getX() + delta_x);
     curr->setY(curr->getY() + delta_y);
+    curr->setZ(curr->getZ() + delta_z);
     curr = curr->getNext();
   }
 
@@ -276,6 +316,7 @@ void LocalCoords::adjustCoords(double delta_x, double delta_y) {
   while (curr != NULL) {
     curr->setX(curr->getX() + delta_x);
     curr->setY(curr->getY() + delta_y);
+    curr->setZ(curr->getZ() + delta_z);
     curr = curr->getPrev();
   }
   return;
@@ -296,7 +337,8 @@ void LocalCoords::updateMostLocal(Point* point) {
   /* Translate coordinates by appropriate amount */
   double delta_x = point->getX() - curr->getX();
   double delta_y = point->getY() - curr->getY();
-  adjustCoords(delta_x, delta_y);
+  double delta_z = point->getZ() - curr->getZ();
+  adjustCoords(delta_x, delta_y, delta_z);
 
   return;
 }
@@ -343,6 +385,7 @@ void LocalCoords::copyCoords(LocalCoords* coords) {
   while (curr1 != NULL) {
     curr2->setX(curr1->getX());
     curr2->setY(curr1->getY());
+    curr2->setZ(curr1->getZ());
     curr2->setUniverse(curr1->getUniverse());
 
     if (curr1->getType() == UNIV) {
@@ -353,13 +396,14 @@ void LocalCoords::copyCoords(LocalCoords* coords) {
       curr2->setLattice(curr1->getLattice());
       curr2->setLatticeX(curr1->getLatticeX());
       curr2->setLatticeY(curr1->getLatticeY());
+      curr2->setLatticeZ(curr1->getLatticeZ());
       curr2->setType(LAT);
     }
 
     curr1 = curr1->getNext();
 
     if (curr1 != NULL && curr2->getNext() == NULL) {
-      LocalCoords* new_coords = new LocalCoords(0.0, 0.0);
+      LocalCoords* new_coords = new LocalCoords(0.0, 0.0, 0.0);
       curr2->setNext(new_coords);
       new_coords->setPrev(curr2);
       curr2 = new_coords;
@@ -391,24 +435,29 @@ std::string LocalCoords::toString() {
     if (curr->getType() == UNIV) {
       string << " UNIVERSE, x = " << curr->getX()
              << ", y = " << curr->getY()
+             << ", z = " << curr->getZ()
              << ", universe = " << curr->getUniverse()->getId()
              << ", cell = " << curr->getCell()->getId();
     }
     else if (curr->getType() == LAT){
       string << " LATTICE, x = " << curr->getX()
              << ", y = " << curr->getY()
-             << ", universe = " << curr->getUniverse()->getId()
-             << ", lattice = " << curr->getLattice()->getId()
-             << ", lattice_x = " << curr->getLatticeX()
-             << ", lattice_y = " << curr->getLatticeY();
-    }
-    else {
-      string << " NONE, x = " << curr->getX()
-             << ", y = " << curr->getY()
+             << ", z = " << curr->getZ()        
              << ", universe = " << curr->getUniverse()->getId()
              << ", lattice = " << curr->getLattice()->getId()
              << ", lattice_x = " << curr->getLatticeX()
              << ", lattice_y = " << curr->getLatticeY()
+             << ", lattice_z = " << curr->getLatticeZ();
+    }
+    else {
+      string << " NONE, x = " << curr->getX()
+             << ", y = " << curr->getY()
+             << ", z = " << curr->getZ()
+             << ", universe = " << curr->getUniverse()->getId()
+             << ", lattice = " << curr->getLattice()->getId()
+             << ", lattice_x = " << curr->getLatticeX()
+             << ", lattice_y = " << curr->getLatticeY()
+             << ", lattice_z = " << curr->getLatticeZ()
              << ", cell = " << curr->getCell();
     }
 

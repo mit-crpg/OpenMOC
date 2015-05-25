@@ -10,11 +10,14 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include "Python.h"
+#include "constants.h"
 #include "Timer.h"
 #include "Quadrature.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"
+#include "ExpEvaluator.h"
+#include <math.h>
 #endif
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
@@ -22,27 +25,24 @@
 
 /** Indexing macro for the surface currents for each CMFD Mesh surface and
  *  each energy group */
-#define _surface_currents(r,e) (_surface_currents[(r)*_cmfd->getNumCmfdGroups() \
-                                                  + _cmfd->getCmfdGroup((e))])
+#define _surface_currents(r,e,v) (_surface_currents->incrementValue \
+                                  ((r)*_cmfd->getNumCmfdGroups() \
+                                   + _cmfd->getCmfdGroup((e)), (v)))
 
 /** Indexing macro for the total source divided by the total cross-section
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
 #define _reduced_sources(r,e) (_reduced_sources[(r)*_num_groups + (e)])
 
-/** Indexing macro for the polar quadrature weights multiplied by the
- *  azimuthal angle quadrature weights */
-#define _polar_weights(i,p) (_polar_weights[(i)*_num_polar + (p)])
-
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for the outgoing reflective track for both the forward and
  *  reverse direction for a given track */
-#define _boundary_flux(i,j,p,e) (_boundary_flux[(i)*2*_polar_times_groups \
-                                                + (j)*_polar_times_groups \
-                                                + (p)*_num_groups + (e)])
+#define _boundary_flux(i,j,pe) (_boundary_flux[(i)*2*_fluxes_per_track \
+                                                + (j)*_fluxes_per_track \
+                                               + (pe)])
 
 /** Indexing macro for the leakage for each polar angle and energy group
  *  for both the forward and reverse direction for each track */
-#define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_polar_times_groups \
+#define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_fluxes_per_track \
                                                     +(pe2)])
 
 /** Indexing scheme for the total fission source (\f$ \nu\Sigma_f\Phi \f$)
@@ -52,12 +52,6 @@
 /** Indexing scheme for the total in-scatter source (\f$ \Sigma_s\Phi \f$)
  *  for each FSR and energy group */
 #define _scatter_sources(r,e) (_scatter_sources[(r)*_num_groups + (e)])
-
-/** The value of 4pi: \f$ 4\pi \f$ */
-#define FOUR_PI 12.5663706143
-
-/** The values of 1 divided by 4pi: \f$ \frac{1}{4\pi} \f$ */
-#define ONE_OVER_FOUR_PI 0.0795774715
 
 
 /**
@@ -105,29 +99,30 @@ protected:
   /** The number of polar angles */
   int _num_polar;
 
-  /** Twice the number of polar angles */
-  int _two_times_num_polar;
+  /** The number of flux varies stored per track in each direction */
+  int _fluxes_per_track;
 
-  /** The number of polar angles times energy groups */
-  int _polar_times_groups;
-
-  /** The type of polar quadrature (TABUCHI or LEONARD) */
-  quadratureType _quadrature_type;
-
-  /** A pointer to the 2D ragged array of Tracks */
+  /** A pointer to the array of Tracks */
   Track** _tracks;
 
+  /** A pointer to the 3D ragged array of Tracks */
+  Track3D***** _tracks_3D;
+  
   /** A pointer to an array with the number of Tracks per azimuthal angle */
-  int* _num_tracks;
-
+  int* _tracks_per_cycle;
+  int* _cycles_per_azim;
+  int**** _tracks_per_plane;
+  bool _solve_3D;
+  int** _num_tracks;
+  
   /** The total number of Tracks */
   int _tot_num_tracks;
 
   /** The weights for each azimuthal angle */
-  FP_PRECISION* _azim_weights;
+  double* _azim_spacings;
 
   /** The weights for each polar angle in the polar angle quadrature */
-  FP_PRECISION* _polar_weights;
+  double** _polar_spacings;
 
   /** The angular fluxes for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the boundary fluxes for a
@@ -143,7 +138,7 @@ protected:
   FP_PRECISION* _scalar_flux;
 
   /** The CMFD Mesh surface currents in each energy group */
-  FP_PRECISION* _surface_currents;
+  Vector* _surface_currents;
 
   /** The fission source in each FSR and energy group */
   FP_PRECISION* _fission_sources;
@@ -179,38 +174,14 @@ protected:
   /** The tolerance for converging the source */
   FP_PRECISION _source_convergence_thresh;
 
-  /** A boolean indicating whether or not to use linear interpolation
-   *  to comptue the exponential in the transport equation */
-  bool _interpolate_exponential;
-
-  /** The exponential linear interpolation table */
-  FP_PRECISION* _exp_table;
-
-  /** The size of the exponential linear interpolation table */
-  int _exp_table_size;
-
-  /** The maximum index of the exponential linear interpolation table */
-  int _exp_table_max_index;
-
-  /** The spacing for the exponential linear interpolation table */
-  FP_PRECISION _exp_table_spacing;
-
-  /** The inverse spacing for the exponential linear interpolation table */
-  FP_PRECISION _inverse_exp_table_spacing;
+  /** En ExpEvaluator to compute exponentials in the transport equation */
+  ExpEvaluator* _exp_evaluator;
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;
 
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
-
-  int round_to_int(float x);
-  int round_to_int(double x);
-
-  /**
-   * @brief Creates a polar quadrature object for the Solver.
-   */
-  virtual void initializePolarQuadrature() =0;
 
   /**
    * @brief Initializes Track boundary angular flux and leakage and
@@ -223,18 +194,9 @@ protected:
    */
   virtual void initializeSourceArrays() =0;
 
-  /**
-   * @brief Builds the exponential linear interpolation table.
-   */
-  virtual void buildExpInterpTable() =0;
-
-  /**
-   * @brief Initializes the volumes and Material arrays for each FSR.
-   */
-  virtual void initializeFSRs() =0;
-
+  virtual void initializeExpEvaluator();
+  virtual void initializeFSRs();
   virtual void initializeCmfd();
-
   virtual void checkTrackSpacing();
 
   /**
@@ -294,18 +256,16 @@ public:
   virtual ~Solver();
 
   Geometry* getGeometry();
+  FP_PRECISION getFSRVolume(int fsr_id);
   TrackGenerator* getTrackGenerator();
   int getNumPolarAngles();
-  quadratureType getPolarQuadratureType();
   int getNumIterations();
   double getTotalTime();
   FP_PRECISION getKeff();
   FP_PRECISION getSourceConvergenceThreshold();
 
-  bool isUsingSinglePrecision();
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
-  bool isUsingExponentialIntrinsic();
 
   /**
    * @brief Returns the scalar flux for a FSR and energy group.
@@ -331,8 +291,6 @@ public:
 
   virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setPolarQuadratureType(quadratureType quadrature_type);
-  virtual void setNumPolarAngles(int num_polar);
   virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
 
   void useExponentialInterpolation();
@@ -360,26 +318,6 @@ public:
 
   void printTimerReport();
 };
-
-
-/**
- * @brief Rounds a single precision floating point value to an integer.
- * @param x a float precision floating point value
- * @brief the rounded integer value
- */
-inline int Solver::round_to_int(float x) {
-  return lrintf(x);
-}
-
-
-/**
- * @brief Rounds a double precision floating point value to an integer.
- * @param x a double precision floating point value
- * @brief the rounded integer value
- */
-inline int Solver::round_to_int(double x) {
-  return lrint(x);
-}
 
 
 #endif /* SOLVER_H_ */

@@ -6,6 +6,8 @@
 
 %{
   #define SWIG_FILE_WITH_INIT
+  #include <cstddef>
+  #include "../src/constants.h"
   #include "../src/Cell.h"
   #include "../src/Geometry.h"
   #include "../src/boundary_type.h"
@@ -14,11 +16,17 @@
   #include "../src/Material.h"
   #include "../src/Point.h"
   #include "../src/Quadrature.h"
+  #include "../src/Surface.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
-  #include "../src/Surface.h"
+  #include "../src/ExpEvaluator.h"
   #include "../src/Timer.h"
   #include "../src/Track.h"
+  #include "../src/Track2D.h"
+  #include "../src/Track3D.h"
+  #include "../src/Vector.h"
+  #include "../src/Matrix.h"
+  #include "../src/linalg.h"
   #include "../src/TrackGenerator.h"
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
@@ -261,6 +269,16 @@
  * getCellIds method for the data processing routines in openmoc.process */
 %apply (int* ARGOUT_ARRAY1, int DIM1) {(int* cell_ids, int num_cells)}
 
+/* The typemap used to match the method signature for the 
+ * PolarQuad::setSinThetas method. This allows users to set the polar angle 
+ * quadrature sine thetas using a NumPy array */
+%apply (double* IN_ARRAY1, int DIM1) {(double* sin_thetas, int num_polar)}
+
+/* The typemap used to match the method signature for the 
+ * PolarQuad::setWeights method. This allows users to set the polar angle 
+ * quadrature weights using a NumPy array */
+%apply (double* IN_ARRAY1, int DIM1) {(double* weights, int num_polar)}
+
 #endif
 
 
@@ -364,7 +382,7 @@
 /* Typemap for Lattice::setUniverses(int num_x, int num_y, Universe** universes)
  * method - allows users to pass in Python lists of Universes for each
  * lattice cell */
-%typemap(in) (int num_x, int num_y, Universe** universes) {
+%typemap(in) (int num_y, int num_x, Universe** universes) {
 
   if (!PyList_Check($input)) {
     PyErr_SetString(PyExc_ValueError,"Expected a Python list of integers "
@@ -372,32 +390,82 @@
     return NULL;
   }
 
-  $1 = PySequence_Length($input);  // num_x
-  $2 = PySequence_Length(PyList_GetItem($input,0)); // num_y
+  $1 = PySequence_Length($input);  // num_y
+  $2 = PySequence_Length(PyList_GetItem($input,0)); // num_x
   $3 = (Universe**) malloc(($1 * $2) * sizeof(Universe*)); // universes
 
-  /* Loop over x */
-  for (int i = 0; i < $2; i++) {
+  /* Loop over y */
+  for (int j = 0; j < $1; j++) {
 
     /* Get the inner list in the nested list for the lattice */
-    PyObject* outer_list = PyList_GetItem($input,i);
+    PyObject* outer_list = PyList_GetItem($input,j);
 
     /* Check that the length of this list is the same as the length
      * of the first list */
     if (PySequence_Length(outer_list) != $2) {
-      PyErr_SetString(PyExc_ValueError, "Size mismatch. Expected $1 x $2 "
-                      "elements for Lattice\n");
+      PyErr_SetString(PyExc_ValueError, "Size mismatch in Universes "
+                      "list for Lattice which must be a 2D list of lists");
       return NULL;
     }
 
-    /* Loop over y */
-    for (int j =0; j < $1; j++) {
+    /* Loop over x */
+    for (int i =0; i < $2; i++) {
       /* Extract the value from the list at this location and convert
        * SWIG wrapper to pointer to underlying C++ class instance */
-      PyObject* o = PyList_GetItem(outer_list,j);
+      PyObject* o = PyList_GetItem(outer_list, i);
       void *p1 = 0;
       SWIG_ConvertPtr(o, &p1, SWIGTYPE_p_Universe, 0 | 0);
-      $3[i*$1+j] = (Universe*) p1;
+      $3[j*$2+i] = (Universe*) p1;
+    }
+  }
+}
+
+
+/* Typemap for Lattice::setUniverses(int num_x, int num_y, Universe** universes)
+ * method - allows users to pass in Python lists of Universes for each
+ * lattice cell */
+%typemap(in) (int num_z, int num_y, int num_x, Universe** universes) {
+
+  if (!PyList_Check($input)) {
+    PyErr_SetString(PyExc_ValueError,"Expected a Python list of integers "
+                    "for the Lattice cells");
+    return NULL;
+  }
+
+  $1 = PySequence_Length($input);  // num_z
+  $2 = PySequence_Length(PyList_GetItem($input,0)); // num_y
+  $3 = PySequence_Length(PyList_GetItem(PyList_GetItem($input,0), 0)); // num_x
+  $4 = (Universe**) malloc(($1 * $2 * $3) * sizeof(Universe*)); // universes
+
+  /* Loop over y */
+  for (int k = 0; k < $1; k++) {
+
+    /* Get the inner list in the nested list for the lattice */
+    PyObject* outer_outer_list = PyList_GetItem($input,k);
+    
+    /* Loop over y */
+    for (int j = 0; j < $2; j++) {
+
+      /* Get the inner list in the nested list for the lattice */
+      PyObject* outer_list = PyList_GetItem(outer_outer_list, j);
+
+      /* Check that the length of this list is the same as the length
+       * of the first list */
+      if (PySequence_Length(outer_list) != $3) {
+        PyErr_SetString(PyExc_ValueError, "Size mismatch in Universes "
+                        "list for Lattice which must be a 3D list of lists of lists");
+        return NULL;
+      }
+      
+      /* Loop over x */
+      for (int i =0; i < $3; i++) {
+        /* Extract the value from the list at this location and convert
+         * SWIG wrapper to pointer to underlying C++ class instance */
+        PyObject* o = PyList_GetItem(outer_list, i);
+        void *p1 = 0;
+        SWIG_ConvertPtr(o, &p1, SWIGTYPE_p_Universe, 0 | 0);
+        $4[k*($2*$3) + j*$3 + i] = (Universe*) p1;
+      }
     }
   }
 }
@@ -405,6 +473,7 @@
 
 %include <exception.i>
 %include <std_map.i>
+%include ../src/constants.h
 %include ../src/Cell.h
 %include ../src/Geometry.h
 %include ../src/boundary_type.h
@@ -413,11 +482,17 @@
 %include ../src/Material.h
 %include ../src/Point.h
 %include ../src/Quadrature.h
+%include ../src/Surface.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
-%include ../src/Surface.h
+%include ../src/ExpEvaluator.h
 %include ../src/Timer.h
 %include ../src/Track.h
+%include ../src/Track2D.h
+%include ../src/Track3D.h
+%include ../src/Vector.h
+%include ../src/Matrix.h
+%include ../src/linalg.h
 %include ../src/TrackGenerator.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h

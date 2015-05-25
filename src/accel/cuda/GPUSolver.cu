@@ -19,52 +19,16 @@ __constant__ int two_times_num_polar[1];
 __constant__ int polar_times_groups[1];
 
 /** An array for the sines of the polar angle in the polar Quadrature set */
-__constant__ FP_PRECISION sinthetas[MAX_POLAR_ANGLES];
+__constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES_GPU];
 
 /** An array of the weights for the polar angles from the Quadrature set */
-__constant__ FP_PRECISION polar_weights[MAX_POLAR_ANGLES*MAX_AZIM_ANGLES];
-
-/** A pointer to an array with the number of tracks per azimuthal angle */
-__constant__ int num_tracks[MAX_AZIM_ANGLES/2];
+__constant__ FP_PRECISION polar_weights[MAX_POLAR_ANGLES_GPU*MAX_AZIM_ANGLES_GPU];
 
 /** The total number of Tracks */
 __constant__ int tot_num_tracks[1];
 
-/** A boolean indicating whether or not to use linear interpolation
- *  to comptue the exponential in the transport equation */
-__constant__ bool interpolate_exponential[1];
-
-/** The maximum index of the exponential linear interpolation table */
-__constant__ int exp_table_max_index[1];
-
-/** The spacing for the exponential linear interpolation table */
-__constant__ FP_PRECISION exp_table_spacing[1];
-
-/** The inverse spacing for the exponential linear interpolation table */
-__constant__ FP_PRECISION inverse_exp_table_spacing[1];
-
-
-
-/**
- * @brief Fast method to round a single precision floating point value
- *        to an integer on the GPU.
- * @param x float floating point value to round
- * @return the rounded down integer value
- */
-__device__ int round_to_int(float x) {
-  return __float2int_rd(x);
-}
-
-
-/**
- * @brief Fast method to round a double precision floating point value
- *        to an integer on the GPU.
- * @param x double floating point value to round
- * @return the rounded down integer value
- */
-__device__ int round_to_int(double x) {
-  return __double2int_rd(x);
-}
+/** An GPUExpEvaluator object to compute exponentials */
+__constant__ GPUExpEvaluator exp_evaluator;
 
 
 /**
@@ -354,50 +318,6 @@ __device__ double atomicAdd(double* address, double val) {
 
 
 /**
- * @brief Computes the exponential term in the transport equation for a
- *        Track segment on the GPU.
- * @details This method computes \f$ 1 - exp(-l\Sigma^T_g/sin(\theta_p)) \f$
- *          for a segment with total group cross-section and for
- *          some polar angle.
- * @param sigma_t the total group cross-section at this energy
- * @param length the length of the line segment projected in the xy-plane
- * @param _exp_table the exponential linear interpolation table
- * @param p the polar angle index
- * @return the evaluated exponential
- */
-__device__ FP_PRECISION computeExponential(FP_PRECISION sigma_t,
-                                           FP_PRECISION length,
-                                           FP_PRECISION* _exp_table,
-                                           int p) {
-
-  FP_PRECISION exponential;
-  FP_PRECISION tau = sigma_t * length;
-
-  /* Evaluate the exponential using the linear interpolation table */
-  if (*interpolate_exponential) {
-    int index;
-
-    index = round_to_int(tau * (*inverse_exp_table_spacing));
-    index *= (*two_times_num_polar);
-    exponential = (1. - (_exp_table[index+2 * p] * tau +
-                         _exp_table[index + 2 * p +1]));
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION sintheta = sinthetas[p];
-    #ifdef SINGLE
-    exponential = 1.0 - __expf(- tau / sintheta);
-    #else
-    exponential = 1.0 - exp(- tau / sintheta);
-    #endif
-  }
-
-  return exponential;
-}
-
-
-/**
  * @brief Computes the contribution to the FSR scalar flux from a Track segment
  *        in a single energy group on the GPU.
  * @details This method integrates the angular flux for a Track segment across
@@ -410,7 +330,6 @@ __device__ FP_PRECISION computeExponential(FP_PRECISION sigma_t,
  * @param track_flux a pointer to the Track's angular flux
  * @param reduced_sources the array of FSR sources / total xs
  * @param polar_weights the array of polar Quadrature weights
- * @param _exp_table the exponential interpolation table
  * @param scalar_flux the array of FSR scalar fluxes
  */
 __device__ void scalarFluxTally(dev_segment* curr_segment,
@@ -420,7 +339,6 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
                                 FP_PRECISION* track_flux,
                                 FP_PRECISION* reduced_sources,
                                 FP_PRECISION* polar_weights,
-                                FP_PRECISION* _exp_table,
                                 FP_PRECISION* scalar_flux) {
 
   int fsr_id = curr_segment->_region_uid;
@@ -435,14 +353,12 @@ __device__ void scalarFluxTally(dev_segment* curr_segment,
   /* Zero the FSR scalar flux contribution from this segment and energy group */
   FP_PRECISION fsr_flux = 0.0;
 
-  /* Compute the exponential interpolation table index */
-
   /* Loop over polar angles */
   for (int p=0; p < *num_polar; p++) {
-    exponential = computeExponential(sigma_t[energy_group],
-                                     length, _exp_table, p);
-    delta_psi = (track_flux[p] - reduced_sources(fsr_id,energy_group)) *
-               exponential;
+    exponential = 
+      exp_evaluator.computeExponential(sigma_t[energy_group] * length, p);
+    delta_psi = (track_flux[p] - reduced_sources(fsr_id,energy_group));
+    delta_psi *= exponential;
     fsr_flux += delta_psi * polar_weights(azim_index,p);
     track_flux[p] -= delta_psi;
   }
@@ -521,7 +437,6 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
  * @param leakage an array of angular flux leakaages
  * @param materials an array of dev_material pointers
  * @param tracks an array of Tracks
- * @param _exp_table an array for the exponential interpolation table
  * @param tid_offset the Track offset for azimuthal angle halfspace
  * @param tid_max the upper bound on the Track IDs for this azimuthal
  *                angle halfspace
@@ -532,7 +447,6 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
                                        FP_PRECISION* leakage,
                                        dev_material* materials,
                                        dev_track* tracks,
-                                       FP_PRECISION* _exp_table,
                                        int tid_offset,
                                        int tid_max) {
 
@@ -577,8 +491,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     for (int i=0; i < num_segments; i++) {
       curr_segment = &curr_track->_segments[i];
       scalarFluxTally(curr_segment, azim_index, energy_group, materials,
-                      track_flux, reduced_sources, polar_weights,
-                      _exp_table, scalar_flux);
+                      track_flux, reduced_sources, polar_weights, scalar_flux);
     }
 
     /* Transfer boundary angular flux to outgoing Track */
@@ -592,8 +505,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     for (int i=num_segments-1; i > -1; i--) {
       curr_segment = &curr_track->_segments[i];
       scalarFluxTally(curr_segment, azim_index, energy_group, materials,
-                      track_flux, reduced_sources, polar_weights,
-                      _exp_table, scalar_flux);
+                      track_flux, reduced_sources, polar_weights, scalar_flux);
   }
 
     /* Transfer boundary angular flux to outgoing Track */
@@ -805,11 +717,6 @@ GPUSolver::~GPUSolver() {
   if (_leakage != NULL) {
     _leakage_vec.clear();
     _leakage = NULL;
-  }
-
-  if (_exp_table != NULL) {
-    cudaFree(_exp_table);
-    _exp_table = NULL;
   }
 }
 
@@ -1040,18 +947,20 @@ void GPUSolver::initializePolarQuadrature() {
 
   log_printf(INFO, "Initializing polar quadrature on the GPU...");
 
-  /* Deletes the old Quadrature if one existed */
-  if (_quad != NULL)
-    delete _quad;
+  Solver::initializePolarQuadrature();
 
-  _quad = new Quadrature(_quadrature_type, _num_polar);
-  _polar_times_groups = _num_groups * _num_polar;
+  if (_num_polar > MAX_POLAR_ANGLES_GPU)
+    log_printf(ERROR, "Unable to initialize a polar quadrature with %d "
+               "angles for the GPUSolver which is limited to %d polar "
+               "angles. Update the MAX_POLAR_ANGLES_GPU macro in constants.h "
+               "and recompile.", _num_polar, MAX_POLAR_ANGLES_GPU);
 
   /* Copy the number of polar angles to constant memory on the GPU */
   cudaMemcpyToSymbol(num_polar, (void*)&_num_polar, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
 
   /* Copy twice the number of polar angles to constant memory on the GPU */
+  _two_times_num_polar = 2 * _num_polar * _num_groups;
   cudaMemcpyToSymbol(two_times_num_polar, (void*)&_two_times_num_polar,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
@@ -1060,24 +969,39 @@ void GPUSolver::initializePolarQuadrature() {
   cudaMemcpyToSymbol(polar_times_groups, (void*)&_polar_times_groups,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
-  /* Compute polar times azimuthal angle weights */
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights =
-      (FP_PRECISION*)malloc(_num_polar * _num_azim * sizeof(FP_PRECISION));
-
-  FP_PRECISION* multiples = _quad->getMultiples();
-  FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
-
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_polar; j++)
-      _polar_weights[i*_num_polar+j] = azim_weights[i]*multiples[j]*FOUR_PI;
-  }
-
   /* Copy the polar weights to constant memory on the GPU */
   cudaMemcpyToSymbol(polar_weights, (void*)_polar_weights,
       _num_polar * _num_azim * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
+
+  /* Copy the sines of the polar angles which is needed if the user
+   * requested the use of the exp intrinsic to evaluate exponentials */
+  cudaMemcpyToSymbol(sin_thetas, (void*)_polar_quad->getSinThetas(),
+                     _num_polar * sizeof(FP_PRECISION), 0,
+                     cudaMemcpyHostToDevice);
+}
+
+
+/**
+ * @brief Initializes new ExpEvaluator object to compute exponentials.
+ */
+void GPUSolver::initializeExpEvaluator(){
+
+  Solver::initializeExpEvaluator();
+
+  log_printf(INFO, "Initializing the exponential evaluator on the GPU...");
+
+  /* Allocate memory for a GPUExpEvaluator on the device */
+  GPUExpEvaluator* dev_exp_evaluator;
+  cudaMalloc((void**)&dev_exp_evaluator, sizeof(GPUExpEvaluator));
+
+  /* Clone ExpEvaluator from the host into GPUExpEvaluator on the device */
+  clone_exp_evaluator(_exp_evaluator, dev_exp_evaluator);
+
+  /* Copy the GPUExpEvaluator into constant memory on the GPU */
+  cudaMemcpyToSymbol(exp_evaluator, (void*)dev_exp_evaluator, 
+                     sizeof(GPUExpEvaluator), 0, cudaMemcpyDeviceToDevice);
+
+  return;
 }
 
 
@@ -1089,71 +1013,43 @@ void GPUSolver::initializePolarQuadrature() {
  */
 void GPUSolver::initializeFSRs() {
 
-  log_printf(INFO, "Initializing FSRs on the GPU...");
+  log_printf(NORMAL, "Initializing FSRs on the GPU...");
 
   /* Delete old FSRs array if it exists */
-  if (_FSR_volumes != NULL)
+  if (_FSR_volumes != NULL) {
     cudaFree(_FSR_volumes);
+    _FSR_volumes = NULL;
+  }
 
-  if (_FSR_materials != NULL)
+  if (_FSR_materials != NULL) {
     cudaFree(_FSR_materials);
+    _FSR_materials = NULL;
+  }
+
+  Solver::initializeFSRs();
 
   /* Allocate memory for all FSR volumes and dev_materials on the device */
   try{
+
+    /* Store pointers to arrays of FSR data created on the host by the 
+     * the parent class Solver::initializeFSRs() routine */
+    FP_PRECISION* host_FSR_volumes = _FSR_volumes;
+    int* host_FSR_materials = _FSR_materials;
 
     /* Allocate memory on device for FSR volumes and Material indices */
     cudaMalloc((void**)&_FSR_volumes, _num_FSRs * sizeof(FP_PRECISION));
     cudaMalloc((void**)&_FSR_materials, _num_FSRs * sizeof(int));
 
-    /* Create a temporary FSR array to populate and then copy to device */
-    FP_PRECISION* temp_FSR_volumes = new FP_PRECISION[_num_FSRs];
-
-    /* Create a temporary FSR to material indices array to populate and then 
-     * copy to device */
+    /* Create a temporary FSR to material indices array */
     int* FSRs_to_material_indices = new int[_num_FSRs];
 
-    /* Initialize num fissionable FSRs counter */
-    _num_fissionable_FSRs = 0;
-
     /* Populate FSR Material indices array */
-    for (int i = 0; i < _num_FSRs; i++){
+    for (int i = 0; i < _num_FSRs; i++)
       FSRs_to_material_indices[i] = _material_IDs_to_indices[_geometry->
         findFSRMaterial(i)->getId()];
-      if (_geometry->findFSRMaterial(i)->isFissionable())
-        _num_fissionable_FSRs++;
-    }
 
-    /* Initialize each FSRs volume to 0 to avoid NaNs */
-    memset(temp_FSR_volumes, FP_PRECISION(0.), _num_FSRs*sizeof(FP_PRECISION));
-
-    Track* track;
-    int num_segments;
-    segment* curr_segment;
-    segment* segments;
-    FP_PRECISION volume;
-
-    FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
-
-    /* Set each FSR's volume by accumulating the total length of all Tracks
-     * inside the FSR. Iterate over azimuthal angle, Track, Track segment*/
-    for (int i=0; i < _num_azim; i++) {
-      for (int j=0; j < _num_tracks[i]; j++) {
-
-        track = &_track_generator->getTracks()[i][j];
-        num_segments = track->getNumSegments();
-        segments = track->getSegments();
-
-        /* Iterate over the Track's segments to update FSR volumes */
-        for (int s = 0; s < num_segments; s++) {
-          curr_segment = &segments[s];
-          volume = curr_segment->_length * azim_weights[i];
-          temp_FSR_volumes[curr_segment->_region_id] += volume;
-        }
-      }
-    }
-
-    /* Copy the temporary array of FSRs to the device */
-    cudaMemcpy((void*)_FSR_volumes, (void*)temp_FSR_volumes,
+    /* Copy the arrays of FSR data to the device */
+    cudaMemcpy((void*)_FSR_volumes, (void*)host_FSR_volumes,
       _num_FSRs * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
     cudaMemcpy((void*)_FSR_materials, (void*)FSRs_to_material_indices,
       _num_FSRs * sizeof(int), cudaMemcpyHostToDevice);
@@ -1162,8 +1058,9 @@ void GPUSolver::initializeFSRs() {
     cudaMemcpyToSymbol(num_FSRs, (void*)&_num_FSRs, sizeof(int), 0,
       cudaMemcpyHostToDevice);
 
-    /* Free the temporary array of FSR volumes on the host */
-    free(temp_FSR_volumes);
+    /* Free the array of FSRs data allocated by the Solver parent class */
+    free(host_FSR_volumes);
+    free(host_FSR_materials);
 
     /* Free the temporary array of FSRs to material indices on the host */
     free(FSRs_to_material_indices);
@@ -1200,12 +1097,12 @@ void GPUSolver::initializeMaterials() {
     std::map<int, Material*> host_materials=_geometry->getAllMaterials();
     std::map<int, Material*>::iterator iter;
     int material_index = 0;
-    
+
     /* Iterate through all Materials and clone them as dev_material structs
      * on the device */
     cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
     for (iter=host_materials.begin(); iter != host_materials.end(); ++iter){
-      clone_material_on_gpu(iter->second, &_materials[material_index]);
+      clone_material(iter->second, &_materials[material_index]);
       _material_IDs_to_indices[iter->second->getId()] = material_index;
       material_index++;
     }
@@ -1239,7 +1136,7 @@ void GPUSolver::initializeTracks() {
 
     for (int i=0; i < _tot_num_tracks; i++) {
 
-      clone_track_on_gpu(_tracks[i], &_dev_tracks[i], _material_IDs_to_indices);
+      clone_track(_tracks[i], &_dev_tracks[i], _material_IDs_to_indices);
 
       /* Make Track reflective */
       index = computeScalarTrackIndex(_tracks[i]->getTrackInI(),
@@ -1253,11 +1150,6 @@ void GPUSolver::initializeTracks() {
                  (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
     }
 
-    /* Copy the array of number of Tracks for each azimuthal angle into
-     * constant memory on GPU */
-    cudaMemcpyToSymbol(num_tracks, (void*)_num_tracks,
-                       _num_azim * sizeof(int), 0, cudaMemcpyHostToDevice);
-
     /* Copy the total number of Tracks into constant memory on GPU */
     cudaMemcpyToSymbol(tot_num_tracks, (void*)&_tot_num_tracks,
                        sizeof(int), 0, cudaMemcpyHostToDevice);
@@ -1265,15 +1157,6 @@ void GPUSolver::initializeTracks() {
     /* Copy the number of azimuthal angles into constant memory on GPU */
     cudaMemcpyToSymbol(num_azim, (void*)&_num_azim, sizeof(int), 0,
                        cudaMemcpyHostToDevice);
-
-    /* Copy the array of number of Tracks for each azimuthal angles into
-     * constant memory on GPU */
-    cudaMemcpyToSymbol(num_tracks, (void*)_num_tracks,
-                       _num_azim * sizeof(int), 0, cudaMemcpyHostToDevice);
-
-    /* Copy the total number of Tracks into constant memory on GPU */
-    cudaMemcpyToSymbol(tot_num_tracks, (void*)&_tot_num_tracks,
-                       sizeof(int), 0, cudaMemcpyHostToDevice);
   }
 
   catch(std::exception &e) {
@@ -1447,86 +1330,6 @@ int GPUSolver::computeScalarTrackIndex(int i, int j) {
 
 
 /**
- * @brief Builds a linear interpolation table to compute exponentials for
- *        each segment of each Track for each polar angle on the GPU.
- */
-void GPUSolver::buildExpInterpTable(){
-
-  log_printf(INFO, "Building exponential interpolation table on device...");
-
-  /* Copy a boolean indicating whether or not to use the linear interpolation
-   * table or the exp intrinsic function */
-  cudaMemcpyToSymbol(interpolate_exponential,(void*)&_interpolate_exponential,
-                     sizeof(bool), 0, cudaMemcpyHostToDevice);
-
-  /* Copy the sines of the polar angles which is needed if the user
-   * requested the use of the exp intrinsic to evaluate exponentials */
-  cudaMemcpyToSymbol(sinthetas, (void*)_quad->getSinThetas(),
-                     _num_polar * sizeof(FP_PRECISION), 0,
-                     cudaMemcpyHostToDevice);
-
-  /* Find largest optical path length track segment */
-  FP_PRECISION tau = _track_generator->getMaxOpticalLength();
-
-  /* Expand tau slightly to accomodate track segments which have a
-   * length very nearly equal to the maximum value */
-  tau *= 1.01;
-
-  /* Set size of interpolation table */
-  int num_array_values =
-          tau * sqrt(1. / (8. * _source_convergence_thresh * 1e-2));
-  _exp_table_spacing = tau / num_array_values;
-  _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
-  _exp_table_size = _two_times_num_polar * num_array_values;
-  _exp_table_max_index = _exp_table_size - _two_times_num_polar - 1;
-
-  /* Allocate array for the table */
-  if (_exp_table != NULL)
-    delete [] _exp_table;
-
-  FP_PRECISION* exp_table = new FP_PRECISION[_exp_table_size];
-
-  FP_PRECISION expon;
-  FP_PRECISION intercept;
-  FP_PRECISION slope;
-
-  /* Create exponential interpolation table */
-  for (int i = 0; i < num_array_values; i ++){
-    for (int p = 0; p < _num_polar; p++){
-      expon = exp(- (i * _exp_table_spacing) / _quad->getSinTheta(p));
-      slope = - expon / _quad->getSinTheta(p);
-      intercept = expon * (1 + (i * _exp_table_spacing)/_quad->getSinTheta(p));
-      exp_table[_two_times_num_polar * i + 2 * p] = slope;
-      exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
-    }
-  }
-
-  /* Allocate memory for the interpolation table on the device */
-  cudaMalloc((void**)&_exp_table, _exp_table_size * sizeof(FP_PRECISION));
-
-  /* Copy exponential interpolation table to the device */
-  cudaMemcpy((void*)_exp_table, (void*)exp_table,
-             _exp_table_size * sizeof(FP_PRECISION),
-             cudaMemcpyHostToDevice);
-
-  /* Copy table size and spacing to constant memory on the device */
-  cudaMemcpyToSymbol(exp_table_spacing, (void*)&_exp_table_spacing,
-                     sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
-
-  cudaMemcpyToSymbol(inverse_exp_table_spacing,
-                     (void*)&_inverse_exp_table_spacing,
-                     sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
-
-  cudaMemcpyToSymbol(exp_table_max_index, (void*)&_exp_table_max_index,
-                    sizeof(int), 0, cudaMemcpyHostToDevice);
-
-  free(exp_table);
-
-  return;
-}
-
-
-/**
  * @brief Zero each Track's boundary fluxes for each energy group and polar
  *        angle in the "forward" and "reverse" directions.
  */
@@ -1642,7 +1445,6 @@ void GPUSolver::transportSweep() {
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, _boundary_flux,
                                                  _reduced_sources, _leakage,
                                                  _materials, _dev_tracks,
-                                                 _exp_table,
                                                  tid_offset, tid_max);
 
   /* Sweep the second halfspace of azimuthal angle space */
@@ -1652,7 +1454,6 @@ void GPUSolver::transportSweep() {
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(_scalar_flux, _boundary_flux,
                                                  _reduced_sources, _leakage,
                                                  _materials, _dev_tracks,
-                                                 _exp_table,
                                                  tid_offset, tid_max);
 }
 

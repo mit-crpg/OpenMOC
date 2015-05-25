@@ -15,7 +15,6 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _num_materials = 0;
   _num_groups = 0;
   _num_azim = 0;
-  _polar_times_groups = 0;
 
   _num_FSRs = 0;
   _num_fissionable_FSRs = 0;
@@ -24,14 +23,15 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _FSR_materials = NULL;
   _surface_currents = NULL;
 
-  _quad = NULL;
   _track_generator = NULL;
   _geometry = NULL;
   _cmfd = NULL;
-
+  _exp_evaluator = new ExpEvaluator();
+  _solve_3D = false;
+  
   _tracks = NULL;
-  _azim_weights = NULL;
-  _polar_weights = NULL;
+  _azim_spacings = NULL;
+  _polar_spacings = NULL;
   _boundary_flux = NULL;
   _boundary_leakage = NULL;
 
@@ -42,22 +42,17 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _reduced_sources = NULL;
   _source_residuals = NULL;
 
-  _interpolate_exponential = true;
-  _exp_table = NULL;
+  /* Default polar quadrature */
+  _fluxes_per_track = 0;
+  
+  if (track_generator != NULL)
+    setTrackGenerator(track_generator);
 
   if (geometry != NULL){
     _cmfd = geometry->getCmfd();
     setGeometry(geometry);
   }
-
-  if (track_generator != NULL)
-    setTrackGenerator(track_generator);
-
-  /* Default polar quadrature */
-  _quadrature_type = TABUCHI;
-  _num_polar = 3;
-  _two_times_num_polar = 2 * _num_polar;
-
+  
   _num_iterations = 0;
   _source_convergence_thresh = 1E-3;
   _converged_source = false;
@@ -82,9 +77,6 @@ Solver::~Solver() {
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
 
@@ -106,8 +98,8 @@ Solver::~Solver() {
   if (_source_residuals != NULL)
     delete [] _source_residuals;
 
-  if (_exp_table != NULL)
-    delete [] _exp_table;
+  if (_exp_evaluator != NULL)
+    delete _exp_evaluator;
 
   if (_quad != NULL)
     delete _quad;
@@ -129,6 +121,25 @@ Geometry* Solver::getGeometry() {
 
 
 /**
+ * @brief Returns the calculated volume for a flat source region.
+ * @param fsr_id the flat source region ID of interest
+ * @return the flat source region volume
+ */
+FP_PRECISION Solver::getFSRVolume(int fsr_id) {
+
+  if (fsr_id < 0 || fsr_id > _num_FSRs)
+    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
+               "IDs lie in the range (0, %d)", fsr_id, _num_FSRs);
+
+  else if (_FSR_volumes == NULL)
+    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
+               "volumes have not yet been computed", fsr_id);
+
+  return _FSR_volumes[fsr_id];
+}
+
+
+/**
  * @brief Returns a pointer to the TrackGenerator.
  * @return a pointer to the TrackGenerator
  */
@@ -143,20 +154,11 @@ TrackGenerator* Solver::getTrackGenerator() {
 
 
 /**
- * @brief Returns the number of angles used for the polar quadrature (1,2,3).
+ * @brief Returns the number of angles used for the polar quadrature.
  * @return the number of polar angles
  */
 int Solver::getNumPolarAngles() {
   return _num_polar;
-}
-
-
-/**
- * @brief Returns the type of polar quadrature in use (TABUCHI or LEONARD).
- * @return the type of polar quadrature
- */
-quadratureType Solver::getPolarQuadratureType() {
-  return _quadrature_type;
 }
 
 
@@ -197,19 +199,6 @@ FP_PRECISION Solver::getSourceConvergenceThreshold() {
 
 
 /**
- * @brief Returns whether the Solver is using single floating point precision.
- * @return true if so, false otherwise
- */
-bool Solver::isUsingSinglePrecision() {
-#ifdef SINGLE
-  return true;
-#else
-  return false;
-#endif
-}
-
-
-/**
  * @brief Returns whether the solver is using double floating point precision.
  * @return true if so, false otherwise
  */
@@ -225,28 +214,10 @@ bool Solver::isUsingDoublePrecision() {
 /**
  * @brief Returns whether the Solver uses linear interpolation to
  *        compute exponentials.
- * @details The Solver uses linear interpolation to compute exponentials by
- *          default. The Solver::useExponentialIntrinsic() routine can be
- *          called to use the C++ exponential intrinsic routine instead. The
- *          Solver::useExponentialInterpolation() routine may be called to
- *          return to using linear interpolation.
  * @return true if so, false otherwise
  */
 bool Solver::isUsingExponentialInterpolation() {
-  return _interpolate_exponential;
-}
-
-
-/**
- * @brief Returns whether the Solver uses the exponential intrinsic exp(...)
- *        routine to compute exponentials.
- * @details The Solver uses linear interpolation to compute exponentials by
- *          default. The Solver::useExponentialIntrinsic() routine can be
- *          called to use the C++ exponential intrinsic routine instead.
- * @return true if so, false otherwise
- */
-bool Solver::isUsingExponentialIntrinsic() {
-  return !_interpolate_exponential;
+  return _exp_evaluator->isUsingInterpolation();
 }
 
 
@@ -273,9 +244,13 @@ void Solver::setGeometry(Geometry* geometry) {
   _geometry = geometry;
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();
-  _polar_times_groups = _num_groups * _num_polar;
   _num_materials = _geometry->getNumMaterials();
 
+  if (_solve_3D)
+    _fluxes_per_track = _num_groups;
+  else
+    _fluxes_per_track = _num_groups * _num_polar/2;
+  
   if (_cmfd != NULL)
     _num_mesh_cells = _cmfd->getNumCells();
 }
@@ -290,63 +265,71 @@ void Solver::setGeometry(Geometry* geometry) {
  *
  * @code
  *          track_generator.generateTracks()
+ *          solver.setTrackGenerator(track_generator)
  * @endcode
  *
  * @param track_generator a pointer to a TrackGenerator object
  */
 void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
-  if (!track_generator->containsTracks())
+  if ((!track_generator->contains2DTracks() && track_generator->isSolve2D()) ||
+      (!track_generator->contains3DTracks() && track_generator->isSolve3D()))
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
-  _num_azim = _track_generator->getNumAzim() / 2;
-  _num_tracks = _track_generator->getNumTracksArray();
-  _tot_num_tracks = _track_generator->getNumTracks();
-  _azim_weights = _track_generator->getAzimWeights();
-  _tracks = new Track*[_tot_num_tracks];
-
+  _solve_3D = _track_generator->isSolve3D();  
+  _num_azim = _track_generator->getNumAzim();
+  _tracks_per_cycle = _track_generator->getTracksPerCycle();
+  _cycles_per_azim = _track_generator->getCyclesPerAzim();
+  _tracks_per_plane = _track_generator->getTracksPerPlane();
+  _azim_spacings = _track_generator->getAzimSpacings();
+  _polar_spacings = _track_generator->getPolarSpacings();
+  _quad = _track_generator->getQuadrature();
+  _num_polar = _quad->getNumPolarAngles();
+  
   /* Initialize the tracks array */
   int counter = 0;
+  _num_tracks = new int*[_num_azim/4];
+  
+  if (!_solve_3D){
+    _fluxes_per_track = _num_groups * _num_polar/2;
+    _tot_num_tracks = _track_generator->getNum2DTracks();
+    _tracks = new Track*[_tot_num_tracks];
 
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
-      _tracks[counter] = &_track_generator->getTracks()[i][j];
-      counter++;
+    for (int a=0; a < _num_azim/4; a++){
+      _num_tracks[a] = new int[_cycles_per_azim[a]];
+      for (int c=0; c < _cycles_per_azim[a]; c++){
+        _num_tracks[a][c] = counter;
+        for (int t=0; t < _tracks_per_cycle[a]; t++){
+          _tracks[counter] = &_track_generator->get2DTracks()[a][c][t];
+          counter++;
+        }
+      }
+    }
+
+  }
+  else{
+    _fluxes_per_track = _num_groups;
+    _tot_num_tracks = _track_generator->getNum3DTracks();
+    _tracks = new Track*[_tot_num_tracks];
+    
+    for (int a=0; a < _num_azim/4; a++){
+      _num_tracks[a] = new int[_cycles_per_azim[a]];
+      for (int c=0; c < _cycles_per_azim[a]; c++){
+        _num_tracks[a][c] = counter;
+        for (int p=0; p < _num_polar; p++){
+          for (int i=0; i < _track_generator->getNumZ(a,p)
+                 + _track_generator->getNumL(a,p); i++){
+            for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
+              _tracks[counter] = &_track_generator->get3DTracks()[a][c][p][i][t];
+              counter++;
+            }
+          }
+        }
+      }
     }
   }
-}
-
-
-/**
- * @brief Sets the type of polar angle quadrature set to use (ie, TABUCHI
- *        or LEONARD).
- * @param quadrature_type the polar angle quadrature type
- */
-void Solver::setPolarQuadratureType(quadratureType quadrature_type) {
-  _quadrature_type = quadrature_type;
-}
-
-
-/**
- * @brief Sets the number of polar angles to use (only 1, 2, or 3 currently
- *        supported). The default of 3 angles is recommended.
- * @param num_polar the number of polar angles
- */
-void Solver::setNumPolarAngles(int num_polar) {
-
-  if (num_polar <= 0)
-    log_printf(ERROR, "Unable to set the Solver's number of polar angles "
-               "to %d since this is a negative number", num_polar);
-
-  if (num_polar > 3)
-    log_printf(ERROR, "Unable to set the Solver's number of polar angles to %d"
-               "since only 1, 2 or 3 are currently supported", num_polar);
-
-  _num_polar = num_polar;
-  _two_times_num_polar = 2 * _num_polar;
-  _polar_times_groups = _num_groups * _num_polar;
 }
 
 
@@ -369,7 +352,7 @@ void Solver::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
  *        exponential in the transport equation.
  */
 void Solver::useExponentialInterpolation() {
-  _interpolate_exponential = true;
+  _exp_evaluator->useInterpolation();
 }
 
 
@@ -378,7 +361,67 @@ void Solver::useExponentialInterpolation() {
  *        to compute the exponential in the transport equation
  */
 void Solver::useExponentialIntrinsic() {
-  _interpolate_exponential = false;
+  _exp_evaluator->useIntrinsic();
+}
+
+
+/**
+ * @brief Initializes new ExpEvaluator object to compute exponentials.
+ */
+void Solver::initializeExpEvaluator() {
+  double max_tau = _track_generator->getMaxOpticalLength();
+  double tolerance = _source_convergence_thresh;
+
+  _exp_evaluator->setSolve3D(_solve_3D);
+  _exp_evaluator->setQuadrature(_quad);
+  _exp_evaluator->initialize(max_tau, tolerance);
+}
+
+
+/**
+ * @brief Initializes the FSR volumes and Materials array.
+ * @details This method assigns each FSR a unique, monotonically increasing
+ *          ID, sets the Material for each FSR, and assigns a volume based on
+ *          the cumulative length of all of the segments inside the FSR.
+ */
+void Solver::initializeFSRs() {
+
+  log_printf(INFO, "Initializing flat source regions...");
+
+  /* Delete old FSR arrays if they exist */
+  if (_FSR_volumes != NULL)
+    delete [] _FSR_volumes;
+
+  if (_FSR_materials != NULL)
+    delete [] _FSR_materials;
+
+  /* Get an array of volumes indexed by FSR  */
+  if (_solve_3D)
+    _FSR_volumes = _track_generator->get3DFSRVolumes();
+  else
+    _FSR_volumes = _track_generator->get2DFSRVolumes();
+  
+  /* Allocate an array of Material pointers indexed by FSR */
+  _FSR_materials = new Material*[_num_FSRs];
+
+  /* Compute the number of fissionable Materials */
+  _num_fissionable_FSRs = 0;
+
+  /* Loop over all FSRs to extract FSR material pointers */
+  for (int r=0; r < _num_FSRs; r++) {
+
+    /* Assign the Material corresponding to this FSR */
+    _FSR_materials[r] = _geometry->findFSRMaterial(r);
+
+    /* Increment number of fissionable FSRs */
+    if (_FSR_materials[r]->isFissionable())
+      _num_fissionable_FSRs++;
+
+    log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
+               r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
+  }
+
+  return;
 }
 
 
@@ -399,7 +442,7 @@ void Solver::initializeCmfd(){
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
-  _cmfd->setPolarQuadrature(_quadrature_type, _num_polar);
+  _cmfd->setQuadrature(_quad);
 }
 
 
@@ -437,7 +480,7 @@ void Solver::checkTrackSpacing() {
       FSR_segment_tallies[curr_segment->_region_id]++;
     }
   }
-
+  
   /* Loop over all FSRs and if one FSR does not have tracks in it, print
    * error message to the screen and exit program */
   #pragma omp parallel for private (cell)
@@ -504,10 +547,9 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
   FP_PRECISION keff_old = 1.0;
 
   /* Initialize data structures */
-  initializePolarQuadrature();
+  initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  buildExpInterpTable();
   initializeFSRs();
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
@@ -515,7 +557,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
 
   /* Check that each FSR has at least one segment crossing it */
   checkTrackSpacing();
-
+  
   /* Set scalar flux to unity for each region */
   flattenFSRSources(1.0);
   flattenFSRFluxes(1.0);
@@ -533,10 +575,8 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     addSourceToScalarFlux();
 
     /* Solve CMFD diffusion problem and update MOC flux */
-    if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
+    if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
-      _cmfd->updateBoundaryFlux(_tracks, _boundary_flux, _tot_num_tracks);
-    }
     else
       computeKeff();
 
@@ -597,8 +637,13 @@ void Solver::printTimerReport() {
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_iter);
 
   /* Time per segment */
-  int num_segments = _track_generator->getNumSegments();
-  int num_integrations = 2 * _num_polar * _num_groups * num_segments;
+  int num_segments = 0;
+  if (_solve_3D)
+    num_segments = _track_generator->getNum3DSegments();
+  else
+    num_segments = _track_generator->getNum2DSegments();
+
+  int num_integrations = _fluxes_per_track * num_segments;
   double time_per_integration = (time_per_iter / num_integrations);
   msg_string = "Integration time per segment integration";
   msg_string.resize(53, '.');

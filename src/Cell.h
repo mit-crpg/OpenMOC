@@ -10,12 +10,13 @@
 #define CELL_H_
 
 #ifdef __cplusplus
-#include <limits>
-#include <map>
-#include <vector>
+#include "Python.h"
 #include "Material.h"
 #include "Surface.h"
 #include "Point.h"
+#include <limits>
+#include <map>
+#include <vector>
 #endif
 
 /* Forward declarations to resolve circular dependencies */
@@ -169,7 +170,8 @@ public:
 
   bool cellContainsPoint(Point* point);
   bool cellContainsCoords(LocalCoords* coords);
-  double minSurfaceDist(Point* point, double angle, Point* min_intersection);
+  double minSurfaceDist(Point* point, Point* min_intersection,
+                        double azim, double polar=M_PI/2.0);
   /**
    * @brief Convert this CellFill's attributes to a string format.
    * @return a character array of this Cell's attributes
