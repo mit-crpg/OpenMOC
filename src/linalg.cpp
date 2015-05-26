@@ -4,7 +4,7 @@
 
 double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double tol, double SOR_factor){
 
-  log_printf(NORMAL, "computing eigenvalue...");
+  log_printf(INFO, "computing eigenvalue...");
 
   /* Initialize variables */
   int num_rows = X->getNumRows();
@@ -51,7 +51,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double tol, double SOR_f
     new_source.scaleByValue(num_rows / sum_new);
     new_source.copyTo(&old_source);
 
-    log_printf(NORMAL, "CMFD iter: %i, keff: %f, error: %f",
+    log_printf(INFO, "CMFD iter: %i, keff: %f, error: %f",
                iter, _k_eff, residual);
 
     /* Check for convergence */

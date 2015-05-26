@@ -353,13 +353,13 @@ void Cmfd::computeDs(int moc_iteration){
       for (int x = 0; x < _num_x; x++){
         
         cell = z*_num_y*_num_x + y*_num_x + x;
-        
+
         /* Loop over Surfaces in a cell */
         for (int surface = 0; surface < 6; surface++){
           
           /* Loop over groups */
           for (int e = 0; e < _num_cmfd_groups; e++){
-            
+
             /* Get diffusivity and flux for Mesh cell */
             d = _materials[cell]->getDifCoef()[e];
             flux = _old_flux->getValueByCell(cell, e);
@@ -372,7 +372,7 @@ void Cmfd::computeDs(int moc_iteration){
               sense = -1.0;
             else
               sense = 1.0;
-            
+
             /* Set the length of this Surface and the perpendicular Surface */
             if (surface == SURFACE_X_MIN || surface== SURFACE_X_MAX){
               length = _cell_height*_cell_depth;
@@ -386,16 +386,16 @@ void Cmfd::computeDs(int moc_iteration){
               length = _cell_width*_cell_height;
               length_perpen = _cell_depth;
             }
-            
+
             /* Compute the optical thickness correction factor */
             f = computeDiffCorrect(d, length_perpen);
-            
+
             /* If Surface is on a boundary, choose appropriate BCs */
             if (cell_next == -1){
               
               current = sense * _surface_currents->getValueByCell
                 (cell, surface*_num_cmfd_groups + e);
-              
+
               /* REFLECTIVE BC */
               if (_boundaries[surface] == REFLECTIVE){
                 
@@ -412,6 +412,7 @@ void Cmfd::computeDs(int moc_iteration){
                                                     length_perpen);
                 d_tilde = (sense * d_hat * flux - current / length) / flux;
               }
+                          
             }
             
             /* If Surface is an interface, use finite differencing */
@@ -442,28 +443,29 @@ void Cmfd::computeDs(int moc_iteration){
                 next_length_perpen = _cell_depth;
                 next_surface = SURFACE_Z_MIN;
               }
+
               
               /* Set diffusion coefficient and flux for neighboring cell */
               d_next = _materials[cell_next]->getDifCoef()[e];
               flux_next = _old_flux->getValueByCell(cell_next, e);
-              
+
               /* Get optical thickness correction term for meshCellNext */
               f_next = computeDiffCorrect(d_next, next_length_perpen);
-              
+
               /* Compute d_hat */
               d_hat = 2.0 * d * f * d_next * f_next /
                 (length_perpen * d * f + next_length_perpen * d_next*f_next);
-              
+
               /* Compute net current */
               current = sense * _surface_currents->getValueByCell
                 (cell, surface*_num_cmfd_groups + e) - sense *
                 _surface_currents->getValueByCell
                 (cell_next, next_surface*_num_cmfd_groups + e);
-              
+
               /* Compute d_tilde */
               d_tilde = -(sense * d_hat * (flux_next - flux) +
                           current  / length) / (flux_next + flux);
-              
+
               /* If the magnitude of d_tilde is greater than the magnitude of
                * d_hat, select new values d_tilde and d_hat to ensure the course
                * mesh equations are guaranteed to be diagonally dominant */
@@ -508,11 +510,11 @@ void Cmfd::computeDs(int moc_iteration){
               d_tilde =
                 _materials[cell]->getDifTilde()[surface*_num_cmfd_groups + e] *
                 (1 - _relax_factor) + _relax_factor * d_tilde;
-            
+
             /* Set d_hat and d_tilde */
             _materials[cell]->setDifHatByGroup(d_hat, e+1, surface);
             _materials[cell]->setDifTildeByGroup(d_tilde, e+1, surface);
-            
+
             log_printf(DEBUG, "cell: %i, group: %i, side: %i, flux: %f,"
                        " current: %f, d: %f, dhat: %f, dtilde: %f",
                        y*_num_x + x, e, surface, flux, current, d, d_hat,
@@ -563,38 +565,24 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration){
   /* Convergence criteria on L2 norm of flux for linear solve */
   FP_PRECISION linear_solve_convergence_criteria = 1E-7;
 
-  log_printf(NORMAL, "1");
-  
   /* Compute the cross sections and surface diffusion coefficients */
   computeXS();
   computeDs(moc_iteration);
-
-  log_printf(NORMAL, "2");
   
   /* Construct matrices */
   constructMatrices();
-
-  log_printf(NORMAL, "3");
   
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);
 
-  log_printf(NORMAL, "4");
-  
   /* Solve the eigenvalue problem */
-  _k_eff = eigenvalueSolve(_A, _M, _new_flux, 1.e-6, _SOR_factor);
+  _k_eff = eigenvalueSolve(_A, _M, _new_flux, 1.e-12, _SOR_factor);
 
-  log_printf(NORMAL, "5");
-  
   /* Rescale the old and new flux */
   rescaleFlux();
 
-  log_printf(NORMAL, "6");
-  
   /* Update the MOC flux */
   updateMOCFlux();
-
-  log_printf(NORMAL, "7");
 
   return _k_eff;
 }
@@ -635,7 +623,6 @@ void Cmfd::constructMatrices(){
   
   /* Loop over cells */
   for (int z = 0; z < _num_z; z++){
-    #pragma omp parallel for private(value, volume, cell, material)
     for (int y = 0; y < _num_y; y++){
       for (int x = 0; x < _num_x; x++){
 
@@ -687,8 +674,8 @@ void Cmfd::constructMatrices(){
           
           /* Set transport term on off diagonal */
           if (x != _num_x - 1){
-            value = - (material->getDifHat()[SURFACE_X_MIN*_num_cmfd_groups + e]
-                       + material->getDifTilde()[SURFACE_X_MIN*_num_cmfd_groups + e])
+            value = - (material->getDifHat()[SURFACE_X_MAX*_num_cmfd_groups + e]
+                       + material->getDifTilde()[SURFACE_X_MAX*_num_cmfd_groups + e])
               * _cell_height * _cell_depth;
 
             _A->incrementValueByCell(cell+1, e, cell, e, value);
@@ -721,8 +708,8 @@ void Cmfd::constructMatrices(){
           
           /* Set transport term on off diagonal */
           if (y != _num_y - 1){
-            value = - (material->getDifHat()[SURFACE_Y_MIN*_num_cmfd_groups + e]
-                       + material->getDifTilde()[SURFACE_Y_MIN*_num_cmfd_groups + e])
+            value = - (material->getDifHat()[SURFACE_Y_MAX*_num_cmfd_groups + e]
+                       + material->getDifTilde()[SURFACE_Y_MAX*_num_cmfd_groups + e])
               * _cell_width * _cell_depth;
 
             _A->incrementValueByCell(cell+_num_x, e, cell, e, value);
@@ -755,8 +742,8 @@ void Cmfd::constructMatrices(){
           
           /* Set transport term on off diagonal */
           if (z != _num_z - 1){
-            value = - (material->getDifHat()[SURFACE_Z_MIN*_num_cmfd_groups + e]
-                       + material->getDifTilde()[SURFACE_Z_MIN*_num_cmfd_groups + e])
+            value = - (material->getDifHat()[SURFACE_Z_MAX*_num_cmfd_groups + e]
+                       + material->getDifTilde()[SURFACE_Z_MAX*_num_cmfd_groups + e])
               * _cell_width * _cell_height;
 
             _A->incrementValueByCell(cell+_num_x*_num_y, e, cell, e, value);
@@ -1677,12 +1664,12 @@ int Cmfd::getCellNext(int cell_num, int surface_id){
   int cell_next = -1;
 
   if (surface_id == SURFACE_X_MIN){
-    if (cell_num % _num_x != 0)
+    if ((cell_num % (_num_x*_num_y)) % _num_x != 0)
       cell_next = cell_num - 1;
   }
 
   else if (surface_id == SURFACE_Y_MIN){
-    if (cell_num / _num_x != 0)
+    if ((cell_num % (_num_x*_num_y)) / _num_x != 0)
       cell_next = cell_num - _num_x;
   }
 
@@ -1692,12 +1679,12 @@ int Cmfd::getCellNext(int cell_num, int surface_id){
   }
 
   else if (surface_id == SURFACE_X_MAX){
-    if (cell_num % _num_x != _num_x - 1)
+    if ((cell_num % (_num_x*_num_y)) % _num_x != _num_x - 1)
       cell_next = cell_num + 1;
   }
 
   else if (surface_id == SURFACE_Y_MAX){
-    if (cell_num / _num_x != _num_y - 1)
+    if ((cell_num % (_num_x*_num_y)) / _num_x != _num_y - 1)
       cell_next = cell_num + _num_x;
   }
 
