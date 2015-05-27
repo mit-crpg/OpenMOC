@@ -341,6 +341,20 @@ void Cmfd::computeDs(int moc_iteration){
   int next_surface;
   int cell, cell_next;
 
+  for (int z = 0; z < _num_z; z++){
+    for (int y = 0; y < _num_y; y++){
+      for (int x = 0; x < _num_x; x++){
+        cell = z*_num_y*_num_x + y*_num_x + x;
+        for (int surface = 0; surface < 6; surface++){
+          for (int e = 0; e < _num_cmfd_groups; e++){
+            log_printf(DEBUG, "cell: %i, s: %i, g: %i, cur: %f", cell, surface, e, _surface_currents->getValueByCell
+                       (cell, surface*_num_cmfd_groups + e));
+          }
+        }
+      }
+    }
+  }
+  
   /* Loop over mesh cells in y direction */
   #pragma omp parallel for private(d, d_next, d_hat, d_tilde, current, flux, \
     flux_next, f, f_next, length, length_perpen, next_length_perpen, \
@@ -462,6 +476,10 @@ void Cmfd::computeDs(int moc_iteration){
                 _surface_currents->getValueByCell
                 (cell_next, next_surface*_num_cmfd_groups + e);
 
+              log_printf(DEBUG, "c: %i, s: %i, e: %i, cur: %f", cell, surface, e, _surface_currents->getValueByCell
+                         (cell, surface*_num_cmfd_groups + e));
+
+              
               /* Compute d_tilde */
               d_tilde = -(sense * d_hat * (flux_next - flux) +
                           current  / length) / (flux_next + flux);
@@ -562,9 +580,6 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration){
   FP_PRECISION sum_new, sum_old, val, residual, scale_val;
   int row;
 
-  /* Convergence criteria on L2 norm of flux for linear solve */
-  FP_PRECISION linear_solve_convergence_criteria = 1E-7;
-
   /* Compute the cross sections and surface diffusion coefficients */
   computeXS();
   computeDs(moc_iteration);
@@ -576,7 +591,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration){
   _old_flux->copyTo(_new_flux);
 
   /* Solve the eigenvalue problem */
-  _k_eff = eigenvalueSolve(_A, _M, _new_flux, 1.e-12, _SOR_factor);
+  _k_eff = eigenvalueSolve(_A, _M, _new_flux, 1.e-8, _SOR_factor);
 
   /* Rescale the old and new flux */
   rescaleFlux();
@@ -749,7 +764,6 @@ void Cmfd::constructMatrices(){
             _A->incrementValueByCell(cell+_num_x*_num_y, e, cell, e, value);
           }
           
-
           /* Source term */
           for (int g = 0; g < _num_cmfd_groups; g++){
             value = material->getChi()[e] * material->getNuSigmaF()[g]
@@ -1021,7 +1035,8 @@ void Cmfd::initializeGroupMap(){
  */
 int Cmfd::findCmfdSurface(int cell, LocalCoords* coords){
   Point* point = coords->getHighestLevel()->getPoint();
-  return _lattice->getLatticeSurface(cell, point);
+  int surface = _lattice->getLatticeSurface(cell, point);
+  return surface;
 }
 
 

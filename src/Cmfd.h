@@ -38,7 +38,7 @@
 class Cmfd {
 
 private:
-
+  
   /** Pointer to polar quadrature object */
   Quadrature* _quadrature;
 

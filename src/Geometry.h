@@ -57,6 +57,8 @@ class Geometry {
 
 private:
 
+  bool _solve_3D;
+  
   omp_lock_t* _num_FSRs_lock;
 
   /** The boundary conditions at the top of the bounding box containing

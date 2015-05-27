@@ -23,6 +23,7 @@ Vector::~Vector(){
 
 
 void Vector::incrementValue(int row, double val){
+  log_printf(DEBUG, "incrementing row: %i val: %f", row, val);
   _array[row] += val;
 }
 

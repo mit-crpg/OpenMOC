@@ -25,7 +25,7 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
-
+  
   /* initialize _num_FSRs lock */
   _num_FSRs_lock = new omp_lock_t;
   omp_init_lock(_num_FSRs_lock);
@@ -1217,16 +1217,11 @@ void Geometry::initializeCmfd(){
   int num_z = _cmfd->getNumZ();
   double height = getHeight();
   double width = getWidth();
-  double depth;
-  
-  if (getDepth() < 1.e6)
-    depth = getDepth();
-  else
-    depth = 1.0;
+  double depth = getDepth();
 
+  double cell_depth = depth / num_z;
   double cell_width = width / num_x;
   double cell_height = height / num_y;
-  double cell_depth = depth / num_z;
 
   /* Create CMFD lattice and set properties */
   Lattice* lattice = new Lattice();

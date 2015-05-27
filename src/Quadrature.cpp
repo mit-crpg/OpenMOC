@@ -885,7 +885,7 @@ LeonardPolarQuad::LeonardPolarQuad(): Quadrature() {
  */
 void LeonardPolarQuad::setNumPolarAngles(const int num_polar) {
 
-  if (num_polar != 4 || num_polar != 6)
+  if (num_polar != 4 && num_polar != 6)
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
                "for LeonardPolarQuad (4 or 6 angles)", num_polar);
 

@@ -1058,7 +1058,7 @@ def plot_tracks_3d(track_generator):
     py_printf('ERROR', 'Unable to plot Tracks since %s was input rather ' + \
               'than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.containsTracks():
+  if not track_generator.contains3DTracks():
     py_printf('ERROR', 'Unable to plot Tracks since the track ' + \
               'generator has not yet generated tracks')
 
@@ -1069,8 +1069,8 @@ def plot_tracks_3d(track_generator):
   num_polar = track_generator.getNumPolar()
   azim_spacing = track_generator.getDesiredAzimSpacing()
   polar_spacing = track_generator.getDesiredPolarSpacing()
-  num_tracks = track_generator.getNumTracks()
-  coords = track_generator.retrieveTrackCoords(num_tracks*6)
+  num_tracks = track_generator.getNum3DTracks()
+  coords = track_generator.retrieve3DTrackCoords(num_tracks*6)
 
   # Convert data to NumPy arrays
   coords = np.array(coords)

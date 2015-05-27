@@ -58,32 +58,6 @@ void Track3D::setPolarIndex(const int index) {
 }
 
 
-void Track3D::setLZIndex(const int index) {
-  _lz_index = index;
-}
-
-
-void Track3D::setTrackInPolarIndex(const int index) {
-  _track_in_polar_index = index;
-}
-
-
-void Track3D::setTrackInLZIndex(const int index) {
-  _track_in_lz_index = index;
-}
-
-
-
-void Track3D::setTrackOutPolarIndex(const int index) {
-  _track_out_polar_index = index;
-}
-
-
-void Track3D::setTrackOutLZIndex(const int index) {
-  _track_out_lz_index = index;
-}
-
-
 /**
  * @brief Return the Track's polar angle (with respect to the positive z-axis).
  * @return the polar angle \f$ \theta \in [0, \frac{\pi}{2}] \f$
@@ -95,31 +69,6 @@ double Track3D::getTheta() const {
 
 int Track3D::getPolarIndex() const {
   return _polar_index;
-}
-
-
-int Track3D::getLZIndex() const {
-  return _lz_index;
-}
-
-
-int Track3D::getTrackInPolarIndex() const {
-  return _track_in_polar_index;
-}
-
-
-int Track3D::getTrackInLZIndex() const {
-  return _track_in_lz_index;
-}
-
-
-int Track3D::getTrackOutPolarIndex() const {
-  return _track_out_polar_index;
-}
-
-
-int Track3D::getTrackOutLZIndex() const {
-  return _track_out_lz_index;
 }
 
 
@@ -136,20 +85,6 @@ std::string Track3D::toString() {
     _end.getX() << ", y = " << _end.getY() << ", z = " << _end.getZ() <<
     ", phi = " << _phi << ", theta = " << _theta;
   return string.str();
-}
-
-
-void Track3D::setOutgoingTrack(int polar, int lz, int train){
-  _track_out_polar_index = polar;
-  _track_out_lz_index = lz;
-  _track_out_train_index = train;
-}
-
-
-void Track3D::setIncomingTrack(int polar, int lz, int train){
-  _track_in_polar_index = polar;
-  _track_in_lz_index = lz;
-  _track_in_train_index = train;
 }
 
 

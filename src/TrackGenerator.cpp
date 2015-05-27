@@ -435,7 +435,7 @@ FP_PRECISION TrackGenerator::get3DFSRVolume(int fsr_id) {
               if (segment->_region_id == fsr_id)
                 volume += segment->_length * _quadrature->getAzimWeight(a)
                 * _quadrature->getPolarWeight(a, p) * getAzimSpacing(a)
-                * getPolarSpacing(a,p) / 2.0;
+                * getPolarSpacing(a,p);
             }
           }
         }
@@ -1055,10 +1055,6 @@ void TrackGenerator::initialize2DTracks() {
       track->getStart()->setCoords(width - _dx_eff[i] * (c + 0.5), 0.0);
       track->setPhi(phi);
       phi = findTrackEndPoint(track, phi, i);
-      track->setCycleNumber(c);
-      track->setTrainIndex(0);
-      track->setTrackOutTrainIndex(1);
-      track->setTrackInTrainIndex(_tracks_per_cycle[i]-1);
       track->setBCIn(_geometry->getMinYBoundaryType());
       track->setTrackOut(&_tracks_2D[i][c][1]);
       track->setTrackIn(&_tracks_2D[i][c][_tracks_per_cycle[i]-1]);
@@ -1071,23 +1067,17 @@ void TrackGenerator::initialize2DTracks() {
         track->getStart()->setCoords(track_prev->getEnd()->getX(),
                                      track_prev->getEnd()->getY());
         track->setPhi(phi);
-        track->setCycleNumber(c);
-        track->setTrainIndex(t);
-        track->setTrackInTrainIndex(t-1);
         track->setTrackIn(&_tracks_2D[i][c][t-1]);
         track->setBCIn(track_prev->getBCOut());
         
         /* If last track in cycle, reflecting in track is the first track */
         /* in cycle */
-        if (t == _tracks_per_cycle[i] - 1){
-          track->setTrackOutTrainIndex(0);
+        if (t == _tracks_per_cycle[i] - 1)
           track->setTrackOut(&_tracks_2D[i][c][0]);
-        }
+        
         /* If not last track, reflecting in track is next track in cycle */
-        else{
-          track->setTrackOutTrainIndex(t+1);
+        else
           track->setTrackOut(&_tracks_2D[i][c][t+1]);
-        }
         
         /* Get the endpoint of the track and return the complementary azimuthal angle */
         phi = findTrackEndPoint(track, phi, i);
@@ -1341,19 +1331,15 @@ void TrackGenerator::initialize3DTracks() {
             /* Set outgoing track */
             if (t == _tracks_per_plane[a][c][p][i]-1){
               if (i < _num_z[a][p]){
-                _tracks_3D[a][c][p][i][t].setOutgoingTrack(p, _num_l[a][p] + i, 0);
                 _tracks_3D[a][c][p][i][t].setTrackOut
                   (&_tracks_3D[a][c][p][_num_l[a][p] + i][0]);
               }
               else{
-                _tracks_3D[a][c][p][i][t]
-                  .setOutgoingTrack(pc, _num_l[a][p] + 2*_num_z[a][p] - i - 1, 0);
                 _tracks_3D[a][c][p][i][t].setTrackOut
                   (&_tracks_3D[a][c][pc][_num_l[a][p] + 2*_num_z[a][p] - i - 1][0]);
               }
             }
             else{
-              _tracks_3D[a][c][p][i][t].setOutgoingTrack(p, i, t+1);
               _tracks_3D[a][c][p][i][t].setTrackOut
                 (&_tracks_3D[a][c][p][i][t+1]);
             }
@@ -1361,17 +1347,11 @@ void TrackGenerator::initialize3DTracks() {
             /* Set the incoming track */
             if (t == 0){
               if (i < _num_l[a][p]){
-                _tracks_3D[a][c][p][i][t]
-                  .setIncomingTrack(pc, _num_l[a][p] - i - 1, _tracks_per_plane[a][c][pc]
-                                    [_num_l[a][p] - i - 1] - 1);
                 _tracks_3D[a][c][p][i][t].setTrackIn
                   (&_tracks_3D[a][c][pc][_num_l[a][p] - i - 1]
                    [_tracks_per_plane[a][c][pc][_num_l[a][p] - i - 1] - 1]);
               }
               else{
-                _tracks_3D[a][c][p][i][t]
-                  .setIncomingTrack(p, i - _num_l[a][p], _tracks_per_plane[a][c][p]
-                                    [i - _num_l[a][p]] - 1);
                 _tracks_3D[a][c][p][i][t].setTrackIn
                   (&_tracks_3D[a][c][p][i - _num_l[a][p]]
                    [_tracks_per_plane[a][c][p]
@@ -1379,7 +1359,6 @@ void TrackGenerator::initialize3DTracks() {
               }
             }
             else{
-              _tracks_3D[a][c][p][i][t].setIncomingTrack(p, i, t-1);
               _tracks_3D[a][c][p][i][t].setTrackIn
                 (&_tracks_3D[a][c][p][i][t-1]);
             }
@@ -1396,18 +1375,15 @@ void TrackGenerator::initialize3DTracks() {
             /* Set outgoing track */
             if (t == _tracks_per_plane[a][c][p][i]-1){
               if (i < _num_l[a][pc]){
-                _tracks_3D[a][c][p][i][t].setOutgoingTrack(pc, _num_l[a][pc] - i - 1, 0);
                 _tracks_3D[a][c][p][i][t].setTrackOut
                   (&_tracks_3D[a][c][pc][_num_l[a][pc] - i - 1][0]);
               }
               else{
-                _tracks_3D[a][c][p][i][t].setOutgoingTrack(p, i - _num_l[a][pc], 0);
                 _tracks_3D[a][c][p][i][t].setTrackOut
                   (&_tracks_3D[a][c][p][i - _num_l[a][pc]][0]);
               }
             }
             else{
-              _tracks_3D[a][c][p][i][t].setOutgoingTrack(p, i, t+1);
               _tracks_3D[a][c][p][i][t].setTrackOut
                 (&_tracks_3D[a][c][p][i][t+1]);
             }
@@ -1415,19 +1391,11 @@ void TrackGenerator::initialize3DTracks() {
             /* Set the incoming track */
             if (t == 0){
               if (i < _num_z[a][pc]){
-                _tracks_3D[a][c][p][i][t]
-                  .setIncomingTrack(p, _num_l[a][pc] + _num_z[a][pc] - i - 1,
-                                    _tracks_per_plane[a][c][p]
-                                    [_num_l[a][pc] +_num_z[a][pc] - i - 1] - 1);
               _tracks_3D[a][c][p][i][t].setTrackIn
                 (&_tracks_3D[a][c][p][_num_l[a][pc] + _num_z[a][pc] - i - 1]
                  [_tracks_per_plane[a][c][p][_num_l[a][pc] +_num_z[a][pc] - i - 1] - 1]);
               }
               else{
-                _tracks_3D[a][c][p][i][t]
-                  .setIncomingTrack(pc, 2*_num_z[a][pc] + _num_l[a][pc] - i - 1,
-                                    _tracks_per_plane[a][c][pc]
-                                    [2*_num_z[a][pc] + _num_l[a][pc] - i - 1] - 1);
               _tracks_3D[a][c][p][i][t].setTrackIn
                 (&_tracks_3D[a][c][pc][2*_num_z[a][pc] + _num_l[a][pc] - i - 1]
                  [_tracks_per_plane[a][c][pc]
@@ -1435,7 +1403,6 @@ void TrackGenerator::initialize3DTracks() {
               }
             }
             else{
-              _tracks_3D[a][c][p][i][t].setIncomingTrack(p, i, t-1);
               _tracks_3D[a][c][p][i][t].setTrackIn
                 (&_tracks_3D[a][c][p][i][t-1]);
             }
@@ -1512,7 +1479,6 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start, double l_e
   for (int i=first_stack; i <= last_stack; i++){
 
     track2 = &_tracks_3D[azim][cycle][polar][lz_index][t];
-    track2->setAzimIndex(_tracks_2D[azim][cycle][i].getAzimIndex());
     
     /* Find the starting coords */
     if (i == first_stack){
@@ -1551,7 +1517,8 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start, double l_e
     track2->getEnd()->setCoords(x2, y2, z2);
     track2->setTheta(theta);
     track2->setPhi(_tracks_2D[azim][cycle][i].getPhi());
-
+    track2->setAzimIndex(_tracks_2D[azim][cycle][i].getAzimIndex());
+    
     t++;
   }
 }
@@ -1634,46 +1601,6 @@ void TrackGenerator::recalibrate3DTracksToOrigin() {
       }
     }
   }
-  
-  /*
-  for (int a=0; a < _num_azim/4; a++){
-    for (int c=0; c < _cycles_per_azim[a]; c++){
-      for (int p=0; p < _num_polar; p++){
-        for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
-          for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
-            log_printf(NORMAL, "track (%i, %i, %i, %i, %i, %i) in: %i out: %i",
-                       a, c, p, i, t, _tracks_3D[a][c][p][i][t].getUid(),
-                       _tracks_3D[a][c][p][i][t].getTrackIn()->getUid(),
-                       _tracks_3D[a][c][p][i][t].getTrackOut()->getUid());
-
-            log_printf(NORMAL, "(%f,%f,%f) -> (%f,%f,%f)",
-                       _tracks_3D[a][c][p][i][t].getTrackIn()->getStart()->getX(),
-                       _tracks_3D[a][c][p][i][t].getTrackIn()->getStart()->getY(),
-                       _tracks_3D[a][c][p][i][t].getTrackIn()->getStart()->getZ(),
-                       _tracks_3D[a][c][p][i][t].getTrackIn()->getEnd()->getX(),
-                       _tracks_3D[a][c][p][i][t].getTrackIn()->getEnd()->getY(),
-                       _tracks_3D[a][c][p][i][t].getTrackIn()->getEnd()->getZ());
-            log_printf(NORMAL, "(%f,%f,%f) -> (%f,%f,%f)",
-                       _tracks_3D[a][c][p][i][t].getStart()->getX(),
-                       _tracks_3D[a][c][p][i][t].getStart()->getY(),
-                       _tracks_3D[a][c][p][i][t].getStart()->getZ(),
-                       _tracks_3D[a][c][p][i][t].getEnd()->getX(),
-                       _tracks_3D[a][c][p][i][t].getEnd()->getY(),
-                       _tracks_3D[a][c][p][i][t].getEnd()->getZ());
-            log_printf(NORMAL, "(%f,%f,%f) -> (%f,%f,%f)",
-                       _tracks_3D[a][c][p][i][t].getTrackOut()->getStart()->getX(),
-                       _tracks_3D[a][c][p][i][t].getTrackOut()->getStart()->getY(),
-                       _tracks_3D[a][c][p][i][t].getTrackOut()->getStart()->getZ(),
-                       _tracks_3D[a][c][p][i][t].getTrackOut()->getEnd()->getX(),
-                       _tracks_3D[a][c][p][i][t].getTrackOut()->getEnd()->getY(),
-                       _tracks_3D[a][c][p][i][t].getTrackOut()->getEnd()->getZ());
-            
-          }
-        }
-      }
-    }
-  }
-  */
 }
 
 

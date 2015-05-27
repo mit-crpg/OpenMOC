@@ -573,7 +573,7 @@ FP_PRECISION Solver::convergeSource(int max_iterations) {
     residual = computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
-
+    
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);

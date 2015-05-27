@@ -1542,29 +1542,29 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
 
   /* Bools indicating if point is on each surface */
   bool on_min_x, on_max_x, on_min_y, on_max_y, on_min_z, on_max_z;
-
+  
   /* Check if point is on X_MIN boundary */
-  xplane.setX(-(lat_x*_width_x - _width_x*_num_x/2.0 + _offset.getX()));
+  xplane.setX((lat_x*_width_x - _width_x*_num_x/2.0 + _offset.getX()));
   on_min_x = xplane.isPointOnSurface(point);
 
   /* Check if point is on X_MAX boundary */
-  xplane.setX(-((lat_x + 1)*_width_x - _width_x*_num_x/2.0 + _offset.getX()));
+  xplane.setX(((lat_x + 1)*_width_x - _width_x*_num_x/2.0 + _offset.getX()));
   on_max_x = xplane.isPointOnSurface(point);
 
   /* Check if point is on Y_MIN boundary */
-  yplane.setY(-(lat_y*_width_y - _width_y*_num_y/2.0 + _offset.getY()));
+  yplane.setY((lat_y*_width_y - _width_y*_num_y/2.0 + _offset.getY()));
   on_min_y = yplane.isPointOnSurface(point);
 
   /* Check if point is on Y_MAX boundary */
-  yplane.setY(-((lat_y + 1)*_width_y - _width_y*_num_y/2.0 + _offset.getY()));
+  yplane.setY(((lat_y + 1)*_width_y - _width_y*_num_y/2.0 + _offset.getY()));
   on_max_y = yplane.isPointOnSurface(point);
 
   /* Check if point is on Z_MIN boundary */
-  zplane.setZ(-(lat_z*_width_z - _width_z*_num_z/2.0 + _offset.getZ()));
+  zplane.setZ((lat_z*_width_z - _width_z*_num_z/2.0 + _offset.getZ()));
   on_min_z = zplane.isPointOnSurface(point);
 
   /* Check if point is on Z_MAX boundary */
-  zplane.setZ(-((lat_z + 1)*_width_z - _width_z*_num_z/2.0 + _offset.getZ()));
+  zplane.setZ(((lat_z + 1)*_width_z - _width_z*_num_z/2.0 + _offset.getZ()));
   on_max_z = zplane.isPointOnSurface(point);  
 
   if (on_min_x){

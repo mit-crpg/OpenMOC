@@ -36,38 +36,6 @@ void Track::setPhi(const double phi) {
 
 
 /**
- * @brief Set the index for the Track's azimuthal angle index.
- * @details The azimuthal angle index corresponds to a an array of all
- *          azimuthal angles for \f$ \theta \in [0, \pi] \f$ owned by
- *          the TrackGenerator class.
- * @param index the azimuthal angle index
- */
-void Track::setAzimIndex(const int index) {
-  _azim_index = index;
-}
-
-
-void Track::setCycleNumber(const int index) {
-  _cycle_number = index;
-}
-
-
-void Track::setTrainIndex(const int index) {
-  _train_index = index;
-}
-
-
-void Track::setTrackInTrainIndex(const int index) {
-  _track_in_train_index = index;
-}
-
-
-void Track::setTrackOutTrainIndex(const int index) {
-  _track_out_train_index = index;
-}
-
-
-/**
  * @brief Sets the boundary condition for the incoming flux along the Track's
  *        "forward" direction.
  * @details The boolean represents vacuum (false) or reflective (true)
@@ -143,31 +111,6 @@ double Track::getLength() {
 }
 
 
-int Track::getAzimIndex() const {
-  return _azim_index;
-}
-
-
-int Track::getCycleNumber() const {
-  return _cycle_number;
-}
-
-
-int Track::getTrainIndex() const {
-  return _train_index;
-}
-
-
-int Track::getTrackInTrainIndex() const {
-  return _track_in_train_index;
-}
-
-
-int Track::getTrackOutTrainIndex() const {
-  return _track_out_train_index;
-}
-
-
 /**
  * @brief Returns the boundary condition for the flux along the Track's
  *        "forward" direction.
@@ -214,3 +157,11 @@ void Track::clearSegments() {
 }
 
 
+void Track::setAzimIndex(int azim_index){
+  _azim_index = azim_index;
+}
+
+
+int Track::getAzimIndex(){
+  return _azim_index;
+}

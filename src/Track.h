@@ -60,26 +60,9 @@ protected:
   /** The azimuthal angle for the Track */
   double _phi;
 
-  /** The azimuthal angle index into the _2D_tracks and _3D_tracks ragged arrays */
-  int _azim_index;
-
-  /** The cycle # index into the the TrackGenerator ragged arrays */
-  int _cycle_number;
-  
-  /** The train index into the the TrackGenerator _2D_tracks and _3D_tracks ragged arrays */
-  int _train_index;
-
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
   
-  /** The indices into the _2D_tracks and _3D_tracks array that this track 
-   * reflects forward into */
-  int _track_in_train_index;
-
-  /** The indices into the _2D_tracks and _3D_tracks array that this track 
-   * reflects backward into */
-  int _track_out_train_index;
-
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
    *  conditions. */
@@ -92,6 +75,8 @@ protected:
 
   Track* _track_out;
   Track* _track_in;
+
+  int _azim_index;
   
 public:
   Track();
@@ -99,18 +84,14 @@ public:
 
   void setUid(int uid);
   void setPhi(const double phi);
-  void setAzimIndex(const int index);
-  void setCycleNumber(const int index);
-  void setTrainIndex(const int index);
-
-  void setTrackInTrainIndex(const int index);
-  void setTrackOutTrainIndex(const int index);
 
   void setBCIn(const bool bc_in);
   void setBCOut(const bool bc_out);
 
   void setTrackIn(Track* track_in);
   void setTrackOut(Track* track_out);
+
+  void setAzimIndex(int azim_index);
   
   int getUid();
   Point* getEnd();
@@ -118,15 +99,10 @@ public:
   double getPhi() const;
   double getLength();
   
-  int getAzimIndex() const;
-  int getCycleNumber() const;
-  int getTrainIndex() const;
-
-  int getTrackInTrainIndex() const;
-  int getTrackOutTrainIndex() const;
-
   Track* getTrackIn();
   Track* getTrackOut();
+
+  int getAzimIndex();
   
   bool getBCIn() const;
   bool getBCOut() const;
