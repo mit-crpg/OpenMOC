@@ -673,100 +673,61 @@ void CPUSolver::transportSweep() {
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     zeroSurfaceCurrents();
 
-  /* Loop over azimuthal angles */
+  /* Loop over each cycle in parallel */
   #pragma omp parallel for private(curr_track, azim_index, polar_index, num_segments, \
-                                   curr_segment, segments, track_flux, tid, \
-                                   max_track, min_track) schedule(guided)  
-  for (int a=0; a < _num_azim/4; a++) {
+                                 curr_segment, segments, track_flux, tid, \
+                                 max_track, min_track) schedule(guided)  
+  for (int c=0; c < _num_cycles; c++){
+      
+    /* Compute the minimum and maximum Track IDs corresponding to
+     * this azimuthal angular halfspace */
+    min_track = _num_tracks[c];
+    max_track = _num_tracks[c+1];
     
-    /* Loop over the cycles for this azimuthal angle */
-    for (int c=0; c < _cycles_per_azim[a]; c++){
-      
-      /* Compute the minimum and maximum Track IDs corresponding to
-       * this azimuthal angular halfspace */
-      min_track = _num_tracks[a][c];
-      
-      if (c < _cycles_per_azim[a] - 1)
-        max_track = _num_tracks[a][c+1];
-      else if (a < _num_azim/4 - 1)
-        max_track = _num_tracks[a+1][0];
-      else
-        max_track = _tot_num_tracks;
-      
-      /* Loop over each thread within this azimuthal angle halfspace */
-      for (int track_id=min_track; track_id < max_track; track_id++) {
+    for (int track_id=min_track; track_id < max_track; track_id++) {
         
-        tid = omp_get_thread_num();
-        
-        curr_track = _tracks[track_id];
-        azim_index = curr_track->getAzimIndex();
-        
-        /* Get the polar index */
-        if (_solve_3D)
-          polar_index = static_cast<Track3D*>(_tracks[track_id])->getPolarIndex();
-        else
-          polar_index = 0;
-        
-        azim_index = _quad->getFirstOctantAzim(azim_index);
-        
-        /* Use local array accumulator to prevent false sharing*/
-        FP_PRECISION* thread_fsr_flux;
-        thread_fsr_flux = new FP_PRECISION[_num_groups];
-        
-        /* Initialize local pointers to important data structures */
-        num_segments = curr_track->getNumSegments();
-        segments = curr_track->getSegments();
-        track_flux = &_boundary_flux(track_id,0,0);
-        
-        /* Loop over each Track segment in forward direction */
-        for (int s=0; s < num_segments; s++) {
-          curr_segment = &segments[s];
-          scalarFluxTally(curr_segment, azim_index, polar_index, track_flux,
-                          thread_fsr_flux, true);
-        }
-        
-        delete thread_fsr_flux;
-        
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, polar_index, true, track_flux);
-      }
+      tid = omp_get_thread_num();
+      curr_track = _tracks[track_id];      
+      azim_index = _quad->getFirstOctantAzim
+        (curr_track->getAzimIndex());
 
-      for (int track_id=max_track-1; track_id >= min_track; track_id--) {
-          
-        tid = omp_get_thread_num();
-        
-        curr_track = _tracks[track_id];
-        azim_index = curr_track->getAzimIndex();
-        
-        /* Get the polar index */
-        if (_solve_3D)
-          polar_index = static_cast<Track3D*>(_tracks[track_id])->getPolarIndex();
-        else
-          polar_index = 0;
-                    
-        azim_index = _quad->getFirstOctantAzim(azim_index);
-        
-        /* Use local array accumulator to prevent false sharing*/
-        FP_PRECISION* thread_fsr_flux;
-        thread_fsr_flux = new FP_PRECISION[_num_groups];
-        
-        /* Initialize local pointers to important data structures */
-        num_segments = curr_track->getNumSegments();
-        segments = curr_track->getSegments();
-        track_flux = &_boundary_flux(track_id,1,0);
-        
-        /* Loop over each Track segment in reverse direction */
-        for (int s=num_segments-1; s > -1; s--) {
-          curr_segment = &segments[s];
-          scalarFluxTally(curr_segment, azim_index, polar_index, track_flux,
-                          thread_fsr_flux, false);
-        }
-        
-        delete thread_fsr_flux;
-        
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, polar_index, false, track_flux);
+      /* Get the polar index */
+      if (_solve_3D)
+        polar_index = static_cast<Track3D*>(_tracks[track_id])->getPolarIndex();
+      else
+        polar_index = 0;
+
+      /* Use local array accumulator to prevent false sharing*/
+      FP_PRECISION* thread_fsr_flux;
+      thread_fsr_flux = new FP_PRECISION[_num_groups];
+      
+      /* Initialize local pointers to important data structures */
+      num_segments = curr_track->getNumSegments();
+      segments = curr_track->getSegments();
+      track_flux = &_boundary_flux(track_id,0,0);
+      
+      /* Loop over each Track segment in forward direction */
+      for (int s=0; s < num_segments; s++) {
+        curr_segment = &segments[s];
+        scalarFluxTally(curr_segment, azim_index, polar_index, track_flux,
+                        thread_fsr_flux, true);
       }
+      
+      /* Transfer boundary angular flux to outgoing Track */
+      transferBoundaryFlux(track_id, azim_index, polar_index, true, track_flux);
+      track_flux = &_boundary_flux(track_id,1,0);
+      
+      /* Loop over each Track segment in reverse direction */
+      for (int s=num_segments-1; s > -1; s--) {
+        curr_segment = &segments[s];
+        scalarFluxTally(curr_segment, azim_index, polar_index, track_flux,
+                        thread_fsr_flux, false);
+      }
+      
+      delete thread_fsr_flux;
+      
+      /* Transfer boundary angular flux to outgoing Track */
+      transferBoundaryFlux(track_id, azim_index, polar_index, false, track_flux);
     }
   }
 

@@ -113,7 +113,8 @@ protected:
   int* _cycles_per_azim;
   int**** _tracks_per_plane;
   bool _solve_3D;
-  int** _num_tracks;
+  int* _num_tracks;
+  int _num_cycles;
   
   /** The total number of Tracks */
   int _tot_num_tracks;

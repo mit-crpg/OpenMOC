@@ -28,6 +28,7 @@ Solver::Solver(Geometry* geometry, TrackGenerator* track_generator) {
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
   _solve_3D = false;
+  _num_cycles = 0;
   
   _tracks = NULL;
   _azim_spacings = NULL;
@@ -100,9 +101,6 @@ Solver::~Solver() {
 
   if (_exp_evaluator != NULL)
     delete _exp_evaluator;
-
-  if (_quad != NULL)
-    delete _quad;
 }
 
 
@@ -272,8 +270,8 @@ void Solver::setGeometry(Geometry* geometry) {
  */
 void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
-  if ((!track_generator->contains2DTracks() && track_generator->isSolve2D()) ||
-      (!track_generator->contains3DTracks() && track_generator->isSolve3D()))
+  if ((!track_generator->contains2DSegments() && track_generator->isSolve2D()) ||
+      (!track_generator->contains3DSegments() && track_generator->isSolve3D()))
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");
 
@@ -287,11 +285,59 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _polar_spacings = _track_generator->getPolarSpacings();
   _quad = _track_generator->getQuadrature();
   _num_polar = _quad->getNumPolarAngles();
+  _num_cycles = 0;
   
   /* Initialize the tracks array */
-  int counter = 0;
-  _num_tracks = new int*[_num_azim/4];
+  int counter = 0;  
+  int ac = 0;
+
+  for (int a=0; a < _num_azim/4; a++)
+    _num_cycles += _cycles_per_azim[a];
+  _num_tracks = new int[_num_cycles+1];
   
+  if (!_solve_3D){
+    _fluxes_per_track = _num_groups * _num_polar/2;
+    _tot_num_tracks = _track_generator->getNum2DTracks();
+    _tracks = new Track*[_tot_num_tracks];
+
+    for (int a=0; a < _num_azim/4; a++){
+      for (int c=0; c < _cycles_per_azim[a]; c++){
+        _num_tracks[ac] = counter;
+        for (int t=0; t < _tracks_per_cycle[a]; t++){
+          _tracks[counter] = &_track_generator->get2DTracks()[a][c][t];
+          counter++;
+        }
+        ac++;
+      }
+    }
+
+    _num_tracks[ac] = counter;
+  }
+  else{
+    _fluxes_per_track = _num_groups;
+    _tot_num_tracks = _track_generator->getNum3DTracks();
+    _tracks = new Track*[_tot_num_tracks];
+    
+    for (int a=0; a < _num_azim/4; a++){
+      for (int c=0; c < _cycles_per_azim[a]; c++){
+        _num_tracks[ac] = counter;
+        for (int p=0; p < _num_polar; p++){
+          for (int i=0; i < _track_generator->getNumZ(a,p)
+                 + _track_generator->getNumL(a,p); i++){
+            for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
+              _tracks[counter] = &_track_generator->get3DTracks()[a][c][p][i][t];
+              counter++;
+            }
+          }
+        }
+        ac++;
+      }
+    }
+
+    _num_tracks[ac] = counter;
+  }
+ 
+  /*
   if (!_solve_3D){
     _fluxes_per_track = _num_groups * _num_polar/2;
     _tot_num_tracks = _track_generator->getNum2DTracks();
@@ -330,6 +376,8 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
       }
     }
   }
+  */
+
 }
 
 
@@ -437,6 +485,12 @@ void Solver::initializeCmfd(){
 
   log_printf(INFO, "Initializing CMFD...");
 
+  /* If 2D Solve, set CMFD z-direction mesh size to 1 and depth to 1.0 */
+  if (!_solve_3D){
+    _cmfd->setNumZ(1);
+    _cmfd->setDepth(1.0);
+  }
+  
   /* Give CMFD number of FSRs and FSR property arrays */
   _cmfd->setNumFSRs(_num_FSRs);
   _cmfd->setFSRVolumes(_FSR_volumes);

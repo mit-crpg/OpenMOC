@@ -138,23 +138,43 @@ void ExpEvaluator::initialize(double max_tau, double tolerance) {
   if (_exp_table != NULL)
     delete [] _exp_table;
 
-  _table_size = _num_polar * num_array_values;
-  _exp_table = new FP_PRECISION[_table_size];
-
-  FP_PRECISION expon;
-  FP_PRECISION intercept;
-  FP_PRECISION slope;
-  FP_PRECISION sin_theta;
-
-  /* Create exponential linear interpolation table */
-  for (int i=0; i < num_array_values; i++){
-    for (int p=0; p < _num_polar/2; p++){
-      sin_theta = _quadrature->getSinTheta(0,p);
-      expon = exp(- (i * exp_table_spacing) / sin_theta);
-      slope = - expon / sin_theta;
-      intercept = expon * (1 + (i * exp_table_spacing) / sin_theta);
-      _exp_table[_num_polar * i + 2 * p] = slope;
-      _exp_table[_num_polar * i + 2 * p + 1] = intercept;
+  if (_solve_3D){
+    _table_size = num_array_values * 2;
+    _exp_table = new FP_PRECISION[_table_size];
+    
+    FP_PRECISION expon;
+    FP_PRECISION intercept;
+    FP_PRECISION slope;
+    FP_PRECISION sin_theta;
+    
+    /* Create exponential linear interpolation table */
+    for (int i=0; i < num_array_values; i++){
+      expon = exp(- (i * exp_table_spacing));
+      slope = - expon;
+      intercept = expon * (1 + (i * exp_table_spacing));
+      _exp_table[i * 2] = slope;
+      _exp_table[i * 2 + 1] = intercept;
+    }
+  }
+  else{
+    _table_size = _num_polar * num_array_values;
+    _exp_table = new FP_PRECISION[_table_size];
+    
+    FP_PRECISION expon;
+    FP_PRECISION intercept;
+    FP_PRECISION slope;
+    FP_PRECISION sin_theta;
+    
+    /* Create exponential linear interpolation table */
+    for (int i=0; i < num_array_values; i++){
+      for (int p=0; p < _num_polar/2; p++){
+        sin_theta = _quadrature->getSinTheta(0,p);
+        expon = exp(- (i * exp_table_spacing) / sin_theta);
+        slope = - expon / sin_theta;
+        intercept = expon * (1 + (i * exp_table_spacing) / sin_theta);
+        _exp_table[_num_polar * i + 2 * p] = slope;
+        _exp_table[_num_polar * i + 2 * p + 1] = intercept;
+      }
     }
   }
 }
@@ -176,11 +196,19 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int azim, int po
 
   /* Evaluate the exponential using the lookup table - linear interpolation */
   if (_interpolate) {
-    int index;
-    index = round_to_int(tau * _inverse_exp_table_spacing);
-    index *= _num_polar;
-    exponential = (1. - (_exp_table[index + 2 * polar] * tau +
-                  _exp_table[index + 2 * polar + 1]));
+    if (_solve_3D){
+      int index;
+      index = round_to_int(tau * _inverse_exp_table_spacing) * 2;
+      exponential = (1. - (_exp_table[index] * tau +
+                           _exp_table[index + 1]));
+    }
+    else{
+      int index;
+      index = round_to_int(tau * _inverse_exp_table_spacing);
+      index *= _num_polar;
+      exponential = (1. - (_exp_table[index + 2 * polar] * tau +
+                           _exp_table[index + 2 * polar + 1]));
+    }
   }
 
   /* Evalute the exponential using the intrinsic exp(...) function */

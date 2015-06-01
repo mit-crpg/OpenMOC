@@ -30,7 +30,7 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../../c5g7-materials.h5')
+materials = materialize.materialize('../../c5g7-materials.py')
 
 
 ###############################################################################
@@ -43,15 +43,15 @@ xmin = XPlane(x=-32.13, name='xmin')
 xmax = XPlane(x= 32.13, name='xmax')
 ymin = YPlane(y=-32.13, name='ymin')
 ymax = YPlane(y= 32.13, name='ymax')
-zmin = ZPlane(z=-0.5, name='zmin')
-zmax = ZPlane(z= 0.5, name='zmax')
+zmin = ZPlane(z=-32.13, name='zmin')
+zmax = ZPlane(z= 32.13, name='zmax')
 
 xmin.setBoundaryType(REFLECTIVE)
 xmax.setBoundaryType(VACUUM)
 ymin.setBoundaryType(VACUUM)
 ymax.setBoundaryType(REFLECTIVE)
 zmin.setBoundaryType(REFLECTIVE)
-zmax.setBoundaryType(REFLECTIVE)
+zmax.setBoundaryType(VACUUM)
 
 # Create Circles for the fuel as well as to discretize the moderator into rings
 fuel_radius = Circle(x=0.0, y=0.0, radius=0.54)
@@ -113,6 +113,15 @@ fission_chamber = Universe(name='Fission Chamber')
 fission_chamber.addCell(fission_chamber_cell)
 fission_chamber.addCell(moderator_ring)
 
+# Control rod pin cell
+control_rod_cell = CellBasic()
+control_rod_cell.setMaterial(materials['Control Rod'])
+control_rod_cell.addSurface(-1, fuel_radius)
+
+control_rod = Universe(name='Control Rod')
+control_rod.addCell(control_rod_cell)
+control_rod.addCell(moderator_ring)
+
 # Guide tube pin cell
 guide_tube_cell = CellBasic()
 guide_tube_cell.setMaterial(materials['Guide Tube'])
@@ -130,17 +139,20 @@ reflector = Universe(name='Reflector')
 reflector.addCell(reflector_cell)
 
 # CellFills
-assembly1_cell = CellFill(name='Assembly 1')
-assembly2_cell = CellFill(name='Assembly 2')
-reflector_cell_fill = CellFill(name='Reflector Cell')
+assembly_uo2_unrod_cell = CellFill(name='UO2 Assembly Unrodded')
+assembly_mox_unrod_cell = CellFill(name='MOX Assembly Unrodded')
+assembly_rfl_unrod_cell = CellFill(name='Reflector Unrodded')
+assembly_rfl_rod_cell = CellFill(name='Reflector Rodded')
 
-assembly1 = Universe(name='Assembly 1')
-assembly2 = Universe(name='Assembly 2')
-reflector_univ = Universe(name='Reflector Univ')
+assembly_uo2_unrod = Universe(name='UO2 Assembly Unrodded')
+assembly_mox_unrod = Universe(name='MOX Assembly Unrodded')
+assembly_rfl_unrod = Universe(name='Rfl Assembly Unrodded')
+assembly_rfl_rod = Universe(name='Rfl Assembly Rodded')
 
-assembly1.addCell(assembly1_cell)
-assembly2.addCell(assembly2_cell)
-reflector_univ.addCell(reflector_cell_fill)
+assembly_uo2_unrod.addCell(assembly_uo2_unrod_cell)
+assembly_mox_unrod.addCell(assembly_mox_unrod_cell)
+assembly_rfl_unrod.addCell(assembly_rfl_unrod_cell)
+assembly_rfl_rod.addCell(assembly_rfl_rod_cell)
 
 # Root Cell/Universe
 root_cell = CellFill(name='Full Geometry')
@@ -163,9 +175,9 @@ log.py_printf('NORMAL', 'Creating lattices...')
 
 lattices = list()
 
-# Top left, bottom right 17 x 17 assemblies
-lattices.append(Lattice(name='Assembly 1'))
-lattices[-1].setWidth(width_x=1.26, width_y=1.26)
+# UO2 unrodded 17 x 17 assemblies
+lattices.append(Lattice(name='Assembly UO2 Unrodded'))
+lattices[-1].setWidth(width_x=1.26, width_y=1.26, width_z=7.14)
 template = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1],
@@ -189,11 +201,11 @@ for i in range(17):
   for j in range(17):
     template[i][j] = universes[template[i][j]]
 lattices[-1].setUniverses(template)
-assembly1_cell.setFill(lattices[-1])
+assembly_uo2_unrod_cell.setFill(lattices[-1])
 
-# Top right, bottom left 17 x 17 assemblies
-lattices.append(Lattice(name='Assembly 2'))
-lattices[-1].setWidth(width_x=1.26, width_y=1.26)
+# MOX unrodded 17 x 17 assemblies
+lattices.append(Lattice(name='Assembly MOX Unrodded'))
+lattices[-1].setWidth(width_x=1.26, width_y=1.26, width_z=7.14)
 template = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
             [1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1],
@@ -211,28 +223,82 @@ template = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1],
             [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+
 universes = {1 : mox43, 2 : mox7, 3 : mox87,
              4 : guide_tube, 5 : fission_chamber}
 for i in range(17):
   for j in range(17):
     template[i][j] = universes[template[i][j]]
 lattices[-1].setUniverses(template)
-assembly2_cell.setFill(lattices[-1])
+assembly_mox_unrod_cell.setFill(lattices[-1])
 
-# Sliced up water cells - right side of geometry
-lattices.append(Lattice(name='Right Reflector'))
-lattices[-1].setWidth(width_x=1.26, width_y=1.26)
+# Reflector rodded 17 x 17 assemblies
+lattices.append(Lattice(name='Assembly Reflector Rodded'))
+lattices[-1].setWidth(width_x=1.26, width_y=1.26, width_z=7.14)
+template = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1],
+            [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 2, 1, 1, 2, 1, 1, 3, 1, 1, 2, 1, 1, 2, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+            [1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+
+universes = {1 : reflector, 2 : control_rod, 3 : fission_chamber}
+for i in range(17):
+  for j in range(17):
+    template[i][j] = universes[template[i][j]]
+lattices[-1].setUniverses(template)
+assembly_rfl_rod_cell.setFill(lattices[-1])
+
+# Reflector unrodded assembly
+lattices.append(Lattice(name='Assembly Reflector Unrodded'))
+lattices[-1].setWidth(width_x=1.26, width_y=1.26, width_z=7.14)
 template = [[reflector] * 17] * 17
 lattices[-1].setUniverses(template)
-reflector_cell_fill.setFill(lattices[-1])
+assembly_rfl_unrod_cell.setFill(lattices[-1])
 
-# 4 x 4 core to represent two bundles and water
+# 3 x 3 x 9 core to represent 3D core
 lattices.append(Lattice(name='Full Geometry'))
-lattices[-1].setWidth(width_x=21.42, width_y=21.42, width_z=1.0)
-lattices[-1].setUniverses([
-     [assembly1     , assembly2     , reflector_univ],
-     [assembly2     , assembly1     , reflector_univ],
-     [reflector_univ, reflector_univ, reflector_univ]])
+lattices[-1].setWidth(width_x=21.42, width_y=21.42, width_z=7.14)
+lattices[-1].setUniverses3D([[[assembly_rfl_rod  , assembly_rfl_rod  , assembly_rfl_unrod],
+                            [assembly_rfl_rod  , assembly_rfl_rod  , assembly_rfl_unrod],
+                            [assembly_rfl_unrod, assembly_rfl_unrod, assembly_rfl_unrod]],
+                           [[assembly_rfl_rod  , assembly_rfl_rod  , assembly_rfl_unrod],
+                            [assembly_rfl_rod  , assembly_rfl_rod  , assembly_rfl_unrod],
+                            [assembly_rfl_unrod, assembly_rfl_unrod, assembly_rfl_unrod]],
+                           [[assembly_rfl_rod  , assembly_rfl_rod  , assembly_rfl_unrod],
+                            [assembly_rfl_rod  , assembly_rfl_rod  , assembly_rfl_unrod],
+                            [assembly_rfl_unrod, assembly_rfl_unrod, assembly_rfl_unrod]],
+                           [[assembly_uo2_unrod, assembly_mox_unrod, assembly_rfl_unrod],
+                            [assembly_mox_unrod, assembly_uo2_unrod, assembly_rfl_unrod],
+                            [assembly_rfl_unrod, assembly_rfl_unrod, assembly_rfl_unrod]],
+                           [[assembly_uo2_unrod, assembly_mox_unrod, assembly_rfl_unrod],
+                            [assembly_mox_unrod, assembly_uo2_unrod, assembly_rfl_unrod],
+                            [assembly_rfl_unrod, assembly_rfl_unrod, assembly_rfl_unrod]],
+                           [[assembly_uo2_unrod, assembly_mox_unrod, assembly_rfl_unrod],
+                            [assembly_mox_unrod, assembly_uo2_unrod, assembly_rfl_unrod],
+                            [assembly_rfl_unrod, assembly_rfl_unrod, assembly_rfl_unrod]],
+                           [[assembly_uo2_unrod, assembly_mox_unrod, assembly_rfl_unrod],
+                            [assembly_mox_unrod, assembly_uo2_unrod, assembly_rfl_unrod],
+                            [assembly_rfl_unrod, assembly_rfl_unrod, assembly_rfl_unrod]],
+                           [[assembly_uo2_unrod, assembly_mox_unrod, assembly_rfl_unrod],
+                            [assembly_mox_unrod, assembly_uo2_unrod, assembly_rfl_unrod],
+                            [assembly_rfl_unrod, assembly_rfl_unrod, assembly_rfl_unrod]],
+                           [[assembly_uo2_unrod, assembly_mox_unrod, assembly_rfl_unrod],
+                            [assembly_mox_unrod, assembly_uo2_unrod, assembly_rfl_unrod],
+                            [assembly_rfl_unrod, assembly_rfl_unrod, assembly_rfl_unrod]]])
+
+
 root_cell.setFill(lattices[-1])
 
 
@@ -245,8 +311,8 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.0)
-cmfd.setLatticeStructure(51,51,1)
-#cmfd.setGroupStructure([1,4,8])
+cmfd.setLatticeStructure(51,51,9)
+cmfd.setGroupStructure([1,4,8])
 
 
 ###############################################################################
@@ -260,7 +326,6 @@ geometry.setRootUniverse(root_universe)
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 
-
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
 ###############################################################################
@@ -273,9 +338,15 @@ quad.setNumPolarAngles(num_polar)
 track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-track_generator.setSolve2D()
+#track_generator.setSolve2D()
 track_generator.setZLevel(0.1)
 track_generator.generateTracks()
+
+#plotter.plot_materials(geometry, gridsize=500, plane='xy', offset=0.)
+#plotter.plot_cells(geometry, gridsize=500, plane='xy', offset=0.)
+#plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy', offset=0.)
+#plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500, plane='xy', offset=0.)
+
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
@@ -294,6 +365,13 @@ solver.printTimerReport()
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')
+
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7],
+                            gridsize=500, plane='xy', offset=0.)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7],
+                            gridsize=500, plane='xz', offset=0.)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7],
+                            gridsize=500, plane='yz', offset=0.)
 
 #plotter.plot_materials(geometry, gridsize=500)
 #plotter.plot_cells(geometry, gridsize=500)

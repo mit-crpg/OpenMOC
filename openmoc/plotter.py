@@ -310,7 +310,7 @@ def plot_segments_3d(track_generator):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
+def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plane='xy', offset=0.):
 
   global subdirectory
 
@@ -332,25 +332,41 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the Materials ' + \
               'with a negative gridsize (%d)', gridsize)
+    
+  if plane not in ['xy', 'xz', 'yz']:
+    msg = 'Unable to plot the materials with an invalid ' \
+          'plane {0}. Plane options xy, xz, yz'.format(plane)
+    raise ValueError(msg)
 
+  if not is_float(offset):
+    msg = 'Unable to plot the materials since the offset {0} ' \
+          'is not a float'.format(offset)
+    raise ValueError(msg)
+  
   py_printf('NORMAL', 'Plotting the materials...')
 
   # Initialize a NumPy array for the surface colors
   surface = numpy.zeros((gridsize, gridsize), numpy.int64)
 
   # Retrieve the pixel coordinates
-  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+  coords = get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim)
 
   # Find the <aterial IDs for each grid point
   for i in range(gridsize):
     for j in range(gridsize):
 
-      x = coords['x'][i]
-      y = coords['y'][j]
-
-      point = LocalCoords(x, y)
-      point.setUniverse(geometry.getRootUniverse())
-      cell = geometry.findCellContainingCoords(point)
+      if plane == 'xy':
+        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
+      elif plane == 'xz':
+        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
+      else:
+        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
 
       # If we did not find a Cell for this region, use a -1 "bad" number color
       if cell is None:
@@ -385,7 +401,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
   plt.imshow(colors, extent=coords['bounds'],
              interpolation='nearest', cmap=cmap, vmin=0, vmax=num_materials)
   plt.title('Materials')
-  filename = directory + 'materials.png'
+  filename = directory + 'materials-' + plane + '.png'
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
 
@@ -406,7 +422,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
+def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plane='xy', offset=0.):
 
   global subdirectory
 
@@ -429,24 +445,40 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
     py_printf('ERROR', 'Unable to plot the Cells ' + \
               'with a negative gridsize (%d)', gridsize)
 
+  if plane not in ['xy', 'xz', 'yz']:
+    msg = 'Unable to plot the cells with an invalid ' \
+          'plane {0}. Plane options xy, xz, yz'.format(plane)
+    raise ValueError(msg)
+
+  if not is_float(offset):
+    msg = 'Unable to plot the cells since the offset {0} ' \
+          'is not a float'.format(offset)
+    raise ValueError(msg)
+    
   py_printf('NORMAL', 'Plotting the cells...')
 
   # Initialize a NumPy array for the surface colors
   surface = np.zeros((gridsize, gridsize), numpy.int64)
 
   # Retrieve the pixel coordinates
-  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+  coords = get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim)
 
   # Find the Cell IDs for each grid point
   for i in range(gridsize):
     for j in range(gridsize):
 
-      x = coords['x'][i]
-      y = coords['y'][j]
-
-      point = LocalCoords(x, y)
-      point.setUniverse(geometry.getRootUniverse())
-      cell = geometry.findCellContainingCoords(point)
+      if plane == 'xy':
+        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
+      elif plane == 'xz':
+        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
+      else:
+        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
 
       # If we did not find a Cell for this region, use a -1 "bad" number color
       if cell is None:
@@ -481,7 +513,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
   plt.imshow(colors, extent=coords['bounds'],
              interpolation='nearest', cmap=cmap, vmin=0, vmax=num_cells)
   plt.title('Cells')
-  filename = directory + 'cells.png'
+  filename = directory + 'cells-' + plane + '.png'
 
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
@@ -504,7 +536,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
+def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plane='xy', offset=0.):
 
   global subdirectory
 
@@ -527,6 +559,16 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
     py_printf('ERROR', 'Unable to plot the flat source regions ' + \
               'with a negative gridsize (%d)', gridsize)
 
+  if plane not in ['xy', 'xz', 'yz']:
+    msg = 'Unable to plot the flat source regions with an invalid ' \
+          'plane {0}. Plane options xy, xz, yz'.format(plane)
+    raise ValueError(msg)
+
+  if not is_float(offset):
+    msg = 'Unable to plot the flat source regions since the offset {0} ' \
+          'is not a float'.format(offset)
+    raise ValueError(msg)
+    
   py_printf('NORMAL', 'Plotting the flat source regions...')
 
   # Get the number of flat source regions
@@ -540,27 +582,35 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
   surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
 
   # Retrieve the pixel coordinates
-  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+  coords = get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim)
 
   # Find the flat source region IDs for each grid point
   for i in range(gridsize):
     for j in range(gridsize):
 
-      x = coords['x'][i]
-      y = coords['y'][j]
-
-      local_coords = LocalCoords(x, y)
-      local_coords.setUniverse(geometry.getRootUniverse())
-      geometry.findCellContainingCoords(local_coords)
-      fsr_id = geometry.getFSRId(local_coords)
-
+      if plane == 'xy':
+        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      elif plane == 'xz':
+        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      else:
+        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      
       # If we did not find a region for this region, use a -1 "bad" number color
       if fsr_id is None:
         surface[j][i] = -1
       else:
        surface[j][i] = fsr_id
 
-      del local_coords
+      del point
 
   # Replace each Cell ID with a random (but reproducible) color ID
   # NOTE: This color coding scheme only works for FSRs and CMFD cells and not
@@ -588,7 +638,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
   plt.imshow(colors, extent=coords['bounds'],
              interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
   plt.title('Flat Source Regions')
-  filename = directory + 'flat-source-regions.png'
+  filename = directory + 'flat-source-regions-' + plane + '.png'
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
 
@@ -616,7 +666,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
+def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, zlim=None, plane='xy', offset=0.):
 
   global subdirectory
 
@@ -643,26 +693,46 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
     py_printf('ERROR', 'Unable to plot the CMFD cells ' + \
               'with a negative gridsize (%d)', gridsize)
 
+  if plane not in ['xy', 'xz', 'yz']:
+    msg = 'Unable to plot the cmfd cells with an invalid ' \
+          'plane {0}. Plane options xy, xz, yz'.format(plane)
+    raise ValueError(msg)
+
+  if not is_float(offset):
+    msg = 'Unable to plot the cmfd cells since the offset {0} ' \
+          'is not a float'.format(offset)
+    raise ValueError(msg)
+    
   py_printf('NORMAL', 'Plotting the CMFD cells...')
 
   # Initialize a NumPy array for the surface colors
   surface = numpy.zeros((gridsize, gridsize), numpy.int64)
 
   # Retrieve the pixel coordinates
-  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+  coords = get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim)
 
   # Find the CMFD cell ID for each grid point
   for i in range(gridsize):
     for j in range(gridsize):
 
-      x = coords['x'][i]
-      y = coords['y'][j]
-
-      local_coords = LocalCoords(x, y)
-      local_coords.setUniverse(geometry.getRootUniverse())
-      geometry.findCellContainingCoords(local_coords)
-      fsr_id = geometry.getFSRId(local_coords)
-      cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)
+      if plane == 'xy':
+        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+        cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)        
+      elif plane == 'xz':
+        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+        cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)        
+      else:
+        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+        cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)        
 
       # If we did not find a cell for this point, use a -1 "bad" number color
       if np.isnan(cell_id):
@@ -699,7 +769,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
   plt.imshow(colors, extent=coords['bounds'],
              interpolation='nearest', cmap=cmap)
   plt.title('CMFD cells')
-  filename = directory + 'cmfd-cells.png'
+  filename = directory + 'cmfd-cells-' + plane + '.png'
   fig.savefig(filename, bbox_inches='tight')
 
 
@@ -720,7 +790,8 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 def plot_spatial_fluxes(solver, energy_groups=[1],
-                        gridsize=250, xlim=None, ylim=None):
+                        gridsize=250, xlim=None, ylim=None,
+                        zlim=None, plane='xy', offset=0.):
 
   global subdirectory
 
@@ -765,25 +836,42 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
     py_printf('ERROR', 'Unable to plot the FSR flux with a ' + \
               'negative gridsize (%d)', gridsize)
 
+  if plane not in ['xy', 'xz', 'yz']:
+    msg = 'Unable to plot the spatial fluxes with an invalid ' \
+          'plane {0}. Plane options xy, xz, yz'.format(plane)
+    raise ValueError(msg)
+
+  if not is_float(offset):
+    msg = 'Unable to plot the spatial fluxes since the offset {0} ' \
+          'is not a float'.format(offset)
+    raise ValueError(msg)
+    
   py_printf('NORMAL', 'Plotting the FSR scalar fluxes...')
 
   # Initialize a numpy array for the groupwise scalar fluxes
   fluxes = numpy.zeros((len(energy_groups), gridsize, gridsize))
 
   # Retrieve the pixel coordinates
-  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+  coords = get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim)
 
   for i in range(gridsize):
     for j in range(gridsize):
 
-      # Find the flat source region IDs for each grid point
-      x = coords['x'][i]
-      y = coords['y'][j]
-
-      point = LocalCoords(x, y)
-      point.setUniverse(geometry.getRootUniverse())
-      geometry.findCellContainingCoords(point)
-      fsr_id = geometry.getFSRId(point)
+      if plane == 'xy':
+        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)        
+      elif plane == 'xz':
+        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      else:
+        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
 
       # If we did not find a region for this region, use a -1 "bad" number color
       if np.isnan(fsr_id):
@@ -802,7 +890,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
     plt.imshow(np.flipud(fluxes[index,:,:]), extent=coords['bounds'])
     plt.colorbar()
     plt.title('FSR Scalar Flux (Group {0})'.format(group))
-    filename = directory + 'fsr-flux-group-' + str(group) + '.png'
+    filename = directory + 'fsr-flux-group-' + str(group) + '-' + plane + '.png'
     fig.savefig(filename, bbox_inches='tight')
     plt.close(fig)
 
@@ -968,7 +1056,8 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
+def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None,
+                       zlim=None, plane='xy', offset=0.):
 
   global subdirectory
 
@@ -990,6 +1079,16 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
     py_printf('ERROR', 'Unable to plot the fission rates ' + \
               'with a negative gridsize (%d)', gridsize)
 
+  if plane not in ['xy', 'xz', 'yz']:
+    msg = 'Unable to plot the fission rates with an invalid ' \
+          'plane {0}. Plane options xy, xz, yz'.format(plane)
+    raise ValueError(msg)
+
+  if not is_float(offset):
+    msg = 'Unable to plot the fission rates since the offset {0} ' \
+          'is not a float'.format(offset)
+    raise ValueError(msg)
+    
   py_printf('NORMAL', 'Plotting the flat source region fission rates...')
 
   # Get geometry
@@ -1002,20 +1101,27 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
   surface = numpy.zeros((gridsize, gridsize))
 
   # Retrieve the pixel coordinates
-  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+  coords = get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim)
 
   for i in range(gridsize):
     for j in range(gridsize):
 
-      # Find the flat source region IDs for each grid point
-      x = coords['y'][i]
-      y = coords['x'][j]
-
-      point = LocalCoords(x, y)
-      point.setUniverse(geometry.getRootUniverse())
-      geometry.findCellContainingCoords(point)
-      fsr_id = geometry.getFSRId(point)
-
+      if plane == 'xy':
+        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      elif plane == 'xz':
+        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      else:
+        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        cell = geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      
       # If we did not find a region for this region, use a -1 "bad" number color
       if np.isnan(fsr_id):
         surface[j][i] = -1
@@ -1028,7 +1134,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
   plt.imshow(np.flipud(surface), extent=coords['bounds'])
   plt.colorbar()
   plt.title('Flat Source Region Fission Rates')
-  filename = directory + 'fission-rates.png'
+  filename = directory + 'fission-rates-' + plane + '.png'
   fig.savefig(filename, bbox_inches='tight')
 
 
@@ -1239,29 +1345,61 @@ def plot_tracks_3d_range(track_generator, first_track, last_track):
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @return a dictionary with the plotting window map and bounding box
-def get_pixel_coords(geometry, gridsize, xlim, ylim):
-
+def get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim=None):
+  
   # initialize variables to be returned
   bounds = [geometry.getMinX() + TINY_MOVE, geometry.getMaxX() - TINY_MOVE,
-            geometry.getMinY() + TINY_MOVE, geometry.getMaxY() - TINY_MOVE]
+            geometry.getMinY() + TINY_MOVE, geometry.getMaxY() - TINY_MOVE,
+            geometry.getMinZ() + TINY_MOVE, geometry.getMaxZ() - TINY_MOVE]
   xcoords = None
   ycoords = None
+  zcoords = None
   coords = dict()
-
+  
   if not xlim is None:
     bounds[0] = xlim[0]
     bounds[1] = xlim[1]
-
+    
   if not ylim is None:
     bounds[2] = ylim[0]
     bounds[3] = ylim[1]
-
-  xcoords = np.linspace(bounds[0], bounds[1], gridsize)
-  ycoords = np.linspace(bounds[2], bounds[3], gridsize)
-
+      
+  if not zlim is None:
+    bounds[4] = zlim[0]
+    bounds[5] = zlim[1]
+        
+  if plane == 'xy':
+    xcoords = np.linspace(bounds[0], bounds[1], gridsize)
+    ycoords = np.linspace(bounds[2], bounds[3], gridsize)
+    if offset < bounds[4] or offset > bounds[5]:
+      msg = 'Unable to plot offset at z={0} as it must lie ' \
+            'between the z bounds [{1},{2}]'.format(offset, \
+                                                    bounds[4], bounds[5])
+      raise ValueError(msg)
+    del bounds[4:]
+  elif plane == 'xz':
+    xcoords = np.linspace(bounds[0], bounds[1], gridsize)
+    zcoords = np.linspace(bounds[4], bounds[5], gridsize)
+    if offset < bounds[2] or offset > bounds[3]:
+      msg = 'Unable to plot offset at y={0} as it must lie ' \
+            'between the y bounds [{1},{2}]'.format(offset, \
+                                                    bounds[2], bounds[3])
+      raise ValueError(msg)
+    del bounds[2:4]
+  else:
+    ycoords = np.linspace(bounds[2], bounds[3], gridsize)
+    zcoords = np.linspace(bounds[4], bounds[5], gridsize)
+    if offset < bounds[0] or offset > bounds[1]:
+      msg = 'Unable to plot offset at x={0} as it must lie ' \
+            'between the x bounds [{1},{2}]'.format(offset, \
+                                                    bounds[0], bounds[1])
+      raise ValueError(msg)
+    del bounds[:2]
+  
   # add attributes to coords dictionary
   coords['x'] = xcoords
   coords['y'] = ycoords
+  coords['z'] = zcoords
   coords['bounds'] = bounds
 
   return coords

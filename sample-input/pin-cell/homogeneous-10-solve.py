@@ -36,18 +36,18 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-xmin = XPlane(x=-5.0, name='xmin')
-xmax = XPlane(x= 5.0, name='xmax')
-ymin = YPlane(y=-5.0, name='ymin')
-ymax = YPlane(y= 5.0, name='ymax')
-zmin = ZPlane(z=-5.0, name='zmin')
-zmax = ZPlane(z= 5.0, name='zmax')
+xmin = XPlane(x=-15.0, name='xmin')
+xmax = XPlane(x= 15.0, name='xmax')
+ymin = YPlane(y=-15.0, name='ymin')
+ymax = YPlane(y= 15.0, name='ymax')
+zmin = ZPlane(z=-15.0, name='zmin')
+zmax = ZPlane(z= 15.0, name='zmax')
 
 xmin.setBoundaryType(REFLECTIVE)
 xmax.setBoundaryType(REFLECTIVE)
 ymin.setBoundaryType(REFLECTIVE)
 ymax.setBoundaryType(REFLECTIVE)
-zmin.setBoundaryType(REFLECTIVE)
+zmin.setBoundaryType(VACUUM)
 zmax.setBoundaryType(REFLECTIVE)
 
 ###############################################################################
@@ -96,7 +96,7 @@ log.py_printf('NORMAL', 'Creating simple 10 x 10 lattice...')
 f = fue_univ
 
 lattice = Lattice(name='10x10 lattice')
-lattice.setWidth(width_x=1.0, width_y=1.0, width_z=1.0)
+lattice.setWidth(width_x=3.0, width_y=3.0, width_z=3.0)
 lattice.setUniverses3D([[[f, f, f, f, f, f, f, f, f, f],
                          [f, f, f, f, f, f, f, f, f, f],
                          [f, f, f, f, f, f, f, f, f, f],
@@ -201,12 +201,26 @@ lattice.setUniverses3D([[[f, f, f, f, f, f, f, f, f, f],
 root_cell.setFill(lattice)
 
 ###############################################################################
+##########################     Creating Cmfd mesh    ##########################
+###############################################################################
+
+log.py_printf('NORMAL', 'Creating Cmfd mesh...')
+
+cmfd = Cmfd()
+cmfd.setMOCRelaxationFactor(0.6)
+cmfd.setSORRelaxationFactor(1.5)
+cmfd.setLatticeStructure(10,10,10)
+#cmfd.setGroupStructure([1,4,8])
+
+
+###############################################################################
 ##########################   Creating the Geometry   ##########################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
+geometry.setCmfd(cmfd)
 geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 

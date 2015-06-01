@@ -24,7 +24,9 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _num_3D_segments = 0;
   _max_optical_length = 10;
   _contains_2D_tracks = false;
+  _contains_2D_segments = false;
   _contains_3D_tracks = false;
+  _contains_3D_segments = false;
   _quadrature = NULL;
   _z_level = 0.0;
   _solve_3D = true;
@@ -295,7 +297,7 @@ int TrackGenerator::getNumL(int azim, int polar){
  */
 FP_PRECISION* TrackGenerator::get2DFSRVolumes() {
 
-  if (!contains2DTracks())
+  if (!contains2DSegments())
     log_printf(ERROR, "Unable to get the FSR volumes since 2D tracks "
                "have not yet been generated");
 
@@ -333,7 +335,7 @@ FP_PRECISION* TrackGenerator::get2DFSRVolumes() {
  */
 FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
 
-  if (!contains3DTracks())
+  if (!contains3DSegments())
     log_printf(ERROR, "Unable to get the FSR volumes since 3D tracks "
                "have not yet been generated");
 
@@ -375,7 +377,7 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
  */
 FP_PRECISION TrackGenerator::get2DFSRVolume(int fsr_id) {
 
-  if (!contains2DTracks())
+  if (!contains2DSegments())
     log_printf(ERROR, "Unable to get the FSR volume since 2D tracks "
                "have not yet been generated");
 
@@ -412,7 +414,7 @@ FP_PRECISION TrackGenerator::get2DFSRVolume(int fsr_id) {
  */
 FP_PRECISION TrackGenerator::get3DFSRVolume(int fsr_id) {
 
-  if (!contains3DTracks())
+  if (!contains3DSegments())
     log_printf(ERROR, "Unable to get the FSR volume since 3D tracks "
                "have not yet been generated");
 
@@ -492,6 +494,8 @@ void TrackGenerator::setNumAzim(int num_azim) {
   _num_azim = num_azim;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
+  _contains_2D_segments = false;
+  _contains_3D_segments = false;
   _use_input_file = false;
   _tracks_filename = "";
 }
@@ -514,6 +518,8 @@ void TrackGenerator::setNumPolar(int num_polar) {
   _num_polar = num_polar;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
+  _contains_2D_segments = false;
+  _contains_3D_segments = false;
 }
 
 
@@ -533,6 +539,8 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
   _num_3D_segments = 0;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
+  _contains_2D_segments = false;
+  _contains_3D_segments = false;
 }
 
 
@@ -552,6 +560,8 @@ void TrackGenerator::setDesiredPolarSpacing(double spacing) {
   _num_3D_segments = 0;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
+  _contains_2D_segments = false;
+  _contains_3D_segments = false;
 }
 
 
@@ -567,6 +577,8 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
   _num_3D_segments = 0;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
+  _contains_2D_segments = false;
+  _contains_3D_segments = false;
 }
 
 
@@ -611,13 +623,21 @@ void TrackGenerator::setQuadrature(Quadrature* quadrature){
  */
 bool TrackGenerator::contains2DTracks() {
   return _contains_2D_tracks;
-
 }
 
 
 bool TrackGenerator::contains3DTracks() {
   return _contains_3D_tracks;
+}
 
+
+bool TrackGenerator::contains2DSegments() {
+  return _contains_2D_segments;
+}
+
+
+bool TrackGenerator::contains3DSegments() {
+  return _contains_3D_segments;
 }
 
 
@@ -883,7 +903,7 @@ void TrackGenerator::generateTracks() {
                "is filled by the entire geometry and bounded by XPlanes, "
                "YPlanes, and ZPlanes to enable the Geometry to determine the total "
                "width, height, and depth of the model.");
-  
+
   /* Generate Tracks, perform ray tracing across the geometry, and store
    * the data to a Track file */
   try {
@@ -895,35 +915,47 @@ void TrackGenerator::generateTracks() {
       else
         _quadrature = new TYPolarQuad();
     }
-
+    
     _quadrature->setNumPolarAngles(_num_polar);
     _quadrature->setNumAzimAngles(_num_azim);
-
+    
     /* Initialize the quadrature set */
     _quadrature->initialize();
-    
+            
     /* Initialize the 2D tracks */
     initialize2DTracks();
-
+    initialize2DTrackReflections();
+    
     /* If 3D problem, initialize the 3D tracks */
-    if (_solve_3D)
+    if (_solve_3D){
       initialize3DTracks();
-
-    /* Precompute the quadrature weights */
-    _quadrature->precomputeWeights();
-
+      initialize3DTrackReflections();
+    }
+      
     /* Recalibrate the 2D tracks back to the geometry origin */
     recalibrate2DTracksToOrigin();
-
+    
     /* If 3D problem, recalibrate the 3D tracks back to the geometry origin */
     if (_solve_3D)
       recalibrate3DTracksToOrigin();
 
-    /* Segmentize the tracks */
-    if (_solve_3D)
-      segmentize3D();
-    else
-      segmentize2D();
+    initializeTrackFileDirectory();
+    
+    if (_use_input_file == false){
+
+      /* Segmentize the tracks */
+      if (_solve_3D){
+        segmentize3D();
+        dump3DSegmentsToFile();
+      }
+      else{
+        segmentize2D();
+        dump2DSegmentsToFile();
+      }
+    }
+    
+    /* Precompute the quadrature weights */
+    _quadrature->precomputeWeights();
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Unable to allocate memory needed to generate "
@@ -1056,8 +1088,6 @@ void TrackGenerator::initialize2DTracks() {
       track->setPhi(phi);
       phi = findTrackEndPoint(track, phi, i);
       track->setBCIn(_geometry->getMinYBoundaryType());
-      track->setTrackOut(&_tracks_2D[i][c][1]);
-      track->setTrackIn(&_tracks_2D[i][c][_tracks_per_cycle[i]-1]);
       
       /* Generate the 2D track start and end points in this cycle */
       for (int t = 1; t < _tracks_per_cycle[i]; t++){
@@ -1067,17 +1097,7 @@ void TrackGenerator::initialize2DTracks() {
         track->getStart()->setCoords(track_prev->getEnd()->getX(),
                                      track_prev->getEnd()->getY());
         track->setPhi(phi);
-        track->setTrackIn(&_tracks_2D[i][c][t-1]);
         track->setBCIn(track_prev->getBCOut());
-        
-        /* If last track in cycle, reflecting in track is the first track */
-        /* in cycle */
-        if (t == _tracks_per_cycle[i] - 1)
-          track->setTrackOut(&_tracks_2D[i][c][0]);
-        
-        /* If not last track, reflecting in track is next track in cycle */
-        else
-          track->setTrackOut(&_tracks_2D[i][c][t+1]);
         
         /* Get the endpoint of the track and return the complementary azimuthal angle */
         phi = findTrackEndPoint(track, phi, i);
@@ -1089,6 +1109,30 @@ void TrackGenerator::initialize2DTracks() {
   }
 
   _contains_2D_tracks = true;
+}
+
+
+void TrackGenerator::initialize2DTrackReflections(){
+
+  /* Generate the 2D track cycles */
+  for (int a = 0; a < _num_azim/4; a++) {
+    for (int c = 0; c < _cycles_per_azim[a]; c++){
+      for (int t = 0; t < _tracks_per_cycle[a]; t++){      
+        
+        Track2D* track = &_tracks_2D[a][c][t];
+
+        if (t == 0)
+          track->setTrackIn(&_tracks_2D[a][c][_tracks_per_cycle[a]-1]);
+        else
+          track->setTrackIn(&_tracks_2D[a][c][t-1]);
+        
+        if (t == _tracks_per_cycle[a] - 1)
+          track->setTrackOut(&_tracks_2D[a][c][0]);
+        else
+          track->setTrackOut(&_tracks_2D[a][c][t+1]);
+      }
+    }
+  }
 }
 
 
@@ -1315,6 +1359,14 @@ void TrackGenerator::initialize3DTracks() {
     }
   }
 
+  _contains_3D_tracks = true;
+}
+
+
+void TrackGenerator::initialize3DTrackReflections(){
+
+  int pc;
+  
   /* Set reflective tracks indices */
   for (int a = 0; a < _num_azim/4; a++) {
     for (int c = 0; c < _cycles_per_azim[a]; c++){
@@ -1411,8 +1463,6 @@ void TrackGenerator::initialize3DTracks() {
       }
     }
   }
-
-  _contains_3D_tracks = true;
 }
 
  
@@ -1434,7 +1484,7 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start, double l_e
   
   /* Find the last cycle index */
   for (int i=0; i < _tracks_per_cycle[azim]; i++){
-    if (l_end < length_sum + _tracks_2D[azim][cycle][i].getLength() + 1.e-10){
+    if (l_end < length_sum + _tracks_2D[azim][cycle][i].getLength() + ON_SURFACE_THRESH){
       last_stack = i;
       break;
     }    
@@ -1447,7 +1497,7 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start, double l_e
   
   /* Find the first cycle index */
   for (int i=0; i < _tracks_per_cycle[azim]; i++){
-    if (l_start < length_sum + _tracks_2D[azim][cycle][i].getLength() - 1.e-10){
+    if (l_start < length_sum + _tracks_2D[azim][cycle][i].getLength() - ON_SURFACE_THRESH){
       first_stack = i;
       break;
     }
@@ -1511,7 +1561,7 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start, double l_e
       z2 = z1 + (length_sum - l_start) * tan(M_PI_2 - theta);
       l_start = length_sum;
       track2->setBCOut(_tracks_2D[azim][cycle][i].getBCOut());
-    }
+    }      
     
     /* Set the ending point and angles */
     track2->getEnd()->setCoords(x2, y2, z2);
@@ -1636,7 +1686,9 @@ void TrackGenerator::segmentize2D() {
         _num_2D_segments += _tracks_2D[a][c][t].getNumSegments();
     }
   }
-    
+
+  _contains_2D_segments = true;
+  
   return;
 }
 
@@ -1649,14 +1701,16 @@ void TrackGenerator::segmentize3D() {
   log_printf(NORMAL, "Ray tracing for 3D track segmentation...");
 
   Track3D* track;
-
+  int nt;
+  
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/4; a++){
     for (int c=0; c < _cycles_per_azim[a]; c++){
       log_printf(NORMAL, "segmenting 3D cycle %i, %i", a, c);
       for (int p=0; p < _num_polar; p++){
+        nt = getNumZ(a,p) + getNumL(a,p);
         #pragma omp parallel for private(track)
-        for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
+        for (int i=0; i < nt; i++){
           for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
             track = &_tracks_3D[a][c][p][i][t];
             
@@ -1681,6 +1735,8 @@ void TrackGenerator::segmentize3D() {
     }
   }
 
+  _contains_3D_segments = true;
+  
   return;
 }
 
@@ -1854,7 +1910,7 @@ double TrackGenerator::convertLtoX(double l, int azim, int cycle){
   int track_index = _tracks_per_cycle[azim] - 1;
 
   for (int i=0; i < _tracks_per_cycle[azim]; i++){
-    if (l <= length_sum + _tracks_2D[azim][cycle][i].getLength() + 1.e-10){
+    if (l <= length_sum + _tracks_2D[azim][cycle][i].getLength()){
       track_index = i;
       break;
     }
@@ -1863,6 +1919,9 @@ double TrackGenerator::convertLtoX(double l, int azim, int cycle){
     }
   }
 
+  if (l - length_sum < 0.0)
+    log_printf(NORMAL, "found negative length residual in converting l to x");
+  
   double x1 = _tracks_2D[azim][cycle][track_index].getStart()->getX();
   double x2 = _tracks_2D[azim][cycle][track_index].getEnd()->getX();
   double l_rel = (l - length_sum) / _tracks_2D[azim][cycle][track_index].getLength();
@@ -1883,7 +1942,7 @@ double TrackGenerator::convertLtoY(double l, int azim, int cycle){
   int track_index = _tracks_per_cycle[azim] - 1;
 
   for (int i=0; i < _tracks_per_cycle[azim]; i++){
-    if (l <= length_sum + _tracks_2D[azim][cycle][i].getLength() + 1.e-10){
+    if (l <= length_sum + _tracks_2D[azim][cycle][i].getLength()){
       track_index = i;
       break;
     }
@@ -1892,10 +1951,740 @@ double TrackGenerator::convertLtoY(double l, int azim, int cycle){
     }
   }
 
+  if (l - length_sum < 0.0)
+    log_printf(NORMAL, "found negative length residual in converting l to y");
+  
   double y1 = _tracks_2D[azim][cycle][track_index].getStart()->getY();
   double y2 = _tracks_2D[azim][cycle][track_index].getEnd()->getY();
   double l_rel = (l - length_sum) / _tracks_2D[azim][cycle][track_index].getLength();
   double y = l_rel * y2 + (1.0 - l_rel) * y1;
 
   return y;
+}
+
+
+/**
+ * @brief This method creates a directory to store Track files, and reads
+ *        in ray tracing data for Tracks and segments from a Track file
+ *        if one exists.
+ * @details This method is called by the TrackGenerator::generateTracks()
+ *          class method. If a Track file exists for this Geometry, number
+ *          of azimuthal angles, and track spacing, then this method will
+ *          import the ray tracing Track and segment data to fill the
+ *          appropriate data structures.
+ */
+void TrackGenerator::initializeTrackFileDirectory() {
+
+  std::stringstream directory;
+  struct stat buffer;
+  std::stringstream test_filename;
+  
+  /** Create directory to store Track files with pre-generated ray tracing data
+   *  if the directory does not yet exist */
+
+  directory << get_output_directory() << "/tracks";
+  struct stat st;
+  if (!stat(directory.str().c_str(), &st) == 0)
+    mkdir(directory.str().c_str(), S_IRWXU);
+
+  if (_solve_3D){
+
+    /* Get the quadrature type */
+    std::string quad_type;
+    
+    if (_quadrature->getQuadratureType() == EQUAL_WEIGHT)
+      quad_type = "EQ_WGT";
+    else if (_quadrature->getQuadratureType() == EQUAL_ANGLE)
+      quad_type = "EQ_ANG";
+    else
+      log_printf(ERROR, "Unable to solve 3D problem with quadrature type"
+                 " other than EQUAL_WEIGHT or EQUAL_ANGLE");
+
+    if (_geometry->getCmfd() != NULL){
+      test_filename << directory.str() << "/3D_"
+                    << _num_azim << "_azim_"
+                    << _num_polar << "_polar_"
+                    << _azim_spacing << "x" << _polar_spacing << "_cm_spacing_cmfd_"
+                    << _geometry->getCmfd()->getNumX()
+                    << "x" << _geometry->getCmfd()->getNumY()
+                    << "x" << _geometry->getCmfd()->getNumZ()
+                    << "_quad_" << quad_type
+                    << ".data";
+    }
+    else{
+      test_filename << directory.str() << "/3D_"
+                    << _num_azim << "_azim_"
+                    << _num_polar << "_polar_"
+                    << _azim_spacing << "x" << _polar_spacing << "_cm_spacing_quad_"
+                    << quad_type << ".data";
+    }
+  }
+  else{
+    if (_geometry->getCmfd() != NULL){
+      test_filename << directory.str() << "/2D_"
+                    << _num_azim << "_azim_"
+                    << _azim_spacing << "_cm_spacing_cmfd_"
+                    << _geometry->getCmfd()->getNumX()
+                    << "x" << _geometry->getCmfd()->getNumY()
+                    << ".data";
+    }
+    else{
+      test_filename << directory.str() << "/2D_"
+                    << _num_azim << "_angles_"
+                    << _azim_spacing << "_cm_spacing.data";
+    }
+  }
+  
+  _tracks_filename = test_filename.str();
+
+  /* Check to see if a Track file exists for this geometry, number of azimuthal
+   * angles, and track spacing, and if so, import the ray tracing data */
+  if (!stat(_tracks_filename.c_str(), &buffer)) {
+    if (_solve_3D){
+      if (read3DSegmentsFromFile()) {
+        _use_input_file = true;
+        _contains_3D_segments = true;
+      }
+    }
+    else{
+      if (read2DSegmentsFromFile()) {
+        _use_input_file = true;
+        _contains_2D_segments = true;
+      }
+    }      
+  }
+}
+
+
+/**
+ * @brief Writes all Track and segment data to a "*.tracks" binary file.
+ * @details Storing Tracks in a binary file saves time by eliminating ray
+ *          tracing for Track segmentation in commonly simulated geometries.
+ */
+void TrackGenerator::dump2DSegmentsToFile() {
+
+  log_printf(NORMAL, "Dumping 2D segments to file...");
+
+  if (!_contains_2D_segments)
+    log_printf(ERROR, "Unable to dump 2D Segments to a file since no Segments have "
+               "been generated for %d azimuthal angles and %f track spacing",
+               _num_azim, _azim_spacing);
+
+  FILE* out;
+  out = fopen(_tracks_filename.c_str(), "w");
+
+  /* Get a string representation of the Geometry's attributes. This is used to
+   * check whether or not ray tracing has been performed for this Geometry */
+  std::string geometry_to_string = _geometry->toString();
+  int string_length = geometry_to_string.length() + 1;
+
+  /* Write geometry metadata to the Track file */
+  fwrite(&string_length, sizeof(int), 1, out);
+  fwrite(geometry_to_string.c_str(), sizeof(char)*string_length, 1, out);
+  fwrite(&_z_level, sizeof(double), 1, out);
+  
+  Track2D* curr_track;
+  int num_segments;
+  std::vector<segment*> _segments;
+  Cmfd* cmfd = _geometry->getCmfd();
+
+  segment* curr_segment;
+  double length;
+  int material_id;
+  int region_id;
+  int cmfd_surface_fwd;
+  int cmfd_surface_bwd;
+  
+  /* Loop over all Tracks */
+  for (int a=0; a < _num_azim/4; a++) {
+    for (int c=0; c < _cycles_per_azim[a]; c++) {
+      for (int t=0; t < _tracks_per_cycle[a]; t++) {
+
+        /* Get data for this Track */
+        curr_track = &_tracks_2D[a][c][t];
+        num_segments = curr_track->getNumSegments();
+        
+        /* Write data for this Track to the Track file */
+        fwrite(&num_segments, sizeof(int), 1, out);
+        
+        /* Loop over all segments for this Track */
+        for (int s=0; s < num_segments; s++) {
+          
+          /* Get data for this segment */
+          curr_segment = curr_track->getSegment(s);
+          length = curr_segment->_length;
+          material_id = curr_segment->_material->getId();
+          region_id = curr_segment->_region_id;
+          
+          /* Write data for this segment to the Track file */
+          fwrite(&length, sizeof(double), 1, out);
+          fwrite(&material_id, sizeof(int), 1, out);
+          fwrite(&region_id, sizeof(int), 1, out);
+          
+          /* Write CMFD-related data for the Track if needed */
+          if (cmfd != NULL){
+            cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+            cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+            fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
+            fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
+          }
+        }
+      }
+    }
+  }
+
+  /* Get FSR vector maps */
+  std::unordered_map<std::size_t, fsr_data> FSR_keys_map = _geometry->getFSRKeysMap();
+  std::unordered_map<std::size_t, fsr_data>::iterator iter;
+  std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
+  std::size_t fsr_key;
+  int fsr_id;
+  int fsr_counter = 0;
+  double x, y, z;
+  
+  /* Write number of FSRs */
+  int num_FSRs = _geometry->getNumFSRs();
+  fwrite(&num_FSRs, sizeof(int), 1, out);
+
+  /* Write FSR vector maps to file */
+  for (iter = FSR_keys_map.begin(); iter != FSR_keys_map.end(); ++iter){
+    
+    /* Write data to file from FSR_keys_map */
+    fsr_key = iter->first;
+    fsr_id = iter->second._fsr_id;
+    x = iter->second._point->getX();
+    y = iter->second._point->getY();
+    z = iter->second._point->getZ();
+    fwrite(&fsr_key, sizeof(std::size_t), 1, out);
+    fwrite(&fsr_id, sizeof(int), 1, out);
+    fwrite(&x, sizeof(double), 1, out);
+    fwrite(&y, sizeof(double), 1, out);
+    fwrite(&z, sizeof(double), 1, out);
+
+    /* Write data to file from FSRs_to_material_IDs */
+    fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
+    
+    /* Write data to file from FSRs_to_keys */
+    fwrite(&(FSRs_to_keys.at(fsr_counter)), sizeof(std::size_t), 1, out);
+    
+    /* Increment FSR ID counter */
+    fsr_counter++;
+  }
+
+  /* Write cmfd_fsrs vector of vectors to file */
+  if (cmfd != NULL){
+    std::vector< std::vector<int> > cell_fsrs = cmfd->getCellFSRs();
+    std::vector<int>::iterator iter;
+    int num_cells = cmfd->getNumCells();
+    fwrite(&num_cells, sizeof(int), 1, out);
+
+    /* Loop over CMFD cells */
+    for (int cell=0; cell < num_cells; cell++){
+      num_FSRs = cell_fsrs.at(cell).size();
+      fwrite(&num_FSRs, sizeof(int), 1, out);
+
+      /* Loop over FSRs within cell */
+      for (iter = cell_fsrs.at(cell).begin(); iter != cell_fsrs.at(cell).end();
+           ++iter)
+        fwrite(&(*iter), sizeof(int), 1, out);
+    }
+  }
+
+  /* Close the Track file */
+  fclose(out);
+
+  /* Inform other the TrackGenerator::generateTracks() method that it may
+   * import ray tracing data from this file if it is called and the ray
+   * tracing parameters have not changed */
+  _use_input_file = true;
+
+  return;
+}
+
+
+/**
+ * @brief Writes all Track and segment data to a "*.tracks" binary file.
+ * @details Storing Tracks in a binary file saves time by eliminating ray
+ *          tracing for Track segmentation in commonly simulated geometries.
+ */
+void TrackGenerator::dump3DSegmentsToFile() {
+
+  log_printf(NORMAL, "Dumping 3D segments to file...");
+
+  if (!_contains_3D_segments)
+    log_printf(ERROR, "Unable to dump 3D Segments to a file since no Segments have "
+               "been generated for %d azimuthal angles and %f track spacing",
+               _num_azim, _azim_spacing);
+
+  FILE* out;
+  out = fopen(_tracks_filename.c_str(), "w");
+
+  /* Get a string representation of the Geometry's attributes. This is used to
+   * check whether or not ray tracing has been performed for this Geometry */
+  std::string geometry_to_string = _geometry->toString();
+  int string_length = geometry_to_string.length() + 1;
+
+  /* Write geometry metadata to the Track file */
+  fwrite(&string_length, sizeof(int), 1, out);
+  fwrite(geometry_to_string.c_str(), sizeof(char)*string_length, 1, out);
+
+  Track3D* curr_track;
+  int num_segments;
+  std::vector<segment*> _segments;
+  Cmfd* cmfd = _geometry->getCmfd();
+
+  segment* curr_segment;
+  double length;
+  int material_id;
+  int region_id;
+  int cmfd_surface_fwd;
+  int cmfd_surface_bwd;
+  
+  /* Loop over all Tracks */
+  for (int a=0; a < _num_azim/4; a++) {
+    for (int c=0; c < _cycles_per_azim[a]; c++) {
+      for (int p=0; p < _num_polar; p++){
+        for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
+          for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
+        
+            /* Get data for this Track */
+            curr_track = &_tracks_3D[a][c][p][i][t];
+            num_segments = curr_track->getNumSegments();
+            
+            /* Write data for this Track to the Track file */
+            fwrite(&num_segments, sizeof(int), 1, out);
+            
+            /* Loop over all segments for this Track */
+            for (int s=0; s < num_segments; s++) {
+              
+              /* Get data for this segment */
+              curr_segment = curr_track->getSegment(s);
+              length = curr_segment->_length;
+              material_id = curr_segment->_material->getId();
+              region_id = curr_segment->_region_id;
+              
+              /* Write data for this segment to the Track file */
+              fwrite(&length, sizeof(double), 1, out);
+              fwrite(&material_id, sizeof(int), 1, out);
+              fwrite(&region_id, sizeof(int), 1, out);
+              
+              /* Write CMFD-related data for the Track if needed */
+              if (cmfd != NULL){
+                cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+                cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+                fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
+                fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* Get FSR vector maps */
+  std::unordered_map<std::size_t, fsr_data> FSR_keys_map = _geometry->getFSRKeysMap();
+  std::unordered_map<std::size_t, fsr_data>::iterator iter;
+  std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
+  std::size_t fsr_key;
+  int fsr_id;
+  int fsr_counter = 0;
+  double x, y, z;
+  
+  /* Write number of FSRs */
+  int num_FSRs = _geometry->getNumFSRs();
+  fwrite(&num_FSRs, sizeof(int), 1, out);
+
+  /* Write FSR vector maps to file */
+  for (iter = FSR_keys_map.begin(); iter != FSR_keys_map.end(); ++iter){
+    
+    /* Write data to file from FSR_keys_map */
+    fsr_key = iter->first;
+    fsr_id = iter->second._fsr_id;
+    x = iter->second._point->getX();
+    y = iter->second._point->getY();
+    z = iter->second._point->getZ();
+    fwrite(&fsr_key, sizeof(std::size_t), 1, out);
+    fwrite(&fsr_id, sizeof(int), 1, out);
+    fwrite(&x, sizeof(double), 1, out);
+    fwrite(&y, sizeof(double), 1, out);
+    fwrite(&z, sizeof(double), 1, out);
+
+    /* Write data to file from FSRs_to_material_IDs */
+    fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
+    
+    /* Write data to file from FSRs_to_keys */
+    fwrite(&(FSRs_to_keys.at(fsr_counter)), sizeof(std::size_t), 1, out);
+    
+    /* Increment FSR ID counter */
+    fsr_counter++;
+  }
+
+  /* Write cmfd_fsrs vector of vectors to file */
+  if (cmfd != NULL){
+    std::vector< std::vector<int> > cell_fsrs = cmfd->getCellFSRs();
+    std::vector<int>::iterator iter;
+    int num_cells = cmfd->getNumCells();
+    fwrite(&num_cells, sizeof(int), 1, out);
+
+    /* Loop over CMFD cells */
+    for (int cell=0; cell < num_cells; cell++){
+      num_FSRs = cell_fsrs.at(cell).size();
+      fwrite(&num_FSRs, sizeof(int), 1, out);
+
+      /* Loop over FSRs within cell */
+      for (iter = cell_fsrs.at(cell).begin(); iter != cell_fsrs.at(cell).end();
+           ++iter)
+        fwrite(&(*iter), sizeof(int), 1, out);
+    }
+  }
+
+  /* Close the Track file */
+  fclose(out);
+
+  /* Inform other the TrackGenerator::generateTracks() method that it may
+   * import ray tracing data from this file if it is called and the ray
+   * tracing parameters have not changed */
+  _use_input_file = true;
+
+  return;
+}
+
+
+/**
+ * @brief Reads Tracks in from a "*.tracks" binary file.
+ * @details Storing Tracks in a binary file saves time by eliminating ray
+ *          tracing for Track segmentation in commonly simulated geometries.
+ * @return true if able to read Tracks in from a file; false otherwise
+ */
+bool TrackGenerator::read2DSegmentsFromFile() {
+
+  int ret;
+  FILE* in;
+  in = fopen(_tracks_filename.c_str(), "r");
+
+  int string_length;
+  double z_level;
+  
+  /* Import Geometry metadata from the Track file */
+  ret = fread(&string_length, sizeof(int), 1, in);
+  char* geometry_to_string = new char[string_length];
+  ret = fread(geometry_to_string, sizeof(char)*string_length, 1, in);
+  ret = fread(&z_level, sizeof(double), 1, in);
+  
+  /* Check if our Geometry is exactly the same as the Geometry in the
+   * Track file for this number of azimuthal angles and track spacing */
+  if (_geometry->toString().compare(std::string(geometry_to_string)) != 0 ||
+      _z_level != z_level)
+    return false;
+
+  delete [] geometry_to_string;
+
+  log_printf(NORMAL, "Importing ray tracing data from file...");
+  
+  Track2D* curr_track;
+  int num_segments;
+  Cmfd* cmfd = _geometry->getCmfd();
+
+  double length;
+  int material_id;
+  int region_id;
+
+  int cmfd_surface_fwd;
+  int cmfd_surface_bwd;
+  segment curr_segment;
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+
+  int uid = 0;
+
+  /* Loop over Tracks */
+  for (int a=0; a < _num_azim/4; a++) {
+    for (int c=0; c < _cycles_per_azim[a]; c++) {
+      for (int t=0; t < _tracks_per_cycle[a]; t++) {
+
+        /* Import data for this Track from Track file */
+        ret = fread(&num_segments, sizeof(int), 1, in);
+        
+        /* Initialize a Track with this data */
+        curr_track = &_tracks_2D[a][c][t];
+
+        /* Loop over all segments in this Track */
+        for (int s=0; s < num_segments; s++) {
+          
+          /* Import data for this segment from Track file */
+          ret = fread(&length, sizeof(double), 1, in);
+          ret = fread(&material_id, sizeof(int), 1, in);
+          ret = fread(&region_id, sizeof(int), 1, in);
+          
+          /* Initialize segment with the data */
+          curr_segment._length = length;
+          curr_segment._material = materials[material_id];
+          curr_segment._region_id = region_id;
+          
+          /* Import CMFD-related data if needed */
+          if (cmfd != NULL){
+            ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
+            ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
+            curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
+            curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
+          }
+          
+          /* Add this segment to the Track */
+          curr_track->addSegment(&curr_segment);
+        }
+        
+        uid++;
+      }
+    }
+  }
+
+  /* Create FSR vector maps */
+  std::unordered_map<std::size_t, fsr_data> FSR_keys_map;
+  std::vector<int> FSRs_to_material_IDs;
+  std::vector<std::size_t> FSRs_to_keys;
+  int num_FSRs;
+  std::size_t fsr_key;
+  int fsr_key_id;
+  double x, y, z;
+  
+  /* Get number of FSRs */
+  ret = fread(&num_FSRs, sizeof(int), 1, in);
+  _geometry->setNumFSRs(num_FSRs);
+  
+  /* Read FSR vector maps from file */
+  for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++){
+
+    /* Read data from file for FSR_keys_map */
+    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
+    ret = fread(&fsr_key_id, sizeof(int), 1, in);
+    ret = fread(&x, sizeof(double), 1, in);
+    ret = fread(&y, sizeof(double), 1, in);
+    ret = fread(&z, sizeof(double), 1, in);
+    fsr_data* fsr = new fsr_data;
+    fsr->_fsr_id = fsr_key_id;
+    Point* point = new Point();
+    point->setCoords(x,y,z);
+    fsr->_point = point;
+    FSR_keys_map[fsr_key] = *fsr;
+
+    /* Read data from file for FSR_to_materials_IDs */
+    ret = fread(&material_id, sizeof(int), 1, in);
+    FSRs_to_material_IDs.push_back(material_id);
+
+    /* Read data from file for FSR_to_keys */
+    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
+    FSRs_to_keys.push_back(fsr_key);
+  }
+
+  /* Set FSR vector maps */
+  _geometry->setFSRKeysMap(FSR_keys_map);
+  _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
+  _geometry->setFSRsToKeys(FSRs_to_keys);
+
+  /* Read cmfd cell_fsrs vector of vectors from file */
+  if (cmfd != NULL){
+    std::vector< std::vector<int> > cell_fsrs;
+    int num_cells, fsr_id;
+    ret = fread(&num_cells, sizeof(int), 1, in);
+
+    /* Loop over CMFD cells */
+    for (int cell=0; cell < num_cells; cell++){
+      std::vector<int> *fsrs = new std::vector<int>;
+      cell_fsrs.push_back(*fsrs);
+      ret = fread(&num_FSRs, sizeof(int), 1, in);
+
+      /* Loop over FRSs within cell */
+      for (int fsr = 0; fsr < num_FSRs; fsr++){
+        ret = fread(&fsr_id, sizeof(int), 1, in);
+        cell_fsrs.at(cell).push_back(fsr_id);
+      }
+    }
+
+    /* Set CMFD cell_fsrs vector of vectors */
+    cmfd->setCellFSRs(cell_fsrs);
+  }
+
+  /* Close the Track file */
+  fclose(in);
+
+  return true;
+}
+
+
+/**
+ * @brief Reads Tracks in from a "*.tracks" binary file.
+ * @details Storing Tracks in a binary file saves time by eliminating ray
+ *          tracing for Track segmentation in commonly simulated geometries.
+ * @return true if able to read Tracks in from a file; false otherwise
+ */
+bool TrackGenerator::read3DSegmentsFromFile() {
+
+  int ret;
+  FILE* in;
+  in = fopen(_tracks_filename.c_str(), "r");
+
+  int string_length;
+
+  /* Import Geometry metadata from the Track file */
+  ret = fread(&string_length, sizeof(int), 1, in);
+  char* geometry_to_string = new char[string_length];
+  ret = fread(geometry_to_string, sizeof(char)*string_length, 1, in);
+
+  /* Check if our Geometry is exactly the same as the Geometry in the
+   * Track file for this number of azimuthal angles and track spacing */
+  if (_geometry->toString().compare(std::string(geometry_to_string)) != 0)
+    return false;
+
+  delete [] geometry_to_string;
+
+  log_printf(NORMAL, "Importing ray tracing data from file...");
+  
+  Track3D* curr_track;
+  int num_segments;
+  Cmfd* cmfd = _geometry->getCmfd();
+
+  double length;
+  int material_id;
+  int region_id;
+
+  int cmfd_surface_fwd;
+  int cmfd_surface_bwd;
+  segment curr_segment;
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+
+  int uid = 0;
+
+  /* Loop over Tracks */
+  for (int a=0; a < _num_azim/4; a++) {
+    for (int c=0; c < _cycles_per_azim[a]; c++) {
+      for (int p=0; p < _num_polar; p++){
+        for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
+          for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
+            
+            /* Import data for this Track from Track file */
+            ret = fread(&num_segments, sizeof(int), 1, in);
+
+            /* Get data for this Track */
+            curr_track = &_tracks_3D[a][c][p][i][t];
+                        
+            /* Loop over all segments in this Track */
+            for (int s=0; s < num_segments; s++) {
+              
+              /* Import data for this segment from Track file */
+              ret = fread(&length, sizeof(double), 1, in);
+              ret = fread(&material_id, sizeof(int), 1, in);
+              ret = fread(&region_id, sizeof(int), 1, in);
+              
+              /* Initialize segment with the data */
+              curr_segment._length = length;
+              curr_segment._material = materials[material_id];
+              curr_segment._region_id = region_id;
+              
+              /* Import CMFD-related data if needed */
+              if (cmfd != NULL){
+                ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
+                ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
+                curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
+                curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
+              }
+              
+              /* Add this segment to the Track */
+              curr_track->addSegment(&curr_segment);
+            }
+            
+            uid++;
+          }
+        }
+      }
+    }
+  }
+
+  /* Create FSR vector maps */
+  std::unordered_map<std::size_t, fsr_data> FSR_keys_map;
+  std::vector<int> FSRs_to_material_IDs;
+  std::vector<std::size_t> FSRs_to_keys;
+  int num_FSRs;
+  std::size_t fsr_key;
+  int fsr_key_id;
+  double x, y, z;
+  
+  /* Get number of FSRs */
+  ret = fread(&num_FSRs, sizeof(int), 1, in);
+  _geometry->setNumFSRs(num_FSRs);
+  
+  /* Read FSR vector maps from file */
+  for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++){
+
+    /* Read data from file for FSR_keys_map */
+    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
+    ret = fread(&fsr_key_id, sizeof(int), 1, in);
+    ret = fread(&x, sizeof(double), 1, in);
+    ret = fread(&y, sizeof(double), 1, in);
+    ret = fread(&z, sizeof(double), 1, in);
+    fsr_data* fsr = new fsr_data;
+    fsr->_fsr_id = fsr_key_id;
+    Point* point = new Point();
+    point->setCoords(x,y,z);
+    fsr->_point = point;
+    FSR_keys_map[fsr_key] = *fsr;
+
+    /* Read data from file for FSR_to_materials_IDs */
+    ret = fread(&material_id, sizeof(int), 1, in);
+    FSRs_to_material_IDs.push_back(material_id);
+
+    /* Read data from file for FSR_to_keys */
+    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
+    FSRs_to_keys.push_back(fsr_key);
+  }
+
+  /* Set FSR vector maps */
+  _geometry->setFSRKeysMap(FSR_keys_map);
+  _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
+  _geometry->setFSRsToKeys(FSRs_to_keys);
+
+  /* Read cmfd cell_fsrs vector of vectors from file */
+  if (cmfd != NULL){
+    std::vector< std::vector<int> > cell_fsrs;
+    int num_cells, fsr_id;
+    ret = fread(&num_cells, sizeof(int), 1, in);
+
+    /* Loop over CMFD cells */
+    for (int cell=0; cell < num_cells; cell++){
+      std::vector<int> *fsrs = new std::vector<int>;
+      cell_fsrs.push_back(*fsrs);
+      ret = fread(&num_FSRs, sizeof(int), 1, in);
+
+      /* Loop over FRSs within cell */
+      for (int fsr = 0; fsr < num_FSRs; fsr++){
+        ret = fread(&fsr_id, sizeof(int), 1, in);
+        cell_fsrs.at(cell).push_back(fsr_id);
+      }
+    }
+
+    /* Set CMFD cell_fsrs vector of vectors */
+    cmfd->setCellFSRs(cell_fsrs);
+  }
+
+  _num_3D_segments = 0;
+  
+  /* Loop over all Tracks */
+  for (int a=0; a < _num_azim/4; a++){
+    for (int c=0; c < _cycles_per_azim[a]; c++){
+      for (int p=0; p < _num_polar; p++){
+        for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
+          for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++)
+            _num_3D_segments += _tracks_3D[a][c][p][i][t].getNumSegments();
+        }
+      }
+    }
+  }
+  
+  /* Close the Track file */
+  fclose(in);
+
+  return true;
 }

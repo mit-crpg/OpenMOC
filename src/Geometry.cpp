@@ -554,55 +554,48 @@ int Geometry::findFSRId(LocalCoords* coords) {
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
   std::hash<std::string> key_hash_function;
-
+  
   /* Generate unique FSR key */
   std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
 
+  /* Get the lock */
+  omp_set_lock(_num_FSRs_lock);
+  
   /* If FSR has not been encountered, update FSR maps and vectors */
   if (_FSR_keys_map.find(fsr_key_hash) == _FSR_keys_map.end()){
-
+    
     /* Get the cell that contains coords */
     CellBasic* cell = findCellContainingCoords(curr);
+
+    /* Add FSR information to FSR key map and FSR_to vectors */
+    fsr_id = _num_FSRs;
+    fsr_data* fsr = new fsr_data;
+    fsr->_fsr_id = fsr_id;
+    Point* point = new Point();
+    point->setCoords(coords->getHighestLevel()->getX(), 
+                     coords->getHighestLevel()->getY(),
+                     coords->getHighestLevel()->getZ());
+    fsr->_point = point;
+    _FSR_keys_map[fsr_key_hash] = *fsr;
+    _FSRs_to_keys.push_back(fsr_key_hash);
+    _FSRs_to_material_IDs.push_back(cell->getMaterial()->getId());
     
-    /* Get the lock */
-    omp_set_lock(_num_FSRs_lock);
-
-    /* Recheck to see if FSR has been added to maps after getting the lock */
-    if (_FSR_keys_map.find(fsr_key_hash) != _FSR_keys_map.end())
-      fsr_id = _FSR_keys_map.at(fsr_key_hash)._fsr_id;
-    else{
-
-        /* Add FSR information to FSR key map and FSR_to vectors */
-      fsr_id = _num_FSRs;
-      fsr_data* fsr = new fsr_data;
-      fsr->_fsr_id = fsr_id;
-      Point* point = new Point();
-      point->setCoords(coords->getHighestLevel()->getX(), 
-                       coords->getHighestLevel()->getY(),
-                       coords->getHighestLevel()->getZ());
-      fsr->_point = point;
-      _FSR_keys_map[fsr_key_hash] = *fsr;
-      _FSRs_to_keys.push_back(fsr_key_hash);
-      _FSRs_to_material_IDs.push_back(cell->getMaterial()->getId());
-
-      /* If CMFD acceleration is on, add FSR to CMFD cell */
-      if (_cmfd != NULL){
-        int cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
-        _cmfd->addFSRToCell(cmfd_cell, fsr_id);
-      }
-
-      /* Increment FSR counter */
-      _num_FSRs++;
+    /* If CMFD acceleration is on, add FSR to CMFD cell */
+    if (_cmfd != NULL){
+      int cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
+      _cmfd->addFSRToCell(cmfd_cell, fsr_id);
     }
-
-    /* Release lock */
-    omp_unset_lock(_num_FSRs_lock);
-
+    
+    /* Increment FSR counter */
+    _num_FSRs++;
   }
   /* If FSR has already been encountered, get the fsr id from map */
   else
     fsr_id = _FSR_keys_map.at(fsr_key_hash)._fsr_id;
 
+  /* Release lock */
+  omp_unset_lock(_num_FSRs_lock);
+  
   return fsr_id;
 }
 
@@ -952,6 +945,8 @@ void Geometry::segmentize3D(Track3D* track, FP_PRECISION max_optical_length) {
   double phi = track->getPhi();
   double theta = track->getTheta();
 
+  log_printf(DEBUG, "segmenting track (%f,%f,%f)", x0,y0,z0);
+  
   /* Length of each segment */
   FP_PRECISION segment_length;
   Material* segment_material;
@@ -1016,7 +1011,7 @@ void Geometry::segmentize3D(Track3D* track, FP_PRECISION max_optical_length) {
       if (num_segments > min_num_segments)
         min_num_segments = num_segments;
     }
-
+    
     /* "Cut up" Track segment into sub-segments such that the length of each
      * does not exceed the size of the exponential table in the Solver */
     for (int i=0; i < min_num_segments; i++) {
@@ -1068,12 +1063,10 @@ void Geometry::segmentize3D(Track3D* track, FP_PRECISION max_optical_length) {
         /* Re-nudge segments from surface. */
         segment_start.adjustCoords(delta_x, delta_y, delta_z);
         segment_end.adjustCoords(delta_x, delta_y, delta_z);
-
       }
 
       /* Add the segment to the Track */
       track->addSegment(new_segment);
-
     }
   }
 

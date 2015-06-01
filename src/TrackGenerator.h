@@ -115,6 +115,8 @@ private:
   /** Boolean whether the Tracks have been generated (true) or not (false) */
   bool _contains_2D_tracks;
   bool _contains_3D_tracks;
+  bool _contains_2D_segments;
+  bool _contains_3D_segments;
   void initialize2DTracks();
   void initialize3DTracks();
   void recalibrate2DTracksToOrigin();
@@ -182,6 +184,8 @@ public:
   /* Worker functions */
   bool contains2DTracks();
   bool contains3DTracks();
+  bool contains2DSegments();
+  bool contains3DSegments();
   void retrieve2DTrackCoords(double* coords, int num_tracks);
   void retrieve3DTrackCoords(double* coords, int num_tracks);
   void retrieve2DSegmentCoords(double* coords, int num_segments);
@@ -190,6 +194,13 @@ public:
   double leastCommonMultiple(double a, double b);
   bool isSolve2D();
   bool isSolve3D();
+  void dump2DSegmentsToFile();
+  void dump3DSegmentsToFile();
+  bool read2DSegmentsFromFile();
+  bool read3DSegmentsFromFile();
+  void initializeTrackFileDirectory();
+  void initialize2DTrackReflections();
+  void initialize3DTrackReflections();
 };
 
 #endif /* TRACKGENERATOR_H_ */

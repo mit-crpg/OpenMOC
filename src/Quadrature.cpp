@@ -361,26 +361,26 @@ int Quadrature::getOrthant(int azim, int polar){
     if (polar < _num_polar/2)
       orthant = 0;
     else
-      orthant = 4;
+      orthant = 2;
   }
   else if (azim < _num_azim/2){
     if (polar < _num_polar/2)
-      orthant = 1;
+      orthant = 4;
     else
-      orthant = 5;
+      orthant = 6;
   }
   else if (azim < 3*_num_azim/4){
     if (polar < _num_polar/2)
       orthant = 3;
     else
-      orthant = 7;
+      orthant = 1;
   }
   else{
     if (polar < _num_polar/2)
-      orthant = 2;
+      orthant = 7;
     else
-      orthant = 6;
-  }    
+      orthant = 5;
+  }
   
   return orthant;
 }

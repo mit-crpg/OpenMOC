@@ -305,7 +305,7 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
   double y0 = point->getY();
   double z0 = point->getZ();
   double l;
-  
+
   int num = 0;                /* number of intersections */
   double xcurr, ycurr, zcurr; /* coordinates of current intersection point */
 
@@ -333,7 +333,7 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
     
     points->setCoords(xcurr, ycurr, zcurr);
   }
-  
+
   return num;
 }
 
