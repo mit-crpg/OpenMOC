@@ -1397,7 +1397,7 @@ double GPUSolver::computeResidual(residualType res_type) {
 
   if (res_type == SCALAR_FLUX) {
 
-    norm = _num_FSRs * _num_groups;
+    norm = _num_FSRs;
 
     /* Allocate Thrust vector for residuals on the GPU */
     residuals.resize(_num_FSRs * _num_groups);
@@ -1417,7 +1417,7 @@ double GPUSolver::computeResidual(residualType res_type) {
 
   else if (res_type == FISSION_SOURCE) {
 
-    norm = _num_fissionable_FSRs * _num_groups;
+    norm = _num_fissionable_FSRs;
 
     /* Allocate Thrust vector for residuals on the GPU */
     residuals.resize(_num_FSRs);
@@ -1462,7 +1462,7 @@ double GPUSolver::computeResidual(residualType res_type) {
 
   else if (res_type == TOTAL_SOURCE) {
 
-    norm = _num_FSRs * _num_groups;
+    norm = _num_FSRs;
 
     /* Allocate Thrust vector for residuals on the GPU */
     residuals.resize(_num_FSRs);

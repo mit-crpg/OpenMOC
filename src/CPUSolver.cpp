@@ -351,7 +351,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   if (res_type == SCALAR_FLUX) {
 
-    norm = _num_FSRs * _num_groups;
+    norm = _num_FSRs;
 
     for (int r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++)
@@ -364,7 +364,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   else if (res_type == FISSION_SOURCE) {
 
-    norm = _num_fissionable_FSRs * _num_groups;
+    norm = _num_fissionable_FSRs;
 
     double new_fission_source, old_fission_source;
     FP_PRECISION* nu_sigma_f;
@@ -392,7 +392,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   else if (res_type == TOTAL_SOURCE) {
 
-    norm = _num_FSRs * _num_groups;
+    norm = _num_FSRs;
 
     double new_total_source, old_total_source; 
     FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
