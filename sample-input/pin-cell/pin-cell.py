@@ -6,7 +6,7 @@ from openmoc.options import Options
 
 
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#                          Main Simulation Parameters
 ###############################################################################
 
 options = Options()
@@ -21,7 +21,7 @@ log.set_log_level('NORMAL')
 
 
 ###############################################################################
-###########################   Creating Materials   ############################
+#                            Creating Materials
 ###############################################################################
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
@@ -30,7 +30,7 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 
 ###############################################################################
-###########################   Creating Surfaces   #############################
+#                            Creating Surfaces
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
@@ -48,17 +48,17 @@ bottom.setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
-#############################   Creating Cells   ##############################
+#                             Creating Cells
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-fuel = CellBasic(name='fuel')
-fuel.setMaterial(materials['UO2'])
+fuel = Cell(name='fuel')
+fuel.setFill(materials['UO2'])
 fuel.addSurface(halfspace=-1, surface=circle)
 
-moderator = CellBasic(name='moderator')
-moderator.setMaterial(materials['Water'])
+moderator = Cell(name='moderator')
+moderator.setFill(materials['Water'])
 moderator.addSurface(halfspace=+1, surface=circle)
 moderator.addSurface(halfspace=+1, surface=left)
 moderator.addSurface(halfspace=-1, surface=right)
@@ -67,7 +67,7 @@ moderator.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
-###########################   Creating Universes   ############################
+#                            Creating Universes
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating universes...')
@@ -78,8 +78,9 @@ root_universe.addCell(moderator)
 
 
 ###############################################################################
-##########################   Creating the Geometry   ##########################
+#                         Creating the Geometry
 ###############################################################################
+
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
@@ -89,7 +90,7 @@ geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+#                          Creating the TrackGenerator
 ###############################################################################
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
@@ -100,33 +101,28 @@ track_generator.generateTracks()
 
 
 ###############################################################################
-###########################   Running a Simulation   ##########################
+#                            Running a Simulation
 ###############################################################################
 
 solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
-solver.setSourceConvergenceThreshold(tolerance)
-
-polar_quad = LeonardPolarQuad()
-polar_quad.setNumPolarAngles(2)
-solver.setPolarQuadrature(polar_quad)
-
-solver.convergeSource(max_iters)
+solver.setConvergenceThreshold(tolerance)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 
 ###############################################################################
-############################   Generating Plots   #############################
+#                             Generating Plots
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plot_tracks(track_generator)
-#plotter.plot_segments(track_generator)
-#plotter.plot_materials(geometry, gridsize=500)
-#plotter.plot_cells(geometry, gridsize=500)
-#plotter.plot_flat_source_regions(geometry, gridsize=500)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-#plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
+plotter.plot_tracks(track_generator)
+plotter.plot_segments(track_generator)
+plotter.plot_materials(geometry)
+plotter.plot_cells(geometry)
+plotter.plot_flat_source_regions(geometry)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
 
 log.py_printf('TITLE', 'Finished')
