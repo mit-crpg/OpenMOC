@@ -287,6 +287,15 @@ std::map<int, surface_halfspace> Cell::getSurfaces() const {
 
 
 /**
+ * @brief Return the std::vector of neighbor Cells to this Cell.
+ * @return std::vector of neighbor Cell pointers
+ */
+std::vector<Cell*> Cell::getNeighbors() const {
+  return _neighbors;
+}
+
+
+/**
  * @brief Returns the std::map of Cell IDs and Cell pointers within any
  *        nested Universes filling this Cell.
  * @return std::map of Cell IDs and pointers
@@ -440,6 +449,17 @@ void Cell::removeSurface(Surface* surface) {
 }
 
 
+/**
+ * @brief Add a neighboring Cell to this Cell's collection of neighbors.
+ * @param cell a pointer to the neighboring Cell
+ */
+void Cell::addNeighborCell(Cell* cell) {
+
+  /* Add the neighbor Cell if it is not already in the collection */
+  if (std::find(_neighbors.begin(), _neighbors.end(), cell) == _neighbors.end())
+    _neighbors.push_back(cell);
+}
+
 
 /**
  * @brief Finds and stores a bounding box for the entire geometry.
@@ -525,7 +545,7 @@ void Cell::findBoundingBox() {
  *          the Cell if it is on the same side of every Surface in the Cell.
  * @param point a pointer to a Point
  */
-bool Cell::cellContainsPoint(Point* point) {
+bool Cell::containsPoint(Point* point) {
 
   /* Loop over all Surfaces inside the Cell */
   std::map<int, surface_halfspace>::iterator iter;
@@ -549,8 +569,8 @@ bool Cell::cellContainsPoint(Point* point) {
  *          the Cell if it is on the same side of every Surface in the Cell.
  * @param coords a pointer to a localcoord
  */
-bool Cell::cellContainsCoords(LocalCoords* coords) {
-  return cellContainsPoint(coords->getPoint());
+bool Cell::containsCoords(LocalCoords* coords) {
+  return containsPoint(coords->getPoint());
 }
 
 
@@ -561,14 +581,11 @@ bool Cell::cellContainsCoords(LocalCoords* coords) {
  *          Cell returns INFINITY.
  * @param point the Point of interest
  * @param angle the angle of the trajectory (in radians from \f$[0,2\pi]\f$)
- * @param min_intersection a pointer to the intersection Point that is found
  */
-double Cell::minSurfaceDist(Point* point, double angle,
-                            Point* min_intersection) {
+double Cell::minSurfaceDist(Point* point, double angle) {
 
+  double curr_dist;
   double min_dist = INFINITY;
-  double d;
-  Point intersection;
 
   std::map<int, surface_halfspace>::iterator iter;
 
@@ -576,14 +593,11 @@ double Cell::minSurfaceDist(Point* point, double angle,
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Find the minimum distance from this surface to this Point */
-    d = iter->second._surface->getMinDistance(point, angle, &intersection);
+    curr_dist = iter->second._surface->getMinDistance(point, angle);
 
     /* If the distance to Cell is less than current min distance, update */
-    if (d < min_dist) {
-      min_dist = d;
-      min_intersection->setX(intersection.getX());
-      min_intersection->setY(intersection.getY());
-    }
+    if (curr_dist < min_dist)
+      min_dist = curr_dist;
   }
 
   return min_dist;
@@ -875,6 +889,33 @@ void Cell::subdivideCell() {
 
     /* Set the new Universe as the fill for this Cell */
     setFill(new_fill);
+  }
+}
+
+
+/**
+ * @brief Build a collection of neighboring Cells for optimized ray tracing.
+ */
+void Cell::buildNeighbors() {
+
+  Surface* surface;
+  int halfspace;
+
+  /* Add this Cell to all of the Surfaces in this Cell */
+  std::map<int, surface_halfspace>::iterator iter;
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second._surface;
+    halfspace = iter->second._halfspace;
+    surface->addNeighborCell(halfspace, this);
+  }
+
+  /* Make recursive call to the Cell's fill Universe */
+  if (_cell_type == FILL) {
+    Universe* fill = static_cast<Universe*>(_fill);
+    if (fill->getType() == SIMPLE)
+      static_cast<Universe*>(fill)->buildNeighbors();
+    else
+      static_cast<Lattice*>(fill)->buildNeighbors();
   }
 }
 

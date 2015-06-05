@@ -7,6 +7,9 @@
  */
 LocalCoords::LocalCoords(double x, double y) {
   _coords.setCoords(x, y);
+  _universe = NULL;
+  _lattice = NULL;
+  _cell = NULL;
   _next = NULL;
   _prev = NULL;
 }

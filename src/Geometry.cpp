@@ -367,7 +367,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
   Universe* univ = coords->getUniverse();
   Cell* cell;
 
-  if (universe_id == 0){
+  if (univ == _root_universe){
     if (!withinBounds(coords))
       return NULL;
   }
@@ -451,11 +451,11 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
   double min_dist = std::numeric_limits<double>::infinity();
   Point surf_intersection;
 
-  /* Find the current Cell */
-  cell = findCellContainingCoords(coords);
-
   /* Get lowest level coords */
   coords = coords->getLowestLevel();
+
+  /* Get the current Cell */
+  cell = coords->getCell();
 
   /* If the current coords is not in any Cell, return NULL */
   if (cell == NULL)
@@ -478,8 +478,8 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
       else{
-        Universe* universe = coords->getUniverse();
-        dist = universe->minSurfaceDist(coords->getPoint(), angle);
+        Cell* cell = coords->getCell();
+        dist = cell->minSurfaceDist(coords->getPoint(), angle);
       }
 
       /* Recheck min distance */
@@ -505,6 +505,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
     double delta_x = cos(angle) * (min_dist + TINY_MOVE);
     double delta_y = sin(angle) * (min_dist + TINY_MOVE);
     coords->adjustCoords(delta_x, delta_y);
+
     return findCellContainingCoords(coords);
   }
 }
@@ -723,6 +724,9 @@ void Geometry::initializeFlatSourceRegions() {
 
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
+
+  /* Build collections of neighbor Cells for optimized ray tracing */
+  _root_universe->buildNeighbors();
 
   /* Create map of Material IDs to Material pointers */
   _all_materials = getAllMaterials();
