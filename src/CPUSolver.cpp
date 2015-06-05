@@ -364,6 +364,10 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   else if (res_type == FISSION_SOURCE) {
 
+    if (_num_fissionable_FSRs == 0)
+      log_printf(ERROR, "The Solver is unable to compute the "
+                 "eigenvalue without fissionable FSRs");
+
     norm = _num_fissionable_FSRs;
 
     double new_fission_source, old_fission_source;

@@ -626,10 +626,6 @@ void Solver::countFissionableFSRs() {
     if (_FSR_materials[r]->isFissionable())
       _num_fissionable_FSRs++;
   }
-
-  if (_num_fissionable_FSRs == 0)
-    log_printf(ERROR, "The Solver is unable to compute the "
-               "eigenvalue without fissionable FSRs");
 }
 
 
