@@ -346,11 +346,10 @@ def get_opencg_cell(openmoc_cell):
   name = openmoc_cell.getName()
   opencg_cell = opencg.Cell(cell_id, name)
 
-  if (openmoc_cell.getType() == openmoc.MATERIAL):
-    fill = openmoc.castCellToCellBasic(openmoc_cell).getMaterial()
+  fill = openmoc_cell.getFill()
+  if (openmoc_cell.getType == openmoc.MATERIAL):
     opencg_cell.setFill(get_opencg_material(fill))
   elif (openmoc_cell.getType() == openmoc.FILL):
-    fill = openmoc.castCellToCellFill(openmoc_cell).getFill()
     if isinstance(fill, openmoc.Lattice):
       opencg_cell.setFill(get_opencg_lattice(fill))
     else:
@@ -539,15 +538,13 @@ def get_openmoc_cell(opencg_cell):
   name = opencg_cell._name
 
   fill = opencg_cell._fill
+  openmoc_cell = openmoc.Cell(cell_id, name)
   if opencg_cell._type == 'universe':
-    openmoc_cell = openmoc.CellFill(cell_id, name)
     openmoc_cell.setFill(get_openmoc_universe(fill))
   elif opencg_cell._type == 'lattice':
-    openmoc_cell = openmoc.CellFill(cell_id, name)
     openmoc_cell.setFill(get_openmoc_lattice(fill))
   else:
-    openmoc_cell = openmoc.CellBasic(cell_id, name)
-    openmoc_cell.setMaterial(get_openmoc_material(fill))
+    openmoc_cell.setFill(get_openmoc_material(fill))
 
   surfaces = opencg_cell._surfaces
 

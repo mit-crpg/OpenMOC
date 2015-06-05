@@ -54,9 +54,13 @@ protected:
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
-  void flattenFSRSources(FP_PRECISION value);
+  void storeFSRFluxes();
   void normalizeFluxes();
-  FP_PRECISION computeFSRSources();
+  void computeFSRSources();
+  void transportSweep();
+  void addSourceToScalarFlux();
+  void computeKeff();
+  double computeResidual(residualType res_type);
 
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
@@ -86,23 +90,16 @@ protected:
    * @param track_flux a pointer to the Track's outgoing angular flux
    */
   virtual void transferBoundaryFlux(int track_id, int azim_index,
-                                    bool direction,
-                                    FP_PRECISION* track_flux);
-
-  void addSourceToScalarFlux();
-  void computeKeff();
-  void transportSweep();
+                                    bool direction, FP_PRECISION* track_flux);
 
 public:
   CPUSolver(TrackGenerator* track_generator=NULL);
   virtual ~CPUSolver();
 
   int getNumThreads();
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
-  FP_PRECISION* getFSRScalarFluxes();
-  FP_PRECISION getFSRSource(int fsr_id, int energy_group);
 
   void setNumThreads(int num_threads);
+  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };

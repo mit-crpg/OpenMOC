@@ -173,7 +173,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
                "have not yet been generated");
 
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION *FSR_volumes = new FP_PRECISION[num_FSRs];
+  FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
   int azim_index;
@@ -500,7 +500,7 @@ void TrackGenerator::generateTracks() {
     /* Check to make sure that height, width of the Geometry are nonzero */
     if (_geometry->getHeight() <= 0 || _geometry->getHeight() <= 0)
       log_printf(ERROR, "The total height and width of the Geometry must be "
-                 "non-zero for Track generation. Create a CellFill which "
+                 "non-zero for Track generation. Create a Cell which "
                  "is filled by the entire geometry and bounded by XPlanes "
                  "and YPlanes to enable the Geometry to determine the total "
                  "width and height of the model.");

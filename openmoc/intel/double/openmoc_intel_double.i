@@ -62,14 +62,6 @@
  * routine and the OpenCG compatibility module */
 %inline %{
 
-  CellFill* castCellToCellFill(Cell* cell) {
-    return dynamic_cast<CellFill*>(cell);
-  }
-
-  CellBasic* castCellToCellBasic(Cell* cell) {
-    return dynamic_cast<CellBasic*>(cell);
-  }
-
   Lattice* castUniverseToLattice(Universe* universe) {
     return dynamic_cast<Lattice*>(universe);
   }

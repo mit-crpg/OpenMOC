@@ -98,8 +98,8 @@ private:
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
-  CellBasic* findFirstCell(LocalCoords* coords, double angle);
-  CellBasic* findNextCell(LocalCoords* coords, double angle);
+  Cell* findFirstCell(LocalCoords* coords, double angle);
+  Cell* findNextCell(LocalCoords* coords, double angle);
 
 public:
 
@@ -151,9 +151,10 @@ public:
 #endif
 
   /* Find methods */
-  CellBasic* findCellContainingCoords(LocalCoords* coords);
+  Cell* findCellContainingCoords(LocalCoords* coords);
   Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
+  Cell* findCellContainingFSR(int fsr_id);
 
   /* Other worker methods */
   void subdivideCells();
