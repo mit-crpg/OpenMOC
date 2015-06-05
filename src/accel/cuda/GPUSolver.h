@@ -8,13 +8,13 @@
 #ifndef GPUSOLVER_H_
 #define GPUSOLVER_H_
 
-#define PySys_WriteStdout printf
-
 #ifdef __cplusplus
 #include "Python.h"
 #include "../../constants.h"
 #include "../../Solver.h"
 #endif
+
+#define PySys_WriteStdout printf
 
 #include <thrust/device_vector.h>
 #include <thrust/copy.h>
@@ -26,7 +26,6 @@
 #include <sm_20_atomic_functions.h>
 #include "clone.h"
 #include "GPUExpEvaluator.h"
-
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
