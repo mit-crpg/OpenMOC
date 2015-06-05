@@ -220,7 +220,7 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int polar) {
   /* Evaluate the exponential using the lookup table - linear interpolation */
   if (_interpolate) {
     int index;
-    index = round_to_int(tau * _inverse_exp_table_spacing);
+    index = floor(tau * _inverse_exp_table_spacing);
     index *= _two_times_num_polar;
     exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                   _exp_table[index + 2 * polar + 1]));
