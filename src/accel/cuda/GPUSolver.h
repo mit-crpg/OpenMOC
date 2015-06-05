@@ -8,6 +8,8 @@
 #ifndef GPUSOLVER_H_
 #define GPUSOLVER_H_
 
+#define PySys_WriteStdout printf
+
 #ifdef __cplusplus
 #include "Python.h"
 #include "../../constants.h"
@@ -24,8 +26,6 @@
 #include <sm_20_atomic_functions.h>
 #include "clone.h"
 #include "GPUExpEvaluator.h"
-
-#define PySys_WriteStdout printf
 
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
