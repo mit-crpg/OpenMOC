@@ -1418,8 +1418,8 @@ double GPUSolver::computeResidual(residualType res_type) {
   else if (res_type == FISSION_SOURCE) {
 
     if (_num_fissionable_FSRs == 0)
-      log_printf(ERROR, "The Solver is unable to compute the "
-                 "eigenvalue without fissionable FSRs");
+      log_printf(ERROR, "The Solver is unable to compute a "
+                 "FISSION_SOURCE residual without fissionable FSRs");
 
     norm = _num_fissionable_FSRs;
 

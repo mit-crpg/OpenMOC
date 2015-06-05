@@ -167,7 +167,7 @@ void ExpEvaluator::initialize() {
   log_printf(INFO, "Initializing exponential interpolation table...");
 
   /* Expand max tau slightly to avoid roundoff error approximation */
-  _max_optical_length *= 1.01;
+  _max_optical_length *= 1.00001;
 
   /* Set size of interpolation table */
   int num_polar = _polar_quad->getNumPolarAngles();
