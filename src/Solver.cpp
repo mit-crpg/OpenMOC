@@ -626,10 +626,6 @@ void Solver::countFissionableFSRs() {
     if (_FSR_materials[r]->isFissionable())
       _num_fissionable_FSRs++;
   }
-
-  if (_num_fissionable_FSRs == 0)
-    log_printf(ERROR, "The Solver is unable to compute the "
-               "eigenvalue without fissionable FSRs");
 }
 
 
@@ -736,6 +732,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
 
   initializeSourceArrays();
   initializeFSRs();
+  countFissionableFSRs();
   zeroTrackFluxes();
 
   /* Compute the sum of fixed, total and scattering sources */

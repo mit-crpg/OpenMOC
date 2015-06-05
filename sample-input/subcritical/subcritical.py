@@ -38,8 +38,8 @@ log.py_printf('NORMAL', 'Creating surfaces...')
 
 left = XPlane(x=-5.0, name='left')
 right = XPlane(x=5.0, name='right')
-bottom = YPlane(y=-5.0, name='top')
-top = YPlane(y=5.0, name='bottom')
+bottom = YPlane(y=-5.0, name='bottom')
+top = YPlane(y=5.0, name='top')
 boundaries = [left, right, top, bottom]
 
 for boundary in boundaries: boundary.setBoundaryType(VACUUM)
