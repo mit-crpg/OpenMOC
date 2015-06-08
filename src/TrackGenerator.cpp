@@ -510,6 +510,7 @@ void TrackGenerator::generateTracks() {
     try {
       initializeTracks();
       recalibrateTracksToOrigin();
+      std::cout << "Num threads = " << _num_threads << std::endl;
       double t1 = omp_get_wtime();
       segmentize();
       double t2 = omp_get_wtime();
@@ -1210,8 +1211,8 @@ void TrackGenerator::dumpTracksToFile() {
   }
 
   /* Get FSR vector maps */
-  std::unordered_map<std::size_t, fsr_data> FSR_keys_map = _geometry->getFSRKeysMap();
-  std::unordered_map<std::size_t, fsr_data>::iterator iter;
+  parallel_hash_map<std::size_t, fsr_data> FSR_keys_map = 
+      _geometry->getFSRKeysMap();
   std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
   std::size_t fsr_key;
@@ -1224,13 +1225,15 @@ void TrackGenerator::dumpTracksToFile() {
   fwrite(&num_FSRs, sizeof(int), 1, out);
 
   /* Write FSR vector maps to file */
-  for (iter = FSR_keys_map.begin(); iter != FSR_keys_map.end(); ++iter){
+  std::size_t* fsr_key_list = FSR_keys_map.keys();
+  fsr_data* fsr_data_list = FSR_keys_map.values();
+  for(int i=0; i < num_FSRs; i++){
 
     /* Write data to file from FSR_keys_map */
-    fsr_key = iter->first;
-    fsr_id = iter->second._fsr_id;
-    x = iter->second._point->getX();
-    y = iter->second._point->getY();
+    fsr_key = fsr_key_list[i];
+    fsr_id = fsr_data_list[i]._fsr_id;
+    x = fsr_data_list[i]._point->getX();
+    y = fsr_data_list[i]._point->getY();
     fwrite(&fsr_key, sizeof(std::size_t), 1, out);
     fwrite(&fsr_id, sizeof(int), 1, out);
     fwrite(&x, sizeof(double), 1, out);
@@ -1412,7 +1415,7 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Create FSR vector maps */
-  std::unordered_map<std::size_t, fsr_data> FSR_keys_map;
+  parallel_hash_map<std::size_t, fsr_data> FSR_keys_map;
   std::vector<int> FSRs_to_material_IDs;
   std::vector<std::size_t> FSRs_to_keys;
   int num_FSRs;
@@ -1437,7 +1440,7 @@ bool TrackGenerator::readTracksFromFile() {
     Point* point = new Point();
     point->setCoords(x,y);
     fsr->_point = point;
-    FSR_keys_map[fsr_key] = *fsr;
+    FSR_keys_map.insert(fsr_key, *fsr);
 
     /* Read data from file for FSR_to_materials_IDs */
     ret = fread(&material_id, sizeof(int), 1, in);

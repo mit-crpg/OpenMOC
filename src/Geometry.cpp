@@ -527,7 +527,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
 
   /* If FSR has not been encountered, update FSR maps and vectors */
-  if (_FSR_keys_map.find(fsr_key_hash) == _FSR_keys_map.end()){
+  if (!_FSR_keys_map.contains(fsr_key_hash)){
 
     /* Get the cell that contains coords */
     CellBasic* cell = findCellContainingCoords(curr);
@@ -536,7 +536,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
     omp_set_lock(_num_FSRs_lock);
 
     /* Recheck to see if FSR has been added to maps after getting the lock */
-    if (_FSR_keys_map.find(fsr_key_hash) != _FSR_keys_map.end())
+    if (_FSR_keys_map.contains(fsr_key_hash))
       fsr_id = _FSR_keys_map.at(fsr_key_hash)._fsr_id;
     else{
 
@@ -548,7 +548,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       point->setCoords(coords->getHighestLevel()->getX(), 
                        coords->getHighestLevel()->getY());
       fsr->_point = point;
-      _FSR_keys_map[fsr_key_hash] = *fsr;
+      _FSR_keys_map.insert(fsr_key_hash, *fsr);
       _FSRs_to_keys.push_back(fsr_key_hash);
       _FSRs_to_material_IDs.push_back(cell->getMaterial()->getId());
 
@@ -1003,7 +1003,7 @@ void Geometry::initializeCmfd(){
  * @brief Returns the map that maps FSR keys to FSR IDs
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::unordered_map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
+parallel_hash_map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
   return _FSR_keys_map;
 }
 
@@ -1041,7 +1041,7 @@ std::vector<int> Geometry::getFSRsToMaterialIDs() {
  *          are read from file to avoid unnecessary segmentation.  
  * @param FSR_keys_map map of FSR keys to FSR data
  */
-void Geometry::setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> 
+void Geometry::setFSRKeysMap(parallel_hash_map<std::size_t, fsr_data> 
                              FSR_keys_map){
   _FSR_keys_map = FSR_keys_map;
 }
