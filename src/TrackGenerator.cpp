@@ -1,5 +1,5 @@
 #include "TrackGenerator.h"
-
+#include<stdlib.h>
 
 /**
  * @brief Constructor for the TrackGenerator assigns default values.
@@ -510,7 +510,12 @@ void TrackGenerator::generateTracks() {
     try {
       initializeTracks();
       recalibrateTracksToOrigin();
+      double t1 = omp_get_wtime();
       segmentize();
+      double t2 = omp_get_wtime();
+      double seg_time = t2 - t1;
+      std::cout << "Duration = " << seg_time << std::endl;
+      std::exit(EXIT_FAILURE);
       dumpTracksToFile();
     }
     catch (std::exception &e) {
