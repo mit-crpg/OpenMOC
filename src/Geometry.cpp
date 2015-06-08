@@ -21,7 +21,7 @@ Geometry::Geometry() {
   _num_FSRs = 0;
 
   _max_seg_length = 0;
-  _min_seg_length = std::numeric_limits<double>::infinity();
+  _min_seg_length = std::numeric_limits<FP_PRECISION>::infinity();
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
@@ -270,7 +270,7 @@ int Geometry::getNumCells() {
  * @brief Return the max Track segment length computed during segmentation (cm)
  * @return max Track segment length (cm)
  */
-double Geometry::getMaxSegmentLength() {
+FP_PRECISION Geometry::getMaxSegmentLength() {
   return _max_seg_length;
 }
 
@@ -279,7 +279,7 @@ double Geometry::getMaxSegmentLength() {
  * @brief Return the min Track segment length computed during segmentation (cm)
  * @return min Track segment length (cm)
  */
-double Geometry::getMinSegmentLength() {
+FP_PRECISION Geometry::getMinSegmentLength() {
   return _min_seg_length;
 }
 
@@ -847,7 +847,7 @@ void Geometry::segmentize2D(Track2D* track, FP_PRECISION max_optical_length, dou
     min_num_segments = 1;
     num_groups = segment_material->getNumEnergyGroups();
     for (int g=0; g < num_groups; g++) {
-      num_segments = ceil(segment_length * sigma_t[g] / max_optical_length);
+      num_segments = (int) ceil(segment_length * sigma_t[g] / max_optical_length);
       if (num_segments > min_num_segments)
         min_num_segments = num_segments;
     }
@@ -1007,7 +1007,7 @@ void Geometry::segmentize3D(Track3D* track, FP_PRECISION max_optical_length) {
     min_num_segments = 1;
     num_groups = segment_material->getNumEnergyGroups();
     for (int g=0; g < num_groups; g++) {
-      num_segments = ceil(segment_length * sigma_t[g] / max_optical_length);
+      num_segments = (int) ceil(segment_length * sigma_t[g] / max_optical_length);
       if (num_segments > min_num_segments)
         min_num_segments = num_segments;
     }

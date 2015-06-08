@@ -921,17 +921,23 @@ void TrackGenerator::generateTracks() {
     
     /* Initialize the quadrature set */
     _quadrature->initialize();
-            
+
+    log_printf(NORMAL, "1");
+    
     /* Initialize the 2D tracks */
     initialize2DTracks();
     initialize2DTrackReflections();
+
+    log_printf(NORMAL, "2");
     
     /* If 3D problem, initialize the 3D tracks */
     if (_solve_3D){
       initialize3DTracks();
       initialize3DTrackReflections();
     }
-      
+
+    log_printf(NORMAL, "3");
+    
     /* Recalibrate the 2D tracks back to the geometry origin */
     recalibrate2DTracksToOrigin();
     
@@ -939,7 +945,11 @@ void TrackGenerator::generateTracks() {
     if (_solve_3D)
       recalibrate3DTracksToOrigin();
 
+    log_printf(NORMAL, "4");
+    
     initializeTrackFileDirectory();
+
+    log_printf(NORMAL, "5");
     
     if (_use_input_file == false){
 
@@ -1687,6 +1697,8 @@ void TrackGenerator::segmentize2D() {
     }
   }
 
+  log_printf(NORMAL, "num 2d segments: %i", _num_2D_segments);
+  
   _contains_2D_segments = true;
   
   return;

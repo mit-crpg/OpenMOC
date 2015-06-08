@@ -110,7 +110,7 @@ FP_PRECISION Quadrature::getSinTheta(int azim, int polar) {
  * @param polar index of the polar angle of interest
  * @return the value of the polar angle for this azimuthal and polar angle index
  */
-FP_PRECISION Quadrature::getTheta(int azim, int polar) {
+double Quadrature::getTheta(int azim, int polar) {
 
   if (polar < 0 || polar >= _num_polar)
     log_printf(ERROR, "Attempted to retrieve theta for polar angle = "
@@ -142,7 +142,7 @@ FP_PRECISION Quadrature::getTheta(int azim, int polar) {
  * @param azim index of the azimthal angle of interest
  * @return the value of the azimuthal angle
  */
-FP_PRECISION Quadrature::getPhi(int azim) {
+double Quadrature::getPhi(int azim) {
 
   if (azim < 0 || azim >= _num_azim)
     log_printf(ERROR, "Attempted to retrieve theta for "
@@ -266,7 +266,7 @@ FP_PRECISION** Quadrature::getSinThetas() {
  * @brief Returns a pointer to the Quadrature's array of \f$ \theta_{p} \f$.
  * @return a pointer to the array of \f$ \theta_{p} \f$
  */
-FP_PRECISION** Quadrature::getThetas() {
+double** Quadrature::getThetas() {
 
   if (_thetas == NULL)
     log_printf(ERROR, "Attempted to retrieve the thetas array "
@@ -280,7 +280,7 @@ FP_PRECISION** Quadrature::getThetas() {
  * @brief Returns a pointer to the Quadrature's array of \f$ \phi \f$.
  * @return a pointer to the array of \f$ \phi \f$
  */
-FP_PRECISION* Quadrature::getPhis() {
+double* Quadrature::getPhis() {
 
   if (_phis == NULL)
     log_printf(ERROR, "Attempted to retrieve the phis array "
@@ -458,9 +458,9 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
   }
   
   /* Initialize memory for arrays */
-  _thetas = new FP_PRECISION*[_num_azim/4];
+  _thetas = new double*[_num_azim/4];
   for (int i=0; i < _num_azim/4; i++)
-    _thetas[i] = new FP_PRECISION[_num_polar/2];
+    _thetas[i] = new double[_num_polar/2];
 
   /* Extract sin thetas from user input */
   int ap=0;
@@ -470,7 +470,7 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
         log_printf(ERROR, "Unable to set theta to %f which is "
                    "not in the range [0,PI/2]", thetas[ap]);
 
-      _thetas[a][p] = FP_PRECISION(thetas[ap]);
+      _thetas[a][p] = thetas[ap];
       ap++;
     }
   }
@@ -530,9 +530,9 @@ void Quadrature::setTheta(double theta, int azim, int polar){
 
 
   if (_thetas == NULL){
-    _thetas = new FP_PRECISION*[_num_azim/4];
+    _thetas = new double*[_num_azim/4];
     for (int i=0; i < _num_azim/4; i++)
-      _thetas[i] = new FP_PRECISION[_num_polar/2];
+      _thetas[i] = new double[_num_polar/2];
   }
 
   _thetas[azim][polar] = theta;
@@ -550,7 +550,7 @@ void Quadrature::setPhi(double phi, int azim){
                " the range (0, _num_azim/4)", azim);
 
   else if (_phis == NULL)
-    _phis = new FP_PRECISION[_num_azim/4];
+    _phis = new double[_num_azim/4];
 
   _phis[azim] = phi;
 }
@@ -569,7 +569,7 @@ void Quadrature::setAzimWeight(double weight, int azim){
   else if (_azim_weights == NULL)
     _azim_weights = new FP_PRECISION[_num_azim/4];
 
-  _azim_weights[azim] = weight;
+  _azim_weights[azim] = FP_PRECISION(weight);
 }
 
 
@@ -595,7 +595,7 @@ void Quadrature::setPolarWeight(double weight, int azim, int polar){
       _polar_weights[i] = new FP_PRECISION[_num_polar/2];
   }
 
-  _polar_weights[azim][polar] = weight;
+  _polar_weights[azim][polar] = FP_PRECISION(weight);
 }
 
 
@@ -615,7 +615,7 @@ void Quadrature::initialize() {
                "Set the number of azimuthal angles before initialization.");
 
   if (_phis == NULL)
-    _phis = new FP_PRECISION[_num_azim/4];
+    _phis = new double[_num_azim/4];
   
   /* Compute a desired azimuthal angles */
   for (int a = 0; a < _num_azim/4; a++)
@@ -631,7 +631,7 @@ void Quadrature::initialize() {
  */
 void Quadrature::precomputeWeights() {
 
-  FP_PRECISION x1, x2;
+  double x1, x2;
   FP_PRECISION sum_wgts = 0.0;
   
   if (_azim_weights != NULL)
@@ -653,7 +653,7 @@ void Quadrature::precomputeWeights() {
     else
       x2 = _phis[a];
 
-    _azim_weights[a] = (x1 + x2) / M_PI;
+    _azim_weights[a] = FP_PRECISION((x1 + x2) / M_PI);
     sum_wgts += _azim_weights[a];
   }
 
@@ -1176,7 +1176,7 @@ void EqualWeightPolarQuad::precomputeWeights() {
   /* Allocate temporary arrays for tabulated quadrature values */
   double* weights = new double[_num_polar/2*_num_azim/4];
 
-  FP_PRECISION y1, y2;
+  double y1, y2;
 
   /* Generate the sin thetas and weights using equations 420-422 of the
    * DOE Nucl. Eng. Handbook "Lattice Physics Computations" */
@@ -1273,7 +1273,7 @@ void EqualAnglePolarQuad::precomputeWeights() {
   /* Allocate temporary arrays for tabulated quadrature values */
   double* weights = new double[_num_polar/2*_num_azim/4];
   
-  FP_PRECISION y1, y2;
+  double y1, y2;
 
   /* Generate the sin thetas and weights using equations 420-422 of the
    * DOE Nucl. Eng. Handbook "Lattice Physics Computations" */

@@ -9,7 +9,7 @@ Vector::Vector(int num_x, int num_y, int num_z, int num_groups){
   
   _num_rows = _num_x*_num_y*_num_z*_num_groups;
 
-  _array = new double[_num_rows];
+  _array = new FP_PRECISION[_num_rows];
   std::fill_n(_array, _num_rows, 0.0);
 
 }
@@ -22,41 +22,41 @@ Vector::~Vector(){
 }
 
 
-void Vector::incrementValue(int row, double val){
+void Vector::incrementValue(int row, FP_PRECISION val){
   log_printf(DEBUG, "incrementing row: %i val: %f", row, val);
   _array[row] += val;
 }
 
 
-void Vector::incrementValueByCoords(int x, int y, int z, int g, double val){
+void Vector::incrementValueByCoords(int x, int y, int z, int g, FP_PRECISION val){
   int row = ((z*_num_y + y)*_num_x + x)*_num_groups + g;
   incrementValue(row, val);
 }
 
 
-void Vector::incrementValueByCell(int cell, int g, double val){
+void Vector::incrementValueByCell(int cell, int g, FP_PRECISION val){
   int row = cell*_num_groups + g;
   incrementValue(row, val);
 }
 
 
-void Vector::setAll(double val){
+void Vector::setAll(FP_PRECISION val){
   std::fill_n(_array, _num_rows, val);
 }
 
 
-void Vector::setValue(int row, double val){
+void Vector::setValue(int row, FP_PRECISION val){
   _array[row] = val;
 }
 
 
-void Vector::setValueByCoords(int x, int y, int z, int g, double val){
+void Vector::setValueByCoords(int x, int y, int z, int g, FP_PRECISION val){
   int row = ((z*_num_y + y)*_num_x + x)*_num_groups + g;
   setValue(row, val);
 }
 
 
-void Vector::setValueByCell(int cell, int g, double val){
+void Vector::setValueByCell(int cell, int g, FP_PRECISION val){
   int row = cell*_num_groups + g;
   setValue(row, val);
 }
@@ -67,7 +67,7 @@ void Vector::clear(){
 }
 
 
-void Vector::scaleByValue(double val){
+void Vector::scaleByValue(FP_PRECISION val){
 
   for (int i=0; i < _num_rows; i++)
     _array[i] *= val;
@@ -102,24 +102,24 @@ void Vector::copyTo(Vector* vector){
 }
 
 
-double Vector::getValue(int row){
+FP_PRECISION Vector::getValue(int row){
   return _array[row];
 }
 
 
-double Vector::getValueByCoords(int x, int y, int z, int g){
+FP_PRECISION Vector::getValueByCoords(int x, int y, int z, int g){
   int row = ((z*_num_y + y)*_num_x + x)*_num_groups + g;
   return getValue(row);
 }
 
 
-double Vector::getValueByCell(int cell, int g){
+FP_PRECISION Vector::getValueByCell(int cell, int g){
   int row = cell*_num_groups + g;
   return getValue(row);
 }
 
 
-double* Vector::getArray(){
+FP_PRECISION* Vector::getArray(){
   return _array;
 }
 
@@ -151,10 +151,10 @@ int Vector::getNumRows(){
 
 void Vector::random(){
   for (int i=0; i < _num_rows; i++)
-    _array[i] = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+    _array[i] = static_cast<FP_PRECISION>(rand()) / static_cast<FP_PRECISION>(RAND_MAX);
 }
 
 
-double Vector::sum(){
+FP_PRECISION Vector::sum(){
   return pairwise_sum(_array, _num_rows);
 }

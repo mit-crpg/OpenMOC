@@ -116,7 +116,7 @@ bool ExpEvaluator::isSolve3D(){
  * @param max_tau the maximum optical path length in the input range
  * @param tolerance the minimum acceptable interpolation accuracy
  */
-void ExpEvaluator::initialize(double max_tau, double tolerance) {
+void ExpEvaluator::initialize(FP_PRECISION max_tau, FP_PRECISION tolerance) {
 
   /* If no exponential table is needed, return */
   if (!_interpolate)
@@ -198,13 +198,13 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int azim, int po
   if (_interpolate) {
     if (_solve_3D){
       int index;
-      index = round_to_int(tau * _inverse_exp_table_spacing) * 2;
+      index = (int) floor(tau * _inverse_exp_table_spacing) * 2;
       exponential = (1. - (_exp_table[index] * tau +
                            _exp_table[index + 1]));
     }
     else{
       int index;
-      index = round_to_int(tau * _inverse_exp_table_spacing);
+      index = (int) floor(tau * _inverse_exp_table_spacing);
       index *= _num_polar;
       exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                            _exp_table[index + 2 * polar + 1]));

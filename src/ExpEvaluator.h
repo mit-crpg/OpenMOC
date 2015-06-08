@@ -64,29 +64,9 @@ public:
   FP_PRECISION* getExpTable();
   bool isSolve3D();
   
-  void initialize(double max_tau, double tolerance);
+  void initialize(FP_PRECISION max_tau, FP_PRECISION tolerance);
   FP_PRECISION computeExponential(FP_PRECISION tau, int azim, int polar);
 };
-
-
-/**
- * @brief Rounds a single precision floating point value to an integer.
- * @param x a float precision floating point value
- * @brief the rounded integer value
- */
-inline int round_to_int(float x) {
-  return lrintf(x);
-}
-
-
-/**
- * @brief Rounds a double precision floating point value to an integer.
- * @param x a double precision floating point value
- * @brief the rounded integer value
- */
-inline int round_to_int(double x) {
-  return lrint(x);
-}
 
 
  #endif /* EXPEVALUATOR_H_ */

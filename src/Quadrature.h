@@ -54,10 +54,10 @@ protected:
   FP_PRECISION** _sin_thetas;
 
   /** An array of the quadrature polar angles */
-  FP_PRECISION** _thetas;
+  double** _thetas;
 
   /** An array of the quadrature azimuthal angles */
-  FP_PRECISION* _phis;
+  double* _phis;
   
   /** An array of the quadrature azimuthal weights */
   FP_PRECISION* _azim_weights;
@@ -76,14 +76,14 @@ public:
   int getNumPolarAngles() const;
   int getNumAzimAngles() const;
   FP_PRECISION getSinTheta(int azim, int polar);
-  FP_PRECISION getTheta(int azim, int polar);
-  FP_PRECISION getPhi(int azim);
+  double getTheta(int azim, int polar);
+  double getPhi(int azim);
   FP_PRECISION getAzimWeight(int azim);
   FP_PRECISION getPolarWeight(int azim, int polar);
   FP_PRECISION getMultiple(int azim, int polar);
   FP_PRECISION** getSinThetas();
-  FP_PRECISION** getThetas();
-  FP_PRECISION* getPhis();
+  double** getThetas();
+  double* getPhis();
   FP_PRECISION* getAzimWeights();
   FP_PRECISION** getPolarWeights();
   FP_PRECISION** getMultiples();

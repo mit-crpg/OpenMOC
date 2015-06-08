@@ -27,13 +27,13 @@ class Matrix {
 private:
 
   /** A list of lists representing the matrix */
-  std::vector< std::map<int, double> > _LIL;
+  std::vector< std::map<int, FP_PRECISION> > _LIL;
 
   /** The CSR matrix variables */
-  double* _A;
+  FP_PRECISION* _A;
   int* _IA;
   int* _JA;
-  double* _DIAG;
+  FP_PRECISION* _DIAG;
   
   bool _modified;
   int _num_x;
@@ -47,28 +47,28 @@ public:
   virtual ~Matrix();
 
   /* Worker functions */
-  void incrementValue(int row, int col, double val);
+  void incrementValue(int row, int col, FP_PRECISION val);
   void incrementValueByCoords(int x_from, int y_from, int z_from, int g_from,
-                              int x_to, int y_to, int z_to, int g_to, double val);
-  void incrementValueByCell(int cell_from, int g_from, int cell_to, int g_to, double val);
-  void setValue(int row, int col, double val);
+                              int x_to, int y_to, int z_to, int g_to, FP_PRECISION val);
+  void incrementValueByCell(int cell_from, int g_from, int cell_to, int g_to, FP_PRECISION val);
+  void setValue(int row, int col, FP_PRECISION val);
   void setValueByCoords(int x_from, int y_from, int z_from, int g_from,
-                        int x_to, int y_to, int z_to, int g_to, double val);
-  void setValueByCell(int cell_from, int g_from, int cell_to, int g_to, double val);
+                        int x_to, int y_to, int z_to, int g_to, FP_PRECISION val);
+  void setValueByCell(int cell_from, int g_from, int cell_to, int g_to, FP_PRECISION val);
   void clear();
   void convertToCSR();  
   void printString();
   void random();
   
   /* Getter functions */
-  double getValue(int row, int col);
-  double getValueByCoords(int x_from, int y_from, int z_from, int g_from,
+  FP_PRECISION getValue(int row, int col);
+  FP_PRECISION getValueByCoords(int x_from, int y_from, int z_from, int g_from,
                           int x_to, int y_to, int z_to, int g_to);
-  double getValueByCell(int cell_from, int g_from, int cell_to, int g_to);
-  double* getA();
+  FP_PRECISION getValueByCell(int cell_from, int g_from, int cell_to, int g_to);
+  FP_PRECISION* getA();
   int* getIA();
   int* getJA();
-  double* getDIAG();
+  FP_PRECISION* getDIAG();
   int getNumX();
   int getNumY();
   int getNumZ();

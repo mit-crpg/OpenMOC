@@ -141,7 +141,7 @@ int Cmfd::getNumZ(){
  * @param width physical width of Mesh
  */
 void Cmfd::setWidth(double width){
-  _width = width;
+  _width = FP_PRECISION(width);
   if (_num_x != 0)
     _cell_width = _width / _num_x;
 }
@@ -152,7 +152,7 @@ void Cmfd::setWidth(double width){
  * @param height physical height of Mesh
  */
 void Cmfd::setHeight(double height){
-  _height = height;
+  _height = FP_PRECISION(height);
   if (_num_y != 0)
     _cell_height = _height / _num_y;
 }
@@ -163,7 +163,7 @@ void Cmfd::setHeight(double height){
  * @param height physical height of Mesh
  */
 void Cmfd::setDepth(double depth){
-  _depth = depth;
+  _depth = FP_PRECISION(depth);
   if (_num_z != 0)
     _cell_depth = _depth / _num_z;
 }
@@ -591,7 +591,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration){
   _old_flux->copyTo(_new_flux);
 
   /* Solve the eigenvalue problem */
-  _k_eff = eigenvalueSolve(_A, _M, _new_flux, 1.e-8, _SOR_factor);
+  _k_eff = eigenvalueSolve(_A, _M, _new_flux, 1.e-7, _SOR_factor);
 
   /* Rescale the old and new flux */
   rescaleFlux();
@@ -628,7 +628,7 @@ void Cmfd::constructMatrices(){
 
   log_printf(INFO,"Constructing matrices...");
     
-  double value, volume;
+  FP_PRECISION value, volume;
   int cell;
   Material* material;
   
@@ -1150,7 +1150,7 @@ void Cmfd::splitCorners(){
 
   log_printf(INFO, "splitting corners...");
     
-  double current;
+  FP_PRECISION current;
   
   for (int z = 0; z < _num_z; z++){
     for (int y = 0; y < _num_y; y++){

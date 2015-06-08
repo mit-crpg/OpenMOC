@@ -2,7 +2,7 @@
 
 #include "linalg.h"
 
-double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double tol, double SOR_factor){
+FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol, FP_PRECISION SOR_factor){
 
   log_printf(INFO, "computing eigenvalue...");
 
@@ -10,13 +10,13 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double tol, double SOR_f
   int num_rows = X->getNumRows();
   Vector old_source(num_rows);
   Vector new_source(num_rows);
-  double sum_new, val, residual, scale_val, _k_eff;
+  FP_PRECISION sum_new, val, residual, scale_val, _k_eff;
   int row;
 
   /* Compute and normalize the initial source */
   matrixMultiplication(M, X, &old_source);
   sum_new = pairwise_sum(old_source.getArray(), num_rows);
-  scale_val = double(num_rows) / sum_new;
+  scale_val = FP_PRECISION(num_rows) / sum_new;
   old_source.scaleByValue(scale_val);
   X->scaleByValue(scale_val);
 
@@ -31,7 +31,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double tol, double SOR_f
     sum_new = pairwise_sum(new_source.getArray(), num_rows);
 
     /* Compute and set keff */
-    _k_eff = sum_new / double(num_rows);
+    _k_eff = sum_new / FP_PRECISION(num_rows);
 
     /* Scale the old source by keff */
     old_source.scaleByValue(_k_eff);
@@ -51,7 +51,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double tol, double SOR_f
     new_source.scaleByValue(num_rows / sum_new);
     new_source.copyTo(&old_source);
 
-    log_printf(INFO, "CMFD iter: %i, keff: %f, error: %f",
+    log_printf(INFO, "CMFD iter: %i, keff: %f, error: %g",
                iter, _k_eff, residual);
 
     /* Check for convergence */
@@ -71,19 +71,19 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double tol, double SOR_f
  * @param flux convergence criteria
  * @param the maximum number of iterations
  */
-void linearSolve(Matrix* A, Vector* X, Vector* B, double tol, double SOR_factor){
+void linearSolve(Matrix* A, Vector* X, Vector* B, FP_PRECISION tol, FP_PRECISION SOR_factor){
 
-  double residual = 1E10;
+  FP_PRECISION residual = 1E10;
   int iter = 0;
   int num_rows = X->getNumRows();
   Vector X_old(num_rows);
-  double* x_old = X_old.getArray();
+  FP_PRECISION* x_old = X_old.getArray();
   int* IA = A->getIA();
   int* JA = A->getJA();
-  double* DIAG = A->getDIAG();
-  double* a = A->getA();
-  double* x = X->getArray();
-  double* b = B->getArray();
+  FP_PRECISION* DIAG = A->getDIAG();
+  FP_PRECISION* a = A->getA();
+  FP_PRECISION* x = X->getArray();
+  FP_PRECISION* b = B->getArray();
   int num_x = A->getNumX();
   int num_y = A->getNumY();
   int num_z = A->getNumZ();
@@ -141,7 +141,7 @@ void linearSolve(Matrix* A, Vector* X, Vector* B, double tol, double SOR_factor)
     /* Increment the interations counter */
     iter++;
 
-    log_printf(INFO, "GS iter: %i, res: %f", iter, residual);
+    log_printf(INFO, "GS iter: %i, res: %g", iter, residual);
 
     if (residual < tol && iter > 10)
       break;
@@ -163,9 +163,9 @@ void matrixMultiplication(Matrix* A, Vector* X, Vector* B){
 
   int* IA = A->getIA();
   int* JA = A->getJA();
-  double* a = A->getA();
-  double* x = X->getArray();
-  double* b = B->getArray();
+  FP_PRECISION* a = A->getA();
+  FP_PRECISION* x = X->getArray();
+  FP_PRECISION* b = B->getArray();
   int num_rows = X->getNumRows();
   std::fill_n(b, num_rows, 0.0);
   

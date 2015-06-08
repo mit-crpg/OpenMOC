@@ -10,7 +10,7 @@ Matrix::Matrix(int num_x, int num_y, int num_z, int num_groups){
   
   /* Initialize variables */
   for (int i=0; i < _num_rows; i++){
-    std::map<int, double> *values = new std::map<int, double>;
+    std::map<int, FP_PRECISION> *values = new std::map<int, FP_PRECISION>;
     _LIL.push_back(*values);
   }
 
@@ -41,14 +41,14 @@ Matrix::~Matrix(){
 }
 
 
-void Matrix::incrementValue(int row, int col, double val){
+void Matrix::incrementValue(int row, int col, FP_PRECISION val){
   _LIL[row][col] += val;
   _modified = true;
 }
 
 
 void Matrix::incrementValueByCoords(int x_from, int y_from, int z_from, int g_from,
-                                    int x_to, int y_to, int z_to, int g_to, double val){
+                                    int x_to, int y_to, int z_to, int g_to, FP_PRECISION val){
   int row = ((z_to*_num_y + y_to)*_num_x + x_to)*_num_groups + g_to;
   int col = ((z_from*_num_y + y_from)*_num_x + x_from)*_num_groups + g_from;
   incrementValue(row, col, val);
@@ -56,21 +56,21 @@ void Matrix::incrementValueByCoords(int x_from, int y_from, int z_from, int g_fr
 
 
 void Matrix::incrementValueByCell(int cell_from, int g_from,
-                                  int cell_to, int g_to, double val){
+                                  int cell_to, int g_to, FP_PRECISION val){
   int row = cell_to*_num_groups + g_to;
   int col = cell_from*_num_groups + g_from;
   incrementValue(row, col, val);
 }
 
 
-void Matrix::setValue(int row, int col, double val){
+void Matrix::setValue(int row, int col, FP_PRECISION val){
   _LIL[row][col] = val;
   _modified = true;
 }
 
 
 void Matrix::setValueByCoords(int x_from, int y_from, int z_from, int g_from,
-                              int x_to, int y_to, int z_to, int g_to, double val){
+                              int x_to, int y_to, int z_to, int g_to, FP_PRECISION val){
   int row = ((z_to*_num_y + y_to)*_num_x + x_to)*_num_groups + g_to;
   int col = ((z_from*_num_y + y_from)*_num_x + x_from)*_num_groups + g_from;
   setValue(row, col, val);
@@ -78,7 +78,7 @@ void Matrix::setValueByCoords(int x_from, int y_from, int z_from, int g_from,
 
 
 void Matrix::setValueByCell(int cell_from, int g_from,
-                            int cell_to, int g_to, double val){
+                            int cell_to, int g_to, FP_PRECISION val){
   int row = cell_to*_num_groups + g_to;
   int col = cell_from*_num_groups + g_from;
   setValue(row, col, val);
@@ -111,16 +111,16 @@ void Matrix::convertToCSR(){
   if (_DIAG != NULL)
     delete [] _DIAG;
 
-  _A = new double[NNZ];
+  _A = new FP_PRECISION[NNZ];
   _IA = new int[_num_rows+1];
   _JA = new int[NNZ];
-  _DIAG = new double[_num_rows];
+  _DIAG = new FP_PRECISION[_num_rows];
   std::fill_n(_DIAG, _num_rows, 0.0);  
   
   /* Form arrays */
 
   int j = 0;
-  std::map<int, double>::iterator iter;
+  std::map<int, FP_PRECISION>::iterator iter;
   for (int row=0; row < _num_rows; row++){
     _IA[row] = j;
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter){
@@ -163,12 +163,12 @@ void Matrix::printString(){
 }
 
 
-double Matrix::getValue(int row, int col){
+FP_PRECISION Matrix::getValue(int row, int col){
   return _LIL[row][col];
 }
 
 
-double Matrix::getValueByCoords(int x_from, int y_from, int z_from, int g_from,
+FP_PRECISION Matrix::getValueByCoords(int x_from, int y_from, int z_from, int g_from,
                                 int x_to, int y_to, int z_to, int g_to){
   int row = ((z_to*_num_y + y_to)*_num_x + x_to)*_num_groups + g_to;
   int col = ((z_from*_num_y + y_from)*_num_x + x_from)*_num_groups + g_from;
@@ -176,7 +176,7 @@ double Matrix::getValueByCoords(int x_from, int y_from, int z_from, int g_from,
 }
 
 
-double Matrix::getValueByCell(int cell_from, int g_from,
+FP_PRECISION Matrix::getValueByCell(int cell_from, int g_from,
                               int cell_to, int g_to){
   int row = cell_to*_num_groups + g_to;
   int col = cell_from*_num_groups + g_from;
@@ -184,7 +184,7 @@ double Matrix::getValueByCell(int cell_from, int g_from,
 }
 
 
-double* Matrix::getA(){
+FP_PRECISION* Matrix::getA(){
 
   if (_modified)
     convertToCSR();
@@ -211,7 +211,7 @@ int* Matrix::getJA(){
 }
 
 
-double* Matrix::getDIAG(){
+FP_PRECISION* Matrix::getDIAG(){
 
   if (_modified)
     convertToCSR();
@@ -249,9 +249,9 @@ void Matrix::random(){
   for (int i=0; i < _num_rows; i++){
     for (int j=0; j < _num_rows; j++){
       if (i == j)
-        setValue(i, j, static_cast<double>(rand()) / static_cast<double>(RAND_MAX / (_num_rows*10)) + _num_rows);
+        setValue(i, j, static_cast<FP_PRECISION>(rand()) / static_cast<FP_PRECISION>(RAND_MAX / (_num_rows*10)) + _num_rows);
       else
-        setValue(i, j, -static_cast<double>(rand()) / static_cast<double>(RAND_MAX));
+        setValue(i, j, -static_cast<FP_PRECISION>(rand()) / static_cast<FP_PRECISION>(RAND_MAX));
     }
   }
 }
@@ -260,7 +260,7 @@ void Matrix::random(){
 int Matrix::getNNZ(){
 
   int NNZ = 0;
-  std::map<int, double>::iterator iter;
+  std::map<int, FP_PRECISION>::iterator iter;
   for (int row=0; row < _num_rows; row++){
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter){
       if (iter->second != 0.0)

@@ -29,7 +29,7 @@ class Vector {
 private:
 
   /** A list of lists representing the vector */
-  double* _array;
+  FP_PRECISION* _array;
   int _num_rows;
   int _num_x;
   int _num_y;
@@ -41,26 +41,26 @@ public:
   virtual ~Vector();
 
   /* Worker functions */
-  void incrementValue(int row, double val);
-  void incrementValueByCell(int cell, int g, double val);
-  void incrementValueByCoords(int x, int y, int z, int g, double val);
-  void setValue(int row, double val);
-  void setValueByCoords(int x, int y, int z, int g, double val);
-  void setValueByCell(int cell, int g, double val);
-  void setAll(double val);
+  void incrementValue(int row, FP_PRECISION val);
+  void incrementValueByCell(int cell, int g, FP_PRECISION val);
+  void incrementValueByCoords(int x, int y, int z, int g, FP_PRECISION val);
+  void setValue(int row, FP_PRECISION val);
+  void setValueByCoords(int x, int y, int z, int g, FP_PRECISION val);
+  void setValueByCell(int cell, int g, FP_PRECISION val);
+  void setAll(FP_PRECISION val);
   void clear();
-  void scaleByValue(double val);  
+  void scaleByValue(FP_PRECISION val);  
   std::string toString();
   void printString();
   void copyTo(Vector* vector);
   void random();
-  double sum();
+  FP_PRECISION sum();
   
   /* Getter functions */
-  double getValue(int row);
-  double getValueByCoords(int x, int y, int z, int g);
-  double getValueByCell(int cell, int g=0);
-  double* getArray();
+  FP_PRECISION getValue(int row);
+  FP_PRECISION getValueByCoords(int x, int y, int z, int g);
+  FP_PRECISION getValueByCell(int cell, int g=0);
+  FP_PRECISION* getArray();
   int getNumX();
   int getNumY();
   int getNumZ();

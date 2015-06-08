@@ -100,10 +100,10 @@ private:
   std::vector<int> _FSRs_to_material_IDs;
 
   /** The maximum Track segment length in the Geometry */
-  double _max_seg_length;
+  FP_PRECISION _max_seg_length;
 
   /** The minimum Track segment length in the Geometry */
-  double _min_seg_length;
+  FP_PRECISION _min_seg_length;
 
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
@@ -147,8 +147,8 @@ public:
   std::map<int, Cell*> getAllMaterialCells();
   void setRootUniverse(Universe* root_universe);
 
-  double getMaxSegmentLength();
-  double getMinSegmentLength();
+  FP_PRECISION getMaxSegmentLength();
+  FP_PRECISION getMinSegmentLength();
   Cmfd* getCmfd();
   std::vector<std::size_t> getFSRsToKeys();
   std::vector<int> getFSRsToMaterialIDs();

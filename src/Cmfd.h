@@ -115,12 +115,12 @@ private:
   Material** _materials;
 
   /** Physical dimensions of the geometry and each CMFD cell */
-  double _width;
-  double _height;
-  double _depth;
-  double _cell_width;
-  double _cell_height;
-  double _cell_depth;
+  FP_PRECISION _width;
+  FP_PRECISION _height;
+  FP_PRECISION _depth;
+  FP_PRECISION _cell_width;
+  FP_PRECISION _cell_height;
+  FP_PRECISION _cell_depth;
 
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
