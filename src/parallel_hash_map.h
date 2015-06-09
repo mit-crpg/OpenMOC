@@ -439,8 +439,11 @@ bool parallel_hash_map<K,V>::contains(K key)
     #endif
 
     // get pointer to table, announce it will be searched, ensure consistency
-    _announce[tid].value = _table;
-    fixed_hash_map<K,V> *table_ptr = _announce[tid].value;
+    fixed_hash_map<K,V> *table_ptr; 
+    do{
+        table_ptr = _table;
+        _announce[tid].value = table_ptr;
+    } while(table_ptr != _table);
 
     // see if current table contians the thread
     bool present = table_ptr->contains(key);
@@ -476,8 +479,11 @@ V parallel_hash_map<K,V>::at(K key)
     #endif
 
     // get pointer to table, announce it will be searched
-    _announce[tid].value = _table;
-    fixed_hash_map<K,V> *table_ptr = _announce[tid].value;
+    fixed_hash_map<K,V> *table_ptr; 
+    do{
+        table_ptr = _table;
+        _announce[tid].value = table_ptr;
+    } while(table_ptr != _table);
     
     // see if current table contians the thread
     V value = table_ptr->at(key);
@@ -639,11 +645,14 @@ K* parallel_hash_map<K,V>::keys()
     #endif
 
     // get pointer to table, announce it will be searched
-    _announce[tid].value = _table;
-    fixed_hash_map<K,V> *table_ptr = _announce[tid].value;
+    fixed_hash_map<K,V> *table_ptr; 
+    do{
+        table_ptr = _table;
+        _announce[tid].value = table_ptr;
+    } while(table_ptr != _table);
 
     // get key list
-    K* key_list = _table->keys();
+    K* key_list = table_ptr->keys();
 
     // reset table announcement to not searching
     _announce[tid].value = NULL;
@@ -670,11 +679,14 @@ V* parallel_hash_map<K,V>::values()
     #endif
 
     // get pointer to table, announce it will be searched
-    _announce[tid].value = _table;
-    fixed_hash_map<K,V> *table_ptr = _announce[tid].value;
+    fixed_hash_map<K,V> *table_ptr; 
+    do{
+        table_ptr = _table;
+        _announce[tid].value = table_ptr;
+    } while(table_ptr != _table);
 
     // get value list
-    V* value_list = _table->values();
+    V* value_list = table_ptr->values();
     
     // reset table announcement to not searching
     _announce[tid].value = NULL;
@@ -718,11 +730,14 @@ void parallel_hash_map<K,V>::print_buckets()
     #endif
 
     // get pointer to table, announce it will be searched
-    _announce[tid].value = _table;
-    fixed_hash_map<K,V> *table_ptr = _announce[tid].value;
+    fixed_hash_map<K,V> *table_ptr; 
+    do{
+        table_ptr = _table;
+        _announce[tid].value = table_ptr;
+    } while(table_ptr != _table);
         
     // print buckets
-    _table->print_buckets();
+    table_ptr->print_buckets();
 
     // reset table announcement to not searching
     _announce[tid].value = NULL;
