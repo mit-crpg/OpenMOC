@@ -11,7 +11,8 @@ from openmoc.options import Options
 
 options = Options()
 
-num_threads = options.getNumThreads()
+#num_threads = options.getNumThreads()
+num_threads = 1
 track_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()

@@ -11,6 +11,7 @@
 #ifndef __PARALLEL_HASH_MAP__
 #define __PARALLEL_HASH_MAP__
 #include<iostream>
+#include<stdexcept>
 #include<functional>
 #ifdef OPENMP
 #include<omp.h>
@@ -222,7 +223,8 @@ V fixed_hash_map<K,V>::at(K key)
     
     // after the bucket has been completely searched without finding the key,
     // throw an exception
-    throw std::domain_error("Key not present in map");
+    throw std::out_of_range("Key not present in map");
+    return val;
 }
 
 
