@@ -384,47 +384,6 @@ std::map<int, Cell*> Universe::getCells() const {
 
 
 /**
- * @brief Returns a CellFill in this Universe.
- * @param cell_id the integer the cell_id
- * @return Returns the CellFill pointer.
- */
-CellFill* Universe::getCellFill(int cell_id) {
-
-  CellFill* cell = NULL;
-  if (_cells.find(cell_id) == _cells.end())
-    log_printf(ERROR, "Unable to return Cell with ID = %d from Universe with "
-               "ID = %d since it does not contain this Cell", cell_id, _id);
-
-  cell = static_cast<CellFill*>(_cells.at(cell_id));
-  if (cell->getType() != FILL)
-    log_printf(WARNING, "Retrieving Cell %d from Universe %d, but it "
-               "is not a FILL type Cell", cell->getId(), _id);
-  return cell;
-}
-
-
-/**
- * @brief Returns a CellBasic in this Universe.
- * @param cell_id the integer the cell_id
- * @return Returns the CellFill pointer.
- */
-CellBasic* Universe::getCellBasic(int cell_id) {
-
-  CellBasic* cell = NULL;
-  if (_cells.find(cell_id) == _cells.end())
-    log_printf(ERROR, "Unable to return Cell with ID = %d from Universe with "
-               "ID = %d since the it does not contain this Cell", cell_id, _id);
-
-  cell = static_cast<CellBasic*>(_cells.at(cell_id));
-  if (cell->getType() != MATERIAL)
-    log_printf(WARNING, "Retrieving Cell %d from Universe %d, but it "
-               "is not a MATERIAL type Cell", cell->getId(), _id);
-
-  return cell;
-}
-
-
-/**
  * @brief Returns the std::map of Cell IDs and Cell pointers in this Universe
  *        at all nested Universe levels.
  * @return std::map of Cell IDs and pointers
@@ -464,7 +423,7 @@ std::map<int, Material*> Universe::getAllMaterials() {
     cell = iter->second;
 
     if (cell->getType() == MATERIAL) {
-      material = static_cast<CellBasic*>(cell)->getMaterial();
+      material = cell->getFillMaterial();
       materials[material->getId()] = material;
     }
   }
@@ -626,8 +585,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
         else
           next_coords = coords->getNext();
 
-        CellFill* fill = static_cast<CellFill*>(cell);
-        Universe* univ = fill->getFill();
+        Universe* univ = cell->getFillUniverse();
         next_coords->setUniverse(univ);
         coords->setCell(cell);
 
@@ -682,25 +640,13 @@ void Universe::subdivideCells() {
   std::map<int, Cell*>::iterator iter1;
 
   while (iter1 != _cells.end()) {
-
     for (iter1 = _cells.begin(); iter1 != _cells.end(); ++iter1) {
 
       if (((*iter1).second)->getType() == MATERIAL) {
-        CellBasic* cell = static_cast<CellBasic*>((*iter1).second);
+        Cell* cell = (*iter1).second;
 
-        if (cell->getNumRings() > 0 || cell->getNumSectors() > 0) {
-          std::vector<CellBasic*> newcells = cell->subdivideCell();
-
-          log_printf(DEBUG, "Cell %d in Universe %d has %d subcells",
-                     cell->getId(), _id, newcells.size());
-
-          std::vector<CellBasic*>::iterator iter2;
-          for (iter2=newcells.begin(); iter2!=newcells.end(); ++iter2)
-            addCell((*iter2));
-
-          _cells.erase(iter1);
-          break;
-        }
+        if (cell->getNumRings() > 0 || cell->getNumSectors() > 0)
+          cell->subdivideCell();
       }
     }
   }
@@ -762,8 +708,8 @@ Universe* Universe::clone() {
     if ((*iter1).second->getType() == MATERIAL) {
 
       /* Clone the Cell */
-      CellBasic* parent = static_cast<CellBasic*>((*iter1).second);
-      CellBasic* cell_clone = parent->clone();
+      Cell* parent = static_cast<Cell*>((*iter1).second);
+      Cell* cell_clone = parent->clone();
 
       /* Add Cell clone to the list */
       clone->addCell(cell_clone);

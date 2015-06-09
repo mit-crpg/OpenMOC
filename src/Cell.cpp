@@ -31,14 +31,6 @@ void reset_cell_id() {
 
 
 /**
- * @brief Default constructor used in rings/sectors subdivision of Cells.
- */
-Cell::Cell() {
-  _name = NULL;
-}
-
-
-/**
  * @brief Constructor sets the unique and user-specifed IDs for this Cell.
  * @param id the user-specified optional Cell ID
  * @param name the user-specified optional Cell name
@@ -58,6 +50,9 @@ Cell::Cell(int id, const char* name) {
 
   _name = NULL;
   setName(name);
+
+  _num_rings = 0;
+  _num_sectors = 0;
 
   /* Set a default bounding box around the Cell */
   _min_x = -std::numeric_limits<double>::infinity();
@@ -113,6 +108,48 @@ char* Cell::getName() const {
  */
 cellType Cell::getType() const {
   return _cell_type;
+}
+
+
+/**
+ * @brief Return a pointer to the Material filling this Cell.
+ * @return the Material fill pointer
+ */
+Material* Cell::getFillMaterial() {
+  if (_cell_type == FILL)
+    log_printf(ERROR, "Unable to get Material fill from Cell ID=%d", _id);
+
+  return (Material*)_fill;
+}
+
+
+/**
+ * @brief Return a pointer to the Material filling this Cell.
+ * @return the Material fill pointer
+ */
+Universe* Cell::getFillUniverse() {
+  if (_cell_type == MATERIAL)
+    log_printf(ERROR, "Unable to get Universe fill from Cell ID=%d", _id);
+
+  return (Universe*)_fill;
+}
+
+
+/**
+ * @brief Return the number of rings in the Cell.
+ * @return the number of rings
+ */
+int Cell::getNumRings() {
+  return _num_rings;
+}
+
+
+/**
+ * @brief Return the number of sectors in the Cell.
+ * @return the number of sectors
+ */
+int Cell::getNumSectors() {
+  return _num_sectors;
 }
 
 
@@ -250,6 +287,56 @@ std::map<int, surface_halfspace> Cell::getSurfaces() const {
 
 
 /**
+ * @brief Returns the std::map of Cell IDs and Cell pointers within any
+ *        nested Universes filling this Cell.
+ * @return std::map of Cell IDs and pointers
+ */
+std::map<int, Cell*> Cell::getAllCells() {
+
+  std::map<int, Cell*> cells;
+
+  if (_cell_type == FILL && _fill != NULL) {
+    std::map<int, Cell*> nested_cells;
+    Universe* univ_fill = static_cast<Universe*>(_fill);
+
+    if (univ_fill->getType() == SIMPLE)
+      nested_cells = univ_fill->getAllCells();
+    else
+      nested_cells = static_cast<Lattice*>(univ_fill)->getAllCells();
+
+    cells.insert(nested_cells.begin(), nested_cells.end());
+  }
+
+  return cells;
+}
+
+
+/**
+ * @brief Returns the std::map of all nested Universe IDs and Universe pointers
+          filling this Cell.
+ * @return std::map of Universe IDs and pointers
+ */
+std::map<int, Universe*> Cell::getAllUniverses() {
+
+  std::map<int, Universe*> universes;
+
+  if (_cell_type == FILL && _fill != NULL) {
+    Universe* univ_fill = static_cast<Universe*>(_fill);
+    universes[univ_fill->getId()] = univ_fill;
+
+    std::map<int, Universe*> nested_universes;
+    if (univ_fill->getType() == SIMPLE)
+      nested_universes = static_cast<Universe*>(_fill)->getAllUniverses();
+    else
+      nested_universes = static_cast<Lattice*>(_fill)->getAllUniverses();
+    universes.insert(nested_universes.begin(), nested_universes.end());
+  }
+
+  return universes;
+}
+
+
+/**
  * @brief Sets the name of the Cell
  * @param name the Cell name string
  */
@@ -265,6 +352,57 @@ void Cell::setName(const char* name) {
   /* Copy the input character array Cell name to the class attribute name */
   for (int i=0; i <= length; i++)
     _name[i] = name[i];
+}
+
+
+/**
+ * @brief Sets the Material filling this Cell.
+ * @param fill the Material filling this Cell
+ */
+void Cell::setFill(Material* fill) {
+  _cell_type = MATERIAL;
+  _fill = fill;
+}
+
+
+/**
+ * @brief Sets the Universe filling this Cell.
+ * @param fill the Universe filling this Cell
+ */
+void Cell::setFill(Universe* fill) {
+  _cell_type = FILL;
+  _fill = fill;
+}
+
+
+/**
+ * @brief Set the Cell's number of rings.
+ * @param num_rings the number of rings in this Cell
+ */
+void Cell::setNumRings(int num_rings) {
+  if (num_rings < 0)
+    log_printf(ERROR, "Unable to give %d rings to Cell %d since this is "
+               "a negative number", num_rings, _id);
+
+  _num_rings = num_rings;
+}
+
+
+/**
+ * @brief Set the Cell's number of sectors.
+ * @param num_sectors the number of sectors in this Cell
+ */
+void Cell::setNumSectors(int num_sectors) {
+  if (num_sectors < 0)
+    log_printf(ERROR, "Unable to give %d sectors to Cell %d since this is "
+               "a negative number", num_sectors, _id);
+
+  /* By default, a ring is considered to have a single sector in [0, 2*pi] */
+  if (num_sectors == 1)
+    _num_sectors = 0;
+
+  else
+    _num_sectors = num_sectors;
 }
 
 
@@ -453,123 +591,21 @@ double Cell::minSurfaceDist(Point* point, double angle,
 
 
 /**
- * @brief Constructor sets the user-specified and unique IDs for this CellBasic.
- * @param id the user-specified optional Cell ID
- * @param name the user-specified optional Cell name
- * @param rings the number of equal volume rings to divide this Cell into
- *        (the default is zero)
- * @param sectors the number of angular sectors to divide this Cell into
- *        (the default is zero)
- */
-CellBasic::CellBasic(int id, const char* name, int rings, int sectors):
-  Cell(id, name) {
-
-  _cell_type = MATERIAL;
-  setNumRings(rings);
-  setNumSectors(sectors);
-}
-
-
-
-/**
- * @brief Return the Material filling the CellBasic.
- * @return the Material's pointer
- */
-Material* CellBasic::getMaterial() {
-  return _material;
-}
-
-
-/**
- * @brief Return the number of rings in the Cell.
- * @return the number of rings
- */
-int CellBasic::getNumRings() {
-  return _num_rings;
-}
-
-
-/**
- * @brief Return the number of sectors in the Cell.
- * @return the number of sectors
- */
-int CellBasic::getNumSectors() {
-  return _num_sectors;
-}
-
-
-/**
- * @brief Returns an empty std::map of Cell IDs and Cell pointers.
- * @return empty std::map of Cell IDs and pointers
- */
-std::map<int, Cell*> CellBasic::getAllCells() {
-  std::map<int, Cell*> cells;
-  return cells;
-}
-
-
-/**
- * @brief Returns an empty std::map of nested Universe IDs and pointers
- * @return empty std::map of Universe IDs and pointers
- */
-std::map<int, Universe*> CellBasic::getAllUniverses() {
-  std::map<int, Universe*> universes;
-  return universes;
-}
-
-
-/**
- * @brief Sets the Material filling this Cell.
- * @param material the Material filling this Cell
- */
-void CellBasic::setMaterial(Material* material) {
-  _material = material;
-}
-
-
-/**
- * @brief Set the Cell's number of rings.
- * @param num_rings the number of rings in this Cell
- */
-void CellBasic::setNumRings(int num_rings) {
-  if (num_rings < 0)
-    log_printf(ERROR, "Unable to give %d rings to Cell %d since this is "
-               "a negative number", num_rings, _id);
-
-  _num_rings = num_rings;
-}
-
-
-/**
- * @brief Set the Cell's number of sectors.
- * @param num_sectors the number of sectors in this Cell
- */
-void CellBasic::setNumSectors(int num_sectors) {
-  if (num_sectors < 0)
-    log_printf(ERROR, "Unable to give %d sectors to Cell %d since this is "
-               "a negative number", num_sectors, _id);
-
-  /* By default, a ring is considered to have a single sector in [0, 2*pi] */
-  if (num_sectors == 1)
-    _num_sectors = 0;
-
-  else
-    _num_sectors = num_sectors;
-}
-
-
-/**
- * @brief Create a duplicate of the CellBasic.
+ * @brief Create a duplicate of the Cell.
  * @return a pointer to the clone
  */
-CellBasic* CellBasic::clone() {
+Cell* Cell::clone() {
 
   /* Construct new Cell */
-  CellBasic* new_cell = new CellBasic();
+  Cell* new_cell = new Cell();
   new_cell->setName(_name);
   new_cell->setNumRings(_num_rings);
   new_cell->setNumSectors(_num_sectors);
-  new_cell->setMaterial(_material);
+
+  if (_cell_type == MATERIAL)
+    new_cell->setFill((Material*)_fill);
+  else
+    new_cell->setFill((Universe*)_fill);
 
   /* Loop over all of this Cell's Surfaces and add them to the clone */
   std::map<int, surface_halfspace>::iterator iter;
@@ -583,8 +619,9 @@ CellBasic* CellBasic::clone() {
 
 /**
  * @brief Subdivides the Cell into clones for fuel pin angular sectors.
+ * @param subcells an empty vector to store all subcells
  */
-void CellBasic::sectorize() {
+void Cell::sectorize(std::vector<Cell*>* subcells) {
 
   /* If the user didn't request any sectors, don't make any */
   if (_num_sectors == 0)
@@ -594,7 +631,7 @@ void CellBasic::sectorize() {
   double delta_azim = 2. * M_PI / _num_sectors;
   double A, B;
 
-  /* A container for each of the bouding planes for the sector Cells */
+  /* A container for each of the bounding planes for the sector Cells */
   std::vector<Plane*> planes;
 
   log_printf(DEBUG, "Sectorizing Cell %d with %d sectors",_id, _num_sectors);
@@ -618,8 +655,8 @@ void CellBasic::sectorize() {
   /* Create sectors using disjoint halfspaces of pairing Planes */
   for (int i=0; i < _num_sectors; i++) {
 
-    /* Create new CellBasic clone for this sector Cell */
-    CellBasic* sector = clone();
+    /* Create new Cell clone for this sector Cell */
+    Cell* sector = clone();
 
     sector->setNumSectors(0);
     sector->setNumRings(0);
@@ -638,19 +675,16 @@ void CellBasic::sectorize() {
     }
 
     /* Store the clone in the parent Cell's container of sector Cells */
-    _sectors.push_back(sector);
+    subcells->push_back(sector);
   }
-
-  /* Store all of the sectors in the parent Cell's subcells container */
-  _subcells.clear();
-  _subcells.insert(_subcells.end(), _sectors.begin(), _sectors.end());
 }
 
 
 /**
  * @brief Subdivides the Cell into clones for fuel pin rings.
+ * @param subcells an empty vector to store all subcells
  */
-void CellBasic::ringify() {
+void Cell::ringify(std::vector<Cell*>* subcells) {
 
   /* If the user didn't request any rings, don't make any */
   if (_num_rings == 0)
@@ -668,6 +702,7 @@ void CellBasic::ringify() {
   int halfspace1 = 0;
   int halfspace2 = 0;
   std::vector<Circle*> circles;
+  std::vector<Cell*> rings;
 
   /* See if the Cell contains 1 or 2 CIRCLE Surfaces */
   std::map<int, surface_halfspace>::iterator iter1;
@@ -751,18 +786,18 @@ void CellBasic::ringify() {
 
   /* Loop over Circles and create a new Cell clone for each ring */
   std::vector<Circle*>::iterator iter2;
-  std::vector<CellBasic*>::iterator iter3;
+  std::vector<Cell*>::iterator iter3;
 
   for (iter2 = circles.begin(); iter2 != circles.end(); ++iter2) {
 
     /* Create Circles for each of the sectorized Cells */
-    if (_sectors.size() != 0) {
-      for (iter3 = _sectors.begin(); iter3 != _sectors.end(); ++iter3) {
+    if (subcells->size() != 0) {
+      for (iter3 = subcells->begin(); iter3 != subcells->end(); ++iter3) {
         log_printf(DEBUG, "Creating a new ring in sector Cell %d",
                    (*iter3)->getId());
 
-        /* Create a new CellBasic clone */
-        CellBasic* ring = (*iter3)->clone();
+        /* Create a new Cell clone */
+        Cell* ring = (*iter3)->clone();
         ring->setNumSectors(0);
         ring->setNumRings(0);
 
@@ -771,14 +806,14 @@ void CellBasic::ringify() {
 
         /* Look ahead and check if we have an inner Circle to add */
         if (iter2+1 == circles.end()) {
-          _rings.push_back(ring);
+          rings.push_back(ring);
           continue;
         }
         else
           ring->addSurface(+1, *(iter2+1));
 
         /* Store the clone in the parent Cell's container of ring Cells */
-        _rings.push_back(ring);
+        rings.push_back(ring);
       }
     }
 
@@ -786,8 +821,8 @@ void CellBasic::ringify() {
     else {
       log_printf(DEBUG, "Creating new ring in un-sectorized Cell %d",_id);
 
-      /* Create a new CellBasic clone */
-      CellBasic* ring = clone();
+      /* Create a new Cell clone */
+      Cell* ring = clone();
       ring->setNumSectors(0);
       ring->setNumRings(0);
 
@@ -796,20 +831,20 @@ void CellBasic::ringify() {
 
       /* Look ahead and check if we have an inner Circle to add */
       if (iter2+1 == circles.end()) {
-        _rings.push_back(ring);
+        rings.push_back(ring);
         break;
       }
       else
         ring->addSurface(+1, *(iter2+1));
 
       /* Store the clone in the parent Cell's container of ring Cells */
-      _rings.push_back(ring);
+      rings.push_back(ring);
     }
   }
 
   /* Store all of the rings in the parent Cell's subcells container */
-  _subcells.clear();
-  _subcells.insert(_subcells.end(), _rings.begin(), _rings.end());
+  subcells->clear();
+  subcells->insert(subcells->end(), rings.begin(), rings.end());
 }
 
 
@@ -819,137 +854,54 @@ void CellBasic::ringify() {
  *          this Cell's subdivided ring and sector Cells.
  * @return a vector of Cell pointers to the new subdivided Cells
  */
-std::vector<CellBasic*> CellBasic::subdivideCell() {
-  sectorize();
-  ringify();
-  return _subcells;
+void Cell::subdivideCell() {
+
+  /** A container of all Cell clones created for rings and sectors */
+  std::vector<Cell*>* subcells = new std::vector<Cell*>();
+
+  sectorize(subcells);
+  ringify(subcells);
+
+  /* Put any ring / sector subcells in a new Universe fill */
+  if (subcells->size() != 0) {
+
+    /* Create a new Universe to contain all of the subcells */
+    Universe* new_fill = new Universe();
+
+    /* Add each subcell to the new Universe fill */
+    std::vector<Cell*>::iterator iter;
+    for (iter = subcells->begin(); iter != subcells->end(); ++iter)
+      new_fill->addCell(*iter);
+
+    /* Set the new Universe as the fill for this Cell */
+    setFill(new_fill);
+  }
 }
 
 
 /**
- * @brief Convert this CellBasic's attributes to a string format.
- * @return a character array of this CellBasic's attributes
+ * @brief Convert this Cell's attributes to a string format.
+ * @return a character array of this Cell's attributes
  */
-std::string CellBasic::toString() {
+std::string Cell::toString() {
 
   std::stringstream string;
 
   string << "Cell ID = " << _id
          << ", name = " << _name
-         << ", type = MATERIAL"
-         << ", material id = " << _material->getId()
-         << ", # surfaces = " << getNumSurfaces()
          << ", # rings = " << _num_rings
          << ", # sectors = " << _num_sectors;
 
-
-  /* Append each of the surface ids to the string */
-  std::map<int, surface_halfspace>::iterator iter;
-  string << ", surface ids = ";
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string << iter->second._halfspace * iter->first << ", ";
-
-  return string.str();
-}
-
-
-/**
- * @brief Prints a string representation of all of the CellBasic's attributes
- *        to the console.
- */
-void CellBasic::printString() {
-  log_printf(NORMAL, toString().c_str());
-}
-
-
-/**
- * @brief CellFill constructor
- * @param id the user-specified optional Cell ID
- * @param name the user-specified optional Cell name
- */
-CellFill::CellFill(int id, const char* name): Cell(id, name) {
-  _cell_type = FILL;
-}
-
-
-/**
- * @brief Return a pointer to the Universe filling this Cell.
- * @return the Universe pointer
- */
-Universe* CellFill::getFill() const {
-  return _fill;
-}
-
-
-/**
- * @brief Returns the std::map of Cell IDs and Cell pointers within any
- *        nested Universes filling this Cell.
- * @return std::map of Cell IDs and pointers
- */
-std::map<int, Cell*> CellFill::getAllCells() {
-
-  std::map<int, Cell*> cells;
-
-  if (_cell_type == FILL && _fill != NULL) {
-    std::map<int, Cell*> nested_cells;
-
-    if (_fill->getType() == SIMPLE)
-      nested_cells = _fill->getAllCells();
-    else
-      nested_cells = static_cast<Lattice*>(_fill)->getAllCells();
-
-    cells.insert(nested_cells.begin(), nested_cells.end());
+  if (_cell_type == FILL) {
+    string << ", type = FILL, "
+           << ", fill id = " << static_cast<Universe*>(_fill)->getId();
+  }
+  else {
+    string << ", type = MATERIAL"
+           << ", fill id = " << static_cast<Material*>(_fill)->getId();
   }
 
-  return cells;
-}
-
-
-/**
- * @brief Returns the std::map of all nested Universe IDs and Universe pointers
-          filling this Cell.
- * @return std::map of Universe IDs and pointers
- */
-std::map<int, Universe*> CellFill::getAllUniverses() {
-
-  std::map<int, Universe*> universes;
-
-  if (_cell_type == FILL && _fill != NULL) {
-    universes[_fill->getId()] = _fill;
-    std::map<int, Universe*> nested_universes;
-    if (_fill->getType() == SIMPLE)
-      nested_universes = static_cast<Universe*>(_fill)->getAllUniverses();
-    else
-      nested_universes = static_cast<Lattice*>(_fill)->getAllUniverses();
-    universes.insert(nested_universes.begin(), nested_universes.end());
-  }
-
-  return universes;
-}
-
-
-/**
- * @brief Set a pointer to the Universe filling this CellFill.
- * @param universe the Universe's pointer
- */
-void CellFill::setFill(Universe* universe) {
-  _fill = universe;
-}
-
-
-/**
- * @brief Convert this CellFill's attributes to a string format.
- * @return a character array of this Cell's attributes
- */
-std::string CellFill::toString() {
-
-  std::stringstream string;
-
-  string << "Cell ID = " << _id
-         << ", name = " << _name
-         << ", type = FILL, "
-         << ", fill = " << _fill->getId()
-         << ", # surfaces = " << getNumSurfaces();
+  string << ", # surfaces = " << getNumSurfaces();
 
   /** Add the IDs for the Surfaces in this Cell */
   std::map<int, surface_halfspace>::iterator iter;
@@ -962,9 +914,9 @@ std::string CellFill::toString() {
 
 
 /**
- * @brief Prints a string representation of all of the CellFill's attributes
+ * @brief Prints a string representation of all of the Cell's attributes
  *        to the console.
  */
-void CellFill::printString() {
+void Cell::printString() {
   log_printf(NORMAL, toString().c_str());
 }

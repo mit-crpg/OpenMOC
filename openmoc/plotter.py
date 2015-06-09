@@ -277,7 +277,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
       if cell is None:
         surface[j][i] = -1
       else:
-        surface[j][i] = cell.getMaterial().getId()
+        surface[j][i] = cell.getFillMaterial().getId()
 
   # Get the number of Materials in the Geometry
   materials = geometry.getAllMaterials()

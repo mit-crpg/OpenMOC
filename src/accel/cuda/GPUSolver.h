@@ -16,19 +16,29 @@
 
 #define PySys_WriteStdout printf
 
-#include <thrust/reduce.h>
 #include <thrust/device_vector.h>
+#include <thrust/copy.h>
+#include <thrust/fill.h>
+#include <thrust/reduce.h>
+#include <thrust/replace.h>
+#include <thrust/functional.h>
+#include <thrust/iterator/constant_iterator.h>
 #include <sm_20_atomic_functions.h>
 #include "clone.h"
 #include "GPUExpEvaluator.h"
 
-
 /** Indexing macro for the scalar flux in each FSR and energy group */
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
+
+/** Indexing macro for the old scalar flux in each FSR and energy group */
+#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*num_groups) + (e)])
 
 /** Indexing macro for the total source divided by the total cross-section,
  *  \f$ \frac{Q}{\Sigma_t} \f$, in each FSR and energy group */
 #define reduced_sources(tid,e) (reduced_sources[(tid)*(*num_groups) + (e)])
+
+/** Indexing scheme for fixed sources for each FSR and energy group */
+#define fixed_sources(r,e) (fixed_sources[(r)*(*num_groups) + (e)])
 
 /** Indexing macro for the azimuthal and polar weights */
 #define polar_weights(i,p) (polar_weights[(i)*(*num_polar) + (p)])
@@ -67,41 +77,28 @@ private:
   /** A pointer to the array of Tracks on the device */
   dev_track* _dev_tracks;
 
-  /** An array of the cumulative number of Tracks for each azimuthal angle */
-  int* _track_index_offsets;
-
-  /** A pointer to the Thrust vector of total reaction rates in each FSR */
-  FP_PRECISION* _total;
-
-  /** A pointer to the Thrust vector of fission rates in each FSR */
-  FP_PRECISION* _fission;
-
-  /** A pointer to the Thrust vector of scatter rates in each FSR */
-  FP_PRECISION* _scatter;
-
-  /** A pointer to the Thrust vector of leakages for each Track */
-  FP_PRECISION* _leakage;
-
-  /** Thrust vector of fission sources in each FSR */
-  thrust::device_vector<FP_PRECISION> _fission_sources_vec;
-
-  /** Thrust vector of total reaction rates in each FSR */
-  thrust::device_vector<FP_PRECISION> _total_vec;
-
-  /** Thrust vector of fission rates in each FSR */
-  thrust::device_vector<FP_PRECISION> _fission_vec;
-
-  /** Thrust vector of scatter rates in each FSR */
-  thrust::device_vector<FP_PRECISION> _scatter_vec;
-
-  /** Thrust vector of source residuals in each FSR */
-  thrust::device_vector<FP_PRECISION> _source_residuals_vec;
+  /** Thrust vector of angular fluxes for each track */
+  thrust::device_vector<FP_PRECISION> _boundary_flux;
 
   /** Thrust vector of leakages for each track */
-  thrust::device_vector<FP_PRECISION> _leakage_vec;
+  thrust::device_vector<FP_PRECISION> _boundary_leakage;
+
+  /** Thrust vector of FSR scalar fluxes */
+  thrust::device_vector<FP_PRECISION> _scalar_flux;
+
+  /** Thrust vector of old FSR scalar fluxes */
+  thrust::device_vector<FP_PRECISION> _old_scalar_flux;
+
+  /** Thrust vector of fixed sources in each FSR */
+  thrust::device_vector<FP_PRECISION> _fixed_sources;
+
+  /** Thrust vector of source / sigma_t in each FSR */
+  thrust::device_vector<FP_PRECISION> _reduced_sources;
 
   /** Map of Material IDs to indices in _materials array */
   std::map<int, int> _material_IDs_to_indices;
+
+  int computeScalarTrackIndex(int i, int j);
 
   void initializePolarQuadrature();
   void initializeExpEvaluator();
@@ -110,33 +107,22 @@ private:
   void initializeTracks();
   void initializeFluxArrays();
   void initializeSourceArrays();
-  void initializeThrustVectors();
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
-  void flattenFSRSources(FP_PRECISION value);
+  void storeFSRFluxes();
   void normalizeFluxes();
-  FP_PRECISION computeFSRSources();
+  void computeFSRSources();
+  void transportSweep();
   void addSourceToScalarFlux();
   void computeKeff();
-  void transportSweep();
+  double computeResidual(residualType res_type);
 
 public:
 
-  /**
-   * @brief Constructor initializes arrays for dev_tracks and dev_materials..
-   * @details The constructor initalizes the number of CUDA threads and 
-   *          thread blocks each to a default of 64.
-   * @param geometry an optional pointer to the Geometry
-   * @param track_generator an optional pointer to the TrackjGenerator
-   */
   GPUSolver(TrackGenerator* track_generator=NULL);
   virtual ~GPUSolver();
 
-  /**
-   * @brief Sets the number of thread blocks (>0) for CUDA kernels.
-   * @return num_blocks the number of thread blocks
-   */
   int getNumThreadBlocks();
 
   /**
@@ -144,36 +130,15 @@ public:
    * @return the number of threads per block
    */
   int getNumThreadsPerBlock();
+  FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
+  FP_PRECISION getFSRSource(int fsr_id, int group);
 
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
-  FP_PRECISION* getFSRScalarFluxes();
-  FP_PRECISION getFSRSource(int fsr_id, int energy_group);
-
-  /**
-   * @brief Sets the number of thread blocks (>0) for CUDA kernels.
-   * @param num_blocks the number of thread blocks
-   */
   void setNumThreadBlocks(int num_blocks);
-
-  /**
-   * @brief Sets the number of threads per block (>0) for CUDA kernels.
-   * @param num_threads the number of threads per block
-   */
   void setNumThreadsPerBlock(int num_threads);
-
+  void setFixedSourceByFSR(int fsr_id, int group, 
+                           FP_PRECISION source);
   void setGeometry(Geometry* geometry);
   void setTrackGenerator(TrackGenerator* track_generator);
-
-  /**
-   * @brief This method computes the index for Track j at azimuthal angle i.
-   * @details This method is necessary since the array of dev_tracks on
-   *          the device is a 1D array which needs a one-to-one mapping
-   *          from the 2D jagged array of Tracks on the host.
-   * @param i azimuthal angle number
-   * @param j the jth track at angle i
-   * @return an index into the device track array
-   */
-  int computeScalarTrackIndex(int i, int j);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };
