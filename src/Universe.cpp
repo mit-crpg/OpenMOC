@@ -566,7 +566,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
   /* Add all of Universe's Cells to the back of neighbor Cells vector */
   std::transform(_cells.begin(), _cells.end(), 
-                 std::back_inserter(cells), second(_cells));
+                 std::back_inserter(cells), pair_second(_cells));
   
   /* Loop over all Cells */
   for (iter = cells.begin(); iter != cells.end(); ++iter) {
