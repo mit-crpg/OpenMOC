@@ -193,16 +193,6 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
       reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
     }
 
-    /* Compute the norm of residuals of the sources for convergence */
-    if (fabs(fsr_fission_source) > 1E-10)
-      source_residuals[threadIdx.x + blockIdx.x * blockDim.x] +=
-                      pow((fsr_fission_source - old_fission_sources[tid]) 
-                      / fsr_fission_source, FP_PRECISION(2.));
-
-
-    /* Update the old fission source */
-    old_fission_sources[tid] = fsr_fission_source;
-
     /* Increment the thread id */
     tid += blockDim.x * gridDim.x;
   }
