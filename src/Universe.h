@@ -201,7 +201,7 @@ public:
  * @brief A helper struct for the Universe::findCell() method.
  * @details This is used to insert a Universe's Cells to the back of a vector
  *          of neighbor Cells in Universe::findCell() routine. This works in
- *          symbiosis with the second method template defined below.
+ *          symbiosis with the pair_second method template defined below.
  */
 template<typename tPair>
 struct second_t {
@@ -220,7 +220,7 @@ struct second_t {
  * @return the second element in the iterator (e.g., map value)
  */
 template<typename tMap> 
-second_t<typename tMap::value_type> second(const tMap& map) {
+second_t<typename tMap::value_type> pair_second(const tMap& map) {
   return second_t<typename tMap::value_type>();
 }
 

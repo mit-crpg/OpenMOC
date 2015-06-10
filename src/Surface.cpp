@@ -188,7 +188,7 @@ void Surface::addNeighborCell(int halfspace, Cell* cell) {
 bool Surface::isPointOnSurface(Point* point) {
 
   /* Uses a threshold to determine whether the point is on the Surface */
-  if (abs(evaluate(point)) < ON_SURFACE_THRESH)
+  if (fabs(evaluate(point)) < ON_SURFACE_THRESH)
     return true;
   else
     return false;

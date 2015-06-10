@@ -367,7 +367,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
   Universe* univ = coords->getUniverse();
   Cell* cell;
 
-  if (univ == _root_universe){
+  if (univ->getId() == _root_universe->getId()){
     if (!withinBounds(coords))
       return NULL;
   }
