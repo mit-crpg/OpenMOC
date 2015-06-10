@@ -58,13 +58,14 @@ protected:
   void initializeSourceArrays();
 
   void normalizeFluxes();
-  FP_PRECISION computeFSRSources();
+  void computeFSRSources();
+  void addSourceToScalarFlux();
+  void computeKeff();
+
   void tallyScalarFlux(segment* curr_segment, int azim_index,
                        FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
   void transferBoundaryFlux(int track_id, int azim_index, bool direction,
                             FP_PRECISION* track_flux);
-  void addSourceToScalarFlux();
-  void computeKeff();
   void computeExponentials(segment* curr_segment, FP_PRECISION* exponentials);
 
 public:
@@ -73,6 +74,8 @@ public:
 
   int getNumVectorWidths();
 
+  void setFixedSourceByFSR(int fsr_id, int group, 
+                           FP_PRECISION source);
   void setGeometry(Geometry* geometry);
 };
 

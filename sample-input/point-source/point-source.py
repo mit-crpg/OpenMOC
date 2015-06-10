@@ -6,7 +6,7 @@ from openmoc.options import Options
 
 
 ###############################################################################
-#                           Main Simulation Parameters
+#                          Main Simulation Parameters
 ###############################################################################
 
 options = Options()
@@ -21,7 +21,7 @@ log.set_log_level('NORMAL')
 
 
 ###############################################################################
-#                              Creating Materials
+#                            Creating Materials
 ###############################################################################
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
@@ -30,36 +30,31 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 
 ###############################################################################
-#                              Creating Surfaces
+#                            Creating Surfaces
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(x=0.0, y=0.0, radius=0.8, name='pin')
-left = XPlane(x=-2.0, name='left')
-right = XPlane(x=2.0, name='right')
-top = YPlane(y=2.0, name='top')
-bottom = YPlane(y=-2.0, name='bottom')
+left = XPlane(x=-20.0, name='left')
+right = XPlane(x=20.0, name='right')
+top = YPlane(y=20.0, name='top')
+bottom = YPlane(y=-20.0, name='bottom')
+boundaries = [left, right, top, bottom]
 
-left.setBoundaryType(REFLECTIVE)
-right.setBoundaryType(REFLECTIVE)
-top.setBoundaryType(REFLECTIVE)
-bottom.setBoundaryType(REFLECTIVE)
+for boundary in boundaries: boundary.setBoundaryType(VACUUM)
 
 
 ###############################################################################
-#                                Creating Cells
+#                             Creating Cells
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-fuel = Cell(name='fuel')
-fuel.setFill(materials['UO2'])
-fuel.addSurface(halfspace=-1, surface=circle)
+water_cell = Cell(name='water')
+water_cell.setFill(materials['Water'])
 
-moderator = Cell(name='moderator')
-moderator.setFill(materials['Water'])
-moderator.addSurface(halfspace=+1, surface=circle)
+source_cell = Cell(name='source')
+source_cell.setFill(materials['Water'])
 
 root_cell = Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=left)
@@ -74,29 +69,47 @@ root_cell.addSurface(halfspace=-1, surface=top)
 
 log.py_printf('NORMAL', 'Creating universes...')
 
-pincell = Universe(name='pin cell')
+water_univ = Universe(name='water')
+source_univ = Universe(name='source')
 root_universe = Universe(name='root universe')
 
-pincell.addCell(fuel)
-pincell.addCell(moderator)
+water_univ.addCell(water_cell)
+source_univ.addCell(source_cell)
 root_universe.addCell(root_cell)
 
 
 ###############################################################################
-#                             Creating Lattices
+#                            Creating Lattices
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating simple 2 x 2 lattice...')
+# Number of lattice cells
+num_x = 200
+num_y = 200
 
-lattice = Lattice(name='2x2 lattice')
-lattice.setWidth(width_x=2.0, width_y=2.0)
-lattice.setUniverses([[pincell, pincell], [pincell, pincell]])
+# Compute widths of each lattice cell
+width_x = (root_universe.getMaxX() - root_universe.getMinX()) / num_y
+width_y = (root_universe.getMaxY() - root_universe.getMinY()) / num_x
 
+# Create 2D array of Universes in each lattice cell
+universes = [[water_univ]*num_x for _ in range(num_y)]
+
+# Place fixed source Universe at (x=10, y=10)
+source_x = 10
+source_y = 10
+lat_x = (root_universe.getMaxX() - source_x) / width_x
+lat_y = (root_universe.getMaxY() - source_y) / width_y
+universes[int(lat_x)][int(lat_y)] = source_univ
+
+log.py_printf('NORMAL', 'Creating a {0}x{0} lattice...'.format(num_x, num_y))
+
+lattice = Lattice(name='{0}x{1} lattice'.format(num_x, num_y))
+lattice.setWidth(width_x=width_x, width_y=width_y)
+lattice.setUniverses(universes)
 root_cell.setFill(lattice)
 
 
 ###############################################################################
-#                            Creating the Geometry
+#                         Creating the Geometry
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
@@ -124,19 +137,20 @@ track_generator.generateTracks()
 solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
-solver.computeEigenvalue(max_iters)
+solver.setFixedSourceByCell(source_cell, 1, 1.0)
+solver.computeSource(max_iters)
 solver.printTimerReport()
 
 
 ###############################################################################
-#                              Generating Plots
+#                             Generating Plots
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-plotter.plot_materials(geometry, gridsize=50)
-plotter.plot_cells(geometry, gridsize=50)
-plotter.plot_flat_source_regions(geometry, gridsize=50)
+plotter.plot_materials(geometry, gridsize=250)
+plotter.plot_cells(geometry, gridsize=250)
+plotter.plot_flat_source_regions(geometry, gridsize=250)
 plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')

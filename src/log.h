@@ -31,6 +31,7 @@
 
 #define printf PySys_WriteStdout
 
+
 /**
  * @enum logLevels
  * @brief Logging levels characterize an ordered set of message types

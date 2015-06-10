@@ -273,7 +273,7 @@ std::map<int, Material*> Geometry::getAllMaterials() {
       cell = (*iter).second;
 
       if (cell->getType() == MATERIAL) {
-        material = static_cast<CellBasic*>(cell)->getMaterial();
+        material = cell->getFillMaterial();
         all_materials[material->getId()] = material;
       }
     }
@@ -362,12 +362,12 @@ void Geometry::setCmfd(Cmfd* cmfd){
  * @param coords pointer to a LocalCoords object
  * @return returns a pointer to a Cell if found, NULL if no Cell found
  */
-CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
+Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
 
   Universe* univ = coords->getUniverse();
   Cell* cell;
 
-  if (universe_id == 0){
+  if (univ->getId() == _root_universe->getId()){
     if (!withinBounds(coords))
       return NULL;
   }
@@ -377,7 +377,7 @@ CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
   else
     cell = static_cast<Lattice*>(univ)->findCell(coords);
 
-  return static_cast<CellBasic*>(cell);
+  return cell;
 }
 
 
@@ -400,7 +400,7 @@ CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @param angle the angle for a trajectory projected from the LocalCoords
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
-CellBasic* Geometry::findFirstCell(LocalCoords* coords, double angle) {
+Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
   double delta_x = cos(angle) * TINY_MOVE;
   double delta_y = sin(angle) * TINY_MOVE;
   coords->adjustCoords(delta_x, delta_y);
@@ -444,18 +444,18 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  * @param angle the angle of the trajectory
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
-CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
+Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
 
   Cell* cell = NULL;
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
   Point surf_intersection;
 
-  /* Find the current Cell */
-  cell = findCellContainingCoords(coords);
-
   /* Get lowest level coords */
   coords = coords->getLowestLevel();
+
+  /* Get the current Cell */
+  cell = coords->getCell();
 
   /* If the current coords is not in any Cell, return NULL */
   if (cell == NULL)
@@ -478,8 +478,8 @@ CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
       else{
-        Universe* universe = coords->getUniverse();
-        dist = universe->minSurfaceDist(coords->getPoint(), angle);
+        Cell* cell = coords->getCell();
+        dist = cell->minSurfaceDist(coords->getPoint(), angle);
       }
 
       /* Recheck min distance */
@@ -505,6 +505,7 @@ CellBasic* Geometry::findNextCell(LocalCoords* coords, double angle) {
     double delta_x = cos(angle) * (min_dist + TINY_MOVE);
     double delta_y = sin(angle) * (min_dist + TINY_MOVE);
     coords->adjustCoords(delta_x, delta_y);
+
     return findCellContainingCoords(coords);
   }
 }
@@ -530,7 +531,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   if (!_FSR_keys_map.contains(fsr_key_hash)){
 
     /* Get the cell that contains coords */
-    CellBasic* cell = findCellContainingCoords(curr);
+    Cell* cell = findCellContainingCoords(curr);
     
     /* Get the lock */
     omp_set_lock(_num_FSRs_lock);
@@ -550,7 +551,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       fsr->_point = point;
       _FSR_keys_map.insert(fsr_key_hash, *fsr);
       _FSRs_to_keys.push_back(fsr_key_hash);
-      _FSRs_to_material_IDs.push_back(cell->getMaterial()->getId());
+      _FSRs_to_material_IDs.push_back(cell->getFillMaterial()->getId());
 
       /* If CMFD acceleration is on, add FSR to CMFD cell */
       if (_cmfd != NULL){
@@ -592,8 +593,7 @@ int Geometry::getFSRId(LocalCoords* coords) {
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
-               "geometry with finer track laydown. "
-               "Backtrace:%s", fsr_key.c_str(), e.what());
+               "geometry with finer track spacing", fsr_key.c_str());
   }
 
   return fsr_id;
@@ -613,8 +613,7 @@ Point* Geometry::getFSRPoint(int fsr_id) {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._point;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find characteristic point in FSR: %i. "
-               "Backtrace:%s", fsr_id, e.what());
+    log_printf(ERROR, "Could not find characteristic point in FSR %d", fsr_id);
   }
 
   return point;
@@ -705,9 +704,6 @@ void Geometry::subdivideCells() {
   std::map<int, Universe*> all_universes = _root_universe->getAllUniverses();
   std::map<int, Universe*>::iterator iter;
 
-  std::map<int, Cell*>::iterator iter1;
-  std::map<int, Cell*> cells;
-
   /* Loop over all Universe in the Geometry and instruct each to inform
    * their Cells to subdivide into rings and sectors as specified by
    * the user during Cell instantiation */
@@ -728,6 +724,9 @@ void Geometry::initializeFlatSourceRegions() {
 
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
+
+  /* Build collections of neighbor Cells for optimized ray tracing */
+  _root_universe->buildNeighbors();
 
   /* Create map of Material IDs to Material pointers */
   _all_materials = getAllMaterials();
@@ -793,7 +792,7 @@ void Geometry::segmentize(Track* track) {
 
     /* Find the segment length, Material and FSR ID */
     length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
-    material = static_cast<CellBasic*>(prev)->getMaterial();
+    material = prev->getFillMaterial();
     fsr_id = findFSRId(&start);
 
     /* Create a new Track segment */
@@ -820,14 +819,14 @@ void Geometry::segmentize(Track* track) {
 
       new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell,&end);
       new_segment->_cmfd_surface_bwd = _cmfd->findCmfdSurface(cmfd_cell,&start);
+
+      /* Re-nudge segments from surface */
+      start.adjustCoords(delta_x, delta_y);
+      end.adjustCoords(delta_x, delta_y);
     }
 
     /* Add the segment to the Track */
     track->addSegment(new_segment);
-
-    /* Re-nudge segments from surface */
-    start.adjustCoords(delta_x, delta_y);
-    end.adjustCoords(delta_x, delta_y);
   }
 
   log_printf(DEBUG, "Created %d segments for Track: %s",
@@ -843,7 +842,7 @@ void Geometry::segmentize(Track* track) {
 
 /**
  * @brief Determines the fissionability of each Universe within this Geometry.
- * @details A Universe is determined fissionable if it contains a CellBasic
+ * @details A Universe is determined fissionable if it contains a Cell
  *          filled by a Material with a non-zero fission cross-section. Note
  *          that this method recurses through all Universes at each level in
  *          the nested Universe hierarchy. Users should only call this method
@@ -1079,4 +1078,18 @@ bool Geometry::withinBounds(LocalCoords* coords){
     return false;
   else
     return true;
+}
+
+
+
+Cell* Geometry::findCellContainingFSR(int fsr_id){
+
+  Point* point = _FSR_keys_map[_FSRs_to_keys[fsr_id]]._point;
+  LocalCoords* coords = new LocalCoords(point->getX(), point->getY());
+  coords->setUniverse(_root_universe);
+  Cell* cell = findCellContainingCoords(coords);
+
+  delete coords;
+
+  return cell;
 }

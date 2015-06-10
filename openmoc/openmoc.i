@@ -52,6 +52,7 @@
 
 %warnfilter(506) log_printf(logLevel level, const char *format, ...);
 %warnfilter(511) swig::SwigPyIterator;
+%warnfilter(511) Cell::setFill;
 
 %exception {
   try {
@@ -61,17 +62,10 @@
   }
 }
 
+
 /* C++ casting helper method for openmoc.process computePinPowers
  * routine and the OpenCG compatibility module */
 %inline %{
-
-  CellFill* castCellToCellFill(Cell* cell) {
-    return dynamic_cast<CellFill*>(cell);
-  }
-
-  CellBasic* castCellToCellBasic(Cell* cell) {
-    return dynamic_cast<CellBasic*>(cell);
-  }
 
   Lattice* castUniverseToLattice(Universe* universe) {
     return dynamic_cast<Lattice*>(universe);

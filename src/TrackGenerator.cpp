@@ -173,7 +173,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
                "have not yet been generated");
 
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION *FSR_volumes = new FP_PRECISION[num_FSRs];
+  FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
   int azim_index;
@@ -500,7 +500,7 @@ void TrackGenerator::generateTracks() {
     /* Check to make sure that height, width of the Geometry are nonzero */
     if (_geometry->getHeight() <= 0 || _geometry->getHeight() <= 0)
       log_printf(ERROR, "The total height and width of the Geometry must be "
-                 "non-zero for Track generation. Create a CellFill which "
+                 "non-zero for Track generation. Create a Cell which "
                  "is filled by the entire geometry and bounded by XPlanes "
                  "and YPlanes to enable the Geometry to determine the total "
                  "width and height of the model.");
@@ -550,7 +550,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
 
   directory << get_output_directory() << "/tracks";
   struct stat st;
-  if (!stat(directory.str().c_str(), &st) == 0)
+  if ((!stat(directory.str().c_str(), &st)) == 0)
     mkdir(directory.str().c_str(), S_IRWXU);
 
   if (_geometry->getCmfd() != NULL){
@@ -571,7 +571,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
 
   /* Check to see if a Track file exists for this geometry, number of azimuthal
    * angles, and track spacing, and if so, import the ray tracing data */
-  if (!stat(_tracks_filename.c_str(), &buffer)) {
+  if ((!stat(_tracks_filename.c_str(), &buffer))) {
     if (readTracksFromFile()) {
       _use_input_file = true;
       _contains_tracks = true;
