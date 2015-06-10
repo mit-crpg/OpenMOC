@@ -224,8 +224,13 @@ class configuration:
     linker_flags['gcc'] = ['-fopenmp', '-shared',
                            '-Wl,-soname,' + get_openmoc_object_name()]
 
-  linker_flags['clang'] = ['-fopenmp', '-shared',
-                         '-Wl,-soname,' + get_openmoc_object_name()]
+  if ('macosx' in get_platform()):
+    linker_flags['clang'] = ['-fopenmp', '-dynamiclib',
+                             '-Wl,-install_name,' + get_openmoc_object_name()]
+  else:
+    linker_flags['clang'] = ['-fopenmp', '-shared',
+                             '-Wl,-soname,' + get_openmoc_object_name()]
+
   linker_flags['icpc'] = [ '-openmp', '-shared',
                            '-Xlinker', '-soname=' + get_openmoc_object_name()]
   linker_flags['bgxlc'] = ['-qmkshrobj', '-shared',
