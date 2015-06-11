@@ -544,7 +544,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
 
   directory << get_output_directory() << "/tracks";
   struct stat st;
-  if (!stat(directory.str().c_str(), &st) == 0)
+  if ((!stat(directory.str().c_str(), &st)) == 0)
     mkdir(directory.str().c_str(), S_IRWXU);
 
   if (_geometry->getCmfd() != NULL){
@@ -565,7 +565,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
 
   /* Check to see if a Track file exists for this geometry, number of azimuthal
    * angles, and track spacing, and if so, import the ray tracing data */
-  if (!stat(_tracks_filename.c_str(), &buffer)) {
+  if ((!stat(_tracks_filename.c_str(), &buffer))) {
     if (readTracksFromFile()) {
       _use_input_file = true;
       _contains_tracks = true;

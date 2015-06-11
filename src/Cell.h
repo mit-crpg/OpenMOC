@@ -15,8 +15,6 @@
 #include "Surface.h"
 #include "Point.h"
 #include <limits>
-#include <map>
-#include <vector>
 #endif
 
 /* Forward declarations to resolve circular dependencies */
@@ -129,6 +127,9 @@ private:
   /** The boundary condition at the maximum reachable z-coordinate */
   boundaryType _max_z_bc;
 
+  /* Vector of neighboring Cells */
+  std::vector<Cell*> _neighbors;
+
   void ringify(std::vector<Cell*>* subcells);
   void sectorize(std::vector<Cell*>* subcells);
 
@@ -157,6 +158,7 @@ public:
   boundaryType getMaxZBoundaryType();
   int getNumSurfaces() const;
   std::map<int, surface_halfspace> getSurfaces() const;
+  std::vector<Cell*> getNeighbors() const;
 
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
@@ -168,13 +170,16 @@ public:
   void setNumSectors(int num_sectors);
   void addSurface(int halfspace, Surface* surface);
   void removeSurface(Surface* surface);
+  void addNeighborCell(Cell* cell);
+
   void findBoundingBox();
-  bool cellContainsPoint(Point* point);
-  bool cellContainsCoords(LocalCoords* coords);
-  double minSurfaceDist(Point* point, double angle, Point* min_intersection);
+  bool containsPoint(Point* point);
+  bool containsCoords(LocalCoords* coords);
+  double minSurfaceDist(Point* point, double angle);
 
   Cell* clone();
   void subdivideCell();
+  void buildNeighbors();
 
   std::string toString();
   void printString();

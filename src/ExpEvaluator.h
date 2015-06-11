@@ -74,25 +74,4 @@ public:
   FP_PRECISION computeExponential(FP_PRECISION tau, int polar);
 };
 
-
-/**
- * @brief Rounds a single precision floating point value to an integer.
- * @param x a float precision floating point value
- * @brief the rounded integer value
- */
-inline int round_to_int(float x) {
-  return lrintf(x);
-}
-
-
-/**
- * @brief Rounds a double precision floating point value to an integer.
- * @param x a double precision floating point value
- * @brief the rounded integer value
- */
-inline int round_to_int(double x) {
-  return lrint(x);
-}
-
-
- #endif /* EXPEVALUATOR_H_ */
+#endif /* EXPEVALUATOR_H_ */

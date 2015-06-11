@@ -53,7 +53,7 @@ for r in radii: circles.append(Circle(x=0.0, y=0.0, radius=r))
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-# Create a list of 10 Cell instances
+# Create a list of 12 Cell instances
 cells = [Cell() for i in range(12)]
 
 # Append 3 CellFills for the assemblies and full core
