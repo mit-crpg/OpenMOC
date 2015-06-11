@@ -908,9 +908,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  std::cout << "1x" << std::endl;
   initializeFSRs();
-  std::cout << "2x" << std::endl;
   countFissionableFSRs();
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())

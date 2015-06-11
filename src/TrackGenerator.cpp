@@ -512,7 +512,7 @@ void TrackGenerator::generateTracks() {
     try {
       initializeTracks();
       recalibrateTracksToOrigin();
-      std::cout << "Num threads = " << _num_threads << std::endl;
+      std::cout << "Num threads = " << omp_get_max_threads() << std::endl;
       double t1 = omp_get_wtime();
       segmentize();
       double t2 = omp_get_wtime();
@@ -1101,6 +1101,7 @@ void TrackGenerator::segmentize() {
       }
     }
   }
+  _geometry->initializeFSRVectors();
 
   _contains_tracks = true;
 

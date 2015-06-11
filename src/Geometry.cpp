@@ -522,23 +522,21 @@ int Geometry::findFSRId(LocalCoords* coords) {
     Cell* cell = findCellContainingCoords(curr);
     
     /* Add FSR information to FSR key map and FSR_to vectors */
-    //fsr_id = _num_FSRs;
-    fsr_data* fsr = new fsr_data;
-    Point* point = new Point();
-    point->setCoords(coords->getHighestLevel()->getX(), 
-                       coords->getHighestLevel()->getY());
-    fsr->_point = point;
+    fsr_data *fsr = new fsr_data;
     fsr_id = _FSR_keys_map.insert_and_get_num(fsr_key_hash, fsr);
     if( fsr_id == -1)
     {
       delete fsr;
-      delete point;
       fsr_id = _FSR_keys_map.at(fsr_key_hash)->_fsr_id;
     }
     else{
+      Point* point = new Point();
+      point->setCoords(coords->getHighestLevel()->getX(), 
+                       coords->getHighestLevel()->getY());
+      
+      fsr->_point = point;
       fsr->_fsr_id = fsr_id;
-      _FSRs_to_keys.push_back(fsr_key_hash);
-      _FSRs_to_material_IDs.push_back(cell->getFillMaterial()->getId());
+      fsr->_mat_id = cell->getFillMaterial()->getId();
 
       /* If CMFD acceleration is on, add FSR to CMFD cell */
       if (_cmfd != NULL){
@@ -816,6 +814,33 @@ void Geometry::segmentize(Track* track) {
   start.prune();
   end.prune();
 
+  return;
+}
+
+
+/**
+ * @brief Initialize key and material ID vectors for lookup by FSR ID
+ */
+void Geometry::initializeFSRVectors()
+{
+  // get keys and values from map
+  std::size_t *key_list = _FSR_keys_map.keys();
+  fsr_data **value_list = _FSR_keys_map.values();
+
+  // allocate vectors
+  int N = _FSR_keys_map.size();
+  _FSRs_to_keys = std::vector<size_t>(N);
+  _FSRs_to_material_IDs = std::vector<int>(N);
+
+  // fill vectors key and material ID information
+  for(int i=0; i < N; i++)
+  {
+    std::size_t key = key_list[i];
+    fsr_data *fsr = value_list[i];
+    int fsr_id = fsr->_fsr_id;
+    _FSRs_to_keys.at(fsr_id) = key;
+    _FSRs_to_material_IDs.at(fsr_id) = fsr->_mat_id;
+  }
   return;
 }
 

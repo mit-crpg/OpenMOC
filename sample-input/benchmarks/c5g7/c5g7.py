@@ -11,8 +11,8 @@ from openmoc.options import Options
 
 options = Options()
 
-#num_threads = options.getNumThreads()
-num_threads = 1
+num_threads = options.getNumThreads()
+#num_threads = 1
 track_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
@@ -327,9 +327,7 @@ track_generator.generateTracks()
 solver = CPUSolver(track_generator)
 solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
-
 solver.computeEigenvalue(max_iters)
-
 solver.printTimerReport()
 
 

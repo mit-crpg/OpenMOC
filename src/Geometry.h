@@ -18,6 +18,7 @@
 #include <string>
 #include <omp.h>
 #include <functional>
+#define OPENMP
 #include "parallel_hash_map.h"
 #endif
 
@@ -33,6 +34,7 @@ struct fsr_data {
 
   /** The FSR ID */
   int _fsr_id;
+  int _mat_id;
 
   /** Characteristic point in Universe 0 that lies in FSR */
   Point* _point;
@@ -152,6 +154,7 @@ public:
   void subdivideCells();
   void initializeFlatSourceRegions();
   void segmentize(Track* track);
+  void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
 
   std::string toString();
