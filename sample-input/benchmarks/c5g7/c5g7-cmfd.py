@@ -6,8 +6,9 @@ import openmoc.materialize as materialize
 from openmoc.options import Options
 import openmoc.process as process
 
+
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#                          Main Simulation Parameters
 ###############################################################################
 
 options = Options()
@@ -24,7 +25,7 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
 
 ###############################################################################
-###########################   Creating Materials   ############################
+#                            Creating Materials
 ###############################################################################
 
 log.py_printf('NORMAL', 'Importing materials data from py...')
@@ -33,7 +34,7 @@ materials = materialize.materialize('../../c5g7-materials.h5')
 
 
 ###############################################################################
-###########################   Creating Surfaces   #############################
+#                            Creating Surfaces
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
@@ -55,18 +56,21 @@ moderator_outer_radius = Circle(x=0.0, y=0.0, radius=0.58)
 
 
 ###############################################################################
-######################   Creating Cells and Universes   #######################
+#                        Creating Cells and Universes
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
 
 # Moderator rings
-moderator_ring1 = CellBasic(sectors=8)
-moderator_ring2 = CellBasic(sectors=8)
-moderator_ring3 = CellBasic(sectors=8)
-moderator_ring1.setMaterial(materials['Water'])
-moderator_ring2.setMaterial(materials['Water'])
-moderator_ring3.setMaterial(materials['Water'])
+moderator_ring1 = Cell()
+moderator_ring2 = Cell()
+moderator_ring3 = Cell()
+moderator_ring1.setNumSectors(8)
+moderator_ring2.setNumSectors(8)
+moderator_ring3.setNumSectors(8)
+moderator_ring1.setFill(materials['Water'])
+moderator_ring2.setFill(materials['Water'])
+moderator_ring3.setFill(materials['Water'])
 moderator_ring1.addSurface(+1, fuel_radius)
 moderator_ring1.addSurface(-1, moderator_inner_radius)
 moderator_ring2.addSurface(+1, moderator_inner_radius)
@@ -74,8 +78,10 @@ moderator_ring2.addSurface(-1, moderator_outer_radius)
 moderator_ring3.addSurface(+1, moderator_outer_radius)
 
 # UO2 pin cell
-uo2_cell = CellBasic(rings=3, sectors=8)
-uo2_cell.setMaterial(materials['UO2'])
+uo2_cell = Cell()
+uo2_cell.setNumRings(3)
+uo2_cell.setNumSectors(8)
+uo2_cell.setFill(materials['UO2'])
 uo2_cell.addSurface(-1, fuel_radius)
 
 uo2 = Universe(name='UO2')
@@ -85,8 +91,10 @@ uo2.addCell(moderator_ring2)
 uo2.addCell(moderator_ring3)
 
 # 4.3% MOX pin cell
-mox43_cell = CellBasic(rings=3, sectors=8)
-mox43_cell.setMaterial(materials['MOX-4.3%'])
+mox43_cell = Cell()
+mox43_cell.setNumRings(3)
+mox43_cell.setNumSectors(8)
+mox43_cell.setFill(materials['MOX-4.3%'])
 mox43_cell.addSurface(-1, fuel_radius)
 
 mox43 = Universe(name='MOX-4.3%')
@@ -96,8 +104,10 @@ mox43.addCell(moderator_ring2)
 mox43.addCell(moderator_ring3)
 
 # 7% MOX pin cell
-mox7_cell = CellBasic(rings=3, sectors=8)
-mox7_cell.setMaterial(materials['MOX-7%'])
+mox7_cell = Cell()
+mox7_cell.setNumRings(3)
+mox7_cell.setNumSectors(8)
+mox7_cell.setFill(materials['MOX-7%'])
 mox7_cell.addSurface(-1, fuel_radius)
 
 mox7 = Universe(name='MOX-7%')
@@ -107,8 +117,10 @@ mox7.addCell(moderator_ring2)
 mox7.addCell(moderator_ring3)
 
 # 8.7% MOX pin cell
-mox87_cell = CellBasic(rings=3, sectors=8)
-mox87_cell.setMaterial(materials['MOX-8.7%'])
+mox87_cell = Cell()
+mox87_cell.setNumRings(3)
+mox87_cell.setNumSectors(8)
+mox87_cell.setFill(materials['MOX-8.7%'])
 mox87_cell.addSurface(-1, fuel_radius)
 
 mox87 = Universe(name='MOX-8.7%')
@@ -118,8 +130,10 @@ mox87.addCell(moderator_ring2)
 mox87.addCell(moderator_ring3)
 
 # Fission chamber pin cell
-fission_chamber_cell = CellBasic(rings=3, sectors=8)
-fission_chamber_cell.setMaterial(materials['Fission Chamber'])
+fission_chamber_cell = Cell()
+fission_chamber_cell.setNumRings(3)
+fission_chamber_cell.setNumSectors(8)
+fission_chamber_cell.setFill(materials['Fission Chamber'])
 fission_chamber_cell.addSurface(-1, fuel_radius)
 
 fission_chamber = Universe(name='Fission Chamber')
@@ -129,8 +143,10 @@ fission_chamber.addCell(moderator_ring2)
 fission_chamber.addCell(moderator_ring3)
 
 # Guide tube pin cell
-guide_tube_cell = CellBasic(rings=3, sectors=8)
-guide_tube_cell.setMaterial(materials['Guide Tube'])
+guide_tube_cell = Cell()
+guide_tube_cell.setNumRings(3)
+guide_tube_cell.setNumSectors(8)
+guide_tube_cell.setFill(materials['Guide Tube'])
 guide_tube_cell.addSurface(-1, fuel_radius)
 
 guide_tube = Universe(name='Guide Tube')
@@ -140,19 +156,19 @@ guide_tube.addCell(moderator_ring2)
 guide_tube.addCell(moderator_ring3)
 
 # Reflector
-reflector_cell = CellBasic(name='moderator')
-reflector_cell.setMaterial(materials['Water'])
+reflector_cell = Cell(name='moderator')
+reflector_cell.setFill(materials['Water'])
 
 reflector = Universe(name='Reflector')
 reflector.addCell(reflector_cell)
 
-# CellFills
-assembly1_cell = CellFill(name='Assembly 1')
-assembly2_cell = CellFill(name='Assembly 2')
-refined_reflector_cell = CellFill(name='Semi-Finely Spaced Reflector')
-right_reflector_cell = CellFill(name='Right Reflector')
-corner_reflector_cell = CellFill(name='Bottom Corner Reflector')
-bottom_reflector_cell = CellFill(name='Bottom Reflector')
+# Cells
+assembly1_cell = Cell(name='Assembly 1')
+assembly2_cell = Cell(name='Assembly 2')
+refined_reflector_cell = Cell(name='Semi-Finely Spaced Reflector')
+right_reflector_cell = Cell(name='Right Reflector')
+corner_reflector_cell = Cell(name='Bottom Corner Reflector')
+bottom_reflector_cell = Cell(name='Bottom Reflector')
 
 assembly1 = Universe(name='Assembly 1')
 assembly2 = Universe(name='Assembly 2')
@@ -169,7 +185,7 @@ corner_reflector.addCell(corner_reflector_cell)
 bottom_reflector.addCell(bottom_reflector_cell)
 
 # Root Cell/Universe
-root_cell = CellFill(name='Full Geometry')
+root_cell = Cell(name='Full Geometry')
 root_cell.addSurface(+1, boundaries[0])
 root_cell.addSurface(-1, boundaries[1])
 root_cell.addSurface(-1, boundaries[2])
@@ -180,7 +196,7 @@ root_universe.addCell(root_cell)
 
 
 ###############################################################################
-###########################   Creating Lattices   #############################
+#                            Creating Lattices
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating lattices...')
@@ -284,7 +300,7 @@ root_cell.setFill(lattices[-1])
 
 
 ###############################################################################
-##########################     Creating Cmfd mesh    ##########################
+#                              Creating Cmfd mesh
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
@@ -297,7 +313,7 @@ cmfd.setLatticeStructure(51,51)
 cmfd.setKNearest(3)
 
 ###############################################################################
-##########################   Creating the Geometry   ##########################
+#                         Creating the Geometry
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
@@ -309,7 +325,7 @@ geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+#                          Creating the TrackGenerator
 ###############################################################################
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
@@ -318,28 +334,29 @@ track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
+
 ###############################################################################
-###########################   Running a Simulation   ##########################
+#                            Running a Simulation
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
+solver = CPUSolver(track_generator)
+solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
+
 ###############################################################################
-############################   Generating Plots   #############################
+#                             Generating Plots
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plot_tracks(track_generator)
-#plotter.plot_materials(geometry, gridsize=250)
-#plotter.plot_cells(geometry, gridsize=250)
-#plotter.plot_cmfd_cells(geometry, cmfd, gridsize=250)
-#plotter.plot_flat_source_regions(geometry, gridsize=250)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-#plotter.plot_fission_rates(solver, gridsize=250)
+plotter.plot_materials(geometry, gridsize=250)
+plotter.plot_cells(geometry, gridsize=250)
+plotter.plot_cmfd_cells(geometry, cmfd, gridsize=250)
+plotter.plot_flat_source_regions(geometry, gridsize=250)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+plotter.plot_fission_rates(solver, gridsize=250)
 
 log.py_printf('TITLE', 'Finished')

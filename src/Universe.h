@@ -9,28 +9,22 @@
 #define UNIVERSE_H_
 
 #ifdef __cplusplus
+#include "Python.h"
+#include "constants.h"
+#include "LocalCoords.h"
+#include "boundary_type.h"
 #include <limits>
 #include <map>
 #include <vector>
-#include "LocalCoords.h"
-#include "boundary_type.h"
 #endif
 
-/** Error threshold for determining how close to the boundary of a Lattice cell
- * a Point needs to be to be considered on it */
-#define ON_LATTICE_CELL_THRESH 1E-12
-
-/** Distance a Point is moved to cross over a Surface into a new Cell during
- * Track segmentation */
-#define TINY_MOVE 1E-10
 
 /* Forward declarations to resolve circular dependencies */
 class LocalCoords;
 class Cell;
-class CellFill;
-class CellBasic;
 class Surface;
 class Material;
+struct surface_halfspace;
 
 
 int universe_id();
@@ -78,7 +72,7 @@ protected:
   /** The type of Universe (ie, SIMPLE or LATTICE) */
   universeType _type;
 
-  /** A collection of Cell IDs and Cell pointers */
+  /** A collection of Cell IDs and Cell pointers in this Universe */
   std::map<int, Cell*> _cells;
 
   /** A boolean representing whether or not this Universe contains a Material
@@ -109,8 +103,6 @@ public:
 
   Cell* getCell(int cell_id);
   std::map<int, Cell*> getCells() const;
-  CellFill* getCellFill(int cell_id);
-  CellBasic* getCellBasic(int cell_id);
   std::map<int, Cell*> getAllCells();
   std::map<int, Material*> getAllMaterials();
   std::map<int, Universe*> getAllUniverses();
@@ -123,8 +115,8 @@ public:
 
   Cell* findCell(LocalCoords* coords);
   void setFissionability(bool fissionable);
-  double minSurfaceDist(Point* point, double angle);
   void subdivideCells();
+  void buildNeighbors();
 
   std::string toString();
   void printString();
@@ -187,6 +179,7 @@ public:
   void setNumY(int num_y);
   void setWidth(double width_x, double width_y);
   void setUniverses(int num_x, int num_y, Universe** universes);
+  void buildNeighbors();
 
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);
@@ -201,6 +194,36 @@ public:
   std::string toString();
   void printString();
 };
+
+
+
+/**
+ * @brief A helper struct for the Universe::findCell() method.
+ * @details This is used to insert a Universe's Cells to the back of a vector
+ *          of neighbor Cells in Universe::findCell() routine. This works in
+ *          symbiosis with the pair_second method template defined below.
+ */
+template<typename tPair>
+struct second_t {
+  typename tPair::second_type operator()(const tPair& p) const {
+    return p.second;
+  }
+};
+
+
+/**
+ * @brief A helper routine for the Universe::findCell() method.
+ * @details This is used to insert a Universe's Cells to the back of a vector
+ *          of neighbor Cells in Universe::findCell() routine. This works in
+ *          symbiosis with the second_t struct template defined above.
+ * @param map a std::map iterator
+ * @return the second element in the iterator (e.g., map value)
+ */
+template<typename tMap> 
+second_t<typename tMap::value_type> pair_second(const tMap& map) {
+  return second_t<typename tMap::value_type>();
+}
+
 
 #endif /* UNIVERSE_H_ */
 

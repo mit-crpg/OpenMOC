@@ -5,7 +5,7 @@ from openmoc.options import Options
 
 
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#                          Main Simulation Parameters
 ###############################################################################
 
 options = Options()
@@ -22,7 +22,7 @@ log.py_printf('TITLE', 'Simulating HW3 from Fall 2010 22.212...')
 
 
 ###############################################################################
-###########################   Creating Materials   ############################
+#                            Creating Materials
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating materials...')
@@ -49,7 +49,7 @@ moderator.setChi(numpy.array([1.0]))
 
 
 ###############################################################################
-###########################   Creating Surfaces   #############################
+#                            Creating Surfaces
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
@@ -67,17 +67,17 @@ bottom.setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
-#############################   Creating Cells   ##############################
+#                             Creating Cells
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-fuel_cell = CellBasic(name='fuel')
-fuel_cell.setMaterial(fuel)
+fuel_cell = Cell(name='fuel')
+fuel_cell.setFill(fuel)
 fuel_cell.addSurface(halfspace=-1, surface=circle)
 
-moderator_cell = CellBasic(name='moderator')
-moderator_cell.setMaterial(moderator)
+moderator_cell = Cell(name='moderator')
+moderator_cell.setFill(moderator)
 moderator_cell.addSurface(halfspace=+1, surface=circle)
 moderator_cell.addSurface(halfspace=+1, surface=left)
 moderator_cell.addSurface(halfspace=-1, surface=right)
@@ -86,7 +86,7 @@ moderator_cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
-###########################   Creating Universes   ############################
+#                             Creating Cells
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating universes...')
@@ -97,7 +97,7 @@ root_universe.addCell(moderator_cell)
 
 
 ###############################################################################
-##########################   Creating the Geometry   ##########################
+#                         Creating the Geometry
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
@@ -108,7 +108,7 @@ geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+#                          Creating the TrackGenerator
 ###############################################################################
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
@@ -119,13 +119,13 @@ track_generator.generateTracks()
 
 
 ###############################################################################
-###########################   Running a Simulation   ##########################
+#                            Running a Simulation
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator)
+solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.convergeSource(max_iters)
+solver.setConvergenceThreshold(tolerance)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 log.py_printf('TITLE', 'Finished')

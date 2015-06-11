@@ -11,11 +11,11 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "CPUSolver.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
 #include <mkl.h>
-#include "CPUSolver.h"
 #endif
 
 /** Indexing scheme for the optical length (\f$ l\Sigma_t \f$) for a
@@ -53,39 +53,29 @@ protected:
    *  each thread in each energy group and polar angle */
   FP_PRECISION* _thread_exponentials;
 
-  void buildExpInterpTable();
+  void initializeExpEvaluator();
   void initializeFluxArrays();
   void initializeSourceArrays();
 
   void normalizeFluxes();
-  FP_PRECISION computeFSRSources();
-  void scalarFluxTally(segment* curr_segment, int azim_index,
-                       FP_PRECISION* track_flux,
-                       FP_PRECISION* fsr_flux, bool fwd);
-  void transferBoundaryFlux(int track_id, int azim_index, bool direction,
-                            FP_PRECISION* track_flux);
+  void computeFSRSources();
   void addSourceToScalarFlux();
   void computeKeff();
 
-
-  /**
-   * @brief Computes an array of the exponentials in the transport equation,
-   *        \f$ exp(-\frac{\Sigma_t * l}{sin(\theta)}) \f$, for each
-   *        energy group and polar angle for a given segment.
-   * @param curr_segment pointer to the segment of interest
-   * @param exponentials the array to store the exponential values
-   */
-  virtual void computeExponentials(segment* curr_segment,
-                                   FP_PRECISION* exponentials);
+  void tallyScalarFlux(segment* curr_segment, int azim_index,
+                       FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
+  void transferBoundaryFlux(int track_id, int azim_index, bool direction,
+                            FP_PRECISION* track_flux);
+  void computeExponentials(segment* curr_segment, FP_PRECISION* exponentials);
 
 public:
-  VectorizedSolver(Geometry* geometry=NULL,
-                   TrackGenerator* track_generator=NULL);
-
+  VectorizedSolver(TrackGenerator* track_generator=NULL);
   virtual ~VectorizedSolver();
 
   int getNumVectorWidths();
 
+  void setFixedSourceByFSR(int fsr_id, int group, 
+                           FP_PRECISION source);
   void setGeometry(Geometry* geometry);
 };
 

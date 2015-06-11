@@ -6,9 +6,10 @@
 
 %{
   #define SWIG_FILE_WITH_INIT
+  #include <cstddef>
+  #include "../src/constants.h"
   #include "../src/Cell.h"
   #include "../src/Geometry.h"
-  #include "../src/boundary_type.h"
   #include "../src/LocalCoords.h"
   #include "../src/log.h"
   #include "../src/Material.h"
@@ -16,6 +17,7 @@
   #include "../src/PolarQuad.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
+  #include "../src/boundary_type.h"
   #include "../src/Surface.h"
   #include "../src/Timer.h"
   #include "../src/Track.h"
@@ -50,6 +52,7 @@
 
 %warnfilter(506) log_printf(logLevel level, const char *format, ...);
 %warnfilter(511) swig::SwigPyIterator;
+%warnfilter(511) Cell::setFill;
 
 %exception {
   try {
@@ -59,17 +62,10 @@
   }
 }
 
+
 /* C++ casting helper method for openmoc.process computePinPowers
  * routine and the OpenCG compatibility module */
 %inline %{
-
-  CellFill* castCellToCellFill(Cell* cell) {
-    return dynamic_cast<CellFill*>(cell);
-  }
-
-  CellBasic* castCellToCellBasic(Cell* cell) {
-    return dynamic_cast<CellBasic*>(cell);
-  }
 
   Lattice* castUniverseToLattice(Universe* universe) {
     return dynamic_cast<Lattice*>(universe);
@@ -415,9 +411,9 @@
 
 %include <exception.i>
 %include <std_map.i>
+%include ../src/constants.h
 %include ../src/Cell.h
 %include ../src/Geometry.h
-%include ../src/boundary_type.h
 %include ../src/LocalCoords.h
 %include ../src/log.h
 %include ../src/Material.h
@@ -425,6 +421,7 @@
 %include ../src/PolarQuad.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
+%include ../src/boundary_type.h
 %include ../src/Surface.h
 %include ../src/Timer.h
 %include ../src/Track.h
@@ -433,7 +430,7 @@
 %include ../src/Cmfd.h
 
 #ifdef ICPC
-%include "../src/VectorizedSolver.h"
+%include ../src/VectorizedSolver.h
 #endif
 
 #define printf PySys_WriteStdout

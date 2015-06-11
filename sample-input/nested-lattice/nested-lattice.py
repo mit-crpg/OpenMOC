@@ -6,7 +6,7 @@ from openmoc.options import Options
 
 
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#                          Main Simulation Parameters
 ###############################################################################
 
 options = Options()
@@ -21,7 +21,7 @@ log.set_log_level('NORMAL')
 
 
 ###############################################################################
-###########################   Creating Materials   ############################
+#                            Creating Materials
 ###############################################################################
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
@@ -31,7 +31,7 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 
 ###############################################################################
-###########################   Creating Surfaces   #############################
+#                            Creating Surfaces
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
@@ -50,38 +50,47 @@ for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
-#############################   Creating Cells   ##############################
+#                             Creating Cells
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-large_fuel = CellBasic(name='large pin fuel', rings=3, sectors=8)
-large_fuel.setMaterial(materials['UO2'])
+large_fuel = Cell(name='large pin fuel')
+large_fuel.setNumRings(3)
+large_fuel.setNumSectors(8)
+large_fuel.setFill(materials['UO2'])
 large_fuel.addSurface(halfspace=-1, surface=large_circle)
 
-large_moderator = CellBasic(name='large pin moderator', sectors=8)
-large_moderator.setMaterial(materials['Water'])
+large_moderator = Cell(name='large pin moderator')
+large_moderator.setNumSectors(8)
+large_moderator.setFill(materials['Water'])
 large_moderator.addSurface(halfspace=+1, surface=large_circle)
 
-medium_fuel = CellBasic(name='medium pin fuel', rings=3, sectors=8)
-medium_fuel.setMaterial(materials['UO2'])
+medium_fuel = Cell(name='medium pin fuel')
+medium_fuel.setNumRings(3)
+medium_fuel.setNumSectors(8)
+medium_fuel.setFill(materials['UO2'])
 medium_fuel.addSurface(halfspace=-1, surface=medium_circle)
 
-medium_moderator = CellBasic(name='medium pin moderator', sectors=8)
-medium_moderator.setMaterial(materials['Water'])
+medium_moderator = Cell(name='medium pin moderator')
+medium_moderator.setNumSectors(8)
+medium_moderator.setFill(materials['Water'])
 medium_moderator.addSurface(halfspace=+1, surface=medium_circle)
 
-small_fuel = CellBasic(name='small pin fuel', rings=3, sectors=8)
-small_fuel.setMaterial(materials['UO2'])
+small_fuel = Cell(name='small pin fuel')
+small_fuel.setNumRings(3)
+small_fuel.setNumSectors(8)
+small_fuel.setFill(materials['UO2'])
 small_fuel.addSurface(halfspace=-1, surface=small_circle)
 
-small_moderator = CellBasic(name='small pin moderator', sectors=8)
-small_moderator.setMaterial(materials['Water'])
+small_moderator = Cell(name='small pin moderator')
+small_moderator.setNumSectors(8)
+small_moderator.setFill(materials['Water'])
 small_moderator.addSurface(halfspace=+1, surface=small_circle)
 
-lattice_cell = CellFill(name='lattice cell')
+lattice_cell = Cell(name='lattice cell')
 
-root_cell = CellFill(name='root cell')
+root_cell = Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=boundaries[0])
 root_cell.addSurface(halfspace=-1, surface=boundaries[1])
 root_cell.addSurface(halfspace=+1, surface=boundaries[2])
@@ -111,7 +120,7 @@ root_universe.addCell(root_cell)
 
 
 ###############################################################################
-###########################   Creating Lattices   #############################
+#                            Creating Lattices
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating nested 2 x 2 lattices...')
@@ -130,7 +139,7 @@ root_cell.setFill(core)
 
 
 ###############################################################################
-##########################   Creating the Geometry   ##########################
+#                         Creating the Geometry
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
@@ -141,7 +150,7 @@ geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+#                          Creating the TrackGenerator
 ###############################################################################
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
@@ -152,27 +161,25 @@ track_generator.generateTracks()
 
 
 ###############################################################################
-###########################   Running a Simulation   ##########################
+#                            Running a Simulation
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator)
+solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.convergeSource(max_iters)
+solver.setConvergenceThreshold(tolerance)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 
 ###############################################################################
-############################   Generating Plots   #############################
+#                             Generating Plots
 ###############################################################################
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plot_tracks(track_generator)
-#plotter.plot_segments(track_generator)
-#plotter.plot_materials(geometry, gridsize=500)
-#plotter.plot_cells(geometry, gridsize=500)
-#plotter.plot_flat_source_regions(geometry, gridsize=500)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+plotter.plot_materials(geometry, gridsize=500)
+plotter.plot_cells(geometry, gridsize=500)
+plotter.plot_flat_source_regions(geometry, gridsize=500)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')

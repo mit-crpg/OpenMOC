@@ -53,18 +53,11 @@ class configuration:
   #                               User Options
   #############################################################################
 
-  # Only supports GCC as the default compiler right now ??????
   # Default C++ compiler for the main openmoc module is GCC
   cc = 'gcc'
 
   # Default floating point for the main openmoc module is single precision
-  fp = 'double'
-
-  # Supported C++ compilers: 'gcc', 'icpc', 'bgxlc', 'nvcc', 'all'
-  cpp_compilers = list()
-
-  # Supported floating point precision levels: 'single', 'double', 'all'
-  fp_precision = list()
+  fp = 'single'
 
   # Compile using ccache (for developers needing fast recompilation)
   with_ccache = False
@@ -75,12 +68,8 @@ class configuration:
   # Compile code with debug symbols (ie, -g, -pg)
   profile_mode = False
 
-  # Build the openmoc.cuda and/or openmoc.cuda/single and/or openmoc.cuda.double
-  # modules (depending on what precision levels are set for fp_precision)
+  # Build the openmoc.cuda module
   with_cuda = False
-
-  # Compile with PAPI instrumentation
-  with_papi = False
 
   # Compile with NumPy typemaps and the C API to allow users to pass NumPy
   # arrays to/from the C++ source code
@@ -102,15 +91,8 @@ class configuration:
   # on which flags are specified at compile time.
   extensions = list()
 
-  # List of the packages to install - only openmoc is guaranteed to be built
-  # while the others will be built based on which flags are specified
-  # at compile time
-  packages = ['openmoc', 'openmoc.compatible', 'openmoc.intel', 'openmoc.gnu',
-              'openmoc.bgq', 'openmoc.cuda', 'openmoc.intel.double',
-              'openmoc.intel.single', 'openmoc.gnu.double',
-              'openmoc.gnu.single', 'openmoc.bgq.single',
-              'openmoc.bgq.double', 'openmoc.cuda.double',
-              'openmoc.cuda.single']
+  # List of the possible packages to install based on runtime options
+  packages = ['openmoc', 'openmoc.cuda']
 
 
   #############################################################################
@@ -128,6 +110,25 @@ class configuration:
                     'src/Material.cpp',
                     'src/Point.cpp',
                     'src/PolarQuad.cpp',
+                    'src/ExpEvaluator.cpp',
+                    'src/Solver.cpp',
+                    'src/CPUSolver.cpp',
+                    'src/Surface.cpp',
+                    'src/Timer.cpp',
+                    'src/Track.cpp',
+                    'src/TrackGenerator.cpp',
+                    'src/Universe.cpp',
+                    'src/Cmfd.cpp']
+
+  sources['clang'] = ['openmoc/openmoc_wrap.cpp',
+                    'src/Cell.cpp',
+                    'src/Geometry.cpp',
+                    'src/LocalCoords.cpp',
+                    'src/log.cpp',
+                    'src/Material.cpp',
+                    'src/Point.cpp',
+                    'src/PolarQuad.cpp',
+                    'src/ExpEvaluator.cpp',
                     'src/Solver.cpp',
                     'src/CPUSolver.cpp',
                     'src/Surface.cpp',
@@ -145,6 +146,7 @@ class configuration:
                      'src/Material.cpp',
                      'src/Point.cpp',
                      'src/PolarQuad.cpp',
+                     'src/ExpEvaluator.cpp',
                      'src/Solver.cpp',
                      'src/CPUSolver.cpp',
                      'src/VectorizedSolver.cpp',
@@ -163,6 +165,7 @@ class configuration:
                       'src/Material.cpp',
                       'src/Point.cpp',
                       'src/PolarQuad.cpp',
+                      'src/ExpEvaluator.cpp',
                       'src/Solver.cpp',
                       'src/CPUSolver.cpp',
                       'src/Surface.cpp',
@@ -173,6 +176,7 @@ class configuration:
                       'src/Cmfd.cpp']
 
   sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
+                     'src/accel/cuda/GPUExpEvaluator.cu',
                      'src/accel/cuda/GPUQuery.cu',
                      'src/accel/cuda/clone.cu',
                      'src/accel/cuda/GPUSolver.cu']
@@ -186,14 +190,22 @@ class configuration:
   compiler_flags = dict()
 
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
-                           '-std=c++0x', '-fpic']
-  compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip', '-openmp',
-                           '-xhost', '-std=c++0x', '-fpic', '--ccache-skip',
-                             '-openmp-report', '-vec-report']
+                           '-std=c++11', '-fpic']
+  compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11', 
+                             '-fopenmp', '-fvectorize', '-fpic',
+                             '-Qunused-arguments',
+                             '-Wno-deprecated-register',
+                             '-Wno-parentheses-equality']
+  compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip', 
+                           '-openmp', '-xhost', '-std=c++11', 
+                           '--ccache-skip', '-fpic',
+                           '-openmp-report', '-vec-report']
   compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', '-qreport',
                              '-qsimd=auto', '-qtune=qp', '-qunroll=auto',
                              '-qsmp=omp', '-qpic']
-  compiler_flags['nvcc'] =  ['-c', '-O3', '--compiler-options', '-fpic',
+  compiler_flags['nvcc'] =  ['--relocatable-device-code', 'true',
+                             '-c', '-O3',  '-std=c++11', 
+                             '--compiler-options', '-fpic',
                              '-gencode=arch=compute_20,code=sm_20',
                              '-gencode=arch=compute_30,code=sm_30']
 
@@ -205,12 +217,19 @@ class configuration:
   # A dictionary of the linker flags to use for each compiler type
   linker_flags = dict()
 
-  if (get_platform()[:6] == 'macosx'):
+  if ('macosx' in get_platform()):
     linker_flags['gcc'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
                            '-Wl,-install_name,' + get_openmoc_object_name()]
   else:
     linker_flags['gcc'] = ['-fopenmp', '-shared',
                            '-Wl,-soname,' + get_openmoc_object_name()]
+
+  if ('macosx' in get_platform()):
+    linker_flags['clang'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
+                             '-Wl,-install_name,' + get_openmoc_object_name()]
+  else:
+    linker_flags['clang'] = ['-fopenmp', '-shared',
+                             '-Wl,-soname,' + get_openmoc_object_name()]
 
   linker_flags['icpc'] = [ '-openmp', '-shared',
                            '-Xlinker', '-soname=' + get_openmoc_object_name()]
@@ -228,10 +247,11 @@ class configuration:
   shared_libraries = dict()
 
   shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
+  shared_libraries['clang'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
   shared_libraries['icpc'] = ['stdc++', 'iomp5', 'pthread', 'irc',
                               'imf','rt', 'mkl_rt','m',]
   shared_libraries['bgxlc'] = ['stdc++', 'pthread', 'm', 'xlsmp', 'rt']
-  shared_libraries['nvcc'] = ['cudart']
+  shared_libraries['nvcc'] = ['cudadevrt', 'cudart']
 
 
   #############################################################################
@@ -245,6 +265,7 @@ class configuration:
   usr_lib = sys.exec_prefix + '/lib'
 
   library_directories['gcc'] = [usr_lib]
+  library_directories['clang'] = [usr_lib]
   library_directories['icpc'] = [usr_lib]
   library_directories['bgxlc'] = [usr_lib]
   library_directories['nvcc'] = [usr_lib, '/usr/local/cuda/lib64']
@@ -259,6 +280,7 @@ class configuration:
   include_directories = dict()
 
   include_directories['gcc'] = list()
+  include_directories['clang'] = list()
   include_directories['icpc'] = list()
   include_directories['bgxlc'] = list()
   include_directories['nvcc'] = ['/usr/local/cuda/include']
@@ -285,19 +307,26 @@ class configuration:
   macros = dict()
 
   macros['gcc'] = dict()
+  macros['clang'] = dict()
   macros['icpc'] = dict()
   macros['bgxlc'] = dict()
   macros['nvcc'] = dict()
 
   macros['gcc']['single']= [('FP_PRECISION', 'float'),
                             ('SINGLE', None),
-                            ('GNU', None),
+                            ('GCC', None),
                             ('VEC_LENGTH', vector_length),
                             ('VEC_ALIGNMENT', vector_alignment)]
 
+  macros['clang']['single']= [('FP_PRECISION', 'float'),
+                              ('SINGLE', None),
+                              ('CLANG', None),
+                              ('VEC_LENGTH', vector_length),
+                              ('VEC_ALIGNMENT', vector_alignment)]
+
   macros['icpc']['single']= [('FP_PRECISION', 'float'),
                              ('SINGLE', None),
-                             ('INTEL', None),
+                             ('ICPC', None),
                              ('MKL_ILP64', None),
                              ('VEC_LENGTH', vector_length),
                              ('VEC_ALIGNMENT', vector_alignment)]
@@ -311,18 +340,24 @@ class configuration:
 
   macros['nvcc']['single'] = [('FP_PRECISION', 'float'),
                               ('SINGLE', None),
-                              ('CUDA', None),
+                              ('NVCC', None),
                               ('CCACHE_CC', 'nvcc')]
 
   macros['gcc']['double'] = [('FP_PRECISION', 'double'),
                              ('DOUBLE', None),
-                             ('GNU', None),
+                             ('GCC', None),
                              ('VEC_LENGTH', vector_length),
                              ('VEC_ALIGNMENT', vector_alignment)]
 
+  macros['clang']['double'] = [('FP_PRECISION', 'double'),
+                               ('DOUBLE', None),
+                               ('CLANG', None),
+                               ('VEC_LENGTH', vector_length),
+                               ('VEC_ALIGNMENT', vector_alignment)]
+
   macros['icpc']['double'] = [('FP_PRECISION', 'double'),
                               ('DOUBLE', None),
-                              ('INTEL', None),
+                              ('ICPC', None),
                               ('MKL_ILP64', None),
                               ('VEC_LENGTH', vector_length),
                               ('VEC_ALIGNMENT', vector_alignment)]
@@ -336,7 +371,7 @@ class configuration:
 
   macros['nvcc']['double'] = [('FP_PRECISION', 'double'),
                               ('DOUBLE', None),
-                              ('CUDA', None),
+                              ('NVCC', None),
                               ('CCACHE_CC', 'nvcc')]
 
 
@@ -347,14 +382,6 @@ class configuration:
     Create list of extensions for Python modules within the openmoc
     Python package based on the user-defined flags defined at compile time.
     """
-
-    # If the user selected 'all' compilers, enumerate them
-    if self.cpp_compilers == ['all']:
-      self.cpp_compilers = ['gcc', 'icpc', 'nvcc']
-
-    # If the user selected 'all' FP precision levels, enumerate them
-    if self.fp_precision == ['all']:
-      self.fp_precision = ['double', 'single']
 
     # If the user wishes to compile using debug mode, append the debugging
     # flag to all lists of compiler flags for all distribution types
@@ -389,6 +416,8 @@ class configuration:
 
 
     # The main openmoc extension (defaults are gcc and single precision)
+    self.swig_flags += ['-D' + self.fp.upper()]
+
     self.extensions.append(
       Extension(name = '_openmoc',
                 sources = copy.deepcopy(self.sources[self.cc]),
@@ -403,8 +432,6 @@ class configuration:
     # time (--with-cuda)
     if self.with_cuda:
 
-      self.cpp_compilers.append('nvcc')
-
       self.extensions.append(
         Extension(name = '_openmoc_cuda',
                   sources = copy.deepcopy(self.sources['nvcc']),
@@ -415,65 +442,3 @@ class configuration:
                   define_macros = self.macros['nvcc'][self.fp],
                   swig_opts = self.swig_flags  + ['-DNVCC'],
                   export_symbols = ['init_openmoc']))
-
-      # Remove the main SWIG configuration file for builds of other
-      # extensions (ie, openmoc.cuda.single, openmoc.cuda.double)
-      self.sources['nvcc'].remove('openmoc/cuda/openmoc_cuda_wrap.cpp')
-
-    # Loop over the compilers and floating point precision levels to create
-    # extension modules for each (ie, openmoc.intel.double,
-    # openmoc.cuda.single, etc)
-    for fp in self.fp_precision:
-      for cc in self.cpp_compilers:
-
-        # Build the filename for the SWIG configuration file and the
-        # extension name depending on the compiler and floating
-        # point precision
-
-        # For openmoc.cuda.* modules
-        if cc == 'nvcc':
-          ext_name = '_openmoc_cuda_' + fp
-          swig_wrap_file = 'openmoc/cuda/' + fp
-          swig_wrap_file += '/openmoc_cuda_' + fp + '_wrap.cpp'
-          self.sources['nvcc'].append(swig_wrap_file)
-
-        # For openmoc.gnu.* modules
-        elif cc == 'gcc':
-          ext_name = '_openmoc_gnu_' + fp
-          swig_wrap_file = 'openmoc/gnu/' + fp
-          swig_wrap_file += '/openmoc_gnu_' + fp + '_wrap.cpp'
-          self.sources['gcc'].append(swig_wrap_file)
-
-      # For openmoc.intel.* modules
-        elif cc == 'icpc':
-          ext_name = '_openmoc_intel_' + fp
-          swig_wrap_file = 'openmoc/intel/' + fp
-          swig_wrap_file += '/openmoc_intel_' + fp + '_wrap.cpp'
-          self.sources['icpc'].append(swig_wrap_file)
-
-        # For openmoc.intel.* modules
-        elif cc == 'bgxlc':
-          ext_name = '_openmoc_bgq_' + fp
-          swig_wrap_file = 'openmoc/bgq/' + fp
-          swig_wrap_file += '/openmoc_bgq_' + fp + '_wrap.cpp'
-          self.sources['bgxlc'].append(swig_wrap_file)
-
-        # If an unsupported compiler, throw error
-        else:
-          raise NameError('Compiler ' + str(cc) + ' is not supported')
-
-        # Create the extension module and append it to the list of all
-        # extension modules
-        self.extensions.append(
-          Extension(name = ext_name,
-                    sources = copy.deepcopy(self.sources[cc]),
-                    library_dirs = self.library_directories[cc],
-                    libraries = self.shared_libraries[cc],
-                    extra_link_args = self.linker_flags[cc],
-                    include_dirs = self.include_directories[cc],
-                    define_macros = self.macros[cc][fp],
-                    swig_opts = self.swig_flags + ['-D' + cc.upper()]))
-
-        # Clean up - remove the SWIG-generated wrap file from this
-        # extension for the next extension
-        self.sources[cc].remove(swig_wrap_file)

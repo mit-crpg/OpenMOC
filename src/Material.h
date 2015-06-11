@@ -9,23 +9,21 @@
 #define MATERIAL_H_
 
 #ifdef __cplusplus
+#include "Python.h"
+#include "constants.h"
+#include "log.h"
 #include <sstream>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include "log.h"
 #endif
-
-/** A negligible cross-section value to over-ride user-defined
- *  cross-sections very near zero (e.g., within (-1E-10, 1E-10)) */
-#define ZERO_SIGMA_T 1E-10
 
 #ifdef ICPC
 /** Word-aligned memory allocation for Intel's compiler */
 #define MM_FREE(array) _mm_free(array)
 
 /** Word-aligned memory allocation for Intel's compiler */
-#define MM_MALLOC(size,alignment) _mm_alloc(size, alignment)
+#define MM_MALLOC(size,alignment) _mm_malloc(size, alignment)
 
 #else
 
@@ -36,12 +34,6 @@
 #define MM_MALLOC(size,alignment) malloc(size)
 
 #endif
-
-/** Error threshold for determining how close the sum of \f$ \Sigma_a \f$
- *  and \f$ \Sigma_s \f$ must match that of \f$ \Sigma_t \f$ for each energy
- *  group
- */
-#define SIGMA_T_THRESH 1E-3
 
 
 int material_id();
