@@ -9,7 +9,8 @@
 #define GEOMETRY_H_
 
 #ifdef __cplusplus
-#include <limits.h>
+#include "Python.h"
+#include "Cmfd.h"
 #include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -17,10 +18,7 @@
 #include <string>
 #include <omp.h>
 #include <functional>
-#include "Cmfd.h"
-#ifndef CUDA
-  #include <unordered_map>
-#endif
+#include <unordered_map>
 #endif
 
 
@@ -91,12 +89,6 @@ private:
   /** A vector of Material IDs indexed by FSR IDs */
   std::vector<int> _FSRs_to_material_IDs;
 
-  /** The maximum Track segment length in the Geometry */
-  double _max_seg_length;
-
-  /** The minimum Track segment length in the Geometry */
-  double _min_seg_length;
-
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
 
@@ -106,8 +98,8 @@ private:
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
-  CellBasic* findFirstCell(LocalCoords* coords, double angle);
-  CellBasic* findNextCell(LocalCoords* coords, double angle);
+  Cell* findFirstCell(LocalCoords* coords, double angle);
+  Cell* findNextCell(LocalCoords* coords, double angle);
 
 public:
 
@@ -138,8 +130,6 @@ public:
   std::map<int, Cell*> getAllMaterialCells();
   void setRootUniverse(Universe* root_universe);
 
-  double getMaxSegmentLength();
-  double getMinSegmentLength();
   Cmfd* getCmfd();
   std::vector<std::size_t> getFSRsToKeys();
   std::vector<int> getFSRsToMaterialIDs();
@@ -162,14 +152,15 @@ public:
 #endif
 
   /* Find methods */
-  CellBasic* findCellContainingCoords(LocalCoords* coords);
+  Cell* findCellContainingCoords(LocalCoords* coords);
   Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
+  Cell* findCellContainingFSR(int fsr_id);
 
   /* Other worker methods */
   void subdivideCells();
   void initializeFlatSourceRegions();
-  void segmentize(Track* track, FP_PRECISION max_optical_length);
+  void segmentize(Track* track);
   void computeFissionability(Universe* univ=NULL);
   void setFSRCentroid(int fsr, Point* centroid);
 

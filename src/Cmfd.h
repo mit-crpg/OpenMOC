@@ -10,6 +10,14 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "Python.h"
+#include "log.h"
+#include "Timer.h"
+#include "Universe.h"
+#include "Track.h"
+#include "PolarQuad.h"
+#include "linalg.h"
+#include "pairwise_sum.h"
 #include <utility>
 #include <math.h>
 #include <limits.h>
@@ -18,14 +26,19 @@
 #include <queue>
 #include <iostream>
 #include <fstream>
-#include "PolarQuad.h"
-#include "log.h"
-#include "Timer.h"
-#include "Universe.h"
-#include "Track.h"
-#include "linalg.h"
-#include "pairwise_sum.h"
 #endif
+
+
+#undef track_flux
+
+/** Indexing macro for the angular fluxes for each polar angle and energy
+ *  group for either the forward or reverse direction for a given Track */ 
+#define track_flux(p,e) (track_flux[(p)*_num_moc_groups + (e)])
+
+/** Indexing macro for the surface currents for each CMFD Mesh surface and
+ *  each energy group */
+#define _surface_currents(r,e) (_surface_currents[(r)*_num_cmfd_groups \
+						  + getCmfdGroup((e))])
 
 
 /**
@@ -119,11 +132,13 @@ private:
   double _cell_height;
 
   /** Array of geometry boundaries */
-	//  int* _boundaries;
   boundaryType* _boundaries;
 
   /** Array of surface currents for each CMFD cell */
   FP_PRECISION* _surface_currents;
+
+  /** OpenMP mutual exclusion locks for atomic surface current updates */
+  omp_lock_t* _surface_locks;
 
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
@@ -156,6 +171,8 @@ public:
   void initializeGroupMap();
   void initializeFlux();
   void initializeMaterials();
+  void initializeSurfaceCurrents();
+
   void rescaleFlux();
   void linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x, FP_PRECISION* vec_b,
                    FP_PRECISION conv, int max_iter=10000);
@@ -166,6 +183,9 @@ public:
   void addFSRToCell(int cmfd_cell, int fsr_id);
   void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
                           int num_tracks);
+  void zeroSurfaceCurrents();
+  void tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
+                           FP_PRECISION* polar_weights, bool fwd);
 
   /* Get parameters */
   int getNumCmfdGroups();
@@ -189,7 +209,6 @@ public:
   void setHeight(double height);
   void setNumX(int num_x);
   void setNumY(int num_y);
-  void setSurfaceCurrents(FP_PRECISION* surface_currents);
   void setNumFSRs(int num_fsrs);
   void setNumMOCGroups(int num_moc_groups);
   void setOpticallyThick(bool thick);

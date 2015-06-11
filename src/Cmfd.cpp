@@ -38,14 +38,17 @@ Cmfd::Cmfd() {
   /* Set matrices and arrays to NULL */
   _A = NULL;
   _M = NULL;
+  _old_flux = NULL;
+  _new_flux = NULL;
   _flux_temp = NULL;
   _old_source = NULL;
   _new_source = NULL;
   _group_indices = NULL;
   _group_indices_map = NULL;
+  _surface_currents = NULL;
+  _surface_locks = NULL;
 
   /* Initialize boundaries to be reflective */
-	//  _boundaries = new int[4];
   _boundaries = new boundaryType[4];
   _boundaries[0] = REFLECTIVE;
   _boundaries[1] = REFLECTIVE;
@@ -89,6 +92,13 @@ Cmfd::~Cmfd() {
 
   if (_new_source != NULL)
     delete [] _new_source;
+
+  if (_surface_locks != NULL)
+    delete [] _surface_locks;
+
+  if (_surface_currents != NULL)
+    delete [] _surface_currents;
+
 }
 
 
@@ -1152,6 +1162,39 @@ void Cmfd::initializeMaterials(){
 }
 
 
+/*
+ * @brief Initializes Cmfd object for acceleration prior to source iteration.
+ * @details Instantiates a dummy Cmfd object if one was not assigned to
+ *          the Solver by the user and initializes FSRs, Materials, fluxes
+ *          and the Mesh. This method intializes a global array for the
+ *          surface currents.
+ */
+void Cmfd::initializeSurfaceCurrents() {
+
+  /* Delete old Cmfd surface currents array it it exists */
+  if (_surface_currents != NULL)
+    delete [] _surface_currents;
+
+  if (_surface_locks != NULL)
+    delete [] _surface_locks;
+
+  /* Allocate memory for the Cmfd Mesh surface currents array */
+  int num_mesh_cells = _num_x * _num_y;
+  int size = num_mesh_cells * _num_cmfd_groups * 8;
+  _surface_currents = new FP_PRECISION[size];
+
+  /* Allocate memory for OpenMP locks for each Cmfd Mesh surface */ 
+  _surface_locks = new omp_lock_t[num_mesh_cells * 8];
+
+  /* Loop over all mesh cell surfaces to initialize OpenMP locks */
+  #pragma omp parallel for schedule(guided)
+  for (int r=0; r < num_mesh_cells * 8; r++)
+    omp_init_lock(&_surface_locks[r]);
+
+  return;
+}
+
+
 /**
  * @brief Initializes the vector of vectors that links CMFD cells with FSRs.
  * @details This method is called by the geometry once the CMFD mesh has been
@@ -1285,15 +1328,6 @@ int Cmfd::getNumMOCGroups(){
  */
 int Cmfd::getNumCells(){
   return _num_x*_num_y;
-}
-
-
-/**
- * @brief Set the pointer to the Mesh surface currents array.
- * @param pointer to the surface currents array
- */
-void Cmfd::setSurfaceCurrents(FP_PRECISION* surface_currents){
-  _surface_currents = surface_currents;
 }
 
 
@@ -1785,6 +1819,82 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
           track_flux[p*_num_moc_groups+e] *= getFluxRatio(cmfd_cell, e);
         }
       }
+    }
+  }
+}
+
+
+/**
+ * @brief Zero the surface currents for each mesh cell and energy group.
+ */
+void Cmfd::zeroSurfaceCurrents() {
+
+  #pragma omp parallel for schedule(guided)
+  for (int r=0; r < _num_x*_num_y; r++) {
+    for (int s=0; s < 8; s++) {
+      for (int e=0; e < _num_moc_groups; e++)
+        _surface_currents(r*8+s,e) = 0.0;
+    }
+  }
+
+  return;
+}
+
+
+/**
+ * @brief Tallies the current contribution from this segment across the
+ *        the appropriate CMFD mesh cell surface.
+ * @param curr_segment the current Track segment
+ * @param track_flux the outgoing angular flux for this segment
+ * @param polar_weights array of polar weights for some azimuthal angle
+ * @param fwd boolean indicating direction of integration along segment
+ */
+void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
+                               FP_PRECISION* polar_weights, bool fwd) {
+
+  FP_PRECISION surf_current;
+  int surf_id;
+
+  if (curr_segment->_cmfd_surface_fwd != -1 && fwd){
+
+    surf_id = curr_segment->_cmfd_surface_fwd;
+
+    for (int e=0; e < _num_moc_groups; e++) {
+      surf_current = 0.;
+
+      for (int p=0; p < _num_polar; p++)
+        surf_current += track_flux(p,e) * polar_weights[p];
+
+      /* Atomically increment the Cmfd Mesh surface current from the
+       * temporary array using mutual exclusion locks */
+      omp_set_lock(&_surface_locks[surf_id]);
+
+      /* Increment current (polar and azimuthal weighted flux, group) */
+      _surface_currents(surf_id, e) += surf_current / 2.;
+
+      /* Release Cmfd Mesh surface mutual exclusion lock */
+      omp_unset_lock(&_surface_locks[surf_id]);
+    }
+  }
+  else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd){
+
+    surf_id = curr_segment->_cmfd_surface_bwd;
+
+    for (int e=0; e < _num_moc_groups; e++) {
+      surf_current = 0.;
+
+      for (int p=0; p < _num_polar; p++)
+        surf_current += track_flux(p,e) * polar_weights[p];
+
+      /* Atomically increment the Cmfd Mesh surface current from the
+       * temporary array using mutual exclusion locks */
+      omp_set_lock(&_surface_locks[surf_id]);
+
+      /* Increment current (polar and azimuthal weighted flux, group) */
+      _surface_currents(surf_id, e) += surf_current / 2.;
+
+      /* Release Cmfd Mesh surface mutual exclusion lock */
+      omp_unset_lock(&_surface_locks[surf_id]);
     }
   }
 }

@@ -5,7 +5,6 @@ int Universe::_n = 0;
 
 static int auto_id = 10000;
 
-
 /**
  * @brief Returns an auto-generated unique Universe ID.
  * @details This method is intended as a utility method for user's writing
@@ -384,47 +383,6 @@ std::map<int, Cell*> Universe::getCells() const {
 
 
 /**
- * @brief Returns a CellFill in this Universe.
- * @param cell_id the integer the cell_id
- * @return Returns the CellFill pointer.
- */
-CellFill* Universe::getCellFill(int cell_id) {
-
-  CellFill* cell = NULL;
-  if (_cells.find(cell_id) == _cells.end())
-    log_printf(ERROR, "Unable to return Cell with ID = %d from Universe with "
-               "ID = %d since it does not contain this Cell", cell_id, _id);
-
-  cell = static_cast<CellFill*>(_cells.at(cell_id));
-  if (cell->getType() != FILL)
-    log_printf(WARNING, "Retrieving Cell %d from Universe %d, but it "
-               "is not a FILL type Cell", cell->getId(), _id);
-  return cell;
-}
-
-
-/**
- * @brief Returns a CellBasic in this Universe.
- * @param cell_id the integer the cell_id
- * @return Returns the CellFill pointer.
- */
-CellBasic* Universe::getCellBasic(int cell_id) {
-
-  CellBasic* cell = NULL;
-  if (_cells.find(cell_id) == _cells.end())
-    log_printf(ERROR, "Unable to return Cell with ID = %d from Universe with "
-               "ID = %d since the it does not contain this Cell", cell_id, _id);
-
-  cell = static_cast<CellBasic*>(_cells.at(cell_id));
-  if (cell->getType() != MATERIAL)
-    log_printf(WARNING, "Retrieving Cell %d from Universe %d, but it "
-               "is not a MATERIAL type Cell", cell->getId(), _id);
-
-  return cell;
-}
-
-
-/**
  * @brief Returns the std::map of Cell IDs and Cell pointers in this Universe
  *        at all nested Universe levels.
  * @return std::map of Cell IDs and pointers
@@ -446,6 +404,7 @@ std::map<int, Cell*> Universe::getAllCells() {
   return cells;
 }
 
+
 /**
  * @brief Returns the std::map of all IDs and Material pointers filling
           this Universe.
@@ -464,7 +423,7 @@ std::map<int, Material*> Universe::getAllMaterials() {
     cell = iter->second;
 
     if (cell->getType() == MATERIAL) {
-      material = static_cast<CellBasic*>(cell)->getMaterial();
+      material = cell->getFillMaterial();
       materials[material->getId()] = material;
     }
   }
@@ -592,18 +551,28 @@ void Universe::removeCell(Cell* cell) {
  */
 Cell* Universe::findCell(LocalCoords* coords) {
 
-  Cell* return_cell = NULL;
   Cell* cell;
-  std::map<int, Cell*>::iterator iter;
+  Cell* return_cell = NULL;
+  std::vector<Cell*> cells;
+  std::vector<Cell*>::iterator iter;
 
   /* Sets the LocalCoord type to UNIV at this level */
   coords->setType(UNIV);
 
-  /* Loop over all Cells in this Universe */
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    cell = iter->second;
+  /* If the LocalCoords is populated with Universe/Cell already, we assume
+   * that we are looking for the location in a neighboring Cell */
+  if (coords->getCell() != NULL)
+    cells = coords->getCell()->getNeighbors();
 
-    if (cell->cellContainsCoords(coords)) {
+  /* Add all of Universe's Cells to the back of neighbor Cells vector */
+  std::transform(_cells.begin(), _cells.end(), 
+                 std::back_inserter(cells), pair_second(_cells));
+  
+  /* Loop over all Cells */
+  for (iter = cells.begin(); iter != cells.end(); ++iter) {
+    cell = (*iter);
+
+    if (cell->containsCoords(coords)) {
 
       /* Set the Cell on this level */
       coords->setCell(cell);
@@ -626,8 +595,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
         else
           next_coords = coords->getNext();
 
-        CellFill* fill = static_cast<CellFill*>(cell);
-        Universe* univ = fill->getFill();
+        Universe* univ = cell->getFillUniverse();
         next_coords->setUniverse(univ);
         coords->setCell(cell);
 
@@ -646,32 +614,6 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
 
 /**
- * @brief Finds the distance to the nearest surface.
- * @details Loops over all the cells within the universe and computes
- *          the distance to each one following the direction of the track.
- *          Returns distance to nearest next cell's nearest surface.
- * @param point a pointer to a starting point
- * @param angle the azimuthal angle of the track
- * @return the distance to the nearest surface
- */
-double Universe::minSurfaceDist(Point* point, double angle) {
-
-  Point min_intersection;
-  std::map<int, Cell*>::iterator iter;
-  double dist;
-  double min_dist = INFINITY;
-
-  /* Loop over all Cells in this Universe */
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    dist = iter->second->minSurfaceDist(point, angle, &min_intersection);
-    min_dist = std::min(dist, min_dist);
-  }
-
-  return min_dist;
-}
-
-
-/**
  * @brief Subdivides all of the Cells within this Universe into rings
  *        and angular sectors.
  */
@@ -682,28 +624,29 @@ void Universe::subdivideCells() {
   std::map<int, Cell*>::iterator iter1;
 
   while (iter1 != _cells.end()) {
-
     for (iter1 = _cells.begin(); iter1 != _cells.end(); ++iter1) {
 
       if (((*iter1).second)->getType() == MATERIAL) {
-        CellBasic* cell = static_cast<CellBasic*>((*iter1).second);
+        Cell* cell = (*iter1).second;
 
-        if (cell->getNumRings() > 0 || cell->getNumSectors() > 0) {
-          std::vector<CellBasic*> newcells = cell->subdivideCell();
-
-          log_printf(DEBUG, "Cell %d in Universe %d has %d subcells",
-                     cell->getId(), _id, newcells.size());
-
-          std::vector<CellBasic*>::iterator iter2;
-          for (iter2=newcells.begin(); iter2!=newcells.end(); ++iter2)
-            addCell((*iter2));
-
-          _cells.erase(iter1);
-          break;
-        }
+        if (cell->getNumRings() > 0 || cell->getNumSectors() > 0)
+          cell->subdivideCell();
       }
     }
   }
+}
+
+
+/**
+ * @brief Builds collections of neighboring Cells for all Cells in this 
+ *        Universe for optimized ray tracing.
+ */
+void Universe::buildNeighbors() {
+
+  /* Loop over all of the Universe's Cells and make recursive call */
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    iter->second->buildNeighbors();
 }
 
 
@@ -762,8 +705,8 @@ Universe* Universe::clone() {
     if ((*iter1).second->getType() == MATERIAL) {
 
       /* Clone the Cell */
-      CellBasic* parent = static_cast<CellBasic*>((*iter1).second);
-      CellBasic* cell_clone = parent->clone();
+      Cell* parent = static_cast<Cell*>((*iter1).second);
+      Cell* cell_clone = parent->clone();
 
       /* Add Cell clone to the list */
       clone->addCell(cell_clone);
@@ -1111,6 +1054,23 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
     }
   }
 }
+
+
+/**
+ * @brief Builds collections of neighboring Cells for all Cells in each
+ *        Universe in the Lattice for optimized ray tracing.
+ */
+void Lattice::buildNeighbors() {
+
+  /* Get list of unique Universes in this Lattice */
+  std::map<int, Universe*> universes = getUniqueUniverses();  
+
+  /* Loop over each Universe and make recursive call */
+  std::map<int, Universe*>::iterator iter;
+  for (iter = universes.begin(); iter != universes.end(); ++iter)
+    iter->second->buildNeighbors();
+}
+
 
 
 /**
