@@ -16,8 +16,8 @@ azim_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-num_polar = 2
-polar_spacing = 0.25
+num_polar = 6
+polar_spacing = 2.0
 log.set_log_level('NORMAL')
 set_line_length(120)
 
@@ -64,13 +64,13 @@ fuel_radius = Circle(x=0.0, y=0.0, radius=0.54)
 log.py_printf('NORMAL', 'Creating cells...')
 
 # Moderator rings
-moderator_ring = CellBasic()
-moderator_ring.setMaterial(materials['Water'])
+moderator_ring = Cell()
+moderator_ring.setFill(materials['Water'])
 moderator_ring.addSurface(+1, fuel_radius)
 
 # UO2 pin cell
-uo2_cell = CellBasic()
-uo2_cell.setMaterial(materials['UO2'])
+uo2_cell = Cell()
+uo2_cell.setFill(materials['UO2'])
 uo2_cell.addSurface(-1, fuel_radius)
 
 uo2 = Universe(name='UO2')
@@ -78,8 +78,8 @@ uo2.addCell(uo2_cell)
 uo2.addCell(moderator_ring)
 
 # 4.3% MOX pin cell
-mox43_cell = CellBasic()
-mox43_cell.setMaterial(materials['MOX-4.3%'])
+mox43_cell = Cell()
+mox43_cell.setFill(materials['MOX-4.3%'])
 mox43_cell.addSurface(-1, fuel_radius)
 
 mox43 = Universe(name='MOX-4.3%')
@@ -87,8 +87,8 @@ mox43.addCell(mox43_cell)
 mox43.addCell(moderator_ring)
 
 # 7% MOX pin cell
-mox7_cell = CellBasic()
-mox7_cell.setMaterial(materials['MOX-7%'])
+mox7_cell = Cell()
+mox7_cell.setFill(materials['MOX-7%'])
 mox7_cell.addSurface(-1, fuel_radius)
 
 mox7 = Universe(name='MOX-7%')
@@ -96,8 +96,8 @@ mox7.addCell(mox7_cell)
 mox7.addCell(moderator_ring)
 
 # 8.7% MOX pin cell
-mox87_cell = CellBasic()
-mox87_cell.setMaterial(materials['MOX-8.7%'])
+mox87_cell = Cell()
+mox87_cell.setFill(materials['MOX-8.7%'])
 mox87_cell.addSurface(-1, fuel_radius)
 
 mox87 = Universe(name='MOX-8.7%')
@@ -105,8 +105,8 @@ mox87.addCell(mox87_cell)
 mox87.addCell(moderator_ring)
 
 # Fission chamber pin cell
-fission_chamber_cell = CellBasic()
-fission_chamber_cell.setMaterial(materials['Fission Chamber'])
+fission_chamber_cell = Cell()
+fission_chamber_cell.setFill(materials['Fission Chamber'])
 fission_chamber_cell.addSurface(-1, fuel_radius)
 
 fission_chamber = Universe(name='Fission Chamber')
@@ -114,8 +114,8 @@ fission_chamber.addCell(fission_chamber_cell)
 fission_chamber.addCell(moderator_ring)
 
 # Control rod pin cell
-control_rod_cell = CellBasic()
-control_rod_cell.setMaterial(materials['Control Rod'])
+control_rod_cell = Cell()
+control_rod_cell.setFill(materials['Control Rod'])
 control_rod_cell.addSurface(-1, fuel_radius)
 
 control_rod = Universe(name='Control Rod')
@@ -123,8 +123,8 @@ control_rod.addCell(control_rod_cell)
 control_rod.addCell(moderator_ring)
 
 # Guide tube pin cell
-guide_tube_cell = CellBasic()
-guide_tube_cell.setMaterial(materials['Guide Tube'])
+guide_tube_cell = Cell()
+guide_tube_cell.setFill(materials['Guide Tube'])
 guide_tube_cell.addSurface(-1, fuel_radius)
 
 guide_tube = Universe(name='Guide Tube')
@@ -132,19 +132,19 @@ guide_tube.addCell(guide_tube_cell)
 guide_tube.addCell(moderator_ring)
 
 # Reflector
-reflector_cell = CellBasic(name='moderator')
-reflector_cell.setMaterial(materials['Water'])
+reflector_cell = Cell(name='moderator')
+reflector_cell.setFill(materials['Water'])
 
 reflector = Universe(name='Reflector')
 reflector.addCell(reflector_cell)
 
-# CellFills
-assembly_uo2_unrod_cell = CellFill(name='UO2 Assembly Unrodded')
-assembly_mox_unrod_cell = CellFill(name='MOX Assembly Unrodded')
-assembly_rfl_unrod_cell = CellFill(name='Reflector Unrodded')
-assembly_uo2_rod_cell = CellFill(name='UO2 Assembly Rodded')
-assembly_mox_rod_cell = CellFill(name='MOX Assembly Rodded')
-assembly_rfl_rod_cell = CellFill(name='Reflector Rodded')
+# Cells
+assembly_uo2_unrod_cell = Cell(name='UO2 Assembly Unrodded')
+assembly_mox_unrod_cell = Cell(name='MOX Assembly Unrodded')
+assembly_rfl_unrod_cell = Cell(name='Reflector Unrodded')
+assembly_uo2_rod_cell = Cell(name='UO2 Assembly Rodded')
+assembly_mox_rod_cell = Cell(name='MOX Assembly Rodded')
+assembly_rfl_rod_cell = Cell(name='Reflector Rodded')
 
 assembly_uo2_unrod = Universe(name='UO2 Assembly Unrodded')
 assembly_mox_unrod = Universe(name='MOX Assembly Unrodded')
@@ -161,7 +161,7 @@ assembly_mox_rod.addCell(assembly_mox_rod_cell)
 assembly_rfl_rod.addCell(assembly_rfl_rod_cell)
 
 # Root Cell/Universe
-root_cell = CellFill(name='Full Geometry')
+root_cell = Cell(name='Full Geometry')
 root_cell.addSurface(halfspace=+1, surface=xmin)
 root_cell.addSurface(halfspace=-1, surface=xmax)
 root_cell.addSurface(halfspace=+1, surface=ymin)
@@ -372,9 +372,9 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
-cmfd.setSORRelaxationFactor(1.0)
-cmfd.setLatticeStructure(51,51,9)
-cmfd.setGroupStructure([1,4,8])
+cmfd.setSORRelaxationFactor(1.5)
+cmfd.setLatticeStructure(51,51,1)
+#cmfd.setGroupStructure([1,4,8])
 
 
 ###############################################################################
@@ -388,10 +388,10 @@ geometry.setRootUniverse(root_universe)
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 
-plotter.plot_materials(geometry, gridsize=500, plane='xy', offset=0.)
-plotter.plot_materials(geometry, gridsize=500, plane='xz', offset=0.)
-plotter.plot_materials(geometry, gridsize=500, plane='yz', offset=-21.42)
-plotter.plot_cells(geometry, gridsize=500, plane='xy', offset=0.)
+#plotter.plot_materials(geometry, gridsize=500, plane='xy', offset=0.)
+#plotter.plot_materials(geometry, gridsize=500, plane='xz', offset=0.)
+#plotter.plot_materials(geometry, gridsize=500, plane='yz', offset=-21.42)
+#plotter.plot_cells(geometry, gridsize=500, plane='xy', offset=0.)
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -403,25 +403,25 @@ quad = EqualAnglePolarQuad()
 quad.setNumPolarAngles(num_polar)
 
 track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, polar_spacing)
-track_generator.setQuadrature(quad)
+#track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-#track_generator.setSolve2D()
+track_generator.setSolve2D()
 track_generator.setZLevel(0.1)
 track_generator.generateTracks()
 
-plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy', offset=0.)
-plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500, plane='xy', offset=0.)
+#plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy', offset=0.)
+#plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500, plane='xy', offset=0.)
 
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
+solver = CPUSolver(track_generator)
+solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 #solver.useExponentialIntrinsic()
-solver.convergeSource(max_iters)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 

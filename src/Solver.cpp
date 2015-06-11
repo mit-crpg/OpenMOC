@@ -647,6 +647,8 @@ void Solver::initializeCmfd(){
   if (!_solve_3D){
     _cmfd->setNumZ(1);
     _cmfd->setDepth(1.0);
+    _cmfd->setBoundary(SURFACE_Z_MIN, REFLECTIVE);
+    _cmfd->setBoundary(SURFACE_Z_MAX, REFLECTIVE);
   }
 
   /* Give CMFD number of FSRs and FSR property arrays */
