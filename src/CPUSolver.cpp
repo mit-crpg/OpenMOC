@@ -594,7 +594,10 @@ void CPUSolver::transportSweep() {
      * this azimuthal angular halfspace */
     min_track = _num_tracks[c];
     max_track = _num_tracks[c+1];
-    
+
+    FP_PRECISION* thread_fsr_flux;
+    thread_fsr_flux = new FP_PRECISION[_num_groups];
+
     for (int track_id=min_track; track_id < max_track; track_id++) {
         
       tid = omp_get_thread_num();
@@ -609,8 +612,7 @@ void CPUSolver::transportSweep() {
         polar_index = 0;
 
       /* Use local array accumulator to prevent false sharing*/
-      FP_PRECISION* thread_fsr_flux;
-      thread_fsr_flux = new FP_PRECISION[_num_groups];
+
       
       /* Initialize local pointers to important data structures */
       num_segments = curr_track->getNumSegments();
@@ -627,6 +629,24 @@ void CPUSolver::transportSweep() {
       
       /* Transfer boundary angular flux to outgoing Track */
       transferBoundaryFlux(track_id, azim_index, polar_index, true, track_flux);
+    }
+    
+    for (int track_id=max_track-1; track_id >= min_track; track_id--) {
+        
+      tid = omp_get_thread_num();
+      curr_track = _tracks[track_id];      
+      azim_index = _quad->getFirstOctantAzim
+        (curr_track->getAzimAngleIndex());
+
+      /* Get the polar index */
+      if (_solve_3D)
+        polar_index = static_cast<Track3D*>(_tracks[track_id])->getPolarAngleIndex();
+      else
+        polar_index = 0;
+      
+      /* Initialize local pointers to important data structures */
+      num_segments = curr_track->getNumSegments();
+      segments = curr_track->getSegments();
       track_flux = &_boundary_flux(track_id,1,0);
       
       /* Loop over each Track segment in reverse direction */
@@ -636,12 +656,13 @@ void CPUSolver::transportSweep() {
                         thread_fsr_flux, false);
         tallySurfaceCurrent(curr_segment, azim_index, polar_index, track_flux, false);
       }
-      
-      delete thread_fsr_flux;
-      
+
       /* Transfer boundary angular flux to outgoing Track */
       transferBoundaryFlux(track_id, azim_index, polar_index, false, track_flux);
-    }
+    }      
+
+    delete thread_fsr_flux;
+      
   }
 
   return;

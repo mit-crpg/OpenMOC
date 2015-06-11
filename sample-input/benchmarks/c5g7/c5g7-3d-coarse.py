@@ -16,7 +16,7 @@ azim_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-num_polar = 4
+num_polar = 6
 polar_spacing = 0.25
 log.set_log_level('NORMAL')
 set_line_length(120)
@@ -273,7 +273,7 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, polar_spacing)
 #track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-track_generator.setSolve2D()
+#track_generator.setSolve2D()
 track_generator.setZLevel(0.1)
 track_generator.generateTracks()
 

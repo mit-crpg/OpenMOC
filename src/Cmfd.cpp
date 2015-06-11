@@ -1943,6 +1943,8 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
   FP_PRECISION surf_current;
   int surf_id;
 
+  polar_index = _quadrature->getFirstOctantPolar(polar_index);
+  
   if (curr_segment->_cmfd_surface_fwd != -1 && fwd){
 
     surf_id = curr_segment->_cmfd_surface_fwd;
