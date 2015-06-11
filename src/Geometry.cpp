@@ -778,10 +778,6 @@ void Geometry::segmentize(Track* track) {
   double phi = track->getPhi();
   double delta_x, delta_y;
 
-  /* Distance track is nudged from surface */
-  double nudge_x = cos(phi) * TINY_MOVE;
-  double nudge_y = sin(phi) * TINY_MOVE;
-
   /* Length of each segment */
   FP_PRECISION length;
   Material* material;

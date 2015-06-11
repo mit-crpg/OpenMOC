@@ -146,6 +146,7 @@ public:
   void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
   void setNumFSRs(int num_fsrs);
   void setCmfd(Cmfd* cmfd);
+  void setFSRCentroid(int fsr, Point* centroid);
 
 #ifndef CUDA
   void setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> FSR_keys_map);
@@ -162,7 +163,6 @@ public:
   void initializeFlatSourceRegions();
   void segmentize(Track* track);
   void computeFissionability(Universe* univ=NULL);
-  void setFSRCentroid(int fsr, Point* centroid);
 
   std::string toString();
   void printString();
