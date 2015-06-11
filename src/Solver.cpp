@@ -586,10 +586,10 @@ void Solver::initializeFSRs() {
 
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
-
+  
   /* Get an array of volumes indexed by FSR  */
   _FSR_volumes = _track_generator->getFSRVolumes();
-
+  
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
@@ -908,7 +908,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
+  std::cout << "1x" << std::endl;
   initializeFSRs();
+  std::cout << "2x" << std::endl;
   countFissionableFSRs();
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())

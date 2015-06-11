@@ -18,13 +18,7 @@
 #include <string>
 #include <omp.h>
 #include <functional>
-<<<<<<< HEAD
-#ifndef CUDA
-  #include "parallel_hash_map.h"
-#endif
-=======
-#include <unordered_map>
->>>>>>> upstream/develop
+#include "parallel_hash_map.h"
 #endif
 
 
@@ -61,8 +55,6 @@ class Geometry {
 
 private:
 
-  omp_lock_t* _num_FSRs_lock;
-
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
   boundaryType _top_bc;
@@ -79,12 +71,9 @@ private:
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
   boundaryType _right_bc;
 
-  /** The total number of FSRs in the Geometry */
-  int _num_FSRs;
-
   /** An map of FSR key hashes to unique fsr_data structs */
 #ifndef CUDA
-  parallel_hash_map<std::size_t, fsr_data> _FSR_keys_map;
+  parallel_hash_map<std::size_t, fsr_data*> _FSR_keys_map;
 #endif
 
   /** An vector of FSR key hashes indexed by FSR ID */
@@ -141,17 +130,16 @@ public:
   Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
 #ifndef CUDA
-  parallel_hash_map<std::size_t, fsr_data> getFSRKeysMap();
+  parallel_hash_map<std::size_t, fsr_data*> getFSRKeysMap();
 #endif
 
   /* Set parameters */
   void setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
   void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
-  void setNumFSRs(int num_fsrs);
   void setCmfd(Cmfd* cmfd);
 
 #ifndef CUDA
-  void setFSRKeysMap(parallel_hash_map<std::size_t, fsr_data> FSR_keys_map);
+  void setFSRKeysMap(parallel_hash_map<std::size_t, fsr_data*> FSR_keys_map);
 #endif
 
   /* Find methods */

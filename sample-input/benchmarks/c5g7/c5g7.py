@@ -327,7 +327,9 @@ track_generator.generateTracks()
 solver = CPUSolver(track_generator)
 solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
+
 solver.computeEigenvalue(max_iters)
+
 solver.printTimerReport()
 
 

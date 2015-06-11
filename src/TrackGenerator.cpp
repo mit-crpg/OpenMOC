@@ -182,6 +182,8 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
   /* Calculate each FSR's "volume" by accumulating the total length of * 
    * all Track segments multipled by the Track "widths" for each FSR.  */
+  int max_n = 0;
+  int max_n2 = 0;
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
 
@@ -516,8 +518,7 @@ void TrackGenerator::generateTracks() {
       double t2 = omp_get_wtime();
       double seg_time = t2 - t1;
       std::cout << "Duration = " << seg_time << std::endl;
-      std::exit(EXIT_FAILURE);
-      dumpTracksToFile();
+      //dumpTracksToFile();
     }
     catch (std::exception &e) {
       log_printf(ERROR, "Unable to allocate memory for Tracks");
@@ -1211,7 +1212,7 @@ void TrackGenerator::dumpTracksToFile() {
   }
 
   /* Get FSR vector maps */
-  parallel_hash_map<std::size_t, fsr_data> FSR_keys_map = 
+  parallel_hash_map<std::size_t, fsr_data*> FSR_keys_map = 
       _geometry->getFSRKeysMap();
   std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
@@ -1226,14 +1227,14 @@ void TrackGenerator::dumpTracksToFile() {
 
   /* Write FSR vector maps to file */
   std::size_t* fsr_key_list = FSR_keys_map.keys();
-  fsr_data* fsr_data_list = FSR_keys_map.values();
+  fsr_data** fsr_data_list = FSR_keys_map.values();
   for(int i=0; i < num_FSRs; i++){
 
     /* Write data to file from FSR_keys_map */
     fsr_key = fsr_key_list[i];
-    fsr_id = fsr_data_list[i]._fsr_id;
-    x = fsr_data_list[i]._point->getX();
-    y = fsr_data_list[i]._point->getY();
+    fsr_id = fsr_data_list[i]->_fsr_id;
+    x = fsr_data_list[i]->_point->getX();
+    y = fsr_data_list[i]->_point->getY();
     fwrite(&fsr_key, sizeof(std::size_t), 1, out);
     fwrite(&fsr_id, sizeof(int), 1, out);
     fwrite(&x, sizeof(double), 1, out);
@@ -1415,7 +1416,7 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Create FSR vector maps */
-  parallel_hash_map<std::size_t, fsr_data> FSR_keys_map;
+  parallel_hash_map<std::size_t, fsr_data*> FSR_keys_map;
   std::vector<int> FSRs_to_material_IDs;
   std::vector<std::size_t> FSRs_to_keys;
   int num_FSRs;
@@ -1425,7 +1426,6 @@ bool TrackGenerator::readTracksFromFile() {
 
   /* Get number of FSRs */
   ret = fread(&num_FSRs, sizeof(int), 1, in);
-  _geometry->setNumFSRs(num_FSRs);
 
   /* Read FSR vector maps from file */
   for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++){
@@ -1440,7 +1440,7 @@ bool TrackGenerator::readTracksFromFile() {
     Point* point = new Point();
     point->setCoords(x,y);
     fsr->_point = point;
-    FSR_keys_map.insert(fsr_key, *fsr);
+    FSR_keys_map.insert(fsr_key, fsr);
 
     /* Read data from file for FSR_to_materials_IDs */
     ret = fread(&material_id, sizeof(int), 1, in);

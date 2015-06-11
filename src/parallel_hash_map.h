@@ -51,6 +51,7 @@ class fixed_hash_map
         bool contains(K key);
         V at(K key);
         void insert(K key, V value);
+        int insert_and_get_num(K key, V value);
         size_t size();
         size_t bucket_count();
         K* keys();
@@ -111,6 +112,7 @@ class parallel_hash_map
         bool contains(K key);
         V at(K key);
         void insert(K key, V value);
+        int insert_and_get_num(K key, V value);
         size_t size();
         size_t bucket_count();
         K* keys();
@@ -257,10 +259,50 @@ void fixed_hash_map<K,V>::insert(K key, V value)
     *iter_node = new_node;
     
     // increment counter
-    #pragma omp atomic
+    #pragma omp atomic update
     _N++;
 
     return;
+}
+
+/**
+ * @brief Insert a key/value pair into the fixed-size table and returns the
+ *          order number with which it was inserted.
+ * @details The specified key value pair is inserted into the fixed-size table.
+ *          If the key already exists in the table, the pair is not inserted
+ *          and the function returns -1.
+ * @param key of the key/value pair to be inserted
+ * @param value of the key/value pair to be inserted
+ * @return order number in which key/value pair was inserted, -1 is returned if
+ *          key was already present in map.
+ */
+template <class K, class V>
+int fixed_hash_map<K,V>::insert_and_get_num(K key, V value)
+{
+    // get hash into table using fast modulus
+    size_t key_hash = std::hash<K>()(key) & (_M-1);
+
+    // check to see if key already exisits in map
+    if(contains(key))
+        return -1;
+ 
+    // create new node
+    node *new_node = new node(key, value);
+
+    // find where to place element in linked list
+    node **iter_node = &_buckets[key_hash];
+    while(*iter_node != NULL)
+        iter_node = &(*iter_node)->next;
+    
+    // place element in linked list
+    *iter_node = new_node;
+    
+    // increment counter and return number
+    size_t N;
+    #pragma omp atomic capture
+    N = _N++;
+
+    return (int) N;
 }
 
 /**
@@ -537,6 +579,49 @@ void parallel_hash_map<K,V>::insert(K key, V value)
     return;
 }
 
+/**
+ * @brief Insert a given key/value pair into the parallel hash map and return
+            the order number.
+ * @details First the underlying table is checked to determine if a resize
+ *          should be conducted. Then, the table is checked to see if it
+ *          already contains the key. If so, the key/value pair is not inserted
+ *          and the function returns. Otherwise, the lock of the associated
+ *          bucket is acquired and the key/value pair is added to the bucket.
+ * @param key of the key/value pair to be inserted
+ * @param value of the key/value pair to be inserted
+ * @return order number in which the key/value pair was inserted, -1 if it
+ *          already exists
+ */
+template <class K, class V>
+int parallel_hash_map<K,V>::insert_and_get_num(K key, V value)
+{
+    // check if resize needed
+    if(2*_table->size() > _table->bucket_count())
+        resize();
+
+    // check to see if key is already contained in the table
+    if(contains(key))
+        return -1;
+
+    // get lock hash
+    #ifdef OPENMP
+    size_t lock_hash = (std::hash<K>()(key) & (_table->bucket_count() - 1))
+        % _num_locks;
+
+    // acquire lock
+    omp_set_lock(&_locks[lock_hash]);
+    #endif
+
+    // insert value
+    int N =_table->insert_and_get_num(key, value);
+
+    // release lock
+    #ifdef OPENMP
+    omp_unset_lock(&_locks[lock_hash]);
+    #endif
+   
+    return N;
+}
 /**
  * @brief Resizes the underlying table to twice its current capacity.
  * @details In a thread-safe manner, this procedure resizes the underlying
