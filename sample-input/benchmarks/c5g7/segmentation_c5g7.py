@@ -13,7 +13,7 @@ options = Options()
 
 #num_threads = options.getNumThreads()
 
-for num_threads in [1,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32]:
+for num_threads in [4]: #[1,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32]:
     for trial_num in range(20):
         print trial_num + 1
         track_spacing = 0.1
