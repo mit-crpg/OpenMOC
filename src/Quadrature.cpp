@@ -841,7 +841,7 @@ void TYPolarQuad::precomputeWeights() {
    * Tabuchi-Yamamoto polar angle quadrature */
   if (_num_polar == 2) {
     for (int a=0; a < _num_azim/4; a++){
-      weights[a] = 1.0;
+      weights[a] = 0.5;
     }
   }
 

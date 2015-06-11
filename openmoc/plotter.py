@@ -36,13 +36,13 @@ from mpl_toolkits.mplot3d import Axes3D
 
 # force headless backend, or set 'backend' to 'Agg'
 # in your ~/.matplotlib/matplotlibrc
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
 
 # Force non-interactive mode, or set 'interactive' to False
 # in your ~/.matplotlib/matplotlibrc
-#plt.ioff()
+plt.ioff()
 
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
@@ -288,7 +288,6 @@ def plot_segments_3d(track_generator):
   filename = directory + '3d-segments-' + str(num_azim) + '-angles-' + \
       str(spacing) + '-spacing.png'
 
-  plt.show()
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
   
@@ -1201,7 +1200,6 @@ def plot_tracks_3d(track_generator):
   filename = directory + '3Dtracks-' + str(num_azim) + '-angles-' + \
       str(azim_spacing) + '-spacing.png'
 
-  plt.show()
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
 
@@ -1328,7 +1326,6 @@ def plot_tracks_3d_range(track_generator, first_track, last_track):
   filename = directory + 'some3Dtracks-' + str(num_azim) + '-angles-' + \
       str(azim_spacing) + '-spacing.png'
 
-  plt.show()
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
   

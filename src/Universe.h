@@ -22,11 +22,9 @@
 /* Forward declarations to resolve circular dependencies */
 class LocalCoords;
 class Cell;
-class CellFill;
-class CellBasic;
 class Surface;
 class Material;
-
+struct surface_halfspace;
 
 int universe_id();
 void reset_universe_id();
@@ -104,8 +102,6 @@ public:
 
   Cell* getCell(int cell_id);
   std::map<int, Cell*> getCells() const;
-  CellFill* getCellFill(int cell_id);
-  CellBasic* getCellBasic(int cell_id);
   std::map<int, Cell*> getAllCells();
   std::map<int, Material*> getAllMaterials();
   std::map<int, Universe*> getAllUniverses();
@@ -118,9 +114,9 @@ public:
 
   Cell* findCell(LocalCoords* coords);
   void setFissionability(bool fissionable);
-  double minSurfaceDist(Point* point, double azim, double polar=M_PI/2.0);
   void subdivideCells();
-
+  void buildNeighbors();
+  
   std::string toString();
   void printString();
 
@@ -192,7 +188,8 @@ public:
   void setWidth(double width_x, double width_y, double width_z=1.0);
   void setUniverses(int num_y, int num_x, Universe** universes);
   void setUniverses3D(int num_z, int num_y, int num_x, Universe** universes);
-
+  void buildNeighbors();
+  
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);
   double minSurfaceDist(Point* point, double azim, double polar=M_PI/2.0);
@@ -207,6 +204,33 @@ public:
   std::string toString();
   void printString();
 };
+
+/**
+ * @brief A helper struct for the Universe::findCell() method.
+ * @details This is used to insert a Universe's Cells to the back of a vector
+ *          of neighbor Cells in Universe::findCell() routine. This works in
+ *          symbiosis with the second method template defined below.
+ */
+template<typename tPair>
+struct second_t {
+  typename tPair::second_type operator()(const tPair& p) const {
+    return p.second;
+  }
+};
+
+
+/**
+ * @brief A helper routine for the Universe::findCell() method.
+ * @details This is used to insert a Universe's Cells to the back of a vector
+ *          of neighbor Cells in Universe::findCell() routine. This works in
+ *          symbiosis with the second_t struct template defined above.
+ * @param map a std::map iterator
+ * @return the second element in the iterator (e.g., map value)
+ */
+template<typename tMap> 
+second_t<typename tMap::value_type> second(const tMap& map) {
+  return second_t<typename tMap::value_type>();
+}
 
 #endif /* UNIVERSE_H_ */
 

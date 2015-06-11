@@ -16,7 +16,7 @@ azim_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-num_polar = 2
+num_polar = 6
 polar_spacing = 0.25
 log.set_log_level('NORMAL')
 set_line_length(120)
@@ -66,12 +66,15 @@ moderator_outer_radius = Circle(x=0.0, y=0.0, radius=0.58)
 log.py_printf('NORMAL', 'Creating cells...')
 
 # Moderator rings
-moderator_ring1 = CellBasic(sectors=8)
-moderator_ring2 = CellBasic(sectors=8)
-moderator_ring3 = CellBasic(sectors=8)
-moderator_ring1.setMaterial(materials['Water'])
-moderator_ring2.setMaterial(materials['Water'])
-moderator_ring3.setMaterial(materials['Water'])
+moderator_ring1 = Cell()
+moderator_ring2 = Cell()
+moderator_ring3 = Cell()
+moderator_ring1.setNumSectors(8)
+moderator_ring2.setNumSectors(8)
+moderator_ring3.setNumSectors(8)
+moderator_ring1.setFill(materials['Water'])
+moderator_ring2.setFill(materials['Water'])
+moderator_ring3.setFill(materials['Water'])
 moderator_ring1.addSurface(+1, fuel_radius)
 moderator_ring1.addSurface(-1, moderator_inner_radius)
 moderator_ring2.addSurface(+1, moderator_inner_radius)
@@ -79,8 +82,10 @@ moderator_ring2.addSurface(-1, moderator_outer_radius)
 moderator_ring3.addSurface(+1, moderator_outer_radius)
 
 # UO2 pin cell
-uo2_cell = CellBasic(rings=3, sectors=8)
-uo2_cell.setMaterial(materials['UO2'])
+uo2_cell = Cell()
+uo2_cell.setNumRings(3)
+uo2_cell.setNumSectors(8)
+uo2_cell.setFill(materials['UO2'])
 uo2_cell.addSurface(-1, fuel_radius)
 
 uo2 = Universe(name='UO2')
@@ -90,8 +95,10 @@ uo2.addCell(moderator_ring2)
 uo2.addCell(moderator_ring3)
 
 # 4.3% MOX pin cell
-mox43_cell = CellBasic(rings=3, sectors=8)
-mox43_cell.setMaterial(materials['MOX-4.3%'])
+mox43_cell = Cell()
+mox43_cell.setNumRings(3)
+mox43_cell.setNumSectors(8)
+mox43_cell.setFill(materials['MOX-4.3%'])
 mox43_cell.addSurface(-1, fuel_radius)
 
 mox43 = Universe(name='MOX-4.3%')
@@ -101,8 +108,10 @@ mox43.addCell(moderator_ring2)
 mox43.addCell(moderator_ring3)
 
 # 7% MOX pin cell
-mox7_cell = CellBasic(rings=3, sectors=8)
-mox7_cell.setMaterial(materials['MOX-7%'])
+mox7_cell = Cell()
+mox7_cell.setNumRings(3)
+mox7_cell.setNumSectors(8)
+mox7_cell.setFill(materials['MOX-7%'])
 mox7_cell.addSurface(-1, fuel_radius)
 
 mox7 = Universe(name='MOX-7%')
@@ -112,8 +121,10 @@ mox7.addCell(moderator_ring2)
 mox7.addCell(moderator_ring3)
 
 # 8.7% MOX pin cell
-mox87_cell = CellBasic(rings=3, sectors=8)
-mox87_cell.setMaterial(materials['MOX-8.7%'])
+mox87_cell = Cell()
+mox87_cell.setNumRings(3)
+mox87_cell.setNumSectors(8)
+mox87_cell.setFill(materials['MOX-8.7%'])
 mox87_cell.addSurface(-1, fuel_radius)
 
 mox87 = Universe(name='MOX-8.7%')
@@ -123,8 +134,10 @@ mox87.addCell(moderator_ring2)
 mox87.addCell(moderator_ring3)
 
 # Fission chamber pin cell
-fission_chamber_cell = CellBasic(rings=3, sectors=8)
-fission_chamber_cell.setMaterial(materials['Fission Chamber'])
+fission_chamber_cell = Cell()
+fission_chamber_cell.setNumRings(3)
+fission_chamber_cell.setNumSectors(8)
+fission_chamber_cell.setFill(materials['Fission Chamber'])
 fission_chamber_cell.addSurface(-1, fuel_radius)
 
 fission_chamber = Universe(name='Fission Chamber')
@@ -134,8 +147,10 @@ fission_chamber.addCell(moderator_ring2)
 fission_chamber.addCell(moderator_ring3)
 
 # Guide tube pin cell
-guide_tube_cell = CellBasic(rings=3, sectors=8)
-guide_tube_cell.setMaterial(materials['Guide Tube'])
+guide_tube_cell = Cell()
+guide_tube_cell.setNumRings(3)
+guide_tube_cell.setNumSectors(8)
+guide_tube_cell.setFill(materials['Guide Tube'])
 guide_tube_cell.addSurface(-1, fuel_radius)
 
 guide_tube = Universe(name='Guide Tube')
@@ -145,19 +160,19 @@ guide_tube.addCell(moderator_ring2)
 guide_tube.addCell(moderator_ring3)
 
 # Reflector
-reflector_cell = CellBasic(name='moderator')
-reflector_cell.setMaterial(materials['Water'])
+reflector_cell = Cell(name='moderator')
+reflector_cell.setFill(materials['Water'])
 
 reflector = Universe(name='Reflector')
 reflector.addCell(reflector_cell)
 
-# CellFills
-assembly1_cell = CellFill(name='Assembly 1')
-assembly2_cell = CellFill(name='Assembly 2')
-refined_reflector_cell = CellFill(name='Semi-Finely Spaced Reflector')
-right_reflector_cell = CellFill(name='Right Reflector')
-corner_reflector_cell = CellFill(name='Bottom Corner Reflector')
-bottom_reflector_cell = CellFill(name='Bottom Reflector')
+# Cells
+assembly1_cell = Cell(name='Assembly 1')
+assembly2_cell = Cell(name='Assembly 2')
+refined_reflector_cell = Cell(name='Semi-Finely Spaced Reflector')
+right_reflector_cell = Cell(name='Right Reflector')
+corner_reflector_cell = Cell(name='Bottom Corner Reflector')
+bottom_reflector_cell = Cell(name='Bottom Reflector')
 
 assembly1 = Universe(name='Assembly 1')
 assembly2 = Universe(name='Assembly 2')
@@ -174,7 +189,7 @@ corner_reflector.addCell(corner_reflector_cell)
 bottom_reflector.addCell(bottom_reflector_cell)
 
 # Root Cell/Universe
-root_cell = CellFill(name='Full Geometry')
+root_cell = Cell(name='Full Geometry')
 root_cell.addSurface(halfspace=+1, surface=xmin)
 root_cell.addSurface(halfspace=-1, surface=xmax)
 root_cell.addSurface(halfspace=+1, surface=ymin)
@@ -298,7 +313,7 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
-cmfd.setSORRelaxationFactor(1.0)
+cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,1)
 #cmfd.setGroupStructure([1,4,8])
 
@@ -327,7 +342,7 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, polar_spacing)
 #track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-#track_generator.setSolve2D()
+track_generator.setSolve2D()
 track_generator.setZLevel(0.1)
 track_generator.generateTracks()
 
@@ -336,11 +351,11 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
+solver = CPUSolver(track_generator)
+solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
-solver.useExponentialIntrinsic()
-solver.convergeSource(max_iters)
+#solver.useExponentialIntrinsic()
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 

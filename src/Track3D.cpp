@@ -53,8 +53,8 @@ void Track3D::setTheta(const double theta) {
  *          the TrackGenerator class.
  * @param index the polar angle index
  */
-void Track3D::setPolarIndex(const int index) {
-  _polar_index = index;
+void Track3D::setPolarAngleIndex(const int index) {
+  _polar_angle_index = index;
 }
 
 
@@ -67,8 +67,8 @@ double Track3D::getTheta() const {
 }
 
 
-int Track3D::getPolarIndex() const {
-  return _polar_index;
+int Track3D::getPolarAngleIndex() const {
+  return _polar_angle_index;
 }
 
 

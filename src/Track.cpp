@@ -150,6 +150,38 @@ void Track::addSegment(segment* segment) {
 
 
 /**
+ * @brief Removes a segment from this Track's list of segments.
+ * @param index the index of the segment to remove
+ */
+void Track::removeSegment(int index) {
+  try {
+    _segments.erase(_segments.begin()+index);
+  }
+  catch (std::exception &e) {
+    log_printf(ERROR, "Unable to remove a segment from Track");
+  }  
+}
+
+
+/**
+ * @brief Inserts a segment pointer into this Track's list of segments.
+ * @details This method appends the new segment directly behind another
+ *          segment in the Track. This is a helper method for the
+ *          TrackGenerator::splitTracks(...) routine.
+ * @param index the index of the segment to insert behind in the list
+ * @param segment a pointer to the segment to insert
+ */
+void Track::insertSegment(int index, segment* segment) {
+  try {
+    _segments.insert(_segments.begin()+index, *segment);
+  }
+  catch (std::exception &e) {
+    log_printf(ERROR, "Unable to insert a segment into Track");
+  }  
+}
+
+
+/**
  * @brief Deletes each of this Track's segments.
  */
 void Track::clearSegments() {
@@ -157,11 +189,11 @@ void Track::clearSegments() {
 }
 
 
-void Track::setAzimIndex(int azim_index){
-  _azim_index = azim_index;
+void Track::setAzimAngleIndex(const int index){
+  _azim_angle_index = index;
 }
 
 
-int Track::getAzimIndex(){
-  return _azim_index;
+int Track::getAzimAngleIndex() const{
+  return _azim_angle_index;
 }

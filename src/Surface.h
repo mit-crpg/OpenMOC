@@ -15,12 +15,15 @@
 #include "LocalCoords.h"
 #include "boundary_type.h"
 #include <limits>
+#include <map>
+#include <vector>
+#include <algorithm>
 #endif
 
 
 /* Forward declarations to resolve circular dependencies */
 class LocalCoords;
-
+class Cell;
 
 int surf_id();
 void reset_surf_id();
@@ -83,6 +86,9 @@ protected:
    *  (ie, VACUUM or REFLECTIVE) */
   boundaryType _boundary_type;
 
+  /* Vector of neighboring Cells */
+  std::map<int, std::vector<Cell*>* > _neighbors;
+
 public:
   Surface(const int id=0, const char* name="");
   virtual ~Surface();
@@ -137,7 +143,8 @@ public:
 
   void setName(const char* name);
   void setBoundaryType(const boundaryType boundary_type);
-
+  void addNeighborCell(int halfspace, Cell* cell);
+  
   /**
    * @brief Evaluate a Point using the Surface's potential equation.
    * @details This method returns the values \f$ f(x,y) \f$ for the potential
@@ -160,8 +167,7 @@ public:
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
-  double getMinDistance(Point* point, Point* intersection,
-                        double azim, double polar=M_PI_2);
+  double getMinDistance(Point* point, double azim, double polar=M_PI_2);
 
   /**
    * @brief Converts this Surface's attributes to a character array.
@@ -363,8 +369,7 @@ public:
  * @param intersection a pointer to a Point for storing the intersection
  * @return the minimum distance to the Surface
  */
-inline double Surface::getMinDistance(Point* point, Point* intersection,
-                                      double azim, double polar) {
+inline double Surface::getMinDistance(Point* point, double azim, double polar) {
 
   /* Point array for intersections with this Surface */
   Point intersections[2];
@@ -376,9 +381,6 @@ inline double Surface::getMinDistance(Point* point, Point* intersection,
   /* If there is one intersection Point */
   if (num_inters == 1) {
     distance = intersections[0].distanceToPoint(point);
-    intersection->setX(intersections[0].getX());
-    intersection->setY(intersections[0].getY());
-    intersection->setZ(intersections[0].getZ());
   }
 
   /* If there are two intersection Points */
@@ -387,18 +389,10 @@ inline double Surface::getMinDistance(Point* point, Point* intersection,
     double dist2 = intersections[1].distanceToPoint(point);
 
     /* Determine which intersection Point is nearest */
-    if (dist1 < dist2) {
+    if (dist1 < dist2) 
       distance = dist1;
-      intersection->setX(intersections[0].getX());
-      intersection->setY(intersections[0].getY());
-      intersection->setZ(intersections[0].getZ());
-    }
-    else {
+    else 
       distance = dist2;
-      intersection->setX(intersections[1].getX());
-      intersection->setY(intersections[1].getY());
-      intersection->setZ(intersections[1].getZ());
-    }
   }
 
   return distance;

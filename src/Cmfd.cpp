@@ -16,7 +16,7 @@ Cmfd::Cmfd() {
   _quadrature = NULL;
 
   /* Global variables used in solving CMFD problem */
-  _source_convergence_threshold = 1E-7;
+  _source_convergence_threshold = 1E-8;
   _num_x = 1;
   _num_y = 1;
   _num_z = 1;
@@ -31,7 +31,8 @@ Cmfd::Cmfd() {
   _SOR_factor = 1.0;
   _num_FSRs = 0;
   _relax_factor = 0.6;
-
+  _solve_3D = false;
+  
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
   _num_cmfd_groups = 0;
@@ -46,7 +47,11 @@ Cmfd::Cmfd() {
   _new_source = NULL;
   _group_indices = NULL;
   _group_indices_map = NULL;
-
+  _surface_currents = NULL;
+  _surface_locks = NULL;
+  _azim_spacings = NULL;
+  _polar_spacings = NULL;
+  
   /* Initialize boundaries to be reflective */
   _boundaries = new boundaryType[6];
   _boundaries[SURFACE_X_MIN] = REFLECTIVE;
@@ -591,7 +596,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration){
   _old_flux->copyTo(_new_flux);
 
   /* Solve the eigenvalue problem */
-  _k_eff = eigenvalueSolve(_A, _M, _new_flux, 1.e-7, _SOR_factor);
+  _k_eff = eigenvalueSolve(_A, _M, _new_flux, _source_convergence_threshold, _SOR_factor);
 
   /* Rescale the old and new flux */
   rescaleFlux();
@@ -976,6 +981,38 @@ void Cmfd::initializeMaterials(){
     log_printf(ERROR, "Could not allocate memory for the Mesh cell materials. "
                "Backtrace:%s", e.what());
   }
+}
+
+
+/*
+ * @brief Initializes Cmfd object for acceleration prior to source iteration.
+ * @details Instantiates a dummy Cmfd object if one was not assigned to
+ *          the Solver by the user and initializes FSRs, Materials, fluxes
+ *          and the Mesh. This method intializes a global array for the
+ *          surface currents.
+ */
+void Cmfd::initializeSurfaceCurrents() {
+
+  /* Delete old Cmfd surface currents array it it exists */
+  if (_surface_currents != NULL)
+    delete _surface_currents;
+
+  if (_surface_locks != NULL)
+    delete _surface_locks;
+
+  /* Allocate memory for the Cmfd Mesh surface currents array */
+  int num_mesh_cells = _num_x * _num_y * _num_z;
+  _surface_currents = new Vector(_num_x, _num_y, _num_z, _num_cmfd_groups * NUM_SURFACES);
+
+  /* Allocate memory for OpenMP locks for each Cmfd Mesh surface */ 
+  _surface_locks = new omp_lock_t[num_mesh_cells * NUM_SURFACES];
+
+  /* Loop over all mesh cell surfaces to initialize OpenMP locks */
+  #pragma omp parallel for schedule(guided)
+  for (int r=0; r < num_mesh_cells * NUM_SURFACES; r++)
+    omp_init_lock(&_surface_locks[r]);
+
+  return;
 }
 
 
@@ -1881,4 +1918,161 @@ FP_PRECISION Cmfd::getFluxRatio(int cmfd_cell, int moc_group){
   FP_PRECISION new_flux = _new_flux->getValueByCell(cmfd_cell, cmfd_group);
   FP_PRECISION ratio = new_flux / old_flux;
   return ratio;
+}
+
+
+/**
+ * @brief Zero the surface currents for each mesh cell and energy group.
+ */
+void Cmfd::zeroSurfaceCurrents() {
+  _surface_currents->clear();
+}
+
+
+/**
+ * @brief Tallies the current contribution from this segment across the
+ *        the appropriate CMFD mesh cell surface.
+ * @param curr_segment the current Track segment
+ * @param track_flux the outgoing angular flux for this segment
+ * @param polar_weights array of polar weights for some azimuthal angle
+ * @param fwd boolean indicating direction of integration along segment
+ */
+void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
+                               int azim_index, int polar_index, bool fwd) {
+
+  FP_PRECISION surf_current;
+  int surf_id;
+
+  if (curr_segment->_cmfd_surface_fwd != -1 && fwd){
+
+    surf_id = curr_segment->_cmfd_surface_fwd;
+    int cell_id = surf_id / NUM_SURFACES;
+    int s = surf_id % NUM_SURFACES;
+    
+    if (_solve_3D){
+      for (int e=0; e < _num_moc_groups; e++) {
+        surf_current = track_flux[e] * _azim_spacings[azim_index] *
+          _polar_spacings[azim_index][polar_index]
+          * _quadrature->getMultiple(azim_index, polar_index) * 2.0 * M_PI;
+
+        int g = getCmfdGroup(e);
+        
+        /* Atomically increment the Cmfd Mesh surface current from the
+         * temporary array using mutual exclusion locks */
+        omp_set_lock(&_surface_locks[surf_id]);
+        
+        /* Increment current (polar and azimuthal weighted flux, group) */
+        _surface_currents->incrementValueByCell(cell_id, s*_num_cmfd_groups + g, surf_current);
+        
+        /* Release Cmfd Mesh surface mutual exclusion lock */
+        omp_unset_lock(&_surface_locks[surf_id]);
+      }
+    }
+    else{
+      int pe = 0;
+      for (int e=0; e < _num_moc_groups; e++) {
+        surf_current = 0.;
+        int g = getCmfdGroup(e);
+        for (int p = 0; p < _num_polar/2; p++){
+          surf_current += track_flux[pe] * _azim_spacings[azim_index]
+            * _quadrature->getMultiple(azim_index, p) * 4.0 * M_PI;
+          pe++;
+        }
+          
+        /* Atomically increment the Cmfd Mesh surface current from the
+         * temporary array using mutual exclusion locks */
+        omp_set_lock(&_surface_locks[surf_id]);
+        
+        /* Increment current (polar and azimuthal weighted flux, group) */
+        _surface_currents->incrementValueByCell(cell_id, s*_num_cmfd_groups + g, surf_current);
+        
+        /* Release Cmfd Mesh surface mutual exclusion lock */
+        omp_unset_lock(&_surface_locks[surf_id]);
+      }
+    }
+  }
+  else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd){
+    
+    surf_id = curr_segment->_cmfd_surface_bwd;
+    int cell_id = surf_id / NUM_SURFACES;
+    int s = surf_id % NUM_SURFACES;
+    
+    if (_solve_3D){
+      for (int e=0; e < _num_moc_groups; e++) {
+        surf_current = track_flux[e] * _azim_spacings[azim_index] *
+          _polar_spacings[azim_index][polar_index]
+          * _quadrature->getMultiple(azim_index, polar_index) * 2.0 * M_PI;
+
+        int g = getCmfdGroup(e);
+        
+        /* Atomically increment the Cmfd Mesh surface current from the
+         * temporary array using mutual exclusion locks */
+        omp_set_lock(&_surface_locks[surf_id]);
+        
+        /* Increment current (polar and azimuthal weighted flux, group) */
+        _surface_currents->incrementValueByCell(cell_id, s*_num_cmfd_groups + g, surf_current);
+        
+        /* Release Cmfd Mesh surface mutual exclusion lock */
+        omp_unset_lock(&_surface_locks[surf_id]);
+      }
+    }
+    else{
+      int pe = 0;
+      for (int e=0; e < _num_moc_groups; e++) {
+        surf_current = 0.;
+        int g = getCmfdGroup(e);
+        for (int p = 0; p < _num_polar/2; p++){
+          surf_current += track_flux[pe] * _azim_spacings[azim_index]
+            * _quadrature->getMultiple(azim_index, p) * 4.0 * M_PI;
+          pe++;
+        }
+          
+        /* Atomically increment the Cmfd Mesh surface current from the
+         * temporary array using mutual exclusion locks */
+        omp_set_lock(&_surface_locks[surf_id]);
+        
+        /* Increment current (polar and azimuthal weighted flux, group) */
+        _surface_currents->incrementValueByCell(cell_id, s*_num_cmfd_groups + g, surf_current);
+        
+        /* Release Cmfd Mesh surface mutual exclusion lock */
+        omp_unset_lock(&_surface_locks[surf_id]);
+      }
+    }
+  }
+}
+
+
+void Cmfd::setAzimSpacings(double* azim_spacings, int num_azim){
+
+  if (_azim_spacings != NULL)
+    delete [] _azim_spacings;
+
+  _azim_spacings = new FP_PRECISION[num_azim/4];
+
+  for (int a=0; a < num_azim/4; a++)
+    _azim_spacings[a] = FP_PRECISION(azim_spacings[a]);
+}
+
+
+void Cmfd::setPolarSpacings(double** polar_spacings, int num_azim, int num_polar){
+
+  if (_polar_spacings != NULL){
+    for (int a=0; a < num_azim/4; a++)
+      delete [] _polar_spacings[a];
+    delete [] _polar_spacings;    
+  }
+
+  _polar_spacings = new FP_PRECISION*[num_azim/4];
+  for (int a=0; a < num_azim/4; a++)
+    _polar_spacings[a] = new FP_PRECISION[num_polar/2];
+
+  for (int a=0; a < num_azim/4; a++){
+    for (int p=0; p < num_polar/2; p++)
+      _polar_spacings[a][p] = FP_PRECISION(polar_spacings[a][p]);
+  }
+}
+
+
+void Cmfd::setSolve3D(bool solve_3D){
+  _solve_3D = solve_3D;
 }

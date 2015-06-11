@@ -88,9 +88,6 @@ private:
   double** _dz_eff;
   double** _dl_eff;
   
-  /** The maximum optical length a track is allowed to have */
-  FP_PRECISION _max_optical_length;
-
   /** A 3D ragged array of 2D tracks (azim, cycle #, cycle index) */
   Track2D*** _tracks_2D;
 
@@ -175,7 +172,6 @@ public:
   void setDesiredAzimSpacing(double spacing);
   void setDesiredPolarSpacing(double spacing);
   void setGeometry(Geometry* geometry);
-  void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void setSolve2D();
   void setSolve3D();
   void setZLevel(double z_level);
@@ -191,6 +187,7 @@ public:
   void retrieve2DSegmentCoords(double* coords, int num_segments);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
   void generateTracks();
+  void splitSegments(FP_PRECISION max_optical_length);
   double leastCommonMultiple(double a, double b);
   bool isSolve2D();
   bool isSolve3D();

@@ -13,6 +13,7 @@
 #include "Point.h"
 #include "Material.h"
 #include <vector>
+#include <algorithm>
 #endif
 
 /**
@@ -36,6 +37,12 @@ struct segment {
 
   /** The ID for the mesh surface crossed by the Track start point */
   int _cmfd_surface_bwd;
+
+  /** Constructor initializes CMFD surfaces */
+  segment() {
+    _cmfd_surface_fwd = -1;
+    _cmfd_surface_bwd = -1;
+  }
 };
 
 /**
@@ -73,10 +80,15 @@ protected:
    *  conditions. */
   bool  _bc_out;
 
-  Track* _track_out;
+  /** The Track which reflects out of this Track along its "forward"
+   * direction for reflective boundary conditions. */
   Track* _track_in;
 
-  int _azim_index;
+  /** The Track which reflects out of this Track along its "reverse"
+   * direction for reflective boundary conditions. */
+  Track* _track_out;
+
+  int _azim_angle_index;
   
 public:
   Track();
@@ -84,38 +96,42 @@ public:
 
   void setUid(int uid);
   void setPhi(const double phi);
-
   void setBCIn(const bool bc_in);
   void setBCOut(const bool bc_out);
-
   void setTrackIn(Track* track_in);
   void setTrackOut(Track* track_out);
-
-  void setAzimIndex(int azim_index);
+  void setAzimAngleIndex(const int index);
   
   int getUid();
   Point* getEnd();
   Point* getStart();
   double getPhi() const;
   double getLength();
-  
   Track* getTrackIn();
   Track* getTrackOut();
-
-  int getAzimIndex();
-  
+  int getAzimAngleIndex() const;
   bool getBCIn() const;
   bool getBCOut() const;
-
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
 
   /* Worker functions */
   void addSegment(segment* segment);
+  void removeSegment(int index);
+  void insertSegment(int index, segment* segment);
   void clearSegments();
   virtual std::string toString()=0;
 };
+
+
+/**
+ * @brief Return the Track's unique ID
+ * @return the Track's unique ID
+ */
+inline int Track::getUid() {
+  return _uid;
+}
 
 
 /**
@@ -133,15 +149,6 @@ inline Track* Track::getTrackIn() {
  */
 inline Track* Track::getTrackOut() {
   return _track_out;
-}
-
-
-/**
- * @brief Return the Track's unique ID
- * @return the Track's unique ID
- */
-inline int Track::getUid() {
-  return _uid;
 }
 
 

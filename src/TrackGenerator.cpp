@@ -13,6 +13,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
                                const double polar_spacing) {
 
   setNumThreads(1);
+
   _geometry = geometry;
   setNumAzim(num_azim);
   setNumPolar(num_polar);
@@ -22,7 +23,6 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _num_3D_tracks = 0;
   _num_2D_segments = 0;
   _num_3D_segments = 0;
-  _max_optical_length = 10;
   _contains_2D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_tracks = false;
@@ -229,7 +229,53 @@ double TrackGenerator::getPolarSpacing(int azim, int polar){
  * @return The max optical length
  */
 FP_PRECISION TrackGenerator::getMaxOpticalLength() {
-  return _max_optical_length;
+
+  segment* curr_segment;
+  FP_PRECISION length;
+  Material* material;
+  FP_PRECISION* sigma_t;
+  FP_PRECISION max_optical_length = 0.;
+
+  if (_solve_3D){
+    for (int a=0; a < _num_azim/4; a++){
+      for (int c=0; c < _cycles_per_azim[a]; c++){
+        for (int p=0; p < _num_polar; p++){
+          for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
+            for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
+              for (int s=0; s < _tracks_3D[a][c][p][i][t].getNumSegments(); s++){
+                curr_segment = _tracks_3D[a][c][p][i][t].getSegment(s);
+                length = curr_segment->_length;
+                material = curr_segment->_material;
+                sigma_t = material->getSigmaT();
+                
+                for (int e=0; e < material->getNumEnergyGroups(); e++)
+                  max_optical_length = std::max(max_optical_length, length*sigma_t[e]);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else{
+    for (int a=0; a < _num_azim/4; a++){
+      for (int c=0; c < _cycles_per_azim[a]; c++){
+        for (int t=0; t < _tracks_per_cycle[a]; t++){
+          for (int s=0; s < _tracks_2D[a][c][t].getNumSegments(); s++){
+            curr_segment = _tracks_2D[a][c][t].getSegment(s);
+            length = curr_segment->_length;
+            material = curr_segment->_material;
+            sigma_t = material->getSigmaT();
+            
+            for (int e=0; e < material->getNumEnergyGroups(); e++)
+              max_optical_length = std::max(max_optical_length, length*sigma_t[e]);
+          }
+        }
+      }
+    }
+  }
+  
+  return max_optical_length;
 }
 
 
@@ -582,19 +628,6 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
 }
 
 
-/**
- * @brief Set the maximum allowable optical length for a track segment
- * @param max_optical_length The max optical length
- */
-void TrackGenerator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
-  if (max_optical_length <= 0)
-    log_printf(ERROR, "Cannot set max optical length to %f because it "
-               "must be positive.", max_optical_length); 
-        
-  _max_optical_length = max_optical_length;
-}
-
-
 void TrackGenerator::setSolve2D(){
   _solve_3D = false;
 }
@@ -922,21 +955,15 @@ void TrackGenerator::generateTracks() {
     /* Initialize the quadrature set */
     _quadrature->initialize();
 
-    log_printf(NORMAL, "1");
-    
     /* Initialize the 2D tracks */
     initialize2DTracks();
     initialize2DTrackReflections();
 
-    log_printf(NORMAL, "2");
-    
     /* If 3D problem, initialize the 3D tracks */
     if (_solve_3D){
       initialize3DTracks();
       initialize3DTrackReflections();
     }
-
-    log_printf(NORMAL, "3");
     
     /* Recalibrate the 2D tracks back to the geometry origin */
     recalibrate2DTracksToOrigin();
@@ -945,12 +972,8 @@ void TrackGenerator::generateTracks() {
     if (_solve_3D)
       recalibrate3DTracksToOrigin();
 
-    log_printf(NORMAL, "4");
-    
     initializeTrackFileDirectory();
 
-    log_printf(NORMAL, "5");
-    
     if (_use_input_file == false){
 
       /* Segmentize the tracks */
@@ -1577,7 +1600,7 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start, double l_e
     track2->getEnd()->setCoords(x2, y2, z2);
     track2->setTheta(theta);
     track2->setPhi(_tracks_2D[azim][cycle][i].getPhi());
-    track2->setAzimIndex(_tracks_2D[azim][cycle][i].getAzimIndex());
+    track2->setAzimAngleIndex(_tracks_2D[azim][cycle][i].getAzimAngleIndex());
     
     t++;
   }
@@ -1637,7 +1660,7 @@ void TrackGenerator::recalibrate3DTracksToOrigin() {
         for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
           for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
             _tracks_3D[a][c][p][i][t].setUid(uid);
-            _tracks_3D[a][c][p][i][t].setPolarIndex(p);
+            _tracks_3D[a][c][p][i][t].setPolarAngleIndex(p);
             uid++;
             
             double x0 = _tracks_3D[a][c][p][i][t].getStart()->getX();
@@ -1683,7 +1706,7 @@ void TrackGenerator::segmentize2D() {
       for (int t=0; t < _tracks_per_cycle[a]; t++){
         track = &_tracks_2D[a][c][t];
         
-        _geometry->segmentize2D(track,_max_optical_length, _z_level);
+        _geometry->segmentize2D(track, _z_level);
       }
     }
   }
@@ -1726,7 +1749,7 @@ void TrackGenerator::segmentize3D() {
           for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
             track = &_tracks_3D[a][c][p][i][t];
             
-            _geometry->segmentize3D(track,_max_optical_length);
+            _geometry->segmentize3D(track);
           }
         }
       }
@@ -1762,13 +1785,13 @@ double TrackGenerator::findTrackEndPoint(Track2D* track, double phi, int azim_in
   double height = _geometry->getHeight();
 
   if (phi < M_PI_2)
-    track->setAzimIndex(azim_index);
+    track->setAzimAngleIndex(azim_index);
   else if (phi < M_PI)
-    track->setAzimIndex(_num_azim/2 - azim_index - 1);
+    track->setAzimAngleIndex(_num_azim/2 - azim_index - 1);
   else if (phi < 3.0 * M_PI_2)
-    track->setAzimIndex(_num_azim/2 + azim_index);
+    track->setAzimAngleIndex(_num_azim/2 + azim_index);
   else
-    track->setAzimIndex(_num_azim - azim_index - 1);
+    track->setAzimAngleIndex(_num_azim - azim_index - 1);
 
   /* X_MIN side */
   if (x == 0.0){
@@ -2699,4 +2722,142 @@ bool TrackGenerator::read3DSegmentsFromFile() {
   fclose(in);
 
   return true;
+}
+
+
+/**
+ * @brief Splits Track segments into sub-segments for a user-defined
+ *        maximum optical length for the problem.
+ * @details This routine is needed so that all segment lengths fit
+ *          within the exponential interpolation table used in the MOC
+ *          transport sweep.
+ * @param max_optical_length the maximum optical length
+ */
+void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
+
+  if (!_contains_2D_segments && !_contains_3D_segments)
+    log_printf(ERROR, "Unable to split segments since "
+	       "segments have not yet been generated");
+
+  int num_cuts, min_num_cuts;
+  segment* curr_segment;
+
+  FP_PRECISION length, tau;
+  int fsr_id;
+  Material* material;
+  FP_PRECISION* sigma_t;
+  int num_groups;
+
+  if (_solve_3D){
+    for (int a=0; a < _num_azim/4; a++){
+      for (int c=0; c < _cycles_per_azim[a]; c++){
+        for (int p=0; p < _num_polar; p++){
+          for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
+            for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
+              for (int s=0; s < _tracks_3D[a][c][p][i][t].getNumSegments(); s++){
+                
+                /* Extract data from this segment to compute it optical length */
+                curr_segment = _tracks_3D[a][c][p][i][t].getSegment(s);
+                material = curr_segment->_material;
+                length = curr_segment->_length;
+                fsr_id = curr_segment->_region_id;
+                
+                /* Compute number of segments to split this segment into */
+                min_num_cuts = 1;
+                num_groups = material->getNumEnergyGroups();
+                sigma_t = material->getSigmaT();
+                
+                for (int g=0; g < num_groups; g++) {
+                  tau = length * sigma_t[g];
+                  num_cuts = ceil(tau / max_optical_length);
+                  min_num_cuts = std::max(num_cuts, min_num_cuts);
+                }
+                
+                /* If the segment does not need subdivisions, go to next segment */
+                if (min_num_cuts == 1)
+                  continue;
+                
+                /* Split the segment into sub-segments */
+                for (int k=0; k < min_num_cuts; k++) {
+                  
+                  /* Create a new Track segment */
+                  segment* new_segment = new segment;
+                  new_segment->_material = material;
+                  new_segment->_length = length / FP_PRECISION(min_num_cuts);
+                  new_segment->_region_id = fsr_id;
+                  
+                  /* Assign CMFD surface boundaries */
+                  if (k == 0)
+                    new_segment->_cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+                  
+                  if (k == min_num_cuts-1)
+                    new_segment->_cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+                  
+                  /* Insert the new segment to the Track */
+                  _tracks_3D[a][c][p][i][t].insertSegment(s+k+1, new_segment);
+                }
+                
+                /* Remove the original segment from the Track */
+                _tracks_3D[a][c][p][i][t].removeSegment(s);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else{
+    for (int a=0; a < _num_azim/4; a++){
+      for (int c=0; c < _cycles_per_azim[a]; c++){
+        for (int t=0; t < _tracks_per_cycle[a]; t++){
+          for (int s=0; s < _tracks_2D[a][c][t].getNumSegments(); s++){
+            
+            /* Extract data from this segment to compute it optical length */
+            curr_segment = _tracks_2D[a][c][t].getSegment(s);
+            material = curr_segment->_material;
+            length = curr_segment->_length;
+            fsr_id = curr_segment->_region_id;
+            
+            /* Compute number of segments to split this segment into */
+            min_num_cuts = 1;
+            num_groups = material->getNumEnergyGroups();
+            sigma_t = material->getSigmaT();
+            
+            for (int g=0; g < num_groups; g++) {
+              tau = length * sigma_t[g];
+              num_cuts = ceil(tau / max_optical_length);
+              min_num_cuts = std::max(num_cuts, min_num_cuts);
+            }
+            
+            /* If the segment does not need subdivisions, go to next segment */
+            if (min_num_cuts == 1)
+              continue;
+            
+            /* Split the segment into sub-segments */
+            for (int k=0; k < min_num_cuts; k++) {
+              
+              /* Create a new Track segment */
+              segment* new_segment = new segment;
+              new_segment->_material = material;
+              new_segment->_length = length / FP_PRECISION(min_num_cuts);
+              new_segment->_region_id = fsr_id;
+              
+              /* Assign CMFD surface boundaries */
+              if (k == 0)
+                new_segment->_cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+              
+              if (k == min_num_cuts-1)
+                new_segment->_cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+              
+              /* Insert the new segment to the Track */
+              _tracks_2D[a][c][t].insertSegment(s+k+1, new_segment);
+            }
+            
+            /* Remove the original segment from the Track */
+            _tracks_2D[a][c][t].removeSegment(s);
+          }
+        }
+      }
+    }
+  }
 }

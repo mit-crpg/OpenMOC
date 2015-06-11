@@ -114,8 +114,8 @@ private:
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
-  CellBasic* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
-  CellBasic* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
+  Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
+  Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
 public:
 
@@ -147,8 +147,6 @@ public:
   std::map<int, Cell*> getAllMaterialCells();
   void setRootUniverse(Universe* root_universe);
 
-  FP_PRECISION getMaxSegmentLength();
-  FP_PRECISION getMinSegmentLength();
   Cmfd* getCmfd();
   std::vector<std::size_t> getFSRsToKeys();
   std::vector<int> getFSRsToMaterialIDs();
@@ -170,15 +168,16 @@ public:
 #endif
 
   /* Find methods */
-  CellBasic* findCellContainingCoords(LocalCoords* coords);
+  Cell* findCellContainingCoords(LocalCoords* coords);
   Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
-
+  Cell* findCellContainingFSR(int fsr_id);
+  
   /* Other worker methods */
   void subdivideCells();
   void initializeFlatSourceRegions();
-  void segmentize2D(Track2D* track, FP_PRECISION max_optical_length, double z_level);
-  void segmentize3D(Track3D* track, FP_PRECISION max_optical_length);
+  void segmentize2D(Track2D* track, double z_level);
+  void segmentize3D(Track3D* track);
   void computeFissionability(Universe* univ=NULL);
 
   std::string toString();

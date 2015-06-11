@@ -32,7 +32,7 @@ protected:
   double _theta;
 
   /** The polar angle index into the the TrackCycle _track_stacks 2D ragged array */
-  int _polar_index;
+  int _polar_angle_index;
   
 public:
   Track3D();
@@ -44,12 +44,12 @@ public:
                  const double end_y, const double end_z,
                  const double phi, const double theta);
   void setTheta(const double theta);
-  void setPolarIndex(const int index);
+  void setPolarAngleIndex(const int index);
   void setCoords(double x0, double y0, double z0, double x1, double y1, double z1);
   
   /* Getters */
   double getTheta() const;
-  int getPolarIndex() const;
+  int getPolarAngleIndex() const;
 
   std::string toString();
 };

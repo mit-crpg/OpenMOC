@@ -20,9 +20,6 @@ Geometry::Geometry() {
 
   _num_FSRs = 0;
 
-  _max_seg_length = 0;
-  _min_seg_length = std::numeric_limits<FP_PRECISION>::infinity();
-
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
   
@@ -267,24 +264,6 @@ int Geometry::getNumCells() {
 
 
 /**
- * @brief Return the max Track segment length computed during segmentation (cm)
- * @return max Track segment length (cm)
- */
-FP_PRECISION Geometry::getMaxSegmentLength() {
-  return _max_seg_length;
-}
-
-
-/**
- * @brief Return the min Track segment length computed during segmentation (cm)
- * @return min Track segment length (cm)
- */
-FP_PRECISION Geometry::getMinSegmentLength() {
-  return _min_seg_length;
-}
-
-
-/**
  * @brief Return a std::map container of Material IDs (keys) with Materials
  *        pointers (values).
  * @return a std::map of Materials indexed by Material ID in the geometry
@@ -303,7 +282,7 @@ std::map<int, Material*> Geometry::getAllMaterials() {
       cell = (*iter).second;
 
       if (cell->getType() == MATERIAL) {
-        material = static_cast<CellBasic*>(cell)->getMaterial();
+        material = cell->getFillMaterial();
         all_materials[material->getId()] = material;
       }
     }
@@ -392,12 +371,12 @@ void Geometry::setCmfd(Cmfd* cmfd){
  * @param coords pointer to a LocalCoords object
  * @return returns a pointer to a Cell if found, NULL if no Cell found
  */
-CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
+Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
 
   Universe* univ = coords->getUniverse();
   Cell* cell;
 
-  if (universe_id == 0){
+  if (univ->getId() == _root_universe->getId()){
     if (!withinBounds(coords))
       return NULL;
   }
@@ -407,7 +386,7 @@ CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
   else
     cell = static_cast<Lattice*>(univ)->findCell(coords);
 
-  return static_cast<CellBasic*>(cell);
+  return cell;
 }
 
 
@@ -430,7 +409,7 @@ CellBasic* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @param angle the angle for a trajectory projected from the LocalCoords
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
-CellBasic* Geometry::findFirstCell(LocalCoords* coords, double azim, double polar) {
+Cell* Geometry::findFirstCell(LocalCoords* coords, double azim, double polar) {
   double delta_x = cos(azim) * sin(polar) * TINY_MOVE;
   double delta_y = sin(azim) * sin(polar) * TINY_MOVE;
   double delta_z = cos(polar) * TINY_MOVE;
@@ -475,19 +454,18 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  * @param angle the angle of the trajectory
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
-CellBasic* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
+Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
 
   Cell* cell = NULL;
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
-  Point surf_intersection;
-
-  /* Find the current Cell */
-  cell = findCellContainingCoords(coords);
 
   /* Get lowest level coords */
   coords = coords->getLowestLevel();
 
+  /* Get the current Cell */
+  cell = coords->getCell();
+  
   /* If the current coords is not in any Cell, return NULL */
   if (cell == NULL)
     return NULL;
@@ -509,8 +487,8 @@ CellBasic* Geometry::findNextCell(LocalCoords* coords, double azim, double polar
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
       else{
-        Universe* universe = coords->getUniverse();
-        dist = universe->minSurfaceDist(coords->getPoint(), azim, polar);
+        Cell* cell = coords->getCell();
+        dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
       }
 
       /* Recheck min distance */
@@ -537,6 +515,7 @@ CellBasic* Geometry::findNextCell(LocalCoords* coords, double azim, double polar
     double delta_y = sin(azim) * sin(polar) * (min_dist + TINY_MOVE);
     double delta_z = cos(polar) * (min_dist + TINY_MOVE);
     coords->adjustCoords(delta_x, delta_y, delta_z);
+
     return findCellContainingCoords(coords);
   }
 }
@@ -565,7 +544,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   if (_FSR_keys_map.find(fsr_key_hash) == _FSR_keys_map.end()){
     
     /* Get the cell that contains coords */
-    CellBasic* cell = findCellContainingCoords(curr);
+    Cell* cell = findCellContainingCoords(curr);
 
     /* Add FSR information to FSR key map and FSR_to vectors */
     fsr_id = _num_FSRs;
@@ -578,7 +557,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
     fsr->_point = point;
     _FSR_keys_map[fsr_key_hash] = *fsr;
     _FSRs_to_keys.push_back(fsr_key_hash);
-    _FSRs_to_material_IDs.push_back(cell->getMaterial()->getId());
+    _FSRs_to_material_IDs.push_back(cell->getFillMaterial()->getId());
     
     /* If CMFD acceleration is on, add FSR to CMFD cell */
     if (_cmfd != NULL){
@@ -737,9 +716,6 @@ void Geometry::subdivideCells() {
   std::map<int, Universe*> all_universes = _root_universe->getAllUniverses();
   std::map<int, Universe*>::iterator iter;
 
-  std::map<int, Cell*>::iterator iter1;
-  std::map<int, Cell*> cells;
-
   /* Loop over all Universe in the Geometry and instruct each to inform
    * their Cells to subdivide into rings and sectors as specified by
    * the user during Cell instantiation */
@@ -761,6 +737,9 @@ void Geometry::initializeFlatSourceRegions() {
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 
+  /* Build collections of neighbor Cells for optimized ray tracing */
+  _root_universe->buildNeighbors();
+  
   /* Create map of Material IDs to Material pointers */
   _all_materials = getAllMaterials();
 
@@ -780,31 +759,29 @@ void Geometry::initializeFlatSourceRegions() {
  * @param max_optical_length the maximum optical length a segment is allowed to
  *          have
  */
-void Geometry::segmentize2D(Track2D* track, FP_PRECISION max_optical_length, double z_level) {
+void Geometry::segmentize2D(Track2D* track, double z_level) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
   double y0 = track->getStart()->getY();
   double z0 = z_level;
   double phi = track->getPhi();
+  double delta_x, delta_y, delta_z;
   
   /* Length of each segment */
-  FP_PRECISION segment_length;
-  Material* segment_material;
+  FP_PRECISION length;
+  Material* material;
   int fsr_id;
-  FP_PRECISION* sigma_t;
-  int min_num_segments;
   int num_segments;
-  int num_groups;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords segment_start(x0, y0, z0);
-  LocalCoords segment_end(x0, y0, z0);
-  segment_start.setUniverse(_root_universe);
-  segment_end.setUniverse(_root_universe);
+  LocalCoords start(x0, y0, z0);
+  LocalCoords end(x0, y0, z0);
+  start.setUniverse(_root_universe);
+  end.setUniverse(_root_universe);
 
   /* Find the Cell containing the Track starting Point */
-  Cell* curr = findFirstCell(&segment_end, phi);
+  Cell* curr = findFirstCell(&end, phi);
   Cell* prev;
 
   /* If starting Point was outside the bounds of the Geometry */
@@ -817,110 +794,68 @@ void Geometry::segmentize2D(Track2D* track, FP_PRECISION max_optical_length, dou
    * Geometry */
   while (curr != NULL) {
 
-    segment_end.copyCoords(&segment_start);
+    end.copyCoords(&start);
 
     /* Find the next Cell along the Track's trajectory */
     prev = curr;
-    curr = findNextCell(&segment_end, phi);
+    curr = findNextCell(&end, phi);
 
     /* Checks to make sure that new Segment does not have the same start
      * and end Points */
-    if (segment_start.getX() == segment_end.getX() &&
-      segment_start.getY() == segment_end.getY()) {
+    if (start.getX() == end.getX() &&
+      start.getY() == end.getY()) {
 
       log_printf(ERROR, "Created a Track2D segment with the same start and end "
-                 "point: x = %f, y = %f", segment_start.getX(),
-                  segment_start.getY());
+                 "point: x = %f, y = %f", start.getX(),
+                  start.getY());
     }
 
     /* Find the segment length between the segment's start and end points */
-    segment_length = FP_PRECISION(segment_end.getPoint()
-                      ->distanceToPoint(segment_start.getPoint()));
-    segment_material = static_cast<CellBasic*>(prev)->getMaterial();
-    sigma_t = segment_material->getSigmaT();
+    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    material = prev->getFillMaterial();
+    fsr_id = findFSRId(&start);
 
-    /* Find the ID of the FSR that contains the segment */
-    fsr_id = findFSRId(&segment_start);
+    /* Create a new Track segment */
+    segment* new_segment = new segment;
+    new_segment->_material = material;
+    new_segment->_length = length;
+    new_segment->_region_id = fsr_id;
+    
+    log_printf(DEBUG, "segment start x = %f, y = %f, segment end x = %f, y = %f",
+               start.getX(), start.getY(), end.getX(), end.getY());
+    
+    /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
+    if (_cmfd != NULL){
 
-    /* Compute the number of Track segments to cut this segment into to ensure
-     * that it's length is small enough for the exponential table */
-    min_num_segments = 1;
-    num_groups = segment_material->getNumEnergyGroups();
-    for (int g=0; g < num_groups; g++) {
-      num_segments = (int) ceil(segment_length * sigma_t[g] / max_optical_length);
-      if (num_segments > min_num_segments)
-        min_num_segments = num_segments;
+      /* Find cmfd cell that segment lies in */
+      int cmfd_cell = _cmfd->findCmfdCell(&start);
+
+      /* Reverse nudge from surface to determine whether segment start or end
+       * points lie on a cmfd surface. */
+      delta_x = cos(phi) * TINY_MOVE;
+      delta_y = sin(phi) * TINY_MOVE;
+      start.adjustCoords(-delta_x, -delta_y);
+      end.adjustCoords(-delta_x, -delta_y);
+      
+      new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell, &end);
+      new_segment->_cmfd_surface_bwd = _cmfd->findCmfdSurface(cmfd_cell, &start);
+
+      /* Re-nudge segments from surface. */
+      start.adjustCoords(delta_x, delta_y);
+      end.adjustCoords(delta_x, delta_y);
     }
+    
+    /* Add the segment to the Track */
+    track->addSegment(new_segment);
 
-    /* "Cut up" Track segment into sub-segments such that the length of each
-     * does not exceed the size of the exponential table in the Solver */
-    for (int i=0; i < min_num_segments; i++) {
-
-      /* Create a new Track segment */
-      segment* new_segment = new segment;
-      new_segment->_material = segment_material;
-      new_segment->_length = segment_length / FP_PRECISION(min_num_segments);
-
-      /* Update the max and min segment lengths */
-      if (segment_length > _max_seg_length)
-        _max_seg_length = segment_length;
-      if (segment_length < _min_seg_length)
-        _min_seg_length = segment_length;
-
-      log_printf(DEBUG, "segment start x = %f, y = %f, segment end "
-                 "x = %f, y = %f", segment_start.getX(), segment_start.getY(),
-                 segment_end.getX(), segment_end.getY());
-
-      new_segment->_region_id = fsr_id;
-
-      /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
-      if (_cmfd != NULL){
-
-        /* Find cmfd cell that segment lies in */
-        int cmfd_cell = _cmfd->findCmfdCell(&segment_start);
-
-        /* Reverse nudge from surface to determine whether segment start or end
-         * points lie on a cmfd surface. */
-        double delta_x = cos(phi) * TINY_MOVE;
-        double delta_y = sin(phi) * TINY_MOVE;
-        segment_start.adjustCoords(-delta_x, -delta_y);
-        segment_end.adjustCoords(-delta_x, -delta_y);
-
-        if (i == min_num_segments-1)
-          new_segment->_cmfd_surface_fwd =
-              _cmfd->findCmfdSurface(cmfd_cell, &segment_end);
-        else
-          new_segment->_cmfd_surface_fwd = -1;
-
-        if (i == 0)
-          new_segment->_cmfd_surface_bwd =
-              _cmfd->findCmfdSurface(cmfd_cell, &segment_start);
-        else
-          new_segment->_cmfd_surface_bwd = -1;
-
-        /* Re-nudge segments from surface. */
-        segment_start.adjustCoords(delta_x, delta_y);
-        segment_end.adjustCoords(delta_x, delta_y);
-
-      }
-
-      /* Add the segment to the Track */
-      track->addSegment(new_segment);
-
-    }
   }
 
   log_printf(DEBUG, "Created %d segments for Track2D: %s",
              track->getNumSegments(), track->toString().c_str());
-
+  
   /* Truncate the linked list for the LocalCoords */
-  segment_start.prune();
-  segment_end.prune();
-
-  log_printf(DEBUG, "Track2D %d max. segment length: %f",
-             track->getUid(), _max_seg_length);
-  log_printf(DEBUG, "Track2D %d min. segment length: %f",
-             track->getUid(), _min_seg_length);
+  start.prune();
+  end.prune();
 
   return;
 }
@@ -936,7 +871,7 @@ void Geometry::segmentize2D(Track2D* track, FP_PRECISION max_optical_length, dou
  * @param max_optical_length the maximum optical length a segment is allowed to
  *          have
  */
-void Geometry::segmentize3D(Track3D* track, FP_PRECISION max_optical_length) {
+void Geometry::segmentize3D(Track3D* track) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
@@ -944,26 +879,22 @@ void Geometry::segmentize3D(Track3D* track, FP_PRECISION max_optical_length) {
   double z0 = track->getStart()->getZ();
   double phi = track->getPhi();
   double theta = track->getTheta();
-
-  log_printf(DEBUG, "segmenting track (%f,%f,%f)", x0,y0,z0);
+  double delta_x, delta_y, delta_z;
   
   /* Length of each segment */
-  FP_PRECISION segment_length;
-  Material* segment_material;
+  FP_PRECISION length;
+  Material* material;
   int fsr_id;
-  FP_PRECISION* sigma_t;
-  int min_num_segments;
   int num_segments;
-  int num_groups;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords segment_start(x0, y0, z0);
-  LocalCoords segment_end(x0, y0, z0);
-  segment_start.setUniverse(_root_universe);
-  segment_end.setUniverse(_root_universe);
+  LocalCoords start(x0, y0, z0);
+  LocalCoords end(x0, y0, z0);
+  start.setUniverse(_root_universe);
+  end.setUniverse(_root_universe);
 
   /* Find the Cell containing the Track starting Point */
-  Cell* curr = findFirstCell(&segment_end, phi, theta);
+  Cell* curr = findFirstCell(&end, phi, theta);
   Cell* prev;
 
   /* If starting Point was outside the bounds of the Geometry */
@@ -976,111 +907,71 @@ void Geometry::segmentize3D(Track3D* track, FP_PRECISION max_optical_length) {
    * Geometry */
   while (curr != NULL) {
 
-    segment_end.copyCoords(&segment_start);
+    end.copyCoords(&start);
 
     /* Find the next Cell along the Track's trajectory */
     prev = curr;
-    curr = findNextCell(&segment_end, phi, theta);
+    curr = findNextCell(&end, phi, theta);
     
     /* Checks to make sure that new Segment does not have the same start
      * and end Points */
-    if (segment_start.getX() == segment_end.getX() &&
-        segment_start.getY() == segment_end.getY() &&
-        segment_start.getZ() == segment_end.getZ()) {
+    if (start.getX() == end.getX() &&
+        start.getY() == end.getY() &&
+        start.getZ() == end.getZ()) {
 
       log_printf(ERROR, "Created a Track3D segment with the same start and end "
-                 "point: x = %f, y = %f, z = %f", segment_start.getX(),
-                 segment_start.getY(), segment_start.getZ());
+                 "point: x = %f, y = %f, z = %f", start.getX(),
+                 start.getY(), start.getZ());
     }
 
     /* Find the segment length between the segment's start and end points */
-    segment_length = FP_PRECISION(segment_end.getPoint()
-                      ->distanceToPoint(segment_start.getPoint()));
-    segment_material = static_cast<CellBasic*>(prev)->getMaterial();
-    sigma_t = segment_material->getSigmaT();
+    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    material = prev->getFillMaterial();
+    fsr_id = findFSRId(&start);
 
-    /* Find the ID of the FSR that contains the segment */
-    fsr_id = findFSRId(&segment_start);
+    /* Create a new Track segment */
+    segment* new_segment = new segment;
+    new_segment->_material = material;
+    new_segment->_length = length;
+    new_segment->_region_id = fsr_id;
 
-    /* Compute the number of Track segments to cut this segment into to ensure
-     * that it's length is small enough for the exponential table */
-    min_num_segments = 1;
-    num_groups = segment_material->getNumEnergyGroups();
-    for (int g=0; g < num_groups; g++) {
-      num_segments = (int) ceil(segment_length * sigma_t[g] / max_optical_length);
-      if (num_segments > min_num_segments)
-        min_num_segments = num_segments;
+    log_printf(DEBUG, "segment start x = %f, y = %f, z = %f; " 
+               "end x = %f, y = %f, z = %f",
+               start.getX(), start.getY(), start.getZ(),
+               end.getX(), end.getY(), end.getZ());
+
+    /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
+    if (_cmfd != NULL){
+      
+      /* Find cmfd cell that segment lies in */
+      int cmfd_cell = _cmfd->findCmfdCell(&start);
+      
+      /* Reverse nudge from surface to determine whether segment start or end
+       * points lie on a cmfd surface. */
+      double delta_x = cos(phi) * sin(theta) * TINY_MOVE;
+      double delta_y = sin(phi) * sin(theta) * TINY_MOVE;
+      double delta_z = cos(theta) * TINY_MOVE;
+      start.adjustCoords(-delta_x, -delta_y, -delta_z);
+      end.adjustCoords(-delta_x, -delta_y, -delta_z);
+      
+      new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell, &end);
+      new_segment->_cmfd_surface_bwd = _cmfd->findCmfdSurface(cmfd_cell, &start);
+
+      /* Re-nudge segments from surface. */
+      start.adjustCoords(delta_x, delta_y, delta_z);
+      end.adjustCoords(delta_x, delta_y, delta_z);
     }
     
-    /* "Cut up" Track segment into sub-segments such that the length of each
-     * does not exceed the size of the exponential table in the Solver */
-    for (int i=0; i < min_num_segments; i++) {
-
-      /* Create a new Track segment */
-      segment* new_segment = new segment;
-      new_segment->_material = segment_material;
-      new_segment->_length = segment_length / FP_PRECISION(min_num_segments);
-
-      /* Update the max and min segment lengths */
-      if (segment_length > _max_seg_length)
-        _max_seg_length = segment_length;
-      if (segment_length < _min_seg_length)
-        _min_seg_length = segment_length;
-
-      log_printf(DEBUG, "segment start x = %f, y = %f, z = %f, segment end "
-                 "x = %f, y = %f, z = %f", segment_start.getX(), segment_start.getY(),
-                 segment_start.getZ(), segment_end.getX(), segment_end.getY(),
-                 segment_end.getZ());
-
-      new_segment->_region_id = fsr_id;
-
-      /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
-      if (_cmfd != NULL){
-
-        /* Find cmfd cell that segment lies in */
-        int cmfd_cell = _cmfd->findCmfdCell(&segment_start);
-
-        /* Reverse nudge from surface to determine whether segment start or end
-         * points lie on a cmfd surface. */
-        double delta_x = cos(phi) * sin(theta) * TINY_MOVE;
-        double delta_y = sin(phi) * sin(theta) * TINY_MOVE;
-        double delta_z = cos(theta) * TINY_MOVE;
-        segment_start.adjustCoords(-delta_x, -delta_y, -delta_z);
-        segment_end.adjustCoords(-delta_x, -delta_y, -delta_z);
-
-        if (i == min_num_segments-1)
-          new_segment->_cmfd_surface_fwd =
-              _cmfd->findCmfdSurface(cmfd_cell, &segment_end);
-        else
-          new_segment->_cmfd_surface_fwd = -1;
-
-        if (i == 0)
-          new_segment->_cmfd_surface_bwd =
-              _cmfd->findCmfdSurface(cmfd_cell, &segment_start);
-        else
-          new_segment->_cmfd_surface_bwd = -1;
-
-        /* Re-nudge segments from surface. */
-        segment_start.adjustCoords(delta_x, delta_y, delta_z);
-        segment_end.adjustCoords(delta_x, delta_y, delta_z);
-      }
-
-      /* Add the segment to the Track */
-      track->addSegment(new_segment);
-    }
+    /* Add the segment to the Track */
+    track->addSegment(new_segment);
   }
 
   log_printf(DEBUG, "Created %d segments for Track3D: %s",
              track->getNumSegments(), track->toString().c_str());
 
   /* Truncate the linked list for the LocalCoords */
-  segment_start.prune();
-  segment_end.prune();
-
-  log_printf(DEBUG, "Track3D %d max. segment length: %f",
-             track->getUid(), _max_seg_length);
-  log_printf(DEBUG, "Track3D %d min. segment length: %f",
-             track->getUid(), _min_seg_length);
+  start.prune();
+  end.prune();
 
   return;
 }
@@ -1088,7 +979,7 @@ void Geometry::segmentize3D(Track3D* track, FP_PRECISION max_optical_length) {
 
 /**
  * @brief Determines the fissionability of each Universe within this Geometry.
- * @details A Universe is determined fissionable if it contains a CellBasic
+ * @details A Universe is determined fissionable if it contains a Cell
  *          filled by a Material with a non-zero fission cross-section. Note
  *          that this method recurses through all Universes at each level in
  *          the nested Universe hierarchy. Users should only call this method
@@ -1212,10 +1103,10 @@ void Geometry::initializeCmfd(){
   double width = getWidth();
   double depth = getDepth();
 
-  double cell_depth = depth / num_z;
   double cell_width = width / num_x;
   double cell_height = height / num_y;
-
+  double cell_depth = depth / num_z;
+  
   /* Create CMFD lattice and set properties */
   Lattice* lattice = new Lattice();
   lattice->setWidth(cell_width, cell_height, cell_depth);
@@ -1334,4 +1225,17 @@ bool Geometry::withinBounds(LocalCoords* coords){
     return false;
   else
     return true;
+}
+
+
+Cell* Geometry::findCellContainingFSR(int fsr_id){
+
+  Point* point = _FSR_keys_map[_FSRs_to_keys[fsr_id]]._point;
+  LocalCoords* coords = new LocalCoords(point->getX(), point->getY());
+  coords->setUniverse(_root_universe);
+  Cell* cell = findCellContainingCoords(coords);
+
+  delete coords;
+
+  return cell;
 }

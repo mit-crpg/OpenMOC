@@ -30,7 +30,6 @@
 #include <fstream>
 #endif
 
-
 /**
  * @class Cmfd Cmfd.h "src/Cmfd.h"
  * @brief A class for Coarse Mesh Finite Difference (CMFD) acceleration.
@@ -128,6 +127,9 @@ private:
   /** Array of surface currents for each CMFD cell */
   Vector* _surface_currents;
 
+  /** OpenMP mutual exclusion locks for atomic surface current updates */
+  omp_lock_t* _surface_locks;
+
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
 
@@ -143,6 +145,10 @@ private:
   /** Flag indicating whether to update the MOC flux */
   bool _flux_update_on;
 
+  FP_PRECISION* _azim_spacings;
+  FP_PRECISION** _polar_spacings;
+  bool _solve_3D;
+  
 public:
 
   Cmfd();
@@ -158,12 +164,17 @@ public:
   void initializeCellMap();
   void initializeGroupMap();
   void initializeMaterials();
+  void initializeSurfaceCurrents();
+
   void rescaleFlux();
   void splitCorners();
   int getCellNext(int cell_num, int surface_id);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell, LocalCoords* coords);
   void addFSRToCell(int cmfd_cell, int fsr_id);
+  void zeroSurfaceCurrents();
+  void tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
+                           int azim_index, int polar_index, bool fwd);
 
   /* Get parameters */
   int getNumCmfdGroups();
@@ -181,7 +192,7 @@ public:
   std::vector< std::vector<int> > getCellFSRs();
   bool isFluxUpdateOn();
   FP_PRECISION getFluxRatio(int cmfd_cell, int moc_group);
-
+  
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
   void setWidth(double width);
@@ -202,6 +213,9 @@ public:
   void setGroupStructure(int* group_indices, int length_group_indices);
   void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
   void setQuadrature(Quadrature* quadrature);
+  void setAzimSpacings(double* azim_spacings, int num_azim);
+  void setPolarSpacings(double** azim_spacings, int num_azim, int num_polar);
+  void setSolve3D(bool solve_3d);
   
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
