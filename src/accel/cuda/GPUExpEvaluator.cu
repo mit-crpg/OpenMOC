@@ -15,26 +15,6 @@ extern __constant__ int two_times_num_polar[1];
 
 
 /**
- * @brief Rounds a single precision floating point value to an integer.
- * @param x a float precision floating point value
- * @brief the rounded integer value
- */
-__device__ inline int round_to_int_d(float x) {
-  return __float2int_rd(x);
-}
-
-
-/**
- * @brief Rounds a double precision floating point value to an integer.
- * @param x a double precision floating point value
- * @brief the rounded integer value
- */
-__device__ inline int round_to_int_d(double x) {
-  return __double2int_rd(x);
-}
-
-
-/**
  * @brief Given a pointer to an ExpEvaluator on the host and a 
  *        GPUExpEvaluator on the GPU, copy all of the properties from 
 *         the ExpEvaluator object on the host to the GPU.
@@ -95,7 +75,7 @@ __device__ FP_PRECISION GPUExpEvaluator::computeExponential(FP_PRECISION tau,
   if (*interpolate) {
     int index;
 
-    index = round_to_int_d(tau * (*inverse_exp_table_spacing));
+    index = floor(tau * (*inverse_exp_table_spacing));
     index *= (*two_times_num_polar);
 
     exponential = (1. - (_exp_table[index + 2 * polar] * tau +
