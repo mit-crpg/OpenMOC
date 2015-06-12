@@ -23,6 +23,8 @@
 #endif
 #endif
 
+/** Forward declaration of Cmfd class */
+class Cmfd;
 
 /**
  * @struct fsr_data
@@ -36,9 +38,11 @@ struct fsr_data {
   /** The FSR ID */
   int _fsr_id;
 
-  /** Characteristic point in Universe 0 that lies in FSR */
+  /** Characteristic point in Root Universe that lies in FSR */
   Point* _point;
 
+  /** Global numerical centroid in Root Universe */
+  Point* _centroid;
 };
 
 void reset_auto_ids();
@@ -152,6 +156,7 @@ public:
   std::vector<int> getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
+  Point* getFSRCentroid(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
 #ifndef CUDA
   std::unordered_map<std::size_t, fsr_data> getFSRKeysMap();
@@ -179,7 +184,8 @@ public:
   void segmentize2D(Track2D* track, double z_level);
   void segmentize3D(Track3D* track);
   void computeFissionability(Universe* univ=NULL);
-
+  void setFSRCentroid(int fsr, Point* centroid);
+  
   std::string toString();
   void printString();
   void initializeCmfd();

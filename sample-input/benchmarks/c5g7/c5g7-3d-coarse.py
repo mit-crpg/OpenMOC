@@ -16,7 +16,7 @@ azim_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-num_polar = 6
+num_polar = 2
 polar_spacing = 0.25
 log.set_log_level('NORMAL')
 set_line_length(120)
@@ -243,11 +243,11 @@ root_cell.setFill(lattices[-1])
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(0.6)
-cmfd.setSORRelaxationFactor(1.0)
+cmfd.setMOCRelaxationFactor(1.0)
+cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,1)
 #cmfd.setGroupStructure([1,4,8])
-
+cmfd.setKNearest(1)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################

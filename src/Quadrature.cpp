@@ -657,8 +657,6 @@ void Quadrature::precomputeWeights() {
     sum_wgts += _azim_weights[a];
   }
 
-  log_printf(NORMAL, "sum azim weights: %f", sum_wgts);
-  
   /* Deallocate memory if it was allocated previously */
   if (_sin_thetas != NULL){
     for (int a=0; a < _num_azim/4; a++)
@@ -692,8 +690,6 @@ void Quadrature::precomputeWeights() {
         * _polar_weights[a][p];
       sum_wgts += _polar_weights[a][p];
     }
-
-    log_printf(NORMAL, "sum polar weights %i: %f", a, sum_wgts);
   }
 }
 

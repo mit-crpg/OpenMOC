@@ -186,6 +186,7 @@ public:
   void retrieve3DTrackCoords(double* coords, int num_tracks);
   void retrieve2DSegmentCoords(double* coords, int num_segments);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
+  void generateFSRCentroids();
   void generateTracks();
   void splitSegments(FP_PRECISION max_optical_length);
   double leastCommonMultiple(double a, double b);

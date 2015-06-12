@@ -535,7 +535,9 @@ int Geometry::findFSRId(LocalCoords* coords) {
   std::hash<std::string> key_hash_function;
   
   /* Generate unique FSR key */
-  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
+  std::string key = getFSRKey(coords);
+  std::size_t fsr_key_hash = key_hash_function(key);
+  key.clear();
 
   /* Get the lock */
   omp_set_lock(_num_FSRs_lock);
@@ -578,6 +580,27 @@ int Geometry::findFSRId(LocalCoords* coords) {
   return fsr_id;
 }
 
+
+/**
+ * @brief Return the centroid for a given FSR ID
+ * @param fsr_id the FSR ID
+ * @return the FSR's centroid
+ */
+Point* Geometry::getFSRCentroid(int fsr_id) {
+  
+  Point* point;
+  
+  try{
+    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._centroid;
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not find centroid in FSR: %i.", fsr_id);
+  }
+
+  return point;
+}
+
+  
 
 /**
  * @brief Return the ID of the flat source region that a given
@@ -1228,10 +1251,21 @@ bool Geometry::withinBounds(LocalCoords* coords){
 }
 
 
+void Geometry::setFSRCentroid(int fsr, Point* centroid){
+  
+  /* Create centroid point */
+  Point* point = new Point();
+  point->setX(centroid->getX());
+  point->setY(centroid->getY());
+  point->setZ(centroid->getZ());
+  _FSR_keys_map[_FSRs_to_keys[fsr]]._centroid = point;
+}
+
+
 Cell* Geometry::findCellContainingFSR(int fsr_id){
 
   Point* point = _FSR_keys_map[_FSRs_to_keys[fsr_id]]._point;
-  LocalCoords* coords = new LocalCoords(point->getX(), point->getY());
+  LocalCoords* coords = new LocalCoords(point->getX(), point->getY(), point->getZ());
   coords->setUniverse(_root_universe);
   Cell* cell = findCellContainingCoords(coords);
 

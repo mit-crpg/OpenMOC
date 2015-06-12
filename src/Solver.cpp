@@ -589,6 +589,9 @@ void Solver::initializeFSRs() {
     _FSR_volumes = _track_generator->get3DFSRVolumes();
   else
     _FSR_volumes = _track_generator->get2DFSRVolumes();
+
+  /* Generate the FSR centroids */
+  _track_generator->generateFSRCentroids();
   
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
@@ -605,7 +608,7 @@ void Solver::initializeFSRs() {
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
-
+  
   return;
 }
 
@@ -658,6 +661,8 @@ void Solver::initializeCmfd(){
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setQuadrature(_quad);
+  _cmfd->setGeometry(_geometry);
+  _cmfd->generateKNearestStencils();
   _cmfd->setAzimSpacings(_track_generator->getAzimSpacings(), _num_azim);
   _cmfd->initializeSurfaceCurrents();
 

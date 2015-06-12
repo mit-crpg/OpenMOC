@@ -17,7 +17,7 @@ num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 num_polar = 2
-polar_spacing = 0.25
+polar_spacing = 1.9
 log.set_log_level('NORMAL')
 set_line_length(120)
 
@@ -312,7 +312,8 @@ cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,1)
-#cmfd.setGroupStructure([1,4,8])
+cmfd.setGroupStructure([1,4,8])
+cmfd.setKNearest(1)
 
 
 ###############################################################################
@@ -338,7 +339,7 @@ quad.setNumPolarAngles(num_polar)
 track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-track_generator.setSolve2D()
+#track_generator.setSolve2D()
 track_generator.setZLevel(0.1)
 track_generator.generateTracks()
 

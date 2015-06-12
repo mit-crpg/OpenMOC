@@ -18,7 +18,11 @@ LocalCoords::LocalCoords(double x, double y, double z) {
 /**
  * @brief Destructor.
  */
-LocalCoords::~LocalCoords() { }
+LocalCoords::~LocalCoords() {
+
+  if (_coords != NULL)
+    delete _coords;
+}
 
 
 /**

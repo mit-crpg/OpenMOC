@@ -1095,8 +1095,6 @@ void TrackGenerator::initialize2DTracks() {
 
     /* Compute the number of cycles */
     _cycles_per_azim[i] = (_num_x[i] + _num_y[i]) * 2 / _tracks_per_cycle[i];
-
-    log_printf(NORMAL, "azim: %i, num cycles: %i", i, _cycles_per_azim[i]);
   }
 
   /* Generate the 2D track cycles */
@@ -1200,8 +1198,8 @@ void TrackGenerator::initialize3DTracks() {
   _polar_spacings   = new double*[_num_azim/4];
     
   for (int i=0; i < _num_azim/4; i++){
-    _dz_eff[i]          = new double[_num_polar/2];
-    _dl_eff[i]          = new double[_num_polar/2];
+    _dz_eff[i]         = new double[_num_polar/2];
+    _dl_eff[i]         = new double[_num_polar/2];
     _num_z[i]          = new int[_num_polar/2];
     _num_l[i]          = new int[_num_polar/2];
     _polar_spacings[i] = new double[_num_polar/2];
@@ -1694,19 +1692,15 @@ void TrackGenerator::segmentize2D() {
 
   log_printf(NORMAL, "Ray tracing for 2D track segmentation...");
 
-  Track2D* track;
-
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/4; a++){
     for (int c=0; c < _cycles_per_azim[a]; c++){
       
       log_printf(NORMAL, "segmenting 2D cycle %i, %i", a, c);
 
-      #pragma omp parallel for private(track)
+      #pragma omp parallel for
       for (int t=0; t < _tracks_per_cycle[a]; t++){
-        track = &_tracks_2D[a][c][t];
-        
-        _geometry->segmentize2D(track, _z_level);
+        _geometry->segmentize2D(&_tracks_2D[a][c][t], _z_level);
       }
     }
   }
@@ -1735,7 +1729,6 @@ void TrackGenerator::segmentize3D() {
 
   log_printf(NORMAL, "Ray tracing for 3D track segmentation...");
 
-  Track3D* track;
   int nt;
   
   /* Loop over all Tracks */
@@ -1744,12 +1737,10 @@ void TrackGenerator::segmentize3D() {
       log_printf(NORMAL, "segmenting 3D cycle %i, %i", a, c);
       for (int p=0; p < _num_polar; p++){
         nt = getNumZ(a,p) + getNumL(a,p);
-        #pragma omp parallel for private(track)
+        #pragma omp parallel for
         for (int i=0; i < nt; i++){
           for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
-            track = &_tracks_3D[a][c][p][i][t];
-            
-            _geometry->segmentize3D(track);
+            _geometry->segmentize3D(&_tracks_3D[a][c][p][i][t]);
           }
         }
       }
@@ -2429,7 +2420,7 @@ bool TrackGenerator::read2DSegmentsFromFile() {
 
   int cmfd_surface_fwd;
   int cmfd_surface_bwd;
-  segment curr_segment;
+  //segment curr_segment;
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
@@ -2455,20 +2446,21 @@ bool TrackGenerator::read2DSegmentsFromFile() {
           ret = fread(&region_id, sizeof(int), 1, in);
           
           /* Initialize segment with the data */
-          curr_segment._length = length;
-          curr_segment._material = materials[material_id];
-          curr_segment._region_id = region_id;
+          segment* curr_segment = new segment;
+          curr_segment->_length = length;
+          curr_segment->_material = materials[material_id];
+          curr_segment->_region_id = region_id;
           
           /* Import CMFD-related data if needed */
           if (cmfd != NULL){
             ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
             ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
-            curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
-            curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
+            curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+            curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
           }
           
           /* Add this segment to the Track */
-          curr_track->addSegment(&curr_segment);
+          curr_track->addSegment(curr_segment);
         }
         
         uid++;
@@ -2587,7 +2579,7 @@ bool TrackGenerator::read3DSegmentsFromFile() {
 
   int cmfd_surface_fwd;
   int cmfd_surface_bwd;
-  segment curr_segment;
+  //segment curr_segment;
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
@@ -2615,20 +2607,21 @@ bool TrackGenerator::read3DSegmentsFromFile() {
               ret = fread(&region_id, sizeof(int), 1, in);
               
               /* Initialize segment with the data */
-              curr_segment._length = length;
-              curr_segment._material = materials[material_id];
-              curr_segment._region_id = region_id;
+              segment* curr_segment = new segment;
+              curr_segment->_length = length;
+              curr_segment->_material = materials[material_id];
+              curr_segment->_region_id = region_id;
               
               /* Import CMFD-related data if needed */
               if (cmfd != NULL){
                 ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
                 ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
-                curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
-                curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
+                curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+                curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
               }
               
               /* Add this segment to the Track */
-              curr_track->addSegment(&curr_segment);
+              curr_track->addSegment(curr_segment);
             }
             
             uid++;
@@ -2860,4 +2853,124 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
       }
     }
   }
+}
+
+
+/**
+ * @brief Generates the numerical centroids of the FSRs.
+ * @details This routine generates the numerical centroids of the FSRs
+ *          by weighting the average x and y values of each segment in the
+ *          FSR by the segment's length and azimuthal weight. The numerical
+ *          centroid fomula can be found in R. Ferrer et. al. "Linear Source
+ *          Approximation in CASMO 5", PHYSOR 2012.
+ */
+void TrackGenerator::generateFSRCentroids(){
+
+  int num_FSRs = _geometry->getNumFSRs();
+  FP_PRECISION* FSR_volumes;
+  
+  /* Create temporary array of centroids and initialize to origin */
+  Point** centroids = new Point*[num_FSRs];
+  for (int r=0; r < num_FSRs; r++){
+    centroids[r] = new Point();
+    centroids[r]->setCoords(0.0, 0.0, 0.0);
+  }
+
+  if (_solve_3D){
+
+    FSR_volumes = get3DFSRVolumes();
+    
+    for (int a=0; a < _num_azim/4; a++){
+      for (int c=0; c < _cycles_per_azim[a]; c++){
+        for (int p=0; p < _num_polar; p++){
+          for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
+            for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
+
+              int num_segments = _tracks_3D[a][c][p][i][t].getNumSegments();
+              segment* segments = _tracks_3D[a][c][p][i][t].getSegments();
+              double x = _tracks_3D[a][c][p][i][t].getStart()->getX();
+              double y = _tracks_3D[a][c][p][i][t].getStart()->getY();
+              double z = _tracks_3D[a][c][p][i][t].getStart()->getZ();
+              double phi = _tracks_3D[a][c][p][i][t].getPhi();
+              double theta = _quadrature->getTheta(a, p);
+              double wgt = _quadrature->getAzimWeight(a) *
+                _quadrature->getPolarWeight(a, p) * getAzimSpacing(a)
+                * getPolarSpacing(a,p);
+              
+              for (int s=0; s < num_segments; s++) {
+                segment* curr_segment = &segments[s];
+                int fsr = curr_segment->_region_id;
+                double volume = FSR_volumes[fsr];
+                centroids[fsr]->
+                  setX(centroids[fsr]->getX() + wgt *
+                       (x + cos(phi) * sin(theta) * curr_segment->_length / 2.0) *
+                       curr_segment->_length / FSR_volumes[fsr]);
+                
+                centroids[fsr]->
+                  setY(centroids[fsr]->getY() + wgt *
+                       (y + sin(phi) * sin(theta) * curr_segment->_length / 2.0) *
+                       curr_segment->_length / FSR_volumes[fsr]);
+                
+                centroids[fsr]->
+                  setZ(centroids[fsr]->getZ() + wgt *
+                       (z + cos(theta) * curr_segment->_length / 2.0) *
+                       curr_segment->_length / FSR_volumes[fsr]);
+                
+                x += cos(phi) * sin(theta) * curr_segment->_length;
+                y += sin(phi) * sin(theta) * curr_segment->_length;
+                z += cos(theta) * curr_segment->_length;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else{
+    
+    FSR_volumes = get2DFSRVolumes();
+
+    for (int a=0; a < _num_azim/4; a++){
+      for (int c=0; c < _cycles_per_azim[a]; c++){
+        for (int t=0; t < _tracks_per_cycle[a]; t++){
+
+          int num_segments = _tracks_2D[a][c][t].getNumSegments();
+          segment* segments = _tracks_2D[a][c][t].getSegments();
+          double x = _tracks_2D[a][c][t].getStart()->getX();
+          double y = _tracks_2D[a][c][t].getStart()->getY();
+          double phi = _tracks_2D[a][c][t].getPhi();
+          double wgt = _quadrature->getAzimWeight(a) *
+            getAzimSpacing(a);
+              
+          for (int s=0; s < num_segments; s++) {
+            segment* curr_segment = &segments[s];
+            int fsr = curr_segment->_region_id;
+            double volume = FSR_volumes[fsr];
+            centroids[fsr]->
+              setX(centroids[fsr]->getX() + wgt *
+                   (x + cos(phi) * curr_segment->_length / 2.0) *
+                   curr_segment->_length / FSR_volumes[fsr]);
+            
+            centroids[fsr]->
+              setY(centroids[fsr]->getY() + wgt *
+                   (y + sin(phi) * curr_segment->_length / 2.0) *
+                   curr_segment->_length / FSR_volumes[fsr]);
+            
+            x += cos(phi) * curr_segment->_length;
+            y += sin(phi) * curr_segment->_length;
+          }
+        }
+      }
+    }
+  }
+
+  /* Set the centroid for the FSR */
+  for (int r=0; r < num_FSRs; r++){
+    _geometry->setFSRCentroid(r, centroids[r]);
+    delete centroids[r];
+  }
+
+  /* Delete temporary array of centroids and FSR volumes */
+  delete [] centroids;
+  delete [] FSR_volumes;
 }
