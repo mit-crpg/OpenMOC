@@ -77,6 +77,20 @@ static omp_lock_t log_error_lock;
 
 
 /**
+ * @brief Initializes the logger for use.
+ * @details This should be immediately called when the logger is imported
+ *          into Python and before any of its other routines are called. The
+ *          routine initializes an OpenMP mutual exclusion lock which is used 
+ *          to preclude race conditions from occurring when an ERROR message
+ *          is reported and program execution is terminated.
+ */
+void initialize_logger() {
+  /* Initialize OpenMP mutex lock for ERROR messages with exceptions */
+  omp_init_lock(&log_error_lock);
+}
+
+
+/**
  * @brief Sets the output directory for log files.
  * @details If the directory does not exist, it creates it for the user.
  * @param directory a character array for the log file directory
@@ -87,15 +101,8 @@ void set_output_directory(char* directory) {
 
   /* Check to see if directory exists - if not, create it */
   struct stat st;
-  if ((!stat(directory, &st)) == 0) {
+  if ((!stat(directory, &st)) == 0)
     mkdir(directory, S_IRWXU);
-    mkdir((output_directory+"/log").c_str(), S_IRWXU);
-  }
-
-  /* Initialize OpenMP mutex lock for ERROR messages with exceptions */
-  omp_init_lock(&log_error_lock);
-
-  return;
 }
 
 
@@ -241,8 +248,6 @@ void set_log_level(const char* new_level) {
       log_level = ERROR;
       log_printf(INFO, "Logging level set to ERROR");
   }
-
-  return;
 }
 
 
@@ -439,11 +444,8 @@ void log_printf(logLevel level, const char* format, ...) {
 
       /* If output directory was not defined by user, then log file is
        * written to a "log" subdirectory. Create it if it doesn't exist */
-      if (output_directory.compare(".") == 0) {
-        struct stat st;
-        if ((!stat("log", &st)) == 0)
-          mkdir("log", S_IRWXU);
-      }
+      if (output_directory.compare(".") == 0)
+        set_output_directory((char*)"log");
 
       /* Write the message to the output file */
       std::ofstream log_file;
