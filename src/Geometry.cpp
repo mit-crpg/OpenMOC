@@ -523,11 +523,14 @@ int Geometry::findFSRId(LocalCoords* coords) {
     
     /* Add FSR information to FSR key map and FSR_to vectors */
     fsr_data *fsr = new fsr_data;
+    fsr->_fsr_id = -1;
     fsr_id = _FSR_keys_map.insert_and_get_num(fsr_key_hash, fsr);
     if( fsr_id == -1)
     {
       delete fsr;
-      fsr_id = _FSR_keys_map.at(fsr_key_hash)->_fsr_id;
+      do{
+        fsr_id = _FSR_keys_map.at(fsr_key_hash)->_fsr_id;
+      } while(fsr_id == -1);
     }
     else{
       Point* point = new Point();
@@ -823,6 +826,7 @@ void Geometry::segmentize(Track* track) {
  */
 void Geometry::initializeFSRVectors()
 {
+  std::cout << "Initializing FSR Vectors..." << std::endl;
   // get keys and values from map
   std::size_t *key_list = _FSR_keys_map.keys();
   fsr_data **value_list = _FSR_keys_map.values();
