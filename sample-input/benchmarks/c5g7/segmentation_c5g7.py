@@ -3,7 +3,7 @@ import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 from openmoc.options import Options
-
+import sys
 
 ###############################################################################
 #                          Main Simulation Parameters
@@ -11,9 +11,11 @@ from openmoc.options import Options
 
 options = Options()
 
-num_threads = 1
-
-print trial_num + 1
+args = sys.argv
+if len(args) > 1:
+    num_threads = int(args[1])
+else:
+    num_threads = 1
 track_spacing = 0.1
 num_azim = 32
 tolerance = options.getTolerance()
