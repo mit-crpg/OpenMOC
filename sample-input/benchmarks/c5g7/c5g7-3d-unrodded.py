@@ -17,7 +17,7 @@ num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 num_polar = 2
-polar_spacing = 1.9
+polar_spacing = 2.0
 log.set_log_level('NORMAL')
 set_line_length(120)
 
@@ -309,11 +309,11 @@ root_cell.setFill(lattices[-1])
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(0.6)
+cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,1)
 cmfd.setGroupStructure([1,4,8])
-cmfd.setKNearest(1)
+cmfd.setKNearest(4)
 
 
 ###############################################################################
@@ -356,7 +356,6 @@ track_generator.generateTracks()
 solver = CPUSolver(track_generator)
 solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
-#solver.useExponentialIntrinsic()
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
