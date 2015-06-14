@@ -52,10 +52,6 @@ Surface::Surface(const int id, const char* name){
   setName(name);
 
   _boundary_type = BOUNDARY_NONE;
-
-  /* Initialize empty vectors of neighbor Cells for each halfspace */
-  _neighbors[-1] = new std::vector<Cell*>();
-  _neighbors[+1] = new std::vector<Cell*>();
 }
 
 
@@ -150,6 +146,12 @@ void Surface::setBoundaryType(boundaryType boundary_type) {
  */
 void Surface::addNeighborCell(int halfspace, Cell* cell) {
 
+  /* Initialize empty vectors of neighbor Cells for each halfspace */
+  if (_neighbors.empty()){
+    _neighbors[-1] = new std::vector<Cell*>();
+    _neighbors[+1] = new std::vector<Cell*>();
+  }
+  
   if (halfspace != -1 && halfspace != +1)
     log_printf(ERROR, "Unable to add neighbor Cell %d to Surface %d since the "
                "halfspace %d is not -1 or 1", cell->getId(), _id, halfspace);
