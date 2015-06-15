@@ -115,11 +115,11 @@ class parallel_hash_map
         int insert_and_get_count(K key, V value);
         size_t size();
         size_t bucket_count();
+        size_t num_locks();
         K* keys();
         V* values();
         void clear();
         void print_buckets();
-        fixed_hash_map<K,V>* getAddress();
 };
 
 /**
@@ -462,12 +462,7 @@ parallel_hash_map<K,V>::~parallel_hash_map()
     delete[] _announce;
 }
 
-// FIXME
-template <class K, class V>
-fixed_hash_map<K,V>* parallel_hash_map<K,V>::getAddress()
-{
-    return _table;
-}
+
 /**
  * @brief Determine whether the parallel hash map contains a given key
  * @details First the thread accessing the table announces its presence and
@@ -718,6 +713,16 @@ template <class K, class V>
 size_t parallel_hash_map<K,V>::bucket_count()
 {
     return _table->bucket_count();
+}
+
+/**
+ * @brief Returns the number of locks in the parallel hash map
+ * @return number of locks in the map
+ */
+template <class K, class V>
+size_t parallel_hash_map<K,V>::num_locks()
+{
+    return _num_locks;
 }
 
 /**

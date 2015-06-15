@@ -523,6 +523,9 @@ int Geometry::findFSRId(LocalCoords* coords) {
     /* Add FSR information to FSR key map and FSR_to vectors */
     fsr_data *fsr = new fsr_data;
     fsr->_fsr_id = -1;
+    
+    /* Try to get a clean copy of the fsr_id, adding the FSR data 
+       if necessary where -1 indicates the key was already added */
     fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, fsr);
     if( fsr_id == -1)
     {
@@ -1007,8 +1010,8 @@ void Geometry::initializeCmfd(){
 
 
 /**
- * @brief Returns the map that maps FSR keys to FSR IDs
- * @return _FSR_keys_map map of FSR keys to FSR IDs
+ * @brief Returns a pointer to the map that maps FSR keys to FSR IDs
+ * @return pointer to _FSR_keys_map map of FSR keys to FSR IDs
  */
 parallel_hash_map<std::size_t, fsr_data*>* Geometry::getFSRKeysMap(){
   return &_FSR_keys_map;
@@ -1023,7 +1026,6 @@ std::vector<std::size_t> Geometry::getFSRsToKeys(){
   return _FSRs_to_keys;
 }
 
-
 /**
  * @brief Return a vector indexed by flat source region IDs which contain
  *        the corresponding Material IDs.
@@ -1036,23 +1038,6 @@ std::vector<int> Geometry::getFSRsToMaterialIDs() {
 
   return _FSRs_to_material_IDs;
 }
-
-
-/**
- * @brief Sets the _FSR_keys_map map
- * @details The _FSR_keys_map stores a hash of a std::string representing
- *          the Lattice/Cell/Universe hierarchy for a unique region
- *          and the associated FSR data. fsr_data is a struct that contains
- *          a unique FSR id and a Point located in the highest level Universe
- *          that is contained in the FSR. This method is used when the tracks 
- *          are read from file to avoid unnecessary segmentation.  
- * @param FSR_keys_map map of FSR keys to FSR data
- */
-void Geometry::setFSRKeysMap(parallel_hash_map<std::size_t, fsr_data*>* 
-                             FSR_keys_map){
-  _FSR_keys_map = *FSR_keys_map;
-}
-
 
 /**
  * @brief Sets the _FSRs_to_keys vector
