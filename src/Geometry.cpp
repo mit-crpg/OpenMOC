@@ -28,7 +28,6 @@ Geometry::Geometry() {
  * @brief Destructor clears FSR to Cells and Materials maps.
  */
 Geometry::~Geometry() {
-
   /* Free FSR  maps if they were initialized */
   if (_FSR_keys_map.size() != 0) {
     fsr_data **values = _FSR_keys_map.values();
@@ -178,7 +177,7 @@ boundaryType Geometry::getMaxZBoundaryType() {
  * @return number of FSRs
  */
 int Geometry::getNumFSRs() {
-  return _FSR_keys_map.size();
+  return _FSRs_to_keys.size();
 }
 
 /**
@@ -524,7 +523,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
     /* Add FSR information to FSR key map and FSR_to vectors */
     fsr_data *fsr = new fsr_data;
     fsr->_fsr_id = -1;
-    fsr_id = _FSR_keys_map.insert_and_get_num(fsr_key_hash, fsr);
+    fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, fsr);
     if( fsr_id == -1)
     {
       delete fsr;
@@ -826,7 +825,6 @@ void Geometry::segmentize(Track* track) {
  */
 void Geometry::initializeFSRVectors()
 {
-  std::cout << "Initializing FSR Vectors..." << std::endl;
   // get keys and values from map
   std::size_t *key_list = _FSR_keys_map.keys();
   fsr_data **value_list = _FSR_keys_map.values();
@@ -1012,8 +1010,8 @@ void Geometry::initializeCmfd(){
  * @brief Returns the map that maps FSR keys to FSR IDs
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-parallel_hash_map<std::size_t, fsr_data*> Geometry::getFSRKeysMap(){
-  return _FSR_keys_map;
+parallel_hash_map<std::size_t, fsr_data*>* Geometry::getFSRKeysMap(){
+  return &_FSR_keys_map;
 }
 
 
@@ -1050,9 +1048,9 @@ std::vector<int> Geometry::getFSRsToMaterialIDs() {
  *          are read from file to avoid unnecessary segmentation.  
  * @param FSR_keys_map map of FSR keys to FSR data
  */
-void Geometry::setFSRKeysMap(parallel_hash_map<std::size_t, fsr_data*> 
+void Geometry::setFSRKeysMap(parallel_hash_map<std::size_t, fsr_data*>* 
                              FSR_keys_map){
-  _FSR_keys_map = FSR_keys_map;
+  _FSR_keys_map = *FSR_keys_map;
 }
 
 

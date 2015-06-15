@@ -512,13 +512,8 @@ void TrackGenerator::generateTracks() {
     try {
       initializeTracks();
       recalibrateTracksToOrigin();
-      std::cout << "Num threads = " << omp_get_max_threads() << std::endl;
-      double t1 = omp_get_wtime();
       segmentize();
-      double t2 = omp_get_wtime();
-      double seg_time = t2 - t1;
-      std::cout << "Duration = " << seg_time << std::endl;
-      //dumpTracksToFile();
+      dumpTracksToFile();
     }
     catch (std::exception &e) {
       log_printf(ERROR, "Unable to allocate memory for Tracks");
@@ -1213,7 +1208,7 @@ void TrackGenerator::dumpTracksToFile() {
   }
 
   /* Get FSR vector maps */
-  parallel_hash_map<std::size_t, fsr_data*> FSR_keys_map = 
+  parallel_hash_map<std::size_t, fsr_data*> *FSR_keys_map = 
       _geometry->getFSRKeysMap();
   std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
@@ -1227,8 +1222,8 @@ void TrackGenerator::dumpTracksToFile() {
   fwrite(&num_FSRs, sizeof(int), 1, out);
 
   /* Write FSR vector maps to file */
-  std::size_t* fsr_key_list = FSR_keys_map.keys();
-  fsr_data** fsr_data_list = FSR_keys_map.values();
+  std::size_t* fsr_key_list = FSR_keys_map->keys();
+  fsr_data** fsr_data_list = FSR_keys_map->values();
   for(int i=0; i < num_FSRs; i++){
 
     /* Write data to file from FSR_keys_map */
@@ -1417,7 +1412,8 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Create FSR vector maps */
-  parallel_hash_map<std::size_t, fsr_data*> FSR_keys_map;
+  parallel_hash_map<std::size_t, fsr_data*> *FSR_keys_map =
+      new parallel_hash_map<std::size_t, fsr_data*>;
   std::vector<int> FSRs_to_material_IDs;
   std::vector<std::size_t> FSRs_to_keys;
   int num_FSRs;
@@ -1441,7 +1437,7 @@ bool TrackGenerator::readTracksFromFile() {
     Point* point = new Point();
     point->setCoords(x,y);
     fsr->_point = point;
-    FSR_keys_map.insert(fsr_key, fsr);
+    FSR_keys_map->insert(fsr_key, fsr);
 
     /* Read data from file for FSR_to_materials_IDs */
     ret = fread(&material_id, sizeof(int), 1, in);
@@ -1452,10 +1448,12 @@ bool TrackGenerator::readTracksFromFile() {
     FSRs_to_keys.push_back(fsr_key);
   }
 
+
   /* Set FSR vector maps */
   _geometry->setFSRKeysMap(FSR_keys_map);
   _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
   _geometry->setFSRsToKeys(FSRs_to_keys);
+  
 
   /* Read cmfd cell_fsrs vector of vectors from file */
   if (cmfd != NULL){
@@ -1479,14 +1477,14 @@ bool TrackGenerator::readTracksFromFile() {
     /* Set CMFD cell_fsrs vector of vectors */
     cmfd->setCellFSRs(cell_fsrs);
   }
-
+  
   /* Inform the rest of the class methods that Tracks have been initialized */
   if (ret)
     _contains_tracks = true;
 
   /* Close the Track file */
   fclose(in);
-
+  
   return true;
 }
 

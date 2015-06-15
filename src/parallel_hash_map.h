@@ -51,7 +51,7 @@ class fixed_hash_map
         bool contains(K key);
         V at(K key);
         void insert(K key, V value);
-        int insert_and_get_num(K key, V value);
+        int insert_and_get_count(K key, V value);
         size_t size();
         size_t bucket_count();
         K* keys();
@@ -112,13 +112,14 @@ class parallel_hash_map
         bool contains(K key);
         V at(K key);
         void insert(K key, V value);
-        int insert_and_get_num(K key, V value);
+        int insert_and_get_count(K key, V value);
         size_t size();
         size_t bucket_count();
         K* keys();
         V* values();
         void clear();
         void print_buckets();
+        fixed_hash_map<K,V>* getAddress();
 };
 
 /**
@@ -277,7 +278,7 @@ void fixed_hash_map<K,V>::insert(K key, V value)
  *          key was already present in map.
  */
 template <class K, class V>
-int fixed_hash_map<K,V>::insert_and_get_num(K key, V value)
+int fixed_hash_map<K,V>::insert_and_get_count(K key, V value)
 {
     // get hash into table using fast modulus
     size_t key_hash = std::hash<K>()(key) & (_M-1);
@@ -461,6 +462,12 @@ parallel_hash_map<K,V>::~parallel_hash_map()
     delete[] _announce;
 }
 
+// FIXME
+template <class K, class V>
+fixed_hash_map<K,V>* parallel_hash_map<K,V>::getAddress()
+{
+    return _table;
+}
 /**
  * @brief Determine whether the parallel hash map contains a given key
  * @details First the thread accessing the table announces its presence and
@@ -593,7 +600,7 @@ void parallel_hash_map<K,V>::insert(K key, V value)
  *          already exists
  */
 template <class K, class V>
-int parallel_hash_map<K,V>::insert_and_get_num(K key, V value)
+int parallel_hash_map<K,V>::insert_and_get_count(K key, V value)
 {
     // check if resize needed
     if(2*_table->size() > _table->bucket_count())
@@ -613,7 +620,7 @@ int parallel_hash_map<K,V>::insert_and_get_num(K key, V value)
     #endif
 
     // insert value
-    int N =_table->insert_and_get_num(key, value);
+    int N =_table->insert_and_get_count(key, value);
 
     // release lock
     #ifdef OPENMP

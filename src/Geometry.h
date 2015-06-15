@@ -132,7 +132,7 @@ public:
   Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
 #ifndef CUDA
-  parallel_hash_map<std::size_t, fsr_data*> getFSRKeysMap();
+  parallel_hash_map<std::size_t, fsr_data*>* getFSRKeysMap();
 #endif
 
   /* Set parameters */
@@ -141,7 +141,7 @@ public:
   void setCmfd(Cmfd* cmfd);
 
 #ifndef CUDA
-  void setFSRKeysMap(parallel_hash_map<std::size_t, fsr_data*> FSR_keys_map);
+  void setFSRKeysMap(parallel_hash_map<std::size_t, fsr_data*>* FSR_keys_map);
 #endif
 
   /* Find methods */

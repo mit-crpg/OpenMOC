@@ -18,6 +18,7 @@
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
+#define OPENMP
 #include <omp.h>
 #endif
 
