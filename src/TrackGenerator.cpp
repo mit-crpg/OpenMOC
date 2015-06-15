@@ -1729,20 +1729,21 @@ void TrackGenerator::segmentize3D() {
 
   log_printf(NORMAL, "Ray tracing for 3D track segmentation...");
 
-  int nt;
+  int tracks_segmented = 0;
   
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/4; a++){
     for (int c=0; c < _cycles_per_azim[a]; c++){
-      log_printf(NORMAL, "segmenting 3D cycle %i, %i", a, c);
+      log_printf(NORMAL, "segmenting 3D tracks - Percent complete: %5.2f %%", double(tracks_segmented) / _num_3D_tracks * 100.0);
       for (int p=0; p < _num_polar; p++){
-        nt = getNumZ(a,p) + getNumL(a,p);
+        int nt = getNumZ(a,p) + getNumL(a,p);
         #pragma omp parallel for
         for (int i=0; i < nt; i++){
           for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
             _geometry->segmentize3D(&_tracks_3D[a][c][p][i][t]);
           }
         }
+        tracks_segmented += nt;
       }
     }
   }

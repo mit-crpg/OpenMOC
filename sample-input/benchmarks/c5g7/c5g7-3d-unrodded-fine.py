@@ -16,8 +16,8 @@ azim_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-num_polar = 3
-polar_spacing = 0.5
+num_polar = 6
+polar_spacing = 0.25
 axial_refines = 6
 log.set_log_level('NORMAL')
 set_line_length(120)
