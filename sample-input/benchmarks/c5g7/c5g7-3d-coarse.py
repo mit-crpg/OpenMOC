@@ -247,7 +247,7 @@ cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,1)
 #cmfd.setGroupStructure([1,4,8])
-cmfd.setKNearest(1)
+cmfd.setKNearest(4)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
