@@ -309,7 +309,7 @@ cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
-#cmfd.setGroupStructure([1,4,8])
+cmfd.setGroupStructure([1,4,8])
 cmfd.setKNearest(3)
 
 ###############################################################################
