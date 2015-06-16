@@ -617,8 +617,7 @@ Point* Geometry::getFSRPoint(int fsr_id) {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._point;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find characteristic point in FSR: %i.",
-               fsr_id);
+    log_printf(ERROR, "Could not find characteristic point in FSR: %d", fsr_id);
   }
 
   return point;
