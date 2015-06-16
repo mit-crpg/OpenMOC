@@ -1027,8 +1027,8 @@ void Geometry::initializeCmfd(){
  * @brief Returns the map that maps FSR keys to FSR IDs
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::unordered_map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
-  return _FSR_keys_map;
+std::unordered_map<std::size_t, fsr_data>* Geometry::getFSRKeysMap(){
+  return &_FSR_keys_map;
 }
 
 
@@ -1036,8 +1036,8 @@ std::unordered_map<std::size_t, fsr_data> Geometry::getFSRKeysMap(){
  * @brief Returns the vector that maps FSR IDs to FSR key hashes
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::vector<std::size_t> Geometry::getFSRsToKeys(){
-  return _FSRs_to_keys;
+std::vector<std::size_t>* Geometry::getFSRsToKeys(){
+  return &_FSRs_to_keys;
 }
 
 
@@ -1046,12 +1046,12 @@ std::vector<std::size_t> Geometry::getFSRsToKeys(){
  *        the corresponding Material IDs.
  * @return an integer vector of FSR-to-Material IDs indexed by FSR ID
  */
-std::vector<int> Geometry::getFSRsToMaterialIDs() {
+std::vector<int>* Geometry::getFSRsToMaterialIDs() {
   if (_num_FSRs == 0)
     log_printf(ERROR, "Unable to return the FSR-to-Material map array since "
                "the Geometry has not initialized FSRs.");
 
-  return _FSRs_to_material_IDs;
+  return &_FSRs_to_material_IDs;
 }
 
 
@@ -1065,9 +1065,9 @@ std::vector<int> Geometry::getFSRsToMaterialIDs() {
  *          are read from file to avoid unnecessary segmentation.  
  * @param FSR_keys_map map of FSR keys to FSR data
  */
-void Geometry::setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> 
+void Geometry::setFSRKeysMap(std::unordered_map<std::size_t, fsr_data>*
                              FSR_keys_map){
-  _FSR_keys_map = FSR_keys_map;
+  _FSR_keys_map = *FSR_keys_map;
 }
 
 
@@ -1075,8 +1075,8 @@ void Geometry::setFSRKeysMap(std::unordered_map<std::size_t, fsr_data>
  * @brief Sets the _FSRs_to_keys vector
  * @param FSRs_to_keys vector of FSR key hashes indexed by FSR IDs
  */
-void Geometry::setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys){
-  _FSRs_to_keys = FSRs_to_keys;
+void Geometry::setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys){
+  _FSRs_to_keys = *FSRs_to_keys;
 }
 
 
@@ -1084,8 +1084,8 @@ void Geometry::setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys){
  * @brief Sets the _FSRs_to_material_IDs vector
  * @param FSRs_to_material_IDs vector mapping FSR IDs to cells
  */
-void Geometry::setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs){
-  _FSRs_to_material_IDs = FSRs_to_material_IDs;
+void Geometry::setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs){
+  _FSRs_to_material_IDs = *FSRs_to_material_IDs;
 }
 
 
@@ -1107,7 +1107,7 @@ bool Geometry::withinBounds(LocalCoords* coords){
 
 
 void Geometry::setFSRCentroid(int fsr, Point* centroid){
-  _FSR_keys_map[_FSRs_to_keys[fsr]]._centroid = point;
+  _FSR_keys_map[_FSRs_to_keys[fsr]]._centroid = centroid;
 }
 
 

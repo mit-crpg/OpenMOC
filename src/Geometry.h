@@ -46,7 +46,7 @@ struct fsr_data {
       delete _point;
 
     if (_centroid != NULL)
-      delete _point;
+      delete _centroid;
   }
 };
 
@@ -140,25 +140,25 @@ public:
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
-  std::vector<std::size_t> getFSRsToKeys();
-  std::vector<int> getFSRsToMaterialIDs();
+  std::vector<std::size_t>* getFSRsToKeys();
+  std::vector<int>* getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
 #ifndef CUDA
-  std::unordered_map<std::size_t, fsr_data> getFSRKeysMap();
+  std::unordered_map<std::size_t, fsr_data>* getFSRKeysMap();
 #endif
 
   /* Set parameters */
-  void setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
-  void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
+  void setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
+  void setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys);
   void setNumFSRs(int num_fsrs);
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
 
 #ifndef CUDA
-  void setFSRKeysMap(std::unordered_map<std::size_t, fsr_data> FSR_keys_map);
+  void setFSRKeysMap(std::unordered_map<std::size_t, fsr_data>* FSR_keys_map);
 #endif
 
   /* Find methods */
