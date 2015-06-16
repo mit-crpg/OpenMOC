@@ -1568,7 +1568,7 @@ void TrackGenerator::generateFSRCentroids(){
   /* Get FSR Volumes */
   FP_PRECISION* FSR_volumes = getFSRVolumes();
 
-  /* Create temporary array of centroids and initialize to origin */
+  /* Create array of centroids and initialize to origin */
   Point** centroids = new Point*[num_FSRs];
   for (int r=0; r < num_FSRs; r++){
     centroids[r] = new Point();
@@ -1603,13 +1603,10 @@ void TrackGenerator::generateFSRCentroids(){
   }
 
   /* Set the centroid for the FSR */
-  for (int r=0; r < num_FSRs; r++){
+  for (int r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
-    delete centroids[r];
-  }
 
-  /* Delete temporary array of centroids and FSR volumes */
-  delete [] centroids;
+  /* Delete temporary array of FSR volumes */
   delete [] FSR_volumes;
 }
 

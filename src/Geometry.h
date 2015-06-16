@@ -38,7 +38,16 @@ struct fsr_data {
   Point* _point;
 
   /** Global numerical centroid in Root Universe */
-  Point* _centroid;  
+  Point* _centroid;
+
+  /** Destructor for fsr_data */
+  ~fsr_data() {
+    if (_point != NULL)
+      delete _point;
+
+    if (_centroid != NULL)
+      delete _point;
+  }
 };
 
 void reset_auto_ids();

@@ -1107,11 +1107,6 @@ bool Geometry::withinBounds(LocalCoords* coords){
 
 
 void Geometry::setFSRCentroid(int fsr, Point* centroid){
-
-  /* Create centroid point */
-  Point* point = new Point();
-  point->setX(centroid->getX());
-  point->setY(centroid->getY());
   _FSR_keys_map[_FSRs_to_keys[fsr]]._centroid = point;
 }
 
