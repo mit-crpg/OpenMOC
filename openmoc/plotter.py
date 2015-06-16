@@ -412,6 +412,8 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
 ##
 # @brief This method takes in a Geometry object and plots a color-coded 2D
 #        surface plot representing the flat source regions in the Geometry.
+#        The FSR centroids are plotted as black circles on top of the FSRs if
+#        the centroids boolean is set to True.
 # @details The Geometry object must be initialized with Materials, Cells,
 #          Universes and Lattices before being passed into this method. A user
 #          may invoke this function from an OpenMOC Python file as follows:
@@ -425,7 +427,11 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
+# @param centroids optional boolean to plot the FSR centroids
+# @param marker_type optional string to set the centroids marker type
+# @param marker_size optional int/float to set the centroids marker size
+def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
+                             centroids=False, marker_type='o', marker_size=2):
 
   global subdirectory
 
@@ -442,11 +448,31 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
-              'since the gridsize %d is not an integer', gridsize)
+              'the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the flat source regions ' + \
               'with a negative gridsize (%d)', gridsize)
+
+  if not isinstance(centroids, bool):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'centroids is not a boolean')
+
+  if not isinstance(marker_type, str):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_type is a string')
+
+  if marker_type not in matplotlib.markers.MarkerStyle().markers.keys():
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_type is not a valid marker (%d)', marker_type)
+
+  if not is_float(marker_size) and not is_integer(marker_size):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_size is not an int or float', marker_size)
+
+  if marker_size <= 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'with a negative marker_size (%d)', marker_size)
 
   py_printf('NORMAL', 'Plotting the flat source regions...')
 
@@ -508,144 +534,30 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
   colors = np.flipud(colors)
   plt.imshow(colors, extent=coords['bounds'],
              interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
+
+  # Plot centroids on top of 2D FSR color map
+  if centroids:
+    centroids_x = []
+    centroids_y = []
+    for r in range(geometry.getNumFSRs()):
+      point = geometry.getFSRCentroid(r)
+      centroids_x.append(point.getX())
+      centroids_y.append(point.getY())
+
+    plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
+                s=marker_size)
+
+    # Matplotlib likes to add a buffer around scatter plots, so we will
+    # manually set the plot bounds
+    plt.xlim(min(coords['x']), max(coords['x']))
+    plt.ylim(min(coords['y']), max(coords['y']))
+
+  # Set the plot title and save the figure
   plt.title('Flat Source Regions')
   filename = directory + 'flat-source-regions.png'
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
 
-
-##
-# @brief This method takes in a Geometry object and plots a color-coded 2D
-#        surface plot representing the flat source regions in the Geometry.
-#        The FSR centroids are plotted as black circles on top of the FSRs.
-# @details The Geometry object must be initialized with Materials, Cells,
-#          Universes and Lattices before being passed into this method. A user
-#          may invoke this function from an OpenMOC Python file as follows:
-#
-# @code
-#         openmoc.plotter.plot_centroids(geometry)
-# @endcode
-#
-# @param geometry a geometry object which has been initialized with Materials,
-#        Cells, Universes and Lattices
-# @param gridsize an optional number of grid cells for the plot
-# @param xlim optional list/tuple of the minimim/maximum x-coordinates
-# @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_centroids(geometry, gridsize=250, xlim=None, ylim=None):
-
-  global subdirectory
-
-  directory = openmoc.get_output_directory() + subdirectory
-
-  # Make directory if it does not exist
-  if not os.path.exists(directory):
-    os.makedirs(directory)
-
-  # Error checking
-  if not 'Geometry' in str(type(geometry)):
-    py_printf('ERROR', 'Unable to plot the centroids since ' + \
-              'input was not a geometry class object')
-
-  if not is_integer(gridsize):
-    py_printf('ERROR', 'Unable to plot the centroids since ' + \
-              'since the gridsize %d is not an integer', gridsize)
-
-  if gridsize <= 0:
-    py_printf('ERROR', 'Unable to plot the centroids ' + \
-              'with a negative gridsize (%d)', gridsize)
-
-  py_printf('NORMAL', 'Plotting the centroids...')
-
-  # Get the number of flat source regions
-  num_fsrs = geometry.getNumFSRs()
-
-  if num_fsrs == 0:
-    py_printf('ERROR', 'Unable to plot the centroids ' + \
-              'since no tracks have been generated.')
-
-  # Initialize a NumPy array for the surface colors and empty list of centroids
-  surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
-  centroids_x = []
-  centroids_y = []
-
-  # Retrieve the pixel coordinates
-  coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
-
-  # Find the flat source region IDs for each grid point
-  for i in range(gridsize):
-    for j in range(gridsize):
-
-      x = coords['x'][i]
-      y = coords['y'][j]
-
-      local_coords = openmoc.LocalCoords(x, y)
-      local_coords.setUniverse(geometry.getRootUniverse())
-      geometry.findCellContainingCoords(local_coords)
-      fsr_id = geometry.getFSRId(local_coords)
-
-      # If we did not find a region for this region, use a -1 "bad" number color
-      if fsr_id is None:
-        surface[j][i] = -1
-      else:
-       surface[j][i] = fsr_id
-
-      del local_coords
-
-  # Replace each Cell ID with a random (but reproducible) color ID
-  # NOTE: This color coding scheme only works for FSRs and CMFD cells and not
-  # for Materials and Cells. The reason is that FSRs and CMFD cells are by
-  # definition a sequence of consecutive, monotonically increasing integers.
-  # Material and Cell IDs however may be any sequence of positive integers.
-  all_ids = np.arange(num_fsrs, dtype=np.int64)
-
-  id_colors = np.arange(num_fsrs, dtype=np.int64)
-  numpy.random.seed(1)
-  np.random.shuffle(id_colors)
-
-  ids_to_colors = np.arange(num_fsrs, dtype=np.int64)
-  ids_to_colors[all_ids] = id_colors
-
-  colors = ids_to_colors.take(surface)
-
-  # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
-  cmap = plt.get_cmap('spectral')
-  cmap.set_bad(alpha=0.0)
-
-  # Plot a 2D color map of the flat source regions
-  fig = plt.figure()
-  colors = np.flipud(colors)
-  plt.imshow(colors, extent=coords['bounds'],
-             interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
-
-  # Plot centroids on top of 2D FSR color map
-  for r in range(geometry.getNumFSRs()):
-    point = geometry.getFSRCentroid(r)
-    x = point.getX()
-    y = point.getY()
-    
-    if xlim is None and ylim is None:
-      centroids_x.append(x)
-      centroids_y.append(y)
-    elif xlim is not None and ylim is not None:
-      if x >= xlim[0] and x <= xlim[1] and y >= ylim[0] and y <= ylim[1]:
-        centroids_x.append(x)
-        centroids_y.append(y)
-    elif xlim is not None:
-      if x >= xlim[0] and x <= xlim[1]:
-        centroids_x.append(x)
-        centroids_y.append(y)
-    else:
-      if y >= ylim[0] and y <= ylim[1]:
-        centroids_x.append(x)
-        centroids_y.append(y)
-        
-  plt.plot(centroids_x, centroids_y, 'ko', markersize=2)
-  
-  plt.title('Centroids')
-  filename = directory + 'centroids.png'
-  fig.savefig(filename, bbox_inches='tight')
-  plt.close(fig)
-  
 
 ##
 # @brief This method takes in a Geometry and Cmfd object and plots a
