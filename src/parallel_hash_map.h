@@ -40,16 +40,16 @@ class fixed_hash_map
     };
 
     private:
-        size_t _M;          // table size
-        size_t _N;          // number of elements present in table
-        node ** _buckets;   // buckets of values stored in nodes
+        size_t _M;          /* table size */
+        size_t _N;          /* number of elements present in table */
+        node ** _buckets;   /* buckets of values stored in nodes */
 
     public:
 
         fixed_hash_map(size_t M = 64);
         virtual ~fixed_hash_map();
         bool contains(K key);
-        V at(K key);
+        V& at(K key);
         void insert(K key, V value);
         int insert_and_get_count(K key, V value);
         size_t size();
@@ -75,7 +75,7 @@ class fixed_hash_map
 template <class K, class V>
 class parallel_hash_map
 {
-    // padded pointer to hash table to avoid false sharing
+    /* padded pointer to hash table to avoid false sharing */
     struct paddedPointer
     {
         volatile long pad_L1;
@@ -110,7 +110,7 @@ class parallel_hash_map
         parallel_hash_map(size_t M = 64, size_t L = 64);
         virtual ~parallel_hash_map();
         bool contains(K key);
-        V at(K key);
+        V& at(K key);
         void insert(K key, V value);
         int insert_and_get_count(K key, V value);
         size_t size();
@@ -134,17 +134,17 @@ class parallel_hash_map
 template <class K, class V>
 fixed_hash_map<K,V>::fixed_hash_map(size_t M)
 {
-    // ensure M is a power of 2
+    /* ensure M is a power of 2 */
     if( M & (M-1) != 0 )
     {
-        // if not, round up to nearest power of 2
+        /* if not, round up to nearest power of 2 */
         M--;
         for(size_t i = 1; i < 8 * sizeof(size_t); i*=2)
             M |= M >> i;
         M++;
     }
 
-    // allocate table
+    /* allocate table */
     _M = M;
     _N = 0;
     _buckets = new node*[_M]();
@@ -157,7 +157,7 @@ fixed_hash_map<K,V>::fixed_hash_map(size_t M)
 template <class K, class V>
 fixed_hash_map<K,V>::~fixed_hash_map()
 {
-    // for each bucket, scan through linked list and delete all nodes
+    /* for each bucket, scan through linked list and delete all nodes */
     for(size_t i=0; i<_M; i++)
     {
         node *iter_node = _buckets[i];
@@ -169,7 +169,7 @@ fixed_hash_map<K,V>::~fixed_hash_map()
         }
     } 
 
-    // delete all buckets (now pointers to empty linked lists)
+    /* delete all buckets (now pointers to empty linked lists) */
     delete[] _buckets;
 } 
 
@@ -183,10 +183,10 @@ fixed_hash_map<K,V>::~fixed_hash_map()
 template <class K, class V>
 bool fixed_hash_map<K,V>::contains(K key)
 {
-    // get hash into table assuming M is a power of 2, using fast modulus
+    /* get hash into table assuming M is a power of 2, using fast modulus */
     size_t key_hash = std::hash<K>()(key) & (_M-1);
 
-    // search corresponding bucket for key
+    /* search corresponding bucket for key */
     node *iter_node = _buckets[key_hash];
     while(iter_node != NULL)
     {
@@ -208,15 +208,12 @@ bool fixed_hash_map<K,V>::contains(K key)
  * @return value associated with the given key
  */
 template <class K, class V>
-V fixed_hash_map<K,V>::at(K key)
+V& fixed_hash_map<K,V>::at(K key)
 {
-    // intialize value of type V
-    V val;
-
-    // get hash into table assuming M is a power of 2, using fast modulus
+    /* get hash into table assuming M is a power of 2, using fast modulus */
     size_t key_hash = std::hash<K>()(key) & (_M-1);
 
-    // search bucket for key and return the corresponding value if found
+    /* search bucket for key and return the corresponding value if found */
     node *iter_node = _buckets[key_hash];
     while(iter_node != NULL)
         if(iter_node->key == key)
@@ -224,10 +221,9 @@ V fixed_hash_map<K,V>::at(K key)
         else
             iter_node = iter_node->next;
     
-    // after the bucket has been completely searched without finding the key,
-    // throw an exception
+    /* after the bucket has been completely searched without finding the key, 
+       throw an exception */
     throw std::out_of_range("Key not present in map");
-    return val;
 }
 
 
@@ -242,24 +238,25 @@ V fixed_hash_map<K,V>::at(K key)
 template <class K, class V>
 void fixed_hash_map<K,V>::insert(K key, V value)
 {
-    // get hash into table using fast modulus
+    /* get hash into table using fast modulus */
     size_t key_hash = std::hash<K>()(key) & (_M-1);
 
-    // check to see if key already exisits in map
+    /* check to see if key already exisits in map */
     if(contains(key))
         return;
  
-    // create new node
+    /* create new node */
     node *new_node = new node(key, value);
 
-    // find where to place element in linked list
+    /* find where to place element in linked list */
     node **iter_node = &_buckets[key_hash];
     while(*iter_node != NULL)
         iter_node = &(*iter_node)->next;
-    // place element in linked list
+
+    /* place element in linked list */
     *iter_node = new_node;
     
-    // increment counter
+    /* increment counter */
     #pragma omp atomic update
     _N++;
 
@@ -280,25 +277,25 @@ void fixed_hash_map<K,V>::insert(K key, V value)
 template <class K, class V>
 int fixed_hash_map<K,V>::insert_and_get_count(K key, V value)
 {
-    // get hash into table using fast modulus
+    /* get hash into table using fast modulus */
     size_t key_hash = std::hash<K>()(key) & (_M-1);
 
-    // check to see if key already exisits in map
+    /* check to see if key already exisits in map */
     if(contains(key))
         return -1;
  
-    // create new node
+    /* create new node */
     node *new_node = new node(key, value);
 
-    // find where to place element in linked list
+    /* find where to place element in linked list */
     node **iter_node = &_buckets[key_hash];
     while(*iter_node != NULL)
         iter_node = &(*iter_node)->next;
     
-    // place element in linked list
+    /* place element in linked list */
     *iter_node = new_node;
     
-    // increment counter and return number
+    /* increment counter and return number */
     size_t N;
     #pragma omp atomic capture
     N = _N++;
@@ -336,8 +333,10 @@ size_t fixed_hash_map<K,V>::bucket_count()
 template <class K, class V>
 K* fixed_hash_map<K,V>::keys()
 {
-    // allocate array of keys
+    /* allocate array of keys */
     K *key_list = new K[_N];
+
+    /* fill array with keys */
     size_t ind = 0;
     for(size_t i=0; i<_M; i++)
     {
@@ -362,8 +361,10 @@ K* fixed_hash_map<K,V>::keys()
 template <class K, class V>
 V* fixed_hash_map<K,V>::values()
 {
-    // allocate array of keys
+    /* allocate array of values */
     V *values = new V[_N];
+
+    /* fill array with values */
     size_t ind = 0;
     for(size_t i=0; i<_M; i++)
     {
@@ -384,7 +385,7 @@ V* fixed_hash_map<K,V>::values()
 template <class K, class V>
 void fixed_hash_map<K,V>::clear()
 {
-    // for each bucket, scan through linked list and delete all nodes
+    /* for each bucket, scan through linked list and delete all nodes */
     for(size_t i=0; i<_M; i++)
     {
         node *iter_node = _buckets[i];
@@ -396,11 +397,11 @@ void fixed_hash_map<K,V>::clear()
         }
     }
 
-    // reset each bucket to null
+    /* reset each bucket to null */
     for(size_t i=0; i<_M; i++)
         _buckets[i] = NULL;
 
-    // reset the number of entries to zero
+    /* reset the number of entries to zero */
     _N = 0;
     
     return;
@@ -432,10 +433,10 @@ void fixed_hash_map<K,V>::print_buckets()
 template <class K, class V>
 parallel_hash_map<K,V>::parallel_hash_map(size_t M, size_t L)
 {
-    // allocate table
+    /* allocate table */
     _table = new fixed_hash_map<K,V>(M);
 
-    // get number of threads and create announce array
+    /* get number of threads and create concurrency structures */
     _num_threads = 1;
     #ifdef OPENMP
     _num_threads = omp_get_max_threads();
@@ -478,23 +479,24 @@ parallel_hash_map<K,V>::~parallel_hash_map()
 template <class K, class V>
 bool parallel_hash_map<K,V>::contains(K key)
 {
-    // get thread ID
+    /* get thread ID */
     size_t tid = 0;
     #ifdef OPENMP
     tid = omp_get_thread_num();
     #endif
 
-    // get pointer to table, announce it will be searched, ensure consistency
+    /* get pointer to table, announce it will be searched, 
+       and ensure consistency */
     fixed_hash_map<K,V> *table_ptr; 
     do{
         table_ptr = _table;
         _announce[tid].value = table_ptr;
     } while(table_ptr != _table);
 
-    // see if current table contians the thread
+    /* see if current table contians the thread */
     bool present = table_ptr->contains(key);
     
-    // reset table announcement to not searching
+    /* reset table announcement to not searching */
     _announce[tid].value = NULL;
     
     return present;
@@ -516,25 +518,25 @@ bool parallel_hash_map<K,V>::contains(K key)
  * @return value associated with the key
  */
 template <class K, class V>
-V parallel_hash_map<K,V>::at(K key)
+V& parallel_hash_map<K,V>::at(K key)
 {
-    // get thread ID
+    /* get thread ID */
     size_t tid = 0;
     #ifdef OPENMP
     tid = omp_get_thread_num();
     #endif
 
-    // get pointer to table, announce it will be searched
+    /* get pointer to table, announce it will be searched */
     fixed_hash_map<K,V> *table_ptr; 
     do{
         table_ptr = _table;
         _announce[tid].value = table_ptr;
     } while(table_ptr != _table);
     
-    // see if current table contians the thread
-    V value = table_ptr->at(key);
+    /* FIXME */
+    V& value = table_ptr->at(key);
     
-    // reset table announcement to not searching
+    /* reset table announcement to not searching */
     _announce[tid].value = NULL;
     
     return value;
@@ -553,7 +555,7 @@ V parallel_hash_map<K,V>::at(K key)
 template <class K, class V>
 void parallel_hash_map<K,V>::insert(K key, V value)
 {
-    // check if resize needed
+    /* check if resize needed */
     if(2*_table->size() > _table->bucket_count())
         resize();
 

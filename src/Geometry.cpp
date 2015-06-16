@@ -517,30 +517,31 @@ int Geometry::findFSRId(LocalCoords* coords) {
   /* If FSR has not been encountered, update FSR maps and vectors */
   if (!_FSR_keys_map.contains(fsr_key_hash)){
 
-    /* Get the cell that contains coords */
-    Cell* cell = findCellContainingCoords(curr);
-    
-    /* Add FSR information to FSR key map and FSR_to vectors */
-    fsr_data *fsr = new fsr_data;
-    fsr->_fsr_id = -1;
     
     /* Try to get a clean copy of the fsr_id, adding the FSR data 
        if necessary where -1 indicates the key was already added */
-    fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, fsr);
+    fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
     if( fsr_id == -1)
     {
-      delete fsr;
+      fsr_data* fsr;
       do{
-        fsr_id = _FSR_keys_map.at(fsr_key_hash)->_fsr_id;
-      } while(fsr_id == -1);
+        fsr = _FSR_keys_map.at(fsr_key_hash);
+      } while(fsr == NULL);
+      fsr_id = fsr->_fsr_id;
     }
     else{
+      
+      /* Add FSR information to FSR key map and FSR_to vectors */
+      fsr_data* fsr = new fsr_data;
+      fsr->_fsr_id = fsr_id;
+      _FSR_keys_map.at(fsr_key_hash) = fsr;
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(), 
                        coords->getHighestLevel()->getY());
       
+      /* Get the cell that contains coords */
+      Cell* cell = findCellContainingCoords(curr);
       fsr->_point = point;
-      fsr->_fsr_id = fsr_id;
       fsr->_mat_id = cell->getFillMaterial()->getId();
 
       /* If CMFD acceleration is on, add FSR to CMFD cell */
@@ -826,18 +827,18 @@ void Geometry::segmentize(Track* track) {
 /**
  * @brief Initialize key and material ID vectors for lookup by FSR ID
  */
-void Geometry::initializeFSRVectors()
-{
-  // get keys and values from map
+void Geometry::initializeFSRVectors(){
+  
+  /* get keys and values from map */
   std::size_t *key_list = _FSR_keys_map.keys();
   fsr_data **value_list = _FSR_keys_map.values();
 
-  // allocate vectors
+  /* allocate vectors */
   int N = _FSR_keys_map.size();
   _FSRs_to_keys = std::vector<size_t>(N);
   _FSRs_to_material_IDs = std::vector<int>(N);
 
-  // fill vectors key and material ID information
+  /* fill vectors key and material ID information */
   #pragma omp parallel for
   for(int i=0; i < N; i++)
   {
