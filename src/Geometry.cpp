@@ -33,6 +33,7 @@ Geometry::~Geometry() {
     fsr_data **values = _FSR_keys_map.values();
     for(int i=0; i<_FSR_keys_map.size(); i++)
       delete values[i];
+    delete[] values;
     _FSR_keys_map.clear();
     _FSRs_to_keys.clear();
     _FSRs_to_material_IDs.clear();
@@ -849,6 +850,10 @@ void Geometry::initializeFSRVectors(){
     _FSRs_to_keys.at(fsr_id) = key;
     _FSRs_to_material_IDs.at(fsr_id) = fsr->_mat_id;
   }
+
+  /* Delete key and value lists */
+  delete[] key_list;
+  delete[] value_list;
 }
 
 

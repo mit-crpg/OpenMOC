@@ -1263,6 +1263,10 @@ void TrackGenerator::dumpTracksToFile() {
     }
   }
 
+  /* Delete key and value lists */
+  delete[] fsr_key_list;
+  delete[] fsr_data_list;
+
   /* Close the Track file */
   fclose(out);
 
