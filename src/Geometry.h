@@ -34,6 +34,8 @@ struct fsr_data {
 
   /** The FSR ID */
   int _fsr_id;
+  
+  /** The Material ID */
   int _mat_id;
 
   /** Characteristic point in Universe 0 that lies in FSR */

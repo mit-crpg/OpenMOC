@@ -586,10 +586,10 @@ void Solver::initializeFSRs() {
 
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
-  
+
   /* Get an array of volumes indexed by FSR  */
   _FSR_volumes = _track_generator->getFSRVolumes();
-  
+
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 

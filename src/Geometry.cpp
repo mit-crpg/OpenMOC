@@ -554,7 +554,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   /* If FSR has already been encountered, get the fsr id from map */
   else
     fsr_id = _FSR_keys_map.at(fsr_key_hash)->_fsr_id;
-      
+
   return fsr_id;
 }
 
@@ -819,13 +819,14 @@ void Geometry::segmentize(Track* track) {
   /* Truncate the linked list for the LocalCoords */
   start.prune();
   end.prune();
-
-  return;
 }
 
 
 /**
  * @brief Initialize key and material ID vectors for lookup by FSR ID
+ * @detail This function initializes and sets reverse lookup vectors by FSR ID.
+ *      This is called after the FSRs have all been identified and allocated
+ *      during segmentation.
  */
 void Geometry::initializeFSRVectors(){
   
@@ -848,7 +849,6 @@ void Geometry::initializeFSRVectors(){
     _FSRs_to_keys.at(fsr_id) = key;
     _FSRs_to_material_IDs.at(fsr_id) = fsr->_mat_id;
   }
-  return;
 }
 
 

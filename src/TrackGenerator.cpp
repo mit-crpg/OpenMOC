@@ -182,8 +182,6 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
   /* Calculate each FSR's "volume" by accumulating the total length of * 
    * all Track segments multipled by the Track "widths" for each FSR.  */
-  int max_n = 0;
-  int max_n2 = 0;
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
 
@@ -1208,7 +1206,7 @@ void TrackGenerator::dumpTracksToFile() {
   }
 
   /* Get FSR vector maps */
-  parallel_hash_map<std::size_t, fsr_data*> *FSR_keys_map = 
+  parallel_hash_map<std::size_t, fsr_data*>* FSR_keys_map = 
       _geometry->getFSRKeysMap();
   std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
@@ -1412,7 +1410,7 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Create FSR vector maps */
-  parallel_hash_map<std::size_t, fsr_data*> *FSR_keys_map =
+  parallel_hash_map<std::size_t, fsr_data*>* FSR_keys_map =
       new parallel_hash_map<std::size_t, fsr_data*>;
   std::vector<int> FSRs_to_material_IDs;
   std::vector<std::size_t> FSRs_to_keys;
@@ -1448,7 +1446,6 @@ bool TrackGenerator::readTracksFromFile() {
     FSRs_to_keys.push_back(fsr_key);
   }
 
-
   /* Set FSR vector maps */
   _geometry->setFSRKeysMap(FSR_keys_map);
   _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
@@ -1463,7 +1460,7 @@ bool TrackGenerator::readTracksFromFile() {
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++){
-      std::vector<int> *fsrs = new std::vector<int>;
+      std::vector<int>* fsrs = new std::vector<int>;
       cell_fsrs.push_back(*fsrs);
       ret = fread(&num_FSRs, sizeof(int), 1, in);
 
@@ -1477,14 +1474,14 @@ bool TrackGenerator::readTracksFromFile() {
     /* Set CMFD cell_fsrs vector of vectors */
     cmfd->setCellFSRs(cell_fsrs);
   }
-  
+
   /* Inform the rest of the class methods that Tracks have been initialized */
   if (ret)
     _contains_tracks = true;
 
   /* Close the Track file */
   fclose(in);
-  
+
   return true;
 }
 

@@ -20,7 +20,7 @@
 /**
  * @class fixed_hash_map ParallelHashMap.h "src/ParallelHashMap.h"
  * @brief A fixed-size hash map supporting insertion and lookup operations
- * @details The fixed_hash_map class supports insertaion and lookup operations
+ * @details The fixed_hash_map class supports insertion and lookup operations
  *    but not deletion as deletion is not needed in the OpenMOC application. 
  *    This hash table uses chaining for collisions and does not incorporate
  *    concurrency objects except for tracking the number of entries in the
@@ -64,7 +64,7 @@ class fixed_hash_map
  * @class parallel_hash_map ParallelHashMap.h "src/ParallelHashMap.h"
  * @brief A thread-safe hash map supporting insertion and lookup operations
  * @details The parallel_hash_map class is built ontop of the fixed_hash_map
- *    class, supporting insertaion and lookup operations but not deletion as
+ *    class, supporting insertion and lookup operations but not deletion as
  *    deletion is not needed in the OpenMOC application. This hash table uses
  *    chaining for collisions, as defined in fixed_hash_map. It offers lock
  *    free lookups in O(1) time on average and fine-grained locking for
@@ -151,7 +151,7 @@ fixed_hash_map<K,V>::fixed_hash_map(size_t M)
 }
 
 /**
- * @breif Destructor deletes all nodes in the linked lists associate with each
+ * @brief Destructor deletes all nodes in the linked lists associated with each
  *      bucket in the fixed-size table and their pointers.
  */
 template <class K, class V>
@@ -177,7 +177,7 @@ fixed_hash_map<K,V>::~fixed_hash_map()
  * @brief Determine whether the fixed-size table contains a given key
  * @details The linked list in the bucket associated with the key is searched
  *       to determine whether the key is present.
- * @param key to be searched
+ * @param key key to be searched
  * @return boolean value referring to whether the key is contained in the map
  */
 template <class K, class V>
@@ -204,7 +204,7 @@ bool fixed_hash_map<K,V>::contains(K key)
  * @details The linked list in the bucket associated with the key is searched
  *      and once the key is found, the corresponding value is returned.
  *      An exception is thrown if the key is not present in the map.
- * @param key whose corresponding value is desired
+ * @param key key whose corresponding value is desired
  * @return value associated with the given key
  */
 template <class K, class V>
@@ -228,12 +228,12 @@ V& fixed_hash_map<K,V>::at(K key)
 
 
 /**
- * @brief Insert a key/value pair into the fixed-size table.
+ * @brief Inserts a key/value pair into the fixed-size table.
  * @details The specified key value pair is inserted into the fixed-size table.
  *      If the key already exists in the table, the pair is not inserted
  *      and the function returns.
- * @param key of the key/value pair to be inserted
- * @param value of the key/value pair to be inserted
+ * @param key key of the key/value pair to be inserted
+ * @param value value of the key/value pair to be inserted
  */
 template <class K, class V>
 void fixed_hash_map<K,V>::insert(K key, V value)
@@ -262,13 +262,13 @@ void fixed_hash_map<K,V>::insert(K key, V value)
 }
 
 /**
- * @brief Insert a key/value pair into the fixed-size table and returns the
+ * @brief Inserts a key/value pair into the fixed-size table and returns the
  *      order number with which it was inserted.
  * @details The specified key value pair is inserted into the fixed-size table.
  *      If the key already exists in the table, the pair is not inserted
  *      and the function returns -1.
- * @param key of the key/value pair to be inserted
- * @param value of the key/value pair to be inserted
+ * @param key key of the key/value pair to be inserted
+ * @param value value of the key/value pair to be inserted
  * @return order number in which key/value pair was inserted, -1 is returned if
  *      key was already present in map.
  */
@@ -378,7 +378,7 @@ V* fixed_hash_map<K,V>::values()
 }
 
 /**
- * @breif Clears all key/value pairs form the hash table.
+ * @brief Clears all key/value pairs form the hash table.
  */
 template <class K, class V>
 void fixed_hash_map<K,V>::clear()
@@ -446,7 +446,7 @@ parallel_hash_map<K,V>::parallel_hash_map(size_t M, size_t L)
 }
 
 /**
- * @breif Destructor frees memory associated with fixed-sized hash map and
+ * @brief Destructor frees memory associated with fixed-sized hash map and
  *      concurrency structures.
  */
 template <class K, class V>
@@ -469,7 +469,7 @@ parallel_hash_map<K,V>::~parallel_hash_map()
  *      finished accessing the table, the announcement is reset to NULL.
  *      The announcement ensures that the data in the map is not freed
  *      during a resize until all threads have finished accessing the map.
- * @param key to be searched
+ * @param key key to be searched
  * @return boolean value referring to whether the key is contained in the map
  */
 template <class K, class V>
@@ -489,7 +489,7 @@ bool parallel_hash_map<K,V>::contains(K key)
     _announce[tid].value = table_ptr;
   } while(table_ptr != _table);
 
-  /* see if current table contians the thread */
+  /* see if current table contains the thread */
   bool present = table_ptr->contains(key);
   
   /* reset table announcement to not searching */
@@ -510,7 +510,7 @@ bool parallel_hash_map<K,V>::contains(K key)
  *      the announcement is reset to NULL. The announcement ensures that 
  *      the data in the map is not freed during a resize until all threads 
  *      have finished accessing the map.
- * @param key to be searched
+ * @param key key to be searched
  * @return value associated with the key
  */
 template <class K, class V>
@@ -545,8 +545,8 @@ V& parallel_hash_map<K,V>::at(K key)
  *      already contains the key. If so, the key/value pair is not inserted
  *      and the function returns. Otherwise, the lock of the associated
  *      bucket is acquired and the key/value pair is added to the bucket.
- * @param key of the key/value pair to be inserted
- * @param value of the key/value pair to be inserted
+ * @param key key of the key/value pair to be inserted
+ * @param value value of the key/value pair to be inserted
  */
 template <class K, class V>
 void parallel_hash_map<K,V>::insert(K key, V value)
@@ -585,8 +585,8 @@ void parallel_hash_map<K,V>::insert(K key, V value)
  *      already contains the key. If so, the key/value pair is not inserted
  *      and the function returns. Otherwise, the lock of the associated
  *      bucket is acquired and the key/value pair is added to the bucket.
- * @param key of the key/value pair to be inserted
- * @param value of the key/value pair to be inserted
+ * @param key key of the key/value pair to be inserted
+ * @param value value of the key/value pair to be inserted
  * @return order number in which the key/value pair was inserted, -1 if it
  *      already exists
  */
@@ -788,7 +788,7 @@ V* parallel_hash_map<K,V>::values()
 }
 
 /**
- * @breif Clears all key/value pairs form the hash table.
+ * @brief Clears all key/value pairs form the hash table.
  */
 template <class K, class V>
 void parallel_hash_map<K,V>::clear()
