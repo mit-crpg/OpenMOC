@@ -259,8 +259,6 @@ void fixed_hash_map<K,V>::insert(K key, V value)
     /* increment counter */
     #pragma omp atomic update
     _N++;
-
-    return;
 }
 
 /**
@@ -403,8 +401,6 @@ void fixed_hash_map<K,V>::clear()
 
     /* reset the number of entries to zero */
     _N = 0;
-    
-    return;
 }
 
 /**
@@ -559,28 +555,26 @@ void parallel_hash_map<K,V>::insert(K key, V value)
     if(2*_table->size() > _table->bucket_count())
         resize();
 
-    // check to see if key is already contained in the table
+    /* check to see if key is already contained in the table */
     if(contains(key))
         return;
 
-    // get lock hash
+    /* get lock hash */
     #ifdef OPENMP
     size_t lock_hash = (std::hash<K>()(key) & (_table->bucket_count() - 1))
         % _num_locks;
 
-    // acquire lock
+    /* acquire lock */
     omp_set_lock(&_locks[lock_hash]);
     #endif
 
-    // insert value
+    /* insert value */
     _table->insert(key, value);
 
-    // release lock
+    /* release lock */
     #ifdef OPENMP
     omp_unset_lock(&_locks[lock_hash]);
     #endif
-   
-    return;
 }
 
 /**
@@ -599,27 +593,27 @@ void parallel_hash_map<K,V>::insert(K key, V value)
 template <class K, class V>
 int parallel_hash_map<K,V>::insert_and_get_count(K key, V value)
 {
-    // check if resize needed
+    /* check if resize needed */
     if(2*_table->size() > _table->bucket_count())
         resize();
 
-    // check to see if key is already contained in the table
+    /* check to see if key is already contained in the table */
     if(contains(key))
         return -1;
 
-    // get lock hash
+    /* get lock hash */
     #ifdef OPENMP
     size_t lock_hash = (std::hash<K>()(key) & (_table->bucket_count() - 1))
         % _num_locks;
 
-    // acquire lock
+    /* acquire lock */
     omp_set_lock(&_locks[lock_hash]);
     #endif
 
-    // insert value
+    /* insert value */
     int N =_table->insert_and_get_count(key, value);
 
-    // release lock
+    /* release lock */
     #ifdef OPENMP
     omp_unset_lock(&_locks[lock_hash]);
     #endif
@@ -641,16 +635,16 @@ int parallel_hash_map<K,V>::insert_and_get_count(K key, V value)
 template <class K, class V>
 void parallel_hash_map<K,V>::resize()
 {
-    // acquire all locks in order
+    /* acquire all locks in order */
     #ifdef OPENMP
     for(size_t i=0; i<_num_locks; i++)
         omp_set_lock(&_locks[i]);
     #endif 
 
-    // recheck if resize needed
+    /* recheck if resize needed */
     if(2*_table->size() < _table->bucket_count())
     {
-        // release locks
+        /* release locks */
         #ifdef OPENMP
         for(size_t i=0; i<_num_locks; i++)
             omp_unset_lock(&_locks[i]);
@@ -659,42 +653,40 @@ void parallel_hash_map<K,V>::resize()
         return;
     }
 
-    // allocate new hash map of double the size
+    /* allocate new hash map of double the size */
     fixed_hash_map<K,V> *new_map = 
         new fixed_hash_map<K,V>(2*_table->bucket_count());
 
-    // get keys, values, and number of elements
+    /* get keys, values, and number of elements */
     K *key_list = _table->keys();
     V *value_list = _table->values();
 
-    // insert key/value pairs into new hash map
+    /* insert key/value pairs into new hash map */
     for(size_t i=0; i<_table->size(); i++)
         new_map->insert(key_list[i], value_list[i]);
 
-    // save pointer of old table
+    /* save pointer of old table */
     fixed_hash_map<K,V> *old_table = _table;
 
-    // reassign pointer
+    /* reassign pointer */
     _table = new_map;
 
-    // release all locks
+    /* release all locks */
     #ifdef OPENMP
     for(size_t i=0; i<_num_locks; i++)
         omp_unset_lock(&_locks[i]);
     #endif
 
-    // delete key and value list
+    /* delete key and value list */
     delete[] key_list;
     delete[] value_list;
 
-    // wait for all threads to stop reading from the old table
+    /* wait for all threads to stop reading from the old table */
     for(size_t i=0; i<_num_threads; i++)
         while(_announce[i].value == old_table) {};
 
-    // free memory associated with old table
+    /* free memory associated with old table */
     delete old_table;
-
-    return;
 }
 
 /**
@@ -739,23 +731,23 @@ size_t parallel_hash_map<K,V>::num_locks()
 template <class K, class V>
 K* parallel_hash_map<K,V>::keys()
 {
-    // get thread ID
+    /* get thread ID */
     size_t tid = 0;
     #ifdef OPENMP
     tid = omp_get_thread_num();
     #endif
 
-    // get pointer to table, announce it will be searched
+    /* get pointer to table, announce it will be searched */
     fixed_hash_map<K,V> *table_ptr; 
     do{
         table_ptr = _table;
         _announce[tid].value = table_ptr;
     } while(table_ptr != _table);
 
-    // get key list
+    /* get key list */
     K* key_list = table_ptr->keys();
 
-    // reset table announcement to not searching
+    /* reset table announcement to not searching */
     _announce[tid].value = NULL;
 
     return key_list;
@@ -773,23 +765,23 @@ K* parallel_hash_map<K,V>::keys()
 template <class K, class V>
 V* parallel_hash_map<K,V>::values()
 {
-    // get thread ID
+    /* get thread ID */
     size_t tid = 0;
     #ifdef OPENMP
     tid = omp_get_thread_num();
     #endif
 
-    // get pointer to table, announce it will be searched
+    /* get pointer to table, announce it will be searched */
     fixed_hash_map<K,V> *table_ptr; 
     do{
         table_ptr = _table;
         _announce[tid].value = table_ptr;
     } while(table_ptr != _table);
 
-    // get value list
+    /* get value list */
     V* value_list = table_ptr->values();
     
-    // reset table announcement to not searching
+    /* reset table announcement to not searching */
     _announce[tid].value = NULL;
 
     return value_list;
@@ -801,16 +793,14 @@ V* parallel_hash_map<K,V>::values()
 template <class K, class V>
 void parallel_hash_map<K,V>::clear()
 {
-    // acquire all locks in order
+    /* acquire all locks in order */
     #ifdef OPENMP
     for(size_t i=0; i<_num_locks; i++)
         omp_set_lock(&_locks[i]);
     #endif 
 
-    // clear underlying fixed table
+    /* clear underlying fixed table */
     _table->clear();
-
-    return;
 }
 
 /**
@@ -824,26 +814,24 @@ void parallel_hash_map<K,V>::clear()
 template <class K, class V>
 void parallel_hash_map<K,V>::print_buckets()
 {
-    // get thread ID
+    /* get thread ID */
     size_t tid = 0;
     #ifdef OPENMP
     tid = omp_get_thread_num();
     #endif
 
-    // get pointer to table, announce it will be searched
+    /* get pointer to table, announce it will be searched */
     fixed_hash_map<K,V> *table_ptr; 
     do{
         table_ptr = _table;
         _announce[tid].value = table_ptr;
     } while(table_ptr != _table);
         
-    // print buckets
+    /* print buckets */
     table_ptr->print_buckets();
 
-    // reset table announcement to not searching
+    /* reset table announcement to not searching */
     _announce[tid].value = NULL;
-    
-    return;
 }
 
 
