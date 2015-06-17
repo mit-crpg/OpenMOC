@@ -34,6 +34,9 @@ struct fsr_data {
 
   /** The FSR ID */
   int _fsr_id;
+ 
+  /** The CMFD Cell */
+  int _cmfd_cell;
   
   /** The Material ID */
   int _mat_id;

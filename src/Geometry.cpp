@@ -545,11 +545,9 @@ int Geometry::findFSRId(LocalCoords* coords) {
       fsr->_point = point;
       fsr->_mat_id = cell->getFillMaterial()->getId();
 
-      /* If CMFD acceleration is on, add FSR to CMFD cell */
-      if (_cmfd != NULL){
-        int cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
-        _cmfd->addFSRToCell(cmfd_cell, fsr_id);
-      }
+      /* If CMFD acceleration is on, add FSR CMFD cell to FSR data */
+      if (_cmfd != NULL)
+        fsr->_cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
     }
   }
   /* If FSR has already been encountered, get the fsr id from map */
@@ -845,10 +843,21 @@ void Geometry::initializeFSRVectors(){
   for(int i=0; i < N; i++)
   {
     std::size_t key = key_list[i];
-    fsr_data *fsr = value_list[i];
+    fsr_data* fsr = value_list[i];
     int fsr_id = fsr->_fsr_id;
     _FSRs_to_keys.at(fsr_id) = key;
     _FSRs_to_material_IDs.at(fsr_id) = fsr->_mat_id;
+  }
+
+  /* add cmfd information serially */
+  if(_cmfd != NULL)
+  {
+    for(int i=0; i < N; i++)
+    {
+      fsr_data* fsr = value_list[i];
+      int fsr_id = fsr->_fsr_id;
+      _cmfd->addFSRToCell(fsr->_cmfd_cell, fsr_id);
+    }
   }
 
   /* Delete key and value lists */
