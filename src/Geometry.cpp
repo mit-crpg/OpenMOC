@@ -1019,7 +1019,7 @@ void Geometry::initializeCmfd(){
  * @brief Returns a pointer to the map that maps FSR keys to FSR IDs
  * @return pointer to _FSR_keys_map map of FSR keys to FSR IDs
  */
-parallel_hash_map<std::size_t, fsr_data*>* Geometry::getFSRKeysMap(){
+ParallelHashMap<std::size_t, fsr_data*>* Geometry::getFSRKeysMap(){
   return &_FSR_keys_map;
 }
 
@@ -1055,7 +1055,7 @@ std::vector<int> Geometry::getFSRsToMaterialIDs() {
  *          are read from file to avoid unnecessary segmentation.  
  * @param FSR_keys_map map of FSR keys to FSR data
  */
-void Geometry::setFSRKeysMap(parallel_hash_map<std::size_t, fsr_data*>* 
+void Geometry::setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* 
                              FSR_keys_map){
   _FSR_keys_map = *FSR_keys_map;
 }

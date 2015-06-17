@@ -25,7 +25,7 @@
  *    This hash table uses chaining for collisions and does not incorporate
  *    concurrency objects except for tracking the number of entries in the
  *    table for which an atomic increment is used. This hash table is not
- *    thread safe but is used as a building block for the parallel_hash_map
+ *    thread safe but is used as a building block for the ParallelHashMap
  *    class. This table guarantees O(1) insertions and lookups on avarge.
  */
 template <class K, class V>
@@ -61,9 +61,9 @@ class fixed_hash_map
 };
 
 /**
- * @class parallel_hash_map ParallelHashMap.h "src/ParallelHashMap.h"
+ * @class ParallelHashMap ParallelHashMap.h "src/ParallelHashMap.h"
  * @brief A thread-safe hash map supporting insertion and lookup operations
- * @details The parallel_hash_map class is built ontop of the fixed_hash_map
+ * @details The ParallelHashMap class is built ontop of the fixed_hash_map
  *    class, supporting insertion and lookup operations but not deletion as
  *    deletion is not needed in the OpenMOC application. This hash table uses
  *    chaining for collisions, as defined in fixed_hash_map. It offers lock
@@ -73,7 +73,7 @@ class fixed_hash_map
  *    chosen to limit the number of resizing operations.
  */
 template <class K, class V>
-class parallel_hash_map
+class ParallelHashMap
 {
   /* padded pointer to hash table to avoid false sharing */
   struct paddedPointer
@@ -107,8 +107,8 @@ class parallel_hash_map
     void resize();
 
   public:
-    parallel_hash_map(size_t M = 64, size_t L = 64);
-    virtual ~parallel_hash_map();
+    ParallelHashMap(size_t M = 64, size_t L = 64);
+    virtual ~ParallelHashMap();
     bool contains(K key);
     V& at(K key);
     void insert(K key, V value);
@@ -427,7 +427,7 @@ void fixed_hash_map<K,V>::print_buckets()
  *      hash map and intializes concurrency structures.
  */
 template <class K, class V>
-parallel_hash_map<K,V>::parallel_hash_map(size_t M, size_t L)
+ParallelHashMap<K,V>::ParallelHashMap(size_t M, size_t L)
 {
   /* allocate table */
   _table = new fixed_hash_map<K,V>(M);
@@ -450,7 +450,7 @@ parallel_hash_map<K,V>::parallel_hash_map(size_t M, size_t L)
  *      concurrency structures.
  */
 template <class K, class V>
-parallel_hash_map<K,V>::~parallel_hash_map()
+ParallelHashMap<K,V>::~ParallelHashMap()
 {
   delete _table;
   #ifdef OPENMP  
@@ -473,7 +473,7 @@ parallel_hash_map<K,V>::~parallel_hash_map()
  * @return boolean value referring to whether the key is contained in the map
  */
 template <class K, class V>
-bool parallel_hash_map<K,V>::contains(K key)
+bool ParallelHashMap<K,V>::contains(K key)
 {
   /* get thread ID */
   size_t tid = 0;
@@ -514,7 +514,7 @@ bool parallel_hash_map<K,V>::contains(K key)
  * @return value associated with the key
  */
 template <class K, class V>
-V& parallel_hash_map<K,V>::at(K key)
+V& ParallelHashMap<K,V>::at(K key)
 {
   /* get thread ID */
   size_t tid = 0;
@@ -549,7 +549,7 @@ V& parallel_hash_map<K,V>::at(K key)
  * @param value value of the key/value pair to be inserted
  */
 template <class K, class V>
-void parallel_hash_map<K,V>::insert(K key, V value)
+void ParallelHashMap<K,V>::insert(K key, V value)
 {
   /* check if resize needed */
   if(2*_table->size() > _table->bucket_count())
@@ -591,7 +591,7 @@ void parallel_hash_map<K,V>::insert(K key, V value)
  *      already exists
  */
 template <class K, class V>
-int parallel_hash_map<K,V>::insert_and_get_count(K key, V value)
+int ParallelHashMap<K,V>::insert_and_get_count(K key, V value)
 {
   /* check if resize needed */
   if(2*_table->size() > _table->bucket_count())
@@ -633,7 +633,7 @@ int parallel_hash_map<K,V>::insert_and_get_count(K key, V value)
  *    to be free of references to the old table before freeing the memory.
  */
 template <class K, class V>
-void parallel_hash_map<K,V>::resize()
+void ParallelHashMap<K,V>::resize()
 {
   /* acquire all locks in order */
   #ifdef OPENMP
@@ -694,7 +694,7 @@ void parallel_hash_map<K,V>::resize()
  * @return number of key/value pairs in the map
  */
 template <class K, class V>
-size_t parallel_hash_map<K,V>::size()
+size_t ParallelHashMap<K,V>::size()
 {
   return _table->size();
 }
@@ -704,7 +704,7 @@ size_t parallel_hash_map<K,V>::size()
  * @return number of buckets in the map
  */
 template <class K, class V>
-size_t parallel_hash_map<K,V>::bucket_count()
+size_t ParallelHashMap<K,V>::bucket_count()
 {
   return _table->bucket_count();
 }
@@ -714,7 +714,7 @@ size_t parallel_hash_map<K,V>::bucket_count()
  * @return number of locks in the map
  */
 template <class K, class V>
-size_t parallel_hash_map<K,V>::num_locks()
+size_t ParallelHashMap<K,V>::num_locks()
 {
   return _num_locks;
 }
@@ -729,7 +729,7 @@ size_t parallel_hash_map<K,V>::num_locks()
  *      pairs in the table.
  */
 template <class K, class V>
-K* parallel_hash_map<K,V>::keys()
+K* ParallelHashMap<K,V>::keys()
 {
   /* get thread ID */
   size_t tid = 0;
@@ -763,7 +763,7 @@ K* parallel_hash_map<K,V>::keys()
  *      pairs in the table.
  */
 template <class K, class V>
-V* parallel_hash_map<K,V>::values()
+V* ParallelHashMap<K,V>::values()
 {
   /* get thread ID */
   size_t tid = 0;
@@ -791,7 +791,7 @@ V* parallel_hash_map<K,V>::values()
  * @brief Clears all key/value pairs form the hash table.
  */
 template <class K, class V>
-void parallel_hash_map<K,V>::clear()
+void ParallelHashMap<K,V>::clear()
 {
   /* acquire all locks in order */
   #ifdef OPENMP
@@ -812,7 +812,7 @@ void parallel_hash_map<K,V>::clear()
  *      not freed during access.
  */
 template <class K, class V>
-void parallel_hash_map<K,V>::print_buckets()
+void ParallelHashMap<K,V>::print_buckets()
 {
   /* get thread ID */
   size_t tid = 0;

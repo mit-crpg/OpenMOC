@@ -1206,7 +1206,7 @@ void TrackGenerator::dumpTracksToFile() {
   }
 
   /* Get FSR vector maps */
-  parallel_hash_map<std::size_t, fsr_data*>* FSR_keys_map = 
+  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map = 
       _geometry->getFSRKeysMap();
   std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
@@ -1414,8 +1414,8 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Create FSR vector maps */
-  parallel_hash_map<std::size_t, fsr_data*>* FSR_keys_map =
-      new parallel_hash_map<std::size_t, fsr_data*>;
+  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
+      new ParallelHashMap<std::size_t, fsr_data*>;
   std::vector<int> FSRs_to_material_IDs;
   std::vector<std::size_t> FSRs_to_keys;
   int num_FSRs;

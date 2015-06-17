@@ -19,7 +19,7 @@
 #include <omp.h>
 #include <functional>
 #define OPENMP
-#include "parallel_hash_map.h"
+#include "ParallelHashMap.h"
 #endif
 
 
@@ -77,7 +77,7 @@ private:
 
   /** An map of FSR key hashes to unique fsr_data structs */
 #ifndef CUDA
-  parallel_hash_map<std::size_t, fsr_data*> _FSR_keys_map;
+  ParallelHashMap<std::size_t, fsr_data*> _FSR_keys_map;
 #endif
 
   /** An vector of FSR key hashes indexed by FSR ID */
@@ -134,7 +134,7 @@ public:
   Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
 #ifndef CUDA
-  parallel_hash_map<std::size_t, fsr_data*>* getFSRKeysMap();
+  ParallelHashMap<std::size_t, fsr_data*>* getFSRKeysMap();
 #endif
 
   /* Set parameters */
@@ -143,7 +143,7 @@ public:
   void setCmfd(Cmfd* cmfd);
 
 #ifndef CUDA
-  void setFSRKeysMap(parallel_hash_map<std::size_t, fsr_data*>* FSR_keys_map);
+  void setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
 #endif
 
   /* Find methods */
