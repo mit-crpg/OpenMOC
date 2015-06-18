@@ -782,9 +782,7 @@ void Geometry::segmentize(Track* track) {
     /* Find the segment length, Material and FSR ID */
     length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
-    //std::cout << "Thread " << omp_get_thread_num() << " going in" << std::endl;
     fsr_id = findFSRId(&start);
-    //std::cout << "Thread " << omp_get_thread_num() << " coming out" << std::endl;
 
     /* Create a new Track segment */
     segment* new_segment = new segment;
@@ -797,7 +795,6 @@ void Geometry::segmentize(Track* track) {
 
     /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
     if (_cmfd != NULL){
-      std::cout << "In CMFD...." << std::endl;
 
       /* Find cmfd cell that segment lies in */
       int cmfd_cell = _cmfd->findCmfdCell(&start);
