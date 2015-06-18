@@ -37,9 +37,9 @@ log.py_printf('NORMAL', 'Creating surfaces...')
 
 left = XPlane(x=-2.0, name='left')
 right = XPlane(x=2.0, name='right')
-top = YPlane(y=-2.0, name='top')
-bottom = YPlane(y=2.0, name='bottom')
-boundaries = [left, right, top, bottom]
+bottom = YPlane(y=-2.0, name='bottom')
+top = YPlane(y=2.0, name='top')
+boundaries = [left, right, bottom, top]
 
 large_circle = Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
 medium_circle = Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
