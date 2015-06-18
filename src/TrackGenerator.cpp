@@ -1,5 +1,4 @@
 #include "TrackGenerator.h"
-#include<stdlib.h>
 
 /**
  * @brief Constructor for the TrackGenerator assigns default values.
