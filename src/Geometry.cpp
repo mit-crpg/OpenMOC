@@ -518,13 +518,12 @@ int Geometry::findFSRId(LocalCoords* coords) {
   /* If FSR has not been encountered, update FSR maps and vectors */
   if (!_FSR_keys_map.contains(fsr_key_hash)){
 
-    
     /* Try to get a clean copy of the fsr_id, adding the FSR data 
        if necessary where -1 indicates the key was already added */
     fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
     if( fsr_id == -1)
     {
-      fsr_data* fsr;
+      fsr_data volatile* fsr;
       do{
         fsr = _FSR_keys_map.at(fsr_key_hash);
       } while(fsr == NULL);
@@ -550,9 +549,16 @@ int Geometry::findFSRId(LocalCoords* coords) {
         fsr->_cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
     }
   }
+  
   /* If FSR has already been encountered, get the fsr id from map */
-  else
-    fsr_id = _FSR_keys_map.at(fsr_key_hash)->_fsr_id;
+  else{
+    fsr_data volatile* fsr;
+    do{
+      fsr = _FSR_keys_map.at(fsr_key_hash);
+    } while(fsr == NULL);
+
+    fsr_id = fsr->_fsr_id;
+  }
 
   return fsr_id;
 }
@@ -776,7 +782,9 @@ void Geometry::segmentize(Track* track) {
     /* Find the segment length, Material and FSR ID */
     length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
+    //std::cout << "Thread " << omp_get_thread_num() << " going in" << std::endl;
     fsr_id = findFSRId(&start);
+    //std::cout << "Thread " << omp_get_thread_num() << " coming out" << std::endl;
 
     /* Create a new Track segment */
     segment* new_segment = new segment;
@@ -789,6 +797,7 @@ void Geometry::segmentize(Track* track) {
 
     /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
     if (_cmfd != NULL){
+      std::cout << "In CMFD...." << std::endl;
 
       /* Find cmfd cell that segment lies in */
       int cmfd_cell = _cmfd->findCmfdCell(&start);

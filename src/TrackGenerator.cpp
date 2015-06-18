@@ -834,7 +834,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(false);
           refl[2 * nxi - 1 - j].setReflIn(true);
 
-          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
+          if (_geometry->getMaxXBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[2 * nxi - 1 - j].setBCIn(1);
           }
@@ -1010,7 +1010,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           curr[j].setReflOut(false);
           refl[nxi + (nxi - j) - 1].setReflIn(true);
 
-          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
+          if (_geometry->getMaxXBoundaryType() == REFLECTIVE) {
             curr[j].setBCOut(1);
             refl[nxi + (nxi - j) - 1].setBCIn(1);
           }
@@ -1093,7 +1093,9 @@ void TrackGenerator::segmentize() {
       }
     }
   }
+  std::cout << "Done segmenting..." << std::endl;
   _geometry->initializeFSRVectors();
+  std::cout << "Done init vectors..." << std::endl;
 
   _contains_tracks = true;
 
