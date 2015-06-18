@@ -1093,9 +1093,7 @@ void TrackGenerator::segmentize() {
       }
     }
   }
-  std::cout << "Done segmenting..." << std::endl;
   _geometry->initializeFSRVectors();
-  std::cout << "Done init vectors..." << std::endl;
 
   _contains_tracks = true;
 
