@@ -18,7 +18,6 @@
 #include <string>
 #include <omp.h>
 #include <functional>
-#define OPENMP
 #include "ParallelHashMap.h"
 #endif
 
