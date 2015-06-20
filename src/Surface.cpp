@@ -66,11 +66,9 @@ Surface::~Surface() {
   if (_name != NULL)
     delete [] _name;
 
-  if (!_neighbors.empty()){
-    std::map<int, std::vector<Cell*>* >::iterator iter;
-    for (iter = _neighbors.begin(); iter != _neighbors.end(); ++iter){
-      iter->second->clear();
-    }
+  if (!_neighbors.empty()) {
+    _neighbors[-1]->clear();
+    _neighbors[+1]->clear();
     _neighbors.clear();
   }
 }

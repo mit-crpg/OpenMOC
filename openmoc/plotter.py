@@ -471,7 +471,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
               'marker_size is not an int or float', marker_size)
 
   if marker_size <= 0:
-    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
               'with a negative marker_size (%d)', marker_size)
 
   py_printf('NORMAL', 'Plotting the flat source regions...')

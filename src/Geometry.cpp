@@ -637,7 +637,7 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._centroid;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find centroid in FSR: %i.", fsr_id);
+    log_printf(ERROR, "Could not find centroid in FSR: %d.", fsr_id);
   }
 
   return point;
@@ -1104,7 +1104,19 @@ bool Geometry::withinBounds(LocalCoords* coords){
     return true;
 }
 
-
+/**
+ * @brief Sets the centroid for an FSR
+ * @details The _FSR_keys_map stores a hash of a std::string representing
+ *          the Lattice/Cell/Universe hierarchy for a unique region
+ *          and the associated FSR data. _centroid is a point that represents
+ *          the numerical centroid of an FSR computed using all segments
+ *          contained in the FSR. This method is used by the TrackGenerator
+ *          to set the centroid after segments have been created. It is
+ *          important to note that this method is a helper function for the
+ *          TrackGenerator and should not be explicitly called by the user.
+ * @param fsr a FSR id
+ * @param centroid a Point representing the FSR centroid
+ */
 void Geometry::setFSRCentroid(int fsr, Point* centroid){
   _FSR_keys_map[_FSRs_to_keys[fsr]]._centroid = centroid;
 }
