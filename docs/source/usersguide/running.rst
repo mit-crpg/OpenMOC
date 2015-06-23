@@ -69,7 +69,7 @@ An example command to request a single node for 20 minutes is presented below::
 
   qsub -A <your-alcf-account> -n 1 -t 20 --mode=c1 --env PYTHONPATH=<path-to-_openmoc.so>:<path-to-any-other-openmoc-shared-library-file> <path-to-python>/python your-script.py <option1> <option2> ... 
 
-NOTE: You must specify the path to the location where OpenMOC was installed in the :envvar:`PYTHONPATH` environment variable. For OpenMOC ditributions built with the :option:`--user` option, this location will be `~/.local/lib/pythonX.X/site-packages/...`. In particular, the :envvar:`PYTHONPATH` given to :program:`qsub` must include the path to all OpenMOC shared libraries (files with a ``.so`` extension) needed for your script. These may include ``_openmoc.so`` for the ``openmoc`` Python module, ``_openmoc_bgq_single.so`` for the ``openmoc.bgq.single`` Python module, etc depending on which OpenMOC modules you import into your script.
+NOTE: You must specify the path to the location where OpenMOC was installed in the :envvar:`PYTHONPATH` environment variable. For OpenMOC ditributions built with the :option:`--user` option, this location will be `~/.local/lib/pythonX.X/site-packages/...`. In particular, the :envvar:`PYTHONPATH` given to :program:`qsub` must include the path to all OpenMOC shared libraries (files with a ``.so`` extension) needed for your script (*i.e.*, ``_openmoc.so`` for the ``openmoc`` Python module).
 
 
 .. _ALCF: http://www.alcf.anl.gov/
