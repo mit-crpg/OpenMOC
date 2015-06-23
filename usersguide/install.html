@@ -118,10 +118,10 @@ The main OpenMOC Python package can be imported into any Python script as follow
 <p>Installs OpenMOC to an explicitly defined directory. This options is generally not useful unless your directory is included in your <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">PYTHONPATH</span></tt> such that you can import <tt class="docutils literal"><span class="pre">openmoc</span></tt> into your Python scripts.</p>
 <dl class="option">
 <dt id="cmdoption--cc">
-<tt class="descname">--cc</tt><tt class="descclassname">=&lt;gcc,icpc,bgxlc&gt;</tt><a class="headerlink" href="#cmdoption--cc" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">--cc</tt><tt class="descclassname">=&lt;gcc,icpc,clang,bgxlc&gt;</tt><a class="headerlink" href="#cmdoption--cc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Sets the C++ compiler for the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> module. Presently, GNU&#8217;s <a class="reference external" href="http://gcc.gnu.org/">gcc</a>, Intel&#8217;s <a class="reference external" href="http://software.intel.com/en-us/intel-compilers">icpc</a> and IBM&#8217;s <a class="reference external" href="http://www-03.ibm.com/software/products/us/en/ccompfami/">bgxlc</a> are all configured if the path to the binary is pointed to by by the <span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">PATH</span></tt> environment variable. The default setting is the <strong class="program">gcc</strong> compiler.</p>
+<p>Sets the C++ compiler for the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> module. Presently, GNU&#8217;s <a class="reference external" href="http://gcc.gnu.org/">gcc</a>, Intel&#8217;s <a class="reference external" href="http://software.intel.com/en-us/intel-compilers">icpc</a>, Apple&#8217;s <a class="reference external" href="http://clang.llvm.org/">clang</a> and IBM&#8217;s <a class="reference external" href="http://www-03.ibm.com/software/products/us/en/ccompfami/">bgxlc</a> are all configured if the path to the binary is pointed to by by the <span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">PATH</span></tt> environment variable. The default setting is the <strong class="program">gcc</strong> compiler.</p>
 <dl class="option">
 <dt id="cmdoption--fp">
 <tt class="descname">--fp</tt><tt class="descclassname">=&lt;single,double&gt;</tt><a class="headerlink" href="#cmdoption--fp" title="Permalink to this definition">¶</a></dt>
@@ -135,47 +135,17 @@ The main OpenMOC Python package can be imported into any Python script as follow
 
 <p>Compiles the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module using the <strong class="program">nvcc</strong> compiler. This module contains <tt class="xref cpp cpp-class docutils literal"><span class="pre">GPUSolver</span></tt> class with MOC routines for execution on NVIDIA GPUs. The default build configuration does not include the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module.</p>
 <dl class="option">
-<dt id="cmdoption--with-gcc">
-<tt class="descname">--with-gcc</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-gcc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p>Compiles the <tt class="docutils literal"><span class="pre">openmoc.gnu.single</span></tt> and / or <tt class="docutils literal"><span class="pre">openmoc.gnu.double</span></tt> modules using GNU&#8217;s <strong class="program">gcc</strong> C++ compiler. If one or both of <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> and <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, <tt class="docutils literal"><span class="pre">openmoc.gnu.single</span></tt> will be built by default.</p>
-<dl class="option">
-<dt id="cmdoption--with-icpc">
-<tt class="descname">--with-icpc</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-icpc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p>Compiles the <tt class="docutils literal"><span class="pre">openmoc.intel.single</span></tt> and / or <tt class="docutils literal"><span class="pre">openmoc.intel.double</span></tt> modules using Intel&#8217;s <strong class="program">icpc</strong> C++ compiler. If one or both of <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> and <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, <tt class="docutils literal"><span class="pre">openmoc.intel.single</span></tt> will be built by default.</p>
-<dl class="option">
-<dt id="cmdoption--with-bgxlc">
-<tt class="descname">--with-bgxlc</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-bgxlc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p>Compiles the <tt class="docutils literal"><span class="pre">openmoc.bgq.single</span></tt> and / or <tt class="docutils literal"><span class="pre">openmoc.bgq.double</span></tt> modules using IBM&#8217;s <strong class="program">bgxlc</strong> C++ compiler. If one or both of <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> and <a class="reference internal" href="#cmdoption--with-sp"><em class="xref std std-option">--with-sp</em></a> are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, <tt class="docutils literal"><span class="pre">openmoc.bgq.single</span></tt> will be built by default.</p>
-<dl class="option">
-<dt id="cmdoption--with-sp">
-<tt class="descname">--with-sp</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-sp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p>Specifies the <span class="target" id="index-4"></span><tt class="xref std std-envvar docutils literal"><span class="pre">single</span></tt> floating point precision level to be used for <tt class="docutils literal"><span class="pre">openmoc.gnu.single</span></tt>, <tt class="docutils literal"><span class="pre">openmoc.intel.single</span></tt>, and / or <tt class="docutils literal"><span class="pre">openmoc.bgq.single</span></tt> modules. This option must be used in conjunction with the <a class="reference internal" href="#cmdoption--with-gcc"><em class="xref std std-option">--with-gcc</em></a>, <a class="reference internal" href="#cmdoption--with-icpc"><em class="xref std std-option">--with-icpc</em></a>, and / or <a class="reference internal" href="#cmdoption--with-bgxlc"><em class="xref std std-option">--with-bgxlc</em></a> options.</p>
-<dl class="option">
-<dt id="cmdoption--with-dp">
-<tt class="descname">--with-dp</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-dp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p>Specifies the <span class="target" id="index-5"></span><tt class="xref std std-envvar docutils literal"><span class="pre">double</span></tt> floating point precision level to be used for <tt class="docutils literal"><span class="pre">openmoc.gnu.double</span></tt>, <tt class="docutils literal"><span class="pre">openmoc.intel.double</span></tt>, and / or <tt class="docutils literal"><span class="pre">openmoc.bgq.double</span></tt> modules. This option must be used in conjunction with the <a class="reference internal" href="#cmdoption--with-gcc"><em class="xref std std-option">--with-gcc</em></a>, <a class="reference internal" href="#cmdoption--with-icpc"><em class="xref std std-option">--with-icpc</em></a>, and / or <a class="reference internal" href="#cmdoption--with-bgxlc"><em class="xref std std-option">--with-bgxlc</em></a> options.</p>
-<dl class="option">
 <dt id="cmdoption--debug-mode">
 <tt class="descname">--debug-mode</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--debug-mode" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Compiles with debugging symbols and information by including the <span class="target" id="index-6"></span><tt class="xref std std-envvar docutils literal"><span class="pre">-g</span></tt> compile flag.</p>
+<p>Compiles with debugging symbols and information by including the <span class="target" id="index-4"></span><tt class="xref std std-envvar docutils literal"><span class="pre">-g</span></tt> compile flag.</p>
 <dl class="option">
 <dt id="cmdoption--profile-mode">
 <tt class="descname">--profile-mode</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--profile-mode" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Compiles with profiling information by including the <span class="target" id="index-7"></span><tt class="xref std std-envvar docutils literal"><span class="pre">-p</span></tt> compile flag.</p>
+<p>Compiles with profiling information by including the <span class="target" id="index-5"></span><tt class="xref std std-envvar docutils literal"><span class="pre">-p</span></tt> compile flag.</p>
 <dl class="option">
 <dt id="cmdoption--no-numpy">
 <tt class="descname">--no-numpy</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--no-numpy" title="Permalink to this definition">¶</a></dt>

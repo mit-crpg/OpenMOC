@@ -82,9 +82,9 @@ Installs OpenMOC in a user local directory (ie, `/home/username/.local/lib/pytho
 Installs OpenMOC to an explicitly defined directory. This options is generally not useful unless your directory is included in your :envvar:`PYTHONPATH` such that you can import ``openmoc`` into your Python scripts.
 
 
-.. option:: --cc=<gcc,icpc,bgxlc>
+.. option:: --cc=<gcc,icpc,clang,bgxlc>
 	   
-Sets the C++ compiler for the main ``openmoc`` module. Presently, GNU's gcc_, Intel's icpc_ and IBM's bgxlc_ are all configured if the path to the binary is pointed to by by the :envvar:`PATH` environment variable. The default setting is the :program:`gcc` compiler.
+Sets the C++ compiler for the main ``openmoc`` module. Presently, GNU's gcc_, Intel's icpc_, Apple's clang_ and IBM's bgxlc_ are all configured if the path to the binary is pointed to by by the :envvar:`PATH` environment variable. The default setting is the :program:`gcc` compiler.
 
 
 .. option:: --fp=<single,double>
@@ -95,31 +95,6 @@ Sets the floating point precision level for the main ``openmoc`` module. This se
 .. option:: --with-cuda
 
 Compiles the ``openmoc.cuda`` module using the :program:`nvcc` compiler. This module contains :cpp:class:`GPUSolver` class with MOC routines for execution on NVIDIA GPUs. The default build configuration does not include the ``openmoc.cuda`` module.
-
-
-.. option:: --with-gcc
-
-Compiles the ``openmoc.gnu.single`` and / or ``openmoc.gnu.double`` modules using GNU's :program:`gcc` C++ compiler. If one or both of :option:`--with-sp` and :option:`--with-sp` are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, ``openmoc.gnu.single`` will be built by default.
-
-
-.. option:: --with-icpc
-
-Compiles the ``openmoc.intel.single`` and / or ``openmoc.intel.double`` modules using Intel's :program:`icpc` C++ compiler. If one or both of :option:`--with-sp` and :option:`--with-sp` are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, ``openmoc.intel.single`` will be built by default.
-
-
-.. option:: --with-bgxlc
-
-Compiles the ``openmoc.bgq.single`` and / or ``openmoc.bgq.double`` modules using IBM's :program:`bgxlc` C++ compiler. If one or both of :option:`--with-sp` and :option:`--with-sp` are also specified, the appropriate modules will be built and installed. If the floating point precision is not specified, ``openmoc.bgq.single`` will be built by default.
-
-
-.. option:: --with-sp
-
-Specifies the :envvar:`single` floating point precision level to be used for ``openmoc.gnu.single``, ``openmoc.intel.single``, and / or ``openmoc.bgq.single`` modules. This option must be used in conjunction with the :option:`--with-gcc`, :option:`--with-icpc`, and / or :option:`--with-bgxlc` options.
-
-
-.. option:: --with-dp
-
-Specifies the :envvar:`double` floating point precision level to be used for ``openmoc.gnu.double``, ``openmoc.intel.double``, and / or ``openmoc.bgq.double`` modules. This option must be used in conjunction with the :option:`--with-gcc`, :option:`--with-icpc`, and / or :option:`--with-bgxlc` options.
 
 
 .. option:: --debug-mode
@@ -146,10 +121,10 @@ Compiles using ccache_ which uses a cache to speedup compilation of unchanged so
 .. _distutils: http://docs.python.org/2/library/distutils.html#module-distutils
 .. _gcc: http://gcc.gnu.org/
 .. _icpc: http://software.intel.com/en-us/intel-compilers
+.. _clang: http://clang.llvm.org/
 .. _bgxlc: http://www-03.ibm.com/software/products/us/en/ccompfami/
 .. _ccache: http://ccache.samba.org
 .. _NVIDIA: http://www.nvidia.com/content/global/global.php
-.. _symbolic links: http://en.wikipedia.org/wiki/Symbolic_link
 .. _BlueGene: http://www-03.ibm.com/systems/technicalcomputing/solutions/bluegene/
 
 -----------------------------
@@ -157,4 +132,3 @@ Installing on Ubuntu with PPA
 -----------------------------
 
 A binary package for Debian Linux derivatives, such as Ubuntu, is under development. Please check back at a later time for further updates.
-
