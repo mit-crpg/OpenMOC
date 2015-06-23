@@ -53,6 +53,10 @@
 %warnfilter(506) log_printf(logLevel level, const char *format, ...);
 %warnfilter(511) swig::SwigPyIterator;
 %warnfilter(511) Cell::setFill;
+%ignore setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
+%ignore setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
+%ignore setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
+%ignore initializeFSRVectors();
 
 %exception {
   try {
