@@ -1,11 +1,10 @@
 var searchData=
 [
-  ['findboundingbox',['findBoundingBox',['../classCell.html#aec048b4d5a04383288e1d5c7a40b78e9',1,'Cell']]],
-  ['findcell',['findCell',['../classUniverse.html#a2fb122abbc8f47165642d8457f700733',1,'Universe::findCell()'],['../classLattice.html#a6ee2ee63e17bbfff4bc7de3b04a598fe',1,'Lattice::findCell()']]],
-  ['findcellcontainingcoords',['findCellContainingCoords',['../classGeometry.html#a6ed014613dabe0cbf7b075ded5709aeb',1,'Geometry']]],
-  ['findcmfdcell',['findCmfdCell',['../classCmfd.html#a676f7fcd8476cda7c4f4c42d44c266da',1,'Cmfd']]],
-  ['findcmfdsurface',['findCmfdSurface',['../classCmfd.html#aaad6d00dc8cc0b44ac56995e382e3853',1,'Cmfd']]],
-  ['findfsrid',['findFSRId',['../classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05',1,'Geometry']]],
-  ['findfsrmaterial',['findFSRMaterial',['../classGeometry.html#ae4c38f0407ddfd91427c63420bb41c48',1,'Geometry']]],
-  ['flattenfsrfluxes',['flattenFSRFluxes',['../classCPUSolver.html#a154cbd82754abdadb2ca57068ec12102',1,'CPUSolver::flattenFSRFluxes()'],['../classSolver.html#a148137c97310ee2df94a4fd3fe35456f',1,'Solver::flattenFSRFluxes()']]]
+  ['equalanglepolarquad',['EqualAnglePolarQuad',['../classEqualAnglePolarQuad.html#ad9bd741fea608849f8ffe675b72d81da',1,'EqualAnglePolarQuad']]],
+  ['equalweightpolarquad',['EqualWeightPolarQuad',['../classEqualWeightPolarQuad.html#ab9c23dd704b62f949f052355dda58cb8',1,'EqualWeightPolarQuad']]],
+  ['evaluate',['evaluate',['../classSurface.html#a2e0aaef635a7392806d27fb4999a9168',1,'Surface::evaluate()'],['../classPlane.html#a18dcfc28a7d08e18983d3f906943bc82',1,'Plane::evaluate()'],['../classCircle.html#a18f49b1f94c29760cd62d10b7e908fa9',1,'Circle::evaluate()']]],
+  ['expevaluator',['ExpEvaluator',['../classExpEvaluator.html#a8ef6a77f6ea377127ca93da2d4d7f65d',1,'ExpEvaluator']]],
+  ['export',['export',['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a7314df8c39fdd32a641c041325ed591a',1,'openmoc::compatible::casmo::Casmo']]],
+  ['exportallxstohdf5',['exportAllXSToHDF5',['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a232683aca5bcc0b1793a50d1f3894dfc',1,'openmoc::compatible::casmo::Casmo']]],
+  ['exportavgxstohdf5',['exportAvgXSToHDF5',['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a4c37d450051d766aab19a72ff1aa50a9',1,'openmoc::compatible::casmo::Casmo']]]
 ];

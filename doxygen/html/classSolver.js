@@ -35,6 +35,7 @@ var classSolver =
     [ "normalizeFluxes", "classSolver.html#aeb89db6a6b624b222494625613b2ed57", null ],
     [ "printTimerReport", "classSolver.html#aeec2b08ba9d6be88cf08f1fc02658500", null ],
     [ "setConvergenceThreshold", "classSolver.html#a235919c465bd0b4d9c976acd06efafeb", null ],
+    [ "setExpPrecision", "classSolver.html#a0d97ec4afb9b02bed0492fadc91f7b14", null ],
     [ "setFixedSourceByCell", "classSolver.html#a8cae18c37e49e7a947069b765fd73fd1", null ],
     [ "setFixedSourceByFSR", "classSolver.html#a555f77789f36a78cad34df412300e6e7", null ],
     [ "setFixedSourceByMaterial", "classSolver.html#a90bcc873e0e1aef08ba1f07fd35b689b", null ],
@@ -74,6 +75,5 @@ var classSolver =
     [ "_tot_num_tracks", "classSolver.html#a817518832fb051823de9e8855319f02e", null ],
     [ "_track_generator", "classSolver.html#a7f7349dc153dd9e728697c922cf7c052", null ],
     [ "_tracks", "classSolver.html#a775ed41fc1268312c8fb25ec994e1351", null ],
-    [ "_two_times_num_polar", "classSolver.html#a5f9e45e5d2a93bc3b18ca2659b95ac6a", null ],
     [ "_user_polar_quad", "classSolver.html#ad1f22a0b48917197634d9fa56cdfaa1d", null ]
 ];

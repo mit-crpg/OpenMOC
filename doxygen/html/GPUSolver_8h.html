@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/accel/cuda/GPUSolver.h File Reference</title>
+<title>/home/wboyd/Desktop/OpenMOC/src/accel/cuda/GPUSolver.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -118,7 +118,6 @@ $(document).ready(function(){initNavTree('GPUSolver_8h.html','');});
 <code>#include &lt;thrust/replace.h&gt;</code><br/>
 <code>#include &lt;thrust/functional.h&gt;</code><br/>
 <code>#include &lt;thrust/iterator/constant_iterator.h&gt;</code><br/>
-<code>#include &lt;sm_13_double_functions.h&gt;</code><br/>
 <code>#include &lt;sm_20_atomic_functions.h&gt;</code><br/>
 <code>#include &quot;<a class="el" href="clone_8h_source.html">clone.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="GPUExpEvaluator_8h_source.html">GPUExpEvaluator.h</a>&quot;</code><br/>
@@ -133,6 +132,9 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:a80bb6c4002641910f2ca7dbf8a2933cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80bb6c4002641910f2ca7dbf8a2933cf"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>PySys_WriteStdout</b>&#160;&#160;&#160;printf</td></tr>
+<tr class="separator:a80bb6c4002641910f2ca7dbf8a2933cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4089c9be8cf297ccf942eb8c29cca415"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a4089c9be8cf297ccf942eb8c29cca415">scalar_flux</a>(tid, e)&#160;&#160;&#160;(scalar_flux[(tid)*(*num_groups) + (e)])</td></tr>
 <tr class="separator:a4089c9be8cf297ccf942eb8c29cca415"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a847d50773dbb17bf6cacdffdde229065"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a847d50773dbb17bf6cacdffdde229065">old_scalar_flux</a>(tid, e)&#160;&#160;&#160;(old_scalar_flux[(tid)*(*num_groups) + (e)])</td></tr>
@@ -145,8 +147,6 @@ Macros</h2></td></tr>
 <tr class="separator:a818d2da0930d46b3fe53eff8bb60ea1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d0f44838c549b1382bbcd5efa2b57ee"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a2d0f44838c549b1382bbcd5efa2b57ee">boundary_flux</a>(t, pe2)&#160;&#160;&#160;(boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])</td></tr>
 <tr class="separator:a2d0f44838c549b1382bbcd5efa2b57ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13ab74d9229f8b9544ae9decc54163da"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="GPUSolver_8h.html#a13ab74d9229f8b9544ae9decc54163da">MAX_AZIM_ANGLES</a>&#160;&#160;&#160;256</td></tr>
-<tr class="separator:a13ab74d9229f8b9544ae9decc54163da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="classGPUSolver.html" title="This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs). ">GPUSolver</a> class and CUDA physics kernels. </p>
@@ -204,19 +204,6 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Indexing scheme for fixed sources for each FSR and energy group </p>
-
-</div>
-</div>
-<a class="anchor" id="a13ab74d9229f8b9544ae9decc54163da"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define MAX_AZIM_ANGLES&#160;&#160;&#160;256</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>The maximum number of azimuthal angles to reserve constant memory on GPU </p>
 
 </div>
 </div>
@@ -334,7 +321,7 @@ Macros</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_1ea949864ab1faf245facc269e7b2721.html">accel</a></li><li class="navelem"><a class="el" href="dir_e42498f83ad2e028b83ea18abff69fa1.html">cuda</a></li><li class="navelem"><a class="el" href="GPUSolver_8h.html">GPUSolver.h</a></li>
-    <li class="footer">Generated on Thu Apr 23 2015 23:42:16 by
+    <li class="footer">Generated on Mon Jun 22 2015 23:49:14 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

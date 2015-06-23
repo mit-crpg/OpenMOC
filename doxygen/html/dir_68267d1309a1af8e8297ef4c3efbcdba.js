@@ -6,7 +6,9 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "Cmfd.h", "Cmfd_8h.html", "Cmfd_8h" ],
     [ "constants.h", "constants_8h.html", "constants_8h" ],
     [ "CPUSolver.h", "CPUSolver_8h.html", "CPUSolver_8h" ],
-    [ "ExpEvaluator.h", "ExpEvaluator_8h.html", "ExpEvaluator_8h" ],
+    [ "ExpEvaluator.h", "ExpEvaluator_8h.html", [
+      [ "ExpEvaluator", "classExpEvaluator.html", "classExpEvaluator" ]
+    ] ],
     [ "Geometry.h", "Geometry_8h.html", "Geometry_8h" ],
     [ "linalg.h", "linalg_8h.html", "linalg_8h" ],
     [ "LocalCoords.h", "LocalCoords_8h.html", "LocalCoords_8h" ],

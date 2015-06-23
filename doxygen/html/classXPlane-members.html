@@ -117,8 +117,10 @@ $(document).ready(function(){initNavTree('classXPlane.html','');});
   <tr class="even"><td class="entry"><a class="el" href="classSurface.html#a8bb880c5fad9e000352651028c1e93a9">_id</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
   <tr><td class="entry"><a class="el" href="classSurface.html#af29013bb2235204f570e86d62bca4a1f">_n</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">static</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classSurface.html#ab405d3dca78cb7ddcc36c0680ada38f6">_name</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classSurface.html#a2b8655eb5a953ea4b45abe5fab7831d0">_surface_type</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classSurface.html#aea05fdb4d9e26103dfb66c6833f66b4a">_uid</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>_neighbors</b> (defined in <a class="el" href="classSurface.html">Surface</a>)</td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classSurface.html#a2b8655eb5a953ea4b45abe5fab7831d0">_surface_type</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classSurface.html#aea05fdb4d9e26103dfb66c6833f66b4a">_uid</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classSurface.html#a14d88790704251456967f0e75ec670d3">addNeighborCell</a>(int halfspace, Cell *cell)</td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classPlane.html#a18dcfc28a7d08e18983d3f906943bc82">evaluate</a>(const Point *point) const </td><td class="entry"><a class="el" href="classPlane.html">Plane</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classPlane.html#ade79c02c1effc3b501838672572cde25">getA</a>()</td><td class="entry"><a class="el" href="classPlane.html">Plane</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classPlane.html#abd52407e1ca79c528d56a03c299ce9cd">getB</a>()</td><td class="entry"><a class="el" href="classPlane.html">Plane</a></td><td class="entry"></td></tr>
@@ -128,7 +130,7 @@ $(document).ready(function(){initNavTree('classXPlane.html','');});
   <tr><td class="entry"><a class="el" href="classXPlane.html#aa452aca411a361f19c0fb7f440e2ba30">getMaxX</a>(int halfspace)</td><td class="entry"><a class="el" href="classXPlane.html">XPlane</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classPlane.html#aec8499375cdd4468f3a0185189894933">getMaxY</a>(int halfspace)</td><td class="entry"><a class="el" href="classPlane.html">Plane</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr><td class="entry"><a class="el" href="classPlane.html#aca292c98e6ba111a17d65e5d3c03c973">getMaxZ</a>(int halfspace)</td><td class="entry"><a class="el" href="classPlane.html">Plane</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classSurface.html#a38d24a561dd8d1e3e3a0dabc3a472634">getMinDistance</a>(Point *point, double angle, Point *intersection)</td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classSurface.html#a7a5989ca8b58293132edd0226489c4aa">getMinDistance</a>(Point *point, double angle)</td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr><td class="entry"><a class="el" href="classXPlane.html#a0cfb7bdfe27fbe0e903b8e8565bd2831">getMinX</a>(int halfspace)</td><td class="entry"><a class="el" href="classXPlane.html">XPlane</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classPlane.html#a75259fdccbba7ecc9552685fd847efef">getMinY</a>(int halfspace)</td><td class="entry"><a class="el" href="classPlane.html">Plane</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr><td class="entry"><a class="el" href="classPlane.html#a9a59ebd0df138ee6d2545fe196700922">getMinZ</a>(int halfspace)</td><td class="entry"><a class="el" href="classPlane.html">Plane</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
@@ -153,7 +155,7 @@ $(document).ready(function(){initNavTree('classXPlane.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Apr 23 2015 23:42:17 by
+    <li class="footer">Generated on Mon Jun 22 2015 23:49:15 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

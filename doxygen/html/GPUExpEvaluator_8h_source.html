@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/accel/cuda/GPUExpEvaluator.h Source File</title>
+<title>/home/wboyd/Desktop/OpenMOC/src/accel/cuda/GPUExpEvaluator.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -116,39 +116,36 @@ $(document).ready(function(){initNavTree('GPUExpEvaluator_8h_source.html','');})
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="GPUExpEvaluator_8h.html#a91b4cb58a59ec4578195cd7787dacf66">   21</a></span>&#160;<span class="preprocessor">#define MAX_POLAR_ANGLES 10</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classGPUExpEvaluator.html">   32</a></span>&#160;<span class="keyword">class </span><a class="code" href="classGPUExpEvaluator.html">GPUExpEvaluator</a> {</div>
+<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="classGPUExpEvaluator.html">   28</a></span>&#160;<span class="keyword">class </span><a class="code" href="classGPUExpEvaluator.html">GPUExpEvaluator</a> {</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="comment">//FIXME: Put in shared memory!!</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="classGPUExpEvaluator.html#ac8b5eab60de53a45762958230fab7bca">   36</a></span>&#160;<span class="comment"></span>  FP_PRECISION* <a class="code" href="classGPUExpEvaluator.html#ac8b5eab60de53a45762958230fab7bca">_exp_table</a>;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="comment">//FIXME: Put in shared memory!!</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="classGPUExpEvaluator.html#ac8b5eab60de53a45762958230fab7bca">   40</a></span>&#160;<span class="comment"></span>  FP_PRECISION* <a class="code" href="classGPUExpEvaluator.html#ac8b5eab60de53a45762958230fab7bca">_exp_table</a>;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  __device__ FP_PRECISION <a class="code" href="classGPUExpEvaluator.html#a85ac9f2d55d828f56213bb96e4394e8c">computeExponential</a>(FP_PRECISION tau, <span class="keywordtype">int</span> polar);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;};</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  __device__ FP_PRECISION <a class="code" href="classGPUExpEvaluator.html#a85ac9f2d55d828f56213bb96e4394e8c">computeExponential</a>(FP_PRECISION tau, <span class="keywordtype">int</span> polar);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;};</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keywordtype">void</span> <a class="code" href="GPUExpEvaluator_8h.html#ab2e74dbf66fb36b6a14f55d731b9b206">clone_exp_evaluator</a>(<a class="code" href="classExpEvaluator.html">ExpEvaluator</a>* evaluator_h,</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;                         <a class="code" href="classGPUExpEvaluator.html">GPUExpEvaluator</a>* evaluator_d);</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keywordtype">void</span> <a class="code" href="GPUExpEvaluator_8h.html#ab2e74dbf66fb36b6a14f55d731b9b206">clone_exp_evaluator</a>(<a class="code" href="classExpEvaluator.html">ExpEvaluator</a>* evaluator_h,</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;                         <a class="code" href="classGPUExpEvaluator.html">GPUExpEvaluator</a>* evaluator_d);</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* EXPEVALUATOR_H_ */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="GPUExpEvaluator_8h_html_ab2e74dbf66fb36b6a14f55d731b9b206"><div class="ttname"><a href="GPUExpEvaluator_8h.html#ab2e74dbf66fb36b6a14f55d731b9b206">clone_exp_evaluator</a></div><div class="ttdeci">void clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)</div><div class="ttdoc">Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU, copy all of the prop...</div><div class="ttdef"><b>Definition:</b> GPUExpEvaluator.cu:46</div></div>
-<div class="ttc" id="classGPUExpEvaluator_html_ac8b5eab60de53a45762958230fab7bca"><div class="ttname"><a href="classGPUExpEvaluator.html#ac8b5eab60de53a45762958230fab7bca">GPUExpEvaluator::_exp_table</a></div><div class="ttdeci">FP_PRECISION * _exp_table</div><div class="ttdef"><b>Definition:</b> GPUExpEvaluator.h:40</div></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* EXPEVALUATOR_H_ */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="GPUExpEvaluator_8h_html_ab2e74dbf66fb36b6a14f55d731b9b206"><div class="ttname"><a href="GPUExpEvaluator_8h.html#ab2e74dbf66fb36b6a14f55d731b9b206">clone_exp_evaluator</a></div><div class="ttdeci">void clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)</div><div class="ttdoc">Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU, copy all of the prop...</div><div class="ttdef"><b>Definition:</b> GPUExpEvaluator.cu:26</div></div>
+<div class="ttc" id="classGPUExpEvaluator_html_ac8b5eab60de53a45762958230fab7bca"><div class="ttname"><a href="classGPUExpEvaluator.html#ac8b5eab60de53a45762958230fab7bca">GPUExpEvaluator::_exp_table</a></div><div class="ttdeci">FP_PRECISION * _exp_table</div><div class="ttdef"><b>Definition:</b> GPUExpEvaluator.h:36</div></div>
 <div class="ttc" id="classExpEvaluator_html"><div class="ttname"><a href="classExpEvaluator.html">ExpEvaluator</a></div><div class="ttdoc">This is a class for evaluating exponentials. </div><div class="ttdef"><b>Definition:</b> ExpEvaluator.h:27</div></div>
-<div class="ttc" id="classGPUExpEvaluator_html_a85ac9f2d55d828f56213bb96e4394e8c"><div class="ttname"><a href="classGPUExpEvaluator.html#a85ac9f2d55d828f56213bb96e4394e8c">GPUExpEvaluator::computeExponential</a></div><div class="ttdeci">__device__ FP_PRECISION computeExponential(FP_PRECISION tau, int polar)</div><div class="ttdoc">Computes the exponential term for a optical length and polar angle. </div><div class="ttdef"><b>Definition:</b> GPUExpEvaluator.cu:89</div></div>
-<div class="ttc" id="classGPUExpEvaluator_html"><div class="ttname"><a href="classGPUExpEvaluator.html">GPUExpEvaluator</a></div><div class="ttdoc">This is a class for evaluating exponentials on GPUs. </div><div class="ttdef"><b>Definition:</b> GPUExpEvaluator.h:32</div></div>
+<div class="ttc" id="classGPUExpEvaluator_html_a85ac9f2d55d828f56213bb96e4394e8c"><div class="ttname"><a href="classGPUExpEvaluator.html#a85ac9f2d55d828f56213bb96e4394e8c">GPUExpEvaluator::computeExponential</a></div><div class="ttdeci">__device__ FP_PRECISION computeExponential(FP_PRECISION tau, int polar)</div><div class="ttdoc">Computes the exponential term for a optical length and polar angle. </div><div class="ttdef"><b>Definition:</b> GPUExpEvaluator.cu:69</div></div>
+<div class="ttc" id="classGPUExpEvaluator_html"><div class="ttname"><a href="classGPUExpEvaluator.html">GPUExpEvaluator</a></div><div class="ttdoc">This is a class for evaluating exponentials on GPUs. </div><div class="ttdef"><b>Definition:</b> GPUExpEvaluator.h:28</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_1ea949864ab1faf245facc269e7b2721.html">accel</a></li><li class="navelem"><a class="el" href="dir_e42498f83ad2e028b83ea18abff69fa1.html">cuda</a></li><li class="navelem"><a class="el" href="GPUExpEvaluator_8h.html">GPUExpEvaluator.h</a></li>
-    <li class="footer">Generated on Thu Apr 23 2015 23:42:16 by
+    <li class="footer">Generated on Mon Jun 22 2015 23:49:14 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

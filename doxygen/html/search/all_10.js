@@ -16,6 +16,5 @@ var searchData=
   ['restore_5fsimulation_5fstate',['restore_simulation_state',['../namespaceopenmoc_1_1process.html#a20436071e0dfd32af17c67bf86636a93',1,'openmoc::process']]],
   ['result',['RESULT',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a7186ecefe792fdae9fec0a42f105ad6b',1,'log.h']]],
   ['retrievesegmentcoords',['retrieveSegmentCoords',['../classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504',1,'TrackGenerator']]],
-  ['retrievetrackcoords',['retrieveTrackCoords',['../classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935',1,'TrackGenerator']]],
-  ['round_5fto_5fint',['round_to_int',['../ExpEvaluator_8h.html#a50ee4d4946888926bdf5a920129a322a',1,'round_to_int(float x):&#160;ExpEvaluator.h'],['../ExpEvaluator_8h.html#a8590e8a8b1ed480ea8151611eae72d2f',1,'round_to_int(double x):&#160;ExpEvaluator.h']]]
+  ['retrievetrackcoords',['retrieveTrackCoords',['../classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935',1,'TrackGenerator']]]
 ];

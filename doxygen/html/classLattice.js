@@ -2,6 +2,7 @@ var classLattice =
 [
     [ "Lattice", "classLattice.html#aeb23419f808ae758da6081584bd347bc", null ],
     [ "~Lattice", "classLattice.html#a91be54ce9927b6bc53d30a2faf760780", null ],
+    [ "buildNeighbors", "classLattice.html#ade08022370fa671377c212748ba5bb4f", null ],
     [ "findCell", "classLattice.html#a6ee2ee63e17bbfff4bc7de3b04a598fe", null ],
     [ "getAllCells", "classLattice.html#a94077d484d65e169883a9de3225dd3ae", null ],
     [ "getAllUniverses", "classLattice.html#a05ea2bbca5556a661287854341669809", null ],

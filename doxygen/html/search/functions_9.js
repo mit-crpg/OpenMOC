@@ -1,10 +1,8 @@
 var searchData=
 [
-  ['machine_5fcontains_5fgpu',['machine_contains_gpu',['../GPUQuery_8h.html#afd67f75b9224ffd2088ad0e224e54c75',1,'GPUQuery.cu']]],
-  ['material',['Material',['../classMaterial.html#a133f61006590cd0ca69662455f0f0349',1,'Material']]],
-  ['material_5fid',['material_id',['../Material_8h.html#ab3edf20a0bb542abb3162f8b0891b221',1,'Material.cpp']]],
-  ['materialize',['materialize',['../namespaceopenmoc_1_1materialize.html#a202690e95b90bfa40f5968edf8e37730',1,'openmoc::materialize']]],
-  ['matrix_5fmultiplication',['matrix_multiplication',['../linalg_8h.html#a43338349c584b2ec2b8be8fb147a1013',1,'linalg.h']]],
-  ['matrix_5fzero',['matrix_zero',['../linalg_8h.html#a9e22ba533640a3e8122c1ef0f2f65765',1,'linalg.h']]],
-  ['minsurfacedist',['minSurfaceDist',['../classCell.html#adf41aafa99278a759d8d6ae826c7330e',1,'Cell::minSurfaceDist()'],['../classUniverse.html#aaeb10eb025773d2ce1e15747b88f5de8',1,'Universe::minSurfaceDist()'],['../classLattice.html#a68148ab388f066e9bd0f4c88fb571880',1,'Lattice::minSurfaceDist()']]]
+  ['lattice',['Lattice',['../classLattice.html#aeb23419f808ae758da6081584bd347bc',1,'Lattice']]],
+  ['leonardpolarquad',['LeonardPolarQuad',['../classLeonardPolarQuad.html#a8f7a05795ed34143840c2202c6622eb1',1,'LeonardPolarQuad']]],
+  ['linearsolve',['linearSolve',['../classCmfd.html#a91b918938971340f64763dd946dae5b8',1,'Cmfd']]],
+  ['localcoords',['LocalCoords',['../classLocalCoords.html#ab0d2336c8312720fd28aefd09f6f7da0',1,'LocalCoords']]],
+  ['log_5fprintf',['log_printf',['../log_8h.html#a8abbd12e44a829a8d7a041636b170fde',1,'log.cpp']]]
 ];

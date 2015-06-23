@@ -1,9 +1,6 @@
 var hierarchy =
 [
-    [ "Cell", "classCell.html", [
-      [ "CellBasic", "classCellBasic.html", null ],
-      [ "CellFill", "classCellFill.html", null ]
-    ] ],
+    [ "Cell", "classCell.html", null ],
     [ "Cmfd", "classCmfd.html", null ],
     [ "dev_material", "structdev__material.html", null ],
     [ "dev_segment", "structdev__segment.html", null ],
@@ -29,6 +26,7 @@ var hierarchy =
       [ "TYPolarQuad", "classTYPolarQuad.html", null ]
     ] ],
     [ "casmo.py", "classcasmo_1_1py.html", null ],
+    [ "second_t< tPair >", "structsecond__t.html", null ],
     [ "segment", "structsegment.html", null ],
     [ "Solver", "classSolver.html", [
       [ "CPUSolver", "classCPUSolver.html", [

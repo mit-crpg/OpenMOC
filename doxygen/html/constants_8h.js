@@ -1,5 +1,6 @@
 var constants_8h =
 [
+    [ "EXP_PRECISION", "constants_8h.html#abd47494b8a16ac2aeb5c9e3242ff5e06", null ],
     [ "FOUR_PI", "constants_8h.html#ac6b39b7a27b735f3a62be33f38041985", null ],
     [ "MAX_OPTICAL_LENGTH", "constants_8h.html#a895b93c581aefe76e1ccc425bb95a8c5", null ],
     [ "ON_LATTICE_CELL_THRESH", "constants_8h.html#ad8a93cce3a9cd77aa9fc698dd9af26e7", null ],

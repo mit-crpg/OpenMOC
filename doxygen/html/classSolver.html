@@ -189,6 +189,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:acb1473a223c4c6d4f5c683e2f6ef1442"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#acb1473a223c4c6d4f5c683e2f6ef1442">setMaxOpticalLength</a> (FP_PRECISION max_optical_length)</td></tr>
 <tr class="memdesc:acb1473a223c4c6d4f5c683e2f6ef1442"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the maximum allowable optical length for a track segment.  <a href="#acb1473a223c4c6d4f5c683e2f6ef1442">More...</a><br/></td></tr>
 <tr class="separator:acb1473a223c4c6d4f5c683e2f6ef1442"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d97ec4afb9b02bed0492fadc91f7b14"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a0d97ec4afb9b02bed0492fadc91f7b14">setExpPrecision</a> (FP_PRECISION precision)</td></tr>
+<tr class="memdesc:a0d97ec4afb9b02bed0492fadc91f7b14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the precision, or maximum allowable approximation error, of the the exponential interpolation table.  <a href="#a0d97ec4afb9b02bed0492fadc91f7b14">More...</a><br/></td></tr>
+<tr class="separator:a0d97ec4afb9b02bed0492fadc91f7b14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a627f677bdb8a621a632b581bc976b2a5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a627f677bdb8a621a632b581bc976b2a5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a627f677bdb8a621a632b581bc976b2a5">useExponentialInterpolation</a> ()</td></tr>
 <tr class="memdesc:a627f677bdb8a621a632b581bc976b2a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Informs the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> to use linear interpolation to compute the exponential in the transport equation. <br/></td></tr>
@@ -305,8 +308,6 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:ad1f22a0b48917197634d9fa56cdfaa1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49cc179a9f47c5ca5f6d19c954d680ad"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a49cc179a9f47c5ca5f6d19c954d680ad">_num_polar</a></td></tr>
 <tr class="separator:a49cc179a9f47c5ca5f6d19c954d680ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f9e45e5d2a93bc3b18ca2659b95ac6a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a5f9e45e5d2a93bc3b18ca2659b95ac6a">_two_times_num_polar</a></td></tr>
-<tr class="separator:a5f9e45e5d2a93bc3b18ca2659b95ac6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84ce3dbf9e3c4a86773161e7c92b1da1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a84ce3dbf9e3c4a86773161e7c92b1da1">_polar_times_groups</a></td></tr>
 <tr class="separator:a84ce3dbf9e3c4a86773161e7c92b1da1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a775ed41fc1268312c8fb25ec994e1351"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classTrack.html">Track</a> **&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a775ed41fc1268312c8fb25ec994e1351">_tracks</a></td></tr>
@@ -458,7 +459,7 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes the scalar flux distribution by performing a series of transport sweeps. </p>
-<p>This is the main method exposed to the user through the Python interface to compute the scalar flux distribution, e.g., for a fixed ource calculation. This routine makes an initial guess for scalar and boundary fluxes and performs transport sweep until convergence.</p>
+<p>This is the main method exposed to the user through the Python interface to compute the scalar flux distribution, e.g., for a fixed source calculation. This routine makes an initial guess for scalar and boundary fluxes and performs transport sweep until convergence.</p>
 <p>By default, this method will perform a maximum of 1000 transport sweeps with a 1E-5 threshold on the average FSR scalar flux. These values may be freely modified by the user at runtime.</p>
 <p>The only_fixed_source runtime parameter may be used to control the type of source distribution used in the calculation. By default, this paramter is true and only the fixed sources specified by the user will be considered. Alternatively, when the parameter is false, the source will be computed as the scattering and fission sources resulting from a previously computed flux distribution (e.g., an eigenvalue calculation) in addition to any user-defined fixed sources.</p>
 <p>This method may be called by the user to compute the scalar flux for a fixed source distribution from Python as follows:</p>
@@ -1088,6 +1089,31 @@ Protected Attributes</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">source_thresh</td><td>the threshold for source/flux convergence </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a0d97ec4afb9b02bed0492fadc91f7b14"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Solver::setExpPrecision </td>
+          <td>(</td>
+          <td class="paramtype">FP_PRECISION&#160;</td>
+          <td class="paramname"><em>precision</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the precision, or maximum allowable approximation error, of the the exponential interpolation table. </p>
+<p>By default, the precision is 1E-5 based on the analysis in Yamamoto's 2003 paper. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">precision</td><td>the precision of the exponential interpolation table, </td></tr>
   </table>
   </dd>
 </dl>
@@ -1935,27 +1961,6 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a5f9e45e5d2a93bc3b18ca2659b95ac6a"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">int Solver::_two_times_num_polar</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Twice the number of polar angles </p>
-
-</div>
-</div>
 <a class="anchor" id="ad1f22a0b48917197634d9fa56cdfaa1d"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1978,8 +1983,8 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/<a class="el" href="Solver_8h_source.html">Solver.h</a></li>
-<li>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/Solver.cpp</li>
+<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Solver_8h_source.html">Solver.h</a></li>
+<li>/home/wboyd/Desktop/OpenMOC/src/Solver.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1987,7 +1992,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classSolver.html">Solver</a></li>
-    <li class="footer">Generated on Thu Apr 23 2015 23:42:17 by
+    <li class="footer">Generated on Mon Jun 22 2015 23:49:14 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

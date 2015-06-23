@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['withinbounds',['withinBounds',['../classGeometry.html#aae96af2cb5e5ad573bb44b3619962726',1,'Geometry::withinBounds()'],['../classLattice.html#aaa38ae681b8814661033c99f6410fadd',1,'Lattice::withinBounds()']]]
+  ['vector_5fcopy',['vector_copy',['../linalg_8h.html#a8042f06d914ffb508c64abd6e930e6ff',1,'linalg.h']]],
+  ['vector_5fscale',['vector_scale',['../linalg_8h.html#af940e0906a23b2704bc70adf4fb4e0e0',1,'linalg.h']]],
+  ['vector_5fzero',['vector_zero',['../linalg_8h.html#ab5189c01cbdfe2dfc24c888fb4c29e2d',1,'linalg.h']]],
+  ['vectorizedsolver',['VectorizedSolver',['../classVectorizedSolver.html#a9826193ed465005fd2067de46c96e9a2',1,'VectorizedSolver']]]
 ];

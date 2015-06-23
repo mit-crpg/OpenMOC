@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['operator_28_29',['operator()',['../structisinf__test.html#a9e0455e188bbe71cbddcf0affd832c27',1,'isinf_test::operator()(double a)'],['../structisinf__test.html#a99c56e498dc11ea229fc9c4d73e556f1',1,'isinf_test::operator()(float a)'],['../structisnan__test.html#adcff003d32cd87734d88380402a08c03',1,'isnan_test::operator()(double a)'],['../structisnan__test.html#a6cbc837b60293642b022ab5094e88748',1,'isnan_test::operator()(float a)']]]
+  ['normalizefluxes',['normalizeFluxes',['../classCPUSolver.html#aadf42a3cc81fc4641d259aee546e48c3',1,'CPUSolver::normalizeFluxes()'],['../classSolver.html#aeb89db6a6b624b222494625613b2ed57',1,'Solver::normalizeFluxes()'],['../classVectorizedSolver.html#a6c428f0706f8c8960a88404606665704',1,'VectorizedSolver::normalizeFluxes()']]]
 ];

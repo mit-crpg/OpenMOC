@@ -2,13 +2,14 @@ var classSurface =
 [
     [ "Surface", "classSurface.html#a55bbdfb81a8311a53da2b5a7d162062b", null ],
     [ "~Surface", "classSurface.html#a89de75c95cb550d432f3ea4ed1429db0", null ],
+    [ "addNeighborCell", "classSurface.html#a14d88790704251456967f0e75ec670d3", null ],
     [ "evaluate", "classSurface.html#a2e0aaef635a7392806d27fb4999a9168", null ],
     [ "getBoundaryType", "classSurface.html#afa3ef1b6a8b18d04240ee1a3bc908780", null ],
     [ "getId", "classSurface.html#a017d43ba277780965b6d5aa928a635fc", null ],
     [ "getMaxX", "classSurface.html#a1edd456367a3d7d918582a466734a86b", null ],
     [ "getMaxY", "classSurface.html#ada5c0bfb9edf3b61f98efed900e07714", null ],
     [ "getMaxZ", "classSurface.html#a9a644e77deac15dceef35f80a6ed410d", null ],
-    [ "getMinDistance", "classSurface.html#a38d24a561dd8d1e3e3a0dabc3a472634", null ],
+    [ "getMinDistance", "classSurface.html#a7a5989ca8b58293132edd0226489c4aa", null ],
     [ "getMinX", "classSurface.html#abd73088b89103f309c66e870a4e1527a", null ],
     [ "getMinY", "classSurface.html#a86a0c7de2e637eb806ba549b9f782e76", null ],
     [ "getMinZ", "classSurface.html#ad11132eeb2897e976e2733f046017367", null ],
@@ -25,6 +26,7 @@ var classSurface =
     [ "_boundary_type", "classSurface.html#a73ff438f865a0694735877998dce0d91", null ],
     [ "_id", "classSurface.html#a8bb880c5fad9e000352651028c1e93a9", null ],
     [ "_name", "classSurface.html#ab405d3dca78cb7ddcc36c0680ada38f6", null ],
+    [ "_neighbors", "classSurface.html#aebd4835677d46ac2653323e8d3002da1", null ],
     [ "_surface_type", "classSurface.html#a2b8655eb5a953ea4b45abe5fab7831d0", null ],
     [ "_uid", "classSurface.html#aea05fdb4d9e26103dfb66c6833f66b4a", null ]
 ];

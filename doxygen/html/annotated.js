@@ -13,8 +13,6 @@ var annotated =
       [ "process", "namespaceopenmoc_1_1process.html", null ]
     ] ],
     [ "Cell", "classCell.html", "classCell" ],
-    [ "CellBasic", "classCellBasic.html", "classCellBasic" ],
-    [ "CellFill", "classCellFill.html", "classCellFill" ],
     [ "Circle", "classCircle.html", "classCircle" ],
     [ "Cmfd", "classCmfd.html", "classCmfd" ],
     [ "CPUSolver", "classCPUSolver.html", "classCPUSolver" ],
@@ -38,6 +36,7 @@ var annotated =
     [ "Plane", "classPlane.html", "classPlane" ],
     [ "Point", "classPoint.html", "classPoint" ],
     [ "PolarQuad", "classPolarQuad.html", "classPolarQuad" ],
+    [ "second_t", "structsecond__t.html", "structsecond__t" ],
     [ "segment", "structsegment.html", "structsegment" ],
     [ "Solver", "classSolver.html", "classSolver" ],
     [ "Surface", "classSurface.html", "classSurface" ],

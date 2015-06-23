@@ -85,6 +85,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="functions_func.html#index__"><span>_</span></a></li>
       <li><a href="functions_func_a.html#index_a"><span>a</span></a></li>
+      <li><a href="functions_func_b.html#index_b"><span>b</span></a></li>
       <li><a href="functions_func_c.html#index_c"><span>c</span></a></li>
       <li><a href="functions_func_d.html#index_d"><span>d</span></a></li>
       <li><a href="functions_func_e.html#index_e"><span>e</span></a></li>
@@ -154,9 +155,7 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 : <a class="el" href="classPlane.html#ade79c02c1effc3b501838672572cde25">Plane</a>
 </li>
 <li>getAllCells()
-: <a class="el" href="classCell.html#a2d69f8066d87cb911b748a738ebf73bd">Cell</a>
-, <a class="el" href="classCellBasic.html#a1ba4474c5b2f466cc01ae263159479a6">CellBasic</a>
-, <a class="el" href="classCellFill.html#a1b4fc6ee111f88a3ee4e3e8b13846fbe">CellFill</a>
+: <a class="el" href="classCell.html#a910865b45cd3ade01ac486b6759eb689">Cell</a>
 , <a class="el" href="classLattice.html#a94077d484d65e169883a9de3225dd3ae">Lattice</a>
 , <a class="el" href="classUniverse.html#a774aebe5c0df48b5fb5d33890d2a1c81">Universe</a>
 </li>
@@ -168,9 +167,7 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 , <a class="el" href="classUniverse.html#a6b6779c65a442143d9d068c6e8483e66">Universe</a>
 </li>
 <li>getAllUniverses()
-: <a class="el" href="classCell.html#aa3dc62f492625be20fef88f6c0b75f5f">Cell</a>
-, <a class="el" href="classCellBasic.html#a171edfe6aa8d2ce4d4b56f8c02c90480">CellBasic</a>
-, <a class="el" href="classCellFill.html#ae827bda42d43158b655caceb8d37fcbd">CellFill</a>
+: <a class="el" href="classCell.html#a472ff1d9d996bca7443be237e64aa043">Cell</a>
 , <a class="el" href="classLattice.html#a05ea2bbca5556a661287854341669809">Lattice</a>
 , <a class="el" href="classUniverse.html#a19e1ab466310dfd3549adca84ed25cbe">Universe</a>
 </li>
@@ -210,12 +207,6 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <li>getCell()
 : <a class="el" href="classLocalCoords.html#a8de7b5b5c16e748d816c9d6c6f888ddc">LocalCoords</a>
 , <a class="el" href="classUniverse.html#a4c9d6fa60df75ec61fee665a2c7670e9">Universe</a>
-</li>
-<li>getCellBasic()
-: <a class="el" href="classUniverse.html#abbbc6829e073e135d980c77020fc8293">Universe</a>
-</li>
-<li>getCellFill()
-: <a class="el" href="classUniverse.html#afb546608a947f48e8eafb307eab0d2d8">Universe</a>
 </li>
 <li>getCellFSRs()
 : <a class="el" href="classCmfd.html#a1819addcb8c89ed78b4d70609851b49d">Cmfd</a>
@@ -274,14 +265,20 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <li>getEnergyGroups()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a9b0b5303e8f2dff4af68ebb055b5bc4d">openmoc.compatible.casmo.Casmo</a>
 </li>
+<li>getExpPrecision()
+: <a class="el" href="classExpEvaluator.html#ad6d308c83b6d135e9de53e29d671f419">ExpEvaluator</a>
+</li>
 <li>getExpTable()
 : <a class="el" href="classExpEvaluator.html#a507b3b6c63974e02baebe237724c6e6f">ExpEvaluator</a>
 </li>
 <li>getFilename()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a7d7711327b46363ff6ed61d6af4ce371">openmoc.compatible.casmo.Casmo</a>
 </li>
-<li>getFill()
-: <a class="el" href="classCellFill.html#ac7cbcd1390425825ec0524b3c39da2c7">CellFill</a>
+<li>getFillMaterial()
+: <a class="el" href="classCell.html#a62c0cae00887eff3af64e17e66b846e2">Cell</a>
+</li>
+<li>getFillUniverse()
+: <a class="el" href="classCell.html#a18343f1d80b33c221789bd453fe30101">Cell</a>
 </li>
 <li>getFluxRatio()
 : <a class="el" href="classCmfd.html#a40a134f597be882ffdef709b95046671">Cmfd</a>
@@ -372,9 +369,6 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <li>getLowestLevel()
 : <a class="el" href="classLocalCoords.html#a9eea7e15fe849f272854e8db1fe7268a">LocalCoords</a>
 </li>
-<li>getMaterial()
-: <a class="el" href="classCellBasic.html#a81a69ed18674afdcdc8c59a200f81fc6">CellBasic</a>
-</li>
 <li>getMaxIterations()
 : <a class="el" href="classopenmoc_1_1options_1_1Options.html#a06af69d471a6a61d16df071d69143007">openmoc.options.Options</a>
 </li>
@@ -432,7 +426,7 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 , <a class="el" href="classUniverse.html#a02e76ebae0a5ef8ea150eab112ee5f4c">Universe</a>
 </li>
 <li>getMinDistance()
-: <a class="el" href="classSurface.html#a38d24a561dd8d1e3e3a0dabc3a472634">Surface</a>
+: <a class="el" href="classSurface.html#a7a5989ca8b58293132edd0226489c4aa">Surface</a>
 </li>
 <li>getMinMicroregions()
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a276711a2e71dc4dc3782ee3f2c1ea9ad">openmoc.compatible.casmo.Casmo</a>
@@ -497,6 +491,9 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 , <a class="el" href="classSurface.html#abd1a4432782d753fffcd6ce48694fccc">Surface</a>
 , <a class="el" href="classUniverse.html#a7f217fc8c84d6e30f80264c5d823f3c5">Universe</a>
 </li>
+<li>getNeighbors()
+: <a class="el" href="classCell.html#af17e67b05a06c2411b22742a68f15807">Cell</a>
+</li>
 <li>getNext()
 : <a class="el" href="classLocalCoords.html#a2072734614ca0d7b945fd20ed59f4594">LocalCoords</a>
 </li>
@@ -538,10 +535,10 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 : <a class="el" href="classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a44c19685685a36935f1372b932078894">openmoc.compatible.casmo.Casmo</a>
 </li>
 <li>getNumRings()
-: <a class="el" href="classCellBasic.html#ad5af2c486bcfd2a0cc8531300b4edf67">CellBasic</a>
+: <a class="el" href="classCell.html#a2b6c85277a5865bd0f5843825c6ff771">Cell</a>
 </li>
 <li>getNumSectors()
-: <a class="el" href="classCellBasic.html#ad1f28a0ba1cb3c98e4a6390b5c5a28f2">CellBasic</a>
+: <a class="el" href="classCell.html#ab3af78ae4f782aca1c576d19be395394">Cell</a>
 </li>
 <li>getNumSegments()
 : <a class="el" href="classTrack.html#a034893295ac06eed35aac0c7ed172419">Track</a>
@@ -775,7 +772,7 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Apr 23 2015 23:42:17 by
+    <li class="footer">Generated on Mon Jun 22 2015 23:49:15 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

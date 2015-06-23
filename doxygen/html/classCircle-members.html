@@ -114,8 +114,10 @@ $(document).ready(function(){initNavTree('classCircle.html','');});
   <tr><td class="entry"><a class="el" href="classSurface.html#a8bb880c5fad9e000352651028c1e93a9">_id</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classSurface.html#af29013bb2235204f570e86d62bca4a1f">_n</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">static</span></td></tr>
   <tr><td class="entry"><a class="el" href="classSurface.html#ab405d3dca78cb7ddcc36c0680ada38f6">_name</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classSurface.html#a2b8655eb5a953ea4b45abe5fab7831d0">_surface_type</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classSurface.html#aea05fdb4d9e26103dfb66c6833f66b4a">_uid</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>_neighbors</b> (defined in <a class="el" href="classSurface.html">Surface</a>)</td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classSurface.html#a2b8655eb5a953ea4b45abe5fab7831d0">_surface_type</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classSurface.html#aea05fdb4d9e26103dfb66c6833f66b4a">_uid</a></td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classSurface.html#a14d88790704251456967f0e75ec670d3">addNeighborCell</a>(int halfspace, Cell *cell)</td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classCircle.html#a12a61433361c906cfa5d2e75dc9154d6">Circle</a>(const double x, const double y, const double radius, const int id=0, const char *name=&quot;&quot;)</td><td class="entry"><a class="el" href="classCircle.html">Circle</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classCircle.html#a18f49b1f94c29760cd62d10b7e908fa9">evaluate</a>(const Point *point) const </td><td class="entry"><a class="el" href="classCircle.html">Circle</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classSurface.html#afa3ef1b6a8b18d04240ee1a3bc908780">getBoundaryType</a>()</td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"></td></tr>
@@ -123,7 +125,7 @@ $(document).ready(function(){initNavTree('classCircle.html','');});
   <tr class="even"><td class="entry"><a class="el" href="classCircle.html#a8d76d6653426e418d1323e5555e3489c">getMaxX</a>(int halfspace)</td><td class="entry"><a class="el" href="classCircle.html">Circle</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr><td class="entry"><a class="el" href="classCircle.html#a5fa2358678d8d4dfdea87d3d1bae7925">getMaxY</a>(int halfspace)</td><td class="entry"><a class="el" href="classCircle.html">Circle</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classCircle.html#a9326e806399b4f3eba54d876f2a0416f">getMaxZ</a>(int halfspace)</td><td class="entry"><a class="el" href="classCircle.html">Circle</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classSurface.html#a38d24a561dd8d1e3e3a0dabc3a472634">getMinDistance</a>(Point *point, double angle, Point *intersection)</td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classSurface.html#a7a5989ca8b58293132edd0226489c4aa">getMinDistance</a>(Point *point, double angle)</td><td class="entry"><a class="el" href="classSurface.html">Surface</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classCircle.html#a33f22f5eb12c795a20205cd950a7dedb">getMinX</a>(int halfspace)</td><td class="entry"><a class="el" href="classCircle.html">Circle</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr><td class="entry"><a class="el" href="classCircle.html#a47c305b540aa8b2267f482bfa0618ca9">getMinY</a>(int halfspace)</td><td class="entry"><a class="el" href="classCircle.html">Circle</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classCircle.html#a8863ea4ece0487b8de85daaba2676156">getMinZ</a>(int halfspace)</td><td class="entry"><a class="el" href="classCircle.html">Circle</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
@@ -149,7 +151,7 @@ $(document).ready(function(){initNavTree('classCircle.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Apr 23 2015 23:42:16 by
+    <li class="footer">Generated on Mon Jun 22 2015 23:49:14 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

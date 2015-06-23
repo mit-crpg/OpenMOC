@@ -112,12 +112,14 @@ $(document).ready(function(){initNavTree('classExpEvaluator.html','');});
 <table class="directory">
   <tr class="even"><td class="entry"><a class="el" href="classExpEvaluator.html#acc4face2843cc5fc240303b89dc48bd6">computeExponential</a>(FP_PRECISION tau, int polar)</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classExpEvaluator.html#a8ef6a77f6ea377127ca93da2d4d7f65d">ExpEvaluator</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classExpEvaluator.html#a507b3b6c63974e02baebe237724c6e6f">getExpTable</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classExpEvaluator.html#af0a7849990399340beb8db1a54545ff6">getMaxOpticalLength</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classExpEvaluator.html#aa19b042b457c8317003dcd2b51e1edcb">getTableSize</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classExpEvaluator.html#a51abce3390ae7e442a1e0825c1de7879">getTableSpacing</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classExpEvaluator.html#ab907cb7faf44f4bff39770f27078e7a8">initialize</a>(double tolerance)</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classExpEvaluator.html#ae9a355734c74f5ee9a3ae73408af5bca">isUsingInterpolation</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classExpEvaluator.html#ad6d308c83b6d135e9de53e29d671f419">getExpPrecision</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classExpEvaluator.html#a507b3b6c63974e02baebe237724c6e6f">getExpTable</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classExpEvaluator.html#af0a7849990399340beb8db1a54545ff6">getMaxOpticalLength</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classExpEvaluator.html#aa19b042b457c8317003dcd2b51e1edcb">getTableSize</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classExpEvaluator.html#a51abce3390ae7e442a1e0825c1de7879">getTableSpacing</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classExpEvaluator.html#a3dd67ca4aa72ccf0921f1f06a5952f83">initialize</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classExpEvaluator.html#ae9a355734c74f5ee9a3ae73408af5bca">isUsingInterpolation</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classExpEvaluator.html#a691f286cdc3fa578e29e62e8d4c574fc">setExpPrecision</a>(FP_PRECISION exp_precision)</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classExpEvaluator.html#a5d80d3b514c570fe0319a49f402d5608">setMaxOpticalLength</a>(FP_PRECISION max_optical_length)</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classExpEvaluator.html#adb0f2dbbfa74d27900e28199c9572c41">setPolarQuadrature</a>(PolarQuad *polar_quad)</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classExpEvaluator.html#a6e61b20b470fd3e5220dc9bfd7298259">useInterpolation</a>()</td><td class="entry"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a></td><td class="entry"></td></tr>
@@ -128,7 +130,7 @@ $(document).ready(function(){initNavTree('classExpEvaluator.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Apr 23 2015 23:42:16 by
+    <li class="footer">Generated on Mon Jun 22 2015 23:49:14 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

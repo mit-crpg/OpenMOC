@@ -53,7 +53,7 @@ var classCmfd =
     [ "setSourceConvergenceThreshold", "classCmfd.html#ae0405a0c0998d8943e2f8ea94a645940", null ],
     [ "setWidth", "classCmfd.html#adf041f216499a54f4b9f75811dddae5a", null ],
     [ "splitCorners", "classCmfd.html#a418318efb5fe2ac12b8df151dc990cc0", null ],
-    [ "tallySurfaceCurrent", "classCmfd.html#a697125015610825bf997812f68d616f9", null ],
+    [ "tallySurfaceCurrent", "classCmfd.html#a0bfce334ab3b4421e62250a5028d5608", null ],
     [ "updateBoundaryFlux", "classCmfd.html#a8e2162ab4e1b55d2240f5c41184d73d3", null ],
     [ "updateMOCFlux", "classCmfd.html#a92498d14632389804569ef690a126942", null ],
     [ "zeroSurfaceCurrents", "classCmfd.html#aef6f6ce5e9c3226a973198923242b2e2", null ]

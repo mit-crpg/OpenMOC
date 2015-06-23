@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/accel/cuda/GPUSolver.h Source File</title>
+<title>/home/wboyd/Desktop/OpenMOC/src/accel/cuda/GPUSolver.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -110,127 +110,129 @@ $(document).ready(function(){initNavTree('GPUSolver_8h_source.html','');});
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define GPUSOLVER_H_</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#include &quot;../../constants.h&quot;</span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &quot;../../Solver.h&quot;</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#include &lt;thrust/device_vector.h&gt;</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &lt;thrust/copy.h&gt;</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &lt;thrust/fill.h&gt;</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &lt;thrust/reduce.h&gt;</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &lt;thrust/replace.h&gt;</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &lt;thrust/functional.h&gt;</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &lt;thrust/iterator/constant_iterator.h&gt;</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#include &lt;sm_13_double_functions.h&gt;</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#include &lt;sm_20_atomic_functions.h&gt;</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="clone_8h.html">clone.h</a>&quot;</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="GPUExpEvaluator_8h.html">GPUExpEvaluator.h</a>&quot;</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#a4089c9be8cf297ccf942eb8c29cca415">   30</a></span>&#160;<span class="preprocessor">#define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#a847d50773dbb17bf6cacdffdde229065">   33</a></span>&#160;<span class="preprocessor">#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*num_groups) + (e)])</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#af16043dabfde8edf630658d1a93906fb">   37</a></span>&#160;<span class="preprocessor">#define reduced_sources(tid,e) (reduced_sources[(tid)*(*num_groups) + (e)])</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#ac94c3f974b76a8708623f6c394415a62">   40</a></span>&#160;<span class="preprocessor">#define fixed_sources(r,e) (fixed_sources[(r)*(*num_groups) + (e)])</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#a818d2da0930d46b3fe53eff8bb60ea1f">   43</a></span>&#160;<span class="preprocessor">#define polar_weights(i,p) (polar_weights[(i)*(*num_polar) + (p)])</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#a2d0f44838c549b1382bbcd5efa2b57ee">   47</a></span>&#160;<span class="preprocessor">#define boundary_flux(t,pe2) (boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#a13ab74d9229f8b9544ae9decc54163da">   50</a></span>&#160;<span class="preprocessor">#define MAX_AZIM_ANGLES 256</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="classGPUSolver.html">   60</a></span>&#160;<span class="keyword">class </span><a class="code" href="classGPUSolver.html">GPUSolver</a> : <span class="keyword">public</span> <a class="code" href="classSolver.html">Solver</a> {</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#include &quot;Python.h&quot;</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &quot;../../constants.h&quot;</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &quot;../../Solver.h&quot;</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#define PySys_WriteStdout printf</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &lt;thrust/device_vector.h&gt;</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &lt;thrust/copy.h&gt;</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &lt;thrust/fill.h&gt;</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &lt;thrust/reduce.h&gt;</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#include &lt;thrust/replace.h&gt;</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#include &lt;thrust/functional.h&gt;</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &lt;thrust/iterator/constant_iterator.h&gt;</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#include &lt;sm_20_atomic_functions.h&gt;</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="clone_8h.html">clone.h</a>&quot;</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="GPUExpEvaluator_8h.html">GPUExpEvaluator.h</a>&quot;</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#a4089c9be8cf297ccf942eb8c29cca415">   31</a></span>&#160;<span class="preprocessor">#define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#a847d50773dbb17bf6cacdffdde229065">   34</a></span>&#160;<span class="preprocessor">#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*num_groups) + (e)])</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#af16043dabfde8edf630658d1a93906fb">   38</a></span>&#160;<span class="preprocessor">#define reduced_sources(tid,e) (reduced_sources[(tid)*(*num_groups) + (e)])</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#ac94c3f974b76a8708623f6c394415a62">   41</a></span>&#160;<span class="preprocessor">#define fixed_sources(r,e) (fixed_sources[(r)*(*num_groups) + (e)])</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#a818d2da0930d46b3fe53eff8bb60ea1f">   44</a></span>&#160;<span class="preprocessor">#define polar_weights(i,p) (polar_weights[(i)*(*num_polar) + (p)])</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="GPUSolver_8h.html#a2d0f44838c549b1382bbcd5efa2b57ee">   48</a></span>&#160;<span class="preprocessor">#define boundary_flux(t,pe2) (boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
+<div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="classGPUSolver.html">   58</a></span>&#160;<span class="keyword">class </span><a class="code" href="classGPUSolver.html">GPUSolver</a> : <span class="keyword">public</span> <a class="code" href="classSolver.html">Solver</a> {</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keyword">private</span>:</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keywordtype">int</span> _B;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="keywordtype">int</span> _T;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="keywordtype">int</span>* _FSR_materials;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  <a class="code" href="structdev__material.html">dev_material</a>* _materials;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <a class="code" href="structdev__track.html">dev_track</a>* _dev_tracks;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _boundary_flux;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _boundary_leakage;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _scalar_flux;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _old_scalar_flux;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _fixed_sources;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _reduced_sources;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  std::map&lt;int, int&gt; _material_IDs_to_indices;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <span class="keywordtype">int</span> computeScalarTrackIndex(<span class="keywordtype">int</span> i, <span class="keywordtype">int</span> j);</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordtype">void</span> initializePolarQuadrature();</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keywordtype">void</span> initializeExpEvaluator();</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="keywordtype">void</span> initializeFSRs();</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  <span class="keywordtype">void</span> initializeMaterials();</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="keywordtype">void</span> initializeTracks();</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  <span class="keywordtype">void</span> initializeFluxArrays();</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="keywordtype">void</span> initializeSourceArrays();</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  <span class="keywordtype">void</span> zeroTrackFluxes();</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  <span class="keywordtype">void</span> flattenFSRFluxes(FP_PRECISION value);</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  <span class="keywordtype">void</span> storeFSRFluxes();</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  <span class="keywordtype">void</span> normalizeFluxes();</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  <span class="keywordtype">void</span> computeFSRSources();</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  <span class="keywordtype">void</span> transportSweep();</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  <span class="keywordtype">void</span> addSourceToScalarFlux();</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  <span class="keywordtype">void</span> computeKeff();</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="keywordtype">double</span> computeResidual(<a class="code" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type);</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  <a class="code" href="classGPUSolver.html#a76a26b09eccc6e771069babdfacf1382">GPUSolver</a>(<a class="code" href="classTrackGenerator.html">TrackGenerator</a>* track_generator=NULL);</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  <span class="keyword">virtual</span> <a class="code" href="classGPUSolver.html#ad1e93fffcb26624da0fa621248a944d2">~GPUSolver</a>();</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="classGPUSolver.html#ae6d00a4ca76d7949e2ec938439250b1b">getNumThreadBlocks</a>();</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="classGPUSolver.html#a0834fa70b3e26b41a77414ff5fb1012b">getNumThreadsPerBlock</a>();</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  FP_PRECISION <a class="code" href="classGPUSolver.html#ac2d7d22df0458ff93e619fa80d418416">getFSRScalarFlux</a>(<span class="keywordtype">int</span> fsr_id, <span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  FP_PRECISION <a class="code" href="classGPUSolver.html#a1e17636049fadc5c4e222786887ca940">getFSRSource</a>(<span class="keywordtype">int</span> fsr_id, <span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#a2978a7da907313d5b2b0437e27db568d">setNumThreadBlocks</a>(<span class="keywordtype">int</span> num_blocks);</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#ab86b32873196013c33bac2f735a9acec">setNumThreadsPerBlock</a>(<span class="keywordtype">int</span> num_threads);</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#aec246df7ad4feefeecfb8e55d4d04a79">setFixedSourceByFSR</a>(<span class="keywordtype">int</span> fsr_id, <span class="keywordtype">int</span> group, </div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;                           FP_PRECISION source);</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#a6e6d50acc405f83a15bd24e2bc908e1d">setGeometry</a>(<a class="code" href="classGeometry.html">Geometry</a>* geometry);</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#ab0298357c57685b183c772b6abaa88e8">setTrackGenerator</a>(<a class="code" href="classTrackGenerator.html">TrackGenerator</a>* track_generator);</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#a20cddb69d67c7bf64f3483259e9d90b7">computeFSRFissionRates</a>(<span class="keywordtype">double</span>* fission_rates, <span class="keywordtype">int</span> num_FSRs);</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;};</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* GPUSOLVER_H_ */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordtype">int</span> _B;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keywordtype">int</span> _T;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="keywordtype">int</span> _two_times_num_polar;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="keywordtype">int</span>* _FSR_materials;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <a class="code" href="structdev__material.html">dev_material</a>* _materials;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  <a class="code" href="structdev__track.html">dev_track</a>* _dev_tracks;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _boundary_flux;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _boundary_leakage;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _scalar_flux;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _old_scalar_flux;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _fixed_sources;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  thrust::device_vector&lt;FP_PRECISION&gt; _reduced_sources;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  std::map&lt;int, int&gt; _material_IDs_to_indices;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keywordtype">int</span> computeScalarTrackIndex(<span class="keywordtype">int</span> i, <span class="keywordtype">int</span> j);</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keywordtype">void</span> initializePolarQuadrature();</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="keywordtype">void</span> initializeExpEvaluator();</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  <span class="keywordtype">void</span> initializeFSRs();</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="keywordtype">void</span> initializeMaterials();</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  <span class="keywordtype">void</span> initializeTracks();</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="keywordtype">void</span> initializeFluxArrays();</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  <span class="keywordtype">void</span> initializeSourceArrays();</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  <span class="keywordtype">void</span> zeroTrackFluxes();</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  <span class="keywordtype">void</span> flattenFSRFluxes(FP_PRECISION value);</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  <span class="keywordtype">void</span> storeFSRFluxes();</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  <span class="keywordtype">void</span> normalizeFluxes();</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  <span class="keywordtype">void</span> computeFSRSources();</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  <span class="keywordtype">void</span> transportSweep();</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  <span class="keywordtype">void</span> addSourceToScalarFlux();</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="keywordtype">void</span> computeKeff();</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  <span class="keywordtype">double</span> computeResidual(<a class="code" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type);</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  <a class="code" href="classGPUSolver.html#a76a26b09eccc6e771069babdfacf1382">GPUSolver</a>(<a class="code" href="classTrackGenerator.html">TrackGenerator</a>* track_generator=NULL);</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  <span class="keyword">virtual</span> <a class="code" href="classGPUSolver.html#ad1e93fffcb26624da0fa621248a944d2">~GPUSolver</a>();</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="classGPUSolver.html#ae6d00a4ca76d7949e2ec938439250b1b">getNumThreadBlocks</a>();</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="classGPUSolver.html#a0834fa70b3e26b41a77414ff5fb1012b">getNumThreadsPerBlock</a>();</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;  FP_PRECISION <a class="code" href="classGPUSolver.html#ac2d7d22df0458ff93e619fa80d418416">getFSRScalarFlux</a>(<span class="keywordtype">int</span> fsr_id, <span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  FP_PRECISION <a class="code" href="classGPUSolver.html#a1e17636049fadc5c4e222786887ca940">getFSRSource</a>(<span class="keywordtype">int</span> fsr_id, <span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#a2978a7da907313d5b2b0437e27db568d">setNumThreadBlocks</a>(<span class="keywordtype">int</span> num_blocks);</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#ab86b32873196013c33bac2f735a9acec">setNumThreadsPerBlock</a>(<span class="keywordtype">int</span> num_threads);</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#aec246df7ad4feefeecfb8e55d4d04a79">setFixedSourceByFSR</a>(<span class="keywordtype">int</span> fsr_id, <span class="keywordtype">int</span> group, </div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;                           FP_PRECISION source);</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#a6e6d50acc405f83a15bd24e2bc908e1d">setGeometry</a>(<a class="code" href="classGeometry.html">Geometry</a>* geometry);</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#ab0298357c57685b183c772b6abaa88e8">setTrackGenerator</a>(<a class="code" href="classTrackGenerator.html">TrackGenerator</a>* track_generator);</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classGPUSolver.html#a20cddb69d67c7bf64f3483259e9d90b7">computeFSRFissionRates</a>(<span class="keywordtype">double</span>* fission_rates, <span class="keywordtype">int</span> num_FSRs);</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;};</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* GPUSOLVER_H_ */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="classGPUSolver_html_a2978a7da907313d5b2b0437e27db568d"><div class="ttname"><a href="classGPUSolver.html#a2978a7da907313d5b2b0437e27db568d">GPUSolver::setNumThreadBlocks</a></div><div class="ttdeci">void setNumThreadBlocks(int num_blocks)</div><div class="ttdoc">Sets the number of thread blocks (&gt;0) for CUDA kernels. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:762</div></div>
-<div class="ttc" id="classGPUSolver_html"><div class="ttname"><a href="classGPUSolver.html">GPUSolver</a></div><div class="ttdoc">This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs). </div><div class="ttdef"><b>Definition:</b> GPUSolver.h:60</div></div>
+<div class="ttc" id="classGPUSolver_html"><div class="ttname"><a href="classGPUSolver.html">GPUSolver</a></div><div class="ttdoc">This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs). </div><div class="ttdef"><b>Definition:</b> GPUSolver.h:58</div></div>
 <div class="ttc" id="classGPUSolver_html_ab86b32873196013c33bac2f735a9acec"><div class="ttname"><a href="classGPUSolver.html#ab86b32873196013c33bac2f735a9acec">GPUSolver::setNumThreadsPerBlock</a></div><div class="ttdeci">void setNumThreadsPerBlock(int num_threads)</div><div class="ttdoc">Sets the number of threads per block (&gt;0) for CUDA kernels. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:776</div></div>
 <div class="ttc" id="structdev__track_html"><div class="ttname"><a href="structdev__track.html">dev_track</a></div><div class="ttdoc">A dev_track represents a characteristic line across the geometry. </div><div class="ttdef"><b>Definition:</b> DeviceTrack.h:43</div></div>
 <div class="ttc" id="clone_8h_html"><div class="ttname"><a href="clone_8h.html">clone.h</a></div><div class="ttdoc">Routines to copy Material and Track objects to the GPU from CPU. </div></div>
-<div class="ttc" id="classGPUSolver_html_a20cddb69d67c7bf64f3483259e9d90b7"><div class="ttname"><a href="classGPUSolver.html#a20cddb69d67c7bf64f3483259e9d90b7">GPUSolver::computeFSRFissionRates</a></div><div class="ttdeci">void computeFSRFissionRates(double *fission_rates, int num_FSRs)</div><div class="ttdoc">Computes the volume-averaged, energy-integrated fission rate in each FSR and stores them in an array ...</div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:1541</div></div>
+<div class="ttc" id="classGPUSolver_html_a20cddb69d67c7bf64f3483259e9d90b7"><div class="ttname"><a href="classGPUSolver.html#a20cddb69d67c7bf64f3483259e9d90b7">GPUSolver::computeFSRFissionRates</a></div><div class="ttdeci">void computeFSRFissionRates(double *fission_rates, int num_FSRs)</div><div class="ttdoc">Computes the volume-averaged, energy-integrated nu-fission rate in each FSR and stores them in an arr...</div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:1553</div></div>
 <div class="ttc" id="classGPUSolver_html_ac2d7d22df0458ff93e619fa80d418416"><div class="ttname"><a href="classGPUSolver.html#ac2d7d22df0458ff93e619fa80d418416">GPUSolver::getFSRScalarFlux</a></div><div class="ttdeci">FP_PRECISION getFSRScalarFlux(int fsr_id, int group)</div><div class="ttdoc">Returns the scalar flux for some FSR and energy group. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:660</div></div>
 <div class="ttc" id="classGPUSolver_html_ae6d00a4ca76d7949e2ec938439250b1b"><div class="ttname"><a href="classGPUSolver.html#ae6d00a4ca76d7949e2ec938439250b1b">GPUSolver::getNumThreadBlocks</a></div><div class="ttdeci">int getNumThreadBlocks()</div><div class="ttdoc">Returns the number of thread blocks to execute on the GPU. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:640</div></div>
 <div class="ttc" id="classGPUSolver_html_aec246df7ad4feefeecfb8e55d4d04a79"><div class="ttname"><a href="classGPUSolver.html#aec246df7ad4feefeecfb8e55d4d04a79">GPUSolver::setFixedSourceByFSR</a></div><div class="ttdeci">void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source)</div><div class="ttdoc">Assign a fixed source for a flat source region and energy group. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:795</div></div>
-<div class="ttc" id="classTrackGenerator_html"><div class="ttname"><a href="classTrackGenerator.html">TrackGenerator</a></div><div class="ttdoc">The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...</div><div class="ttdef"><b>Definition:</b> TrackGenerator.h:31</div></div>
-<div class="ttc" id="classGeometry_html"><div class="ttname"><a href="classGeometry.html">Geometry</a></div><div class="ttdoc">The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. </div><div class="ttdef"><b>Definition:</b> Geometry.h:56</div></div>
+<div class="ttc" id="classTrackGenerator_html"><div class="ttname"><a href="classTrackGenerator.html">TrackGenerator</a></div><div class="ttdoc">The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...</div><div class="ttdef"><b>Definition:</b> TrackGenerator.h:32</div></div>
+<div class="ttc" id="classGeometry_html"><div class="ttname"><a href="classGeometry.html">Geometry</a></div><div class="ttdoc">The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. </div><div class="ttdef"><b>Definition:</b> Geometry.h:54</div></div>
 <div class="ttc" id="classGPUSolver_html_a76a26b09eccc6e771069babdfacf1382"><div class="ttname"><a href="classGPUSolver.html#a76a26b09eccc6e771069babdfacf1382">GPUSolver::GPUSolver</a></div><div class="ttdeci">GPUSolver(TrackGenerator *track_generator=NULL)</div><div class="ttdoc">Constructor initializes arrays for dev_tracks and dev_materials.. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:583</div></div>
-<div class="ttc" id="classGPUSolver_html_ab0298357c57685b183c772b6abaa88e8"><div class="ttname"><a href="classGPUSolver.html#ab0298357c57685b183c772b6abaa88e8">GPUSolver::setTrackGenerator</a></div><div class="ttdeci">void setTrackGenerator(TrackGenerator *track_generator)</div><div class="ttdoc">Sets the Solver&#39;s TrackGenerator with characteristic Tracks. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:844</div></div>
-<div class="ttc" id="classGPUSolver_html_a6e6d50acc405f83a15bd24e2bc908e1d"><div class="ttname"><a href="classGPUSolver.html#a6e6d50acc405f83a15bd24e2bc908e1d">GPUSolver::setGeometry</a></div><div class="ttdeci">void setGeometry(Geometry *geometry)</div><div class="ttdoc">Sets the Geometry for the Solver. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:817</div></div>
+<div class="ttc" id="classGPUSolver_html_ab0298357c57685b183c772b6abaa88e8"><div class="ttname"><a href="classGPUSolver.html#ab0298357c57685b183c772b6abaa88e8">GPUSolver::setTrackGenerator</a></div><div class="ttdeci">void setTrackGenerator(TrackGenerator *track_generator)</div><div class="ttdoc">Sets the Solver&#39;s TrackGenerator with characteristic Tracks. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:851</div></div>
+<div class="ttc" id="classGPUSolver_html_a6e6d50acc405f83a15bd24e2bc908e1d"><div class="ttname"><a href="classGPUSolver.html#a6e6d50acc405f83a15bd24e2bc908e1d">GPUSolver::setGeometry</a></div><div class="ttdeci">void setGeometry(Geometry *geometry)</div><div class="ttdoc">Sets the Geometry for the Solver. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:824</div></div>
 <div class="ttc" id="classGPUSolver_html_ad1e93fffcb26624da0fa621248a944d2"><div class="ttname"><a href="classGPUSolver.html#ad1e93fffcb26624da0fa621248a944d2">GPUSolver::~GPUSolver</a></div><div class="ttdeci">virtual ~GPUSolver()</div><div class="ttdoc">Solver destructor frees all memory on the device, including arrays for the FSR scalar fluxes and sour...</div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:604</div></div>
 <div class="ttc" id="structdev__material_html"><div class="ttname"><a href="structdev__material.html">dev_material</a></div><div class="ttdoc">A Material&#39;s nuclear data to be stored on a GPU. </div><div class="ttdef"><b>Definition:</b> DeviceMaterial.h:22</div></div>
-<div class="ttc" id="classSolver_html"><div class="ttname"><a href="classSolver.html">Solver</a></div><div class="ttdoc">This is an abstract base class which different Solver subclasses implement for different architecture...</div><div class="ttdef"><b>Definition:</b> Solver.h:82</div></div>
+<div class="ttc" id="classSolver_html"><div class="ttname"><a href="classSolver.html">Solver</a></div><div class="ttdoc">This is an abstract base class which different Solver subclasses implement for different architecture...</div><div class="ttdef"><b>Definition:</b> Solver.h:83</div></div>
 <div class="ttc" id="classGPUSolver_html_a0834fa70b3e26b41a77414ff5fb1012b"><div class="ttname"><a href="classGPUSolver.html#a0834fa70b3e26b41a77414ff5fb1012b">GPUSolver::getNumThreadsPerBlock</a></div><div class="ttdeci">int getNumThreadsPerBlock()</div><div class="ttdoc">Returns the number of threads per block to execute on the GPU. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:649</div></div>
-<div class="ttc" id="Solver_8h_html_a1e3b7e46901f18d439de28b7d07fe5be"><div class="ttname"><a href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a></div><div class="ttdeci">residualType</div><div class="ttdoc">The type of residual used for the convergence criterion. </div><div class="ttdef"><b>Definition:</b> Solver.h:64</div></div>
+<div class="ttc" id="Solver_8h_html_a1e3b7e46901f18d439de28b7d07fe5be"><div class="ttname"><a href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a></div><div class="ttdeci">residualType</div><div class="ttdoc">The type of residual used for the convergence criterion. </div><div class="ttdef"><b>Definition:</b> Solver.h:65</div></div>
 <div class="ttc" id="classGPUSolver_html_a1e17636049fadc5c4e222786887ca940"><div class="ttname"><a href="classGPUSolver.html#a1e17636049fadc5c4e222786887ca940">GPUSolver::getFSRSource</a></div><div class="ttdeci">FP_PRECISION getFSRSource(int fsr_id, int group)</div><div class="ttdoc">Returns the source for some energy group for a flat source region. </div><div class="ttdef"><b>Definition:</b> GPUSolver.cu:693</div></div>
 <div class="ttc" id="GPUExpEvaluator_8h_html"><div class="ttname"><a href="GPUExpEvaluator_8h.html">GPUExpEvaluator.h</a></div><div class="ttdoc">The GPUExpEvaluator class. </div></div>
 </div><!-- fragment --></div><!-- contents -->
@@ -239,7 +241,7 @@ $(document).ready(function(){initNavTree('GPUSolver_8h_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_1ea949864ab1faf245facc269e7b2721.html">accel</a></li><li class="navelem"><a class="el" href="dir_e42498f83ad2e028b83ea18abff69fa1.html">cuda</a></li><li class="navelem"><a class="el" href="GPUSolver_8h.html">GPUSolver.h</a></li>
-    <li class="footer">Generated on Thu Apr 23 2015 23:42:16 by
+    <li class="footer">Generated on Mon Jun 22 2015 23:49:14 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

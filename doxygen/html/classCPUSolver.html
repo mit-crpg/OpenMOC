@@ -137,7 +137,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memdesc:a18c43c545aef7cea6807c07ea3ca803d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a fixed source for a flat source region and energy group.  <a href="#a18c43c545aef7cea6807c07ea3ca803d">More...</a><br/></td></tr>
 <tr class="separator:a18c43c545aef7cea6807c07ea3ca803d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abea717cf58791486dd3201b55fa36170"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUSolver.html#abea717cf58791486dd3201b55fa36170">computeFSRFissionRates</a> (double *fission_rates, int num_FSRs)</td></tr>
-<tr class="memdesc:abea717cf58791486dd3201b55fa36170"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the volume-averaged, energy-integrated fission rate in each FSR and stores them in an array indexed by FSR ID.  <a href="#abea717cf58791486dd3201b55fa36170">More...</a><br/></td></tr>
+<tr class="memdesc:abea717cf58791486dd3201b55fa36170"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the volume-averaged, energy-integrated nu-fission rate in each FSR and stores them in an array indexed by FSR ID.  <a href="#abea717cf58791486dd3201b55fa36170">More...</a><br/></td></tr>
 <tr class="separator:abea717cf58791486dd3201b55fa36170"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classSolver"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classSolver')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classSolver.html">Solver</a></td></tr>
 <tr class="memitem:ac87af9a410e4f9f819268f7dc434f001 inherit pub_methods_classSolver"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac87af9a410e4f9f819268f7dc434f001">Solver</a> (<a class="el" href="classTrackGenerator.html">TrackGenerator</a> *track_generator=NULL)</td></tr>
@@ -206,6 +206,9 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:acb1473a223c4c6d4f5c683e2f6ef1442 inherit pub_methods_classSolver"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#acb1473a223c4c6d4f5c683e2f6ef1442">setMaxOpticalLength</a> (FP_PRECISION max_optical_length)</td></tr>
 <tr class="memdesc:acb1473a223c4c6d4f5c683e2f6ef1442 inherit pub_methods_classSolver"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the maximum allowable optical length for a track segment.  <a href="#acb1473a223c4c6d4f5c683e2f6ef1442">More...</a><br/></td></tr>
 <tr class="separator:acb1473a223c4c6d4f5c683e2f6ef1442 inherit pub_methods_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d97ec4afb9b02bed0492fadc91f7b14 inherit pub_methods_classSolver"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a0d97ec4afb9b02bed0492fadc91f7b14">setExpPrecision</a> (FP_PRECISION precision)</td></tr>
+<tr class="memdesc:a0d97ec4afb9b02bed0492fadc91f7b14 inherit pub_methods_classSolver"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the precision, or maximum allowable approximation error, of the the exponential interpolation table.  <a href="#a0d97ec4afb9b02bed0492fadc91f7b14">More...</a><br/></td></tr>
+<tr class="separator:a0d97ec4afb9b02bed0492fadc91f7b14 inherit pub_methods_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a627f677bdb8a621a632b581bc976b2a5 inherit pub_methods_classSolver"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a627f677bdb8a621a632b581bc976b2a5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a627f677bdb8a621a632b581bc976b2a5">useExponentialInterpolation</a> ()</td></tr>
 <tr class="memdesc:a627f677bdb8a621a632b581bc976b2a5 inherit pub_methods_classSolver"><td class="mdescLeft">&#160;</td><td class="mdescRight">Informs the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> to use linear interpolation to compute the exponential in the transport equation. <br/></td></tr>
@@ -329,8 +332,6 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:ad1f22a0b48917197634d9fa56cdfaa1d inherit pro_attribs_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49cc179a9f47c5ca5f6d19c954d680ad inherit pro_attribs_classSolver"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a49cc179a9f47c5ca5f6d19c954d680ad">_num_polar</a></td></tr>
 <tr class="separator:a49cc179a9f47c5ca5f6d19c954d680ad inherit pro_attribs_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f9e45e5d2a93bc3b18ca2659b95ac6a inherit pro_attribs_classSolver"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a5f9e45e5d2a93bc3b18ca2659b95ac6a">_two_times_num_polar</a></td></tr>
-<tr class="separator:a5f9e45e5d2a93bc3b18ca2659b95ac6a inherit pro_attribs_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84ce3dbf9e3c4a86773161e7c92b1da1 inherit pro_attribs_classSolver"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a84ce3dbf9e3c4a86773161e7c92b1da1">_polar_times_groups</a></td></tr>
 <tr class="separator:a84ce3dbf9e3c4a86773161e7c92b1da1 inherit pro_attribs_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a775ed41fc1268312c8fb25ec994e1351 inherit pro_attribs_classSolver"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classTrack.html">Track</a> **&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a775ed41fc1268312c8fb25ec994e1351">_tracks</a></td></tr>
@@ -425,13 +426,13 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Computes the volume-averaged, energy-integrated fission rate in each FSR and stores them in an array indexed by FSR ID. </p>
-<p>This is a helper method for SWIG to allow users to retrieve FSR fission rates as a NumPy array. An example of how this method can be called from Python is as follows:</p>
+<p>Computes the volume-averaged, energy-integrated nu-fission rate in each FSR and stores them in an array indexed by FSR ID. </p>
+<p>This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates as a NumPy array. An example of how this method can be called from Python is as follows:</p>
 <div class="fragment"><div class="line">num_FSRs = geometry.getNumFSRs()</div>
 <div class="line">fission_rates = solver.computeFSRFissionRates(num_FSRs)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fission_rates</td><td>an array to store the fission rates (implicitly passed in as a NumPy array from Python) </td></tr>
+    <tr><td class="paramname">fission_rates</td><td>an array to store the nu-fission rates (implicitly passed in as a NumPy array from Python) </td></tr>
     <tr><td class="paramname">num_FSRs</td><td>the number of FSRs passed in from Python </td></tr>
   </table>
   </dd>
@@ -879,9 +880,9 @@ Protected Attributes</h2></td></tr>
     <tr><td class="paramname">track_flux</td><td>a pointer to the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s angular flux </td></tr>
     <tr><td class="paramname">fwd</td><td>the direction of integration along the segment</td></tr>
     <tr><td class="paramname">curr_segment</td><td>a pointer to the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segment of interest </td></tr>
-    <tr><td class="paramname">azim_index</td><td>a pointer to the azimuthal angle index for this segment </td></tr>
+    <tr><td class="paramname">azim_index</td><td>the azimuthal index for this segmenbt </td></tr>
     <tr><td class="paramname">track_flux</td><td>a pointer to the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s angular flux </td></tr>
-    <tr><td class="paramname">fwd</td><td></td></tr>
+    <tr><td class="paramname">fwd</td><td>boolean indicating direction of integration along segment </td></tr>
   </table>
   </dd>
 </dl>
@@ -1029,8 +1030,8 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/<a class="el" href="CPUSolver_8h_source.html">CPUSolver.h</a></li>
-<li>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/CPUSolver.cpp</li>
+<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="CPUSolver_8h_source.html">CPUSolver.h</a></li>
+<li>/home/wboyd/Desktop/OpenMOC/src/CPUSolver.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1038,7 +1039,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCPUSolver.html">CPUSolver</a></li>
-    <li class="footer">Generated on Thu Apr 23 2015 23:42:16 by
+    <li class="footer">Generated on Mon Jun 22 2015 23:49:14 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

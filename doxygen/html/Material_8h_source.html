@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/wboyd/Documents/NSE-CRPG-Codes/OpenMOC/src/Material.h Source File</title>
+<title>/home/wboyd/Desktop/OpenMOC/src/Material.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -110,142 +110,143 @@ $(document).ready(function(){initNavTree('Material_8h_source.html','');});
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MATERIAL_H_</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#include &lt;sstream&gt;</span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &lt;string.h&gt;</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#include &lt;math.h&gt;</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="constants_8h.html">constants.h</a>&quot;</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="log_8h.html">log.h</a>&quot;</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#ifdef ICPC</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#define MM_FREE(array) _mm_free(array)</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#define MM_MALLOC(size,alignment) _mm_alloc(size, alignment)</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="Material_8h.html#afda8a5444c5cccc2ecc9b27267d50941">   30</a></span>&#160;<span class="preprocessor">#define MM_FREE(array) free(array)</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="Material_8h.html#a220714f7c065824989b348cfa4f211dd">   33</a></span>&#160;<span class="preprocessor">#define MM_MALLOC(size,alignment) malloc(size)</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keywordtype">int</span> <a class="code" href="Material_8h.html#ab3edf20a0bb542abb3162f8b0891b221">material_id</a>();</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keywordtype">void</span> <a class="code" href="Material_8h.html#ac302c7b523c507299ef6c02a37c5cbad">reset_material_id</a>();</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#include &quot;Python.h&quot;</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="constants_8h.html">constants.h</a>&quot;</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="log_8h.html">log.h</a>&quot;</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#include &lt;sstream&gt;</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#include &lt;string.h&gt;</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &lt;math.h&gt;</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#ifdef ICPC</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#define MM_FREE(array) _mm_free(array)</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#define MM_MALLOC(size,alignment) _mm_malloc(size, alignment)</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="Material_8h.html#afda8a5444c5cccc2ecc9b27267d50941">   31</a></span>&#160;<span class="preprocessor">#define MM_FREE(array) free(array)</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="Material_8h.html#a220714f7c065824989b348cfa4f211dd">   34</a></span>&#160;<span class="preprocessor">#define MM_MALLOC(size,alignment) malloc(size)</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keywordtype">int</span> <a class="code" href="Material_8h.html#ab3edf20a0bb542abb3162f8b0891b221">material_id</a>();</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keywordtype">void</span> <a class="code" href="Material_8h.html#ac302c7b523c507299ef6c02a37c5cbad">reset_material_id</a>();</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="classMaterial.html">   47</a></span>&#160;<span class="keyword">class </span><a class="code" href="classMaterial.html">Material</a> {</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keywordtype">int</span> _id;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="keywordtype">char</span>* _name;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keywordtype">int</span> _num_groups;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  FP_PRECISION* _sigma_t;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  FP_PRECISION* _sigma_a;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  FP_PRECISION* _sigma_s;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  FP_PRECISION* _sigma_f;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  FP_PRECISION* _nu_sigma_f;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  FP_PRECISION* _chi;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  FP_PRECISION* _dif_coef;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  FP_PRECISION* _buckling;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  FP_PRECISION* _dif_hat;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  FP_PRECISION* _dif_tilde;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="keywordtype">bool</span> _fissionable;</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <span class="keywordtype">bool</span> _data_aligned;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keywordtype">int</span> _num_vector_groups;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <a class="code" href="classMaterial.html#a133f61006590cd0ca69662455f0f0349">Material</a>(<span class="keywordtype">int</span> <span class="keywordtype">id</span>=0, <span class="keyword">const</span> <span class="keywordtype">char</span>* name=<span class="stringliteral">&quot;&quot;</span>);</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  <span class="keyword">virtual</span> <a class="code" href="classMaterial.html#a2c19452d71f54075df8f5405b03129f4">~Material</a>();</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="classMaterial.html#a87f3a97ca307696bcb8ec0fae721b1b6">getId</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  <span class="keywordtype">char</span>* <a class="code" href="classMaterial.html#a08c53c57d620e6323c01d7eda22652b7">getName</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="classMaterial.html#a50683c7b7c62f1473809c51f37af5a13">getNumEnergyGroups</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a0bb70f99202814861516d5d7db94321e">getSigmaT</a>();</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#aa9cf818091ddecc3dc23f394f8baa6e3">getSigmaA</a>();</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a88eb6a2d580f5d82896892d180cd7469">getSigmaS</a>();</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#ad33fc0d6cea0feb87f43734a34432880">getSigmaF</a>();</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#ab9ebe0e1526d215f8329d3eb326c5280">getNuSigmaF</a>();</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a5d5966fb7c5718246d8d03a14c1c4564">getChi</a>();</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a7cfbc94cdbffcf086260c4ccdc536117">getDifCoef</a>();</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#af57d6c9e2eca2daed3e33b1aff813ccb">getBuckling</a>();</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a185f6c4fb6bbd540b44f8dd6e2447d92">getDifHat</a>();</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a0dcce69bacce8aa138846be7da0dcbee">getDifTilde</a>();</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a3382e0de3100906526d6b2e7182ab3f9">getSigmaTByGroup</a>(<span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a31b77f7dc0167079c44deb95a506e4df">getSigmaAByGroup</a>(<span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a5f0ac3401992f4d5fab3564154d21588">getSigmaSByGroup</a>(<span class="keywordtype">int</span> origin, <span class="keywordtype">int</span> destination);</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a">getSigmaSByGroupInline</a>(<span class="keywordtype">int</span> origin, <span class="keywordtype">int</span> destination);</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#abd925675cc99d0720ce5cb2645ab8532">getSigmaFByGroup</a>(<span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a90b23205e812423c3664eed907b0517b">getNuSigmaFByGroup</a>(<span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a8b2a80af2edc40b3cd9b0df7357d1af3">getChiByGroup</a>(<span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a5ffb26371380e3cfaa27307805365cf3">getDifCoefByGroup</a>(<span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#ae1987da22f327f33df03cfec35b3fbe3">getBucklingByGroup</a>(<span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a884d81243e4bf81a696433ad864283b6">getDifHatByGroup</a>(<span class="keywordtype">int</span> group, <span class="keywordtype">int</span> surface);</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a2f83715fd9f00a68562fcb2c4e3018fa">getDifTildeByGroup</a>(<span class="keywordtype">int</span> group);  </div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;  <span class="keywordtype">bool</span> <a class="code" href="classMaterial.html#a518c42114378e88c9d5a198fc6bb8c00">isFissionable</a>();</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  <span class="keywordtype">bool</span> <a class="code" href="classMaterial.html#a2e0a8759604823c08a695cce843120d4">isDataAligned</a>();</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="classMaterial.html#aafa74846dbee967669b0017bf61c724e">getNumVectorGroups</a>();</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a318e19438507a6205bcd4ca9ca5ab50b">setName</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* name);</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a5650368fddfd9793205bf6b05f25ee60">setNumEnergyGroups</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a2949b239adb57bd0053ab9e4e5bd9d65">setSigmaT</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a73890393a3c599dd9697af4af9b5a5f0">setSigmaA</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#acebc8e4e35bbcf9a9e6d3f183a1e7568">setSigmaS</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a3240f3778b1a6690a5c3fc008ce79cca">setSigmaF</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a5a330fb2c6408c1d60ec9516337a65fa">setNuSigmaF</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a114afbe76bed5364472bf9a46d72adea">setChi</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a97a9ef3d8e6ce72637f4c90ebe786616">setBuckling</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a2f6cf864b9adcb019f706a5c235f9804">setDifCoef</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a9f7956ff1047ce781c3d90d0a65e0f21">setDifHat</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#ac9cb62920cb0673b6cb7bb31b21d5773">setDifTilde</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a61fd26dde452e699b2b2531b993d2cab">setSigmaTByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a4bedbd3883a56bf47b903417b34676fc">setSigmaAByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a9a5b3e747ee51343327b22356549bf20">setSigmaFByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a4929d58a0e80b155cd1d115edbc15819">setNuSigmaFByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a4dfe71b8c5319ac13e66c8efdd15ed56">setSigmaSByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> origin, <span class="keywordtype">int</span> destination);</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a05006775ab7559d41479842043fd2e33">setChiByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a78d6d92a2ff64c1a0b012886929341d7">setBucklingByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a5bb0558e66fd17ec7276aa1329168afc">setDifCoefByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#ab74f17b1f67bcdbfa5404dd6be179a8f">setDifHatByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group, <span class="keywordtype">int</span> surface);</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a645e4ac06e76e0862d86912247cb71b3">setDifTildeByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group, <span class="keywordtype">int</span> surface);</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a2defb57596c868a773cea7c094fe61f6">checkSigmaT</a>();</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;  std::string <a class="code" href="classMaterial.html#a72f180d85439497ffc732718166e5634">toString</a>();</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a5901b75e048d7b55616a3f53a983390e">printString</a>();</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a68937e22f1c8369a4f03506c8a356cb6">alignData</a>();</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;  <a class="code" href="classMaterial.html">Material</a>* <a class="code" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64">clone</a>();</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;};</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
+<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="classMaterial.html">   48</a></span>&#160;<span class="keyword">class </span><a class="code" href="classMaterial.html">Material</a> {</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keywordtype">int</span> _id;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keywordtype">char</span>* _name;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keywordtype">int</span> _num_groups;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  FP_PRECISION* _sigma_t;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  FP_PRECISION* _sigma_a;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  FP_PRECISION* _sigma_s;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  FP_PRECISION* _sigma_f;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  FP_PRECISION* _nu_sigma_f;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  FP_PRECISION* _chi;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  FP_PRECISION* _dif_coef;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  FP_PRECISION* _buckling;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  FP_PRECISION* _dif_hat;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  FP_PRECISION* _dif_tilde;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="keywordtype">bool</span> _fissionable;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keywordtype">bool</span> _data_aligned;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="keywordtype">int</span> _num_vector_groups;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  <a class="code" href="classMaterial.html#a133f61006590cd0ca69662455f0f0349">Material</a>(<span class="keywordtype">int</span> <span class="keywordtype">id</span>=0, <span class="keyword">const</span> <span class="keywordtype">char</span>* name=<span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="keyword">virtual</span> <a class="code" href="classMaterial.html#a2c19452d71f54075df8f5405b03129f4">~Material</a>();</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="classMaterial.html#a87f3a97ca307696bcb8ec0fae721b1b6">getId</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  <span class="keywordtype">char</span>* <a class="code" href="classMaterial.html#a08c53c57d620e6323c01d7eda22652b7">getName</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="classMaterial.html#a50683c7b7c62f1473809c51f37af5a13">getNumEnergyGroups</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a0bb70f99202814861516d5d7db94321e">getSigmaT</a>();</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#aa9cf818091ddecc3dc23f394f8baa6e3">getSigmaA</a>();</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a88eb6a2d580f5d82896892d180cd7469">getSigmaS</a>();</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#ad33fc0d6cea0feb87f43734a34432880">getSigmaF</a>();</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#ab9ebe0e1526d215f8329d3eb326c5280">getNuSigmaF</a>();</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a5d5966fb7c5718246d8d03a14c1c4564">getChi</a>();</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a7cfbc94cdbffcf086260c4ccdc536117">getDifCoef</a>();</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#af57d6c9e2eca2daed3e33b1aff813ccb">getBuckling</a>();</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a185f6c4fb6bbd540b44f8dd6e2447d92">getDifHat</a>();</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  FP_PRECISION* <a class="code" href="classMaterial.html#a0dcce69bacce8aa138846be7da0dcbee">getDifTilde</a>();</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a3382e0de3100906526d6b2e7182ab3f9">getSigmaTByGroup</a>(<span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a31b77f7dc0167079c44deb95a506e4df">getSigmaAByGroup</a>(<span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a5f0ac3401992f4d5fab3564154d21588">getSigmaSByGroup</a>(<span class="keywordtype">int</span> origin, <span class="keywordtype">int</span> destination);</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a">getSigmaSByGroupInline</a>(<span class="keywordtype">int</span> origin, <span class="keywordtype">int</span> destination);</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#abd925675cc99d0720ce5cb2645ab8532">getSigmaFByGroup</a>(<span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a90b23205e812423c3664eed907b0517b">getNuSigmaFByGroup</a>(<span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a8b2a80af2edc40b3cd9b0df7357d1af3">getChiByGroup</a>(<span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a5ffb26371380e3cfaa27307805365cf3">getDifCoefByGroup</a>(<span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#ae1987da22f327f33df03cfec35b3fbe3">getBucklingByGroup</a>(<span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a884d81243e4bf81a696433ad864283b6">getDifHatByGroup</a>(<span class="keywordtype">int</span> group, <span class="keywordtype">int</span> surface);</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;  FP_PRECISION <a class="code" href="classMaterial.html#a2f83715fd9f00a68562fcb2c4e3018fa">getDifTildeByGroup</a>(<span class="keywordtype">int</span> group);  </div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  <span class="keywordtype">bool</span> <a class="code" href="classMaterial.html#a518c42114378e88c9d5a198fc6bb8c00">isFissionable</a>();</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  <span class="keywordtype">bool</span> <a class="code" href="classMaterial.html#a2e0a8759604823c08a695cce843120d4">isDataAligned</a>();</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;  <span class="keywordtype">int</span> <a class="code" href="classMaterial.html#aafa74846dbee967669b0017bf61c724e">getNumVectorGroups</a>();</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a318e19438507a6205bcd4ca9ca5ab50b">setName</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* name);</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a5650368fddfd9793205bf6b05f25ee60">setNumEnergyGroups</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a2949b239adb57bd0053ab9e4e5bd9d65">setSigmaT</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a73890393a3c599dd9697af4af9b5a5f0">setSigmaA</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#acebc8e4e35bbcf9a9e6d3f183a1e7568">setSigmaS</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a3240f3778b1a6690a5c3fc008ce79cca">setSigmaF</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a5a330fb2c6408c1d60ec9516337a65fa">setNuSigmaF</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a114afbe76bed5364472bf9a46d72adea">setChi</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a97a9ef3d8e6ce72637f4c90ebe786616">setBuckling</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a2f6cf864b9adcb019f706a5c235f9804">setDifCoef</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a9f7956ff1047ce781c3d90d0a65e0f21">setDifHat</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#ac9cb62920cb0673b6cb7bb31b21d5773">setDifTilde</a>(<span class="keywordtype">double</span>* xs, <span class="keywordtype">int</span> num_groups);</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a61fd26dde452e699b2b2531b993d2cab">setSigmaTByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a4bedbd3883a56bf47b903417b34676fc">setSigmaAByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a9a5b3e747ee51343327b22356549bf20">setSigmaFByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a4929d58a0e80b155cd1d115edbc15819">setNuSigmaFByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a4dfe71b8c5319ac13e66c8efdd15ed56">setSigmaSByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> origin, <span class="keywordtype">int</span> destination);</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a05006775ab7559d41479842043fd2e33">setChiByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a78d6d92a2ff64c1a0b012886929341d7">setBucklingByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a5bb0558e66fd17ec7276aa1329168afc">setDifCoefByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group);</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#ab74f17b1f67bcdbfa5404dd6be179a8f">setDifHatByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group, <span class="keywordtype">int</span> surface);</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a645e4ac06e76e0862d86912247cb71b3">setDifTildeByGroup</a>(<span class="keywordtype">double</span> xs, <span class="keywordtype">int</span> group, <span class="keywordtype">int</span> surface);</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a2defb57596c868a773cea7c094fe61f6">checkSigmaT</a>();</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;  std::string <a class="code" href="classMaterial.html#a72f180d85439497ffc732718166e5634">toString</a>();</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a5901b75e048d7b55616a3f53a983390e">printString</a>();</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classMaterial.html#a68937e22f1c8369a4f03506c8a356cb6">alignData</a>();</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;  <a class="code" href="classMaterial.html">Material</a>* <a class="code" href="classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64">clone</a>();</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;};</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;</div>
-<div class="line"><a name="l00183"></a><span class="lineno"><a class="line" href="classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a">  183</a></span>&#160;<span class="keyword">inline</span> FP_PRECISION <a class="code" href="classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a">Material::getSigmaSByGroupInline</a>(</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;          <span class="keywordtype">int</span> origin, <span class="keywordtype">int</span> destination) {</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;  <span class="keywordflow">return</span> _sigma_s[destination*_num_groups + origin];</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;}</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* MATERIAL_H_ */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;</div>
+<div class="line"><a name="l00184"></a><span class="lineno"><a class="line" href="classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a">  184</a></span>&#160;<span class="keyword">inline</span> FP_PRECISION <a class="code" href="classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a">Material::getSigmaSByGroupInline</a>(</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;          <span class="keywordtype">int</span> origin, <span class="keywordtype">int</span> destination) {</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;  <span class="keywordflow">return</span> _sigma_s[destination*_num_groups + origin];</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;}</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* MATERIAL_H_ */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="classMaterial_html_ab74f17b1f67bcdbfa5404dd6be179a8f"><div class="ttname"><a href="classMaterial.html#ab74f17b1f67bcdbfa5404dd6be179a8f">Material::setDifHatByGroup</a></div><div class="ttdeci">void setDifHatByGroup(double xs, int group, int surface)</div><div class="ttdoc">Set the Material&#39;s diffusion coefficient for some energy group along some CMFD mesh cell...</div><div class="ttdef"><b>Definition:</b> Material.cpp:1184</div></div>
 <div class="ttc" id="classMaterial_html_a90b23205e812423c3664eed907b0517b"><div class="ttname"><a href="classMaterial.html#a90b23205e812423c3664eed907b0517b">Material::getNuSigmaFByGroup</a></div><div class="ttdeci">FP_PRECISION getNuSigmaFByGroup(int group)</div><div class="ttdoc">Get the Material&#39;s nu-fission cross section for some energy group. </div><div class="ttdef"><b>Definition:</b> Material.cpp:411</div></div>
 <div class="ttc" id="classMaterial_html_a4929d58a0e80b155cd1d115edbc15819"><div class="ttname"><a href="classMaterial.html#a4929d58a0e80b155cd1d115edbc15819">Material::setNuSigmaFByGroup</a></div><div class="ttdeci">void setNuSigmaFByGroup(double xs, int group)</div><div class="ttdoc">Set the Material&#39;s fission cross-section multiplied by  for some energy group. </div><div class="ttdef"><b>Definition:</b> Material.cpp:956</div></div>
@@ -283,7 +284,7 @@ $(document).ready(function(){initNavTree('Material_8h_source.html','');});
 <div class="ttc" id="classMaterial_html_a645e4ac06e76e0862d86912247cb71b3"><div class="ttname"><a href="classMaterial.html#a645e4ac06e76e0862d86912247cb71b3">Material::setDifTildeByGroup</a></div><div class="ttdeci">void setDifTildeByGroup(double xs, int group, int surface)</div><div class="ttdoc">Set the Material&#39;s CMFD corrected diffusion coefficient for some energy group. </div><div class="ttdef"><b>Definition:</b> Material.cpp:1245</div></div>
 <div class="ttc" id="classMaterial_html_abd925675cc99d0720ce5cb2645ab8532"><div class="ttname"><a href="classMaterial.html#abd925675cc99d0720ce5cb2645ab8532">Material::getSigmaFByGroup</a></div><div class="ttdeci">FP_PRECISION getSigmaFByGroup(int group)</div><div class="ttdoc">Get the Material&#39;s fission cross section for some energy group. </div><div class="ttdef"><b>Definition:</b> Material.cpp:393</div></div>
 <div class="ttc" id="classMaterial_html_a8b2a80af2edc40b3cd9b0df7357d1af3"><div class="ttname"><a href="classMaterial.html#a8b2a80af2edc40b3cd9b0df7357d1af3">Material::getChiByGroup</a></div><div class="ttdeci">FP_PRECISION getChiByGroup(int group)</div><div class="ttdoc">Get the Material&#39;s fission spectrum for some energy group. </div><div class="ttdef"><b>Definition:</b> Material.cpp:429</div></div>
-<div class="ttc" id="classMaterial_html"><div class="ttname"><a href="classMaterial.html">Material</a></div><div class="ttdoc">The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. </div><div class="ttdef"><b>Definition:</b> Material.h:47</div></div>
+<div class="ttc" id="classMaterial_html"><div class="ttname"><a href="classMaterial.html">Material</a></div><div class="ttdoc">The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. </div><div class="ttdef"><b>Definition:</b> Material.h:48</div></div>
 <div class="ttc" id="classMaterial_html_a518c42114378e88c9d5a198fc6bb8c00"><div class="ttname"><a href="classMaterial.html#a518c42114378e88c9d5a198fc6bb8c00">Material::isFissionable</a></div><div class="ttdeci">bool isFissionable()</div><div class="ttdoc">Returns whether or not the Material contains a fissionable (non-zero) fission cross-section. </div><div class="ttdef"><b>Definition:</b> Material.cpp:521</div></div>
 <div class="ttc" id="classMaterial_html_a2c19452d71f54075df8f5405b03129f4"><div class="ttname"><a href="classMaterial.html#a2c19452d71f54075df8f5405b03129f4">Material::~Material</a></div><div class="ttdeci">virtual ~Material()</div><div class="ttdoc">Destructor deletes all cross-section data structures from memory. </div><div class="ttdef"><b>Definition:</b> Material.cpp:70</div></div>
 <div class="ttc" id="classMaterial_html_a2949b239adb57bd0053ab9e4e5bd9d65"><div class="ttname"><a href="classMaterial.html#a2949b239adb57bd0053ab9e4e5bd9d65">Material::setSigmaT</a></div><div class="ttdeci">void setSigmaT(double *xs, int num_groups)</div><div class="ttdoc">Set the Material&#39;s array of total cross-sections. </div><div class="ttdef"><b>Definition:</b> Material.cpp:674</div></div>
@@ -292,7 +293,7 @@ $(document).ready(function(){initNavTree('Material_8h_source.html','');});
 <div class="ttc" id="classMaterial_html_a2e0a8759604823c08a695cce843120d4"><div class="ttname"><a href="classMaterial.html#a2e0a8759604823c08a695cce843120d4">Material::isDataAligned</a></div><div class="ttdeci">bool isDataAligned()</div><div class="ttdoc">Returns true if the data is vector aligned, false otherwise (default). </div><div class="ttdef"><b>Definition:</b> Material.cpp:530</div></div>
 <div class="ttc" id="classMaterial_html_a50683c7b7c62f1473809c51f37af5a13"><div class="ttname"><a href="classMaterial.html#a50683c7b7c62f1473809c51f37af5a13">Material::getNumEnergyGroups</a></div><div class="ttdeci">int getNumEnergyGroups() const </div><div class="ttdoc">Returns the number of energy groups for this Material&#39;s nuclear data. </div><div class="ttdef"><b>Definition:</b> Material.cpp:168</div></div>
 <div class="ttc" id="classMaterial_html_a72f180d85439497ffc732718166e5634"><div class="ttname"><a href="classMaterial.html#a72f180d85439497ffc732718166e5634">Material::toString</a></div><div class="ttdeci">std::string toString()</div><div class="ttdoc">Converts this Material&#39;s attributes to a character array representation. </div><div class="ttdef"><b>Definition:</b> Material.cpp:1318</div></div>
-<div class="ttc" id="classMaterial_html_a61fa80d0c202f95eea997acf1f2dcb8a"><div class="ttname"><a href="classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a">Material::getSigmaSByGroupInline</a></div><div class="ttdeci">FP_PRECISION getSigmaSByGroupInline(int origin, int destination)</div><div class="ttdoc">inline function for efficient mapping for scattering, from 1D as stored in memory to 2D matrix ...</div><div class="ttdef"><b>Definition:</b> Material.h:183</div></div>
+<div class="ttc" id="classMaterial_html_a61fa80d0c202f95eea997acf1f2dcb8a"><div class="ttname"><a href="classMaterial.html#a61fa80d0c202f95eea997acf1f2dcb8a">Material::getSigmaSByGroupInline</a></div><div class="ttdeci">FP_PRECISION getSigmaSByGroupInline(int origin, int destination)</div><div class="ttdoc">inline function for efficient mapping for scattering, from 1D as stored in memory to 2D matrix ...</div><div class="ttdef"><b>Definition:</b> Material.h:184</div></div>
 <div class="ttc" id="classMaterial_html_a5650368fddfd9793205bf6b05f25ee60"><div class="ttname"><a href="classMaterial.html#a5650368fddfd9793205bf6b05f25ee60">Material::setNumEnergyGroups</a></div><div class="ttdeci">void setNumEnergyGroups(const int num_groups)</div><div class="ttdoc">Set the number of energy groups for this Material. </div><div class="ttdef"><b>Definition:</b> Material.cpp:568</div></div>
 <div class="ttc" id="classMaterial_html_a73890393a3c599dd9697af4af9b5a5f0"><div class="ttname"><a href="classMaterial.html#a73890393a3c599dd9697af4af9b5a5f0">Material::setSigmaA</a></div><div class="ttdeci">void setSigmaA(double *xs, int num_groups)</div><div class="ttdoc">Set the Material&#39;s array of absorption scattering cross-sections. </div><div class="ttdef"><b>Definition:</b> Material.cpp:736</div></div>
 <div class="ttc" id="classMaterial_html_a4bedbd3883a56bf47b903417b34676fc"><div class="ttname"><a href="classMaterial.html#a4bedbd3883a56bf47b903417b34676fc">Material::setSigmaAByGroup</a></div><div class="ttdeci">void setSigmaAByGroup(double xs, int group)</div><div class="ttdoc">Set the Material&#39;s absorption cross-section for some energy group. </div><div class="ttdef"><b>Definition:</b> Material.cpp:756</div></div>
@@ -313,7 +314,7 @@ $(document).ready(function(){initNavTree('Material_8h_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="Material_8h.html">Material.h</a></li>
-    <li class="footer">Generated on Thu Apr 23 2015 23:42:16 by
+    <li class="footer">Generated on Mon Jun 22 2015 23:49:14 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
