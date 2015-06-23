@@ -28,12 +28,15 @@ Geometry::Geometry() {
  * @brief Destructor clears FSR to Cells and Materials maps.
  */
 Geometry::~Geometry() {
+  
   /* Free FSR  maps if they were initialized */
   if (_FSR_keys_map.size() != 0) {
     fsr_data **values = _FSR_keys_map.values();
+
     for(int i=0; i<_FSR_keys_map.size(); i++)
       delete values[i];
     delete[] values;
+
     _FSR_keys_map.clear();
     _FSRs_to_keys.clear();
     _FSRs_to_material_IDs.clear();
@@ -831,7 +834,9 @@ void Geometry::segmentize(Track* track) {
  * @brief Initialize key and material ID vectors for lookup by FSR ID
  * @detail This function initializes and sets reverse lookup vectors by FSR ID.
  *      This is called after the FSRs have all been identified and allocated
- *      during segmentation.
+ *      during segmentation. This function must be called after 
+ *      Geometry::segmentize() has completed. It should not be called if tracks
+ *      are loaded from a file.
  */
 void Geometry::initializeFSRVectors(){
   

@@ -78,9 +78,7 @@ private:
   boundaryType _right_bc;
 
   /** An map of FSR key hashes to unique fsr_data structs */
-#ifndef CUDA
   ParallelHashMap<std::size_t, fsr_data*> _FSR_keys_map;
-#endif
 
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::size_t> _FSRs_to_keys;
@@ -135,18 +133,13 @@ public:
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
-#ifndef CUDA
   ParallelHashMap<std::size_t, fsr_data*>* getFSRKeysMap();
-#endif
 
   /* Set parameters */
   void setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
   void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
   void setCmfd(Cmfd* cmfd);
-
-#ifndef CUDA
   void setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
-#endif
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);

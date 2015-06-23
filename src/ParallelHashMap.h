@@ -18,18 +18,18 @@
 #endif
 
 /**
- * @class fixed_hash_map ParallelHashMap.h "src/ParallelHashMap.h"
+ * @class FixedHashMap ParallelHashMap.h "src/ParallelHashMap.h"
  * @brief A fixed-size hash map supporting insertion and lookup operations
- * @details The fixed_hash_map class supports insertion and lookup operations
+ * @details The FixedHashMap class supports insertion and lookup operations
  *    but not deletion as deletion is not needed in the OpenMOC application. 
  *    This hash table uses chaining for collisions and does not incorporate
  *    concurrency objects except for tracking the number of entries in the
  *    table for which an atomic increment is used. This hash table is not
  *    thread safe but is used as a building block for the ParallelHashMap
- *    class. This table guarantees O(1) insertions and lookups on avarge.
+ *    class. This table guarantees O(1) insertions and lookups on average.
  */
 template <class K, class V>
-class fixed_hash_map
+class FixedHashMap
 {
   struct node
   {
@@ -46,8 +46,8 @@ class fixed_hash_map
 
   public:
 
-    fixed_hash_map(size_t M = 64);
-    virtual ~fixed_hash_map();
+    FixedHashMap(size_t M = 64);
+    virtual ~FixedHashMap();
     bool contains(K key);
     V& at(K key);
     void insert(K key, V value);
@@ -63,10 +63,10 @@ class fixed_hash_map
 /**
  * @class ParallelHashMap ParallelHashMap.h "src/ParallelHashMap.h"
  * @brief A thread-safe hash map supporting insertion and lookup operations
- * @details The ParallelHashMap class is built ontop of the fixed_hash_map
+ * @details The ParallelHashMap class is built on top of the FixedHashMap
  *    class, supporting insertion and lookup operations but not deletion as
  *    deletion is not needed in the OpenMOC application. This hash table uses
- *    chaining for collisions, as defined in fixed_hash_map. It offers lock
+ *    chaining for collisions, as defined in FixedHashMap. It offers lock
  *    free lookups in O(1) time on average and fine-grained locking for
  *    insertions in O(1) time on average as well. Resizing is conducted
  *    periodically during inserts, although the starting table size can be
@@ -85,7 +85,7 @@ class ParallelHashMap
     volatile long pad_L5;
     volatile long pad_L7;
     volatile long pad_L8;
-    fixed_hash_map<K,V>* volatile value;
+    FixedHashMap<K,V>* volatile value;
     volatile long pad_R1;
     volatile long pad_R2;
     volatile long pad_R3;
@@ -96,7 +96,7 @@ class ParallelHashMap
     volatile long pad_R8;
   };
   private:
-    fixed_hash_map<K,V> *_table;
+    FixedHashMap<K,V> *_table;
     paddedPointer *_announce;
     size_t _num_threads;
     size_t _N;
@@ -132,7 +132,7 @@ class ParallelHashMap
  * @param M size of fixed hash map
  */
 template <class K, class V>
-fixed_hash_map<K,V>::fixed_hash_map(size_t M)
+FixedHashMap<K,V>::FixedHashMap(size_t M)
 {
   /* ensure M is a power of 2 */
   if( M & (M-1) != 0 )
@@ -155,7 +155,7 @@ fixed_hash_map<K,V>::fixed_hash_map(size_t M)
  *      bucket in the fixed-size table and their pointers.
  */
 template <class K, class V>
-fixed_hash_map<K,V>::~fixed_hash_map()
+FixedHashMap<K,V>::~FixedHashMap()
 {
   /* for each bucket, scan through linked list and delete all nodes */
   for(size_t i=0; i<_M; i++)
@@ -181,7 +181,7 @@ fixed_hash_map<K,V>::~fixed_hash_map()
  * @return boolean value referring to whether the key is contained in the map
  */
 template <class K, class V>
-bool fixed_hash_map<K,V>::contains(K key)
+bool FixedHashMap<K,V>::contains(K key)
 {
   /* get hash into table assuming M is a power of 2, using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
@@ -208,7 +208,7 @@ bool fixed_hash_map<K,V>::contains(K key)
  * @return value associated with the given key
  */
 template <class K, class V>
-V& fixed_hash_map<K,V>::at(K key)
+V& FixedHashMap<K,V>::at(K key)
 {
   /* get hash into table assuming M is a power of 2, using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
@@ -236,12 +236,12 @@ V& fixed_hash_map<K,V>::at(K key)
  * @param value value of the key/value pair to be inserted
  */
 template <class K, class V>
-void fixed_hash_map<K,V>::insert(K key, V value)
+void FixedHashMap<K,V>::insert(K key, V value)
 {
   /* get hash into table using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
 
-  /* check to see if key already exisits in map */
+  /* check to see if key already exists in map */
   if(contains(key))
     return;
  
@@ -273,12 +273,12 @@ void fixed_hash_map<K,V>::insert(K key, V value)
  *      key was already present in map.
  */
 template <class K, class V>
-int fixed_hash_map<K,V>::insert_and_get_count(K key, V value)
+int FixedHashMap<K,V>::insert_and_get_count(K key, V value)
 {
   /* get hash into table using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
 
-  /* check to see if key already exisits in map */
+  /* check to see if key already exists in map */
   if(contains(key))
     return -1;
  
@@ -306,7 +306,7 @@ int fixed_hash_map<K,V>::insert_and_get_count(K key, V value)
  * @return number of key/value pairs in the map
  */
 template <class K, class V>
-size_t fixed_hash_map<K,V>::size()
+size_t FixedHashMap<K,V>::size()
 {
   return _N;
 }
@@ -316,7 +316,7 @@ size_t fixed_hash_map<K,V>::size()
  * @return number of buckets in the map
  */
 template <class K, class V>
-size_t fixed_hash_map<K,V>::bucket_count()
+size_t FixedHashMap<K,V>::bucket_count()
 {
   return _M;
 }
@@ -324,12 +324,14 @@ size_t fixed_hash_map<K,V>::bucket_count()
 /**
  * @brief Returns an array of the keys in the fixed-size table
  * @details All buckets are scanned in order to form a list of all keys
- *      present in the table and then the list is returned
+ *      present in the table and then the list is returned. WARNING: The user
+ *      is responsible for freeing the allocated memory once the array is no
+ *      longer needed.
  * @return an array of keys in the map whose length is the number of key/value
  *      pairs in the table.
 */
 template <class K, class V>
-K* fixed_hash_map<K,V>::keys()
+K* FixedHashMap<K,V>::keys()
 {
   /* allocate array of keys */
   K *key_list = new K[_N];
@@ -352,12 +354,14 @@ K* fixed_hash_map<K,V>::keys()
 /**
  * @brief Returns an array of the values in the fixed-size table
  * @details All buckets are scanned in order to form a list of all values
- *      present in the table and then the list is returned
+ *      present in the table and then the list is returned. WARNING: The user
+ *      is responsible for freeing the allocated memory once the array is no
+ *      longer needed.
  * @return an array of values in the map whose length is the number of 
  *      key/value pairs in the table.
 */
 template <class K, class V>
-V* fixed_hash_map<K,V>::values()
+V* FixedHashMap<K,V>::values()
 {
   /* allocate array of values */
   V *values = new V[_N];
@@ -381,7 +385,7 @@ V* fixed_hash_map<K,V>::values()
  * @brief Clears all key/value pairs form the hash table.
  */
 template <class K, class V>
-void fixed_hash_map<K,V>::clear()
+void FixedHashMap<K,V>::clear()
 {
   /* for each bucket, scan through linked list and delete all nodes */
   for(size_t i=0; i<_M; i++)
@@ -411,7 +415,7 @@ void fixed_hash_map<K,V>::clear()
  *      screen.
  */
 template <class K, class V>
-void fixed_hash_map<K,V>::print_buckets()
+void FixedHashMap<K,V>::print_buckets()
 {
   for(size_t i=0; i<_M; i++)
   {
@@ -423,14 +427,14 @@ void fixed_hash_map<K,V>::print_buckets()
 }
 
 /**
- * @brief Constructor for generates initial underlying table as a fixed-sized 
+ * @brief Constructor generates initial underlying table as a fixed-sized 
  *      hash map and intializes concurrency structures.
  */
 template <class K, class V>
 ParallelHashMap<K,V>::ParallelHashMap(size_t M, size_t L)
 {
   /* allocate table */
-  _table = new fixed_hash_map<K,V>(M);
+  _table = new FixedHashMap<K,V>(M);
 
   /* get number of threads and create concurrency structures */
   _num_threads = 1;
@@ -483,7 +487,7 @@ bool ParallelHashMap<K,V>::contains(K key)
 
   /* get pointer to table, announce it will be searched, 
      and ensure consistency */
-  fixed_hash_map<K,V> *table_ptr; 
+  FixedHashMap<K,V> *table_ptr; 
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
@@ -523,7 +527,7 @@ V& ParallelHashMap<K,V>::at(K key)
   #endif
 
   /* get pointer to table, announce it will be searched */
-  fixed_hash_map<K,V> *table_ptr; 
+  FixedHashMap<K,V> *table_ptr; 
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
@@ -623,7 +627,7 @@ int ParallelHashMap<K,V>::insert_and_get_count(K key, V value)
 /**
  * @brief Resizes the underlying table to twice its current capacity.
  * @details In a thread-safe manner, this procedure resizes the underlying
- *    fixed_hash_map table to twice its current capacity using locks and the
+ *    FixedHashMap table to twice its current capacity using locks and the
  *    announce array. First, all locks are set in order to block inserts and
  *    prevent deadlock. A new table is allocated of twice the size and all
  *    key/value pairs from the old table, then the pointer is switched to the
@@ -654,8 +658,8 @@ void ParallelHashMap<K,V>::resize()
   }
 
   /* allocate new hash map of double the size */
-  fixed_hash_map<K,V> *new_map = 
-    new fixed_hash_map<K,V>(2*_table->bucket_count());
+  FixedHashMap<K,V> *new_map = 
+    new FixedHashMap<K,V>(2*_table->bucket_count());
 
   /* get keys, values, and number of elements */
   K *key_list = _table->keys();
@@ -666,7 +670,7 @@ void ParallelHashMap<K,V>::resize()
     new_map->insert(key_list[i], value_list[i]);
 
   /* save pointer of old table */
-  fixed_hash_map<K,V> *old_table = _table;
+  FixedHashMap<K,V> *old_table = _table;
 
   /* reassign pointer */
   _table = new_map;
@@ -724,7 +728,8 @@ size_t ParallelHashMap<K,V>::num_locks()
  * @details All buckets are scanned in order to form a list of all keys
  *      present in the table and then the list is returned. Threads
  *      announce their presence to ensure table memory is not freed
- *      during access.
+ *      during access. WARNING: The user is responsible for freeing the 
+ *      allocated memory once the array is no longer needed.
  * @return an array of keys in the map whose length is the number of key/value
  *      pairs in the table.
  */
@@ -738,7 +743,7 @@ K* ParallelHashMap<K,V>::keys()
   #endif
 
   /* get pointer to table, announce it will be searched */
-  fixed_hash_map<K,V> *table_ptr; 
+  FixedHashMap<K,V> *table_ptr; 
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
@@ -758,7 +763,8 @@ K* ParallelHashMap<K,V>::keys()
  * @details All buckets are scanned in order to form a list of all values
  *      present in the table and then the list is returned. Threads
  *      announce their presence to ensure table memory is not freed
- *      during access.
+ *      during access. WARNING: The user is responsible for freeing the 
+ *      allocated memory once the array is no longer needed.
  * @return an array of values in the map whose length is the number of key/value
  *      pairs in the table.
  */
@@ -772,7 +778,7 @@ V* ParallelHashMap<K,V>::values()
   #endif
 
   /* get pointer to table, announce it will be searched */
-  fixed_hash_map<K,V> *table_ptr; 
+  FixedHashMap<K,V> *table_ptr; 
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
@@ -821,7 +827,7 @@ void ParallelHashMap<K,V>::print_buckets()
   #endif
 
   /* get pointer to table, announce it will be searched */
-  fixed_hash_map<K,V> *table_ptr; 
+  FixedHashMap<K,V> *table_ptr; 
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;

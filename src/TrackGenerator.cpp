@@ -1453,7 +1453,6 @@ bool TrackGenerator::readTracksFromFile() {
   _geometry->setFSRKeysMap(FSR_keys_map);
   _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
   _geometry->setFSRsToKeys(FSRs_to_keys);
-  
 
   /* Read cmfd cell_fsrs vector of vectors from file */
   if (cmfd != NULL){
