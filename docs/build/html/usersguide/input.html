@@ -178,7 +178,7 @@
 </tbody>
 </table>
 <p><strong>Table 2</strong>: Log levels in OpenMOC in order of increasing precedence.</p>
-<p>Informative messages using the logging module are embedded into both the C/C++ and Python source code in OpenMOC. In addition, code users may add their own messages to the output stream in Python input files. The API documentation provides a detailed accounting of the routines available in the <a class="reference external" href="https://mit-crpg.github.io/OpenMOC/api/log.html">logging module</a>.</p>
+<p>Informative messages using the logging module are embedded into both the C/C++ and Python source code in OpenMOC. In addition, code users may add their own messages to the output stream in Python input files. The API documentation provides a detailed accounting of the routines available in the <a class="reference external" href="http://mit-crpg.github.io/OpenMOC/doxygen/html/log_8h.html">logging module</a>.</p>
 <p>The following code snippet illustrates how to import the logging module into Python, set the lowest log level to <span class="target" id="index-11"></span><tt class="xref std std-envvar docutils literal"><span class="pre">DEBUG</span></tt>, and print messages for each level to the screen.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.log</span> <span class="kn">as</span> <span class="nn">log</span>
 
@@ -195,7 +195,7 @@
 <span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;WARNING&#39;</span><span class="p">,</span> <span class="s">&#39;This is a WARNING message&#39;</span><span class="p">)</span>
 <span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;CRITICAL&#39;</span><span class="p">,</span> <span class="s">&#39;This is a CRITICAL message&#39;</span><span class="p">)</span>
 <span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;UNITTEST&#39;</span><span class="p">,</span> <span class="s">&#39;This is a UNITTEST message&#39;</span><span class="p">)</span>
-<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;ERROR&#39;</span><span class="p">,</span> <span class="s">&#39;This is an ERROR message)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">py_printf</span><span class="p">(</span><span class="s">&#39;ERROR&#39;</span><span class="p">,</span> <span class="s">&#39;This is an ERROR message&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>And the following is the output displayed to the console and recorded in the log file:</p>
@@ -294,6 +294,8 @@
 <li>&#8216;Fission XS&#8217;</li>
 <li>&#8216;Nu Fission XS&#8217;</li>
 <li>&#8216;Chi&#8217;</li>
+<li>&#8216;Diffusion Coefficient&#8217; (optional)</li>
+<li>&#8216;Buckling&#8217; (optional)</li>
 </ul>
 </div></blockquote>
 <p>To better understand the necessary HDF file structure, it may be useful to visualize the <tt class="docutils literal"><span class="pre">OpenMOC/sample-input/c5g7-materials.h5</span></tt> HDF5 file using the <a class="reference external" href="http://www.hdfgroup.org/products/java/hdfview/">HDFView</a> graphical tool. The following code snippet illustrates the use of the <a class="reference external" href="http://www.h5py.org/">h5py</a> Python HDF5 interface to write an HDF5 file with material cross-section data adhering to the standard expected by the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module:</p>

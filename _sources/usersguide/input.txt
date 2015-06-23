@@ -105,7 +105,7 @@ The following code snippet illustrates how to import the logging module into Pyt
     log.py_printf('WARNING', 'This is a WARNING message')
     log.py_printf('CRITICAL', 'This is a CRITICAL message')
     log.py_printf('UNITTEST', 'This is a UNITTEST message')
-    log.py_printf('ERROR', 'This is an ERROR message)
+    log.py_printf('ERROR', 'This is an ERROR message')
 
 And the following is the output displayed to the console and recorded in the log file::
 
@@ -208,6 +208,8 @@ The ``openmoc.materialize`` module defines a standard for cross-section data sto
   - 'Fission XS'
   - 'Nu Fission XS'
   - 'Chi'
+  - 'Diffusion Coefficient' (optional)
+  - 'Buckling' (optional)
 
 To better understand the necessary HDF file structure, it may be useful to visualize the ``OpenMOC/sample-input/c5g7-materials.h5`` HDF5 file using the HDFView_ graphical tool. The following code snippet illustrates the use of the h5py_ Python HDF5 interface to write an HDF5 file with material cross-section data adhering to the standard expected by the ``openmoc.materialize`` module:
 
@@ -537,7 +539,7 @@ These lines of code should be placed in your input file at the location where th
 
 With those few additional lines of code, you should be able to create an input file for any problem and utilize CMFD acceleration. The input file ``c5g7-cmfd.py`` provides a good example of how an input file is constructed that uses CMFD acceleration.
 
-.. _logging module: https://mit-crpg.github.io/OpenMOC/api/log.html
+.. _logging module: http://mit-crpg.github.io/OpenMOC/doxygen/html/log_8h.html
 .. _printf: http://www.cplusplus.com/reference/cstdio/printf/
 .. _formatted data: http://www.cplusplus.com/reference/cstdio/printf/
 .. _CSG: http://en.wikipedia.org/wiki/Constructive_solid_geometry
