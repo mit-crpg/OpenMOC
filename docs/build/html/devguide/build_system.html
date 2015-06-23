@@ -78,14 +78,6 @@
 <td>string</td>
 <td>&#8216;single&#8217;</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">cpp_compilers</span></tt></td>
-<td>list of strings</td>
-<td>[]</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">fp_precision</span></tt></td>
-<td>list of string</td>
-<td>[]</td>
-</tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">with_ccache</span></tt></td>
 <td>boolean</td>
 <td>False</td>
@@ -108,7 +100,7 @@
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">sources</span></tt></td>
 <td>dictionary of strings</td>
-<td>C/C++/CUDA source files flags for eac  <tt class="docutils literal"><span class="pre">Extension</span></tt> object</td>
+<td>C/C++/CUDA source files flags for each <tt class="docutils literal"><span class="pre">Extension</span></tt> object</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">compiler_flags</span></tt></td>
 <td>dictionary of strings</td>
@@ -144,15 +136,11 @@
 <p>The class attributes each have default values corresponding to the configuration needed to build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module. The <tt class="file docutils literal"><span class="pre">OpenMOC/setup.py</span></tt> file instantiates a <tt class="docutils literal"><span class="pre">configuration</span></tt> class object and redefines the class attributes based on the command line options given at runtime. This process is discussed in greater detail in the <a class="reference internal" href="#setup-file"><em>Setup File</em></a> section.</p>
 <p>Once the build options have been defined for the <tt class="docutils literal"><span class="pre">configuration</span></tt> class, the <tt class="file docutils literal"><span class="pre">setup.py</span></tt> calls the <tt class="docutils literal"><span class="pre">setup_extension_modules(...)</span></tt> class method which instantiates one or more <tt class="docutils literal"><span class="pre">Extension</span></tt> class objects for each Python module the user wishes to build and install.</p>
 <p>For example, the following command would build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module using the default compiler (gcc) and with double precision:</p>
-<div class="highlight-python"><div class="highlight"><pre>python setup.py install --user --with-dp
+<div class="highlight-python"><div class="highlight"><pre>python setup.py install --user --fp=double
 </pre></div>
 </div>
-<p>Users may build and install more than one OpenMOC module at once with the appropriate command line options. For example, the following command would build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module with default compiler (gcc), as well as the <tt class="docutils literal"><span class="pre">openmoc.intel.double</span></tt> module, each with double precision:</p>
-<div class="highlight-python"><div class="highlight"><pre>python setup.py install --user --with-intel --with-dp
-</pre></div>
-</div>
-<p>Similarly, the following command would build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module with default compiler (gcc), as well was the <tt class="docutils literal"><span class="pre">openmoc.cuda.single</span></tt> module, each with single precision and <a class="reference external" href="http://en.wikipedia.org/wiki/Debug_symbol">debug symbols</a>:</p>
-<div class="highlight-python"><div class="highlight"><pre>python setup.py install --user --with-cuda --with-sp --debug-mode
+<p>Similarly, the following command would build and install the <tt class="docutils literal"><span class="pre">openmoc</span></tt> module with default compiler (gcc), as well was the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module, each with single precision and <a class="reference external" href="http://en.wikipedia.org/wiki/Debug_symbol">debug symbols</a>:</p>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py install --user --with-cuda --sp=single --debug-mode
 </pre></div>
 </div>
 </div>
@@ -165,7 +153,7 @@
 </div>
 <div class="section" id="custom-compilers-and-linkers">
 <h3>3.2.2. Custom Compilers and Linkers<a class="headerlink" href="#custom-compilers-and-linkers" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">customize_compiler(...)</span></tt> method is used to override the <tt class="docutils literal"><span class="pre">_compile(...)</span></tt> method in distutils to allow for compilation with a variety of toolchains (e.g., <tt class="docutils literal"><span class="pre">gcc</span></tt>, <tt class="docutils literal"><span class="pre">icpc</span></tt>, etc.). As presently implemented, the method chooses a compiler based on the macro definitions in the compile line (i.e, <tt class="docutils literal"><span class="pre">gcc</span></tt> for the macro definition <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">-DGNU</span></tt>). Likewise, the <tt class="docutils literal"><span class="pre">customize_linker(...)</span></tt> method is used to override the <tt class="docutils literal"><span class="pre">link(...)</span></tt> method in distutils to allow for linking with a variety of toolchains (e.g., <tt class="docutils literal"><span class="pre">g++</span></tt>, <tt class="docutils literal"><span class="pre">icpc</span></tt>, etc.). The method chooses an executable for linking based on the target shared library name.</p>
+<p>The <tt class="docutils literal"><span class="pre">customize_compiler(...)</span></tt> method is used to override the <tt class="docutils literal"><span class="pre">_compile(...)</span></tt> method in distutils to allow for compilation with a variety of toolchains (<em>e.g.</em>, <tt class="docutils literal"><span class="pre">gcc</span></tt>, <tt class="docutils literal"><span class="pre">icpc</span></tt>, etc.). As presently implemented, the method chooses a compiler based on the macro definitions in the compile line (i.e, <tt class="docutils literal"><span class="pre">gcc</span></tt> for the macro definition <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">-DGNU</span></tt>). Likewise, the <tt class="docutils literal"><span class="pre">customize_linker(...)</span></tt> method is used to override the <tt class="docutils literal"><span class="pre">link(...)</span></tt> method in distutils to allow for linking with a variety of toolchains (<em>e.g.</em>, <tt class="docutils literal"><span class="pre">g++</span></tt>, <tt class="docutils literal"><span class="pre">icpc</span></tt>, etc.). The method chooses an executable for linking based on the target shared library name.</p>
 <p>The <tt class="docutils literal"><span class="pre">custom_build_ext(...)</span></tt> class is used to override (subclass) the <tt class="docutils literal"><span class="pre">build_ext</span></tt> class in the <tt class="docutils literal"><span class="pre">distutils.command</span></tt> module. In particular, this class overrides the <tt class="docutils literal"><span class="pre">build_extension(...)</span></tt> method and uses it for the following:</p>
 <ul class="simple">
 <li>Inject the <tt class="docutils literal"><span class="pre">customize_compiler(...)</span></tt> and <tt class="docutils literal"><span class="pre">customize_linker(...)</span></tt> methods into the <tt class="docutils literal"><span class="pre">build_ext</span></tt> class</li>
@@ -174,68 +162,12 @@
 </div>
 <div class="section" id="building-and-installation">
 <h3>3.2.3. Building and Installation<a class="headerlink" href="#building-and-installation" title="Permalink to this headline">¶</a></h3>
-<p>In the final step, the <tt class="docutils literal"><span class="pre">setup(...)</span></tt> method from the <tt class="docutils literal"><span class="pre">distutils.core</span></tt> module is called in the <tt class="docutils literal"><span class="pre">setup.py</span></tt> file. The <tt class="docutils literal"><span class="pre">setup(...)</span></tt> method receives the list of the <tt class="docutils literal"><span class="pre">Extension</span></tt> class objects and builds and installs each one as a shared library in the <tt class="file docutils literal"><span class="pre">/home/&lt;username&gt;/.local/lib/python-x.x/site-packages/</span></tt> directory. On a Unix-based machine, the shared library for the default <tt class="docutils literal"><span class="pre">openmoc</span></tt> module will be <tt class="docutils literal"><span class="pre">_openmoc.so</span></tt>. The Python modules in OpenMOC (e.g., <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt>, <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt>, etc.) will be installed in the <tt class="file docutils literal"><span class="pre">/home/&lt;username&gt;/.local/lib/python-x.x/site-packages/</span></tt> directory.</p>
+<p>In the final step, the <tt class="docutils literal"><span class="pre">setup(...)</span></tt> method from the <tt class="docutils literal"><span class="pre">distutils.core</span></tt> module is called in the <tt class="docutils literal"><span class="pre">setup.py</span></tt> file. The <tt class="docutils literal"><span class="pre">setup(...)</span></tt> method receives the list of the <tt class="docutils literal"><span class="pre">Extension</span></tt> class objects and builds and installs each one as a shared library in the <tt class="file docutils literal"><span class="pre">/home/&lt;username&gt;/.local/lib/python-x.x/site-packages/</span></tt> directory. On a Unix-based machine, the shared library for the default <tt class="docutils literal"><span class="pre">openmoc</span></tt> module will be <tt class="docutils literal"><span class="pre">_openmoc.so</span></tt>. The Python modules in OpenMOC (<em>e.g.</em>, <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt>, <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt>, etc.) will be installed in the <tt class="file docutils literal"><span class="pre">/home/&lt;username&gt;/.local/lib/python-x.x/site-packages/</span></tt> directory.</p>
 </div>
 </div>
 <div class="section" id="swig-interface-files">
 <h2>3.3. SWIG Interface Files<a class="headerlink" href="#swig-interface-files" title="Permalink to this headline">¶</a></h2>
-<p>OpenMOC uses the SWIG system (discussed in <a class="reference internal" href="swig.html#swig"><em>Simplified Wrapper Interface Generator</em></a>) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files <strong>must contain all of the class and function prototypes.</strong> Furthermore, the headers files must be exposed to SWIG through a <a class="reference external" href="http://www.swig.org/Doc2.0/SWIGDocumentation.html#Introduction_nn6">SWIG interface file</a> (see <a class="reference internal" href="swig.html#swig-input"><em>SWIG Input</em></a>). The interface files are located in the <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/...</span></tt> directory and use a <tt class="docutils literal"><span class="pre">.i</span></tt> extension. There are different interface files for the different C/C++ extension modules which may be built for Python (e.g. with different compilers). <a class="reference internal" href="#table-openmoc-swig-files"><em>Table 2</em></a> tabulates all of the interface files in OpenMOC, the Python module that would be built, and the shell command that would be used to build the module.</p>
-<table border="1" class="docutils" id="table-openmoc-swig-files">
-<colgroup>
-<col width="41%" />
-<col width="16%" />
-<col width="43%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">File</th>
-<th class="head">Python Module</th>
-<th class="head">Shell Build Command</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/openmoc.i</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">openmoc</span></tt></td>
-<td><strong class="command">python setup.py install &#8211;user</strong></td>
-</tr>
-<tr class="row-odd"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/gnu/single/openmoc_gnu_single.i</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">openmoc.gnu.single</span></tt></td>
-<td><strong class="command">python setup.py install &#8211;user &#8211;with-gcc -with-sp</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/gnu/double/openmoc_gnu_double.i</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">openmoc.gnu.double</span></tt></td>
-<td><strong class="command">python setup.py install &#8211;user &#8211;with-gcc &#8211;with-dp</strong></td>
-</tr>
-<tr class="row-odd"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/intel/single/openmoc_intel_single.i</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">openmoc.intel.single</span></tt></td>
-<td><strong class="command">python setup.py install &#8211;user &#8211;with-icpc &#8211;with-sp</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/intel/double/openmoc_intel_double.i</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">openmoc.intel.double</span></tt></td>
-<td><strong class="command">python setup.py install &#8211;user &#8211;with-icpc &#8211;with-dp</strong></td>
-</tr>
-<tr class="row-odd"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/bgq/single/openmoc_bgq_single.i</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">openmoc.bgq.single</span></tt></td>
-<td><strong class="command">python setup.py install &#8211;user &#8211;with-bgxlc &#8211;with-sp</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/bgq/double/openmoc_bgq_double.i</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">openmoc.bgq.double</span></tt></td>
-<td><strong class="command">python setup.py install &#8211;user &#8211;with-bgxlc &#8211;with-dp</strong></td>
-</tr>
-<tr class="row-odd"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/cuda/single/openmoc_cuda.i</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt></td>
-<td><strong class="command">python setup.py install &#8211;user &#8211;with-cuda</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/cuda/single/openmoc_cuda_single.i</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">openmoc.cuda.single</span></tt></td>
-<td><strong class="command">python setup.py install &#8211;user &#8211;with-cuda &#8211;with-sp</strong></td>
-</tr>
-<tr class="row-odd"><td><tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/cuda/double/openmoc_cuda_double.i</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">openmoc.cuda.double</span></tt></td>
-<td><strong class="command">python setup.py install &#8211;user &#8211;with-cuda &#8211;with-dp</strong></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Table 2</strong>: SWIG interface files for OpenMOC modules.</p>
+<p>OpenMOC uses the SWIG system (discussed in <a class="reference internal" href="swig.html#swig"><em>Simplified Wrapper Interface Generator</em></a>) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files <strong>must contain all of the class and function prototypes.</strong> Furthermore, the headers files must be exposed to SWIG through a <a class="reference external" href="http://www.swig.org/Doc2.0/SWIGDocumentation.html#Introduction_nn6">SWIG interface file</a> (see <a class="reference internal" href="swig.html#swig-input"><em>SWIG Input</em></a>). OpenMOC includes the interface file <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/openmoc.i</span></tt> for the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> Python module, and an interface file <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/cuda/openmoc_cuda.i</span></tt> for the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module.</p>
 <p>The <a class="reference internal" href="#add-source-file"><em>Add a C/C++ Source File</em></a> section discusses how to add new C/C++ source files and expose them to SWIG through the interface files. The interface files are useful for a variety of auxiliary purposes as well, most notably the specifications to input and retrieve <a class="reference external" href="http://www.numpy.org">NumPy</a> data from the compiled C/C++ shared library object(s) from Python (see <a class="reference internal" href="swig.html#numpy-typemaps"><em>NumPy Typemaps</em></a>).</p>
 </div>
 <div class="section" id="common-modifications">
@@ -245,7 +177,7 @@
 <span id="add-source-file"></span><h3>3.4.1. Add a C/C++ Source File<a class="headerlink" href="#add-a-c-c-source-file" title="Permalink to this headline">¶</a></h3>
 <p>There are three steps which must be taken to integrate a new source C/C++ file into the build system for OpenMOC.</p>
 <ol class="arabic simple">
-<li>Include source header file (<tt class="docutils literal"><span class="pre">.h</span></tt>) in top of SWIG interface file (e.g. <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/openmoc.i</span></tt>) using the following code syntax:</li>
+<li>Include source header file (<tt class="docutils literal"><span class="pre">.h</span></tt>) in top of SWIG interface file (<em>e.g.</em> <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/openmoc.i</span></tt>) using the following code syntax:</li>
 </ol>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>#include &quot;../src/MyFile.h&quot;
@@ -253,7 +185,7 @@
 </div>
 </div></blockquote>
 <ol class="arabic simple" start="2">
-<li>Include source header file (<tt class="docutils literal"><span class="pre">.h</span></tt>) in bottom of SWIG interface file (e.g. <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/openmoc.i</span></tt>) using the following code syntax:</li>
+<li>Include source header file (<tt class="docutils literal"><span class="pre">.h</span></tt>) in bottom of SWIG interface file (<em>e.g.</em> <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/openmoc.i</span></tt>) using the following code syntax:</li>
 </ol>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>%include ../src/MyFile.h
@@ -270,7 +202,7 @@
 </div>
 <div class="section" id="add-a-python-module">
 <h3>3.4.2. Add a Python Module<a class="headerlink" href="#add-a-python-module" title="Permalink to this headline">¶</a></h3>
-<p>OpenMOC includes several Python modules by default (i.e., <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt>, <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt>, etc.). These modules are Python files located in the <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc</span></tt> directory and are installed each time the C/C++ extension module(s) for OpenMOC are built and installed. For example, to create the <tt class="docutils literal"><span class="pre">openmoce.mymodule`</span> <span class="pre">module,</span> <span class="pre">create</span> <span class="pre">the</span> <span class="pre">:file:`mymodule.py`</span> <span class="pre">file</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">:file:`OpenMOC/openmoc`</span> <span class="pre">directory.</span> <span class="pre">You</span> <span class="pre">must</span> <span class="pre">then</span> <span class="pre">append</span> <span class="pre">the</span> <span class="pre">name</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">module</span> <span class="pre">(*i.e.*,</span> <span class="pre">``openmoc.mymodule</span></tt>) to the <tt class="docutils literal"><span class="pre">packages</span></tt> list class attribute in the <tt class="docutils literal"><span class="pre">configuration</span></tt> class in the <tt class="file docutils literal"><span class="pre">/OpenMOC/config.py</span></tt> file.</p>
+<p>OpenMOC includes several Python modules by default (i.e., <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt>, <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt>, etc.). These modules are Python files located in the <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc</span></tt> directory and are installed each time the C/C++ extension module(s) for OpenMOC are built and installed. For example, to create the <tt class="docutils literal"><span class="pre">openmoc.mymodule</span></tt> module, create the <tt class="file docutils literal"><span class="pre">mymodule.py</span></tt> file in the <tt class="file docutils literal"><span class="pre">OpenMOC/openmoc</span></tt> directory. You must then append the name of the module (<em>i.e.</em>, <tt class="docutils literal"><span class="pre">openmoc.mymodule</span></tt>) to the <tt class="docutils literal"><span class="pre">packages</span></tt> list class attribute in the <tt class="docutils literal"><span class="pre">configuration</span></tt> class in the <tt class="file docutils literal"><span class="pre">/OpenMOC/config.py</span></tt> file.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Changes to a Python module are not reflected until OpenMOC has been reinstalled.</p>

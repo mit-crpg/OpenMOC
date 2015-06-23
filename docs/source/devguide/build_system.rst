@@ -22,14 +22,12 @@ Class Attribute                    Type                            Default Value
 =================================  ==============================  ===========================================
 ``cc``                             string                          'gcc'                                        
 ``fp``                             string                          'single'
-``cpp_compilers``                  list of strings                 []
-``fp_precision``                   list of string                  []
 ``with_ccache``                    boolean                         False
 ``debug_mode``                     boolean                         False
 ``profile_mode``                   boolean                         False
 ``with_cuda``                      boolean                         False
 ``with_numpy``                     boolean                         True
-``sources``                        dictionary of strings           C/C++/CUDA source files flags for eac  ``Extension`` object
+``sources``                        dictionary of strings           C/C++/CUDA source files flags for each ``Extension`` object
 ``compiler_flags``                 dictionary of strings           Flags for each ``Extension`` object
 ``linker_flags``                   dictionary of strings           Flags for each ``Extension`` object
 ``shared_libraries``               dictionary of strings           Libraries for each ``Extension`` object
@@ -47,15 +45,11 @@ Once the build options have been defined for the ``configuration`` class, the :f
 
 For example, the following command would build and install the ``openmoc`` module using the default compiler (gcc) and with double precision::
 
-  python setup.py install --user --with-dp
+  python setup.py install --user --fp=double
 
-Users may build and install more than one OpenMOC module at once with the appropriate command line options. For example, the following command would build and install the ``openmoc`` module with default compiler (gcc), as well as the ``openmoc.intel.double`` module, each with double precision::
-
-  python setup.py install --user --with-intel --with-dp
-
-Similarly, the following command would build and install the ``openmoc`` module with default compiler (gcc), as well was the ``openmoc.cuda.single`` module, each with single precision and `debug symbols`_::
+Similarly, the following command would build and install the ``openmoc`` module with default compiler (gcc), as well was the ``openmoc.cuda`` module, each with single precision and `debug symbols`_::
   
-  python setup.py install --user --with-cuda --with-sp --debug-mode
+  python setup.py install --user --with-cuda --sp=single --debug-mode
 
 
 .. _setup_file:
@@ -77,7 +71,7 @@ The :file:`setup.py` file first defines the ``custom_install`` class to override
 Custom Compilers and Linkers
 ----------------------------
 
-The ``customize_compiler(...)`` method is used to override the ``_compile(...)`` method in distutils to allow for compilation with a variety of toolchains (e.g., ``gcc``, ``icpc``, etc.). As presently implemented, the method chooses a compiler based on the macro definitions in the compile line (i.e, ``gcc`` for the macro definition :envvar:`-DGNU`). Likewise, the ``customize_linker(...)`` method is used to override the ``link(...)`` method in distutils to allow for linking with a variety of toolchains (e.g., ``g++``, ``icpc``, etc.). The method chooses an executable for linking based on the target shared library name.
+The ``customize_compiler(...)`` method is used to override the ``_compile(...)`` method in distutils to allow for compilation with a variety of toolchains (*e.g.*, ``gcc``, ``icpc``, etc.). As presently implemented, the method chooses a compiler based on the macro definitions in the compile line (i.e, ``gcc`` for the macro definition :envvar:`-DGNU`). Likewise, the ``customize_linker(...)`` method is used to override the ``link(...)`` method in distutils to allow for linking with a variety of toolchains (*e.g.*, ``g++``, ``icpc``, etc.). The method chooses an executable for linking based on the target shared library name.
 
 The ``custom_build_ext(...)`` class is used to override (subclass) the ``build_ext`` class in the ``distutils.command`` module. In particular, this class overrides the ``build_extension(...)`` method and uses it for the following:
 
@@ -88,33 +82,14 @@ The ``custom_build_ext(...)`` class is used to override (subclass) the ``build_e
 Building and Installation
 -------------------------
 
-In the final step, the ``setup(...)`` method from the ``distutils.core`` module is called in the ``setup.py`` file. The ``setup(...)`` method receives the list of the ``Extension`` class objects and builds and installs each one as a shared library in the :file:`/home/<username>/.local/lib/python-x.x/site-packages/` directory. On a Unix-based machine, the shared library for the default ``openmoc`` module will be ``_openmoc.so``. The Python modules in OpenMOC (e.g., ``openmoc.materialize``, ``openmoc.plotter``, etc.) will be installed in the :file:`/home/<username>/.local/lib/python-x.x/site-packages/` directory. 
+In the final step, the ``setup(...)`` method from the ``distutils.core`` module is called in the ``setup.py`` file. The ``setup(...)`` method receives the list of the ``Extension`` class objects and builds and installs each one as a shared library in the :file:`/home/<username>/.local/lib/python-x.x/site-packages/` directory. On a Unix-based machine, the shared library for the default ``openmoc`` module will be ``_openmoc.so``. The Python modules in OpenMOC (*e.g.*, ``openmoc.materialize``, ``openmoc.plotter``, etc.) will be installed in the :file:`/home/<username>/.local/lib/python-x.x/site-packages/` directory. 
 
 
 --------------------
 SWIG Interface Files
 --------------------
 
-OpenMOC uses the SWIG system (discussed in :ref:`Simplified Wrapper Interface Generator <swig>`) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files **must contain all of the class and function prototypes.** Furthermore, the headers files must be exposed to SWIG through a `SWIG interface file`_ (see :ref:`SWIG Input <swig_input>`). The interface files are located in the :file:`/OpenMOC/openmoc/...` directory and use a ``.i`` extension. There are different interface files for the different C/C++ extension modules which may be built for Python (e.g. with different compilers). :ref:`Table 2 <table_openmoc_swig_files>` tabulates all of the interface files in OpenMOC, the Python module that would be built, and the shell command that would be used to build the module.
-
-.. _table_openmoc_swig_files:
-
-============================================================  ========================  ================================================================  
-File                                                          Python Module             Shell Build Command                                            
-============================================================  ========================  ================================================================
-:file:`/OpenMOC/openmoc/openmoc.i`                            ``openmoc``               :command:`python setup.py install --user`                       
-:file:`/OpenMOC/openmoc/gnu/single/openmoc_gnu_single.i`      ``openmoc.gnu.single``    :command:`python setup.py install --user --with-gcc -with-sp`  
-:file:`/OpenMOC/openmoc/gnu/double/openmoc_gnu_double.i`      ``openmoc.gnu.double``    :command:`python setup.py install --user --with-gcc --with-dp` 
-:file:`/OpenMOC/openmoc/intel/single/openmoc_intel_single.i`  ``openmoc.intel.single``  :command:`python setup.py install --user --with-icpc --with-sp`
-:file:`/OpenMOC/openmoc/intel/double/openmoc_intel_double.i`  ``openmoc.intel.double``  :command:`python setup.py install --user --with-icpc --with-dp` 
-:file:`/OpenMOC/openmoc/bgq/single/openmoc_bgq_single.i`      ``openmoc.bgq.single``    :command:`python setup.py install --user --with-bgxlc --with-sp`
-:file:`/OpenMOC/openmoc/bgq/double/openmoc_bgq_double.i`      ``openmoc.bgq.double``    :command:`python setup.py install --user --with-bgxlc --with-dp`
-:file:`/OpenMOC/openmoc/cuda/single/openmoc_cuda.i`           ``openmoc.cuda``          :command:`python setup.py install --user --with-cuda`           
-:file:`/OpenMOC/openmoc/cuda/single/openmoc_cuda_single.i`     ``openmoc.cuda.single``   :command:`python setup.py install --user --with-cuda --with-sp`
-:file:`/OpenMOC/openmoc/cuda/double/openmoc_cuda_double.i`    ``openmoc.cuda.double``   :command:`python setup.py install --user --with-cuda --with-dp` 
-============================================================  ========================  ================================================================ 
-
-**Table 2**: SWIG interface files for OpenMOC modules. 
+OpenMOC uses the SWIG system (discussed in :ref:`Simplified Wrapper Interface Generator <swig>`) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files **must contain all of the class and function prototypes.** Furthermore, the headers files must be exposed to SWIG through a `SWIG interface file`_ (see :ref:`SWIG Input <swig_input>`). OpenMOC includes the interface file :file:`/OpenMOC/openmoc/openmoc.i` for the main ``openmoc`` Python module, and an interface file :file:`/OpenMOC/openmoc/cuda/openmoc_cuda.i` for the ``openmoc.cuda`` module.
 
 The :ref:`Add a C/C++ Source File <add_source_file>` section discusses how to add new C/C++ source files and expose them to SWIG through the interface files. The interface files are useful for a variety of auxiliary purposes as well, most notably the specifications to input and retrieve NumPy_ data from the compiled C/C++ shared library object(s) from Python (see :ref:`NumPy Typemaps <numpy_typemaps>`).
 
@@ -133,13 +108,13 @@ Add a C/C++ Source File
 
 There are three steps which must be taken to integrate a new source C/C++ file into the build system for OpenMOC. 
  
-1. Include source header file (``.h``) in top of SWIG interface file (e.g. :file:`/OpenMOC/openmoc/openmoc.i`) using the following code syntax:
+1. Include source header file (``.h``) in top of SWIG interface file (*e.g.* :file:`/OpenMOC/openmoc/openmoc.i`) using the following code syntax:
 
   .. code-block:: none
       
      #include "../src/MyFile.h"
     
-2. Include source header file (``.h``) in bottom of SWIG interface file (e.g. :file:`/OpenMOC/openmoc/openmoc.i`) using the following code syntax:
+2. Include source header file (``.h``) in bottom of SWIG interface file (*e.g.* :file:`/OpenMOC/openmoc/openmoc.i`) using the following code syntax:
 
   .. code-block:: none
 		  
@@ -153,7 +128,7 @@ There are three steps which must be taken to integrate a new source C/C++ file i
 Add a Python Module
 -------------------
 
-OpenMOC includes several Python modules by default (i.e., ``openmoc.materialize``, ``openmoc.plotter``, etc.). These modules are Python files located in the :file:`/OpenMOC/openmoc` directory and are installed each time the C/C++ extension module(s) for OpenMOC are built and installed. For example, to create the ``openmoce.mymodule` module, create the :file:`mymodule.py` file in the :file:`OpenMOC/openmoc` directory. You must then append the name of the module (*i.e.*, ``openmoc.mymodule``) to the ``packages`` list class attribute in the ``configuration`` class in the :file:`/OpenMOC/config.py` file.
+OpenMOC includes several Python modules by default (i.e., ``openmoc.materialize``, ``openmoc.plotter``, etc.). These modules are Python files located in the :file:`/OpenMOC/openmoc` directory and are installed each time the C/C++ extension module(s) for OpenMOC are built and installed. For example, to create the ``openmoc.mymodule`` module, create the :file:`mymodule.py` file in the :file:`OpenMOC/openmoc` directory. You must then append the name of the module (*i.e.*, ``openmoc.mymodule``) to the ``packages`` list class attribute in the ``configuration`` class in the :file:`/OpenMOC/config.py` file.
 
 .. note:: Changes to a Python module are not reflected until OpenMOC has been reinstalled.
 
