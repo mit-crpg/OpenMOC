@@ -60,7 +60,7 @@ No. CUDA Threads per Block     :option:`-g`, :option:`--num-gpu-threads=`     ge
 Simulation Log Files
 --------------------
 
-The ``openmoc.log`` module provides routines for printing output to the console as well as to log files. Output is reported in real-time to the console as well as stored in a persistent log file. By default, the log file name encapsulates a timestamp for the simulation starting time and is stored in the ``/OpenMOC/log`` directory (e.g. :file:`OpenMOC/log/openmoc-MM-DD-YYYY--HH:MM:SS.log`).
+The ``openmoc.log`` module provides routines for printing output to the console as well as to log files. Output is reported in real-time to the console as well as stored in a persistent log file. By default, the log file name encapsulates a timestamp for the simulation starting time and is stored in the ``/OpenMOC/log`` directory (*e.g.*, :file:`OpenMOC/log/openmoc-MM-DD-YYYY--HH:MM:SS.log`).
 
 The OpenMOC logging module uses **verbosity throttling** which allows for coarse-grained control of the type and amount of messages reported to the user at runtime. Each message is designated a **log level**, and each level is prioritized with respect to other levels. At runtime, a log level is specified for a simulation and only those messages designated at that log level or a higher priority log level are printed to the console and log file. The log levels available in OpenMOC are presented in :ref:`Table 2 <table_log_levels>`.
 
@@ -353,7 +353,7 @@ Each universe is comprised of one or more cells. A ``Universe`` can be instantia
     pin_univ.addCell(fuel)
     pin_univ.addCell(moderator)
 
-The OpenMOC ``Cell`` class may not only be filled with materials, but universes as well. As a result, a geometry may be constructed of a hierarchy of nested cells/universes. A hierarchichal geometry permits a simple treatment of repeating geometric structures on multiple length scales (e.g., rectangular arrays of fuel pins and fuel assemblies). 
+The OpenMOC ``Cell`` class may not only be filled with materials, but universes as well. As a result, a geometry may be constructed of a hierarchy of nested cells/universes. A hierarchichal geometry permits a simple treatment of repeating geometric structures on multiple length scales (*e.g.*, rectangular arrays of fuel pins and fuel assemblies). 
 
 OpenMOC does not place a limit on the hierarchical depth - or number of nested universe levels - that a user may define in constructing a geometry. The only limitation is that at the top of the hierarchy, a *root* cell must encapsulate the entire geometry in a *root* universe. The following code snippet illustrates the creation of a ``Cell`` which is filled by a lattice constructed in the next section. The appropriate halfspaces for the planes defined in the preceding section are added to the cell to enforce boundaries on the portion of the root universe relevant to the geometry.
 
@@ -374,33 +374,22 @@ OpenMOC does not place a limit on the hierarchical depth - or number of nested u
 Rings and Sectors
 -----------------
 
-The spatial discretization_ of the geometry is a key determining factor in the accuracy of OpenMOC's simulation results. This is especially important since OpenMOC presently uses the :ref:`Flat Source Region Approximation <flat-source-region-approximation>`.  The spatial discretization is most relevant in regions where the flux gradient is greatest. In LWRs composed of circular fuel pins, the flux gradient is largely determined by the distance to the center of the nearest fuel pin and the angle formed between the center of the fuel pin and the point of interest (i.e., `polar coordinates`_). As a result, discretization along the radial coordinate using circular **rings**, and along the angular coordinate using angular **sectors** is the most applicable way to discretize the geometry to capture the flux gradient. 
+The spatial discretization_ of the geometry is a key determining factor in the accuracy of OpenMOC's simulation results. This is especially important since OpenMOC presently uses the :ref:`Flat Source Region Approximation <flat-source-region-approximation>`.  The spatial discretization is most relevant in regions where the flux gradient is greatest. In LWRs composed of circular fuel pins, the flux gradient is largely determined by the distance to the center of the nearest fuel pin and the angle formed between the center of the fuel pin and the point of interest (*i.e.*, `polar coordinates`_). As a result, discretization along the radial coordinate using circular **rings**, and along the angular coordinate using angular **sectors** is the most applicable way to discretize the geometry to capture the flux gradient. 
 
-This type of discretization is particularly useful for codes which can make use of an `unstructured mesh`_, such as OpenMOC with its general :ref:`Constructive Solid Geometry <constructive_solid_geometry>` formulation. To subdivide circular fuel pins into rings and sectors in an LWR model would require a substantial amount of work for the user to create the necessary ``Circle`` and/or ``Plane`` objects. Since this is a commonly needed feature for many users, OpenMOC includes the ability to automatically subdivide square pin cells of circular fuel pins into equal volume rings and equally spaced angular sectors. In particular, OpenMOC uses **cell cloning** to create clones (or copies) of a ``CellBasic`` object and differentiates each one with ``Circle`` or ``Plane`` objects to subdivide the pin cell.
+This type of discretization is particularly useful for codes which can make use of an `unstructured mesh`_, such as OpenMOC with its general :ref:`Constructive Solid Geometry <constructive_solid_geometry>` formulation. To subdivide circular fuel pins into rings and sectors in an LWR model would require a substantial amount of work for the user to create the necessary ``Circle`` and/or ``Plane`` objects. Since this is a commonly needed feature for many users, OpenMOC includes the ability to automatically subdivide square pin cells of circular fuel pins into equal volume rings and equally spaced angular sectors. In particular, OpenMOC uses **cell cloning** to create clones (or copies) of a ``Cell`` object and differentiates each one with ``Circle`` or ``Plane`` objects to subdivide the pin cell.
 
-The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for a fuel pin and moderator region with optional arguments for each to the ``CellBasic`` constructor.
+The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for fuel pin and moderator ``Cells`` using the ``Cell.setNumRings(...)`` and ``Cell.setNumSectors(...)`` class methods.
 
 .. code-block:: python
 
-    # Retrieve the fuel and moderator materials
-    uo2 = materials['UO2']
-    water = materials['Water']
-
-    # Initialize the cells for the fuel pin and moderator
     # Subdivide the fuel region into 3 rings and 8 angular sectors
+    fuel.setNumRings(3)
+    fuel.setNumSectors(8)
+
     # Subdivide the moderator region into 8 angular sectors
-    fuel = openmoc.CellBasic(name='fuel cell', rings=3, sector=8)
-    moderator = openmoc.CellBasic(name='moderator cell', sectors=8)
-
-    # Assign the appropriate materials to fill each cell
-    fuel.setMaterial(uo2)
-    moderator.setMaterial(water)
-
-    # Add the circle surface to each cell
-    fuel.addSurface(halfspace=-1, surface=circle)
-    moderator.addSurface(halfspace=+1, surface=circle)
+    moderator.setNumSectors(16)
    
-A pin cell without rings/sectors is illustrated on the left below, while the same pin cell with 3 equal volume rings and 8 angular sectors is displayed on the right.
+The pin cell materials are illustrated on the left below, while the flat source regions with 3 equal volume rings and 8 sectors in the fuel, and 16 sectors in the moderator, are displayed on the right.
 
 .. _figure_fluxes:
      
@@ -415,9 +404,9 @@ A pin cell without rings/sectors is illustrated on the left below, while the sam
    +------------------------------------------+------------------------------------------+ 
 
 
-.. note:: Circular rings may **only** be used in ``CellBasic`` objects which form the interior of a ``Circle`` surface, such as a fuel pin.
+.. note:: Circular rings may **only** be used in ``Cell`` objects which form the interior of a ``Circle`` surface, such as a fuel pin.
 
-.. note:: Each subdivided region will be filled by the **same Material** as the ``CellBasic`` object created by the user in the Python script.
+.. note:: Each subdivided region will be filled by the **same Material** as the ``Cell`` object created by the user in the Python script.
 
 
 
@@ -425,7 +414,7 @@ A pin cell without rings/sectors is illustrated on the left below, while the sam
 Lattices
 --------
 
-Once the cells for the geometry have been created, OpenMOC's ``Lattice`` class may be used to represent repeating patterns of the cells on a rectangular array. The CSG formulation for lattices is described further in :ref:`Lattices <lattices>`. In OpenMOC, the ``Lattice`` class is a subclass of the ``Universe`` class. The following code snippet illustrates the creation of a 4 :math:`\times` 4 lattice with each lattice cell filled by the pin universe created earlier. The total width and height of the lattice are defined as parameters when the lattice is initialized. The lattice dimensions are used to define the rectangular region of interest centered at the origin of each universe filling each lattice cell.
+Once the cells for the geometry have been created, OpenMOC's ``Lattice`` class may be used to represent repeating patterns of the cells on a rectangular array. The CSG formulation for lattices is described further in :ref:`Lattices <lattices>`. In OpenMOC, the ``Lattice`` class is a subclass of the ``Universe`` class. The following code snippet illustrates the creation of a 4 :math:`\times` 4 lattice with each lattice cell filled by the pin universe created earlier. The total width of the lattice in :math:`x` and :math:`y` are defined as parameters when the lattice is initialized. The lattice dimensions are used to define the rectangular region of interest centered at the origin of the ``Universe`` filling each lattice cell.
 
 .. code-block:: python
 
@@ -434,16 +423,16 @@ Once the cells for the geometry have been created, OpenMOC's ``Lattice`` class m
     lattice.setWidth(width_x=5.04, width_y=5.04)
 
     # Assign each lattice cell a universe ID
-    lattice.setLatticeCells([[pin_univ, pin_univ, pin_univ, pin_univ],
-                             [pin_univ, pin_univ, pin_univ, pin_univ],
-                             [pin_univ, pin_univ, pin_univ, pin_univ],
-                             [pin_univ, pin_univ, pin_univ, pin_univ]])
+    lattice.setUniverses([[pin_univ, pin_univ, pin_univ, pin_univ],
+                          [pin_univ, pin_univ, pin_univ, pin_univ],
+                          [pin_univ, pin_univ, pin_univ, pin_univ],
+                          [pin_univ, pin_univ, pin_univ, pin_univ]])
 
 
 Geometry
 --------
 
-The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` class. The ``Geometry`` class is the *root* node in a tree data structure which encapsulates all ``Materials``, ``Surfaces``, ``Cells``, ``Universes`` and ``Lattices``. The following code snippet illustrates the creation of a *root* ``CellFill`` and ``Universe`` as well as a ``Geometry`` object. Next, the root universe is registered with the geometry. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.
+The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` class. The ``Geometry`` class is the *root* node in a tree data structure which encapsulates all ``Materials``, ``Surfaces``, ``Cells``, ``Universes`` and ``Lattices``. The following code snippet illustrates the creation of a *root* ``Cell`` and ``Universe`` as well as a ``Geometry`` object. Next, the root universe is registered with the geometry. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.
 
 .. code-block:: python
 
