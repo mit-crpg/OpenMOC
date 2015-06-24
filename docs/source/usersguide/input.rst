@@ -321,7 +321,7 @@ In most cases, the first step towards building a reactor geometry is to create t
 Cells and Universes
 -------------------
 
-The next step to create a geometry is to instantiate cells which represent unique geometric shapes and use them to construct universes. The CSG formulations for cells and universes in OpenMOC are discussed in further detail in :ref:`Cells <cells>` and :ref:`Universes <universes>`, respectively. OpenMOC provides the ``CellBasic`` class for cells which are filled by a material. The following code snippet illustrates how to create cells filled by the fuel and moderator materials. Next, the script adds the appropriate halfspace of the circle surface created in the preceding section to each cell.
+The next step to create a geometry is to instantiate cells which represent unique geometric shapes and use them to construct universes. The CSG formulations for cells and universes in OpenMOC are discussed in further detail in :ref:`Cells <cells>` and :ref:`Universes <universes>`, respectively. OpenMOC provides the ``Cell`` class for regions of space bounded by ``Surface`` halfspaces and which may be filled by a ``Material`` or ``Universe``. The following code snippet illustrates how to create cells filled by the fuel and moderator materials. Next, the script adds the appropriate halfspace of the circle surface created in the preceding section to each cell.
 
 .. code-block:: python
 
@@ -331,12 +331,12 @@ The next step to create a geometry is to instantiate cells which represent uniqu
 
     # Initialize the cells for the fuel pin and moderator
     # with optional string names
-    fuel = openmoc.CellBasic(name='fuel cell')
-    moderator = openmoc.CellBasic(name='moderator cell')
+    fuel = openmoc.Cell(name='fuel cell')
+    moderator = openmoc.Cell(name='moderator cell')
 
     # Assign the appropriate materials to fill each cell
-    fuel.setMaterial(uo2)
-    moderator.setMaterial(water)
+    fuel.setFill(uo2)
+    moderator.setFill(water)
 
     # Add the circle surface to each cell
     fuel.addSurface(halfspace=-1, surface=circle)
@@ -353,22 +353,22 @@ Each universe is comprised of one or more cells. A ``Universe`` can be instantia
     pin_univ.addCell(fuel)
     pin_univ.addCell(moderator)
 
-In addition to cells filled with materials, OpenMOC provides the ``CellFill`` class for cells which may be filled with universes. As a result, a geometry may be constructed of a hierarchy of nested cells/universes. A hierarchichal geometry permits a simple treatment of repeating geometric structures on multiple length scales (e.g., rectangular arrays of fuel pins and fuel assemblies). 
+The OpenMOC ``Cell`` class may not only be filled with materials, but universes as well. As a result, a geometry may be constructed of a hierarchy of nested cells/universes. A hierarchichal geometry permits a simple treatment of repeating geometric structures on multiple length scales (e.g., rectangular arrays of fuel pins and fuel assemblies). 
 
-OpenMOC does not place a limit on the hierarchical depth - or number of nested universe levels - that a user may define in constructing a geometry. The only limitation is that at the top of the hierarchy, a *root* cell must encapsulate the entire geometry in a *root* universe. The following code snippet illustrates the creation of a ``CellFill`` which is filled by a lattice constructed in the next section. The appropriate halfspaces for the planes defined in the preceding section are added to the cell to enforce boundaries on the portion of the root universe relevant to the geometry.
+OpenMOC does not place a limit on the hierarchical depth - or number of nested universe levels - that a user may define in constructing a geometry. The only limitation is that at the top of the hierarchy, a *root* cell must encapsulate the entire geometry in a *root* universe. The following code snippet illustrates the creation of a ``Cell`` which is filled by a lattice constructed in the next section. The appropriate halfspaces for the planes defined in the preceding section are added to the cell to enforce boundaries on the portion of the root universe relevant to the geometry.
 
 .. code-block:: python
 
     # Initialize a cell filled by a nested lattice with an optional
     # string name. This cell resides within the root universe. 
-    root_cell = openmoc.CellFill(name='root cell')
+    root_cell = openmoc.Cell(name='root cell')
     root_cell.setFill(lattice)
 
     # Add the bounding planar surfaces to the root cell
-    root_cell.addSurface(halfspace=+1, left)
-    root_cell.addSurface(halfsapce=-1, right)
-    root_cell.addSurface(halfspace=+1, bottom)
-    root_cell.addSurface(halfspace=-1, top)
+    root_cell.addSurface(halfspace=+1, surface=left)
+    root_cell.addSurface(halfspace=-1, surface=right)
+    root_cell.addSurface(halfspace=+1, surface=bottom)
+    root_cell.addSurface(halfspace=-1, surface=top)
 
 
 Rings and Sectors
