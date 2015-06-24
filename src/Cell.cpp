@@ -51,6 +51,9 @@ Cell::Cell(int id, const char* name) {
   _name = NULL;
   setName(name);
 
+  _cell_type = UNFILLED;
+  _fill = NULL;
+
   _num_rings = 0;
   _num_sectors = 0;
 
