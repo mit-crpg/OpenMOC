@@ -732,8 +732,8 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
   _offset.setCoords(0.0, 0.0);
 
   /* Default width and number of Lattice cells along each dimension */
-  _num_y = 0;
-  _num_x = 0;
+  _num_y = -1;
+  _num_x = -1;
   _width_x = 0;
   _width_y = 0;
 }

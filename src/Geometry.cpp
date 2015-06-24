@@ -274,7 +274,9 @@ std::map<int, Material*> Geometry::getAllMaterials() {
 
       if (cell->getType() == MATERIAL) {
         material = cell->getFillMaterial();
-        all_materials[material->getId()] = material;
+
+        if (material != NULL)
+          all_materials[material->getId()] = material;
       }
     }
   }
