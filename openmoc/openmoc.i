@@ -4,6 +4,28 @@
 
 %module(docstring=DOCSTRING) openmoc
 
+/* A Universe owns the memory for each Cell it contains */
+%pythonappend Universe::addCell %{
+  args[0].thisown = 0
+%}
+
+/* Python must free memory for each Cell that is not in a Universe */
+%pythonappend Universe::removeCell %{
+  args[0].thisown = 1
+%}
+
+/* A Lattice owns the memory for each Universe it contains */
+%pythonappend Lattice::setUniverses %{
+  for i in range(len(args[0])):
+    for j in range(len(args[0][i])):
+      args[0][i][j].thisown = 0
+%}
+
+/* Python must free memory for each Universe that is not in a Lattice */
+%pythonappend Lattice::removeUniverse %{
+  args[0].thisown = 1
+%}
+
 %{
   #define SWIG_FILE_WITH_INIT
   #include <cstddef>
