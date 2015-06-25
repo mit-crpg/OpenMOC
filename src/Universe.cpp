@@ -66,7 +66,6 @@ Universe::~Universe() {
     delete [] _name;
 
   /* Remove all Cells in the Universe */
-  /* NOTE: This transfers ownership of the Cells' memory to Python */
   std::map<int, Cell*>::iterator iter;
   for (iter = _cells.begin(); iter != _cells.end(); ++iter)
     delete iter->second;
@@ -754,11 +753,6 @@ Lattice::~Lattice() {
 
   std::map<int, Universe*> unique_universes = getUniqueUniverses();
   std::map<int, Universe*>::iterator iter;
-
-  /* Remove all Universes in the Lattice */
-  /* NOTE: This transfers ownership of the Universes' memory to Python */
-  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter)
-    delete iter->second;
 
   /* Clear the map of Universes */
   for (int i = _num_y-1; i > -1;  i--)

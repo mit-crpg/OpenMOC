@@ -75,6 +75,10 @@ Cell::~Cell() {
 
   if (_name != NULL)
     delete [] _name;
+
+  /* Delete Material fills - Universe fills are deleted by Geometry */
+  if (_cell_type == MATERIAL)
+    delete (Material*)_fill;
 }
 
 
