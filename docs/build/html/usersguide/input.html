@@ -526,26 +526,41 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 </div>
 <div class="section" id="moc-source-iteration">
 <h2>3.6. MOC Source Iteration<a class="headerlink" href="#moc-source-iteration" title="Permalink to this headline">¶</a></h2>
-<p>One of OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Solver</span></tt> subclasses may be initialized given the <tt class="docutils literal"><span class="pre">Geometry</span></tt> and <tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> objects created in the preceding sections. The most commonly used subclasses for OpenMOC simulations are itemized below:</p>
+<p>One of OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">Solver</span></tt> subclasses may be initialized given the <tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> objects discussed in the preceding section. The most commonly used subclasses for OpenMOC simulations are itemized below:</p>
 <blockquote>
 <div><ul class="simple">
-<li><tt class="docutils literal"><span class="pre">CPUSolver</span></tt> - multi-core CPUs, memory efficient, good parallel scaling</li>
-<li><tt class="docutils literal"><span class="pre">GPUSolver</span></tt> - GPUs, 30-50 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> faster than CPUs <a class="reference internal" href="#gpus" id="id1">[GPUs]</a></li>
+<li><tt class="docutils literal"><span class="pre">CPUSolver</span></tt> - multi-core CPUs, memory efficient, good parallel scaling <a class="reference internal" href="#cpus" id="id1">[CPUs]</a></li>
+<li><tt class="docutils literal"><span class="pre">GPUSolver</span></tt> - GPUs, 30-50 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> faster than CPUs <a class="reference internal" href="#gpus" id="id2">[GPUs]</a></li>
 </ul>
 </div></blockquote>
-<p>The following code snippet illustrates the instantiation of the <tt class="docutils literal"><span class="pre">CPUSolver</span></tt> for multi-core CPUs. The code assigns runtime parameters to the solver and calls the <tt class="docutils literal"><span class="pre">convergeSource(...)</span></tt> routine to execute the <a class="reference internal" href="../methods/eigenvalue_calculations.html#figure-overall-iterative-scheme"><em>MOC Source Iteration Algorithm</em></a>.</p>
+<div class="section" id="criticality-calculations">
+<h3>3.6.1. Criticality Calculations<a class="headerlink" href="#criticality-calculations" title="Permalink to this headline">¶</a></h3>
+<p>The following code snippet illustrates the instantiation of the <tt class="docutils literal"><span class="pre">CPUSolver</span></tt> for multi-core CPUs. The code assigns runtime parameters to the solver and calls the <tt class="docutils literal"><span class="pre">computeEigenvalue(...)</span></tt> routine to execute the <a class="reference internal" href="../methods/eigenvalue_calculations.html#figure-overall-iterative-scheme"><em>MOC Source Iteration Algorithm</em></a>.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Initialize a solver for the simulation and set the number of</span>
 <span class="c"># threads and source convergence threshold</span>
-<span class="n">solver</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">CPUSolver</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">track_generator</span><span class="p">)</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">CPUSolver</span><span class="p">(</span><span class="n">track_generator</span><span class="p">)</span>
 <span class="n">solver</span><span class="o">.</span><span class="n">setNumThreads</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 <span class="n">solver</span><span class="o">.</span><span class="n">setSourceConvergenceThreshold</span><span class="p">(</span><span class="mf">1E-5</span><span class="p">)</span>
 
 <span class="c"># Converge the source with up to a maximum of 1000 source iterations</span>
-<span class="n">solver</span><span class="o">.</span><span class="n">convergeSource</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">computeEigenvalue</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
 
 <span class="c"># Print a report of the time to solution</span>
 <span class="n">solver</span><span class="o">.</span><span class="n">printTimerReport</span><span class="p">()</span>
 </pre></div>
+</div>
+</div>
+<div class="section" id="fixed-source-calculations">
+<h3>3.6.2. Fixed Source Calculations<a class="headerlink" href="#fixed-source-calculations" title="Permalink to this headline">¶</a></h3>
+<p>aljlkjadf</p>
+</div>
+<div class="section" id="polar-quadrature">
+<h3>3.6.3. Polar Quadrature<a class="headerlink" href="#polar-quadrature" title="Permalink to this headline">¶</a></h3>
+<p>aldjf</p>
+</div>
+<div class="section" id="fsr-volume-correction">
+<h3>3.6.4. FSR Volume Correction<a class="headerlink" href="#fsr-volume-correction" title="Permalink to this headline">¶</a></h3>
+<p>aljlk</p>
 </div>
 </div>
 <div class="section" id="cmfd-acceleration">
@@ -584,13 +599,13 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 <table class="docutils citation" frame="void" id="cpus" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[CPUs]</td><td>William Boyd, Kord Smith, Benoit Forget, and Andrew Siegel, &#8220;Parallel Performance Results for the OpenMOC Method of Characteristics Code on Multi-Core Platforms.&#8221; <em>Submitted to the Proceedings of PHYSOR</em>, Kyoto, Japan (2014).</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id1">[CPUs]</a></td><td>William Boyd, Kord Smith, Benoit Forget, and Andrew Siegel, &#8220;Parallel Performance Results for the OpenMOC Method of Characteristics Code on Multi-Core Platforms.&#8221; <em>Submitted to the Proceedings of PHYSOR</em>, Kyoto, Japan (2014).</td></tr>
 </tbody>
 </table>
 <table class="docutils citation" frame="void" id="gpus" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[GPUs]</a></td><td>William Boyd, Kord Smith, and Benoit Forget, &#8220;A Massively Parallel Method of Characteristic Neutral Particle Transport Code for GPUs.&#8221; <em>Proc. Int&#8217;l Conf. Math. and Comp. Methods Appl. to Nucl. Sci. and Eng.</em>, Sun Valley, ID, USA (2013).</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id2">[GPUs]</a></td><td>William Boyd, Kord Smith, and Benoit Forget, &#8220;A Massively Parallel Method of Characteristic Neutral Particle Transport Code for GPUs.&#8221; <em>Proc. Int&#8217;l Conf. Math. and Comp. Methods Appl. to Nucl. Sci. and Eng.</em>, Sun Valley, ID, USA (2013).</td></tr>
 </tbody>
 </table>
 </div>
@@ -620,7 +635,13 @@ surfaces. The CSG formulation used in OpenMOC is described in more detail in <a 
 </ul>
 </li>
 <li><a class="reference internal" href="#track-generation">3.5. Track Generation</a></li>
-<li><a class="reference internal" href="#moc-source-iteration">3.6. MOC Source Iteration</a></li>
+<li><a class="reference internal" href="#moc-source-iteration">3.6. MOC Source Iteration</a><ul>
+<li><a class="reference internal" href="#criticality-calculations">3.6.1. Criticality Calculations</a></li>
+<li><a class="reference internal" href="#fixed-source-calculations">3.6.2. Fixed Source Calculations</a></li>
+<li><a class="reference internal" href="#polar-quadrature">3.6.3. Polar Quadrature</a></li>
+<li><a class="reference internal" href="#fsr-volume-correction">3.6.4. FSR Volume Correction</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#cmfd-acceleration">3.7. CMFD Acceleration</a></li>
 </ul>
 </li>

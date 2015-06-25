@@ -35,6 +35,8 @@ Journals
 Conference Papers
 =================
 
+- William Boyd, Samuel Shaner, Benoit Forget and Kord Smith, "Program Optimization and Improved Workflow Synthesis for the OpenMOC Neutron Transport Code." *Submitted to the Trans. of the Amer. Nucl. Soc.*, ANS Winter Meeting, Washington, D.C., USA, November (2015).
+
 - William Boyd, Kazutomo Yoshii and Andrew Siegel, "Energy Efficiency of High-Performance Computing Platforms for Neutron Transport Calculations." *Trans. of the Amer. Nucl. Soc.*, ANS Summer Meeting, San Antonio, TX, USA June (2015).
 
 - William Boyd, Kord Smith, Benoit Forget, and Andrew Siegel, "Parallel Performance Results for the OpenMOC Method of Characteristics Code on Multi-Core Platforms." *Proceedings of PHYSOR*, Kyoto, Japan (2014).

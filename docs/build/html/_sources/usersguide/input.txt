@@ -409,8 +409,6 @@ The pin cell materials are illustrated on the left below, while the flat source 
 .. note:: Each subdivided region will be filled by the **same Material** as the ``Cell`` object created by the user in the Python script.
 
 
-
-
 Lattices
 --------
 
@@ -471,26 +469,48 @@ Once the geometry has been initialized for a simulation, the next step is to per
 MOC Source Iteration
 --------------------
 
-One of OpenMOC's ``Solver`` subclasses may be initialized given the ``Geometry`` and ``TrackGenerator`` objects created in the preceding sections. The most commonly used subclasses for OpenMOC simulations are itemized below:
+One of OpenMOC's ``Solver`` subclasses may be initialized given the ``TrackGenerator`` objects discussed in the preceding section. The most commonly used subclasses for OpenMOC simulations are itemized below:
 
-  * ``CPUSolver`` - multi-core CPUs, memory efficient, good parallel scaling
+  * ``CPUSolver`` - multi-core CPUs, memory efficient, good parallel scaling [CPUs]_
   * ``GPUSolver`` - GPUs, 30-50 :math:`\times` faster than CPUs [GPUs]_
 
-The following code snippet illustrates the instantiation of the ``CPUSolver`` for multi-core CPUs. The code assigns runtime parameters to the solver and calls the ``convergeSource(...)`` routine to execute the :ref:`MOC Source Iteration Algorithm <figure-overall-iterative-scheme>`.
+Criticality Calculations
+------------------------
+
+The following code snippet illustrates the instantiation of the ``CPUSolver`` for multi-core CPUs. The code assigns runtime parameters to the solver and calls the ``computeEigenvalue(...)`` routine to execute the :ref:`MOC Source Iteration Algorithm <figure-overall-iterative-scheme>`.
 
 .. code-block:: python
 
     # Initialize a solver for the simulation and set the number of
     # threads and source convergence threshold
-    solver = openmoc.CPUSolver(geometry, track_generator)
+    solver = openmoc.CPUSolver(track_generator)
     solver.setNumThreads(4)
     solver.setSourceConvergenceThreshold(1E-5)
 
     # Converge the source with up to a maximum of 1000 source iterations
-    solver.convergeSource(1000)
+    solver.computeEigenvalue(1000)
 
     # Print a report of the time to solution
     solver.printTimerReport()
+
+
+Fixed Source Calculations
+-------------------------
+
+aljlkjadf
+
+
+Polar Quadrature
+----------------
+
+aldjf
+
+
+FSR Volume Correction
+---------------------
+
+aljlk
+
 
 -----------------
 CMFD Acceleration

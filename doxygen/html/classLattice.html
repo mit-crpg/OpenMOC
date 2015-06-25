@@ -189,6 +189,9 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a4421a1905e4bdce2a7d92c6d661fe367"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLattice.html#a4421a1905e4bdce2a7d92c6d661fe367">setUniverses</a> (int num_x, int num_y, <a class="el" href="classUniverse.html">Universe</a> **universes)</td></tr>
 <tr class="memdesc:a4421a1905e4bdce2a7d92c6d661fe367"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the array of <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> pointers filling each <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> cell.  <a href="#a4421a1905e4bdce2a7d92c6d661fe367">More...</a><br/></td></tr>
 <tr class="separator:a4421a1905e4bdce2a7d92c6d661fe367"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e574badc6a68597934de5c6c74b6f2a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLattice.html#a6e574badc6a68597934de5c6c74b6f2a">removeUniverse</a> (<a class="el" href="classUniverse.html">Universe</a> *universe)</td></tr>
+<tr class="memdesc:a6e574badc6a68597934de5c6c74b6f2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all references to a <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> from the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a>.  <a href="#a6e574badc6a68597934de5c6c74b6f2a">More...</a><br/></td></tr>
+<tr class="separator:a6e574badc6a68597934de5c6c74b6f2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade08022370fa671377c212748ba5bb4f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ade08022370fa671377c212748ba5bb4f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLattice.html#ade08022370fa671377c212748ba5bb4f">buildNeighbors</a> ()</td></tr>
 <tr class="memdesc:ade08022370fa671377c212748ba5bb4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds collections of neighboring Cells for all Cells in each <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> in the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> for optimized ray tracing. <br/></td></tr>
@@ -875,6 +878,30 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a6e574badc6a68597934de5c6c74b6f2a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Lattice::removeUniverse </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classUniverse.html">Universe</a> *&#160;</td>
+          <td class="paramname"><em>universe</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes all references to a <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> from the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">universe</td><td>the <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> to remove </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a8407d089c49cb8fc4ba6ccbd39476db4"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1097,7 +1124,7 @@ Additional Inherited Members</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classLattice.html">Lattice</a></li>
-    <li class="footer">Generated on Tue Jun 23 2015 22:35:08 by
+    <li class="footer">Generated on Thu Jun 25 2015 00:42:07 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

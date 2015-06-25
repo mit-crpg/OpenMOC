@@ -26,6 +26,7 @@ var classLattice =
     [ "getWidthY", "classLattice.html#ad54b31fc59330eaadf4c6b81e034a199", null ],
     [ "minSurfaceDist", "classLattice.html#a68148ab388f066e9bd0f4c88fb571880", null ],
     [ "printString", "classLattice.html#ac29a8a1d0a21829843ee39eb3778fc85", null ],
+    [ "removeUniverse", "classLattice.html#a6e574badc6a68597934de5c6c74b6f2a", null ],
     [ "setNumX", "classLattice.html#a8407d089c49cb8fc4ba6ccbd39476db4", null ],
     [ "setNumY", "classLattice.html#ae9a9cf143c652f88f558368ff6e1574d", null ],
     [ "setOffset", "classLattice.html#a93cbffeeeb9433d951293ce24ec1a773", null ],

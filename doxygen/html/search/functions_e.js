@@ -4,6 +4,7 @@ var searchData=
   ['removecell',['removeCell',['../classUniverse.html#a7e975a08b2839c53d50d85da2a06e6f5',1,'Universe']]],
   ['removesegment',['removeSegment',['../classTrack.html#a737072b0a1bdcd2b9c0820ecdcaaf246',1,'Track']]],
   ['removesurface',['removeSurface',['../classCell.html#a6254264e4ed84221fde52717b8185e11',1,'Cell']]],
+  ['removeuniverse',['removeUniverse',['../classLattice.html#a6e574badc6a68597934de5c6c74b6f2a',1,'Lattice']]],
   ['rescaleflux',['rescaleFlux',['../classCmfd.html#ae2c98ca17f124ff28422060c52c22894',1,'Cmfd']]],
   ['reset_5fauto_5fids',['reset_auto_ids',['../Geometry_8h.html#a8fc5282936b42f4031b8a41d5c24b7e7',1,'Geometry.cpp']]],
   ['reset_5fcell_5fid',['reset_cell_id',['../Cell_8h.html#a7acf0ca75c4752095bc0a7f4f2918e00',1,'Cell.cpp']]],
