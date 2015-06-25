@@ -15,7 +15,7 @@
 /* A Cell owns the memory for its Material/Universe fill */
 %pythonappend Cell::setFill %{
   args[0].thisown = 1
-}
+%}
 
 /* A Universe owns the memory for each Cell it contains */
 %pythonappend Universe::addCell %{
