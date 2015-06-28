@@ -987,3 +987,24 @@ void CPUSolver::initializeMemory() {
   countFissionableFSRs();
   zeroTrackFluxes();
 }
+
+/**
+ * @brief Inserts a flux into memory for plotting.  Useful for Krylov methods.
+ *
+ * @param flux an array to store the fluxs (implicitly 
+ *                      passed in as a NumPy array from Python)
+ * @param fluxpoints the number of flux values passed in from Python
+ */
+void CPUSolver::putFlux(double* flux, int fluxpoints) {
+  
+  // Copy in flux.
+  for (int r=0; r < _num_FSRs; r++) {
+    for (int e=0; e < _num_groups; e++) {
+      _scalar_flux(r,e) = _scalar_flux_input(r,e);
+    }
+  }
+  
+  return;  
+}
+
+

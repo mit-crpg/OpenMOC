@@ -174,7 +174,6 @@
   }
 }
 
-
 /* Typemap for the Cmfd::setGroupStructure
  * (int* group_indices, int length_group_indices)
  * method - allows users to pass in a Python list of group indices
@@ -252,6 +251,9 @@
  * computeFSRFissionRates method for the data processing routines in
  * openmoc.process */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* fission_rates, int num_FSRs)}
+
+/* The typemap used to match the method signature for the krylov methods */
+%apply (double* INPLACE_ARRAY1, int DIM1) {(double* flux, int fluxpoints)}
 
 /* The typemap used to match the method signature for the Universe's
  * getCellIds method for the data processing routines in openmoc.process */

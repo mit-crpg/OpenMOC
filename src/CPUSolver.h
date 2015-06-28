@@ -108,6 +108,7 @@ public:
   
   void fissionTransportSweep(double* flux, int fluxpoints);
   void scatterTransportSweep(double* flux, int fluxpoints);
+  void putFlux(double* flux, int fluxpoints);
   void initializeMemory();
 };
 
