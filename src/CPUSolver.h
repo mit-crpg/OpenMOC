@@ -57,6 +57,8 @@ protected:
   void storeFSRFluxes();
   void normalizeFluxes();
   void computeFSRSources();
+  void computeFSRFissionSources();
+  void computeFSRScatterSources();
   void transportSweep();
   void addSourceToScalarFlux();
   void computeKeff();
@@ -97,11 +99,16 @@ public:
   virtual ~CPUSolver();
 
   int getNumThreads();
+  int getOperatorSize();
 
   void setNumThreads(int num_threads);
   virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
+  
+  void fissionTransportSweep(double* flux, int fluxpoints);
+  void scatterTransportSweep(double* flux, int fluxpoints);
+  void initializeMemory();
 };
 
 

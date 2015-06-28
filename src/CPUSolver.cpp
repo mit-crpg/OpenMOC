@@ -335,6 +335,95 @@ void CPUSolver::computeFSRSources() {
   delete [] scatter_sources;
 }
 
+/**
+ * @brief Computes the fission source in each FSR.
+ * @details This method computes the fission source in each FSR based on
+ *          an input normalized flux vector. For use as a LinearOperator.
+ */
+void CPUSolver::computeFSRFissionSources() {
+
+  int tid;
+  FP_PRECISION fission_source;
+  FP_PRECISION* nu_sigma_f;
+  FP_PRECISION* sigma_t;
+  FP_PRECISION* chi;
+  Material* material;
+
+  int size = _num_FSRs * _num_groups;
+  FP_PRECISION* fission_sources = new FP_PRECISION[size];
+
+  /* For all FSRs, find the source */
+  #pragma omp parallel for private(tid, material, nu_sigma_f, chi, \
+    sigma_t, fission_source) schedule(guided)
+  for (int r=0; r < _num_FSRs; r++) {
+
+    tid = omp_get_thread_num();
+    material = _FSR_materials[r];
+    nu_sigma_f = material->getNuSigmaF();
+    chi = material->getChi();
+    sigma_t = material->getSigmaT();
+
+    /* Initialize the fission sources to zero */
+    fission_source = 0.0;
+
+    /* Compute fission source for each group */
+    if (material->isFissionable()) {
+      for (int e=0; e < _num_groups; e++)
+        fission_sources(r,e) = _scalar_flux(r,e) * nu_sigma_f[e];
+
+      fission_source = pairwise_sum<FP_PRECISION>(&fission_sources(r,0),
+                                                  _num_groups);
+    }
+
+    /* Compute total (fission+scatter+fixed) source for group G */
+    for (int G=0; G < _num_groups; G++) {
+      _reduced_sources(r,G) = fission_source * chi[G];
+      _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
+    }
+  }
+
+  delete [] fission_sources;
+}
+
+/**
+ * @brief Computes the fission source in each FSR.
+ * @details This method computes the scatter source in each FSR based on
+ *          an input normalized flux vector.  For use as a LinearOperator.
+ */
+void CPUSolver::computeFSRScatterSources() {
+
+  int tid;
+  FP_PRECISION scatter_source;
+  FP_PRECISION* sigma_t;
+  Material* material;
+
+  int size = _num_threads * _num_groups;
+  FP_PRECISION* scatter_sources = new FP_PRECISION[size];
+
+  /* For all FSRs, find the source */
+  #pragma omp parallel for private(tid, material, \
+    sigma_t, scatter_source) schedule(guided)
+  for (int r=0; r < _num_FSRs; r++) {
+
+    tid = omp_get_thread_num();
+    material = _FSR_materials[r];
+    sigma_t = material->getSigmaT();
+
+    /* Compute total (fission+scatter+fixed) source for group G */
+    for (int G=0; G < _num_groups; G++) {
+      for (int g=0; g < _num_groups; g++)
+        scatter_sources(tid,g) = material->getSigmaSByGroupInline(g,G)
+                                  * _scalar_flux(r,g);
+      scatter_source = pairwise_sum<FP_PRECISION>(&scatter_sources(tid,0),
+                                                _num_groups);
+
+      _reduced_sources(r,G) = scatter_source + _fixed_sources(r,G);
+      _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
+    }
+  }
+
+  delete [] scatter_sources;
+}
 
 /**
  * @brief Computes the residual between source/flux iterations.
@@ -803,4 +892,98 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
     for (int e=0; e < _num_groups; e++)
       fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e);
   }
+}
+
+/**
+ * @brief Computes the M (as in kAx = Mx) operator given an input flux 
+ *        vector. For use in Krylov subspace methods.
+ *
+ * @param flux an array to store the fluxs (implicitly 
+ *                      passed in as a NumPy array from Python)
+ * @param fluxpoints the number of flux values passed in from Python
+ */
+void CPUSolver::fissionTransportSweep(double* flux, int fluxpoints) {
+  
+  for (int r=0; r < _num_FSRs; r++) {
+    for (int e=0; e < _num_groups; e++) {
+      _scalar_flux(r,e) = _scalar_flux_input(r,e);
+    }
+  }
+  
+  computeFSRFissionSources();
+  transportSweep();
+  addSourceToScalarFlux();
+  
+  for (int r=0; r < _num_FSRs; r++) {
+    for (int e=0; e < _num_groups; e++) {
+      _scalar_flux_input(r,e) = _scalar_flux(r,e);
+    }
+  }
+  
+  return;  
+}
+
+/**
+ * @brief Computes the S (as in k(I - S)x = Mx, (I-S) = A) operator given
+ *        an input flux vector.  For use in Krylov subspace methods.
+ *
+ * @param flux an array to store the fluxs (implicitly 
+ *                      passed in as a NumPy array from Python)
+ * @param fluxpoints the number of flux values passed in from Python
+ */
+void CPUSolver::scatterTransportSweep(double* flux, int fluxpoints) {
+  
+  for (int r=0; r < _num_FSRs; r++) {
+    for (int e=0; e < _num_groups; e++) {
+      _scalar_flux(r,e) = _scalar_flux_input(r,e);
+    }
+  }
+  
+  computeFSRScatterSources();
+  transportSweep();
+  addSourceToScalarFlux();
+  
+  for (int r=0; r < _num_FSRs; r++) {
+    for (int e=0; e < _num_groups; e++) {
+      _scalar_flux_input(r,e) = _scalar_flux(r,e);
+    }
+  }
+  
+  return;  
+}
+
+/**
+ * @brief SWIG helper function to return the operator size for Krylov-based
+ *        solvers.
+ *
+ * @return The number of FSRs times the number of groups.
+ */
+int CPUSolver::getOperatorSize() {
+  return _num_FSRs * _num_groups;
+}
+
+/**
+ * @brief Initializes memory for Krylov methods that would normally be 
+ *        initialized by computeFlux.
+ */
+void CPUSolver::initializeMemory() {
+
+  if (_track_generator == NULL)
+    log_printf(ERROR, "The Solver is unable to compute the flux "
+               "since it does not contain a TrackGenerator");
+
+  log_printf(NORMAL, "Initializing problem...");
+
+  /* Initialize data structures */
+  initializePolarQuadrature();
+  initializeExpEvaluator();
+
+  /* Initialize new flux arrays */
+  initializeFluxArrays();
+  flattenFSRFluxes(0.0);
+
+  initializeSourceArrays();
+  initializeFSRs();
+  countFissionableFSRs();
+  zeroTrackFluxes();
 }
