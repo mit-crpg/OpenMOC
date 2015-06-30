@@ -590,6 +590,9 @@ void Solver::initializeFSRs() {
   /* Get an array of volumes indexed by FSR  */
   _FSR_volumes = _track_generator->getFSRVolumes();
 
+  /* Generate the FSR centroids */
+  _track_generator->generateFSRCentroids();
+
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
