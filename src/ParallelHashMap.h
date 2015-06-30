@@ -135,11 +135,11 @@ template <class K, class V>
 FixedHashMap<K,V>::FixedHashMap(size_t M)
 {
   /* ensure M is a power of 2 */
-  if( M & (M-1) != 0 )
+  if (M & (M-1) != 0)
   {
     /* if not, round up to nearest power of 2 */
     M--;
-    for(size_t i = 1; i < 8 * sizeof(size_t); i*=2)
+    for (size_t i = 1; i < 8 * sizeof(size_t); i*=2)
       M |= M >> i;
     M++;
   }
@@ -158,10 +158,10 @@ template <class K, class V>
 FixedHashMap<K,V>::~FixedHashMap()
 {
   /* for each bucket, scan through linked list and delete all nodes */
-  for(size_t i=0; i<_M; i++)
+  for (size_t i=0; i<_M; i++)
   {
     node *iter_node = _buckets[i];
-    while(iter_node != NULL)
+    while (iter_node != NULL)
     {
       node *next_node = iter_node->next;
       delete iter_node;
@@ -188,9 +188,9 @@ bool FixedHashMap<K,V>::contains(K key)
 
   /* search corresponding bucket for key */
   node *iter_node = _buckets[key_hash];
-  while(iter_node != NULL)
+  while (iter_node != NULL)
   {
-    if(iter_node->key == key)
+    if (iter_node->key == key)
       return true;
     else
       iter_node = iter_node->next;
@@ -215,8 +215,8 @@ V& FixedHashMap<K,V>::at(K key)
 
   /* search bucket for key and return the corresponding value if found */
   node *iter_node = _buckets[key_hash];
-  while(iter_node != NULL)
-    if(iter_node->key == key)
+  while (iter_node != NULL)
+    if (iter_node->key == key)
       return iter_node->value;
     else
       iter_node = iter_node->next;
@@ -242,7 +242,7 @@ void FixedHashMap<K,V>::insert(K key, V value)
   size_t key_hash = std::hash<K>()(key) & (_M-1);
 
   /* check to see if key already exists in map */
-  if(contains(key))
+  if (contains(key))
     return;
  
   /* create new node */
@@ -250,7 +250,7 @@ void FixedHashMap<K,V>::insert(K key, V value)
 
   /* find where to place element in linked list */
   node **iter_node = &_buckets[key_hash];
-  while(*iter_node != NULL)
+  while (*iter_node != NULL)
     iter_node = &(*iter_node)->next;
 
   /* place element in linked list */
@@ -279,7 +279,7 @@ int FixedHashMap<K,V>::insert_and_get_count(K key, V value)
   size_t key_hash = std::hash<K>()(key) & (_M-1);
 
   /* check to see if key already exists in map */
-  if(contains(key))
+  if (contains(key))
     return -1;
  
   /* create new node */
@@ -287,7 +287,7 @@ int FixedHashMap<K,V>::insert_and_get_count(K key, V value)
 
   /* find where to place element in linked list */
   node **iter_node = &_buckets[key_hash];
-  while(*iter_node != NULL)
+  while (*iter_node != NULL)
     iter_node = &(*iter_node)->next;
   
   /* place element in linked list */
@@ -338,10 +338,10 @@ K* FixedHashMap<K,V>::keys()
 
   /* fill array with keys */
   size_t ind = 0;
-  for(size_t i=0; i<_M; i++)
+  for (size_t i=0; i<_M; i++)
   {
     node *iter_node = _buckets[i];
-    while(iter_node != NULL)
+    while (iter_node != NULL)
     {
       key_list[ind] = iter_node->key;
       iter_node = iter_node->next;
@@ -368,10 +368,10 @@ V* FixedHashMap<K,V>::values()
 
   /* fill array with values */
   size_t ind = 0;
-  for(size_t i=0; i<_M; i++)
+  for (size_t i=0; i<_M; i++)
   {
     node *iter_node = _buckets[i];
-    while(iter_node != NULL)
+    while (iter_node != NULL)
     {
       values[ind] = iter_node->value;
       iter_node = iter_node->next;
@@ -388,10 +388,10 @@ template <class K, class V>
 void FixedHashMap<K,V>::clear()
 {
   /* for each bucket, scan through linked list and delete all nodes */
-  for(size_t i=0; i<_M; i++)
+  for (size_t i=0; i<_M; i++)
   {
     node *iter_node = _buckets[i];
-    while(iter_node != NULL)
+    while (iter_node != NULL)
     {
       node *next_node = iter_node->next;
       delete iter_node;
@@ -400,7 +400,7 @@ void FixedHashMap<K,V>::clear()
   }
 
   /* reset each bucket to null */
-  for(size_t i=0; i<_M; i++)
+  for (size_t i=0; i<_M; i++)
     _buckets[i] = NULL;
 
   /* reset the number of entries to zero */
@@ -417,9 +417,9 @@ void FixedHashMap<K,V>::clear()
 template <class K, class V>
 void FixedHashMap<K,V>::print_buckets()
 {
-  for(size_t i=0; i<_M; i++)
+  for (size_t i=0; i<_M; i++)
   {
-    if(_buckets[i] == NULL)
+    if (_buckets[i] == NULL)
       std::cout << i << " -> NULL" << std::endl;
     else
       std::cout << i << " -> " << _buckets[i] << std::endl;
@@ -442,7 +442,7 @@ ParallelHashMap<K,V>::ParallelHashMap(size_t M, size_t L)
   _num_threads = omp_get_max_threads();
   _num_locks = L;
   _locks = new omp_lock_t[_num_locks];
-  for(size_t i=0; i<_num_locks; i++)
+  for (size_t i=0; i<_num_locks; i++)
     omp_init_lock(&_locks[i]);
   #endif
 
@@ -491,7 +491,7 @@ bool ParallelHashMap<K,V>::contains(K key)
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
-  } while(table_ptr != _table);
+  } while (table_ptr != _table);
 
   /* see if current table contains the thread */
   bool present = table_ptr->contains(key);
@@ -531,7 +531,7 @@ V& ParallelHashMap<K,V>::at(K key)
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
-  } while(table_ptr != _table);
+  } while (table_ptr != _table);
   
   /* get value associated with the key in the underlying table */
   V& value = table_ptr->at(key);
@@ -556,11 +556,11 @@ template <class K, class V>
 void ParallelHashMap<K,V>::insert(K key, V value)
 {
   /* check if resize needed */
-  if(2*_table->size() > _table->bucket_count())
+  if (2*_table->size() > _table->bucket_count())
     resize();
 
   /* check to see if key is already contained in the table */
-  if(contains(key))
+  if (contains(key))
     return;
 
   /* get lock hash */
@@ -598,11 +598,11 @@ template <class K, class V>
 int ParallelHashMap<K,V>::insert_and_get_count(K key, V value)
 {
   /* check if resize needed */
-  if(2*_table->size() > _table->bucket_count())
+  if (2*_table->size() > _table->bucket_count())
     resize();
 
   /* check to see if key is already contained in the table */
-  if(contains(key))
+  if (contains(key))
     return -1;
 
   /* get lock hash */
@@ -641,16 +641,16 @@ void ParallelHashMap<K,V>::resize()
 {
   /* acquire all locks in order */
   #ifdef OPENMP
-  for(size_t i=0; i<_num_locks; i++)
+  for (size_t i=0; i<_num_locks; i++)
     omp_set_lock(&_locks[i]);
   #endif 
 
   /* recheck if resize needed */
-  if(2*_table->size() < _table->bucket_count())
+  if (2*_table->size() < _table->bucket_count())
   {
     /* release locks */
     #ifdef OPENMP
-    for(size_t i=0; i<_num_locks; i++)
+    for (size_t i=0; i<_num_locks; i++)
       omp_unset_lock(&_locks[i]);
     #endif 
 
@@ -666,7 +666,7 @@ void ParallelHashMap<K,V>::resize()
   V *value_list = _table->values();
 
   /* insert key/value pairs into new hash map */
-  for(size_t i=0; i<_table->size(); i++)
+  for (size_t i=0; i<_table->size(); i++)
     new_map->insert(key_list[i], value_list[i]);
 
   /* save pointer of old table */
@@ -677,7 +677,7 @@ void ParallelHashMap<K,V>::resize()
 
   /* release all locks */
   #ifdef OPENMP
-  for(size_t i=0; i<_num_locks; i++)
+  for (size_t i=0; i<_num_locks; i++)
     omp_unset_lock(&_locks[i]);
   #endif
 
@@ -686,8 +686,8 @@ void ParallelHashMap<K,V>::resize()
   delete[] value_list;
 
   /* wait for all threads to stop reading from the old table */
-  for(size_t i=0; i<_num_threads; i++)
-    while(_announce[i].value == old_table) {};
+  for (size_t i=0; i<_num_threads; i++)
+    while (_announce[i].value == old_table) {};
 
   /* free memory associated with old table */
   delete old_table;
@@ -747,7 +747,7 @@ K* ParallelHashMap<K,V>::keys()
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
-  } while(table_ptr != _table);
+  } while (table_ptr != _table);
 
   /* get key list */
   K* key_list = table_ptr->keys();
@@ -782,7 +782,7 @@ V* ParallelHashMap<K,V>::values()
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
-  } while(table_ptr != _table);
+  } while (table_ptr != _table);
 
   /* get value list */
   V* value_list = table_ptr->values();
@@ -801,7 +801,7 @@ void ParallelHashMap<K,V>::clear()
 {
   /* acquire all locks in order */
   #ifdef OPENMP
-  for(size_t i=0; i<_num_locks; i++)
+  for (size_t i=0; i<_num_locks; i++)
     omp_set_lock(&_locks[i]);
   #endif 
 
@@ -831,7 +831,7 @@ void ParallelHashMap<K,V>::print_buckets()
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
-  } while(table_ptr != _table);
+  } while (table_ptr != _table);
     
   /* print buckets */
   table_ptr->print_buckets();

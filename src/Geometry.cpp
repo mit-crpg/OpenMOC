@@ -33,7 +33,7 @@ Geometry::~Geometry() {
   if (_FSR_keys_map.size() != 0) {
     fsr_data **values = _FSR_keys_map.values();
 
-    for(int i=0; i<_FSR_keys_map.size(); i++)
+    for (int i=0; i<_FSR_keys_map.size(); i++)
       delete values[i];
     delete[] values;
 
@@ -526,12 +526,12 @@ int Geometry::findFSRId(LocalCoords* coords) {
     /* Try to get a clean copy of the fsr_id, adding the FSR data 
        if necessary where -1 indicates the key was already added */
     fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
-    if( fsr_id == -1)
+    if (fsr_id == -1)
     {
       fsr_data volatile* fsr;
       do{
         fsr = _FSR_keys_map.at(fsr_key_hash);
-      } while(fsr == NULL);
+      } while (fsr == NULL);
       fsr_id = fsr->_fsr_id;
     }
     else{
@@ -560,7 +560,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
     fsr_data volatile* fsr;
     do{
       fsr = _FSR_keys_map.at(fsr_key_hash);
-    } while(fsr == NULL);
+    } while (fsr == NULL);
 
     fsr_id = fsr->_fsr_id;
   }
@@ -662,7 +662,7 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
 
   /* Descend the linked list hierarchy until the lowest level has
    * been reached */
-  while(curr != NULL){
+  while (curr != NULL){
 
     /* Clear string stream */
     curr_level_key.str(std::string());
@@ -873,7 +873,7 @@ void Geometry::initializeFSRVectors(){
 
   /* fill vectors key and material ID information */
   #pragma omp parallel for
-  for(int i=0; i < N; i++)
+  for (int i=0; i < N; i++)
   {
     std::size_t key = key_list[i];
     fsr_data* fsr = value_list[i];
@@ -883,9 +883,9 @@ void Geometry::initializeFSRVectors(){
   }
 
   /* add cmfd information serially */
-  if(_cmfd != NULL)
+  if (_cmfd != NULL)
   {
-    for(int i=0; i < N; i++)
+    for (int i=0; i < N; i++)
     {
       fsr_data* fsr = value_list[i];
       int fsr_id = fsr->_fsr_id;

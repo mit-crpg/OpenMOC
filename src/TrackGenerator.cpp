@@ -1221,7 +1221,7 @@ std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
   /* Write FSR vector maps to file */
   std::size_t* fsr_key_list = FSR_keys_map->keys();
   fsr_data** fsr_data_list = FSR_keys_map->values();
-  for(int i=0; i < num_FSRs; i++){
+  for (int i=0; i < num_FSRs; i++){
 
     /* Write data to file from FSR_keys_map */
     fsr_key = fsr_key_list[i];
