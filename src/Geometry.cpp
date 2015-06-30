@@ -29,7 +29,7 @@ Geometry::Geometry() {
  */
 Geometry::~Geometry() {
 
-  /* Free FSR  maps if they were initialized */
+  /* Free FSR maps if they were initialized */
   if (_FSR_keys_map.size() != 0) {
     fsr_data **values = _FSR_keys_map.values();
 
