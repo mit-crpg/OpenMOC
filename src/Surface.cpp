@@ -65,6 +65,12 @@ Surface::Surface(const int id, const char* name){
 Surface::~Surface() {
   if (_name != NULL)
     delete [] _name;
+
+  if (!_neighbors.empty()) {
+    _neighbors[-1]->clear();
+    _neighbors[+1]->clear();
+    _neighbors.clear();
+  }
 }
 
 

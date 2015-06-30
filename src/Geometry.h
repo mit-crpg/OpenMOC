@@ -40,9 +40,20 @@ struct fsr_data {
   /** The Material ID */
   int _mat_id;
 
-  /** Characteristic point in Universe 0 that lies in FSR */
+  /** Characteristic point in Root Universe that lies in FSR */
   Point* _point;
 
+  /** Global numerical centroid in Root Universe */
+  Point* _centroid;
+
+  /** Destructor for fsr_data */
+  ~fsr_data() {
+    if (_point != NULL)
+      delete _point;
+
+    if (_centroid != NULL)
+      delete _centroid;
+  }
 };
 
 void reset_auto_ids();
@@ -128,17 +139,19 @@ public:
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
-  std::vector<std::size_t> getFSRsToKeys();
-  std::vector<int> getFSRsToMaterialIDs();
+  std::vector<std::size_t>* getFSRsToKeys();
+  std::vector<int>* getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
+  Point* getFSRCentroid(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
   ParallelHashMap<std::size_t, fsr_data*>* getFSRKeysMap();
 
   /* Set parameters */
-  void setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
-  void setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
+  void setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
+  void setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys);
   void setCmfd(Cmfd* cmfd);
+  void setFSRCentroid(int fsr, Point* centroid);
   void setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
 
   /* Find methods */

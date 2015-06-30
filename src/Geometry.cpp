@@ -265,7 +265,9 @@ std::map<int, Material*> Geometry::getAllMaterials() {
 
       if (cell->getType() == MATERIAL) {
         material = cell->getFillMaterial();
-        all_materials[material->getId()] = material;
+
+        if (material != NULL)
+          all_materials[material->getId()] = material;
       }
     }
   }
@@ -605,7 +607,27 @@ Point* Geometry::getFSRPoint(int fsr_id) {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_point;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find characteristic point in FSR %d", fsr_id);
+    log_printf(ERROR, "Could not find characteristic point in FSR: %d", fsr_id);
+  }
+
+  return point;
+}
+
+
+/**
+ * @brief Return the centroid for a given FSR ID
+ * @param fsr_id the FSR ID
+ * @return the FSR's centroid
+ */
+Point* Geometry::getFSRCentroid(int fsr_id) {
+
+  Point* point;
+
+  try{
+    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._centroid;
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not find centroid in FSR: %d.", fsr_id);
   }
 
   return point;
@@ -763,8 +785,8 @@ void Geometry::segmentize(Track* track) {
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
-    log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track: %s", track->toString().c_str());
+    log_printf(ERROR, "Could not find a material-filled Cell containing the "
+               "start Point of this Track: %s", track->toString().c_str());
 
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the
@@ -1048,8 +1070,8 @@ ParallelHashMap<std::size_t, fsr_data*>* Geometry::getFSRKeysMap(){
  * @brief Returns the vector that maps FSR IDs to FSR key hashes
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::vector<std::size_t> Geometry::getFSRsToKeys(){
-  return _FSRs_to_keys;
+std::vector<std::size_t>* Geometry::getFSRsToKeys(){
+  return &_FSRs_to_keys;
 }
 
 /**
@@ -1057,12 +1079,12 @@ std::vector<std::size_t> Geometry::getFSRsToKeys(){
  *        the corresponding Material IDs.
  * @return an integer vector of FSR-to-Material IDs indexed by FSR ID
  */
-std::vector<int> Geometry::getFSRsToMaterialIDs() {
+std::vector<int>* Geometry::getFSRsToMaterialIDs() {
   if (_FSR_keys_map.size() == 0)
     log_printf(ERROR, "Unable to return the FSR-to-Material map array since "
                "the Geometry has not initialized FSRs.");
 
-  return _FSRs_to_material_IDs;
+  return &_FSRs_to_material_IDs;
 }
 
 /**
@@ -1084,8 +1106,8 @@ void Geometry::setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>*
  * @brief Sets the _FSRs_to_keys vector
  * @param FSRs_to_keys vector of FSR key hashes indexed by FSR IDs
  */
-void Geometry::setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys){
-  _FSRs_to_keys = FSRs_to_keys;
+void Geometry::setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys){
+  _FSRs_to_keys = *FSRs_to_keys;
 }
 
 
@@ -1093,8 +1115,8 @@ void Geometry::setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys){
  * @brief Sets the _FSRs_to_material_IDs vector
  * @param FSRs_to_material_IDs vector mapping FSR IDs to cells
  */
-void Geometry::setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs){
-  _FSRs_to_material_IDs = FSRs_to_material_IDs;
+void Geometry::setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs){
+  _FSRs_to_material_IDs = *FSRs_to_material_IDs;
 }
 
 
@@ -1114,6 +1136,22 @@ bool Geometry::withinBounds(LocalCoords* coords){
     return true;
 }
 
+/**
+ * @brief Sets the centroid for an FSR
+ * @details The _FSR_keys_map stores a hash of a std::string representing
+ *          the Lattice/Cell/Universe hierarchy for a unique region
+ *          and the associated FSR data. _centroid is a point that represents
+ *          the numerical centroid of an FSR computed using all segments
+ *          contained in the FSR. This method is used by the TrackGenerator
+ *          to set the centroid after segments have been created. It is
+ *          important to note that this method is a helper function for the
+ *          TrackGenerator and should not be explicitly called by the user.
+ * @param fsr a FSR id
+ * @param centroid a Point representing the FSR centroid
+ */
+void Geometry::setFSRCentroid(int fsr, Point* centroid){
+  _FSR_keys_map.at(_FSRs_to_keys[fsr])->_centroid = centroid;
+}
 
 
 Cell* Geometry::findCellContainingFSR(int fsr_id){
