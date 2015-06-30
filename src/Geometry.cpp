@@ -867,13 +867,13 @@ void Geometry::initializeFSRVectors(){
   fsr_data **value_list = _FSR_keys_map.values();
 
   /* allocate vectors */
-  int N = _FSR_keys_map.size();
-  _FSRs_to_keys = std::vector<size_t>(N);
-  _FSRs_to_material_IDs = std::vector<int>(N);
+  int num_FSRs = _FSR_keys_map.size();
+  _FSRs_to_keys = std::vector<size_t>(num_FSRs);
+  _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */
   #pragma omp parallel for
-  for (int i=0; i < N; i++)
+  for (int i=0; i < num_FSRs; i++)
   {
     std::size_t key = key_list[i];
     fsr_data* fsr = value_list[i];
@@ -885,7 +885,7 @@ void Geometry::initializeFSRVectors(){
   /* add cmfd information serially */
   if (_cmfd != NULL)
   {
-    for (int i=0; i < N; i++)
+    for (int i=0; i < num_FSRs; i++)
     {
       fsr_data* fsr = value_list[i];
       int fsr_id = fsr->_fsr_id;

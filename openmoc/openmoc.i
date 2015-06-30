@@ -59,8 +59,6 @@
 %ignore setFSRKeysMap(std::unordered_map<std::size_t, fsr_data>* FSR_keys_map);
 %ignore setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys);
 %ignore setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
-%ignore setFSRsToMaterialIDs(std::vector<int> FSRs_to_material_IDs);
-%ignore setFSRsToKeys(std::vector<std::size_t> FSRs_to_keys);
 %ignore setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
 %ignore initializeFSRVectors();
 
