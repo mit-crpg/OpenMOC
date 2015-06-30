@@ -624,7 +624,7 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
   Point* point;
 
   try{
-    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))._centroid;
+    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_centroid;
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not find centroid in FSR: %d.", fsr_id);
