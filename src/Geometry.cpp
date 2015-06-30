@@ -20,7 +20,6 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
-
 }
 
 
@@ -883,10 +882,8 @@ void Geometry::initializeFSRVectors() {
   }
 
   /* add cmfd information serially */
-  if (_cmfd != NULL)
-  {
-    for (int i=0; i < num_FSRs; i++)
-    {
+  if (_cmfd != NULL) {
+    for (int i=0; i < num_FSRs; i++) {
       fsr_data* fsr = value_list[i];
       int fsr_id = fsr->_fsr_id;
       _cmfd->addFSRToCell(fsr->_cmfd_cell, fsr_id);

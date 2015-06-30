@@ -546,7 +546,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
   if ((!stat(directory.str().c_str(), &st)) == 0)
     mkdir(directory.str().c_str(), S_IRWXU);
 
-  if (_geometry->getCmfd() != NULL){
+  if (_geometry->getCmfd() != NULL) {
     test_filename << directory.str() << "/"
                   << _num_azim*2.0 << "_angles_"
                   << _spacing << "_cm_spacing_cmfd_"
@@ -1086,7 +1086,7 @@ void TrackGenerator::segmentize() {
     /* Loop over all Tracks */
     for (int i=0; i < _num_azim; i++) {
       #pragma omp parallel for firstprivate(track)
-      for (int j=0; j < _num_tracks[i]; j++){
+      for (int j=0; j < _num_tracks[i]; j++) {
         track = &_tracks[i][j];
         log_printf(DEBUG, "Segmenting Track %d", track->getUid());
         _geometry->segmentize(track);
@@ -1194,7 +1194,7 @@ void TrackGenerator::dumpTracksToFile() {
         fwrite(&region_id, sizeof(int), 1, out);
 
         /* Write CMFD-related data for the Track if needed */
-        if (cmfd != NULL){
+        if (cmfd != NULL) {
           cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
           cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
           fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
@@ -1221,7 +1221,7 @@ std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
   /* Write FSR vector maps to file */
   std::size_t* fsr_key_list = FSR_keys_map->keys();
   fsr_data** fsr_data_list = FSR_keys_map->values();
-  for (int i=0; i < num_FSRs; i++){
+  for (int i=0; i < num_FSRs; i++) {
 
     /* Write data to file from FSR_keys_map */
     fsr_key = fsr_key_list[i];
@@ -1244,14 +1244,14 @@ std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
   }
 
   /* Write cmfd_fsrs vector of vectors to file */
-  if (cmfd != NULL){
+  if (cmfd != NULL) {
     std::vector< std::vector<int> > cell_fsrs = cmfd->getCellFSRs();
     std::vector<int>::iterator iter;
     int num_cells = cmfd->getNumCells();
     fwrite(&num_cells, sizeof(int), 1, out);
 
     /* Loop over CMFD cells */
-    for (int cell=0; cell < num_cells; cell++){
+    for (int cell=0; cell < num_cells; cell++) {
       num_FSRs = cell_fsrs.at(cell).size();
       fwrite(&num_FSRs, sizeof(int), 1, out);
 
@@ -1397,7 +1397,7 @@ bool TrackGenerator::readTracksFromFile() {
         curr_segment._region_id = region_id;
 
         /* Import CMFD-related data if needed */
-        if (cmfd != NULL){
+        if (cmfd != NULL) {
           ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
           ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
           curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
@@ -1428,7 +1428,7 @@ bool TrackGenerator::readTracksFromFile() {
   ret = fread(&num_FSRs, sizeof(int), 1, in);
 
   /* Read FSR vector maps from file */
-  for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++){
+  for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++) {
 
     /* Read data from file for FSR_keys_map */
     ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
@@ -1457,19 +1457,19 @@ bool TrackGenerator::readTracksFromFile() {
   _geometry->setFSRsToKeys(FSRs_to_keys);
 
   /* Read cmfd cell_fsrs vector of vectors from file */
-  if (cmfd != NULL){
+  if (cmfd != NULL) {
     std::vector< std::vector<int> > cell_fsrs;
     int num_cells, fsr_id;
     ret = fread(&num_cells, sizeof(int), 1, in);
 
     /* Loop over CMFD cells */
-    for (int cell=0; cell < num_cells; cell++){
+    for (int cell=0; cell < num_cells; cell++) {
       std::vector<int>* fsrs = new std::vector<int>;
       cell_fsrs.push_back(*fsrs);
       ret = fread(&num_FSRs, sizeof(int), 1, in);
 
       /* Loop over FRSs within cell */
-      for (int fsr = 0; fsr < num_FSRs; fsr++){
+      for (int fsr = 0; fsr < num_FSRs; fsr++) {
         ret = fread(&fsr_id, sizeof(int), 1, in);
         cell_fsrs.at(cell).push_back(fsr_id);
       }
@@ -1569,7 +1569,7 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
  *          centroid fomula can be found in R. Ferrer et. al. "Linear Source
  *          Approximation in CASMO 5", PHYSOR 2012.
  */
-void TrackGenerator::generateFSRCentroids(){
+void TrackGenerator::generateFSRCentroids() {
 
   int num_FSRs = _geometry->getNumFSRs();
 
@@ -1578,7 +1578,7 @@ void TrackGenerator::generateFSRCentroids(){
 
   /* Create array of centroids and initialize to origin */
   Point** centroids = new Point*[num_FSRs];
-  for (int r=0; r < num_FSRs; r++){
+  for (int r=0; r < num_FSRs; r++) {
     centroids[r] = new Point();
     centroids[r]->setCoords(0.0, 0.0);
   }
