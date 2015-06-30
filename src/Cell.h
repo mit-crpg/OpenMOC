@@ -52,7 +52,10 @@ enum cellType {
   MATERIAL,
 
   /** A cell filled by a Universe */
-  FILL
+  FILL,
+
+  /** A cell not yet filled by anything */
+  UNFILLED
 };
 
 

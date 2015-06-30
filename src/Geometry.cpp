@@ -274,7 +274,9 @@ std::map<int, Material*> Geometry::getAllMaterials() {
 
       if (cell->getType() == MATERIAL) {
         material = cell->getFillMaterial();
-        all_materials[material->getId()] = material;
+
+        if (material != NULL)
+          all_materials[material->getId()] = material;
       }
     }
   }
@@ -795,8 +797,8 @@ void Geometry::segmentize(Track* track) {
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
-    log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track: %s", track->toString().c_str());
+    log_printf(ERROR, "Could not find a material-filled Cell containing the "
+               "start Point of this Track: %s", track->toString().c_str());
 
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the
