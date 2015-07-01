@@ -102,7 +102,7 @@ void set_output_directory(char* directory) {
 
   /* Check to see if directory exists - if not, create it */
   struct stat st;
-  if ((stat(directory, &st)) == 0)
+  if ((stat(directory, &st)) == 0) {
     log_directory = std::string("") + directory + std::string("/log");
     mkdir(log_directory.c_str(), S_IRWXU);
   }
