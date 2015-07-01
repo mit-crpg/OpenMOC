@@ -7,9 +7,13 @@
 int main(){
 
   /* Define simulation parameters */
-  int num_threads = 4;
+  #ifdef OPENMP
+  int num_threads = omp_get_num_procs();
+  #else
+  int num_threads = 1;
+  #endif
   double track_spacing = 0.1;
-  int num_azim = 16;
+  int num_azim = 4;
   double tolerance = 1e-5;
   int max_iters = 1000;
 
