@@ -639,7 +639,7 @@ void Solver::countFissionableFSRs() {
  *          and the Mesh object. This method is for internal use only
  *          and should not be called directly by the user.
  */
-void Solver::initializeCmfd(){
+void Solver::initializeCmfd() {
 
   log_printf(INFO, "Initializing CMFD...");
 
@@ -932,7 +932,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     storeFSRFluxes();
 
     /* Solve CMFD diffusion problem and update MOC flux */
-    if (_cmfd != NULL && _cmfd->isFluxUpdateOn()){
+    if (_cmfd != NULL && _cmfd->isFluxUpdateOn()) {
       _k_eff = _cmfd->computeKeff(i);
       _cmfd->updateBoundaryFlux(_tracks, _boundary_flux, _tot_num_tracks);
     }
