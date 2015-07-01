@@ -16,10 +16,11 @@ track_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
+num_modes = 6
 
 log.set_log_level('NORMAL')
 
-log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
+log.py_printf('TITLE', 'Computing %d eigenmodes', num_modes)
 
 
 ###############################################################################
@@ -28,7 +29,7 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../../c5g7-materials.h5')
+materials = materialize.materialize('../c5g7-materials.h5')
 
 
 ###############################################################################
@@ -388,10 +389,6 @@ solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.initializeMemory()
 
-# Initialize settings
-tol = 1e-5 # Tolerance on eigenvalue
-numvecs = 6
-
 # Initialize operators, counters
 a_count = 0
 m_count = 0
@@ -409,7 +406,7 @@ def A_operator(flux):
     solver.scatterTransportSweep(flux)
     
     a_count += 1
-    print("Performed A operator sweep number " + str(a_count))
+    log.py_printf('NORMAL', "Performed A operator sweep number %d", a_count)
     
     return flux_old - flux
 
@@ -423,7 +420,7 @@ def M_operator(flux):
     solver.fissionTransportSweep(flux)
     
     m_count += 1
-    print("Performed M operator sweep number " + str(m_count))
+    log.py_printf('NORMAL', "Performed M operator sweep number %d", m_count)
     
     return flux
     
@@ -433,20 +430,19 @@ M = LinearOperator( (solver.getOperatorSize(), solver.getOperatorSize() ), matve
 def F_operator(flux):
     global A
     global M
-    global tol
+    global tolerance
     from scipy.sparse.linalg import gmres
     
     flux = M*flux
-    flux, x = gmres(A, flux, tol=tol/10) # Note, gmres must converge beyond tolerance to work.
+    flux, x = gmres(A, flux, tol=tolerance/10) # Note, gmres must converge beyond tolerance to work.
     
     return flux
     
 F = LinearOperator( (solver.getOperatorSize(), solver.getOperatorSize() ), matvec=F_operator, dtype='float64')
 
-vals, vecs = eigs(F, k=numvecs, tol=tol)
+vals, vecs = eigs(F, k=num_modes, tol=tolerance)
 
-print("The eigenvalues are:")
-print(vals)
+log.py_printf('NORMAL', "The eigenvalues are: %s", str(vals))
 
 def plot_eigenmodes(vecs):
     for i in range(vecs.shape[1]):
