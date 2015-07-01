@@ -387,7 +387,13 @@ import numpy as np
 
 solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
-solver.initializeMemory()
+
+
+from openmoc.krylov import IRAMSolver
+
+hmm = IRAMSolver(solver)
+hmm.computeEigenmodes()
+
 
 # Initialize operators, counters
 a_count = 0
