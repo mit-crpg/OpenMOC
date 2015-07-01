@@ -18,7 +18,7 @@
 #include <string>
 #include <omp.h>
 #include <functional>
-#include <unordered_map>
+#include "ParallelHashMap.h"
 #endif
 
 
@@ -33,6 +33,12 @@ struct fsr_data {
 
   /** The FSR ID */
   int _fsr_id;
+ 
+  /** The CMFD Cell */
+  int _cmfd_cell;
+  
+  /** The Material ID */
+  int _mat_id;
 
   /** Characteristic point in Root Universe that lies in FSR */
   Point* _point;
@@ -66,8 +72,6 @@ class Geometry {
 
 private:
 
-  omp_lock_t* _num_FSRs_lock;
-
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
   boundaryType _top_bc;
@@ -84,13 +88,8 @@ private:
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
   boundaryType _right_bc;
 
-  /** The total number of FSRs in the Geometry */
-  int _num_FSRs;
-
   /** An map of FSR key hashes to unique fsr_data structs */
-#ifndef CUDA
-  std::unordered_map<std::size_t, fsr_data> _FSR_keys_map;
-#endif
+  ParallelHashMap<std::size_t, fsr_data*> _FSR_keys_map;
 
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::size_t> _FSRs_to_keys;
@@ -146,20 +145,14 @@ public:
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
-#ifndef CUDA
-  std::unordered_map<std::size_t, fsr_data>* getFSRKeysMap();
-#endif
+  ParallelHashMap<std::size_t, fsr_data*>* getFSRKeysMap();
 
   /* Set parameters */
   void setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
   void setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys);
-  void setNumFSRs(int num_fsrs);
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
-
-#ifndef CUDA
-  void setFSRKeysMap(std::unordered_map<std::size_t, fsr_data>* FSR_keys_map);
-#endif
+  void setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);
@@ -171,6 +164,7 @@ public:
   void subdivideCells();
   void initializeFlatSourceRegions();
   void segmentize(Track* track);
+  void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
 
   std::string toString();

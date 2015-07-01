@@ -446,7 +446,7 @@ double XPlane::getX() {
  * @return the minimum x value
  */
 double XPlane::getMinX(int halfspace){
-  if(halfspace == +1)
+  if (halfspace == +1)
     return _x;
   else
     return -std::numeric_limits<double>::infinity();
@@ -459,7 +459,7 @@ double XPlane::getMinX(int halfspace){
  * @return the maximum x value
  */
 double XPlane::getMaxX(int halfspace){
-  if(halfspace == -1)
+  if (halfspace == -1)
     return _x;
   else
     return std::numeric_limits<double>::infinity();
@@ -526,7 +526,7 @@ double YPlane::getY() {
  * @return the minimum y value
  */
 double YPlane::getMinY(int halfspace){
-  if(halfspace == +1)
+  if (halfspace == +1)
     return _y;
   else
     return -std::numeric_limits<double>::infinity();
@@ -539,7 +539,7 @@ double YPlane::getMinY(int halfspace){
  * @return the maximum y value
  */
 double YPlane::getMaxY(int halfspace){
-  if(halfspace == -1)
+  if (halfspace == -1)
     return _y;
   else
     return std::numeric_limits<double>::infinity();
@@ -605,7 +605,7 @@ double ZPlane::getZ() {
  * @return the minimum z value
  */
 double ZPlane::getMinZ(int halfspace){
-  if(halfspace == +1)
+  if (halfspace == +1)
     return _z;
   else
     return -std::numeric_limits<double>::infinity();
@@ -618,7 +618,7 @@ double ZPlane::getMinZ(int halfspace){
  * @return the maximum z value
  */
 double ZPlane::getMaxZ(int halfspace){
-  if(halfspace == -1)
+  if (halfspace == -1)
     return _z;
   else
     return std::numeric_limits<double>::infinity();
