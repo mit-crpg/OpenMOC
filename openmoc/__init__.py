@@ -20,6 +20,6 @@ current_time = str(now.month).zfill(2) + '-' + str(now.day).zfill(2) + '-' + str
 current_time = current_time + str(now.hour).zfill(2) + ':' + str(now.minute).zfill(2)
 current_time = current_time + ':' + str(now.second).zfill(2)
 initialize_logger()
-set_log_filename('log/openmoc-' + current_time + '.log');
+set_log_filename('openmoc-' + current_time + '.log');
 
 Timer = Timer()

@@ -98,11 +98,14 @@ void initialize_logger() {
 void set_output_directory(char* directory) {
 
   output_directory = std::string(directory);
+  std::string log_directory;
 
   /* Check to see if directory exists - if not, create it */
   struct stat st;
-  if ((!stat(directory, &st)) == 0)
-    mkdir(directory, S_IRWXU);
+  if ((stat(directory, &st)) == 0)
+    log_directory = std::string("") + directory + std::string("/log");
+    mkdir(log_directory.c_str(), S_IRWXU);
+  }
 }
 
 
@@ -445,11 +448,11 @@ void log_printf(logLevel level, const char* format, ...) {
       /* If output directory was not defined by user, then log file is
        * written to a "log" subdirectory. Create it if it doesn't exist */
       if (output_directory.compare(".") == 0)
-        set_output_directory((char*)"log");
+        set_output_directory((char*)".");
 
       /* Write the message to the output file */
       std::ofstream log_file;
-      log_file.open((output_directory + "/" + log_filename).c_str(),
+      log_file.open((output_directory + "/log/" + log_filename).c_str(),
                    std::ios::app);
 
       /* Append date, time to the top of log output file */
@@ -465,7 +468,7 @@ void log_printf(logLevel level, const char* format, ...) {
 
     /* Write the log message to the log_file */
     std::ofstream log_file;
-    log_file.open((output_directory + "/" + log_filename).c_str(),
+    log_file.open((output_directory + "/log/" + log_filename).c_str(),
                   std::ios::app);
     log_file << msg_string;
     log_file.close();
