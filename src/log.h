@@ -29,7 +29,9 @@
 #include <omp.h>
 #endif
 
+#ifdef __SWIG__
 #define printf PySys_WriteStdout
+#endif
 
 
 /**
