@@ -16,7 +16,7 @@ PRECISION   = single
 # Program name & source code list
 #===============================================================================
 
-case = c5g7.cpp
+case = c5g7-cmfd.cpp
 
 source = \
 ../src/Cell.cpp \
@@ -35,6 +35,13 @@ source = \
 ../src/Track.cpp \
 ../src/TrackGenerator.cpp \
 ../src/Universe.cpp
+
+cases = \
+one-directional-gradient.cpp \
+two-directional-gradient.cpp \
+homogeneous-one-group.cpp \
+c5g7.cpp \
+c5g7-cmfd.cpp
 
 obj = $(source:.cpp=.o)
 headers = $(source:.cpp=.h)
