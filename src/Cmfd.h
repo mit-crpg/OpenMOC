@@ -170,7 +170,8 @@ private:
   int _k_nearest;
   
   /** Map storing the k-nearest stencil for each fsr */
-  std::map<int, std::vector< std::pair<int, FP_PRECISION> > > _k_nearest_stencils;
+  std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
+    _k_nearest_stencils;
   
 public:
 

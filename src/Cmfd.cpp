@@ -355,7 +355,8 @@ void Cmfd::computeDs(int moc_iteration){
         cell = z*_num_y*_num_x + y*_num_x + x;
         for (int surface = 0; surface < 6; surface++){
           for (int e = 0; e < _num_cmfd_groups; e++){
-            log_printf(DEBUG, "cell: %i, s: %i, g: %i, cur: %f", cell, surface, e, _surface_currents->getValueByCell
+            log_printf(DEBUG, "cell: %i, s: %i, g: %i, cur: %f", cell, surface,
+                       e, _surface_currents->getValueByCell
                        (cell, surface*_num_cmfd_groups + e));
           }
         }
@@ -484,7 +485,8 @@ void Cmfd::computeDs(int moc_iteration){
                 _surface_currents->getValueByCell
                 (cell_next, next_surface*_num_cmfd_groups + e);
 
-              log_printf(DEBUG, "c: %i, s: %i, e: %i, cur: %f", cell, surface, e, _surface_currents->getValueByCell
+              log_printf(DEBUG, "c: %i, s: %i, e: %i, cur: %f", cell, surface,
+                         e, _surface_currents->getValueByCell
                          (cell, surface*_num_cmfd_groups + e));
 
               
@@ -528,7 +530,7 @@ void Cmfd::computeDs(int moc_iteration){
               }
             }
             
-            /* Perform underrelaxation on d_tilde. If first MOC iteration, solve 
+            /* Perform underrelaxation on d_tilde. If first MOC iteration, solve
              * the diffusion problem without correcting currents */
             if (moc_iteration == 0)
               d_tilde = 0.0;
@@ -599,7 +601,8 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration){
   _old_flux->copyTo(_new_flux);
 
   /* Solve the eigenvalue problem */
-  _k_eff = eigenvalueSolve(_A, _M, _new_flux, _source_convergence_threshold, _SOR_factor);
+  _k_eff = eigenvalueSolve(_A, _M, _new_flux, _source_convergence_threshold,
+                           _SOR_factor);
 
   /* Rescale the old and new flux */
   rescaleFlux();
@@ -683,7 +686,7 @@ void Cmfd::constructMatrices(){
             value = - (material->getDifHat()[SURFACE_X_MIN*_num_cmfd_groups + e]
                        - material->getDifTilde()[SURFACE_X_MIN*_num_cmfd_groups + e])
               * _cell_height * _cell_depth;
-
+            
             _A->incrementValueByCell(cell-1, e, cell, e, value);
           }
 
@@ -1005,7 +1008,8 @@ void Cmfd::initializeSurfaceCurrents() {
 
   /* Allocate memory for the Cmfd Mesh surface currents array */
   int num_mesh_cells = _num_x * _num_y * _num_z;
-  _surface_currents = new Vector(_num_x, _num_y, _num_z, _num_cmfd_groups * NUM_SURFACES);
+  _surface_currents = new Vector(_num_x, _num_y, _num_z,
+                                 _num_cmfd_groups * NUM_SURFACES);
 
   /* Allocate memory for OpenMP locks for each Cmfd Mesh surface */ 
   _surface_locks = new omp_lock_t[num_mesh_cells * NUM_SURFACES];
@@ -1951,7 +1955,8 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         omp_set_lock(&_surface_locks[surf_id]);
         
         /* Increment current (polar and azimuthal weighted flux, group) */
-        _surface_currents->incrementValueByCell(cell_id, s*_num_cmfd_groups + g, surf_current);
+        _surface_currents->incrementValueByCell(cell_id, s*_num_cmfd_groups + g,
+                                                surf_current);
         
         /* Release Cmfd Mesh surface mutual exclusion lock */
         omp_unset_lock(&_surface_locks[surf_id]);
@@ -1973,7 +1978,8 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         omp_set_lock(&_surface_locks[surf_id]);
         
         /* Increment current (polar and azimuthal weighted flux, group) */
-        _surface_currents->incrementValueByCell(cell_id, s*_num_cmfd_groups + g, surf_current);
+        _surface_currents->incrementValueByCell(cell_id, s*_num_cmfd_groups + g,
+                                                surf_current);
         
         /* Release Cmfd Mesh surface mutual exclusion lock */
         omp_unset_lock(&_surface_locks[surf_id]);
