@@ -24,6 +24,9 @@
   #include "../src/TrackGenerator.h"
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
+  #include "../src/Vector.h"
+  #include "../src/Matrix.h"
+  #include "../src/linalg.h"
 
   #ifdef ICPC
   #include "../src/VectorizedSolver.h"
@@ -61,8 +64,11 @@
 %ignore setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
 %ignore setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
 %ignore initializeFSRVectors();
-
-
+%ignore getArray();
+%ignore getA();
+%ignore getIA();
+%ignore getJA();
+%ignore getDiag();
 
 %exception {
   try {
@@ -438,6 +444,9 @@
 %include ../src/TrackGenerator.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h
+%include ../src/Vector.h
+%include ../src/Matrix.h
+%include ../src/linalg.h
 
 #ifdef ICPC
 %include ../src/VectorizedSolver.h

@@ -118,25 +118,32 @@ class configuration:
                     'src/Track.cpp',
                     'src/TrackGenerator.cpp',
                     'src/Universe.cpp',
-                    'src/Cmfd.cpp']
+                    'src/Vector.cpp',
+                    'src/Matrix.cpp',
+                    'src/Cmfd.cpp',
+                    'src/linalg.cpp']
 
   sources['clang'] = ['openmoc/openmoc_wrap.cpp',
-                    'src/Cell.cpp',
-                    'src/Geometry.cpp',
-                    'src/LocalCoords.cpp',
-                    'src/log.cpp',
-                    'src/Material.cpp',
-                    'src/Point.cpp',
-                    'src/PolarQuad.cpp',
-                    'src/ExpEvaluator.cpp',
-                    'src/Solver.cpp',
-                    'src/CPUSolver.cpp',
-                    'src/Surface.cpp',
-                    'src/Timer.cpp',
-                    'src/Track.cpp',
-                    'src/TrackGenerator.cpp',
-                    'src/Universe.cpp',
-                    'src/Cmfd.cpp']
+                      'src/Cell.cpp',
+                      'src/Geometry.cpp',
+                      'src/LocalCoords.cpp',
+                      'src/log.cpp',
+                      'src/Material.cpp',
+                      'src/Point.cpp',
+                      'src/PolarQuad.cpp',
+                      'src/ExpEvaluator.cpp',
+                      'src/Solver.cpp',
+                      'src/CPUSolver.cpp',
+                      'src/Surface.cpp',
+                      'src/Timer.cpp',
+                      'src/Track.cpp',
+                      'src/TrackGenerator.cpp',
+                      'src/Universe.cpp',
+                      'src/Cmfd.cpp',
+                      'src/Vector.cpp',
+                      'src/Matrix.cpp',
+                      'src/linalg.cpp']
+
 
   sources['icpc'] = ['openmoc/openmoc_wrap.cpp',
                      'src/Cell.cpp',
@@ -155,7 +162,11 @@ class configuration:
                      'src/Track.cpp',
                      'src/TrackGenerator.cpp',
                      'src/Universe.cpp',
-                     'src/Cmfd.cpp']
+                     'src/Cmfd.cpp',
+                     'src/Vector.cpp',
+                     'src/Matrix.cpp',
+                     'src/linalg/cpp']
+
 
   sources['bgxlc'] = ['openmoc/openmoc_wrap.cpp',
                       'src/Cell.cpp',
@@ -173,7 +184,11 @@ class configuration:
                       'src/Track.cpp',
                       'src/TrackGenerator.cpp',
                       'src/Universe.cpp',
-                      'src/Cmfd.cpp']
+                      'src/Cmfd.cpp',
+                      'src/Vector.cpp',
+                      'src/Matrix.cpp',
+                      'src/linalg.cpp']
+
 
   sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
                      'src/accel/cuda/GPUExpEvaluator.cu',

@@ -43,6 +43,16 @@
  *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */
 #define EXP_PRECISION FP_PRECISION(1E-5)
 
+/** The surfaces of a rectangle used in indexing CMFD data arrays. */
+#define NUM_SURFACES 8
+#define SURFACE_X_MIN 0
+#define SURFACE_Y_MIN 1
+#define SURFACE_X_MAX 2
+#define SURFACE_Y_MAX 3
+#define SURFACE_X_MIN_Y_MIN 4
+#define SURFACE_X_MAX_Y_MIN 5
+#define SURFACE_X_MAX_Y_MAX 6
+#define SURFACE_X_MIN_Y_MAX 7
 
 #ifdef NVCC
 

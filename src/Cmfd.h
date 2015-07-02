@@ -17,7 +17,6 @@
 #include "Track.h"
 #include "PolarQuad.h"
 #include "linalg.h"
-#include "pairwise_sum.h"
 #include <utility>
 #include <math.h>
 #include <limits.h>
@@ -35,12 +34,6 @@
  *  group for either the forward or reverse direction for a given Track */ 
 #define track_flux(p,e) (track_flux[(p)*_num_moc_groups + (e)])
 
-/** Indexing macro for the surface currents for each CMFD Mesh surface and
- *  each energy group */
-#define _surface_currents(r,e) (_surface_currents[(r)*_num_cmfd_groups \
-						  + getCmfdGroup((e))])
-
-
 /**
  * @class Cmfd Cmfd.h "src/Cmfd.h"
  * @brief A class for Coarse Mesh Finite Difference (CMFD) acceleration.
@@ -56,24 +49,24 @@ private:
   FP_PRECISION _k_eff;
 
   /** The A (destruction) matrix */
-  FP_PRECISION** _A;
+  Matrix* _A;
 
   /** The M (production) matrix */
-  FP_PRECISION** _M;
+  Matrix* _M;
 
   /** The old source vector */
-  FP_PRECISION* _old_source;
+  Vector* _old_source;
 
   /** The new source vector */
-  FP_PRECISION* _new_source;
+  Vector* _new_source;
 
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
    * the end of a CMFD solve */
-  FP_PRECISION* _new_flux;
+  Vector* _new_flux;
 
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
    * the beginning of a CMFD solve */
-  FP_PRECISION* _old_flux;
+  Vector* _old_flux;
 
   /** Vector representing the flux during the previous iteration of a 
    * cmfd solve */
@@ -120,7 +113,7 @@ private:
   FP_PRECISION* _FSR_fluxes;
 
   /** Array of CMFD cell volumes */
-  FP_PRECISION* _volumes;
+  Vector* _volumes;
 
   /** Array of material pointers for CMFD cell materials */
   Material** _materials;
@@ -135,7 +128,7 @@ private:
   boundaryType* _boundaries;
 
   /** Array of surface currents for each CMFD cell */
-  FP_PRECISION* _surface_currents;
+  Vector* _surface_currents;
 
   /** OpenMP mutual exclusion locks for atomic surface current updates */
   omp_lock_t* _surface_locks;
@@ -169,13 +162,10 @@ public:
   FP_PRECISION computeKeff(int moc_iteration);
   void initializeCellMap();
   void initializeGroupMap();
-  void initializeFlux();
   void initializeMaterials();
   void initializeSurfaceCurrents();
 
   void rescaleFlux();
-  void linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x, FP_PRECISION* vec_b,
-                   FP_PRECISION conv, int max_iter=10000);
   void splitCorners();
   int getCellNext(int cell_num, int surface_id);
   int findCmfdCell(LocalCoords* coords);

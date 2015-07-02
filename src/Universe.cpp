@@ -1340,30 +1340,30 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
   if (fabs(x - left) <= ON_SURFACE_THRESH) {
     /* Check if point is on bottom boundary */ 
     if (fabs(y - bottom) <= ON_SURFACE_THRESH)
-      surface = cell*8 + 4;
+      surface = cell*NUM_SURFACES + SURFACE_X_MIN_Y_MIN;
     /* Check if point is on top boundary */ 
     else if (fabs(y - top) <= ON_SURFACE_THRESH)
-      surface = cell*8 + 7;
+      surface = cell*NUM_SURFACES + SURFACE_X_MIN_Y_MAX;
     else
-      surface = cell*8;
+      surface = cell*NUM_SURFACES + SURFACE_X_MIN;
   }
   /* Check if point is on right boundary */ 
   else if (fabs(x - right) <= ON_SURFACE_THRESH) {
     /* Check if point is on bottom boundary */ 
     if (fabs(y - bottom) <= ON_SURFACE_THRESH)
-      surface = cell*8 + 5;
+      surface = cell*NUM_SURFACES + SURFACE_X_MAX_Y_MIN;
     /* Check if point is on top boundary */ 
     else if (fabs(y - top) <= ON_SURFACE_THRESH)
-      surface = cell*8 + 6;
+      surface = cell*NUM_SURFACES + SURFACE_X_MAX_Y_MAX;
     else
-      surface = cell*8 + 2;
+      surface = cell*NUM_SURFACES + SURFACE_X_MAX;
   }
   /* Check if point is on bottom boundary */ 
   else if (fabs(y - bottom) <= ON_SURFACE_THRESH)
-    surface = cell*8 + 1;
+    surface = cell*NUM_SURFACES + SURFACE_Y_MIN;
   /* Check if point is on top boundary */ 
   else if (fabs(y - top) <= ON_SURFACE_THRESH)
-    surface = cell*8 + 3;
+    surface = cell*NUM_SURFACES + SURFACE_Y_MAX;
 
   return surface;
 }

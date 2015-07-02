@@ -1033,10 +1033,10 @@ void Geometry::initializeCmfd() {
 
 
   /* Set CMFD mesh boundary conditions */
-  _cmfd->setBoundary(0, getMinXBoundaryType());
-  _cmfd->setBoundary(1, getMinYBoundaryType());
-  _cmfd->setBoundary(2, getMaxXBoundaryType());
-  _cmfd->setBoundary(3, getMaxYBoundaryType());
+  _cmfd->setBoundary(SURFACE_X_MIN, getMinXBoundaryType());
+  _cmfd->setBoundary(SURFACE_Y_MIN, getMinYBoundaryType());
+  _cmfd->setBoundary(SURFACE_X_MAX, getMaxXBoundaryType());
+  _cmfd->setBoundary(SURFACE_Y_MAX, getMaxYBoundaryType());
 
   /* Set CMFD mesh dimensions and number of groups */
   _cmfd->setWidth(width);
