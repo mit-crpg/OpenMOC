@@ -258,7 +258,7 @@ void set_log_level(const char* new_level) {
  * @brief Return the minimum level for log messages printed to the screen.
  * @return the minimum level for log messages
  */
-int get_log_level(){
+int get_log_level() {
   return log_level;
 }
 

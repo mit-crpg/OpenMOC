@@ -12,7 +12,7 @@
  * @param length length of vector
  */
 template <typename T>
-inline void vector_copy(T* vector_from, T* vector_to, int length){
+inline void vector_copy(T* vector_from, T* vector_to, int length) {
 
   for (int i = 0; i < length; i++)
     vector_to[i] = vector_from[i];
@@ -26,9 +26,9 @@ inline void vector_copy(T* vector_from, T* vector_to, int length){
  * @param length length of matrix column
  */
 template <typename T>
-inline void matrix_zero(T** matrix, int width, int length){
+inline void matrix_zero(T** matrix, int width, int length) {
 
-  for (int i = 0; i < length; i++){
+  for (int i = 0; i < length; i++) {
     for (int g = 0; g < width; g++)
       matrix[i][g] = 0.0;
   }
@@ -41,7 +41,7 @@ inline void matrix_zero(T** matrix, int width, int length){
  * @param length length of vector
  */
 template <typename T>
-inline void vector_zero(T* vector, int length){
+inline void vector_zero(T* vector, int length) {
 
   for (int i = 0; i < length; i++)
     vector[i] = 0.0;
@@ -59,13 +59,13 @@ inline void vector_zero(T* vector, int length){
 template <typename T>
 inline void matrix_multiplication(T** matrix, T* vector_x, 
                                   T* vector_y, int num_blocks, 
-                                  int block_width){
+                                  int block_width) {
 
   vector_zero(vector_y, num_blocks*block_width); 
 
-  for (int i = 0; i < num_blocks; i++){
-    for (int g = 0; g < block_width; g++){
-      for (int e = 0; e < block_width; e++){
+  for (int i = 0; i < num_blocks; i++) {
+    for (int g = 0; g < block_width; g++) {
+      for (int e = 0; e < block_width; e++) {
         vector_y[i*block_width+g] += matrix[i][g*block_width+e] 
             * vector_x[i*block_width+e];
       }
@@ -81,7 +81,7 @@ inline void matrix_multiplication(T** matrix, T* vector_x,
  * @param length vector length
  */
 template <typename T>
-inline void vector_scale(T* vector, T scale_value, int length){
+inline void vector_scale(T* vector, T scale_value, int length) {
 
   for (int i = 0; i < length; i++)
     vector[i] *= scale_value;

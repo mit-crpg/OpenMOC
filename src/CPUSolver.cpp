@@ -641,7 +641,7 @@ void CPUSolver::transportSweep() {
  */
 void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
                                 FP_PRECISION* track_flux,
-                                FP_PRECISION* fsr_flux){
+                                FP_PRECISION* fsr_flux) {
 
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
@@ -653,7 +653,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
 
   /* Compute change in angular flux along segment in this FSR */
   for (int e=0; e < _num_groups; e++) {
-    for (int p=0; p < _num_polar; p++){
+    for (int p=0; p < _num_polar; p++) {
       exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, p);
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
       fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
@@ -680,7 +680,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
  * @param fwd boolean indicating direction of integration along segment
  */
 void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
-                                    FP_PRECISION* track_flux, bool fwd){
+                                    FP_PRECISION* track_flux, bool fwd) {
 
   /* Tally surface currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
