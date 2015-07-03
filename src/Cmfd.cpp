@@ -43,7 +43,7 @@ Cmfd::Cmfd() {
   _group_indices_map = NULL;
   _surface_currents = NULL;
   _volumes = NULL;
-  
+
   /* Initialize boundaries to be reflective */
   _boundaries = new boundaryType[4];
   _boundaries[SURFACE_X_MIN] = REFLECTIVE;
@@ -424,7 +424,7 @@ void Cmfd::computeDs(int moc_iteration) {
               (cell, surface*_num_cmfd_groups + e)
               - sense * _surface_currents->getValue
               (cell_next, next_surface*_num_cmfd_groups + e);
-              
+
             /* Compute d_tilde */
             d_tilde = -(sense * d_hat * (flux_next - flux) +
                         current  / length) / (flux_next + flux);
@@ -688,7 +688,7 @@ void Cmfd::constructMatrices() {
       }
     }
   }
-  
+
   log_printf(INFO, "Done constructing matrices...");
 }
 
@@ -711,7 +711,7 @@ void Cmfd::updateMOCFlux() {
 
     /* Loop over CMFD groups */
     for (int e = 0; e < _num_cmfd_groups; e++) {
-
+  
       for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
 
         /* Loop over FRSs in mesh cell */
@@ -1273,14 +1273,14 @@ int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 
   std::vector<int>::iterator iter;    
   for (int cell=0; cell < _num_x*_num_y; cell++) {
-    
+
     for (iter = _cell_fsrs.at(cell).begin();
          iter != _cell_fsrs.at(cell).end(); ++iter) {
       if (*iter  == fsr_id)
         return cell;
     }
   }
-  
+
   return -1;  
 }
 
