@@ -10,9 +10,9 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
-#include <math.h>
 #include "log.h"
 #include "Quadrature.h"
+#include <math.h>
 #endif
 
 

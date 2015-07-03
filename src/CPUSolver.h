@@ -67,11 +67,10 @@ protected:
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param track_flux a pointer to the Track's angular flux
    * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
-   * @param fwd
    */
-  virtual void tallyScalarFlux(segment* curr_segment, int azim_index, int polar_index,
-                               FP_PRECISION* track_flux, FP_PRECISION* fsr_flux,
-                               bool fwd);
+  virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
+                               int polar_index, FP_PRECISION* track_flux,
+                               FP_PRECISION* fsr_flux);
 
   /**
    * @brief Computes the contribution to surface current from a Track segment.
@@ -80,8 +79,9 @@ protected:
    * @param track_flux a pointer to the Track's angular flux
    * @param fwd the direction of integration along the segment
    */
-  virtual void tallySurfaceCurrent(segment* curr_segment, int azim_index, int polar_index,
-                                   FP_PRECISION* track_flux, bool fwd);
+  virtual void tallySurfaceCurrent(segment* curr_segment, int azim_index,
+                                   int polar_index, FP_PRECISION* track_flux,
+                                   bool fwd);
   
   /**
    * @brief Updates the boundary flux for a Track given boundary conditions.
@@ -90,8 +90,8 @@ protected:
    * @param direction the Track direction (forward - true, reverse - false)
    * @param track_flux a pointer to the Track's outgoing angular flux
    */
-  virtual void transferBoundaryFlux(int track_id, int azim_index, int polar_index,
-                                    bool direction,
+  virtual void transferBoundaryFlux(int track_id, int azim_index,
+                                    int polar_index, bool direction,
                                     FP_PRECISION* track_flux);
   
 public:

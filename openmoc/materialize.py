@@ -71,12 +71,11 @@ def materialize(filename):
   if filename.endswith('.h5') or filename.endswith('.hdf5'):
 
     import h5py
-    import numpy as np
 
     # Create a h5py file handle for the file
     try:
       f = h5py.File(filename,'r')
-    except:
+    except IOError:
       py_printf('ERROR', 'Unable to materialize file %s because it ' + \
                   'cannot be opened.  Check the file path.',filename)
 
@@ -86,8 +85,6 @@ def materialize(filename):
                   'not contain an \'Energy Groups\' attribute', filename)
 
     num_groups = f.attrs['Energy Groups']
-
-
 
     # Check that the number of energy groups is an integer
     if not is_integer(num_groups):

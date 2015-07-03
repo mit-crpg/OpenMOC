@@ -58,7 +58,7 @@ private:
   /** The actual track polar spacing (cm) by (azim, polar) */
   double** _polar_spacings;
 
-  /** An integer array of the number of Tracks in a cycle for each azimuthal angle */
+  /** An integer array of the number of Tracks in a cycle for each azim angle */
   int* _tracks_per_cycle;
 
   /** A ragged array of the number of tracks in each lz plane */
@@ -91,7 +91,7 @@ private:
   /** A 3D ragged array of 2D tracks (azim, cycle #, cycle index) */
   Track2D*** _tracks_2D;
 
-  /** A ragged array of 3D tracks (azim, cycle #, polar, lz index, train index) */
+  /** An array of 3D tracks (azim, cycle #, polar, lz index, train index) */
   Track3D***** _tracks_3D;
   
   /** Pointer to the Geometry */

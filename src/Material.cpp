@@ -257,7 +257,7 @@ FP_PRECISION* Material::getChi() {
  */
 FP_PRECISION* Material::getDifCoef() {
 
-  if (_dif_coef == NULL){
+  if (_dif_coef == NULL) {
 
     _dif_coef = new FP_PRECISION[_num_groups];
 
@@ -277,7 +277,7 @@ FP_PRECISION* Material::getDifCoef() {
  */
 FP_PRECISION* Material::getDifHat() {
 
-  if (_dif_hat == NULL){
+  if (_dif_hat == NULL) {
 
     _dif_hat = new FP_PRECISION[6*_num_groups];
 
@@ -297,7 +297,7 @@ FP_PRECISION* Material::getDifHat() {
  */
 FP_PRECISION* Material::getDifTilde() {
 
-  if (_dif_tilde == NULL){
+  if (_dif_tilde == NULL) {
 
     _dif_tilde = new FP_PRECISION[6*_num_groups];
 
@@ -317,7 +317,7 @@ FP_PRECISION* Material::getDifTilde() {
  */
 FP_PRECISION* Material::getBuckling() {
 
-  if (_buckling == NULL){
+  if (_buckling == NULL) {
 
     _buckling = new FP_PRECISION[_num_groups];
 
@@ -739,7 +739,7 @@ void Material::setSigmaA(double* xs, int num_groups) {
     log_printf(ERROR, "Unable to set sigma_a with %d groups for Material "
                "%d which contains %d energy groups", num_groups, _id, _num_groups);
 
-  for (int i=0; i < _num_groups; i++){
+  for (int i=0; i < _num_groups; i++) {
     _sigma_a[i] = FP_PRECISION(xs[i]);
 
     if (_buckling != NULL & _dif_coef != NULL)
@@ -1003,7 +1003,7 @@ void Material::setChi(double* xs, int num_groups) {
   for (int i=0; i < _num_groups; i++)
     chi_sum += xs[i];
 
-  for (int i=0; i < _num_groups; i++){
+  for (int i=0; i < _num_groups; i++) {
     if (chi_sum == 0)
       _chi[i] = xs[i];
     else
@@ -1073,7 +1073,7 @@ void Material::setDifCoefByGroup(double xs, int group) {
                "Material %d which contains %d energy groups",
                group, _id, _num_groups);
 
-  if (_dif_coef == NULL){
+  if (_dif_coef == NULL) {
     _dif_coef = new FP_PRECISION[_num_groups];
 
     for (int i=0; i < _num_groups; i++)
@@ -1130,7 +1130,7 @@ void Material::setBucklingByGroup(double xs, int group) {
                "Material %d which contains %d energy groups",
                group, _id, _num_groups);
 
-  if (_buckling == NULL){
+  if (_buckling == NULL) {
     _buckling = new FP_PRECISION[_num_groups];
     for (int i=0; i < _num_groups; i++)
       _buckling[i] = 0.0;
@@ -1188,7 +1188,7 @@ void Material::setDifHatByGroup(double xs, int group, int surface) {
               "Material %d which contains %d energy groups",
               group, _id, _num_groups);
 
-  if (_dif_hat == NULL){
+  if (_dif_hat == NULL) {
 
     _dif_hat = new FP_PRECISION[6*_num_groups];
 
@@ -1226,7 +1226,7 @@ void Material::setDifTilde(double* xs, int num_groups) {
               "for Material %d which contains %d energy groups", num_groups,
               _id, _num_groups);
 
-  if (_dif_tilde == NULL){
+  if (_dif_tilde == NULL) {
     _dif_tilde = new FP_PRECISION[6*_num_groups];
   }
 
@@ -1249,7 +1249,7 @@ void Material::setDifTildeByGroup(double xs, int group, int surface) {
               "group %d for Material %d which contains %d energy groups",
                group, _id, _num_groups);
 
-  if (_dif_tilde == NULL){
+  if (_dif_tilde == NULL) {
     _dif_tilde = new FP_PRECISION[6*_num_groups];
 
     for (int i=0; i < _num_groups*6; i++)
@@ -1485,7 +1485,7 @@ void Material::alignData() {
  * @brief Create a duplicate of the Material.
  * @return a pointer to the clone
  */
-Material* Material::clone(){
+Material* Material::clone() {
 
   Material* clone = new Material(getId());
 

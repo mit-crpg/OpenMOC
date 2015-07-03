@@ -54,6 +54,12 @@ Cell::Cell(int id, const char* name) {
   _name = NULL;
   setName(name);
 
+  _cell_type = UNFILLED;
+  _fill = NULL;
+
+  _num_rings = 0;
+  _num_sectors = 0;
+
   /* Set a default bounding box around the Cell */
   _min_x = -std::numeric_limits<double>::infinity();
   _max_x = std::numeric_limits<double>::infinity();
@@ -580,8 +586,10 @@ bool Cell::containsCoords(LocalCoords* coords) {
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
  * @param point the Point of interest
- * @param azim the azimuthal angle of the trajectory (in radians from \f$[0,2\pi]\f$)
- * @param polar the polar angle of the trajectory (in radians from \f$[0,\pi]\f$)
+ * @param azim the azimuthal angle of the trajectory 
+ *        (in radians from \f$[0,2\pi]\f$)
+ * @param polar the polar angle of the trajectory 
+ *        (in radians from \f$[0,\pi]\f$)
  * @param min_intersection a pointer to the intersection Point that is found
  */
 double Cell::minSurfaceDist(Point* point, double azim, double polar) {

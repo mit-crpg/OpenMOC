@@ -183,7 +183,7 @@ void ExpEvaluator::initialize() {
 
   /* Set size of interpolation table */
   _num_polar = _quadrature->getNumPolarAngles();
-  int num_array_values = _max_optical_length * sqrt(1. / (8.e-2 * _exp_precision));
+  int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
   FP_PRECISION exp_table_spacing = _max_optical_length / num_array_values;
 
   /* Compute the reciprocal of the table entry spacing */
@@ -245,7 +245,8 @@ void ExpEvaluator::initialize() {
  * @param polar the polar angle index
  * @return the evaluated exponential
  */
-FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int azim, int polar) {
+FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int azim,
+                                              int polar) {
 
   FP_PRECISION exponential;
   

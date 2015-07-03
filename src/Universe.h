@@ -71,7 +71,7 @@ protected:
   /** The type of Universe (ie, SIMPLE or LATTICE) */
   universeType _type;
 
-  /** A collection of Cell IDs and Cell pointers */
+  /** A collection of Cell IDs and Cell pointers in this Universe */
   std::map<int, Cell*> _cells;
 
   /** A boolean representing whether or not this Universe contains a Material
@@ -116,7 +116,6 @@ public:
   void setFissionability(bool fissionable);
   void subdivideCells();
   void buildNeighbors();
-  
   std::string toString();
   void printString();
 
@@ -189,7 +188,6 @@ public:
   void setUniverses(int num_y, int num_x, Universe** universes);
   void setUniverses3D(int num_z, int num_y, int num_x, Universe** universes);
   void buildNeighbors();
-  
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);
   double minSurfaceDist(Point* point, double azim, double polar=M_PI/2.0);
@@ -209,7 +207,7 @@ public:
  * @brief A helper struct for the Universe::findCell() method.
  * @details This is used to insert a Universe's Cells to the back of a vector
  *          of neighbor Cells in Universe::findCell() routine. This works in
- *          symbiosis with the second method template defined below.
+ *          symbiosis with the pair_second method template defined below.
  */
 template<typename tPair>
 struct second_t {
@@ -228,7 +226,7 @@ struct second_t {
  * @return the second element in the iterator (e.g., map value)
  */
 template<typename tMap> 
-second_t<typename tMap::value_type> second(const tMap& map) {
+second_t<typename tMap::value_type> pair_second(const tMap& map) {
   return second_t<typename tMap::value_type>();
 }
 

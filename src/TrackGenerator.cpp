@@ -1,6 +1,5 @@
 #include "TrackGenerator.h"
 
-
 /**
  * @brief Constructor for the TrackGenerator assigns default values.
  * @param geometry a pointer to a Geometry object
@@ -242,14 +241,16 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
         for (int p=0; p < _num_polar; p++){
           for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
             for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
-              for (int s=0; s < _tracks_3D[a][c][p][i][t].getNumSegments(); s++){
+              for (int s=0; s < _tracks_3D[a][c][p][i][t].getNumSegments();
+                   s++){
                 curr_segment = _tracks_3D[a][c][p][i][t].getSegment(s);
                 length = curr_segment->_length;
                 material = curr_segment->_material;
                 sigma_t = material->getSigmaT();
                 
                 for (int e=0; e < material->getNumEnergyGroups(); e++)
-                  max_optical_length = std::max(max_optical_length, length*sigma_t[e]);
+                  max_optical_length = std::max(max_optical_length,
+                                                length*sigma_t[e]);
               }
             }
           }
@@ -268,7 +269,8 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
             sigma_t = material->getSigmaT();
             
             for (int e=0; e < material->getNumEnergyGroups(); e++)
-              max_optical_length = std::max(max_optical_length, length*sigma_t[e]);
+              max_optical_length = std::max(max_optical_length,
+                                            length*sigma_t[e]);
           }
         }
       }
@@ -753,7 +755,7 @@ void TrackGenerator::retrieve3DTrackCoords(double* coords, int num_tracks) {
             coords[counter+2] = _tracks_3D[a][c][p][i][t].getStart()->getZ();
             coords[counter+3] = _tracks_3D[a][c][p][i][t].getEnd()->getX();
             coords[counter+4] = _tracks_3D[a][c][p][i][t].getEnd()->getY();
-            coords[counter+5] = _tracks_3D[a][c][p][i][t].getEnd()->getZ();            
+            coords[counter+5] = _tracks_3D[a][c][p][i][t].getEnd()->getZ();
             counter += 6;
           }
         }
@@ -931,11 +933,11 @@ void TrackGenerator::generateTracks() {
   /* Check to make sure that height, width of the Geometry are nonzero */
   if (_geometry->getHeight() <= 0 || _geometry->getHeight() <= 0 ||
       _geometry->getDepth() <= 0)
-    log_printf(ERROR, "The total height, width, and depth of the Geometry must be "
-               "nonzero for Track generation. Create a CellFill which "
+    log_printf(ERROR, "The total height, width, and depth of the Geometry must "
+               "be nonzero for Track generation. Create a CellFill which "
                "is filled by the entire geometry and bounded by XPlanes, "
-               "YPlanes, and ZPlanes to enable the Geometry to determine the total "
-               "width, height, and depth of the model.");
+               "YPlanes, and ZPlanes to enable the Geometry to determine the "
+               "total width, height, and depth of the model.");
 
   /* Generate Tracks, perform ray tracing across the geometry, and store
    * the data to a Track file */
@@ -1130,7 +1132,8 @@ void TrackGenerator::initialize2DTracks() {
         track->setPhi(phi);
         track->setBCIn(track_prev->getBCOut());
         
-        /* Get the endpoint of the track and return the complementary azimuthal angle */
+        /* Get the endpoint of the track and return the complementary azim 
+         * angle */
         phi = findTrackEndPoint(track, phi, i);
         
         /* Set previous track to current track */
@@ -1219,8 +1222,8 @@ void TrackGenerator::initialize3DTracks() {
       theta = _quadrature->getTheta(i, j);
 
       /* The number of intersections with xy (denoted "l") and z-axes */
-      _num_l[i][j] = (int) (fabs(_cycle_length[i] * tan(M_PI_2 - theta) * sin(theta)
-                                 / _polar_spacing)) + 1;
+      _num_l[i][j] = (int) (fabs(_cycle_length[i] * tan(M_PI_2 - theta)
+                                 * sin(theta) / _polar_spacing)) + 1;
       _num_z[i][j] = (int) (fabs(depth * _num_l[i][j] * tan(theta)
                                  / _cycle_length[i])) + 1;
 
@@ -1419,7 +1422,8 @@ void TrackGenerator::initialize3DTrackReflections(){
               }
               else{
                 _tracks_3D[a][c][p][i][t].setTrackOut
-                  (&_tracks_3D[a][c][pc][_num_l[a][p] + 2*_num_z[a][p] - i - 1][0]);
+                  (&_tracks_3D[a][c][pc]
+                   [_num_l[a][p] + 2*_num_z[a][p] - i - 1][0]);
               }
             }
             else{
@@ -1476,7 +1480,8 @@ void TrackGenerator::initialize3DTrackReflections(){
               if (i < _num_z[a][pc]){
               _tracks_3D[a][c][p][i][t].setTrackIn
                 (&_tracks_3D[a][c][p][_num_l[a][pc] + _num_z[a][pc] - i - 1]
-                 [_tracks_per_plane[a][c][p][_num_l[a][pc] +_num_z[a][pc] - i - 1] - 1]);
+                 [_tracks_per_plane[a][c][p]
+                  [_num_l[a][pc] +_num_z[a][pc] - i - 1] - 1]);
               }
               else{
               _tracks_3D[a][c][p][i][t].setTrackIn
@@ -1715,7 +1720,8 @@ void TrackGenerator::segmentize2D() {
   }
 
   log_printf(NORMAL, "num 2d segments: %i", _num_2D_segments);
-  
+
+  _geometry->initializeFSRVectors();
   _contains_2D_segments = true;
   
   return;
@@ -1734,16 +1740,20 @@ void TrackGenerator::segmentize3D() {
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/4; a++){
     for (int c=0; c < _cycles_per_azim[a]; c++){
-      log_printf(NORMAL, "segmenting 3D tracks - Percent complete: %5.2f %%", double(tracks_segmented) / _num_3D_tracks * 100.0);
+      log_printf(NORMAL, "segmenting 3D tracks - Percent complete: %5.2f %%",
+                 double(tracks_segmented) / _num_3D_tracks * 100.0);
       for (int p=0; p < _num_polar; p++){
         int nt = getNumZ(a,p) + getNumL(a,p);
         #pragma omp parallel for
         for (int i=0; i < nt; i++){
-          for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
+          for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++)
             _geometry->segmentize3D(&_tracks_3D[a][c][p][i][t]);
-          }
         }
-        tracks_segmented += nt;
+
+        for (int i=0; i < nt; i++){
+          for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++)
+            tracks_segmented++;
+        }
       }
     }
   }
@@ -1762,13 +1772,15 @@ void TrackGenerator::segmentize3D() {
     }
   }
 
+  _geometry->initializeFSRVectors();
   _contains_3D_segments = true;
   
   return;
 }
 
 
-double TrackGenerator::findTrackEndPoint(Track2D* track, double phi, int azim_index){
+double TrackGenerator::findTrackEndPoint(Track2D* track, double phi,
+                                         int azim_index){
 
   /* Get start and end points of new track */  
   double x = track->getStart()->getX();
@@ -1881,7 +1893,8 @@ double TrackGenerator::findTrackEndPoint(Track2D* track, double phi, int azim_in
         
       /* X_MAX to Y_MAX */
       else{
-        track->getEnd()->setCoords(width + (height-y) * tan(M_PI_2 - phi), height);
+        track->getEnd()->setCoords(width + (height-y) * tan(M_PI_2 - phi),
+                                   height);
         phi = 2.0 * M_PI - phi;
         track->setBCOut(_geometry->getMaxYBoundaryType());
       }
@@ -1951,7 +1964,8 @@ double TrackGenerator::convertLtoX(double l, int azim, int cycle){
   
   double x1 = _tracks_2D[azim][cycle][track_index].getStart()->getX();
   double x2 = _tracks_2D[azim][cycle][track_index].getEnd()->getX();
-  double l_rel = (l - length_sum) / _tracks_2D[azim][cycle][track_index].getLength();
+  double l_rel = (l - length_sum) / _tracks_2D[azim][cycle][track_index]
+    .getLength();
   double x = l_rel * x2 + (1.0 - l_rel) * x1;
 
   return x;
@@ -2093,9 +2107,9 @@ void TrackGenerator::dump2DSegmentsToFile() {
   log_printf(NORMAL, "Dumping 2D segments to file...");
 
   if (!_contains_2D_segments)
-    log_printf(ERROR, "Unable to dump 2D Segments to a file since no Segments have "
-               "been generated for %d azimuthal angles and %f track spacing",
-               _num_azim, _azim_spacing);
+    log_printf(ERROR, "Unable to dump 2D Segments to a file since no Segments "
+               "have been generated for %d azimuthal angles and %f track "
+               "spacing", _num_azim, _azim_spacing);
 
   FILE* out;
   out = fopen(_tracks_filename.c_str(), "w");
@@ -2161,10 +2175,10 @@ void TrackGenerator::dump2DSegmentsToFile() {
   }
 
   /* Get FSR vector maps */
-  std::unordered_map<std::size_t, fsr_data> FSR_keys_map = _geometry->getFSRKeysMap();
-  std::unordered_map<std::size_t, fsr_data>::iterator iter;
-  std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
-  std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
+  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map = 
+      _geometry->getFSRKeysMap();
+  std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<int>* FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
   std::size_t fsr_key;
   int fsr_id;
   int fsr_counter = 0;
@@ -2175,14 +2189,16 @@ void TrackGenerator::dump2DSegmentsToFile() {
   fwrite(&num_FSRs, sizeof(int), 1, out);
 
   /* Write FSR vector maps to file */
-  for (iter = FSR_keys_map.begin(); iter != FSR_keys_map.end(); ++iter){
+  std::size_t* fsr_key_list = FSR_keys_map->keys();
+  fsr_data** fsr_data_list = FSR_keys_map->values();
+  for (int i=0; i < num_FSRs; i++) {
     
     /* Write data to file from FSR_keys_map */
-    fsr_key = iter->first;
-    fsr_id = iter->second._fsr_id;
-    x = iter->second._point->getX();
-    y = iter->second._point->getY();
-    z = iter->second._point->getZ();
+    fsr_key = fsr_key_list[i];
+    fsr_id = fsr_data_list[i]->_fsr_id;
+    x = fsr_data_list[i]->_point->getX();
+    y = fsr_data_list[i]->_point->getY();
+    z = fsr_data_list[i]->_point->getZ();
     fwrite(&fsr_key, sizeof(std::size_t), 1, out);
     fwrite(&fsr_id, sizeof(int), 1, out);
     fwrite(&x, sizeof(double), 1, out);
@@ -2190,10 +2206,11 @@ void TrackGenerator::dump2DSegmentsToFile() {
     fwrite(&z, sizeof(double), 1, out);
 
     /* Write data to file from FSRs_to_material_IDs */
-    fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
-    
+    fwrite(&(FSRs_to_material_IDs->at(fsr_counter)), sizeof(int), 1, out);
+
     /* Write data to file from FSRs_to_keys */
-    fwrite(&(FSRs_to_keys.at(fsr_counter)), sizeof(std::size_t), 1, out);
+    fwrite(&(FSRs_to_keys->at(fsr_counter)), sizeof(std::size_t), 1, out);
+
     
     /* Increment FSR ID counter */
     fsr_counter++;
@@ -2218,6 +2235,10 @@ void TrackGenerator::dump2DSegmentsToFile() {
     }
   }
 
+  /* Delete key and value lists */
+  delete [] fsr_key_list;
+  delete [] fsr_data_list;
+  
   /* Close the Track file */
   fclose(out);
 
@@ -2240,9 +2261,9 @@ void TrackGenerator::dump3DSegmentsToFile() {
   log_printf(NORMAL, "Dumping 3D segments to file...");
 
   if (!_contains_3D_segments)
-    log_printf(ERROR, "Unable to dump 3D Segments to a file since no Segments have "
-               "been generated for %d azimuthal angles and %f track spacing",
-               _num_azim, _azim_spacing);
+    log_printf(ERROR, "Unable to dump 3D Segments to a file since no Segments "
+               "have been generated for %d azimuthal angles and %f track "
+               "spacing", _num_azim, _azim_spacing);
 
   FILE* out;
   out = fopen(_tracks_filename.c_str(), "w");
@@ -2311,10 +2332,10 @@ void TrackGenerator::dump3DSegmentsToFile() {
   }
 
   /* Get FSR vector maps */
-  std::unordered_map<std::size_t, fsr_data> FSR_keys_map = _geometry->getFSRKeysMap();
-  std::unordered_map<std::size_t, fsr_data>::iterator iter;
-  std::vector<std::size_t> FSRs_to_keys = _geometry->getFSRsToKeys();
-  std::vector<int> FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
+  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map = 
+      _geometry->getFSRKeysMap();
+  std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<int>* FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
   std::size_t fsr_key;
   int fsr_id;
   int fsr_counter = 0;
@@ -2325,14 +2346,16 @@ void TrackGenerator::dump3DSegmentsToFile() {
   fwrite(&num_FSRs, sizeof(int), 1, out);
 
   /* Write FSR vector maps to file */
-  for (iter = FSR_keys_map.begin(); iter != FSR_keys_map.end(); ++iter){
-    
+  std::size_t* fsr_key_list = FSR_keys_map->keys();
+  fsr_data** fsr_data_list = FSR_keys_map->values();
+  for (int i=0; i < num_FSRs; i++) {
+
     /* Write data to file from FSR_keys_map */
-    fsr_key = iter->first;
-    fsr_id = iter->second._fsr_id;
-    x = iter->second._point->getX();
-    y = iter->second._point->getY();
-    z = iter->second._point->getZ();
+    fsr_key = fsr_key_list[i];
+    fsr_id = fsr_data_list[i]->_fsr_id;
+    x = fsr_data_list[i]->_point->getX();
+    y = fsr_data_list[i]->_point->getY();
+    z = fsr_data_list[i]->_point->getZ();
     fwrite(&fsr_key, sizeof(std::size_t), 1, out);
     fwrite(&fsr_id, sizeof(int), 1, out);
     fwrite(&x, sizeof(double), 1, out);
@@ -2340,24 +2363,24 @@ void TrackGenerator::dump3DSegmentsToFile() {
     fwrite(&z, sizeof(double), 1, out);
 
     /* Write data to file from FSRs_to_material_IDs */
-    fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
-    
+    fwrite(&(FSRs_to_material_IDs->at(fsr_counter)), sizeof(int), 1, out);
+
     /* Write data to file from FSRs_to_keys */
-    fwrite(&(FSRs_to_keys.at(fsr_counter)), sizeof(std::size_t), 1, out);
-    
+    fwrite(&(FSRs_to_keys->at(fsr_counter)), sizeof(std::size_t), 1, out);
+
     /* Increment FSR ID counter */
     fsr_counter++;
   }
 
   /* Write cmfd_fsrs vector of vectors to file */
-  if (cmfd != NULL){
+  if (cmfd != NULL) {
     std::vector< std::vector<int> > cell_fsrs = cmfd->getCellFSRs();
     std::vector<int>::iterator iter;
     int num_cells = cmfd->getNumCells();
     fwrite(&num_cells, sizeof(int), 1, out);
 
     /* Loop over CMFD cells */
-    for (int cell=0; cell < num_cells; cell++){
+    for (int cell=0; cell < num_cells; cell++) {
       num_FSRs = cell_fsrs.at(cell).size();
       fwrite(&num_FSRs, sizeof(int), 1, out);
 
@@ -2367,6 +2390,10 @@ void TrackGenerator::dump3DSegmentsToFile() {
         fwrite(&(*iter), sizeof(int), 1, out);
     }
   }
+
+  /* Delete key and value lists */
+  delete [] fsr_key_list;
+  delete [] fsr_data_list;
 
   /* Close the Track file */
   fclose(out);
@@ -2421,7 +2448,6 @@ bool TrackGenerator::read2DSegmentsFromFile() {
 
   int cmfd_surface_fwd;
   int cmfd_surface_bwd;
-  //segment curr_segment;
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
@@ -2470,9 +2496,12 @@ bool TrackGenerator::read2DSegmentsFromFile() {
   }
 
   /* Create FSR vector maps */
-  std::unordered_map<std::size_t, fsr_data> FSR_keys_map;
-  std::vector<int> FSRs_to_material_IDs;
-  std::vector<std::size_t> FSRs_to_keys;
+  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
+      new ParallelHashMap<std::size_t, fsr_data*>;
+  std::vector<int>* FSRs_to_material_IDs
+    = new std::vector<int>;
+  std::vector<std::size_t>* FSRs_to_keys
+    = new std::vector<std::size_t>;
   int num_FSRs;
   std::size_t fsr_key;
   int fsr_key_id;
@@ -2480,7 +2509,6 @@ bool TrackGenerator::read2DSegmentsFromFile() {
   
   /* Get number of FSRs */
   ret = fread(&num_FSRs, sizeof(int), 1, in);
-  _geometry->setNumFSRs(num_FSRs);
   
   /* Read FSR vector maps from file */
   for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++){
@@ -2496,15 +2524,15 @@ bool TrackGenerator::read2DSegmentsFromFile() {
     Point* point = new Point();
     point->setCoords(x,y,z);
     fsr->_point = point;
-    FSR_keys_map[fsr_key] = *fsr;
+    FSR_keys_map->insert(fsr_key, fsr);
 
     /* Read data from file for FSR_to_materials_IDs */
     ret = fread(&material_id, sizeof(int), 1, in);
-    FSRs_to_material_IDs.push_back(material_id);
+    FSRs_to_material_IDs->push_back(material_id);
 
     /* Read data from file for FSR_to_keys */
     ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
-    FSRs_to_keys.push_back(fsr_key);
+    FSRs_to_keys->push_back(fsr_key);
   }
 
   /* Set FSR vector maps */
@@ -2580,7 +2608,6 @@ bool TrackGenerator::read3DSegmentsFromFile() {
 
   int cmfd_surface_fwd;
   int cmfd_surface_bwd;
-  //segment curr_segment;
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
@@ -2633,9 +2660,12 @@ bool TrackGenerator::read3DSegmentsFromFile() {
   }
 
   /* Create FSR vector maps */
-  std::unordered_map<std::size_t, fsr_data> FSR_keys_map;
-  std::vector<int> FSRs_to_material_IDs;
-  std::vector<std::size_t> FSRs_to_keys;
+  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
+      new ParallelHashMap<std::size_t, fsr_data*>;
+  std::vector<int>* FSRs_to_material_IDs
+    = new std::vector<int>;
+  std::vector<std::size_t>* FSRs_to_keys
+    = new std::vector<std::size_t>;
   int num_FSRs;
   std::size_t fsr_key;
   int fsr_key_id;
@@ -2643,10 +2673,9 @@ bool TrackGenerator::read3DSegmentsFromFile() {
   
   /* Get number of FSRs */
   ret = fread(&num_FSRs, sizeof(int), 1, in);
-  _geometry->setNumFSRs(num_FSRs);
   
   /* Read FSR vector maps from file */
-  for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++){
+  for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++) {
 
     /* Read data from file for FSR_keys_map */
     ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
@@ -2659,15 +2688,15 @@ bool TrackGenerator::read3DSegmentsFromFile() {
     Point* point = new Point();
     point->setCoords(x,y,z);
     fsr->_point = point;
-    FSR_keys_map[fsr_key] = *fsr;
+    FSR_keys_map->insert(fsr_key, fsr);
 
     /* Read data from file for FSR_to_materials_IDs */
     ret = fread(&material_id, sizeof(int), 1, in);
-    FSRs_to_material_IDs.push_back(material_id);
+    FSRs_to_material_IDs->push_back(material_id);
 
     /* Read data from file for FSR_to_keys */
     ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
-    FSRs_to_keys.push_back(fsr_key);
+    FSRs_to_keys->push_back(fsr_key);
   }
 
   /* Set FSR vector maps */
@@ -2676,19 +2705,19 @@ bool TrackGenerator::read3DSegmentsFromFile() {
   _geometry->setFSRsToKeys(FSRs_to_keys);
 
   /* Read cmfd cell_fsrs vector of vectors from file */
-  if (cmfd != NULL){
+  if (cmfd != NULL) {
     std::vector< std::vector<int> > cell_fsrs;
     int num_cells, fsr_id;
     ret = fread(&num_cells, sizeof(int), 1, in);
 
     /* Loop over CMFD cells */
-    for (int cell=0; cell < num_cells; cell++){
-      std::vector<int> *fsrs = new std::vector<int>;
+    for (int cell=0; cell < num_cells; cell++) {
+      std::vector<int>* fsrs = new std::vector<int>;
       cell_fsrs.push_back(*fsrs);
       ret = fread(&num_FSRs, sizeof(int), 1, in);
 
       /* Loop over FRSs within cell */
-      for (int fsr = 0; fsr < num_FSRs; fsr++){
+      for (int fsr = 0; fsr < num_FSRs; fsr++) {
         ret = fread(&fsr_id, sizeof(int), 1, in);
         cell_fsrs.at(cell).push_back(fsr_id);
       }
@@ -2748,9 +2777,11 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
         for (int p=0; p < _num_polar; p++){
           for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
             for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
-              for (int s=0; s < _tracks_3D[a][c][p][i][t].getNumSegments(); s++){
+              for (int s=0; s < _tracks_3D[a][c][p][i][t].getNumSegments();
+                   s++){
                 
-                /* Extract data from this segment to compute it optical length */
+                /* Extract data from this segment to compute its optical 
+                 * length */
                 curr_segment = _tracks_3D[a][c][p][i][t].getSegment(s);
                 material = curr_segment->_material;
                 length = curr_segment->_length;
@@ -2767,7 +2798,8 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
                   min_num_cuts = std::max(num_cuts, min_num_cuts);
                 }
                 
-                /* If the segment does not need subdivisions, go to next segment */
+                /* If the segment does not need subdivisions, go to next 
+                 * segment */
                 if (min_num_cuts == 1)
                   continue;
                 
@@ -2782,10 +2814,12 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
                   
                   /* Assign CMFD surface boundaries */
                   if (k == 0)
-                    new_segment->_cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+                    new_segment->_cmfd_surface_bwd =
+                      curr_segment->_cmfd_surface_bwd;
                   
                   if (k == min_num_cuts-1)
-                    new_segment->_cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+                    new_segment->_cmfd_surface_fwd =
+                      curr_segment->_cmfd_surface_fwd;
                   
                   /* Insert the new segment to the Track */
                   _tracks_3D[a][c][p][i][t].insertSegment(s+k+1, new_segment);
@@ -2838,10 +2872,12 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
               
               /* Assign CMFD surface boundaries */
               if (k == 0)
-                new_segment->_cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+                new_segment->_cmfd_surface_bwd =
+                  curr_segment->_cmfd_surface_bwd;
               
               if (k == min_num_cuts-1)
-                new_segment->_cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+                new_segment->_cmfd_surface_fwd =
+                  curr_segment->_cmfd_surface_fwd;
               
               /* Insert the new segment to the Track */
               _tracks_2D[a][c][t].insertSegment(s+k+1, new_segment);
@@ -2904,13 +2940,13 @@ void TrackGenerator::generateFSRCentroids(){
                 double volume = FSR_volumes[fsr];
                 centroids[fsr]->
                   setX(centroids[fsr]->getX() + wgt *
-                       (x + cos(phi) * sin(theta) * curr_segment->_length / 2.0) *
-                       curr_segment->_length / FSR_volumes[fsr]);
+                       (x + cos(phi) * sin(theta) * curr_segment->_length / 2.0)
+                       * curr_segment->_length / FSR_volumes[fsr]);
                 
                 centroids[fsr]->
                   setY(centroids[fsr]->getY() + wgt *
-                       (y + sin(phi) * sin(theta) * curr_segment->_length / 2.0) *
-                       curr_segment->_length / FSR_volumes[fsr]);
+                       (y + sin(phi) * sin(theta) * curr_segment->_length / 2.0)
+                       * curr_segment->_length / FSR_volumes[fsr]);
                 
                 centroids[fsr]->
                   setZ(centroids[fsr]->getZ() + wgt *
@@ -2968,10 +3004,8 @@ void TrackGenerator::generateFSRCentroids(){
   /* Set the centroid for the FSR */
   for (int r=0; r < num_FSRs; r++){
     _geometry->setFSRCentroid(r, centroids[r]);
-    delete centroids[r];
   }
-
+  
   /* Delete temporary array of centroids and FSR volumes */
-  delete [] centroids;
   delete [] FSR_volumes;
 }

@@ -163,7 +163,7 @@ inline segment* Track::getSegment(int segment) {
 
   /* If Track doesn't contain this segment, exits program */
   if (segment >= (int)_segments.size())
-    log_printf(ERROR, "Attempted to retrieve segment s = %d but Track only"
+    log_printf(ERROR, "Attempted to retrieve segment s = %d but Track only "
                "has %d segments", segment, _segments.size());
 
   return &_segments[segment];

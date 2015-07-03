@@ -28,7 +28,7 @@ elif 'openmoc.bgq.double' in sys.modules:
 elif 'openmoc.bgq.single' in sys.modules:
   openmoc = sys.modules['openmoc.bgq.single']
 else:
-  from openmoc import *
+  import openmoc
 
 
 import matplotlib
@@ -63,6 +63,8 @@ else:
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
 
+TINY_MOVE = openmoc.TINY_MOVE
+
 
 ##
 # @brief Plots the characteristic tracks from an OpenMOC simulation.
@@ -79,7 +81,7 @@ def plot_tracks(track_generator):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -90,17 +92,17 @@ def plot_tracks(track_generator):
     py_printf('ERROR', 'Unable to plot Tracks since %s was input rather ' + \
               'than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.containsTracks():
+  if not track_generator.contains2DTracks():
     py_printf('ERROR', 'Unable to plot Tracks since the track ' + \
-              'generator has not yet generated tracks')
+              'generator has not yet generated 2D tracks')
 
-  py_printf('NORMAL', 'Plotting the tracks...')
+  py_printf('NORMAL', 'Plotting the 2D tracks...')
 
   # Retrieve data from TrackGenerator
   num_azim = track_generator.getNumAzim()
   spacing = track_generator.getDesiredAzimSpacing()
   num_tracks = track_generator.getNum2DTracks()
-  coords = track_generator.retrieveTrackCoords2D(num_tracks*4)
+  coords = track_generator.retrieve2DTrackCoords(num_tracks*4)
 
   # Convert data to NumPy arrays
   coords = np.array(coords)
@@ -112,15 +114,12 @@ def plot_tracks(track_generator):
   for i in range(num_tracks):
     plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], 'b-')
 
-  plt.xlim([x.min(), x.max()])
-  plt.ylim([y.min(), y.max()])
-
   title = 'Tracks for ' + str(num_azim) + ' angles and ' + str(spacing) + \
             ' cm spacing'
 
   plt.title(title)
 
-  filename = directory + 'tracks-' + str(num_azim) + '-angles-' + \
+  filename = directory + '2D-tracks-' + str(num_azim) + '-angles-' + \
       str(spacing) + '-spacing.png'
 
   fig.savefig(filename, bbox_inches='tight')
@@ -143,7 +142,7 @@ def plot_segments(track_generator):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -154,9 +153,9 @@ def plot_segments(track_generator):
     py_printf('ERROR', 'Unable to plot Track segments since %s was input ' + \
               'rather than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.contains2DTracks():
+  if not track_generator.contains2DSegments():
     py_printf('ERROR', 'Unable to plot Track segments since the ' + \
-              'TrackGenerator has not yet generated Tracks.')
+              'TrackGenerator has not yet generated 2D Segments.')
 
   py_printf('NORMAL', 'Plotting the 2d track segments...')
 
@@ -164,7 +163,6 @@ def plot_segments(track_generator):
   num_azim = track_generator.getNumAzim()
   spacing = track_generator.getDesiredAzimSpacing()
   num_segments = track_generator.getNum2DSegments()
-  print num_segments
   num_fsrs = track_generator.getGeometry().getNumFSRs()
   coords = track_generator.retrieve2DSegmentCoords(num_segments*5)
 
@@ -199,9 +197,6 @@ def plot_segments(track_generator):
     color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
     plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], c=color)
 
-  plt.xlim([x.min(), x.max()])
-  plt.ylim([y.min(), y.max()])
-
   title = 'Segments for ' + str(num_azim) + ' angles and ' + str(spacing) + \
         ' cm spacing'
 
@@ -218,7 +213,7 @@ def plot_segments_3d(track_generator):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -233,7 +228,7 @@ def plot_segments_3d(track_generator):
     py_printf('ERROR', 'Unable to plot Track segments since the ' + \
               'TrackGenerator has not yet generated Tracks.')
 
-  py_printf('NORMAL', 'Plotting the 3d track segments...')
+  py_printf('NORMAL', 'Plotting the 3D track segments...')
 
   # Retrieve data from TrackGenerator
   num_azim = track_generator.getNumAzim()
@@ -275,17 +270,15 @@ def plot_segments_3d(track_generator):
     cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
     scalarMap = cmx.ScalarMappable(norm=cNorm)
     color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
-    plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], [z[i*2], z[i*2+1]], c=color)
-
-  #plt.xlim([x.min(), x.max()])
-  #plt.ylim([y.min(), y.max()])
+    plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], [z[i*2], z[i*2+1]], \
+             c=color)
 
   title = 'Segments for ' + str(num_azim) + ' angles and ' + str(spacing) + \
         ' cm spacing'
 
   plt.title(title)
 
-  filename = directory + '3d-segments-' + str(num_azim) + '-angles-' + \
+  filename = directory + '3D-segments-' + str(num_azim) + '-angles-' + \
       str(spacing) + '-spacing.png'
 
   fig.savefig(filename, bbox_inches='tight')
@@ -309,11 +302,12 @@ def plot_segments_3d(track_generator):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plane='xy', offset=0.):
+def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, \
+                   plane='xy', offset=0.):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -355,15 +349,15 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plan
     for j in range(gridsize):
 
       if plane == 'xy':
-        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
       elif plane == 'xz':
-        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
       else:
-        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point = openmoc.LocalCoords(offset, coords['y'][i], coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
 
@@ -371,7 +365,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plan
       if cell is None:
         surface[j][i] = -1
       else:
-        surface[j][i] = cell.getMaterial().getId()
+        surface[j][i] = cell.getFillMaterial().getId()
 
   # Get the number of Materials in the Geometry
   materials = geometry.getAllMaterials()
@@ -421,11 +415,12 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plan
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plane='xy', offset=0.):
+def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, \
+               plane='xy', offset=0.):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -467,15 +462,15 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plane='x
     for j in range(gridsize):
 
       if plane == 'xy':
-        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
       elif plane == 'xz':
-        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
       else:
-        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point = openmoc.LocalCoords(offset, coords['y'][i], coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
 
@@ -522,6 +517,8 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plane='x
 ##
 # @brief This method takes in a Geometry object and plots a color-coded 2D
 #        surface plot representing the flat source regions in the Geometry.
+#        The FSR centroids are plotted as black circles on top of the FSRs if
+#        the centroids boolean is set to True.
 # @details The Geometry object must be initialized with Materials, Cells,
 #          Universes and Lattices before being passed into this method. A user
 #          may invoke this function from an OpenMOC Python file as follows:
@@ -535,11 +532,13 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plane='x
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, plane='xy', offset=0.):
+def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
+                             zlim=None, plane='xy', offset=0., \
+                             centroids=False, marker_type='o', marker_size=2):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -552,7 +551,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, zlim=
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
-              'since the gridsize %d is not an integer', gridsize)
+              'the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the flat source regions ' + \
@@ -568,6 +567,26 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, zlim=
           'is not a float'.format(offset)
     raise ValueError(msg)
     
+  if not isinstance(centroids, bool):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'centroids is not a boolean')
+
+  if not isinstance(marker_type, str):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_type is a string')
+
+  if marker_type not in matplotlib.markers.MarkerStyle().markers.keys():
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_type is not a valid marker (%d)', marker_type)
+
+  if not is_float(marker_size) and not is_integer(marker_size):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_size is not an int or float', marker_size)
+
+  if marker_size <= 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'with a negative marker_size (%d)', marker_size)
+
   py_printf('NORMAL', 'Plotting the flat source regions...')
 
   # Get the number of flat source regions
@@ -588,21 +607,21 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, zlim=
     for j in range(gridsize):
 
       if plane == 'xy':
-        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
         point.setUniverse(geometry.getRootUniverse())
         geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
       elif plane == 'xz':
-        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
       else:
-        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point = openmoc.LocalCoords(offset, coords['y'][i], coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
-      
+
       # If we did not find a region for this region, use a -1 "bad" number color
       if fsr_id is None:
         surface[j][i] = -1
@@ -636,6 +655,49 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, zlim=
   colors = np.flipud(colors)
   plt.imshow(colors, extent=coords['bounds'],
              interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
+
+  # Plot centroids on top of 2D FSR color map
+  if centroids:
+    centroids_x = []
+    centroids_y = []
+    centroids_z = []
+    for r in range(geometry.getNumFSRs()):
+      point = geometry.getFSRCentroid(r)
+      centroids_x.append(point.getX())
+      centroids_y.append(point.getY())
+      centroids_z.append(point.getZ())
+      
+
+    if plane == 'xy':
+      plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
+                  s=marker_size)
+
+      # Matplotlib likes to add a buffer around scatter plots, so we will
+      # manually set the plot bounds
+      plt.xlim(min(coords['x']), max(coords['x']))
+      plt.ylim(min(coords['y']), max(coords['y']))
+      
+    elif plane == 'xz':
+      plt.scatter(centroids_x, centroids_z, color='k', marker=marker_type, \
+                  s=marker_size)
+
+      # Matplotlib likes to add a buffer around scatter plots, so we will
+      # manually set the plot bounds
+      plt.xlim(min(coords['x']), max(coords['x']))
+      plt.ylim(min(coords['z']), max(coords['z']))
+      
+    else:
+
+      plt.scatter(centroids_y, centroids_z, color='k', marker=marker_type, \
+                  s=marker_size)
+
+      # Matplotlib likes to add a buffer around scatter plots, so we will
+      # manually set the plot bounds
+      plt.xlim(min(coords['y']), max(coords['y']))
+      plt.ylim(min(coords['z']), max(coords['z']))
+      
+
+  # Set the plot title and save the figure
   plt.title('Flat Source Regions')
   filename = directory + 'flat-source-regions-' + plane + '.png'
   fig.savefig(filename, bbox_inches='tight')
@@ -665,11 +727,12 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, zlim=
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, zlim=None, plane='xy', offset=0.):
+def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, \
+                    zlim=None, plane='xy', offset=0.):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -715,19 +778,19 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, zlim=Non
     for j in range(gridsize):
 
       if plane == 'xy':
-        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
         point.setUniverse(geometry.getRootUniverse())
         geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
         cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)        
       elif plane == 'xz':
-        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
         cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)        
       else:
-        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point = openmoc.LocalCoords(offset, coords['y'][i], coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
@@ -794,7 +857,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -857,17 +920,17 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
     for j in range(gridsize):
 
       if plane == 'xy':
-        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)        
       elif plane == 'xz':
-        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
       else:
-        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point = openmoc.LocalCoords(offset, coords['y'][i], coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
@@ -923,7 +986,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -1060,7 +1123,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None,
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -1106,17 +1169,17 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None,
     for j in range(gridsize):
 
       if plane == 'xy':
-        point = LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
       elif plane == 'xz':
-        point = LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
       else:
-        point = LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point = openmoc.LocalCoords(offset, coords['y'][i], coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
@@ -1152,7 +1215,7 @@ def plot_tracks_3d(track_generator):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -1192,12 +1255,13 @@ def plot_tracks_3d(track_generator):
   #plt.xlim([x.min(), x.max()])
   #plt.ylim([y.min(), y.max()])
 
-  title = 'Tracks for (' + str(num_azim) + ', ' + str(num_polar) + ') angles and ('\
-          + str(azim_spacing) + ', ' + str(polar_spacing) + ') cm spacing'
+  title = 'Tracks for (' + str(num_azim) + ', ' + str(num_polar) + \
+          ') angles and (' + str(azim_spacing) + ', ' + \
+          str(polar_spacing) + ') cm spacing'
 
   plt.title(title)
 
-  filename = directory + '3Dtracks-' + str(num_azim) + '-angles-' + \
+  filename = directory + '3D-tracks-' + str(num_azim) + '-angles-' + \
       str(azim_spacing) + '-spacing.png'
 
   fig.savefig(filename, bbox_inches='tight')
@@ -1208,7 +1272,7 @@ def plot_quadrature(quadrature):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -1216,8 +1280,8 @@ def plot_quadrature(quadrature):
 
   # Error checking
   if not 'Quad' in str(type(quadrature)):
-    py_printf('ERROR', 'Unable to plot the quadrature since %s was input rather ' + \
-              'than a Quadrature object', str(type(quadrature)))
+    py_printf('ERROR', 'Unable to plot the quadrature since %s was input ' + \
+              'rather than a Quadrature object', str(type(quadrature)))
 
   py_printf('NORMAL', 'Plotting the quadrature...')
 
@@ -1253,20 +1317,30 @@ def plot_quadrature(quadrature):
   title = ''
   filename = 'quadrature.png'
   if quadrature.getQuadratureType() is TABUCHI_YAMAMOTO:
-    title = 'TABUCHI YAMAMOTO with ' + str(num_azim) + ' azim and ' + str(num_polar) + ' polar angles'
-    filename = directory + 'quad-TY-' + str(num_azim) + '-azim-' + str(num_polar) + '-polar.png'
+    title = 'TABUCHI YAMAMOTO with ' + str(num_azim) + ' azim and ' + \
+            str(num_polar) + ' polar angles'
+    filename = directory + 'quad-TY-' + str(num_azim) + '-azim-' + \
+               str(num_polar) + '-polar.png'
   if quadrature.getQuadratureType() is LEONARD:
-    title = 'LEONARD with ' + str(num_azim) + ' azim and ' + str(num_polar) + ' polar angles'
-    filename = directory + 'quad-LEONARD-' + str(num_azim) + '-azim-' + str(num_polar) + '-polar.png'
+    title = 'LEONARD with ' + str(num_azim) + ' azim and ' + str(num_polar) + \
+            ' polar angles'
+    filename = directory + 'quad-LEONARD-' + str(num_azim) + '-azim-' + \
+               str(num_polar) + '-polar.png'
   if quadrature.getQuadratureType() is GAUSS_LEGENDRE:
-    title = 'GAUSS LEGENDRE with ' + str(num_azim) + ' azim and ' + str(num_polar) + ' polar angles'
-    filename = directory + 'quad-GL-' + str(num_azim) + '-azim-' + str(num_polar) + '-polar.png'
+    title = 'GAUSS LEGENDRE with ' + str(num_azim) + ' azim and ' + \
+            str(num_polar) + ' polar angles'
+    filename = directory + 'quad-GL-' + str(num_azim) + '-azim-' + \
+               str(num_polar) + '-polar.png'
   if quadrature.getQuadratureType() is EQUAL_WEIGHT:
-    title = 'EQUAL WEIGHT with ' + str(num_azim) + ' azim and ' + str(num_polar) + ' polar angles'
-    filename = directory + 'quad-EQ-WGT-' + str(num_azim) + '-azim-' + str(num_polar) + '-polar.png'
+    title = 'EQUAL WEIGHT with ' + str(num_azim) + ' azim and ' + \
+            str(num_polar) + ' polar angles'
+    filename = directory + 'quad-EQ-WGT-' + str(num_azim) + '-azim-' + \
+               str(num_polar) + '-polar.png'
   if quadrature.getQuadratureType() is EQUAL_ANGLE:
-    title = 'EQUAL ANGLE with ' + str(num_azim) + ' azim and ' + str(num_polar) + ' polar angles'
-    filename = directory + 'quad-EQ-ANGLE-' + str(num_azim) + '-azim-' + str(num_polar) + '-polar.png'
+    title = 'EQUAL ANGLE with ' + str(num_azim) + ' azim and ' + \
+            str(num_polar) + ' polar angles'
+    filename = directory + 'quad-EQ-ANGLE-' + str(num_azim) + '-azim-' + \
+               str(num_polar) + '-polar.png'
     
   plt.title(title)
   ax.view_init(elev=30, azim=45)
@@ -1278,7 +1352,7 @@ def plot_tracks_3d_range(track_generator, first_track, last_track):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -1318,7 +1392,8 @@ def plot_tracks_3d_range(track_generator, first_track, last_track):
   #plt.xlim([x.min(), x.max()])
   #plt.ylim([y.min(), y.max()])
 
-  title = str(last_track-first_track) + ' tracks for (' + str(num_azim) + ', ' + str(num_polar) + ') angles and ('\
+  title = str(last_track-first_track) + ' tracks for (' + str(num_azim) + \
+          ', ' + str(num_polar) + ') angles and ('\
           + str(azim_spacing) + ', ' + str(polar_spacing) + ') cm spacing'
 
   plt.title(title)

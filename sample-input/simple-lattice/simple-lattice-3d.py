@@ -61,31 +61,31 @@ small_circle = Circle(x=0.0, y=0.0, radius=0.2, name='small pin')
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-large_fuel = CellBasic(name='large pin fuel')
-large_fuel.setMaterial(materials['UO2'])
+large_fuel = Cell()
+large_fuel.setFill(materials['UO2'])
 large_fuel.addSurface(halfspace=-1, surface=large_circle)
 
-large_moderator = CellBasic(name='large pin moderator')
-large_moderator.setMaterial(materials['Water'])
+large_moderator = Cell()
+large_moderator.setFill(materials['Water'])
 large_moderator.addSurface(halfspace=+1, surface=large_circle)
 
-medium_fuel = CellBasic(name='medium pin fuel')
-medium_fuel.setMaterial(materials['UO2'])
+medium_fuel = Cell()
+medium_fuel.setFill(materials['UO2'])
 medium_fuel.addSurface(halfspace=-1, surface=medium_circle)
 
-medium_moderator = CellBasic(name='medium pin moderator')
-medium_moderator.setMaterial(materials['Water'])
+medium_moderator = Cell()
+medium_moderator.setFill(materials['Water'])
 medium_moderator.addSurface(halfspace=+1, surface=medium_circle)
 
-small_fuel = CellBasic(name='small pin fuel')
-small_fuel.setMaterial(materials['UO2'])
+small_fuel = Cell()
+small_fuel.setFill(materials['UO2'])
 small_fuel.addSurface(halfspace=-1, surface=small_circle)
 
-small_moderator = CellBasic(name='small pin moderator')
-small_moderator.setMaterial(materials['Water'])
+small_moderator = Cell()
+small_moderator.setFill(materials['Water'])
 small_moderator.addSurface(halfspace=+1, surface=small_circle)
 
-root_cell = CellFill(name='root cell')
+root_cell = Cell()
 root_cell.addSurface(halfspace=+1, surface=xmin)
 root_cell.addSurface(halfspace=-1, surface=xmax)
 root_cell.addSurface(halfspace=+1, surface=ymin)
@@ -158,23 +158,22 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, polar_spacing)
+track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
+                                 polar_spacing)
 track_generator.setNumThreads(num_threads)
 #track_generator.setSolve2D()
 track_generator.setZLevel(0.1)
 track_generator.generateTracks()
 
-plotter.plot_segments_3d(track_generator)
-
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator)
+solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
-solver.setSourceConvergenceThreshold(tolerance)
+solver.setConvergenceThreshold(tolerance)
 solver.useExponentialIntrinsic()
-solver.convergeSource(max_iters)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 
@@ -184,11 +183,12 @@ solver.printTimerReport()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plot_tracks(track_generator)
-#plotter.plot_segments(track_generator)
-#plotter.plot_materials(geometry, gridsize=500)
-#plotter.plot_cells(geometry, gridsize=500)
-#plotter.plot_flat_source_regions(geometry, gridsize=500)
+plotter.plot_tracks(track_generator)
+plotter.plot_segments_3d(track_generator)
+plotter.plot_materials(geometry, gridsize=500, plane='xy', offset=0.)
+plotter.plot_cells(geometry, gridsize=500, plane='xy', offset=0.)
+plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy', offset=0.)
+plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500, plane='xy', offset=0.)
 #plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')

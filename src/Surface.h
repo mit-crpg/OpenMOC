@@ -144,7 +144,7 @@ public:
   void setName(const char* name);
   void setBoundaryType(const boundaryType boundary_type);
   void addNeighborCell(int halfspace, Cell* cell);
-  
+
   /**
    * @brief Evaluate a Point using the Surface's potential equation.
    * @details This method returns the values \f$ f(x,y) \f$ for the potential
@@ -163,7 +163,8 @@ public:
    * @param points pointer to a Point to store the intersection Point
    * @return the number of intersection Points (0 or 1)
    */
-  virtual int intersection(Point* point, double azim, double polar, Point* points) =0;
+  virtual int intersection(Point* point, double azim, double polar,
+                           Point* points) =0;
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
@@ -379,9 +380,8 @@ inline double Surface::getMinDistance(Point* point, double azim, double polar) {
   double distance = INFINITY;
 
   /* If there is one intersection Point */
-  if (num_inters == 1) {
+  if (num_inters == 1)
     distance = intersections[0].distanceToPoint(point);
-  }
 
   /* If there are two intersection Points */
   else if (num_inters == 2) {
@@ -391,7 +391,7 @@ inline double Surface::getMinDistance(Point* point, double azim, double polar) {
     /* Determine which intersection Point is nearest */
     if (dist1 < dist2) 
       distance = dist1;
-    else 
+    else
       distance = dist2;
   }
 

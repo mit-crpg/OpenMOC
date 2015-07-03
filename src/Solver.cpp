@@ -39,12 +39,11 @@ Solver::Solver(TrackGenerator* track_generator) {
   
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
-  
+
   _num_iterations = 0;
   _converge_thresh = 1E-5;
 
   _timer = new Timer();
-
 }
 
 
@@ -95,6 +94,7 @@ Geometry* Solver::getGeometry() {
 
   return _geometry;
 }
+
 
 
 /**
@@ -153,7 +153,7 @@ int Solver::getNumIterations() {
  * @return the time to converge the source (seconds)
  */
 double Solver::getTotalTime() {
-  return _timer->getSplit("Total time to converge the source");
+  return _timer->getSplit("Total time");
 }
 
 
@@ -167,8 +167,8 @@ FP_PRECISION Solver::getKeff() {
 
 
 /**
- * @brief Returns the threshold for source convergence.
- * @return the threshold for source convergence
+ * @brief Returns the threshold for source/flux convergence.
+ * @return the threshold for source/flux convergence
  */
 FP_PRECISION Solver::getConvergenceThreshold() {
   return _converge_thresh;
@@ -186,7 +186,7 @@ FP_PRECISION Solver::getMaxOpticalLength() {
 
 /**
  * @brief Returns whether the solver is using double floating point precision.
- * @return true if so, false otherwise
+ * @return true if using double precision float point arithmetic
  */
 bool Solver::isUsingDoublePrecision() {
 #ifdef DOUBLE
@@ -200,7 +200,7 @@ bool Solver::isUsingDoublePrecision() {
 /**
  * @brief Returns whether the Solver uses linear interpolation to
  *        compute exponentials.
- * @return true if so, false otherwise
+ * @return true if using linear interpolation to compute exponentials
  */
 bool Solver::isUsingExponentialInterpolation() {
   return _exp_evaluator->isUsingInterpolation();
@@ -297,16 +297,8 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
 
 /**
  * @brief Sets the Geometry for the Solver.
- * @details The Geometry must already have initialized FSR offset maps
- *          and segmentized the TrackGenerator's tracks. Each of these
- *          should be initiated in Python prior to assigning a Geometry
- *          to the Solver:
- *
- * @code
- *          geometry.initializeFlatSourceRegions()
- *          track_generator.generateTracks()
- * @endcode
- *
+ * @details This is a private setter method for the Solver and is not
+ *          intended to be called by the user.
  * @param geometry a pointer to a Geometry object
  */
 void Solver::setGeometry(Geometry* geometry) {
@@ -336,6 +328,7 @@ void Solver::setGeometry(Geometry* geometry) {
  *          to the Solver:
  *
  * @code
+ *          geometry.initializeFlatSourceRegions()
  *          track_generator.generateTracks()
  *          solver.setTrackGenerator(track_generator)
  * @endcode
@@ -344,8 +337,9 @@ void Solver::setGeometry(Geometry* geometry) {
  */
 void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
-  if ((!track_generator->contains2DSegments() && track_generator->isSolve2D()) ||
-      (!track_generator->contains3DSegments() && track_generator->isSolve3D()))
+  if ((!track_generator->contains2DSegments() && track_generator->isSolve2D())
+      || (!track_generator->contains3DSegments() &&
+          track_generator->isSolve3D()))
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");
 
@@ -399,7 +393,8 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
           for (int i=0; i < _track_generator->getNumZ(a,p)
                  + _track_generator->getNumL(a,p); i++){
             for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
-              _tracks[counter] = &_track_generator->get3DTracks()[a][c][p][i][t];
+              _tracks[counter] =
+                &_track_generator->get3DTracks()[a][c][p][i][t];
               counter++;
             }
           }
@@ -417,14 +412,15 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
 
 /**
- * @brief Sets the threshold for source convergence (>0)
- * @param source_thresh the threshold for source convergence
+ * @brief Sets the threshold for source/flux convergence.
+ * @brief The default threshold for convergence is 1E-5.
+ * @param source_thresh the threshold for source/flux convergence
  */
 void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
 
   if (threshold <= 0.0)
-    log_printf(ERROR, "Unable to set the source convergence threshold to %f"
-               "since the threshold must be a positive number", threshold);
+    log_printf(ERROR, "Unable to set the convergence threshold to %f "
+               "since it is not a positive number", threshold);
 
   _converge_thresh = threshold;
 }
@@ -534,8 +530,8 @@ void Solver::useExponentialInterpolation() {
 
 
 /**
- * @brief Informs the Solver to use the exponential intrinsic exp(...) function
- *        to compute the exponential in the transport equation
+ * @brief Informs the Solver to use the exponential intrinsic exp(...)
+ *        function to compute the exponential in the transport equation.
  */
 void Solver::useExponentialIntrinsic() {
   _exp_evaluator->useIntrinsic();
@@ -608,8 +604,6 @@ void Solver::initializeFSRs() {
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
-  
-  return;
 }
 
 
@@ -638,11 +632,10 @@ void Solver::countFissionableFSRs() {
  * @brief Initializes a Cmfd object for acceleratiion prior to source iteration.
  * @details Instantiates a dummy Cmfd object if one was not assigned to
  *          the Solver by the user and initializes FSRs, materials, fluxes
- *          and the Mesh object. This method is for internal use only and is
- *          called by the Solver::convergeSource() method and should not be
- *          called directly by the user.
+ *          and the Mesh object. This method is for internal use only
+ *          and should not be called directly by the user.
  */
-void Solver::initializeCmfd(){
+void Solver::initializeCmfd() {
 
   log_printf(INFO, "Initializing CMFD...");
 
@@ -665,9 +658,10 @@ void Solver::initializeCmfd(){
   _cmfd->generateKNearestStencils();
   _cmfd->setAzimSpacings(_track_generator->getAzimSpacings(), _num_azim);
   _cmfd->initializeSurfaceCurrents();
-
+  
   if (_solve_3D)
-    _cmfd->setPolarSpacings(_track_generator->getPolarSpacings(), _num_azim, _num_polar);
+    _cmfd->setPolarSpacings
+      (_track_generator->getPolarSpacings(), _num_azim, _num_polar);
 }
 
 
@@ -928,10 +922,10 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeSourceArrays();
   initializeFSRs();
   countFissionableFSRs();
-  
-  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    initializeCmfd();
 
+  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
+      initializeCmfd();
+  
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
   zeroTrackFluxes();
@@ -977,7 +971,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
  *        code in the source convergence loop.
  */
 void Solver::clearTimerSplits() {
-  _timer->clearSplit("Total time to converge the source");
+  _timer->clearSplit("Total time");
 }
 
 
@@ -991,16 +985,10 @@ void Solver::printTimerReport() {
   log_printf(TITLE, "TIMING REPORT");
 
   /* Get the total runtime */
-  double tot_time = _timer->getSplit("Total time to converge the source");
+  double tot_time = _timer->getSplit("Total time");
   msg_string = "Total time to solution";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
-
-  /* Time per unknown */
-  double time_per_unknown = tot_time / (_num_FSRs * _num_groups);
-  msg_string = "Solution time per unknown";
-  msg_string.resize(53, '.');
-  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_unknown);
 
   /* Time per iteration */
   double time_per_iter = tot_time / _num_iterations;

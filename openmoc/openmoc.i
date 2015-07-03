@@ -10,7 +10,6 @@
   #include "../src/constants.h"
   #include "../src/Cell.h"
   #include "../src/Geometry.h"
-  #include "../src/boundary_type.h"
   #include "../src/LocalCoords.h"
   #include "../src/log.h"
   #include "../src/Material.h"
@@ -30,7 +29,8 @@
   #include "../src/TrackGenerator.h"
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
-
+  #include "../src/boundary_type.h"
+  
   #ifdef ICPC
   #include "../src/VectorizedSolver.h"
   #endif
@@ -60,6 +60,14 @@
 %warnfilter(511) swig::SwigPyIterator;
 %warnfilter(511) Cell::setFill;
 
+/* Methods for SWIG to ignore in generating Python API */
+%ignore setFSRCentroid(int fsr, Point* centroid);
+%ignore setFSRKeysMap(std::unordered_map<std::size_t, fsr_data>* FSR_keys_map);
+%ignore setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys);
+%ignore setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
+%ignore setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
+%ignore initializeFSRVectors();
+
 %exception {
   try {
     $function
@@ -67,6 +75,7 @@
       SWIG_exception(SWIG_RuntimeError, e.what());
   }
 }
+
 
 /* C++ casting helper method for openmoc.process computePinPowers
  * routine and the OpenCG compatibility module */
@@ -446,7 +455,8 @@
        * of the first list */
       if (PySequence_Length(outer_list) != $3) {
         PyErr_SetString(PyExc_ValueError, "Size mismatch in Universes "
-                        "list for Lattice which must be a 3D list of lists of lists");
+                        "list for Lattice which must be a 3D list of lists "
+                        "of lists");
         return NULL;
       }
       
@@ -469,7 +479,6 @@
 %include ../src/constants.h
 %include ../src/Cell.h
 %include ../src/Geometry.h
-%include ../src/boundary_type.h
 %include ../src/LocalCoords.h
 %include ../src/log.h
 %include ../src/Material.h
@@ -489,9 +498,10 @@
 %include ../src/TrackGenerator.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h
+%include ../src/boundary_type.h
 
 #ifdef ICPC
-%include "../src/VectorizedSolver.h"
+%include ../src/VectorizedSolver.h
 #endif
 
 #define printf PySys_WriteStdout

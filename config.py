@@ -238,8 +238,13 @@ class configuration:
     linker_flags['gcc'] = ['-fopenmp', '-shared',
                            '-Wl,-soname,' + get_openmoc_object_name()]
 
-  linker_flags['clang'] = ['-fopenmp', '-shared',
-                         '-Wl,-soname,' + get_openmoc_object_name()]
+  if ('macosx' in get_platform()):
+    linker_flags['clang'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
+                             '-Wl,-install_name,' + get_openmoc_object_name()]
+  else:
+    linker_flags['clang'] = ['-fopenmp', '-shared',
+                             '-Wl,-soname,' + get_openmoc_object_name()]
+
   linker_flags['icpc'] = [ '-openmp', '-shared',
                            '-Xlinker', '-soname=' + get_openmoc_object_name()]
   linker_flags['bgxlc'] = ['-qmkshrobj', '-shared',
@@ -382,7 +387,10 @@ class configuration:
                               ('DOUBLE', None),
                               ('NVCC', None),
                               ('CCACHE_CC', 'nvcc')]
-
+  # define OPENMP
+  for compiler in macros:
+    for precision in macros[compiler]:
+      macros[compiler][precision].append(('OPENMP', None))
 
 
   def setup_extension_modules(self):

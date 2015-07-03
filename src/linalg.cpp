@@ -2,7 +2,8 @@
 
 #include "linalg.h"
 
-FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol, FP_PRECISION SOR_factor){
+FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
+                             FP_PRECISION SOR_factor){
 
   log_printf(INFO, "computing eigenvalue...");
 
@@ -40,8 +41,9 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol, 
     #pragma omp parallel for
     for (int i = 0; i < num_rows; i++){
       if (new_source.getValue(i) != 0.0)
-        old_source.setValue(i, pow((new_source.getValue(i) - old_source.getValue(i))
-                                    / new_source.getValue(i), 2));
+        old_source.setValue
+          (i, pow((new_source.getValue(i) - old_source.getValue(i))
+                  / new_source.getValue(i), 2));
     }
 
     /* Compute the source RMS error */
@@ -71,7 +73,8 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol, 
  * @param flux convergence criteria
  * @param the maximum number of iterations
  */
-void linearSolve(Matrix* A, Vector* X, Vector* B, FP_PRECISION tol, FP_PRECISION SOR_factor){
+void linearSolve(Matrix* A, Vector* X, Vector* B, FP_PRECISION tol,
+                 FP_PRECISION SOR_factor){
 
   FP_PRECISION residual = 1E10;
   int iter = 0;

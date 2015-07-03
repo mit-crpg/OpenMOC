@@ -48,11 +48,14 @@ struct surface_halfspace {
 */
 enum cellType {
 
-  /** A cell filled by a material */
+  /** A cell filled by a Material */
   MATERIAL,
 
-  /** A cell filled by a universe */
-  FILL
+  /** A cell filled by a Universe */
+  FILL,
+
+  /** A cell not yet filled by anything */
+  UNFILLED
 };
 
 
@@ -62,7 +65,7 @@ enum cellType {
  */
 class Cell {
 
-protected:
+private:
 
   /** A static counter for the number of Cells */
   static int _n;
@@ -132,7 +135,7 @@ protected:
 
   void ringify(std::vector<Cell*>* subcells);
   void sectorize(std::vector<Cell*>* subcells);
-  
+
 public:
   Cell(int id=0, const char* name="");
   virtual ~Cell();
@@ -184,5 +187,6 @@ public:
   std::string toString();
   void printString();
 };
+
 
 #endif /* CELL_H_ */

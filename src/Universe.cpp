@@ -5,7 +5,6 @@ int Universe::_n = 0;
 
 static int auto_id = 10000;
 
-
 /**
  * @brief Returns an auto-generated unique Universe ID.
  * @details This method is intended as a utility method for user's writing
@@ -175,7 +174,7 @@ double Universe::getMinY() {
  * @brief Returns the maximum reachable y-coordinate in the Universe.
  * @return the maximum reachable y-coordinate
  */
-double Universe::getMaxY(){
+double Universe::getMaxY() {
 
   double max_y = -std::numeric_limits<double>::infinity();
 
@@ -405,6 +404,7 @@ std::map<int, Cell*> Universe::getAllCells() {
   return cells;
 }
 
+
 /**
  * @brief Returns the std::map of all IDs and Material pointers filling
           this Universe.
@@ -566,7 +566,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
   /* Add all of Universe's Cells to the back of neighbor Cells vector */
   std::transform(_cells.begin(), _cells.end(), 
-                 std::back_inserter(cells), second(_cells));
+                 std::back_inserter(cells), pair_second(_cells));
   
   /* Loop over all Cells */
   for (iter = cells.begin(); iter != cells.end(); ++iter) {
@@ -746,7 +746,6 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
  */
 Lattice::~Lattice() {
 
-  
   for (int k=0; k < _num_z; k++){
     for (int j=0; j < _num_y; j++)
       _universes.at(k).at(j).clear();
@@ -870,7 +869,7 @@ double Lattice::getMinY() {
  * @brief Returns the maximum reachable y-coordinate in the Lattice.
  * @return the maximum reachable y-coordinate
  */
-double Lattice::getMaxY(){
+double Lattice::getMaxY() {
   return _offset.getY() + (_num_y * _width_y / 2.);
 }
 
@@ -962,7 +961,7 @@ std::map<int, Cell*> Lattice::getAllCells() {
   std::map<int, Universe*>::iterator iter;
   std::map<int, Cell*> nested_cells;
 
-  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter){
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter) {
     nested_cells = iter->second->getAllCells();
     cells.insert(nested_cells.begin(), nested_cells.end());
   }
@@ -992,7 +991,7 @@ std::map<int, Universe*> Lattice::getAllUniverses() {
   std::map<int, Universe*>::iterator iter;
   std::map<int, Universe*> nested_universes;
 
-  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter){
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter) {
     nested_universes = iter->second->getAllUniverses();
     all_universes.insert(nested_universes.begin(), nested_universes.end());
   }
@@ -1085,7 +1084,8 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
   
   Universe* universe;
 
-  _universes.push_back(std::vector< std::vector< std::pair<int, Universe*> > >());
+  _universes.push_back
+    (std::vector< std::vector< std::pair<int, Universe*> > >());
   
   /* The Lattice cells are assumed input in row major order starting from the
    * upper left corner. This double loop reorders the Lattice cells from the
@@ -1097,7 +1097,7 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
     for (int i = 0; i < _num_x; i++){
       universe = universes[(_num_y-1-j)*_num_x + i];
       _universes.at(0).at(j).push_back(std::pair<int, Universe*>
-                                 (universe->getId(), universe));
+                                       (universe->getId(), universe));
     }
   }
 }
@@ -1124,7 +1124,8 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
  * @param num_z the number of Lattice cells along x
  * @param universes the array of Universes for each Lattice cell
  */
-void Lattice::setUniverses3D(int num_z, int num_y, int num_x, Universe** universes) {
+void Lattice::setUniverses3D(int num_z, int num_y, int num_x,
+                             Universe** universes) {
 
   /* Clear any Universes in the Lattice (from a previous run) */
   for (int k=0; k < _num_z; k++){
@@ -1146,13 +1147,15 @@ void Lattice::setUniverses3D(int num_z, int num_y, int num_x, Universe** univers
    * upper left corner. This double loop reorders the Lattice cells from the
    * to start from the lower left corner */
   for (int k = 0; k < _num_z; k++) {
-    _universes.push_back(std::vector< std::vector< std::pair<int, Universe*> > >());
+    _universes.push_back
+      (std::vector< std::vector< std::pair<int, Universe*> > >());
     for (int j = 0; j < _num_y; j++) {
 
       _universes.at(k).push_back(std::vector< std::pair<int, Universe*> >());
 
       for (int i = 0; i < _num_x; i++){
-        universe = universes[(_num_z-1-k)*_num_x*_num_y + (_num_y-1-j)*_num_x + i];
+        universe = universes
+          [(_num_z-1-k)*_num_x*_num_y + (_num_y-1-j)*_num_x + i];
         _universes.at(k).at(j).push_back(std::pair<int, Universe*>
                                    (universe->getId(), universe));
       }
@@ -1464,7 +1467,7 @@ void Lattice::printString() {
  * @return the Lattice cell index.
  */
 int Lattice::getLatticeCell(Point* point){
-  return (getLatZ(point)*_num_x*_num_y + getLatY(point)*_num_x + getLatX(point));
+  return getLatZ(point)*_num_x*_num_y + getLatY(point)*_num_x + getLatX(point);
 }
 
 

@@ -150,7 +150,7 @@ protected:
   /** The old scalar flux for each energy group in each FSR */
   FP_PRECISION* _old_scalar_flux;
 
-  /** The fixed source in each FSR and energy group */
+  /** Optional user-specified fixed sources in each FSR and energy group */
   FP_PRECISION* _fixed_sources;
 
   /** Ratios of source to total cross-section for each FSR and energy group */
@@ -164,7 +164,7 @@ protected:
 
   /** The tolerance for converging the source/flux */
   FP_PRECISION _converge_thresh;
-  
+
   /** En ExpEvaluator to compute exponentials in the transport equation */
   ExpEvaluator* _exp_evaluator;
 
@@ -203,8 +203,7 @@ protected:
   virtual void flattenFSRFluxes(FP_PRECISION value) =0;
 
   /**
-   * @brief Set the source for each FSR and energy group to some value.
-   * @param value the value to assign to each FSR source
+   * @brief Stores the current scalar fluxes in the old scalar flux array.
    */
   virtual void storeFSRFluxes() =0;
 
@@ -215,9 +214,8 @@ protected:
   virtual void normalizeFluxes() =0;
 
   /**
-   * @brief Computes the total source (fission and scattering) for each FSR
-   *        and energy group.
-   * @return the residual between this source and the previous source
+   * @brief Computes the total source (fission, scattering, fixed) for 
+   *        each FSR and energy group.
    */
   virtual void computeFSRSources() =0;
 
@@ -248,13 +246,12 @@ protected:
 
   void clearTimerSplits();
 
-
 public:
   Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
   virtual void setGeometry(Geometry* geometry);
-  
+
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
   FP_PRECISION getFSRVolume(int fsr_id);
@@ -267,14 +264,8 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
 
-  /**
-   * @brief Returns the scalar flux for a FSR and energy group.
-   * @param fsr_id the ID for the FSR of interest
-   * @param energy_group the energy group of interest
-   * @return the FSR scalar flux
-   */
-  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
-  virtual FP_PRECISION getFSRSource(int fsr_id, int energy_group);
+  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
+  virtual FP_PRECISION getFSRSource(int fsr_id, int group);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
@@ -293,22 +284,22 @@ public:
   void computeEigenvalue(int max_iters=1000, 
                          residualType res_type=FISSION_SOURCE);
 
-/**
- * @brief Computes the volume-weighted, energy integrated fission rate in
- *        each FSR and stores them in an array indexed by FSR ID.
- * @details This is a helper method for SWIG to allow users to retrieve
- *          FSR fission rates as a NumPy array. An example of how this method 
- *          can be called from Python is as follows:
- *
- * @code
- *          num_FSRs = geometry.getNumFSRs()
- *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
- * @endcode
- *
- * @param fission_rates an array to store the fission rates (implicitly passed
- *                      in as a NumPy array from Python)
- * @param num_FSRs the number of FSRs passed in from Python
- */
+ /**
+  * @brief Computes the volume-weighted, energy integrated fission rate in
+  *        each FSR and stores them in an array indexed by FSR ID.
+  * @details This is a helper method for SWIG to allow users to retrieve
+  *          FSR fission rates as a NumPy array. An example of how this method 
+  *          can be called from Python is as follows:
+  *
+  * @code
+  *          num_FSRs = geometry.getNumFSRs()
+  *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
+  * @endcode
+  *
+  * @param fission_rates an array to store the fission rates (implicitly passed
+  *                      in as a NumPy array from Python)
+  * @param num_FSRs the number of FSRs passed in from Python
+  */
   virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) =0;
 
   void printTimerReport();
