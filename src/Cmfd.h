@@ -68,10 +68,6 @@ private:
    * the beginning of a CMFD solve */
   Vector* _old_flux;
 
-  /** Vector representing the flux during the previous iteration of a 
-   * cmfd solve */
-  FP_PRECISION* _flux_temp;
-
   /** Gauss-Seidel SOR relaxation factor */
   FP_PRECISION _SOR_factor;
 
@@ -130,9 +126,6 @@ private:
   /** Array of surface currents for each CMFD cell */
   Vector* _surface_currents;
 
-  /** OpenMP mutual exclusion locks for atomic surface current updates */
-  omp_lock_t* _surface_locks;
-
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
 
@@ -189,7 +182,7 @@ public:
   int getNumX();
   int getNumY();
   int convertFSRIdToCmfdCell(int fsr_id);
-  std::vector< std::vector<int> > getCellFSRs();
+  std::vector< std::vector<int> >* getCellFSRs();
   bool isFluxUpdateOn();
   FP_PRECISION getFluxRatio(int cmfd_cell, int moc_group);
 
@@ -215,7 +208,7 @@ public:
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
   void setFSRFluxes(FP_PRECISION* scalar_flux);
-  void setCellFSRs(std::vector< std::vector<int> > cell_fsrs);
+  void setCellFSRs(std::vector< std::vector<int> >* cell_fsrs);
 };
 
 #endif /* CMFD_H_ */

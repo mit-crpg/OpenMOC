@@ -1245,18 +1245,18 @@ std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
 
   /* Write cmfd_fsrs vector of vectors to file */
   if (cmfd != NULL) {
-    std::vector< std::vector<int> > cell_fsrs = cmfd->getCellFSRs();
+    std::vector< std::vector<int> >* cell_fsrs = cmfd->getCellFSRs();
     std::vector<int>::iterator iter;
     int num_cells = cmfd->getNumCells();
     fwrite(&num_cells, sizeof(int), 1, out);
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++) {
-      num_FSRs = cell_fsrs.at(cell).size();
+      num_FSRs = cell_fsrs->at(cell).size();
       fwrite(&num_FSRs, sizeof(int), 1, out);
 
       /* Loop over FSRs within cell */
-      for (iter = cell_fsrs.at(cell).begin(); iter != cell_fsrs.at(cell).end();
+      for (iter = cell_fsrs->at(cell).begin(); iter != cell_fsrs->at(cell).end();
           ++iter)
         fwrite(&(*iter), sizeof(int), 1, out);
     }
@@ -1476,7 +1476,7 @@ bool TrackGenerator::readTracksFromFile() {
     }
 
     /* Set CMFD cell_fsrs vector of vectors */
-    cmfd->setCellFSRs(cell_fsrs);
+    cmfd->setCellFSRs(&cell_fsrs);
   }
 
   /* Inform the rest of the class methods that Tracks have been initialized */

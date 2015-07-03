@@ -933,7 +933,10 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn()) {
+      _timer->startTimer();
       _k_eff = _cmfd->computeKeff(i);
+      _timer->stopTimer();
+      _timer->recordSplit("CMFD solve time");
       _cmfd->updateBoundaryFlux(_tracks, _boundary_flux, _tot_num_tracks);
     }
     else
@@ -982,6 +985,12 @@ void Solver::printTimerReport() {
   msg_string = "Total time to solution";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
+
+  /* CMFD solve time */
+  double cmfd_time = _timer->getSplit("CMFD solve time");
+  msg_string = "CMFD solve time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), cmfd_time);
 
   /* Time per iteration */
   double time_per_iter = tot_time / _num_iterations;

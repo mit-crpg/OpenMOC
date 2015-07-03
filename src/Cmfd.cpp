@@ -4,11 +4,8 @@
  * @brief Constructor initializes boundaries and variables that describe
  *          the Cmfd object.
  * @details The construcor initializes the many variables that describe
- *          the CMFD Mesh, the solve method, and flux type. If solve
- *          method is DIFFUSION, the fsr volumes, Materials, and fluxes
- *          are initialized.
- * @param geometry pointer to the Geometry
- * @param criteria convergence criteria on keff
+ *          the CMFD mesh and are used to solve the nonlinear diffusion
+ *          acceleration problem.
  */
 Cmfd::Cmfd() {
 
@@ -17,7 +14,7 @@ Cmfd::Cmfd() {
   _SOR_factor = 1.0;
 
   /* Global variables used in solving CMFD problem */
-  _source_convergence_threshold = 1E-7;
+  _source_convergence_threshold = 1E-6;
   _num_x = 1;
   _num_y = 1;
   _width = 0.;
@@ -40,13 +37,11 @@ Cmfd::Cmfd() {
   _M = NULL;
   _old_flux = NULL;
   _new_flux = NULL;
-  _flux_temp = NULL;
   _old_source = NULL;
   _new_source = NULL;
   _group_indices = NULL;
   _group_indices_map = NULL;
   _surface_currents = NULL;
-  _surface_locks = NULL;
   _volumes = NULL;
   
   /* Initialize boundaries to be reflective */
@@ -59,14 +54,24 @@ Cmfd::Cmfd() {
 
 
 /**
- * @brief Destructor deletes arrays of A and M row insertion arrays.
+ * @brief Destructor.
  */
-Cmfd::~Cmfd() {}
+Cmfd::~Cmfd() {
+
+  if (_boundaries != NULL)
+    delete [] _boundaries;
+
+  if (_group_indices != NULL)
+    delete [] _group_indices;
+
+  if (_group_indices_map != NULL)
+    delete [] _group_indices_map;
+}
 
 
 /**
  * @brief Set the number of Mesh cells in a row.
- * @param number of Mesh cells in a row
+ * @param num_x number of Mesh cells in a row
  */
 void Cmfd::setNumX(int num_x) {
 
@@ -82,7 +87,7 @@ void Cmfd::setNumX(int num_x) {
 
 /**
  * @brief Set the number of Mesh cells in a column
- * @param number of Mesh cells in a column
+ * @param num_y number of Mesh cells in a column
  */
 void Cmfd::setNumY(int num_y) {
 
@@ -98,7 +103,7 @@ void Cmfd::setNumY(int num_y) {
 
 /**
  * @brief Get the number of Mesh cells in a row.
- * @return number of Mesh cells in a row
+ * @return The number of Mesh cells in a row
  */
 int Cmfd::getNumX() {
   return _num_x;
@@ -107,7 +112,7 @@ int Cmfd::getNumX() {
 
 /**
  * @brief Get the number of Mesh cells in a column
- * @return number of Mesh cells in a column
+ * @return The number of Mesh cells in a column
  */
 int Cmfd::getNumY() {
   return _num_y;
@@ -116,7 +121,7 @@ int Cmfd::getNumY() {
 
 /**
  * @brief Set Mesh width.
- * @param width physical width of Mesh
+ * @param width Physical width of Mesh
  */
 void Cmfd::setWidth(double width) {
   _width = width;
@@ -127,7 +132,7 @@ void Cmfd::setWidth(double width) {
 
 /**
  * @brief Set Mesh height.
- * @param height physical height of Mesh
+ * @param height Physical height of Mesh
  */
 void Cmfd::setHeight(double height) {
   _height = height;
@@ -140,6 +145,13 @@ void Cmfd::setHeight(double height) {
  * @brief Create cross-sections and fluxes for each Cmfd cell by
  *        energy condensing and volume averaging cross sections from
  *        the MOC sweep.
+ * @details This method performs a cell-wise energy condensation and volume
+ *         average of the cross sections of the fine, unstructured FSR mesh.
+ *         The cross sections are condense such that all reaction rates and
+ *         the neutron produciton rate from fission are conserved. It is
+ *         important to note that the volume averaging is performed before
+ *         energy condensation in order to properly collapse the diffusion
+ *         coefficients.
  */
 void Cmfd::computeXS() {
 
@@ -218,7 +230,7 @@ void Cmfd::computeXS() {
       /* Loop over MOC energy groups within this CMFD coarse group */
       for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
 
-        /* Reset transport xs tally for this MOC group */
+        /* Reset transport, rxn, and vol tally for this MOC group */
         trans_tally_group = 0.0;
         rxn_tally_group = 0.0;
         vol_tally = 0.0;
@@ -290,12 +302,14 @@ void Cmfd::computeXS() {
 
 
 /**
- * @brief Compute the diffusion coefficients:
- *          \f$ D \f$ - straight diffusion coefficient
- *          \f$ \hat{D} \f$ - surface diffusion coefficient
- *          \f$ \tilde{D} \f$ - surface diffusion coefficient correction factor
- *        for each mesh while ensuring neutron balance is achieved.
- * @param MOC iteration number
+ * @brief Compute the surface diffusion coefficients for each cell surface.
+ * @details This method uses finite differencing to compute the surface
+ *         diffusion coefficients (\f$ \hat{D} \f$) for each cell surface.
+ *         Additionally, the surface diffusion coefficent correction factors
+ *         (\f$ \tilde{D} \f$) are computed in order to conserve the net
+ *         leakage out of each mesh cell. This serves to preserve both local
+ *         and global neutron balance.
+ * @param moc_iteration MOC iteration number
  */
 void Cmfd::computeDs(int moc_iteration) {
 
@@ -457,8 +471,8 @@ void Cmfd::computeDs(int moc_iteration) {
             d_tilde = 0.0;
           else
             d_tilde =
-                _materials[cell]->getDifTilde()[surface*_num_cmfd_groups + e] *
-                (1 - _relax_factor) + _relax_factor * d_tilde;
+              _materials[cell]->getDifTilde()[surface*_num_cmfd_groups + e] *
+              (1 - _relax_factor) + _relax_factor * d_tilde;
 
           /* Set d_hat and d_tilde */
           _materials[cell]->setDifHatByGroup(d_hat, e+1, surface);
@@ -476,9 +490,15 @@ void Cmfd::computeDs(int moc_iteration) {
 
 
 
-/** @brief CMFD solver that solves the diffusion problem.
- *  @return k-effective the solution eigenvalue
- *  @param MOC iteration number
+/**
+ * @brief Solve the nonlinear diffusion acceleration problem to accelerate the
+ *        convergence of the MOC problem.
+ * @details This method uses the information from the last MOC transport sweep
+ *         and solves a simplified nonlinear diffusion problem. The diffusion
+ *         problem is tightly converged and the solution is used to update the
+ *         the solution of the MOC problem.
+ *  @param moc_iteration MOC iteration number
+ *  @return The dominant eigenvalue of the nonlinear diffusion problem
  */
 FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
@@ -505,13 +525,6 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
                  "Backtrace:%s", e.what());
     }
   }
-
-  /* Initialize variables */
-  FP_PRECISION sum_new, sum_old, val, residual, scale_val;
-  int row;
-
-  /* Convergence criteria on L2 norm of flux for linear solve */
-  FP_PRECISION linear_solve_convergence_criteria = 1E-7;
   
   /* Compute the cross sections and surface diffusion coefficients */
   computeXS();
@@ -539,24 +552,31 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
 /**
  * @brief Rescale the initial and converged flux arrays.
+ * @details The diffusion problem is a generalized eigenvalue problem and
+ *         therefore the solution is independent of flux level. This method
+ *         rescales the input flux and converged flux to both have an average
+ *         fission source of 1.0 in each group in each cell.
  */
 void Cmfd::rescaleFlux() {
 
-  FP_PRECISION sum_new, sum_old, scale_val;
-
   /* Rescale the new and old flux to have an avg source of 1.0 */
   matrixMultiplication(_M, _new_flux, _new_source);
-  sum_new = _new_source->getSum();
-  _new_flux->scaleByValue(_num_x*_num_y*_num_cmfd_groups / sum_new);
-
   matrixMultiplication(_M, _old_flux, _old_source);
-  sum_old = _old_source->getSum();
-  _old_flux->scaleByValue(_num_x*_num_y*_num_cmfd_groups / sum_old);
+
+  _new_flux->scaleByValue(_num_x*_num_y*_num_cmfd_groups /
+                          _new_source->getSum());
+  _old_flux->scaleByValue(_num_x*_num_y*_num_cmfd_groups /
+                          _old_source->getSum());
 }
 
 
-/** @brief Fill in the values in the A matrix, M matrix, and old
- *        scalar flux vector.
+/**
+ * @brief Construct the loss + streaming matrix (A) and the fission gain
+ *         matrix (M) in preparation for solving the eigenvalue problem.
+ * @details This method loops over all mesh cells and energy groups and
+ *         accumulates the iteraction and streaming terms into their
+ *         approipriate positions in the loss + streaming matrix and
+ *         fission gain matrix.
  */
 void Cmfd::constructMatrices() {
 
@@ -675,6 +695,9 @@ void Cmfd::constructMatrices() {
 
 /**
  * @brief Update the MOC flux in each FSR.
+ * @details This method uses the condensed flux from the last MOC transport
+ *         sweep and the converged flux from the eigenvalue problem to
+ *         update the MOC flux in each FSR.
  */
 void Cmfd::updateMOCFlux() {
 
@@ -693,11 +716,11 @@ void Cmfd::updateMOCFlux() {
 
         /* Loop over FRSs in mesh cell */
         for (iter = _cell_fsrs.at(i).begin();
-          iter != _cell_fsrs.at(i).end(); ++iter) {
+             iter != _cell_fsrs.at(i).end(); ++iter) {
 
           /* Set new flux in FSR */
-            _FSR_fluxes[*iter*_num_moc_groups+h] = getFluxRatio(i,h)
-             * _FSR_fluxes[*iter*_num_moc_groups+h];
+          _FSR_fluxes[*iter*_num_moc_groups+h] = getFluxRatio(i,h)
+            * _FSR_fluxes[*iter*_num_moc_groups+h];
 
           log_printf(DEBUG, "Updating flux in FSR: %i, cell: %i, group: "
                      "%i, ratio: %f", *iter ,i, h,
@@ -710,11 +733,11 @@ void Cmfd::updateMOCFlux() {
 
 
 /**
- * @brief Compute diffusion correction factors to correct diffusion
- *        coefficients in optically thick mesh cells.
- * @param old diffusion coefficient
- * @param height of cell
- * @return correction factor
+ * @brief Compute a diffusion coefficient correction factor for optically
+ *        thick regions.
+ * @param d Diffusion coefficient before applying correction factor
+ * @param h Width of the cell in the direction of interest
+ * @return The diffusion coefficient correction factor
  */
 FP_PRECISION Cmfd::computeDiffCorrect(FP_PRECISION d, FP_PRECISION h) {
 
@@ -745,7 +768,7 @@ FP_PRECISION Cmfd::computeDiffCorrect(FP_PRECISION d, FP_PRECISION h) {
 
 /**
  * @brief Set the FSR materials array pointer.
- * @param pointer to FSR_materials array
+ * @param FSR_materials Pointer to FSR_materials array
  */
 void Cmfd::setFSRMaterials(Material** FSR_materials) {
   _FSR_materials = FSR_materials;
@@ -754,7 +777,7 @@ void Cmfd::setFSRMaterials(Material** FSR_materials) {
 
 /**
  * @brief Set the pointer to the array of FSR_volumes.
- * @param array of FSR volumes
+ * @param FSR_volumes Array of FSR volumes
  */
 void Cmfd::setFSRVolumes(FP_PRECISION* FSR_volumes) {
   _FSR_volumes = FSR_volumes;
@@ -763,7 +786,7 @@ void Cmfd::setFSRVolumes(FP_PRECISION* FSR_volumes) {
 
 /**
  * @brief Set pointer to FSR flux array.
- * @param pointer to FSR flux array
+ * @param scalar_flux Pointer to FSR flux array
  */
 void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux) {
   _FSR_fluxes = scalar_flux;
@@ -771,8 +794,9 @@ void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux) {
 
 
 /**
- * @brief Set successive over-relaxation relaxation factor.
- * @param over-relaxation factor
+ * @brief Set the successive over-relaxation relaxation factor for the
+ *        linear solve within the diffusion eigenvalue solve.
+ * @param SOR_factor over-relaxation factor
  */
 void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor) {
 
@@ -786,7 +810,7 @@ void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor) {
 
 /**
  * @brief Get the number of coarse CMFD energy groups.
- * @return the number of CMFD energy groups
+ * @return The number of CMFD energy groups
  */
 int Cmfd::getNumCmfdGroups() {
   return _num_cmfd_groups;
@@ -795,8 +819,8 @@ int Cmfd::getNumCmfdGroups() {
 
 /**
  * @brief Get the CMFD group given an MOC group.
- * @param group the MOC energy group
- * @return the CMFD energy group
+ * @param group The MOC energy group
+ * @return The CMFD energy group
  */
 int Cmfd::getCmfdGroup(int group) {
   return _group_indices_map[group];
@@ -808,8 +832,8 @@ int Cmfd::getCmfdGroup(int group) {
  * @details CMFD does not necessarily need to have the same energy group 
  *          structure as the MOC problem. This function can be used to set 
  *          a sparse energy group structure to speed up the CMFD solve.
- * @param an array of the CMFD group boundaries
- * @param the length of the group_indices array
+ * @param group_indices An array of the CMFD group boundaries
+ * @param length_group_indices The length of the group_indices array
  */
 void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
     
@@ -870,12 +894,8 @@ void Cmfd::initializeMaterials() {
 }
 
 
-/*
- * @brief Initializes Cmfd object for acceleration prior to source iteration.
- * @details Instantiates a dummy Cmfd object if one was not assigned to
- *          the Solver by the user and initializes FSRs, Materials, fluxes
- *          and the Mesh. This method intializes a global array for the
- *          surface currents.
+/**
+ * @brief Initializes Cmfd surface currents Vector prior to first MOC iteration.
  */
 void Cmfd::initializeSurfaceCurrents() {
 
@@ -883,22 +903,11 @@ void Cmfd::initializeSurfaceCurrents() {
   if (_surface_currents != NULL)
     delete [] _surface_currents;
 
-  if (_surface_locks != NULL)
-    delete [] _surface_locks;
-
   /* Allocate memory for the Cmfd Mesh surface currents array */
   int num_mesh_cells = _num_x * _num_y;
   int size = num_mesh_cells * _num_cmfd_groups * NUM_SURFACES;
   _surface_currents = new Vector(_num_x, _num_y,
                                  _num_cmfd_groups * NUM_SURFACES);
-
-  /* Allocate memory for OpenMP locks for each Cmfd Mesh surface */ 
-  _surface_locks = new omp_lock_t[num_mesh_cells * NUM_SURFACES];
-
-  /* Loop over all mesh cell surfaces to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < num_mesh_cells * NUM_SURFACES; r++)
-    omp_init_lock(&_surface_locks[r]);
 
   return;
 }
@@ -952,8 +961,8 @@ void Cmfd::initializeGroupMap() {
  * @brief Find the cmfd surface that a LocalCoords object lies on.
  * @details If the coords is not on a surface, -1 is returned. Otherwise,
  *        the surface ID is returned. 
- * @param The CMFD cell ID that the local coords is in.
- * @param The coords being evaluated.
+ * @param cell The CMFD cell ID that the local coords is in.
+ * @param coords The coords being evaluated.
  * @return The surface ID.
  */
 int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
@@ -964,7 +973,7 @@ int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
 
 /**
  * @brief Find the CMFD cell that a LocalCoords object is in. 
- * @param The coords being evaluated.
+ * @param coords The coords being evaluated.
  * @return The CMFD cell ID.
  */
 int Cmfd::findCmfdCell(LocalCoords* coords) {
@@ -975,7 +984,7 @@ int Cmfd::findCmfdCell(LocalCoords* coords) {
 
 /**
  * @brief The Lattice object used as the CMFD mesh. 
- * @param Pointer to the lattice object.
+ * @param lattice Pointer to the lattice object.
  */
 void Cmfd::setLattice(Lattice* lattice) {
     _lattice = lattice;
@@ -984,8 +993,8 @@ void Cmfd::setLattice(Lattice* lattice) {
 
 /**
  * @brief The structure of the Lattice to be used as the CMFD mesh.
- * @param The number of cells in the x direction.
- * @param The number of cells in the y direction.
+ * @param num_x The number of cells in the x direction.
+ * @param num_y The number of cells in the y direction.
  */
 void Cmfd::setLatticeStructure(int num_x, int num_y) {
   setNumX(num_x);
@@ -1005,8 +1014,8 @@ Lattice* Cmfd::getLattice() {
 /**
  * @brief Add an FSR ID to a vector that contains all the FSR IDs
  *        contained within a CMFD mesh cell.
- * @param The CMFD cell ID.
- * @param The FSR ID.
+ * @param cmfd_cell The CMFD cell ID.
+ * @param fsr_id The FSR ID.
  */
 void Cmfd::addFSRToCell(int cmfd_cell, int fsr_id) {
   _cell_fsrs.at(cmfd_cell).push_back(fsr_id);
@@ -1015,7 +1024,7 @@ void Cmfd::addFSRToCell(int cmfd_cell, int fsr_id) {
 
 /**
  * @brief Set the number of MOC energy groups.
- * @param number of MOC energy groups
+ * @param num_groups number of MOC energy groups
  */
 void Cmfd::setNumMOCGroups(int num_groups) {
   _num_moc_groups = num_groups;
@@ -1024,7 +1033,7 @@ void Cmfd::setNumMOCGroups(int num_groups) {
 
 /**
  * @brief Get the number of MOC energy groups.
- * @return the number of MOC energy groups
+ * @return The number of MOC energy groups
  */
 int Cmfd::getNumMOCGroups() {
   return _num_moc_groups;
@@ -1033,7 +1042,7 @@ int Cmfd::getNumMOCGroups() {
 
 /**
  * @brief Get the number of CMFD cells.
- * @return the number of CMFD cells
+ * @return The number of CMFD cells
  */
 int Cmfd::getNumCells() {
   return _num_x*_num_y;
@@ -1041,8 +1050,8 @@ int Cmfd::getNumCells() {
 
 
 /**
- * @brief set the number of FSRs.
- * @param the number of FSRs
+ * @brief Set the number of FSRs.
+ * @param num_fsrs The number of FSRs
  */
 void Cmfd::setNumFSRs(int num_fsrs) {
   _num_FSRs = num_fsrs;
@@ -1050,13 +1059,8 @@ void Cmfd::setNumFSRs(int num_fsrs) {
 
 
 /** @brief Split the currents of the Mesh cell corners to the nearby surfaces.
- * @details left bottom corner -> bottom surface and left surface
- *          of mesh cell below; right bottom corner -> bottom surface
- *          and right surface of mesh cell below; right top corner ->
- *          right surface and top surface of mesh cell to the right;
- *          left top corner -> left surface and top surface of mesh
- *          cell to the left. The currents tallied on a corner is split
- *          equally to the adjoining surfaces.
+ * @details This metohd splits the current from each corner evenly to the two
+ *          adjoining surfaces.
  */
 void Cmfd::splitCorners() {
 
@@ -1070,7 +1074,7 @@ void Cmfd::splitCorners() {
       int cell = y*_num_x + x;
       for (int s = 4; s < NUM_SURFACES; s++){
 
-        /* X_MIN_Y_MIN */
+        /* SURFACE_X_MIN_Y_MIN */
         if (s == SURFACE_X_MIN_Y_MIN){
           for (int e=0; e > _num_cmfd_groups; e++){
             current = 0.5*_surface_currents->getValue
@@ -1090,7 +1094,7 @@ void Cmfd::splitCorners() {
           }
         }
         
-        /* X_MAX_Y_MIN */
+        /* SURFACE_X_MAX_Y_MIN */
         else if (s == SURFACE_X_MAX_Y_MIN){
           for (int e=0; e > _num_cmfd_groups; e++){
             current = 0.5*_surface_currents->getValue
@@ -1110,7 +1114,7 @@ void Cmfd::splitCorners() {
           }
         }
         
-        /* X_MIN_Y_MAX */
+        /* SURFACE_X_MIN_Y_MAX */
         if (s == SURFACE_X_MIN_Y_MAX){
           for (int e=0; e > _num_cmfd_groups; e++){
             current = 0.5*_surface_currents->getValue
@@ -1130,7 +1134,7 @@ void Cmfd::splitCorners() {
           }
         }
         
-        /* X_MAX_Y_MAX */
+        /* SURFACE_X_MAX_Y_MAX */
         if (s == SURFACE_X_MAX_Y_MAX){
           for (int e=0; e > _num_cmfd_groups; e++){
             current = 0.5*_surface_currents->getValue
@@ -1150,7 +1154,7 @@ void Cmfd::splitCorners() {
           }
         }
 
-        /* Zero out edge and corner currents */
+        /* Zero out corner currents */
         for (int e=0; e > _num_cmfd_groups; e++)
           _surface_currents->setValue(cell, s*_num_cmfd_groups + e, 0.0);
       }
@@ -1160,10 +1164,11 @@ void Cmfd::splitCorners() {
 
 
 /**
- * @brief Get the ID of the Mesh cell next to given Mesh cell.
- * @param current Mesh cell ID
- * @param CMFD cell surface ID to look across for neighboring cell
- * @return neighboring CMFD cell ID
+ * @brief Get the ID of the Mesh cell next to a given Mesh cell across a
+ *        given surface.
+ * @param cell_num Current Mesh cell ID
+ * @param surface_id CMFD cell surface ID to look across for neighboring cell
+ * @return Neighboring CMFD cell ID
  */
 int Cmfd::getCellNext(int cell_num, int surface_id) {
 
@@ -1173,17 +1178,14 @@ int Cmfd::getCellNext(int cell_num, int surface_id) {
     if (cell_num % _num_x != 0)
       cell_next = cell_num - 1;
   }
-
   else if (surface_id == SURFACE_Y_MIN) {
     if (cell_num / _num_x != 0)
       cell_next = cell_num - _num_x;
   }
-
   else if (surface_id == SURFACE_X_MAX) {
     if (cell_num % _num_x != _num_x - 1)
       cell_next = cell_num + 1;
   }
-
   else if (surface_id == SURFACE_Y_MAX) {
     if (cell_num / _num_x != _num_y - 1)
       cell_next = cell_num + _num_x;
@@ -1195,7 +1197,7 @@ int Cmfd::getCellNext(int cell_num, int surface_id) {
 
 /**
  * @brief Return whether optically thick diffusion correction factor is in use.
- * @return whether optically thick diffusion correction factor is in use.
+ * @return Whether optically thick diffusion correction factor is in use.
  */
 bool Cmfd::isOpticallyThick() {
   return _optically_thick;
@@ -1204,7 +1206,7 @@ bool Cmfd::isOpticallyThick() {
 
 /**
  * @brief Set whether optically thick diffusion correction factor is in use.
- * @param boolean indicating whether optically thick diffusion
+ * @param optically_thick Boolean indicating whether optically thick diffusion
  *        correction factor is in use.
  */
 void Cmfd::setOpticallyThick(bool optically_thick) {
@@ -1214,7 +1216,7 @@ void Cmfd::setOpticallyThick(bool optically_thick) {
 
 /**
  * @brief Return the under-relaxation factor used in MOC updates.
- * @return the MOC current under-relaxation factor
+ * @return The MOC current under-relaxation factor
  */
 FP_PRECISION Cmfd::getMOCRelaxationFactor() {
   return _relax_factor;
@@ -1223,7 +1225,7 @@ FP_PRECISION Cmfd::getMOCRelaxationFactor() {
 
 /**
  * @brief Set the under-relaxation factor used in MOC updates.
- * @param the MOC current under-relaxation factor
+ * @param relax_factor The MOC current under-relaxation factor
  */
 void Cmfd::setMOCRelaxationFactor(FP_PRECISION relax_factor) {
   _relax_factor = relax_factor;
@@ -1232,11 +1234,10 @@ void Cmfd::setMOCRelaxationFactor(FP_PRECISION relax_factor) {
 
 /**
  * @brief Set the CMFD boundary type for a given surface.
- * @details The CMFD boundary is assumed to be rectangular with 4
- *          boundary surfaces. The surfaces UIDs are 0 (left),
- *          1 (bottom), 2 (right), and 3 (top).
- * @param the CMFD surface UID.
- * @param the boundaryType of the surface.
+ * @details The CMFD boundary is assumed to be rectangular with the
+ *          surfaces identified by constants in the constants.h file.
+ * @param side The CMFD surface UID.
+ * @param boundary The boundaryType of the surface.
  */
 void Cmfd::setBoundary(int side, boundaryType boundary) {
   _boundaries[side] = boundary;
@@ -1245,8 +1246,8 @@ void Cmfd::setBoundary(int side, boundaryType boundary) {
 
 /**
  * @brief Get the boundaryType for one side of the CMFD mesh.
- * @param the CMFD mesh surface ID.
- * @return the boundaryType for the surface.
+ * @param side The CMFD mesh surface ID.
+ * @return The boundaryType for the surface.
  */
 int Cmfd::getBoundary(int side) {
   return _boundaries[side];
@@ -1258,13 +1259,14 @@ int Cmfd::getBoundary(int side) {
  * @details Note that a CMFD cell is not an actual Cell object; rather, a CMFD
  *         cell is just a way of describing each of the rectangular regions
  *         that make up a CMFD lattice. CMFD cells are numbered with 0 in the
- *         lower left corner and monotonically increasing from left to right.
- *         from left to right. For example, he indices for a 4 x 4 lattice are:
+ *         lower left corner and monotonically increasing from left to right
+ *         and from bottom to top. For example, the indices for a 4 x 4
+ *         lattice are:
  *                  12  13  14  15
  *                  8    9  10  11
  *                  4    5   6   7
  *                  0    1   2   3
- * @param The FSR ID.
+ * @param fsr_id The FSR ID.
  * @return The CMFD cell ID. Return -1 if cell is not found.
  */
 int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
@@ -1288,24 +1290,32 @@ int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
  *        the FSRs that lie in each cell.
  * @return Vector of vectors containing FSR IDs in each cell.
  */
-std::vector< std::vector<int> > Cmfd::getCellFSRs() {
-  return _cell_fsrs;
+std::vector< std::vector<int> >* Cmfd::getCellFSRs() {
+  return &_cell_fsrs;
 }
 
  
 /**
- * @brief Set the vector of vectors that contains.
- *        the FSRs that lie in each cell.
- * @param Vector of vectors containing FSR IDs in each cell.
+ * @brief Set the vector of vectors that contains the FSRs that lie in
+ *        each cell.
+ * @param cell_fsrs Vector of vectors containing FSR IDs in each cell.
  */
-void Cmfd::setCellFSRs(std::vector< std::vector<int> > cell_fsrs) {
-  _cell_fsrs = cell_fsrs;
+void Cmfd::setCellFSRs(std::vector< std::vector<int> >* cell_fsrs) {
+
+  if (!_cell_fsrs.empty()) {
+    std::vector< std::vector<int> >::iterator iter;
+    for (iter = _cell_fsrs.begin(); iter != _cell_fsrs.end(); ++iter)
+      iter->clear();
+    _cell_fsrs.clear();
+  }
+
+  _cell_fsrs = *cell_fsrs;
 }
 
 
 /**
  * @brief Set flag indicating whether to update the MOC flux.
- * @param Flag saying whether to update MOC flux.
+ * @param flux_update_on Boolean saying whether to update MOC flux.
  */
 void Cmfd::setFluxUpdateOn(bool flux_update_on) {
   _flux_update_on = flux_update_on;
@@ -1314,7 +1324,7 @@ void Cmfd::setFluxUpdateOn(bool flux_update_on) {
 
 /**
  * @brief Get flag indicating whether to update the MOC flux.
- * @return Flag saying whether to update MOC flux.
+ * @return Boolean saying whether to update MOC flux.
  */
 bool Cmfd::isFluxUpdateOn() {
  return _flux_update_on;
@@ -1322,8 +1332,9 @@ bool Cmfd::isFluxUpdateOn() {
 
 
 /**
- * @brief Sets the threshold for CMFD source convergence (>0)
- * @param the threshold for source convergence
+ * @brief Sets the threshold for CMFD source convergence (>0) for both the
+ *        eigenvalue and linear solve.
+ * @param source_thresh The threshold for source convergence.
  */
 void Cmfd::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 
@@ -1337,7 +1348,7 @@ void Cmfd::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 
 /**
  * @brief Sets the PolarQuad object in use by the MOC Solver.
- * @param polar_quad a PolarQuad object pointer from the Solver
+ * @param polar_quad A PolarQuad object pointer from the Solver
  */
 void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
 
@@ -1352,9 +1363,9 @@ void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
 
 /**
  * @brief Get the new to old flux ratio for a CMFD cell.
- * @param the CMFD cell ID
- * @param the MOC energy group
- * @return the flux ratio
+ * @param cmfd_cell The CMFD cell ID
+ * @param moc_group The MOC energy group
+ * @return The flux ratio
  */
 FP_PRECISION Cmfd::getFluxRatio(int cmfd_cell, int moc_group) {
 
@@ -1372,9 +1383,9 @@ FP_PRECISION Cmfd::getFluxRatio(int cmfd_cell, int moc_group) {
  *          With this approximation, the boundary fluxes are updated using
  *          the ratio of new to old flux for the cell that the outgoing flux
  *          from the track enters.
- * @param 2D array of Tracks
- * @param array of boundary fluxes
- * @return the number of Tracks
+ * @param tracks 2D array of Tracks
+ * @param boundary_flux Array of boundary fluxes
+ * @return The number of Tracks
  */
 void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
 			      int num_tracks) {
@@ -1460,16 +1471,9 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       for (int p=0; p < _num_polar; p++)
         surf_current += track_flux(p,e) * polar_weights[p] / 2.;
 
-      /* Atomically increment the Cmfd Mesh surface current from the
-       * temporary array using mutual exclusion locks */
-      omp_set_lock(&_surface_locks[surf_id]);
-
       /* Increment current (polar and azimuthal weighted flux, group) */
       _surface_currents->incrementValue
         (cell_id, surf_id*_num_cmfd_groups + g, surf_current);
-
-      /* Release Cmfd Mesh surface mutual exclusion lock */
-      omp_unset_lock(&_surface_locks[surf_id]);
     }
   }
   else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd) {
@@ -1485,16 +1489,9 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       for (int p=0; p < _num_polar; p++)
         surf_current += track_flux(p,e) * polar_weights[p] / 2.;
 
-      /* Atomically increment the Cmfd Mesh surface current from the
-       * temporary array using mutual exclusion locks */
-      omp_set_lock(&_surface_locks[surf_id]);
-
       /* Increment current (polar and azimuthal weighted flux, group) */
       _surface_currents->incrementValue
         (cell_id, surf_id*_num_cmfd_groups + g, surf_current);
-
-      /* Release Cmfd Mesh surface mutual exclusion lock */
-      omp_unset_lock(&_surface_locks[surf_id]);
     }
   }
 }
