@@ -16,8 +16,8 @@ azim_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-num_polar = 2
-polar_spacing = 2.0
+num_polar = 12
+polar_spacing = 1.0
 log.set_log_level('NORMAL')
 set_line_length(120)
 
@@ -342,13 +342,16 @@ track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 #track_generator.setSolve2D()
 track_generator.setZLevel(0.1)
+#track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING)
+track_generator.setTrackGenerationMethod(SIMPLIFIED_MODULAR_RAY_TRACING)
 track_generator.generateTracks()
 
 #plotter.plot_materials(geometry, gridsize=500, plane='xy', offset=0.)
 #plotter.plot_cells(geometry, gridsize=500, plane='xy', offset=0.)
 #plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy', offset=0.)
 #plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500, plane='xy', offset=0.)
-
+plotter.plot_quadrature(track_generator)
+exit()
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
@@ -379,5 +382,6 @@ log.py_printf('NORMAL', 'Plotting data...')
 #plotter.plot_flat_source_regions(geometry, gridsize=500)
 #plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 #plotter.plot_segments_3d(track_generator)
+
 
 log.py_printf('TITLE', 'Finished')

@@ -18,8 +18,8 @@ tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 num_polar = 6
 polar_spacing = 0.1
+
 log.set_log_level('NORMAL')
-set_line_length(120)
 
 ###############################################################################
 ###########################   Creating Materials   ############################
@@ -36,12 +36,12 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-xmin = XPlane(x=-5.0, name='xmin')
-xmax = XPlane(x= 5.0, name='xmax')
-ymin = YPlane(y=-5.0, name='ymin')
-ymax = YPlane(y= 5.0, name='ymax')
-zmin = ZPlane(z=-5.0, name='zmin')
-zmax = ZPlane(z= 5.0, name='zmax')
+xmin = XPlane(x=-0.5, name='xmin')
+xmax = XPlane(x= 0.5, name='xmax')
+ymin = YPlane(y=-0.5, name='ymin')
+ymax = YPlane(y= 0.5, name='ymax')
+zmin = ZPlane(z=-0.5, name='zmin')
+zmax = ZPlane(z= 0.5, name='zmax')
 
 xmin.setBoundaryType(REFLECTIVE)
 xmax.setBoundaryType(REFLECTIVE)
@@ -56,8 +56,8 @@ zmax.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-moderator = CellBasic(name='moderator')
-moderator.setMaterial(materials['UO2'])
+moderator = Cell(name='moderator')
+moderator.setFill(materials['UO2'])
 moderator.addSurface(halfspace=+1, surface=xmin)
 moderator.addSurface(halfspace=-1, surface=xmax)
 moderator.addSurface(halfspace=+1, surface=ymin)
@@ -96,12 +96,23 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 quad = EqualAnglePolarQuad()
 quad.setNumPolarAngles(num_polar)
 
-track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, polar_spacing)
+track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, \
+                                 polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 #track_generator.setSolve2D()
+track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING)
 track_generator.generateTracks()
 
+###############################################################################
+#                            Running a Simulation
+###############################################################################
+
+solver = CPUSolver(track_generator)
+solver.setNumThreads(num_threads)
+solver.setConvergenceThreshold(tolerance)
+solver.computeEigenvalue(max_iters)
+solver.printTimerReport()
 
 #plotter.plot_tracks(track_generator)
 #plotter.plot_tracks_3d(track_generator)

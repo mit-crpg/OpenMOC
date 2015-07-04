@@ -1268,7 +1268,7 @@ def plot_tracks_3d(track_generator):
   plt.close(fig)
 
 
-def plot_quadrature(quadrature):
+def plot_quadrature(track_generator):
 
   global subdirectory
 
@@ -1279,13 +1279,14 @@ def plot_quadrature(quadrature):
     os.makedirs(directory)
 
   # Error checking
-  if not 'Quad' in str(type(quadrature)):
+  if not 'TrackGenerator' in str(type(track_generator)):
     py_printf('ERROR', 'Unable to plot the quadrature since %s was input ' + \
-              'rather than a Quadrature object', str(type(quadrature)))
+              'rather than a TrackGenerator object', str(type(track_generator)))
 
   py_printf('NORMAL', 'Plotting the quadrature...')
 
   # Retrieve data from TrackGenerator
+  quadrature = track_generator.getQuadrature()
   num_azim = quadrature.getNumAzimAngles()
   num_polar = quadrature.getNumPolarAngles()
 
@@ -1316,32 +1317,39 @@ def plot_quadrature(quadrature):
 
   title = ''
   filename = 'quadrature.png'
-  if quadrature.getQuadratureType() is TABUCHI_YAMAMOTO:
-    title = 'TABUCHI YAMAMOTO with ' + str(num_azim) + ' azim and ' + \
-            str(num_polar) + ' polar angles'
-    filename = directory + 'quad-TY-' + str(num_azim) + '-azim-' + \
-               str(num_polar) + '-polar.png'
-  if quadrature.getQuadratureType() is LEONARD:
-    title = 'LEONARD with ' + str(num_azim) + ' azim and ' + str(num_polar) + \
-            ' polar angles'
-    filename = directory + 'quad-LEONARD-' + str(num_azim) + '-azim-' + \
-               str(num_polar) + '-polar.png'
-  if quadrature.getQuadratureType() is GAUSS_LEGENDRE:
-    title = 'GAUSS LEGENDRE with ' + str(num_azim) + ' azim and ' + \
-            str(num_polar) + ' polar angles'
-    filename = directory + 'quad-GL-' + str(num_azim) + '-azim-' + \
-               str(num_polar) + '-polar.png'
-  if quadrature.getQuadratureType() is EQUAL_WEIGHT:
-    title = 'EQUAL WEIGHT with ' + str(num_azim) + ' azim and ' + \
-            str(num_polar) + ' polar angles'
-    filename = directory + 'quad-EQ-WGT-' + str(num_azim) + '-azim-' + \
-               str(num_polar) + '-polar.png'
-  if quadrature.getQuadratureType() is EQUAL_ANGLE:
-    title = 'EQUAL ANGLE with ' + str(num_azim) + ' azim and ' + \
-            str(num_polar) + ' polar angles'
-    filename = directory + 'quad-EQ-ANGLE-' + str(num_azim) + '-azim-' + \
-               str(num_polar) + '-polar.png'
-    
+  quad_type = ''
+  track_method = ''
+  if quadrature.getQuadratureType() is openmoc.TABUCHI_YAMAMOTO:
+    quad_type = 'TABUCHI-YAMAMOTO'
+  elif quadrature.getQuadratureType() is openmoc.LEONARD:
+    quad_type = 'LEONARD'
+  elif quadrature.getQuadratureType() is openmoc.GAUSS_LEGENDRE:
+    quad_type = 'GAUSS-LEGENDRE'
+  elif quadrature.getQuadratureType() is openmoc.EQUAL_WEIGHT:
+    quad_type = 'EQUAL-WEIGHT'
+  elif quadrature.getQuadratureType() is openmoc.EQUAL_ANGLE:
+    quad_type = 'EQUAL-ANGLE'
+
+  if track_generator.getTrackGenerationMethod() is openmoc.GLOBAL_TRACKING:
+    track_method = '3DGT'
+  elif track_generator.getTrackGenerationMethod() \
+  is openmoc.MODULAR_RAY_TRACING:
+    track_method = 'MRT'
+  elif track_generator.getTrackGenerationMethod() \
+  is openmoc.SIMPLIFIED_MODULAR_RAY_TRACING:
+    track_method = 'sMRT'
+
+  azim_spacing = track_generator.getDesiredAzimSpacing()
+  polar_spacing = track_generator.getDesiredPolarSpacing()
+
+  title = track_method + ' + ' + quad_type + ' with ' + str(num_azim) + \
+          '-' + '{:5.3f}'.format(azim_spacing) + ' azim ' + str(num_polar) + \
+          '-' + '{:5.3f}'.format(polar_spacing) + ' polar'
+  filename = directory + 'quad-' + track_method + '-' + quad_type + '-' + \
+             str(num_azim) + '-' + '{:5.3f}'.format(azim_spacing) + '-azim-' + \
+             str(num_polar) + '-' + '{:5.3f}'.format(polar_spacing) \
+             + '-polar.png'
+
   plt.title(title)
   ax.view_init(elev=30, azim=45)
   fig.savefig(filename, bbox_inches='tight')

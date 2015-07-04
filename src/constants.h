@@ -85,4 +85,9 @@
 /** Least common multiple tolerance */
 #define LCM_TOLERANCE 1.e-8
 
+/** The options for 3D track generation */
+#define GLOBAL_TRACKING 0
+#define MODULAR_RAY_TRACING 1
+#define SIMPLIFIED_MODULAR_RAY_TRACING 2
+
 #endif /* CONSTANTS_H_ */

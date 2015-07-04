@@ -109,6 +109,9 @@ private:
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
 
+  /** The method to use for generating 3D tracks */
+  int _track_generation_method;
+
   /** Boolean whether the Tracks have been generated (true) or not (false) */
   bool _contains_2D_tracks;
   bool _contains_3D_tracks;
@@ -164,6 +167,7 @@ public:
   FP_PRECISION get3DFSRVolume(int fsr_id);
   double getZLevel();
   Quadrature* getQuadrature();
+  int getTrackGenerationMethod();
   
   /* Set parameters */
   void setNumThreads(int num_threads);
@@ -176,6 +180,7 @@ public:
   void setSolve3D();
   void setZLevel(double z_level);
   void setQuadrature(Quadrature* quadrature);
+  void setTrackGenerationMethod(int method);
 
   /* Worker functions */
   bool contains2DTracks();

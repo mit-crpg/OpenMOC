@@ -13,7 +13,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
 
   setNumThreads(1);
 
-  _geometry = geometry;
+   _geometry = geometry;
   setNumAzim(num_azim);
   setNumPolar(num_polar);
   setDesiredAzimSpacing(azim_spacing);
@@ -29,6 +29,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _quadrature = NULL;
   _z_level = 0.0;
   _solve_3D = true;
+  _track_generation_method = GLOBAL_TRACKING;
 }
 
 
@@ -1066,7 +1067,7 @@ void TrackGenerator::initialize2DTracks() {
   double phi;
   double width  = _geometry->getWidth();
   double height = _geometry->getHeight();
-  
+
   /* Determine angular quadrature and track spacing */
   for (int i = 0; i < _num_azim/4; i++) {
 
@@ -1087,13 +1088,13 @@ void TrackGenerator::initialize2DTracks() {
 
     /* The length of all tracks in a 2D cycle */
     _cycle_length[i] = _dx_eff[i] / cos(_quadrature->getPhi(i)) * 
-      leastCommonMultiple(2*_num_x[i], 2 * height /
+      leastCommonMultiple(2 * _num_x[i], 2 * height /
                           (tan(_quadrature->getPhi(i)) * _dx_eff[i]));
 
     /* Get the number of tracks per cycle */
-    _tracks_per_cycle[i] =
-      (int) (round(_cycle_length[i] * sin(_quadrature->getPhi(i)) / width) +
-             round(_cycle_length[i] * cos(_quadrature->getPhi(i)) / height));
+    _tracks_per_cycle[i] = (int)
+      (round(_cycle_length[i] * sin(_quadrature->getPhi(i)) / width) +
+       round(_cycle_length[i] * cos(_quadrature->getPhi(i)) / height));
 
     /* Compute the number of cycles */
     _cycles_per_azim[i] = (_num_x[i] + _num_y[i]) * 2 / _tracks_per_cycle[i];
@@ -1101,16 +1102,16 @@ void TrackGenerator::initialize2DTracks() {
 
   /* Generate the 2D track cycles */
   for (int i = 0; i < _num_azim/4; i++) {
-    
+
     /* Allocate memory for the 2D tracks array */
     _tracks_2D[i] = new Track2D*[_cycles_per_azim[i]];
-    
+
     /* Start making the track cycles */
     for (int c = 0; c < _cycles_per_azim[i]; c++){
 
       /* Set the initial azimuthal angle */
       phi = _quadrature->getPhi(i);
-      
+
       /* Get pointer to first track */
       _tracks_2D[i][c] = new Track2D[_tracks_per_cycle[i]];
       Track2D* track = &_tracks_2D[i][c][0];
@@ -1121,7 +1122,7 @@ void TrackGenerator::initialize2DTracks() {
       track->setPhi(phi);
       phi = findTrackEndPoint(track, phi, i);
       track->setBCIn(_geometry->getMinYBoundaryType());
-      
+
       /* Generate the 2D track start and end points in this cycle */
       for (int t = 1; t < _tracks_per_cycle[i]; t++){
 
@@ -1131,11 +1132,11 @@ void TrackGenerator::initialize2DTracks() {
                                      track_prev->getEnd()->getY());
         track->setPhi(phi);
         track->setBCIn(track_prev->getBCOut());
-        
+
         /* Get the endpoint of the track and return the complementary azim 
          * angle */
         phi = findTrackEndPoint(track, phi, i);
-        
+
         /* Set previous track to current track */
         track_prev = track;
       }
@@ -1214,16 +1215,33 @@ void TrackGenerator::initialize3DTracks() {
 
   /* Determine angular quadrature and track spacing */
   for (int i = 0; i < _num_azim/4; i++) {
-    
+
     /* Determine the polar angles and spacing for this azimuthal angle */
     for (int j=0; j < _num_polar/2; j++){
 
       /* Compute the cosine weighted average angle */
       theta = _quadrature->getTheta(i, j);
 
-      /* The number of intersections with xy (denoted "l") and z-axes */
-      _num_l[i][j] = (int) (fabs(_cycle_length[i] * tan(M_PI_2 - theta)
-                                 * sin(theta) / _polar_spacing)) + 1;
+      /* The number of intersections with xy (denoted "l") plane */
+      if (_track_generation_method == GLOBAL_TRACKING){
+        _num_l[i][j] = (int) (fabs(_cycle_length[i] * tan(M_PI_2 - theta)
+                                   * sin(theta) / _polar_spacing)) + 1;
+      }
+      else if (_track_generation_method == MODULAR_RAY_TRACING){
+        _num_l[i][j] = 2 * (int)
+          (fabs(_cycle_length[i] * 0.5 * tan(M_PI_2 - theta)
+                * sin(theta) / _polar_spacing)) + 1;
+      }
+      else if (_track_generation_method == SIMPLIFIED_MODULAR_RAY_TRACING){
+        double cycle_length = sqrt(_dx_eff[i]*_dx_eff[i]
+                                   + _dy_eff[i]*_dy_eff[i]);
+        _num_l[i][j] =  (int)
+          round(_cycle_length[i] / cycle_length *
+                ceil(fabs(cycle_length * tan(M_PI_2 - theta)
+                          * sin(theta) / _polar_spacing)));
+      }
+
+      /* Number of crossings along the z axis */
       _num_z[i][j] = (int) (fabs(depth * _num_l[i][j] * tan(theta)
                                  / _cycle_length[i])) + 1;
 
@@ -1248,7 +1266,7 @@ void TrackGenerator::initialize3DTracks() {
   Track3D track_3D;
   int pc;
   double l_start, l_end;
-  
+
   /* Create the 3D tracks for each lz plane */
   /*
    *                A sample 2D track layout
@@ -1502,8 +1520,9 @@ void TrackGenerator::initialize3DTrackReflections(){
 }
 
  
-void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start, double l_end,
-                                      int azim, int cycle, int polar, int lz_index){
+void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
+                                      double l_end, int azim, int cycle,
+                                      int polar, int lz_index){
 
   if (l_start > _cycle_length[azim] || l_start < 0.0)
     log_printf(ERROR, "Unable to tally tracks per stack for track with "
@@ -1520,7 +1539,8 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start, double l_e
   
   /* Find the last cycle index */
   for (int i=0; i < _tracks_per_cycle[azim]; i++){
-    if (l_end < length_sum + _tracks_2D[azim][cycle][i].getLength() + TINY_MOVE * sin(_quadrature->getTheta(azim, polar))){
+    if (l_end < length_sum + _tracks_2D[azim][cycle][i].getLength()
+        + TINY_MOVE * sin(_quadrature->getTheta(azim, polar))){
       last_stack = i;
       break;
     }    
@@ -1997,7 +2017,8 @@ double TrackGenerator::convertLtoY(double l, int azim, int cycle){
   
   double y1 = _tracks_2D[azim][cycle][track_index].getStart()->getY();
   double y2 = _tracks_2D[azim][cycle][track_index].getEnd()->getY();
-  double l_rel = (l - length_sum) / _tracks_2D[azim][cycle][track_index].getLength();
+  double l_rel = (l - length_sum) / _tracks_2D[azim][cycle][track_index]
+    .getLength();
   double y = l_rel * y2 + (1.0 - l_rel) * y1;
 
   return y;
@@ -2030,9 +2051,10 @@ void TrackGenerator::initializeTrackFileDirectory() {
 
   if (_solve_3D){
 
-    /* Get the quadrature type */
+    /* Get the quadrature and track method types */
     std::string quad_type;
-    
+    std::string track_method;
+
     if (_quadrature->getQuadratureType() == EQUAL_WEIGHT)
       quad_type = "EQ_WGT";
     else if (_quadrature->getQuadratureType() == EQUAL_ANGLE)
@@ -2041,23 +2063,32 @@ void TrackGenerator::initializeTrackFileDirectory() {
       log_printf(ERROR, "Unable to solve 3D problem with quadrature type"
                  " other than EQUAL_WEIGHT or EQUAL_ANGLE");
 
+    if (_track_generation_method == GLOBAL_TRACKING)
+      track_method = "GT";
+    else if (_track_generation_method == MODULAR_RAY_TRACING)
+      track_method = "MRT";
+    else if (_track_generation_method == SIMPLIFIED_MODULAR_RAY_TRACING)
+      track_method = "sMRT";
+
     if (_geometry->getCmfd() != NULL){
       test_filename << directory.str() << "/3D_"
                     << _num_azim << "_azim_"
                     << _num_polar << "_polar_"
-                    << _azim_spacing << "x" << _polar_spacing << "_cm_spacing_cmfd_"
+                    << _azim_spacing << "x" << _polar_spacing
+                    << "_cm_spacing_cmfd_"
                     << _geometry->getCmfd()->getNumX()
                     << "x" << _geometry->getCmfd()->getNumY()
                     << "x" << _geometry->getCmfd()->getNumZ()
-                    << "_quad_" << quad_type
+                    << "_quad_" << quad_type << "_track_" << track_method
                     << ".data";
     }
     else{
       test_filename << directory.str() << "/3D_"
                     << _num_azim << "_azim_"
                     << _num_polar << "_polar_"
-                    << _azim_spacing << "x" << _polar_spacing << "_cm_spacing_quad_"
-                    << quad_type << ".data";
+                    << _azim_spacing << "x" << _polar_spacing
+                    << "_cm_spacing_quad_"
+                    << quad_type << "_track_" << track_method << ".data";
     }
   }
   else{
@@ -3008,4 +3039,21 @@ void TrackGenerator::generateFSRCentroids(){
   
   /* Delete temporary array of centroids and FSR volumes */
   delete [] FSR_volumes;
+}
+
+
+void TrackGenerator::setTrackGenerationMethod(int method) {
+
+  if (method != GLOBAL_TRACKING && method != MODULAR_RAY_TRACING &&
+      method != SIMPLIFIED_MODULAR_RAY_TRACING)
+    log_printf(ERROR, "Unable to set Track Generation Method to %i. Valid"
+               " methods include GLOBAL_TRACKING, MODULAR_RAY_TRACING, "
+               "and SIMPLIFIED_MODULAR_RAY_TRACING", method);
+
+  _track_generation_method = method;
+}
+
+
+int TrackGenerator::getTrackGenerationMethod() {
+  return _track_generation_method;
 }
