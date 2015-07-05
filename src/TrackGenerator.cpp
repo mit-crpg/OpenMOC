@@ -161,6 +161,20 @@ int TrackGenerator::getNum3DTracks() {
  * @return the total number of Track segments
  */
 int TrackGenerator::getNum2DSegments() {
+
+  if (!contains2DSegments())
+    log_printf(ERROR, "Cannot get the number of 2D segments since they "
+               "have not been generated.");
+  
+  _num_2D_segments = 0;
+
+  for (int a=0; a < _num_azim/4; a++){
+    for (int c=0; c < _cycles_per_azim[a]; c++){
+      for (int t=0; t < _tracks_per_cycle[a]; t++)
+        _num_2D_segments += _tracks_2D[a][c][t].getNumSegments();
+    }
+  }
+
   return _num_2D_segments;
 }
 
@@ -170,6 +184,25 @@ int TrackGenerator::getNum2DSegments() {
  * @return the total number of Track segments
  */
 int TrackGenerator::getNum3DSegments() {
+
+  if (!contains3DSegments())
+    log_printf(ERROR, "Cannot get the number of 3D segments since they "
+               "have not been generated.");
+
+  _num_3D_segments = 0;
+  
+  /* Loop over all Tracks */
+  for (int a=0; a < _num_azim/4; a++){
+    for (int c=0; c < _cycles_per_azim[a]; c++){
+      for (int p=0; p < _num_polar; p++){
+        for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
+          for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++)
+            _num_3D_segments += _tracks_3D[a][c][p][i][t].getNumSegments();
+        }
+      }
+    }
+  }
+  
   return _num_3D_segments;
 }
 
@@ -798,7 +831,7 @@ void TrackGenerator::retrieve3DSegmentCoords(double* coords, int num_segments) {
   segment* segments;
 
   int counter = 0;
-
+  
   /* Loop over Track segments and populate array with their FSR ID and *
    * start/end points */
   for (int a=0; a < _num_azim/4; a++){
@@ -806,28 +839,28 @@ void TrackGenerator::retrieve3DSegmentCoords(double* coords, int num_segments) {
       for (int p=0; p < _num_polar; p++){
         for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
           for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
-              
+
             x0    = _tracks_3D[a][c][p][i][t].getStart()->getX();
             y0    = _tracks_3D[a][c][p][i][t].getStart()->getY();
             z0    = _tracks_3D[a][c][p][i][t].getStart()->getZ();
             phi   = _tracks_3D[a][c][p][i][t].getPhi();
             theta = _tracks_3D[a][c][p][i][t].getTheta();
-            
+
             segments = _tracks_3D[a][c][p][i][t].getSegments();
             
             for (int s=0; s < _tracks_3D[a][c][p][i][t].getNumSegments(); s++) {
               curr_segment = &segments[s];
-              
+
               coords[counter] = curr_segment->_region_id;
-              
+
               coords[counter+1] = x0;
               coords[counter+2] = y0;
               coords[counter+3] = z0;
-              
+
               x1 = x0 + cos(phi) * sin(theta) * curr_segment->_length;
               y1 = y0 + sin(phi) * sin(theta) * curr_segment->_length;
               z1 = z0 + cos(theta) * curr_segment->_length;
-              
+
               coords[counter+4] = x1;
               coords[counter+5] = y1;
               coords[counter+6] = z1;
@@ -843,7 +876,7 @@ void TrackGenerator::retrieve3DSegmentCoords(double* coords, int num_segments) {
       }
     }
   }
-  
+
   return;
 }
 
@@ -1717,16 +1750,18 @@ void TrackGenerator::segmentize2D() {
 
   log_printf(NORMAL, "Ray tracing for 2D track segmentation...");
 
+  int tracks_segmented = 0;
+  
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/4; a++){
     for (int c=0; c < _cycles_per_azim[a]; c++){
-      
-      log_printf(NORMAL, "segmenting 2D cycle %i, %i", a, c);
-
+      log_printf(NORMAL, "segmenting 2D tracks - Percent complete: %5.2f %%",
+                 double(tracks_segmented) / _num_2D_tracks * 100.0);
       #pragma omp parallel for
       for (int t=0; t < _tracks_per_cycle[a]; t++){
         _geometry->segmentize2D(&_tracks_2D[a][c][t], _z_level);
       }
+      tracks_segmented += _tracks_per_cycle[a];
     }
   }
 
@@ -1738,8 +1773,6 @@ void TrackGenerator::segmentize2D() {
         _num_2D_segments += _tracks_2D[a][c][t].getNumSegments();
     }
   }
-
-  log_printf(NORMAL, "num 2d segments: %i", _num_2D_segments);
 
   _geometry->initializeFSRVectors();
   _contains_2D_segments = true;
@@ -1773,20 +1806,6 @@ void TrackGenerator::segmentize3D() {
         for (int i=0; i < nt; i++){
           for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++)
             tracks_segmented++;
-        }
-      }
-    }
-  }
-
-  _num_3D_segments = 0;
-  
-  /* Loop over all Tracks */
-  for (int a=0; a < _num_azim/4; a++){
-    for (int c=0; c < _cycles_per_azim[a]; c++){
-      for (int p=0; p < _num_polar; p++){
-        for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
-          for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++)
-            _num_3D_segments += _tracks_3D[a][c][p][i][t].getNumSegments();
         }
       }
     }

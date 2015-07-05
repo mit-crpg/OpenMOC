@@ -17,7 +17,7 @@ polar_spacing = options.getPolarSpacing()
 num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-
+  
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -25,18 +25,23 @@ max_iters = options.getMaxIterations()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
+quad = EqualAnglePolarQuad()
+quad.setNumPolarAngles(num_polar)
+
 track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
                                  polar_spacing)
+track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
+
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
 solver = CPUSolver(track_generator)
-solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
+solver.setNumThreads(num_threads)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
@@ -47,12 +52,15 @@ solver.printTimerReport()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-plotter.plot_tracks_3d(track_generator)
-plotter.plot_segments_3d(track_generator)
-plotter.plot_materials(geometry, gridsize=500, plane='xy', offset=0.)
-plotter.plot_cells(geometry, gridsize=500, plane='xy', offset=0.)
-plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy', offset=0.)
-plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500, plane='xy', offset=0.)
-plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+#plotter.plot_materials(geometry, gridsize=500)
+#plotter.plot_cells(geometry, gridsize=500)
+#plotter.plot_flat_source_regions(geometry, gridsize=500)
+#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
+#                            gridsize=500, plane='xy', offset=0.)
+#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
+#                            gridsize=500, plane='xz', offset=0.)
+#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
+#                            gridsize=500, plane='yz', offset=0.)
+
 
 log.py_printf('TITLE', 'Finished')

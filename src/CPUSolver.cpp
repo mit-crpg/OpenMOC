@@ -138,6 +138,8 @@ void CPUSolver::initializeFluxArrays() {
     size = _num_FSRs * _num_groups;
     _scalar_flux = new FP_PRECISION[size];
     _old_scalar_flux = new FP_PRECISION[size];
+    memset(_scalar_flux, 0., size * sizeof(FP_PRECISION));
+    memset(_old_scalar_flux, 0., size * sizeof(FP_PRECISION));
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the fluxes");
@@ -436,7 +438,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   /* Sum up the residuals from each FSR and normalize */
   residual = pairwise_sum<double>(residuals, _num_FSRs);
-  residual = sqrt(residual / norm);
+  residual = sqrt(residual / norm);  
 
   /* Deallocate memory for residuals array */
   delete [] residuals;

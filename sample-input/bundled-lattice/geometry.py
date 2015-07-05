@@ -2,20 +2,6 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-from openmoc.options import Options
-
-
-###############################################################################
-#                          Main Simulation Parameters
-###############################################################################
-
-options = Options()
-
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
 
 log.set_log_level('NORMAL')
 
@@ -35,12 +21,19 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = XPlane(x=-34.0, name='left')
-right = XPlane(x=34.0, name='right')
-top = YPlane(y=-34.0, name='top')
-bottom = YPlane(y=34.0, name='bottom')
-boundaries = [left, right, top, bottom]
-for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
+xmin = XPlane(x=-34.0, name='xmin')
+xmax = XPlane(x= 34.0, name='xmax')
+ymin = YPlane(y=-34.0, name='ymin')
+ymax = YPlane(y= 34.0, name='ymax')
+zmin = ZPlane(z=-1.0, name='zmin')
+zmax = ZPlane(z= 1.0, name='zmax')
+
+xmin.setBoundaryType(REFLECTIVE)
+xmax.setBoundaryType(REFLECTIVE)
+ymin.setBoundaryType(REFLECTIVE)
+ymax.setBoundaryType(REFLECTIVE)
+zmin.setBoundaryType(REFLECTIVE)
+zmax.setBoundaryType(REFLECTIVE)
 
 circles = list()
 radii = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
@@ -89,10 +82,12 @@ cells[10].setFill(materials['UO2'])
 cells[11].setFill(materials['Water'])
 
 # Add the boundary Planes to the "root" Cell
-root_cell.addSurface(halfspace=+1, surface=boundaries[0])
-root_cell.addSurface(halfspace=-1, surface=boundaries[1])
-root_cell.addSurface(halfspace=+1, surface=boundaries[2])
-root_cell.addSurface(halfspace=-1, surface=boundaries[3])
+root_cell.addSurface(halfspace=+1, surface=xmin)
+root_cell.addSurface(halfspace=-1, surface=xmax)
+root_cell.addSurface(halfspace=+1, surface=ymin)
+root_cell.addSurface(halfspace=-1, surface=ymax)
+root_cell.addSurface(halfspace=+1, surface=zmin)
+root_cell.addSurface(halfspace=-1, surface=zmax)
 
 
 ###############################################################################
@@ -181,7 +176,7 @@ a2.setUniverses([
 
 # 4x4 core
 core = Lattice(name='full core')
-core.setWidth(width_x=17.0, width_y=17.0)
+core.setWidth(width_x=17.0, width_y=17.0, width_z=1.0)
 core.setUniverses([[u7, u8, u7, u8],
                    [u8, u7, u8, u7],
                    [u7, u8, u7, u8],
@@ -201,39 +196,3 @@ log.py_printf('NORMAL', 'Creating geometry...')
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
-
-
-###############################################################################
-#                          Creating the TrackGenerator
-###############################################################################
-
-log.py_printf('NORMAL', 'Initializing the track generator...')
-
-track_generator = TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.setNumThreads(num_threads)
-track_generator.generateTracks()
-
-
-###############################################################################
-#                            Running a Simulation
-###############################################################################
-
-solver = CPUSolver(track_generator)
-solver.setNumThreads(num_threads)
-solver.setConvergenceThreshold(tolerance)
-solver.computeEigenvalue(max_iters)
-solver.printTimerReport()
-
-
-###############################################################################
-#                             Generating Plots
-###############################################################################
-
-log.py_printf('NORMAL', 'Plotting data...')
-
-plotter.plot_materials(geometry, gridsize=500)
-plotter.plot_cells(geometry, gridsize=500)
-plotter.plot_flat_source_regions(geometry, gridsize=500)
-plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-
-log.py_printf('TITLE', 'Finished')

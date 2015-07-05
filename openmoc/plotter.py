@@ -197,6 +197,9 @@ def plot_segments(track_generator):
     color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
     plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], c=color)
 
+  plt.xlim([x.min(), x.max()])
+  plt.ylim([y.min(), y.max()])
+    
   title = 'Segments for ' + str(num_azim) + ' angles and ' + str(spacing) + \
         ' cm spacing'
 
@@ -224,9 +227,9 @@ def plot_segments_3d(track_generator):
     py_printf('ERROR', 'Unable to plot Track segments since %s was input ' + \
               'rather than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.contains2DTracks():
+  if not track_generator.contains3DSegments():
     py_printf('ERROR', 'Unable to plot Track segments since the ' + \
-              'TrackGenerator has not yet generated Tracks.')
+              'TrackGenerator has not yet generated 3D segments.')
 
   py_printf('NORMAL', 'Plotting the 3D track segments...')
 

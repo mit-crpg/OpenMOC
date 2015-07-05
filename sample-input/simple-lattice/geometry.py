@@ -2,24 +2,9 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-from openmoc.options import Options
 
-
-###############################################################################
-#######################   Main Simulation Parameters   ########################
-###############################################################################
-
-options = Options()
-
-num_threads = options.getNumThreads()
-azim_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
-num_polar = 6
-polar_spacing = 0.05
 log.set_log_level('NORMAL')
-set_line_length(120)
+
 
 ###############################################################################
 ###########################   Creating Materials   ############################
@@ -36,10 +21,10 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-xmin = XPlane(x=-0.5, name='xmin')
-xmax = XPlane(x= 0.5, name='xmax')
-ymin = YPlane(y=-0.5, name='ymin')
-ymax = YPlane(y= 0.5, name='ymax')
+xmin = XPlane(x=-2.0, name='xmin')
+xmax = XPlane(x= 2.0, name='xmax')
+ymin = YPlane(y=-2.0, name='ymin')
+ymax = YPlane(y= 2.0, name='ymax')
 zmin = ZPlane(z=-0.5, name='zmin')
 zmax = ZPlane(z= 0.5, name='zmax')
 
@@ -50,19 +35,41 @@ ymax.setBoundaryType(REFLECTIVE)
 zmin.setBoundaryType(REFLECTIVE)
 zmax.setBoundaryType(REFLECTIVE)
 
+large_circle = Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
+medium_circle = Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
+small_circle = Circle(x=0.0, y=0.0, radius=0.2, name='small pin')
+
 ###############################################################################
 #############################   Creating Cells   ##############################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-fuel = CellBasic(name='fuel')
-fuel.setMaterial(materials['UO2'])
+large_fuel = Cell()
+large_fuel.setFill(materials['UO2'])
+large_fuel.addSurface(halfspace=-1, surface=large_circle)
 
-moderator = CellBasic(name='moderator')
-moderator.setMaterial(materials['Water'])
+large_moderator = Cell()
+large_moderator.setFill(materials['Water'])
+large_moderator.addSurface(halfspace=+1, surface=large_circle)
 
-root_cell = CellFill(name='root cell')
+medium_fuel = Cell()
+medium_fuel.setFill(materials['UO2'])
+medium_fuel.addSurface(halfspace=-1, surface=medium_circle)
+
+medium_moderator = Cell()
+medium_moderator.setFill(materials['Water'])
+medium_moderator.addSurface(halfspace=+1, surface=medium_circle)
+
+small_fuel = Cell()
+small_fuel.setFill(materials['UO2'])
+small_fuel.addSurface(halfspace=-1, surface=small_circle)
+
+small_moderator = Cell()
+small_moderator.setFill(materials['Water'])
+small_moderator.addSurface(halfspace=+1, surface=small_circle)
+
+root_cell = Cell()
 root_cell.addSurface(halfspace=+1, surface=xmin)
 root_cell.addSurface(halfspace=-1, surface=xmax)
 root_cell.addSurface(halfspace=+1, surface=ymin)
@@ -70,20 +77,23 @@ root_cell.addSurface(halfspace=-1, surface=ymax)
 root_cell.addSurface(halfspace=+1, surface=zmin)
 root_cell.addSurface(halfspace=-1, surface=zmax)
 
-
 ###############################################################################
-###########################   Creating Universes   ############################
+#                            Creating Universes
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating universes...')
 
-fue_univ = Universe(name='homogeneous fue cell')
-fue_univ.addCell(fuel)
-
-mod_univ = Universe(name='homogeneous mod cell')
-mod_univ.addCell(moderator)
-
+pin1 = Universe(name='large pin cell')
+pin2 = Universe(name='medium pin cell')
+pin3 = Universe(name='small pin cell')
 root_universe = Universe(name='root universe')
+
+pin1.addCell(large_fuel)
+pin1.addCell(large_moderator)
+pin2.addCell(medium_fuel)
+pin2.addCell(medium_moderator)
+pin3.addCell(small_fuel)
+pin3.addCell(small_moderator)
 root_universe.addCell(root_cell)
 
 
@@ -91,16 +101,16 @@ root_universe.addCell(root_cell)
 ###########################   Creating Lattices   #############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating simple 2 x 2 lattice...')
+log.py_printf('NORMAL', 'Creating simple 4 x 4 lattice...')
 
-lattice = Lattice(name='2x2 lattice')
-lattice.setWidth(width_x=0.5, width_y=0.5, width_z=0.5)
-lattice.setUniverses3D([[[fue_univ, mod_univ],
-                         [mod_univ, mod_univ]],
-                        [[mod_univ, mod_univ],
-                         [mod_univ, mod_univ]]])
-
+lattice = Lattice(name='4x4 lattice')
+lattice.setWidth(width_x=1.0, width_y=1.0, width_z=1.0)
+lattice.setUniverses([[pin1, pin2, pin1, pin2],
+                      [pin2, pin3, pin2, pin3],
+                      [pin1, pin2, pin1, pin2],
+                      [pin2, pin3, pin2, pin3]])
 root_cell.setFill(lattice)
+
 
 ###############################################################################
 ##########################     Creating Cmfd mesh    ##########################
@@ -109,10 +119,7 @@ root_cell.setFill(lattice)
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(0.6)
-cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(2,2,2)
-#cmfd.setGroupStructure([1,4,8])
+cmfd.setLatticeStructure(2,2,1)
 
 
 ###############################################################################
@@ -125,40 +132,3 @@ geometry = Geometry()
 geometry.setRootUniverse(root_universe)
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
-
-quad = EqualAnglePolarQuad()
-quad.setNumPolarAngles(num_polar)
-
-
-###############################################################################
-########################   Creating the TrackGenerator   ######################
-###############################################################################
-
-log.py_printf('NORMAL', 'Initializing the track generator...')
-
-track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, polar_spacing)
-track_generator.setQuadrature(quad)
-track_generator.setNumThreads(num_threads)
-#track_generator.setSolve2D()
-track_generator.setZLevel(0.1)
-track_generator.generateTracks()
-
-
-###############################################################################
-###########################   Running a Simulation   ##########################
-###############################################################################
-
-solver = CPUSolver(geometry, track_generator)
-solver.setNumThreads(num_threads)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.useExponentialIntrinsic()
-solver.convergeSource(max_iters)
-solver.printTimerReport()
-
-
-#plotter.plot_tracks(track_generator)
-#plotter.plot_tracks_3d(track_generator)
-#plotter.plot_segments_3d(track_generator)
-#plotter.plot_segments(track_generator)
-
-log.py_printf('TITLE', 'Finished')

@@ -2,22 +2,6 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-from openmoc.options import Options
-
-
-###############################################################################
-#                          Main Simulation Parameters
-###############################################################################
-
-options = Options()
-
-num_threads = options.getNumThreads()
-azim_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
-num_polar = 2
-polar_spacing = 1.0
 
 log.set_log_level('NORMAL')
 
@@ -95,43 +79,3 @@ log.py_printf('NORMAL', 'Creating geometry...')
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
-
-
-###############################################################################
-#                          Creating the TrackGenerator
-###############################################################################
-
-log.py_printf('NORMAL', 'Initializing the track generator...')
-
-track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, \
-                                 polar_spacing)
-track_generator.setNumThreads(num_threads)
-track_generator.generateTracks()
-
-
-###############################################################################
-#                            Running a Simulation
-###############################################################################
-
-solver = CPUSolver(track_generator)
-solver.setNumThreads(num_threads)
-solver.setConvergenceThreshold(tolerance)
-solver.computeEigenvalue(max_iters)
-solver.printTimerReport()
-
-
-###############################################################################
-#                             Generating Plots
-###############################################################################
-
-log.py_printf('NORMAL', 'Plotting data...')
-
-#plotter.plot_tracks(track_generator)
-#plotter.plot_segments(track_generator)
-#plotter.plot_materials(geometry)
-#plotter.plot_cells(geometry)
-#plotter.plot_flat_source_regions(geometry)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-#plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
-
-log.py_printf('TITLE', 'Finished')

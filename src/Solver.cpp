@@ -464,7 +464,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
       setFixedSourceByCell(iter->second, group, source);
   }
 
-  /* Aadd the source to all FSRs for this MATERIAL type Cell */
+  /* Add the source to all FSRs for this MATERIAL type Cell */
   else {
     Cell* fsr_cell;
     

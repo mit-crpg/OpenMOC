@@ -2,20 +2,6 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
-from openmoc.options import Options
-
-
-###############################################################################
-#                          Main Simulation Parameters
-###############################################################################
-
-options = Options()
-
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
 
 log.set_log_level('NORMAL')
 
@@ -36,17 +22,24 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = XPlane(x=-2.0, name='left')
-right = XPlane(x=2.0, name='right')
-top = YPlane(y=-2.0, name='top')
-bottom = YPlane(y=2.0, name='bottom')
-boundaries = [left, right, top, bottom]
+xmin = XPlane(x=-2.0, name='xmin')
+xmax = XPlane(x= 2.0, name='xmax')
+ymin = YPlane(y=-2.0, name='ymin')
+ymax = YPlane(y= 2.0, name='ymax')
+zmin = ZPlane(z=-2.0, name='zmin')
+zmax = ZPlane(z= 2.0, name='zmax')
+
+xmin.setBoundaryType(REFLECTIVE)
+xmax.setBoundaryType(REFLECTIVE)
+ymin.setBoundaryType(REFLECTIVE)
+ymax.setBoundaryType(REFLECTIVE)
+zmin.setBoundaryType(REFLECTIVE)
+zmax.setBoundaryType(REFLECTIVE)
+
 
 large_circle = Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
 medium_circle = Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
 small_circle = Circle(x=0.0, y=0.0, radius=0.2, name='small pin')
-
-for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
@@ -91,10 +84,12 @@ small_moderator.addSurface(halfspace=+1, surface=small_circle)
 lattice_cell = Cell(name='lattice cell')
 
 root_cell = Cell(name='root cell')
-root_cell.addSurface(halfspace=+1, surface=boundaries[0])
-root_cell.addSurface(halfspace=-1, surface=boundaries[1])
-root_cell.addSurface(halfspace=+1, surface=boundaries[2])
-root_cell.addSurface(halfspace=-1, surface=boundaries[3])
+root_cell.addSurface(halfspace=+1, surface=xmin)
+root_cell.addSurface(halfspace=-1, surface=xmax)
+root_cell.addSurface(halfspace=+1, surface=ymin)
+root_cell.addSurface(halfspace=-1, surface=ymax)
+root_cell.addSurface(halfspace=+1, surface=zmin)
+root_cell.addSurface(halfspace=-1, surface=zmax)
 
 
 ###############################################################################
@@ -147,39 +142,3 @@ log.py_printf('NORMAL', 'Creating geometry...')
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
-
-
-###############################################################################
-#                          Creating the TrackGenerator
-###############################################################################
-
-log.py_printf('NORMAL', 'Initializing the track generator...')
-
-track_generator = TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.setNumThreads(num_threads)
-track_generator.generateTracks()
-
-
-###############################################################################
-#                            Running a Simulation
-###############################################################################
-
-solver = CPUSolver(track_generator)
-solver.setNumThreads(num_threads)
-solver.setConvergenceThreshold(tolerance)
-solver.computeEigenvalue(max_iters)
-solver.printTimerReport()
-
-
-###############################################################################
-#                             Generating Plots
-###############################################################################
-
-log.py_printf('NORMAL', 'Plotting data...')
-
-plotter.plot_materials(geometry, gridsize=500)
-plotter.plot_cells(geometry, gridsize=500)
-plotter.plot_flat_source_regions(geometry, gridsize=500)
-plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-
-log.py_printf('TITLE', 'Finished')
