@@ -1,9 +1,9 @@
-#include "../src/CPUSolver.h"
-#include "../src/log.h"
+#include "../../../src/CPUSolver.h"
+#include "../../../src/log.h"
 #include <array>
 #include <iostream>
 
-int main(){
+int main() {
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -14,11 +14,11 @@ int main(){
   double track_spacing = 0.1;
   int num_azim = 4;
   double tolerance = 1e-5;
-  int max_iters = 2000;
+  int max_iters = 1000;
 
   /* Set logging information */
   set_log_level("NORMAL");
-  log_printf(TITLE, "Simulating a one group homogeneous one directional"
+  log_printf(TITLE, "Simulating a one group homogeneous two directional"
      " gradient...");
   
   /* Create materials */
@@ -47,7 +47,7 @@ int main(){
   YPlane bottom(-L/2);
 
   left.setBoundaryType(VACUUM);
-  right.setBoundaryType(REFLECTIVE);
+  right.setBoundaryType(VACUUM);
   top.setBoundaryType(REFLECTIVE);
   bottom.setBoundaryType(REFLECTIVE);
 

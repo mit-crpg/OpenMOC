@@ -1,5 +1,5 @@
-#include "../src/CPUSolver.h"
-#include "../src/log.h"
+#include "../../../src/CPUSolver.h"
+#include "../../../src/log.h"
 #include <array>
 #include <iostream>
 
@@ -22,7 +22,7 @@ int main() {
  
   /* Define material properties */
   log_printf(NORMAL, "Defining material properties..."); 
-  
+ 
   const size_t num_groups = 7;
   std::map<std::string, std::array<double, num_groups> > sigma_a;
   std::map<std::string, std::array<double, num_groups> > nu_sigma_f;
@@ -63,13 +63,13 @@ int main() {
       0.0, 0.0, 0.0, 1.2525E-4, 0.271401, 0.010255, 1.0021E-8,
       0.0, 0.0, 0.0, 0.0, 0.0012968, 0.265802, 0.016809,
       0.0, 0.0, 0.0, 0.0, 0.0, 0.0085458, 0.27308};
-  chi["UO2"] = std::array<double, num_groups> {0.58791, 0.41176, 3.3906E-4, 
+  chi["UO2"] = std::array<double, num_groups> {0.58791, 0.41176, 3.3906E-4,
     1.1761E-7, 0.0, 0.0, 0.0};
   sigma_t["UO2"] = std::array<double, num_groups> {0.177949, 0.329805, 
     0.480388, 0.554367, 0.311801, 0.395168, 0.564406};
 
   /* Define MOX-4.3% cross-sections */
-  sigma_a["MOX-4.3\%"] = std::array<double, num_groups> {0.0084339, 0.0037577, 
+  sigma_a["MOX-4.3\%"] = std::array<double, num_groups> {0.0084339, 0.0037577,
     0.02797, 0.10421, 0.13994, 0.40918, 0.40935};
   nu_sigma_f["MOX-4.3\%"] = std::array<double, num_groups> {0.021753, 
     0.002535103, 0.01626799, 0.0654741, 0.03072409, 0.666651, 0.7139904};
@@ -85,7 +85,7 @@ int main() {
       0.0, 0.0, 0.0, 0.0, 0.0, 0.0084948, 0.265007}; 
   chi["MOX-4.3\%"] = std::array<double, num_groups> {0.58791, 0.41176, 
     3.3906E-4, 1.1761E-7, 0.0, 0.0, 0.0};
-  sigma_t["MOX-4.3\%"] = std::array<double, num_groups> {0.178731, 0.330849, 
+  sigma_t["MOX-4.3\%"] = std::array<double, num_groups> {0.178731, 0.330849,
     0.483772, 0.566922, 0.426227, 0.678997, 0.68285};
 
   /* Define MOX-7% cross-sections */
@@ -131,7 +131,7 @@ int main() {
   /* Define fission chamber cross-sections */
   sigma_a["Fission Chamber"] = std::array<double, num_groups> {5.1132E-4, 
     7.5813E-5, 3.1643E-4, 0.0011675, 0.0033977, 0.0091886, 0.023244};
-  nu_sigma_f["Fission Chamber"] = std::array<double, num_groups> {1.323401E-8, 
+  nu_sigma_f["Fission Chamber"] = std::array<double, num_groups> {1.323401E-8,
     1.4345E-8, 1.128599E-6, 1.276299E-5, 3.538502E-7, 1.740099E-6, 
     5.063302E-6};
   sigma_f["Fission Chamber"] = std::array<double, num_groups> {4.79002E-9, 
@@ -475,21 +475,10 @@ int main() {
   full_geometry.setUniverses(3, 3, universes);
   root_cell.setFill(&full_geometry);
   
-  /* Create CMFD mesh */
-  log_printf(NORMAL, "Creating CMFD mesh...");
-
-  Cmfd cmfd;
-  cmfd.setMOCRelaxationFactor(0.6);
-  cmfd.setSORRelaxationFactor(1.5);
-  cmfd.setLatticeStructure(51, 51);
-  int cmfd_group_structure[3] = {1,4,8};
-  cmfd.setGroupStructure(cmfd_group_structure, 3);
-
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
-  geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 
   /* Generate tracks */

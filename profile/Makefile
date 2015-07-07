@@ -13,10 +13,10 @@ BENCHMARK   = no
 PRECISION   = double
 
 #===============================================================================
-# Program name & source code list
+# Source Code List
 #===============================================================================
 
-case = c5g7-cmfd.cpp
+case = models/c5g7/c5g7-cmfd.cpp
 
 source = \
 ../src/Cell.cpp \
@@ -37,17 +37,11 @@ source = \
 ../src/Universe.cpp
 
 cases = \
-one-directional-gradient.cpp \
-two-directional-gradient.cpp \
-homogeneous-one-group.cpp \
-c5g7.cpp \
-c5g7-cmfd.cpp
-
-obj = $(source:.cpp=.o)
-headers = $(source:.cpp=.h)
-obj += $(case:.cpp=.o)
-
-program = $(case:.cpp=)
+models/gradients/one-directional/one-directional-gradient.cpp \
+models/gradients/two-directional/two-directional-gradient.cpp \
+models/homogeneous/homogeneous-one-group.cpp \
+models/c5g7/c5g7.cpp \
+models/c5g7/c5g7-cmfd.cpp
 
 #===============================================================================
 # Sets Flags
@@ -61,6 +55,7 @@ endif
 # intel Compiler
 ifeq ($(COMPILER),intel)
   CC = icpc
+  source += ../src/VectorizedSolver.cpp
 endif
 
 # IBM XL Compiler
@@ -115,8 +110,6 @@ ifeq ($(COMPILER),gnu)
   CFLAGS += -Ofast -ffast-math -ftree-vectorize -msse2 -DGNU
 endif
 ifeq ($(COMPILER),intel)
-  source += ../src/VectorizedSolver.cpp
-  obj += ../src/VectorizedSolver.o
   CFLAGS += -O3 -xhost -ansi-alias -no-prec-div -DINTEL
 endif
 ifeq ($(COMPILER),ibm)
@@ -151,6 +144,16 @@ ifeq ($(COMPILER), ibm)
 endif
   CFLAGS += -DOPENMP
 endif
+
+#===============================================================================
+# Program Name and Object Files
+#===============================================================================
+
+program = $(case:.cpp=)
+
+obj = $(source:.cpp=.o)
+headers = $(source:.cpp=.h)
+obj += $(case:.cpp=.o)
 
 #===============================================================================
 # Targets to Build
