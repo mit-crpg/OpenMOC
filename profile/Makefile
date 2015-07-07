@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = intel
 MPI         = no
 OPENMP      = yes
 VECTORIZE   = yes
@@ -57,21 +57,22 @@ LDFLAGS = -lm
 # Regular gcc Compiler
 ifeq ($(COMPILER),gnu)
   CC = g++
-  CFLAGS += DGNU
+  CFLAGS += -DGNU
 endif
 
 # intel Compiler
 ifeq ($(COMPILER),intel)
   CC = icpc
   source += ../src/VectorizedSolver.cpp
-  CFLAGS += DINTEL
+  CFLAGS += -DINTEL
+  CFLAGS += -I/opt/intel/composer_xe_2013_sp1.3.174/mkl/include
   LDFLAGS += -lmkl
 endif
 
 # IBM XL Compiler
 ifeq ($(COMPILER),ibm)
   CC = mpic++
-  CFLAGS += DIBM
+  CFLAGS += -DIBM
 endif
 
 # BG/Q gcc Cross-Compiler
