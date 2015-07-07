@@ -5,6 +5,7 @@
 COMPILER    = gnu
 MPI         = no
 OPENMP      = yes
+VECTORIZE   = yes
 OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
@@ -47,29 +48,32 @@ models/c5g7/c5g7-cmfd.cpp
 # Sets Flags
 #===============================================================================
 
+# Standard Flags
+CFLAGS := -std=c++11
+
 # Regular gcc Compiler
 ifeq ($(COMPILER),gnu)
   CC = g++
+  CFLAGS += DGNU
 endif
 
 # intel Compiler
 ifeq ($(COMPILER),intel)
   CC = icpc
   source += ../src/VectorizedSolver.cpp
+  CFLAGS += DINTEL
 endif
 
 # IBM XL Compiler
 ifeq ($(COMPILER),ibm)
   CC = mpic++
+  CFLAGS += DIBM
 endif
 
 # BG/Q gcc Cross-Compiler
 ifeq ($(MACHINE),bluegene)
   CC = bgxlc++
 endif
-
-# Standard Flags
-CFLAGS := -std=c++11
 
 # Linker Flags
 LDFLAGS = -lm
@@ -107,13 +111,13 @@ CFLAGS += -DVEC_ALIGNMENT=16
 # Optimization Flags
 ifeq ($(OPTIMIZE),yes)
 ifeq ($(COMPILER),gnu)
-  CFLAGS += -Ofast -ffast-math -ftree-vectorize -msse2 -DGNU
+  CFLAGS += -Ofast -ffast-math -ftree-vectorize -msse2
 endif
 ifeq ($(COMPILER),intel)
-  CFLAGS += -O3 -xhost -ansi-alias -no-prec-div -DINTEL
+  CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div
 endif
 ifeq ($(COMPILER),ibm)
-  CFLAGS += -O5 -qhot -qsimd=auto -qalias=ansi:allptrs -qarch=qp -DIBM
+  CFLAGS += -O5 -qhot -qsimd=auto -qalias=ansi:allptrs -qarch=qp
 endif
 endif
 
@@ -138,11 +142,19 @@ ifeq ($(COMPILER), gnu)
 endif
 ifeq ($(COMPILER), intel)
   CFLAGS += -openmp
+  CFLAGS += -openmp-report
 endif
 ifeq ($(COMPILER), ibm)
   CFLAGS += -qsmp
 endif
   CFLAGS += -DOPENMP
+endif
+
+# Vectorization
+ifeq ($(VECTORIZE),yes)
+ifeq ($(COMPILER), intel)
+  CFLAGS += -vec-report
+endif
 endif
 
 #===============================================================================
