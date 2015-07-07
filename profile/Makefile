@@ -10,7 +10,7 @@ DEBUG       = no
 PROFILE     = no
 PAPI        = no
 BENCHMARK   = no
-PRECISION   = single
+PRECISION   = double
 
 #===============================================================================
 # Program name & source code list
@@ -60,7 +60,7 @@ endif
 
 # intel Compiler
 ifeq ($(COMPILER),intel)
-  CC = icc
+  CC = icpc
 endif
 
 # IBM XL Compiler
@@ -70,7 +70,7 @@ endif
 
 # BG/Q gcc Cross-Compiler
 ifeq ($(MACHINE),bluegene)
-  CC = mpicc
+  CC = bgxlc++
 endif
 
 # Standard Flags
@@ -112,9 +112,11 @@ CFLAGS += -DVEC_ALIGNMENT=16
 # Optimization Flags
 ifeq ($(OPTIMIZE),yes)
 ifeq ($(COMPILER),gnu)
-  CFLAGS += -Ofast -ffast-math -ftree-vectorize -msse2
+  CFLAGS += -Ofast -ffast-math -ftree-vectorize -msse2 -DGNU
 endif
 ifeq ($(COMPILER),intel)
+  source += ../src/VectorizedSolver.cpp
+  obj += ../src/VectorizedSolver.o
   CFLAGS += -O3 -xhost -ansi-alias -no-prec-div -DINTEL
 endif
 ifeq ($(COMPILER),ibm)

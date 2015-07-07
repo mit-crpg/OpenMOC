@@ -378,7 +378,7 @@ class configuration:
   for compiler in macros:
     for precision in macros[compiler]:
       macros[compiler][precision].append(('OPENMP', None))
-      macros[compiler][precision].append(('__SWIG__', None))
+      macros[compiler][precision].append(('SWIG', None))
 
 
   def setup_extension_modules(self):
