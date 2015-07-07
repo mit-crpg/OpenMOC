@@ -60,7 +60,7 @@ endif
 
 # IBM XL Compiler
 ifeq ($(COMPILER),ibm)
-  CC = mpicc
+  CC = mpic++
 endif
 
 # BG/Q gcc Cross-Compiler
@@ -127,7 +127,7 @@ endif
 
 # MPI
 ifeq ($(MPI),yes)
-  CC = mpicc
+  CC = mpic++
   CFLAGS += -DMPI
 endif
 
