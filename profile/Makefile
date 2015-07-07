@@ -51,6 +51,9 @@ models/c5g7/c5g7-cmfd.cpp
 # Standard Flags
 CFLAGS := -std=c++11
 
+# Linker Flags
+LDFLAGS = -lm
+
 # Regular gcc Compiler
 ifeq ($(COMPILER),gnu)
   CC = g++
@@ -62,6 +65,7 @@ ifeq ($(COMPILER),intel)
   CC = icpc
   source += ../src/VectorizedSolver.cpp
   CFLAGS += DINTEL
+  LDFLAGS += -lmkl
 endif
 
 # IBM XL Compiler
@@ -74,9 +78,6 @@ endif
 ifeq ($(MACHINE),bluegene)
   CC = bgxlc++
 endif
-
-# Linker Flags
-LDFLAGS = -lm
 
 # Debug Flags
 ifeq ($(DEBUG),yes)
