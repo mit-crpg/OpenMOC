@@ -83,6 +83,9 @@ endif
 # Debug Flags
 ifeq ($(DEBUG),yes)
   CFLAGS += -g
+  ifeq ($(COMPILER),intel)
+  CFLAGS += -vec-report
+  endif
 endif
 
 # Profiling Flags
@@ -116,7 +119,7 @@ ifeq ($(COMPILER),gnu)
   CFLAGS += -Ofast -ffast-math -ftree-vectorize -msse2
 endif
 ifeq ($(COMPILER),intel)
-  CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div
+  CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
 endif
 ifeq ($(COMPILER),ibm)
   CFLAGS += -O5 -qhot -qsimd=auto -qalias=ansi:allptrs -qarch=qp
@@ -155,7 +158,6 @@ endif
 # Vectorization
 ifeq ($(VECTORIZE),yes)
 ifeq ($(COMPILER), intel)
-  CFLAGS += -vec-report
 endif
 endif
 
