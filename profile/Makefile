@@ -149,24 +149,26 @@ endif
 # Program Name and Object Files
 #===============================================================================
 
+programs = $(cases:.cpp=)
 program = $(case:.cpp=)
 
 obj = $(source:.cpp=.o)
 headers = $(source:.cpp=.h)
-obj += $(case:.cpp=.o)
 
 #===============================================================================
 # Targets to Build
 #===============================================================================
 
-$(program): $(obj) $(headers)
-	$(CC) $(CFLAGS) $(obj) -o $@ $(LDFLAGS)
+$(program): $(obj) $(addsuffix .o, $(program)) $(headers)
+	$(CC) $(CFLAGS) $(obj) $(addsuffix .o, $@) -o $@ $(LDFLAGS)
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
+all: $(programs)
+
 clean:
-	rm -rf $(program) $(obj)
+	rm -rf $(programs) $(obj) $(addsuffix .o, $(programs))
 
 edit:
 	vim -p $(cases)
