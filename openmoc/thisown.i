@@ -3,8 +3,8 @@
 %module thisown
 
 /* A Cell owns the memory for each Surface it contains */
-%pythonappend Surface::addSurface %{
-  args[1].thisown = 0
+%pythonappend Cell::addSurface %{
+  kwargs.pop('surface').thisown = 0
 %}
 
 /* Python must free memory for each Surface that is not in a Cell */
