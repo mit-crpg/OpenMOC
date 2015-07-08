@@ -57,6 +57,16 @@
 %warnfilter(511) swig::SwigPyIterator;
 %warnfilter(511) Cell::setFill;
 
+/* Methods for SWIG to ignore in generating Python API */
+%ignore setFSRCentroid(int fsr, Point* centroid);
+%ignore setFSRKeysMap(std::unordered_map<std::size_t, fsr_data>* FSR_keys_map);
+%ignore setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys);
+%ignore setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
+%ignore setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
+%ignore initializeFSRVectors();
+
+
+
 %exception {
   try {
     $function

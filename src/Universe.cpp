@@ -181,7 +181,7 @@ double Universe::getMinY() {
  * @brief Returns the maximum reachable y-coordinate in the Universe.
  * @return the maximum reachable y-coordinate
  */
-double Universe::getMaxY(){
+double Universe::getMaxY() {
 
   double max_y = -std::numeric_limits<double>::infinity();
 
@@ -855,7 +855,7 @@ double Lattice::getMinY() {
  * @brief Returns the maximum reachable y-coordinate in the Lattice.
  * @return the maximum reachable y-coordinate
  */
-double Lattice::getMaxY(){
+double Lattice::getMaxY() {
   return _offset.getY() + (_num_y * _width_y / 2.);
 }
 
@@ -943,7 +943,7 @@ std::map<int, Cell*> Lattice::getAllCells() {
   std::map<int, Universe*>::iterator iter;
   std::map<int, Cell*> nested_cells;
 
-  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter){
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter) {
     nested_cells = iter->second->getAllCells();
     cells.insert(nested_cells.begin(), nested_cells.end());
   }
@@ -973,7 +973,7 @@ std::map<int, Universe*> Lattice::getAllUniverses() {
   std::map<int, Universe*>::iterator iter;
   std::map<int, Universe*> nested_universes;
 
-  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter){
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter) {
     nested_universes = iter->second->getAllUniverses();
     all_universes.insert(nested_universes.begin(), nested_universes.end());
   }
@@ -1065,7 +1065,7 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
 
     _universes.push_back(std::vector< std::pair<int, Universe*> >());
 
-    for (int i = 0; i < _num_x; i++){
+    for (int i = 0; i < _num_x; i++) {
       universe = universes[(_num_y-1-j)*_num_x + i];
       _universes.at(j).push_back(std::pair<int, Universe*>
                                  (universe->getId(), universe));
@@ -1342,7 +1342,7 @@ void Lattice::printString() {
  * @param point a pointer to a point being evaluated.
  * @return the Lattice cell index.
  */
-int Lattice::getLatticeCell(Point* point){
+int Lattice::getLatticeCell(Point* point) {
   return (getLatY(point)*_num_x + getLatX(point));
 }
 
@@ -1373,7 +1373,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
   int surface = -1;
 
   /* Check if point is on left boundary */ 
-  if (fabs(x - left) <= ON_SURFACE_THRESH){
+  if (fabs(x - left) <= ON_SURFACE_THRESH) {
     /* Check if point is on bottom boundary */ 
     if (fabs(y - bottom) <= ON_SURFACE_THRESH)
       surface = cell*8 + 4;
@@ -1384,7 +1384,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
       surface = cell*8;
   }
   /* Check if point is on right boundary */ 
-  else if (fabs(x - right) <= ON_SURFACE_THRESH){
+  else if (fabs(x - right) <= ON_SURFACE_THRESH) {
     /* Check if point is on bottom boundary */ 
     if (fabs(y - bottom) <= ON_SURFACE_THRESH)
       surface = cell*8 + 5;
