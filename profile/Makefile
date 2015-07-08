@@ -86,6 +86,9 @@ ifeq ($(DEBUG),yes)
   ifeq ($(COMPILER),intel)
   CFLAGS += -vec-report
   endif
+  ifeq ($(OPENMP),yes)
+  CFLAGS += -openmp-report
+  endif
 endif
 
 # Profiling Flags
@@ -147,7 +150,6 @@ ifeq ($(COMPILER), gnu)
 endif
 ifeq ($(COMPILER), intel)
   CFLAGS += -openmp
-  CFLAGS += -openmp-report
 endif
 ifeq ($(COMPILER), ibm)
   CFLAGS += -qsmp
@@ -180,8 +182,6 @@ $(program): $(obj) $(addsuffix .o, $(program)) $(headers)
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
-
-all: $(programs)
 
 clean:
 	rm -rf $(programs) $(obj) $(addsuffix .o, $(programs))
