@@ -2,10 +2,9 @@
 # User Options
 #===============================================================================
 
-COMPILER    = intel
+COMPILER    = gnu
 MPI         = no
 OPENMP      = yes
-VECTORIZE   = yes
 OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
@@ -17,32 +16,32 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = models/c5g7/c5g7-cmfd.cpp
+case = c5g7/c5g7-cmfd.cpp
 
 source = \
-../src/Cell.cpp \
-../src/Cmfd.cpp \
-../src/CPUSolver.cpp \
-../src/ExpEvaluator.cpp \
-../src/Geometry.cpp \
-../src/LocalCoords.cpp \
-../src/log.cpp \
-../src/Material.cpp \
-../src/Point.cpp \
-../src/PolarQuad.cpp \
-../src/Solver.cpp \
-../src/Surface.cpp \
-../src/Timer.cpp \
-../src/Track.cpp \
-../src/TrackGenerator.cpp \
-../src/Universe.cpp
+Cell.cpp \
+Cmfd.cpp \
+CPUSolver.cpp \
+ExpEvaluator.cpp \
+Geometry.cpp \
+LocalCoords.cpp \
+log.cpp \
+Material.cpp \
+Point.cpp \
+PolarQuad.cpp \
+Solver.cpp \
+Surface.cpp \
+Timer.cpp \
+Track.cpp \
+TrackGenerator.cpp \
+Universe.cpp
 
 cases = \
-models/gradients/one-directional/one-directional-gradient.cpp \
-models/gradients/two-directional/two-directional-gradient.cpp \
-models/homogeneous/homogeneous-one-group.cpp \
-models/c5g7/c5g7.cpp \
-models/c5g7/c5g7-cmfd.cpp
+gradients/one-directional/one-directional-gradient.cpp \
+gradients/two-directional/two-directional-gradient.cpp \
+homogeneous/homogeneous-one-group.cpp \
+c5g7/c5g7.cpp \
+c5g7/c5g7-cmfd.cpp
 
 #===============================================================================
 # Sets Flags
@@ -157,31 +156,37 @@ endif
   CFLAGS += -DOPENMP
 endif
 
-# Vectorization
-ifeq ($(VECTORIZE),yes)
-ifeq ($(COMPILER), intel)
-endif
-endif
-
 #===============================================================================
 # Program Name and Object Files
 #===============================================================================
 
+obj := $(source:.cpp=.o)
+
+source := $(addprefix ../src/, $(source))
+headers = $(source:.cpp=.h)
+
+obj := $(addprefix obj/, $(obj))
+cases := $(addprefix models/, $(cases))
+case := $(addprefix models/, $(case))
+
 programs = $(cases:.cpp=)
 program = $(case:.cpp=)
-
-obj = $(source:.cpp=.o)
-headers = $(source:.cpp=.h)
 
 #===============================================================================
 # Targets to Build
 #===============================================================================
 
-$(program): $(obj) $(addsuffix .o, $(program)) $(headers)
+$(program): folder $(obj) $(addsuffix .o, $(program)) $(headers)
 	$(CC) $(CFLAGS) $(obj) $(addsuffix .o, $@) -o $@ $(LDFLAGS)
 
-%.o: %.cpp
+obj/%.o: ../src/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
+
+models/%.o: models/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+folder:
+	mkdir -p bin obj
 
 clean:
 	rm -rf $(programs) $(obj) $(addsuffix .o, $(programs))
