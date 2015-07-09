@@ -16,7 +16,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-cmfd.cpp
+case = homogeneous/homogeneous-one-group.cpp
 
 source = \
 Cell.cpp \
@@ -176,7 +176,9 @@ program = $(case:.cpp=)
 # Targets to Build
 #===============================================================================
 
-$(program): folder $(obj) $(addsuffix .o, $(program)) $(headers)
+default: folder $(addsuffix .o, $(program)) $(program)
+
+$(programs): $(obj)  $(headers)
 	$(CC) $(CFLAGS) $(obj) $(addsuffix .o, $@) -o $@ $(LDFLAGS)
 
 obj/%.o: ../src/%.cpp
@@ -186,7 +188,9 @@ models/%.o: models/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 folder:
-	mkdir -p bin obj
+	mkdir -p obj
+
+all: folder $(addsuffix .o, $(programs)) $(programs) 
 
 clean:
 	rm -rf $(programs) $(obj) $(addsuffix .o, $(programs))
