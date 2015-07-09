@@ -40,6 +40,23 @@ Geometry::~Geometry() {
     _FSRs_to_keys.clear();
     _FSRs_to_material_IDs.clear();
   }
+
+  /* Remove all Materials in the Geometry */
+  std::map<int, Material*> materials = getAllMaterials();
+  std::map<int, Material*>::iterator iter;
+
+  for (iter = materials.begin(); iter != materials.end(); ++iter)
+    delete iter->second;
+
+  /* Remove all Universes in the Geometry - Universes delete Cells */
+  if (_root_universe != NULL) {
+
+    std::map<int, Universe*> universes = _root_universe->getAllUniverses();
+    std::map<int, Universe*>::iterator iter;
+
+    for (iter = universes.begin(); iter != universes.end(); ++iter)
+      delete iter->second;
+  }
 }
 
 
