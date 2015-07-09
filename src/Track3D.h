@@ -31,7 +31,7 @@ protected:
   /** The polar angle for the Track */
   double _theta;
 
-  /** The polar angle index into the the TrackCycle _track_stacks 2D ragged array */
+  /** The polar angle index into the the TrackCycle _track_stacks 2D array */
   int _polar_angle_index;
   
 public:
@@ -45,7 +45,8 @@ public:
                  const double phi, const double theta);
   void setTheta(const double theta);
   void setPolarAngleIndex(const int index);
-  void setCoords(double x0, double y0, double z0, double x1, double y1, double z1);
+  void setCoords(double x0, double y0, double z0, double x1, double y1,
+                 double z1);
   
   /* Getters */
   double getTheta() const;

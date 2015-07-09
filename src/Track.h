@@ -80,13 +80,17 @@ protected:
    *  conditions. */
   bool  _bc_out;
 
+  int _cycle_index;
+  
   /** The Track which reflects out of this Track along its "forward"
    * direction for reflective boundary conditions. */
-  Track* _track_in;
+  Track* _track_in_refl;
+  Track* _track_in_prdc;
 
   /** The Track which reflects out of this Track along its "reverse"
    * direction for reflective boundary conditions. */
-  Track* _track_out;
+  Track* _track_out_refl;
+  Track* _track_out_prdc;
 
   int _azim_angle_index;
   
@@ -98,8 +102,13 @@ public:
   void setPhi(const double phi);
   void setBCIn(const bool bc_in);
   void setBCOut(const bool bc_out);
-  void setTrackIn(Track* track_in);
-  void setTrackOut(Track* track_out);
+
+  void setTrackInRefl(Track* track);
+  void setTrackInPrdc(Track* track);
+  void setTrackOutRefl(Track* track);
+  void setTrackOutPrdc(Track* track);
+  void setCycleIndex(int cycle);
+  
   void setAzimAngleIndex(const int index);
   
   int getUid();
@@ -107,8 +116,13 @@ public:
   Point* getStart();
   double getPhi() const;
   double getLength();
-  Track* getTrackIn();
-  Track* getTrackOut();
+
+  Track* getTrackInRefl();
+  Track* getTrackInPrdc();
+  Track* getTrackOutRefl();
+  Track* getTrackOutPrdc();
+  int getCycleIndex();
+  
   int getAzimAngleIndex() const;
   bool getBCIn() const;
   bool getBCOut() const;
@@ -131,24 +145,6 @@ public:
  */
 inline int Track::getUid() {
   return _uid;
-}
-
-
-/**
- * @brief Returns the incoming Track.
- * @return a pointer to the incoming Track
- */
-inline Track* Track::getTrackIn() {
-  return _track_in;
-}
-
-
-/**
- * @brief Returns the outgoing Track
- * @return a pointer to the outgoing Track
- */
-inline Track* Track::getTrackOut() {
-  return _track_out;
 }
 
 

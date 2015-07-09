@@ -93,6 +93,8 @@ private:
 
   /** An array of 3D tracks (azim, cycle #, polar, lz index, train index) */
   Track3D***** _tracks_3D;
+  std::vector< std::vector< std::vector< std::vector< std::vector<Track3D* > > > > >
+    _tracks_3D_stacks;
   
   /** Pointer to the Geometry */
   Geometry* _geometry;
@@ -119,6 +121,8 @@ private:
   bool _contains_3D_segments;
   void initialize2DTracks();
   void initialize3DTracks();
+  void initialize2DTrackReflections();
+  void initialize3DTrackReflections();
   void recalibrate2DTracksToOrigin();
   void recalibrate3DTracksToOrigin();
   void segmentize2D();
@@ -202,8 +206,8 @@ public:
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
-  void initialize2DTrackReflections();
-  void initialize3DTrackReflections();
+  Track3D* findPeriodicTrack3D(Track3D* track, int azim, int cycle,
+                               int polar, int stack, bool top_reached);
 };
 
 #endif /* TRACKGENERATOR_H_ */

@@ -994,11 +994,13 @@ void TrackGenerator::generateTracks() {
     /* Initialize the 2D tracks */
     initialize2DTracks();
     initialize2DTrackReflections();
+    initialize2DTrackPeriodics();
 
     /* If 3D problem, initialize the 3D tracks */
     if (_solve_3D){
       initialize3DTracks();
       initialize3DTrackReflections();
+      initialize3DTrackPeriodics();
     }
     
     /* Recalibrate the 2D tracks back to the geometry origin */
@@ -1155,6 +1157,7 @@ void TrackGenerator::initialize2DTracks() {
       track->setPhi(phi);
       phi = findTrackEndPoint(track, phi, i);
       track->setBCIn(_geometry->getMinYBoundaryType());
+      track->setCycleIndex(0);
 
       /* Generate the 2D track start and end points in this cycle */
       for (int t = 1; t < _tracks_per_cycle[i]; t++){
@@ -1165,7 +1168,8 @@ void TrackGenerator::initialize2DTracks() {
                                      track_prev->getEnd()->getY());
         track->setPhi(phi);
         track->setBCIn(track_prev->getBCOut());
-
+        track->setCycleIndex(t);
+        
         /* Get the endpoint of the track and return the complementary azim 
          * angle */
         phi = findTrackEndPoint(track, phi, i);
@@ -1189,15 +1193,47 @@ void TrackGenerator::initialize2DTrackReflections(){
         
         Track2D* track = &_tracks_2D[a][c][t];
 
+        /* Set track reflections */
         if (t == 0)
-          track->setTrackIn(&_tracks_2D[a][c][_tracks_per_cycle[a]-1]);
+          track->setTrackInRefl(&_tracks_2D[a][c][_tracks_per_cycle[a]-1]);
         else
-          track->setTrackIn(&_tracks_2D[a][c][t-1]);
-        
+          track->setTrackInRefl(&_tracks_2D[a][c][t-1]);
+
         if (t == _tracks_per_cycle[a] - 1)
-          track->setTrackOut(&_tracks_2D[a][c][0]);
+          track->setTrackOutRefl(&_tracks_2D[a][c][0]);
         else
-          track->setTrackOut(&_tracks_2D[a][c][t+1]);
+          track->setTrackOutRefl(&_tracks_2D[a][c][t+1]);
+        
+        /* Set track periodics */
+        if (t < _tracks_per_cycle[a]/2)
+          track->setTrackInPrdc(&_tracks_2D[a]
+                                [_cycles_per_azim[a] - c - 1]
+                                [_tracks_per_cycle[a]/2 + t]);
+        else
+          track->setTrackInPrdc(_tracks_2D[a]
+                                [_cycles_per_azim[a] - c - 1]
+                                [_tracks_per_cycle[a]/2 - t]);          
+        
+        if (c < _cycles_per_azim[a]/2) {
+          if (t == 0)
+            track->setTrackOutPrdc(&_tracks_2D[a]
+                                   [_cycles_per_azim[a] - c - 1]
+                                   [0]);
+          else
+            track->setTrackOutPrdc(&_tracks_2D[a]
+                                   [_cycles_per_azim[a] - c - 1]
+                                   [_tracks_per_cycle[a] - t]);
+        }
+        else {
+          if (t < _tracks_per_cycle[a]/2)
+            track->setTrackOutPrdc(_tracks_2D[a]
+                                   [_cycles_per_azim[a] - c - 1]
+                                   [_tracks_per_cycle[a] + t]);
+          else
+            track->setTrackOutPrdc(_tracks_2D[a]
+                                   [_cycles_per_azim[a] - c - 1]
+                                   [_tracks_per_cycle[a] - t]);
+        }
       }
     }
   }
@@ -1444,6 +1480,50 @@ void TrackGenerator::initialize3DTracks() {
     }
   }
 
+  /* Allocate memory for _tracks_3D_stacks */
+  for (int a = 0; a < _num_azim/4; a++) {
+
+    std::vector< std::vector< std::vector< std::vector<Track3D* > > > > *vector4 =
+      new std::vector< std::vector< std::vector< std::vector<Track3D* > > > >;
+    _tracks_3D_stacks.push_back(*vector4);
+
+    for (int c = 0; c < _cycles_per_azim[a]; c++){
+
+      std::vector< std::vector< std::vector<Track3D* > > > *vector3 =
+        new std::vector< std::vector< std::vector<Track3D* > > >;
+      _tracks_3D_stacks.at(a).push_back(*vector3);
+      
+      for (int p=0; p < _num_polar; p++){
+
+        std::vector< std::vector<Track3D* > > *vector2 =
+          new std::vector< std::vector<Track3D* > >;
+        _tracks_3D_stacks.at(a).at(c).push_back(*vector2);
+
+        for (int t=0; t < _tracks_per_cycle[a]; t++){
+
+          std::vector<Track3D* > *vector1 =
+            new std::vector<Track3D* >;
+          _tracks_3D_stacks.at(a).at(c).at(p).push_back(*vector1);          
+        }
+      }
+    }
+  }
+
+  /* Generate _tracks_3D_stacks */
+  for (int a=0; a < _num_azim/4; a++){
+    for (int c=0; c < _cycles_per_azim[a]; c++){
+      for (int p=0; p < _num_polar; p++){
+        for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++){
+          for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
+            Track3D* track = (&_tracks_3D[a][c][p][i][t]);
+            int s = track->getStackIndex();
+            _tracks_3D_stacks.at(a).at(c).at(p).at(s).push_back(track);
+          }
+        }
+      }
+    }
+  }
+  
   _contains_3D_tracks = true;
 }
 
@@ -1451,20 +1531,20 @@ void TrackGenerator::initialize3DTracks() {
 void TrackGenerator::initialize3DTrackReflections(){
 
   int pc;
-  
+
   /* Set reflective tracks indices */
   for (int a = 0; a < _num_azim/4; a++) {
     for (int c = 0; c < _cycles_per_azim[a]; c++){
-
+      
       /* Loop over polar angles < PI/2 */
       for (int p=0; p < _num_polar/2; p++){
-
+        
         /* Set the complementary polar angle */
         pc = _num_polar-p-1;
-
+        
         for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++){
           for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
-
+            
             /* Set outgoing track */
             if (t == _tracks_per_plane[a][c][p][i]-1){
               if (i < _num_z[a][p]){
@@ -1481,7 +1561,7 @@ void TrackGenerator::initialize3DTrackReflections(){
               _tracks_3D[a][c][p][i][t].setTrackOut
                 (&_tracks_3D[a][c][p][i][t+1]);
             }
-              
+            
             /* Set the incoming track */
             if (t == 0){
               if (i < _num_l[a][p]){
@@ -1503,13 +1583,13 @@ void TrackGenerator::initialize3DTrackReflections(){
           }
         }
       }
-
+      
       /* Loop over polar angles > PI/2 */
       for (int p = _num_polar/2; p < _num_polar; p++){
         pc = _num_polar-p-1;
         for (int i=0; i < _num_l[a][pc] + _num_z[a][pc]; i++){
           for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
-
+            
             /* Set outgoing track */
             if (t == _tracks_per_plane[a][c][p][i]-1){
               if (i < _num_l[a][pc]){
@@ -1525,20 +1605,20 @@ void TrackGenerator::initialize3DTrackReflections(){
               _tracks_3D[a][c][p][i][t].setTrackOut
                 (&_tracks_3D[a][c][p][i][t+1]);
             }
-              
+            
             /* Set the incoming track */
             if (t == 0){
               if (i < _num_z[a][pc]){
-              _tracks_3D[a][c][p][i][t].setTrackIn
-                (&_tracks_3D[a][c][p][_num_l[a][pc] + _num_z[a][pc] - i - 1]
-                 [_tracks_per_plane[a][c][p]
-                  [_num_l[a][pc] +_num_z[a][pc] - i - 1] - 1]);
+                _tracks_3D[a][c][p][i][t].setTrackIn
+                  (&_tracks_3D[a][c][p][_num_l[a][pc] + _num_z[a][pc] - i - 1]
+                   [_tracks_per_plane[a][c][p]
+                    [_num_l[a][pc] +_num_z[a][pc] - i - 1] - 1]);
               }
               else{
-              _tracks_3D[a][c][p][i][t].setTrackIn
-                (&_tracks_3D[a][c][pc][2*_num_z[a][pc] + _num_l[a][pc] - i - 1]
-                 [_tracks_per_plane[a][c][pc]
-                  [2*_num_z[a][pc] + _num_l[a][pc] - i - 1] - 1]);
+                _tracks_3D[a][c][p][i][t].setTrackIn
+                  (&_tracks_3D[a][c][pc][2*_num_z[a][pc] + _num_l[a][pc]-i-1]
+                   [_tracks_per_plane[a][c][pc]
+                    [2*_num_z[a][pc] + _num_l[a][pc] - i - 1] - 1]);
               }
             }
             else{
@@ -1546,6 +1626,109 @@ void TrackGenerator::initialize3DTrackReflections(){
                 (&_tracks_3D[a][c][p][i][t-1]);
             }
           }
+        }
+      }
+    }
+  }
+
+  int p1, c1, s1;
+  Track3D* track;
+  Track3D* track_next;
+  
+  /* Set periodic tracks indices */
+  for (int a = 0; a < _num_azim/4; a++) {
+    for (int c = 0; c < _cycles_per_azim[a]; c++){
+
+      /* Loop over polar angles < PI/2 */
+      for (int p=0; p < _num_polar/2; p++){
+
+        for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++){
+          bool top_reached = false;
+         
+          /* Get first track */
+          track = (&_tracks_3D[a][c][p][i][0]);
+
+         /* Set the complementary polar angle and cycle */
+          p1 = p;
+          c1 = c;
+          s1 = track->getStackIndex();
+          
+          /* Check if top reached */          
+          if (fabs(track->getEnd()->getZ() - _geometry->getMaxZ()) < 1.e-6)
+            top_reached = true;
+          
+          while (!top_reached){
+
+            /* Get next track */
+            if (p1 < _num_polar / 2)
+              s1 = _tracks_2D[a][c][s1].getTrackInPrdc()->getStackIndex();
+            else
+              s1 = _tracks_2D[a][c][s1].getTrackOutPrdc()->getStackIndex();
+
+            p1 = _num_polar - p1 - 1;
+            c1 = _cycles_per_azim[a] - c1 - 1;
+
+            track_next = findPeriodicTrack3D(track, a, c1, p1, s1, top_reached);
+            track->setTrackInPrdc(track_next);
+            track_next->setTrackOutPrdc(track);
+            track = track_next;
+            
+            /* Check if top reached */
+            if (fabs(track->getEnd()->getZ() - _geometry->getMaxZ()) < 1.e-6)
+              top_reached = true;
+          }
+          
+          /* Get periodic track from top */
+          p1 = _num_polar - p1 - 1;
+          track_next = findPeriodicTrack3D(track, a, c1, p1, s1, top_reached);
+          track->setTrackInPrdc(track_next);
+          track_next->setTrackOutPrdc(track);
+        }
+      }
+
+      /* Loop over polar angles > PI/2 */
+      for (int p = _num_polar/2; p < _num_polar; p++){
+        for (int i=0; i < _num_l[a][pc] + _num_z[a][pc]; i++){
+          bool top_reached = false;
+         
+          /* Get first track */
+          track = (&_tracks_3D[a][c][p][i][0]);
+
+         /* Set the complementary polar angle and cycle */
+          p1 = p;
+          c1 = c;
+          s1 = track->getStackIndex();
+          
+          /* Check if top reached */          
+          if (fabs(track->getEnd()->getZ() - _geometry->getMaxZ()) < 1.e-6)
+            top_reached = true;
+          
+          while (!top_reached){
+
+            /* Get next track */
+            if (p1 < _num_polar / 2)
+              s1 = _tracks_2D[a][c][s1].getTrackInPrdc()->getStackIndex();
+            else
+              s1 = _tracks_2D[a][c][s1].getTrackOutPrdc()->getStackIndex();
+
+            p1 = _num_polar - p1 - 1;
+            c1 = _cycles_per_azim[a] - c1 - 1;
+
+            track_next = findPeriodicTrack3D(track, a, c1, p1, s1, top_reached);
+            track->setTrackInPrdc(track_next);
+            track_next->setTrackOutPrdc(track);
+            track = track_next;
+            
+            /* Check if top reached */
+            if (fabs(track->getEnd()->getZ() - _geometry->getMaxZ()) < 1.e-6)
+              top_reached = true;
+          }
+          
+          /* Get periodic track from top */
+          p1 = _num_polar - p1 - 1;
+          track_next = findPeriodicTrack3D(track, a, c1, p1, s1, top_reached);
+          track->setTrackInPrdc(track_next);
+          track_next->setTrackOutPrdc(track);
         }
       }
     }
@@ -1586,7 +1769,8 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
   
   /* Find the first cycle index */
   for (int i=0; i < _tracks_per_cycle[azim]; i++){
-    if (l_start < length_sum + _tracks_2D[azim][cycle][i].getLength() - TINY_MOVE * sin(_quadrature->getTheta(azim, polar))){
+    if (l_start < length_sum + _tracks_2D[azim][cycle][i].getLength() -
+        TINY_MOVE * sin(_quadrature->getTheta(azim, polar))){
       first_stack = i;
       break;
     }
@@ -1657,6 +1841,7 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
     track2->setTheta(theta);
     track2->setPhi(_tracks_2D[azim][cycle][i].getPhi());
     track2->setAzimAngleIndex(_tracks_2D[azim][cycle][i].getAzimAngleIndex());
+    track2->setCycleIndex(i);
     
     t++;
   }
@@ -3076,3 +3261,50 @@ void TrackGenerator::setTrackGenerationMethod(int method) {
 int TrackGenerator::getTrackGenerationMethod() {
   return _track_generation_method;
 }
+
+
+Track3D* TrackGenerator::findPeriodicTrack3D(Track3D* track, int azim,
+                                             int cycle, int polar, int stack,
+                                             bool top_reached) {
+
+  Track3D* track_next = NULL;
+  Point* point = track->getEnd();
+  
+  if (top_reached) {
+    Point point2;
+    point2.setCoords(point->getX(), point->getY(), point->getZ() -
+                     (_geometry->getMaxZ() - _geometry->getMinZ()));
+
+    std::vector<Track3D*>::iterator iter;
+
+    for (iter = _tracks_3D_stacks.at(azim).at(cycle).at(polar).at(stack).begin();
+         iter != _tracks_3D_stacks.at(azim).at(cycle).at(polar).at(stack).end();
+         ++iter) {
+      if ((*iter)->getStart()->withinTolerance(&point2)) {
+        track_next = (*iter);
+        break;
+      }
+    }    
+  }
+  else {
+
+    std::vector<Track3D*>::iterator iter;
+
+    for (iter = _tracks_3D_stacks.at(azim).at(cycle).at(polar).at(stack).begin();
+         iter != _tracks_3D_stacks.at(azim).at(cycle).at(polar).at(stack).end();
+         ++iter) {
+      if ((*iter)->getStart()->withinTolerance(point)) {
+        track_next = (*iter);
+        break;
+      }
+    }
+  }
+
+  if (track_next == NULL)
+    log_printf(ERROR, "Could not find next periodic track for track with "
+               "(%i, %i, %i, %i)", azim, cycle, polar, stack);
+  
+  return track_next;
+}
+
+

@@ -80,6 +80,24 @@ void Track::setTrackOut(Track* track_out) {
 
 
 /**
+ * @brief Sets the track reflecting into this Track's "forward" direction.
+ * @param track_in pointer to the Track reflecting into the "forward" direction
+ */
+void Track::setTrackInPeriodic(Track* track_in) {
+  _track_in_periodic = track_in;
+}
+
+
+/**
+ * @brief Sets the track reflecting into this Track's "reverse" direction.
+ * @param track_out pointer to the Track reflecting into the "reverse" direction
+ */
+void Track::setTrackOutPeriodic(Track* track_out) {
+  _track_out_periodic = track_out;
+}
+
+
+/**
  * @brief Returns a pointer to the Track's end Point.
  * @return a pointer to the Track's end Point
  */
@@ -196,4 +214,34 @@ void Track::setAzimAngleIndex(const int index){
 
 int Track::getAzimAngleIndex() const{
   return _azim_angle_index;
+}
+
+
+void Track::setTrackInRefl(Track* track){
+  _track_in_refl = track;
+}
+
+
+void Track::setTrackInPrdc(Track* track){
+  _track_in_prdc = trac;
+}
+
+
+void Track::setTrackOutRefl(Track* track){
+  _track_out_refl = track;
+}
+
+
+void Track::setTrackOutPrdc(Track* track){
+  _track_out_prdc = track;
+}
+
+
+void Track::setCycleIndex(int cycle) {
+  _cycle_index = cycle;
+}
+
+
+int Track::getCycleIndex() {
+  return _cycle_index;
 }
