@@ -1569,11 +1569,17 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
   double length_sum = 0.0;
   int first_stack = 0;
   int last_stack = _tracks_per_cycle[azim] - 1;
+  double theta = track->getTheta();
+  double phi = track->getPhi();
+  double dx = cos(phi) * sin(theta) * TINY_MOVE;
+  double dy = sin(phi) * sin(theta) * TINY_MOVE;
+  double nudge = sqrt(dx*dx + dy*dy);
   
   /* Find the last cycle index */
   for (int i=0; i < _tracks_per_cycle[azim]; i++){
-    if (l_end < length_sum + _tracks_2D[azim][cycle][i].getLength()
-        + TINY_MOVE * sin(_quadrature->getTheta(azim, polar))){
+    
+    if (l_end < length_sum + _tracks_2D[azim][cycle][i].getLength() + 
+        1.05 * nudge) {
       last_stack = i;
       break;
     }    
@@ -1586,7 +1592,8 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
   
   /* Find the first cycle index */
   for (int i=0; i < _tracks_per_cycle[azim]; i++){
-    if (l_start < length_sum + _tracks_2D[azim][cycle][i].getLength() - TINY_MOVE * sin(_quadrature->getTheta(azim, polar))){
+    if (l_start < length_sum + _tracks_2D[azim][cycle][i].getLength() - 
+        1.05 * nudge) {
       first_stack = i;
       break;
     }
@@ -1612,7 +1619,6 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
   double x1, y1, z1;
   double x2, y2, z2;
   int t=0;
-  double theta = track->getTheta();
   
   /* Set the start and end point for each 3D track */
   for (int i=first_stack; i <= last_stack; i++){
