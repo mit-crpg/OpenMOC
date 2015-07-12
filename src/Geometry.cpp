@@ -1004,16 +1004,8 @@ std::string Geometry::toString() {
 
   string << "\n\tUniverses:\n\t\t";
   for (univ_iter = all_universes.begin();
-       univ_iter != all_universes.end(); ++univ_iter) {
-    if (univ_iter->second->getType() == UNIV) {
-      Universe* universe = static_cast<Universe*>(univ_iter->second);
-      string << universe->toString() << "\n\t\t";
-    }
-    else {
-      Lattice* lattice = static_cast<Lattice*>(univ_iter->second);
-      string << lattice->toString() << "\n\t\t";
-    }
-  }
+       univ_iter != all_universes.end(); ++univ_iter)
+      string << univ_iter->second->toString() << "\n\t\t";
 
   std::string formatted_string = string.str();
   formatted_string.erase(formatted_string.end()-3);
