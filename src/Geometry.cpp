@@ -1005,7 +1005,7 @@ std::string Geometry::toString() {
   string << "\n\tUniverses:\n\t\t";
   for (univ_iter = all_universes.begin();
        univ_iter != all_universes.end(); ++univ_iter)
-      string << univ_iter->second->toString() << "\n\t\t";
+    string << univ_iter->second->toString() << "\n\t\t";
 
   std::string formatted_string = string.str();
   formatted_string.erase(formatted_string.end()-3);
