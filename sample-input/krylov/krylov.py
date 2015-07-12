@@ -1,4 +1,5 @@
 from openmoc import *
+from openmoc.krylov import IRAMSolver
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -16,7 +17,7 @@ track_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-num_modes = 6
+num_modes = 50
 
 log.set_log_level('NORMAL')
 
@@ -381,74 +382,14 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-from scipy.sparse.linalg import LinearOperator
-from scipy.sparse.linalg import eigs
-import numpy as np
+cpu_solver = CPUSolver(track_generator)
+cpu_solver.setNumThreads(num_threads)
 
-solver = CPUSolver(track_generator)
-solver.setNumThreads(num_threads)
+iram_solver = IRAMSolver(cpu_solver)
+iram_solver.computeEigenmodes(num_modes=num_modes)
 
-
-from openmoc.krylov import IRAMSolver
-
-hmm = IRAMSolver(solver)
-hmm.computeEigenmodes()
-
-
-# Initialize operators, counters
-a_count = 0
-m_count = 0
-
-def A_operator(flux):
-    global solver
-    global a_count
-    import numpy
-    import copy
-    
-    # Do not pass imaginary numbers to SWIG
-    flux = numpy.real(flux).astype(numpy.float64)
-    flux_old = copy.copy(flux)
-    
-    solver.scatterTransportSweep(flux)
-    
-    a_count += 1
-    log.py_printf('NORMAL', "Performed A operator sweep number %d", a_count)
-    
-    return flux_old - flux
-
-def M_operator(flux):
-    global solver
-    global m_count
-    import numpy
-    # Do not pass imaginary numbers to SWIG
-    flux = numpy.real(flux).astype(numpy.float64)
-    
-    solver.fissionTransportSweep(flux)
-    
-    m_count += 1
-    log.py_printf('NORMAL', "Performed M operator sweep number %d", m_count)
-    
-    return flux
-    
-A = LinearOperator( (solver.getOperatorSize(), solver.getOperatorSize() ), matvec=A_operator, dtype='float64')
-M = LinearOperator( (solver.getOperatorSize(), solver.getOperatorSize() ), matvec=M_operator, dtype='float64')
-
-def F_operator(flux):
-    global A
-    global M
-    global tolerance
-    from scipy.sparse.linalg import gmres
-    
-    flux = M*flux
-    flux, x = gmres(A, flux, tol=tolerance/10) # Note, gmres must converge beyond tolerance to work.
-    
-    return flux
-    
-F = LinearOperator( (solver.getOperatorSize(), solver.getOperatorSize() ), matvec=F_operator, dtype='float64')
-
-vals, vecs = eigs(F, k=num_modes, tol=tolerance)
-
-log.py_printf('NORMAL', "The eigenvalues are: %s", str(vals))
+eigenvalues = iram_solver._eigenvalues
+log.py_printf('NORMAL', "The eigenvalues are: %s", str(eigenvalues))
 
 def plot_eigenmodes(vecs):
     for i in range(vecs.shape[1]):
@@ -477,6 +418,6 @@ log.py_printf('NORMAL', 'Plotting data...')
 plotter.plot_materials(geometry, gridsize=500)
 plotter.plot_cells(geometry, gridsize=500)
 plotter.plot_flat_source_regions(geometry, gridsize=500)
-plot_eigenmodes(vecs)
+plot_eigenmodes(iram_solver._eigenvectors)
 
 log.py_printf('TITLE', 'Finished')

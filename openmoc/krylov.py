@@ -39,9 +39,11 @@ else:
 
 import copy
 import numpy as np
-from scipy.sparse.linalg import LinearOperator
-from scipy.sparse.linalg import eigs, gmres
+import scipy.sparse.linalg as linalg
 
+
+# TODO: Use PyCuda to create handle on array shared between CPU/GPU?
+# TODO: Remove CPUSolver::putFluxes(...) in place of storing array pointer
 
 ##
 # @class krylov.py 'openmoc/krylov.py'
@@ -64,46 +66,71 @@ class IRAMSolver(object):
                 'which is not an OpenMOC Solver object', str(solver))
     
     self._solver = solver
+
+    if self._solver.isUsingDoublePrecision():
+      self._precision = np.float64
+    else:
+      self._precision = np.float32
+
+    self._size = self.getOperatorSize()
+
+    self._interval = None
+    self._outer_tol = None
+    self._inner_tol = None
+    self._A_op = None
+    self._M_op = None
+    self._F_op = None
     self._a_count = None
     self._m_count = None
-    self._interval = None
-    self._tolerance = None
-
-    self._A_operator = None
-    self._M_operator = None
-    self._F_operator = None
+    self._eigenvalues = None
+    self._eigenvectors = None
 
 
-  def computeEigenmodes(self, num_modes=5, tol=1e-5, interval=10,
-                        max_outer=None, max_inner=None):
+  def computeEigenmodes(self, num_modes=5, inner_method='gmres', 
+                        outer_tol=1e-5, inner_tol=1e-6, interval=10):
 
-    self._tolerance = tol
+    self._inner_method = inner_method
+    self._outer_tol = outer_tol
+    self._inner_tol = inner_tol
     self._interval = interval
 
     self._m_count = 0
     self._a_count = 0
 
+    # FIXME
     self._solver.initializeMemory()
-    size = self._solver.getOperatorSize()
 
-    self._A_operator = LinearOperator((size, size), matvec=self._A, dtype='float64')
-    self._M_operator = LinearOperator((size, size), matvec=self._M, dtype='float64')
-    self._F_operator = LinearOperator((size, size), matvec=self._F, dtype='float64')
 
-    vals, vecs = eigs(self._F_operator, k=num_modes, tol=self._tolerance)
+    # Initialize SciPy operators
+    op_shape = (self._size, self._size)
+    self._A_op = linalg.LinearOperator(op_shape, matvec=self._A, dtype=self._precision)
+    self._M_op = linalg.LinearOperator(op_shape, matvec=self._M, dtype=self._precision)
+    self._F_op = linalg.LinearOperator(op_shape, matvec=self._F, dtype=self._precision)
 
-    print vals
+    # Solve the eigenvalue problem
+    vals, vecs = linalg.eigs(self._F_op, k=num_modes, tol=self._outer_tol)
+
+    self._eigenalues = vals
+    self._eigenvectors = vecs
+
+
+  def getOperatorSize(self):
+    geometry = self._solver.getGeometry()
+    num_FSRs = geometry.getNumFSRs()
+    num_groups = geometry.getNumEnergyGroups()
+    return num_FSRs * num_groups
 
 
   def _A(self, flux):
 
-    # Do not pass imaginary numbers to SWIG
-    flux = np.real(flux).astype(np.float64)
-    flux_old = copy.copy(flux)
+    # Remove imaginary components from NumPy array
+    flux = np.real(flux).astype(self._precision)
+    flux_old = np.copy(flux)
     
-    self._solver.scatterTransportSweep(flux)
-    
+    # Apply operator to flux
     self._a_count += 1
+    self._solver.setFluxes(flux)
+    self._solver.scatterTransportSweep()
 
     if self._a_count % self._interval == 0:
       py_printf('NORMAL', "Performed A operator sweep number %d", self._a_count)
@@ -115,23 +142,39 @@ class IRAMSolver(object):
 
   def _M(self, flux):
 
-    # Do not pass imaginary numbers to SWIG
-    flux = np.real(flux).astype(np.float64)
+    # Remove imaginary components from NumPy array
+    flux = np.real(flux).astype(self._precision)
     
-    self._solver.fissionTransportSweep(flux)
-    
+    # Apply operator to flux
     self._m_count += 1
+    self._solver.setFluxes(flux)
+    self._solver.fissionTransportSweep()
 
     py_printf('NORMAL', "Performed M operator sweep number %d", self._m_count)
     
     return flux
 
 
-  def _F(self, flux):
+  def _F(self, flux, method='gmres'):
   
-    flux = self._M_operator * flux
+    # Apply operator to flux
+    flux = self._M_op * flux
 
     # Note, gmres must converge beyond tolerance to work.
-    flux, x = gmres(self._A_operator, flux, tol=self._tolerance/10) 
-    
-    return flux
+    if self._inner_method == 'gmres':
+      flux, x = linalg.gmres(self._A_op, flux, tol=self._inner_tol)
+    if self._inner_method == 'lgmres':
+      flux, x = linalg.lgmres(self._A_op, flux, tol=self._inner_tol)
+    elif self._inner_method == 'cg':
+      flux, x = linalg.cg(self._A_op, flux, tol=self._inner_tol)
+    elif self._inner_method == 'bicgstab':
+      flux, x = linalg.bicgstab(self._A_op, flux, tol=self._inner_tol)
+    elif self._inner_method == 'cgs':
+      flux, x = linalg.cgs(self._A_op, flux, tol=self._inner_tol)
+    else:
+      py_printf('ERROR', 'Unable to use method %s to solve Ax=b', self._method)
+
+    if x:
+      py_printf('ERROR', 'Unable to solve Ax=b with method %s', method)
+    else:
+      return flux

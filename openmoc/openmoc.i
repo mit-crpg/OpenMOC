@@ -253,7 +253,13 @@
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* fission_rates, int num_FSRs)}
 
 /* The typemap used to match the method signature for the krylov methods */
-%apply (double* INPLACE_ARRAY1, int DIM1) {(double* flux, int fluxpoints)}
+%apply (double* INPLACE_ARRAY1, int DIM1) {(double* fluxes, int num_fluxes)}
+
+/* The typemap used to match the method signature for the krylov methods */
+%apply (float* INPLACE_ARRAY1, int DIM1) {(float* fluxes, int num_fluxes)}
+
+/* The typemap used to match the method signature for the krylov methods */
+%apply (FP_PRECISION* INPLACE_ARRAY1, int DIM1) {(FP_PRECISION* fluxes, int num_fluxes)}
 
 /* The typemap used to match the method signature for the Universe's
  * getCellIds method for the data processing routines in openmoc.process */
@@ -436,9 +442,3 @@
 #endif
 
 #define printf PySys_WriteStdout
-
-#ifdef DOUBLE
-typedef double FP_PRECISION;
-#else
-typedef float FP_PRECISION;
-#endif

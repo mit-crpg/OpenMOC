@@ -99,16 +99,15 @@ public:
   virtual ~CPUSolver();
 
   int getNumThreads();
-  int getOperatorSize();
 
   void setNumThreads(int num_threads);
   virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
   
-  void fissionTransportSweep(double* flux, int fluxpoints);
-  void scatterTransportSweep(double* flux, int fluxpoints);
-  void putFlux(double* flux, int fluxpoints);
+  void fissionTransportSweep();
+  void scatterTransportSweep();
+  void setFluxes(FP_PRECISION* fluxes, int num_fluxes);
   void initializeMemory();
 };
 

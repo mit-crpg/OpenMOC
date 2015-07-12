@@ -23,9 +23,6 @@
 /** Indexing macro for the scalar flux in each FSR and energy group */
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
 
-/** Indexing macro for the scalar flux passed by a krylov method */
-#define _scalar_flux_input(r,e) (flux[(r)*_num_groups + (e)])
-
 /** Indexing macro for the old scalar flux in each FSR and energy group */
 #define _old_scalar_flux(r,e) (_old_scalar_flux[(r)*_num_groups + (e)])
 

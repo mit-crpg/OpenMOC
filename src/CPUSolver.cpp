@@ -895,72 +895,25 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 }
 
 /**
- * @brief Computes the M (as in kAx = Mx) operator given an input flux 
- *        vector. For use in Krylov subspace methods.
- *
- * @param flux an array to store the fluxs (implicitly 
- *                      passed in as a NumPy array from Python)
- * @param fluxpoints the number of flux values passed in from Python
+ * @brief Computes the M (as in kAx = Mx) operator for use in 
+ *        Krylov subspace methods.
  */
-void CPUSolver::fissionTransportSweep(double* flux, int fluxpoints) {
-  
-  for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r,e) = _scalar_flux_input(r,e);
-    }
-  }
-  
+void CPUSolver::fissionTransportSweep() {
   computeFSRFissionSources();
   transportSweep();
   addSourceToScalarFlux();
-  
-  for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
-      _scalar_flux_input(r,e) = _scalar_flux(r,e);
-    }
-  }
-  
-  return;  
 }
 
 /**
- * @brief Computes the S (as in k(I - S)x = Mx, (I-S) = A) operator given
- *        an input flux vector.  For use in Krylov subspace methods.
- *
- * @param flux an array to store the fluxs (implicitly 
- *                      passed in as a NumPy array from Python)
- * @param fluxpoints the number of flux values passed in from Python
+ * @brief Computes the S (as in k(I - S)x = Mx, (I-S) = A) operator 
+ *        for use in Krylov subspace methods.
  */
-void CPUSolver::scatterTransportSweep(double* flux, int fluxpoints) {
-  
-  for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r,e) = _scalar_flux_input(r,e);
-    }
-  }
-  
+void CPUSolver::scatterTransportSweep() {
   computeFSRScatterSources();
   transportSweep();
   addSourceToScalarFlux();
-  
-  for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
-      _scalar_flux_input(r,e) = _scalar_flux(r,e);
-    }
-  }
-  
-  return;  
 }
 
-/**
- * @brief SWIG helper function to return the operator size for Krylov-based
- *        solvers.
- *
- * @return The number of FSRs times the number of groups.
- */
-int CPUSolver::getOperatorSize() {
-  return _num_FSRs * _num_groups;
-}
 
 /**
  * @brief Initializes memory for Krylov methods that would normally be 
@@ -989,22 +942,19 @@ void CPUSolver::initializeMemory() {
 }
 
 /**
- * @brief Inserts a flux into memory for plotting.  Useful for Krylov methods.
- *
- * @param flux an array to store the fluxs (implicitly 
- *                      passed in as a NumPy array from Python)
- * @param fluxpoints the number of flux values passed in from Python
+ * @brief Set the flux array for use in transport sweep source calculations.
+ * @detail This is a helper method for the checkpoint restart capabilities,
+ *         as well as the IRAMSolver in the openmoc.krylov submodule. This
+ *         routine sets the Solver's scalar flux array pointer to the address
+ *         of the input (NumPy) array. NOTE: This means that the flux array
+ *         will be shared between NumPy and OpenMOC.
+ * @param fluxes an array to store the fluxes passed in as a NumPy array
+ * @param num_fluxes the number of flux values passed in from Python
  */
-void CPUSolver::putFlux(double* flux, int fluxpoints) {
-  
-  // Copy in flux.
-  for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r,e) = _scalar_flux_input(r,e);
-    }
-  }
-  
-  return;  
+void CPUSolver::setFluxes(FP_PRECISION* fluxes, int num_fluxes) {
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to set an array with %d flux values for %d "
+               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
+
+  _scalar_flux = fluxes;
 }
-
-
