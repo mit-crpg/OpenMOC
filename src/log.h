@@ -89,6 +89,7 @@ typedef enum logLevels {
  */
 extern void set_err(const char *msg);
 
+void initialize_logger();
 void set_output_directory(char* directory);
 const char* get_output_directory();
 void set_log_filename(char* filename);

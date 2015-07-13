@@ -940,10 +940,12 @@ std::string Cell::toString() {
     string << ", type = FILL, "
            << ", fill id = " << static_cast<Universe*>(_fill)->getId();
   }
-  else {
+  else if(_cell_type == MATERIAL) {
     string << ", type = MATERIAL"
            << ", fill id = " << static_cast<Material*>(_fill)->getId();
   }
+  else
+    string << ", type = UNFILLED";
 
   string << ", # surfaces = " << getNumSurfaces();
 

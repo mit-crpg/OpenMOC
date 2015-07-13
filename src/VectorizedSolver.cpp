@@ -611,7 +611,7 @@ void VectorizedSolver::computeKeff() {
 void VectorizedSolver::tallyScalarFlux(segment* curr_segment,
                                        int azim_index,
                                        FP_PRECISION* track_flux,
-                                       FP_PRECISION* fsr_flux){
+                                       FP_PRECISION* fsr_flux) {
 
   int tid = omp_get_thread_num();
   int fsr_id = curr_segment->_region_id;
@@ -625,7 +625,7 @@ void VectorizedSolver::tallyScalarFlux(segment* curr_segment,
 
   /* Tally the flux contribution from segment to FSR's scalar flux */
   /* Loop over polar angles */
-  for (int p=0; p < _num_polar; p++){
+  for (int p=0; p < _num_polar; p++) {
 
     /* Loop over each energy group vector length */
     for (int v=0; v < _num_vector_lengths; v++) {

@@ -179,6 +179,7 @@ public:
   void setNumY(int num_y);
   void setWidth(double width_x, double width_y);
   void setUniverses(int num_x, int num_y, Universe** universes);
+  void removeUniverse(Universe* universe);
   void buildNeighbors();
 
   bool withinBounds(Point* point);

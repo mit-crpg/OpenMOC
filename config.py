@@ -373,7 +373,10 @@ class configuration:
                               ('DOUBLE', None),
                               ('NVCC', None),
                               ('CCACHE_CC', 'nvcc')]
-
+  # define OPENMP
+  for compiler in macros:
+    for precision in macros[compiler]:
+      macros[compiler][precision].append(('OPENMP', None))
 
 
   def setup_extension_modules(self):
