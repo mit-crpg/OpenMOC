@@ -67,9 +67,3 @@
 %include ../../src/accel/cuda/clone.h
 
 #define PySys_WriteStdout printf
-
-#ifdef DOUBLE
-typedef double FP_PRECISION;
-#else
-typedef float FP_PRECISION;
-#endif
