@@ -855,6 +855,41 @@ void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
 
 
 /**
+ * @brief Set the flux array for use in transport sweep source calculations.
+ * @detail This is a helper method for the checkpoint restart capabilities,
+ *         as well as the IRAMSolver in the openmoc.krylov submodule. This
+ *         routine may be used as follows from within Python:
+ *
+ * @code
+ *          num_FSRs = solver.getGeometry.getNumFSRs()
+ *          num_groups = solver.getGeometry.getNumEnergyGroups()
+ *          fluxes = numpy.random.rand(num_FSRs * num_groups, dtype=np.float)
+ *          solver.setFluxes(fluxes)
+ * @endcode
+ *
+ *          NOTE: This routine stores a pointer to the fluxes for the Solver
+ *          to use during transport sweeps and other calculations. Hence, the 
+ *          flux array pointer is shared between NumPy and the Solver.
+ *
+ * @param fluxes an array with the fluxes to use
+ * @param num_fluxes the number of flux values (# groups x # FSRs)
+ */
+void GPUSolver::setFluxes(FP_PRECISION* fluxes, int num_fluxes) {
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to set an array with %d flux values for %d "
+               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
+
+  /* Allocate array if flux arrays have not yet been initialized */
+  if (_scalar_flux == NULL)
+    initializeFluxArrays();
+
+  _scalar_flux.clear();
+  _scalar_flux(fluxes, fluxes+num_fluxes);
+  _user_fluxes = false;
+}
+
+
+/**
  * @brief Creates a polar quadrature object for the GPUSolver on the GPU.
  */
 void GPUSolver::initializePolarQuadrature() {
@@ -1573,4 +1608,26 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   /* Deallocate the memory assigned to store the fission rates on the device */
   cudaFree(dev_fission_rates);
+}
+
+
+/**
+ * @brief This method performs one transport sweep using the fission source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void GPUSolver::fissionTransportSweep() {
+//  computeFSRFissionSources();
+  transportSweep();
+  addSourceToScalarFlux();
+}
+
+
+/**
+ * @brief This method performs one transport sweep using the scatter source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void GPUSolver::scatterTransportSweep() {
+//  computeFSRScatterSources();
+  transportSweep();
+  addSourceToScalarFlux();
 }

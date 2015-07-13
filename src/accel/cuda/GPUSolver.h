@@ -121,6 +121,7 @@ public:
                            FP_PRECISION source);
   void setGeometry(Geometry* geometry);
   void setTrackGenerator(TrackGenerator* track_generator);
+  void setFluxes(FP_PRECISION* fluxes, int num_fluxes);
 
   void initializePolarQuadrature();
   void initializeExpEvaluator();
@@ -139,7 +140,9 @@ public:
   void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);
-
+  void fissionTransportSweep();
+  void scatterTransportSweep()
+;
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };
 
