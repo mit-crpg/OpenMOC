@@ -163,14 +163,58 @@ protected:
   /** The tolerance for converging the source/flux */
   FP_PRECISION _converge_thresh;
 
-  /** En ExpEvaluator to compute exponentials in the transport equation */
+  /** An ExpEvaluator to compute exponentials in the transport equation */
   ExpEvaluator* _exp_evaluator;
+
+  /** Indicator of whether the flux array is defined by the user */
+  bool _user_fluxes;
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;
 
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
+
+  void clearTimerSplits();
+
+public:
+  Solver(TrackGenerator* track_generator=NULL);
+  virtual ~Solver();
+
+  virtual void setGeometry(Geometry* geometry);
+
+  Geometry* getGeometry();
+  TrackGenerator* getTrackGenerator();
+  FP_PRECISION getFSRVolume(int fsr_id);
+  int getNumPolarAngles();
+  int getNumIterations();
+  double getTotalTime();
+  FP_PRECISION getKeff();
+  FP_PRECISION getConvergenceThreshold();
+  FP_PRECISION getMaxOpticalLength();
+  bool isUsingDoublePrecision();
+  bool isUsingExponentialInterpolation();
+
+  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
+  virtual FP_PRECISION getFSRSource(int fsr_id, int group);
+
+  virtual void setTrackGenerator(TrackGenerator* track_generator);
+  virtual void setPolarQuadrature(PolarQuad* polar_quad);
+  virtual void setConvergenceThreshold(FP_PRECISION threshold);
+  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
+  void setFixedSourceByMaterial(Material* material, int group, 
+                                FP_PRECISION source);
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
+  void setExpPrecision(FP_PRECISION precision);
+  void useExponentialInterpolation();
+  void useExponentialIntrinsic();
+
+  virtual void initializePolarQuadrature();
+  virtual void initializeExpEvaluator();
+  virtual void initializeFSRs();
+  virtual void countFissionableFSRs();
+  virtual void initializeCmfd();
 
   /**
    * @brief Initializes Track boundary angular flux and leakage and
@@ -182,12 +226,6 @@ protected:
    * @brief Allocates memory for FSR source arrays.
    */
   virtual void initializeSourceArrays() =0;
-
-  virtual void initializePolarQuadrature();
-  virtual void initializeExpEvaluator();
-  virtual void initializeFSRs();
-  virtual void countFissionableFSRs();
-  virtual void initializeCmfd();
 
   /**
    * @brief Zero each Track's boundary fluxes for each energy group and polar
@@ -243,42 +281,20 @@ protected:
    */
   virtual void transportSweep() =0;
 
-  void clearTimerSplits();
+  /**
+   * @brief This method performs one transport sweep using the fission source.
+   * @details This is a helper routine used for Krylov subspace methods.
+   */
+  virtual void fissionTransportSweep() =0;
 
-public:
-  Solver(TrackGenerator* track_generator=NULL);
-  virtual ~Solver();
-
-  virtual void setGeometry(Geometry* geometry);
-
-  Geometry* getGeometry();
-  TrackGenerator* getTrackGenerator();
-  FP_PRECISION getFSRVolume(int fsr_id);
-  int getNumPolarAngles();
-  int getNumIterations();
-  double getTotalTime();
-  FP_PRECISION getKeff();
-  FP_PRECISION getConvergenceThreshold();
-  FP_PRECISION getMaxOpticalLength();
-  bool isUsingDoublePrecision();
-  bool isUsingExponentialInterpolation();
-
-  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
-  virtual FP_PRECISION getFSRSource(int fsr_id, int group);
-
-  virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setPolarQuadrature(PolarQuad* polar_quad);
-  virtual void setConvergenceThreshold(FP_PRECISION threshold);
-  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
-  void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
-  void setFixedSourceByMaterial(Material* material, int group, 
-                                FP_PRECISION source);
-  void setMaxOpticalLength(FP_PRECISION max_optical_length);
-  void setExpPrecision(FP_PRECISION precision);
-  void useExponentialInterpolation();
-  void useExponentialIntrinsic();
+  /**
+   * @brief This method performs one transport sweep using the scatter source.
+   * @details This is a helper routine used for Krylov subspace methods.
+   */
+  virtual void scatterTransportSweep() =0;
 
   void computeFlux(int max_iters=1000, bool only_fixed_source=true);
+
   void computeSource(int max_iters=1000, double k_eff=1.0, 
                      residualType res_type=TOTAL_SOURCE);
   void computeEigenvalue(int max_iters=1000, 

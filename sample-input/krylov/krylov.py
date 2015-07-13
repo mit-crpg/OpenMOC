@@ -17,7 +17,7 @@ track_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-num_modes = 50
+num_modes = 5
 
 log.set_log_level('NORMAL')
 
@@ -391,22 +391,24 @@ iram_solver.computeEigenmodes(num_modes=num_modes)
 eigenvalues = iram_solver._eigenvalues
 log.py_printf('NORMAL', "The eigenvalues are: %s", str(eigenvalues))
 
+import numpy as np
+
 def plot_eigenmodes(vecs):
     for i in range(vecs.shape[1]):
         # Convert it into a form that SWIG will be happy with
         vec = np.squeeze(np.ascontiguousarray(vecs[:,i]))
-        vec = np.real(vec).astype(np.float64)
+        vec = np.real(vec).astype(iram_solver._precision)
         
         if(i == 0):
             # Ensure the primary eigenvalue is positive
             vec = np.abs(vec)
         
         # Insert it into OpenMOC
-        solver.putFlux(vec)
+        cpu_solver.setFluxes(vec)
         # Switch folders
         plotter.subdirectory = "/plots_eig" + str(i+1) + "/"
         # Plot
-        plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+        plotter.plot_spatial_fluxes(cpu_solver, energy_groups=[1,2,3,4,5,6,7])
         
 
 ###############################################################################

@@ -97,15 +97,20 @@ class IRAMSolver(object):
     self._m_count = 0
     self._a_count = 0
 
-    # FIXME
-    self._solver.initializeMemory()
-
+    # Initialize MOC solver
+    self._solver.initializePolarQuadrature()
+    self._solver.initializeExpEvaluator()
+    self._solver.initializeFluxArrays()
+    self._solver.initializeSourceArrays()
+    self._solver.initializeFSRs()
+    self._solver.countFissionableFSRs()
+    self._solver.zeroTrackFluxes()
 
     # Initialize SciPy operators
     op_shape = (self._size, self._size)
-    self._A_op = linalg.LinearOperator(op_shape, matvec=self._A, dtype=self._precision)
-    self._M_op = linalg.LinearOperator(op_shape, matvec=self._M, dtype=self._precision)
-    self._F_op = linalg.LinearOperator(op_shape, matvec=self._F, dtype=self._precision)
+    self._A_op = linalg.LinearOperator(op_shape, self._A, dtype=self._precision)
+    self._M_op = linalg.LinearOperator(op_shape, self._M, dtype=self._precision)
+    self._F_op = linalg.LinearOperator(op_shape, self._F, dtype=self._precision)
 
     # Solve the eigenvalue problem
     vals, vecs = linalg.eigs(self._F_op, k=num_modes, tol=self._outer_tol)
@@ -155,7 +160,7 @@ class IRAMSolver(object):
     return flux
 
 
-  def _F(self, flux, method='gmres'):
+  def _F(self, flux):
   
     # Apply operator to flux
     flux = self._M_op * flux
@@ -163,7 +168,7 @@ class IRAMSolver(object):
     # Note, gmres must converge beyond tolerance to work.
     if self._inner_method == 'gmres':
       flux, x = linalg.gmres(self._A_op, flux, tol=self._inner_tol)
-    if self._inner_method == 'lgmres':
+    elif self._inner_method == 'lgmres':
       flux, x = linalg.lgmres(self._A_op, flux, tol=self._inner_tol)
     elif self._inner_method == 'cg':
       flux, x = linalg.cg(self._A_op, flux, tol=self._inner_tol)
@@ -172,9 +177,9 @@ class IRAMSolver(object):
     elif self._inner_method == 'cgs':
       flux, x = linalg.cgs(self._A_op, flux, tol=self._inner_tol)
     else:
-      py_printf('ERROR', 'Unable to use method %s to solve Ax=b', self._method)
+      py_printf('ERROR', 'Unable to use %s to solve Ax=b', self._inner_method)
 
-    if x:
-      py_printf('ERROR', 'Unable to solve Ax=b with method %s', method)
+    if x != 0:
+      py_printf('ERROR', 'Unable to solve Ax=b with %s', self._inner_method)
     else:
       return flux

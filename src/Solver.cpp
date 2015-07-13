@@ -42,6 +42,7 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   _num_iterations = 0;
   _converge_thresh = 1E-5;
+  _user_fluxes = false;
 
   _timer = new Timer();
 }

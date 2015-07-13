@@ -85,6 +85,40 @@ void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
 
 
 /**
+ * @brief Set the flux array for use in transport sweep source calculations.
+ * @detail This is a helper method for the checkpoint restart capabilities,
+ *         as well as the IRAMSolver in the openmoc.krylov submodule. This
+ *         routine may be used as follows from within Python:
+ *
+ * @code
+ *          num_FSRs = solver.getGeometry.getNumFSRs()
+ *          num_groups = solver.getGeometry.getNumEnergyGroups()
+ *          fluxes = numpy.random.rand(num_FSRs * num_groups, dtype=np.float)
+ *          solver.setFluxes(fluxes)
+ * @endcode
+ *
+ *          NOTE: This routine stores a pointer to the fluxes for the Solver
+ *          to use during transport sweeps and other calculations. Hence, the 
+ *          flux array pointer is shared between NumPy and the Solver.
+ *
+ * @param fluxes an array with the fluxes to use
+ * @param num_fluxes the number of flux values (# groups x # FSRs)
+ */
+void CPUSolver::setFluxes(FP_PRECISION* fluxes, int num_fluxes) {
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to set an array with %d flux values for %d "
+               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
+
+  /* Allocate array if flux arrays have not yet been initialized */
+  if (_scalar_flux == NULL)
+    initializeFluxArrays();
+
+  _scalar_flux = fluxes;
+  _user_fluxes = false;
+}
+
+
+/**
  * @brief Initializes the FSR volumes and Materials array.
  * @details This method allocates and initializes an array of OpenMP
  *          mutual exclusion locks for each FSR for use in the
@@ -119,7 +153,7 @@ void CPUSolver::initializeFluxArrays() {
   if (_boundary_leakage != NULL)
     delete [] _boundary_leakage;
 
-  if (_scalar_flux != NULL)
+  if (_scalar_flux != NULL && !_user_fluxes)
     delete [] _scalar_flux;
 
   if (_old_scalar_flux != NULL)
@@ -537,6 +571,28 @@ double CPUSolver::computeResidual(residualType res_type) {
 
 
 /**
+ * @brief This method performs one transport sweep using the fission source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void CPUSolver::fissionTransportSweep() {
+  computeFSRFissionSources();
+  transportSweep();
+  addSourceToScalarFlux();
+}
+
+
+/**
+ * @brief This method performs one transport sweep using the scatter source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void CPUSolver::scatterTransportSweep() {
+  computeFSRScatterSources();
+  transportSweep();
+  addSourceToScalarFlux();
+}
+
+
+/**
  * @brief Compute \f$ k_{eff} \f$ from the total, fission and scattering
  *        reaction rates and leakage.
  * @details This method computes the current approximation to the
@@ -892,69 +948,4 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
     for (int e=0; e < _num_groups; e++)
       fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e);
   }
-}
-
-/**
- * @brief Computes the M (as in kAx = Mx) operator for use in 
- *        Krylov subspace methods.
- */
-void CPUSolver::fissionTransportSweep() {
-  computeFSRFissionSources();
-  transportSweep();
-  addSourceToScalarFlux();
-}
-
-/**
- * @brief Computes the S (as in k(I - S)x = Mx, (I-S) = A) operator 
- *        for use in Krylov subspace methods.
- */
-void CPUSolver::scatterTransportSweep() {
-  computeFSRScatterSources();
-  transportSweep();
-  addSourceToScalarFlux();
-}
-
-
-/**
- * @brief Initializes memory for Krylov methods that would normally be 
- *        initialized by computeFlux.
- */
-void CPUSolver::initializeMemory() {
-
-  if (_track_generator == NULL)
-    log_printf(ERROR, "The Solver is unable to compute the flux "
-               "since it does not contain a TrackGenerator");
-
-  log_printf(NORMAL, "Initializing problem...");
-
-  /* Initialize data structures */
-  initializePolarQuadrature();
-  initializeExpEvaluator();
-
-  /* Initialize new flux arrays */
-  initializeFluxArrays();
-  flattenFSRFluxes(0.0);
-
-  initializeSourceArrays();
-  initializeFSRs();
-  countFissionableFSRs();
-  zeroTrackFluxes();
-}
-
-/**
- * @brief Set the flux array for use in transport sweep source calculations.
- * @detail This is a helper method for the checkpoint restart capabilities,
- *         as well as the IRAMSolver in the openmoc.krylov submodule. This
- *         routine sets the Solver's scalar flux array pointer to the address
- *         of the input (NumPy) array. NOTE: This means that the flux array
- *         will be shared between NumPy and OpenMOC.
- * @param fluxes an array to store the fluxes passed in as a NumPy array
- * @param num_fluxes the number of flux values passed in from Python
- */
-void CPUSolver::setFluxes(FP_PRECISION* fluxes, int num_fluxes) {
-  if (num_fluxes != _num_groups * _num_FSRs)
-    log_printf(ERROR, "Unable to set an array with %d flux values for %d "
-               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
-
-  _scalar_flux = fluxes;
 }
