@@ -100,24 +100,6 @@ private:
 
   int computeScalarTrackIndex(int i, int j);
 
-  void initializePolarQuadrature();
-  void initializeExpEvaluator();
-  void initializeFSRs();
-  void initializeMaterials();
-  void initializeTracks();
-  void initializeFluxArrays();
-  void initializeSourceArrays();
-
-  void zeroTrackFluxes();
-  void flattenFSRFluxes(FP_PRECISION value);
-  void storeFSRFluxes();
-  void normalizeFluxes();
-  void computeFSRSources();
-  void transportSweep();
-  void addSourceToScalarFlux();
-  void computeKeff();
-  double computeResidual(residualType res_type);
-
 public:
 
   GPUSolver(TrackGenerator* track_generator=NULL);
@@ -139,6 +121,24 @@ public:
                            FP_PRECISION source);
   void setGeometry(Geometry* geometry);
   void setTrackGenerator(TrackGenerator* track_generator);
+
+  void initializePolarQuadrature();
+  void initializeExpEvaluator();
+  void initializeFSRs();
+  void initializeMaterials();
+  void initializeTracks();
+  void initializeFluxArrays();
+  void initializeSourceArrays();
+
+  void zeroTrackFluxes();
+  void flattenFSRFluxes(FP_PRECISION value);
+  void storeFSRFluxes();
+  void normalizeFluxes();
+  void computeFSRSources();
+  void transportSweep();
+  void addSourceToScalarFlux();
+  void computeKeff();
+  double computeResidual(residualType res_type);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };
