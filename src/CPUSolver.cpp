@@ -370,9 +370,8 @@ void CPUSolver::computeFSRSources() {
 }
 
 /**
- * @brief Computes the fission source in each FSR.
- * @details This method computes the fission source in each FSR based on
- *          an input normalized flux vector. For use as a LinearOperator.
+ * @brief Computes the total fission source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
  */
 void CPUSolver::computeFSRFissionSources() {
 
@@ -420,9 +419,8 @@ void CPUSolver::computeFSRFissionSources() {
 }
 
 /**
- * @brief Computes the fission source in each FSR.
- * @details This method computes the scatter source in each FSR based on
- *          an input normalized flux vector.  For use as a LinearOperator.
+ * @brief Computes the total scattering source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
  */
 void CPUSolver::computeFSRScatterSources() {
 
@@ -451,7 +449,7 @@ void CPUSolver::computeFSRScatterSources() {
       scatter_source = pairwise_sum<FP_PRECISION>(&scatter_sources(tid,0),
                                                 _num_groups);
 
-      _reduced_sources(r,G) = scatter_source + _fixed_sources(r,G);
+      _reduced_sources(r,G) = scatter_source;
       _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
     }
   }
@@ -567,28 +565,6 @@ double CPUSolver::computeResidual(residualType res_type) {
   delete [] residuals;
 
   return residual;
-}
-
-
-/**
- * @brief This method performs one transport sweep using the fission source.
- * @details This is a helper routine used for Krylov subspace methods.
- */
-void CPUSolver::fissionTransportSweep() {
-  computeFSRFissionSources();
-  transportSweep();
-  addSourceToScalarFlux();
-}
-
-
-/**
- * @brief This method performs one transport sweep using the scatter source.
- * @details This is a helper routine used for Krylov subspace methods.
- */
-void CPUSolver::scatterTransportSweep() {
-  computeFSRScatterSources();
-  transportSweep();
-  addSourceToScalarFlux();
 }
 
 

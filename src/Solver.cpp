@@ -655,6 +655,28 @@ void Solver::initializeCmfd() {
 
 
 /**
+ * @brief This method performs one transport sweep using the fission source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void Solver::fissionTransportSweep() {
+  computeFSRFissionSources();
+  transportSweep();
+  addSourceToScalarFlux();
+}
+
+
+/**
+ * @brief This method performs one transport sweep using the scatter source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void Solver::scatterTransportSweep() {
+  computeFSRScatterSources();
+  transportSweep();
+  addSourceToScalarFlux();
+}
+
+
+/**
  * @brief Computes the scalar flux distribution by performing a series of 
  *        transport sweeps.
  * @details This is the main method exposed to the user through the Python

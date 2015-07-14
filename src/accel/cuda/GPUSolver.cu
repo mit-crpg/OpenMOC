@@ -186,9 +186,118 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
       for (int g=0; g < *num_groups; g++)
         scatter_source += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
 
-      /* Set the fission source for FSR r in group G */
+      /* Set the reduced source for FSR r in group G */
       reduced_sources(tid,G) = fission_source * chi[G];
       reduced_sources(tid,G) += scatter_source + fixed_sources(tid,G);
+      reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
+      reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
+    }
+
+    /* Increment the thread id */
+    tid += blockDim.x * gridDim.x;
+  }
+}
+
+
+/**
+ * @brief Computes the total fission source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
+ * @param FSR_materials an array of FSR Material indices
+ * @param materials an array of dev_material pointers
+ * @param scalar_flux an array of FSR scalar fluxes
+ * @param fixed_sources an array of fixed (user-defined) sources
+ * @param reduced_sources an array of FSR sources / total xs
+ * @param inverse_k_eff the inverse of keff
+ */
+__global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
+                                                 dev_material* materials,
+                                                 FP_PRECISION* scalar_flux,
+                                                 FP_PRECISION* fixed_sources,
+                                                 FP_PRECISION* reduced_sources,
+                                                 FP_PRECISION inverse_k_eff) {
+
+  int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+  FP_PRECISION fission_source;
+
+  dev_material* curr_material;
+  FP_PRECISION* nu_sigma_f;
+  FP_PRECISION* sigma_t;
+  FP_PRECISION* chi;
+
+  /* Iterate over all FSRs */
+  while (tid < *num_FSRs) {
+
+    curr_material = &materials[FSR_materials[tid]];
+
+    nu_sigma_f = curr_material->_nu_sigma_f;
+    sigma_t = curr_material->_sigma_t;
+    chi = curr_material->_chi;
+
+    /* Initialize the fission source to zero for this FSR */
+    fission_source = 0;
+
+    /* Compute total fission source for current FSR */
+    for (int e=0; e < *num_groups; e++)
+      fission_source += scalar_flux(tid,e) * nu_sigma_f[e];
+
+    fission_source *= inverse_k_eff;
+
+    /* Set the reduced source for FSR r in each group G */
+    for (int G=0; G < *num_groups; G++) {
+      reduced_sources(tid,G) = fission_source * chi[G];
+      reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
+      reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
+    }
+
+    /* Increment the thread id */
+    tid += blockDim.x * gridDim.x;
+  }
+}
+
+
+/**
+ * @brief Computes the total scattering source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
+ * @param FSR_materials an array of FSR Material indices
+ * @param materials an array of dev_material pointers
+ * @param scalar_flux an array of FSR scalar fluxes
+ * @param fixed_sources an array of fixed (user-defined) sources
+ * @param reduced_sources an array of FSR sources / total xs
+ * @param inverse_k_eff the inverse of keff
+ */
+__global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
+                                                 dev_material* materials,
+                                                 FP_PRECISION* scalar_flux,
+                                                 FP_PRECISION* fixed_sources,
+                                                 FP_PRECISION* reduced_sources,
+                                                 FP_PRECISION inverse_k_eff) {
+
+  int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+  FP_PRECISION scatter_source;
+
+  dev_material* curr_material;
+  FP_PRECISION* sigma_s;
+  FP_PRECISION* sigma_t;
+
+  /* Iterate over all FSRs */
+  while (tid < *num_FSRs) {
+
+    curr_material = &materials[FSR_materials[tid]];
+
+    sigma_s = curr_material->_sigma_s;
+    sigma_t = curr_material->_sigma_t;
+
+    /* Compute total scattering source for this FSR in group G */
+    for (int G=0; G < *num_groups; G++) {
+      scatter_source = 0;
+
+      for (int g=0; g < *num_groups; g++)
+        scatter_source += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
+
+      /* Set the reduced source for FSR r in group G */
+      reduced_sources(tid,G) = scatter_source;
       reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
     }
@@ -880,11 +989,15 @@ void GPUSolver::setFluxes(FP_PRECISION* fluxes, int num_fluxes) {
                " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
 
   /* Allocate array if flux arrays have not yet been initialized */
-  if (_scalar_flux == NULL)
+  if (_scalar_flux.size() == 0)
     initializeFluxArrays();
 
-  _scalar_flux.clear();
-  _scalar_flux(fluxes, fluxes+num_fluxes);
+  FP_PRECISION* scalar_flux = 
+       thrust::raw_pointer_cast(&_scalar_flux[0]);
+
+  /* Copy the input fluxes onto the GPU */
+  cudaMemcpy((void*)scalar_flux, (void*)fluxes,
+             num_fluxes * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);  
   _user_fluxes = false;
 }
 
@@ -1608,26 +1721,4 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   /* Deallocate the memory assigned to store the fission rates on the device */
   cudaFree(dev_fission_rates);
-}
-
-
-/**
- * @brief This method performs one transport sweep using the fission source.
- * @details This is a helper routine used for Krylov subspace methods.
- */
-void GPUSolver::fissionTransportSweep() {
-//  computeFSRFissionSources();
-  transportSweep();
-  addSourceToScalarFlux();
-}
-
-
-/**
- * @brief This method performs one transport sweep using the scatter source.
- * @details This is a helper routine used for Krylov subspace methods.
- */
-void GPUSolver::scatterTransportSweep() {
-//  computeFSRScatterSources();
-  transportSweep();
-  addSourceToScalarFlux();
 }

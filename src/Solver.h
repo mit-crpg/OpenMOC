@@ -216,6 +216,9 @@ public:
   virtual void countFissionableFSRs();
   virtual void initializeCmfd();
 
+  virtual void fissionTransportSweep();
+  virtual void scatterTransportSweep();
+
   /**
    * @brief Initializes Track boundary angular flux and leakage and
    *        FSR scalar flux arrays.
@@ -257,6 +260,16 @@ public:
   virtual void computeFSRSources() =0;
 
   /**
+   * @brief Computes the total fission source for each FSR and energy group.
+   */
+  virtual void computeFSRFissionSources() =0;
+
+  /**
+   * @brief Computes the total scattering source for each FSR and energy group.
+   */
+  virtual void computeFSRScatterSources() =0;
+
+  /**
    * @brief Computes the residual between successive flux/source iterations. 
    * @param res_type the type of residual (FLUX, FISSIOn_SOURCE, TOTAL_SOURCE)
    * @return the total residual summed over FSRs and energy groups
@@ -276,22 +289,9 @@ public:
   virtual void addSourceToScalarFlux() =0;
 
   /**
-   * @brief This method performs one transport sweep of all azimuthal angles,
-   *        Tracks, segments, polar angles and energy groups.
+   * @brief This method performs one transport swep.
    */
   virtual void transportSweep() =0;
-
-  /**
-   * @brief This method performs one transport sweep using the fission source.
-   * @details This is a helper routine used for Krylov subspace methods.
-   */
-  virtual void fissionTransportSweep() =0;
-
-  /**
-   * @brief This method performs one transport sweep using the scatter source.
-   * @details This is a helper routine used for Krylov subspace methods.
-   */
-  virtual void scatterTransportSweep() =0;
 
   void computeFlux(int max_iters=1000, bool only_fixed_source=true);
 

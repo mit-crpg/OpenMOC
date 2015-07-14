@@ -114,7 +114,7 @@ class IRAMSolver(object):
     self._F_op = linalg.LinearOperator(op_shape, self._F, dtype=self._precision)
 
     # Solve the eigenvalue problem
-    timer = openmoc.Timer()
+    timer = openmoc.Timer
     timer.startTimer()
     vals, vecs = linalg.eigs(self._F_op, k=num_modes, tol=self._outer_tol)
     timer.stopTimer()

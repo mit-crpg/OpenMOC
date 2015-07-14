@@ -140,9 +140,7 @@ public:
   void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);
-  void fissionTransportSweep();
-  void scatterTransportSweep()
-;
+
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };
 
