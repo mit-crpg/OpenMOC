@@ -79,6 +79,14 @@ ifeq ($(MACHINE),bluegene)
   CC = bgxlc++
 endif
 
+# Clang Compiler
+ifeq ($(COMPILER),clang)
+  CC = clang
+  CFLAGS += -DCLANG 
+  CFLAGS += -Qunused-arguments 
+  CFLAGS += -Wno-deprecated-register -Wno-parentheses-equality
+endif
+
 # Debug Flags
 ifeq ($(DEBUG),yes)
   CFLAGS += -g
@@ -126,6 +134,8 @@ endif
 ifeq ($(COMPILER),ibm)
   CFLAGS += -O5 -qhot -qsimd=auto -qalias=ansi:allptrs -qarch=qp
 endif
+ifeq ($(COMPILER),clang)
+  CFLAGS += -O3 -ffast-math -fvectorize
 endif
 
 # PAPI source (you may need to provide -I and -L pointing
@@ -152,6 +162,9 @@ ifeq ($(COMPILER), intel)
 endif
 ifeq ($(COMPILER), ibm)
   CFLAGS += -qsmp
+endif
+ifeq ($(COMPILER), clang)
+  CFLAGS += -fopenmp
 endif
   CFLAGS += -DOPENMP
 endif
