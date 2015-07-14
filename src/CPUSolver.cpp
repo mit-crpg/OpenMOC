@@ -91,8 +91,6 @@ void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
  *         routine may be used as follows from within Python:
  *
  * @code
- *          num_FSRs = solver.getGeometry.getNumFSRs()
- *          num_groups = solver.getGeometry.getNumEnergyGroups()
  *          fluxes = numpy.random.rand(num_FSRs * num_groups, dtype=np.float)
  *          solver.setFluxes(fluxes)
  * @endcode
@@ -101,10 +99,10 @@ void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
  *          to use during transport sweeps and other calculations. Hence, the 
  *          flux array pointer is shared between NumPy and the Solver.
  *
- * @param fluxes an array with the fluxes to use
+ * @param in_fluxes an array with the fluxes to use
  * @param num_fluxes the number of flux values (# groups x # FSRs)
  */
-void CPUSolver::setFluxes(FP_PRECISION* fluxes, int num_fluxes) {
+void CPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
   if (num_fluxes != _num_groups * _num_FSRs)
     log_printf(ERROR, "Unable to set an array with %d flux values for %d "
                " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
@@ -113,7 +111,7 @@ void CPUSolver::setFluxes(FP_PRECISION* fluxes, int num_fluxes) {
   if (_scalar_flux == NULL)
     initializeFluxArrays();
 
-  _scalar_flux = fluxes;
+  _scalar_flux = in_fluxes;
   _user_fluxes = false;
 }
 

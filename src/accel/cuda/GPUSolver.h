@@ -113,7 +113,7 @@ public:
    */
   int getNumThreadsPerBlock();
   FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
-  void getFSRScalarFluxes(double* fluxes, int num_fluxes);
+  void getFSRScalarFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
   FP_PRECISION getFSRSource(int fsr_id, int group);
 
   void setNumThreadBlocks(int num_blocks);
@@ -122,7 +122,7 @@ public:
                            FP_PRECISION source);
   void setGeometry(Geometry* geometry);
   void setTrackGenerator(TrackGenerator* track_generator);
-  void setFluxes(FP_PRECISION* fluxes, int num_fluxes);
+  void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
 
   void initializePolarQuadrature();
   void initializeExpEvaluator();

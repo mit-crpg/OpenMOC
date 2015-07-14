@@ -54,9 +54,9 @@
 %apply (double* IN_ARRAY1, int DIM1) {(double* weights, int num_polar)}
 
 /* The typemap used to match the method signature for the 
- * GPUSolver::getFSRScalarFluxes method */
-%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* fluxes, int num_fluxes)}
+ * GPUSolver::getFSRScalarFluxes method FP_PRECISION=single */
+%apply (FP_PRECISION* ARGOUT_ARRAY1, int DIM1) {(FP_PRECISION* out_fluxes, int num_fluxes)}
 
 /* The typemap used to match the method signature for the 
  * Solver::setFluxes method */
-%apply (FP_PRECISION* INPLACE_ARRAY1, int DIM1) {(FP_PRECISION* fluxes, int num_fluxes)}
+%apply (FP_PRECISION* INPLACE_ARRAY1, int DIM1) {(FP_PRECISION* in_fluxes, int num_fluxes)}

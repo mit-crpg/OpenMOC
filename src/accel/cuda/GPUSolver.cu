@@ -803,7 +803,7 @@ FP_PRECISION GPUSolver::getFSRScalarFlux(int fsr_id, int group) {
  * @param fluxes an array of FSR scalar fluxes in each energy group
  * @param num_fluxes the total number of FSR flux values
  */
-void GPUSolver::getFSRScalarFluxes(double* fluxes, int num_fluxes) {
+void GPUSolver::getFSRScalarFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
 
   if (num_fluxes != _num_groups * _num_FSRs)
     log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
@@ -818,7 +818,7 @@ void GPUSolver::getFSRScalarFluxes(double* fluxes, int num_fluxes) {
        thrust::raw_pointer_cast(&_scalar_flux[0]);
 
   /* Copy the fluxes from the GPU to the input array */
-  cudaMemcpy((void*)fluxes, (void*)scalar_flux,
+  cudaMemcpy((void*)out_fluxes, (void*)scalar_flux,
             num_fluxes * sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
 }
 
@@ -1011,10 +1011,10 @@ void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
  *          to use during transport sweeps and other calculations. Hence, the 
  *          flux array pointer is shared between NumPy and the Solver.
  *
- * @param fluxes an array with the fluxes to use
+ * @param in_fluxes an array with the fluxes to use
  * @param num_fluxes the number of flux values (# groups x # FSRs)
  */
-void GPUSolver::setFluxes(FP_PRECISION* fluxes, int num_fluxes) {
+void GPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
   if (num_fluxes != _num_groups * _num_FSRs)
     log_printf(ERROR, "Unable to set an array with %d flux values for %d "
                " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
@@ -1027,7 +1027,7 @@ void GPUSolver::setFluxes(FP_PRECISION* fluxes, int num_fluxes) {
        thrust::raw_pointer_cast(&_scalar_flux[0]);
 
   /* Copy the input fluxes onto the GPU */
-  cudaMemcpy((void*)scalar_flux, (void*)fluxes,
+  cudaMemcpy((void*)scalar_flux, (void*)in_fluxes,
              num_fluxes * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);  
   _user_fluxes = false;
 }
