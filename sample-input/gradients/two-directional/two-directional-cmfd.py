@@ -4,7 +4,6 @@ import openmoc.log as log
 import openmoc.plotter as plotter
 from openmoc.options import Options
 
-
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
@@ -17,13 +16,16 @@ num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 
-log.set_log_level('NORMAL')
+length = 100.0
+num_cells_x = 100 
+num_cells_y = 1
 
+log.set_log_level('NORMAL')
 log.py_printf('TITLE', 'Simulating a one group homogeneous, two directional'
     ' gradient...')
 
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#######################   Define Material Properties   ########################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating materials...')
@@ -37,24 +39,21 @@ basic_material.setSigmaS(numpy.array([0.383259177]))
 basic_material.setChi(numpy.array([1.0]))
 basic_material.setSigmaT(numpy.array([0.452648699]))
 
-
 ###############################################################################
 ###########################   Creating Surfaces   #############################
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-L = 100.0
-left = XPlane(x=-L/2, name='left')
-right = XPlane(x=L/2, name='right')
-top = YPlane(y=L/2, name='top')
-bottom = YPlane(y=-L/2, name='bottom')
+left = XPlane(x=-length/2, name='left')
+right = XPlane(x=length/2, name='right')
+top = YPlane(y=length/2, name='top')
+bottom = YPlane(y=-length/2, name='bottom')
 
 left.setBoundaryType(VACUUM)
 right.setBoundaryType(VACUUM)
 top.setBoundaryType(REFLECTIVE)
 bottom.setBoundaryType(REFLECTIVE)
-
 
 ###############################################################################
 #############################   Creating Cells   ##############################
@@ -70,7 +69,6 @@ root_cell.addSurface(halfspace=+1, surface=left)
 root_cell.addSurface(halfspace=-1, surface=right)
 root_cell.addSurface(halfspace=+1, surface=bottom)
 root_cell.addSurface(halfspace=-1, surface=top)
-
 
 ###############################################################################
 ###########################    Creating Universes   ###########################
@@ -90,10 +88,8 @@ root_universe.addCell(root_cell)
 
 log.py_printf('NORMAL', 'Creating 100 x 1 lattice...')
 
-num_cells_x = 100
-num_cells_y = 1
 lattice = Lattice(name='MxN lattice')
-lattice.setWidth(width_x=L/num_cells_x, width_y=L/num_cells_y)
+lattice.setWidth(width_x=length/num_cells_x, width_y=length/num_cells_y)
 lattice.setUniverses([[fill_universe] * num_cells_x]*num_cells_y)
 root_cell.setFill(lattice)
 
@@ -119,7 +115,6 @@ geometry.setRootUniverse(root_universe)
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 
-
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
 ###############################################################################
@@ -129,7 +124,6 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 track_generator = TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
-
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
