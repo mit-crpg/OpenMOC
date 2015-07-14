@@ -136,6 +136,8 @@ public:
   void storeFSRFluxes();
   void normalizeFluxes();
   void computeFSRSources();
+  void computeFSRFissionSources();
+  void computeFSRScatterSources();
   void transportSweep();
   void addSourceToScalarFlux();
   void computeKeff();

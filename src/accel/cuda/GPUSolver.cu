@@ -205,14 +205,12 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
  * @param FSR_materials an array of FSR Material indices
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
- * @param fixed_sources an array of fixed (user-defined) sources
  * @param reduced_sources an array of FSR sources / total xs
  * @param inverse_k_eff the inverse of keff
  */
 __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
                                                  dev_material* materials,
                                                  FP_PRECISION* scalar_flux,
-                                                 FP_PRECISION* fixed_sources,
                                                  FP_PRECISION* reduced_sources,
                                                  FP_PRECISION inverse_k_eff) {
 
@@ -262,16 +260,13 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
  * @param FSR_materials an array of FSR Material indices
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
- * @param fixed_sources an array of fixed (user-defined) sources
  * @param reduced_sources an array of FSR sources / total xs
  * @param inverse_k_eff the inverse of keff
  */
 __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
                                                  dev_material* materials,
                                                  FP_PRECISION* scalar_flux,
-                                                 FP_PRECISION* fixed_sources,
-                                                 FP_PRECISION* reduced_sources,
-                                                 FP_PRECISION inverse_k_eff) {
+                                                 FP_PRECISION* reduced_sources) {
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -1380,13 +1375,7 @@ void GPUSolver::normalizeFluxes() {
 /**
  * @brief Computes the total source (fission, scattering, fixed) in each FSR.
  * @details This method computes the total source in each FSR based on
- *          this iteration's current approximation to the scalar flux. A
- *          residual for the source with respect to the source compute on
- *          the previous iteration is computed and returned. The residual
- *          is determined as follows:
- *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}
- *                    {\# FSRs \times # groups}}} /f$
+ *          this iteration's current approximation to the scalar flux.
  */
 void GPUSolver::computeFSRSources() {
 
@@ -1400,6 +1389,41 @@ void GPUSolver::computeFSRSources() {
   computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
                                         scalar_flux, fixed_sources,
                                         reduced_sources, 1.0 / _k_eff);
+}
+
+
+/**
+ * @brief Computes the fission source in each FSR.
+ * @details This method computes the fission source in each FSR based on
+ *          this iteration's current approximation to the scalar flux.
+ */
+void GPUSolver::computeFSRFissionSources() {
+
+  FP_PRECISION* scalar_flux = 
+       thrust::raw_pointer_cast(&_scalar_flux[0]);
+  FP_PRECISION* reduced_sources = 
+       thrust::raw_pointer_cast(&_reduced_sources[0]);
+
+  computeFSRFissionSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
+                                               scalar_flux, reduced_sources, 
+                                               1.0 / _k_eff);
+}
+
+
+/**
+ * @brief Computes the scatter source in each FSR.
+ * @details This method computes the scatter source in each FSR based on
+ *          this iteration's current approximation to the scalar flux.
+ */
+void GPUSolver::computeFSRScatterSources() {
+
+  FP_PRECISION* scalar_flux = 
+       thrust::raw_pointer_cast(&_scalar_flux[0]);
+  FP_PRECISION* reduced_sources = 
+       thrust::raw_pointer_cast(&_reduced_sources[0]);
+
+  computeFSRScatterSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
+                                               scalar_flux, reduced_sources);
 }
 
 
