@@ -788,6 +788,42 @@ FP_PRECISION GPUSolver::getFSRScalarFlux(int fsr_id, int group) {
 
 
 /**
+ * @brief Fills an array with the scalar fluxes on the GPU.
+ * @details This class method is a helper routine called by the OpenMOC
+ *          Python "openmoc.krylov" module for Krylov subspace methods. 
+ *          Although this method appears to require two arguments, in
+ *          reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_fluxes = num_groups * num_FSRs
+ *          fluxes = solver.getFSRSCalarFlux(num_fluxes)
+ * @endcode
+ *
+ * @param fluxes an array of FSR scalar fluxes in each energy group
+ * @param num_fluxes the total number of FSR flux values
+ */
+void GPUSolver::getFSRScalarFluxes(FP_PRECISION* fluxes, int num_fluxes) {
+
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
+               "%d groups and %d FSRs which does not match the requested "
+               "%d flux values", _num_groups, _num_FSRs, num_fluxes);
+
+  else if (_scalar_flux.size() == 0)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since they "
+               "have not yet been allocated on the device");
+
+  FP_PRECISION* scalar_flux = 
+       thrust::raw_pointer_cast(&_scalar_flux[0]);
+
+  /* Copy the fluxes from the GPU to the input array */
+  cudaMemcpy((void*)fluxes, (void*)scalar_flux,
+             num_fluxes * sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
+}
+
+
+/**
  * @brief Returns the source for some energy group for a flat source region
  * @details This is a helper routine used by the openmoc.process module.
  * @param fsr_id the ID for the FSR of interest
