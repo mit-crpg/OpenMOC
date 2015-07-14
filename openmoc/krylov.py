@@ -62,7 +62,7 @@ class IRAMSolver(object):
   # @brief IRAMSolver class constructor
   def __init__(self, solver):
 
-    if not isinstance(solver, openmoc.Solver):
+    if not 'Solver' in type(solver).__name__:
       py_printf('ERROR', 'Unable to initialize an IRAMSolver with %s ' + \
                 'which is not an OpenMOC Solver object', str(solver))
     
@@ -73,7 +73,15 @@ class IRAMSolver(object):
     else:
       self._precision = np.float32
 
-    self._size = self.getOperatorSize()
+    if 'GPUSolver' in type(solver).__name__:
+      self._with_cuda = True
+    else:
+      self._with_cuda = False
+
+    geometry = self._solver.getGeometry()
+    num_FSRs = geometry.getNumFSRs()
+    num_groups = geometry.getNumEnergyGroups()
+    self._op_size = num_FSRs * num_groups
 
     self._interval = None
     self._outer_tol = None
@@ -108,29 +116,22 @@ class IRAMSolver(object):
     self._solver.zeroTrackFluxes()
 
     # Initialize SciPy operators
-    op_shape = (self._size, self._size)
+    op_shape = (self._op_size, self._op_size)
     self._A_op = linalg.LinearOperator(op_shape, self._A, dtype=self._precision)
     self._M_op = linalg.LinearOperator(op_shape, self._M, dtype=self._precision)
     self._F_op = linalg.LinearOperator(op_shape, self._F, dtype=self._precision)
 
     # Solve the eigenvalue problem
-    timer = openmoc.Timer
-    timer.startTimer()
+#    timer = openmoc.Timer
+#    timer.startTimer()
     vals, vecs = linalg.eigs(self._F_op, k=num_modes, tol=self._outer_tol)
-    timer.stopTimer()
-    timer.recordSplit('Total time')
-    tot_time = timer.getTime('Total time')
-    py_printf('RESULT', 'Total time to solution'.ljust(53, '.') + str(tot_time))
+#    timer.stopTimer()
+#    timer.recordSplit('Total time')
+#    tot_time = timer.getTime('Total time')
+#    py_printf('RESULT', 'Total time to solution'.ljust(53, '.') + str(tot_time))
 
     self._eigenvalues = vals
     self._eigenvectors = vecs
-
-
-  def getOperatorSize(self):
-    geometry = self._solver.getGeometry()
-    num_FSRs = geometry.getNumFSRs()
-    num_groups = geometry.getNumEnergyGroups()
-    return num_FSRs * num_groups
 
 
   def _A(self, flux):
@@ -144,6 +145,9 @@ class IRAMSolver(object):
     self._solver.setFluxes(flux)
     self._solver.scatterTransportSweep()
 
+    if self._with_cuda:
+      flux = self._solver.getFSRScalarFluxes(self._op_size)
+
     if self._a_count % self._interval == 0:
       py_printf('NORMAL', "Performed A operator sweep number %d", self._a_count)
     else:
@@ -156,11 +160,14 @@ class IRAMSolver(object):
 
     # Remove imaginary components from NumPy array
     flux = np.real(flux).astype(self._precision)
-    
+
     # Apply operator to flux
     self._m_count += 1
     self._solver.setFluxes(flux)
     self._solver.fissionTransportSweep()
+
+    if self._with_cuda:
+      flux = self._solver.getFSRScalarFluxes(self._op_size)
 
     py_printf('NORMAL', "Performed M operator sweep number %d", self._m_count)
     

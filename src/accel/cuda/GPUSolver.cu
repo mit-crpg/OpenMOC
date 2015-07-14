@@ -803,7 +803,7 @@ FP_PRECISION GPUSolver::getFSRScalarFlux(int fsr_id, int group) {
  * @param fluxes an array of FSR scalar fluxes in each energy group
  * @param num_fluxes the total number of FSR flux values
  */
-void GPUSolver::getFSRScalarFluxes(FP_PRECISION* fluxes, int num_fluxes) {
+void GPUSolver::getFSRScalarFluxes(double* fluxes, int num_fluxes) {
 
   if (num_fluxes != _num_groups * _num_FSRs)
     log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
@@ -819,7 +819,7 @@ void GPUSolver::getFSRScalarFluxes(FP_PRECISION* fluxes, int num_fluxes) {
 
   /* Copy the fluxes from the GPU to the input array */
   cudaMemcpy((void*)fluxes, (void*)scalar_flux,
-             num_fluxes * sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
+            num_fluxes * sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
 }
 
 
