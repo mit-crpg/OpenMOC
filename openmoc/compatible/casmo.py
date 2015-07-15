@@ -6,9 +6,10 @@
 # @author Davis Tran (dvtran@mit.edu)
 # @date April 24, 2014
 
+import os
 import numpy
 import h5py
-import os
+
 import openmoc.log as log
 
 ##

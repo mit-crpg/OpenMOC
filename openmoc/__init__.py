@@ -14,12 +14,12 @@ else:
 # when this is passed in from the keyboard
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-# Set a log file name using a date and time
+# Set a log file name using the date and time
 now = datetime.datetime.now()
-current_time = str(now.month).zfill(2) + '-' + str(now.day).zfill(2) + '-' + str(now.year) + '--'
-current_time = current_time + str(now.hour).zfill(2) + ':' + str(now.minute).zfill(2)
-current_time = current_time + ':' + str(now.second).zfill(2)
+time = (now.month, now.day, now.year, now.hour, now.minute, now.second)
+curr_time = '-'.join(map(lambda x: x.zfill(2), map(str, time)))
 initialize_logger()
 set_log_filename('openmoc-' + current_time + '.log');
 
+# Create singleton Timer object for shared access throughout the module
 Timer = Timer()

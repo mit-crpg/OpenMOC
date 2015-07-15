@@ -8,27 +8,11 @@
 # @date June 30, 2015
 
 import sys
+import copy
+import numpy as np
+import scipy.sparse.linalg as linalg
 
-## @var openmoc
-#  @brief The openmoc module in use in the Python script using the
-#         openmoc.krylov module.
-openmoc = ''
-
-# Determine which OpenMOC module is being used
-if 'openmoc.gnu.double' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.double']
-elif 'openmoc.gnu.single' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.single']
-elif 'openmoc.intel.double' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.double']
-elif 'openmoc.intel.single' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.single']
-elif 'openmoc.bgq.double' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.double']
-elif 'openmoc.bgq.single' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.single']
-else:
-  import openmoc
+import openmoc
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -37,12 +21,7 @@ if (sys.version_info[0] == 2):
 else:
   from openmoc.log import *
 
-import copy
-import numpy as np
-import scipy.sparse.linalg as linalg
 
-
-# TODO: Use PyCuda to create handle on array shared between CPU/GPU?
 # TODO: Remove CPUSolver::putFluxes(...) in place of storing array pointer
 # TODO: Add a Timer report
 

@@ -7,30 +7,10 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date March 10, 2013
 
+import os
 import sys
-
-## @var openmoc
-#  @brief The openmoc module in use in the Python script using the
-#         openmoc.plotter module.
-openmoc = ''
-
-# Determine which OpenMOC module is being used
-if 'openmoc.gnu.double' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.double']
-elif 'openmoc.gnu.single' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.single']
-elif 'openmoc.intel.double' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.double']
-elif 'openmoc.intel.single' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.single']
-elif 'openmoc.bgq.double' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.double']
-elif 'openmoc.bgq.single' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.single']
-else:
-  import openmoc
-
-
+import numpy as np
+import numpy.random
 import matplotlib
 
 # force headless backend, or set 'backend' to 'Agg'
@@ -38,16 +18,10 @@ import matplotlib
 matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
-
-# Force non-interactive mode, or set 'interactive' to False
-# in your ~/.matplotlib/matplotlibrc
-plt.ioff()
-
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
-import numpy as np
-import numpy.random
-import os, sys
+
+import openmoc
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -58,6 +32,9 @@ else:
   from openmoc.log import *
   from openmoc.process import *
 
+# Force non-interactive mode, or set 'interactive' to False
+# in your ~/.matplotlib/matplotlibrc
+plt.ioff()
 
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
