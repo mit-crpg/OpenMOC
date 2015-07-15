@@ -211,8 +211,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
                                                  dev_material* materials,
                                                  FP_PRECISION* scalar_flux,
-                                                 FP_PRECISION* reduced_sources,
-                                                 FP_PRECISION inverse_k_eff) {
+                                                 FP_PRECISION* reduced_sources) {
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -238,8 +237,6 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
     /* Compute total fission source for current FSR */
     for (int e=0; e < *num_groups; e++)
       fission_source += scalar_flux(tid,e) * nu_sigma_f[e];
-
-    fission_source *= inverse_k_eff;
 
     /* Set the reduced source for FSR r in each group G */
     for (int G=0; G < *num_groups; G++) {
@@ -1441,8 +1438,7 @@ void GPUSolver::computeFSRFissionSources() {
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
   computeFSRFissionSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
-                                               scalar_flux, reduced_sources, 
-                                               1.0 / _k_eff);
+                                               scalar_flux, reduced_sources);
 }
 
 
