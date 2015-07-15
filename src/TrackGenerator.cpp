@@ -479,6 +479,10 @@ void TrackGenerator::generateTracks() {
     delete [] _tracks;
   }
 
+  /* Initialize the CMFD object */
+  if (_geometry->getCmfd() != NULL)
+    _geometry->initializeCmfd();
+
   initializeTrackFileDirectory();
 
   /* If not Tracks input file exists, generate Tracks */
