@@ -137,6 +137,7 @@ endif
 ifeq ($(COMPILER),clang)
   CFLAGS += -O3 -ffast-math -fvectorize
 endif
+endif
 
 # PAPI source (you may need to provide -I and -L pointing
 # to PAPI depending on your installation
