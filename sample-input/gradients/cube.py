@@ -1,4 +1,5 @@
 import numpy
+from boundaries import *
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
@@ -38,7 +39,6 @@ right = XPlane(x=length/2, name='right')
 top = YPlane(y=length/2, name='top')
 bottom = YPlane(y=-length/2, name='bottom')
 
-from boundaries import *
 left.setBoundaryType(left_bc)
 right.setBoundaryType(right_bc)
 top.setBoundaryType(top_bc)
@@ -93,6 +93,3 @@ log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
-geometry.initializeFlatSourceRegions()
-
-#return geometry
