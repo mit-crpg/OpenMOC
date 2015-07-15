@@ -49,24 +49,6 @@ geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 
 ###############################################################################
-#########################   Load the Cubic Geometry   #########################
-###############################################################################
-
-log.py_printf('NORMAL', 'Importing cubic geometry...')
-
-import sys
-sys.path.append('..')
-import boundaries
-boundaries.left_bc = VACUUM
-boundaries.right_bc = REFLECTIVE
-boundaries.top_bc = REFLECTIVE
-boundaries.bottom_bc = REFLECTIVE
-from cube import *
-
-geometry.setCmfd(cmfd)
-geometry.initializeFlatSourceRegions()
-
-###############################################################################
 ########################   Creating the TrackGenerator   ######################
 ###############################################################################
 
