@@ -62,7 +62,7 @@ endif
 # intel Compiler
 ifeq ($(COMPILER),intel)
   CC = icpc
-  source += ../src/VectorizedSolver.cpp
+  source += VectorizedSolver.cpp
   CFLAGS += -DINTEL
   CFLAGS += -I/opt/intel/composer_xe_2013_sp1.3.174/mkl/include
   LDFLAGS += -mkl
