@@ -38,6 +38,48 @@ int CPUSolver::getNumThreads() {
 
 
 /**
+ * @brief Fills an array with the scalar fluxes.
+ * @details This class method is a helper routine called by the OpenMOC
+ *          Python "openmoc.krylov" module for Krylov subspace methods. 
+ *          Although this method appears to require two arguments, in
+ *          reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_fluxes = num_groups * num_FSRs
+ *          fluxes = solver.getFluxes(num_fluxes)
+ * @endcode
+ *
+ * @param fluxes an array of FSR scalar fluxes in each energy group
+ * @param num_fluxes the total number of FSR flux values
+ */
+void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
+
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
+               "%d groups and %d FSRs which does not match the requested "
+               "%d flux values", _num_groups, _num_FSRs, num_fluxes);
+
+  else if (_scalar_flux == NULL)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since they "
+               "have not yet been allocated");
+
+  /* If the user called setFluxes(...) they already have the flux */
+  if (_user_fluxes && _scalar_flux == out_fluxes)
+    return;
+
+  /* Otherwise, copy the fluxes into the input array */
+  else {
+    #pragma omp parallel for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+      for (int e=0; e < _num_groups; e++)
+        out_fluxes[r*_num_groups+e] = _scalar_flux(r,e);
+    }
+  }
+}
+
+
+/**
  * @brief Sets the number of shared memory OpenMP threads to use (>0).
  * @param num_threads the number of threads
  */

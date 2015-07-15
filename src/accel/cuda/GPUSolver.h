@@ -112,9 +112,9 @@ public:
    * @return the number of threads per block
    */
   int getNumThreadsPerBlock();
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
-  void getFSRScalarFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
   FP_PRECISION getFSRSource(int fsr_id, int group);
+  FP_PRECISION getFlux(int fsr_id, int group);
+  void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
   void setNumThreadBlocks(int num_blocks);
   void setNumThreadsPerBlock(int num_threads);

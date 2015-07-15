@@ -23,6 +23,3 @@ today_string = ':'.join(map(g, map(str, (now.hour, now.minute, now.second))))
 time_string = year_string + '--' + today_string
 initialize_logger()
 set_log_filename('openmoc-' + time_string + '.log');
-
-# Create singleton Timer object for shared access throughout the module
-Timer = Timer()

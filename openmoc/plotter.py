@@ -735,7 +735,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
       # Get the scalar flux for each energy group in this FSR
       else:
         for index, group in enumerate(energy_groups):
-          fluxes[index,j,i] = solver.getFSRScalarFlux(fsr_id, group)
+          fluxes[index,j,i] = solver.getFlux(fsr_id, group)
 
   # Loop over all energy group and create a plot
   for index, group in enumerate(energy_groups):
@@ -854,7 +854,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 
     # Extract the flux in each energy group
     for group in range(num_groups):
-        fluxes[group] = solver.getFSRScalarFlux(fsr, group+1)
+        fluxes[group] = solver.getFlux(fsr, group+1)
 
     # Normalize fluxes to the total integrated flux
     if norm:

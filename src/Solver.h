@@ -195,13 +195,15 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
 
-  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
   virtual FP_PRECISION getFSRSource(int fsr_id, int group);
+  virtual FP_PRECISION getFlux(int fsr_id, int group);
+  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) =0;
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
   virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) =0;
   void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
   void setFixedSourceByMaterial(Material* material, int group, 
                                 FP_PRECISION source);

@@ -271,7 +271,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     # Get the scalar flux for each FSR and energy group
     for i in range(num_FSRs):
       for j in range(num_groups):
-        scalar_fluxes[i,j] = solver.getFSRScalarFlux(i,j+1)
+        scalar_fluxes[i,j] = solver.getFlux(i,j+1)
 
   # If the user requested to store the FSR sources
   if sources:

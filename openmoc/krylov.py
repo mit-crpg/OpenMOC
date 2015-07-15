@@ -22,9 +22,6 @@ else:
   from openmoc.log import *
 
 
-# TODO: Remove CPUSolver::putFluxes(...) in place of storing array pointer
-# TODO: Add a Timer report
-
 ##
 # @class krylov.py 'openmoc/krylov.py'
 # @brief A Solver which uses a Krylov subspace-based method to solve for an
@@ -39,6 +36,7 @@ class IRAMSolver(object):
 
   ##
   # @brief IRAMSolver class constructor
+  # @param solver an initialized OpenMOC Solver subclass (e.g. CPUSolver)
   def __init__(self, solver):
 
     if not 'Solver' in type(solver).__name__:
@@ -74,6 +72,13 @@ class IRAMSolver(object):
     self._eigenvectors = None
 
 
+  ##
+  # @brief Compute all eigenmodes in the problem.
+  # @param num_modes number of eigenmodes to compute
+  # @param inner_method Krylov subspace method used for the Ax=b solve
+  # @param outer_tol tolerance on the outer eigenvalue solve
+  # @param inner_tol tolerance on the inner Ax=b solve
+  # @param interval inner iteration interval for logging messages
   def computeEigenmodes(self, num_modes=5, inner_method='gmres', 
                         outer_tol=1e-5, inner_tol=1e-6, interval=10):
 
@@ -101,18 +106,27 @@ class IRAMSolver(object):
     self._F_op = linalg.LinearOperator(op_shape, self._F, dtype=self._precision)
 
     # Solve the eigenvalue problem
-#    timer = openmoc.Timer
-#    timer.startTimer()
+    timer = openmoc.Timer()
+    timer.startTimer()
     vals, vecs = linalg.eigs(self._F_op, k=num_modes, tol=self._outer_tol)
-#    timer.stopTimer()
-#    timer.recordSplit('Total time')
-#    tot_time = timer.getTime('Total time')
-#    py_printf('RESULT', 'Total time to solution'.ljust(53, '.') + str(tot_time))
+    timer.stopTimer()
 
+    # Print a timer report
+    tot_time = timer.getTime()
+    py_printf('RESULT', 'Total time to solution'.ljust(53, '.') + str(tot_time))
+
+    # Store the eigenvalues and eigenvectors
     self._eigenvalues = vals
     self._eigenvectors = vecs
 
 
+  ##
+  # @brief Private routine for inner Ax=b solves with the scattering source.
+  # @details Applies a transport sweep to the scattering source for a given
+  #          flux distribution. This corresponds to the left hand side of the
+  #          generalized kAX = MX eigenvalue problem.
+  # @param flux the flux used to compute the scattering source
+  # @return the residual between input flux and output flux
   def _A(self, flux):
 
     # Remove imaginary components from NumPy array
@@ -123,18 +137,25 @@ class IRAMSolver(object):
     self._a_count += 1
     self._solver.setFluxes(flux)
     self._solver.scatterTransportSweep()
+    flux = self._solver.getFluxes(self._op_size)
 
-    if self._with_cuda:
-      flux = self._solver.getFSRScalarFluxes(self._op_size)
-
+    # Print report to screen to update user on progress
     if self._a_count % self._interval == 0:
       py_printf('NORMAL', "Performed A operator sweep number %d", self._a_count)
     else:
       py_printf('INFO', "Performed A operator sweep number %d", self._a_count)
-    
+      
+    # Return flux residual
     return flux_old - flux
 
 
+  ##
+  # @brief Private routine for inner Ax=b solves with the fission source.
+  # @details Applies a transport sweep to the fission source for a given
+  #          flux distribution. This corresponds to the right hand side of the
+  #          generalized kAX = MX eigenvalue problem.
+  # @param flux the flux used to compute the fission source
+  # @return the new flux computed from the MOC transport sweep
   def _M(self, flux):
 
     # Remove imaginary components from NumPy array
@@ -144,15 +165,20 @@ class IRAMSolver(object):
     self._m_count += 1
     self._solver.setFluxes(flux)
     self._solver.fissionTransportSweep()
-
-    if self._with_cuda:
-      flux = self._solver.getFSRScalarFluxes(self._op_size)
+    flux = self._solver.getFluxes(self._op_size)
 
     py_printf('NORMAL', "Performed M operator sweep number %d", self._m_count)
-    
+
+    # Return new flux
     return flux
 
 
+  ##
+  # @brief Private routine for outer eigenvalue 
+  # @details Uses a Krylov subspace method (e.g., GMRES, BICGSTAB) to solve 
+  #          the Ax=b problem.
+  # @param flux 
+  # @return the new flux
   def _F(self, flux):
   
     # Apply operator to flux
@@ -172,6 +198,7 @@ class IRAMSolver(object):
     else:
       py_printf('ERROR', 'Unable to use %s to solve Ax=b', self._inner_method)
 
+    # Check that Ax=b solve completed without error before returning new flux
     if x != 0:
       py_printf('ERROR', 'Unable to solve Ax=b with %s', self._inner_method)
     else:
