@@ -3,6 +3,9 @@ from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
 from openmoc.options import Options
+import sys
+sys.path.append('..')
+from cube import geometry, root_cell, left, right, top, bottom
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -29,6 +32,21 @@ cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,1)
+
+###############################################################################
+#########################   Load the Cubic Geometry   #########################
+###############################################################################
+
+log.py_printf('NORMAL', 'Importing cubic geometry...')
+
+left.setBoundaryType(VACUUM)
+right.setBoundaryType(REFLECTIVE)
+top.setBoundaryType(REFLECTIVE)
+bottom.setBoundaryType(REFLECTIVE)
+
+root_cell.findBoundingBox()
+geometry.setCmfd(cmfd)
+geometry.initializeFlatSourceRegions()
 
 ###############################################################################
 #########################   Load the Cubic Geometry   #########################

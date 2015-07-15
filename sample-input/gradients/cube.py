@@ -1,5 +1,4 @@
 import numpy
-from boundaries import *
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
@@ -17,8 +16,6 @@ num_cells_y = 1
 #######################   Define Material Properties   ########################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating materials...')
-
 basic_material = Material(name='1-group infinite medium')
 basic_material.setNumEnergyGroups(1)
 basic_material.setSigmaA(numpy.array([0.069389522]))
@@ -32,24 +29,19 @@ basic_material.setSigmaT(numpy.array([0.452648699]))
 ##########################   Creating Surfaces   ############################
 #############################################################################
 
-log.py_printf('NORMAL', 'Creating surfaces...')
-
 left = XPlane(x=-length/2, name='left')
 right = XPlane(x=length/2, name='right')
 top = YPlane(y=length/2, name='top')
 bottom = YPlane(y=-length/2, name='bottom')
 
-left.setBoundaryType(left_bc)
-right.setBoundaryType(right_bc)
-top.setBoundaryType(top_bc)
-bottom.setBoundaryType(bottom_bc)
-
+left.setBoundaryType(REFLECTIVE)
+right.setBoundaryType(REFLECTIVE)
+top.setBoundaryType(REFLECTIVE)
+bottom.setBoundaryType(REFLECTIVE)
 
 #############################################################################
 ############################   Creating Cells   #############################
 #############################################################################
-
-log.py_printf('NORMAL', 'Creating cells...')
 
 fill = Cell(name='fill')
 fill.setFill(basic_material)
@@ -65,8 +57,6 @@ root_cell.addSurface(halfspace=-1, surface=top)
 ##########################    Creating Universes   ##########################
 #############################################################################
 
-log.py_printf('NORMAL', 'Creating universes...')
-
 fill_universe = Universe(name='homogeneous fill cell')
 fill_universe.addCell(fill)
 
@@ -77,9 +67,6 @@ root_universe.addCell(root_cell)
 ###########################    Creating Lattices   ##########################
 #############################################################################
 
-log.py_printf('NORMAL', 'Creating {0} x {1} lattice...'\
-    .format(num_cells_x, num_cells_y))
-
 lattice = Lattice(name='MxN lattice')
 lattice.setWidth(width_x=length/num_cells_x, width_y=length/num_cells_y)
 lattice.setUniverses([[fill_universe] * num_cells_x]*num_cells_y)
@@ -88,8 +75,6 @@ root_cell.setFill(lattice)
 #############################################################################
 #########################   Creating the Geometry   #########################
 #############################################################################
-
-log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
