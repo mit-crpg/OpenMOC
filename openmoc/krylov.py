@@ -36,34 +36,35 @@ class IRAMSolver(object):
 
   ##
   # @brief IRAMSolver class constructor
-  # @param solver an initialized OpenMOC Solver subclass (e.g. CPUSolver)
-  def __init__(self, solver):
+  # @param moc_solver an initialized OpenMOC Solver subclass (e.g. CPUSolver)
+  def __init__(self, moc_solver):
 
-    if not 'Solver' in type(solver).__name__:
+    if not 'Solver' in type(moc_solver).__name__:
       py_printf('ERROR', 'Unable to initialize an IRAMSolver with %s ' + \
-                'which is not an OpenMOC Solver object', str(solver))
+                'which is not an OpenMOC Solver object', str(moc_solver))
     
-    self._solver = solver
+    self._moc_solver = moc_solver
 
     # Determine the floating point precision for Solver
-    if self._solver.isUsingDoublePrecision():
+    if self._moc_solver.isUsingDoublePrecision():
       self._precision = np.float64
     else:
       self._precision = np.float32
 
     # Determine if the user passed in a CUDA-enabled GPUSolver
-    if 'GPUSolver' in type(solver).__name__:
+    if 'GPUSolver' in type(moc_solver).__name__:
       self._with_cuda = True
     else:
       self._with_cuda = False
 
     # Compute the size of the LinearOperators used in the eigenvalue problem
-    geometry = self._solver.getGeometry()
+    geometry = self._moc_solver.getGeometry()
     num_FSRs = geometry.getNumFSRs()
     num_groups = geometry.getNumEnergyGroups()
     self._op_size = num_FSRs * num_groups
 
     # Initialize solution-dependent class attributes to None
+    self._num_modes = None
     self._interval = None
     self._outer_tol = None
     self._inner_tol = None
@@ -89,6 +90,7 @@ class IRAMSolver(object):
 
     # Set solution-dependent class attributes based on parameters
     # These are accessed and used by the LinearOperators
+    self._num_modes = num_modes
     self._inner_method = inner_method
     self._outer_tol = outer_tol
     self._inner_tol = inner_tol
@@ -99,13 +101,13 @@ class IRAMSolver(object):
     self._a_count = 0
 
     # Initialize MOC solver
-    self._solver.initializePolarQuadrature()
-    self._solver.initializeExpEvaluator()
-    self._solver.initializeFluxArrays()
-    self._solver.initializeSourceArrays()
-    self._solver.initializeFSRs()
-    self._solver.countFissionableFSRs()
-    self._solver.zeroTrackFluxes()
+    self._moc_solver.initializePolarQuadrature()
+    self._moc_solver.initializeExpEvaluator()
+    self._moc_solver.initializeFluxArrays()
+    self._moc_solver.initializeSourceArrays()
+    self._moc_solver.initializeFSRs()
+    self._moc_solver.countFissionableFSRs()
+    self._moc_solver.zeroTrackFluxes()
 
     # Initialize SciPy operators
     op_shape = (self._op_size, self._op_size)
@@ -116,12 +118,12 @@ class IRAMSolver(object):
     # Solve the eigenvalue problem
     timer = openmoc.Timer()
     timer.startTimer()
-    vals, vecs = linalg.eigs(self._F_op, k=num_modes, tol=self._outer_tol)
+    vals, vecs = linalg.eigs(self._F_op, k=self._num_modes, tol=self._outer_tol)
     timer.stopTimer()
 
     # Print a timer report
     tot_time = timer.getTime()
-    time_per_mode = tot_time / num_modes
+    time_per_mode = tot_time / self._num_modes
     tot_time = '{0:.4e}'.format(tot_time)
     time_per_mode = '{0:.4e}'.format(time_per_mode)
     py_printf('RESULT', 'Total time to solution'.ljust(53, '.')+tot_time)
@@ -147,9 +149,9 @@ class IRAMSolver(object):
     
     # Apply operator to flux
     self._a_count += 1
-    self._solver.setFluxes(flux)
-    self._solver.scatterTransportSweep()
-    flux = self._solver.getFluxes(self._op_size)
+    self._moc_solver.setFluxes(flux)
+    self._moc_solver.scatterTransportSweep()
+    flux = self._moc_solver.getFluxes(self._op_size)
 
     # Print report to screen to update user on progress
     if self._a_count % self._interval == 0:
@@ -175,9 +177,9 @@ class IRAMSolver(object):
 
     # Apply operator to flux
     self._m_count += 1
-    self._solver.setFluxes(flux)
-    self._solver.fissionTransportSweep()
-    flux = self._solver.getFluxes(self._op_size)
+    self._moc_solver.setFluxes(flux)
+    self._moc_solver.fissionTransportSweep()
+    flux = self._moc_solver.getFluxes(self._op_size)
 
     py_printf('NORMAL', "Performed M operator sweep number %d", self._m_count)
 
