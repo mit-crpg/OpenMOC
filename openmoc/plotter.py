@@ -1041,7 +1041,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
 
     # Convert it into a form that SWIG will be happy with
     eigenvec = np.squeeze(np.ascontiguousarray(eigenvec))
-    eigenvec = np.real(eigenvec).astype(iram_solver._precision)
+    eigenvec = np.real(eigenvec).astype(iramsolver._precision)
 
     # Ensure the primary eigenvector is positive
     if(mode-1 == 0):
