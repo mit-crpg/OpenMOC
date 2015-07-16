@@ -386,7 +386,7 @@ cpu_solver = CPUSolver(track_generator)
 cpu_solver.setNumThreads(num_threads)
 
 iram_solver = IRAMSolver(cpu_solver)
-iram_solver.computeEigenmodes(num_modes=num_modes)
+iram_solver.computeEigenmodes(num_modes=num_modes, inner_method='bicgstab')
 
 eigenvalues = iram_solver._eigenvalues
 log.py_printf('NORMAL', "The eigenvalues are: %s", str(eigenvalues))
