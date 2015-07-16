@@ -12,7 +12,9 @@
 #define LOG_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>

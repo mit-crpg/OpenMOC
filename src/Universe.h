@@ -9,7 +9,9 @@
 #define UNIVERSE_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "constants.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"

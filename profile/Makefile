@@ -113,12 +113,6 @@ ifeq ($(PRECISION),double)
   CFLAGS += -DDOUBLE
 endif
 
-# Python include flag
-CFLAGS += -I/usr/include/python2.7
-
-# Numpy include flag
-CFLAGS += -I/usr/lib/python2.7/dist-packages/numpy/core/include 
-
 # Vector Flags
 CFLAGS += -DVEC_LENGTH=8
 CFLAGS += -DVEC_ALIGNMENT=16

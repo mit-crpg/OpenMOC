@@ -20,7 +20,7 @@ int main() {
   set_log_level("NORMAL");
   log_printf(TITLE, "Simulating a one group homogeneous infinite medium...");
   log_printf(HEADER, "The reference keff = 1.43...");
-  
+ 
   /* Create materials */
   log_printf(NORMAL, "Creating materials...");
   Material infinite_medium;
