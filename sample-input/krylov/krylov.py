@@ -406,6 +406,6 @@ log.py_printf('NORMAL', 'Plotting data...')
 plotter.plot_materials(geometry, gridsize=500)
 plotter.plot_cells(geometry, gridsize=500)
 plotter.plot_flat_source_regions(geometry, gridsize=500)
-plotter.plot_eigenmodes(iram_solver, gridsize=250)
+plotter.plot_eigenmode_fluxes(iram_solver, gridsize=250)
 
 log.py_printf('TITLE', 'Finished')
