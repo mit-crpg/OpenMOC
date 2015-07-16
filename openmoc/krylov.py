@@ -113,7 +113,11 @@ class IRAMSolver(object):
 
     # Print a timer report
     tot_time = timer.getTime()
-    py_printf('RESULT', 'Total time to solution'.ljust(53, '.') + str(tot_time))
+    time_per_mode = tot_time / num_modes
+    tot_time = '{0:.4e}'.format(tot_time)
+    time_per_mode = '{0:.4e}'.format(time_per_mode)
+    py_printf('RESULT', 'Total time to solution'.ljust(53, '.')+tot_time)
+    py_printf('RESULT', 'Solution time per mode'.ljust(53, '.')+time_per_mode)
 
     # Store the eigenvalues and eigenvectors
     self._eigenvalues = vals
