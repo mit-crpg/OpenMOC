@@ -1000,7 +1000,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
   if not os.path.exists(directory):
     os.makedirs(directory)
 
-  if not 'IRAMSolver' in str(type(solver)):
+  if not 'IRAMSolver' in str(type(iramsolver)):
     py_printf('ERROR', 'Unable to plot the eigenmode fluxes ' + \
               'since input did not contain an IRAMSolver class object')
 
@@ -1031,7 +1031,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
   py_printf('NORMAL', 'Plotting the eigenmode fluxes...')
 
   # Extract the MOC Solver from the IRAMSolver
-  moc_solver = iram._moc_solver
+  moc_solver = iramsolver._moc_solver
 
   # Loop over each eigenmode
   for mode in eigenmodes:
