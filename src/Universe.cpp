@@ -61,10 +61,17 @@ Universe::Universe(const int id, const char* name) {
  * @brief Destructor clears the Cell pointers container.
  */
 Universe::~Universe() {
-  _cells.clear();
 
   if (_name != NULL)
     delete [] _name;
+
+  /* Remove all Cells in the Universe */
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    delete iter->second;
+
+  /* Clear the map of Cells */
+  _cells.clear();
 }
 
 
@@ -174,7 +181,7 @@ double Universe::getMinY() {
  * @brief Returns the maximum reachable y-coordinate in the Universe.
  * @return the maximum reachable y-coordinate
  */
-double Universe::getMaxY(){
+double Universe::getMaxY() {
 
   double max_y = -std::numeric_limits<double>::infinity();
 
@@ -744,7 +751,11 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
  */
 Lattice::~Lattice() {
 
-  for (int i=0; i < _num_y; i++)
+  std::map<int, Universe*> unique_universes = getUniqueUniverses();
+  std::map<int, Universe*>::iterator iter;
+
+  /* Clear the map of Universes */
+  for (int i = _num_y-1; i > -1;  i--)
     _universes.at(i).clear();
 
   _universes.clear();
@@ -844,7 +855,7 @@ double Lattice::getMinY() {
  * @brief Returns the maximum reachable y-coordinate in the Lattice.
  * @return the maximum reachable y-coordinate
  */
-double Lattice::getMaxY(){
+double Lattice::getMaxY() {
   return _offset.getY() + (_num_y * _width_y / 2.);
 }
 
@@ -932,7 +943,7 @@ std::map<int, Cell*> Lattice::getAllCells() {
   std::map<int, Universe*>::iterator iter;
   std::map<int, Cell*> nested_cells;
 
-  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter){
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter) {
     nested_cells = iter->second->getAllCells();
     cells.insert(nested_cells.begin(), nested_cells.end());
   }
@@ -962,7 +973,7 @@ std::map<int, Universe*> Lattice::getAllUniverses() {
   std::map<int, Universe*>::iterator iter;
   std::map<int, Universe*> nested_universes;
 
-  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter){
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter) {
     nested_universes = iter->second->getAllUniverses();
     all_universes.insert(nested_universes.begin(), nested_universes.end());
   }
@@ -1028,7 +1039,14 @@ void Lattice::setWidth(double width_x, double width_y) {
  */
 void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
 
-  /* Clear any Universes in the Lattice (from a previous run) */
+  std::map<int, Universe*> unique_universes = getUniqueUniverses();
+  std::map<int, Universe*>::iterator iter;
+
+  /* Remove all Universes in the Lattice */
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter)
+    removeUniverse(iter->second);
+
+  /* Clear all Univers maps in the Lattice (from a previous run) */
   for (int i=0; i < _num_y; i++)
     _universes.at(i).clear();
 
@@ -1047,13 +1065,31 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
 
     _universes.push_back(std::vector< std::pair<int, Universe*> >());
 
-    for (int i = 0; i < _num_x; i++){
+    for (int i = 0; i < _num_x; i++) {
       universe = universes[(_num_y-1-j)*_num_x + i];
       _universes.at(j).push_back(std::pair<int, Universe*>
                                  (universe->getId(), universe));
     }
   }
 }
+
+
+/**
+ * @brief Removes all references to a Universe from the Lattice.
+ * @param universe the Universe to remove
+ */
+void Lattice::removeUniverse(Universe* universe) {
+
+  /* Set all locations in the array of universes array to NULL */
+  for (int j=0; j < _num_y; j++) {
+    for (int i = 0; i < _num_x; i++) {
+      if (universe->getId() == getUniverse(i,j)->getId())
+        _universes.at(j).push_back(std::pair<int, Universe*>
+                                 (-1, NULL));
+    }
+  }
+}
+
 
 
 /**
@@ -1306,7 +1342,7 @@ void Lattice::printString() {
  * @param point a pointer to a point being evaluated.
  * @return the Lattice cell index.
  */
-int Lattice::getLatticeCell(Point* point){
+int Lattice::getLatticeCell(Point* point) {
   return (getLatY(point)*_num_x + getLatX(point));
 }
 
@@ -1337,7 +1373,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
   int surface = -1;
 
   /* Check if point is on left boundary */ 
-  if (fabs(x - left) <= ON_SURFACE_THRESH){
+  if (fabs(x - left) <= ON_SURFACE_THRESH) {
     /* Check if point is on bottom boundary */ 
     if (fabs(y - bottom) <= ON_SURFACE_THRESH)
       surface = cell*8 + 4;
@@ -1348,7 +1384,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
       surface = cell*8;
   }
   /* Check if point is on right boundary */ 
-  else if (fabs(x - right) <= ON_SURFACE_THRESH){
+  else if (fabs(x - right) <= ON_SURFACE_THRESH) {
     /* Check if point is on bottom boundary */ 
     if (fabs(y - bottom) <= ON_SURFACE_THRESH)
       surface = cell*8 + 5;
