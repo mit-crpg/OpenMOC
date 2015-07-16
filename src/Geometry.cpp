@@ -760,10 +760,6 @@ void Geometry::initializeFlatSourceRegions() {
 
   /* Create map of Material IDs to Material pointers */
   _all_materials = getAllMaterials();
-
-  /* Initialize CMFD */
-  if (_cmfd != NULL)
-    initializeCmfd();
 }
 
 
