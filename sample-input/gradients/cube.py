@@ -52,7 +52,6 @@ root_cell.addSurface(halfspace=-1, surface=right)
 root_cell.addSurface(halfspace=+1, surface=bottom)
 root_cell.addSurface(halfspace=-1, surface=top)
 
-
 #############################################################################
 ##########################    Creating Universes   ##########################
 #############################################################################
@@ -78,3 +77,4 @@ root_cell.setFill(lattice)
 
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
+geometry.initializeFlatSourceRegions()

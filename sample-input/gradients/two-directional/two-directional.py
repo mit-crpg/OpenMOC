@@ -34,9 +34,6 @@ right.setBoundaryType(VACUUM)
 top.setBoundaryType(REFLECTIVE)
 bottom.setBoundaryType(REFLECTIVE)
 
-root_cell.findBoundingBox()
-geometry.initializeFlatSourceRegions()
-
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
 ###############################################################################
