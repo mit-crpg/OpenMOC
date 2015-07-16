@@ -118,7 +118,7 @@ public:
   void subdivideCells();
   void buildNeighbors();
 
-  std::string toString();
+  virtual std::string toString();
   void printString();
 
   Universe* clone();
