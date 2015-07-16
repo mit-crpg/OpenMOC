@@ -206,7 +206,6 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
  * @param reduced_sources an array of FSR sources / total xs
- * @param inverse_k_eff the inverse of keff
  */
 __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
                                                  dev_material* materials,
@@ -258,7 +257,6 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
  * @param reduced_sources an array of FSR sources / total xs
- * @param inverse_k_eff the inverse of keff
  */
 __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
                                                  dev_material* materials,

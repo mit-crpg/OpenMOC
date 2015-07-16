@@ -1,4 +1,4 @@
-#include "CPUSolver.h"
+1#include "CPUSolver.h"
 
 
 /**
@@ -153,6 +153,7 @@ void CPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
   if (_scalar_flux == NULL)
     initializeFluxArrays();
 
+  /* Set the scalar flux array pointer to the array passed in from NumPy */
   _scalar_flux = in_fluxes;
   _user_fluxes = false;
 }
