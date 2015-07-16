@@ -1052,7 +1052,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
 
     # Set subdirectory folder for this eigenmode
     num_digits = len(str(max(eigenmodes)))
-    subdirectory = '/plots/eig-{0}/'.format(str(mode).zfill(num_digits))
+    subdirectory = '/plots/eig-{0}-flux/'.format(str(mode).zfill(num_digits))
 
     # Plot this eigenmode's spatial fluxes 
     plot_spatial_fluxes(moc_solver, energy_groups, gridsize, xlim, ylim)
