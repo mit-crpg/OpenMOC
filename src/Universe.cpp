@@ -1084,7 +1084,7 @@ void Lattice::removeUniverse(Universe* universe) {
   for (int j=0; j < _num_y; j++) {
     for (int i = 0; i < _num_x; i++) {
       if (universe->getId() == getUniverse(i,j)->getId())
-        _universes.at(j)[i] = std::pair<int,Universe*>(-1,null);
+        _universes.at(j)[i] = std::pair<int,Universe*>(-1,NULL);
     }
   }
 }
