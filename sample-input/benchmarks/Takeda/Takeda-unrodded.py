@@ -17,7 +17,7 @@ polar_spacing = options.getPolarSpacing()
 num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-
+refines = 5
 
 ###############################################################################
 ###########################   Creating Lattices   #############################
@@ -59,13 +59,16 @@ template = [[[r, r, r, r, r],
              [c, c, c, v, r]]]
 
 # refine lattice
-template_refined = [[ []*5 ]*5 ]*5
 for k in range(5):
   for j in range(5):
     a = template[k][j]
-    template_refined[k][j] = sum([[a[i]]*refines for i in range(len(a))], [])
+    template[k][j] = sum([[a[i]]*refines for i in range(len(a))], [])
+  a = template[k]
+  template[k] = sum([[a[i]]*refines for i in range(len(a))], [])
+a = template
+template = sum([[a[i]]*refines for i in range(len(a))], [])
 
-lattice.setUniverses3D(template_refined)
+lattice.setUniverses3D(template)
 root_cell.setFill(lattice)
 
 

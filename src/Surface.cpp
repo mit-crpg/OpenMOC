@@ -378,7 +378,7 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
     if (l > 0.0)
       num++;
     
-    points->setCoords(xcurr, ycurr, zcurr);
+    points[0].setCoords(xcurr, ycurr, zcurr);
   }
 
   return num;
@@ -894,7 +894,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
     /* There is one intersection (ie on the Surface) */
     else if (discr == 0) {
       xcurr = -b / (2*a);
-      ycurr = y0 + m * (points[0].getX() - x0);
+      ycurr = y0 + m * (points[num].getX() - x0);
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (azim < M_PI && ycurr > y0){

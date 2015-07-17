@@ -591,7 +591,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
         LocalCoords* next_coords;
 
         if (coords->getNext() == NULL)
-          next_coords = new LocalCoords(coords->getX(), coords->getY());
+          next_coords = new LocalCoords(coords->getX(), coords->getY(), coords->getZ());
         else
           next_coords = coords->getNext();
 

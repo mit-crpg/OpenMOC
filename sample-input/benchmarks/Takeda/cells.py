@@ -4,8 +4,6 @@ import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 from surfaces import *
 
-refines = 1
-
 ###############################################################################
 ###########################   Creating Materials   ############################
 ###############################################################################
