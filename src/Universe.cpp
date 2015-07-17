@@ -1080,11 +1080,13 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
  */
 void Lattice::removeUniverse(Universe* universe) {
 
+  Universe* null = NULL;
+
   /* Set all locations in the array of universes array to NULL */
   for (int j=0; j < _num_y; j++) {
     for (int i = 0; i < _num_x; i++) {
       if (universe->getId() == getUniverse(i,j)->getId())
-        _universes.at(j)[i] = std::pair<int,Universe*>(-1,NULL);
+        _universes.at(j)[i] = std::pair<int,Universe*>(-1, null);
     }
   }
 }
