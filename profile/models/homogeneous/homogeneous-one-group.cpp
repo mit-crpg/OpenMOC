@@ -23,20 +23,20 @@ int main() {
  
   /* Create materials */
   log_printf(NORMAL, "Creating materials...");
-  Material infinite_medium;
-  infinite_medium.setNumEnergyGroups(1);
+  Material* infinite_medium = new Material();
+  infinite_medium->setNumEnergyGroups(1);
   double sigmaA[1] = {0.069389522};
   double sigmaF[1] = {0.0414198575};
   double nuSigmaF[1] = {0.0994076580};
   double sigmaS[1] = {0.383259177};
   double chi[1] = {1.0};
   double sigmaT[1] = {0.452648699};
-  infinite_medium.setSigmaA(sigmaA, 1);
-  infinite_medium.setSigmaF(sigmaF, 1);
-  infinite_medium.setNuSigmaF(nuSigmaF, 1);
-  infinite_medium.setSigmaS(sigmaS, 1);
-  infinite_medium.setChi(chi, 1);
-  infinite_medium.setSigmaT(sigmaT, 1);
+  infinite_medium->setSigmaA(sigmaA, 1);
+  infinite_medium->setSigmaF(sigmaF, 1);
+  infinite_medium->setNuSigmaF(nuSigmaF, 1);
+  infinite_medium->setSigmaS(sigmaS, 1);
+  infinite_medium->setChi(chi, 1);
+  infinite_medium->setSigmaT(sigmaT, 1);
 
   /* Create surfaces */
   log_printf(NORMAL, "Creating surfaces...");
@@ -54,23 +54,23 @@ int main() {
   /* Create cells */
   log_printf(NORMAL, "Creating cells...");
   
-  Cell cell;
-  cell.setFill(&infinite_medium);
-  cell.addSurface(+1, &left);
-  cell.addSurface(-1, &right);
-  cell.addSurface(+1, &bottom);
-  cell.addSurface(-1, &top);
+  Cell* cell = new Cell();
+  cell->setFill(infinite_medium);
+  cell->addSurface(+1, &left);
+  cell->addSurface(-1, &right);
+  cell->addSurface(+1, &bottom);
+  cell->addSurface(-1, &top);
 
   /* Create universes */
   log_printf(NORMAL, "Creating universes...");
 
-  Universe root_universe;
-  root_universe.addCell(&cell);
+  Universe* root_universe = new Universe();
+  root_universe->addCell(cell);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
-  geometry.setRootUniverse(&root_universe);
+  geometry.setRootUniverse(root_universe);
   geometry.initializeFlatSourceRegions();
 
   /* Generate tracks */

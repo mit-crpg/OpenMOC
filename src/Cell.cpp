@@ -71,10 +71,12 @@ Cell::Cell(int id, const char* name) {
  * @brief Destructor clears vector of Surface pointers bounding the Cell.
  */
 Cell::~Cell() {
+  /*
   _surfaces.clear();
 
   if (_name != NULL)
     delete [] _name;
+  */
 }
 
 

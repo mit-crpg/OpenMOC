@@ -16,7 +16,8 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = homogeneous/homogeneous-one-group.cpp
+#case = homogeneous/homogeneous-one-group.cpp
+case = c5g7/c5g7-cmfd.cpp
 
 source = \
 Cell.cpp \

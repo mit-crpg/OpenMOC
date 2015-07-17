@@ -54,9 +54,14 @@ Geometry::~Geometry() {
     std::map<int, Universe*> universes = _root_universe->getAllUniverses();
     std::map<int, Universe*>::iterator iter;
 
+    std::cout << "Deleting Universes" << std::endl;
     for (iter = universes.begin(); iter != universes.end(); ++iter)
+    {
+      std::cout << "universe delete..." << std::endl;
       delete iter->second;
+    }
   }
+  std::cout << "Success!" << std::endl;
 }
 
 
