@@ -1,4 +1,3 @@
-import numpy
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter

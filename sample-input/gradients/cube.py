@@ -1,8 +1,4 @@
-import numpy
 from openmoc import *
-import openmoc.log as log
-import openmoc.plotter as plotter
-from openmoc.options import Options
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -18,12 +14,12 @@ num_cells_y = 1
 
 basic_material = Material(name='1-group infinite medium')
 basic_material.setNumEnergyGroups(1)
-basic_material.setSigmaA(numpy.array([0.069389522]))
-basic_material.setSigmaF(numpy.array([0.0414198575]))
-basic_material.setNuSigmaF(numpy.array([0.0994076580]))
-basic_material.setSigmaS(numpy.array([0.383259177]))
-basic_material.setChi(numpy.array([1.0]))
-basic_material.setSigmaT(numpy.array([0.452648699]))
+basic_material.setSigmaA([0.069389522])
+basic_material.setSigmaF([0.0414198575])
+basic_material.setNuSigmaF([0.0994076580])
+basic_material.setSigmaS([0.383259177])
+basic_material.setChi([1.0])
+basic_material.setSigmaT([0.452648699])
 
 #############################################################################
 ##########################   Creating Surfaces   ############################
