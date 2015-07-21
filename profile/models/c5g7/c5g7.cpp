@@ -22,7 +22,7 @@ int main() {
  
   /* Define material properties */
   log_printf(NORMAL, "Defining material properties..."); 
- 
+  
   const size_t num_groups = 7;
   std::map<std::string, std::array<double, num_groups> > sigma_a;
   std::map<std::string, std::array<double, num_groups> > nu_sigma_f;
@@ -63,13 +63,13 @@ int main() {
       0.0, 0.0, 0.0, 1.2525E-4, 0.271401, 0.010255, 1.0021E-8,
       0.0, 0.0, 0.0, 0.0, 0.0012968, 0.265802, 0.016809,
       0.0, 0.0, 0.0, 0.0, 0.0, 0.0085458, 0.27308};
-  chi["UO2"] = std::array<double, num_groups> {0.58791, 0.41176, 3.3906E-4,
+  chi["UO2"] = std::array<double, num_groups> {0.58791, 0.41176, 3.3906E-4, 
     1.1761E-7, 0.0, 0.0, 0.0};
   sigma_t["UO2"] = std::array<double, num_groups> {0.177949, 0.329805, 
     0.480388, 0.554367, 0.311801, 0.395168, 0.564406};
 
   /* Define MOX-4.3% cross-sections */
-  sigma_a["MOX-4.3\%"] = std::array<double, num_groups> {0.0084339, 0.0037577,
+  sigma_a["MOX-4.3\%"] = std::array<double, num_groups> {0.0084339, 0.0037577, 
     0.02797, 0.10421, 0.13994, 0.40918, 0.40935};
   nu_sigma_f["MOX-4.3\%"] = std::array<double, num_groups> {0.021753, 
     0.002535103, 0.01626799, 0.0654741, 0.03072409, 0.666651, 0.7139904};
@@ -85,7 +85,7 @@ int main() {
       0.0, 0.0, 0.0, 0.0, 0.0, 0.0084948, 0.265007}; 
   chi["MOX-4.3\%"] = std::array<double, num_groups> {0.58791, 0.41176, 
     3.3906E-4, 1.1761E-7, 0.0, 0.0, 0.0};
-  sigma_t["MOX-4.3\%"] = std::array<double, num_groups> {0.178731, 0.330849,
+  sigma_t["MOX-4.3\%"] = std::array<double, num_groups> {0.178731, 0.330849, 
     0.483772, 0.566922, 0.426227, 0.678997, 0.68285};
 
   /* Define MOX-7% cross-sections */
@@ -131,7 +131,7 @@ int main() {
   /* Define fission chamber cross-sections */
   sigma_a["Fission Chamber"] = std::array<double, num_groups> {5.1132E-4, 
     7.5813E-5, 3.1643E-4, 0.0011675, 0.0033977, 0.0091886, 0.023244};
-  nu_sigma_f["Fission Chamber"] = std::array<double, num_groups> {1.323401E-8,
+  nu_sigma_f["Fission Chamber"] = std::array<double, num_groups> {1.323401E-8, 
     1.4345E-8, 1.128599E-6, 1.276299E-5, 3.538502E-7, 1.740099E-6, 
     5.063302E-6};
   sigma_f["Fission Chamber"] = std::array<double, num_groups> {4.79002E-9, 
@@ -209,144 +209,144 @@ int main() {
   log_printf(NORMAL, "Creating cells...");
 
   /* Moderator rings */
-  Cell moderator_ring1;
-  Cell moderator_ring2;
-  Cell moderator_ring3;
-  moderator_ring1.setNumSectors(8);
-  moderator_ring2.setNumSectors(8);
-  moderator_ring3.setNumSectors(8);
-  moderator_ring1.setFill(materials["Water"]);
-  moderator_ring2.setFill(materials["Water"]);
-  moderator_ring3.setFill(materials["Water"]);
-  moderator_ring1.addSurface(+1, &fuel_radius);
-  moderator_ring1.addSurface(-1, &moderator_inner_radius);
-  moderator_ring2.addSurface(+1, &moderator_inner_radius);
-  moderator_ring2.addSurface(-1, &moderator_outer_radius);
-  moderator_ring3.addSurface(+1, &moderator_outer_radius);
+  Cell* moderator_ring1 = new Cell(21, "mod1");
+  Cell* moderator_ring2 = new Cell(1, "mod2");
+  Cell* moderator_ring3 = new Cell(2, "mod3");
+  moderator_ring1->setNumSectors(8);
+  moderator_ring2->setNumSectors(8);
+  moderator_ring3->setNumSectors(8);
+  moderator_ring1->setFill(materials["Water"]);
+  moderator_ring2->setFill(materials["Water"]);
+  moderator_ring3->setFill(materials["Water"]);
+  moderator_ring1->addSurface(+1, &fuel_radius);
+  moderator_ring1->addSurface(-1, &moderator_inner_radius);
+  moderator_ring2->addSurface(+1, &moderator_inner_radius);
+  moderator_ring2->addSurface(-1, &moderator_outer_radius);
+  moderator_ring3->addSurface(+1, &moderator_outer_radius);
 
   /* UO2 pin cell */
-  Cell uo2_cell;
-  uo2_cell.setNumRings(3);
-  uo2_cell.setNumSectors(8);
-  uo2_cell.setFill(materials["UO2"]);
-  uo2_cell.addSurface(-1, &fuel_radius);
+  Cell* uo2_cell = new Cell(3, "uo2");
+  uo2_cell->setNumRings(3);
+  uo2_cell->setNumSectors(8);
+  uo2_cell->setFill(materials["UO2"]);
+  uo2_cell->addSurface(-1, &fuel_radius);
 
-  Universe uo2;
-  uo2.addCell(&uo2_cell);
-  uo2.addCell(&moderator_ring1);
-  uo2.addCell(&moderator_ring2);
-  uo2.addCell(&moderator_ring3);
+  Universe* uo2 = new Universe();
+  uo2->addCell(uo2_cell);
+  uo2->addCell(moderator_ring1);
+  uo2->addCell(moderator_ring2);
+  uo2->addCell(moderator_ring3);
 
   /* 4.3% MOX pin cell */
-  Cell mox43_cell;
-  mox43_cell.setNumRings(3);
-  mox43_cell.setNumSectors(8);
-  mox43_cell.setFill(materials["MOX-4.3\%"]);
-  mox43_cell.addSurface(-1, &fuel_radius);
+  Cell* mox43_cell = new Cell(4, "mox43");
+  mox43_cell->setNumRings(3);
+  mox43_cell->setNumSectors(8);
+  mox43_cell->setFill(materials["MOX-4.3\%"]);
+  mox43_cell->addSurface(-1, &fuel_radius);
 
-  Universe mox43;
-  mox43.addCell(&mox43_cell);
-  mox43.addCell(&moderator_ring1);
-  mox43.addCell(&moderator_ring2);
-  mox43.addCell(&moderator_ring3);
+  Universe* mox43 = new Universe();
+  mox43->addCell(mox43_cell);
+  mox43->addCell(moderator_ring1);
+  mox43->addCell(moderator_ring2);
+  mox43->addCell(moderator_ring3);
 
   /* 7% MOX pin cell */
-  Cell mox7_cell;
-  mox7_cell.setNumRings(3);
-  mox7_cell.setNumSectors(8);
-  mox7_cell.setFill(materials["MOX-7\%"]);
-  mox7_cell.addSurface(-1, &fuel_radius);
+  Cell* mox7_cell = new Cell(5, "mox7");
+  mox7_cell->setNumRings(3);
+  mox7_cell->setNumSectors(8);
+  mox7_cell->setFill(materials["MOX-7\%"]);
+  mox7_cell->addSurface(-1, &fuel_radius);
 
-  Universe mox7;
-  mox7.addCell(&mox7_cell);
-  mox7.addCell(&moderator_ring1);
-  mox7.addCell(&moderator_ring2);
-  mox7.addCell(&moderator_ring3);
+  Universe* mox7 = new Universe();
+  mox7->addCell(mox7_cell);
+  mox7->addCell(moderator_ring1);
+  mox7->addCell(moderator_ring2);
+  mox7->addCell(moderator_ring3);
 
   /* 8.7% MOX pin cell */
-  Cell mox87_cell;
-  mox87_cell.setNumRings(3);
-  mox87_cell.setNumSectors(8);
-  mox87_cell.setFill(materials["MOX-8.7\%"]);
-  mox87_cell.addSurface(-1, &fuel_radius);
+  Cell* mox87_cell = new Cell(6, "mox87");
+  mox87_cell->setNumRings(3);
+  mox87_cell->setNumSectors(8);
+  mox87_cell->setFill(materials["MOX-8.7\%"]);
+  mox87_cell->addSurface(-1, &fuel_radius);
 
-  Universe mox87;
-  mox87.addCell(&mox87_cell);
-  mox87.addCell(&moderator_ring1);
-  mox87.addCell(&moderator_ring2);
-  mox87.addCell(&moderator_ring3);
+  Universe* mox87 = new Universe();
+  mox87->addCell(mox87_cell);
+  mox87->addCell(moderator_ring1);
+  mox87->addCell(moderator_ring2);
+  mox87->addCell(moderator_ring3);
 
   /* Fission chamber pin cell */
-  Cell fission_chamber_cell;
-  fission_chamber_cell.setNumRings(3);
-  fission_chamber_cell.setNumSectors(8);
-  fission_chamber_cell.setFill(materials["Fission Chamber"]);
-  fission_chamber_cell.addSurface(-1, &fuel_radius);
+  Cell* fission_chamber_cell = new Cell(7, "fc");
+  fission_chamber_cell->setNumRings(3);
+  fission_chamber_cell->setNumSectors(8);
+  fission_chamber_cell->setFill(materials["Fission Chamber"]);
+  fission_chamber_cell->addSurface(-1, &fuel_radius);
 
-  Universe fission_chamber;
-  fission_chamber.addCell(&fission_chamber_cell);
-  fission_chamber.addCell(&moderator_ring1);
-  fission_chamber.addCell(&moderator_ring2);
-  fission_chamber.addCell(&moderator_ring3);
+  Universe* fission_chamber = new Universe();
+  fission_chamber->addCell(fission_chamber_cell);
+  fission_chamber->addCell(moderator_ring1);
+  fission_chamber->addCell(moderator_ring2);
+  fission_chamber->addCell(moderator_ring3);
 
   /* Guide tube pin cell */
-  Cell guide_tube_cell;
-  guide_tube_cell.setNumRings(3);
-  guide_tube_cell.setNumSectors(8);
-  guide_tube_cell.setFill(materials["Guide Tube"]);
-  guide_tube_cell.addSurface(-1, &fuel_radius);
+  Cell* guide_tube_cell = new Cell(8, "gtc");
+  guide_tube_cell->setNumRings(3);
+  guide_tube_cell->setNumSectors(8);
+  guide_tube_cell->setFill(materials["Guide Tube"]);
+  guide_tube_cell->addSurface(-1, &fuel_radius);
 
-  Universe guide_tube;
-  guide_tube.addCell(&guide_tube_cell);
-  guide_tube.addCell(&moderator_ring1);
-  guide_tube.addCell(&moderator_ring2);
-  guide_tube.addCell(&moderator_ring3);
+  Universe* guide_tube = new Universe();
+  guide_tube->addCell(guide_tube_cell);
+  guide_tube->addCell(moderator_ring1);
+  guide_tube->addCell(moderator_ring2);
+  guide_tube->addCell(moderator_ring3);
 
   /* Reflector */
-  Cell reflector_cell;
-  reflector_cell.setFill(materials["Water"]);
+  Cell* reflector_cell = new Cell(9, "rc");
+  reflector_cell->setFill(materials["Water"]);
 
-  Universe reflector;
-  reflector.addCell(&reflector_cell);
+  Universe* reflector = new Universe();
+  reflector->addCell(reflector_cell);
 
   /* Cells */
-  Cell assembly1_cell;
-  Cell assembly2_cell;
-  Cell refined_reflector_cell;
-  Cell right_reflector_cell;
-  Cell corner_reflector_cell;
-  Cell bottom_reflector_cell;
+  Cell* assembly1_cell = new Cell(10, "ac1");
+  Cell* assembly2_cell = new Cell(11, "ac2");
+  Cell* refined_reflector_cell = new Cell(12, "rrc");
+  Cell* right_reflector_cell = new Cell(13,"rrc2");
+  Cell* corner_reflector_cell = new Cell(14, "crc");
+  Cell* bottom_reflector_cell = new Cell(15, "brc");
 
-  Universe assembly1;
-  Universe assembly2;
-  Universe refined_reflector;
-  Universe right_reflector;
-  Universe corner_reflector;
-  Universe bottom_reflector;
+  Universe* assembly1 = new Universe();
+  Universe* assembly2 = new Universe();
+  Universe* refined_reflector = new Universe();
+  Universe* right_reflector = new Universe();
+  Universe* corner_reflector = new Universe();
+  Universe* bottom_reflector = new Universe();
 
-  assembly1.addCell(&assembly1_cell);
-  assembly2.addCell(&assembly2_cell);
-  refined_reflector.addCell(&refined_reflector_cell);
-  right_reflector.addCell(&right_reflector_cell);
-  corner_reflector.addCell(&corner_reflector_cell);
-  bottom_reflector.addCell(&bottom_reflector_cell);
+  assembly1->addCell(assembly1_cell);
+  assembly2->addCell(assembly2_cell);
+  refined_reflector->addCell(refined_reflector_cell);
+  right_reflector->addCell(right_reflector_cell);
+  corner_reflector->addCell(corner_reflector_cell);
+  bottom_reflector->addCell(bottom_reflector_cell);
 
-  /* Root Cell */
-  Cell root_cell;
-  root_cell.addSurface(+1, &left);
-  root_cell.addSurface(-1, &right);
-  root_cell.addSurface(-1, &top);
-  root_cell.addSurface(+1, &bottom);
+  /* Root Cell* */
+  Cell* root_cell = new Cell(16, "root");
+  root_cell->addSurface(+1, &left);
+  root_cell->addSurface(-1, &right);
+  root_cell->addSurface(-1, &top);
+  root_cell->addSurface(+1, &bottom);
 
-  Universe root_universe;
-  root_universe.addCell(&root_cell);
+  Universe* root_universe = new Universe();
+  root_universe->addCell(root_cell);
 
   /* Create lattices */
   log_printf(NORMAL, "Creating lattices...");
 
   /* Top left, bottom right 17 x 17 assemblies */
-  Lattice assembly1_lattice;
-  assembly1_lattice.setWidth(1.26, 1.26);
+  Lattice* assembly1_lattice = new Lattice();
+  assembly1_lattice->setWidth(1.26, 1.26);
   Universe* matrix1[17*17];
   {
     int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -367,18 +367,18 @@ int main() {
                         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-    std::map<int, Universe*> names = {{1, &uo2}, {2, &guide_tube}, 
-                                      {3, &fission_chamber}};
+    std::map<int, Universe*> names = {{1, uo2}, {2, guide_tube}, 
+                                      {3, fission_chamber}};
     for (int n=0; n<17*17; n++)
       matrix1[n] = names[mold[n]];  
 
-    assembly1_lattice.setUniverses(17, 17, matrix1);
+    assembly1_lattice->setUniverses(17, 17, matrix1);
   }
-  assembly1_cell.setFill(&assembly1_lattice);
+  assembly1_cell->setFill(assembly1_lattice);
 
   /* Top right, bottom left 17 x 17 assemblies */
-  Lattice assembly2_lattice;
-  assembly2_lattice.setWidth(1.26, 1.26);
+  Lattice* assembly2_lattice = new Lattice();
+  assembly2_lattice->setWidth(1.26, 1.26);
   Universe* matrix2[17*17];
   {
     int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -399,86 +399,86 @@ int main() {
                         1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
                         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-    std::map<int, Universe*> names = {{1, &mox43}, {2, &mox7}, {3, &mox87},
-                                      {4, &guide_tube}, {5, &fission_chamber}};
+    std::map<int, Universe*> names = {{1, mox43}, {2, mox7}, {3, mox87},
+                                      {4, guide_tube}, {5, fission_chamber}};
     for (int n=0; n<17*17; n++)
       matrix2[n] = names[mold[n]];  
     
-    assembly2_lattice.setUniverses(17, 17, matrix2);
+    assembly2_lattice->setUniverses(17, 17, matrix2);
   }
-  assembly2_cell.setFill(&assembly2_lattice);
+  assembly2_cell->setFill(assembly2_lattice);
 
   /* Sliced up water cells - semi finely spaced */
-  Lattice refined_ref_lattice;
-  refined_ref_lattice.setWidth(0.126, 0.126);
+  Lattice* refined_ref_lattice = new Lattice();
+  refined_ref_lattice->setWidth(0.126, 0.126);
   Universe* refined_ref_matrix[10*10];
   for (int n=0; n<10*10; n++)
-    refined_ref_matrix[n] = &reflector;
-  refined_ref_lattice.setUniverses(10, 10, refined_ref_matrix);
-  refined_reflector_cell.setFill(&refined_ref_lattice);
+    refined_ref_matrix[n] = reflector;
+  refined_ref_lattice->setUniverses(10, 10, refined_ref_matrix);
+  refined_reflector_cell->setFill(refined_ref_lattice);
 
   /* Sliced up water cells - right side of geometry */
-  Lattice right_ref_lattice;
-  right_ref_lattice.setWidth(1.26, 1.26);
+  Lattice* right_ref_lattice = new Lattice();
+  right_ref_lattice->setWidth(1.26, 1.26);
   Universe* right_ref_matrix[17*17];
   for (int i=0; i<17; i++) {
     for (int j=0; j<17; j++) {
       int index =  17*j + i;
       if (i<11)
-        right_ref_matrix[index] = &refined_reflector;
+        right_ref_matrix[index] = refined_reflector;
       else
-        right_ref_matrix[index] = &reflector;
+        right_ref_matrix[index] = reflector;
     }
   }
-  right_ref_lattice.setUniverses(17, 17, right_ref_matrix);
-  right_reflector_cell.setFill(&right_ref_lattice);
+  right_ref_lattice->setUniverses(17, 17, right_ref_matrix);
+  right_reflector_cell->setFill(right_ref_lattice);
 
   /* Sliced up water cells for bottom corner of geometry */
-  Lattice corner_ref_lattice;
-  corner_ref_lattice.setWidth(1.26, 1.26);
+  Lattice* corner_ref_lattice = new Lattice();
+  corner_ref_lattice->setWidth(1.26, 1.26);
   Universe* corner_ref_matrix[17*17];
   for (int i=0; i<17; i++) {
     for (int j=0; j<17; j++) {
       int index = 17*j + i;
       if (i<11 && j<11)
-        corner_ref_matrix[index] = &refined_reflector;
+        corner_ref_matrix[index] = refined_reflector;
       else
-        corner_ref_matrix[index] = &reflector;
+        corner_ref_matrix[index] = reflector;
     }
   }
-  corner_ref_lattice.setUniverses(17, 17, corner_ref_matrix);
-  corner_reflector_cell.setFill(&corner_ref_lattice);
+  corner_ref_lattice->setUniverses(17, 17, corner_ref_matrix);
+  corner_reflector_cell->setFill(corner_ref_lattice);
 
   /* Sliced up water cells for bottom of geometry */
-  Lattice bottom_ref_lattice;
-  bottom_ref_lattice.setWidth(1.26, 1.26);
+  Lattice* bottom_ref_lattice = new Lattice();
+  bottom_ref_lattice->setWidth(1.26, 1.26);
   Universe* bottom_ref_matrix[17*17];
   for (int i=0; i<17; i++) {
     for (int j=0; j<17; j++) {
       int index = 17*j + i;
       if (j<11)
-        bottom_ref_matrix[index] = &refined_reflector;
+        bottom_ref_matrix[index] = refined_reflector;
       else
-        bottom_ref_matrix[index] = &reflector;
+        bottom_ref_matrix[index] = reflector;
     }
   }
-  bottom_ref_lattice.setUniverses(17, 17, bottom_ref_matrix);
-  bottom_reflector_cell.setFill(&bottom_ref_lattice);
+  bottom_ref_lattice->setUniverses(17, 17, bottom_ref_matrix);
+  bottom_reflector_cell->setFill(bottom_ref_lattice);
 
   /* 4 x 4 core to represent two bundles and water */
-  Lattice full_geometry;
-  full_geometry.setWidth(21.42, 21.42);
+  Lattice* full_geometry = new Lattice();
+  full_geometry->setWidth(21.42, 21.42);
   Universe* universes[] = {
-    &assembly1,         &assembly2,         &right_reflector,
-    &assembly2,         &assembly1,         &right_reflector,
-    &bottom_reflector,  &bottom_reflector,  &corner_reflector}; 
-  full_geometry.setUniverses(3, 3, universes);
-  root_cell.setFill(&full_geometry);
+    assembly1,        assembly2,        right_reflector,
+    assembly2,        assembly1,        right_reflector,
+    bottom_reflector, bottom_reflector, corner_reflector}; 
+  full_geometry->setUniverses(3, 3, universes);
+  root_cell->setFill(full_geometry);
   
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
-  geometry.setRootUniverse(&root_universe);
+  geometry.setRootUniverse(root_universe);
   geometry.initializeFlatSourceRegions();
 
   /* Generate tracks */
