@@ -65,21 +65,6 @@ Universe::~Universe() {
   if (_name != NULL)
     delete [] _name;
 
-  /* Remove all Cells in the Universe */
-  std::map<int, Cell*>::iterator iter;
-  std::cout << "Beginning cell destruction" << std::endl;
-  std::cout << "Number of cells = " << _cells.size() << std::endl; 
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-  {
-    std::cout << "Deleting ID = " << iter->second->getId() << std::endl;
-    std::cout << "Deleting Name = " << iter->second->getName() << std::endl;
-    std::cout << "Deleting UID = " << iter->second->getUid() << std::endl;
-    std::cout << "Deleting Type = " << iter->second->getType() << std::endl;
-    delete iter->second;
-    std::cout << "Deletion complete" << std::endl;
-  }
-  std::cout << "Cell destruction complete" << std::endl;
-
   /* Clear the map of Cells */
   _cells.clear();
 }
