@@ -100,6 +100,30 @@ private:
 
   int computeScalarTrackIndex(int i, int j);
 
+public:
+
+  GPUSolver(TrackGenerator* track_generator=NULL);
+  virtual ~GPUSolver();
+
+  int getNumThreadBlocks();
+
+  /**
+   * @brief Returns the number of threads per block to execute on the GPU.
+   * @return the number of threads per block
+   */
+  int getNumThreadsPerBlock();
+  FP_PRECISION getFSRSource(int fsr_id, int group);
+  FP_PRECISION getFlux(int fsr_id, int group);
+  void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
+
+  void setNumThreadBlocks(int num_blocks);
+  void setNumThreadsPerBlock(int num_threads);
+  void setFixedSourceByFSR(int fsr_id, int group, 
+                           FP_PRECISION source);
+  void setGeometry(Geometry* geometry);
+  void setTrackGenerator(TrackGenerator* track_generator);
+  void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
+
   void initializePolarQuadrature();
   void initializeExpEvaluator();
   void initializeFSRs();
@@ -113,32 +137,12 @@ private:
   void storeFSRFluxes();
   void normalizeFluxes();
   void computeFSRSources();
+  void computeFSRFissionSources();
+  void computeFSRScatterSources();
   void transportSweep();
   void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);
-
-public:
-
-  GPUSolver(TrackGenerator* track_generator=NULL);
-  virtual ~GPUSolver();
-
-  int getNumThreadBlocks();
-
-  /**
-   * @brief Returns the number of threads per block to execute on the GPU.
-   * @return the number of threads per block
-   */
-  int getNumThreadsPerBlock();
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
-  FP_PRECISION getFSRSource(int fsr_id, int group);
-
-  void setNumThreadBlocks(int num_blocks);
-  void setNumThreadsPerBlock(int num_threads);
-  void setFixedSourceByFSR(int fsr_id, int group, 
-                           FP_PRECISION source);
-  void setGeometry(Geometry* geometry);
-  void setTrackGenerator(TrackGenerator* track_generator);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };

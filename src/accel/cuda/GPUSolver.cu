@@ -186,9 +186,108 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
       for (int g=0; g < *num_groups; g++)
         scatter_source += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
 
-      /* Set the fission source for FSR r in group G */
+      /* Set the reduced source for FSR r in group G */
       reduced_sources(tid,G) = fission_source * chi[G];
       reduced_sources(tid,G) += scatter_source + fixed_sources(tid,G);
+      reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
+      reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
+    }
+
+    /* Increment the thread id */
+    tid += blockDim.x * gridDim.x;
+  }
+}
+
+
+/**
+ * @brief Computes the total fission source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
+ * @param FSR_materials an array of FSR Material indices
+ * @param materials an array of dev_material pointers
+ * @param scalar_flux an array of FSR scalar fluxes
+ * @param reduced_sources an array of FSR sources / total xs
+ */
+__global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
+                                                 dev_material* materials,
+                                                 FP_PRECISION* scalar_flux,
+                                                 FP_PRECISION* reduced_sources) {
+
+  int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+  FP_PRECISION fission_source;
+
+  dev_material* curr_material;
+  FP_PRECISION* nu_sigma_f;
+  FP_PRECISION* sigma_t;
+  FP_PRECISION* chi;
+
+  /* Iterate over all FSRs */
+  while (tid < *num_FSRs) {
+
+    curr_material = &materials[FSR_materials[tid]];
+
+    nu_sigma_f = curr_material->_nu_sigma_f;
+    sigma_t = curr_material->_sigma_t;
+    chi = curr_material->_chi;
+
+    /* Initialize the fission source to zero for this FSR */
+    fission_source = 0;
+
+    /* Compute total fission source for current FSR */
+    for (int e=0; e < *num_groups; e++)
+      fission_source += scalar_flux(tid,e) * nu_sigma_f[e];
+
+    /* Set the reduced source for FSR r in each group G */
+    for (int G=0; G < *num_groups; G++) {
+      reduced_sources(tid,G) = fission_source * chi[G];
+      reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
+      reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
+    }
+
+    /* Increment the thread id */
+    tid += blockDim.x * gridDim.x;
+  }
+}
+
+
+/**
+ * @brief Computes the total scattering source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
+ * @param FSR_materials an array of FSR Material indices
+ * @param materials an array of dev_material pointers
+ * @param scalar_flux an array of FSR scalar fluxes
+ * @param reduced_sources an array of FSR sources / total xs
+ */
+__global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
+                                                 dev_material* materials,
+                                                 FP_PRECISION* scalar_flux,
+                                                 FP_PRECISION* reduced_sources) {
+
+  int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+  FP_PRECISION scatter_source;
+
+  dev_material* curr_material;
+  FP_PRECISION* sigma_s;
+  FP_PRECISION* sigma_t;
+
+  /* Iterate over all FSRs */
+  while (tid < *num_FSRs) {
+
+    curr_material = &materials[FSR_materials[tid]];
+
+    sigma_s = curr_material->_sigma_s;
+    sigma_t = curr_material->_sigma_t;
+
+    /* Compute total scattering source for this FSR in group G */
+    for (int G=0; G < *num_groups; G++) {
+      scatter_source = 0;
+
+      for (int g=0; g < *num_groups; g++)
+        scatter_source += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
+
+      /* Set the reduced source for FSR r in group G */
+      reduced_sources(tid,G) = scatter_source;
       reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
     }
@@ -652,38 +751,6 @@ int GPUSolver::getNumThreadsPerBlock() {
 
 
 /**
- * @brief Returns the scalar flux for some FSR and energy group.
- * @param fsr_id the ID for the FSR of interest
- * @param group the energy group of interest
- * @return the FSR scalar flux
- */
-FP_PRECISION GPUSolver::getFSRScalarFlux(int fsr_id, int group) {
-
-  if (fsr_id >= _num_FSRs)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
-               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
-
-  else if (fsr_id < 0)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
-               "since FSRs do not have negative IDs", fsr_id);
-
-  else if (group-1 >= _num_groups)
-    log_printf(ERROR, "Unable to return a scalar flux in group %d "
-               "since there are only %d groups", group, _num_groups);
-
-  else if (group <= 0)
-    log_printf(ERROR, "Unable to return a scalar flux in group %d "
-               "since groups must be greater or equal to 1", group);
-
-  if (_scalar_flux.size() == 0)
-    log_printf(ERROR, "Unable to return a scalar flux "
-               "since it has not yet been computed");
-
-  return _scalar_flux(fsr_id,group-1);
-}
-
-
-/**
  * @brief Returns the source for some energy group for a flat source region
  * @details This is a helper routine used by the openmoc.process module.
  * @param fsr_id the ID for the FSR of interest
@@ -752,6 +819,74 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int group) {
   delete [] fsr_scalar_fluxes;
 
   return total_source;
+}
+
+
+/**
+ * @brief Returns the scalar flux for some FSR and energy group.
+ * @param fsr_id the ID for the FSR of interest
+ * @param group the energy group of interest
+ * @return the FSR scalar flux
+ */
+FP_PRECISION GPUSolver::getFlux(int fsr_id, int group) {
+
+  if (fsr_id >= _num_FSRs)
+    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
+               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
+
+  else if (fsr_id < 0)
+    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
+               "since FSRs do not have negative IDs", fsr_id);
+
+  else if (group-1 >= _num_groups)
+    log_printf(ERROR, "Unable to return a scalar flux in group %d "
+               "since there are only %d groups", group, _num_groups);
+
+  else if (group <= 0)
+    log_printf(ERROR, "Unable to return a scalar flux in group %d "
+               "since groups must be greater or equal to 1", group);
+
+  if (_scalar_flux.size() == 0)
+    log_printf(ERROR, "Unable to return a scalar flux "
+               "since it has not yet been computed");
+
+  return _scalar_flux(fsr_id,group-1);
+}
+
+
+/**
+ * @brief Fills an array with the scalar fluxes on the GPU.
+ * @details This class method is a helper routine called by the OpenMOC
+ *          Python "openmoc.krylov" module for Krylov subspace methods. 
+ *          Although this method appears to require two arguments, in
+ *          reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_fluxes = num_groups * num_FSRs
+ *          fluxes = solver.getFluxes(num_fluxes)
+ * @endcode
+ *
+ * @param fluxes an array of FSR scalar fluxes in each energy group
+ * @param num_fluxes the total number of FSR flux values
+ */
+void GPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
+
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
+               "%d groups and %d FSRs which does not match the requested "
+               "%d flux values", _num_groups, _num_FSRs, num_fluxes);
+
+  else if (_scalar_flux.size() == 0)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since they "
+               "have not yet been allocated on the device");
+
+  FP_PRECISION* scalar_flux = 
+       thrust::raw_pointer_cast(&_scalar_flux[0]);
+
+  /* Copy the fluxes from the GPU to the input array */
+  cudaMemcpy((void*)out_fluxes, (void*)scalar_flux,
+            num_fluxes * sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
 }
 
 
@@ -851,6 +986,45 @@ void GPUSolver::setGeometry(Geometry* geometry) {
 void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
   Solver::setTrackGenerator(track_generator);
   initializeTracks();
+}
+
+
+/**
+ * @brief Set the flux array for use in transport sweep source calculations.
+ * @detail This is a helper method for the checkpoint restart capabilities,
+ *         as well as the IRAMSolver in the openmoc.krylov submodule. This
+ *         routine may be used as follows from within Python:
+ *
+ * @code
+ *          num_FSRs = solver.getGeometry.getNumFSRs()
+ *          num_groups = solver.getGeometry.getNumEnergyGroups()
+ *          fluxes = numpy.random.rand(num_FSRs * num_groups, dtype=np.float)
+ *          solver.setFluxes(fluxes)
+ * @endcode
+ *
+ *          NOTE: This routine stores a pointer to the fluxes for the Solver
+ *          to use during transport sweeps and other calculations. Hence, the 
+ *          flux array pointer is shared between NumPy and the Solver.
+ *
+ * @param in_fluxes an array with the fluxes to use
+ * @param num_fluxes the number of flux values (# groups x # FSRs)
+ */
+void GPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to set an array with %d flux values for %d "
+               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
+
+  /* Allocate array if flux arrays have not yet been initialized */
+  if (_scalar_flux.size() == 0)
+    initializeFluxArrays();
+
+  FP_PRECISION* scalar_flux = 
+       thrust::raw_pointer_cast(&_scalar_flux[0]);
+
+  /* Copy the input fluxes onto the GPU */
+  cudaMemcpy((void*)scalar_flux, (void*)in_fluxes,
+             num_fluxes * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);  
+  _user_fluxes = false;
 }
 
 
@@ -1232,13 +1406,7 @@ void GPUSolver::normalizeFluxes() {
 /**
  * @brief Computes the total source (fission, scattering, fixed) in each FSR.
  * @details This method computes the total source in each FSR based on
- *          this iteration's current approximation to the scalar flux. A
- *          residual for the source with respect to the source compute on
- *          the previous iteration is computed and returned. The residual
- *          is determined as follows:
- *          /f$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum
- *                    \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}
- *                    {\# FSRs \times # groups}}} /f$
+ *          this iteration's current approximation to the scalar flux.
  */
 void GPUSolver::computeFSRSources() {
 
@@ -1252,6 +1420,40 @@ void GPUSolver::computeFSRSources() {
   computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
                                         scalar_flux, fixed_sources,
                                         reduced_sources, 1.0 / _k_eff);
+}
+
+
+/**
+ * @brief Computes the fission source in each FSR.
+ * @details This method computes the fission source in each FSR based on
+ *          this iteration's current approximation to the scalar flux.
+ */
+void GPUSolver::computeFSRFissionSources() {
+
+  FP_PRECISION* scalar_flux = 
+       thrust::raw_pointer_cast(&_scalar_flux[0]);
+  FP_PRECISION* reduced_sources = 
+       thrust::raw_pointer_cast(&_reduced_sources[0]);
+
+  computeFSRFissionSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
+                                               scalar_flux, reduced_sources);
+}
+
+
+/**
+ * @brief Computes the scatter source in each FSR.
+ * @details This method computes the scatter source in each FSR based on
+ *          this iteration's current approximation to the scalar flux.
+ */
+void GPUSolver::computeFSRScatterSources() {
+
+  FP_PRECISION* scalar_flux = 
+       thrust::raw_pointer_cast(&_scalar_flux[0]);
+  FP_PRECISION* reduced_sources = 
+       thrust::raw_pointer_cast(&_reduced_sources[0]);
+
+  computeFSRScatterSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
+                                               scalar_flux, reduced_sources);
 }
 
 

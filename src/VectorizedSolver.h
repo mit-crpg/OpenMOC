@@ -53,15 +53,6 @@ protected:
    *  each thread in each energy group and polar angle */
   FP_PRECISION* _thread_exponentials;
 
-  void initializeExpEvaluator();
-  void initializeFluxArrays();
-  void initializeSourceArrays();
-
-  void normalizeFluxes();
-  void computeFSRSources();
-  void addSourceToScalarFlux();
-  void computeKeff();
-
   void tallyScalarFlux(segment* curr_segment, int azim_index,
                        FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
   void transferBoundaryFlux(int track_id, int azim_index, bool direction,
@@ -74,9 +65,16 @@ public:
 
   int getNumVectorWidths();
 
-  void setFixedSourceByFSR(int fsr_id, int group, 
-                           FP_PRECISION source);
+  void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   void setGeometry(Geometry* geometry);
+
+  void initializeExpEvaluator();
+  void initializeFluxArrays();
+  void initializeSourceArrays();
+  void normalizeFluxes();
+  void computeFSRSources();
+  void addSourceToScalarFlux();
+  void computeKeff();
 };
 
 
