@@ -9,31 +9,13 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 27, 2013
 
+import os
+import re 
+import mmap
 import sys
-
-## @var openmoc
-#  @brief The openmoc module in use in the Python script using the
-#         openmoc.process module.
-openmoc = ''
-
-# Determine which OpenMOC module is being used
-if 'openmoc.gnu.double' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.double']
-elif 'openmoc.gnu.single' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.single']
-elif 'openmoc.intel.double' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.double']
-elif 'openmoc.intel.single' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.single']
-elif 'openmoc.bgq.double' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.double']
-elif 'openmoc.bgq.single' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.single']
-else:
-  import openmoc
-
 import numpy as np
-import os, re, mmap
+
+import openmoc
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -289,7 +271,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     # Get the scalar flux for each FSR and energy group
     for i in range(num_FSRs):
       for j in range(num_groups):
-        scalar_fluxes[i,j] = solver.getFSRScalarFlux(i,j+1)
+        scalar_fluxes[i,j] = solver.getFlux(i,j+1)
 
   # If the user requested to store the FSR sources
   if sources:

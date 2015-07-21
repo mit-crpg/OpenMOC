@@ -38,6 +38,48 @@ int CPUSolver::getNumThreads() {
 
 
 /**
+ * @brief Fills an array with the scalar fluxes.
+ * @details This class method is a helper routine called by the OpenMOC
+ *          Python "openmoc.krylov" module for Krylov subspace methods. 
+ *          Although this method appears to require two arguments, in
+ *          reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_fluxes = num_groups * num_FSRs
+ *          fluxes = solver.getFluxes(num_fluxes)
+ * @endcode
+ *
+ * @param fluxes an array of FSR scalar fluxes in each energy group
+ * @param num_fluxes the total number of FSR flux values
+ */
+void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
+
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
+               "%d groups and %d FSRs which does not match the requested "
+               "%d flux values", _num_groups, _num_FSRs, num_fluxes);
+
+  else if (_scalar_flux == NULL)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since they "
+               "have not yet been allocated");
+
+  /* If the user called setFluxes(...) they already have the flux */
+  if (_user_fluxes && _scalar_flux == out_fluxes)
+    return;
+
+  /* Otherwise, copy the fluxes into the input array */
+  else {
+    #pragma omp parallel for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+      for (int e=0; e < _num_groups; e++)
+        out_fluxes[r*_num_groups+e] = _scalar_flux(r,e);
+    }
+  }
+}
+
+
+/**
  * @brief Sets the number of shared memory OpenMP threads to use (>0).
  * @param num_threads the number of threads
  */
@@ -85,6 +127,39 @@ void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
 
 
 /**
+ * @brief Set the flux array for use in transport sweep source calculations.
+ * @detail This is a helper method for the checkpoint restart capabilities,
+ *         as well as the IRAMSolver in the openmoc.krylov submodule. This
+ *         routine may be used as follows from within Python:
+ *
+ * @code
+ *          fluxes = numpy.random.rand(num_FSRs * num_groups, dtype=np.float)
+ *          solver.setFluxes(fluxes)
+ * @endcode
+ *
+ *          NOTE: This routine stores a pointer to the fluxes for the Solver
+ *          to use during transport sweeps and other calculations. Hence, the 
+ *          flux array pointer is shared between NumPy and the Solver.
+ *
+ * @param in_fluxes an array with the fluxes to use
+ * @param num_fluxes the number of flux values (# groups x # FSRs)
+ */
+void CPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to set an array with %d flux values for %d "
+               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
+
+  /* Allocate array if flux arrays have not yet been initialized */
+  if (_scalar_flux == NULL)
+    initializeFluxArrays();
+
+  /* Set the scalar flux array pointer to the array passed in from NumPy */
+  _scalar_flux = in_fluxes;
+  _user_fluxes = false;
+}
+
+
+/**
  * @brief Initializes the FSR volumes and Materials array.
  * @details This method allocates and initializes an array of OpenMP
  *          mutual exclusion locks for each FSR for use in the
@@ -119,7 +194,7 @@ void CPUSolver::initializeFluxArrays() {
   if (_boundary_leakage != NULL)
     delete [] _boundary_leakage;
 
-  if (_scalar_flux != NULL)
+  if (_scalar_flux != NULL && !_user_fluxes)
     delete [] _scalar_flux;
 
   if (_old_scalar_flux != NULL)
@@ -336,9 +411,8 @@ void CPUSolver::computeFSRSources() {
 }
 
 /**
- * @brief Computes the fission source in each FSR.
- * @details This method computes the fission source in each FSR based on
- *          an input normalized flux vector. For use as a LinearOperator.
+ * @brief Computes the total fission source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
  */
 void CPUSolver::computeFSRFissionSources() {
 
@@ -386,9 +460,8 @@ void CPUSolver::computeFSRFissionSources() {
 }
 
 /**
- * @brief Computes the fission source in each FSR.
- * @details This method computes the scatter source in each FSR based on
- *          an input normalized flux vector.  For use as a LinearOperator.
+ * @brief Computes the total scattering source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
  */
 void CPUSolver::computeFSRScatterSources() {
 
@@ -417,7 +490,7 @@ void CPUSolver::computeFSRScatterSources() {
       scatter_source = pairwise_sum<FP_PRECISION>(&scatter_sources(tid,0),
                                                 _num_groups);
 
-      _reduced_sources(r,G) = scatter_source + _fixed_sources(r,G);
+      _reduced_sources(r,G) = scatter_source;
       _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
     }
   }
@@ -893,118 +966,3 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
       fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e);
   }
 }
-
-/**
- * @brief Computes the M (as in kAx = Mx) operator given an input flux 
- *        vector. For use in Krylov subspace methods.
- *
- * @param flux an array to store the fluxs (implicitly 
- *                      passed in as a NumPy array from Python)
- * @param fluxpoints the number of flux values passed in from Python
- */
-void CPUSolver::fissionTransportSweep(double* flux, int fluxpoints) {
-  
-  for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r,e) = _scalar_flux_input(r,e);
-    }
-  }
-  
-  computeFSRFissionSources();
-  transportSweep();
-  addSourceToScalarFlux();
-  
-  for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
-      _scalar_flux_input(r,e) = _scalar_flux(r,e);
-    }
-  }
-  
-  return;  
-}
-
-/**
- * @brief Computes the S (as in k(I - S)x = Mx, (I-S) = A) operator given
- *        an input flux vector.  For use in Krylov subspace methods.
- *
- * @param flux an array to store the fluxs (implicitly 
- *                      passed in as a NumPy array from Python)
- * @param fluxpoints the number of flux values passed in from Python
- */
-void CPUSolver::scatterTransportSweep(double* flux, int fluxpoints) {
-  
-  for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r,e) = _scalar_flux_input(r,e);
-    }
-  }
-  
-  computeFSRScatterSources();
-  transportSweep();
-  addSourceToScalarFlux();
-  
-  for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
-      _scalar_flux_input(r,e) = _scalar_flux(r,e);
-    }
-  }
-  
-  return;  
-}
-
-/**
- * @brief SWIG helper function to return the operator size for Krylov-based
- *        solvers.
- *
- * @return The number of FSRs times the number of groups.
- */
-int CPUSolver::getOperatorSize() {
-  return _num_FSRs * _num_groups;
-}
-
-/**
- * @brief Initializes memory for Krylov methods that would normally be 
- *        initialized by computeFlux.
- */
-void CPUSolver::initializeMemory() {
-
-  if (_track_generator == NULL)
-    log_printf(ERROR, "The Solver is unable to compute the flux "
-               "since it does not contain a TrackGenerator");
-
-  log_printf(NORMAL, "Initializing problem...");
-
-  /* Initialize data structures */
-  initializePolarQuadrature();
-  initializeExpEvaluator();
-
-  /* Initialize new flux arrays */
-  initializeFluxArrays();
-  flattenFSRFluxes(0.0);
-
-  initializeSourceArrays();
-  initializeFSRs();
-  countFissionableFSRs();
-  zeroTrackFluxes();
-}
-
-/**
- * @brief Inserts a flux into memory for plotting.  Useful for Krylov methods.
- *
- * @param flux an array to store the fluxs (implicitly 
- *                      passed in as a NumPy array from Python)
- * @param fluxpoints the number of flux values passed in from Python
- */
-void CPUSolver::putFlux(double* flux, int fluxpoints) {
-  
-  // Copy in flux.
-  for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r,e) = _scalar_flux_input(r,e);
-    }
-  }
-  
-  return;  
-}
-
-

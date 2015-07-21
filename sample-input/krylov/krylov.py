@@ -1,8 +1,10 @@
 from openmoc import *
+from openmoc.krylov import IRAMSolver
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
 from openmoc.options import Options
+import numpy as np
 
 
 ###############################################################################
@@ -16,10 +18,11 @@ track_spacing = options.getTrackSpacing()
 num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
+num_modes = 5
 
 log.set_log_level('NORMAL')
 
-log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
+log.py_printf('TITLE', 'Computing %d eigenmodes', num_modes)
 
 
 ###############################################################################
@@ -28,7 +31,7 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../../c5g7-materials.h5')
+materials = materialize.materialize('../c5g7-materials.h5')
 
 
 ###############################################################################
@@ -154,48 +157,48 @@ guide_tube.addCell(moderator_ring2)
 guide_tube.addCell(moderator_ring3)
 
 # Reflector
-reflector_cell = Cell(name='moderator')
-reflector_cell.setFill(materials['Water'])
+refl_cell = Cell(name='moderator')
+refl_cell.setFill(materials['Water'])
 
 reflector = Universe(name='Reflector')
-reflector.addCell(reflector_cell)
+reflector.addCell(refl_cell)
 
 # Cells
 assembly1_cell = Cell(name='Assembly 1')
 assembly2_cell = Cell(name='Assembly 2')
-refined_reflector_cell = Cell(name='Semi-Finely Spaced Reflector')
-right_reflector_cell = Cell(name='Right Reflector')
-left_reflector_cell = Cell(name='Left Reflector')
-bottom_right_corner_reflector_cell = Cell(name='Bottom Right Corner Reflector')
-top_right_corner_reflector_cell = Cell(name='Top Right Corner Reflector')
-bottom_left_corner_reflector_cell = Cell(name='Bottom Left Corner Reflector')
-top_left_corner_reflector_cell = Cell(name='Top Left Corner Reflector')
-bottom_reflector_cell = Cell(name='Bottom Reflector')
-top_reflector_cell = Cell(name='Top Reflector')
+refined_refl_cell = Cell(name='Semi-Finely Spaced Reflector')
+right_refl_cell = Cell(name='Right Reflector')
+left_refl_cell = Cell(name='Left Reflector')
+bot_right_refl_cell = Cell(name='Bottom Right Corner Reflector')
+top_right_refl_cell = Cell(name='Top Right Corner Reflector')
+bot_left_refl_cell = Cell(name='Bottom Left Corner Reflector')
+top_left_refl_cell = Cell(name='Top Left Corner Reflector')
+bot_refl_cell = Cell(name='Bottom Reflector')
+top_refl_cell = Cell(name='Top Reflector')
 
 assembly1 = Universe(name='Assembly 1')
 assembly2 = Universe(name='Assembly 2')
-refined_reflector = Universe(name='Semi-Finely Spaced Moderator')
-right_reflector = Universe(name='Right Reflector')
-left_reflector = Universe(name='Left Reflector')
-bottom_right_corner_reflector = Universe(name='Bottom Right Corner Reflector')
-top_right_corner_reflector = Universe(name='Top Right Corner Reflector')
-bottom_left_corner_reflector = Universe(name='Bottom Left Corner Reflector')
-top_left_corner_reflector = Universe(name='Top Left Corner Reflector')
-bottom_reflector = Universe(name='Bottom Reflector')
-top_reflector = Universe(name='Top Reflector')
+refined_refl = Universe(name='Semi-Finely Spaced Moderator')
+right_refl = Universe(name='Right Reflector')
+left_refl = Universe(name='Left Reflector')
+bot_right_refl = Universe(name='Bottom Right Corner Reflector')
+top_right_refl = Universe(name='Top Right Corner Reflector')
+bot_left_refl = Universe(name='Bottom Left Corner Reflector')
+top_left_refl = Universe(name='Top Left Corner Reflector')
+bot_refl = Universe(name='Bottom Reflector')
+top_refl = Universe(name='Top Reflector')
 
 assembly1.addCell(assembly1_cell)
 assembly2.addCell(assembly2_cell)
-refined_reflector.addCell(refined_reflector_cell)
-right_reflector.addCell(right_reflector_cell)
-left_reflector.addCell(left_reflector_cell)
-bottom_right_corner_reflector.addCell(bottom_right_corner_reflector_cell)
-top_right_corner_reflector.addCell(top_right_corner_reflector_cell)
-bottom_left_corner_reflector.addCell(bottom_left_corner_reflector_cell)
-top_left_corner_reflector.addCell(top_left_corner_reflector_cell)
-bottom_reflector.addCell(bottom_reflector_cell)
-top_reflector.addCell(top_reflector_cell)
+refined_refl.addCell(refined_refl_cell)
+right_refl.addCell(right_refl_cell)
+left_refl.addCell(left_refl_cell)
+bot_right_refl.addCell(bot_right_refl_cell)
+top_right_refl.addCell(top_right_refl_cell)
+bot_left_refl.addCell(bot_left_refl_cell)
+top_left_refl.addCell(top_left_refl_cell)
+bot_refl.addCell(bot_refl_cell)
+top_refl.addCell(top_refl_cell)
 
 # Root Cell/Universe
 root_cell = Cell(name='Full Geometry')
@@ -277,80 +280,81 @@ lattices.append(Lattice(name='Semi-Finely Spaced Reflector'))
 lattices[-1].setWidth(width_x=0.126, width_y=0.126)
 template = [[reflector] * 10] * 10
 lattices[-1].setUniverses(template)
-refined_reflector_cell.setFill(lattices[-1])
+refined_refl_cell.setFill(lattices[-1])
 
 # Sliced up water cells - right side of geometry
 lattices.append(Lattice(name='Right Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
-template = [[refined_reflector] * 11 + [reflector] * 6] * 17
+template = [[refined_refl] * 11 + [reflector] * 6] * 17
 lattices[-1].setUniverses(template)
-right_reflector_cell.setFill(lattices[-1])
+right_refl_cell.setFill(lattices[-1])
 
 # Sliced up water cells - right side of geometry
 lattices.append(Lattice(name='Left Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
-template = [[reflector] * 6 +  [refined_reflector] * 11] * 17
+template = [[reflector] * 6 +  [refined_refl] * 11] * 17
 lattices[-1].setUniverses(template)
-left_reflector_cell.setFill(lattices[-1])
+left_refl_cell.setFill(lattices[-1])
 
 # Sliced up water cells for bottom corner of geometry
 lattices.append(Lattice(name='Bottom Right Corner Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
-template = [[refined_reflector] * 11 + [reflector] * 6] * 11
+template = [[refined_refl] * 11 + [reflector] * 6] * 11
 template += [[reflector] * 17] * 6
 lattices[-1].setUniverses(template)
-bottom_right_corner_reflector_cell.setFill(lattices[-1])
+bot_right_refl_cell.setFill(lattices[-1])
 
 # Sliced up water cells for bottom corner of geometry
 lattices.append(Lattice(name='Top Right Corner Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
 template = [[reflector] * 17] * 6
-template += [[refined_reflector] * 11 + [reflector] * 6] * 11
+template += [[refined_refl] * 11 + [reflector] * 6] * 11
 lattices[-1].setUniverses(template)
-top_right_corner_reflector_cell.setFill(lattices[-1])
+top_right_refl_cell.setFill(lattices[-1])
 
 # Sliced up water cells for bottom corner of geometry
 lattices.append(Lattice(name='Bottom Left Corner Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
-template = [[reflector] * 6 + [refined_reflector] * 11] * 11
+template = [[reflector] * 6 + [refined_refl] * 11] * 11
 template += [[reflector] * 17] * 6
 lattices[-1].setUniverses(template)
-bottom_left_corner_reflector_cell.setFill(lattices[-1])
+bot_left_refl_cell.setFill(lattices[-1])
 
 # Sliced up water cells for bottom corner of geometry
 lattices.append(Lattice(name='Top Left Corner Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
 template = [[reflector] * 17] * 6
-template += [[reflector] * 6 + [refined_reflector] * 11] * 11
+template += [[reflector] * 6 + [refined_refl] * 11] * 11
 lattices[-1].setUniverses(template)
-top_left_corner_reflector_cell.setFill(lattices[-1])
+top_left_refl_cell.setFill(lattices[-1])
 
 # Sliced up water cells for bottom of geometry
 lattices.append(Lattice(name='Bottom Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
-template = [[refined_reflector] * 17] * 11
+template = [[refined_refl] * 17] * 11
 template += [[reflector] * 17] * 6
 lattices[-1].setUniverses(template)
-bottom_reflector_cell.setFill(lattices[-1])
+bot_refl_cell.setFill(lattices[-1])
 
 # Sliced up water cells for top of geometry
 lattices.append(Lattice(name='Top Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
 template = [[reflector] * 17] * 6
-template += [[refined_reflector] * 17] * 11
+template += [[refined_refl] * 17] * 11
 lattices[-1].setUniverses(template)
-top_reflector_cell.setFill(lattices[-1])
+top_refl_cell.setFill(lattices[-1])
 
 # 4 x 4 core to represent two bundles and water
 lattices.append(Lattice(name='Full Geometry'))
 lattices[-1].setWidth(width_x=21.42, width_y=21.42)
+
 lattices[-1].setUniverses([
-     [top_left_corner_reflector   , top_reflector   , top_reflector   , top_reflector   , top_reflector   , top_right_corner_reflector    ],
-     [left_reflector              , assembly1       , assembly2       , assembly2       , assembly1       , right_reflector               ],
-     [left_reflector              , assembly2       , assembly1       , assembly1       , assembly2       , right_reflector               ],
-     [left_reflector              , assembly2       , assembly1       , assembly1       , assembly2       , right_reflector               ],
-     [left_reflector              , assembly1       , assembly2       , assembly2       , assembly1       , right_reflector               ],
-     [bottom_left_corner_reflector, bottom_reflector, bottom_reflector, bottom_reflector, bottom_reflector, bottom_right_corner_reflector]])
+  [top_left_refl, top_refl,  top_refl,  top_refl,  top_refl,  top_right_refl],
+  [left_refl,     assembly1, assembly2, assembly2, assembly1, right_refl    ],
+  [left_refl,     assembly2, assembly1, assembly1, assembly2, right_refl    ],
+  [left_refl,     assembly2, assembly1, assembly1, assembly2, right_refl    ],
+  [left_refl,     assembly1, assembly2, assembly2, assembly1, right_refl    ],
+  [bot_left_refl, bot_refl,  bot_refl,  bot_refl,  bot_refl,  bot_right_refl]])
 root_cell.setFill(lattices[-1])
 
 
@@ -380,12 +384,18 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-solver = CPUSolver(track_generator)
-solver.setConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.computeEigenvalue(max_iters)
-solver.printTimerReport()
+# Initialize a CPUSolver to perform fixed source calculations
+cpu_solver = CPUSolver(track_generator)
+cpu_solver.setNumThreads(num_threads)
 
+# Initialize IRAMSolver to perform eigenmode calculation
+iram_solver = IRAMSolver(cpu_solver)
+iram_solver.computeEigenmodes(num_modes=num_modes)
+
+# Report the eigenvalues to the user
+eigenvalues = iram_solver._eigenvalues
+log.py_printf('RESULT', 'The eigenvalues are: %s', str(eigenvalues))
+        
 
 ###############################################################################
 #                             Generating Plots
@@ -396,6 +406,6 @@ log.py_printf('NORMAL', 'Plotting data...')
 plotter.plot_materials(geometry, gridsize=500)
 plotter.plot_cells(geometry, gridsize=500)
 plotter.plot_flat_source_regions(geometry, gridsize=500)
-plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+plotter.plot_eigenmode_fluxes(iram_solver, gridsize=250)
 
 log.py_printf('TITLE', 'Finished')
