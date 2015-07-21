@@ -39,10 +39,6 @@
  * openmoc.process */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* fission_rates, int num_FSRs)}
 
-
-/* The typemap used to match the method signature for the krylov methods */
-%apply (double* INPLACE_ARRAY1, int DIM1) {(double* flux, int fluxpoints)}
-
 /* The typemap used to match the method signature for the Universe's
  * getCellIds method for the data processing routines in openmoc.process */
 %apply (int* ARGOUT_ARRAY1, int DIM1) {(int* cell_ids, int num_cells)}
