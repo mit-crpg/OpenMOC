@@ -918,11 +918,13 @@ std::map<int, Universe*> Lattice::getUniqueUniverses() {
 
   std::map<int, Universe*> unique_universes;
   Universe* universe;
+  int univ_id;
 
   for (int i = _num_y-1; i > -1;  i--) {
     for (int j = 0; j < _num_x; j++) {
+      univ_id = _universes.at(i).at(j).first;
       universe = _universes.at(i).at(j).second;
-      unique_universes[universe->getId()] = universe;
+      unique_universes[univ_id] = universe;
     }
   }
 
