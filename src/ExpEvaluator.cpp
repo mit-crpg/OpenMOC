@@ -190,8 +190,8 @@ void ExpEvaluator::initialize() {
   FP_PRECISION sin_theta;
 
   /* Create exponential linear interpolation table */
-  for (int i=0; i < num_array_values; i++){
-    for (int p=0; p < num_polar; p++){
+  for (int i=0; i < num_array_values; i++) {
+    for (int p=0; p < num_polar; p++) {
       sin_theta = _polar_quad->getSinTheta(p);
       expon = exp(- (i * exp_table_spacing) / sin_theta);
       slope = - expon / sin_theta;
