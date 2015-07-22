@@ -1173,11 +1173,13 @@ void GPUSolver::zeroTrackFluxes() {
 
 
 /**
- * @brief Set the FSR scalar flux for each energy group to some value.
+ * @brief Set both the current and old scalar flux for each FSR and
+ *        energy group to some value.
  * @param value the value to assign to each FSR scalar flux
  */
 void GPUSolver::flattenFSRFluxes(FP_PRECISION value) {
   thrust::fill(_scalar_flux.begin(), _scalar_flux.end(), value);
+  thrust::fill(_old_scalar_flux.begin(), _old_scalar_flux.end(), value);
 }
 
 

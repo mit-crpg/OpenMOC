@@ -190,15 +190,18 @@ void CPUSolver::zeroTrackFluxes() {
 
 
 /**
- * @brief Set the scalar flux for each FSR and energy group to some value.
+ * @brief Set both the current and old scalar flux for each FSR and
+ *        energy group to some value.
  * @param value the value to assign to each FSR scalar flux
  */
 void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 
   #pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r,e) = value;
+      _old_scalar_flux(r,e) = value;
+    }
   }
 }
 
@@ -617,7 +620,7 @@ void CPUSolver::transportSweep() {
         tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
         tallySurfaceCurrent(curr_segment, azim_index, track_flux, false);
       }
-      delete thread_fsr_flux;
+      delete [] thread_fsr_flux;
 
       /* Transfer boundary angular flux to outgoing Track */
       transferBoundaryFlux(track_id, azim_index, false, track_flux);
