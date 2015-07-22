@@ -617,7 +617,7 @@ void CPUSolver::transportSweep() {
         tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
         tallySurfaceCurrent(curr_segment, azim_index, track_flux, false);
       }
-      delete thread_fsr_flux;
+      delete [] thread_fsr_flux;
 
       /* Transfer boundary angular flux to outgoing Track */
       transferBoundaryFlux(track_id, azim_index, false, track_flux);
