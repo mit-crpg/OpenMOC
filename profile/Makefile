@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = ibm
+COMPILER    = bluegene
 MPI         = no
 OPENMP      = yes
 OPTIMIZE    = yes
@@ -48,46 +48,36 @@ c5g7/c5g7-cmfd.cpp
 # Sets Flags
 #===============================================================================
 
-# Standard Flags
-ifeq ($(COMPILER),ibm)
-  CFLAGS += -std=gnu++0x
-else
-  CFLAGS += -std=c++11
-endif
-
 # Linker Flags
 LDFLAGS = -lm
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),gnu)
   CC = g++
-  CFLAGS += -DGNU
+  CFLAGS += -DGNU -std=c++11
 endif
 
 # intel Compiler
 ifeq ($(COMPILER),intel)
   CC = icpc
   source += VectorizedSolver.cpp
-  CFLAGS += -DINTEL
+  CFLAGS += -DINTEL -std=c++11
   CFLAGS += -I/opt/intel/composer_xe_2013_sp1.3.174/mkl/include
   LDFLAGS += -mkl
 endif
 
-# IBM XL Compiler
-ifeq ($(COMPILER),ibm)
-  CC = mpic++
-  CFLAGS += -DIBM
-endif
-
 # BG/Q gcc Cross-Compiler
-ifeq ($(MACHINE),bluegene)
-  CC = bgxlc++
+# Note: make sure to set +mpiwrapper-gcc in your .soft file,
+# as we only support the gcc cross-compiler wrapper
+ifeq ($(COMPILER),bluegene)
+  CC = mpic++
+  CFLAGS += -DGNU -std=gnu++0x
 endif
 
 # Clang Compiler
 ifeq ($(COMPILER),clang)
   CC = clang
-  CFLAGS += -DCLANG 
+  CFLAGS += -DCLANG -std=c++11
   CFLAGS += -Qunused-arguments 
   CFLAGS += -Wno-deprecated-register -Wno-parentheses-equality
 endif
@@ -125,15 +115,14 @@ CFLAGS += -DVEC_ALIGNMENT=16
 # Optimization Flags
 ifeq ($(OPTIMIZE),yes)
 ifeq ($(COMPILER),gnu)
-  CFLAGS += -Ofast -ffast-math -ftree-vectorize -msse2
+  CFLAGS += -O3 -ffast-math -fpic
 endif
 ifeq ($(COMPILER),intel)
   CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
 endif
 # XL compiler not compatible at the moment, use gcc flags
-ifeq ($(COMPILER),ibm)
-  CFLAGS += -O3 -ffast-math -ftree-vectorize
-#  CFLAGS += -O5 -qhot -qsimd=auto -qalias=ansi:allptrs -qarch=qp
+ifeq ($(COMPILER),bluegene)
+  CFLAGS += -O3 -ffast-math -fpic
 endif
 ifeq ($(COMPILER),clang)
   CFLAGS += -O3 -ffast-math -fvectorize
@@ -157,6 +146,9 @@ endif
 # OpenMP
 ifeq ($(OPENMP),yes)
 ifeq ($(COMPILER), gnu)
+  CFLAGS += -fopenmp
+endif
+ifeq ($(COMPILER), bluegene)
   CFLAGS += -fopenmp
 endif
 ifeq ($(COMPILER), intel)
