@@ -155,7 +155,7 @@ void CPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
 
   /* Set the scalar flux array pointer to the array passed in from NumPy */
   _scalar_flux = in_fluxes;
-  _user_fluxes = false;
+  _user_fluxes = true;
 }
 
 

@@ -1024,7 +1024,7 @@ void GPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
   /* Copy the input fluxes onto the GPU */
   cudaMemcpy((void*)scalar_flux, (void*)in_fluxes,
              num_fluxes * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);  
-  _user_fluxes = false;
+  _user_fluxes = true;
 }
 
 
