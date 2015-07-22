@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = intel
+COMPILER    = clang
 MPI         = no
 OPENMP      = yes
 OPTIMIZE    = yes
@@ -66,10 +66,13 @@ endif
 
 # Clang Compiler
 ifeq ($(COMPILER),clang)
-  CC = clang
+  CC = clang++
   CFLAGS += -DCLANG
-  CFLAGS += -Qunused-arguments 
-  CFLAGS += -Wno-deprecated-register -Wno-parentheses-equality
+endif
+
+# NVIDIA Compiler
+ifeq ($(COMPILER),nvidia)
+  CC = nvcc
 endif
 
 # BG/Q gcc Cross-Compiler
@@ -122,7 +125,7 @@ ifeq ($(COMPILER),bluegene)
   CFLAGS += -O3 -ffast-math -fpic
 endif
 ifeq ($(COMPILER),clang)
-  CFLAGS += -O3 -ffast-math -fvectorize
+  CFLAGS += -O3 -ffast-math -fvectorize -fpic
 endif
 endif
 
