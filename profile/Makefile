@@ -66,20 +66,20 @@ ifeq ($(COMPILER),intel)
   LDFLAGS += -mkl
 endif
 
-# BG/Q gcc Cross-Compiler
-# Note: make sure to set +mpiwrapper-gcc in your .soft file,
-# as we only support the gcc cross-compiler wrapper
-ifeq ($(COMPILER),bluegene)
-  CC = mpic++
-  CFLAGS += -DGNU -std=gnu++0x
-endif
-
 # Clang Compiler
 ifeq ($(COMPILER),clang)
   CC = clang
   CFLAGS += -DCLANG -std=c++11
   CFLAGS += -Qunused-arguments 
   CFLAGS += -Wno-deprecated-register -Wno-parentheses-equality
+endif
+
+# BG/Q gcc Cross-Compiler
+# Note: make sure to set +mpiwrapper-gcc in your .soft file,
+# as we only support the gcc cross-compiler wrapper
+ifeq ($(COMPILER),bluegene)
+  CC = mpic++
+  CFLAGS += -DGNU -std=gnu++0x
 endif
 
 # Debug Flags
@@ -120,7 +120,6 @@ endif
 ifeq ($(COMPILER),intel)
   CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
 endif
-# XL compiler not compatible at the moment, use gcc flags
 ifeq ($(COMPILER),bluegene)
   CFLAGS += -O3 -ffast-math -fpic
 endif
@@ -153,10 +152,6 @@ ifeq ($(COMPILER), bluegene)
 endif
 ifeq ($(COMPILER), intel)
   CFLAGS += -openmp
-endif
-ifeq ($(COMPILER), ibm)
-  #CFLAGS += -qsmp
-  CFLAGS += -fopenmp
 endif
 ifeq ($(COMPILER), clang)
   CFLAGS += -fopenmp
