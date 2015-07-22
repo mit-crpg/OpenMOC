@@ -135,6 +135,9 @@ void CPUSolver::initializeFluxArrays() {
     size = _num_FSRs * _num_groups;
     _scalar_flux = new FP_PRECISION[size];
     _old_scalar_flux = new FP_PRECISION[size];
+    
+    /* Set the old scalar flux to zero */
+    memset(_old_scalar_flux, 0.0, sizeof(FP_PRECISION) * size);
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the fluxes");
