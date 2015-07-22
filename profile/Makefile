@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = clang
+COMPILER    = gnu
 MPI         = no
 OPENMP      = yes
 OPTIMIZE    = yes
@@ -68,11 +68,6 @@ endif
 ifeq ($(COMPILER),clang)
   CC = clang++
   CFLAGS += -DCLANG
-endif
-
-# NVIDIA Compiler
-ifeq ($(COMPILER),nvidia)
-  CC = nvcc
 endif
 
 # BG/Q gcc Cross-Compiler
