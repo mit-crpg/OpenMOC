@@ -761,6 +761,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
           fluxes[index,j,i] = solver.getFSRScalarFlux(fsr_id, group)
 
   # Loop over all energy group and create a plot
+  print fluxes
   for index, group in enumerate(energy_groups):
 
     # Plot a 2D color map of the flat source regions
