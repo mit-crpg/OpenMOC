@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = ibm
 MPI         = no
 OPENMP      = yes
 OPTIMIZE    = yes
@@ -49,7 +49,11 @@ c5g7/c5g7-cmfd.cpp
 #===============================================================================
 
 # Standard Flags
-CFLAGS := -std=c++11
+ifeq ($(COMPILER),ibm)
+  CFLAGS += -std=gnu++0x
+else
+  CFLAGS += -std=c++11
+endif
 
 # Linker Flags
 LDFLAGS = -lm
@@ -126,8 +130,10 @@ endif
 ifeq ($(COMPILER),intel)
   CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
 endif
+# XL compiler not compatible at the moment, use gcc flags
 ifeq ($(COMPILER),ibm)
-  CFLAGS += -O5 -qhot -qsimd=auto -qalias=ansi:allptrs -qarch=qp
+  CFLAGS += -O3 -ffast-math -ftree-vectorize
+#  CFLAGS += -O5 -qhot -qsimd=auto -qalias=ansi:allptrs -qarch=qp
 endif
 ifeq ($(COMPILER),clang)
   CFLAGS += -O3 -ffast-math -fvectorize
@@ -157,7 +163,8 @@ ifeq ($(COMPILER), intel)
   CFLAGS += -openmp
 endif
 ifeq ($(COMPILER), ibm)
-  CFLAGS += -qsmp
+  #CFLAGS += -qsmp
+  CFLAGS += -fopenmp
 endif
 ifeq ($(COMPILER), clang)
   CFLAGS += -fopenmp
