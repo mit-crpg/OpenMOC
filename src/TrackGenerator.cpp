@@ -1344,7 +1344,7 @@ bool TrackGenerator::readTracksFromFile() {
   for (int i=0; i < _num_azim; i++)
     _azim_weights[i] = azim_weights[i];
 
-  free(azim_weights);
+  delete [] azim_weights;
 
   Track* curr_track;
   double x0, y0, x1, y1;

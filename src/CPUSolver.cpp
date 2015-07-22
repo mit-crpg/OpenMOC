@@ -190,15 +190,18 @@ void CPUSolver::zeroTrackFluxes() {
 
 
 /**
- * @brief Set the scalar flux for each FSR and energy group to some value.
+ * @brief Set both the current and old scalar flux for each FSR and
+ *        energy group to some value.
  * @param value the value to assign to each FSR scalar flux
  */
 void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 
   #pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r,e) = value;
+      _old_scalar_flux(r,e) = value;
+    }
   }
 }
 
