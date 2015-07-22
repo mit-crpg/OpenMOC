@@ -180,16 +180,16 @@ default: folder $(addsuffix .o, $(program)) $(program)
 $(programs): $(obj)  $(headers)
 	$(CC) $(CFLAGS) $(obj) $(addsuffix .o, $@) -o $@ $(LDFLAGS)
 
-obj/%.o: ../src/%.cpp
+obj/%.o: ../src/%.cpp Makefile
 	$(CC) $(CFLAGS) -c $< -o $@
 
-models/%.o: models/%.cpp
+models/%.o: models/%.cpp Makefile
 	$(CC) $(CFLAGS) -c $< -o $@
 
 folder:
 	mkdir -p obj
 
-all: folder $(addsuffix .o, $(programs)) $(programs) 
+all: folder $(addsuffix .o, $(programs)) $(programs)
 
 clean:
 	rm -rf $(programs) $(obj) $(addsuffix .o, $(programs))
