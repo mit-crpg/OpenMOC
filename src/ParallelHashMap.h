@@ -135,7 +135,7 @@ template <class K, class V>
 FixedHashMap<K,V>::FixedHashMap(size_t M)
 {
   /* ensure M is a power of 2 */
-  if (M & (M-1) != 0)
+  if ((M & (M-1)) != 0)
   {
     /* if not, round up to nearest power of 2 */
     M--;

@@ -16,7 +16,6 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-#case = homogeneous/homogeneous-one-group.cpp
 case = c5g7/c5g7-cmfd.cpp
 
 source = \
@@ -48,20 +47,19 @@ c5g7/c5g7-cmfd.cpp
 # Sets Flags
 #===============================================================================
 
-# Linker Flags
-LDFLAGS = -lm
+CFLAGS = -std=gnu++0x
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),gnu)
   CC = g++
-  CFLAGS += -DGNU -std=c++11
+  CFLAGS += -DGNU
 endif
 
 # intel Compiler
 ifeq ($(COMPILER),intel)
   CC = icpc
   source += VectorizedSolver.cpp
-  CFLAGS += -DINTEL -std=c++11
+  CFLAGS += -DINTEL
   CFLAGS += -I/opt/intel/composer_xe_2013_sp1.3.174/mkl/include
   LDFLAGS += -mkl
 endif
@@ -69,7 +67,7 @@ endif
 # Clang Compiler
 ifeq ($(COMPILER),clang)
   CC = clang
-  CFLAGS += -DCLANG -std=c++11
+  CFLAGS += -DCLANG
   CFLAGS += -Qunused-arguments 
   CFLAGS += -Wno-deprecated-register -Wno-parentheses-equality
 endif
@@ -79,7 +77,7 @@ endif
 # as we only support the gcc cross-compiler wrapper
 ifeq ($(COMPILER),bluegene)
   CC = mpic++
-  CFLAGS += -DGNU -std=gnu++0x
+  CFLAGS += -DGNU
 endif
 
 # Debug Flags
