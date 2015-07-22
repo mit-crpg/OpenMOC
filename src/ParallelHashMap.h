@@ -135,7 +135,7 @@ template <class K, class V>
 FixedHashMap<K,V>::FixedHashMap(size_t M)
 {
   /* ensure M is a power of 2 */
-  if (M & (M-1) != 0)
+  if ((M & (M-1)) != 0)
   {
     /* if not, round up to nearest power of 2 */
     M--;
@@ -257,7 +257,7 @@ void FixedHashMap<K,V>::insert(K key, V value)
   *iter_node = new_node;
   
   /* increment counter */
-  #pragma omp atomic update
+  #pragma omp atomic
   _N++;
 }
 
@@ -295,8 +295,10 @@ int FixedHashMap<K,V>::insert_and_get_count(K key, V value)
   
   /* increment counter and return number */
   size_t N;
-  #pragma omp atomic capture
-  N = _N++;
+  #pragma omp critical (node_incr)
+  {
+      N = _N++;
+  }
 
   return (int) N;
 }

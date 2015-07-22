@@ -11,7 +11,9 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Track.h"
 #include "Geometry.h"
 #include <iostream>
