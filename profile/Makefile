@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = bluegene
+COMPILER    = intel
 MPI         = no
 OPENMP      = yes
 OPTIMIZE    = yes
