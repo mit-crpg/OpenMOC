@@ -69,7 +69,7 @@ Solver::~Solver() {
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
 
-  if (_scalar_flux != NULL)
+  if (_scalar_flux != NULL && !_user_fluxes)
     delete [] _scalar_flux;
 
   if (_old_scalar_flux != NULL)
