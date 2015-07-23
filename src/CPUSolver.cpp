@@ -190,8 +190,7 @@ void CPUSolver::zeroTrackFluxes() {
 
 
 /**
- * @brief Set both the current and old scalar flux for each FSR and
- *        energy group to some value.
+ * @brief Set the scalar flux for each FSR and energy group to some value.
  * @param value the value to assign to each FSR scalar flux
  */
 void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
