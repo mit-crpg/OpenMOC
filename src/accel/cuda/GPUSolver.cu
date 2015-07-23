@@ -1179,7 +1179,6 @@ void GPUSolver::zeroTrackFluxes() {
  */
 void GPUSolver::flattenFSRFluxes(FP_PRECISION value) {
   thrust::fill(_scalar_flux.begin(), _scalar_flux.end(), value);
-  thrust::fill(_old_scalar_flux.begin(), _old_scalar_flux.end(), value);
 }
 
 
