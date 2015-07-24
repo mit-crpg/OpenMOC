@@ -222,20 +222,22 @@ void Surface::printString() {
 
 /**
  * @brief Constructor.
- * @param A the first coefficient in \f$ A * x + B * y + C = 0 \f$
- * @param B the second coefficient in \f$ A * x + B * y + C = 0 \f$
- * @param C the third coefficient in \f$ A * x + B * y + C = 0 \f$
+ * @param A the first coefficient in \f$ A * x + B * y + C * z + D = 0 \f$
+ * @param B the second coefficient in \f$ A * x + B * y + C * z + D = 0 \f$
+ * @param C the third coefficient in \f$ A * x + B * y + C * z + D = 0 \f$
+ * @param D the fourth coefficient in \f$ A * x + B * y + C * z + D = 0 \f$
  * @param id the optional Surface ID
  * @param name the optional name of the Surface
  */
 Plane::Plane(const double A, const double B,
-             const double C, const int id, const char* name):
+             const double C, const double D, const int id, const char* name):
   Surface(id, name) {
 
   _surface_type = PLANE;
   _A = A;
   _B = B;
   _C = C;
+  _D = D;
 }
 
 
@@ -309,7 +311,7 @@ double Plane::getA() {
 
 
 /**
- * @brief Returns the B coefficient multiplying x in the surface equation
+ * @brief Returns the B coefficient multiplying y in the surface equation
  * @return the value for the B coefficient
  */
 double Plane::getB() {
@@ -318,7 +320,7 @@ double Plane::getB() {
 
 
 /**
- * @brief Returns the C coefficient multiplying x in the surface equation
+ * @brief Returns the C coefficient multiplying z in the surface equation
  * @return the value for the C coefficient
  */
 double Plane::getC() {
@@ -327,64 +329,60 @@ double Plane::getC() {
 
 
 /**
+ * @brief Returns the D constant coefficient
+ * @return the value for the D coefficient
+ */
+double Plane::getD() {
+  return _D;
+}
+
+
+/**
 * @brief Finds the intersection Point with this Plane from a given Point and
 *        trajectory defined by an angle.
 * @param point pointer to the Point of interest
-* @param angle the angle defining the trajectory in radians
 * @param points pointer to a Point to store the intersection Point
+* @param azim the azimuthal angle defining the trajectory in radians
+* @param azim the polar angle defining the trajectory in radians
 * @return the number of intersection Points (0 or 1)
 */
-inline int Plane::intersection(Point* point, double angle, Point* points) {
+inline int Plane::intersection(Point* point, Point* points, double azim,
+                               double polar) {
 
   double x0 = point->getX();
   double y0 = point->getY();
+  double z0 = point->getZ();
+  double l;
 
   int num = 0;                /* number of intersections */
-  double xcurr, ycurr;        /* coordinates of current intersection point */
+  double xcurr, ycurr, zcurr; /* coordinates of current intersection point */
 
-  /* The track is vertical */
-  if ((fabs(angle - (M_PI / 2))) < 1.0e-10) {
+  /* The track and plane are parallel */
+  double mx = sin(polar) * cos(azim);
+  double my = sin(polar) * sin(azim);
+  double mz = cos(polar);
 
-    /* The plane is also vertical => no intersections */
-    if (_B == 0)
-      return 0;
+  if ((fabs(mx) < 1.e-10 && fabs(_A) > 1.e-10) ||
+      (fabs(my) < 1.e-10 && fabs(_B) > 1.e-10) ||
+      (fabs(mz) < 1.e-10 && fabs(_C) > 1.e-10))
+    return 0;
 
-    /* The plane is not vertical */
-    else {
-      xcurr = x0;
-      ycurr = (-_A * x0 - _C) / _B;
-      points->setCoords(xcurr, ycurr);
+  /* The track is not parallel to the plane */
+  else{
+    
+    l = - (_A*x0 + _B*y0 + _C*z0 + _D) /
+      (_A * mx + _B * my + _C * mz);
+    xcurr = x0 + l * mx;
+    ycurr = y0 + l * my;
+    zcurr = z0 + l * mz;
 
-      /* Check that point is in same direction as angle */
-      if (angle < M_PI && ycurr > y0)
-        num++;
-      else if (angle > M_PI && ycurr < y0)
-        num++;
-      return num;
-    }
+    if (l > 0.0) {
+      points[num].setCoords(xcurr, ycurr, zcurr);
+      num++;
+    }    
   }
 
-  /* If the track isn't vertical */
-  else {
-    double m = sin(angle) / cos(angle);
-
-    /* The plane and track are parallel, no intersections */
-    if (fabs(-_A/_B - m) < 1e-11 && _B != 0)
-      return 0;
-
-    else {
-      xcurr = -(_B * (y0 - m * x0) + _C) / (_A + _B * m);
-      ycurr = y0 + m * (xcurr - x0);
-      points->setCoords(xcurr, ycurr);
-
-      if (angle < M_PI && ycurr > y0)
-        num++;
-      else if (angle > M_PI && ycurr < y0)
-        num++;
-
-      return num;
-    }
-  }
+  return num;
 }
 
 
@@ -402,7 +400,8 @@ std::string Plane::toString() {
   string << "Surface ID = " << _id
          << ", name = " << _name
          << ", type = PLANE "
-         << ", A = " << _A << ", B = " << _B << ", C = " << _C;
+         << ", A = " << _A << ", B = " << _B << ", C = " << _C
+         << ", D = " << _D;
 
   return string.str();
 }
@@ -415,7 +414,7 @@ std::string Plane::toString() {
  * @param name the optional name of the XPlane
  */
 XPlane::XPlane(const double x, const int id, const char* name):
-  Plane(1, 0, -x, id) {
+  Plane(1, 0, 0, -x, id) {
 
   _surface_type = XPLANE;
   _x = x;
@@ -428,6 +427,7 @@ XPlane::XPlane(const double x, const int id, const char* name):
  */
 void XPlane::setX(const double x) {
   _x = x;
+  _D = -x;
 }
 
 
@@ -469,7 +469,7 @@ double XPlane::getMaxX(int halfspace) {
 /**
  * @brief Converts this XPlane's attributes to a character array.
  * @details The character array returned conatins the type of Plane (ie,
- *          XPLANE) and the A, B, and C coefficients in the
+ *          XPLANE) and the A, B, C, and D coefficients in the
  *          quadratic Surface equation and the location of the Plane on
  *          the x-axis.
  * @return a character array of this XPlane's attributes
@@ -482,7 +482,8 @@ std::string XPlane::toString() {
          << ", name = " << _name
          << ", type = XPLANE "
          << ", A = " << _A << ", B = " << _B
-         << ", C = " << _C << ", x = " << _x;
+         << ", C = " << _C << ", D = " << _D
+         << ", x = " << _x;
 
   return string.str();
 }
@@ -495,7 +496,7 @@ std::string XPlane::toString() {
  * @param name the optional Surface name
  */
 YPlane::YPlane(const double y, const int id, const char* name):
-  Plane(0, 1, -y, id) {
+  Plane(0, 1, 0, -y, id) {
 
   _surface_type = YPLANE;
   _y = y;
@@ -508,6 +509,7 @@ YPlane::YPlane(const double y, const int id, const char* name):
  */
 void YPlane::setY(const double y) {
   _y = y;
+  _D = -y;
 }
 
 
@@ -549,7 +551,7 @@ double YPlane::getMaxY(int halfspace) {
 /**
  * @brief Converts this yplane's attributes to a character array
  * @details The character array returned conatins the type of Plane (ie,
- *          YPLANE) and the A, B, and C coefficients in the quadratic
+ *          YPLANE) and the A, B, C, and D coefficients in the quadratic
  *          Surface equation and the location of the Plane on the y-axis.
  * @return a character array of this YPlane's attributes
  */
@@ -561,7 +563,8 @@ std::string YPlane::toString() {
          << ", name = " << _name
          << ", type = YPLANE "
          << ", A = " << _A << ", B = " << _B
-         << ", C = " << _C << ", y = " << _y;
+         << ", C = " << _C << ", D = " << _D
+         << ", y = " << _y;
 
   return string.str();
 }
@@ -574,7 +577,7 @@ std::string YPlane::toString() {
  * @param name the optional Surface name
  */
 ZPlane::ZPlane(const double z, const int id, const char* name):
-  Plane(0, 0, -z, id, name) {
+  Plane(0, 0, 1, -z, id, name) {
 
   _surface_type = ZPLANE;
   _z = z;
@@ -587,6 +590,7 @@ ZPlane::ZPlane(const double z, const int id, const char* name):
  */
 void ZPlane::setZ(const double z) {
   _z = z;
+  _D = -z;
 }
 
 
@@ -628,7 +632,7 @@ double ZPlane::getMaxZ(int halfspace) {
 /**
  * @brief Converts this ZPlane's attributes to a character array.
  * @details The character array returned conatins the type of Plane (ie,
- *          ZPLANE) and the A, B, and C coefficients in the
+ *          ZPLANE) and the A, B, C, and D coefficients in the
  *          quadratic Surface equation and the location of the Plane along
  *          the z-axis.
  * @return a character array of this ZPlane's attributes
@@ -641,7 +645,8 @@ std::string ZPlane::toString() {
          << ", name = " << _name
          << ", type = ZPLANE "
          << ", A = " << _A << ", B = " << _B
-         << ", C = " << _C << ", z = " << _z;
+         << ", C = " << _C << ", D = " << _D
+         << ", z = " << _z;
 
   return string.str();
 }
@@ -765,20 +770,23 @@ double Circle::getMaxZ(int halfspace) {
  * @brief Finds the intersection Point with this circle from a given Point and
  *        trajectory defined by an angle (0, 1, or 2 points).
  * @param point pointer to the Point of interest
- * @param angle the angle defining the trajectory in radians
  * @param points pointer to a an array of Points to store intersection Points
+ * @param azim the azimuthal angle defining the trajectory in radians
+ * @param polar the polar angle defining the trajectory in radians
  * @return the number of intersection Points (0 or 1)
  */
-int Circle::intersection(Point* point, double angle, Point* points) {
+int Circle::intersection(Point* point, Point* points, double azim,
+                         double polar) {
 
   double x0 = point->getX();
   double y0 = point->getY();
-  double xcurr, ycurr;
+  double z0 = point->getZ();
+  double xcurr, ycurr, zcurr;
   int num = 0;                        /* Number of intersection Points */
   double a, b, c, q, discr;
 
-  /* If the track is vertical */
-  if ((fabs(angle - (M_PI / 2))) < 1.0e-10) {
+  /* If the track is vertical in y */
+  if ((fabs(azim - M_PI_2)) < 1.0e-10 || (fabs(azim - 3.0*M_PI_2)) < 1.0e-10) {
 
     /* Solve for where the line x = x0 and the Surface F(x,y) intersect
      * Find the y where F(x0, y) = 0
@@ -798,31 +806,75 @@ int Circle::intersection(Point* point, double angle, Point* points) {
     else if (discr == 0) {
       xcurr = x0;
       ycurr = -b / (2*a);
-      points[num].setCoords(xcurr, ycurr);
-      if (angle < M_PI && ycurr > y0)
-        num++;
-      else if (angle > M_PI && ycurr < y0)
-        num++;
-      return num;
+      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
+        * tan(M_PI_2 - polar);
+      points[num].setCoords(xcurr, ycurr, zcurr);
+
+      /* Check that point is in same direction as angle */
+      if (azim < M_PI && ycurr > y0){
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      else if (azim > M_PI && ycurr < y0){
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;        
+      }
     }
 
     /* There are two intersections */
     else {
       xcurr = x0;
       ycurr = (-b + sqrt(discr)) / (2 * a);
-      points[num].setCoords(xcurr, ycurr);
-      if (angle < M_PI && ycurr > y0)
-        num++;
-      else if (angle > M_PI && ycurr < y0)
-        num++;
+      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
+        * tan(M_PI_2 - polar);
+      points[num].setCoords(xcurr, ycurr, zcurr);
+      if (azim < M_PI && ycurr > y0){
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      else if (azim > M_PI && ycurr < y0){
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
 
       xcurr = x0;
       ycurr = (-b - sqrt(discr)) / (2 * a);
-      points[num].setCoords(xcurr, ycurr);
-      if (angle < M_PI && ycurr > y0)
-        num++;
-      else if (angle > M_PI && ycurr < y0)
-        num++;
+      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
+        * tan(M_PI_2 - polar);
+      points[num].setCoords(xcurr, ycurr, zcurr);
+      if (azim < M_PI && ycurr > y0){
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      else if (azim > M_PI && ycurr < y0){
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      
       return num;
     }
   }
@@ -835,7 +887,7 @@ int Circle::intersection(Point* point, double angle, Point* points) {
      * rearrange to put in the form of the quadratic formula:
      * ax^2 + bx + c = 0
      */
-    double m = sin(angle) / cos(angle);
+    double m = sin(azim) / cos(azim);
     q = y0 - m * x0;
     a = _A + _B * _B * m * m;
     b = 2 * _B * m * q + _C + _D * m;
@@ -850,12 +902,27 @@ int Circle::intersection(Point* point, double angle, Point* points) {
     /* There is one intersection (ie on the Surface) */
     else if (discr == 0) {
       xcurr = -b / (2*a);
-      ycurr = y0 + m * (points[0].getX() - x0);
-      points[num].setCoords(xcurr, ycurr);
-      if (angle < M_PI && ycurr > y0)
-        num++;
-      else if (angle > M_PI && ycurr < y0)
-        num++;
+      ycurr = y0 + m * (points[num].getX() - x0);
+      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
+        * tan(M_PI_2 - polar);
+      points[num].setCoords(xcurr, ycurr, zcurr);
+      if (azim < M_PI && ycurr > y0){
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      else if (azim > M_PI && ycurr < y0){
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+
       return num;
     }
 
@@ -863,22 +930,46 @@ int Circle::intersection(Point* point, double angle, Point* points) {
     else {
       xcurr = (-b + sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
-      points[num].setCoords(xcurr, ycurr);
-      if (angle < M_PI && ycurr > y0) {
-        num++;
+      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
+        * tan(M_PI_2 - polar);
+      points[num].setCoords(xcurr, ycurr, zcurr);
+      if (azim < M_PI && ycurr > y0) {
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
       }
-      else if (angle > M_PI && ycurr < y0) {
-        num++;
+      else if (azim > M_PI && ycurr < y0) {
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
       }
 
       xcurr = (-b - sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
-      points[num].setCoords(xcurr, ycurr);
-      if (angle < M_PI && ycurr > y0) {
-        num++;
+      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
+        * tan(M_PI_2 - polar);
+      points[num].setCoords(xcurr, ycurr, zcurr);
+      if (azim < M_PI && ycurr > y0) {
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
       }
-      else if (angle > M_PI && ycurr < y0) {
-        num++;
+      else if (azim > M_PI && ycurr < y0) {
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
       }
 
       return num;

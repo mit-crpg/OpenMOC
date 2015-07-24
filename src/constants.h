@@ -43,6 +43,34 @@
  *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */
 #define EXP_PRECISION FP_PRECISION(1E-5)
 
+/** The surfaces of a cube */
+#define NUM_SURFACES 26
+#define SURFACE_X_MIN 0
+#define SURFACE_X_MAX 1
+#define SURFACE_Y_MIN 2
+#define SURFACE_Y_MAX 3
+#define SURFACE_Z_MIN 4
+#define SURFACE_Z_MAX 5
+#define SURFACE_X_MIN_Y_MIN 6
+#define SURFACE_X_MAX_Y_MIN 7
+#define SURFACE_X_MIN_Y_MAX 8
+#define SURFACE_X_MAX_Y_MAX 9
+#define SURFACE_X_MIN_Z_MIN 10
+#define SURFACE_X_MAX_Z_MIN 11
+#define SURFACE_X_MIN_Z_MAX 12
+#define SURFACE_X_MAX_Z_MAX 13
+#define SURFACE_Y_MIN_Z_MIN 14
+#define SURFACE_Y_MAX_Z_MIN 15
+#define SURFACE_Y_MIN_Z_MAX 16
+#define SURFACE_Y_MAX_Z_MAX 17
+#define SURFACE_X_MIN_Y_MIN_Z_MIN 18
+#define SURFACE_X_MIN_Y_MIN_Z_MAX 19
+#define SURFACE_X_MIN_Y_MAX_Z_MIN 20
+#define SURFACE_X_MIN_Y_MAX_Z_MAX 21
+#define SURFACE_X_MAX_Y_MIN_Z_MIN 22
+#define SURFACE_X_MAX_Y_MIN_Z_MAX 23
+#define SURFACE_X_MAX_Y_MAX_Z_MIN 24
+#define SURFACE_X_MAX_Y_MAX_Z_MAX 25
 
 #ifdef NVCC
 

@@ -180,7 +180,7 @@ public:
   void findBoundingBox();
   bool containsPoint(Point* point);
   bool containsCoords(LocalCoords* coords);
-  double minSurfaceDist(Point* point, double angle);
+  double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
 
   Cell* clone();
   void subdivideCell();

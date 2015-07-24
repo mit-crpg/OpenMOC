@@ -441,13 +441,16 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  *          each LocalCoord in the linked list for the Lattice or Universe
  *          that it is in.
  * @param coords pointer to a LocalCoords object
- * @param angle the angle for a trajectory projected from the LocalCoords
+ * @param azim the azimuthal angle for a trajectory projected from the 
+ *        LocalCoords
+ * @param polar the polar angle for a trajectory projected from the LocalCoords
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
-Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
-  double delta_x = cos(angle) * TINY_MOVE;
-  double delta_y = sin(angle) * TINY_MOVE;
-  coords->adjustCoords(delta_x, delta_y);
+Cell* Geometry::findFirstCell(LocalCoords* coords, double azim, double polar) {
+  double delta_x = cos(azim) * sin(polar) * TINY_MOVE;
+  double delta_y = sin(azim) * sin(polar) * TINY_MOVE;
+  double delta_z = cos(polar) * TINY_MOVE;
+  coords->adjustCoords(delta_x, delta_y, delta_z);
   return findCellContainingCoords(coords);
 }
 
@@ -485,10 +488,11 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  *          return a pointer to the Cell that the LocalCoords will reach 
  *          next along its trajectory.
  * @param coords pointer to a LocalCoords object
- * @param angle the angle of the trajectory
+ * @param azim the azimuthal angle of the trajectory
+ * @param polar the polar angle of the trajectory
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
-Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
+Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
 
   Cell* cell = NULL;
   double dist;
@@ -517,13 +521,13 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
        * nearest lattice cell boundary */
       if (coords->getType() == LAT) {
         Lattice* lattice = coords->getLattice();
-        dist = lattice->minSurfaceDist(coords->getPoint(), angle);
+        dist = lattice->minSurfaceDist(coords->getPoint(), azim, polar);
       }
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
       else {
         Cell* cell = coords->getCell();
-        dist = cell->minSurfaceDist(coords->getPoint(), angle);
+        dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
       }
 
       /* Recheck min distance */
@@ -541,14 +545,15 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
     /* Check for distance to nearest CMFD mesh cell boundary */
     if (_cmfd != NULL) {
       Lattice* lattice = _cmfd->getLattice();
-      dist = lattice->minSurfaceDist(coords->getPoint(), angle);
+      dist = lattice->minSurfaceDist(coords->getPoint(), azim, polar);
       min_dist = std::min(dist, min_dist);
     }
 
     /* Move point and get next cell */
-    double delta_x = cos(angle) * (min_dist + TINY_MOVE);
-    double delta_y = sin(angle) * (min_dist + TINY_MOVE);
-    coords->adjustCoords(delta_x, delta_y);
+    double delta_x = cos(azim) * sin(polar) * (min_dist + TINY_MOVE);
+    double delta_y = sin(azim) * sin(polar) * (min_dist + TINY_MOVE);
+    double delta_z = cos(polar) * (min_dist + TINY_MOVE);
+    coords->adjustCoords(delta_x, delta_y, delta_z);
 
     return findCellContainingCoords(coords);
   }
@@ -593,7 +598,8 @@ int Geometry::findFSRId(LocalCoords* coords) {
       _FSR_keys_map.at(fsr_key_hash) = fsr;
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(), 
-                       coords->getHighestLevel()->getY());
+                       coords->getHighestLevel()->getY(),
+                       coords->getHighestLevel()->getZ());
       
       /* Get the cell that contains coords */
       Cell* cell = findCellContainingCoords(curr);
@@ -708,6 +714,9 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
       key << "CMFD = (" << curr_level_key.str() << ", ";
       curr_level_key.str(std::string());
       curr_level_key << _cmfd->getLattice()->getLatY(curr->getPoint());
+      key << curr_level_key.str() << ", ";
+      curr_level_key.str(std::string());
+      curr_level_key << _cmfd->getLattice()->getLatZ(curr->getPoint());
       key << curr_level_key.str() << ") : ";
   }
 
@@ -728,6 +737,9 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
       key << curr_level_key.str() << ", ";
       curr_level_key.str(std::string());
       curr_level_key << curr->getLatticeY();
+      key << curr_level_key.str() << ", ";
+      curr_level_key.str(std::string());
+      curr_level_key << curr->getLatticeZ();
       key << curr_level_key.str() << ") : ";
     }
     else {
@@ -1069,26 +1081,27 @@ void Geometry::initializeCmfd() {
   double width = getWidth();
   double cell_width = width / num_x;
   double cell_height = height / num_y;
-
+  
   /* Create CMFD lattice and set properties */
   Lattice* lattice = new Lattice();
   lattice->setWidth(cell_width, cell_height);
   lattice->setNumX(num_x);
   lattice->setNumY(num_y);
-  lattice->setOffset(getMinX() + getWidth()/2.0, 
-                     getMinY() + getHeight()/2.0);
+  lattice->setOffset(getMinX() + width/2.0, getMinY() + height/2.0, 0.5);
   _cmfd->setLattice(lattice);
 
-
   /* Set CMFD mesh boundary conditions */
-  _cmfd->setBoundary(0, getMinXBoundaryType());
-  _cmfd->setBoundary(1, getMinYBoundaryType());
-  _cmfd->setBoundary(2, getMaxXBoundaryType());
-  _cmfd->setBoundary(3, getMaxYBoundaryType());
+  _cmfd->setBoundary(SURFACE_X_MIN, getMinXBoundaryType());
+  _cmfd->setBoundary(SURFACE_Y_MIN, getMinYBoundaryType());
+  _cmfd->setBoundary(SURFACE_Z_MIN, getMinZBoundaryType());
+  _cmfd->setBoundary(SURFACE_X_MAX, getMaxXBoundaryType());
+  _cmfd->setBoundary(SURFACE_Y_MAX, getMaxYBoundaryType());
+  _cmfd->setBoundary(SURFACE_Z_MAX, getMaxZBoundaryType());
 
   /* Set CMFD mesh dimensions and number of groups */
   _cmfd->setWidth(width);
   _cmfd->setHeight(height);
+  _cmfd->setDepth(1.0);
   _cmfd->setNumMOCGroups(getNumEnergyGroups());
 
   /* If user did not set CMFD group structure, create CMFD group
@@ -1174,8 +1187,10 @@ bool Geometry::withinBounds(LocalCoords* coords) {
 
   double x = coords->getX();
   double y = coords->getY();
-
-  if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY())
+  double z = coords->getZ();
+  
+  if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY()
+      || z < getMinZ() || z > getMaxZ())
     return false;
   else
     return true;
@@ -1202,7 +1217,8 @@ void Geometry::setFSRCentroid(int fsr, Point* centroid) {
 Cell* Geometry::findCellContainingFSR(int fsr_id) {
 
   Point* point = _FSR_keys_map.at(_FSRs_to_keys[fsr_id])->_point;
-  LocalCoords* coords = new LocalCoords(point->getX(), point->getY());
+  LocalCoords* coords = new LocalCoords(point->getX(), point->getY(),
+                                        point->getZ());
   coords->setUniverse(_root_universe);
   Cell* cell = findCellContainingCoords(coords);
 

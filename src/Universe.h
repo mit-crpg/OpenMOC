@@ -141,29 +141,38 @@ private:
   /** The number of Lattice cells along the y-axis */
   int _num_y;
 
+  /** The number of Lattice cells along the z-axis */
+  int _num_z;
+  
   /** The width of each Lattice cell (cm) along the x-axis */
   double _width_x;
 
   /** The width of each Lattice cell (cm) along the y-axis */
   double _width_y;
 
+  /** The width of each Lattice cell (cm) along the z-axis */
+  double _width_z;
+  
   /** The coordinates of the offset for the Universe */
   Point _offset;
 
   /** A container of Universes ? */
-  std::vector< std::vector< std::pair<int, Universe*> > > _universes;
+  std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >
+    _universes;
 
 public:
 
   Lattice(const int id=0, const char* name="");
   virtual ~Lattice();
 
-  void setOffset(double x, double y);
+  void setOffset(double x, double y, double z=0.0);
   Point* getOffset();
   int getNumX() const;
   int getNumY() const;
+  int getNumZ() const;
   double getWidthX() const;
   double getWidthY() const;
+  double getWidthZ() const;
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -171,25 +180,29 @@ public:
   double getMinZ();
   double getMaxZ();
 
-  Universe* getUniverse(int lat_x, int lat_y) const;
-  std::vector< std::vector< std::pair<int, Universe*> > > getUniverses() const;
+  Universe* getUniverse(int lat_x, int lat_y, int lat_z=0) const;
+  std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >
+    getUniverses() const;
   std::map<int, Universe*> getUniqueUniverses();
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
 
   void setNumX(int num_x);
   void setNumY(int num_y);
-  void setWidth(double width_x, double width_y);
-  void setUniverses(int num_x, int num_y, Universe** universes);
+  void setNumY(int num_z);
+  void setWidth(double width_x, double width_y, double width_z=1.0);
+  void setUniverses(int num_y, int num_x, Universe** universes);
+  void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
   void removeUniverse(Universe* universe);
   void buildNeighbors();
 
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);
-  double minSurfaceDist(Point* point, double angle);
+  double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
 
   int getLatX(Point* point);
   int getLatY(Point* point);
+  int getLatZ(Point* point);
 
   int getLatticeCell(Point* point);
   int getLatticeSurface(int cell, Point* point);

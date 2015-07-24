@@ -165,11 +165,12 @@ public:
    * @param points pointer to a Point to store the intersection Point
    * @return the number of intersection Points (0 or 1)
    */
-  virtual int intersection(Point* point, double angle, Point* points) =0;
+  virtual int intersection(Point* point, Point* points, double azim,
+                           double polar) =0;
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
-  double getMinDistance(Point* point, double angle);
+  double getMinDistance(Point* point, double azim, double polar=M_PI_2);
 
   /**
    * @brief Converts this Surface's attributes to a character array.
@@ -197,8 +198,11 @@ protected:
   /** The coefficient for the linear term in y */
   double _B;
 
-  /** The constant offset */
+  /** The coefficient for the linear term in y */
   double _C;
+
+  /** The constant offset */
+  double _D;
 
   /** The Plane is a friend of class Surface */
   friend class Surface;
@@ -208,7 +212,7 @@ protected:
 
 public:
 
-  Plane(const double A, const double B, const double C,
+  Plane(const double A, const double B, const double C, const double D,
         const int id=0, const char* name="");
 
   double getMinX(int halfspace);
@@ -220,9 +224,11 @@ public:
   double getA();
   double getB();
   double getC();
+  double getD();
 
   double evaluate(const Point* point) const;
-  int intersection(Point* point, double angle, Point* points);
+  int intersection(Point* point, Point* points, double azim,
+                   double polar=M_PI_2);
 
   std::string toString();
 };
@@ -350,7 +356,8 @@ public:
   double getMaxZ(int halfspace);
 
   double evaluate(const Point* point) const;
-  int intersection(Point* point, double angle, Point* points);
+  int intersection(Point* point, Point* points, double azim,
+                   double polar=M_PI_2);
 
   std::string toString();
 };
@@ -362,16 +369,17 @@ public:
  *          given trajectory defined by an angle to this Surface. If the
  *          trajectory will not intersect the Surface, returns INFINITY.
  * @param point a pointer to the Point of interest
- * @param angle the angle defining the trajectory in radians
+ * @param azim the azimuthal angle defining the trajectory in radians
+ * @param polar the polar angle defining the trajectory in radians
  * @return the minimum distance to the Surface
  */
-inline double Surface::getMinDistance(Point* point, double angle) {
+inline double Surface::getMinDistance(Point* point, double azim, double polar) {
 
   /* Point array for intersections with this Surface */
   Point intersections[2];
 
   /* Find the intersection Point(s) */
-  int num_inters = this->intersection(point, angle, intersections);
+  int num_inters = this->intersection(point, intersections, azim, polar);
   double distance = INFINITY;
 
   /* If there is one intersection Point */
@@ -402,9 +410,9 @@ inline double Surface::getMinDistance(Point* point, double angle) {
 inline double Plane::evaluate(const Point* point) const {
   double x = point->getX();
   double y = point->getY();
+  double z = point->getZ();
 
-  //TODO: does not support ZPlanes
-  return (_A * x + _B * y + _C);
+  return (_A * x + _B * y + _C * z + _D);
 }
 
 

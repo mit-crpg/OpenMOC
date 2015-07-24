@@ -548,6 +548,14 @@ void Cell::findBoundingBox() {
     _min_y = -std::numeric_limits<double>::infinity();
   if (_min_z == std::numeric_limits<double>::infinity())
     _min_z = -std::numeric_limits<double>::infinity();
+
+  /* Check to make sure min-z and max-z BCs are REFLECTIVE */
+  if (_min_z_bc != REFLECTIVE)
+    log_printf(ERROR, "The min-z boundary condition must be REFLECTIVE"
+               " since only 2D (xy) problems are supported");
+  else if (_max_z_bc != REFLECTIVE)
+    log_printf(ERROR, "The max-z boundary condition must be REFLECTIVE"
+               " since only 2D (xy) problems are supported");
 }
 
 
@@ -566,7 +574,8 @@ bool Cell::containsPoint(Point* point) {
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Return false if the Point is not in the correct Surface halfspace */
-    if (iter->second._surface->evaluate(point) * iter->second._halfspace < -ON_SURFACE_THRESH)
+    if (iter->second._surface->evaluate(point) * iter->second._halfspace
+        < -ON_SURFACE_THRESH)
       return false;
   }
 
@@ -593,9 +602,12 @@ bool Cell::containsCoords(LocalCoords* coords) {
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
  * @param point the Point of interest
- * @param angle the angle of the trajectory (in radians from \f$[0,2\pi]\f$)
+ * @param azim the azimuthal angle of the trajectory (in radians from 
+ *        \f$[0,2\pi]\f$)
+ * @param polar the polar angle of the trajectory (in radians from 
+ *        \f$[0,\pi]\f$)
  */
-double Cell::minSurfaceDist(Point* point, double angle) {
+double Cell::minSurfaceDist(Point* point, double azim, double polar) {
 
   double curr_dist;
   double min_dist = INFINITY;
@@ -606,7 +618,7 @@ double Cell::minSurfaceDist(Point* point, double angle) {
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Find the minimum distance from this surface to this Point */
-    curr_dist = iter->second._surface->getMinDistance(point, angle);
+    curr_dist = iter->second._surface->getMinDistance(point, azim, polar);
 
     /* If the distance to Cell is less than current min distance, update */
     if (curr_dist < min_dist)
@@ -672,7 +684,7 @@ void Cell::sectorize(std::vector<Cell*>* subcells) {
     /* Instantiate the plane */
     A = cos(azim_angle);
     B = sin(azim_angle);
-    Plane* plane = new Plane(A, B, 0.);
+    Plane* plane = new Plane(A, B, 0., 0.);
     planes.push_back(plane);
 
     log_printf(DEBUG, "Created sector Plane id = %d, angle = %f, A = %f, "

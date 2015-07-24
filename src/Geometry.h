@@ -74,21 +74,35 @@ class Geometry {
 
 private:
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _top_bc;
+  /** The boundary conditions at the x-min surface of the bounding box 
+   * containing the Geometry. False is for vacuum and true is for reflective 
+   * BCs. */
+  boundaryType _x_min_bc;
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _bottom_bc;
+  /** The boundary conditions at the y-min surface of the bounding box 
+   * containing the Geometry. False is for vacuum and true is for reflective 
+   * BCs. */
+  boundaryType _y_min_bc;
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _left_bc;
+  /** The boundary conditions at the z-min surface of the bounding box 
+   * containing the Geometry. False is for vacuum and true is for reflective 
+   * BCs. */
+  boundaryType _z_min_bc;
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _right_bc;
+  /** The boundary conditions at the x-max surface of the bounding box 
+   * containing the Geometry. False is for vacuum and true is for reflective 
+   * BCs. */
+  boundaryType _x_max_bc;
+
+  /** The boundary conditions at the y-max surface of the bounding box 
+   * containing the Geometry. False is for vacuum and true is for reflective 
+   * BCs. */
+  boundaryType _y_max_bc;
+
+  /** The boundary conditions at the z-max surface of the bounding box 
+   * containing the Geometry. False is for vacuum and true is for reflective 
+   * BCs. */
+  boundaryType _z_max_bc;
 
   /** An map of FSR key hashes to unique fsr_data structs */
   ParallelHashMap<std::size_t, fsr_data*> _FSR_keys_map;
@@ -108,8 +122,8 @@ private:
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
-  Cell* findFirstCell(LocalCoords* coords, double angle);
-  Cell* findNextCell(LocalCoords* coords, double angle);
+  Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
+  Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
 public:
 
