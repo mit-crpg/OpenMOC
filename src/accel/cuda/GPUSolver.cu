@@ -733,14 +733,14 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int group) {
   FP_PRECISION total_source;
 
   /* Compute total fission source for current region */
-  for (int e=0; e < _num_groups; e++){
+  for (int e=0; e < _num_groups; e++) {
     fission_source += fsr_scalar_fluxes[e] * nu_sigma_f[e];
   }
 
   fission_source /= _k_eff;
 
   /* Compute total scattering source for this FSR */
-  for (int g=0; g < _num_groups; g++){
+  for (int g=0; g < _num_groups; g++) {
     scatter_source += sigma_s[(group-1)*(_num_groups)+g] 
                     * fsr_scalar_fluxes[g];
   }
@@ -898,7 +898,7 @@ void GPUSolver::initializePolarQuadrature() {
 /**
  * @brief Initializes new GPUExpEvaluator object to compute exponentials.
  */
-void GPUSolver::initializeExpEvaluator(){
+void GPUSolver::initializeExpEvaluator() {
 
   Solver::initializeExpEvaluator();
 
@@ -1010,7 +1010,7 @@ void GPUSolver::initializeMaterials() {
     /* Iterate through all Materials and clone them as dev_material structs
      * on the device */
     cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
-    for (iter=host_materials.begin(); iter != host_materials.end(); ++iter){
+    for (iter=host_materials.begin(); iter != host_materials.end(); ++iter) {
       clone_material(iter->second, &_materials[material_index]);
       _material_IDs_to_indices[iter->second->getId()] = material_index;
       material_index++;
@@ -1173,7 +1173,7 @@ void GPUSolver::zeroTrackFluxes() {
 
 
 /**
- * @brief Set the FSR scalar flux for each energy group to some value.
+ * @brief Set the scalar flux for each FSR and energy group to some value.
  * @param value the value to assign to each FSR scalar flux
  */
 void GPUSolver::flattenFSRFluxes(FP_PRECISION value) {

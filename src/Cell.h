@@ -10,7 +10,9 @@
 #define CELL_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Material.h"
 #include "Surface.h"
 #include "Point.h"
@@ -52,7 +54,10 @@ enum cellType {
   MATERIAL,
 
   /** A cell filled by a Universe */
-  FILL
+  FILL,
+
+  /** A cell not yet filled by anything */
+  UNFILLED
 };
 
 

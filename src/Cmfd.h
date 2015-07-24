@@ -10,7 +10,9 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "log.h"
 #include "Timer.h"
 #include "Universe.h"

@@ -77,6 +77,20 @@ static omp_lock_t log_error_lock;
 
 
 /**
+ * @brief Initializes the logger for use.
+ * @details This should be immediately called when the logger is imported
+ *          into Python and before any of its other routines are called. The
+ *          routine initializes an OpenMP mutual exclusion lock which is used 
+ *          to preclude race conditions from occurring when an ERROR message
+ *          is reported and program execution is terminated.
+ */
+void initialize_logger() {
+  /* Initialize OpenMP mutex lock for ERROR messages with exceptions */
+  omp_init_lock(&log_error_lock);
+}
+
+
+/**
  * @brief Sets the output directory for log files.
  * @details If the directory does not exist, it creates it for the user.
  * @param directory a character array for the log file directory
@@ -84,18 +98,14 @@ static omp_lock_t log_error_lock;
 void set_output_directory(char* directory) {
 
   output_directory = std::string(directory);
+  std::string log_directory;
 
   /* Check to see if directory exists - if not, create it */
   struct stat st;
-  if ((!stat(directory, &st)) == 0) {
-    mkdir(directory, S_IRWXU);
-    mkdir((output_directory+"/log").c_str(), S_IRWXU);
+  if ((stat(directory, &st)) == 0) {
+    log_directory = std::string("") + directory + std::string("/log");
+    mkdir(log_directory.c_str(), S_IRWXU);
   }
-
-  /* Initialize OpenMP mutex lock for ERROR messages with exceptions */
-  omp_init_lock(&log_error_lock);
-
-  return;
 }
 
 
@@ -241,8 +251,6 @@ void set_log_level(const char* new_level) {
       log_level = ERROR;
       log_printf(INFO, "Logging level set to ERROR");
   }
-
-  return;
 }
 
 
@@ -250,7 +258,7 @@ void set_log_level(const char* new_level) {
  * @brief Return the minimum level for log messages printed to the screen.
  * @return the minimum level for log messages
  */
-int get_log_level(){
+int get_log_level() {
   return log_level;
 }
 
@@ -439,15 +447,12 @@ void log_printf(logLevel level, const char* format, ...) {
 
       /* If output directory was not defined by user, then log file is
        * written to a "log" subdirectory. Create it if it doesn't exist */
-      if (output_directory.compare(".") == 0) {
-        struct stat st;
-        if ((!stat("log", &st)) == 0)
-          mkdir("log", S_IRWXU);
-      }
+      if (output_directory.compare(".") == 0)
+        set_output_directory((char*)".");
 
       /* Write the message to the output file */
       std::ofstream log_file;
-      log_file.open((output_directory + "/" + log_filename).c_str(),
+      log_file.open((output_directory + "/log/" + log_filename).c_str(),
                    std::ios::app);
 
       /* Append date, time to the top of log output file */
@@ -463,7 +468,7 @@ void log_printf(logLevel level, const char* format, ...) {
 
     /* Write the log message to the log_file */
     std::ofstream log_file;
-    log_file.open((output_directory + "/" + log_filename).c_str(),
+    log_file.open((output_directory + "/log/" + log_filename).c_str(),
                   std::ios::app);
     log_file << msg_string;
     log_file.close();

@@ -374,6 +374,11 @@ class configuration:
                               ('NVCC', None),
                               ('CCACHE_CC', 'nvcc')]
 
+  # define OPENMP and SWIG (for log output)
+  for compiler in macros:
+    for precision in macros[compiler]:
+      macros[compiler][precision].append(('OPENMP', None))
+      macros[compiler][precision].append(('SWIG', None))
 
 
   def setup_extension_modules(self):

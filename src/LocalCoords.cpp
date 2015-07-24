@@ -397,7 +397,7 @@ std::string LocalCoords::toString() {
              << ", universe = " << curr->getUniverse()->getId()
              << ", cell = " << curr->getCell()->getId();
     }
-    else if (curr->getType() == LAT){
+    else if (curr->getType() == LAT) {
       string << " LATTICE, x = " << curr->getX()
              << ", y = " << curr->getY()
              << ", universe = " << curr->getUniverse()->getId()

@@ -35,7 +35,7 @@ void reset_surf_id() {
  * @param id an optional user-defined Surface ID
  * @param name an optional user-defined Surface name
  */
-Surface::Surface(const int id, const char* name){
+Surface::Surface(const int id, const char* name) {
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
@@ -66,11 +66,9 @@ Surface::~Surface() {
   if (_name != NULL)
     delete [] _name;
 
-  if (!_neighbors.empty()){
-    std::map<int, std::vector<Cell*>* >::iterator iter;
-    for (iter = _neighbors.begin(); iter != _neighbors.end(); ++iter){
-      iter->second->clear();
-    }
+  if (!_neighbors.empty()) {
+    _neighbors[-1]->clear();
+    _neighbors[+1]->clear();
     _neighbors.clear();
   }
 }
@@ -117,7 +115,7 @@ surfaceType Surface::getSurfaceType() {
  *        VACUUM or BOUNDARY_NONE)
  * @return the type of boundary condition type for this Surface
  */
-boundaryType Surface::getBoundaryType(){
+boundaryType Surface::getBoundaryType() {
   return _boundary_type;
 }
 
@@ -246,7 +244,7 @@ Plane::Plane(const double A, const double B,
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum x value of -INFINITY
  */
-double Plane::getMinX(int halfspace){
+double Plane::getMinX(int halfspace) {
   return -std::numeric_limits<double>::infinity();
 }
 
@@ -256,7 +254,7 @@ double Plane::getMinX(int halfspace){
  * @param halfspace the halfspace of the Surface to consider
  * @return the maximum x value of INFINITY
  */
-double Plane::getMaxX(int halfspace){
+double Plane::getMaxX(int halfspace) {
   return std::numeric_limits<double>::infinity();
 }
 
@@ -266,7 +264,7 @@ double Plane::getMaxX(int halfspace){
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum y value of -INFINITY
  */
-double Plane::getMinY(int halfspace){
+double Plane::getMinY(int halfspace) {
   return -std::numeric_limits<double>::infinity();
 }
 
@@ -276,7 +274,7 @@ double Plane::getMinY(int halfspace){
  * @param halfspace the halfspace of the Surface to consider
  * @return the maximum y value of INFINITY
  */
-double Plane::getMaxY(int halfspace){
+double Plane::getMaxY(int halfspace) {
   return std::numeric_limits<double>::infinity();
 }
 
@@ -286,7 +284,7 @@ double Plane::getMaxY(int halfspace){
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum z value of -INFINITY
  */
-double Plane::getMinZ(int halfspace){
+double Plane::getMinZ(int halfspace) {
   return -std::numeric_limits<double>::infinity();
 }
 
@@ -296,7 +294,7 @@ double Plane::getMinZ(int halfspace){
  * @param halfspace the halfspace of the Surface to consider
  * @return the maximum z value of INFINITY
  */
-double Plane::getMaxZ(int halfspace){
+double Plane::getMaxZ(int halfspace) {
   return std::numeric_limits<double>::infinity();
 }
 
@@ -447,8 +445,8 @@ double XPlane::getX() {
  * @param halfspace the halfspace of the XPlane to consider
  * @return the minimum x value
  */
-double XPlane::getMinX(int halfspace){
-  if(halfspace == +1)
+double XPlane::getMinX(int halfspace) {
+  if (halfspace == +1)
     return _x;
   else
     return -std::numeric_limits<double>::infinity();
@@ -460,8 +458,8 @@ double XPlane::getMinX(int halfspace){
  * @param halfspace the halfspace of the XPlane to consider
  * @return the maximum x value
  */
-double XPlane::getMaxX(int halfspace){
-  if(halfspace == -1)
+double XPlane::getMaxX(int halfspace) {
+  if (halfspace == -1)
     return _x;
   else
     return std::numeric_limits<double>::infinity();
@@ -527,8 +525,8 @@ double YPlane::getY() {
  * @param halfspace the halfspace of the YPlane to consider
  * @return the minimum y value
  */
-double YPlane::getMinY(int halfspace){
-  if(halfspace == +1)
+double YPlane::getMinY(int halfspace) {
+  if (halfspace == +1)
     return _y;
   else
     return -std::numeric_limits<double>::infinity();
@@ -540,8 +538,8 @@ double YPlane::getMinY(int halfspace){
  * @param halfspace the halfspace of the YPlane to consider
  * @return the maximum y value
  */
-double YPlane::getMaxY(int halfspace){
-  if(halfspace == -1)
+double YPlane::getMaxY(int halfspace) {
+  if (halfspace == -1)
     return _y;
   else
     return std::numeric_limits<double>::infinity();
@@ -606,8 +604,8 @@ double ZPlane::getZ() {
  * @param halfspace the halfspace of the ZPlane to consider
  * @return the minimum z value
  */
-double ZPlane::getMinZ(int halfspace){
-  if(halfspace == +1)
+double ZPlane::getMinZ(int halfspace) {
+  if (halfspace == +1)
     return _z;
   else
     return -std::numeric_limits<double>::infinity();
@@ -619,8 +617,8 @@ double ZPlane::getMinZ(int halfspace){
  * @param halfspace the halfspace of the ZPlane to consider
  * @return the maximum z value
  */
-double ZPlane::getMaxZ(int halfspace){
-  if(halfspace == -1)
+double ZPlane::getMaxZ(int halfspace) {
+  if (halfspace == -1)
     return _z;
   else
     return std::numeric_limits<double>::infinity();
@@ -696,7 +694,7 @@ double Circle::getY0() {
  * @param halfspace the halfspace of the Circle to consider
  * @return the minimum x value
  */
-double Circle::getMinX(int halfspace){
+double Circle::getMinX(int halfspace) {
   if (halfspace == -1)
     return _center.getX() - _radius;
   else
@@ -709,7 +707,7 @@ double Circle::getMinX(int halfspace){
  * @param halfspace the halfspace of the Circle to consider
  * @return the maximum x value
  */
-double Circle::getMaxX(int halfspace){
+double Circle::getMaxX(int halfspace) {
   if (halfspace == -1)
     return _center.getX() + _radius;
   else
@@ -722,7 +720,7 @@ double Circle::getMaxX(int halfspace){
  * @param halfspace the halfspace of the Circle to consider
  * @return the minimum y value
  */
-double Circle::getMinY(int halfspace){
+double Circle::getMinY(int halfspace) {
   if (halfspace == -1)
     return _center.getY() - _radius;
   else
@@ -735,7 +733,7 @@ double Circle::getMinY(int halfspace){
  * @param halfspace the halfspace of the Circle to consider
  * @return the maximum y value
  */
-double Circle::getMaxY(int halfspace){
+double Circle::getMaxY(int halfspace) {
   if (halfspace == -1)
     return _center.getY() + _radius;
   else
@@ -748,7 +746,7 @@ double Circle::getMaxY(int halfspace){
  * @param halfspace the halfspace of the Circle to consider
  * @return the minimum z value of -INFINITY
  */
-double Circle::getMinZ(int halfspace){
+double Circle::getMinZ(int halfspace) {
   return -std::numeric_limits<double>::infinity();
 }
 
@@ -758,7 +756,7 @@ double Circle::getMinZ(int halfspace){
  * @param halfspace the halfspace of the Circle to consider
  * @return the maximum z value of INFINITY
  */
-double Circle::getMaxZ(int halfspace){
+double Circle::getMaxZ(int halfspace) {
   return std::numeric_limits<double>::infinity();
 }
 
