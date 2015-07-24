@@ -1,7 +1,7 @@
 #include "Vector.h"
 
 Vector::Vector(int num_x, int num_y, int num_groups) {
-  
+
   setNumX(num_x);
   setNumY(num_y);
   setNumGroups(num_groups);  
@@ -39,13 +39,13 @@ void Vector::incrementValue(int cell, int group, FP_PRECISION val) {
   else if (group >= _num_groups || group < 0)
     log_printf(ERROR, "Unable to increment Vector value for group %i"
                " which is not between 0 and %i", group, _num_groups-1);
-  
+
   /* Atomically increment the Vector value from the
    * temporary array using mutual exclusion locks */
   omp_set_lock(&_cell_locks[cell]);
 
   _array[cell*_num_groups + group] += val;
-  
+
   /* Release Vector cell mutual exclusion lock */
   omp_unset_lock(&_cell_locks[cell]);
 }
@@ -64,13 +64,13 @@ void Vector::setValue(int cell, int group, FP_PRECISION val) {
   else if (group >= _num_groups || group < 0)
     log_printf(ERROR, "Unable to set Vector value for group %i"
                " which is not between 0 and %i", group, _num_groups-1);
-  
+
   /* Atomically set the Vector value from the
    * temporary array using mutual exclusion locks */
   omp_set_lock(&_cell_locks[cell]);
 
   _array[cell*_num_groups + group] = val;
-  
+
   /* Release Vector cell mutual exclusion lock */
   omp_unset_lock(&_cell_locks[cell]);
 }
