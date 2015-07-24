@@ -1,6 +1,5 @@
 #include "Geometry.h"
 
-
 /**
  * @brief Resets the auto-generated unique IDs for Materials, Surfaces,
  *        Cells and Universes/Lattices to 10000.

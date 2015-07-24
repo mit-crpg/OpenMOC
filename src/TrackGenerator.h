@@ -61,12 +61,13 @@ private:
   /** An integer array of the number of Tracks in a cycle for each azim angle */
   int* _tracks_per_cycle;
 
-  /** A ragged array of the number of tracks in each lz plane */
-  int**** _tracks_per_plane;
-
   /* An array of the number of cycles for each azimuthal angle */
   int* _cycles_per_azim;
 
+  /* An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
+  int*** _tracks_per_stack;
+  int**** _tracks_per_train;
+  
   /* An array of the cycle length of each cycle for each azimuthal angle */
   double* _cycle_length;
   
@@ -88,13 +89,12 @@ private:
   double** _dz_eff;
   double** _dl_eff;
   
-  /** A 3D ragged array of 2D tracks (azim, cycle #, cycle index) */
-  Track2D*** _tracks_2D;
+  /** A 2D ragged array of 2D tracks (azim, track index) */
+  Track2D** _tracks_2D;
 
-  /** An array of 3D tracks (azim, cycle #, polar, lz index, train index) */
-  Track3D***** _tracks_3D;
-  std::vector< std::vector< std::vector< std::vector< std::vector<Track3D* > > > > >
-    _tracks_3D_stacks;
+  /** An array of 3D tracks (azim, 2D track, polar, z-stack) */
+  Track3D**** _tracks_3D_stack;
+  Track3D****** _tracks_3D_cycle;
   
   /** Pointer to the Geometry */
   Geometry* _geometry;
@@ -128,7 +128,8 @@ private:
   void segmentize2D();
   void segmentize3D();
   void decomposeLZTrack(Track3D* track, double l_start, double l_end,
-                        int azim, int cycle, int polar, int lz_index);
+                        int azim, int cycle, int polar, int lz_index,
+                        bool create_tracks);
   double findTrackEndPoint(Track2D* track, double phi, int azim_index);
   double convertLtoX(double l, int azim, int cycle);
   double convertLtoY(double l, int azim, int cycle);
@@ -149,8 +150,8 @@ public:
   int getNum3DTracks();
   int getNum2DSegments();
   int getNum3DSegments();
-  Track2D*** get2DTracks();
-  Track3D***** get3DTracks();
+  Track2D** get2DTracks();
+  Track3D**** get3DTracks();
   double* getAzimSpacings();
   double getAzimSpacing(int azim);
   double** getPolarSpacings();
@@ -158,13 +159,15 @@ public:
   FP_PRECISION getMaxOpticalLength();
   int getNumThreads();
   int* getTracksPerCycle();
-  int**** getTracksPerPlane();
+  int*** getTracksPerStack();
   int* getCyclesPerAzim();
   double getCycleLength(int azim);
   int getNumX(int azim);
   int getNumY(int azim);
   int getNumZ(int azim, int polar);
   int getNumL(int azim, int polar);
+  double getDxEff(int azim);
+  double getDyEff(int azim);
   FP_PRECISION* get2DFSRVolumes();
   FP_PRECISION get2DFSRVolume(int fsr_id);
   FP_PRECISION* get3DFSRVolumes();
@@ -172,6 +175,8 @@ public:
   double getZLevel();
   Quadrature* getQuadrature();
   int getTrackGenerationMethod();
+  Track* getTrack2DByCycle(int azim, int cycle, int track_index);
+  bool getCycleDirection(int azim, int cycle, int track_index);
   
   /* Set parameters */
   void setNumThreads(int num_threads);
@@ -192,6 +197,10 @@ public:
   bool contains2DSegments();
   bool contains3DSegments();
   void retrieve2DTrackCoords(double* coords, int num_tracks);
+  void retrieve2DPeriodicCycleCoords(double* coords, int num_tracks);
+  void retrieve2DReflectiveCycleCoords(double* coords, int num_tracks);
+  void retrieve3DPeriodicCycleCoords(double* coords, int num_tracks);
+  void retrieve3DReflectiveCycleCoords(double* coords, int num_tracks);
   void retrieve3DTrackCoords(double* coords, int num_tracks);
   void retrieve2DSegmentCoords(double* coords, int num_segments);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
@@ -206,8 +215,6 @@ public:
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
-  Track3D* findPeriodicTrack3D(Track3D* track, int azim, int cycle,
-                               int polar, int stack, bool top_reached);
 };
 
 #endif /* TRACKGENERATOR_H_ */

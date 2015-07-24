@@ -31,8 +31,13 @@ protected:
   /** The polar angle for the Track */
   double _theta;
 
-  /** The polar angle index into the the TrackCycle _track_stacks 2D array */
-  int _polar_angle_index;
+  /* Indices that are used to locate the track in the various track arrays */
+  int _polar_index;
+  int _z_index;
+  int _lz_index;
+  int _cycle_index;
+  int _cycle_track_index;
+  int _train_index;
   
 public:
   Track3D();
@@ -44,14 +49,26 @@ public:
                  const double end_y, const double end_z,
                  const double phi, const double theta);
   void setTheta(const double theta);
-  void setPolarAngleIndex(const int index);
   void setCoords(double x0, double y0, double z0, double x1, double y1,
                  double z1);
+  void setPolarIndex(int index);
+  void setZIndex(int index);
+  void setLZIndex(int index);
+  void setCycleIndex(int index);
+  void setCycleTrackIndex(int index);
+  void setTrainIndex(int index);
+  void setCycleFwd(bool fwd);
   
   /* Getters */
   double getTheta() const;
-  int getPolarAngleIndex() const;
-
+  int getPolarIndex();
+  int getZIndex();
+  int getLZIndex();
+  int getCycleIndex();
+  int getCycleTrackIndex();
+  int getTrainIndex();
+  bool getCycleFwd();
+  
   std::string toString();
 };
 

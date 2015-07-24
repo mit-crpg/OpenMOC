@@ -167,13 +167,13 @@ class Options:
       elif opt in ('-a', '--num-azim'):
         self._num_azim = int(arg)
 
-      elif opt in ('-as', '--azim-spacing'):
+      elif opt in ('-s', '--azim-spacing'):
         self._azim_spacing = float(arg)
 
       elif opt in ('-p', '--num-polar'):
         self._num_polar = int(arg)
 
-      elif opt in ('-ps', '--polar-spacing'):
+      elif opt in ('-z', '--polar-spacing'):
         self._polar_spacing = float(arg)
 
       elif opt in ('-i', '--max-iters'):

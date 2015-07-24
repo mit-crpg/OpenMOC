@@ -436,7 +436,6 @@ void Cmfd::computeDs(int moc_iteration) {
                                                     length_perpen);
                 d_tilde = (sense * d_hat * flux - current / length) / flux;
               }
-                          
             }
             
             /* If Surface is an interface, use finite differencing */
@@ -467,7 +466,6 @@ void Cmfd::computeDs(int moc_iteration) {
                 next_length_perpen = _cell_depth;
                 next_surface = SURFACE_Z_MIN;
               }
-
               
               /* Set diffusion coefficient and flux for neighboring cell */
               d_next = _materials[cell_next]->getDifCoef()[e];
@@ -690,7 +688,15 @@ void Cmfd::constructMatrices() {
             
             _A->incrementValueByCell(cell-1, e, cell, e, value);
           }
-
+          else if (_boundaries[SURFACE_X_MIN] == PERIODIC) {
+            value = - (material->getDifHat()[SURFACE_X_MIN*_num_cmfd_groups + e]
+                       - material->getDifTilde()
+                       [SURFACE_X_MIN*_num_cmfd_groups + e])
+              * _cell_height * _cell_depth;
+            
+            _A->incrementValueByCell(cell + (_num_x-1), e, cell, e, value);
+          }
+          
           /* X_MAX SURFACE */
           
           /* Set transport term on diagonal */
@@ -707,6 +713,14 @@ void Cmfd::constructMatrices() {
               * _cell_height * _cell_depth;
 
             _A->incrementValueByCell(cell+1, e, cell, e, value);
+          }
+          else if (_boundaries[SURFACE_X_MAX] == PERIODIC) {
+            value = - (material->getDifHat()[SURFACE_X_MAX*_num_cmfd_groups + e]
+                       + material->getDifTilde()
+                       [SURFACE_X_MAX*_num_cmfd_groups + e])
+              * _cell_height * _cell_depth;
+
+            _A->incrementValueByCell(cell - (_num_x-1), e, cell, e, value);
           }
 
           /* Y_MIN SURFACE */
@@ -726,7 +740,15 @@ void Cmfd::constructMatrices() {
 
             _A->incrementValueByCell(cell-_num_x, e, cell, e, value);
           }
+          else if (_boundaries[SURFACE_Y_MIN] == PERIODIC) {
+            value = - (material->getDifHat()[SURFACE_Y_MIN*_num_cmfd_groups + e]
+                       - material->getDifTilde()
+                       [SURFACE_Y_MIN*_num_cmfd_groups + e])
+              * _cell_width * _cell_depth;
 
+            _A->incrementValueByCell(cell + _num_x*(_num_y-1), e, cell, e, value);
+          }
+            
           /* Y_MAX SURFACE */
           
           /* Set transport term on diagonal */
@@ -744,7 +766,15 @@ void Cmfd::constructMatrices() {
 
             _A->incrementValueByCell(cell+_num_x, e, cell, e, value);
           }
+          else if (_boundaries[SURFACE_Y_MAX] == PERIODIC) {
+            value = - (material->getDifHat()[SURFACE_Y_MAX*_num_cmfd_groups + e]
+                       + material->getDifTilde()
+                       [SURFACE_Y_MAX*_num_cmfd_groups + e])
+              * _cell_width * _cell_depth;
 
+            _A->incrementValueByCell(cell - _num_x*(_num_y-1), e, cell, e, value);
+          }
+          
           /* Z_MIN SURFACE */
           
           /* Set transport term on diagonal */
@@ -762,7 +792,15 @@ void Cmfd::constructMatrices() {
 
             _A->incrementValueByCell(cell-_num_x*_num_y, e, cell, e, value);
           }
+          else if (_boundaries[SURFACE_Z_MIN] == PERIODIC) {
+            value = - (material->getDifHat()[SURFACE_Z_MIN*_num_cmfd_groups + e]
+                       - material->getDifTilde()
+                       [SURFACE_Z_MIN*_num_cmfd_groups + e])
+              * _cell_width * _cell_height;
 
+            _A->incrementValueByCell(cell + _num_x*_num_y*(_num_z-1), e, cell, e, value);
+          }
+          
           /* Z_MAX SURFACE */
           
           /* Set transport term on diagonal */
@@ -779,6 +817,14 @@ void Cmfd::constructMatrices() {
               * _cell_width * _cell_height;
 
             _A->incrementValueByCell(cell+_num_x*_num_y, e, cell, e, value);
+          }
+          else if (_boundaries[SURFACE_Z_MAX] == PERIODIC) {
+            value = - (material->getDifHat()[SURFACE_Z_MAX*_num_cmfd_groups + e]
+                       + material->getDifTilde()
+                       [SURFACE_Z_MAX*_num_cmfd_groups + e])
+              * _cell_width * _cell_height;
+
+            _A->incrementValueByCell(cell - _num_x*_num_y*(_num_z-1), e, cell, e, value);
           }
           
           /* Source term */
@@ -1784,31 +1830,43 @@ int Cmfd::getCellNext(int cell_num, int surface_id) {
   if (surface_id == SURFACE_X_MIN) {
     if ((cell_num % (_num_x*_num_y)) % _num_x != 0)
       cell_next = cell_num - 1;
+    else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
+      cell_next = cell_num + (_num_x-1);
   }
 
   else if (surface_id == SURFACE_Y_MIN) {
     if ((cell_num % (_num_x*_num_y)) / _num_x != 0)
       cell_next = cell_num - _num_x;
+    else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
+      cell_next = cell_num + _num_x*(_num_y-1);
   }
 
   else if (surface_id == SURFACE_Z_MIN) {
     if (cell_num / (_num_x*_num_y) != 0)
       cell_next = cell_num - _num_x*_num_y;
+    else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
+      cell_next = cell_num + _num_x*_num_y*(_num_z-1);
   }
 
   else if (surface_id == SURFACE_X_MAX) {
     if ((cell_num % (_num_x*_num_y)) % _num_x != _num_x - 1)
       cell_next = cell_num + 1;
+    else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
+      cell_next = cell_num - (_num_x-1);
   }
 
   else if (surface_id == SURFACE_Y_MAX) {
     if ((cell_num % (_num_x*_num_y)) / _num_x != _num_y - 1)
       cell_next = cell_num + _num_x;
+    else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
+      cell_next = cell_num - _num_x*(_num_y-1);
   }
 
   else if (surface_id == SURFACE_Z_MAX) {
     if (cell_num / (_num_x*_num_y) != _num_z - 1)
       cell_next = cell_num + _num_x*_num_y;
+    else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
+      cell_next = cell_num - _num_x*_num_y*(_num_z-1);
   }
   
   return cell_next;

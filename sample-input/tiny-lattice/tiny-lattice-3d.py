@@ -41,7 +41,7 @@ solver.setConvergenceThreshold(tolerance)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
-#plotter.plot_tracks_3d(track_generator)
-#plotter.plot_segments_3d(track_generator)
+#plotter.plot_tracks_3D(track_generator)
+#plotter.plot_segments_3D(track_generator)
 
 log.py_printf('TITLE', 'Finished')

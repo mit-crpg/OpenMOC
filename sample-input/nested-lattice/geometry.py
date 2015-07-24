@@ -26,8 +26,8 @@ xmin = XPlane(x=-2.0, name='xmin')
 xmax = XPlane(x= 2.0, name='xmax')
 ymin = YPlane(y=-2.0, name='ymin')
 ymax = YPlane(y= 2.0, name='ymax')
-zmin = ZPlane(z=-2.0, name='zmin')
-zmax = ZPlane(z= 2.0, name='zmax')
+zmin = ZPlane(z=-0.5, name='zmin')
+zmax = ZPlane(z= 0.5, name='zmax')
 
 xmin.setBoundaryType(REFLECTIVE)
 xmax.setBoundaryType(REFLECTIVE)
@@ -128,7 +128,7 @@ lattice_cell.setFill(lattice)
 
 # 2x2 core
 core = Lattice(name='2x2 core')
-core.setWidth(width_x=2.0, width_y=2.0)
+core.setWidth(width_x=2.0, width_y=2.0, width_z=1.0)
 core.setUniverses([[assembly, assembly], [assembly, assembly]])
 root_cell.setFill(core)
 

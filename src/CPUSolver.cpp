@@ -574,43 +574,38 @@ void CPUSolver::transportSweep() {
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroSurfaceCurrents();
 
-  /* Loop over each cycle in parallel */
-  #pragma omp parallel for private(curr_track, azim_index, polar_index, \
-                                   num_segments, curr_segment, \
-                                   segments, track_flux, tid, max_track, \
-                                   min_track) schedule(guided)  
-  for (int c=0; c < _num_cycles; c++){
-      
+  /* Loop over each set of tracks in parallel */
+  for (int i=0; i < 4 + 12*_solve_3D; i++){
+    
     /* Compute the minimum and maximum Track IDs corresponding to
      * this azimuthal angular halfspace */
-    min_track = _num_tracks[c];
-    max_track = _num_tracks[c+1];
-
-    FP_PRECISION* thread_fsr_flux;
-    thread_fsr_flux = new FP_PRECISION[_num_groups];
-
+    min_track = _num_tracks[i];
+    max_track = _num_tracks[i+1];
+    
+    #pragma omp parallel for private(curr_track, azim_index, polar_index, \
+                                     num_segments, curr_segment,        \
+                                     segments, track_flux, tid) schedule(guided)
     for (int track_id=min_track; track_id < max_track; track_id++) {
-        
+
+      FP_PRECISION* thread_fsr_flux;
+      thread_fsr_flux = new FP_PRECISION[_num_groups];
       tid = omp_get_thread_num();
       curr_track = _tracks[track_id];      
       azim_index = _quad->getFirstOctantAzim
-        (curr_track->getAzimAngleIndex());
+        (curr_track->getAzimIndex());
 
       /* Get the polar index */
       if (_solve_3D)
         polar_index = static_cast<Track3D*>(_tracks[track_id])->
-          getPolarAngleIndex();
+          getPolarIndex();
       else
         polar_index = 0;
 
-      /* Use local array accumulator to prevent false sharing*/
-
-      
       /* Initialize local pointers to important data structures */
       num_segments = curr_track->getNumSegments();
       segments = curr_track->getSegments();
       track_flux = &_boundary_flux(track_id,0,0);
-      
+
       /* Loop over each Track segment in forward direction */
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
@@ -619,28 +614,11 @@ void CPUSolver::transportSweep() {
         tallySurfaceCurrent(curr_segment, azim_index, polar_index, track_flux,
                             true);
       }
-      
+
       /* Transfer boundary angular flux to outgoing Track */
       transferBoundaryFlux(track_id, azim_index, polar_index, true, track_flux);
-    }
-    
-    for (int track_id=max_track-1; track_id >= min_track; track_id--) {
-        
-      tid = omp_get_thread_num();
-      curr_track = _tracks[track_id];      
-      azim_index = _quad->getFirstOctantAzim
-        (curr_track->getAzimAngleIndex());
-
-      /* Get the polar index */
-      if (_solve_3D)
-        polar_index = static_cast<Track3D*>(_tracks[track_id])->
-          getPolarAngleIndex();
-      else
-        polar_index = 0;
       
-      /* Initialize local pointers to important data structures */
-      num_segments = curr_track->getNumSegments();
-      segments = curr_track->getSegments();
+      /* Get the backward track flux */
       track_flux = &_boundary_flux(track_id,1,0);
       
       /* Loop over each Track segment in reverse direction */
@@ -655,10 +633,9 @@ void CPUSolver::transportSweep() {
       /* Transfer boundary angular flux to outgoing Track */
       transferBoundaryFlux
         (track_id, azim_index, polar_index, false, track_flux);
-    }      
 
-    delete thread_fsr_flux;
-      
+      delete [] thread_fsr_flux;
+    }
   }
 
   return;
@@ -769,7 +746,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
                                      bool direction,
                                      FP_PRECISION* track_flux) {
   int start;
-  int bc;
+  boundaryType bc;
   FP_PRECISION* track_leakage;
   int track_out_id;
   int a = azim_index;
@@ -779,22 +756,38 @@ void CPUSolver::transferBoundaryFlux(int track_id,
 
   /* For the "forward" direction */
   if (direction) {
-    start = 0;
-    bc = (int)_tracks[track_id]->getBCOut();
+    bc = _tracks[track_id]->getBCFwd();
     track_leakage = &_boundary_leakage(track_id,0);
-    track_out_id = _tracks[track_id]->getTrackOut()->getUid();
+    if (bc == PERIODIC){
+      start = _fluxes_per_track * (!_tracks[track_id]->getPrdcFwdFwd());
+      track_out_id = _tracks[track_id]->getTrackPrdcFwd()->getUid();  
+    }
+    else{
+      start = _fluxes_per_track * (!_tracks[track_id]->getReflFwdFwd());
+      track_out_id = _tracks[track_id]->getTrackReflFwd()->getUid();
+    }
   }
 
   /* For the "reverse" direction */
   else {
-    start = _fluxes_per_track;
-    bc = (int)_tracks[track_id]->getBCIn();
+    bc = _tracks[track_id]->getBCBwd();
     track_leakage = &_boundary_leakage(track_id,_fluxes_per_track);
-    track_out_id = _tracks[track_id]->getTrackIn()->getUid();
+    if (bc == PERIODIC) {
+      start = _fluxes_per_track * (!_tracks[track_id]->getPrdcBwdFwd());
+      track_out_id = _tracks[track_id]->getTrackPrdcBwd()->getUid();
+    }
+    else {
+      start = _fluxes_per_track * (!_tracks[track_id]->getReflBwdFwd());
+      track_out_id = _tracks[track_id]->getTrackReflBwd()->getUid();
+    }
   }
 
   FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,start);
 
+  /* Set bc to 1 if bc is PERIODIC (bc == 2) */
+  if (bc == PERIODIC)
+    bc = REFLECTIVE;
+  
   if (_solve_3D){
     int p = _quad->getFirstOctantPolar(polar_index);
     for (int e=0; e < _num_groups; e++){

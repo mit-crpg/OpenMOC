@@ -28,12 +28,12 @@ ymax = YPlane(y= 2.0, name='ymax')
 zmin = ZPlane(z=-0.5, name='zmin')
 zmax = ZPlane(z= 0.5, name='zmax')
 
-xmin.setBoundaryType(REFLECTIVE)
-xmax.setBoundaryType(REFLECTIVE)
-ymin.setBoundaryType(REFLECTIVE)
-ymax.setBoundaryType(REFLECTIVE)
-zmin.setBoundaryType(REFLECTIVE)
-zmax.setBoundaryType(REFLECTIVE)
+xmin.setBoundaryType(PERIODIC)
+xmax.setBoundaryType(PERIODIC)
+ymin.setBoundaryType(PERIODIC)
+ymax.setBoundaryType(PERIODIC)
+zmin.setBoundaryType(PERIODIC)
+zmax.setBoundaryType(PERIODIC)
 
 large_circle = Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
 medium_circle = Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
@@ -120,7 +120,7 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
 cmfd.setLatticeStructure(2,2,1)
-
+cmfd.setKNearest(1)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################

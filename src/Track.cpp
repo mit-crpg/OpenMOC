@@ -4,7 +4,20 @@
 /*
  * @brief Constructor initializes an empty Track.
  */
-Track::Track() { }
+Track::Track() {
+
+  _track_refl_fwd = NULL;
+  _track_refl_bwd = NULL;
+  _track_prdc_fwd = NULL;
+  _track_prdc_bwd = NULL;
+  _refl_fwd_fwd = true;
+  _refl_bwd_fwd = false;
+  _prdc_fwd_fwd = true;
+  _prdc_bwd_fwd = false;
+
+  _periodic_cycle_id = -1;
+  _reflective_cycle_id = -1;
+}
 
 
 
@@ -43,8 +56,8 @@ void Track::setPhi(const double phi) {
  * @param bc_in boundary condition for the incoming flux in the "forward"
  *        direction
  */
-void Track::setBCIn(const bool bc_in) {
-  _bc_in = bc_in;
+void Track::setBCFwd(const boundaryType bc_fwd) {
+  _bc_fwd = bc_fwd;
 }
 
 
@@ -56,44 +69,8 @@ void Track::setBCIn(const bool bc_in) {
  * @param bc_out boundary condition for the incoming flux in the "reverse"
  *        direction
  */
-void Track::setBCOut(const bool bc_out) {
-  _bc_out = bc_out;
-}
-
-
-/**
- * @brief Sets the track reflecting into this Track's "forward" direction.
- * @param track_in pointer to the Track reflecting into the "forward" direction
- */
-void Track::setTrackIn(Track* track_in) {
-  _track_in = track_in;
-}
-
-
-/**
- * @brief Sets the track reflecting into this Track's "reverse" direction.
- * @param track_out pointer to the Track reflecting into the "reverse" direction
- */
-void Track::setTrackOut(Track* track_out) {
-  _track_out = track_out;
-}
-
-
-/**
- * @brief Sets the track reflecting into this Track's "forward" direction.
- * @param track_in pointer to the Track reflecting into the "forward" direction
- */
-void Track::setTrackInPeriodic(Track* track_in) {
-  _track_in_periodic = track_in;
-}
-
-
-/**
- * @brief Sets the track reflecting into this Track's "reverse" direction.
- * @param track_out pointer to the Track reflecting into the "reverse" direction
- */
-void Track::setTrackOutPeriodic(Track* track_out) {
-  _track_out_periodic = track_out;
+void Track::setBCBwd(const boundaryType bc_bwd) {
+  _bc_bwd = bc_bwd;
 }
 
 
@@ -134,8 +111,8 @@ double Track::getLength() {
  *        "forward" direction.
  * @return vacuum (false) or reflective (true) reflective boundary conditions
  */
-bool Track::getBCIn() const {
-  return _bc_in;
+boundaryType Track::getBCFwd() const {
+  return _bc_fwd;
 }
 
 
@@ -144,8 +121,8 @@ bool Track::getBCIn() const {
  *        "reverse" direction.
  * @return vacuum (false) or reflective (true) reflective boundary conditions
  */
-bool Track::getBCOut() const {
-  return _bc_out;
+boundaryType Track::getBCBwd() const {
+  return _bc_bwd;
 }
 
 
@@ -161,7 +138,7 @@ void Track::addSegment(segment* segment) {
     _segments.push_back(*segment);
   }
   catch (std::exception &e) {
-      log_printf(ERROR, "Unable to add a segment to Track. Backtrace:"
+      log_printf(NORMAL, "Unable to add a segment to Track. Backtrace:"
                  "\n%s", e.what());
   }
 }
@@ -176,7 +153,7 @@ void Track::removeSegment(int index) {
     _segments.erase(_segments.begin()+index);
   }
   catch (std::exception &e) {
-    log_printf(ERROR, "Unable to remove a segment from Track");
+    log_printf(NORMAL, "Unable to remove a segment from Track");
   }  
 }
 
@@ -194,7 +171,7 @@ void Track::insertSegment(int index, segment* segment) {
     _segments.insert(_segments.begin()+index, *segment);
   }
   catch (std::exception &e) {
-    log_printf(ERROR, "Unable to insert a segment into Track");
+    log_printf(NORMAL, "Unable to insert a segment into Track");
   }  
 }
 
@@ -207,41 +184,193 @@ void Track::clearSegments() {
 }
 
 
-void Track::setAzimAngleIndex(const int index){
-  _azim_angle_index = index;
+void Track::setAzimIndex(int index){
+  _azim_index = index;
 }
 
 
-int Track::getAzimAngleIndex() const{
-  return _azim_angle_index;
+int Track::getAzimIndex() {
+  return _azim_index;
 }
 
 
-void Track::setTrackInRefl(Track* track){
-  _track_in_refl = track;
+void Track::setTrackReflFwd(Track* track){
+  
+  if (_refl_fwd_fwd && _end.distanceToPoint(track->getStart()) > 1.e-8)
+    log_printf(NORMAL, "INCORRECT TRACK REFL FWD: (%.4f, %.4f, %.4f) -> "
+               "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
+               track->getStart()->getX(), track->getStart()->getY(),
+               track->getStart()->getZ());
+  if (!_refl_fwd_fwd && _end.distanceToPoint(track->getEnd()) > 1.e-8)
+    log_printf(NORMAL, "INCORRECT TRACK REFL FWD: (%.4f, %.4f, %.4f) -> "
+               "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
+               track->getEnd()->getX(), track->getEnd()->getY(),
+               track->getEnd()->getZ());
+    
+  _track_refl_fwd = track;
 }
 
 
-void Track::setTrackInPrdc(Track* track){
-  _track_in_prdc = trac;
+void Track::setTrackPrdcFwd(Track* track){
+
+  if (_prdc_fwd_fwd) {
+    double dx = fabs(_end.getX() - track->getStart()->getX());
+    double dy = fabs(_end.getY() - track->getStart()->getY());
+    double dz = fabs(_end.getZ() - track->getStart()->getZ());
+    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
+        (dy > 1.e-8 && dz > 1.e-8))
+      log_printf(NORMAL, "INCORRECT TRACK PRDC FWD: (%.4f, %.4f, %.4f) -> "
+                 "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
+                 track->getStart()->getX(), track->getStart()->getY(),
+                 track->getStart()->getZ());
+  }
+  else {
+    double dx = fabs(_end.getX() - track->getEnd()->getX());
+    double dy = fabs(_end.getY() - track->getEnd()->getY());
+    double dz = fabs(_end.getZ() - track->getEnd()->getZ());
+    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
+        (dy > 1.e-8 && dz > 1.e-8))
+      log_printf(NORMAL, "INCORRECT TRACK PRDC FWD: (%.4f, %.4f, %.4f) -> "
+                 "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
+                 track->getEnd()->getX(), track->getEnd()->getY(),
+                 track->getEnd()->getZ());
+  }
+  
+  _track_prdc_fwd = track;
 }
 
 
-void Track::setTrackOutRefl(Track* track){
-  _track_out_refl = track;
+void Track::setTrackReflBwd(Track* track){
+
+  if (_refl_bwd_fwd && _start.distanceToPoint(track->getStart()) > 1.e-8)
+    log_printf(NORMAL, "INCORRECT TRACK REFL BWD: (%.4f, %.4f, %.4f) -> "
+               "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
+               _start.getZ(), track->getStart()->getX(),
+               track->getStart()->getY(), track->getStart()->getZ());
+  else if (!_refl_bwd_fwd && _start.distanceToPoint(track->getEnd()) > 1.e-8)
+    log_printf(NORMAL, "INCORRECT TRACK REFL BWD: (%.4f, %.4f, %.4f) -> "
+               "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
+               _start.getZ(), track->getEnd()->getX(),
+               track->getEnd()->getY(), track->getEnd()->getZ());
+  
+  _track_refl_bwd = track;
 }
 
 
-void Track::setTrackOutPrdc(Track* track){
-  _track_out_prdc = track;
+void Track::setTrackPrdcBwd(Track* track){
+
+  if (_prdc_bwd_fwd) {
+    double dx = fabs(_start.getX() - track->getStart()->getX());
+    double dy = fabs(_start.getY() - track->getStart()->getY());
+    double dz = fabs(_start.getZ() - track->getStart()->getZ());
+    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
+        (dy > 1.e-8 && dz > 1.e-8))
+      log_printf(NORMAL, "INCORRECT TRACK PRDC BWD: (%.4f, %.4f, %.4f) -> "
+                 "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
+                 _start.getZ(), track->getStart()->getX(),
+                 track->getStart()->getY(), track->getStart()->getZ());
+  }
+  else {
+    double dx = fabs(_start.getX() - track->getEnd()->getX());
+    double dy = fabs(_start.getY() - track->getEnd()->getY());
+    double dz = fabs(_start.getZ() - track->getEnd()->getZ());
+    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
+        (dy > 1.e-8 && dz > 1.e-8))
+      log_printf(NORMAL, "INCORRECT TRACK PRDC BWD: (%.4f, %.4f, %.4f) -> "
+                 "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
+                 _start.getZ(), track->getEnd()->getX(),
+                 track->getEnd()->getY(), track->getEnd()->getZ());
+  }
+
+  _track_prdc_bwd = track;
 }
 
 
-void Track::setCycleIndex(int cycle) {
-  _cycle_index = cycle;
+Track* Track::getTrackReflFwd() {
+  return _track_refl_fwd;
 }
 
 
-int Track::getCycleIndex() {
-  return _cycle_index;
+Track* Track::getTrackReflBwd() {
+  return _track_refl_bwd;
+}
+
+
+Track* Track::getTrackPrdcFwd() {
+  return _track_prdc_fwd;
+}
+
+
+Track* Track::getTrackPrdcBwd() {
+  return _track_prdc_bwd;
+}
+
+
+void Track::setXYIndex(int index) {
+  _xy_index = index;
+}
+
+
+int Track::getXYIndex() {
+  return _xy_index;
+}
+
+
+void Track::setReflFwdFwd(bool fwd){
+  _refl_fwd_fwd = fwd;
+}
+
+
+void Track::setReflBwdFwd(bool fwd){
+  _refl_bwd_fwd = fwd;
+}
+
+
+void Track::setPrdcFwdFwd(bool fwd){
+  _prdc_fwd_fwd = fwd;
+}
+
+
+void Track::setPrdcBwdFwd(bool fwd){
+  _prdc_bwd_fwd = fwd;
+}
+
+
+bool Track::getReflFwdFwd(){
+  return _refl_fwd_fwd;
+}
+
+
+bool Track::getReflBwdFwd(){
+  return _refl_bwd_fwd;
+}
+
+
+bool Track::getPrdcFwdFwd(){
+  return _prdc_fwd_fwd;
+}
+
+
+bool Track::getPrdcBwdFwd(){
+  return _prdc_bwd_fwd;
+}
+
+
+void Track::setPeriodicCycleId(int id) {
+  _periodic_cycle_id = id;
+}
+
+ 
+int Track::getPeriodicCycleId() {
+  return _periodic_cycle_id;
+}
+
+
+void Track::setReflectiveCycleId(int id) {
+  _reflective_cycle_id = id;
+}
+
+ 
+int Track::getReflectiveCycleId() {
+  return _reflective_cycle_id;
 }

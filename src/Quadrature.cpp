@@ -183,6 +183,7 @@ FP_PRECISION Quadrature::getAzimWeight(int azim) {
     log_printf(ERROR, "Attempted to retrieve weight for azimuthal angle = %d "
                "but the azimuthal weights have not been initialized", azim);
 
+  azim = getFirstOctantAzim(azim);
   return _azim_weights[azim];
 }
 

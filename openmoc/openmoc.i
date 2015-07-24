@@ -423,7 +423,7 @@
 }
 
 
-/* Typemap for Lattice::setUniverses(int num_x, int num_y, Universe** universes)
+/* Typemap for Lattice::setUniverses3D(int num_x, int num_y, Universe** universes)
  * method - allows users to pass in Python lists of Universes for each
  * lattice cell */
 %typemap(in) (int num_z, int num_y, int num_x, Universe** universes) {

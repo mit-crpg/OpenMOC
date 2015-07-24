@@ -12,6 +12,7 @@
 #include "Python.h"
 #include "Point.h"
 #include "Material.h"
+#include "boundary_type.h"
 #include <vector>
 #include <algorithm>
 #endif
@@ -73,26 +74,30 @@ protected:
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
    *  conditions. */
-  bool _bc_in;
+  boundaryType _bc_fwd;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "reverse" direction should be zeroed out for vacuum boundary
    *  conditions. */
-  bool  _bc_out;
+  boundaryType _bc_bwd;
 
-  int _cycle_index;
+  /* Indices that are used to locate the track in the various track arrays */
+  int _azim_index;
+  int _xy_index;
+  int _periodic_cycle_id;
+  int _reflective_cycle_id;
   
   /** The Track which reflects out of this Track along its "forward"
    * direction for reflective boundary conditions. */
-  Track* _track_in_refl;
-  Track* _track_in_prdc;
-
-  /** The Track which reflects out of this Track along its "reverse"
-   * direction for reflective boundary conditions. */
-  Track* _track_out_refl;
-  Track* _track_out_prdc;
-
-  int _azim_angle_index;
+  Track* _track_refl_fwd;
+  Track* _track_refl_bwd;
+  Track* _track_prdc_fwd;
+  Track* _track_prdc_bwd;
+  bool _refl_fwd_fwd;
+  bool _refl_bwd_fwd;
+  bool _prdc_fwd_fwd;
+  bool _prdc_bwd_fwd;
+  bool _cycle_fwd;
   
 public:
   Track();
@@ -100,32 +105,40 @@ public:
 
   void setUid(int uid);
   void setPhi(const double phi);
-  void setBCIn(const bool bc_in);
-  void setBCOut(const bool bc_out);
-
-  void setTrackInRefl(Track* track);
-  void setTrackInPrdc(Track* track);
-  void setTrackOutRefl(Track* track);
-  void setTrackOutPrdc(Track* track);
-  void setCycleIndex(int cycle);
-  
-  void setAzimAngleIndex(const int index);
+  void setBCFwd(const boundaryType bc_fwd);
+  void setBCBwd(const boundaryType bc_bwd);
+  void setTrackReflFwd(Track* track);
+  void setTrackPrdcFwd(Track* track);
+  void setTrackReflBwd(Track* track);
+  void setTrackPrdcBwd(Track* track);
+  void setReflFwdFwd(bool fwd);
+  void setReflBwdFwd(bool fwd);
+  void setPrdcFwdFwd(bool fwd);
+  void setPrdcBwdFwd(bool fwd);
+  void setXYIndex(int index);
+  void setAzimIndex(int index);
+  void setPeriodicCycleId(int id);
+  void setReflectiveCycleId(int id);
   
   int getUid();
   Point* getEnd();
   Point* getStart();
   double getPhi() const;
   double getLength();
-
-  Track* getTrackInRefl();
-  Track* getTrackInPrdc();
-  Track* getTrackOutRefl();
-  Track* getTrackOutPrdc();
-  int getCycleIndex();
-  
-  int getAzimAngleIndex() const;
-  bool getBCIn() const;
-  bool getBCOut() const;
+  Track* getTrackReflFwd();
+  Track* getTrackReflBwd();
+  Track* getTrackPrdcFwd();
+  Track* getTrackPrdcBwd();
+  bool getReflFwdFwd();
+  bool getReflBwdFwd();
+  bool getPrdcFwdFwd();
+  bool getPrdcBwdFwd();
+  int getXYIndex();
+  int getAzimIndex();
+  int getPeriodicCycleId();
+  int getReflectiveCycleId();
+  boundaryType getBCFwd() const;
+  boundaryType getBCBwd() const;
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();

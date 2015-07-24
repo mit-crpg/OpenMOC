@@ -591,7 +591,8 @@ Cell* Universe::findCell(LocalCoords* coords) {
         LocalCoords* next_coords;
 
         if (coords->getNext() == NULL)
-          next_coords = new LocalCoords(coords->getX(), coords->getY());
+          next_coords = new LocalCoords(coords->getX(), coords->getY(),
+                                        coords->getZ());
         else
           next_coords = coords->getNext();
 
@@ -1133,7 +1134,7 @@ void Lattice::setUniverses3D(int num_z, int num_y, int num_x,
       _universes.at(k).at(j).clear();
     _universes.at(k).clear();
   } 
-    
+
   _universes.clear();
 
   /* Set the Lattice dimensions */

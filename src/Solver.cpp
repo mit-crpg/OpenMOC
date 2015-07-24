@@ -21,7 +21,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
   _solve_3D = false;
-  _num_cycles = 0;
   
   _tracks = NULL;
   _azim_spacings = NULL;
@@ -344,72 +343,99 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
-  _solve_3D = _track_generator->isSolve3D();  
+  _solve_3D = _track_generator->isSolve3D();
   _num_azim = _track_generator->getNumAzim();
-  _tracks_per_cycle = _track_generator->getTracksPerCycle();
-  _cycles_per_azim = _track_generator->getCyclesPerAzim();
-  _tracks_per_plane = _track_generator->getTracksPerPlane();
+  _tracks_per_stack = _track_generator->getTracksPerStack();
   _azim_spacings = _track_generator->getAzimSpacings();
   _polar_spacings = _track_generator->getPolarSpacings();
   _quad = _track_generator->getQuadrature();
   _num_polar = _quad->getNumPolarAngles();
-  _num_cycles = 0;
   
   /* Initialize the tracks array */
-  int counter = 0;  
-  int ac = 0;
-
-  for (int a=0; a < _num_azim/4; a++)
-    _num_cycles += _cycles_per_azim[a];
-  _num_tracks = new int[_num_cycles+1];
+  int counter_1 = 0;
+  int counter_2 = 0;
+  int num_x, num_y, num_l, num_z;
+  int azim_period, polar_period;
+  int num_azim_periods, num_polar_periods;
   
   if (!_solve_3D){
+    _num_tracks = new int[5];
+    _num_tracks[0] = 0;
     _fluxes_per_track = _num_groups * _num_polar/2;
     _tot_num_tracks = _track_generator->getNum2DTracks();
     _tracks = new Track*[_tot_num_tracks];
 
-    for (int a=0; a < _num_azim/4; a++){
-      for (int c=0; c < _cycles_per_azim[a]; c++){
-        _num_tracks[ac] = counter;
-        for (int t=0; t < _tracks_per_cycle[a]; t++){
-          _tracks[counter] = &_track_generator->get2DTracks()[a][c][t];
-          counter++;
+    for (int r=0; r < 2; r++) {
+      for (int s=0; s < 2; s++) {
+        for (int a=r*_num_azim/4; a < (r+1)*_num_azim/4; a++) {
+          num_x = _track_generator->getNumX(a);
+          num_y = _track_generator->getNumY(a);
+          azim_period = std::min(num_x, num_y);
+          num_azim_periods = (num_x + num_y) / azim_period + 1;
+          for (int period=s; period < num_azim_periods; period+=2) {
+            for (int i=azim_period*period;
+                 i < std::min((period+1)*azim_period, num_x+num_y); i++) {
+              _tracks[counter_1] = &_track_generator->get2DTracks()[a][i];
+              counter_1++;
+            }
+          }
         }
-        ac++;
+        counter_2++;
+        _num_tracks[counter_2] = counter_1;
       }
     }
-
-    _num_tracks[ac] = counter;
   }
   else{
+    
+    _num_tracks = new int[17];
+    _num_tracks[0] = 0;
     _fluxes_per_track = _num_groups;
     _tot_num_tracks = _track_generator->getNum3DTracks();
     _tracks = new Track*[_tot_num_tracks];
     
-    for (int a=0; a < _num_azim/4; a++){
-      for (int c=0; c < _cycles_per_azim[a]; c++){
-        _num_tracks[ac] = counter;
-        for (int p=0; p < _num_polar; p++){
-          for (int i=0; i < _track_generator->getNumZ(a,p)
-                 + _track_generator->getNumL(a,p); i++){
-            for (int t=0; t < _tracks_per_plane[a][c][p][i]; t++){
-              _tracks[counter] =
-                &_track_generator->get3DTracks()[a][c][p][i][t];
-              counter++;
+    for (int r=0; r < 2; r++) {
+      for (int s=0; s < 2; s++) {
+        for (int t=0; t < 2; t++) {
+          for (int u=0; u < 2; u++) {
+            for (int a=r*_num_azim/4; a < (r+1)*_num_azim/4; a++) {
+              num_x = _track_generator->getNumX(a);
+              num_y = _track_generator->getNumY(a);
+              azim_period = std::min(num_x, num_y);
+              num_azim_periods = (num_x + num_y) / azim_period + 1;
+              for (int p1=s; p1 < num_azim_periods; p1+=2) {
+                for (int i=azim_period*p1;
+                     i < std::min((p1+1)*azim_period, num_x+num_y); i++) {
+
+                  for (int p=t*_num_polar/2; p < (t+1)*_num_polar/2; p++) {
+                    
+                    num_l = _track_generator->getNumL(a, p);
+                    num_z = _track_generator->getNumZ(a, p);
+                    polar_period = std::min(num_l, num_z);
+                    num_polar_periods = (num_l + num_z) / polar_period + 1;
+
+                    for (int p2=u; p2 < num_polar_periods; p2+=2) {
+                      for (int z=polar_period*p2;
+                           z < std::min((p2+1)*polar_period, _tracks_per_stack[a][i][p]); z++) {
+                        _tracks[counter_1] = &_track_generator->get3DTracks()[a][i][p][z];
+                        counter_1++;
+                      }
+                    }
+                  }
+                }
+              }
             }
+            counter_2++;
+            _num_tracks[counter_2] = counter_1;
           }
         }
-        ac++;
       }
     }
-
-    _num_tracks[ac] = counter;
   }
-
+  
   /* Retrieve and store the Geometry from the TrackGenerator */  
   setGeometry(_track_generator->getGeometry());
 }
-
+  
 
 /**
  * @brief Sets the threshold for source/flux convergence.
@@ -585,10 +611,10 @@ void Solver::initializeFSRs() {
     _FSR_volumes = _track_generator->get3DFSRVolumes();
   else
     _FSR_volumes = _track_generator->get2DFSRVolumes();
-
+  
   /* Generate the FSR centroids */
   _track_generator->generateFSRCentroids();
-  
+
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
@@ -922,7 +948,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeSourceArrays();
   initializeFSRs();
   countFissionableFSRs();
-
+ 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       initializeCmfd();
   

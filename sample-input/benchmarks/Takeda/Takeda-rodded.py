@@ -30,7 +30,7 @@ v = void
 a = control_rod
 r = reflector
 
-lattice = Lattice(name='4x4 lattice')
+lattice = Lattice(name='5x5 lattice')
 lattice.setWidth(width_x=5.0/refines, width_y=5.0/refines, width_z=5.0/refines)
 template = [[[r, r, r, r, r],
              [r, r, r, r, r],
@@ -132,15 +132,18 @@ solver.printTimerReport()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plot_materials(geometry, gridsize=500)
-#plotter.plot_cells(geometry, gridsize=500)
-#plotter.plot_flat_source_regions(geometry, gridsize=500)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
-#                            gridsize=500, plane='xy', offset=0.)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
-#                            gridsize=500, plane='xz', offset=0.)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
-#                            gridsize=500, plane='yz', offset=0.)
-
+plotter.plot_materials(geometry, gridsize=500, plane='xy')
+plotter.plot_materials(geometry, gridsize=500, plane='xz', offset=-10.0)
+plotter.plot_materials(geometry, gridsize=500, plane='yz')
+plotter.plot_cells(geometry, gridsize=500)
+plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy')
+plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xz')
+plotter.plot_flat_source_regions(geometry, gridsize=500, plane='yz')
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
+                            gridsize=500, plane='xy', offset=0.)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
+                            gridsize=500, plane='xz', offset=0.)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
+                            gridsize=500, plane='yz', offset=0.)
 
 log.py_printf('TITLE', 'Finished')

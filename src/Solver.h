@@ -118,12 +118,9 @@ protected:
   Track** _tracks;
 
   /** A pointer to an array with the number of Tracks per azimuthal angle */
-  int* _tracks_per_cycle;
-  int* _cycles_per_azim;
-  int**** _tracks_per_plane;
+  int*** _tracks_per_stack;
   bool _solve_3D;
   int* _num_tracks;
-  int _num_cycles;
   
   /** The total number of Tracks */
   int _tot_num_tracks;

@@ -53,9 +53,35 @@ void Track3D::setTheta(const double theta) {
  *          the TrackGenerator class.
  * @param index the polar angle index
  */
-void Track3D::setPolarAngleIndex(const int index) {
-  _polar_angle_index = index;
+void Track3D::setPolarIndex(int index) {
+  _polar_index = index;
 }
+
+
+void Track3D::setZIndex(int index) {
+  _z_index = index;
+}
+
+
+void Track3D::setLZIndex(int index) {
+  _lz_index = index;
+}
+
+
+void Track3D::setCycleIndex(int index) {
+  _cycle_index = index;
+}
+
+
+void Track3D::setCycleTrackIndex(int index) {
+  _cycle_track_index = index;
+}
+
+
+void Track3D::setTrainIndex(int index) {
+  _train_index = index;
+}
+
 
 
 /**
@@ -67,8 +93,33 @@ double Track3D::getTheta() const {
 }
 
 
-int Track3D::getPolarAngleIndex() const {
-  return _polar_angle_index;
+int Track3D::getPolarIndex() {
+  return _polar_index;
+}
+
+
+int Track3D::getZIndex() {
+  return _z_index;
+}
+
+
+int Track3D::getLZIndex() {
+  return _lz_index;
+}
+
+
+int Track3D::getCycleIndex() {
+  return _cycle_index;
+}
+
+
+int Track3D::getCycleTrackIndex() {
+  return _cycle_track_index;
+}
+
+
+int Track3D::getTrainIndex() {
+  return _train_index;
 }
 
 
@@ -92,4 +143,14 @@ void Track3D::setCoords(double x0, double y0, double z0,
                         double x1, double y1, double z1){
   _start.setCoords(x0, y0, z0);
   _end.setCoords(x1, y1, z1);
+}
+
+
+void Track3D::setCycleFwd(bool fwd) {
+  _cycle_fwd = fwd;
+}
+
+
+bool Track3D::getCycleFwd() {
+  return _cycle_fwd;
 }
