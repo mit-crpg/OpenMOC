@@ -71,10 +71,12 @@ Cell::Cell(int id, const char* name) {
  * @brief Destructor clears vector of Surface pointers bounding the Cell.
  */
 Cell::~Cell() {
+  /*
   _surfaces.clear();
 
   if (_name != NULL)
     delete [] _name;
+  */
 }
 
 
@@ -161,6 +163,7 @@ int Cell::getNumSectors() {
  * @return the minimum x-coordinate
  */
 double Cell::getMinX() {
+  findBoundingBox();
   return _min_x;
 }
 
@@ -170,6 +173,7 @@ double Cell::getMinX() {
  * @return the maximum x-coordinate
  */
 double Cell::getMaxX() {
+  findBoundingBox();
   return _max_x;
 }
 
@@ -179,6 +183,7 @@ double Cell::getMaxX() {
  * @return the minimum y-coordinate
  */
 double Cell::getMinY() {
+  findBoundingBox();
   return _min_y;
 }
 
@@ -188,6 +193,7 @@ double Cell::getMinY() {
  * @return the maximum y-coordinate
  */
 double Cell::getMaxY() {
+  findBoundingBox();
   return _max_y;
 }
 
@@ -197,6 +203,7 @@ double Cell::getMaxY() {
  * @return the minimum z-coordinate
  */
 double Cell::getMinZ() {
+  findBoundingBox();
   return _min_z;
 }
 
@@ -206,6 +213,7 @@ double Cell::getMinZ() {
  * @return the maximum z-coordinate
  */
 double Cell::getMaxZ() {
+  findBoundingBox();
   return _max_z;
 }
 
@@ -216,6 +224,7 @@ double Cell::getMaxZ() {
  * @return the boundary condition at the minimum x-coordinate
  */
 boundaryType Cell::getMinXBoundaryType() {
+  findBoundingBox();
   return _min_x_bc;
 }
 
@@ -226,6 +235,7 @@ boundaryType Cell::getMinXBoundaryType() {
  * @return the boundary condition at the maximum x-coordinate
  */
 boundaryType Cell::getMaxXBoundaryType() {
+  findBoundingBox();
   return _max_x_bc;
 }
 
@@ -236,6 +246,7 @@ boundaryType Cell::getMaxXBoundaryType() {
  * @return the boundary condition at the minimum y-coordinate
  */
 boundaryType Cell::getMinYBoundaryType() {
+  findBoundingBox();
   return _min_y_bc;
 }
 
@@ -246,6 +257,7 @@ boundaryType Cell::getMinYBoundaryType() {
  * @return the boundary condition at the maximum y-coordinate
  */
 boundaryType Cell::getMaxYBoundaryType() {
+  findBoundingBox();
   return _max_y_bc;
 }
 
@@ -256,6 +268,7 @@ boundaryType Cell::getMaxYBoundaryType() {
  * @return the boundary condition at the minimum z-coordinate
  */
 boundaryType Cell::getMinZBoundaryType() {
+  findBoundingBox();
   return _min_z_bc;
 }
 
@@ -266,6 +279,7 @@ boundaryType Cell::getMinZBoundaryType() {
  * @return the boundary condition at the maximum z-coordinate
  */
 boundaryType Cell::getMaxZBoundaryType() {
+  findBoundingBox();
   return _max_z_bc;
 }
 
@@ -434,8 +448,6 @@ void Cell::addSurface(int halfspace, Surface* surface) {
   new_surf_half->_halfspace = halfspace;
 
   _surfaces[surface->getId()] = *new_surf_half;
-
-  findBoundingBox();
 }
 
 
@@ -447,8 +459,6 @@ void Cell::removeSurface(Surface* surface) {
 
   if (_surfaces.find(surface->getId()) != _surfaces.end())
     _surfaces.erase(surface->getId());
-
-  findBoundingBox();
 }
 
 

@@ -1173,7 +1173,7 @@ void GPUSolver::zeroTrackFluxes() {
 
 
 /**
- * @brief Set the FSR scalar flux for each energy group to some value.
+ * @brief Set the scalar flux for each FSR and energy group to some value.
  * @param value the value to assign to each FSR scalar flux
  */
 void GPUSolver::flattenFSRFluxes(FP_PRECISION value) {

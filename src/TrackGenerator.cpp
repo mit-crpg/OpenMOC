@@ -479,6 +479,10 @@ void TrackGenerator::generateTracks() {
     delete [] _tracks;
   }
 
+  /* Initialize the CMFD object */
+  if (_geometry->getCmfd() != NULL)
+    _geometry->initializeCmfd();
+
   initializeTrackFileDirectory();
 
   /* If not Tracks input file exists, generate Tracks */
@@ -762,7 +766,7 @@ void TrackGenerator::computeEndPoint(Point* start, Point* end,
     }
   }
 
-    delete[] points;
+    delete [] points;
 
     return;
 }
@@ -1139,7 +1143,7 @@ void TrackGenerator::dumpTracksToFile() {
   for (int i=0; i < _num_azim; i++)
     azim_weights[i] = _azim_weights[i];
   fwrite(azim_weights, sizeof(double), _num_azim, out);
-  free(azim_weights);
+  delete [] azim_weights;
 
   Track* curr_track;
   double x0, y0, x1, y1;
@@ -1207,7 +1211,7 @@ void TrackGenerator::dumpTracksToFile() {
   /* Get FSR vector maps */
   ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map = 
       _geometry->getFSRKeysMap();
-std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int>* FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
   std::size_t fsr_key;
   int fsr_id;
@@ -1263,8 +1267,8 @@ std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
   }
 
   /* Delete key and value lists */
-  delete[] fsr_key_list;
-  delete[] fsr_data_list;
+  delete [] fsr_key_list;
+  delete [] fsr_data_list;
 
   /* Close the Track file */
   fclose(out);
@@ -1340,7 +1344,7 @@ bool TrackGenerator::readTracksFromFile() {
   for (int i=0; i < _num_azim; i++)
     _azim_weights[i] = azim_weights[i];
 
-  free(azim_weights);
+  delete [] azim_weights;
 
   Track* curr_track;
   double x0, y0, x1, y1;

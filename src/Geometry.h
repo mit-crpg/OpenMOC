@@ -9,7 +9,9 @@
 #define GEOMETRY_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Cmfd.h"
 #include <limits>
 #include <sys/types.h>
@@ -134,8 +136,10 @@ public:
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
-  std::map<int, Material*> getAllMaterials();
+  std::map<int, Universe*> getAllUniverses();
+  std::map<int, Cell*> getAllCells();
   std::map<int, Cell*> getAllMaterialCells();
+  std::map<int, Material*> getAllMaterials();
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
