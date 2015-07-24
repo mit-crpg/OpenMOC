@@ -40,6 +40,26 @@ Geometry::~Geometry() {
     _FSRs_to_keys.clear();
     _FSRs_to_material_IDs.clear();
   }
+
+  /* Remove all Materials in the Geometry */
+  std::map<int, Material*> materials = getAllMaterials();
+  std::map<int, Cell*> cells = getAllCells();
+  std::map<int, Universe*> universes = getAllUniverses();
+  std::map<int, Material*>::iterator m_iter;
+  std::map<int, Cell*>::iterator c_iter;
+  std::map<int, Universe*>::iterator u_iter;
+
+  /* Remove all Materials in the Geometry */
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
+    delete m_iter->second;
+
+  /* Remove all Cells in the Geometry */
+  for (c_iter = cells.begin(); c_iter != cells.end(); ++c_iter)
+    delete c_iter->second;
+
+  /* Remove all Universes in the Geometry */
+  for (u_iter = universes.begin(); u_iter != universes.end(); ++u_iter)
+    delete u_iter->second;
 }
 
 
@@ -236,11 +256,69 @@ int Geometry::getNumCells() {
   int num_cells = 0;
 
   if (_root_universe != NULL) {
-    std::map<int, Cell*> all_cells = _root_universe->getAllCells();
+    std::map<int, Cell*> all_cells = getAllCells();
     num_cells = all_cells.size();
   }
 
   return num_cells;
+}
+
+
+/**
+ * @brief Return a std::map container of Universe IDs (keys) with Unierses
+ *        pointers (values).
+ * @return a std::map of Universes indexed by Universe ID in the geometry
+ */
+std::map<int, Universe*> Geometry::getAllUniverses() {
+
+  std::map<int, Universe*> all_universes;
+
+  if (_root_universe != NULL)
+    all_universes = _root_universe->getAllUniverses();
+
+  return all_universes;
+}
+
+
+/**
+ * @brief Return a std::map container of Cell IDs (keys) with Cells
+ *        pointers (values).
+ * @return a std::map of Cells indexed by Cell ID in the geometry
+ */
+std::map<int, Cell*> Geometry::getAllCells() {
+
+  std::map<int, Cell*> all_cells;
+
+  if (_root_universe != NULL)
+    all_cells = _root_universe->getAllCells();
+
+  return all_cells;
+}
+
+
+/**
+ * @brief Return a std::map container of Cell IDs (keys) with Cells
+ *        pointers (values).
+ * @return a std::map of Cells indexed by Cell ID in the geometry
+ */
+std::map<int, Cell*> Geometry::getAllMaterialCells() {
+
+  std::map<int, Cell*> all_material_cells;
+  Cell* cell;
+
+  if (_root_universe != NULL) {
+    std::map<int, Cell*> all_cells = getAllCells();
+    std::map<int, Cell*>::iterator iter;
+
+    for (iter = all_cells.begin(); iter != all_cells.end(); ++iter) {
+      cell = (*iter).second;
+
+      if (cell->getType() == MATERIAL)
+        all_material_cells[cell->getId()] = cell;
+    }
+  }
+
+  return all_material_cells;
 }
 
 
@@ -256,7 +334,7 @@ std::map<int, Material*> Geometry::getAllMaterials() {
   Material* material;
 
   if (_root_universe != NULL) {
-    std::map<int, Cell*> all_cells = _root_universe->getAllCells();
+    std::map<int, Cell*> all_cells = getAllMaterialCells();
     std::map<int, Cell*>::iterator iter;
 
     for (iter = all_cells.begin(); iter != all_cells.end(); ++iter) {
@@ -272,32 +350,6 @@ std::map<int, Material*> Geometry::getAllMaterials() {
   }
 
   return all_materials;
-}
-
-
-/**
- * @brief Return a std::map container of Cell IDs (keys) with Cells
- *        pointers (values).
- * @return a std::map of Cells indexed by Cell ID in the geometry
- */
-std::map<int, Cell*> Geometry::getAllMaterialCells() {
-
-  std::map<int, Cell*> all_material_cells;
-  Cell* cell;
-
-  if (_root_universe != NULL) {
-    std::map<int, Cell*> all_cells = _root_universe->getAllCells();
-    std::map<int, Cell*>::iterator iter;
-
-    for (iter = all_cells.begin(); iter != all_cells.end(); ++iter) {
-      cell = (*iter).second;
-
-      if (cell->getType() == MATERIAL)
-        all_material_cells[cell->getId()] = cell;
-    }
-  }
-
-  return all_material_cells;
 }
 
 
@@ -743,10 +795,6 @@ void Geometry::initializeFlatSourceRegions() {
 
   /* Create map of Material IDs to Material pointers */
   _all_materials = getAllMaterials();
-
-  /* Initialize CMFD */
-  if (_cmfd != NULL)
-    initializeCmfd();
 }
 
 
@@ -975,8 +1023,8 @@ std::string Geometry::toString() {
 
   std::stringstream string;
 
-  std::map<int, Cell*> all_cells = _root_universe->getAllCells();
-  std::map<int, Universe*> all_universes = _root_universe->getAllUniverses();
+  std::map<int, Cell*> all_cells = getAllCells();
+  std::map<int, Universe*> all_universes = getAllUniverses();
 
   std::map<int, Cell*>::iterator cell_iter;
   std::map<int, Universe*>::iterator univ_iter;

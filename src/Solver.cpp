@@ -649,6 +649,8 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
+  _cmfd->setGeometry(_geometry);
+  _cmfd->generateKNearestStencils();
   _cmfd->initializeSurfaceCurrents();
 }
 
@@ -719,6 +721,9 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
 
+  /* Initialize keff to 1 for FSR source calculations */
+  _k_eff = 1.;
+
   FP_PRECISION residual;
 
   /* Initialize data structures */
@@ -731,6 +736,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   if (only_fixed_source || _num_iterations == 0) {
     initializeFluxArrays();
     flattenFSRFluxes(0.0);
+    storeFSRFluxes();
   }
 
   initializeSourceArrays();
@@ -797,7 +803,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
  *          // ...
  * 
  *          // Find the flux distribution resulting from the fixed sources
- *          solver.computeFlux(max_iters=100, k_eff=0.981)
+ *          solver.computeSource(max_iters=100, k_eff=0.981)
  * @endcode
  *
  * @param max_iters the maximum number of source iterations to allow
@@ -834,6 +840,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
 
   /* Guess unity scalar flux for each region */
   flattenFSRFluxes(1.0);
+  storeFSRFluxes();
   zeroTrackFluxes();
 
   /* Source iteration loop */
@@ -919,6 +926,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
+  storeFSRFluxes();
   zeroTrackFluxes();
 
   /* Source iteration loop */

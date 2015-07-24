@@ -61,10 +61,12 @@ Universe::Universe(const int id, const char* name) {
  * @brief Destructor clears the Cell pointers container.
  */
 Universe::~Universe() {
-  _cells.clear();
 
   if (_name != NULL)
     delete [] _name;
+
+  /* Clear the map of Cells */
+  _cells.clear();
 }
 
 
@@ -744,7 +746,11 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
  */
 Lattice::~Lattice() {
 
-  for (int i=0; i < _num_y; i++)
+  std::map<int, Universe*> unique_universes = getUniqueUniverses();
+  std::map<int, Universe*>::iterator iter;
+
+  /* Clear the map of Universes */
+  for (int i = _num_y-1; i > -1;  i--)
     _universes.at(i).clear();
 
   _universes.clear();
@@ -907,11 +913,13 @@ std::map<int, Universe*> Lattice::getUniqueUniverses() {
 
   std::map<int, Universe*> unique_universes;
   Universe* universe;
+  int univ_id;
 
   for (int i = _num_y-1; i > -1;  i--) {
     for (int j = 0; j < _num_x; j++) {
+      univ_id = _universes.at(i).at(j).first;
       universe = _universes.at(i).at(j).second;
-      unique_universes[universe->getId()] = universe;
+      unique_universes[univ_id] = universe;
     }
   }
 
@@ -1028,7 +1036,14 @@ void Lattice::setWidth(double width_x, double width_y) {
  */
 void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
 
-  /* Clear any Universes in the Lattice (from a previous run) */
+  std::map<int, Universe*> unique_universes = getUniqueUniverses();
+  std::map<int, Universe*>::iterator iter;
+
+  /* Remove all Universes in the Lattice */
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter)
+    removeUniverse(iter->second);
+
+  /* Clear all Univers maps in the Lattice (from a previous run) */
   for (int i=0; i < _num_y; i++)
     _universes.at(i).clear();
 
@@ -1054,6 +1069,25 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
     }
   }
 }
+
+
+/**
+ * @brief Removes all references to a Universe from the Lattice.
+ * @param universe the Universe to remove
+ */
+void Lattice::removeUniverse(Universe* universe) {
+
+  Universe* null = NULL;
+
+  /* Set all locations in the array of universes array to NULL */
+  for (int j=0; j < _num_y; j++) {
+    for (int i = 0; i < _num_x; i++) {
+      if (universe->getId() == getUniverse(i,j)->getId())
+        _universes.at(j)[i] = std::pair<int,Universe*>(-1, null);
+    }
+  }
+}
+
 
 
 /**

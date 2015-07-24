@@ -40,7 +40,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
   for (int iter = 0; iter < 25000; iter++) {
 
     /* Solve phi = A^-1 * old_source */
-    linearSolve(A, X, &old_source, tol*1e2, SOR_factor);
+    linearSolve(A, X, &old_source, tol*1e1, SOR_factor);
 
     /* Compute the new source */
     matrixMultiplication(M, X, &new_source);

@@ -9,7 +9,9 @@
 #define TIMER_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "log.h"
 #include <time.h>
 #include <omp.h>
