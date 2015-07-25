@@ -129,6 +129,7 @@ public:
   FP_PRECISION getSigmaFByGroup(int group);
   FP_PRECISION getNuSigmaFByGroup(int group);
   FP_PRECISION getChiByGroup(int group);
+  FP_PRECISION getFissionMatrixByGroup(int origin, int destination);
   FP_PRECISION getDifCoefByGroup(int group);
   FP_PRECISION getBucklingByGroup(int group);
   FP_PRECISION getDifHatByGroup(int group, int surface);
@@ -173,8 +174,7 @@ public:
 
 
 /**
- * @brief inline function for efficient mapping for scattering, from
- *        1D as stored in memory to 2D matrix
+ * @brief Efficient mapping from 1D to 2D scattering matrix access.
  * @details Encapsulates the logic for indexing into the scattering
  *        matrix so it does not need to be repeated in other parts of 
  *        the code.  Note that this routine is 0-based, rather than 
@@ -187,5 +187,6 @@ inline FP_PRECISION Material::getSigmaSByGroupInline(
           int origin, int destination) {
   return _sigma_s[destination*_num_groups + origin];
 }
+
 
 #endif /* MATERIAL_H_ */

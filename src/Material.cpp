@@ -338,7 +338,7 @@ FP_PRECISION Material::getSigmaTByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's total "
                "cross section since it has not yet been set", _id);
                
-  if (group <= 0 || group > _num_groups)
+  else if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get sigma_t for group %d for Material "
                "%d which contains %d energy groups", group, _id, _num_groups);
                
@@ -356,7 +356,7 @@ FP_PRECISION Material::getSigmaAByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's absorption "
                "cross section since it has not yet been set", _id);
   
-  if (group <= 0 || group > _num_groups)
+  else if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get sigma_a for group %d for Material "
                "%d which contains %d energy groups", group, _id, _num_groups);
   
@@ -375,7 +375,8 @@ FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
     log_printf(ERROR, "Unable to return Material %d's scattering "
                "cross section since it has not yet been set", _id);
   
-  if (origin <= 0 || destination <= 0 || origin > _num_groups || destination > _num_groups)
+  else  if (origin <= 0 || destination <= 0 ||
+            origin > _num_groups || destination > _num_groups)
     log_printf(ERROR, "Unable to get sigma_s for group %d,%d for Material %d "
                "which contains %d energy groups",
                origin, destination, _id, _num_groups);
@@ -390,12 +391,12 @@ FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
  * @param group the energy group
  * @return the fission cross section
  */
-FP_PRECISION Material::getSigmaFByGroup(int group) {    
+FP_PRECISION Material::getSigmaFByGroup(int group) {
   if (_sigma_f == NULL)
     log_printf(ERROR, "Unable to return material %d's fission "
                "cross section since it has not yet been set", _id);
   
-  if (group <= 0 || group > _num_groups)
+  else if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get sigma_f for group %d for Material "
                "%d which contains %d energy groups", group, _id, _num_groups);  
   
@@ -413,7 +414,7 @@ FP_PRECISION Material::getNuSigmaFByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's nu-fission "
                "cross section since it has not yet been set", _id);
   
-  if (group <= 0 || group > _num_groups)
+  else if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get nu_sigma_f for group %d for Material "
                "%d which contains %d energy groups", group, _id, _num_groups);
   
@@ -431,12 +432,32 @@ FP_PRECISION Material::getChiByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's chi spectrum "
                "since it has not yet been set", _id);
   
-  if (group <= 0 || group > _num_groups)
+  else if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get chi for group %d for Material "
                "%d which contains %d energy groups", group, _id, _num_groups);
   
   return _chi[group-1];
 }  
+
+
+/**
+ * @brief Get the Material's fission matrix for some energy group.
+ * @param origin the incoming energy group \f$ E_{0} \f$
+ * @param destination the outgoing energy group \f$ E_{1} \f$
+ * @return the fission matrix entry \f$ \nu\Sigma_{f}(E_{0}) * \chi(E_{0})\f$
+ */
+FP_PRECISION Material::getFissionMatrixByGroup(int origin, int destination) {
+  if (origin <= 0 || destination <= 0 ||
+           origin > _num_groups || destination > _num_groups)
+    log_printf(ERROR, "Unable to get fission matrix for group %d,%d for "
+               "Material %d which contains %d energy groups",
+               origin, destination, _id, _num_groups);
+
+  if (!isFissionable())
+    return 0.;
+  else
+    return _chi[destination-1] * _nu_sigma_f[origin-1];
+}
 
 
 /**
@@ -449,7 +470,7 @@ FP_PRECISION Material::getDifCoefByGroup(int group) {
     log_printf(ERROR, "Unable to return Material %d's diffusion coefficient "
                "since it has not yet been set", _id);
   
-  if (group <= 0 || group > _num_groups)
+  else if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get dif_coef for group %d for Material "
                "%d which contains %d energy groups", group, _id, _num_groups);
   
@@ -468,7 +489,7 @@ FP_PRECISION Material::getDifHatByGroup(int group, int surface) {
     log_printf(ERROR, "Unable to return Material %d's dif_hat "
                "since it has not yet been set", _id);
   
-  if (group <= 0 || group > _num_groups)
+  else if (group <= 0 || group > _num_groups)
     log_printf(ERROR, "Unable to get dif_hat for group %d for Material "
                "%d which contains %d energy groups", group, _id, _num_groups);
                
@@ -1456,7 +1477,7 @@ void Material::alignData() {
 
   _sigma_s -= _num_groups * _num_groups;
 
-  /* Reset the new scattering cross section array pointer */
+  /* Reset the new scattering matrix array pointers */
   new_sigma_s -= _num_vector_groups * VEC_LENGTH * _num_groups;
 
   /* Delete the old unaligned arrays */
