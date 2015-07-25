@@ -345,11 +345,12 @@ void VectorizedSolver::computeFSRSources() {
       for (int v=0; v < _num_vector_lengths; v++) {
 
         #pragma simd vectorlength(VEC_LENGTH)
-        for (int g=v*VEC_LENGTH; g < (v+1)*VEC_LENGTH; g++)
+        for (int g=v*VEC_LENGTH; g < (v+1)*VEC_LENGTH; g++) {
           sigma_s = material->getSigmaSByGroup(g+1,G+1);
           fiss_mat = material->getFissionMatrixByGroup(g+1,G+1);
           scatter_sources(tid,g) = sigma_s * _scalar_flux(r,g);
           fission_sources(tid,g) = fiss_mat * _scalar_flux(r,g);
+        }
       }
 
       #ifdef SINGLE
