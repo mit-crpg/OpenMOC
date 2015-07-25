@@ -16,7 +16,7 @@ Point::Point() {
  * @brief Destructor
  */
 Point::~Point() {
-  delete [] xyz;
+  delete [] _xyz;
 }
 
 

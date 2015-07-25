@@ -23,6 +23,8 @@
 #include "ParallelHashMap.h"
 #endif
 
+/** Forward declaration of Cmfd class */
+class Cmfd;
 
 /**
  * @struct fsr_data

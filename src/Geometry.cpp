@@ -1087,16 +1087,15 @@ void Geometry::initializeCmfd() {
   lattice->setWidth(cell_width, cell_height);
   lattice->setNumX(num_x);
   lattice->setNumY(num_y);
-  lattice->setOffset(getMinX() + width/2.0, getMinY() + height/2.0, 0.5);
+  lattice->setNumZ(1);
+  lattice->setOffset(getMinX() + width/2.0, getMinY() + height/2.0);
   _cmfd->setLattice(lattice);
 
   /* Set CMFD mesh boundary conditions */
   _cmfd->setBoundary(SURFACE_X_MIN, getMinXBoundaryType());
   _cmfd->setBoundary(SURFACE_Y_MIN, getMinYBoundaryType());
-  _cmfd->setBoundary(SURFACE_Z_MIN, getMinZBoundaryType());
   _cmfd->setBoundary(SURFACE_X_MAX, getMaxXBoundaryType());
   _cmfd->setBoundary(SURFACE_Y_MAX, getMaxYBoundaryType());
-  _cmfd->setBoundary(SURFACE_Z_MAX, getMaxZBoundaryType());
 
   /* Set CMFD mesh dimensions and number of groups */
   _cmfd->setWidth(width);

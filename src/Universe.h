@@ -189,10 +189,10 @@ public:
 
   void setNumX(int num_x);
   void setNumY(int num_y);
-  void setNumY(int num_z);
+  void setNumZ(int num_z);
   void setWidth(double width_x, double width_y, double width_z=1.0);
   void setUniverses(int num_y, int num_x, Universe** universes);
-  void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
+  void setUniverses3D(int num_z, int num_y, int num_x, Universe** universes);
   void removeUniverse(Universe* universe);
   void buildNeighbors();
 

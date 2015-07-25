@@ -1095,6 +1095,9 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
   
   Universe* universe;
 
+  _universes.push_back
+    (std::vector< std::vector< std::pair<int, Universe*> > >());
+  
   /* The Lattice cells are assumed input in row major order starting from the
    * upper left corner. This double loop reorders the Lattice cells from the
    * to start from the lower left corner */
@@ -1442,7 +1445,7 @@ int Lattice::getLatZ(Point* point) {
     lat_z = _num_z - 1;
   else if (lat_z < 0 || lat_z > _num_z-1)
     log_printf(ERROR, "Trying to get lattice z index for point that is "
-               "outside lattice bounds.");
+               "outside lattice bounds: %f.", point->getZ());
 
   return lat_z;
 }

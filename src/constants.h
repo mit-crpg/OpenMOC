@@ -43,7 +43,7 @@
  *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */
 #define EXP_PRECISION FP_PRECISION(1E-5)
 
-/** The surfaces of a cube */
+/** The surfaces of a rectangle used in indexing CMFD data arrays. */
 #define NUM_SURFACES 26
 #define SURFACE_X_MIN 0
 #define SURFACE_X_MAX 1

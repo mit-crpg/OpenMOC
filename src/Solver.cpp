@@ -649,6 +649,8 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
+  _cmfd->setGeometry(_geometry);
+  _cmfd->generateKNearestStencils();
   _cmfd->initializeSurfaceCurrents();
 }
 

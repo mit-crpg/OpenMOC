@@ -19,7 +19,7 @@
 #include "Track.h"
 #include "PolarQuad.h"
 #include "linalg.h"
-#include "pairwise_sum.h"
+#include "Geometry.h"
 #include <utility>
 #include <math.h>
 #include <limits.h>
@@ -30,18 +30,20 @@
 #include <fstream>
 #endif
 
+/** Forward declaration of Geometry class */
+class Geometry;
+
+/** Comparitor for sorting k-nearest stencil std::pair objects */
+inline bool stencilCompare(const std::pair<int, FP_PRECISION>& firstElem,
+                           const std::pair<int, FP_PRECISION>& secondElem){
+  return firstElem.second < secondElem.second;
+}
 
 #undef track_flux
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
- *  group for either the forward or reverse direction for a given Track */ 
+ *  group for either the forward or reverse direction for a given Track */
 #define track_flux(p,e) (track_flux[(p)*_num_moc_groups + (e)])
-
-/** Indexing macro for the surface currents for each CMFD Mesh surface and
- *  each energy group */
-#define _surface_currents(r,e) (_surface_currents[(r)*_num_cmfd_groups \
-						  + getCmfdGroup((e))])
-
 
 /**
  * @class Cmfd Cmfd.h "src/Cmfd.h"
@@ -54,32 +56,31 @@ private:
   /** Pointer to polar quadrature object */
   PolarQuad* _polar_quad;
 
+  /** Pointer to geometry object */
+  Geometry* _geometry;
+
   /** The keff eigenvalue */
   FP_PRECISION _k_eff;
 
   /** The A (destruction) matrix */
-  FP_PRECISION** _A;
+  Matrix* _A;
 
   /** The M (production) matrix */
-  FP_PRECISION** _M;
+  Matrix* _M;
 
   /** The old source vector */
-  FP_PRECISION* _old_source;
+  Vector* _old_source;
 
   /** The new source vector */
-  FP_PRECISION* _new_source;
+  Vector* _new_source;
 
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
    * the end of a CMFD solve */
-  FP_PRECISION* _new_flux;
+  Vector* _new_flux;
 
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
    * the beginning of a CMFD solve */
-  FP_PRECISION* _old_flux;
-
-  /** Vector representing the flux during the previous iteration of a 
-   * cmfd solve */
-  FP_PRECISION* _flux_temp;
+  Vector* _old_flux;
 
   /** Gauss-Seidel SOR relaxation factor */
   FP_PRECISION _SOR_factor;
@@ -93,6 +94,9 @@ private:
   /** Number of cells in y direction */
   int _num_y;
 
+  /** Number of cells in z direction */
+  int _num_z;
+  
   /** Number of energy groups */
   int _num_moc_groups;
 
@@ -122,7 +126,7 @@ private:
   FP_PRECISION* _FSR_fluxes;
 
   /** Array of CMFD cell volumes */
-  FP_PRECISION* _volumes;
+  Vector* _volumes;
 
   /** Array of material pointers for CMFD cell materials */
   Material** _materials;
@@ -130,17 +134,16 @@ private:
   /** Physical dimensions of the geometry and each CMFD cell */
   double _width;
   double _height;
+  double _depth;
   double _cell_width;
   double _cell_height;
+  double _cell_depth;
 
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
 
   /** Array of surface currents for each CMFD cell */
-  FP_PRECISION* _surface_currents;
-
-  /** OpenMP mutual exclusion locks for atomic surface current updates */
-  omp_lock_t* _surface_locks;
+  Vector* _surface_currents;
 
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
@@ -157,6 +160,16 @@ private:
   /** Flag indicating whether to update the MOC flux */
   bool _flux_update_on;
 
+  /** Flag indicating whether to us centroid updating */
+  bool _centroid_update_on;
+
+  /** Number of cells to used in updating MOC flux */
+  int _k_nearest;
+
+  /** Map storing the k-nearest stencil for each fsr */
+  std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
+    _k_nearest_stencils;
+
 public:
 
   Cmfd();
@@ -171,13 +184,10 @@ public:
   FP_PRECISION computeKeff(int moc_iteration);
   void initializeCellMap();
   void initializeGroupMap();
-  void initializeFlux();
   void initializeMaterials();
   void initializeSurfaceCurrents();
 
   void rescaleFlux();
-  void linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x, FP_PRECISION* vec_b,
-                   FP_PRECISION conv, int max_iter=10000);
   void splitCorners();
   int getCellNext(int cell_num, int surface_id);
   int findCmfdCell(LocalCoords* coords);
@@ -185,6 +195,7 @@ public:
   void addFSRToCell(int cmfd_cell, int fsr_id);
   void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
                           int num_tracks);
+  void generateKNearestStencils();
   void zeroSurfaceCurrents();
   void tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
                            FP_PRECISION* polar_weights, bool fwd);
@@ -200,34 +211,43 @@ public:
   Lattice* getLattice();
   int getNumX();
   int getNumY();
+  int getNumZ();
   int convertFSRIdToCmfdCell(int fsr_id);
-  std::vector< std::vector<int> > getCellFSRs();
+  std::vector< std::vector<int> >* getCellFSRs();
   bool isFluxUpdateOn();
+  bool isCentroidUpdateOn();
   FP_PRECISION getFluxRatio(int cmfd_cell, int moc_group);
+  FP_PRECISION getUpdateRatio(int cmfd_cell, int moc_group, int fsr);
+  FP_PRECISION getDistanceToCentroid(Point* centroid, int cell, int surface);
 
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
+  void setGeometry(Geometry* geometry);
   void setWidth(double width);
   void setHeight(double height);
+  void setDepth(double depth);
   void setNumX(int num_x);
   void setNumY(int num_y);
+  void setNumZ(int num_z);
   void setNumFSRs(int num_fsrs);
   void setNumMOCGroups(int num_moc_groups);
   void setOpticallyThick(bool thick);
   void setMOCRelaxationFactor(FP_PRECISION relax_factor);
   void setBoundary(int side, boundaryType boundary);
   void setLattice(Lattice* lattice);
-  void setLatticeStructure(int num_x, int num_y);
+  void setLatticeStructure(int num_x, int num_y, int num_z=1);
   void setFluxUpdateOn(bool flux_update_on);
+  void setCentroidUpdateOn(bool centroid_update_on);
   void setGroupStructure(int* group_indices, int length_group_indices);
   void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
   void setPolarQuadrature(PolarQuad* polar_quad);
+  void setKNearest(int k_nearest);
   
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
   void setFSRFluxes(FP_PRECISION* scalar_flux);
-  void setCellFSRs(std::vector< std::vector<int> > cell_fsrs);
+  void setCellFSRs(std::vector< std::vector<int> >* cell_fsrs);
 };
 
 #endif /* CMFD_H_ */

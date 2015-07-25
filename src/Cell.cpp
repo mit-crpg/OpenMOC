@@ -64,6 +64,14 @@ Cell::Cell(int id, const char* name) {
   _max_y = std::numeric_limits<double>::infinity();
   _min_z = -std::numeric_limits<double>::infinity();
   _max_z = std::numeric_limits<double>::infinity();
+
+  /* Set the default boundaries to be REFLECTIVE */
+  _min_x_bc = REFLECTIVE;
+  _min_y_bc = REFLECTIVE;
+  _min_z_bc = REFLECTIVE;
+  _max_x_bc = REFLECTIVE;
+  _max_y_bc = REFLECTIVE;
+  _max_z_bc = REFLECTIVE;
 }
 
 
