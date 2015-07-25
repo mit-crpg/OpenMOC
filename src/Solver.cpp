@@ -935,7 +935,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     transportSweep();
     addSourceToScalarFlux();
     residual = computeResidual(res_type);
-    storeFSRFluxes();
 
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn()) {
@@ -947,6 +946,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
                "\tres = %1.3E", i, _k_eff, residual);
+
+    storeFSRFluxes();
 
     /* Check for convergence of the fission source distribution */
     if (i > 1 && residual < _converge_thresh) {
