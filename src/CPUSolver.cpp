@@ -282,8 +282,7 @@ void CPUSolver::computeFSRSources() {
   Material* material;
   FP_PRECISION* sigma_t;
   FP_PRECISION sigma_s, fiss_mat;
-  FP_PRECISION scatter_source = 0.;
-  FP_PRECISION fission_source = 0.;;
+  FP_PRECISION scatter_source, fission_source;
 
   int size = _num_threads * _num_groups;
   FP_PRECISION* fission_sources = new FP_PRECISION[size];
