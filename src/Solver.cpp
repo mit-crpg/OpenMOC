@@ -24,7 +24,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _tracks = NULL;
   _polar_weights = NULL;
   _boundary_flux = NULL;
-  _boundary_leakage = NULL;
 
   _scalar_flux = NULL;
   _old_scalar_flux = NULL;

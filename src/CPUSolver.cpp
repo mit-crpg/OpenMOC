@@ -105,8 +105,7 @@ void CPUSolver::initializeFSRs() {
 
 
 /**
- * @brief Allocates memory for Track boundary angular flux and leakage
- *        and FSR scalar flux arrays.
+ * @brief Allocates memory for Track boundary angular and FSR scalar fluxes.
  * @details Deletes memory for old flux arrays if they were allocated
  *          for a previous simulation.
  */
@@ -116,20 +115,16 @@ void CPUSolver::initializeFluxArrays() {
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
 
-  if (_boundary_leakage != NULL)
-    delete [] _boundary_leakage;
-
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
 
   if (_old_scalar_flux != NULL)
     delete [] _old_scalar_flux;
 
-  /* Allocate memory for the Track boundary flux and leakage arrays */
+  /* Allocate memory for the Track boundary flux arrays */
   try{
     int size = 2 * _tot_num_tracks * _polar_times_groups;
     _boundary_flux = new FP_PRECISION[size];
-    _boundary_leakage = new FP_PRECISION[size];
 
     /* Allocate an array for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
@@ -450,15 +445,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
 
 /**
- * @brief Compute \f$ k_{eff} \f$ from the total, fission and scattering
- *        reaction rates and leakage.
- * @details This method computes the current approximation to the
- *          multiplication factor on this iteration as follows:
- *          \f$ k_{eff} = \frac{\displaystyle\sum_{i \in I}
- *                        \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}}
- *                        {\displaystyle\sum_{i \in I}
- *                        \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} -
- *                        \Sigma^S_g \Phi V_{i} - L_{i,g})} \f$
+ * @brief Compute \f$ k_{eff} \f$ from successive fission sources.
  */
 void CPUSolver::computeKeff() {
 
@@ -662,8 +649,7 @@ void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
 /**
  * @brief Updates the boundary flux for a Track given boundary conditions.
  * @details For reflective boundary conditions, the outgoing boundary flux
- *          for the Track is given to the reflecting Track. For vacuum
- *          boundary conditions, the outgoing flux tallied as leakage.
+ *          for the Track is given to the reflecting Track.
  * @param track_id the ID number for the Track of interest
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param direction the Track direction (forward - true, reverse - false)
@@ -675,17 +661,14 @@ void CPUSolver::transferBoundaryFlux(int track_id,
                                      FP_PRECISION* track_flux) {
   int start;
   int bc;
-  FP_PRECISION* track_leakage;
   int track_out_id;
 
-  /* Extract boundary conditions for this Track and the pointer to the
-   * outgoing reflective Track, and index into the leakage array */
+  /* Extract boundary conditions for this Track */
 
   /* For the "forward" direction */
   if (direction) {
     start = _tracks[track_id]->isReflOut() * _polar_times_groups;
     bc = (int)_tracks[track_id]->getBCOut();
-    track_leakage = &_boundary_leakage(track_id,0);
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
   }
 
@@ -693,7 +676,6 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   else {
     start = _tracks[track_id]->isReflIn() * _polar_times_groups;
     bc = (int)_tracks[track_id]->getBCIn();
-    track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
@@ -701,11 +683,8 @@ void CPUSolver::transferBoundaryFlux(int track_id,
 
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {
-    for (int p=0; p < _num_polar; p++) {
+    for (int p=0; p < _num_polar; p++)
       track_out_flux(p,e) = track_flux(p,e) * bc;
-      track_leakage(p,e) = track_flux(p,e) *
-                           _polar_weights(azim_index,p) * (1-bc);
-    }
   }
 }
 
