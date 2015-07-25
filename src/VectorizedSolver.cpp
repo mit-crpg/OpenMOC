@@ -332,7 +332,7 @@ void VectorizedSolver::computeFSRSources() {
   FP_PRECISION* scatter_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* For all FSRs, find the source */
-  #pragma omp parallel for private(tid, material, sigma_t, sigma_s, fiss_mat \
+  #pragma omp parallel for private(tid, material, sigma_t, sigma_s, fiss_mat, \
     fission_source, scatter_source) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
