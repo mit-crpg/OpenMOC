@@ -176,6 +176,7 @@ protected:
 
   virtual void initializePolarQuadrature();
   virtual void initializeExpEvaluator();
+  virtual void initializeMaterials();
   virtual void initializeFSRs();
   virtual void countFissionableFSRs();
   virtual void initializeCmfd();

@@ -51,6 +51,7 @@ Material::Material(int id, const char* name) {
   _sigma_f = NULL;
   _nu_sigma_f = NULL;
   _chi = NULL;
+  _fiss_matrix = NULL;
   _dif_coef = NULL;
   _dif_hat = NULL;
   _dif_tilde = NULL;
@@ -92,6 +93,9 @@ Material::~Material() {
     if (_chi != NULL)
       MM_FREE(_chi);
 
+    if (_fiss_matrix != NULL)
+      MM_FREE(_fiss_matrix);
+
     /* Whomever SIMD'izes OpenMOC will need to properly free these
      * using mm_free if they are vector aligned */
     if (_dif_coef != NULL)
@@ -127,6 +131,9 @@ Material::~Material() {
 
     if (_chi != NULL)
       delete [] _chi;
+
+    if (_fiss_matrix != NULL)
+      delete [] _fiss_matrix;
 
     if (_dif_coef != NULL)
       delete [] _dif_coef;
@@ -249,6 +256,19 @@ FP_PRECISION* Material::getChi() {
 
   return _chi;
 }
+
+
+/**
+ * @brief Return the array of the Material's fission matrix.
+ * @return the pointer to the Material's fission matric array
+ */
+FP_PRECISION* Material::getFissionMatrix() {
+  if (_fiss_matrix == NULL)
+    log_printf(ERROR, "Unable to return Material %d's fission matrix "
+               "since it has not yet been built", _id);
+
+  return _fiss_matrix;
+  }
 
 
 /**
@@ -446,16 +466,17 @@ FP_PRECISION Material::getChiByGroup(int group) {
  * @return the fission matrix entry \f$ \nu\Sigma_{f}(E_{0}) * \chi(E_{0})\f$
  */
 FP_PRECISION Material::getFissionMatrixByGroup(int origin, int destination) {
-  if (origin <= 0 || destination <= 0 ||
+  if (_fiss_matrix == NULL)
+    log_printf(ERROR, "Unable to return Material %d's fission matrix "
+               "cross section since it has not yet been built", _id);
+
+  else if (origin <= 0 || destination <= 0 ||
            origin > _num_groups || destination > _num_groups)
     log_printf(ERROR, "Unable to get fission matrix for group %d,%d for "
                "Material %d which contains %d energy groups",
                origin, destination, _id, _num_groups);
 
-  if (!isFissionable())
-    return 0.;
-  else
-    return _chi[destination-1] * _nu_sigma_f[origin-1];
+  return _fiss_matrix[(destination-1)*_num_groups + (origin-1)];
 }
 
 
@@ -614,6 +635,9 @@ void Material::setNumEnergyGroups(const int num_groups) {
 
     if (_chi != NULL)
       MM_FREE(_chi);
+
+    if (_fiss_matrix != NULL)
+      MM_FREE(_fiss_matrix);
   }
 
   /* Data is not vector aligned */
@@ -635,6 +659,9 @@ void Material::setNumEnergyGroups(const int num_groups) {
 
     if (_chi != NULL)
       delete [] _chi;
+
+    if (_fiss_matrix != NULL)
+      delete [] _fiss_matrix;
 
     if (_dif_coef != NULL)
       delete [] _dif_coef;
@@ -1292,13 +1319,13 @@ void Material::checkSigmaT() {
   if (_num_groups == 0)
     log_printf(ERROR, "Unable to verify Material %d's total cross-section "
               "since the number of energy groups has not been set", _id);
-  if (_sigma_t == NULL)
+  else if (_sigma_t == NULL)
     log_printf(ERROR, "Unable to verify Material %d's total cross-section "
               "since its total cross-section has not been set", _id);
-  if (_sigma_a == NULL)
+  else if (_sigma_a == NULL)
     log_printf(ERROR, "Unable to verify Material %d's total cross-section "
                "since its absorption cross-section has not been set", _id);
-  if (_sigma_s == NULL)
+  else if (_sigma_s == NULL)
     log_printf(ERROR, "Unable to verify Material %d's total cross-section "
               "since its scattering cross-section has not been set", _id);
 
@@ -1324,6 +1351,35 @@ void Material::checkSigmaT() {
   }
 
   return;
+}
+
+
+/**
+ * @brief Builds the fission matrix from chi and the fission cross-section.
+ * @details The fission matrix is constructed as the outer product of the
+ *          chi and fission cross-section vectors. This routine is intended 
+ *          for internal use and is called by the Solver at runtime.
+ */
+void Material::buildFissionMatrix() {
+
+  if (_num_groups == 0)
+    log_printf(ERROR, "Unable to build Material %d's fission matrix "
+              "since the number of energy groups has not been set", _id);
+  else if (_nu_sigma_f == NULL)
+    log_printf(ERROR, "Unable to build Material %d's fission matrix "
+              "since its nu-fission cross-section has not been set", _id);
+  else if (_chi == NULL)
+    log_printf(ERROR, "Unable to build Material %d's fission matrix "
+               "since its chi spectrum has not been set", _id);
+
+  if (_fiss_matrix == NULL)
+    _fiss_matrix = new FP_PRECISION[_num_groups*_num_groups];
+
+  /* Compute vector outer product of chi and the fission cross-section */
+  for (int G=0; G < _num_groups; G++) {
+    for (int g=0; g < _num_groups; g++)
+      _fiss_matrix[G*_num_groups+g] = _chi[G] * _nu_sigma_f[g];
+  }
 }
 
 
@@ -1360,12 +1416,13 @@ void Material::alignData() {
   FP_PRECISION* new_nu_sigma_f=(FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_chi = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-  /* The scattering matrix will be the number of vector groups
-   * wide (SIMD) and the actual number of groups long since
+  /* The fisssion and scattering matrices will be the number of vector
+   * groups wide (SIMD) and the actual number of groups long since
    * instructions are not SIMD in this dimension */
 
   size = _num_vector_groups * VEC_LENGTH * _num_vector_groups;
   size *= VEC_LENGTH * sizeof(FP_PRECISION);
+  FP_PRECISION* new_fiss_matrix = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_sigma_s = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* Initialize data structures to ones for sigma_t since it is used to
@@ -1380,6 +1437,7 @@ void Material::alignData() {
   }
 
   size *= _num_vector_groups * VEC_LENGTH;
+  memset(new_fiss_matrix, 0.0, size);
   memset(new_sigma_s, 0.0, size);
 
   /* Copy materials data from unaligned arrays into new aligned arrays */
@@ -1391,14 +1449,19 @@ void Material::alignData() {
   memcpy(new_chi, _chi, size);
 
   for (int e=0; e < _num_groups; e++) {
+    memcpy(new_fiss_matrix, _sigma_s, size);
     memcpy(new_sigma_s, _sigma_s, size);
+    new_fiss_matrix += _num_vector_groups * VEC_LENGTH;
     new_sigma_s += _num_vector_groups * VEC_LENGTH;
+    _fiss_matrix += _num_groups;
     _sigma_s += _num_groups;
   }
 
+  _fiss_matrix -= _num_groups * _num_groups;
   _sigma_s -= _num_groups * _num_groups;
 
-  /* Reset the new scattering matrix array pointers */
+  /* Reset the new fission / scattering matrix array pointers */
+  new_fiss_matrix -= _num_vector_groups * VEC_LENGTH * _num_groups;
   new_sigma_s -= _num_vector_groups * VEC_LENGTH * _num_groups;
 
   /* Delete the old unaligned arrays */
@@ -1407,6 +1470,7 @@ void Material::alignData() {
   delete [] _sigma_f;
   delete [] _nu_sigma_f;
   delete [] _chi;
+  delete [] _fiss_matrix;
   delete [] _sigma_s;
 
   /* Set the material's array pointers to the new aligned arrays */
@@ -1415,6 +1479,7 @@ void Material::alignData() {
   _sigma_f = new_sigma_f;
   _nu_sigma_f = new_nu_sigma_f;
   _chi = new_chi;
+  _fiss_matrix = new_fiss_matrix;
   _sigma_s = new_sigma_s;
 
   _data_aligned = true;
@@ -1458,6 +1523,9 @@ Material* Material::clone() {
         clone->setDifTildeByGroup((double)_dif_tilde[i*4+j], i+1, j);
     }
   }
+
+  if (_fiss_matrix != NULL)
+    clone->buildFissionMatrix();
 
   return clone;
 }

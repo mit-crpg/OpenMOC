@@ -569,6 +569,21 @@ void Solver::initializeExpEvaluator() {
 
 
 /**
+ * @brief Initializes the Material fission matrices.
+ */
+void Solver::initializeMaterials() {
+
+  log_printf(INFO, "Initializing materials...");
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+  std::map<int, Material*>::iterator m_iter;
+
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
+    m_iter->second->buildFissionMatrix();
+}
+
+
+/**
  * @brief Initializes the FSR volumes and Materials array.
  * @details This method assigns each FSR a unique, monotonically increasing
  *          ID, sets the Material for each FSR, and assigns a volume based on
@@ -736,6 +751,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   }
 
   initializeSourceArrays();
+  initializeMaterials();
   initializeFSRs();
   countFissionableFSRs();
   zeroTrackFluxes();
@@ -832,6 +848,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
+  initializeMaterials();
   initializeFSRs();
 
   /* Guess unity scalar flux for each region */
@@ -914,6 +931,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
+  initializeMaterials();
   initializeFSRs();
   countFissionableFSRs();
 

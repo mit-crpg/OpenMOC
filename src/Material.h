@@ -66,8 +66,7 @@ private:
   /** An array of the absorption cross-sections for each energy group */
   FP_PRECISION* _sigma_a;
 
-  /** A 2D array of the scattering cross-section matrix. The first index is
-   *  row number and second index is column number */
+  /** A 2D array of the scattering cross-section matrix into/from each group */
   FP_PRECISION* _sigma_s;
 
   /** An array of the fission cross-sections for each energy group */
@@ -79,6 +78,9 @@ private:
 
   /** An array of the chi \f$ \chi \f$ values for each energy group */
   FP_PRECISION* _chi;
+
+  /** A 2D array of the fission matrix into/from each group */
+  FP_PRECISION* _fiss_matrix;
 
   /** An array of the diffusion coefficients for each energy group */
   FP_PRECISION* _dif_coef;
@@ -118,6 +120,7 @@ public:
   FP_PRECISION* getSigmaF();
   FP_PRECISION* getNuSigmaF();
   FP_PRECISION* getChi();
+  FP_PRECISION* getFissionMatrix();
   FP_PRECISION* getDifCoef();
   FP_PRECISION* getBuckling();
   FP_PRECISION* getDifHat();
@@ -163,6 +166,7 @@ public:
   void setDifTildeByGroup(double xs, int group, int surface);
 
   void checkSigmaT();
+  void buildFissionMatrix();
   void alignData();
   Material* clone();
 
