@@ -88,6 +88,15 @@ class IRAMSolver(object):
   def computeEigenmodes(self, num_modes=5, inner_method='gmres', 
                         outer_tol=1e-5, inner_tol=1e-6, interval=10):
 
+    # Ensure that vacuum boundary conditions are used
+    geometry = self._moc_solver.getGeometry()
+    if (geometry.getMinXBoundaryType() != openmoc.VACUUM or
+        geometry.getMaxXBoundaryType() != openmoc.VACUUM or
+        geometry.getMinYBoundaryType() != openmoc.VACUUM or
+        geometry.getMaxYBoundaryType() != openmoc.VACUUM):
+        # Output an error and return
+        py_printf('ERROR', 'All boundary conditions must be vacuum to use IRAMSolver')
+    
     # Set solution-dependent class attributes based on parameters
     # These are accessed and used by the LinearOperators
     self._num_modes = num_modes
