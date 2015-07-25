@@ -246,7 +246,7 @@ void CPUSolver::normalizeFluxes() {
   /* Normalize scalar fluxes in each FSR */
   norm_factor = 1.0 / tot_fission_source;
 
-  log_printf(NORMAL, "Tot. Fiss. Src. = %f, Norm. factor = %f",
+  log_printf(DEBUG, "Tot. Fiss. Src. = %f, Norm. factor = %f",
              tot_fission_source, norm_factor);
 
   #pragma omp parallel for schedule(guided)
@@ -290,7 +290,7 @@ void CPUSolver::computeFSRSources() {
   FP_PRECISION* scatter_sources = new FP_PRECISION[size];
 
   /* For all FSRs and compute the total source */
-  #pragma omp parallel for private(tid, material, sigma_s, fiss_mat, \
+  #pragma omp parallel for private(tid, material, sigma_t, sigma_s, fiss_mat, \
     fission_source, scatter_source) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
