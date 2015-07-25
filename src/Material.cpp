@@ -375,14 +375,13 @@ FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
     log_printf(ERROR, "Unable to return Material %d's scattering "
                "cross section since it has not yet been set", _id);
   
-  else  if (origin <= 0 || destination <= 0 ||
+  else if (origin <= 0 || destination <= 0 ||
             origin > _num_groups || destination > _num_groups)
     log_printf(ERROR, "Unable to get sigma_s for group %d,%d for Material %d "
                "which contains %d energy groups",
                origin, destination, _id, _num_groups);
    
-  return getSigmaSByGroupInline(origin-1,destination-1);
-  
+  return _sigma_s[(destination-1)*_num_groups + (origin-1)];
 }
 
 
@@ -1329,84 +1328,6 @@ void Material::checkSigmaT() {
 
 
 /**
- * @brief Converts this Material's attributes to a character array
- *        representation.
- * @details The character array returned includes the user-defined ID, and each
- *          of the absorption, total, fission, nu multiplied by fission and
- *          scattering cross-sections and chi for all energy groups.
- * @return character array of this Material's attributes
- */
-std::string Material::toString() {
-
-  std::stringstream string;
-
-  string << "Material id = " << _id;
-
-  if (_sigma_a != NULL) {
-    string << "\n\t\tSigma_a = ";
-    for (int e = 0; e < _num_groups; e++)
-      string << _sigma_a[e] << ", ";
-  }
-
-  if (_sigma_t != NULL) {
-    string << "\n\t\tSigma_t = ";
-    for (int e = 0; e < _num_groups; e++)
-      string << _sigma_t[e] << ", ";
-  }
-
-  if (_sigma_f != NULL) {
-    string << "\n\t\tSigma_f = ";
-    for (int e = 0; e < _num_groups; e++)
-      string << _sigma_f[e] << ", ";
-  }
-
-  if (_nu_sigma_f != NULL) {
-    string << "\n\t\tnu_sigma_f = ";
-    for (int e = 0; e < _num_groups; e++)
-      string << _nu_sigma_f[e] << ", ";
-  }
-
-  if (_sigma_s != NULL) {
-    string << "\n\t\tSigma_s = \n\t\t";
-    for (int G = 0; G < _num_groups; G++) {
-      for (int g = 0; g < _num_groups; g++)
-        string << _sigma_s[G+g*_num_groups] << "\t\t ";
-      string << "\n\t\t";
-    }
-  }
-
-  if (_chi != NULL) {
-    string << "Chi = ";
-    for (int e = 0; e < _num_groups; e++)
-      string << _chi[e] << ", ";
-  }
-
-  if (_dif_coef != NULL) {
-    string << "Diffusion Coefficient = ";
-    for (int e = 0; e < _num_groups; e++)
-      string << _dif_coef[e] << ", ";
-  }
-
-  if (_buckling != NULL) {
-    string << "Buckling = ";
-    for (int e = 0; e < _num_groups; e++)
-      string << _buckling[e] << ", ";
-  }
-
-  return string.str();
-}
-
-
-/**
- * @brief Prints a string representation of all of the Material's attributes to
- *        the console.
- */
-void Material::printString() {
-  log_printf(NORMAL, toString().c_str());
-}
-
-
-/**
  * @brief Reallocates the Material's cross-section data structures along
  *        word-aligned boundaries
  * @details This method is used to assist with SIMD auto-vectorization of the
@@ -1520,8 +1441,7 @@ Material* Material::clone() {
     clone->setChiByGroup((double)_chi[i], i+1);
 
     for (int j=0; j < _num_groups; j++)
-      clone->setSigmaSByGroup(
-        (double)getSigmaSByGroupInline(i,j), i+1, j+1);
+      clone->setSigmaSByGroup((double)getSigmaSByGroup(i+1,j+1), i+1, j+1);
 
     if (_dif_coef != NULL)
       clone->setDifCoefByGroup((double)_dif_coef[i], i+1);
@@ -1540,4 +1460,82 @@ Material* Material::clone() {
   }
 
   return clone;
+}
+
+
+/**
+ * @brief Converts this Material's attributes to a character array
+ *        representation.
+ * @details The character array returned includes the user-defined ID, and each
+ *          of the absorption, total, fission, nu multiplied by fission and
+ *          scattering cross-sections and chi for all energy groups.
+ * @return character array of this Material's attributes
+ */
+std::string Material::toString() {
+
+  std::stringstream string;
+
+  string << "Material id = " << _id;
+
+  if (_sigma_a != NULL) {
+    string << "\n\t\tSigma_a = ";
+    for (int e = 0; e < _num_groups; e++)
+      string << _sigma_a[e] << ", ";
+  }
+
+  if (_sigma_t != NULL) {
+    string << "\n\t\tSigma_t = ";
+    for (int e = 0; e < _num_groups; e++)
+      string << _sigma_t[e] << ", ";
+  }
+
+  if (_sigma_f != NULL) {
+    string << "\n\t\tSigma_f = ";
+    for (int e = 0; e < _num_groups; e++)
+      string << _sigma_f[e] << ", ";
+  }
+
+  if (_nu_sigma_f != NULL) {
+    string << "\n\t\tnu_sigma_f = ";
+    for (int e = 0; e < _num_groups; e++)
+      string << _nu_sigma_f[e] << ", ";
+  }
+
+  if (_sigma_s != NULL) {
+    string << "\n\t\tSigma_s = \n\t\t";
+    for (int G = 0; G < _num_groups; G++) {
+      for (int g = 0; g < _num_groups; g++)
+        string << _sigma_s[G+g*_num_groups] << "\t\t ";
+      string << "\n\t\t";
+    }
+  }
+
+  if (_chi != NULL) {
+    string << "Chi = ";
+    for (int e = 0; e < _num_groups; e++)
+      string << _chi[e] << ", ";
+  }
+
+  if (_dif_coef != NULL) {
+    string << "Diffusion Coefficient = ";
+    for (int e = 0; e < _num_groups; e++)
+      string << _dif_coef[e] << ", ";
+  }
+
+  if (_buckling != NULL) {
+    string << "Buckling = ";
+    for (int e = 0; e < _num_groups; e++)
+      string << _buckling[e] << ", ";
+  }
+
+  return string.str();
+}
+
+
+/**
+ * @brief Prints a string representation of all of the Material's attributes to
+ *        the console.
+ */
+void Material::printString() {
+  log_printf(NORMAL, toString().c_str());
 }

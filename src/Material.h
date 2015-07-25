@@ -125,7 +125,6 @@ public:
   FP_PRECISION getSigmaTByGroup(int group);
   FP_PRECISION getSigmaAByGroup(int group);
   FP_PRECISION getSigmaSByGroup(int origin, int destination);
-  FP_PRECISION getSigmaSByGroupInline(int origin, int destination);
   FP_PRECISION getSigmaFByGroup(int group);
   FP_PRECISION getNuSigmaFByGroup(int group);
   FP_PRECISION getChiByGroup(int group);
@@ -164,29 +163,12 @@ public:
   void setDifTildeByGroup(double xs, int group, int surface);
 
   void checkSigmaT();
+  void alignData();
+  Material* clone();
+
   std::string toString();
   void printString();
-
-  void alignData();
-
-  Material* clone();
 };
-
-
-/**
- * @brief Efficient mapping from 1D to 2D scattering matrix access.
- * @details Encapsulates the logic for indexing into the scattering
- *        matrix so it does not need to be repeated in other parts of 
- *        the code.  Note that this routine is 0-based, rather than 
- *        1-based indexing, as it is intended for use inside the code,
- *        not by users from Python.
- * @param origin the column index of the matrix element
- * @param destination the row index of the matrix element
- */
-inline FP_PRECISION Material::getSigmaSByGroupInline(
-          int origin, int destination) {
-  return _sigma_s[destination*_num_groups + origin];
-}
 
 
 #endif /* MATERIAL_H_ */

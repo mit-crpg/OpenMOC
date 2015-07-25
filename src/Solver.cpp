@@ -287,8 +287,7 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
 
   /* Compute scatter source */
   for (int g=0; g < _num_groups; g++)
-    source += material->getSigmaSByGroupInline(g,group-1)
-              * _scalar_flux(fsr_id,g);
+    source += material->getSigmaSByGroup(g+1,group) * _scalar_flux(fsr_id,g);
 
   /* Add in fixed source (if specified by user) */
   source += _fixed_sources(fsr_id,group-1);
