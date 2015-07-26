@@ -178,7 +178,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
         fission_source += fiss_mat[G*(*num_groups)+g] * scalar_flux(tid,g);
       }
 
-      fission_source /= _k_eff;
+      fission_source *= inverse_k_eff;
 
       /* Compute total (scatter+fission+fixed) reduced source */
       reduced_sources(tid,G) = fixed_sources(tid,G)
