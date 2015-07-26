@@ -41,10 +41,10 @@ struct dev_material {
   /** An array of the chi \f$ \chi \f$ values for each energy group */
   FP_PRECISION* _chi;
 
-  /** A 2D array of the fission matrix into/from each group */
+  /** A 2D array of the fission matrix from/into each group */
   FP_PRECISION* _fiss_matrix;
 
-  /** A 2D array of the scattering cross-section matrix into/from each group */
+  /** A 2D array of the scattering cross-section matrix from/into each group */
   FP_PRECISION* _sigma_s;
 
   /**

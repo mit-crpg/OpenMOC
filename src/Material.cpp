@@ -1449,7 +1449,7 @@ void Material::alignData() {
   memcpy(new_chi, _chi, size);
 
   for (int e=0; e < _num_groups; e++) {
-    memcpy(new_fiss_matrix, _sigma_s, size);
+    memcpy(new_fiss_matrix, _fiss_matrix, size);
     memcpy(new_sigma_s, _sigma_s, size);
     new_fiss_matrix += _num_vector_groups * VEC_LENGTH;
     new_sigma_s += _num_vector_groups * VEC_LENGTH;
