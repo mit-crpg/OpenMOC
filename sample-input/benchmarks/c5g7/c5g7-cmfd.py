@@ -1,4 +1,4 @@
-from openmoc import Cmfd, Geometry, TrackGenerator, CPUSolver
+import openmoc
 import openmoc.log as log
 import openmoc.plotter as plotter
 from openmoc.options import Options
@@ -27,7 +27,7 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
-cmfd = Cmfd()
+cmfd = openmoc.Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
@@ -43,7 +43,7 @@ geometry.setCmfd(cmfd)
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
@@ -52,7 +52,7 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-solver = CPUSolver(track_generator)
+solver = openmoc.CPUSolver(track_generator)
 solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.computeEigenvalue(max_iters)
