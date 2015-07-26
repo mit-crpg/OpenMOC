@@ -785,11 +785,16 @@ void GPUSolver::setGeometry(Geometry* geometry) {
 
   Solver::setGeometry(geometry);
 
-  initializeMaterials();
+  std::map<int, Material*> host_materials=_geometry->getAllMaterials();
+  std::map<int, Material*>::iterator iter;
+  int material_index = 0;
 
-  /* Copy the number of energy groups to constant memory on the GPU */
-  cudaMemcpyToSymbol(num_groups, (void*)&_num_groups, sizeof(int), 0,
-                     cudaMemcpyHostToDevice);
+  /* Iterate through all Materials and clone them as dev_material structs
+   * on the device */
+  for (iter=host_materials.begin(); iter != host_materials.end(); ++iter) {
+    _material_IDs_to_indices[iter->second->getId()] = material_index;
+    material_index++;
+  }
 }
 
 
@@ -958,6 +963,10 @@ void GPUSolver::initializeMaterials() {
 
   log_printf(INFO, "Initializing materials on the GPU...");
 
+  /* Copy the number of energy groups to constant memory on the GPU */
+  cudaMemcpyToSymbol(num_groups, (void*)&_num_groups, sizeof(int), 0,
+                     cudaMemcpyHostToDevice);
+
   /* Delete old materials array if it exists */
   if (_materials != NULL)
     cudaFree(_materials);
@@ -974,7 +983,6 @@ void GPUSolver::initializeMaterials() {
     cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
     for (iter=host_materials.begin(); iter != host_materials.end(); ++iter) {
       clone_material(iter->second, &_materials[material_index]);
-      _material_IDs_to_indices[iter->second->getId()] = material_index;
       material_index++;
     }
   }
