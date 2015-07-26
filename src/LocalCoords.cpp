@@ -7,6 +7,9 @@
  */
 LocalCoords::LocalCoords(double x, double y) {
   _coords.setCoords(x, y);
+  _universe = NULL;
+  _lattice = NULL;
+  _cell = NULL;
   _next = NULL;
   _prev = NULL;
 }
@@ -394,7 +397,7 @@ std::string LocalCoords::toString() {
              << ", universe = " << curr->getUniverse()->getId()
              << ", cell = " << curr->getCell()->getId();
     }
-    else if (curr->getType() == LAT){
+    else if (curr->getType() == LAT) {
       string << " LATTICE, x = " << curr->getX()
              << ", y = " << curr->getY()
              << ", universe = " << curr->getUniverse()->getId()

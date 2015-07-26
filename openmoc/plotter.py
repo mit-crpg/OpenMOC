@@ -28,7 +28,7 @@ elif 'openmoc.bgq.double' in sys.modules:
 elif 'openmoc.bgq.single' in sys.modules:
   openmoc = sys.modules['openmoc.bgq.single']
 else:
-  from openmoc import *
+  import openmoc
 
 
 import matplotlib
@@ -62,6 +62,8 @@ else:
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
 
+TINY_MOVE = openmoc.TINY_MOVE
+
 
 ##
 # @brief Plots the characteristic tracks from an OpenMOC simulation.
@@ -78,7 +80,7 @@ def plot_tracks(track_generator):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -142,7 +144,7 @@ def plot_segments(track_generator):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -233,7 +235,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -267,7 +269,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      point = LocalCoords(x, y)
+      point = openmoc.LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       cell = geometry.findCellContainingCoords(point)
 
@@ -275,7 +277,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None):
       if cell is None:
         surface[j][i] = -1
       else:
-        surface[j][i] = cell.getMaterial().getId()
+        surface[j][i] = cell.getFillMaterial().getId()
 
   # Get the number of Materials in the Geometry
   materials = geometry.getAllMaterials()
@@ -329,7 +331,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -363,7 +365,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      point = LocalCoords(x, y)
+      point = openmoc.LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       cell = geometry.findCellContainingCoords(point)
 
@@ -410,6 +412,8 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
 ##
 # @brief This method takes in a Geometry object and plots a color-coded 2D
 #        surface plot representing the flat source regions in the Geometry.
+#        The FSR centroids are plotted as black circles on top of the FSRs if
+#        the centroids boolean is set to True.
 # @details The Geometry object must be initialized with Materials, Cells,
 #          Universes and Lattices before being passed into this method. A user
 #          may invoke this function from an OpenMOC Python file as follows:
@@ -423,11 +427,15 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
+# @param centroids optional boolean to plot the FSR centroids
+# @param marker_type optional string to set the centroids marker type
+# @param marker_size optional int/float to set the centroids marker size
+def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
+                             centroids=False, marker_type='o', marker_size=2):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -440,11 +448,31 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
-              'since the gridsize %d is not an integer', gridsize)
+              'the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the flat source regions ' + \
               'with a negative gridsize (%d)', gridsize)
+
+  if not isinstance(centroids, bool):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'centroids is not a boolean')
+
+  if not isinstance(marker_type, str):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_type is a string')
+
+  if marker_type not in matplotlib.markers.MarkerStyle().markers.keys():
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_type is not a valid marker (%d)', marker_type)
+
+  if not is_float(marker_size) and not is_integer(marker_size):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_size is not an int or float', marker_size)
+
+  if marker_size <= 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'with a negative marker_size (%d)', marker_size)
 
   py_printf('NORMAL', 'Plotting the flat source regions...')
 
@@ -468,7 +496,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      local_coords = LocalCoords(x, y)
+      local_coords = openmoc.LocalCoords(x, y)
       local_coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(local_coords)
       fsr_id = geometry.getFSRId(local_coords)
@@ -506,6 +534,25 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None):
   colors = np.flipud(colors)
   plt.imshow(colors, extent=coords['bounds'],
              interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
+
+  # Plot centroids on top of 2D FSR color map
+  if centroids:
+    centroids_x = []
+    centroids_y = []
+    for r in range(geometry.getNumFSRs()):
+      point = geometry.getFSRCentroid(r)
+      centroids_x.append(point.getX())
+      centroids_y.append(point.getY())
+
+    plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
+                s=marker_size)
+
+    # Matplotlib likes to add a buffer around scatter plots, so we will
+    # manually set the plot bounds
+    plt.xlim(min(coords['x']), max(coords['x']))
+    plt.ylim(min(coords['y']), max(coords['y']))
+
+  # Set the plot title and save the figure
   plt.title('Flat Source Regions')
   filename = directory + 'flat-source-regions.png'
   fig.savefig(filename, bbox_inches='tight')
@@ -539,7 +586,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -577,7 +624,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      local_coords = LocalCoords(x, y)
+      local_coords = openmoc.LocalCoords(x, y)
       local_coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(local_coords)
       fsr_id = geometry.getFSRId(local_coords)
@@ -643,7 +690,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -699,7 +746,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
       x = coords['x'][i]
       y = coords['y'][j]
 
-      point = LocalCoords(x, y)
+      point = openmoc.LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.getFSRId(point)
@@ -755,7 +802,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -891,7 +938,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
-  directory = get_output_directory() + subdirectory
+  directory = openmoc.get_output_directory() + subdirectory
 
   # Make directory if it does not exist
   if not os.path.exists(directory):
@@ -930,7 +977,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
       x = coords['y'][i]
       y = coords['x'][j]
 
-      point = LocalCoords(x, y)
+      point = openmoc.LocalCoords(x, y)
       point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.getFSRId(point)

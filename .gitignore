@@ -61,14 +61,15 @@ plots
 plots/*
 */plots
 */plots/*
-pin-powers
-pin-powers/*
-*/pin-powers
-*/pin-powers/*
+fission-rates
+fission-rates/*
+*/fission-rates
+*/fission-rates/*
 simulation-state*
 simulation-state/*
 */simulation-state*
 */simulation-state*/*
+
 
 *.data
 */*.data
@@ -141,3 +142,15 @@ sphinx/
 # *~
 *.swp
 
+# C++ Build
+profile/obj/*
+profile/models/c5g7/c5g7-cmfd
+profile/models/c5g7/c5g7-cmfd.o
+profile/models/c5g7/c5g7
+profile/models/c5g7/c5g7.o
+profile/models/gradients/one-directional/one-directional-gradient
+profile/models/gradients/one-directional/one-directional-gradient.o
+profile/models/gradients/two-directional/two-directional-gradient
+profile/models/gradients/two-directional/two-directional-gradient.o
+profile/models/homogeneous/homogeneous-one-group
+profile/models/homogeneous/homogeneous-one-group.o

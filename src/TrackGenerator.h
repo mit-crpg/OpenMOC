@@ -11,7 +11,9 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Track.h"
 #include "Geometry.h"
 #include <iostream>
@@ -113,6 +115,7 @@ public:
   void retrieveSegmentCoords(double* coords, int num_segments);
   void generateTracks();
   void correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume);
+  void generateFSRCentroids();
   void splitSegments(FP_PRECISION max_optical_length);
 };
 

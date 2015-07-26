@@ -53,15 +53,15 @@ bottom.setBoundaryType(REFLECTIVE)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-fuel = CellBasic(name='fuel')
-fuel.setMaterial(materials['UO2'])
+fuel = Cell(name='fuel')
+fuel.setFill(materials['UO2'])
 fuel.addSurface(halfspace=-1, surface=circle)
 
-moderator = CellBasic(name='moderator')
-moderator.setMaterial(materials['Water'])
+moderator = Cell(name='moderator')
+moderator.setFill(materials['Water'])
 moderator.addSurface(halfspace=+1, surface=circle)
 
-root_cell = CellFill(name='root cell')
+root_cell = Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=left)
 root_cell.addSurface(halfspace=-1, surface=right)
 root_cell.addSurface(halfspace=+1, surface=bottom)
@@ -123,8 +123,8 @@ track_generator.generateTracks()
 
 solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.convergeSource(max_iters)
+solver.setConvergenceThreshold(tolerance)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 
@@ -134,11 +134,9 @@ solver.printTimerReport()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plot_tracks(track_generator)
-#plotter.plot_segments(track_generator)
-#plotter.plot_materials(geometry, gridsize=50)
-#plotter.plot_cells(geometry, gridsize=50)
-#plotter.plot_flat_source_regions(geometry, gridsize=50)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+plotter.plot_materials(geometry, gridsize=50)
+plotter.plot_cells(geometry, gridsize=50)
+plotter.plot_flat_source_regions(geometry, gridsize=50)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
 log.py_printf('TITLE', 'Finished')

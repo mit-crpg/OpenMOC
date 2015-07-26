@@ -9,7 +9,9 @@
 #define MATERIAL_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "constants.h"
 #include "log.h"
 #include <sstream>
@@ -23,7 +25,7 @@
 #define MM_FREE(array) _mm_free(array)
 
 /** Word-aligned memory allocation for Intel's compiler */
-#define MM_MALLOC(size,alignment) _mm_alloc(size, alignment)
+#define MM_MALLOC(size,alignment) _mm_malloc(size, alignment)
 
 #else
 
