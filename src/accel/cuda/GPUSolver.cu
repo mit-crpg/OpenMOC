@@ -155,41 +155,34 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
   FP_PRECISION scatter_source;
 
   dev_material* curr_material;
-  FP_PRECISION* nu_sigma_f;
-  FP_PRECISION* sigma_s;
   FP_PRECISION* sigma_t;
-  FP_PRECISION* chi;
+  FP_PRECISION* sigma_s;
+  FP_PRECISION* fiss_mat;
 
   /* Iterate over all FSRs */
   while (tid < *num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
 
-    nu_sigma_f = curr_material->_nu_sigma_f;
-    sigma_s = curr_material->_sigma_s;
     sigma_t = curr_material->_sigma_t;
-    chi = curr_material->_chi;
+    sigma_s = curr_material->_sigma_s;
+    fiss_mat = curr_material->_fiss_matrix;
 
-    /* Initialize the fission source to zero for this FSR */
-    fission_source = 0;
-
-    /* Compute total fission source for current FSR */
-    for (int e=0; e < *num_groups; e++)
-      fission_source += scalar_flux(tid,e) * nu_sigma_f[e];
-
-    fission_source *= inverse_k_eff;
-
-    /* Compute total scattering source for this FSR in group G */
+    /* Compute scatter + fission source for group G */
     for (int G=0; G < *num_groups; G++) {
       scatter_source = 0;
+      fission_source = 0;
 
-      for (int g=0; g < *num_groups; g++)
+      for (int g=0; g < *num_groups; g++) {
         scatter_source += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
+        fission_source += fiss_mat[G*(*num_groups)+g] * scalar_flux(tid,g);
+      }
 
-      /* Set the fission source for FSR r in group G */
-      reduced_sources(tid,G) = fission_source * chi[G];
-      reduced_sources(tid,G) += scatter_source + fixed_sources(tid,G);
-      reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
+      fission_source /= _k_eff;
+
+      /* Compute total (scatter+fission+fixed) reduced source */
+      reduced_sources(tid,G) = fixed_sources(tid,G)
+      reduced_sources(tid,G) += scatter_source + fission_source;
       reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
     }
 
@@ -682,9 +675,8 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int group) {
   Material* host_material = _geometry->findFSRMaterial(fsr_id);
 
   /* Get cross sections and scalar flux */
-  FP_PRECISION* nu_sigma_f = host_material->getNuSigmaF();
   FP_PRECISION* sigma_s = host_material->getSigmaS();
-  FP_PRECISION* chi = host_material->getChi();
+  FP_PRECISION* fiss_mat = host_material->getFissionMatrix();
 
   FP_PRECISION* fsr_scalar_fluxes = new FP_PRECISION[_num_groups];
   FP_PRECISION* scalar_flux = 
@@ -698,22 +690,24 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int group) {
   FP_PRECISION scatter_source = 0.0;
   FP_PRECISION total_source;
 
-  /* Compute total fission source for current region */
-  for (int e=0; e < _num_groups; e++) {
-    fission_source += fsr_scalar_fluxes[e] * nu_sigma_f[e];
+  /* Compute total scattering source for this FSR */
+  for (int g=0; g < _num_groups; g++) {
+    scatter_source += sigma_s[(group-1)*(_num_groups)+g] 
+                      * fsr_scalar_fluxes[g];
+    fission_source += fiss_mat[(group-1)*(_num_groups)+g] 
+                      * fsr_scalar_fluxes[g];
   }
 
   fission_source /= _k_eff;
 
-  /* Compute total scattering source for this FSR */
-  for (int g=0; g < _num_groups; g++) {
-    scatter_source += sigma_s[(group-1)*(_num_groups)+g] 
-                    * fsr_scalar_fluxes[g];
-  }
-
   /* Compute the total source */
-  total_source = (fission_source * chi[group-1] + scatter_source) *
-      ONE_OVER_FOUR_PI;
+  total_source = fission_source + scatter_source;
+
+  /* Add in fixed source (if specified by user) */
+  total_source += _fixed_sources(fsr_id,group-1);
+
+  /* Normalize to solid angle for isotropic approximation */
+  total_source *= ONE_OVER_FOUR_PI;
 
   delete [] fsr_scalar_fluxes;
 
@@ -1510,10 +1504,8 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
        thrust::raw_pointer_cast(&_scalar_flux[0]);
 
   /* Compute the FSR nu-fission rates on the device */
-  computeFSRFissionRatesOnDevice<<<_B,_T>>>(dev_fission_rates,
-                                           _FSR_materials,
-                                           _materials,
-                                           scalar_flux);
+  computeFSRFissionRatesOnDevice<<<_B,_T>>>(dev_fission_rates, _FSR_materials,
+                                           _materials, scalar_flux);
 
   /* Copy the nu-fission rate array from the device to the host */
   cudaMemcpy((void*)fission_rates, (void*)dev_fission_rates,

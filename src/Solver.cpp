@@ -274,15 +274,13 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
                "since it has not yet been computed");
  
   Material* material = _FSR_materials[fsr_id];
-  FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
-  FP_PRECISION* chi = material->getChi();
   FP_PRECISION source = 0.;
 
   /* Compute fission source */
   if (material->isFissionable()) {
-    for (int e=0; e < _num_groups; e++)
-      source += _scalar_flux(fsr_id,e) * nu_sigma_f[e];
-    source /= _k_eff * chi[group-1];
+    for (int g=0; g < _num_groups; g++)
+      source += material->getFissionMatrix(g+1,group) * _scalar_flux(fsr_id,g);
+    source /= _k_eff;
   }
 
   /* Compute scatter source */

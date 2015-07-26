@@ -16,6 +16,9 @@ void clone_material(Material* material_h, dev_material* material_d) {
   int id = material_h->getId();
   int num_groups = material_h->getNumEnergyGroups();
 
+  /* Initialize Material's fission matrix *.
+  material_h->buildFissionMatrix();
+
   cudaMemcpy((void*)&material_d->_id, (void*)&id, sizeof(int),
              cudaMemcpyHostToDevice);
 
@@ -26,6 +29,7 @@ void clone_material(Material* material_h, dev_material* material_d) {
   double* sigma_f;
   double* nu_sigma_f;
   double* chi;
+  double* fiss_matrix;
 
   /* Allocate memory on device for dev_material data arrays */
   cudaMalloc((void**)&sigma_t, num_groups * sizeof(double));
@@ -34,6 +38,7 @@ void clone_material(Material* material_h, dev_material* material_d) {
   cudaMalloc((void**)&sigma_f, num_groups * sizeof(double));
   cudaMalloc((void**)&nu_sigma_f, num_groups * sizeof(double));
   cudaMalloc((void**)&chi, num_groups * sizeof(double));
+  cudaMalloc((void**)&fiss_matrix, num_groups * num_groups * sizeof(double));
 
   /* Copy Material data from host to arrays on the device */
   cudaMemcpy((void*)sigma_t, (void*)material_h->getSigmaT(),
@@ -48,6 +53,8 @@ void clone_material(Material* material_h, dev_material* material_d) {
              num_groups * sizeof(double), cudaMemcpyHostToDevice);
   cudaMemcpy((void*)chi, (void*)material_h->getChi(),
              num_groups * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy((void*)fiss_matrix, (void*)material_h->getSigmaS(),
+             num_groups * num_groups * sizeof(double), cudaMemcpyHostToDevice);
 
   /* Copy Material data pointers to dev_material on GPU */
   cudaMemcpy((void*)&material_d->_sigma_t, (void*)&sigma_t, sizeof(double*),
@@ -62,6 +69,8 @@ void clone_material(Material* material_h, dev_material* material_d) {
              sizeof(double*), cudaMemcpyHostToDevice);
   cudaMemcpy((void*)&material_d->_chi, (void*)&chi, sizeof(double*),
              cudaMemcpyHostToDevice);
+  cudaMemcpy((void*)&material_d->_fiss_matrix, (void*)&fiss_matrix, 
+             sizeof(double*), cudaMemcpyHostToDevice);
 
   return;
 }
