@@ -179,6 +179,10 @@ private:
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
     _k_nearest_stencils;
 
+  /** Array representing the total distance of each FSR centroid to its
+   * k-nearest CMFD cells */
+  FP_PRECISION* _centroid_total_distances;
+
   /* Private worker functions */
   FP_PRECISION computeDiffCorrect(FP_PRECISION d, FP_PRECISION h);
   void constructMatrices();
