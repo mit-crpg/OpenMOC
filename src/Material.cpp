@@ -1584,6 +1584,15 @@ std::string Material::toString() {
       string << _chi[e] << ", ";
   }
 
+  if (_fiss_matrix != NULL) {
+    string << "\n\t\tFiss. Matrix = \n\t\t";
+    for (int G = 0; G < _num_groups; G++) {
+      for (int g = 0; g < _num_groups; g++)
+        string << _fiss_matrix[G+g*_num_groups] << "\t\t ";
+      string << "\n\t\t";
+    }
+  }
+
   if (_dif_coef != NULL) {
     string << "Diffusion Coefficient = ";
     for (int e = 0; e < _num_groups; e++)
