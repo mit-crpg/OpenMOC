@@ -183,6 +183,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
       /* Compute total (scatter+fission+fixed) reduced source */
       reduced_sources(tid,G) = fixed_sources(tid,G);
       reduced_sources(tid,G) += scatter_source + fission_source;
+      reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
     }
 
