@@ -19,8 +19,8 @@ max_iters = options.getMaxIterations()
 
 log.set_log_level('NORMAL')
 
-log.py_printf('TITLE', 'Simulating a one group homogeneous infinite medium...')
-log.py_printf('HEADER', 'The reference keff = 1.43...')
+log.py_printf('TITLE', 'Simulating a two group homogeneous infinite medium...')
+log.py_printf('HEADER', 'The reference keff = 1.72...')
 
 
 ###############################################################################
@@ -29,19 +29,19 @@ log.py_printf('HEADER', 'The reference keff = 1.43...')
 
 log.py_printf('NORMAL', 'Creating materials...')
 
-sigma_a = numpy.array([0.069389522])
-sigma_f = numpy.array([0.0414198575])
-nu_sigma_f = numpy.array([0.0994076580])
-sigma_s = numpy.array([0.383259177])
-chi = numpy.array([1.0])
-sigma_t = numpy.array([0.452648699])
+sigma_a = numpy.array([0.0038, 0.184])
+sigma_f = numpy.array([0.000625, 0.135416667])
+nu_sigma_f = numpy.array([0.0015, 0.325])
+sigma_s = numpy.array([[0.1, 0.117], [0., 1.42]])
+chi = numpy.array([1.0, 0.0])
+sigma_t = numpy.array([0.2208, 1.604])
 
-infinite_medium = Material(name='1-group infinite medium')
-infinite_medium.setNumEnergyGroups(1)
+infinite_medium = Material(name='2-group infinite medium')
+infinite_medium.setNumEnergyGroups(2)
 infinite_medium.setSigmaA(sigma_a)
 infinite_medium.setSigmaF(sigma_f)
 infinite_medium.setNuSigmaF(nu_sigma_f)
-infinite_medium.setSigmaS(sigma_s)
+infinite_medium.setSigmaS(sigma_s.flat)
 infinite_medium.setChi(chi)
 infinite_medium.setSigmaT(sigma_t)
 
@@ -78,7 +78,7 @@ cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
-#                             Creating Universes
+#                            Creating Universes
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating universes...')
@@ -130,6 +130,9 @@ log.py_printf('NORMAL', 'Verifying with NumPy forward eigenvalue...')
 
 # Compute fission production matrix
 fiss_mat = numpy.outer(chi, nu_sigma_f)
+
+# Tranpose the scattering matrix from OpenMOC's notation
+sigma_s = numpy.transpose(sigma_s)
 
 # Create forward operator
 M = numpy.linalg.solve((numpy.diag(sigma_t) - sigma_s), fiss_mat)

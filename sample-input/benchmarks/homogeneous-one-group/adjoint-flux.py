@@ -113,7 +113,7 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-log.py_printf('NORMAL', 'Running MOC eigenvalue simulation...')
+log.py_printf('NORMAL', 'Running MOC adjoint eigenvalue simulation...')
 
 solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
@@ -123,25 +123,25 @@ solver.printTimerReport()
 
 
 ###############################################################################
-#                            Verify Running a Simulation
+#                            Verify with NumPy
 ###############################################################################
 
-log.py_printf('NORMAL', 'Verifying with NumPy eigenvalue...')
+log.py_printf('NORMAL', 'Verifying with NumPy adjoint eigenvalue...')
 
 # Compute fission production matrix
 fiss_mat = numpy.outer(chi, nu_sigma_f)
 
-# Create forward operator
+# Create ajoint operator
 sigma_s = numpy.transpose(sigma_s)
 fiss_mat = numpy.transpose(fiss_mat)
 M = numpy.linalg.solve((numpy.diag(sigma_t) - sigma_s), fiss_mat)
 
-# Solve eigenvalue problem with NumPy
+# Solve adjoint eigenvalue problem with NumPy
 k, phi = numpy.linalg.eig(M)
 
 # Select the dominant eigenvalue
-k = k[0]
+k = max(k)
 
-log.py_printf('RESULT', 'Numpy eigenvalue: {0:.6f}'.format(k))
+log.py_printf('RESULT', 'Numpy adjoint eigenvalue: {0:.6f}'.format(k))
 
 log.py_printf('TITLE', 'Finished')
