@@ -147,12 +147,12 @@ void Track::setReflOut(const bool refl_out) {
 /**
  * @brief Sets the boundary condition for the incoming flux along the Track's
  *        "forward" direction.
- * @details The boolean represents vacuum (false) or reflective (true)
- *          boundary conditions.
+ * @details The boundaryType represents vacuum (0), reflective (1), or 
+ *          periodic (2) boundary conditions.
  * @param bc_in boundary condition for the incoming flux in the "forward"
  *        direction
  */
-void Track::setBCIn(const bool bc_in) {
+void Track::setBCIn(const boundaryType bc_in) {
   _bc_in = bc_in;
 }
 
@@ -160,12 +160,12 @@ void Track::setBCIn(const bool bc_in) {
 /**
  * @brief Sets the boundary condition for the incoming flux along the Track's
  *        "reverse" direction.
- * @details The boolean represents vacuum (false) or reflective (true)
- *          boundary conditions.
+ * @details The boundaryType represents vacuum (0), reflective (1), or 
+ *          periodic (2) boundary conditions.
  * @param bc_out boundary condition for the incoming flux in the "reverse"
  *        direction
  */
-void Track::setBCOut(const bool bc_out) {
+void Track::setBCOut(const boundaryType bc_out) {
   _bc_out = bc_out;
 }
 
@@ -253,9 +253,10 @@ bool Track::isReflOut() const {
 /**
  * @brief Returns the boundary condition for the flux along the Track's
  *        "forward" direction.
- * @return vacuum (false) or reflective (true) reflective boundary conditions
+ * @return vacuum (0), reflective (1), or periodic (2) reflective 
+ *         boundary conditions
  */
-bool Track::getBCIn() const {
+boundaryType Track::getBCIn() const {
   return _bc_in;
 }
 
@@ -263,9 +264,10 @@ bool Track::getBCIn() const {
 /**
  * @brief Returns the boundary condition for the flux along the Track's
  *        "reverse" direction.
- * @return vacuum (false) or reflective (true) reflective boundary conditions
+ * @return vacuum (0), reflective (1), or periodic (2) reflective 
+ *         boundary conditions
  */
-bool Track::getBCOut() const {
+boundaryType Track::getBCOut() const {
   return _bc_out;
 }
 

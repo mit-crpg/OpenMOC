@@ -14,6 +14,7 @@
 #endif
 #include "Point.h"
 #include "Material.h"
+#include "boundary_type.h"
 #include <vector>
 #include <algorithm>
 #endif
@@ -116,12 +117,12 @@ private:
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
    *  conditions. */
-  bool _bc_in;
+  boundaryType _bc_in;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "reverse" direction should be zeroed out for vacuum boundary
    *  conditions. */
-  bool  _bc_out;
+  boundaryType  _bc_out;
 
 public:
   Track();
@@ -133,8 +134,8 @@ public:
   void setAzimAngleIndex(const int index);
   void setReflIn(const bool refl_in);
   void setReflOut(const bool refl_out);
-  void setBCIn(const bool bc_in);
-  void setBCOut(const bool bc_out);
+  void setBCIn(const boundaryType bc_in);
+  void setBCOut(const boundaryType bc_out);
   void setTrackIn(Track *track_in);
   void setTrackOut(Track *track_out);
   void setTrackInI(int i);
@@ -158,8 +159,8 @@ public:
   int getTrackOutJ() const;
   bool isReflIn() const;
   bool isReflOut() const;
-  bool getBCIn() const;
-  bool getBCOut() const;
+  boundaryType getBCIn() const;
+  boundaryType getBCOut() const;
 
   bool contains(Point* point);
   void addSegment(segment* to_add);
