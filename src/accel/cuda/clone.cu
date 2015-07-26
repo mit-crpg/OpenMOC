@@ -90,18 +90,11 @@ void clone_track(Track* track_h, dev_track* track_d,
   new_track._uid = track_h->getUid();
   new_track._num_segments = track_h->getNumSegments();
   new_track._azim_angle_index = track_h->getAzimAngleIndex();
-  new_track._refl_in = track_h->isReflIn();
-  new_track._refl_out = track_h->isReflOut();
+  new_track._next_in = track_h->isNextIn();
+  new_track._next_out = track_h->isNextOut();
 
-  if (track_h->getBCIn() == REFLECTIVE || track_h->getBCIn() == PERIODIC)
-    new_track._bc_in = 1;
-  else
-    new_track._bc_in = 0;
-
-  if (track_h->getBCOut() == REFLECTIVE || track_h->getBCOut() == PERIODIC)
-    new_track._bc_out = 1;
-  else
-    new_track._bc_out = 0;
+  new_track._bc_in = std::min((int)track_h->getBCIn(), 1);
+  new_track._bc_out = std::min((int)track_h->getBCOut(), 1);
     
   cudaMalloc((void**)&dev_segments,
              track_h->getNumSegments() * sizeof(dev_segment));

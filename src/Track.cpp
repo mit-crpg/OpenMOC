@@ -114,33 +114,29 @@ void Track::insertSegment(int index, segment* segment) {
 
 /**
  * @brief Sets the direction in which the flux leaving this Track along its
- *        "forward" direction is passed to reflective Track for boundary
- *        conditions.
+ *        "forward" direction is passed.
  * @details Sets whether or not to pass the outgoing flux from this Track
  *          along its "forward" direction to the "forward" direction (false)
- *          or "reverse" direction (true) of the Track reflecting out of this
- *          one at the boundary. This is used for reflective boundary
- *          conditions.
- * @param refl_in the "forward" (false) or "reverse (true) direction
+ *          or "reverse" direction (true) of the next Track after intersection
+ *          with the geometry boundary.
+ * @param next_in the "forward" (false) or "reverse (true) direction
  */
-void Track::setReflIn(const bool refl_in) {
-  _refl_in = refl_in;
+void Track::setNextIn(const bool next_in) {
+  _next_in = next_in;
 }
 
 
 /**
- * @brief Sets the direction in which the flux leaving this Track along
- *        its "reverse" direction is passed to reflective track for boundary
- *        conditions.
+ * @brief Sets the direction in which the flux leaving this Track along its
+ *        "reverse" direction is passed.
  * @details Sets whether or not to pass the outgoing flux from this Track
  *          along its "reverse" direction to the "forward" direction (false)
- *          or "reverse" direction (true) of the Track reflecting out of this
- *          one at the boundary. This is used for reflective boundary
- *          conditions.
- * @param refl_out "forward" (false) or "reverse (true) direction
+ *          or "reverse" direction (true) of the next Track after intersection
+ *          with the geometry boundary.
+ * @param next_out the "forward" (false) or "reverse (true) direction
  */
-void Track::setReflOut(const bool refl_out) {
-  _refl_out = refl_out;
+void Track::setNextOut(const bool next_out) {
+  _next_out = next_out;
 }
 
 
@@ -171,8 +167,8 @@ void Track::setBCOut(const boundaryType bc_out) {
 
 
 /**
- * @brief Sets the track reflecting into this Track's "forward" direction.
- * @param track_in pointer to the Track reflecting into the "forward" direction
+ * @brief Sets the track going out along this Track's "forward" direction.
+ * @param track_in pointer to the Track going out in the "forward" direction
  */
 void Track::setTrackIn(Track* track_in) {
   _track_in = track_in;
@@ -180,8 +176,8 @@ void Track::setTrackIn(Track* track_in) {
 
 
 /**
- * @brief Sets the track reflecting into this Track's "reverse" direction.
- * @param track_out pointer to the Track reflecting into the "reverse" direction
+ * @brief Sets the track going out along this Track's "reverse" direction.
+ * @param track_out pointer to the Track going out in the "reverse" direction
  */
 void Track::setTrackOut(Track* track_out) {
   _track_out = track_out;
@@ -190,23 +186,23 @@ void Track::setTrackOut(Track* track_out) {
 
 /**
  * @brief Returns whether to give the outgoing flux to the "forward" (false) or
- *        "reverse" (true) direction of the Track reflecting out of this one
- *        along its "forward" direction.
+ *        "reverse" (true) direction of the next Track when traveling along
+ *        this Tracks's "forward" direction.
  * @return "forward" (false) "reverse" (true) direction of outgoing Track
  */
-bool Track::isReflIn() const {
-  return _refl_in;
+bool Track::isNextIn() const {
+  return _next_in;
 }
 
 
 /**
  * @brief Returns whether to give the outgoing flux to the "forward" (false) or
- *        "reverse" (true) direction of the Track reflecting out of this one
- *        along its "reverse" direction.
+ *        "reverse" (true) direction of the next Track when traveling along
+ *        this Track's "reverse" direction.
  * @return "forward" (false) "reverse" (true) direction of outgoing Track
  */
-bool Track::isReflOut() const {
-  return _refl_out;
+bool Track::isNextOut() const {
+  return _next_out;
 }
 
 

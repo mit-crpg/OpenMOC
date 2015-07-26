@@ -736,9 +736,10 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
 
 /**
  * @brief Updates the boundary flux for a Track given boundary conditions.
- * @details For reflective boundary conditions, the outgoing boundary flux
- *          for the Track is given to the reflecting Track. For vacuum
- *          boundary conditions, the outgoing flux tallied as leakage.
+ * @details For reflective and periodic boundary conditions, the outgoing
+ *          boundary flux for the Track is given to the corresponding reflecting
+ *          or periodic Track. For vacuum boundary conditions, the outgoing flux
+ *          is tallied as leakage.
  * @param track_id the ID number for the Track of interest
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param direction the Track direction (forward - true, reverse - false)
@@ -752,23 +753,20 @@ void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
   FP_PRECISION* track_leakage;
   int track_out_id;
 
-  /* Extract boundary conditions for this Track and the pointer to the
-   * outgoing reflective Track, and index into the leakage array */
-
   /* For the "forward" direction */
   if (direction) {
-    start = _tracks[track_id]->isReflOut() * _polar_times_groups;
+    start = _tracks[track_id]->isNextOut() * _polar_times_groups;
     track_leakage = &_boundary_leakage(track_id,0);
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
-    bc = _tracks[track_id]->getBCOut();
+    bc = std::min((int)_tracks[track_id]->getBCOut(), 1);
   }
 
   /* For the "reverse" direction */
   else {
-    start = _tracks[track_id]->isReflIn() * _polar_times_groups;
+    start = _tracks[track_id]->isNextIn() * _polar_times_groups;
     track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
-    bc = _tracks[track_id]->getBCIn();
+    bc = std::min((int)_tracks[track_id]->getBCIn(), 1);
   }
 
   FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);

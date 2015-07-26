@@ -344,10 +344,11 @@ __device__ void tallyScalarFlux(dev_segment* curr_segment,
 
 /**
  * @brief Updates the boundary flux for a Track given boundary conditions.
- * @details For reflective boundary conditions, the outgoing boundary flux
- *          for the Track is given to the reflecting track. For vacuum
- *          boundary conditions, the outgoing flux tallied as leakage.
- *          Note: Only one energy group is transferred by this routine.
+ * @details For reflective and periodic boundary conditions, the outgoing
+ *          boundary flux for the Track is given to the corresponding reflecting
+ *          or periodic Track. For vacuum boundary conditions, the outgoing flux
+ *          is tallied as leakage. Note: Only one energy group is transferred
+ *          by this routine.
  * @param curr_track a pointer to the Track of interest
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param track_flux an array of the outgoing Track flux
@@ -370,21 +371,18 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
   bool bc;
   int track_out_id;
 
-  /* Extract boundary conditions for this Track and the pointer to the
-   * outgoing reflective Track, and index into the leakage array */
-
   /* For the "forward" direction */
   if (direction) {
     bc = curr_track->_bc_out;
     track_out_id = curr_track->_track_out;
-    start += curr_track->_refl_out * (*polar_times_groups);
+    start += curr_track->_next_out * (*polar_times_groups);
   }
 
   /* For the "reverse" direction */
   else {
     bc = curr_track->_bc_in;
     track_out_id = curr_track->_track_in;
-    start += curr_track->_refl_in * (*polar_times_groups);
+    start += curr_track->_next_in * (*polar_times_groups);
   }
 
   FP_PRECISION* track_out_flux = &boundary_flux(track_out_id,start);
@@ -1046,7 +1044,7 @@ void GPUSolver::initializeTracks() {
 
       clone_track(_tracks[i], &_dev_tracks[i], _material_IDs_to_indices);
 
-      /* Make Track reflective */
+      /* Get indices to next tracks along "forward" and "reverse" directions */
       index = _tracks[i]->getTrackIn()->getUid();
       cudaMemcpy((void*)&_dev_tracks[i]._track_in,
                  (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
@@ -1293,7 +1291,7 @@ void GPUSolver::transportSweep() {
                                                  tid_offset, tid_max);
 
   /* Sweep the second space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[1];
+  tid_offset = _num_tracks_by_halfspace[1] * _num_groups;
   tid_max = _num_tracks_by_halfspace[2];
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
@@ -1303,7 +1301,7 @@ void GPUSolver::transportSweep() {
                                                  tid_offset, tid_max);
 
   /* Sweep the third space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[2];
+  tid_offset = _num_tracks_by_halfspace[2] * _num_groups;
   tid_max = _num_tracks_by_halfspace[3];
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
@@ -1313,7 +1311,7 @@ void GPUSolver::transportSweep() {
                                                  tid_offset, tid_max);
 
   /* Sweep the fourth space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[3];
+  tid_offset = _num_tracks_by_halfspace[3] * _num_groups;
   tid_max = _num_tracks_by_halfspace[4];
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,

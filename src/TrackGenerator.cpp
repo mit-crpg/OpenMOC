@@ -895,7 +895,7 @@ void TrackGenerator::initializeBoundaryConditions() {
       
       /* Set connecting tracks in forward direction */
       if (i < _num_y[a]) {
-        track->setReflOut(false);
+        track->setNextOut(false);
         if (track->getBCOut() == PERIODIC)
           track->setTrackOut(&_tracks[a][i + _num_x[a]]);
         else
@@ -903,11 +903,11 @@ void TrackGenerator::initializeBoundaryConditions() {
       }
       else{
         if (track->getBCOut() == PERIODIC) {
-          track->setReflOut(false);
+          track->setNextOut(false);
           track->setTrackOut(&_tracks[a][i - _num_y[a]]);
         }
         else {
-          track->setReflOut(true);
+          track->setNextOut(true);
           track->setTrackOut(&_tracks[ac][_num_x[a] + 2*_num_y[a] - i - 1]);
         }
       }
@@ -915,16 +915,16 @@ void TrackGenerator::initializeBoundaryConditions() {
       /* Set connecting tracks in backward direction */
       if (i < _num_x[a]) {
         if (track->getBCIn() == PERIODIC) {
-          track->setReflIn(true);
+          track->setNextIn(true);
           track->setTrackIn(&_tracks[a][i + _num_y[a]]);
         }
         else {
-          track->setReflIn(false);
+          track->setNextIn(false);
           track->setTrackIn(&_tracks[ac][_num_x[a] - i - 1]);
         }
       }
       else{
-        track->setReflIn(true);
+        track->setNextIn(true);
         if (track->getBCIn() == PERIODIC)
           track->setTrackIn(&_tracks[a][i - _num_x[a]]);
         else

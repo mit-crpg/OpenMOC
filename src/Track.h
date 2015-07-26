@@ -76,23 +76,23 @@ private:
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
 
-  /** The Track which reflects out of this Track along its "forward"
-   * direction for reflective boundary conditions. */
+  /** The next Track when traveling along this Track in the "forward"
+   * direction. */
   Track* _track_in;
 
-  /** The Track which reflects out of this Track along its "reverse"
-   * direction for reflective boundary conditions. */
+  /** The next Track when traveling along this Track in the "reverse"
+   * direction. */
   Track* _track_out;
 
   /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the Track reflecting out of this one
-   *  along its "forward" direction for reflective boundary conditions.*/
-  bool _refl_in;
+   *  or "reverse" (true) direction of the next Track going in the "forward"
+   *  direction. */
+  bool _next_in;
 
   /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the Track reflecting out of this one
-   *  along its "forward" direction for reflective boundary conditions. */
-  bool _refl_out;
+   *  or "reverse" (true) direction of the next Track going in the "reverse"
+   *  direction. */
+  bool _next_out;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
@@ -112,8 +112,8 @@ public:
   void setUid(int uid);
   void setPhi(const double phi);
   void setAzimAngleIndex(const int index);
-  void setReflIn(const bool refl_in);
-  void setReflOut(const bool refl_out);
+  void setNextIn(const bool next_in);
+  void setNextOut(const bool next_out);
   void setBCIn(const boundaryType bc_in);
   void setBCOut(const boundaryType bc_out);
   void setTrackIn(Track *track_in);
@@ -129,8 +129,8 @@ public:
   int getNumSegments();
   Track *getTrackIn() const;
   Track *getTrackOut() const;
-  bool isReflIn() const;
-  bool isReflOut() const;
+  bool isNextIn() const;
+  bool isNextOut() const;
   boundaryType getBCIn() const;
   boundaryType getBCOut() const;
 
