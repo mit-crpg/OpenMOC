@@ -89,6 +89,26 @@ int TrackGenerator::getNumTracks() {
 }
 
 
+int TrackGenerator::getNumX(int azim) {
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to return the number of Tracks on the x-axis"
+               " for azimuthal angle %d since Tracks have not yet been "
+               "generated.", azim);
+
+  return _num_x[azim];
+}
+
+
+int TrackGenerator::getNumY(int azim) {
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to return the number of Tracks on the y-axis"
+               " for azimuthal angle %d since Tracks have not yet been "
+               "generated.", azim);
+
+  return _num_y[azim];
+}
+
+
 /**
  * @brief Return an array of the number of Tracks for each azimuthal angle.
  * @return array with the number of Tracks
@@ -99,6 +119,22 @@ int* TrackGenerator::getNumTracksArray() {
                "azimuthal angle since Tracks have not yet been generated.");
 
   return _num_tracks;
+}
+
+
+/**
+ * @brief Return an array with the Track uid separating the azimuthal and
+ * periodic halfspaces
+ * @return array with the Track uid separating the azimuthal and periodic 
+ *         halfspaces
+ */
+int* TrackGenerator::getNumTracksByHalfspaceArray() {
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to return the array with the Track uid "
+               "separating the azimuthal and periodic halspaces since "
+               "Tracks have not yet been generated.");
+
+  return _num_tracks_by_halfspace;
 }
 
 
@@ -469,6 +505,7 @@ void TrackGenerator::generateTracks() {
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
+    delete [] _num_tracks_by_halfspace;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
@@ -491,6 +528,7 @@ void TrackGenerator::generateTracks() {
     /* Allocate memory for the Tracks */
     try {
       _num_tracks = new int[_num_azim];
+      _num_tracks_by_halfspace = new int[5];
       _num_x = new int[_num_azim];
       _num_y = new int[_num_azim];
       _azim_weights = new FP_PRECISION[_num_azim];
@@ -702,25 +740,46 @@ void TrackGenerator::initializeTracks() {
 void TrackGenerator::recalibrateTracksToOrigin() {
 
   int uid = 0;
+  int azim_period, num_azim_periods;
+  _num_tracks_by_halfspace[0] = 0;
+  
+  /* Recalibrate the tracks to the origin and set the uid. Note that the 
+   * loop structure is unconventional in order to preserve a monotonically
+   * increasing track uid value in the Solver's tracks array. The tracks array
+   * is oriented such the tracks can be broken up into 4 sub arrays that are
+   * guaranteed to contain tracks that do not transport into other tracks both
+   * reflectively and periodically. This is done to guarantee reproducability
+   * in parallel runs. */
+  for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
+    for (int period_halfspace=0; period_halfspace < 2; period_halfspace++) {
+      for (int a=azim_halfspace*_num_azim/2;
+           a < (azim_halfspace+1)*_num_azim/2; a++) {
+        azim_period = std::min(_num_x[a], _num_y[a]);
+        num_azim_periods = _num_tracks[a] / azim_period + 1;
+        for (int period=period_halfspace;
+             period < num_azim_periods; period+=2) {
+          for (int i=azim_period*period;
+               i < std::min((period+1)*azim_period, _num_tracks[a]); i++) {
 
-  for (int i = 0; i < _num_azim; i++) {
-    for (int j = 0; j < _num_tracks[i]; j++) {
-
-      _tracks[i][j].setUid(uid);
-      uid++;
-
-      double x0 = _tracks[i][j].getStart()->getX();
-      double y0 = _tracks[i][j].getStart()->getY();
-      double x1 = _tracks[i][j].getEnd()->getX();
-      double y1 = _tracks[i][j].getEnd()->getY();
-      double new_x0 = x0 + _geometry->getMinX();
-      double new_y0 = y0 + _geometry->getMinY();
-      double new_x1 = x1 + _geometry->getMinX();
-      double new_y1 = y1 + _geometry->getMinY();
-      double phi = _tracks[i][j].getPhi();
-
-      _tracks[i][j].setValues(new_x0, new_y0, new_x1,new_y1, phi);
-      _tracks[i][j].setAzimAngleIndex(i);
+            _tracks[a][i].setUid(uid);
+            uid++;
+            
+            double x0 = _tracks[a][i].getStart()->getX();
+            double y0 = _tracks[a][i].getStart()->getY();
+            double x1 = _tracks[a][i].getEnd()->getX();
+            double y1 = _tracks[a][i].getEnd()->getY();
+            double new_x0 = x0 + _geometry->getMinX();
+            double new_y0 = y0 + _geometry->getMinY();
+            double new_x1 = x1 + _geometry->getMinX();
+            double new_y1 = y1 + _geometry->getMinY();
+            double phi = _tracks[a][i].getPhi();
+            
+            _tracks[a][i].setValues(new_x0, new_y0, new_x1,new_y1, phi);
+            _tracks[a][i].setAzimAngleIndex(a);
+          }
+        }
+      }
+      _num_tracks_by_halfspace[azim_halfspace*2 + period_halfspace + 1] = uid;
     }
   }
 }
@@ -782,290 +841,94 @@ void TrackGenerator::initializeBoundaryConditions() {
 
   log_printf(INFO, "Initializing Track boundary conditions...");
 
-  /* nxi = number of tracks starting on y-axis for angle i
-   * nyi = number of tracks starting on y-axis for angle i
-   * nti = total number of tracks for angle i */
-  int nxi, nyi, nti;
+  /* Check for symmetry of periodic boundary conditions */
+    if ((_geometry->getMinXBoundaryType() == PERIODIC &&
+         _geometry->getMaxXBoundaryType() != PERIODIC) ||
+        (_geometry->getMinXBoundaryType() != PERIODIC &&
+         _geometry->getMaxXBoundaryType() == PERIODIC))
+      log_printf(ERROR, "Cannot create tracks with only one x boundary"
+                 " set to PERIODIC");
+    else if ((_geometry->getMinYBoundaryType() == PERIODIC &&
+              _geometry->getMaxYBoundaryType() != PERIODIC) ||
+             (_geometry->getMinYBoundaryType() != PERIODIC &&
+              _geometry->getMaxYBoundaryType() == PERIODIC))
+      log_printf(ERROR, "Cannot create tracks with only one y boundary"
+                 " set to PERIODIC");
+  
+  Track* track;
+  int ac;
+  
+  /* Loop over the all the tracks and set the incoming and outgoing tracks
+   * and incoming and outgoing boundary conditions. */
+  for (int a=0; a < _num_azim; a++){
+    ac = _num_azim - a - 1;
+    for (int i=0; i < _num_tracks[a]; i++){
 
-  Track *curr;
-  Track *refl;
+      /* Get current track */
+      track = &_tracks[a][i];
 
-  /* Loop over only half the angles since we will set the pointers for
-   * connecting Tracks at the same time */
-  for (int i = 0; i < floor(_num_azim / 2); i++) {
-    nxi = _num_x[i];
-    nyi = _num_y[i];
-    nti = _num_tracks[i];
-    curr = _tracks[i];
-    refl = _tracks[_num_azim - i - 1];
+      /* Set boundary conditions for tracks in [0,PI/2] */
+      if (a < _num_azim/2){
+        if (i < _num_y[a])
+          track->setBCOut(_geometry->getMaxXBoundaryType());
+        else
+          track->setBCOut(_geometry->getMaxYBoundaryType());
 
-    /* Loop over all of the Tracks for this angle */
-    for (int j = 0; j < nti; j++) {
+        if (i < _num_x[a])
+          track->setBCIn(_geometry->getMinYBoundaryType());
+        else
+          track->setBCIn(_geometry->getMinXBoundaryType());        
+      }
 
-      /* More Tracks starting along x-axis than y-axis */
-      if (nxi <= nyi) {
+      /* Set boundary conditions for tracks in [PI/2,PI] */
+      else{
+        if (i < _num_y[a])
+          track->setBCOut(_geometry->getMinXBoundaryType());
+        else
+          track->setBCOut(_geometry->getMaxYBoundaryType());
 
-        /* Bottom to right hand side */
-        if (j < nxi) {
-          curr[j].setTrackIn(&refl[j]);
-          curr[j].setTrackInI(_num_azim - i - 1);
-          curr[j].setTrackInJ(j);
-
-          refl[j].setTrackIn(&curr[j]);
-          refl[j].setTrackInI(i);
-          refl[j].setTrackInJ(j);
-
-          curr[j].setReflIn(false);
-          refl[j].setReflIn(false);
-
-          if (_geometry->getMinYBoundaryType() == REFLECTIVE) {
-            curr[j].setBCIn(1);
-            refl[j].setBCIn(1);
-          }
-          else {
-            curr[j].setBCIn(0);
-            refl[j].setBCIn(0);
-          }
-
-          curr[j].setTrackOut(&refl[2 * nxi - 1 - j]);
-          curr[j].setTrackOutI(_num_azim - i - 1);
-          curr[j].setTrackOutJ(2 * nxi - 1 - j);
-
-          refl[2 * nxi - 1 - j].setTrackIn(&curr[j]);
-          refl[2 * nxi - 1 - j].setTrackInI(i);
-          refl[2 * nxi - 1 - j].setTrackInJ(j);
-
-          curr[j].setReflOut(false);
-          refl[2 * nxi - 1 - j].setReflIn(true);
-
-          if (_geometry->getMaxXBoundaryType() == REFLECTIVE) {
-            curr[j].setBCOut(1);
-            refl[2 * nxi - 1 - j].setBCIn(1);
-          }
-          else {
-            curr[j].setBCOut(0);
-            refl[2 * nxi - 1 - j].setBCIn(0);
-          }
+        if (i < _num_x[a])
+          track->setBCIn(_geometry->getMinYBoundaryType());
+        else
+          track->setBCIn(_geometry->getMaxXBoundaryType());
+      }
+      
+      /* Set connecting tracks in forward direction */
+      if (i < _num_y[a]) {
+        track->setNextOut(false);
+        if (track->getBCOut() == PERIODIC)
+          track->setTrackOut(&_tracks[a][i + _num_x[a]]);
+        else
+          track->setTrackOut(&_tracks[ac][i + _num_x[a]]);
+      }
+      else{
+        if (track->getBCOut() == PERIODIC) {
+          track->setNextOut(false);
+          track->setTrackOut(&_tracks[a][i - _num_y[a]]);
         }
-
-        /* Left hand side to right hand side */
-        else if (j < nyi) {
-          curr[j].setTrackIn(&refl[j - nxi]);
-          curr[j].setTrackInI(_num_azim - i - 1);
-          curr[j].setTrackInJ(j - nxi);
-
-          refl[j - nxi].setTrackOut(&curr[j]);
-          refl[j - nxi].setTrackOutI(i);
-          refl[j - nxi].setTrackOutJ(j);
-
-          curr[j].setReflIn(true);
-          refl[j - nxi].setReflOut(false);
-
-          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
-            curr[j].setBCIn(1);
-            refl[j - nxi].setBCOut(1);
-          }
-          else {
-            curr[j].setBCIn(0);
-            refl[j - nxi].setBCOut(0);
-          }
-
-          curr[j].setTrackOut(&refl[j + nxi]);
-          curr[j].setTrackOutI(_num_azim - i - 1);
-          curr[j].setTrackOutJ(j + nxi);
-
-          refl[j + nxi].setTrackIn(&curr[j]);
-          refl[j + nxi].setTrackInI(i);
-          refl[j + nxi].setTrackInJ(j);
-
-          curr[j].setReflOut(false);
-          refl[j + nxi].setReflIn(true);
-
-          if (_geometry->getMaxXBoundaryType() == REFLECTIVE) {
-            curr[j].setBCOut(1);
-            refl[j + nxi].setBCIn(1);
-          }
-          else {
-            curr[j].setBCOut(0);
-            refl[j + nxi].setBCIn(0);
-          }
-        }
-
-        /* Left hand side to top (j > ny) */
         else {
-          curr[j].setTrackIn(&refl[j - nxi]);
-          curr[j].setTrackInI(_num_azim - i - 1);
-          curr[j].setTrackInJ(j - nxi);
-
-          refl[j - nxi].setTrackOut(&curr[j]);
-          refl[j - nxi].setTrackOutI(i);
-          refl[j - nxi].setTrackOutJ(j);
-
-          curr[j].setReflIn(true);
-          refl[j - nxi].setReflOut(false);
-
-          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
-            curr[j].setBCIn(1);
-            refl[j - nxi].setBCOut(1);
-          }
-          else {
-            curr[j].setBCIn(0);
-            refl[j - nxi].setBCOut(0);
-          }
-
-          curr[j].setTrackOut(&refl[2 * nti - nxi - j - 1]);
-          curr[j].setTrackOutI(_num_azim - i - 1);
-          curr[j].setTrackOutJ(2 * nti - nxi - j - 1);
-
-          refl[2 * nti - nxi - j - 1].setTrackOut(&curr[j]);
-          refl[2 * nti - nxi - j - 1].setTrackOutI(i);
-          refl[2 * nti - nxi - j - 1].setTrackOutJ(j);
-
-          curr[j].setReflOut(true);
-          refl[2 * nti - nxi - j - 1].setReflOut(true);
-
-          if (_geometry->getMaxYBoundaryType() == REFLECTIVE) {
-            curr[j].setBCOut(1);
-            refl[2 * nti - nxi - j - 1].setBCOut(1);
-          }
-          else {
-            curr[j].setBCOut(0);
-            refl[2 * nti - nxi - j - 1].setBCOut(0);
-          }
+          track->setNextOut(true);
+          track->setTrackOut(&_tracks[ac][_num_x[a] + 2*_num_y[a] - i - 1]);
         }
       }
 
-      /* More Tracks starting on y-axis than on x-axis */
-      else {
-
-        /* Bottom to top */
-        if (j < nxi - nyi) {
-          curr[j].setTrackIn(&refl[j]);
-          curr[j].setTrackInI(_num_azim - i - 1);
-          curr[j].setTrackInJ(j);
-
-          refl[j].setTrackIn(&curr[j]);
-          refl[j].setTrackInI(i);
-          refl[j].setTrackInJ(j);
-
-          curr[j].setReflIn(false);
-          refl[j].setReflIn(false);
-
-          if (_geometry->getMinYBoundaryType() == REFLECTIVE) {
-            curr[j].setBCIn(1);
-            refl[j].setBCIn(1);
-         }
-          else {
-            curr[j].setBCIn(0);
-            refl[j].setBCIn(0);
-          }
-
-          curr[j].setTrackOut(&refl[nti - (nxi - nyi) + j]);
-          curr[j].setTrackOutI(_num_azim - i - 1);
-          curr[j].setTrackOutJ(nti - (nxi - nyi) + j);
-
-          refl[nti - (nxi - nyi) + j].setTrackOut(&curr[j]);
-          refl[nti - (nxi - nyi) + j].setTrackOutI(i);
-          refl[nti - (nxi - nyi) + j].setTrackOutJ(j);
-
-          curr[j].setReflOut(true);
-          refl[nti - (nxi - nyi) + j].setReflOut(true);
-
-          if (_geometry->getMaxYBoundaryType() == REFLECTIVE) {
-            curr[j].setBCOut(1);
-            refl[nti - (nxi - nyi) + j].setBCOut(1);
-          }
-          else {
-            curr[j].setBCOut(0);
-           refl[nti - (nxi - nyi) + j].setBCOut(0);
-          }
+      /* Set connecting tracks in backward direction */
+      if (i < _num_x[a]) {
+        if (track->getBCIn() == PERIODIC) {
+          track->setNextIn(true);
+          track->setTrackIn(&_tracks[a][i + _num_y[a]]);
         }
-
-        /* Bottom to right hand side */
-        else if (j < nxi) {
-          curr[j].setTrackIn(&refl[j]);
-          curr[j].setTrackInI(_num_azim - i - 1);
-          curr[j].setTrackInJ(j);
-
-          refl[j].setTrackIn(&curr[j]);
-          refl[j].setTrackInI(i);
-          refl[j].setTrackInJ(j);
-
-          curr[j].setReflIn(false);
-          refl[j].setReflIn(false);
-
-          if (_geometry->getMinYBoundaryType() == REFLECTIVE) {
-            curr[j].setBCIn(1);
-            refl[j].setBCIn(1);
-          }
-          else {
-            curr[j].setBCIn(0);
-            refl[j].setBCIn(0);
-          }
-
-          curr[j].setTrackOut(&refl[nxi + (nxi - j) - 1]);
-          curr[j].setTrackOutI(_num_azim - i - 1);
-          curr[j].setTrackOutJ(nxi + (nxi - j) - 1);
-
-          refl[nxi + (nxi - j) - 1].setTrackIn(&curr[j]);
-          refl[nxi + (nxi - j) - 1].setTrackInI(i);
-          refl[nxi + (nxi - j) - 1].setTrackInJ(j);
-
-          curr[j].setReflOut(false);
-          refl[nxi + (nxi - j) - 1].setReflIn(true);
-
-          if (_geometry->getMaxXBoundaryType() == REFLECTIVE) {
-            curr[j].setBCOut(1);
-            refl[nxi + (nxi - j) - 1].setBCIn(1);
-          }
-          else {
-            curr[j].setBCOut(0);
-            refl[nxi + (nxi - j) - 1].setBCIn(0);
-          }
-        }
-
-        /* Left-hand side to top (j > nx) */
         else {
-          curr[j].setTrackIn(&refl[j - nxi]);
-          curr[j].setTrackInI(_num_azim - i - 1);
-          curr[j].setTrackInJ(j - nxi);
-
-          refl[j - nxi].setTrackOut(&curr[j]);
-          refl[j - nxi].setTrackOutI(i);
-          refl[j - nxi].setTrackOutJ(j);
-
-          curr[j].setReflIn(true);
-          refl[j - nxi].setReflOut(false);
-
-          if (_geometry->getMinXBoundaryType() == REFLECTIVE) {
-            curr[j].setBCIn(1);
-            refl[j - nxi].setBCOut(1);
-          }
-          else {
-            curr[j].setBCIn(0);
-            refl[j - nxi].setBCOut(0);
-          }
-
-          curr[j].setTrackOut(&refl[nyi + (nti - j) - 1]);
-          curr[j].setTrackOutI(_num_azim - i - 1);
-          curr[j].setTrackOutJ(nyi + (nti - j) - 1);
-
-          refl[nyi + (nti - j) - 1].setTrackOut(&curr[j]);
-          refl[nyi + (nti - j) - 1].setTrackOutI(i);
-          refl[nyi + (nti - j) - 1].setTrackOutJ(j);
-
-          curr[j].setReflOut(true);
-          refl[nyi + (nti - j) - 1].setReflOut(true);
-
-          if (_geometry->getMaxYBoundaryType() == REFLECTIVE) {
-            curr[j].setBCOut(1);
-            refl[nyi + (nti - j) - 1].setBCOut(1);
-          }
-          else {
-            curr[j].setBCOut(0);
-            refl[nyi + (nti - j) - 1].setBCOut(0);
-          }
+          track->setNextIn(false);
+          track->setTrackIn(&_tracks[ac][_num_x[a] - i - 1]);
         }
+      }
+      else{
+        track->setNextIn(true);
+        if (track->getBCIn() == PERIODIC)
+          track->setTrackIn(&_tracks[a][i - _num_x[a]]);
+        else
+          track->setTrackIn(&_tracks[ac][i - _num_x[a]]);
       }
     }
   }
@@ -1146,6 +1009,10 @@ void TrackGenerator::dumpTracksToFile() {
   fwrite(azim_weights, sizeof(double), _num_azim, out);
   delete [] azim_weights;
 
+  /* Write the array with the Track uid separating the azimuthal and periodic
+   * halfspaces */
+  fwrite(_num_tracks_by_halfspace, sizeof(int), 5, out);
+  
   Track* curr_track;
   double x0, y0, x1, y1;
   double phi;
@@ -1294,6 +1161,7 @@ bool TrackGenerator::readTracksFromFile() {
   /* Deletes Tracks arrays if tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
+    delete [] _num_tracks_by_halfspace;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
@@ -1346,7 +1214,12 @@ bool TrackGenerator::readTracksFromFile() {
     _azim_weights[i] = azim_weights[i];
 
   delete [] azim_weights;
-
+  
+  /* Import the array with the Track uid separating the azimuthal and periodic
+   * halfspaces */
+  _num_tracks_by_halfspace = new int[5];
+  ret = fread(_num_tracks_by_halfspace, sizeof(int), 5, in);
+  
   Track* curr_track;
   double x0, y0, x1, y1;
   double phi;

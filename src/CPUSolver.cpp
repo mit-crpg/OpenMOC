@@ -573,13 +573,13 @@ void CPUSolver::transportSweep() {
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroSurfaceCurrents();
 
-  /* Loop over azimuthal angle halfspaces */
-  for (int i=0; i < 2; i++) {
+  /* Loop over azimuthal angle and periodic track halfspaces */
+  for (int i=0; i < 4; i++) {
 
     /* Compute the minimum and maximum Track IDs corresponding to
-     * this azimuthal angular halfspace */
-    min_track = i * (_tot_num_tracks / 2);
-    max_track = (i + 1) * (_tot_num_tracks / 2);
+     * this azimuthal angle and periodic track halfspace */
+    min_track = _num_tracks_by_halfspace[i];
+    max_track = _num_tracks_by_halfspace[i+1];
 
     /* Loop over each thread within this azimuthal angle halfspace */
     #pragma omp parallel for private(curr_track, azim_index, num_segments, \
@@ -691,9 +691,10 @@ void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
 
 /**
  * @brief Updates the boundary flux for a Track given boundary conditions.
- * @details For reflective boundary conditions, the outgoing boundary flux
- *          for the Track is given to the reflecting Track. For vacuum
- *          boundary conditions, the outgoing flux tallied as leakage.
+ * @details For reflective and periodic boundary conditions, the outgoing
+ *          boundary flux for the Track is given to the corresponding reflecting
+ *          or periodic Track. For vacuum boundary conditions, the outgoing flux
+ *          is tallied as leakage.
  * @param track_id the ID number for the Track of interest
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param direction the Track direction (forward - true, reverse - false)
@@ -708,27 +709,24 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   FP_PRECISION* track_leakage;
   int track_out_id;
 
-  /* Extract boundary conditions for this Track and the pointer to the
-   * outgoing reflective Track, and index into the leakage array */
-
   /* For the "forward" direction */
   if (direction) {
-    start = _tracks[track_id]->isReflOut() * _polar_times_groups;
-    bc = (int)_tracks[track_id]->getBCOut();
+    start = _tracks[track_id]->isNextOut() * _polar_times_groups;
+    bc = std::min((int)_tracks[track_id]->getBCOut(), 1);
     track_leakage = &_boundary_leakage(track_id,0);
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
   }
 
   /* For the "reverse" direction */
   else {
-    start = _tracks[track_id]->isReflIn() * _polar_times_groups;
-    bc = (int)_tracks[track_id]->getBCIn();
+    start = _tracks[track_id]->isNextIn() * _polar_times_groups;
+    bc = std::min((int)_tracks[track_id]->getBCIn(), 1);
     track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
   FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
-
+  
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {
     for (int p=0; p < _num_polar; p++) {

@@ -82,6 +82,9 @@ private:
    * the beginning of a CMFD solve */
   Vector* _old_flux;
 
+  /** Vector representing the ratio of the new to old CMFD flux */
+  Vector* _flux_ratio;
+  
   /** Gauss-Seidel SOR relaxation factor */
   FP_PRECISION _SOR_factor;
 
@@ -160,45 +163,56 @@ private:
   /** Flag indicating whether to update the MOC flux */
   bool _flux_update_on;
 
-  /** Flag indicating whether to us centroid updating */
+  /** Flag indicating whether to use centroid updating (default true) */
   bool _centroid_update_on;
 
-  /** Number of cells to used in updating MOC flux */
+  /** Number of cells used in updating MOC flux (default 3) */
   int _k_nearest;
 
   /** Map storing the k-nearest stencil for each fsr */
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
     _k_nearest_stencils;
 
+  /** Array representing the total distance of each FSR centroid to its
+   * k-nearest CMFD cells */
+  FP_PRECISION* _centroid_total_distances;
+
+  /* Private worker functions */
+  FP_PRECISION computeDiffCorrect(FP_PRECISION d, FP_PRECISION h);
+  void constructMatrices();
+  void computeDs(int moc_iteration);
+  void computeXS();
+  void updateMOCFlux();
+  void rescaleFlux();
+  void splitCorners();
+  void initializeMaterials();
+  void initializeSurfaceCurrents();
+  void generateKNearestStencils();
+
+  /* Private getter functions */
+  int getCellNext(int cell_num, int surface_id);
+  FP_PRECISION getUpdateRatio(int cmfd_cell, int moc_group, int fsr);
+  FP_PRECISION getDistanceToCentroid(Point* centroid, int cell,
+                                     int stencil_index);
+  
 public:
 
   Cmfd();
   virtual ~Cmfd();
 
   /* Worker functions */
-  void constructMatrices();
-  void computeDs(int moc_iteration);
-  void computeXS();
-  void updateMOCFlux();
-  FP_PRECISION computeDiffCorrect(FP_PRECISION d, FP_PRECISION h);
   FP_PRECISION computeKeff(int moc_iteration);
+  void initialize();
   void initializeCellMap();
   void initializeGroupMap();
-  void initializeMaterials();
-  void initializeSurfaceCurrents();
-
-  void rescaleFlux();
-  void splitCorners();
-  int getCellNext(int cell_num, int surface_id);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell, LocalCoords* coords);
   void addFSRToCell(int cmfd_cell, int fsr_id);
-  void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
-                          int num_tracks);
-  void generateKNearestStencils();
   void zeroSurfaceCurrents();
   void tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
                            FP_PRECISION* polar_weights, bool fwd);
+  void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
+                          int num_tracks);
 
   /* Get parameters */
   int getNumCmfdGroups();
@@ -216,9 +230,6 @@ public:
   std::vector< std::vector<int> >* getCellFSRs();
   bool isFluxUpdateOn();
   bool isCentroidUpdateOn();
-  FP_PRECISION getFluxRatio(int cmfd_cell, int moc_group);
-  FP_PRECISION getUpdateRatio(int cmfd_cell, int moc_group, int fsr);
-  FP_PRECISION getDistanceToCentroid(Point* centroid, int cell, int surface);
 
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);

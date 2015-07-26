@@ -346,16 +346,33 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _track_generator = track_generator;
   _num_azim = _track_generator->getNumAzim() / 2;
   int* num_tracks = _track_generator->getNumTracksArray();
+  _num_tracks_by_halfspace = _track_generator->getNumTracksByHalfspaceArray();
   _tot_num_tracks = _track_generator->getNumTracks();
   _tracks = new Track*[_tot_num_tracks];
 
   /* Initialize the tracks array */
   int counter = 0;
+  int azim_period, num_azim_periods;
+  int num_x, num_y;
 
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < num_tracks[i]; j++) {
-      _tracks[counter] = &_track_generator->getTracks()[i][j];
-      counter++;
+  for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
+    for (int period_halfspace=0; period_halfspace < 2; period_halfspace++) {
+      for (int a=azim_halfspace*_num_azim/2;
+           a < (azim_halfspace+1)*_num_azim/2; a++) {
+        num_x = _track_generator->getNumX(a);
+        num_y = _track_generator->getNumY(a);
+        azim_period = std::min(num_x, num_y);
+        num_azim_periods = num_tracks[a] / azim_period + 1;
+        for (int period=period_halfspace;
+             period < num_azim_periods; period+=2) {
+          for (int i=azim_period*period;
+               i < std::min((period+1)*azim_period, num_tracks[a]); i++) {
+
+            _tracks[counter] = &_track_generator->getTracks()[a][i];
+            counter++;
+          }
+        }
+      }
     }
   }
 
@@ -650,8 +667,7 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
   _cmfd->setGeometry(_geometry);
-  _cmfd->generateKNearestStencils();
-  _cmfd->initializeSurfaceCurrents();
+  _cmfd->initialize();
 }
 
 
