@@ -29,14 +29,21 @@ log.py_printf('HEADER', 'The reference keff = 1.43...')
 
 log.py_printf('NORMAL', 'Creating materials...')
 
+sigma_a = numpy.array([0.069389522])
+sigma_f = numpy.array([0.0414198575])
+nu_sigma_f = numpy.array([0.0994076580])
+sigma_s = numpy.array([0.383259177])
+chi = numpy.array([1.0])
+sigma_t = numpy.array([0.452648699])
+
 infinite_medium = Material(name='1-group infinite medium')
 infinite_medium.setNumEnergyGroups(1)
-infinite_medium.setSigmaA(numpy.array([0.069389522]))
-infinite_medium.setSigmaF(numpy.array([0.0414198575]))
-infinite_medium.setNuSigmaF(numpy.array([0.0994076580]))
-infinite_medium.setSigmaS(numpy.array([0.383259177]))
-infinite_medium.setChi(numpy.array([1.0]))
-infinite_medium.setSigmaT(numpy.array([0.452648699]))
+infinite_medium.setSigmaA(sigma_a)
+infinite_medium.setSigmaF(sigma_f)
+infinite_medium.setNuSigmaF(nu_sigma_f)
+infinite_medium.setSigmaS(sigma_s)
+infinite_medium.setChi(chi)
+infinite_medium.setSigmaT(sigma_t)
 
 
 ###############################################################################
@@ -106,10 +113,35 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
+log.py_printf('NORMAL', 'Running MOC eigenvalue simulation...')
+
 solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
-solver.computeEigenvalue(max_iters)
+solver.computeEigenvalue(max_iters, mode=ADJOINT)
 solver.printTimerReport()
+
+
+###############################################################################
+#                            Verify Running a Simulation
+###############################################################################
+
+log.py_printf('NORMAL', 'Verifying with NumPy eigenvalue...')
+
+# Compute fission production matrix
+fiss_mat = numpy.outer(chi, nu_sigma_f)
+
+# Create forward operator
+sigma_s = numpy.transpose(sigma_s)
+fiss_mat = numpy.transpose(fiss_mat)
+M = numpy.linalg.solve((numpy.diag(sigma_t) - sigma_s), fiss_mat)
+
+# Solve eigenvalue problem with NumPy
+k, phi = numpy.linalg.eig(M)
+
+# Select the dominant eigenvalue
+k = k[0]
+
+log.py_printf('RESULT', 'Numpy eigenvalue: {0:.6f}'.format(k))
 
 log.py_printf('TITLE', 'Finished')
