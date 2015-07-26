@@ -16,6 +16,8 @@ void clone_material(Material* material_h, dev_material* material_d) {
   int id = material_h->getId();
   int num_groups = material_h->getNumEnergyGroups();
 
+  material_h->printString();
+
   /* Initialize Material's fission matrix *.
   material_h->buildFissionMatrix();
 

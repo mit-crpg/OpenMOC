@@ -953,6 +953,8 @@ void GPUSolver::initializeFSRs() {
  */
 void GPUSolver::initializeMaterials() {
 
+  Solver::initializeMaterials();
+
   log_printf(INFO, "Initializing materials on the GPU...");
 
   /* Delete old materials array if it exists */
