@@ -391,7 +391,6 @@ FP_PRECISION Material::getSigmaAByGroup(int group) {
  * @return the scattering cross section
  */
 FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {   
-  /*
   if (_sigma_s == NULL)
     log_printf(ERROR, "Unable to return Material %d's scattering "
                "cross section since it has not yet been set", _id);
@@ -401,7 +400,6 @@ FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
     log_printf(ERROR, "Unable to get sigma_s for group %d,%d for Material %d "
                "which contains %d energy groups",
                origin, destination, _id, _num_groups);
-  */
    
   return _sigma_s[(destination-1)*_num_groups + (origin-1)];
 }
@@ -465,10 +463,9 @@ FP_PRECISION Material::getChiByGroup(int group) {
  * @brief Get the Material's fission matrix for some energy group.
  * @param origin the incoming energy group \f$ E_{0} \f$
  * @param destination the outgoing energy group \f$ E_{1} \f$
- * @return the fission matrix entry \f$ \nu\Sigma_{f}(E_{0}) * \chi(E_{0})\f$
+ * @return the fission matrix entry \f$ \nu\Sigma_{f}(E_{0}) * \chi(E_{1})\f$
  */
 FP_PRECISION Material::getFissionMatrixByGroup(int origin, int destination) {
-  /*
   if (_fiss_matrix == NULL)
     log_printf(ERROR, "Unable to return Material %d's fission matrix "
                "cross section since it has not yet been built", _id);
@@ -478,7 +475,6 @@ FP_PRECISION Material::getFissionMatrixByGroup(int origin, int destination) {
     log_printf(ERROR, "Unable to get fission matrix for group %d,%d for "
                "Material %d which contains %d energy groups",
                origin, destination, _id, _num_groups);
-  */
 
   return _fiss_matrix[(destination-1)*_num_groups + (origin-1)];
 }
@@ -1420,7 +1416,7 @@ void Material::alignData() {
   FP_PRECISION* new_nu_sigma_f=(FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_chi = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-  /* The fisssion and scattering matrices will be the number of vector
+  /* The fission and scattering matrices will be the number of vector
    * groups wide (SIMD) and the actual number of groups long since
    * instructions are not SIMD in this dimension */
 
@@ -1453,7 +1449,7 @@ void Material::alignData() {
   memcpy(new_chi, _chi, size);
 
   for (int e=0; e < _num_groups; e++) {
-    memcpy(new_fiss_matrix, _sigma_s, size);
+    memcpy(new_fiss_matrix, _fiss_matrix, size);
     memcpy(new_sigma_s, _sigma_s, size);
     new_fiss_matrix += _num_vector_groups * VEC_LENGTH;
     new_sigma_s += _num_vector_groups * VEC_LENGTH;
@@ -1586,6 +1582,15 @@ std::string Material::toString() {
     string << "Chi = ";
     for (int e = 0; e < _num_groups; e++)
       string << _chi[e] << ", ";
+  }
+
+  if (_fiss_matrix != NULL) {
+    string << "\n\t\tFiss. Matrix = \n\t\t";
+    for (int G = 0; G < _num_groups; G++) {
+      for (int g = 0; g < _num_groups; g++)
+        string << _fiss_matrix[G+g*_num_groups] << "\t\t ";
+      string << "\n\t\t";
+    }
   }
 
   if (_dif_coef != NULL) {

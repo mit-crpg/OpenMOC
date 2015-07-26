@@ -273,29 +273,35 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
     log_printf(ERROR, "Unable to return a source "
                "since it has not yet been computed");
  
+  /* Get Material and cross-sections */
   Material* material = _FSR_materials[fsr_id];
-  FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
-  FP_PRECISION* chi = material->getChi();
-  FP_PRECISION source = 0.;
+  FP_PRECISION* sigma_s = material->getSigmaS();
+  FP_PRECISION* fiss_mat = material->getFissionMatrix();
 
-  /* Compute fission source */
-  if (material->isFissionable()) {
-    for (int e=0; e < _num_groups; e++)
-      source += _scalar_flux(fsr_id,e) * nu_sigma_f[e];
-    source /= _k_eff * chi[group-1];
+  FP_PRECISION fission_source = 0.0;
+  FP_PRECISION scatter_source = 0.0;
+  FP_PRECISION total_source;
+
+  /* Compute total scattering and fission sources for this FSR */
+  for (int g=0; g < _num_groups; g++) {
+    scatter_source += sigma_s[(group-1)*(_num_groups)+g] 
+                      * _scalar_flux(fsr_id-1,g);
+    fission_source += fiss_mat[(group-1)*(_num_groups)+g] 
+                      * _scalar_flux(fsr_id-1,g);
   }
 
-  /* Compute scatter source */
-  for (int g=0; g < _num_groups; g++)
-    source += material->getSigmaSByGroup(g+1,group) * _scalar_flux(fsr_id,g);
+  fission_source /= _k_eff;
+
+  /* Compute the total source */
+  total_source = fission_source + scatter_source;
 
   /* Add in fixed source (if specified by user) */
-  source += _fixed_sources(fsr_id,group-1);
+  total_source += _fixed_sources(fsr_id,group-1);
 
   /* Normalize to solid angle for isotropic approximation */
-  source *= ONE_OVER_FOUR_PI;
+  total_source *= ONE_OVER_FOUR_PI;
 
-  return source;
+  return total_source;
 }
 
 
