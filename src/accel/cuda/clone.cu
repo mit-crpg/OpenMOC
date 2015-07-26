@@ -53,7 +53,7 @@ void clone_material(Material* material_h, dev_material* material_d) {
              num_groups * sizeof(double), cudaMemcpyHostToDevice);
   cudaMemcpy((void*)chi, (void*)material_h->getChi(),
              num_groups * sizeof(double), cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)fiss_matrix, (void*)material_h->getSigmaS(),
+  cudaMemcpy((void*)fiss_matrix, (void*)material_h->getFissionMatrix(),
              num_groups * num_groups * sizeof(double), cudaMemcpyHostToDevice);
 
   /* Copy Material data pointers to dev_material on GPU */
