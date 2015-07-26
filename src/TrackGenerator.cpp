@@ -927,7 +927,7 @@ void TrackGenerator::initializeBoundaryConditions() {
         track->setReflIn(true);
         if (track->getBCIn() == PERIODIC)
           track->setTrackIn(&_tracks[a][i - _num_x[a]]);
-        else 
+        else
           track->setTrackIn(&_tracks[ac][i - _num_x[a]]);
       }
     }

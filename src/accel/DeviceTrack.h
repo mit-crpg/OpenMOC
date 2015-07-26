@@ -76,12 +76,12 @@ struct dev_track {
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
    *  conditions. */
-  bool _bc_in;
+  int _bc_in;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "reverse" direction should be zeroed out for vacuum boundary
    *  conditions. */
-  bool _bc_out;
+  int _bc_out;
 };
 
 

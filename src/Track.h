@@ -84,26 +84,6 @@ private:
    * direction for reflective boundary conditions. */
   Track* _track_out;
 
-  /** The first index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "forward" direction for
-   *  reflective boundary conditions. */
-  int _track_in_i;
-
-  /** The second index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "forward" direction for
-   *  reflective boundary conditions. */
-  int  _track_in_j;
-
-  /** The first index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "reverse" direction for
-   *  reflective boundary conditions. */
-  int _track_out_i;
-
-  /** The second index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "reverse" direction for
-   *  reflective boundary conditions */
-  int _track_out_j;
-
   /** A boolean to indicate whether to give the flux to the "forward" (false)
    *  or "reverse" (true) direction of the Track reflecting out of this one
    *  along its "forward" direction for reflective boundary conditions.*/
@@ -138,10 +118,6 @@ public:
   void setBCOut(const boundaryType bc_out);
   void setTrackIn(Track *track_in);
   void setTrackOut(Track *track_out);
-  void setTrackInI(int i);
-  void setTrackInJ(int j);
-  void setTrackOutI(int i);
-  void setTrackOutJ(int j);
 
   int getUid();
   Point* getEnd();
@@ -153,10 +129,6 @@ public:
   int getNumSegments();
   Track *getTrackIn() const;
   Track *getTrackOut() const;
-  int getTrackInI() const;
-  int getTrackInJ() const;
-  int getTrackOutI() const;
-  int getTrackOutJ() const;
   bool isReflIn() const;
   bool isReflOut() const;
   boundaryType getBCIn() const;

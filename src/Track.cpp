@@ -189,46 +189,6 @@ void Track::setTrackOut(Track* track_out) {
 
 
 /**
- * @brief Sets the first index of the track reflecting into this Track's
- *        "forward" direction in the 2D jagged array of tracks.
- * @param i the first index of the incoming track along the "forward" direction
- */
-void Track::setTrackInI(int i) {
-  _track_in_i = i;
-}
-
-
-/**
- * @brief Sets the second index of the track reflecting into this Track's
- *        "forward" direction in the 2D jagged array of tracks.
- * @param j the second index of the incoming track along the "forward" direction
- */
-void Track::setTrackInJ(int j) {
-  _track_in_j = j;
-}
-
-
-/**
- * @brief Sets the first index of the track reflecting into this Track's
- *        "reverse" direction in the 2D jagged array of Tracks.
- * @param i the first index of the incoming Track along the "reverse" direction
- */
-void Track::setTrackOutI(int i) {
-  _track_out_i = i;
-}
-
-
-/**
- * @brief Sets the second index of the Track reflecting into this Track's
- *        "reverse" direction in the 2D jagged array of tracks.
- * @param j the second index of the incoming Track along the "reverse" direction
- */
-void Track::setTrackOutJ(int j) {
-  _track_out_j = j;
-}
-
-
-/**
  * @brief Returns whether to give the outgoing flux to the "forward" (false) or
  *        "reverse" (true) direction of the Track reflecting out of this one
  *        along its "forward" direction.
@@ -306,47 +266,6 @@ double Track::getPhi() const {
  */
 int Track::getAzimAngleIndex() const {
   return _azim_angle_index;
-}
-
-
-/**
- * @brief Returns the first index of the Track reflecting out of this one along
- *        its "forward" direction in the 2D jagged array of all Tracks.
- * @return the first index of the reflecting Track
- */
-int Track::getTrackInI() const {
-  return _track_in_i;
-}
-
-
-/**
- * @brief Returns the second index of the Track reflecting out of this one along
- *        its "forward" direction in the 2D jagged array of all Tracks.
- * @return the second index of the reflecting Track
- */
-int Track::getTrackInJ() const {
-  return _track_in_j;
-}
-
-
-
-/**
- * @brief Returns the first index of the Track reflecting out of this one along
- *        its "reverse" direction in the 2D jagged array of all Tracks.
- * @return the first index of the reflecting Track
- */
-int Track::getTrackOutI() const {
-  return _track_out_i;
-}
-
-
-/**
- * @brief Returns the second index of the Track reflecting out of this one along
- *        its "reverse" direction in the 2D jagged array of all Tracks.
- * @return the second index of the reflecting Track
- */
-int Track::getTrackOutJ() const {
-  return _track_out_j;
 }
 
 

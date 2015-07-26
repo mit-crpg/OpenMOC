@@ -92,9 +92,17 @@ void clone_track(Track* track_h, dev_track* track_d,
   new_track._azim_angle_index = track_h->getAzimAngleIndex();
   new_track._refl_in = track_h->isReflIn();
   new_track._refl_out = track_h->isReflOut();
-  new_track._bc_in = track_h->getBCIn();
-  new_track._bc_out = track_h->getBCOut();
 
+  if (track_h->getBCIn() == REFLECTIVE || track_h->getBCIn() == PERIODIC)
+    new_track._bc_in = 1;
+  else
+    new_track._bc_in = 0;
+
+  if (track_h->getBCOut() == REFLECTIVE || track_h->getBCOut() == PERIODIC)
+    new_track._bc_out = 1;
+  else
+    new_track._bc_out = 0;
+    
   cudaMalloc((void**)&dev_segments,
              track_h->getNumSegments() * sizeof(dev_segment));
   new_track._segments = dev_segments;
