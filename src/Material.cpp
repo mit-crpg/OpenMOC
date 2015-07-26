@@ -463,7 +463,7 @@ FP_PRECISION Material::getChiByGroup(int group) {
  * @brief Get the Material's fission matrix for some energy group.
  * @param origin the incoming energy group \f$ E_{0} \f$
  * @param destination the outgoing energy group \f$ E_{1} \f$
- * @return the fission matrix entry \f$ \nu\Sigma_{f}(E_{0}) * \chi(E_{0})\f$
+ * @return the fission matrix entry \f$ \nu\Sigma_{f}(E_{0}) * \chi(E_{1})\f$
  */
 FP_PRECISION Material::getFissionMatrixByGroup(int origin, int destination) {
   if (_fiss_matrix == NULL)
