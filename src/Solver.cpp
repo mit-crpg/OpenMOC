@@ -580,6 +580,16 @@ void Solver::initializeMaterials() {
 
   for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
     m_iter->second->buildFissionMatrix();
+
+  // FIXME: Adjoint testing
+  /*
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter) {
+    FP_PRECISION* fiss_mat = m_iter->second->getFissionMatrix();
+    FP_PRECISION* sigma_s = m_iter->second->getSigmaS();
+    matrix_transpose<FP_PRECISION>(fiss_mat, _num_groups, _num_groups);
+    matrix_transpose<FP_PRECISION>(sigma_s, _num_groups, _num_groups);
+  }
+  */
 }
 
 
