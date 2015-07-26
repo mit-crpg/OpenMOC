@@ -650,8 +650,7 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
   _cmfd->setGeometry(_geometry);
-  _cmfd->generateKNearestStencils();
-  _cmfd->initializeSurfaceCurrents();
+  _cmfd->initialize();
 }
 
 

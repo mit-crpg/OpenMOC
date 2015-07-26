@@ -113,7 +113,7 @@ void Cmfd::setNumX(int num_x) {
 
   if (num_x < 1)
     log_printf(ERROR, "The number of lattice cells in the x direction "
-               "must be > 0. Input value: %i", num_x);
+               "must be > 0. Input value: %d", num_x);
 
   _num_x = num_x;
   if (_width != 0.)
@@ -129,7 +129,7 @@ void Cmfd::setNumY(int num_y) {
 
   if (num_y < 1)
     log_printf(ERROR, "The number of lattice cells in the y direction "
-               "must be > 0. Input value: %i", num_y);
+               "must be > 0. Input value: %d", num_y);
 
   _num_y = num_y;
   if (_height != 0.)
@@ -313,7 +313,7 @@ void Cmfd::computeXS() {
       else
         cell_material->setChiByGroup(0.0,e+1);
 
-      log_printf(DEBUG, "cell: %i, group: %i, vol: %e, siga: %e, sigt: %e,"
+      log_printf(DEBUG, "cell: %d, group: %d, vol: %e, siga: %e, sigt: %e,"
                  " nu_sigf: %e, dif_coef: %e, flux: %e, chi: %e", i, e,
                  vol_tally, abs_tally / rxn_tally, tot_tally / rxn_tally,
                  nu_fis_tally / rxn_tally, dif_tally / rxn_tally,
@@ -322,7 +322,7 @@ void Cmfd::computeXS() {
       /* Set scattering xs */
       for (int g = 0; g < _num_cmfd_groups; g++) {
         cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e+1, g+1);
-        log_printf(DEBUG, "scattering from %i to %i: %e", e, g,
+        log_printf(DEBUG, "scattering from %d to %d: %e", e, g,
                    scat_tally[g] / rxn_tally);
       }
     }
@@ -505,7 +505,7 @@ void Cmfd::computeDs(int moc_iteration) {
           _materials[cell]->setDifHatByGroup(d_hat, e+1, surface);
           _materials[cell]->setDifTildeByGroup(d_tilde, e+1, surface);
 
-          log_printf(DEBUG, "cell: %i, group: %i, side: %i, flux: %f,"
+          log_printf(DEBUG, "cell: %d, group: %d, side: %d, flux: %f,"
                      " current: %f, d: %f, dhat: %f, dtilde: %f",
                      y*_num_x + x, e, surface, flux, current, d, d_hat,
                      d_tilde);
@@ -527,28 +527,8 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Create matrix and vector objects */
   if (_A == NULL) {
-    try{
-
-      /* Allocate memory for matrix and vector objects */
-      _M = new FP_PRECISION*[_num_x*_num_y];
-      _A = new FP_PRECISION*[_num_x*_num_y];
-      _old_source = new FP_PRECISION[_num_x*_num_y*_num_cmfd_groups];
-      _new_source = new FP_PRECISION[_num_x*_num_y*_num_cmfd_groups];
-      _volumes = new FP_PRECISION[_num_x*_num_y];
-
-      for (int i = 0; i < _num_x*_num_y; i++) {
-        _M[i] = new FP_PRECISION[_num_cmfd_groups*_num_cmfd_groups];
-        _A[i] = new FP_PRECISION[_num_cmfd_groups*(_num_cmfd_groups+4)];
-      }
-
-      /* Initialize flux and materials */
-      initializeFlux();
-      initializeMaterials();
-    }
-    catch(std::exception &e) {
-      log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "
-                 "Backtrace:%s", e.what());
-    }
+    log_printf(ERROR, "Unable to compute k-eff in Cmfd since the Cmfd "
+               "linear algebra matrices and arrays have not been created.");
   }
 
   /* Initialize variables */
@@ -607,7 +587,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
     vector_scale(_new_source, scale_val, _num_x*_num_y*_num_cmfd_groups);
     vector_copy(_new_source, _old_source, _num_x*_num_y*_num_cmfd_groups);
     
-    log_printf(INFO, "CMFD iter: %i, keff: %f, error: %f", 
+    log_printf(INFO, "CMFD iter: %d, keff: %f, error: %f", 
                iter, _k_eff, residual);
     
     /* Check for convergence */
@@ -767,13 +747,13 @@ void Cmfd::linearSolve(FP_PRECISION** mat, FP_PRECISION* vec_x,
     /* Increment the interations counter */
     iter++;
 
-    log_printf(DEBUG, "GS iter: %i, res: %f", iter, residual);
+    log_printf(DEBUG, "GS iter: %d, res: %f", iter, residual);
 
     if (residual < conv && iter > 10)
       break;
   }
 
-  log_printf(DEBUG, "linear solver iterations: %i", iter);
+  log_printf(DEBUG, "linear solver iterations: %d", iter);
 }
 
 
@@ -922,14 +902,14 @@ void Cmfd::constructMatrices() {
           _M[cell][e*_num_cmfd_groups+g] += value;
         }
 
-        log_printf(DEBUG, "cell: %i, vol; %f", cell, volume);
+        log_printf(DEBUG, "cell: %d, vol; %f", cell, volume);
 
         for (int i = 0; i < _num_cmfd_groups+4; i++)
-          log_printf(DEBUG, "i: %i, A value: %f",
+          log_printf(DEBUG, "i: %d, A value: %f",
                      i, _A[cell][e*(_num_cmfd_groups+4)+i]);
 
         for (int i = 0; i < _num_cmfd_groups; i++)
-          log_printf(DEBUG, "i: %i, M value: %f",
+          log_printf(DEBUG, "i: %d, M value: %f",
                      i, _M[cell][e*(_num_cmfd_groups)+i]);
       }
     }
@@ -961,13 +941,13 @@ void Cmfd::updateMOCFlux() {
         for (iter = _cell_fsrs.at(i).begin();
           iter != _cell_fsrs.at(i).end(); ++iter) {
 
-          /* Set new flux in FSR */
-          _FSR_fluxes[*iter*_num_moc_groups+h] = getUpdateRatio(i,h, *iter)
+          /* Update FSR flux using ratio of old and new CMFD flux */
+          _FSR_fluxes[*iter*_num_moc_groups+h] = getUpdateRatio(i,h,*iter)
              * _FSR_fluxes[*iter*_num_moc_groups+h];
 
-          log_printf(DEBUG, "Updating flux in FSR: %i, cell: %i, group: "
-                     "%i, ratio: %f", *iter ,i, h,
-                     getUpdateRatio(i,h, *iter));
+          log_printf(DEBUG, "Updating flux in FSR: %d, cell: %d, group: "
+                     "%d, ratio: %f", *iter ,i, h,
+                     getUpdateRatio(i,h,*iter));
         }
       }
     }
@@ -1044,7 +1024,7 @@ void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor) {
 
   if (SOR_factor <= 0.0 || SOR_factor >= 2.0)
     log_printf(ERROR, "The successive over-relaxation relaxation factor "
-        "must be > 0 and < 2. Input value: %i", SOR_factor);
+        "must be > 0 and < 2. Input value: %d", SOR_factor);
 
   _SOR_factor = SOR_factor;
 }
@@ -1105,7 +1085,7 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
         log_printf(ERROR, "The group indices must be increasing!");
             
       _group_indices[i] = group_indices[i] - 1;
-      log_printf(INFO, "group indices %i: %i", i, group_indices[i]);
+      log_printf(INFO, "group indices %d: %d", i, group_indices[i]);
     }
   }
 }
@@ -1368,7 +1348,7 @@ void Cmfd::splitCorners() {
       if (x > 0 && y > 0) {
     
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f",
+          log_printf(DEBUG, "cell: %d, group: %d, LEFT BOTTOM current: %f",
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 4*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + 1*ncg + e] += 
               0.5 * _surface_currents[(y*_num_x+x)*ncg*8 + 4*ncg + e];
@@ -1384,7 +1364,7 @@ void Cmfd::splitCorners() {
        * give to bottom surface and left surfaces */
       else if (x == 0 && y != 0) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, LEFT BOTTOM current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 4*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + 1*ncg + e] += 
               _surface_currents[(y*_num_x+x)*ncg*8 + 4*ncg + e];
@@ -1398,7 +1378,7 @@ void Cmfd::splitCorners() {
        * give to bottom surface and left surfaces */
       else if (x != 0 && y == 0) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT BOTTOM current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, LEFT BOTTOM current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 4*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + 1*ncg + e] += 
               0.5 * _surface_currents[(y*_num_x+x)*ncg*8 + 4*ncg + e];
@@ -1415,7 +1395,7 @@ void Cmfd::splitCorners() {
        * give to bottom surface and right surface of mesh cell below */
       if (x < _num_x - 1 && y > 0) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, RIGHT BOTTOM current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 5*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + 1*ncg + e] += 
               0.5 * _surface_currents[(y*_num_x+x)*ncg*8 + 5*ncg + e];
@@ -1431,7 +1411,7 @@ void Cmfd::splitCorners() {
        * give to bottom surface and right surface */
       else if (x == _num_x - 1 && y > 0) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, RIGHT BOTTOM current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 5*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + 1*ncg + e] += 
               _surface_currents[(y*_num_x+x)*ncg*8 + 5*ncg + e];
@@ -1445,7 +1425,7 @@ void Cmfd::splitCorners() {
        * give to bottom surface and right surface */
       else if (x < _num_x - 1 && y == 0) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT BOTTOM current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, RIGHT BOTTOM current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 5*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + 1*ncg + e] += 
               0.5 * _surface_currents[(y*_num_x+x)*ncg*8 + 5*ncg + e];
@@ -1462,7 +1442,7 @@ void Cmfd::splitCorners() {
        * give to right surface and top surface of mesh cell to the right */
       if (x < _num_x - 1 && y < _num_y - 1) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, RIGHT TOP current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 6*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + 2*ncg + e] += 
               0.5 * _surface_currents[(y*_num_x+x)*ncg*8 + 6*ncg + e];
@@ -1478,7 +1458,7 @@ void Cmfd::splitCorners() {
        * give to right surface and top surface */
       else if (x == _num_x - 1 && y != _num_y - 1) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, RIGHT TOP current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 6*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + 2*ncg + e] += 
               0.5 * _surface_currents[(y*_num_x+x)*ncg*8 + 6*ncg + e];
@@ -1492,7 +1472,7 @@ void Cmfd::splitCorners() {
        * give to right surface and top surface */
       else if (x != _num_x - 1 && y == _num_y - 1) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, RIGHT TOP current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, RIGHT TOP current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 6*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + 2*ncg + e] += 
               _surface_currents[(y*_num_x+x)*ncg*8 + 6*ncg + e];
@@ -1509,7 +1489,7 @@ void Cmfd::splitCorners() {
        * give to left surface and top surface of mesh cell to the left */
       if (x > 0 && y < _num_y - 1) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, LEFT TOP current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 7*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + e] += 
               0.5 * _surface_currents[(y*_num_x+x)*ncg*8 + 7*ncg + e];
@@ -1525,7 +1505,7 @@ void Cmfd::splitCorners() {
        * give to top surface and left surface */
       else if (x == 0 && y != _num_y - 1) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, LEFT TOP current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 7*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + e] += 
               0.5 * _surface_currents[(y*_num_x+x)*ncg*8 + 7*ncg + e];
@@ -1539,7 +1519,7 @@ void Cmfd::splitCorners() {
        * give to top surface and left surface */
       else if (x != 0 && y == _num_y - 1) {
         for (int e = 0; e < ncg; e++) {
-          log_printf(DEBUG, "cell: %i, group: %i, LEFT TOP current: %f", 
+          log_printf(DEBUG, "cell: %d, group: %d, LEFT TOP current: %f", 
               y*_num_x+x,e, _surface_currents[(y*_num_x+x)*ncg*8 + 7*ncg + e]);
           _surface_currents[(y*_num_x+x)*ncg*8 + e] += 
               _surface_currents[(y*_num_x+x)*ncg*8 + 7*ncg + e];
@@ -1806,47 +1786,50 @@ FP_PRECISION Cmfd::getFluxRatio(int cmfd_cell, int moc_group) {
  */
 void Cmfd::generateKNearestStencils(){
 
-  std::vector< std::pair<int, FP_PRECISION> >::iterator iter2;
-  std::vector<int>::iterator iter;
+  std::vector< std::pair<int, FP_PRECISION> >::iterator stencil_iter;
+  std::vector<int>::iterator fsr_iter;
   Point* centroid;
-
+  int fsr_id;
+  
   /* Loop over mesh cells */
   for (int i = 0; i < _num_x*_num_y; i++){
 
     /* Loop over FRSs in mesh cell */
-    for (iter = _cell_fsrs.at(i).begin();
-         iter != _cell_fsrs.at(i).end(); ++iter) {
+    for (fsr_iter = _cell_fsrs.at(i).begin();
+         fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
 
+      fsr_id = *fsr_iter;
+      
       /* Get centroid */
-      centroid = _geometry->getFSRCentroid(*iter);
+      centroid = _geometry->getFSRCentroid(fsr_id);
 
       /* Create new stencil */
       std::vector< std::pair<int, FP_PRECISION> > *stencil =
         new std::vector< std::pair<int, FP_PRECISION> >;
-      _k_nearest_stencils[*iter] = (*stencil);
+      _k_nearest_stencils[fsr_id] = (*stencil);
 
       /* Get distance to all cells that touch current cell */
       for (int j=0; j < 9; j++)
-        _k_nearest_stencils[*iter]
-          .push_back(std::make_pair<int, FP_PRECISION>
-                     (int(j), getDistanceToCentroid(centroid, i, j)));
+        _k_nearest_stencils[fsr_id].push_back
+          (std::make_pair<int, FP_PRECISION>
+           (int(j), getDistanceToCentroid(centroid, i, j)));
 
       /* Sort the distances */
-      std::sort(_k_nearest_stencils[*iter].begin(),
-                _k_nearest_stencils[*iter].end(), stencilCompare);
+      std::sort(_k_nearest_stencils[fsr_id].begin(),
+                _k_nearest_stencils[fsr_id].end(), stencilCompare);
 
-      /* Remove non-existent cells */
-      iter2 = _k_nearest_stencils[*iter].begin();
-      while (iter2 != _k_nearest_stencils[*iter].end()){
-        if (iter2->second == std::numeric_limits<FP_PRECISION>::max())
-          iter2 = _k_nearest_stencils[*iter].erase(iter2++);
+      /* Remove ghost cells that are outside the geometry boundaries */
+      stencil_iter = _k_nearest_stencils[fsr_id].begin();
+      while (stencil_iter != _k_nearest_stencils[fsr_id].end()){
+        if (stencil_iter->second == std::numeric_limits<FP_PRECISION>::max())
+          stencil_iter = _k_nearest_stencils[fsr_id].erase(stencil_iter++);
         else
-          ++iter2;
+          ++stencil_iter;
       }
 
       /* Resize stencil to be of size <= _k_nearest */
-      _k_nearest_stencils[*iter].resize
-        (std::min(_k_nearest, int(_k_nearest_stencils[*iter].size())));
+      _k_nearest_stencils[fsr_id].resize
+        (std::min(_k_nearest, int(_k_nearest_stencils[fsr_id].size())));
     }
   }
 }
@@ -2119,7 +2102,7 @@ void Cmfd::setGeometry(Geometry* geometry){
 void Cmfd::setKNearest(int k_nearest){
 
   if (_k_nearest < 1 || k_nearest > 9)
-    log_printf(ERROR, "Unable to set CMFD k-nearest to %i. k-nearest "
+    log_printf(ERROR, "Unable to set CMFD k-nearest to %d. k-nearest "
                "must be between 1 and 9.", k_nearest);
   else
     _k_nearest = k_nearest;
@@ -2198,5 +2181,34 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       /* Release Cmfd Mesh surface mutual exclusion lock */
       omp_unset_lock(&_surface_locks[surf_id]);
     }
+  }
+}
+
+
+void Cmfd::initialize() {
+
+  try{
+    
+    /* Allocate memory for matrix and vector objects */
+    _M = new FP_PRECISION*[_num_x*_num_y];
+    _A = new FP_PRECISION*[_num_x*_num_y];
+    _old_source = new FP_PRECISION[_num_x*_num_y*_num_cmfd_groups];
+    _new_source = new FP_PRECISION[_num_x*_num_y*_num_cmfd_groups];
+    _volumes = new FP_PRECISION[_num_x*_num_y];
+    
+    for (int i = 0; i < _num_x*_num_y; i++) {
+      _M[i] = new FP_PRECISION[_num_cmfd_groups*_num_cmfd_groups];
+      _A[i] = new FP_PRECISION[_num_cmfd_groups*(_num_cmfd_groups+4)];
+    }
+    
+    /* Initialize k-nearest stencils, currents, flux, and materials */
+    generateKNearestStencils();
+    initializeSurfaceCurrents();
+    initializeFlux();
+    initializeMaterials();
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "
+               "Backtrace:%s", e.what());
   }
 }
