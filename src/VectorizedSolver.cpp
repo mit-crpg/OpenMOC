@@ -110,8 +110,7 @@ void VectorizedSolver::setFixedSourceByFSR(int fsr_id, int group,
 
 
 /**
- * @brief Sets the Geometry for the Solver and aligns all Material
- *        cross-section data for SIMD vector instructions.
+ * @brief Sets the Geometry for the Solver.
  * @param geometry a pointer to the Geometry
  */
 void VectorizedSolver::setGeometry(Geometry* geometry) {
@@ -126,14 +125,6 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
   _num_groups = _num_vector_lengths * VEC_LENGTH;
 
   _polar_times_groups = _num_groups * _num_polar;
-
-  std::map<int, Material*> materials = geometry->getAllMaterials();
-  std::map<int, Material*>::iterator iter;
-
-  /* Iterate over each Material and replace its cross-section with a new one
-   * array that is a multiple of VEC_LENGTH long */
-  for (iter=materials.begin(); iter != materials.end(); ++iter)
-    (*iter).second->alignData();
 }
 
 
@@ -157,6 +148,21 @@ void VectorizedSolver::initializeExpEvaluator() {
   _thread_exponentials = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 }
 
+
+/**
+ * @brief Aligns all Material cross-section data for SIMD vector instructions.
+ */
+void VectorizedSolver::initializeMaterials() {
+  Solver::initializeMaterials();
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+  std::map<int, Material*>::iterator m_iter;
+
+  /* Iterate over each Material and replace its cross-section with a new one
+   * array that is a multiple of VEC_LENGTH long */
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
+    m_iter->second->alignData();
+}
 
 
 /**
@@ -324,7 +330,8 @@ void VectorizedSolver::computeFSRSources() {
   int tid;
   Material* material;
   FP_PRECISION* sigma_t;
-  FP_PRECISION sigma_s, fiss_mat;
+  FP_PRECISION* sigma_s;
+  FP_PRECISION* fiss_mat;
   FP_PRECISION scatter_source, fission_source;
 
   int size = _num_threads * _num_groups * sizeof(FP_PRECISION);
@@ -339,6 +346,8 @@ void VectorizedSolver::computeFSRSources() {
     tid = omp_get_thread_num();
     material = _FSR_materials[r];
     sigma_t = material->getSigmaT();
+    sigma_s = material->getSigmaS();
+    fiss_mat = material->getFissionMatrix();
 
     /* Compute scatter + fission source for group G */
     for (int G=0; G < _num_groups; G++) {
@@ -346,10 +355,8 @@ void VectorizedSolver::computeFSRSources() {
 
         #pragma simd vectorlength(VEC_LENGTH)
         for (int g=v*VEC_LENGTH; g < (v+1)*VEC_LENGTH; g++) {
-          sigma_s = material->getSigmaSByGroup(g+1,G+1);
-          fiss_mat = material->getFissionMatrixByGroup(g+1,G+1);
-          scatter_sources(tid,g) = sigma_s * _scalar_flux(r,g);
-          fission_sources(tid,g) = fiss_mat * _scalar_flux(r,g);
+          scatter_sources(tid,g) = sigma_s[G*_num_groups+g] * _scalar_flux(r,g);
+          fission_sources(tid,g) = fiss_mat[G*_num_groups+g] * _scalar_flux(r,g);
         }
       }
 
