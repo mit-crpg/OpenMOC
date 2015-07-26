@@ -82,9 +82,6 @@ private:
   /** Thrust vector of angular fluxes for each track */
   thrust::device_vector<FP_PRECISION> _boundary_flux;
 
-  /** Thrust vector of leakages for each track */
-  thrust::device_vector<FP_PRECISION> _boundary_leakage;
-
   /** Thrust vector of FSR scalar fluxes */
   thrust::device_vector<FP_PRECISION> _scalar_flux;
 
