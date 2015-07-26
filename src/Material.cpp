@@ -1416,7 +1416,7 @@ void Material::alignData() {
   FP_PRECISION* new_nu_sigma_f=(FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_chi = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-  /* The fisssion and scattering matrices will be the number of vector
+  /* The fission and scattering matrices will be the number of vector
    * groups wide (SIMD) and the actual number of groups long since
    * instructions are not SIMD in this dimension */
 
