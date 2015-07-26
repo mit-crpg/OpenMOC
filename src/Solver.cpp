@@ -576,6 +576,8 @@ void Solver::initializeExpEvaluator() {
 
 /**
  * @brief Initializes the Material fission matrices.
+ * @details In an adjoint calculation, this routine will transpose the
+ *          scattering and fission matrices in each material.
  * @param mode the solution type (FORWARD or ADJOINT)
  */
 void Solver::initializeMaterials(solverMode mode) {
@@ -674,6 +676,29 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
   _cmfd->initializeSurfaceCurrents();
+}
+
+
+/**
+ * @brief Returns the Material data to its original state.
+ * @details In an adjoint calculation, the scattering and fission matrices
+ *          in each material are transposed during initialization. This 
+ *          routine returns both matrices to their original (FORWARD)
+ *          state at the end of a calculation.
+ * @param mode the solution type (FORWARD or ADJOINT)
+ */
+void Solver::resetMaterials(solverMode mode) {
+
+  if (mode == FORWARD)
+    return;
+
+  log_printf(INFO, "Resetting materials...");
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+  std::map<int, Material*>::iterator m_iter;
+
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
+    m_iter->second->transposeProductionMatrices();
 }
 
 
@@ -787,11 +812,14 @@ void Solver::computeFlux(int max_iters, solverMode mode,
       _num_iterations = i;
       _timer->stopTimer();
       _timer->recordSplit("Total time");
+      resetMaterials(mode);
       return;
     }
   }
 
   log_printf(WARNING, "Unable to converge the flux");
+
+  resetMaterials(mode);
 
   _num_iterations = max_iters;
   _timer->stopTimer();
@@ -887,11 +915,14 @@ void Solver::computeSource(int max_iters, solverMode mode,
       _num_iterations = i;
       _timer->stopTimer();
       _timer->recordSplit("Total time");
+      resetMaterials(mode);
       return;
     }
   }
 
   log_printf(WARNING, "Unable to converge the source");
+
+  resetMaterials(mode);
 
   _num_iterations = max_iters;
   _timer->stopTimer();
@@ -987,11 +1018,14 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
       _num_iterations = i;
       _timer->stopTimer();
       _timer->recordSplit("Total time");
+      resetMaterials(mode);
       return;
     }
   }
 
   log_printf(WARNING, "Unable to converge the source distribution");
+
+  resetMaterials(mode);
 
   _num_iterations = max_iters;
   _timer->stopTimer();

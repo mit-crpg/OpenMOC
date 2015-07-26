@@ -195,6 +195,8 @@ protected:
   virtual void countFissionableFSRs();
   virtual void initializeCmfd();
 
+  virtual void resetMaterials(solverMode mode=FORWARD);
+
   /**
    * @brief Zero each Track's boundary fluxes for each energy group and polar
    *        angle in the "forward" and "reverse" directions.
