@@ -154,6 +154,9 @@ void VectorizedSolver::initializeExpEvaluator() {
  * @param mode the solution type (FORWARD or ADJOINT)
  */
 void VectorizedSolver::initializeMaterials(solverMode mode) {
+  /* Build fission matrices */
+  Solver::initializeMaterials(mode);
+
   std::map<int, Material*> materials = _geometry->getAllMaterials();
   std::map<int, Material*>::iterator m_iter;
 
@@ -161,9 +164,6 @@ void VectorizedSolver::initializeMaterials(solverMode mode) {
    * array that is a multiple of VEC_LENGTH long */
   for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
     m_iter->second->alignData();
-
-  /* Build fission matrices */
-  Solver::initializeMaterials(mode);
 }
 
 
