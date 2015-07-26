@@ -28,10 +28,6 @@
  *  group for the outgoing reflective track from a given Track */
 #define track_out_flux(p,e) (track_out_flux[(p)*_num_groups + (e)])
 
-/** Indexing macro for the leakage for each polar angle and energy group
- *  for either the forward or reverse direction for a given Track */
-#define track_leakage(p,e) (track_leakage[(p)*_num_groups + (e)])
-
 
 /**
  * @class CPUSolver CPUSolver.h "src/CPUSolver.h"
