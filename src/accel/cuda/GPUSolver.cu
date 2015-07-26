@@ -30,10 +30,6 @@ __constant__ int tot_num_tracks[1];
 /** An GPUExpEvaluator object to compute exponentials */
 __constant__ GPUExpEvaluator exp_evaluator;
 
-/** An integer array with the Track uid separating the azimuthal and periodic
-* halfspaces */
-__constant__ int num_tracks_by_halfspace[5];
-
 
 /**
  * @brief A struct used to check if a value on the GPU is equal to INF.
@@ -855,10 +851,6 @@ void GPUSolver::setGeometry(Geometry* geometry) {
 void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
   Solver::setTrackGenerator(track_generator);
   initializeTracks();
-
-  /* Copy the number of tracks by halfspace into constant memory on GPU */
-  cudaMemcpyToSymbol(num_tracks_by_halfspace, (void*)_num_tracks_by_halfspace,
-                     5 * sizeof(int), 0, cudaMemcpyHostToDevice);
 }
 
 
@@ -1291,8 +1283,8 @@ void GPUSolver::transportSweep() {
   flattenFSRFluxes(0.0);
 
   /* Sweep the first space of azimuthal angle and periodic track halfspaces */
-  tid_offset = num_tracks_by_halfspace[0];
-  tid_max = num_tracks_by_halfspace[1];
+  tid_offset = _num_tracks_by_halfspace[0];
+  tid_max = _num_tracks_by_halfspace[1];
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
                                                  reduced_sources, 
@@ -1301,8 +1293,8 @@ void GPUSolver::transportSweep() {
                                                  tid_offset, tid_max);
 
   /* Sweep the second space of azimuthal angle and periodic track halfspaces */
-  tid_offset = num_tracks_by_halfspace[1];
-  tid_max = num_tracks_by_halfspace[2];
+  tid_offset = _num_tracks_by_halfspace[1];
+  tid_max = _num_tracks_by_halfspace[2];
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
                                                  reduced_sources, 
@@ -1311,8 +1303,8 @@ void GPUSolver::transportSweep() {
                                                  tid_offset, tid_max);
 
   /* Sweep the third space of azimuthal angle and periodic track halfspaces */
-  tid_offset = num_tracks_by_halfspace[2];
-  tid_max = num_tracks_by_halfspace[3];
+  tid_offset = _num_tracks_by_halfspace[2];
+  tid_max = _num_tracks_by_halfspace[3];
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
                                                  reduced_sources, 
@@ -1321,8 +1313,8 @@ void GPUSolver::transportSweep() {
                                                  tid_offset, tid_max);
 
   /* Sweep the fourth space of azimuthal angle and periodic track halfspaces */
-  tid_offset = num_tracks_by_halfspace[3];
-  tid_max = num_tracks_by_halfspace[4];
+  tid_offset = _num_tracks_by_halfspace[3];
+  tid_max = _num_tracks_by_halfspace[4];
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
                                                  reduced_sources, 

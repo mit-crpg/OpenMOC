@@ -354,7 +354,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   int counter = 0;
   int azim_period, num_azim_periods;
   int num_x, num_y;
-  
+
   for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
     for (int period_halfspace=0; period_halfspace < 2; period_halfspace++) {
       for (int a=azim_halfspace*_num_azim/2;
