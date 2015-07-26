@@ -576,26 +576,21 @@ void Solver::initializeExpEvaluator() {
 
 /**
  * @brief Initializes the Material fission matrices.
+ * @param mode the solution type (FORWARD or ADJOINT)
  */
-void Solver::initializeMaterials() {
+void Solver::initializeMaterials(solverMode mode) {
 
   log_printf(INFO, "Initializing materials...");
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
   std::map<int, Material*>::iterator m_iter;
 
-  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter) {
     m_iter->second->buildFissionMatrix();
 
-  // FIXME: Adjoint testing
-  /*
-  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter) {
-    FP_PRECISION* fiss_mat = m_iter->second->getFissionMatrix();
-    FP_PRECISION* sigma_s = m_iter->second->getSigmaS();
-    matrix_transpose<FP_PRECISION>(fiss_mat, _num_groups, _num_groups);
-    matrix_transpose<FP_PRECISION>(sigma_s, _num_groups, _num_groups);
+    if (mode == ADJOINT)
+      m_iter->second->transposeProductionMatrices();
   }
-  */
 }
 
 
@@ -732,9 +727,11 @@ void Solver::initializeCmfd() {
  *
  *
  * @param max_iters the maximum number of source iterations to allow
+ * @param mode the solution type (FORWARD or ADJOINT)
  * @param only_fixed_source use only fixed sources (true by default)
  */
-void Solver::computeFlux(int max_iters, bool only_fixed_source) {
+void Solver::computeFlux(int max_iters, solverMode mode, 
+                         bool only_fixed_source) {
 
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to compute the flux "
@@ -767,7 +764,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   }
 
   initializeSourceArrays();
-  initializeMaterials();
+  initializeMaterials(mode);
   initializeFSRs();
   countFissionableFSRs();
   zeroTrackFluxes();
@@ -835,10 +832,12 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
  * @endcode
  *
  * @param max_iters the maximum number of source iterations to allow
+ * @param mode the solution type (FORWARD or ADJOINT)
  * @param k_eff the sub/super-critical eigenvalue (default 1.0)
  * @param res_type the type of residual used for the convergence criterion
  */
-void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
+void Solver::computeSource(int max_iters, solverMode mode,
+                           double k_eff, residualType res_type) {
 
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to compute the source "
@@ -864,7 +863,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeMaterials();
+  initializeMaterials(mode);
   initializeFSRs();
 
   /* Guess unity scalar flux for each region */
@@ -921,9 +920,11 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
  * @endcode
  *
  * @param max_iters the maximum number of source iterations to allow
+ * @param mode the solution type (FORWARD or ADJOINT)
  * @param res_type the type of residual used for the convergence criterion
  */
-void Solver::computeEigenvalue(int max_iters, residualType res_type) {
+void Solver::computeEigenvalue(int max_iters, solverMode mode, 
+                               residualType res_type) {
 
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to compute the eigenvalue "
@@ -947,7 +948,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeMaterials();
+  initializeMaterials(mode);
   initializeFSRs();
   countFissionableFSRs();
 

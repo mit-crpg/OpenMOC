@@ -56,6 +56,20 @@
 
 
 /**
+ * @enum solverMode
+ * @brief The solution mode used by the MOC solver.
+*/
+enum solverMode {
+
+  /** The forward flux distribution */
+  FORWARD,
+
+  /** The adjoint flux distribution */
+  ADJOINT,
+};
+
+
+/**
  * @enum residualType
  * @brief The type of residual used for the convergence criterion.
 */
@@ -176,7 +190,7 @@ protected:
 
   virtual void initializePolarQuadrature();
   virtual void initializeExpEvaluator();
-  virtual void initializeMaterials();
+  virtual void initializeMaterials(solverMode mode=FORWARD);
   virtual void initializeFSRs();
   virtual void countFissionableFSRs();
   virtual void initializeCmfd();
@@ -270,10 +284,11 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
-  void computeFlux(int max_iters=1000, bool only_fixed_source=true);
-  void computeSource(int max_iters=1000, double k_eff=1.0, 
-                     residualType res_type=TOTAL_SOURCE);
-  void computeEigenvalue(int max_iters=1000, 
+  void computeFlux(int max_iters=1000, solverMode mode=FORWARD,
+                   bool only_fixed_source=true);
+  void computeSource(int max_iters=1000, solverMode mode=FORWARD,
+                     double k_eff=1.0, residualType res_type=TOTAL_SOURCE);
+  void computeEigenvalue(int max_iters=1000, solverMode mode=FORWARD,
                          residualType res_type=FISSION_SOURCE);
 
  /**
