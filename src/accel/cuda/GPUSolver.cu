@@ -685,12 +685,11 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int group) {
              _num_groups * sizeof(FP_PRECISION),
              cudaMemcpyDeviceToHost);
 
-  /* Initialize variables */
   FP_PRECISION fission_source = 0.0;
   FP_PRECISION scatter_source = 0.0;
   FP_PRECISION total_source;
 
-  /* Compute total scattering source for this FSR */
+  /* Compute total scattering and fission sources for this FSR */
   for (int g=0; g < _num_groups; g++) {
     scatter_source += sigma_s[(group-1)*(_num_groups)+g] 
                       * fsr_scalar_fluxes[g];
