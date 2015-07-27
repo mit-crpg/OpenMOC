@@ -604,6 +604,21 @@ void Cmfd::constructMatrices() {
           }
         }
 
+        /* SURFACE_X_MIN */
+
+        /* Set transport term on diagonal */
+        value = (material->getDifHat()[e] + material->getDifTilde()[e])
+          * _cell_height;
+        _A->incrementValue(cell, e, cell, e, value);        
+
+        /* Set transport term on off diagonal */
+        if (x != 0) {
+          value = - (material->getDifHat()[SURFACE_X_MIN*_num_cmfd_groups + e]
+                     - material->getDifTilde()
+                     [SURFACE_X_MIN*_num_cmfd_groups + e]) * _cell_height;
+          _A->incrementValue(cell-1, e, cell, e, value);          
+        }
+
         /* SURFACE_X_MAX */
 
         /* Set transport term on diagonal */
@@ -618,21 +633,6 @@ void Cmfd::constructMatrices() {
                      + material->getDifTilde()
                      [SURFACE_X_MAX*_num_cmfd_groups + e]) * _cell_height;
           _A->incrementValue(cell+1, e, cell, e, value);            
-        }
-
-        /* SURFACE_X_MIN */
-
-        /* Set transport term on diagonal */
-        value = (material->getDifHat()[e] + material->getDifTilde()[e])
-          * _cell_height;
-        _A->incrementValue(cell, e, cell, e, value);        
-
-        /* Set transport term on off diagonal */
-        if (x != 0) {
-          value = - (material->getDifHat()[SURFACE_X_MIN*_num_cmfd_groups + e]
-                     - material->getDifTilde()
-                     [SURFACE_X_MIN*_num_cmfd_groups + e]) * _cell_height;
-          _A->incrementValue(cell-1, e, cell, e, value);          
         }
 
         /* SURFACE_Y_MIN */
@@ -698,7 +698,7 @@ void Cmfd::updateMOCFlux() {
       _flux_ratio->setValue(i, e, _new_flux->getValue(i, e)
                             / _old_flux->getValue(i, e));
   }
-  
+
   /* Loop over mesh cells */
   #pragma omp parallel for
   for (int i = 0; i < _num_y*_num_x; i++) {

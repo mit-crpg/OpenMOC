@@ -1,5 +1,17 @@
 #include "Vector.h"
 
+/**
+ * @brief Constructor initializes Vector object as a floating point array
+ *        and sets the vector dimensions.
+ * @detail The vector is ordered by cell (as opposed to by group) on the
+ *         outside to be consistent with the Matrix object . Locks are used to 
+ *         make the vector object thread-safe against concurrent writes the 
+ *          same value. One lock locks out multiple rows of
+ *         the vector at a time reprsenting multiple groups in the same cell.
+ * @param num_x The number of cells in the x direction.
+ * @param num_y The number of cells in the y direction.
+ * @param num_groups The number of energy groups in each cell.
+ */
 Vector::Vector(int num_x, int num_y, int num_groups) {
 
   setNumX(num_x);
@@ -21,6 +33,9 @@ Vector::Vector(int num_x, int num_y, int num_groups) {
 }
 
 
+/**
+ * @brief Destructor deletes the arrays used to represent the vector.
+ */
 Vector::~Vector() {
 
   if (_array != NULL)
@@ -31,6 +46,16 @@ Vector::~Vector() {
 }
 
 
+/**
+ * @brief Increment a value in the vector.
+ * @detail This method takes a cell and group and floating
+ *         point value. The cell and group are used to compute the
+ *         row and column in the vector. If a value exists for the row,
+ *         the value is incremented by val; otherwise, it is set to val.
+ * @param cell The cell location.
+ * @param group The group location.
+ * @param val The value used to increment the row location.
+ */
 void Vector::incrementValue(int cell, int group, FP_PRECISION val) {
 
   if (cell >= _num_x*_num_y || cell < 0)
@@ -56,6 +81,16 @@ void Vector::setAll(FP_PRECISION val) {
 }
 
 
+/**
+ * @brief Set a value in the vector.
+ * @detail This method takes a cell and group and floating
+ *         point value. The cell and group are used to compute the
+ *         row and column in the vector. The location of the corresponding
+ *         row is set to val.
+ * @param cell The cell location.
+ * @param group The group location.
+ * @param val The value used to set the row location.
+ */
 void Vector::setValue(int cell, int group, FP_PRECISION val) {
 
   if (cell >= _num_x*_num_y || cell < 0)
@@ -76,11 +111,18 @@ void Vector::setValue(int cell, int group, FP_PRECISION val) {
 }
 
 
+/**
+ * @brief Clear all values in the vector.
+ */
 void Vector::clear() {
   setAll(0.0);
 }
 
 
+/**
+ * @brief Scales the vector by a given value.
+ * @param val The value to scale the vector by.
+ */
 void Vector::scaleByValue(FP_PRECISION val) {
 
   #pragma omp parallel for schedule(guided)
@@ -89,7 +131,10 @@ void Vector::scaleByValue(FP_PRECISION val) {
 }
 
 
-std::string Vector::toString() {
+/**
+ * @brief Print the vector object to the log file.
+ */
+void Vector::printString() {
 
   std::stringstream string;
   string << std::setprecision(6);
@@ -103,55 +148,88 @@ std::string Vector::toString() {
 
   string << "End Vector" << std::endl;
 
-  return string.str();
+  log_printf(NORMAL, string.str().c_str());
 }
 
 
-void Vector::printString() {
-  log_printf(NORMAL, toString().c_str());
-}
-
-
+/**
+ * @brief Copy the values from the current vector to an input vector.
+ * @param vector The vector to copy values to.
+ */
 void Vector::copyTo(Vector* vector) {
   std::copy(_array, _array + _num_rows, vector->getArray());
 }
 
 
+/**
+ * @brief Get a value at location described by a given cell and 
+ *        group index.
+ * @param cell The cell location index.
+ * @param group The group location index.
+ */
 FP_PRECISION Vector::getValue(int cell, int group) {
   return _array[cell*_num_groups + group];
 }
 
 
+/**
+ * @brief Get the array describing the vector.
+ * @return The array describing the vector.
+ */
 FP_PRECISION* Vector::getArray() {
   return _array;
 }
 
 
+/**
+ * @brief Get the number of cells in the x dimension.
+ * @return The number of cells in the x dimension.
+ */
 int Vector::getNumX() {
   return _num_x;
 }
 
 
+/**
+ * @brief Get the number of cells in the y dimension.
+ * @return The number of cells in the y dimension.
+ */
 int Vector::getNumY() {
   return _num_y;
 }
 
 
+/**
+ * @brief Get the number of groups in each cell.
+ * @return The number of groups in each cell.
+ */
 int Vector::getNumGroups() {
   return _num_groups;
 }
 
 
+/**
+ * @brief Get the number of rows in the vector.
+ * @return The number of rows in the vector.
+ */
 int Vector::getNumRows() {
   return _num_rows;
 }
 
 
+/**
+ * @brief Get the sum of all the values in the vector.
+ * @return The sum of all the values in the vector.
+ */
 FP_PRECISION Vector::getSum() {
   return pairwise_sum(_array, _num_rows);
 }
 
 
+/**
+ * @brief Set the number of cells in the x dimension.
+ * @param num_x The number of cells in the x dimension.
+ */
 void Vector::setNumX(int num_x) {
 
   if (num_x < 1)
@@ -162,6 +240,10 @@ void Vector::setNumX(int num_x) {
 }
 
 
+/**
+ * @brief Set the number of cells in the y dimension.
+ * @param num_y The number of cells in the y dimension.
+ */
 void Vector::setNumY(int num_y) {
 
   if (num_y < 1)
@@ -172,6 +254,10 @@ void Vector::setNumY(int num_y) {
 }
 
 
+/**
+ * @brief Set the number of groups in each cell.
+ * @param num_groups The number of groups in each cell.
+ */
 void Vector::setNumGroups(int num_groups) {
 
   if (num_groups < 1)
