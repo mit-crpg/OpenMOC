@@ -125,7 +125,7 @@ private:
   /** The FSR scalar flux in each energy group */
   FP_PRECISION* _FSR_fluxes;
 
-  /** Array of CMFD cell volumes */
+  /** Vector of CMFD cell volumes */
   Vector* _volumes;
 
   /** Array of material pointers for CMFD cell materials */
@@ -140,7 +140,7 @@ private:
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
 
-  /** Array of surface currents for each CMFD cell */
+  /** Vector of surface currents for each CMFD cell */
   Vector* _surface_currents;
 
   /** Vector of vectors of FSRs containing in each cell */
