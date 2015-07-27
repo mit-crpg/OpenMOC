@@ -334,8 +334,8 @@ int Matrix::getNumX() {
 
 
 /**
- * @brief Get the number of cells in the x dimension.
- * @return The number of cells in the x dimension.
+ * @brief Get the number of cells in the y dimension.
+ * @return The number of cells in the y dimension.
  */
 int Matrix::getNumY() {
   return _num_y;
