@@ -10,7 +10,9 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "constants.h"
 #include "Timer.h"
 #include "PolarQuad.h"
@@ -40,11 +42,6 @@
 #define _boundary_flux(i,j,p,e) (_boundary_flux[(i)*2*_polar_times_groups \
                                                 + (j)*_polar_times_groups \
                                                 + (p)*_num_groups + (e)])
-
-/** Indexing macro for the leakage for each polar angle and energy group
- *  for both the forward and reverse direction for each track */
-#define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_polar_times_groups \
-                                                    +(pe2)])
 
 /** Indexing scheme for fixed sources for each FSR and energy group */
 #define _fixed_sources(r,e) (_fixed_sources[(r)*_num_groups + (e)])
@@ -137,11 +134,6 @@ protected:
    *  a Track along both "forward" and "reverse" directions. */
   FP_PRECISION* _boundary_flux;
 
-  /** The angular leakages for each Track for all energy groups, polar angles,
-   *  and azimuthal angles. This array stores the weighted outgoing fluxes
-   *  for a Track along both "forward" and "reverse" directions. */
-  FP_PRECISION* _boundary_leakage;
-
   /** The scalar flux for each energy group in each FSR */
   FP_PRECISION* _scalar_flux;
 
@@ -222,8 +214,7 @@ public:
   virtual void scatterTransportSweep();
 
   /**
-   * @brief Initializes Track boundary angular flux and leakage and
-   *        FSR scalar flux arrays.
+   * @brief Initializes Track boundary angular and FSR scalar flux arrays.
    */
   virtual void initializeFluxArrays() =0;
 

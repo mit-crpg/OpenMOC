@@ -9,7 +9,9 @@
 #define GPUSOLVER_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "../../constants.h"
 #include "../../Solver.h"
 #endif
@@ -79,9 +81,6 @@ private:
 
   /** Thrust vector of angular fluxes for each track */
   thrust::device_vector<FP_PRECISION> _boundary_flux;
-
-  /** Thrust vector of leakages for each track */
-  thrust::device_vector<FP_PRECISION> _boundary_leakage;
 
   /** Thrust vector of FSR scalar fluxes */
   thrust::device_vector<FP_PRECISION> _scalar_flux;

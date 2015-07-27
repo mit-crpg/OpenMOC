@@ -33,11 +33,6 @@ VectorizedSolver::~VectorizedSolver() {
     _boundary_flux = NULL;
   }
 
-  if (_boundary_leakage != NULL) {
-    MM_FREE(_boundary_leakage);
-    _boundary_leakage = NULL;
-  }
-
   if (_scalar_flux != NULL && !_user_fluxes) {
     MM_FREE(_scalar_flux);
     _scalar_flux = NULL;
@@ -165,8 +160,7 @@ void VectorizedSolver::initializeExpEvaluator() {
 
 
 /**
- * @brief Allocates memory for Track boundary angular flux and leakage and
- *        FSR scalar flux arrays.
+ * @brief Allocates memory for Track boundary angular and FSR scalar fluxes.
  * @details Deletes memory for old flux arrays if they were allocated for a
  *          previous simulation.
  */
@@ -175,9 +169,6 @@ void VectorizedSolver::initializeFluxArrays() {
   /* Delete old flux arrays if they exist */
   if (_boundary_flux != NULL)
     MM_FREE(_boundary_flux);
-
-  if (_boundary_leakage != NULL)
-    MM_FREE(_boundary_leakage);
 
   if (_scalar_flux != NULL && !_user_fluxes)
     MM_FREE(_scalar_flux);
@@ -199,7 +190,6 @@ void VectorizedSolver::initializeFluxArrays() {
     size = 2 * _tot_num_tracks * _num_groups * _num_polar;
     size *= sizeof(FP_PRECISION);
     _boundary_flux = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-    _boundary_leakage = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
     size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
     _scalar_flux = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
@@ -305,8 +295,10 @@ void VectorizedSolver::normalizeFluxes() {
   /* Normalize the FSR scalar fluxes */
   #ifdef SINGLE
   cblas_sscal(size, norm_factor, _scalar_flux, 1);
+  cblas_sscal(size, norm_factor, _old_scalar_flux, 1);
   #else
   cblas_dscal(size, norm_factor, _scalar_flux, 1);
+  cblas_dscal(size, norm_factor, _old_scalar_flux, 1);
   #endif
 
   /* Normalize the Track angular boundary fluxes */
@@ -450,15 +442,7 @@ void VectorizedSolver::addSourceToScalarFlux() {
 
 
 /**
- * @brief Compute \f$ k_{eff} \f$ from the total, fission and scattering
- *        reaction rates and leakage.
- * @details This method computes the current approximation to the
- *          multiplication factor on this iteration as follows:
- *          \f$ k_{eff} = \frac{\displaystyle\sum_{i \in I}
- *                        \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}}
- *                        {\displaystyle\sum_{i \in I}
- *                        \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} -
- *                        \Sigma^S_g \Phi V_{i} - L_{i,g})} \f$
+ * @brief Compute \f$ k_{eff} \f$ from successive fission sources.
  */
 void VectorizedSolver::computeKeff() {
 
@@ -466,7 +450,7 @@ void VectorizedSolver::computeKeff() {
   Material* material;
   FP_PRECISION* sigma;
   FP_PRECISION volume;
-  FP_PRECISION total, fission, scatter, leakage;
+  FP_PRECISION old_fission, new_fission;
 
   int size = _num_FSRs * sizeof(FP_PRECISION);
   FP_PRECISION* FSR_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
@@ -474,7 +458,7 @@ void VectorizedSolver::computeKeff() {
   size = _num_threads * _num_groups * sizeof(FP_PRECISION);
   FP_PRECISION* group_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-  /* Loop over all FSRs and compute the volume-weighted total rates */
+  /* Compute the old nu-fission rates in each FSR */
   #pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
@@ -482,7 +466,7 @@ void VectorizedSolver::computeKeff() {
     tid = omp_get_thread_num() * _num_groups;
     volume = _FSR_volumes[r];
     material = _FSR_materials[r];
-    sigma = material->getSigmaT();
+    sigma = material->getNuSigmaF();
 
     /* Loop over each energy group vector length */
     for (int v=0; v < _num_vector_lengths; v++) {
@@ -490,7 +474,7 @@ void VectorizedSolver::computeKeff() {
       /* Loop over energy groups within this vector */
       #pragma simd vectorlength(VEC_LENGTH)
       for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-        group_rates[tid+e] = sigma[e] * _scalar_flux(r,e);
+        group_rates[tid+e] = sigma[e] * _old_scalar_flux(r,e);
     }
 
     #ifdef SINGLE
@@ -500,14 +484,14 @@ void VectorizedSolver::computeKeff() {
     #endif
   }
 
-  /* Reduce total rates across FSRs, energy groups */
+  /* Reduce old fission rates across FSRs */
   #ifdef SINGLE
-  total = cblas_sasum(_num_FSRs, FSR_rates, 1);
+  old_fission = cblas_sasum(_num_FSRs, FSR_rates, 1);
   #else
-  total = cblas_dasum(_num_FSRs, FSR_rates, 1);
+  old_fission = cblas_dasum(_num_FSRs, FSR_rates, 1);
   #endif
 
-  /* Loop over all FSRs and compute the volume-weighted nu-fission rates */
+  /* Compute the new nu-fission rates in each FSR */
   #pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
@@ -533,64 +517,14 @@ void VectorizedSolver::computeKeff() {
     #endif
   }
 
-  /* Reduce nu-fission rates across FSRs */
+  /* Reduce new fission rates across FSRs */
   #ifdef SINGLE
-  fission = cblas_sasum(_num_FSRs, FSR_rates, 1);
+  new_fission = cblas_sasum(_num_FSRs, FSR_rates, 1);
   #else
-  fission = cblas_dasum(_num_FSRs, FSR_rates, 1);
+  new_fission = cblas_dasum(_num_FSRs, FSR_rates, 1);
   #endif
 
-  /* Loop over all FSRs and compute the volume-weighted scatter rates */
-  #pragma omp parallel for private(tid, volume, \
-    material, sigma) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
-
-    tid = omp_get_thread_num() * _num_groups;
-    volume = _FSR_volumes[r];
-    material = _FSR_materials[r];
-    sigma = material->getSigmaS();
-
-    FSR_rates[r] = 0.;
-
-    for (int G=0; G < _num_groups; G++) {
-
-      /* Loop over each energy group vector length */
-      for (int v=0; v < _num_vector_lengths; v++) {
-
-        /* Loop over energy groups within this vector */
-        #pragma simd vectorlength(VEC_LENGTH)
-        for (int g=v*VEC_LENGTH; g < (v+1)*VEC_LENGTH; g++)
-          group_rates[tid+g] = sigma[G*_num_groups+g] * _scalar_flux(r,g);
-      }
-
-      #ifdef SINGLE
-      FSR_rates[r] += cblas_sasum(_num_groups, &group_rates[tid], 1) * volume;
-      #else
-      FSR_rates[r] += cblas_dasum(_num_groups, &group_rates[tid], 1) * volume;
-      #endif
-    }
-  }
-
-  /* Reduce scatter rates across FSRs */
-  #ifdef SINGLE
-  scatter = cblas_sasum(_num_FSRs, FSR_rates, 1);
-  #else
-  scatter = cblas_dasum(_num_FSRs, FSR_rates, 1);
-  #endif
-
-  /** Reduce leakage array across tracks, energy groups, polar angles */
-  size = 2 * _tot_num_tracks * _polar_times_groups;
-
-  #ifdef SINGLE
-  leakage = cblas_sasum(size, _boundary_leakage, 1) * 0.5;
-  #else
-  leakage = cblas_dasum(size, _boundary_leakage, 1) * 0.5;
-  #endif
-
-  _k_eff = fission / (total - scatter + leakage);
-
-  log_printf(DEBUG, "tot = %f, fiss = %f, scatt = %f, leak = %f,"
-             "k_eff = %f", total, fission, scatter, leakage, _k_eff);
+  _k_eff *= new_fission / old_fission;
 
   MM_FREE(FSR_rates);
   MM_FREE(group_rates);
@@ -737,8 +671,7 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
 /**
  * @brief Updates the boundary flux for a Track given boundary conditions.
  * @details For reflective boundary conditions, the outgoing boundary flux
- *          for the Track is given to the reflecting Track. For vacuum
- *          boundary conditions, the outgoing flux tallied as leakage.
+ *          for the Track is given to the reflecting Track.
  * @param track_id the ID number for the Track of interest
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param direction the Track direction (forward - true, reverse - false)
@@ -749,16 +682,13 @@ void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
                                             FP_PRECISION* track_flux) {
   int start;
   bool bc;
-  FP_PRECISION* track_leakage;
   int track_out_id;
 
-  /* Extract boundary conditions for this Track and the pointer to the
-   * outgoing reflective Track, and index into the leakage array */
+  /* Extract boundary conditions for this Track */
 
   /* For the "forward" direction */
   if (direction) {
     start = _tracks[track_id]->isReflOut() * _polar_times_groups;
-    track_leakage = &_boundary_leakage(track_id,0);
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
     bc = _tracks[track_id]->getBCOut();
   }
@@ -766,7 +696,6 @@ void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
   /* For the "reverse" direction */
   else {
     start = _tracks[track_id]->isReflIn() * _polar_times_groups;
-    track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
     bc = _tracks[track_id]->getBCIn();
   }
@@ -783,16 +712,6 @@ void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
       #pragma simd vectorlength(VEC_LENGTH)
       for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
         track_out_flux(p,e) = track_flux(p,e) * bc;
-
-      /* Loop over energy groups within this vector */
-      #pragma simd vectorlength(VEC_LENGTH)
-      for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-        track_leakage(p,e) = track_flux(p,e);
-
-      /* Loop over energy groups within this vector */
-      #pragma simd vectorlength(VEC_LENGTH)
-      for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-        track_leakage(p,e) *= _polar_weights(azim_index,p) * (1-bc);
     }
   }
 }

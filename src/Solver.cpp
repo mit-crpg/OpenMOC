@@ -24,7 +24,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _tracks = NULL;
   _polar_weights = NULL;
   _boundary_flux = NULL;
-  _boundary_leakage = NULL;
 
   _scalar_flux = NULL;
   _old_scalar_flux = NULL;
@@ -650,7 +649,8 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
-  _cmfd->initializeSurfaceCurrents();
+  _cmfd->setGeometry(_geometry);
+  _cmfd->initialize();
 }
 
 
@@ -742,6 +742,9 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
 
+  /* Initialize keff to 1 for FSR source calculations */
+  _k_eff = 1.;
+
   FP_PRECISION residual;
 
   /* Initialize data structures */
@@ -754,6 +757,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   if (only_fixed_source || _num_iterations == 0) {
     initializeFluxArrays();
     flattenFSRFluxes(0.0);
+    storeFSRFluxes();
   }
 
   initializeSourceArrays();
@@ -820,7 +824,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
  *          // ...
  * 
  *          // Find the flux distribution resulting from the fixed sources
- *          solver.computeFlux(max_iters=100, k_eff=0.981)
+ *          solver.computeSource(max_iters=100, k_eff=0.981)
  * @endcode
  *
  * @param max_iters the maximum number of source iterations to allow
@@ -857,6 +861,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
 
   /* Guess unity scalar flux for each region */
   flattenFSRFluxes(1.0);
+  storeFSRFluxes();
   zeroTrackFluxes();
 
   /* Source iteration loop */
@@ -942,6 +947,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
+  storeFSRFluxes();
   zeroTrackFluxes();
 
   /* Source iteration loop */
@@ -951,8 +957,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
-    residual = computeResidual(res_type);
-    storeFSRFluxes();
 
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn()) {
@@ -964,6 +968,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
                "\tres = %1.3E", i, _k_eff, residual);
+
+    residual = computeResidual(res_type);
+    storeFSRFluxes();
 
     /* Check for convergence of the fission source distribution */
     if (i > 1 && residual < _converge_thresh) {

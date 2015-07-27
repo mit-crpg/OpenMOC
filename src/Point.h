@@ -9,7 +9,9 @@
 #define POINT_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "log.h"
 #include <math.h>
 #include <sstream>
@@ -37,7 +39,6 @@ public:
   double getY() const;
   void setX(const double x);
   void setY(const double y);
-  double distance(const double x, const double y) const;
   double distanceToPoint(const Point* point);
   std::string toString();
 };
@@ -87,19 +88,6 @@ inline void Point::setX(const double x) {
  */
 inline void Point::setY(const double y) {
   _y = y;
-}
-
-
-/**
- * @brief Compute the distance from this Point to another Point of interest.
- * @param x the x-coordinate of the Point of interest
- * @param y the y-coordinate of the Point of interest
- * @return distance to the Point of interest
- */
-inline double Point::distance(const double x, const double y) const {
-  double deltax = _x - x;
-  double deltay = _y - y;
-  return sqrt(deltax*deltax + deltay*deltay);
 }
 
 
