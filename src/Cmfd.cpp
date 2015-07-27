@@ -708,8 +708,6 @@ void Cmfd::constructMatrices() {
                        + material->getDifTilde()
                        [SURFACE_X_MAX*_num_cmfd_groups + e])
               * _cell_height * _cell_depth;
-
-            _A->incrementValue(cell - (_num_x-1), e, cell, e, value);
           }
           
           /* SURFACE_Y_MIN */
@@ -845,7 +843,7 @@ void Cmfd::updateMOCFlux() {
       _flux_ratio->setValue(i, e, _new_flux->getValue(i, e)
                             / _old_flux->getValue(i, e));
   }
-  
+
   /* Loop over mesh cells */
   #pragma omp parallel for
   for (int i = 0; i < _num_x*_num_y*_num_z; i++) {
@@ -1982,7 +1980,7 @@ bool Cmfd::isFluxUpdateOn() {
  * @param centroid_update_on Flag saying whether to use centroids to
  *        update MOC flux.
  */
-void Cmfd::setCentroidUpdateOn(bool centroid_update_on){
+void Cmfd::setCentroidUpdateOn(bool centroid_update_on) {
   _centroid_update_on = centroid_update_on;
 }
 
@@ -1992,7 +1990,7 @@ void Cmfd::setCentroidUpdateOn(bool centroid_update_on){
  *        the MOC flux.
  * @return Flag saying whether to use centroids to update MOC flux.
  */
-bool Cmfd::isCentroidUpdateOn(){
+bool Cmfd::isCentroidUpdateOn() {
  return _centroid_update_on;
 }
 
@@ -2041,7 +2039,7 @@ void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
  *         of the geometry and there are less than k nearest neighbor cells,
  *         k is reduced to the number of neighbor cells for that instance.
  */
-void Cmfd::generateKNearestStencils(){
+void Cmfd::generateKNearestStencils() {
 
   std::vector< std::pair<int, FP_PRECISION> >::iterator stencil_iter;
   std::vector<int>::iterator fsr_iter;
@@ -2077,7 +2075,7 @@ void Cmfd::generateKNearestStencils(){
 
       /* Remove ghost cells that are outside the geometry boundaries */
       stencil_iter = _k_nearest_stencils[fsr_id].begin();
-      while (stencil_iter != _k_nearest_stencils[fsr_id].end()){
+      while (stencil_iter != _k_nearest_stencils[fsr_id].end()) {
         if (stencil_iter->second == std::numeric_limits<FP_PRECISION>::max())
           stencil_iter = _k_nearest_stencils[fsr_id].erase(stencil_iter++);
         else
@@ -2124,7 +2122,7 @@ void Cmfd::generateKNearestStencils(){
  * @param fsr The fsr being updated.
  * @return the ratio used to update the FSR flux.
  */
-FP_PRECISION Cmfd::getUpdateRatio(int cell, int group, int fsr){
+FP_PRECISION Cmfd::getUpdateRatio(int cell, int group, int fsr) {
 
   FP_PRECISION ratio = 0.0;
   FP_PRECISION total_distance;
@@ -2619,7 +2617,7 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
 /** @brief Set a pointer to the Geometry.
  * @param goemetry A pointer to a Geometry object.
  */
-void Cmfd::setGeometry(Geometry* geometry){
+void Cmfd::setGeometry(Geometry* geometry) {
   _geometry = geometry;
 }
 
@@ -2628,7 +2626,7 @@ void Cmfd::setGeometry(Geometry* geometry){
  *         the FSR flux.
  * @param k_nearest The number of nearest neighbor CMFD cells.
  */
-void Cmfd::setKNearest(int k_nearest){
+void Cmfd::setKNearest(int k_nearest) {
 
   if (_k_nearest < 1 || k_nearest > NUM_SURFACES+1)
     log_printf(ERROR, "Unable to set CMFD k-nearest to %i. k-nearest "

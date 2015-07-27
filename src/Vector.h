@@ -28,7 +28,7 @@ class Vector {
 
 private:
 
-  /** A list of lists representing the vector */
+  /** An array representing the vector */
   FP_PRECISION* _array;
   int _num_rows;
   int _num_x;
@@ -52,7 +52,6 @@ public:
   void incrementValue(int cell, int group, FP_PRECISION val);
   void clear();
   void scaleByValue(FP_PRECISION val);  
-  std::string toString();
   void printString();
   void copyTo(Vector* vector);
   

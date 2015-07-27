@@ -266,7 +266,7 @@ void matrixMultiplication(Matrix* A, Vector* X, Vector* B) {
  * @param Y a second Vector object
  * @param integrated a boolean indicating whether to group-wise integrate.
  */
-FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated){
+FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated) {
 
   /* Check for consistency of vector dimensions */
   if (X->getNumX() != Y->getNumX() || X->getNumY() != Y->getNumY() ||
@@ -282,7 +282,7 @@ FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated){
   int num_z = X->getNumZ();
   int num_groups = X->getNumGroups();
 
-  if (integrated){
+  if (integrated) {
 
     FP_PRECISION new_source, old_source;
     Vector residual(num_x, num_y, num_z);
