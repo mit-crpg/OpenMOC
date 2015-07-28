@@ -89,10 +89,11 @@ template<typename T>
 inline void matrix_transpose(T* matrix, int dim1, int dim2) {
 
   std::vector<T> temp;
+  temp.resize(dim1 * dim2);
 
   for (int i=0; i < dim1; i++) {
     for (int j=0; j < dim2; j++)
-      temp.push_back(matrix[j * dim1 + i]);
+      temp[i * dim1 + j] = matrix[j * dim1 + i];
   }
 
   std::copy(temp.begin(), temp.end(), matrix);
