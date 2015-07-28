@@ -260,7 +260,7 @@ FP_PRECISION* Material::getChi() {
 
 /**
  * @brief Return the array of the Material's fission matrix.
- * @return the pointer to the Material's fission matric array
+ * @return the pointer to the Material's fission matrix array
  */
 FP_PRECISION* Material::getFissionMatrix() {
   if (_fiss_matrix == NULL)

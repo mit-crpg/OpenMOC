@@ -288,7 +288,7 @@ void CPUSolver::computeFSRSources() {
   FP_PRECISION* fission_sources = new FP_PRECISION[size];
   FP_PRECISION* scatter_sources = new FP_PRECISION[size];
 
-  /* For all FSRs and compute the total source */
+  /* Compute the total source for each FSR */
   #pragma omp parallel for private(tid, material, sigma_t, sigma_s, fiss_mat, \
     fission_source, scatter_source) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
