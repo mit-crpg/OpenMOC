@@ -88,8 +88,7 @@ inline void matrix_multiplication(T** matrix, T* vector_x,
 template<typename T>
 inline void matrix_transpose(T* matrix, int dim1, int dim2) {
 
-  std::vector<T> temp;
-  temp.resize(dim1 * dim2);
+  std::vector<T> temp(dim1 * dim2);
 
   for (int i=0; i < dim1; i++) {
     for (int j=0; j < dim2; j++)
