@@ -2741,7 +2741,7 @@ void TrackGenerator::recalibrate2DTracksToOrigin() {
 
   int uid = 0;
   _num_2D_tracks = 0;
-  int num_x, num_y, azim_period, num_azim_periods;
+  int num_x, num_y, azim_period;
 
   /* Recalibrate the tracks to the origin and set the uid. Note that the 
    * loop structure is unconventional in order to preserve an increasing 
@@ -2749,16 +2749,25 @@ void TrackGenerator::recalibrate2DTracksToOrigin() {
    * oriented with this loop structure in order to maintain reproducability
    * for parallel runs.
    */
-  for (int r=0; r < 2; r++) {
-    for (int s=0; s < 2; s++) {
-      for (int a=r*_num_azim/4; a < (r+1)*_num_azim/4; a++) {
+
+  /* Loop over azim reflective halfspaces */
+  for (int azim_refl_half=0; azim_refl_half < 2; azim_refl_half++) {
+
+    /* Loop over azim periodic halfspaces */
+    for (int azim_prdc_half=0; azim_prdc_half < 2; azim_prdc_half++) {
+
+      /* Loop over all tracks in current azim reflective halfspace */
+      for (int a=azim_refl_half*_num_azim/4;
+           a < (azim_refl_half+1)*_num_azim/4; a++) {
         num_x = getNumX(a);
         num_y = getNumY(a);
         azim_period = std::min(num_x, num_y);
-        num_azim_periods = (num_x + num_y) / azim_period + 1;
-        for (int period=s; period < num_azim_periods; period+=2) {
-          for (int i=azim_period*period;
-               i < std::min((period+1)*azim_period, num_x+num_y); i++) {
+
+        /* Loop over all xy tracks */
+        for (int i=0; i < num_x + num_y; i++) {
+
+          /* Check if track is in current azim periodic halfspace */
+          if ((i / azim_period) % 2 == azim_prdc_half) {
             _tracks_2D[a][i].setUid(uid);
             uid++;
             
@@ -2794,7 +2803,6 @@ void TrackGenerator::recalibrate3DTracksToOrigin() {
   _num_3D_tracks = 0;
   int num_x, num_y, num_l, num_z;
   int polar_period, azim_period;
-  int num_azim_periods, num_polar_periods;
   
   /* Recalibrate the tracks to the origin and set the uid. Note that the 
    * loop structure is unconventional in order to preserve an increasing 
@@ -2802,29 +2810,47 @@ void TrackGenerator::recalibrate3DTracksToOrigin() {
    * oriented with this loop structure in order to maintain reproducability
    * for parallel runs.
    */
-  for (int r=0; r < 2; r++) {
-    for (int s=0; s < 2; s++) {
-      for (int t=0; t < 2; t++) {
-        for (int u=0; u < 2; u++) {
-          for (int a=r*_num_azim/4; a < (r+1)*_num_azim/4; a++) {
+
+  /* Loop over azim reflective halfspaces */
+  for (int azim_refl_half=0; azim_refl_half < 2; azim_refl_half++) {
+
+    /* Loop over azim periodic halfspaces */
+    for (int azim_prdc_half=0; azim_prdc_half < 2; azim_prdc_half++) {
+
+      /* Loop over polar reflective halfspaces */
+      for (int polar_refl_half=0; polar_refl_half < 2; polar_refl_half++) {
+
+        /* Loop over polar periodic halfspaces */
+        for (int polar_prdc_half=0; polar_prdc_half < 2; polar_prdc_half++) {
+
+          /* Loop over azim angles in current azim reflective halfspace */
+          for (int a=azim_refl_half*_num_azim/4;
+               a < (azim_refl_half+1)*_num_azim/4; a++) {
             num_x = getNumX(a);
             num_y = getNumY(a);
             azim_period = std::min(num_x, num_y);
-            num_azim_periods = (num_x + num_y) / azim_period + 1;
-            for (int p1=s; p1 < num_azim_periods; p1+=2) {
-              for (int i=azim_period*p1;
-                   i < std::min((p1+1)*azim_period, num_x+num_y); i++) {
-                
-                for (int p=t*_num_polar/2; p < (t+1)*_num_polar/2; p++) {
+
+            /* Loop over all xy tracks */
+            for (int i=0; i < num_x + num_y; i++) {
+
+              /* Check if track is in current azim periodic halfspace */
+              if ((i / azim_period) % 2 == azim_prdc_half) {
+
+                /* Loop over polar angles in current polar reflective
+                 * halfspace */
+                for (int p=polar_refl_half*_num_polar/2;
+                     p < (polar_refl_half+1)*_num_polar/2; p++) {
                   
                   num_l = getNumL(a, p);
                   num_z = getNumZ(a, p);
                   polar_period = std::min(num_l, num_z);
-                  num_polar_periods = (num_l + num_z) / polar_period + 1;
                   
-                  for (int p2=u; p2 < num_polar_periods; p2+=2) {
-                    for (int z=polar_period*p2;
-                         z < std::min((p2+1)*polar_period, _tracks_per_stack[a][i][p]); z++) {
+                  /* Loop over all tracks in z stack */
+                  for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+
+                    /* Check if track is in current polar periodic halfspace */
+                    if ((_tracks_3D_stack[a][i][p][z].getLZIndex()
+                         / polar_period) % 2 == polar_prdc_half) {
 
                       _tracks_3D_stack[a][i][p][z].setUid(uid);
                       uid++;
