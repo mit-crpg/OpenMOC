@@ -1,15 +1,11 @@
 import numpy
-from openmoc import *
-import openmoc.log as log
-import openmoc.plotter as plotter
-from openmoc.options import Options
-
+import openmoc
 
 ###############################################################################
 #                          Main Simulation Parameters
 ###############################################################################
 
-options = Options()
+options = openmoc.options.Options()
 
 num_threads = options.getNumThreads()
 track_spacing = options.getTrackSpacing()
@@ -17,17 +13,17 @@ num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 
-log.set_log_level('NORMAL')
-
-log.py_printf('TITLE', 'Simulating a one group homogeneous infinite medium...')
-log.py_printf('HEADER', 'The reference keff = 1.43...')
+openmoc.log.set_log_level('NORMAL')
+openmoc.log.py_printf('TITLE', \
+  'Simulating a one group homogeneous infinite medium...')
+openmoc.log.py_printf('HEADER', 'The reference keff = 1.43...')
 
 
 ###############################################################################
 #                            Creating Materials
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating materials...')
+openmoc.log.py_printf('NORMAL', 'Creating materials...')
 
 sigma_a = numpy.array([0.069389522])
 sigma_f = numpy.array([0.0414198575])
@@ -36,7 +32,7 @@ sigma_s = numpy.array([0.383259177])
 chi = numpy.array([1.0])
 sigma_t = numpy.array([0.452648699])
 
-infinite_medium = Material(name='1-group infinite medium')
+infinite_medium = openmoc.Material(name='1-group infinite medium')
 infinite_medium.setNumEnergyGroups(1)
 infinite_medium.setSigmaA(sigma_a)
 infinite_medium.setSigmaF(sigma_f)
@@ -50,26 +46,26 @@ infinite_medium.setSigmaT(sigma_t)
 #                            Creating Surfaces
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating surfaces...')
+openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = XPlane(x=-100.0, name='left')
-right = XPlane(x=100.0, name='right')
-top = YPlane(y=100.0, name='top')
-bottom = YPlane(y=-100.0, name='bottom')
+left = openmoc.XPlane(x=-100.0, name='left')
+right = openmoc.XPlane(x=100.0, name='right')
+top = openmoc.YPlane(y=100.0, name='top')
+bottom = openmoc.YPlane(y=-100.0, name='bottom')
 
-left.setBoundaryType(REFLECTIVE)
-right.setBoundaryType(REFLECTIVE)
-top.setBoundaryType(REFLECTIVE)
-bottom.setBoundaryType(REFLECTIVE)
+left.setBoundaryType(openmoc.REFLECTIVE)
+right.setBoundaryType(openmoc.REFLECTIVE)
+top.setBoundaryType(openmoc.REFLECTIVE)
+bottom.setBoundaryType(openmoc.REFLECTIVE)
 
 
 ###############################################################################
 #                             Creating Cells
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating cells...')
+openmoc.log.py_printf('NORMAL', 'Creating cells...')
 
-cell = Cell()
+cell = openmoc.Cell()
 cell.setFill(infinite_medium)
 cell.addSurface(halfspace=+1, surface=left)
 cell.addSurface(halfspace=-1, surface=right)
@@ -81,9 +77,9 @@ cell.addSurface(halfspace=-1, surface=top)
 #                             Creating Universes
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating universes...')
+openmoc.log.py_printf('NORMAL', 'Creating universes...')
 
-root_universe = Universe(name='root universe')
+root_universe = openmoc.Universe(name='root universe')
 root_universe.addCell(cell)
 
 
@@ -91,9 +87,9 @@ root_universe.addCell(cell)
 #                         Creating the Geometry
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating geometry...')
+openmoc.log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry()
+geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
@@ -102,9 +98,9 @@ geometry.initializeFlatSourceRegions()
 #                          Creating the TrackGenerator
 ###############################################################################
 
-log.py_printf('NORMAL', 'Initializing the track generator...')
+openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
@@ -113,12 +109,12 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-log.py_printf('NORMAL', 'Running MOC forward eigenvalue simulation...')
+openmoc.log.py_printf('NORMAL', 'Running MOC forward eigenvalue simulation...')
 
-solver = CPUSolver(track_generator)
+solver = openmoc.CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
-solver.computeEigenvalue(max_iters, mode=FORWARD)
+solver.computeEigenvalue(max_iters, mode=openmoc.FORWARD)
 solver.printTimerReport()
 
 
@@ -126,7 +122,7 @@ solver.printTimerReport()
 #                            Verify with NumPy
 ###############################################################################
 
-log.py_printf('NORMAL', 'Verifying with NumPy forward eigenvalue...')
+openmoc.log.py_printf('NORMAL', 'Verifying with NumPy forward eigenvalue...')
 
 # Compute fission production matrix
 fiss_mat = numpy.outer(chi, nu_sigma_f)
@@ -140,5 +136,5 @@ k, phi = numpy.linalg.eig(M)
 # Select the dominant eigenvalue
 k = max(k)
 
-log.py_printf('RESULT', 'Numpy forward eigenvalue: {0:.6f}'.format(k))
-log.py_printf('TITLE', 'Finished')
+openmoc.log.py_printf('RESULT', 'Numpy forward eigenvalue: {0:.6f}'.format(k))
+openmoc.log.py_printf('TITLE', 'Finished')
