@@ -476,20 +476,20 @@ int main() {
   root_cell->setFill(full_geometry);
   
   /* Create CMFD mesh */
-  log_printf(NORMAL, "Creating CMFD mesh..."); /////////////////////////////////////
+  log_printf(NORMAL, "Creating CMFD mesh...");
 
   Cmfd cmfd;
   cmfd.setMOCRelaxationFactor(0.6);
   cmfd.setSORRelaxationFactor(1.5);
   cmfd.setLatticeStructure(51, 51);
   int cmfd_group_structure[3] = {1,4,8};
-  cmfd.setGroupStructure(cmfd_group_structure, 3); ///////////////////////////////////////
+  cmfd.setGroupStructure(cmfd_group_structure, 3);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  geometry.setCmfd(&cmfd); ////////////////////////////////////////////////////////////
+  geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 
   /* Generate tracks */
