@@ -1185,7 +1185,7 @@ void TrackGenerator::generateTracks() {
     }
 
     /* Precompute the quadrature weights */
-    _quadrature->precomputeWeights();
+    _quadrature->precomputeWeights(_solve_3D);
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Unable to allocate memory needed to generate "

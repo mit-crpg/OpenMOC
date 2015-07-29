@@ -102,7 +102,7 @@ public:
   void setPolarWeight(double weight, int azim, int polar);
   
   virtual void initialize();
-  virtual void precomputeWeights();
+  virtual void precomputeWeights(bool solve_3D);
   
   std::string toString();
 };
@@ -121,7 +121,7 @@ public:
   TYPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
-  void precomputeWeights();
+  void precomputeWeights(bool solve_3D);
 };
 
 
@@ -137,7 +137,7 @@ public:
   LeonardPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
-  void precomputeWeights();
+  void precomputeWeights(bool solve_3D);
 };
 
 
@@ -154,7 +154,7 @@ public:
   GLPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
-  void precomputeWeights();
+  void precomputeWeights(bool solve_3D);
 };
 
 
@@ -171,7 +171,7 @@ public:
   EqualWeightPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
-  void precomputeWeights();
+  void precomputeWeights(bool solve_3D);
 };
 
 
@@ -188,7 +188,7 @@ public:
   EqualAnglePolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
-  void precomputeWeights();
+  void precomputeWeights(bool solve_3D);
 };
 
 
