@@ -278,49 +278,49 @@ void CPUSolver::normalizeFluxes() {
  */
 void CPUSolver::computeFSRSources() {
 
-  int tid;
-  Material* material;
-  FP_PRECISION* sigma_t;
-  FP_PRECISION sigma_s, fiss_mat;
-  FP_PRECISION scatter_source, fission_source;
+  #pragma omp parallel default(none)
+  {
+    int tid;
+    Material* material;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION sigma_s, fiss_mat;
+    FP_PRECISION scatter_source, fission_source;
+    FP_PRECISION* fission_sources = new FP_PRECISION[_num_groups];
+    FP_PRECISION* scatter_sources = new FP_PRECISION[_num_groups];
 
-  int size = _num_threads * _num_groups;
-  FP_PRECISION* fission_sources = new FP_PRECISION[size];
-  FP_PRECISION* scatter_sources = new FP_PRECISION[size];
+    /* Compute the total source for each FSR */
+    #pragma omp parallel for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
 
-  /* Compute the total source for each FSR */
-  #pragma omp parallel for private(tid, material, sigma_t, sigma_s, fiss_mat, \
-    fission_source, scatter_source) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+      tid = omp_get_thread_num();
+      material = _FSR_materials[r];
+      sigma_t = material->getSigmaT();
 
-    tid = omp_get_thread_num();
-    material = _FSR_materials[r];
-    sigma_t = material->getSigmaT();
+      /* Compute scatter + fission source for group G */
+      for (int G=0; G < _num_groups; G++) {
+        for (int g=0; g < _num_groups; g++) {
+          sigma_s = material->getSigmaSByGroup(g+1,G+1);
+          fiss_mat = material->getFissionMatrixByGroup(g+1,G+1);
+          scatter_sources[g] = sigma_s * _scalar_flux(r,g);
+          fission_sources[g] = fiss_mat * _scalar_flux(r,g);
+        }
 
-    /* Compute scatter + fission source for group G */
-    for (int G=0; G < _num_groups; G++) {
-      for (int g=0; g < _num_groups; g++) {
-        sigma_s = material->getSigmaSByGroup(g+1,G+1);
-        fiss_mat = material->getFissionMatrixByGroup(g+1,G+1);
-        scatter_sources(tid,g) = sigma_s * _scalar_flux(r,g);
-        fission_sources(tid,g) = fiss_mat * _scalar_flux(r,g);
+        scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
+                                                    _num_groups);
+        fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
+                                                    _num_groups);
+        fission_source /= _k_eff;
+
+        /* Compute total (scatter+fission+fixed) reduced source */
+        _reduced_sources(r,G) = _fixed_sources(r,G);
+        _reduced_sources(r,G) += scatter_source + fission_source;
+        _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
       }
-
-      scatter_source = pairwise_sum<FP_PRECISION>(&scatter_sources(tid,0),
-                                                  _num_groups);
-      fission_source = pairwise_sum<FP_PRECISION>(&fission_sources(tid,0),
-                                                  _num_groups);
-      fission_source /= _k_eff;
-
-      /* Compute total (scatter+fission+fixed) reduced source */
-      _reduced_sources(r,G) = _fixed_sources(r,G);
-      _reduced_sources(r,G) += scatter_source + fission_source;
-      _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
     }
-  }
 
-  delete [] fission_sources;
-  delete [] scatter_sources;
+    delete [] fission_sources;
+    delete [] scatter_sources;
+  }
 }
 
 
