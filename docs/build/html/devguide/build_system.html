@@ -462,8 +462,8 @@ Since OpenMOC includes some C++11 features, developers should ensure
 the C++ compiler they wish to use includes full C++11 support. Developers using
 the alternative C++ build system should be familiar with both C++ and <a class="reference external" href="http://www.gnu.org/software/make/">Make</a>.</p>
 <p>The alternative C++ build system compiler options are included in
-<tt class="file docutils literal"><span class="pre">OpenMOC/profile/Makefile</span></tt>. This Makefile includes several commandline
-options that can be exectued from the <tt class="file docutils literal"><span class="pre">OpenMOC/profile/</span></tt> directory:</p>
+<tt class="file docutils literal"><span class="pre">OpenMOC/profile/Makefile</span></tt>. This Makefile includes several command line
+options that can be executed from the <tt class="file docutils literal"><span class="pre">OpenMOC/profile/</span></tt> directory:</p>
 <blockquote>
 <div><ul class="simple">
 <li><strong>make</strong> - Compiles the OpenMOC source files with the C++ input file
@@ -473,7 +473,7 @@ indicated by the <tt class="docutils literal"><span class="pre">case</span></tt>
 files given in the Makefile indicated in the variable <tt class="docutils literal"><span class="pre">cases</span></tt>.</li>
 <li><strong>make run</strong> - Runs the OpenMOC C++ input file indicated by the <tt class="docutils literal"><span class="pre">case</span></tt>
 variable in the Makefile. Note: the case must be compiled before this
-command will run correclty.</li>
+command will run correctly.</li>
 <li><strong>make clean</strong> - Deletes all output files formed from compiling OpenMOC source
 and input files described in the <tt class="docutils literal"><span class="pre">cases</span></tt> variable in the Makefile.</li>
 </ul>
@@ -484,7 +484,7 @@ verifying correct behavior runtime behavior, the developer should use the exampl
 C++ inputs as a reference to write new C++ input files. Most OpenMOC commands
 should translate reasonably well between Python on C++ inputs, though some
 aspects such as array declaration are much more difficult in C++. It is important
-to note that <tt class="docutils literal"><span class="pre">Materail</span></tt>, <tt class="docutils literal"><span class="pre">Cell</span></tt>, <tt class="docutils literal"><span class="pre">Universe</span></tt>, and <tt class="docutils literal"><span class="pre">Lattice</span></tt> objects
+to note that <tt class="docutils literal"><span class="pre">Material</span></tt>, <tt class="docutils literal"><span class="pre">Cell</span></tt>, <tt class="docutils literal"><span class="pre">Universe</span></tt>, and <tt class="docutils literal"><span class="pre">Lattice</span></tt> objects
 should be allocated on the heap rather than the stack to prevent segmentation
 faults when the program terminates. For instance, while</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span class="n">Cell</span> <span class="nf">basic_cell</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;basic cell&quot;</span><span class="p">);</span>
@@ -501,9 +501,9 @@ way of writing this code block to prevent this error would be to allocate
 <tt class="docutils literal"><span class="pre">basic_cell</span></tt> and <tt class="docutils literal"><span class="pre">basic_universe</span></tt> on the heap as:</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span class="n">Cell</span><span class="o">*</span> <span class="n">basic_cell</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Cell</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;basic cell&quot;</span><span class="p">);</span>
 <span class="n">Universe</span><span class="o">*</span> <span class="n">basic_universe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Universe</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;basic universe&quot;</span><span class="p">);</span>
-<span class="n">basic_universe</span><span class="o">-&gt;</span><span class="n">addcell</span><span class="p">(</span><span class="n">basic_cell</span><span class="p">);</span>
+<span class="n">basic_universe</span><span class="o">-&gt;</span><span class="n">addCell</span><span class="p">(</span><span class="n">basic_cell</span><span class="p">);</span>
 <span class="n">Geometry</span> <span class="n">geometry</span><span class="p">;</span>
-<span class="n">geometry</span><span class="p">.</span><span class="n">setuniverses</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">basic_universe</span><span class="p">);</span>
+<span class="n">geometry</span><span class="p">.</span><span class="n">setUniverses</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">basic_universe</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Once the C++ input file is completed, it should be added to the Makefile to be
@@ -562,7 +562,7 @@ Makefile, presented as variables detailed in <a class="reference internal" href=
 </table>
 <p><strong>Table 2</strong>: Makefile compiler options for the alternative C++ build system.</p>
 <p>After the input is compiled, an executable will be created in the same directory
-as the input file. The execuatalbe can be called directly based on its location
+as the input file. The executable can be called directly based on its location
 or it can be run using the <strong>make run</strong> command described previously with a
 modification of the <tt class="docutils literal"><span class="pre">case</span></tt> variable in the Makefile.</p>
 </div>

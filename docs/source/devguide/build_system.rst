@@ -438,8 +438,8 @@ the C++ compiler they wish to use includes full C++11 support. Developers using
 the alternative C++ build system should be familiar with both C++ and Make_.
 
 The alternative C++ build system compiler options are included in 
-:file:`OpenMOC/profile/Makefile`. This Makefile includes several commandline 
-options that can be exectued from the :file:`OpenMOC/profile/` directory:
+:file:`OpenMOC/profile/Makefile`. This Makefile includes several command line 
+options that can be executed from the :file:`OpenMOC/profile/` directory:
 
   * **make** - Compiles the OpenMOC source files with the C++ input file
     indicated by the ``case`` variable in the Makefile. The default is 
@@ -448,7 +448,7 @@ options that can be exectued from the :file:`OpenMOC/profile/` directory:
     files given in the Makefile indicated in the variable ``cases``.
   * **make run** - Runs the OpenMOC C++ input file indicated by the ``case``
     variable in the Makefile. Note: the case must be compiled before this
-    command will run correclty.
+    command will run correctly.
   * **make clean** - Deletes all output files formed from compiling OpenMOC source 
     and input files described in the ``cases`` variable in the Makefile.
 
@@ -459,7 +459,7 @@ verifying correct behavior runtime behavior, the developer should use the exampl
 C++ inputs as a reference to write new C++ input files. Most OpenMOC commands 
 should translate reasonably well between Python on C++ inputs, though some
 aspects such as array declaration are much more difficult in C++. It is important
-to note that ``Materail``, ``Cell``, ``Universe``, and ``Lattice`` objects 
+to note that ``Material``, ``Cell``, ``Universe``, and ``Lattice`` objects 
 should be allocated on the heap rather than the stack to prevent segmentation 
 faults when the program terminates. For instance, while
 
@@ -481,9 +481,9 @@ way of writing this code block to prevent this error would be to allocate
 
     Cell* basic_cell = new Cell(0, "basic cell");
     Universe* basic_universe = new Universe(0, "basic universe");
-    basic_universe->addcell(basic_cell);
+    basic_universe->addCell(basic_cell);
     Geometry geometry;
-    geometry.setuniverses(1, 1, basic_universe);
+    geometry.setUniverses(1, 1, basic_universe);
 
 Once the C++ input file is completed, it should be added to the Makefile to be
 compiled. To do this, add the location of the C++ input file to the ``cases``
@@ -510,7 +510,7 @@ Variable                   Description                                      Allo
 
 
 After the input is compiled, an executable will be created in the same directory
-as the input file. The execuatalbe can be called directly based on its location
+as the input file. The executable can be called directly based on its location
 or it can be run using the **make run** command described previously with a 
 modification of the ``case`` variable in the Makefile.
 
