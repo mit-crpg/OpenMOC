@@ -93,6 +93,9 @@ protected:
   /** The number of fissionable flat source regions */
   int _num_fissionable_FSRs;
 
+  /** The number of independent transport sweeps */
+  int _num_independent_sweeps;
+  
   /** The FSR "volumes" (i.e., areas) indexed by FSR UID */
   FP_PRECISION* _FSR_volumes;
 

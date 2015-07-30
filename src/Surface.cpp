@@ -811,7 +811,7 @@ int Circle::intersection(Point* point, Point* points, double azim,
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Check that point is in same direction as angle */
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI_2)
           num++;
         else if (zcurr < z0 && polar > M_PI_2)
@@ -819,7 +819,7 @@ int Circle::intersection(Point* point, Point* points, double azim,
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI_2)
           num++;
         else if (zcurr < z0 && polar > M_PI_2)
@@ -836,7 +836,7 @@ int Circle::intersection(Point* point, Point* points, double azim,
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
         * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -844,7 +844,7 @@ int Circle::intersection(Point* point, Point* points, double azim,
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -858,7 +858,7 @@ int Circle::intersection(Point* point, Point* points, double azim,
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
         * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -866,7 +866,7 @@ int Circle::intersection(Point* point, Point* points, double azim,
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -906,7 +906,7 @@ int Circle::intersection(Point* point, Point* points, double azim,
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
         * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -914,7 +914,7 @@ int Circle::intersection(Point* point, Point* points, double azim,
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)

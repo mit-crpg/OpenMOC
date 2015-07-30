@@ -10,7 +10,8 @@ Solver::Solver(TrackGenerator* track_generator) {
   _num_materials = 0;
   _num_groups = 0;
   _num_azim = 0;
-
+  _num_independent_sweeps = 4;
+  
   _num_FSRs = 0;
   _num_fissionable_FSRs = 0;
   _FSR_volumes = NULL;
@@ -354,6 +355,10 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   int azim_period, num_azim_periods;
   int num_x, num_y;
 
+  /* Set the number of independent transport sweeps. Note that for 3D solves,
+   * this will need to be changed to 16 */
+  _num_independent_sweeps = 4;
+  
   for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
     for (int period_halfspace=0; period_halfspace < 2; period_halfspace++) {
       for (int a=azim_halfspace*_num_azim/2;

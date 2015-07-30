@@ -531,7 +531,7 @@ void CPUSolver::transportSweep() {
     _cmfd->zeroSurfaceCurrents();
 
   /* Loop over azimuthal angle and periodic track halfspaces */
-  for (int i=0; i < 4; i++) {
+  for (int i=0; i < _num_independent_sweeps; i++) {
 
     /* Compute the minimum and maximum Track IDs corresponding to
      * this azimuthal angle and periodic track halfspace */
@@ -680,7 +680,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   }
 
   FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
-  
+
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {
     for (int p=0; p < _num_polar; p++)

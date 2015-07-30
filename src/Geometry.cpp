@@ -1081,7 +1081,7 @@ void Geometry::initializeCmfd() {
   double width = getWidth();
   double cell_width = width / num_x;
   double cell_height = height / num_y;
-  
+
   /* Create CMFD lattice and set properties */
   Lattice* lattice = new Lattice();
   lattice->setWidth(cell_width, cell_height);
