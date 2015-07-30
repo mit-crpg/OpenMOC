@@ -420,12 +420,16 @@ If all was properly configured as described in the preceding steps, you should b
     # Do cool things with your extension module here
     ...
 
-===================
+============================
 Alternative C++ Build System
-===================
+============================
 Some developers might not wish to include the Python/SWIG build system due to the additional requirements such as SWIG_, Python_, Numpy_, matplotlib_, and h5py_. Since OpenMOC source code is entirely written in C++, it is possible to bypass the Python/SWIG build system and run OpenMOC using a compiled C++ input file. This is primarily useful for developers running OpenMOC on new architectures that might not support Python and SWIG. Performance analysis can also be easier without the Python/SWIG interface. 
 
 .. note:: It is **highly** recommended that users utilize the regular Python/SWIG build system unless there is a specific reason for using the alternative C++ build system.
+
+--------
+Makefile
+--------
 
 The alternative C++ build system is available in the :file:`OpenMOC/profile/` 
 directory. 
@@ -452,6 +456,9 @@ options that can be executed from the :file:`OpenMOC/profile/` directory:
   * **make clean** - Deletes all output files formed from compiling OpenMOC source 
     and input files described in the ``cases`` variable in the Makefile.
 
+------------------------
+Building C++ Input Files
+------------------------
 
 It is advised to first compile the included example C++ inputs provided in the 
 :file:`OpenMOC/profile/models/` directory. After ensuring the inputs compile and
@@ -484,6 +491,10 @@ way of writing this code block to prevent this error would be to allocate
     basic_universe->addCell(basic_cell);
     Geometry geometry;
     geometry.setUniverses(1, 1, basic_universe);
+
+----------------
+Compiler Options
+----------------
 
 Once the C++ input file is completed, it should be added to the Makefile to be
 compiled. To do this, add the location of the C++ input file to the ``cases``

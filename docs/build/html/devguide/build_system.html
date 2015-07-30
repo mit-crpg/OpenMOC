@@ -452,6 +452,8 @@
 <p class="first admonition-title">Note</p>
 <p class="last">It is <strong>highly</strong> recommended that users utilize the regular Python/SWIG build system unless there is a specific reason for using the alternative C++ build system.</p>
 </div>
+<div class="section" id="makefile">
+<h2>4.1. Makefile<a class="headerlink" href="#makefile" title="Permalink to this headline">¶</a></h2>
 <p>The alternative C++ build system is available in the <tt class="file docutils literal"><span class="pre">OpenMOC/profile/</span></tt>
 directory.
 The build system depends on the source files found in the <tt class="file docutils literal"><span class="pre">OpenMOC/src/</span></tt>
@@ -478,6 +480,9 @@ command will run correctly.</li>
 and input files described in the <tt class="docutils literal"><span class="pre">cases</span></tt> variable in the Makefile.</li>
 </ul>
 </div></blockquote>
+</div>
+<div class="section" id="building-c-input-files">
+<h2>4.2. Building C++ Input Files<a class="headerlink" href="#building-c-input-files" title="Permalink to this headline">¶</a></h2>
 <p>It is advised to first compile the included example C++ inputs provided in the
 <tt class="file docutils literal"><span class="pre">OpenMOC/profile/models/</span></tt> directory. After ensuring the inputs compile and
 verifying correct behavior runtime behavior, the developer should use the example
@@ -506,6 +511,9 @@ way of writing this code block to prevent this error would be to allocate
 <span class="n">geometry</span><span class="p">.</span><span class="n">setUniverses</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">basic_universe</span><span class="p">);</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="compiler-options">
+<h2>4.3. Compiler Options<a class="headerlink" href="#compiler-options" title="Permalink to this headline">¶</a></h2>
 <p>Once the C++ input file is completed, it should be added to the Makefile to be
 compiled. To do this, add the location of the C++ input file to the <tt class="docutils literal"><span class="pre">cases</span></tt>
 variable in the Makefile. Note that the Makefile assumes input files are located
@@ -566,6 +574,7 @@ as the input file. The executable can be called directly based on its location
 or it can be run using the <strong>make run</strong> command described previously with a
 modification of the <tt class="docutils literal"><span class="pre">case</span></tt> variable in the Makefile.</p>
 </div>
+</div>
 
 
           </div>
@@ -613,7 +622,12 @@ modification of the <tt class="docutils literal"><span class="pre">case</span></
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#alternative-c-build-system">4. Alternative C++ Build System</a></li>
+<li><a class="reference internal" href="#alternative-c-build-system">4. Alternative C++ Build System</a><ul>
+<li><a class="reference internal" href="#makefile">4.1. Makefile</a></li>
+<li><a class="reference internal" href="#building-c-input-files">4.2. Building C++ Input Files</a></li>
+<li><a class="reference internal" href="#compiler-options">4.3. Compiler Options</a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Previous topic</h4>
