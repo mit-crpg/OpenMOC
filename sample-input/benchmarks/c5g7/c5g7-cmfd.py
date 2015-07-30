@@ -306,7 +306,7 @@ root_cell.setFill(lattices[-1])
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(1.0)
+cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
 cmfd.setGroupStructure([1,4,8])

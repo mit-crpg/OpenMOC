@@ -24,7 +24,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _tracks = NULL;
   _polar_weights = NULL;
   _boundary_flux = NULL;
-  _boundary_leakage = NULL;
 
   _scalar_flux = NULL;
   _old_scalar_flux = NULL;
@@ -952,8 +951,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
-    residual = computeResidual(res_type);
-    storeFSRFluxes();
 
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn()) {
@@ -965,6 +962,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
                "\tres = %1.3E", i, _k_eff, residual);
+
+    residual = computeResidual(res_type);
+    storeFSRFluxes();
 
     /* Check for convergence of the fission source distribution */
     if (i > 1 && residual < _converge_thresh) {
