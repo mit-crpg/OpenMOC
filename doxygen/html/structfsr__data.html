@@ -104,6 +104,7 @@ $(document).ready(function(){initNavTree('structfsr__data.html','');});
 
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structfsr__data-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -116,16 +117,78 @@ $(document).ready(function(){initNavTree('structfsr__data.html','');});
 
 <p><code>#include &lt;<a class="el" href="Geometry_8h_source.html">Geometry.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a7b303bccc394b7969ee0371dcb9ca2f4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfsr__data.html#a7b303bccc394b7969ee0371dcb9ca2f4">~fsr_data</a> ()</td></tr>
+<tr class="separator:a7b303bccc394b7969ee0371dcb9ca2f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a81d72f756b5827a05e8ac9b9356bbe0b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfsr__data.html#a81d72f756b5827a05e8ac9b9356bbe0b">_fsr_id</a></td></tr>
 <tr class="separator:a81d72f756b5827a05e8ac9b9356bbe0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade5edd87cc012200f8e3a899c0183346"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfsr__data.html#ade5edd87cc012200f8e3a899c0183346">_cmfd_cell</a></td></tr>
+<tr class="separator:ade5edd87cc012200f8e3a899c0183346"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa55e0b76c031226f32b68ba68790bf15"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfsr__data.html#aa55e0b76c031226f32b68ba68790bf15">_mat_id</a></td></tr>
+<tr class="separator:aa55e0b76c031226f32b68ba68790bf15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a725800e3793e3de9f60914cfcfdfdfbd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classPoint.html">Point</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfsr__data.html#a725800e3793e3de9f60914cfcfdfdfbd">_point</a></td></tr>
 <tr class="separator:a725800e3793e3de9f60914cfcfdfdfbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add9bcb7435733fde8806ace90d604672"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classPoint.html">Point</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfsr__data.html#add9bcb7435733fde8806ace90d604672">_centroid</a></td></tr>
+<tr class="separator:add9bcb7435733fde8806ace90d604672"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A <a class="el" href="structfsr__data.html" title="A fsr_data struct represents an FSR with a unique FSR ID and a characteristic point that lies within ...">fsr_data</a> struct represents an FSR with a unique FSR ID and a characteristic point that lies within the FSR that can be used to recompute the hierarchical <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> linked list. </p>
-</div><h2 class="groupheader">Member Data Documentation</h2>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a7b303bccc394b7969ee0371dcb9ca2f4"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fsr_data::~fsr_data </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Destructor for <a class="el" href="structfsr__data.html" title="A fsr_data struct represents an FSR with a unique FSR ID and a characteristic point that lies within ...">fsr_data</a> </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="add9bcb7435733fde8806ace90d604672"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classPoint.html">Point</a>* fsr_data::_centroid</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Global numerical centroid in Root <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> </p>
+
+</div>
+</div>
+<a class="anchor" id="ade5edd87cc012200f8e3a899c0183346"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int fsr_data::_cmfd_cell</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The CMFD <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> </p>
+
+</div>
+</div>
 <a class="anchor" id="a81d72f756b5827a05e8ac9b9356bbe0b"></a>
 <div class="memitem">
 <div class="memproto">
@@ -139,6 +202,19 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aa55e0b76c031226f32b68ba68790bf15"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int fsr_data::_mat_id</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> ID </p>
+
+</div>
+</div>
 <a class="anchor" id="a725800e3793e3de9f60914cfcfdfdfbd"></a>
 <div class="memitem">
 <div class="memproto">
@@ -148,12 +224,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Characteristic point in <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> 0 that lies in FSR </p>
+<p>Characteristic point in Root <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> that lies in FSR </p>
 
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Geometry_8h_source.html">Geometry.h</a></li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="Geometry_8h_source.html">Geometry.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -161,7 +237,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="structfsr__data.html">fsr_data</a></li>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:07 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

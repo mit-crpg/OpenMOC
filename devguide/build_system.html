@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" />
     <link rel="up" title="Developer’s Guide" href="index.html" />
-    <link rel="next" title="4. Debugging OpenMOC" href="debugging.html" />
+    <link rel="next" title="5. Debugging OpenMOC" href="debugging.html" />
     <link rel="prev" title="2. Simplified Wrapper Interface Generator (SWIG)" href="swig.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="debugging.html" title="4. Debugging OpenMOC"
+          <a href="debugging.html" title="5. Debugging OpenMOC"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="swig.html" title="2. Simplified Wrapper Interface Generator (SWIG)"
@@ -168,7 +168,7 @@
 <div class="section" id="swig-interface-files">
 <h2>3.3. SWIG Interface Files<a class="headerlink" href="#swig-interface-files" title="Permalink to this headline">¶</a></h2>
 <p>OpenMOC uses the SWIG system (discussed in <a class="reference internal" href="swig.html#swig"><em>Simplified Wrapper Interface Generator</em></a>) to generate Python bindings for classes and routines in the compiled C/C++ source code. In order for SWIG to work, the C/C++ header files <strong>must contain all of the class and function prototypes.</strong> Furthermore, the headers files must be exposed to SWIG through a <a class="reference external" href="http://www.swig.org/Doc2.0/SWIGDocumentation.html#Introduction_nn6">SWIG interface file</a> (see <a class="reference internal" href="swig.html#swig-input"><em>SWIG Input</em></a>). OpenMOC includes the interface file <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/openmoc.i</span></tt> for the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> Python module, and an interface file <tt class="file docutils literal"><span class="pre">/OpenMOC/openmoc/cuda/openmoc_cuda.i</span></tt> for the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module.</p>
-<p>The <a class="reference internal" href="#add-source-file"><em>Add a C/C++ Source File</em></a> section discusses how to add new C/C++ source files and expose them to SWIG through the interface files. The interface files are useful for a variety of auxiliary purposes as well, most notably the specifications to input and retrieve <a class="reference external" href="http://www.numpy.org">NumPy</a> data from the compiled C/C++ shared library object(s) from Python (see <a class="reference internal" href="swig.html#numpy-typemaps"><em>NumPy Typemaps</em></a>).</p>
+<p>The <a class="reference internal" href="#add-source-file"><em>Add a C/C++ Source File</em></a> section discusses how to add new C/C++ source files and expose them to SWIG through the interface files. The interface files are useful for a variety of auxiliary purposes as well, most notably the specifications to input and retrieve <a href="#id7"><span class="problematic" id="id8">NumPy_</span></a> data from the compiled C/C++ shared library object(s) from Python (see <a class="reference internal" href="swig.html#numpy-typemaps"><em>NumPy Typemaps</em></a>).</p>
 </div>
 <div class="section" id="common-modifications">
 <h2>3.4. Common Modifications<a class="headerlink" href="#common-modifications" title="Permalink to this headline">¶</a></h2>
@@ -445,6 +445,127 @@
 </div>
 </div>
 </div>
+<div class="section" id="alternative-c-build-system">
+<h1>4. Alternative C++ Build System<a class="headerlink" href="#alternative-c-build-system" title="Permalink to this headline">¶</a></h1>
+<p>Some developers might not wish to include the Python/SWIG build system due to the additional requirements such as <a class="reference external" href="http://www.swig.org/">SWIG</a>, <a href="#id9"><span class="problematic" id="id10">Python_</span></a>, <a href="#id11"><span class="problematic" id="id12">Numpy_</span></a>, <a class="reference external" href="http://matplotlib.org/">matplotlib</a>, and <a class="reference external" href="http://www.h5py.org/">h5py</a>. Since OpenMOC source code is entirely written in C++, it is possible to bypass the Python/SWIG build system and run OpenMOC using a compiled C++ input file. This is primarily useful for developers running OpenMOC on new architectures that might not support Python and SWIG. Performance analysis can also be easier without the Python/SWIG interface.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is <strong>highly</strong> recommended that users utilize the regular Python/SWIG build system unless there is a specific reason for using the alternative C++ build system.</p>
+</div>
+<p>The alternative C++ build system is available in the <tt class="file docutils literal"><span class="pre">OpenMOC/profile/</span></tt>
+directory.
+The build system depends on the source files found in the <tt class="file docutils literal"><span class="pre">OpenMOC/src/</span></tt>
+directory so that any changes to those files are noticed by both the regular
+Python/SWIG build system and the alternative C++ build system.
+The alternative C++ build system is based on the use of <a class="reference external" href="http://www.gnu.org/software/make/">Make</a>.
+Since OpenMOC includes some C++11 features, developers should ensure
+the C++ compiler they wish to use includes full C++11 support. Developers using
+the alternative C++ build system should be familiar with both C++ and <a class="reference external" href="http://www.gnu.org/software/make/">Make</a>.</p>
+<p>The alternative C++ build system compiler options are included in
+<tt class="file docutils literal"><span class="pre">OpenMOC/profile/Makefile</span></tt>. This Makefile includes several commandline
+options that can be exectued from the <tt class="file docutils literal"><span class="pre">OpenMOC/profile/</span></tt> directory:</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>make</strong> - Compiles the OpenMOC source files with the C++ input file
+indicated by the <tt class="docutils literal"><span class="pre">case</span></tt> variable in the Makefile. The default is
+<tt class="file docutils literal"><span class="pre">OpenMOC/profile/models/c5g7/c5g7-cmfd.cpp</span></tt>.</li>
+<li><strong>make all</strong> - Compiles the OpenMOC source files with all input
+files given in the Makefile indicated in the variable <tt class="docutils literal"><span class="pre">cases</span></tt>.</li>
+<li><strong>make run</strong> - Runs the OpenMOC C++ input file indicated by the <tt class="docutils literal"><span class="pre">case</span></tt>
+variable in the Makefile. Note: the case must be compiled before this
+command will run correclty.</li>
+<li><strong>make clean</strong> - Deletes all output files formed from compiling OpenMOC source
+and input files described in the <tt class="docutils literal"><span class="pre">cases</span></tt> variable in the Makefile.</li>
+</ul>
+</div></blockquote>
+<p>It is advised to first compile the included example C++ inputs provided in the
+<tt class="file docutils literal"><span class="pre">OpenMOC/profile/models/</span></tt> directory. After ensuring the inputs compile and
+verifying correct behavior runtime behavior, the developer should use the example
+C++ inputs as a reference to write new C++ input files. Most OpenMOC commands
+should translate reasonably well between Python on C++ inputs, though some
+aspects such as array declaration are much more difficult in C++. It is important
+to note that <tt class="docutils literal"><span class="pre">Materail</span></tt>, <tt class="docutils literal"><span class="pre">Cell</span></tt>, <tt class="docutils literal"><span class="pre">Universe</span></tt>, and <tt class="docutils literal"><span class="pre">Lattice</span></tt> objects
+should be allocated on the heap rather than the stack to prevent segmentation
+faults when the program terminates. For instance, while</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="n">Cell</span> <span class="nf">basic_cell</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;basic cell&quot;</span><span class="p">);</span>
+<span class="n">Universe</span> <span class="nf">basic_universe</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;basic universe&quot;</span><span class="p">);</span>
+<span class="n">basic_universe</span><span class="p">.</span><span class="n">addCell</span><span class="p">(</span><span class="o">&amp;</span><span class="n">basic_cell</span><span class="p">);</span>
+<span class="n">Geometry</span> <span class="n">geometry</span><span class="p">;</span>
+<span class="n">geometry</span><span class="p">.</span><span class="n">setUniverses</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">basic_universe</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>would seem like correct syntax, a segmentation fault would occur at the end of
+the program execution when the geometry destructor is called since it deletes
+all member universes. Likewise, universes delete all member cells. The correct
+way of writing this code block to prevent this error would be to allocate
+<tt class="docutils literal"><span class="pre">basic_cell</span></tt> and <tt class="docutils literal"><span class="pre">basic_universe</span></tt> on the heap as:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="n">Cell</span><span class="o">*</span> <span class="n">basic_cell</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Cell</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;basic cell&quot;</span><span class="p">);</span>
+<span class="n">Universe</span><span class="o">*</span> <span class="n">basic_universe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Universe</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;basic universe&quot;</span><span class="p">);</span>
+<span class="n">basic_universe</span><span class="o">-&gt;</span><span class="n">addcell</span><span class="p">(</span><span class="n">basic_cell</span><span class="p">);</span>
+<span class="n">Geometry</span> <span class="n">geometry</span><span class="p">;</span>
+<span class="n">geometry</span><span class="p">.</span><span class="n">setuniverses</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">basic_universe</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Once the C++ input file is completed, it should be added to the Makefile to be
+compiled. To do this, add the location of the C++ input file to the <tt class="docutils literal"><span class="pre">cases</span></tt>
+variable in the Makefile. Note that the Makefile assumes input files are located
+in a sub-directory of the <tt class="file docutils literal"><span class="pre">OpenMOC/profile/models/</span></tt> directory. Therefore,
+the Makefile adds <tt class="file docutils literal"><span class="pre">models/</span></tt> as a prefix to any input file locations.
+In addition, several compiler options can be specified at the top of the
+Makefile, presented as variables detailed in <a class="reference internal" href="#table-makefile-options"><em>Table 2</em></a>.</p>
+<table border="1" class="docutils" id="table-makefile-options">
+<colgroup>
+<col width="20%" />
+<col width="37%" />
+<col width="24%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Variable</th>
+<th class="head">Description</th>
+<th class="head">Allowed Values</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">COMPILER</span></tt></td>
+<td>Specifies the compiler</td>
+<td>gnu, intel, clang, bluegene</td>
+<td>gnu</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">OPENMP</span></tt></td>
+<td>Flag to turn on OpenMP parallelism</td>
+<td>yes, no</td>
+<td>yes</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">OPTIMIZE</span></tt></td>
+<td>Flag to turn on compiler optimizations</td>
+<td>yes, no</td>
+<td>yes</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">DEBUG</span></tt></td>
+<td>Flag to turn on vector reports and debug flag</td>
+<td>yes, no</td>
+<td>no</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PROFILE</span></tt></td>
+<td>Creates a <tt class="file docutils literal"><span class="pre">gmon.out</span></tt> file for profiling</td>
+<td>yes, no</td>
+<td>no</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PRECISION</span></tt></td>
+<td>Specifies the floating point precision</td>
+<td>single, double</td>
+<td>single</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2</strong>: Makefile compiler options for the alternative C++ build system.</p>
+<p>After the input is compiled, an executable will be created in the same directory
+as the input file. The execuatalbe can be called directly based on its location
+or it can be run using the <strong>make run</strong> command described previously with a
+modification of the <tt class="docutils literal"><span class="pre">case</span></tt> variable in the Makefile.</p>
+</div>
 
 
           </div>
@@ -492,6 +613,7 @@
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#alternative-c-build-system">4. Alternative C++ Build System</a></li>
 </ul>
 
   <h4>Previous topic</h4>
@@ -499,7 +621,7 @@
                         title="previous chapter">2. Simplified Wrapper Interface Generator (SWIG)</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="debugging.html"
-                        title="next chapter">4. Debugging OpenMOC</a></p>
+                        title="next chapter">5. Debugging OpenMOC</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/devguide/build_system.txt"
@@ -529,7 +651,7 @@
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="debugging.html" title="4. Debugging OpenMOC"
+          <a href="debugging.html" title="5. Debugging OpenMOC"
              >next</a> |</li>
         <li class="right" >
           <a href="swig.html" title="2. Simplified Wrapper Interface Generator (SWIG)"

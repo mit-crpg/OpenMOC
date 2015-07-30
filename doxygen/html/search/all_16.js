@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['xplane',['XPlane',['../classXPlane.html',1,'XPlane'],['../classXPlane.html#a34b8a7bad77b8332d98d695a48d0479f',1,'XPlane::XPlane()'],['../Surface_8h.html#a669341e8f044e9051db22e680c1b81dfa1c21ef9ff004b3e547f19918ab7e7a80',1,'XPLANE():&#160;Surface.h']]]
+  ['warning',['WARNING',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a984de77c680eaff141ec910e25568a81',1,'log.h']]],
+  ['withinbounds',['withinBounds',['../classGeometry.html#aae96af2cb5e5ad573bb44b3619962726',1,'Geometry::withinBounds()'],['../classLattice.html#aaa38ae681b8814661033c99f6410fadd',1,'Lattice::withinBounds()']]]
 ];

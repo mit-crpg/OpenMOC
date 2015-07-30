@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/wboyd/Desktop/OpenMOC/src/log.h File Reference</title>
+<title>/home/geogunow/OpenMOC/OpenMOC/src/log.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -102,7 +102,6 @@ $(document).ready(function(){initNavTree('log_8h.html','');});
 
 <div class="header">
   <div class="summary">
-<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
@@ -116,12 +115,6 @@ $(document).ready(function(){initNavTree('log_8h.html','');});
 
 <p><a href="log_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:a3cb9f0894fab1c8fbb0753c9c7c2a8d9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3cb9f0894fab1c8fbb0753c9c7c2a8d9"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>printf</b>&#160;&#160;&#160;PySys_WriteStdout</td></tr>
-<tr class="separator:a3cb9f0894fab1c8fbb0753c9c7c2a8d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:a474fc5e1d06d669823896ac6258fbc0d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a474fc5e1d06d669823896ac6258fbc0d"></a>
@@ -155,6 +148,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a940ee8efe959af1453430dfb17a69b52"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a940ee8efe959af1453430dfb17a69b52">set_err</a> (const char *msg)</td></tr>
 <tr class="memdesc:a940ee8efe959af1453430dfb17a69b52"><td class="mdescLeft">&#160;</td><td class="mdescRight">A function stub used to convert C++ exceptions into Python exceptions through SWIG.  <a href="#a940ee8efe959af1453430dfb17a69b52">More...</a><br/></td></tr>
 <tr class="separator:a940ee8efe959af1453430dfb17a69b52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29f7d96a1ed751e3efaa60b2d9a25e8d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a29f7d96a1ed751e3efaa60b2d9a25e8d">initialize_logger</a> ()</td></tr>
+<tr class="memdesc:a29f7d96a1ed751e3efaa60b2d9a25e8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the logger for use.  <a href="#a29f7d96a1ed751e3efaa60b2d9a25e8d">More...</a><br/></td></tr>
+<tr class="separator:a29f7d96a1ed751e3efaa60b2d9a25e8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f64942213878af205d66d8879773097"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a0f64942213878af205d66d8879773097">set_output_directory</a> (char *directory)</td></tr>
 <tr class="memdesc:a0f64942213878af205d66d8879773097"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the output directory for log files.  <a href="#a0f64942213878af205d66d8879773097">More...</a><br/></td></tr>
 <tr class="separator:a0f64942213878af205d66d8879773097"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -402,6 +398,24 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a29f7d96a1ed751e3efaa60b2d9a25e8d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void initialize_logger </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initializes the logger for use. </p>
+<p>This should be immediately called when the logger is imported into Python and before any of its other routines are called. The routine initializes an OpenMP mutual exclusion lock which is used to preclude race conditions from occurring when an ERROR message is reported and program execution is terminated. </p>
+
+</div>
+</div>
 <a class="anchor" id="a8abbd12e44a829a8d7a041636b170fde"></a>
 <div class="memitem">
 <div class="memproto">
@@ -645,7 +659,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="log_8h.html">log.h</a></li>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:06 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

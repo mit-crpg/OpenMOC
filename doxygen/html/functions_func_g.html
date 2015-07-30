@@ -92,6 +92,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func_f.html#index_f"><span>f</span></a></li>
       <li class="current"><a href="functions_func_g.html#index_g"><span>g</span></a></li>
       <li><a href="functions_func_i.html#index_i"><span>i</span></a></li>
+      <li><a href="functions_func_k.html#index_k"><span>k</span></a></li>
       <li><a href="functions_func_l.html#index_l"><span>l</span></a></li>
       <li><a href="functions_func_m.html#index_m"><span>m</span></a></li>
       <li><a href="functions_func_n.html#index_n"><span>n</span></a></li>
@@ -142,6 +143,9 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 &#160;
 
 <h3><a class="anchor" id="index_g"></a>- g -</h3><ul>
+<li>generateFSRCentroids()
+: <a class="el" href="classTrackGenerator.html#ac296181ffd8d5bb5e314ebf31f80fefd">TrackGenerator</a>
+</li>
 <li>generateTracks()
 : <a class="el" href="classTrackGenerator.html#a8012954f5eeeae9dfb4fd445937884ee">TrackGenerator</a>
 </li>
@@ -156,6 +160,7 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 </li>
 <li>getAllCells()
 : <a class="el" href="classCell.html#a910865b45cd3ade01ac486b6759eb689">Cell</a>
+, <a class="el" href="classGeometry.html#ae7bab2b8c74d6d880b3f219a64552141">Geometry</a>
 , <a class="el" href="classLattice.html#a94077d484d65e169883a9de3225dd3ae">Lattice</a>
 , <a class="el" href="classUniverse.html#a774aebe5c0df48b5fb5d33890d2a1c81">Universe</a>
 </li>
@@ -168,6 +173,7 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 </li>
 <li>getAllUniverses()
 : <a class="el" href="classCell.html#a472ff1d9d996bca7443be237e64aa043">Cell</a>
+, <a class="el" href="classGeometry.html#ad341d46a2d217eb20e76d696372464aa">Geometry</a>
 , <a class="el" href="classLattice.html#a05ea2bbca5556a661287854341669809">Lattice</a>
 , <a class="el" href="classUniverse.html#a19e1ab466310dfd3549adca84ed25cbe">Universe</a>
 </li>
@@ -210,9 +216,6 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 </li>
 <li>getCellFSRs()
 : <a class="el" href="classCmfd.html#a1819addcb8c89ed78b4d70609851b49d">Cmfd</a>
-</li>
-<li>getCellNext()
-: <a class="el" href="classCmfd.html#a15c8ff03a2d1cb0ffe63bac2bd6ac2d0">Cmfd</a>
 </li>
 <li>getCells()
 : <a class="el" href="classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f">Universe</a>
@@ -280,8 +283,8 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <li>getFillUniverse()
 : <a class="el" href="classCell.html#a18343f1d80b33c221789bd453fe30101">Cell</a>
 </li>
-<li>getFluxRatio()
-: <a class="el" href="classCmfd.html#a40a134f597be882ffdef709b95046671">Cmfd</a>
+<li>getFSRCentroid()
+: <a class="el" href="classGeometry.html#a5f733f011a48b4c13516d30fd0c959b5">Geometry</a>
 </li>
 <li>getFSRId()
 : <a class="el" href="classGeometry.html#ae0b21bc0c3c5fec7bc3b5958d6a44e58">Geometry</a>
@@ -290,7 +293,7 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 : <a class="el" href="classGeometry.html#ac575f258acb53d8365733efaa1e74e12">Geometry</a>
 </li>
 <li>getFSRKeysMap()
-: <a class="el" href="classGeometry.html#a2bdf8f248cd1db6ba3325b495685db98">Geometry</a>
+: <a class="el" href="classGeometry.html#aa7cadf2c81145cd0d6394806a36bdda9">Geometry</a>
 </li>
 <li>getFSRPoint()
 : <a class="el" href="classGeometry.html#aa8636d4a465e966f69d21d7865be12ca">Geometry</a>
@@ -304,10 +307,10 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 , <a class="el" href="classSolver.html#ac53d86f4d110a07651dde1af25876d5d">Solver</a>
 </li>
 <li>getFSRsToKeys()
-: <a class="el" href="classGeometry.html#ae1b84f5cfe0dd204e02cd85bef8c035c">Geometry</a>
+: <a class="el" href="classGeometry.html#ac4aae2a67520bed6d790367341d6db56">Geometry</a>
 </li>
 <li>getFSRsToMaterialIDs()
-: <a class="el" href="classGeometry.html#a608b3db4e1e828b4c1c5f761a6f667b7">Geometry</a>
+: <a class="el" href="classGeometry.html#a9aac336a0684bd999858ba0abea801a8">Geometry</a>
 </li>
 <li>getFSRVolume()
 : <a class="el" href="classSolver.html#ad14694fca25ade5e6841916e22354e87">Solver</a>
@@ -772,7 +775,7 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:07 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

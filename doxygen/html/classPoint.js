@@ -2,7 +2,6 @@ var classPoint =
 [
     [ "Point", "classPoint.html#ad92f2337b839a94ce97dcdb439b4325a", null ],
     [ "~Point", "classPoint.html#a395fa04b4ec126b66fc053f829a30cc1", null ],
-    [ "distance", "classPoint.html#adcad60af16d638970a0d0f5b775ed00f", null ],
     [ "distanceToPoint", "classPoint.html#a1000c6590f93653b2d8d3b45991f60c9", null ],
     [ "getX", "classPoint.html#af52a20a376f8f31e87658837565d3812", null ],
     [ "getY", "classPoint.html#aac5008459bf0e0053ce744a69187bae7", null ],

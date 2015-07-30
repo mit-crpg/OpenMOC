@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['yplane',['YPlane',['../classYPlane.html',1,'YPlane'],['../classYPlane.html#a1d617427e36fb74d15e57a635348777d',1,'YPlane::YPlane()'],['../Surface_8h.html#a669341e8f044e9051db22e680c1b81dfa02382f3d36c22c4fdd1544a55ac87d4a',1,'YPLANE():&#160;Surface.h']]]
+  ['xplane',['XPlane',['../classXPlane.html',1,'XPlane'],['../classXPlane.html#a34b8a7bad77b8332d98d695a48d0479f',1,'XPlane::XPlane()'],['../Surface_8h.html#a669341e8f044e9051db22e680c1b81dfa1c21ef9ff004b3e547f19918ab7e7a80',1,'XPLANE():&#160;Surface.h']]]
 ];

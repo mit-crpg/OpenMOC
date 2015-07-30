@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/wboyd/Desktop/OpenMOC/src/Solver.h File Reference</title>
+<title>/home/geogunow/OpenMOC/OpenMOC/src/Solver.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -133,8 +133,6 @@ Macros</h2></td></tr>
 <tr class="separator:a82337e9687f8a593b4b68772853353c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a15b0f5dc814186a0e514b36f753d3bf6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Solver_8h.html#a15b0f5dc814186a0e514b36f753d3bf6">_boundary_flux</a>(i, j, p, e)</td></tr>
 <tr class="separator:a15b0f5dc814186a0e514b36f753d3bf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c166546861725df33b4e3eea491dab5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Solver_8h.html#a6c166546861725df33b4e3eea491dab5">_boundary_leakage</a>(i, pe2)</td></tr>
-<tr class="separator:a6c166546861725df33b4e3eea491dab5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a991cd83ccd910cf48245efb0aecd9b6a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Solver_8h.html#a991cd83ccd910cf48245efb0aecd9b6a">_fixed_sources</a>(r, e)&#160;&#160;&#160;(_fixed_sources[(r)*_num_groups + (e)])</td></tr>
 <tr class="separator:a991cd83ccd910cf48245efb0aecd9b6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11f42402c5f44216def0ab6d5c564843"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Solver_8h.html#a11f42402c5f44216def0ab6d5c564843">fission_sources</a>(r, e)&#160;&#160;&#160;(fission_sources[(r)*_num_groups + (e)])</td></tr>
@@ -194,38 +192,8 @@ Enumerations</h2></td></tr>
 <b>Value:</b><div class="fragment"><div class="line">(<a class="code" href="Solver_8h.html#a15b0f5dc814186a0e514b36f753d3bf6">_boundary_flux</a>[(i)*2*_polar_times_groups \</div>
 <div class="line">                                                + (j)*_polar_times_groups \</div>
 <div class="line">                                                + (p)*_num_groups + (e)])</div>
-<div class="ttc" id="Solver_8h_html_a15b0f5dc814186a0e514b36f753d3bf6"><div class="ttname"><a href="Solver_8h.html#a15b0f5dc814186a0e514b36f753d3bf6">_boundary_flux</a></div><div class="ttdeci">#define _boundary_flux(i, j, p, e)</div><div class="ttdef"><b>Definition:</b> Solver.h:40</div></div>
+<div class="ttc" id="Solver_8h_html_a15b0f5dc814186a0e514b36f753d3bf6"><div class="ttname"><a href="Solver_8h.html#a15b0f5dc814186a0e514b36f753d3bf6">_boundary_flux</a></div><div class="ttdeci">#define _boundary_flux(i, j, p, e)</div><div class="ttdef"><b>Definition:</b> Solver.h:42</div></div>
 </div><!-- fragment --><p>Indexing macro for the angular fluxes for each polar angle and energy group for the outgoing reflective track for both the forward and reverse direction for a given track </p>
-
-</div>
-</div>
-<a class="anchor" id="a6c166546861725df33b4e3eea491dab5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define _boundary_leakage</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">i, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">pe2&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">(<a class="code" href="Solver_8h.html#a6c166546861725df33b4e3eea491dab5">_boundary_leakage</a>[2*(i)*_polar_times_groups \</div>
-<div class="line">                                                    +(pe2)])</div>
-<div class="ttc" id="Solver_8h_html_a6c166546861725df33b4e3eea491dab5"><div class="ttname"><a href="Solver_8h.html#a6c166546861725df33b4e3eea491dab5">_boundary_leakage</a></div><div class="ttdeci">#define _boundary_leakage(i, pe2)</div><div class="ttdef"><b>Definition:</b> Solver.h:46</div></div>
-</div><!-- fragment --><p>Indexing macro for the leakage for each polar angle and energy group for both the forward and reverse direction for each track </p>
 
 </div>
 </div>
@@ -450,7 +418,7 @@ Enumerations</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="Solver_8h.html">Solver.h</a></li>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:06 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

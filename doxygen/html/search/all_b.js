@@ -1,15 +1,14 @@
 var searchData=
 [
-  ['machine_5fcontains_5fgpu',['machine_contains_gpu',['../GPUQuery_8h.html#afd67f75b9224ffd2088ad0e224e54c75',1,'GPUQuery.cu']]],
-  ['material',['Material',['../classMaterial.html',1,'Material'],['../classMaterial.html#a133f61006590cd0ca69662455f0f0349',1,'Material::Material()'],['../Cell_8h.html#a274ceed3b07859c48505f65b1fe42328a23f8f5e62324af5f4d8f899cee8fb70d',1,'MATERIAL():&#160;Cell.h']]],
-  ['material_2eh',['Material.h',['../Material_8h.html',1,'']]],
-  ['material_5fid',['material_id',['../Material_8h.html#ab3edf20a0bb542abb3162f8b0891b221',1,'Material.cpp']]],
-  ['materialize',['materialize',['../namespaceopenmoc_1_1materialize.html#a202690e95b90bfa40f5968edf8e37730',1,'openmoc::materialize']]],
-  ['materialize_2epy',['materialize.py',['../materialize_8py.html',1,'']]],
-  ['matrix_5fmultiplication',['matrix_multiplication',['../linalg_8h.html#a43338349c584b2ec2b8be8fb147a1013',1,'linalg.h']]],
-  ['matrix_5fzero',['matrix_zero',['../linalg_8h.html#a9e22ba533640a3e8122c1ef0f2f65765',1,'linalg.h']]],
-  ['max_5foptical_5flength',['MAX_OPTICAL_LENGTH',['../constants_8h.html#a895b93c581aefe76e1ccc425bb95a8c5',1,'constants.h']]],
-  ['minsurfacedist',['minSurfaceDist',['../classCell.html#a44dd3dc3caf30c0f1a95645af4f05204',1,'Cell::minSurfaceDist()'],['../classLattice.html#a68148ab388f066e9bd0f4c88fb571880',1,'Lattice::minSurfaceDist()']]],
-  ['mm_5ffree',['MM_FREE',['../Material_8h.html#afda8a5444c5cccc2ecc9b27267d50941',1,'Material.h']]],
-  ['mm_5fmalloc',['MM_MALLOC',['../Material_8h.html#a220714f7c065824989b348cfa4f211dd',1,'Material.h']]]
+  ['lat',['LAT',['../LocalCoords_8h.html#a9b2c6f3fe231906f231afd6ae7293871a40df096e8ca19a820dbd94de79e97b3b',1,'LocalCoords.h']]],
+  ['lattice',['Lattice',['../classLattice.html',1,'Lattice'],['../classLattice.html#aeb23419f808ae758da6081584bd347bc',1,'Lattice::Lattice()'],['../Universe_8h.html#a123911615dcd5c50bea706d32683a02aa339a8cc891972f1e75bb948454f358be',1,'LATTICE():&#160;Universe.h']]],
+  ['leonardpolarquad',['LeonardPolarQuad',['../classLeonardPolarQuad.html',1,'LeonardPolarQuad'],['../classLeonardPolarQuad.html#a8f7a05795ed34143840c2202c6622eb1',1,'LeonardPolarQuad::LeonardPolarQuad()']]],
+  ['linalg_2eh',['linalg.h',['../linalg_8h.html',1,'']]],
+  ['localcoords',['LocalCoords',['../classLocalCoords.html',1,'LocalCoords'],['../classLocalCoords.html#ab0d2336c8312720fd28aefd09f6f7da0',1,'LocalCoords::LocalCoords()']]],
+  ['localcoords_2eh',['LocalCoords.h',['../LocalCoords_8h.html',1,'']]],
+  ['log_2eh',['log.h',['../log_8h.html',1,'']]],
+  ['log_2epy',['log.py',['../log_8py.html',1,'']]],
+  ['log_5fprintf',['log_printf',['../log_8h.html#a8abbd12e44a829a8d7a041636b170fde',1,'log.cpp']]],
+  ['loglevel',['logLevel',['../log_8h.html#a474fc5e1d06d669823896ac6258fbc0d',1,'log.h']]],
+  ['loglevels',['logLevels',['../log_8h.html#a5096002e05063d13577205e0bc5f0564',1,'log.h']]]
 ];

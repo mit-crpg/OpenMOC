@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/wboyd/Desktop/OpenMOC/src/Cmfd.h File Reference</title>
+<title>/home/geogunow/OpenMOC/OpenMOC/src/Cmfd.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -103,7 +103,8 @@ $(document).ready(function(){initNavTree('Cmfd_8h.html','');});
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#define-members">Macros</a>  </div>
+<a href="#define-members">Macros</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">Cmfd.h File Reference</div>  </div>
 </div><!--header-->
@@ -126,6 +127,11 @@ Macros</h2></td></tr>
 <tr class="separator:a2143506339a36528e1c9d7e27501897f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7e54944e94810750bab24ebb38c71090"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Cmfd_8h.html#a7e54944e94810750bab24ebb38c71090">_surface_currents</a>(r, e)</td></tr>
 <tr class="separator:a7e54944e94810750bab24ebb38c71090"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:aef9fa9ff1066a46f27172accd2c6955d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Cmfd_8h.html#aef9fa9ff1066a46f27172accd2c6955d">stencilCompare</a> (const std::pair&lt; int, FP_PRECISION &gt; &amp;firstElem, const std::pair&lt; int, FP_PRECISION &gt; &amp;secondElem)</td></tr>
+<tr class="separator:aef9fa9ff1066a46f27172accd2c6955d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> class. </p>
@@ -157,7 +163,7 @@ Macros</h2></td></tr>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">(<a class="code" href="Cmfd_8h.html#a7e54944e94810750bab24ebb38c71090">_surface_currents</a>[(r)*_num_cmfd_groups \</div>
 <div class="line">              + getCmfdGroup((e))])</div>
-<div class="ttc" id="Cmfd_8h_html_a7e54944e94810750bab24ebb38c71090"><div class="ttname"><a href="Cmfd_8h.html#a7e54944e94810750bab24ebb38c71090">_surface_currents</a></div><div class="ttdeci">#define _surface_currents(r, e)</div><div class="ttdef"><b>Definition:</b> Cmfd.h:40</div></div>
+<div class="ttc" id="Cmfd_8h_html_a7e54944e94810750bab24ebb38c71090"><div class="ttname"><a href="Cmfd_8h.html#a7e54944e94810750bab24ebb38c71090">_surface_currents</a></div><div class="ttdeci">#define _surface_currents(r, e)</div><div class="ttdef"><b>Definition:</b> Cmfd.h:51</div></div>
 </div><!-- fragment --><p>Indexing macro for the surface currents for each CMFD Mesh surface and each energy group </p>
 
 </div>
@@ -189,13 +195,49 @@ Macros</h2></td></tr>
 
 </div>
 </div>
+<h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="aef9fa9ff1066a46f27172accd2c6955d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool stencilCompare </td>
+          <td>(</td>
+          <td class="paramtype">const std::pair&lt; int, FP_PRECISION &gt; &amp;&#160;</td>
+          <td class="paramname"><em>firstElem</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::pair&lt; int, FP_PRECISION &gt; &amp;&#160;</td>
+          <td class="paramname"><em>secondElem</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Comparitor for sorting k-nearest stencil std::pair objects </p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="Cmfd_8h.html">Cmfd.h</a></li>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:06 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

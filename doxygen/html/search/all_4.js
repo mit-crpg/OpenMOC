@@ -6,6 +6,5 @@ var searchData=
   ['dev_5ftrack',['dev_track',['../structdev__track.html',1,'']]],
   ['devicematerial_2eh',['DeviceMaterial.h',['../DeviceMaterial_8h.html',1,'']]],
   ['devicetrack_2eh',['DeviceTrack.h',['../DeviceTrack_8h.html',1,'']]],
-  ['distance',['distance',['../classPoint.html#adcad60af16d638970a0d0f5b775ed00f',1,'Point']]],
   ['distancetopoint',['distanceToPoint',['../classPoint.html#a1000c6590f93653b2d8d3b45991f60c9',1,'Point']]]
 ];

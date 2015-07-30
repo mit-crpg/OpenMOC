@@ -188,6 +188,9 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</t
 <tr class="memitem:ada93a9235bb47415053c65245dbd8568"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#ada93a9235bb47415053c65245dbd8568">correctFSRVolume</a> (int fsr_id, FP_PRECISION fsr_volume)</td></tr>
 <tr class="memdesc:ada93a9235bb47415053c65245dbd8568"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a correct volume for some FSR.  <a href="#ada93a9235bb47415053c65245dbd8568">More...</a><br/></td></tr>
 <tr class="separator:ada93a9235bb47415053c65245dbd8568"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac296181ffd8d5bb5e314ebf31f80fefd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#ac296181ffd8d5bb5e314ebf31f80fefd">generateFSRCentroids</a> ()</td></tr>
+<tr class="memdesc:ac296181ffd8d5bb5e314ebf31f80fefd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates the numerical centroids of the FSRs.  <a href="#ac296181ffd8d5bb5e314ebf31f80fefd">More...</a><br/></td></tr>
+<tr class="separator:ac296181ffd8d5bb5e314ebf31f80fefd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9d0376ab33786f99fb3d2afadae3314"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#ad9d0376ab33786f99fb3d2afadae3314">splitSegments</a> (FP_PRECISION max_optical_length)</td></tr>
 <tr class="memdesc:ad9d0376ab33786f99fb3d2afadae3314"><td class="mdescLeft">&#160;</td><td class="mdescRight">Splits <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segments into sub-segments for a user-defined maximum optical length for the problem.  <a href="#ad9d0376ab33786f99fb3d2afadae3314">More...</a><br/></td></tr>
 <tr class="separator:ad9d0376ab33786f99fb3d2afadae3314"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -290,6 +293,25 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</t
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="ac296181ffd8d5bb5e314ebf31f80fefd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TrackGenerator::generateFSRCentroids </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generates the numerical centroids of the FSRs. </p>
+<p>This routine generates the numerical centroids of the FSRs by weighting the average x and y values of each segment in the FSR by the segment's length and azimuthal weight. The numerical centroid fomula can be found in R. Ferrer et. al. "Linear Source
+         Approximation in CASMO 5", PHYSOR 2012. </p>
 
 </div>
 </div>
@@ -717,8 +739,8 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</t
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="TrackGenerator_8h_source.html">TrackGenerator.h</a></li>
-<li>/home/wboyd/Desktop/OpenMOC/src/TrackGenerator.cpp</li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="TrackGenerator_8h_source.html">TrackGenerator.h</a></li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/TrackGenerator.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -726,7 +748,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</t
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></li>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:07 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

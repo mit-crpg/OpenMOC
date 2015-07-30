@@ -92,6 +92,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_f.html#index_f"><span>f</span></a></li>
       <li><a href="functions_g.html#index_g"><span>g</span></a></li>
       <li class="current"><a href="functions_i.html#index_i"><span>i</span></a></li>
+      <li><a href="functions_k.html#index_k"><span>k</span></a></li>
       <li><a href="functions_l.html#index_l"><span>l</span></a></li>
       <li><a href="functions_m.html#index_m"><span>m</span></a></li>
       <li><a href="functions_n.html#index_n"><span>n</span></a></li>
@@ -204,9 +205,6 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 <li>initializeFlatSourceRegions()
 : <a class="el" href="classGeometry.html#ad951597b0a94c3f4c43db865ae30218d">Geometry</a>
 </li>
-<li>initializeFlux()
-: <a class="el" href="classCmfd.html#ac156c201dab1b12de68f85a7720f749e">Cmfd</a>
-</li>
 <li>initializeFluxArrays()
 : <a class="el" href="classCPUSolver.html#a8eac5804397c5e5f95d73b19a6e4cbfd">CPUSolver</a>
 , <a class="el" href="classSolver.html#a916eb7ef96140e1ea2d22bb9d1c86240">Solver</a>
@@ -216,11 +214,11 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 : <a class="el" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c">CPUSolver</a>
 , <a class="el" href="classSolver.html#ad2699642abb92e66bf17be4d9009ee6c">Solver</a>
 </li>
+<li>initializeFSRVectors()
+: <a class="el" href="classGeometry.html#a84440212c58b99889d0b3da2da7c3d84">Geometry</a>
+</li>
 <li>initializeGroupMap()
 : <a class="el" href="classCmfd.html#a7ad43e41d38746446ae1b791e329cdf9">Cmfd</a>
-</li>
-<li>initializeMaterials()
-: <a class="el" href="classCmfd.html#a9cb4ee80522d671b22c9fc76d21030d6">Cmfd</a>
 </li>
 <li>initializePolarQuadrature()
 : <a class="el" href="classSolver.html#a2d29853ed722d7484588842a55b80226">Solver</a>
@@ -230,6 +228,14 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 , <a class="el" href="classSolver.html#a8592d819738b24a5b983e54c0a635d30">Solver</a>
 , <a class="el" href="classVectorizedSolver.html#a7287329d44d695ca91181e9484e32bca">VectorizedSolver</a>
 </li>
+<li>insert()
+: <a class="el" href="classFixedHashMap.html#a96668195d4cc7fc9b1004521abb364da">FixedHashMap&lt; K, V &gt;</a>
+, <a class="el" href="classParallelHashMap.html#aeb8af897ce1a9858be8315257ea3fdfe">ParallelHashMap&lt; K, V &gt;</a>
+</li>
+<li>insert_and_get_count()
+: <a class="el" href="classFixedHashMap.html#a076e3ce84860f95543b82538b5953e8e">FixedHashMap&lt; K, V &gt;</a>
+, <a class="el" href="classParallelHashMap.html#abb7d66267a097744274261952d7c0807">ParallelHashMap&lt; K, V &gt;</a>
+</li>
 <li>insertSegment()
 : <a class="el" href="classTrack.html#aed734c59e9c0d5d8cab33c34a5ebfdda">Track</a>
 </li>
@@ -237,6 +243,9 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 : <a class="el" href="classCircle.html#a49e3967db73a8f068dbe6302a84370f6">Circle</a>
 , <a class="el" href="classPlane.html#a6e1b304a38f0c6d6f7dc985d548e0304">Plane</a>
 , <a class="el" href="classSurface.html#a145ed967142bc6c121d43f5f2523e2e9">Surface</a>
+</li>
+<li>isCentroidUpdateOn()
+: <a class="el" href="classCmfd.html#abde9a63884e07b3c6cda980fa42ca522">Cmfd</a>
 </li>
 <li>isCoordOnSurface()
 : <a class="el" href="classSurface.html#a1263b1b61154ed6f75e7079a5832d853">Surface</a>
@@ -281,7 +290,7 @@ $(document).ready(function(){initNavTree('functions_i.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:07 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

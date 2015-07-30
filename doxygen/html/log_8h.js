@@ -1,6 +1,5 @@
 var log_8h =
 [
-    [ "printf", "log_8h.html#a3cb9f0894fab1c8fbb0753c9c7c2a8d9", null ],
     [ "logLevel", "log_8h.html#a474fc5e1d06d669823896ac6258fbc0d", null ],
     [ "logLevels", "log_8h.html#a5096002e05063d13577205e0bc5f0564", [
       [ "DEBUG", "log_8h.html#a5096002e05063d13577205e0bc5f0564a0593585da9181e972974c1274d8f2b4f", null ],
@@ -22,6 +21,7 @@ var log_8h =
     [ "get_output_directory", "log_8h.html#ae118ed1075642488394e6319c1184fe2", null ],
     [ "get_separator_character", "log_8h.html#aa2b642db2258891128fe0e2aacc4da9e", null ],
     [ "get_title_character", "log_8h.html#a56b8dd3923c9ab60da7dada97fe45c4d", null ],
+    [ "initialize_logger", "log_8h.html#a29f7d96a1ed751e3efaa60b2d9a25e8d", null ],
     [ "log_printf", "log_8h.html#a8abbd12e44a829a8d7a041636b170fde", null ],
     [ "set_err", "log_8h.html#a940ee8efe959af1453430dfb17a69b52", null ],
     [ "set_header_character", "log_8h.html#aae7afe68c23dff1177580a23dc59329d", null ],

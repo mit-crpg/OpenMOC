@@ -4,6 +4,7 @@ var classTrackGenerator =
     [ "~TrackGenerator", "classTrackGenerator.html#a11821904ab5138800c922970585cb1e4", null ],
     [ "containsTracks", "classTrackGenerator.html#a5ec836ced3479a5aae51132809a3d7b4", null ],
     [ "correctFSRVolume", "classTrackGenerator.html#ada93a9235bb47415053c65245dbd8568", null ],
+    [ "generateFSRCentroids", "classTrackGenerator.html#ac296181ffd8d5bb5e314ebf31f80fefd", null ],
     [ "generateTracks", "classTrackGenerator.html#a8012954f5eeeae9dfb4fd445937884ee", null ],
     [ "getAzimWeights", "classTrackGenerator.html#a31deadd969cddf7eba85a442729f697a", null ],
     [ "getFSRVolume", "classTrackGenerator.html#ae81ec260051f71b97a02908836b9fdb2", null ],

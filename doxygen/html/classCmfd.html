@@ -125,57 +125,18 @@ Public Member Functions</h2></td></tr>
 virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a8fed853849ff46479586ea8b712fe2b4">~Cmfd</a> ()</td></tr>
 <tr class="memdesc:a8fed853849ff46479586ea8b712fe2b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor deletes arrays of A and M row insertion arrays. <br/></td></tr>
 <tr class="separator:a8fed853849ff46479586ea8b712fe2b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58613922850f0add48c8056c27dd0e83"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58613922850f0add48c8056c27dd0e83"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a58613922850f0add48c8056c27dd0e83">constructMatrices</a> ()</td></tr>
-<tr class="memdesc:a58613922850f0add48c8056c27dd0e83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fill in the values in the A matrix, M matrix, and old scalar flux vector. <br/></td></tr>
-<tr class="separator:a58613922850f0add48c8056c27dd0e83"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f466e0d69f3ea01060e39dcecb2c9e4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a4f466e0d69f3ea01060e39dcecb2c9e4">computeDs</a> (int moc_iteration)</td></tr>
-<tr class="memdesc:a4f466e0d69f3ea01060e39dcecb2c9e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the diffusion coefficients: <img class="formulaInl" alt="$ D $" src="form_11.png"/> - straight diffusion coefficient <img class="formulaInl" alt="$ \hat{D} $" src="form_12.png"/> - surface diffusion coefficient <img class="formulaInl" alt="$ \tilde{D} $" src="form_13.png"/> - surface diffusion coefficient correction factor for each mesh while ensuring neutron balance is achieved.  <a href="#a4f466e0d69f3ea01060e39dcecb2c9e4">More...</a><br/></td></tr>
-<tr class="separator:a4f466e0d69f3ea01060e39dcecb2c9e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b38eb0bd9a89a63071283a0c93a801c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b38eb0bd9a89a63071283a0c93a801c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a5b38eb0bd9a89a63071283a0c93a801c">computeXS</a> ()</td></tr>
-<tr class="memdesc:a5b38eb0bd9a89a63071283a0c93a801c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create cross-sections and fluxes for each <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> cell by energy condensing and volume averaging cross sections from the MOC sweep. <br/></td></tr>
-<tr class="separator:a5b38eb0bd9a89a63071283a0c93a801c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a92498d14632389804569ef690a126942"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92498d14632389804569ef690a126942"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a92498d14632389804569ef690a126942">updateMOCFlux</a> ()</td></tr>
-<tr class="memdesc:a92498d14632389804569ef690a126942"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the MOC flux in each FSR. <br/></td></tr>
-<tr class="separator:a92498d14632389804569ef690a126942"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae022102b7f4c2f14559b6e3f87607dfd"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ae022102b7f4c2f14559b6e3f87607dfd">computeDiffCorrect</a> (FP_PRECISION d, FP_PRECISION h)</td></tr>
-<tr class="memdesc:ae022102b7f4c2f14559b6e3f87607dfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute diffusion correction factors to correct diffusion coefficients in optically thick mesh cells.  <a href="#ae022102b7f4c2f14559b6e3f87607dfd">More...</a><br/></td></tr>
-<tr class="separator:ae022102b7f4c2f14559b6e3f87607dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acbf4ad78315a368599795bbb6ba697bd"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#acbf4ad78315a368599795bbb6ba697bd">computeKeff</a> (int moc_iteration)</td></tr>
 <tr class="memdesc:acbf4ad78315a368599795bbb6ba697bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">CMFD solver that solves the diffusion problem.  <a href="#acbf4ad78315a368599795bbb6ba697bd">More...</a><br/></td></tr>
 <tr class="separator:acbf4ad78315a368599795bbb6ba697bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a013495a838bea7234b3674d8b088d8e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a013495a838bea7234b3674d8b088d8e4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>initialize</b> ()</td></tr>
+<tr class="separator:a013495a838bea7234b3674d8b088d8e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c4846b2a4a898dc8ce902c7c233563c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a3c4846b2a4a898dc8ce902c7c233563c">initializeCellMap</a> ()</td></tr>
 <tr class="memdesc:a3c4846b2a4a898dc8ce902c7c233563c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the vector of vectors that links CMFD cells with FSRs.  <a href="#a3c4846b2a4a898dc8ce902c7c233563c">More...</a><br/></td></tr>
 <tr class="separator:a3c4846b2a4a898dc8ce902c7c233563c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7ad43e41d38746446ae1b791e329cdf9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a7ad43e41d38746446ae1b791e329cdf9">initializeGroupMap</a> ()</td></tr>
 <tr class="memdesc:a7ad43e41d38746446ae1b791e329cdf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize and set array that links the MOC energy groups to the CMFD energy groups.  <a href="#a7ad43e41d38746446ae1b791e329cdf9">More...</a><br/></td></tr>
 <tr class="separator:a7ad43e41d38746446ae1b791e329cdf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac156c201dab1b12de68f85a7720f749e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac156c201dab1b12de68f85a7720f749e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ac156c201dab1b12de68f85a7720f749e">initializeFlux</a> ()</td></tr>
-<tr class="memdesc:ac156c201dab1b12de68f85a7720f749e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the flux arrays. <br/></td></tr>
-<tr class="separator:ac156c201dab1b12de68f85a7720f749e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9cb4ee80522d671b22c9fc76d21030d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9cb4ee80522d671b22c9fc76d21030d6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a9cb4ee80522d671b22c9fc76d21030d6">initializeMaterials</a> ()</td></tr>
-<tr class="memdesc:a9cb4ee80522d671b22c9fc76d21030d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the CMFD materials. <br/></td></tr>
-<tr class="separator:a9cb4ee80522d671b22c9fc76d21030d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42424012ea60bdc3180117276b303efe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a42424012ea60bdc3180117276b303efe"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>initializeSurfaceCurrents</b> ()</td></tr>
-<tr class="separator:a42424012ea60bdc3180117276b303efe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae2c98ca17f124ff28422060c52c22894"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2c98ca17f124ff28422060c52c22894"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ae2c98ca17f124ff28422060c52c22894">rescaleFlux</a> ()</td></tr>
-<tr class="memdesc:ae2c98ca17f124ff28422060c52c22894"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rescale the initial and converged flux arrays. <br/></td></tr>
-<tr class="separator:ae2c98ca17f124ff28422060c52c22894"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91b918938971340f64763dd946dae5b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a91b918938971340f64763dd946dae5b8">linearSolve</a> (FP_PRECISION **mat, FP_PRECISION *vec_x, FP_PRECISION *vec_b, FP_PRECISION conv, int max_iter=10000)</td></tr>
-<tr class="memdesc:a91b918938971340f64763dd946dae5b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve the linear system Ax=b using Gauss Seidel with SOR.  <a href="#a91b918938971340f64763dd946dae5b8">More...</a><br/></td></tr>
-<tr class="separator:a91b918938971340f64763dd946dae5b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a418318efb5fe2ac12b8df151dc990cc0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a418318efb5fe2ac12b8df151dc990cc0">splitCorners</a> ()</td></tr>
-<tr class="memdesc:a418318efb5fe2ac12b8df151dc990cc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Split the currents of the Mesh cell corners to the nearby surfaces.  <a href="#a418318efb5fe2ac12b8df151dc990cc0">More...</a><br/></td></tr>
-<tr class="separator:a418318efb5fe2ac12b8df151dc990cc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15c8ff03a2d1cb0ffe63bac2bd6ac2d0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a15c8ff03a2d1cb0ffe63bac2bd6ac2d0">getCellNext</a> (int cell_num, int surface_id)</td></tr>
-<tr class="memdesc:a15c8ff03a2d1cb0ffe63bac2bd6ac2d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the ID of the Mesh cell next to given Mesh cell.  <a href="#a15c8ff03a2d1cb0ffe63bac2bd6ac2d0">More...</a><br/></td></tr>
-<tr class="separator:a15c8ff03a2d1cb0ffe63bac2bd6ac2d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a676f7fcd8476cda7c4f4c42d44c266da"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a676f7fcd8476cda7c4f4c42d44c266da">findCmfdCell</a> (<a class="el" href="classLocalCoords.html">LocalCoords</a> *coords)</td></tr>
 <tr class="memdesc:a676f7fcd8476cda7c4f4c42d44c266da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the CMFD cell that a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object is in.  <a href="#a676f7fcd8476cda7c4f4c42d44c266da">More...</a><br/></td></tr>
 <tr class="separator:a676f7fcd8476cda7c4f4c42d44c266da"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -185,9 +146,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a713c079fb2e048490a8cf0625a78d5a7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a713c079fb2e048490a8cf0625a78d5a7">addFSRToCell</a> (int cmfd_cell, int fsr_id)</td></tr>
 <tr class="memdesc:a713c079fb2e048490a8cf0625a78d5a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an FSR ID to a vector that contains all the FSR IDs contained within a CMFD mesh cell.  <a href="#a713c079fb2e048490a8cf0625a78d5a7">More...</a><br/></td></tr>
 <tr class="separator:a713c079fb2e048490a8cf0625a78d5a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a8e2162ab4e1b55d2240f5c41184d73d3">updateBoundaryFlux</a> (<a class="el" href="classTrack.html">Track</a> **tracks, FP_PRECISION *<a class="el" href="GPUSolver_8h.html#a2d0f44838c549b1382bbcd5efa2b57ee">boundary_flux</a>, int num_tracks)</td></tr>
-<tr class="memdesc:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the MOC boundary fluxes.  <a href="#a8e2162ab4e1b55d2240f5c41184d73d3">More...</a><br/></td></tr>
-<tr class="separator:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef6f6ce5e9c3226a973198923242b2e2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef6f6ce5e9c3226a973198923242b2e2"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#aef6f6ce5e9c3226a973198923242b2e2">zeroSurfaceCurrents</a> ()</td></tr>
 <tr class="memdesc:aef6f6ce5e9c3226a973198923242b2e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zero the surface currents for each mesh cell and energy group. <br/></td></tr>
@@ -195,6 +153,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a0bfce334ab3b4421e62250a5028d5608"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a0bfce334ab3b4421e62250a5028d5608">tallySurfaceCurrent</a> (<a class="el" href="structsegment.html">segment</a> *curr_segment, FP_PRECISION *<a class="el" href="CPUSolver_8h.html#a2143506339a36528e1c9d7e27501897f">track_flux</a>, FP_PRECISION *<a class="el" href="GPUSolver_8h.html#a818d2da0930d46b3fe53eff8bb60ea1f">polar_weights</a>, bool fwd)</td></tr>
 <tr class="memdesc:a0bfce334ab3b4421e62250a5028d5608"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tallies the current contribution from this segment across the the appropriate CMFD mesh cell surface.  <a href="#a0bfce334ab3b4421e62250a5028d5608">More...</a><br/></td></tr>
 <tr class="separator:a0bfce334ab3b4421e62250a5028d5608"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a8e2162ab4e1b55d2240f5c41184d73d3">updateBoundaryFlux</a> (<a class="el" href="classTrack.html">Track</a> **tracks, FP_PRECISION *<a class="el" href="GPUSolver_8h.html#a2d0f44838c549b1382bbcd5efa2b57ee">boundary_flux</a>, int num_tracks)</td></tr>
+<tr class="memdesc:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the MOC boundary fluxes.  <a href="#a8e2162ab4e1b55d2240f5c41184d73d3">More...</a><br/></td></tr>
+<tr class="separator:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27180e282a7f0eb4d9459b75ddc8b31e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a27180e282a7f0eb4d9459b75ddc8b31e">getNumCmfdGroups</a> ()</td></tr>
 <tr class="memdesc:a27180e282a7f0eb4d9459b75ddc8b31e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of coarse CMFD energy groups.  <a href="#a27180e282a7f0eb4d9459b75ddc8b31e">More...</a><br/></td></tr>
 <tr class="separator:a27180e282a7f0eb4d9459b75ddc8b31e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -234,12 +195,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:ad34edd48a104b4e298d23297d62a0c76"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ad34edd48a104b4e298d23297d62a0c76">isFluxUpdateOn</a> ()</td></tr>
 <tr class="memdesc:ad34edd48a104b4e298d23297d62a0c76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get flag indicating whether to update the MOC flux.  <a href="#ad34edd48a104b4e298d23297d62a0c76">More...</a><br/></td></tr>
 <tr class="separator:ad34edd48a104b4e298d23297d62a0c76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40a134f597be882ffdef709b95046671"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a40a134f597be882ffdef709b95046671">getFluxRatio</a> (int cmfd_cell, int moc_group)</td></tr>
-<tr class="memdesc:a40a134f597be882ffdef709b95046671"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the new to old flux ratio for a CMFD cell.  <a href="#a40a134f597be882ffdef709b95046671">More...</a><br/></td></tr>
-<tr class="separator:a40a134f597be882ffdef709b95046671"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abde9a63884e07b3c6cda980fa42ca522"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#abde9a63884e07b3c6cda980fa42ca522">isCentroidUpdateOn</a> ()</td></tr>
+<tr class="memdesc:abde9a63884e07b3c6cda980fa42ca522"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get flag indicating whether to use FSR centroids to update the MOC flux.  <a href="#abde9a63884e07b3c6cda980fa42ca522">More...</a><br/></td></tr>
+<tr class="separator:abde9a63884e07b3c6cda980fa42ca522"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab85d945c77c019bcc9991730247760e4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ab85d945c77c019bcc9991730247760e4">setSORRelaxationFactor</a> (FP_PRECISION SOR_factor)</td></tr>
 <tr class="memdesc:ab85d945c77c019bcc9991730247760e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set successive over-relaxation relaxation factor.  <a href="#ab85d945c77c019bcc9991730247760e4">More...</a><br/></td></tr>
 <tr class="separator:ab85d945c77c019bcc9991730247760e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb9ac33074c36e818ae1d88381ae13f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#abb9ac33074c36e818ae1d88381ae13f1">setGeometry</a> (<a class="el" href="classGeometry.html">Geometry</a> *geometry)</td></tr>
+<tr class="memdesc:abb9ac33074c36e818ae1d88381ae13f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a pointer to the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a>.  <a href="#abb9ac33074c36e818ae1d88381ae13f1">More...</a><br/></td></tr>
+<tr class="separator:abb9ac33074c36e818ae1d88381ae13f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf041f216499a54f4b9f75811dddae5a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#adf041f216499a54f4b9f75811dddae5a">setWidth</a> (double width)</td></tr>
 <tr class="memdesc:adf041f216499a54f4b9f75811dddae5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Mesh width.  <a href="#adf041f216499a54f4b9f75811dddae5a">More...</a><br/></td></tr>
 <tr class="separator:adf041f216499a54f4b9f75811dddae5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -276,6 +240,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a459a6eb36630be32613849dce640316a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a459a6eb36630be32613849dce640316a">setFluxUpdateOn</a> (bool flux_update_on)</td></tr>
 <tr class="memdesc:a459a6eb36630be32613849dce640316a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set flag indicating whether to update the MOC flux.  <a href="#a459a6eb36630be32613849dce640316a">More...</a><br/></td></tr>
 <tr class="separator:a459a6eb36630be32613849dce640316a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc93503b4cc4bae8b5e61db37108b5a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#acc93503b4cc4bae8b5e61db37108b5a0">setCentroidUpdateOn</a> (bool centroid_update_on)</td></tr>
+<tr class="memdesc:acc93503b4cc4bae8b5e61db37108b5a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set flag indicating whether to use FSR centroids to update the MOC flux.  <a href="#acc93503b4cc4bae8b5e61db37108b5a0">More...</a><br/></td></tr>
+<tr class="separator:acc93503b4cc4bae8b5e61db37108b5a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60df497705b4cc2c150b51a1a37a71dd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a60df497705b4cc2c150b51a1a37a71dd">setGroupStructure</a> (int *group_indices, int length_group_indices)</td></tr>
 <tr class="memdesc:a60df497705b4cc2c150b51a1a37a71dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the CMFD energy group structure.  <a href="#a60df497705b4cc2c150b51a1a37a71dd">More...</a><br/></td></tr>
 <tr class="separator:a60df497705b4cc2c150b51a1a37a71dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -285,6 +252,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:af627cf3f19294692da2db7ee2666e566"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#af627cf3f19294692da2db7ee2666e566">setPolarQuadrature</a> (<a class="el" href="classPolarQuad.html">PolarQuad</a> *polar_quad)</td></tr>
 <tr class="memdesc:af627cf3f19294692da2db7ee2666e566"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object in use by the MOC <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>.  <a href="#af627cf3f19294692da2db7ee2666e566">More...</a><br/></td></tr>
 <tr class="separator:af627cf3f19294692da2db7ee2666e566"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af555e5896878008885945dfe377a9936"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#af555e5896878008885945dfe377a9936">setKNearest</a> (int k_nearest)</td></tr>
+<tr class="memdesc:af555e5896878008885945dfe377a9936"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a number of k-nearest neighbor cells to use in updating the FSR flux.  <a href="#af555e5896878008885945dfe377a9936">More...</a><br/></td></tr>
+<tr class="separator:af555e5896878008885945dfe377a9936"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ee1d060957c194d7d91e1b6c8192ac4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a1ee1d060957c194d7d91e1b6c8192ac4">setFSRMaterials</a> (<a class="el" href="classMaterial.html">Material</a> **FSR_materials)</td></tr>
 <tr class="memdesc:a1ee1d060957c194d7d91e1b6c8192ac4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the FSR materials array pointer.  <a href="#a1ee1d060957c194d7d91e1b6c8192ac4">More...</a><br/></td></tr>
 <tr class="separator:a1ee1d060957c194d7d91e1b6c8192ac4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -356,66 +326,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   <table class="params">
     <tr><td class="paramname">The</td><td>CMFD cell ID. </td></tr>
     <tr><td class="paramname">The</td><td>FSR ID. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="ae022102b7f4c2f14559b6e3f87607dfd"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">FP_PRECISION Cmfd::computeDiffCorrect </td>
-          <td>(</td>
-          <td class="paramtype">FP_PRECISION&#160;</td>
-          <td class="paramname"><em>d</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">FP_PRECISION&#160;</td>
-          <td class="paramname"><em>h</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Compute diffusion correction factors to correct diffusion coefficients in optically thick mesh cells. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">old</td><td>diffusion coefficient </td></tr>
-    <tr><td class="paramname">height</td><td>of cell </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>correction factor </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a4f466e0d69f3ea01060e39dcecb2c9e4"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Cmfd::computeDs </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>moc_iteration</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Compute the diffusion coefficients: <img class="formulaInl" alt="$ D $" src="form_11.png"/> - straight diffusion coefficient <img class="formulaInl" alt="$ \hat{D} $" src="form_12.png"/> - surface diffusion coefficient <img class="formulaInl" alt="$ \tilde{D} $" src="form_13.png"/> - surface diffusion coefficient correction factor for each mesh while ensuring neutron balance is achieved. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">MOC</td><td>iteration number </td></tr>
   </table>
   </dd>
 </dl>
@@ -578,42 +488,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="a15c8ff03a2d1cb0ffe63bac2bd6ac2d0"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int Cmfd::getCellNext </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>cell_num</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>surface_id</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get the ID of the Mesh cell next to given Mesh cell. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">current</td><td>Mesh cell ID </td></tr>
-    <tr><td class="paramname">CMFD</td><td>cell surface ID to look across for neighboring cell </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>neighboring CMFD cell ID </dd></dl>
-
-</div>
-</div>
 <a class="anchor" id="af77e5b1efc13b00fc887f0ca10df6381"></a>
 <div class="memitem">
 <div class="memproto">
@@ -636,42 +510,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the CMFD energy group </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a40a134f597be882ffdef709b95046671"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">FP_PRECISION Cmfd::getFluxRatio </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>cmfd_cell</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>moc_group</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get the new to old flux ratio for a CMFD cell. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">the</td><td>CMFD cell ID </td></tr>
-    <tr><td class="paramname">the</td><td>MOC energy group </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the flux ratio </dd></dl>
 
 </div>
 </div>
@@ -837,6 +675,24 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
+<a class="anchor" id="abde9a63884e07b3c6cda980fa42ca522"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cmfd::isCentroidUpdateOn </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get flag indicating whether to use FSR centroids to update the MOC flux. </p>
+<dl class="section return"><dt>Returns</dt><dd>Flag saying whether to use centroids to update MOC flux. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ad34edd48a104b4e298d23297d62a0c76"></a>
 <div class="memitem">
 <div class="memproto">
@@ -870,62 +726,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 <p>Return whether optically thick diffusion correction factor is in use. </p>
 <dl class="section return"><dt>Returns</dt><dd>whether optically thick diffusion correction factor is in use. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a91b918938971340f64763dd946dae5b8"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Cmfd::linearSolve </td>
-          <td>(</td>
-          <td class="paramtype">FP_PRECISION **&#160;</td>
-          <td class="paramname"><em>mat</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">FP_PRECISION *&#160;</td>
-          <td class="paramname"><em>vec_x</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">FP_PRECISION *&#160;</td>
-          <td class="paramname"><em>vec_b</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">FP_PRECISION&#160;</td>
-          <td class="paramname"><em>conv</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>max_iter</em> = <code>10000</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Solve the linear system Ax=b using Gauss Seidel with SOR. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">pointer</td><td>to A matrix </td></tr>
-    <tr><td class="paramname">pointer</td><td>to x vector </td></tr>
-    <tr><td class="paramname">pointer</td><td>to b vector </td></tr>
-    <tr><td class="paramname">flux</td><td>convergence criteria </td></tr>
-    <tr><td class="paramname">the</td><td>maximum number of iterations </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>
@@ -983,6 +783,30 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">Vector</td><td>of vectors containing FSR IDs in each cell. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="acc93503b4cc4bae8b5e61db37108b5a0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cmfd::setCentroidUpdateOn </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>centroid_update_on</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set flag indicating whether to use FSR centroids to update the MOC flux. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">centroid_update_on</td><td>Flag saying whether to use centroids to update MOC flux. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1085,6 +909,30 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
+<a class="anchor" id="abb9ac33074c36e818ae1d88381ae13f1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cmfd::setGeometry </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classGeometry.html">Geometry</a> *&#160;</td>
+          <td class="paramname"><em>geometry</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set a pointer to the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">goemetry</td><td>A pointer to a <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> object. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a60df497705b4cc2c150b51a1a37a71dd"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1139,6 +987,30 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">height</td><td>physical height of Mesh </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="af555e5896878008885945dfe377a9936"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cmfd::setKNearest </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>k_nearest</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set a number of k-nearest neighbor cells to use in updating the FSR flux. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k_nearest</td><td>The number of nearest neighbor CMFD cells. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1444,24 +1316,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="a418318efb5fe2ac12b8df151dc990cc0"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Cmfd::splitCorners </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Split the currents of the Mesh cell corners to the nearby surfaces. </p>
-<p>left bottom corner -&gt; bottom surface and left surface of mesh cell below; right bottom corner -&gt; bottom surface and right surface of mesh cell below; right top corner -&gt; right surface and top surface of mesh cell to the right; left top corner -&gt; left surface and top surface of mesh cell to the left. The currents tallied on a corner is split equally to the adjoining surfaces. </p>
-
-</div>
-</div>
 <a class="anchor" id="a0bfce334ab3b4421e62250a5028d5608"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1555,8 +1409,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Cmfd_8h_source.html">Cmfd.h</a></li>
-<li>/home/wboyd/Desktop/OpenMOC/src/Cmfd.cpp</li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="Cmfd_8h_source.html">Cmfd.h</a></li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/Cmfd.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1564,7 +1418,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCmfd.html">Cmfd</a></li>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:06 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

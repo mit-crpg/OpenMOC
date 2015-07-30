@@ -49,7 +49,6 @@ var classSolver =
     [ "useExponentialIntrinsic", "classSolver.html#a5400c11874dac7f00ade6e7c2d573aee", null ],
     [ "zeroTrackFluxes", "classSolver.html#ac9960f6987c85a3d8e670beb10a9fbb2", null ],
     [ "_boundary_flux", "classSolver.html#adcfcfe1758affc74780907584fc7beaf", null ],
-    [ "_boundary_leakage", "classSolver.html#ace3972879027f76a99f24fd01618d123", null ],
     [ "_cmfd", "classSolver.html#a7a5155c5a727f2bff2e0fc538bbdd1e2", null ],
     [ "_converge_thresh", "classSolver.html#ac1ecd090674688dc587be3e09f20cba3", null ],
     [ "_exp_evaluator", "classSolver.html#a999862f5161f68900b1920165bd79ea8", null ],

@@ -420,6 +420,100 @@ If all was properly configured as described in the preceding steps, you should b
     # Do cool things with your extension module here
     ...
 
+===================
+Alternative C++ Build System
+===================
+Some developers might not wish to include the Python/SWIG build system due to the additional requirements such as SWIG_, Python_, Numpy_, matplotlib_, and h5py_. Since OpenMOC source code is entirely written in C++, it is possible to bypass the Python/SWIG build system and run OpenMOC using a compiled C++ input file. This is primarily useful for developers running OpenMOC on new architectures that might not support Python and SWIG. Performance analysis can also be easier without the Python/SWIG interface. 
+
+.. note:: It is **highly** recommended that users utilize the regular Python/SWIG build system unless there is a specific reason for using the alternative C++ build system.
+
+The alternative C++ build system is available in the :file:`OpenMOC/profile/` 
+directory. 
+The build system depends on the source files found in the :file:`OpenMOC/src/` 
+directory so that any changes to those files are noticed by both the regular 
+Python/SWIG build system and the alternative C++ build system. 
+The alternative C++ build system is based on the use of Make_. 
+Since OpenMOC includes some C++11 features, developers should ensure 
+the C++ compiler they wish to use includes full C++11 support. Developers using
+the alternative C++ build system should be familiar with both C++ and Make_.
+
+The alternative C++ build system compiler options are included in 
+:file:`OpenMOC/profile/Makefile`. This Makefile includes several commandline 
+options that can be exectued from the :file:`OpenMOC/profile/` directory:
+
+  * **make** - Compiles the OpenMOC source files with the C++ input file
+    indicated by the ``case`` variable in the Makefile. The default is 
+    :file:`OpenMOC/profile/models/c5g7/c5g7-cmfd.cpp`.
+  * **make all** - Compiles the OpenMOC source files with all input
+    files given in the Makefile indicated in the variable ``cases``.
+  * **make run** - Runs the OpenMOC C++ input file indicated by the ``case``
+    variable in the Makefile. Note: the case must be compiled before this
+    command will run correclty.
+  * **make clean** - Deletes all output files formed from compiling OpenMOC source 
+    and input files described in the ``cases`` variable in the Makefile.
+
+
+It is advised to first compile the included example C++ inputs provided in the 
+:file:`OpenMOC/profile/models/` directory. After ensuring the inputs compile and
+verifying correct behavior runtime behavior, the developer should use the example
+C++ inputs as a reference to write new C++ input files. Most OpenMOC commands 
+should translate reasonably well between Python on C++ inputs, though some
+aspects such as array declaration are much more difficult in C++. It is important
+to note that ``Materail``, ``Cell``, ``Universe``, and ``Lattice`` objects 
+should be allocated on the heap rather than the stack to prevent segmentation 
+faults when the program terminates. For instance, while
+
+.. code-block:: cpp
+
+    Cell basic_cell(0, "basic cell");
+    Universe basic_universe(0, "basic universe");
+    basic_universe.addCell(&basic_cell);
+    Geometry geometry;
+    geometry.setUniverses(1, 1, &basic_universe);
+
+would seem like correct syntax, a segmentation fault would occur at the end of
+the program execution when the geometry destructor is called since it deletes
+all member universes. Likewise, universes delete all member cells. The correct
+way of writing this code block to prevent this error would be to allocate
+``basic_cell`` and ``basic_universe`` on the heap as:
+ 
+.. code-block:: cpp
+
+    Cell* basic_cell = new Cell(0, "basic cell");
+    Universe* basic_universe = new Universe(0, "basic universe");
+    basic_universe->addcell(basic_cell);
+    Geometry geometry;
+    geometry.setuniverses(1, 1, basic_universe);
+
+Once the C++ input file is completed, it should be added to the Makefile to be
+compiled. To do this, add the location of the C++ input file to the ``cases``
+variable in the Makefile. Note that the Makefile assumes input files are located
+in a sub-directory of the :file:`OpenMOC/profile/models/` directory. Therefore, 
+the Makefile adds :file:`models/` as a prefix to any input file locations.
+In addition, several compiler options can be specified at the top of the 
+Makefile, presented as variables detailed in :ref:`Table 2 <table_makefile_options>`.
+
+.. _table_makefile_options:
+
+=========================  ===============================================  ==============================   =========================
+Variable                   Description                                      Allowed Values                   Default Value
+=========================  ===============================================  ==============================   =========================
+``COMPILER``               Specifies the compiler                           gnu, intel, clang, bluegene      gnu
+``OPENMP``                 Flag to turn on OpenMP parallelism               yes, no                          yes
+``OPTIMIZE``               Flag to turn on compiler optimizations           yes, no                          yes
+``DEBUG``                  Flag to turn on vector reports and debug flag    yes, no                          no
+``PROFILE``                Creates a :file:`gmon.out` file for profiling    yes, no                          no
+``PRECISION``              Specifies the floating point precision           single, double                   single
+=========================  ===============================================  ==============================   =========================
+
+**Table 2**: Makefile compiler options for the alternative C++ build system.
+
+
+After the input is compiled, an executable will be created in the same directory
+as the input file. The execuatalbe can be called directly based on its location
+or it can be run using the **make run** command described previously with a 
+modification of the ``case`` variable in the Makefile.
+
 
 .. _distutils: http://docs.python.org/2/library/distutils.html
 .. _make: http://www.gnu.org/software/make/
@@ -430,3 +524,8 @@ If all was properly configured as described in the preceding steps, you should b
 .. _SWIG interface file: http://www.swig.org/Doc2.0/SWIGDocumentation.html#Introduction_nn6
 .. _NumPy: http://www.numpy.org
 .. _Python package: http://docs.python.org/2/tutorial/modules.html#packages
+.. _SWIG: http://www.swig.org/
+.. _NumPy: http://www.numpy.org/
+.. _matplotlib: http://matplotlib.org/
+.. _h5py: http://www.h5py.org/
+.. _Make: http://www.gnu.org/software/make/

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>4. Debugging OpenMOC &mdash; OpenMOC Documentation</title>
+    <title>5. Debugging OpenMOC &mdash; OpenMOC Documentation</title>
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" />
     <link rel="up" title="Developer’s Guide" href="index.html" />
-    <link rel="next" title="5. Style Guide for OpenMOC" href="style_guide.html" />
+    <link rel="next" title="6. Style Guide for OpenMOC" href="style_guide.html" />
     <link rel="prev" title="3. Python Build System" href="build_system.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="style_guide.html" title="5. Style Guide for OpenMOC"
+          <a href="style_guide.html" title="6. Style Guide for OpenMOC"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="build_system.html" title="3. Python Build System"
@@ -52,11 +52,11 @@
           <div class="body">
             
   <div class="section" id="debugging-openmoc">
-<span id="debugging"></span><h1>4. Debugging OpenMOC<a class="headerlink" href="#debugging-openmoc" title="Permalink to this headline">¶</a></h1>
+<span id="debugging"></span><h1>5. Debugging OpenMOC<a class="headerlink" href="#debugging-openmoc" title="Permalink to this headline">¶</a></h1>
 <p>This section describes some recommended debugging techniques for developers working with OpenMOC source code. Although many novice code developers are accustomed to use <strong>printf debugging</strong> with the <tt class="docutils literal"><span class="pre">printf(...)</span></tt> C/C++ routing. The printf debugging methodology is <strong>highly discouraged</strong> since it leads to a very long debug iteration cycle between source code revision, compilation, and testing. Instead, developers are advised to use some form of a debug environment for C/C++ and/or Python.</p>
 <p>In particular, this section describes <strong>GNU debugger</strong> <tt class="docutils literal"><span class="pre">gdb</span></tt> in detail with some basic examples of how to use it with the shared library C++ extension module that is built for OpenMOC. In addition, some debugging techniques for the Python source are overviewed.</p>
 <div class="section" id="the-gnu-debugger-gdb">
-<h2>4.1. The GNU Debugger (GDB)<a class="headerlink" href="#the-gnu-debugger-gdb" title="Permalink to this headline">¶</a></h2>
+<h2>5.1. The GNU Debugger (GDB)<a class="headerlink" href="#the-gnu-debugger-gdb" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference external" href="https://www.gnu.org/software/gdb/">GNU Project Debugger</a> (GDB) provides the free open source <tt class="docutils literal"><span class="pre">gdb</span></tt> program for debugging of programs written in C/C++ (and other languages). The GNU debugger is typically installed when the GNU compiler collection (<em>e.g.</em>, <tt class="docutils literal"><span class="pre">gcc</span></tt>, <tt class="docutils literal"><span class="pre">g++</span></tt>) is installed. However, if for some reason you do not have <tt class="docutils literal"><span class="pre">gdb</span></tt>, you may install it in Ubuntu using the <tt class="docutils literal"><span class="pre">apt-get</span></tt> package manager as follows:</p>
 <div class="highlight-none"><div class="highlight"><pre>sudo apt-get install gdb
 </pre></div>
@@ -68,7 +68,7 @@
 <p>There are a number of different ways to use to use and interact with GDB. There are a variety of graphical user interfaces for GDB, including <a class="reference external" href="http://www.gnu.org/software/ddd/">DDD</a> and <a class="reference external" href="http://www.eclipse.org/cdt/">Eclipse CDT</a> which may be helpful for advanced code developers. This section, however, will focus on using the command line interface to GDB via the console.</p>
 </div>
 <div class="section" id="debugging-c-c-source-code">
-<h2>4.2. Debugging C/C++ Source Code<a class="headerlink" href="#debugging-c-c-source-code" title="Permalink to this headline">¶</a></h2>
+<h2>5.2. Debugging C/C++ Source Code<a class="headerlink" href="#debugging-c-c-source-code" title="Permalink to this headline">¶</a></h2>
 <p>The majority of the compute-intensive code in OpenMOC is written in C/C++ as a compiled back-end shared library. This section overviews some of the key steps to using GDB to debug OpenMOC&#8217;s C/C++ source code. By no means does this section cover all of GDB&#8217;s capabilities. Advanced developers should consult one of the many outlets for GDB documentation available online, including the following</p>
 <ul class="simple">
 <li><a class="reference external" href="http://www.gnu.org/software/gdb/documentation/">Official GDB Documentation</a></li>
@@ -77,14 +77,14 @@
 <li><a class="reference external" href="http://www.amazon.com/Debugging-GDB-The-Source-Level-Debugger/dp/1882114884">Debugging with GDB</a></li>
 </ul>
 <div class="section" id="installing-openmoc-with-debug-symbols">
-<h3>4.2.1. Installing OpenMOC with Debug Symbols<a class="headerlink" href="#installing-openmoc-with-debug-symbols" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.1. Installing OpenMOC with Debug Symbols<a class="headerlink" href="#installing-openmoc-with-debug-symbols" title="Permalink to this headline">¶</a></h3>
 <p>In order to debug OpenMOC C/C++ source code, you must build and install the C/C++ extension module for Python with <a class="reference external" href="http://en.wikipedia.org/wiki/Debug_symbol">debug symbols</a>. This is easily done by appending the <a class="reference internal" href="../usersguide/running.html#cmdoption-g"><em class="xref std std-option">-g</em></a> command line option for the <tt class="docutils literal"><span class="pre">gcc</span></tt> compiler. The build system for OpenMOC can automatically append this flag for the compilation process with the <a class="reference internal" href="../usersguide/install.html#cmdoption--debug-mode"><em class="xref std std-option">--debug-mode</em></a> option:</p>
 <div class="highlight-none"><div class="highlight"><pre>python setup.py install --user --debug-mode
 </pre></div>
 </div>
 </div>
 <div class="section" id="starting-gdb">
-<h3>4.2.2. Starting GDB<a class="headerlink" href="#starting-gdb" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.2. Starting GDB<a class="headerlink" href="#starting-gdb" title="Permalink to this headline">¶</a></h3>
 <p>The GNU Debugger may be started from the console with the <tt class="docutils literal"><span class="pre">gdb</span></tt> command:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ gdb
 GNU gdb (GDB) 7.5-ubuntu
@@ -123,7 +123,7 @@ For bug reporting instructions, please see:
 <p>These commands will leave you in an interactive session with GDB, complete with its own command line interface. From now on we will give all examples with gdb, but the same commands apply for cuda-gdb.</p>
 </div>
 <div class="section" id="initializing-python">
-<h3>4.2.3. Initializing Python<a class="headerlink" href="#initializing-python" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.3. Initializing Python<a class="headerlink" href="#initializing-python" title="Permalink to this headline">¶</a></h3>
 <p>From within the interactive GDB session, you must inform GDB that you plan to use Python as your binary executable:</p>
 <div class="highlight-none"><div class="highlight"><pre>(gdb) file python
 Reading symbols from /usr/bin/python...Reading symbols from /usr/lib/debug/usr/bin/python2.7...done.
@@ -131,7 +131,7 @@ Reading symbols from /usr/bin/python...Reading symbols from /usr/lib/debug/usr/b
 </div>
 </div>
 <div class="section" id="running-python-in-gdb">
-<h3>4.2.4. Running Python in GDB<a class="headerlink" href="#running-python-in-gdb" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.4. Running Python in GDB<a class="headerlink" href="#running-python-in-gdb" title="Permalink to this headline">¶</a></h3>
 <p>Next you can select a Python file to execute using the <tt class="docutils literal"><span class="pre">run</span></tt> command with the Python script as the argument. For example, to run the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/simple-lattice/simple-lattice.py</span></tt> from within GDB, simply execute the following:</p>
 <div class="highlight-none"><div class="highlight"><pre>(gdb) run simple-lattice.py -i 5
 Starting program: /usr/bin/python simple-lattice.py -i 5
@@ -185,7 +185,7 @@ Using host libthread_db library &quot;/lib/x86_64-linux-gnu/libthread_db.so.1&qu
 </div>
 </div>
 <div class="section" id="set-breakpoints">
-<h3>4.2.5. Set Breakpoints<a class="headerlink" href="#set-breakpoints" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.5. Set Breakpoints<a class="headerlink" href="#set-breakpoints" title="Permalink to this headline">¶</a></h3>
 <p>A <strong>breakpoint</strong> is an intentional stopping or pausing place in a program for debugging purposes. A breakpoint can be set using <tt class="docutils literal"><span class="pre">gdb</span></tt> using the <tt class="docutils literal"><span class="pre">breakpoint</span></tt> or <tt class="docutils literal"><span class="pre">br</span></tt> commands. The <tt class="docutils literal"><span class="pre">br</span></tt> command can be set at a specific line number in a specific source file. For example, if we wanted to run an OpenMOC program until the <tt class="docutils literal"><span class="pre">Material::setNumEnergyGroups(...)</span></tt> routine was called, we could set a breakpoint to the first line in that routine and then execute <tt class="file docutils literal"><span class="pre">simple-lattice.py</span></tt> as follows:</p>
 <div class="highlight-none"><div class="highlight"><pre>(gdb) br Material.cpp:349
 No source file named Material.cpp.
@@ -225,7 +225,7 @@ Breakpoint 1, Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 <p>In each case, a breakpoint is set and the program is executed until that line is reached. The entire program state is stored and the execution is simply interrupted until further notice to GDB is given by the user.</p>
 </div>
 <div class="section" id="set-watchpoints">
-<h3>4.2.6. Set Watchpoints<a class="headerlink" href="#set-watchpoints" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.6. Set Watchpoints<a class="headerlink" href="#set-watchpoints" title="Permalink to this headline">¶</a></h3>
 <p>A <strong>watchpoint</strong> is a <em>conditional breakpoint</em>, or a breakpoint that is only reached when a certain condition is met. The condition may be the reading, writing, or modification of a specific location in memory. For example, if we wanted to watch the value of the <tt class="docutils literal"><span class="pre">Material::_num_groups</span></tt> private class attribute we could place a watchpoint on it. First, we might start gdb and place a breakpoint on the <tt class="docutils literal"><span class="pre">Material::setNumEnergyGroups(...)</span></tt> routine as shown in the preceding section. Then we could place a watchpoint as follows:</p>
 <div class="highlight-none"><div class="highlight"><pre>(gdb) watch _num_groups
 Watchpoint 2: _num_groups
@@ -260,7 +260,7 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 <p>In this case, the result of the conditional is reported to the screen.</p>
 </div>
 <div class="section" id="step-through-the-program">
-<h3>4.2.7. Step through the Program<a class="headerlink" href="#step-through-the-program" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.7. Step through the Program<a class="headerlink" href="#step-through-the-program" title="Permalink to this headline">¶</a></h3>
 <p>This section highlights a few of the key commands which may be used to control program execution using GDB.</p>
 <ul>
 <li><p class="first"><strong>Continue</strong></p>
@@ -296,14 +296,14 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 </ul>
 </div>
 <div class="section" id="examine-variables">
-<h3>4.2.8. Examine Variables<a class="headerlink" href="#examine-variables" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.8. Examine Variables<a class="headerlink" href="#examine-variables" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">print</span></tt> or <tt class="docutils literal"><span class="pre">p</span></tt> command may be used to examine variables within some scope of the code with GDB. For example, if you were interested in the value of <em class="xref std std-option">variable</em>, you might set a breakpoint at the entrance point to the code region of interest, and step through the region while printing the value as follows:</p>
 <div class="highlight-none"><div class="highlight"><pre>(gdb) print variable
 </pre></div>
 </div>
 </div>
 <div class="section" id="report-the-debugger-state">
-<h3>4.2.9. Report the Debugger State<a class="headerlink" href="#report-the-debugger-state" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.9. Report the Debugger State<a class="headerlink" href="#report-the-debugger-state" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">info</span></tt> or <tt class="docutils literal"><span class="pre">i</span></tt> command may be used to report debugger state information to the console. For example, to list all breakpoints - including the file and line numbers where each is set - the <tt class="docutils literal"><span class="pre">info</span></tt> command is used with the <em class="xref std std-option">breakpoints</em> option:</p>
 <div class="highlight-none"><div class="highlight"><pre>(gdb) info breakpoints
 </pre></div>
@@ -318,7 +318,7 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 </div>
 </div>
 <div class="section" id="disable-breakpoints">
-<h3>4.2.10. Disable Breakpoints<a class="headerlink" href="#disable-breakpoints" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.10. Disable Breakpoints<a class="headerlink" href="#disable-breakpoints" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">disable</span></tt> command is used to disable breakpoints with GDB. When a breakpoint is disabled, it is still retained by GDB but is not used during program execution. The <tt class="docutils literal"><span class="pre">enable</span></tt> command may be used to continue using the breakpoint again at a later time. The following illustrates how to cancel breakpoints 1, 3, 4, 5, and 6, and re-enable breakpoints 4 and 5:</p>
 <div class="highlight-none"><div class="highlight"><pre>(gdb) disable 1 3-6
 (gdb) enable 4-5
@@ -326,7 +326,7 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 </div>
 </div>
 <div class="section" id="printing-the-stack">
-<h3>4.2.11. Printing the Stack<a class="headerlink" href="#printing-the-stack" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.11. Printing the Stack<a class="headerlink" href="#printing-the-stack" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">backtrace</span></tt> or <tt class="docutils literal"><span class="pre">bt</span></tt> command may be used to show the trace of the function the program is currently in:</p>
 <div class="highlight-none"><div class="highlight"><pre>(gdb) bt
 </pre></div>
@@ -334,14 +334,14 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 <p>The <tt class="docutils literal"><span class="pre">backtrace</span></tt> command can be particularly useful when debugging <a class="reference external" href="http://en.wikipedia.org/wiki/Segmentation_fault">segmentation faults</a>. In particular, GDB may be used to run the program until the segmentation fault is reached. At this point, the use of <tt class="docutils literal"><span class="pre">backtrace</span></tt> will print the function call stack, showing where the segmentation faul occurred.</p>
 </div>
 <div class="section" id="stop-program-execution">
-<h3>4.2.12. Stop Program Execution<a class="headerlink" href="#stop-program-execution" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.12. Stop Program Execution<a class="headerlink" href="#stop-program-execution" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">kill</span></tt> command may be used to stop a program&#8217;s execution while keeping the GDB process running:</p>
 <div class="highlight-none"><div class="highlight"><pre>(gdb) kill
 </pre></div>
 </div>
 </div>
 <div class="section" id="exiting-gdb">
-<h3>4.2.13. Exiting GDB<a class="headerlink" href="#exiting-gdb" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.13. Exiting GDB<a class="headerlink" href="#exiting-gdb" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">quit</span></tt> or <tt class="docutils literal"><span class="pre">q</span></tt> command may be used to exit the <tt class="docutils literal"><span class="pre">gdb</span></tt> debugger and return to the console:</p>
 <div class="highlight-none"><div class="highlight"><pre>(gdb) quit()
 </pre></div>
@@ -349,7 +349,7 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 </div>
 </div>
 <div class="section" id="debugging-python-source-code">
-<h2>4.3. Debugging Python Source Code<a class="headerlink" href="#debugging-python-source-code" title="Permalink to this headline">¶</a></h2>
+<h2>5.3. Debugging Python Source Code<a class="headerlink" href="#debugging-python-source-code" title="Permalink to this headline">¶</a></h2>
 <p>There are a a number of resources which one may use to debug Python code. Many popular <a class="reference external" href="http://en.wikipedia.org/wiki/Integrated_development_environment">Integrated Development Environments</a> (IDEs) for Python include interactive visual debugging support, including <a class="reference external" href="http://www.jetbrains.com/pycharm/">PyCharm</a>, <a class="reference external" href="http://pydev.org/">Eclipse PyDev</a>, and <a class="reference external" href="https://wiki.python.org/moin/Wing%20IDE">Wing IDE</a>. It is <strong>highly recommended</strong> that code developers use one of these IDEs for Python development and debugging. The <a class="reference external" href="http://www.jetbrains.com/pycharm/">PyCharm</a> IDE is especially recommended for OpenMOC users developing input and data processing modules in Python. Although PyCharm is a commercial product, a community version is provided for free with many of the most essential features including the following:</p>
 <ul class="simple">
 <li>Syntax highlighting</li>
@@ -380,25 +380,25 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
             </a></p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">4. Debugging OpenMOC</a><ul>
-<li><a class="reference internal" href="#the-gnu-debugger-gdb">4.1. The GNU Debugger (GDB)</a></li>
-<li><a class="reference internal" href="#debugging-c-c-source-code">4.2. Debugging C/C++ Source Code</a><ul>
-<li><a class="reference internal" href="#installing-openmoc-with-debug-symbols">4.2.1. Installing OpenMOC with Debug Symbols</a></li>
-<li><a class="reference internal" href="#starting-gdb">4.2.2. Starting GDB</a></li>
-<li><a class="reference internal" href="#initializing-python">4.2.3. Initializing Python</a></li>
-<li><a class="reference internal" href="#running-python-in-gdb">4.2.4. Running Python in GDB</a></li>
-<li><a class="reference internal" href="#set-breakpoints">4.2.5. Set Breakpoints</a></li>
-<li><a class="reference internal" href="#set-watchpoints">4.2.6. Set Watchpoints</a></li>
-<li><a class="reference internal" href="#step-through-the-program">4.2.7. Step through the Program</a></li>
-<li><a class="reference internal" href="#examine-variables">4.2.8. Examine Variables</a></li>
-<li><a class="reference internal" href="#report-the-debugger-state">4.2.9. Report the Debugger State</a></li>
-<li><a class="reference internal" href="#disable-breakpoints">4.2.10. Disable Breakpoints</a></li>
-<li><a class="reference internal" href="#printing-the-stack">4.2.11. Printing the Stack</a></li>
-<li><a class="reference internal" href="#stop-program-execution">4.2.12. Stop Program Execution</a></li>
-<li><a class="reference internal" href="#exiting-gdb">4.2.13. Exiting GDB</a></li>
+<li><a class="reference internal" href="#">5. Debugging OpenMOC</a><ul>
+<li><a class="reference internal" href="#the-gnu-debugger-gdb">5.1. The GNU Debugger (GDB)</a></li>
+<li><a class="reference internal" href="#debugging-c-c-source-code">5.2. Debugging C/C++ Source Code</a><ul>
+<li><a class="reference internal" href="#installing-openmoc-with-debug-symbols">5.2.1. Installing OpenMOC with Debug Symbols</a></li>
+<li><a class="reference internal" href="#starting-gdb">5.2.2. Starting GDB</a></li>
+<li><a class="reference internal" href="#initializing-python">5.2.3. Initializing Python</a></li>
+<li><a class="reference internal" href="#running-python-in-gdb">5.2.4. Running Python in GDB</a></li>
+<li><a class="reference internal" href="#set-breakpoints">5.2.5. Set Breakpoints</a></li>
+<li><a class="reference internal" href="#set-watchpoints">5.2.6. Set Watchpoints</a></li>
+<li><a class="reference internal" href="#step-through-the-program">5.2.7. Step through the Program</a></li>
+<li><a class="reference internal" href="#examine-variables">5.2.8. Examine Variables</a></li>
+<li><a class="reference internal" href="#report-the-debugger-state">5.2.9. Report the Debugger State</a></li>
+<li><a class="reference internal" href="#disable-breakpoints">5.2.10. Disable Breakpoints</a></li>
+<li><a class="reference internal" href="#printing-the-stack">5.2.11. Printing the Stack</a></li>
+<li><a class="reference internal" href="#stop-program-execution">5.2.12. Stop Program Execution</a></li>
+<li><a class="reference internal" href="#exiting-gdb">5.2.13. Exiting GDB</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#debugging-python-source-code">4.3. Debugging Python Source Code</a></li>
+<li><a class="reference internal" href="#debugging-python-source-code">5.3. Debugging Python Source Code</a></li>
 </ul>
 </li>
 </ul>
@@ -408,7 +408,7 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
                         title="previous chapter">3. Python Build System</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="style_guide.html"
-                        title="next chapter">5. Style Guide for OpenMOC</a></p>
+                        title="next chapter">6. Style Guide for OpenMOC</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/devguide/debugging.txt"
@@ -438,7 +438,7 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="style_guide.html" title="5. Style Guide for OpenMOC"
+          <a href="style_guide.html" title="6. Style Guide for OpenMOC"
              >next</a> |</li>
         <li class="right" >
           <a href="build_system.html" title="3. Python Build System"

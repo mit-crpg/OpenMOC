@@ -221,7 +221,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a916eb7ef96140e1ea2d22bb9d1c86240"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a916eb7ef96140e1ea2d22bb9d1c86240">initializeFluxArrays</a> ()=0</td></tr>
-<tr class="memdesc:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular flux and leakage and FSR scalar flux arrays. <br/></td></tr>
+<tr class="memdesc:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular and FSR scalar flux arrays. <br/></td></tr>
 <tr class="separator:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8592d819738b24a5b983e54c0a635d30"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8592d819738b24a5b983e54c0a635d30"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a8592d819738b24a5b983e54c0a635d30">initializeSourceArrays</a> ()=0</td></tr>
@@ -318,8 +318,6 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:a8407ebcfee31a54a67e6d5ca2e3d4e6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcfcfe1758affc74780907584fc7beaf"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#adcfcfe1758affc74780907584fc7beaf">_boundary_flux</a></td></tr>
 <tr class="separator:adcfcfe1758affc74780907584fc7beaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ace3972879027f76a99f24fd01618d123"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ace3972879027f76a99f24fd01618d123">_boundary_leakage</a></td></tr>
-<tr class="separator:ace3972879027f76a99f24fd01618d123"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60df3fd1a13667c294b1519d59a00b87"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a60df3fd1a13667c294b1519d59a00b87">_scalar_flux</a></td></tr>
 <tr class="separator:a60df3fd1a13667c294b1519d59a00b87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6f30b9636dbae2a9abc471e5e026bfa"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ae6f30b9636dbae2a9abc471e5e026bfa">_old_scalar_flux</a></td></tr>
@@ -612,7 +610,7 @@ Protected Attributes</h2></td></tr>
 <div class="line"><span class="comment">// ...</span></div>
 <div class="line"></div>
 <div class="line"><span class="comment">// Find the flux distribution resulting from the fixed sources</span></div>
-<div class="line">solver.computeFlux(max_iters=100, k_eff=0.981)</div>
+<div class="line">solver.computeSource(max_iters=100, k_eff=0.981)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">max_iters</td><td>the maximum number of source iterations to allow </td></tr>
@@ -1415,27 +1413,6 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ace3972879027f76a99f24fd01618d123"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">FP_PRECISION* Solver::_boundary_leakage</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>The angular leakages for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> for all energy groups, polar angles, and azimuthal angles. This array stores the weighted outgoing fluxes for a <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> along both "forward" and "reverse" directions. </p>
-
-</div>
-</div>
 <a class="anchor" id="a7a5155c5a727f2bff2e0fc538bbdd1e2"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1983,8 +1960,8 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Solver_8h_source.html">Solver.h</a></li>
-<li>/home/wboyd/Desktop/OpenMOC/src/Solver.cpp</li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="Solver_8h_source.html">Solver.h</a></li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/Solver.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1992,7 +1969,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classSolver.html">Solver</a></li>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:07 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

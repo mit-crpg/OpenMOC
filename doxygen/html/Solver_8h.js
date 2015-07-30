@@ -2,7 +2,6 @@ var Solver_8h =
 [
     [ "Solver", "classSolver.html", "classSolver" ],
     [ "_boundary_flux", "Solver_8h.html#a15b0f5dc814186a0e514b36f753d3bf6", null ],
-    [ "_boundary_leakage", "Solver_8h.html#a6c166546861725df33b4e3eea491dab5", null ],
     [ "_fixed_sources", "Solver_8h.html#a991cd83ccd910cf48245efb0aecd9b6a", null ],
     [ "_old_scalar_flux", "Solver_8h.html#ac7da59fbd14942e33392c046ecc6673a", null ],
     [ "_polar_weights", "Solver_8h.html#a82337e9687f8a593b4b68772853353c6", null ],

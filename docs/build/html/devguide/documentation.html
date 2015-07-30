@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>6. Documentation &mdash; OpenMOC Documentation</title>
+    <title>7. Documentation &mdash; OpenMOC Documentation</title>
     
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" />
     <link rel="up" title="Developer’s Guide" href="index.html" />
-    <link rel="next" title="7. Development Workflow" href="work_flow.html" />
-    <link rel="prev" title="5. Style Guide for OpenMOC" href="style_guide.html" /> 
+    <link rel="next" title="8. Development Workflow" href="work_flow.html" />
+    <link rel="prev" title="6. Style Guide for OpenMOC" href="style_guide.html" /> 
   </head>
   <body>
     <div class="related">
@@ -36,10 +36,10 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="work_flow.html" title="7. Development Workflow"
+          <a href="work_flow.html" title="8. Development Workflow"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="style_guide.html" title="5. Style Guide for OpenMOC"
+          <a href="style_guide.html" title="6. Style Guide for OpenMOC"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
@@ -52,10 +52,10 @@
           <div class="body">
             
   <div class="section" id="documentation">
-<span id="id1"></span><h1>6. Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>7. Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
 <p>The following describes the suggested steps that developers should take to edit, revise or add to OpenMOC&#8217;s documentation. OpenMOC uses the <a class="reference external" href="http://sphinx-doc.org/">Sphinx</a> tool for code due to its growing popularity for open source codes. Sphinx uses <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> (rst) files to encapuslate text-based content with semantic markup for figures, tables, URLs, and more. Sphinx provides a compiler which parses the reStructuredText source files to generate a target output in the form of HTML or a PDF. OpenMOC also uses <a class="reference external" href="http://www.stack.nl/~dimitri/doxygen/">Doxygen</a> for automated generated of Application Programming Interface (API) documentation based on source code comments. The used of Doxygen-style comments is explained further in <a class="reference internal" href="style_guide.html#code-comments"><em>Code Comments</em></a>.</p>
 <div class="section" id="preliminary-configuration">
-<h2>6.1. Preliminary Configuration<a class="headerlink" href="#preliminary-configuration" title="Permalink to this headline">¶</a></h2>
+<h2>7.1. Preliminary Configuration<a class="headerlink" href="#preliminary-configuration" title="Permalink to this headline">¶</a></h2>
 <p>First, in order to build OpenMOC&#8217;s documentation, you must have installed both Sphinx and Doxygen. Since both tools are widely used, they are available with most source package system. On Debian-based systems, such as Ubuntu, you may install both tools with the following command in the console:</p>
 <div class="highlight-none"><div class="highlight"><pre>sudo apt-get install python-sphinx doxygen
 </pre></div>
@@ -91,7 +91,7 @@ git clone https://github.com/mit-crpg/OpenMOC.git .
 </div>
 </div>
 <div class="section" id="writing-new-documentation">
-<h2>6.2. Writing New Documentation<a class="headerlink" href="#writing-new-documentation" title="Permalink to this headline">¶</a></h2>
+<h2>7.2. Writing New Documentation<a class="headerlink" href="#writing-new-documentation" title="Permalink to this headline">¶</a></h2>
 <p>This tutorial will not present any of the semantics of how to write documentation for Sphinx as that is well covered by its own tutorials. Likewise, the same is true for Doxygen-style comments, although the basics are presented in <a class="reference internal" href="style_guide.html#code-comments"><em>Code Comments</em></a>. Instead, this section presents the location of the source code and the basic console commands used to generate HTML documentation.</p>
 <p>First, the <tt class="file docutils literal"><span class="pre">/sphinx/docs/source</span></tt> directory contains the reStructuredText source for the Sphinx documentation. In order to compile the Sphinx documentation into HTML, you can run the following from within the <tt class="file docutils literal"><span class="pre">sphinx/docs</span></tt> directory:</p>
 <div class="highlight-none"><div class="highlight"><pre>cd sphinx/docs
@@ -129,7 +129,7 @@ cp -rf docs/build/html/. .
 </div>
 </div>
 <div class="section" id="version-control-for-new-documentation">
-<h2>6.3. Version Control for New Documentation<a class="headerlink" href="#version-control-for-new-documentation" title="Permalink to this headline">¶</a></h2>
+<h2>7.3. Version Control for New Documentation<a class="headerlink" href="#version-control-for-new-documentation" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="file docutils literal"><span class="pre">configure.sh</span></tt> script automatically adds your newly generated HTML files and image files to Git for tracking of the <tt class="docutils literal"><span class="pre">gh-pages</span></tt> branch using the following console commands:</p>
 <div class="highlight-none"><div class="highlight"><pre>cd sphinx
 git add -A
@@ -161,20 +161,20 @@ git add -f doxygen/html/* .
             </a></p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">6. Documentation</a><ul>
-<li><a class="reference internal" href="#preliminary-configuration">6.1. Preliminary Configuration</a></li>
-<li><a class="reference internal" href="#writing-new-documentation">6.2. Writing New Documentation</a></li>
-<li><a class="reference internal" href="#version-control-for-new-documentation">6.3. Version Control for New Documentation</a></li>
+<li><a class="reference internal" href="#">7. Documentation</a><ul>
+<li><a class="reference internal" href="#preliminary-configuration">7.1. Preliminary Configuration</a></li>
+<li><a class="reference internal" href="#writing-new-documentation">7.2. Writing New Documentation</a></li>
+<li><a class="reference internal" href="#version-control-for-new-documentation">7.3. Version Control for New Documentation</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="style_guide.html"
-                        title="previous chapter">5. Style Guide for OpenMOC</a></p>
+                        title="previous chapter">6. Style Guide for OpenMOC</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="work_flow.html"
-                        title="next chapter">7. Development Workflow</a></p>
+                        title="next chapter">8. Development Workflow</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/devguide/documentation.txt"
@@ -204,10 +204,10 @@ git add -f doxygen/html/* .
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="work_flow.html" title="7. Development Workflow"
+          <a href="work_flow.html" title="8. Development Workflow"
              >next</a> |</li>
         <li class="right" >
-          <a href="style_guide.html" title="5. Style Guide for OpenMOC"
+          <a href="style_guide.html" title="6. Style Guide for OpenMOC"
              >previous</a> |</li>
         <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
           <li><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 

@@ -234,7 +234,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:a8eac5804397c5e5f95d73b19a6e4cbfd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUSolver.html#a8eac5804397c5e5f95d73b19a6e4cbfd">initializeFluxArrays</a> ()</td></tr>
-<tr class="memdesc:a8eac5804397c5e5f95d73b19a6e4cbfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates memory for <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular flux and leakage and FSR scalar flux arrays.  <a href="#a8eac5804397c5e5f95d73b19a6e4cbfd">More...</a><br/></td></tr>
+<tr class="memdesc:a8eac5804397c5e5f95d73b19a6e4cbfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates memory for <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular and FSR scalar fluxes.  <a href="#a8eac5804397c5e5f95d73b19a6e4cbfd">More...</a><br/></td></tr>
 <tr class="separator:a8eac5804397c5e5f95d73b19a6e4cbfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51419d540c7eea9d29c3df963cc80784"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUSolver.html#a51419d540c7eea9d29c3df963cc80784">initializeSourceArrays</a> ()</td></tr>
 <tr class="memdesc:a51419d540c7eea9d29c3df963cc80784"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates memory for FSR source arrays.  <a href="#a51419d540c7eea9d29c3df963cc80784">More...</a><br/></td></tr>
@@ -267,8 +267,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUSolver.html#a92a92ed2553ba853b9a8f63114d1a844">addSourceToScalarFlux</a> ()</td></tr>
 <tr class="memdesc:a92a92ed2553ba853b9a8f63114d1a844"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add the source term contribution in the transport equation to the FSR scalar flux. <br/></td></tr>
 <tr class="separator:a92a92ed2553ba853b9a8f63114d1a844"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a230b68be081a8bd573bfdf3fabc75799"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUSolver.html#a230b68be081a8bd573bfdf3fabc75799">computeKeff</a> ()</td></tr>
-<tr class="memdesc:a230b68be081a8bd573bfdf3fabc75799"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute <img class="formulaInl" alt="$ k_{eff} $" src="form_4.png"/> from the total, fission and scattering reaction rates and leakage.  <a href="#a230b68be081a8bd573bfdf3fabc75799">More...</a><br/></td></tr>
+<tr class="memitem:a230b68be081a8bd573bfdf3fabc75799"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a230b68be081a8bd573bfdf3fabc75799"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUSolver.html#a230b68be081a8bd573bfdf3fabc75799">computeKeff</a> ()</td></tr>
+<tr class="memdesc:a230b68be081a8bd573bfdf3fabc75799"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute <img class="formulaInl" alt="$ k_{eff} $" src="form_4.png"/> from successive fission sources. <br/></td></tr>
 <tr class="separator:a230b68be081a8bd573bfdf3fabc75799"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6438df84b52fa1f0e3a98e6288e84c1"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCPUSolver.html#ac6438df84b52fa1f0e3a98e6288e84c1">computeResidual</a> (<a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type)</td></tr>
 <tr class="memdesc:ac6438df84b52fa1f0e3a98e6288e84c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the residual between source/flux iterations.  <a href="#ac6438df84b52fa1f0e3a98e6288e84c1">More...</a><br/></td></tr>
@@ -342,8 +343,6 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:a8407ebcfee31a54a67e6d5ca2e3d4e6b inherit pro_attribs_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcfcfe1758affc74780907584fc7beaf inherit pro_attribs_classSolver"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#adcfcfe1758affc74780907584fc7beaf">_boundary_flux</a></td></tr>
 <tr class="separator:adcfcfe1758affc74780907584fc7beaf inherit pro_attribs_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ace3972879027f76a99f24fd01618d123 inherit pro_attribs_classSolver"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ace3972879027f76a99f24fd01618d123">_boundary_leakage</a></td></tr>
-<tr class="separator:ace3972879027f76a99f24fd01618d123 inherit pro_attribs_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60df3fd1a13667c294b1519d59a00b87 inherit pro_attribs_classSolver"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a60df3fd1a13667c294b1519d59a00b87">_scalar_flux</a></td></tr>
 <tr class="separator:a60df3fd1a13667c294b1519d59a00b87 inherit pro_attribs_classSolver"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6f30b9636dbae2a9abc471e5e026bfa inherit pro_attribs_classSolver"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ae6f30b9636dbae2a9abc471e5e026bfa">_old_scalar_flux</a></td></tr>
@@ -472,36 +471,6 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a230b68be081a8bd573bfdf3fabc75799"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void CPUSolver::computeKeff </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Compute <img class="formulaInl" alt="$ k_{eff} $" src="form_4.png"/> from the total, fission and scattering reaction rates and leakage. </p>
-<p>This method computes the current approximation to the multiplication factor on this iteration as follows: <img class="formulaInl" alt="$ k_{eff} = \frac{\displaystyle\sum_{i \in I} \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}} {\displaystyle\sum_{i \in I} \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} - \Sigma^S_g \Phi V_{i} - L_{i,g})} $" src="form_36.png"/> </p>
-
-<p>Implements <a class="el" href="classSolver.html#a7d0c4632edff104979002eb21d38d794">Solver</a>.</p>
-
-<p>Reimplemented in <a class="el" href="classVectorizedSolver.html#a7ab9f0df852a0afd04876f6e0ec53046">VectorizedSolver</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="ac6438df84b52fa1f0e3a98e6288e84c1"></a>
 <div class="memitem">
 <div class="memproto">
@@ -610,7 +579,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Allocates memory for <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular flux and leakage and FSR scalar flux arrays. </p>
+<p>Allocates memory for <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular and FSR scalar fluxes. </p>
 <p>Deletes memory for old flux arrays if they were allocated for a previous simulation. </p>
 
 <p>Implements <a class="el" href="classSolver.html#a916eb7ef96140e1ea2d22bb9d1c86240">Solver</a>.</p>
@@ -943,7 +912,7 @@ Protected Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
-<p>For reflective boundary conditions, the outgoing boundary flux for the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> is given to the reflecting <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>. For vacuum boundary conditions, the outgoing flux tallied as leakage. </p>
+<p>For reflective boundary conditions, the outgoing boundary flux for the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> is given to the reflecting <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">track_id</td><td>the ID number for the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> of interest </td></tr>
@@ -1030,8 +999,8 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="CPUSolver_8h_source.html">CPUSolver.h</a></li>
-<li>/home/wboyd/Desktop/OpenMOC/src/CPUSolver.cpp</li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="CPUSolver_8h_source.html">CPUSolver.h</a></li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/CPUSolver.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1039,7 +1008,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCPUSolver.html">CPUSolver</a></li>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:06 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

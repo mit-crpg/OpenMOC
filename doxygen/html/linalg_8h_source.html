@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/wboyd/Desktop/OpenMOC/src/linalg.h Source File</title>
+<title>/home/geogunow/OpenMOC/OpenMOC/src/linalg.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('linalg_8h_source.html','');});
 <div class="contents">
 <a href="linalg_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="linalg_8h.html#a8042f06d914ffb508c64abd6e930e6ff">   15</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="linalg_8h.html#a8042f06d914ffb508c64abd6e930e6ff">vector_copy</a>(T* vector_from, T* vector_to, <span class="keywordtype">int</span> length){</div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="linalg_8h.html#a8042f06d914ffb508c64abd6e930e6ff">   15</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="linalg_8h.html#a8042f06d914ffb508c64abd6e930e6ff">vector_copy</a>(T* vector_from, T* vector_to, <span class="keywordtype">int</span> length) {</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; length; i++)</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    vector_to[i] = vector_from[i];</div>
@@ -115,9 +115,9 @@ $(document).ready(function(){initNavTree('linalg_8h_source.html','');});
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="linalg_8h.html#a9e22ba533640a3e8122c1ef0f2f65765">   29</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="linalg_8h.html#a9e22ba533640a3e8122c1ef0f2f65765">matrix_zero</a>(T** matrix, <span class="keywordtype">int</span> width, <span class="keywordtype">int</span> length){</div>
+<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="linalg_8h.html#a9e22ba533640a3e8122c1ef0f2f65765">   29</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="linalg_8h.html#a9e22ba533640a3e8122c1ef0f2f65765">matrix_zero</a>(T** matrix, <span class="keywordtype">int</span> width, <span class="keywordtype">int</span> length) {</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; length; i++){</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; length; i++) {</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> g = 0; g &lt; width; g++)</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;      matrix[i][g] = 0.0;</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  }</div>
@@ -125,7 +125,7 @@ $(document).ready(function(){initNavTree('linalg_8h_source.html','');});
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="linalg_8h.html#ab5189c01cbdfe2dfc24c888fb4c29e2d">   44</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="linalg_8h.html#ab5189c01cbdfe2dfc24c888fb4c29e2d">vector_zero</a>(T* vector, <span class="keywordtype">int</span> length){</div>
+<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="linalg_8h.html#ab5189c01cbdfe2dfc24c888fb4c29e2d">   44</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="linalg_8h.html#ab5189c01cbdfe2dfc24c888fb4c29e2d">vector_zero</a>(T* vector, <span class="keywordtype">int</span> length) {</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; length; i++)</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    vector[i] = 0.0;</div>
@@ -135,13 +135,13 @@ $(document).ready(function(){initNavTree('linalg_8h_source.html','');});
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
 <div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="linalg_8h.html#a43338349c584b2ec2b8be8fb147a1013">   60</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="linalg_8h.html#a43338349c584b2ec2b8be8fb147a1013">matrix_multiplication</a>(T** matrix, T* vector_x, </div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;                                  T* vector_y, <span class="keywordtype">int</span> num_blocks, </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                                  <span class="keywordtype">int</span> block_width){</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                                  <span class="keywordtype">int</span> block_width) {</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <a class="code" href="linalg_8h.html#ab5189c01cbdfe2dfc24c888fb4c29e2d">vector_zero</a>(vector_y, num_blocks*block_width); </div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; num_blocks; i++){</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> g = 0; g &lt; block_width; g++){</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> e = 0; e &lt; block_width; e++){</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; num_blocks; i++) {</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> g = 0; g &lt; block_width; g++) {</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> e = 0; e &lt; block_width; e++) {</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        vector_y[i*block_width+g] += matrix[i][g*block_width+e] </div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;            * vector_x[i*block_width+e];</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;      }</div>
@@ -151,7 +151,7 @@ $(document).ready(function(){initNavTree('linalg_8h_source.html','');});
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="linalg_8h.html#af940e0906a23b2704bc70adf4fb4e0e0">   84</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="linalg_8h.html#af940e0906a23b2704bc70adf4fb4e0e0">vector_scale</a>(T* vector, T scale_value, <span class="keywordtype">int</span> length){</div>
+<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="linalg_8h.html#af940e0906a23b2704bc70adf4fb4e0e0">   84</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="linalg_8h.html#af940e0906a23b2704bc70adf4fb4e0e0">vector_scale</a>(T* vector, T scale_value, <span class="keywordtype">int</span> length) {</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; length; i++)</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    vector[i] *= scale_value;</div>
@@ -167,7 +167,7 @@ $(document).ready(function(){initNavTree('linalg_8h_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="linalg_8h.html">linalg.h</a></li>
-    <li class="footer">Generated on Thu Jun 25 2015 00:42:06 by
+    <li class="footer">Generated on Thu Jul 30 2015 13:46:20 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
