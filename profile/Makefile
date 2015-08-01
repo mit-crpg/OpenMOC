@@ -3,14 +3,11 @@
 #===============================================================================
 
 COMPILER    = gnu
-MPI         = no
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
-PAPI        = no
-BENCHMARK   = no
-PRECISION   = double
+PRECISION   = single
 
 #===============================================================================
 # Source Code List
@@ -122,20 +119,6 @@ endif
 ifeq ($(COMPILER),clang)
   CFLAGS += -O3 -ffast-math -fvectorize -fpic
 endif
-endif
-
-# PAPI source (you may need to provide -I and -L pointing
-# to PAPI depending on your installation
-ifeq ($(PAPI),yes)
-  CFLAGS += -DPAPI
-  LDFLAGS += -lpapi
-  OPENMP = yes
-endif
-
-# MPI
-ifeq ($(MPI),yes)
-  CC = mpic++
-  CFLAGS += -DMPI
 endif
 
 # OpenMP

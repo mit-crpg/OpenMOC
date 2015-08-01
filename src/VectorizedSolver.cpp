@@ -110,8 +110,7 @@ void VectorizedSolver::setFixedSourceByFSR(int fsr_id, int group,
 
 
 /**
- * @brief Sets the Geometry for the Solver and aligns all Material
- *        cross-section data for SIMD vector instructions.
+ * @brief Sets the Geometry for the Solver.
  * @param geometry a pointer to the Geometry
  */
 void VectorizedSolver::setGeometry(Geometry* geometry) {
@@ -126,14 +125,6 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
   _num_groups = _num_vector_lengths * VEC_LENGTH;
 
   _polar_times_groups = _num_groups * _num_polar;
-
-  std::map<int, Material*> materials = geometry->getAllMaterials();
-  std::map<int, Material*>::iterator iter;
-
-  /* Iterate over each Material and replace its cross-section with a new one
-   * array that is a multiple of VEC_LENGTH long */
-  for (iter=materials.begin(); iter != materials.end(); ++iter)
-    (*iter).second->alignData();
 }
 
 
@@ -157,6 +148,21 @@ void VectorizedSolver::initializeExpEvaluator() {
   _thread_exponentials = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 }
 
+
+/**
+ * @brief Aligns all Material cross-section data for SIMD vector instructions.
+ */
+void VectorizedSolver::initializeMaterials() {
+  Solver::initializeMaterials();
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+  std::map<int, Material*>::iterator m_iter;
+
+  /* Iterate over each Material and replace its cross-section with a new one
+   * array that is a multiple of VEC_LENGTH long */
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
+    m_iter->second->alignData();
+}
 
 
 /**
@@ -321,82 +327,62 @@ void VectorizedSolver::normalizeFluxes() {
  */
 void VectorizedSolver::computeFSRSources() {
 
-  int tid;
-  FP_PRECISION scatter_source;
-  FP_PRECISION fission_source;
-  FP_PRECISION* nu_sigma_f;
-  FP_PRECISION* sigma_s;
-  FP_PRECISION* sigma_t;
-  FP_PRECISION* chi;
-  Material* material;
+  #pragma omp parallel default(none)
+  {
+    int tid;
+    Material* material;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION* sigma_s;
+    FP_PRECISION* fiss_mat;
+    FP_PRECISION scatter_source, fission_source;
 
-  int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-  FP_PRECISION* fission_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-  size = _num_threads * _num_groups * sizeof(FP_PRECISION);
-  FP_PRECISION* scatter_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    int size = _num_groups * sizeof(FP_PRECISION);
+    FP_PRECISION* fission_sources = 
+      (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    FP_PRECISION* scatter_sources = 
+      (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-  /* For all FSRs, find the source */
-  #pragma omp parallel for private(material, nu_sigma_f, chi, \
-    sigma_s, sigma_t, fission_source, scatter_source) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+    /* For all FSRs, find the source */
+    #pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
 
-    tid = omp_get_thread_num();
-    material = _FSR_materials[r];
-    nu_sigma_f = material->getNuSigmaF();
-    chi = material->getChi();
-    sigma_s = material->getSigmaS();
-    sigma_t = material->getSigmaT();
+      tid = omp_get_thread_num();
+      material = _FSR_materials[r];
+      sigma_t = material->getSigmaT();
+      sigma_s = material->getSigmaS();
+      fiss_mat = material->getFissionMatrix();
 
-    /* Compute fission source for each group */
-    if (material->isFissionable()) {
-      for (int v=0; v < _num_vector_lengths; v++) {
+      /* Compute scatter + fission source for group G */
+      for (int G=0; G < _num_groups; G++) {
+        for (int v=0; v < _num_vector_lengths; v++) {
 
-        /* Compute fission source for each group */
-        #pragma simd vectorlength(VEC_LENGTH)
-        for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-          fission_sources(r,e) = _scalar_flux(r,e) * nu_sigma_f[e];
+          #pragma simd vectorlength(VEC_LENGTH)
+          for (int g=v*VEC_LENGTH; g < (v+1)*VEC_LENGTH; g++) {
+            scatter_sources[g] = sigma_s[G*_num_groups+g] * _scalar_flux(r,g);
+            fission_sources[g] = fiss_mat[G*_num_groups+g] * _scalar_flux(r,g);
+          }
+        }
+
+        #ifdef SINGLE
+        scatter_source=cblas_sasum(_num_groups, scatter_sources, 1);
+        fission_source=cblas_sasum(_num_groups, fission_sources, 1);
+        #else
+        scatter_source=cblas_dasum(_num_groups, scatter_sources, 1);
+        fission_source=cblas_dasum(_num_groups, fission_sources, 1);
+        #endif
+
+        fission_source /= _k_eff;
+
+        /* Compute total (scatter+fission+fixed) reduced source */
+        _reduced_sources(r,G) = _fixed_sources(r,G);
+        _reduced_sources(r,G) += scatter_source + fission_source;
+        _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
       }
-
-      #ifdef SINGLE
-      fission_source = cblas_sasum(_num_groups, &fission_sources(r,0), 1);
-      #else
-      fission_source = cblas_dasum(_num_groups, &fission_sources(r,0), 1);
-      #endif
-
-      fission_source /= _k_eff;
     }
 
-    else
-      fission_source = 0.0;
-
-    /* Compute total scattering source for group G */
-    for (int G=0; G < _num_groups; G++) {
-      scatter_source = 0;
-
-      for (int v=0; v < _num_vector_lengths; v++) {
-
-        #pragma simd vectorlength(VEC_LENGTH)
-        for (int g=v*VEC_LENGTH; g < (v+1)*VEC_LENGTH; g++)
-          scatter_sources(tid,g) = sigma_s[G*_num_groups+g] *
-                                    _scalar_flux(r,g);
-      }
-
-      #ifdef SINGLE
-      scatter_source=cblas_sasum(_num_groups,&scatter_sources(tid,0), 1);
-      #else
-      scatter_source=cblas_dasum(_num_groups,&scatter_sources(tid,0), 1);
-      #endif
-
-      /* Set the total source for FSR r in group G */
-      _reduced_sources(r,G) = fission_source * chi[G];
-      _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
-      _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
-
-    }
+    MM_FREE(fission_sources);
+    MM_FREE(scatter_sources);
   }
-
-  MM_FREE(fission_sources);
-  MM_FREE(scatter_sources);
 }
 
 

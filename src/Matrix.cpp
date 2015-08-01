@@ -448,3 +448,47 @@ void Matrix::setNumGroups(int num_groups) {
 
   _num_groups = num_groups;
 }
+
+
+/**
+ * @brief Transpose the matrix in place.
+ */
+void Matrix::transpose() {
+
+  Matrix temp(_num_x, _num_y, _num_z, _num_groups);
+  convertToCSR();
+  int col, cell_to, cell_from, group_to, group_from;
+  FP_PRECISION val;
+
+  /* Transpose matrix to temp */
+  for (int row=0; row < _num_rows; row++) {
+    for (int i = _IA[row]; i < _IA[row+1]; i++) {
+      col = _JA[row];
+      cell_to = row / _num_groups;
+      group_to = row % _num_groups;
+      cell_from = col / _num_groups;
+      group_from = col % _num_groups;
+      val = _A[i];
+      temp.setValue(cell_to, group_to, cell_from, group_from, val);
+    }
+  }
+
+  /* Copy temp to current matrix */
+  clear();
+  temp.convertToCSR();
+  int* IA = temp.getIA();
+  int* JA = temp.getJA();
+  FP_PRECISION* A = temp.getA();
+
+  for (int row=0; row < _num_rows; row++) {
+    for (int i = IA[row]; i < IA[row+1]; i++) {
+      col = JA[row];
+      cell_to = row / _num_groups;
+      group_to = row % _num_groups;
+      cell_from = col / _num_groups;
+      group_from = col % _num_groups;
+      val = A[i];
+      setValue(cell_from, group_from, cell_to, group_to, val);
+    }
+  }
+}
