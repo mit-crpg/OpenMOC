@@ -59,7 +59,7 @@ public:
   void clear();
   void printString();
   void transpose();
-  
+
   /* Getter functions */
   FP_PRECISION getValue(int cell_from, int group_from, int cell_to,
                         int group_to);
