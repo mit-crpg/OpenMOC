@@ -345,7 +345,7 @@ void VectorizedSolver::computeFSRSources() {
       (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
     /* For all FSRs, find the source */
-    #pragma omp parallel for schedule(guided)
+    #pragma omp for schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
       tid = omp_get_thread_num();
