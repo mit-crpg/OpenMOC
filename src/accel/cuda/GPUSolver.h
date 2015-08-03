@@ -102,7 +102,7 @@ private:
   void initializePolarQuadrature();
   void initializeExpEvaluator();
   void initializeFSRs();
-  void initializeMaterials();
+  void initializeMaterials(solverMode mode=ADJOINT);
   void initializeTracks();
   void initializeFluxArrays();
   void initializeSourceArrays();

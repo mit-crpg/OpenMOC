@@ -54,7 +54,7 @@ protected:
   FP_PRECISION* _thread_exponentials;
 
   void initializeExpEvaluator();
-  void initializeMaterials();
+  void initializeMaterials(solverMode mode=FORWARD);
   void initializeFluxArrays();
   void initializeSourceArrays();
 

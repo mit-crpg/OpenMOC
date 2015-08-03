@@ -14,6 +14,7 @@
 #endif
 #include "constants.h"
 #include "log.h"
+#include "linalg.h"
 #include <sstream>
 #include <string.h>
 #include <stdlib.h>
@@ -167,6 +168,7 @@ public:
 
   void checkSigmaT();
   void buildFissionMatrix();
+  void transposeProductionMatrices();
   void alignData();
   Material* clone();
 

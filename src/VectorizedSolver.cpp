@@ -151,9 +151,11 @@ void VectorizedSolver::initializeExpEvaluator() {
 
 /**
  * @brief Aligns all Material cross-section data for SIMD vector instructions.
+ * @param mode the solution type (FORWARD or ADJOINT)
  */
-void VectorizedSolver::initializeMaterials() {
-  Solver::initializeMaterials();
+void VectorizedSolver::initializeMaterials(solverMode mode) {
+  /* Build fission matrices */
+  Solver::initializeMaterials(mode);
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
   std::map<int, Material*>::iterator m_iter;

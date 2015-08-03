@@ -956,10 +956,11 @@ void GPUSolver::initializeFSRs() {
  *          that maps a material ID to an indice in the new materials array. In
  *          initializeTracks, this map is used to convert the Material ID
  *          associated with every segment to an index in the materials array.
+ * @param mode the solution type (FORWARD or ADJOINT) 
  */
-void GPUSolver::initializeMaterials() {
+void GPUSolver::initializeMaterials(solverMode mode) {
 
-  Solver::initializeMaterials();
+  Solver::initializeMaterials(mode);
 
   log_printf(INFO, "Initializing materials on the GPU...");
 
