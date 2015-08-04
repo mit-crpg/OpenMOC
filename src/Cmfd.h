@@ -184,9 +184,9 @@ private:
   void generateKNearestStencils();
 
   /* Private getter functions */
-  int getCellNext(int cell_num, int surface_id);
-  FP_PRECISION getUpdateRatio(int cmfd_cell, int moc_group, int fsr);
-  FP_PRECISION getDistanceToCentroid(Point* centroid, int cell,
+  int getCellNext(int cell_id, int surface_id);
+  FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
+  FP_PRECISION getDistanceToCentroid(Point* centroid, int cell_id,
                                      int stencil_index);
 
 public:
@@ -200,9 +200,9 @@ public:
   void initializeCellMap();
   void initializeGroupMap();
   int findCmfdCell(LocalCoords* coords);
-  int findCmfdSurface(int cell, LocalCoords* coords);
-  int findCmfdCorner(int cell, LocalCoords* coords);
-  void addFSRToCell(int cmfd_cell, int fsr_id);
+  int findCmfdSurface(int cell_id, LocalCoords* coords);
+  int findCmfdCorner(int cell_id, LocalCoords* coords);
+  void addFSRToCell(int cell_id, int fsr_id);
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                     FP_PRECISION* polar_weights, bool fwd);

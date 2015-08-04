@@ -325,18 +325,18 @@ void Cmfd::computeDs(int moc_iteration) {
   FP_PRECISION length, length_perpen, next_length_perpen;
   FP_PRECISION sense;
   int next_surface;
-  int cell, cell_next;
+  int cell_id, cell_next_id;
 
   /* Loop over mesh cells in y direction */
   #pragma omp parallel for private(d, d_next, d_hat, d_tilde, current, flux, \
     flux_next, f, f_next, length, length_perpen, next_length_perpen, \
-    sense, next_surface, cell, cell_next, current_in, current_out)
+    sense, next_surface, cell_id, cell_next_id, current_in, current_out)
   for (int y = 0; y < _num_y; y++) {
 
     /* Loop over Mesh cells in x direction */
     for (int x = 0; x < _num_x; x++) {
 
-      cell = y*_num_x+x;
+      cell_id = y*_num_x+x;
 
       /* Loop over side surfaces in a cell */
       for (int surface = 0; surface < NUM_SURFACES; surface++) {
@@ -345,9 +345,9 @@ void Cmfd::computeDs(int moc_iteration) {
         for (int e = 0; e < _num_cmfd_groups; e++) {
 
           /* Get diffusivity and flux for Mesh cell */
-          d = _materials[cell]->getDifCoef()[e];
-          flux = _old_flux->getValue(cell, e);
-          cell_next = getCellNext(cell, surface);
+          d = _materials[cell_id]->getDifCoef()[e];
+          flux = _old_flux->getValue(cell_id, e);
+          cell_next_id = getCellNext(cell_id, surface);
 
           /* Set halfspace sense of the Surface */
           if (surface == SURFACE_X_MIN || surface == SURFACE_Y_MIN)
@@ -369,10 +369,10 @@ void Cmfd::computeDs(int moc_iteration) {
           f = computeDiffCorrect(d, length_perpen);
 
           /* If Surface is on a boundary, choose appropriate BCs */
-          if (cell_next == -1) {
+          if (cell_next_id == -1) {
 
             current_out = sense * _surface_currents->getValue
-              (cell, surface*_num_cmfd_groups + e);
+              (cell_id, surface*_num_cmfd_groups + e);
 
             /* REFLECTIVE BC */
             if (_boundaries[surface] == REFLECTIVE) {
@@ -414,8 +414,8 @@ void Cmfd::computeDs(int moc_iteration) {
             }
 
             /* Set diffusion coefficient and flux for neighboring cell */
-            d_next = _materials[cell_next]->getDifCoef()[e];
-            flux_next = _old_flux->getValue(cell_next, e);
+            d_next = _materials[cell_next_id]->getDifCoef()[e];
+            flux_next = _old_flux->getValue(cell_next_id, e);
 
             /* Get optical thickness correction term for meshCellNext */
             f_next = computeDiffCorrect(d_next, next_length_perpen);
@@ -426,11 +426,11 @@ void Cmfd::computeDs(int moc_iteration) {
 
             /* Get the outward current on surface */
             current_out = _surface_currents->getValue
-              (cell, surface*_num_cmfd_groups + e);
+              (cell_id, surface*_num_cmfd_groups + e);
 
             /* Get the inward current on the surface */
             current_in = _surface_currents->getValue
-              (cell_next, next_surface*_num_cmfd_groups + e);
+              (cell_next_id, next_surface*_num_cmfd_groups + e);
 
             /* Compute net current */
             current = sense * (current_out - current_in);
@@ -481,12 +481,12 @@ void Cmfd::computeDs(int moc_iteration) {
             d_tilde = 0.0;
           else
             d_tilde =
-              _materials[cell]->getDifTilde()[surface*_num_cmfd_groups + e] *
+              _materials[cell_id]->getDifTilde()[surface*_num_cmfd_groups + e] *
               (1 - _relax_factor) + _relax_factor * d_tilde;
 
           /* Set d_hat and d_tilde */
-          _materials[cell]->setDifHatByGroup(d_hat, e+1, surface);
-          _materials[cell]->setDifTildeByGroup(d_tilde, e+1, surface);
+          _materials[cell_id]->setDifHatByGroup(d_hat, e+1, surface);
+          _materials[cell_id]->setDifTildeByGroup(d_tilde, e+1, surface);
 
           log_printf(DEBUG, "cell: %d, group: %d, side: %d, flux: %f,"
                      " current: %f, d: %f, dhat: %f, dtilde: %f",
@@ -968,13 +968,13 @@ void Cmfd::initializeGroupMap() {
  * @brief Find the cmfd surface that a LocalCoords object lies on.
  * @details If the coords is not on a surface, -1 is returned. Otherwise,
  *        the surface ID is returned.
- * @param cell The CMFD cell ID that the local coords is in.
+ * @param cell_id The CMFD cell ID that the local coords is in.
  * @param coords The coords being evaluated.
  * @return The surface ID.
  */
-int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
+int Cmfd::findCmfdSurface(int cell_id, LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
-  return _lattice->getLatticeSurface(cell, point);
+  return _lattice->getLatticeSurface(cell_id, point);
 }
 
 
@@ -982,13 +982,13 @@ int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
  * @brief Find the cmfd corner that a LocalCoords object lies on.
  * @details If the coords is not on a corner, -1 is returned. Otherwise,
  *        the corner ID is returned.
- * @param cell The CMFD cell ID that the local coords is in.
+ * @param cell_id The CMFD cell ID that the local coords is in.
  * @param coords The coords being evaluated.
  * @return The corner ID.
  */
-int Cmfd::findCmfdCorner(int cell, LocalCoords* coords) {
+int Cmfd::findCmfdCorner(int cell_id, LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
-  return _lattice->getLatticeCorner(cell, point);
+  return _lattice->getLatticeCorner(cell_id, point);
 }
 
 
@@ -1035,11 +1035,11 @@ Lattice* Cmfd::getLattice() {
 /**
  * @brief Add an FSR ID to a vector that contains all the FSR IDs
  *        contained within a CMFD mesh cell.
- * @param cmfd_cell The CMFD cell ID.
+ * @param cell_id The CMFD cell ID.
  * @param fsr_id The FSR ID.
  */
-void Cmfd::addFSRToCell(int cmfd_cell, int fsr_id) {
-  _cell_fsrs.at(cmfd_cell).push_back(fsr_id);
+void Cmfd::addFSRToCell(int cell_id, int fsr_id) {
+  _cell_fsrs.at(cell_id).push_back(fsr_id);
 }
 
 
@@ -1092,21 +1092,21 @@ void Cmfd::splitCorners() {
   #pragma omp parallel for private(current)
   for (int y = 0; y < _num_y; y++) {
     for (int x = 0; x < _num_x; x++) {
-      int cell = y * _num_x + x;
+      int cell_id = y * _num_x + x;
       for (int c = 0; c < NUM_CORNERS; c++) {
 
         /* Increment current for surfaces in current cell */
         for (int e=0; e > _num_cmfd_groups; e++) {
           current = 0.5 * _corner_currents->getValue
-            (cell, c * _num_cmfd_groups + e);
+            (cell_id, c * _num_cmfd_groups + e);
 
           /* Increment current for surface clockwise of corner */
           _surface_currents->incrementValue
-            (cell, c * _num_cmfd_groups + e, current);
+            (cell_id, c * _num_cmfd_groups + e, current);
 
           /* Increment current for surface counter-clockwise of corner */
           _surface_currents->incrementValue
-            (cell, ((c + 1) % NUM_CORNERS) * _num_cmfd_groups + e, current);
+            (cell_id, ((c + 1) % NUM_CORNERS) * _num_cmfd_groups + e, current);
         }
 
         /* Increment current for surfaces in neighboring cells */
@@ -1115,14 +1115,15 @@ void Cmfd::splitCorners() {
         if (c == CORNER_X_MIN_Y_MIN) {
           for (int e=0; e > _num_cmfd_groups; e++) {
             current = 0.5 * _corner_currents->getValue
-              (cell, c * _num_cmfd_groups + e);
+              (cell_id, c * _num_cmfd_groups + e);
 
             if (x != 0)
               _surface_currents->incrementValue
-                (cell - 1, SURFACE_Y_MIN * _num_cmfd_groups + e, current);
+                (cell_id - 1, SURFACE_Y_MIN * _num_cmfd_groups + e, current);
             if (y != 0)
               _surface_currents->incrementValue
-                (cell - _num_x, SURFACE_X_MIN * _num_cmfd_groups + e, current);
+                (cell_id - _num_x, SURFACE_X_MIN * _num_cmfd_groups + e,
+                 current);
           }
         }
 
@@ -1130,14 +1131,15 @@ void Cmfd::splitCorners() {
         else if (c == CORNER_X_MAX_Y_MIN) {
           for (int e=0; e > _num_cmfd_groups; e++) {
             current = 0.5 * _corner_currents->getValue
-              (cell, c * _num_cmfd_groups + e);
+              (cell_id, c * _num_cmfd_groups + e);
 
             if (x != _num_x - 1)
               _surface_currents->incrementValue
-                (cell + 1, SURFACE_Y_MIN * _num_cmfd_groups + e, current);
+                (cell_id + 1, SURFACE_Y_MIN * _num_cmfd_groups + e, current);
             if (y != 0)
               _surface_currents->incrementValue
-                (cell - _num_x, SURFACE_X_MAX * _num_cmfd_groups + e, current);
+                (cell_id - _num_x, SURFACE_X_MAX * _num_cmfd_groups + e,
+                 current);
           }
         }
 
@@ -1145,14 +1147,15 @@ void Cmfd::splitCorners() {
         if (c == CORNER_X_MIN_Y_MAX) {
           for (int e=0; e > _num_cmfd_groups; e++) {
             current = 0.5 * _corner_currents->getValue
-              (cell, c * _num_cmfd_groups + e);
+              (cell_id, c * _num_cmfd_groups + e);
 
             if (x != 0)
               _surface_currents->incrementValue
-                (cell - 1, SURFACE_Y_MAX * _num_cmfd_groups + e, current);
+                (cell_id - 1, SURFACE_Y_MAX * _num_cmfd_groups + e, current);
             if (y != _num_y - 1)
               _surface_currents->incrementValue
-                (cell + _num_x, SURFACE_X_MIN * _num_cmfd_groups + e, current);
+                (cell_id + _num_x, SURFACE_X_MIN * _num_cmfd_groups + e,
+                 current);
           }
         }
 
@@ -1160,20 +1163,21 @@ void Cmfd::splitCorners() {
         if (c == CORNER_X_MAX_Y_MAX) {
           for (int e=0; e > _num_cmfd_groups; e++) {
             current = 0.5 * _corner_currents->getValue
-              (cell, c * _num_cmfd_groups + e);
+              (cell_id, c * _num_cmfd_groups + e);
 
             if (x != _num_x - 1)
               _surface_currents->incrementValue
-                (cell + 1, SURFACE_Y_MAX * _num_cmfd_groups + e, current);
+                (cell_id + 1, SURFACE_Y_MAX * _num_cmfd_groups + e, current);
             if (y != _num_y - 1)
               _surface_currents->incrementValue
-                (cell + _num_x, SURFACE_X_MAX * _num_cmfd_groups + e, current);
+                (cell_id + _num_x, SURFACE_X_MAX * _num_cmfd_groups + e,
+                 current);
           }
         }
 
         /* Zero out corner currents */
         for (int e=0; e > _num_cmfd_groups; e++)
-          _corner_currents->setValue(cell, c * _num_cmfd_groups + e, 0.0);
+          _corner_currents->setValue(cell_id, c * _num_cmfd_groups + e, 0.0);
       }
     }
   }
@@ -1183,32 +1187,32 @@ void Cmfd::splitCorners() {
 /**
  * @brief Get the ID of the Mesh cell next to a given Mesh cell across a
  *        given surface.
- * @param cell_num Current Mesh cell ID
+ * @param cell_id Current Mesh cell ID
  * @param surface_id CMFD cell surface ID to look across for neighboring cell
  * @return Neighboring CMFD cell ID
  */
-int Cmfd::getCellNext(int cell_num, int surface_id) {
+int Cmfd::getCellNext(int cell_id, int surface_id) {
 
-  int cell_next = -1;
+  int cell_next_id = -1;
 
   if (surface_id == SURFACE_X_MIN) {
-    if (cell_num % _num_x != 0)
-      cell_next = cell_num - 1;
+    if (cell_id % _num_x != 0)
+      cell_next_id = cell_id - 1;
   }
   else if (surface_id == SURFACE_Y_MIN) {
-    if (cell_num / _num_x != 0)
-      cell_next = cell_num - _num_x;
+    if (cell_id / _num_x != 0)
+      cell_next_id = cell_id - _num_x;
   }
   else if (surface_id == SURFACE_X_MAX) {
-    if (cell_num % _num_x != _num_x - 1)
-      cell_next = cell_num + 1;
+    if (cell_id % _num_x != _num_x - 1)
+      cell_next_id = cell_id + 1;
   }
   else if (surface_id == SURFACE_Y_MAX) {
-    if (cell_num / _num_x != _num_y - 1)
-      cell_next = cell_num + _num_x;
+    if (cell_id / _num_x != _num_y - 1)
+      cell_next_id = cell_id + _num_x;
   }
 
-  return cell_next;
+  return cell_next_id;
 }
 
 
@@ -1289,12 +1293,12 @@ int Cmfd::getBoundary(int side) {
 int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 
   std::vector<int>::iterator iter;    
-  for (int cell=0; cell < _num_x*_num_y; cell++) {
+  for (int cell_id=0; cell_id < _num_x*_num_y; cell_id++) {
 
-    for (iter = _cell_fsrs.at(cell).begin();
-         iter != _cell_fsrs.at(cell).end(); ++iter) {
+    for (iter = _cell_fsrs.at(cell_id).begin();
+         iter != _cell_fsrs.at(cell_id).end(); ++iter) {
       if (*iter  == fsr_id)
-        return cell;
+        return cell_id;
     }
   }
 
@@ -1500,12 +1504,12 @@ void Cmfd::generateKNearestStencils() {
  *         where 4 is the given CMFD cell. If the cell is on the edge or corner
  *         of the geometry and there are less than k nearest neighbor cells,
  *         k is reduced to the number of neighbor cells for that instance.
- * @param cell The cmfd cell containing the FSR.
+ * @param cell_id The cmfd cell ID containing the FSR.
  * @param group The CMFD energy group being updated.
  * @param fsr The fsr being updated.
  * @return the ratio used to update the FSR flux.
  */
-FP_PRECISION Cmfd::getUpdateRatio(int cell, int group, int fsr) {
+FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
 
   FP_PRECISION ratio = 0.0;
   std::vector< std::pair<int, FP_PRECISION> >::iterator iter;
@@ -1518,48 +1522,52 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell, int group, int fsr) {
 
       /* LOWER LEFT CORNER */
       if (iter->first == 0)
-        ratio += iter->second * _flux_ratio->getValue(cell - _num_x - 1, group);
+        ratio += iter->second * _flux_ratio->getValue
+          (cell_id - _num_x - 1, group);
 
       /* BOTTOM SIDE */
       else if (iter->first == 1)
-        ratio += iter->second * _flux_ratio->getValue(cell - _num_x, group);
+        ratio += iter->second * _flux_ratio->getValue(cell_id - _num_x, group);
 
       /* LOWER RIGHT CORNER */
       else if (iter->first == 2)
-        ratio += iter->second * _flux_ratio->getValue(cell - _num_x + 1, group);
+        ratio += iter->second * _flux_ratio->getValue
+          (cell_id - _num_x + 1, group);
 
       /* LEFT SIDE */
       else if (iter->first == 3)
-        ratio += iter->second * _flux_ratio->getValue(cell - 1, group);
+        ratio += iter->second * _flux_ratio->getValue(cell_id - 1, group);
 
       /* RIGHT SIDE */
       else if (iter->first == 5)
-        ratio += iter->second * _flux_ratio->getValue(cell + 1, group);
+        ratio += iter->second * _flux_ratio->getValue(cell_id + 1, group);
 
       /* UPPER LEFT CORNER */
       else if (iter->first == 6)
-        ratio += iter->second * _flux_ratio->getValue(cell + _num_x - 1, group);
+        ratio += iter->second * _flux_ratio->getValue
+          (cell_id + _num_x - 1, group);
 
       /* TOP SIDE */
       else if (iter->first == 7)
-        ratio += iter->second * _flux_ratio->getValue(cell + _num_x, group);
+        ratio += iter->second * _flux_ratio->getValue(cell_id + _num_x, group);
 
       /* TOP RIGHT CORNER */
       else if (iter->first == 8)
-        ratio += iter->second * _flux_ratio->getValue(cell + _num_x + 1, group);
+        ratio += iter->second * _flux_ratio->getValue
+          (cell_id + _num_x + 1, group);
     }
 
     /* INTERNAL */
     if (_k_nearest_stencils[fsr].size() == 1)
-      ratio += _flux_ratio->getValue(cell, group);
+      ratio += _flux_ratio->getValue(cell_id, group);
     else{
       ratio += _k_nearest_stencils[fsr][0].second *
-        _flux_ratio->getValue(cell, group);
+        _flux_ratio->getValue(cell_id, group);
       ratio /= (_k_nearest_stencils[fsr].size() - 1);
     }
   }
   else
-    ratio = _flux_ratio->getValue(cell, group);
+    ratio = _flux_ratio->getValue(cell_id, group);
 
   return ratio;
 }
@@ -1579,16 +1587,16 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell, int group, int fsr) {
  *         given and the stencil indexed cell lies outside the geometry, the
  *         maximum allowable FP_PRECISION value is returned.
  * @param centroid The numerical centroid an FSR in the cell.
- * @param cell The cmfd cell containing the FSR.
+ * @param cell_id The cmfd cell containing the FSR.
  * @param stencil_index The index of the cell in the stencil that we want to
  *        get the distance from.
  * @return the distance from the CMFD cell centroid to the FSR centroid.
  */
-FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell,
+FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
                                          int stencil_index) {
 
-  int x = cell % _num_x;
-  int y = cell / _num_x;
+  int x = cell_id % _num_x;
+  int y = cell_id / _num_x;
   FP_PRECISION dist_x, dist_y;
   bool found = false;
 
@@ -1681,7 +1689,7 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
   int bc;
   FP_PRECISION* track_flux;
   FP_PRECISION ratio;
-  int cmfd_cell;
+  int cell_id;
   
   log_printf(INFO, "updating boundary flux");
 
@@ -1695,12 +1703,12 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     bc = (int)tracks[i]->getBCOut();
     curr_segment = &segments[0];
     track_flux = &boundary_flux[i*2*_num_moc_groups*_num_polar];
-    cmfd_cell = convertFSRIdToCmfdCell(curr_segment->_region_id);
+    cell_id = convertFSRIdToCmfdCell(curr_segment->_region_id);
     
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
         for (int p=0; p < _num_polar; p++) {
-          track_flux[p*_num_moc_groups+e] *= _flux_ratio->getValue(cmfd_cell,e);
+          track_flux[p*_num_moc_groups+e] *= _flux_ratio->getValue(cell_id,e);
         }
       }
     }
@@ -1713,7 +1721,7 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
         for (int p=0; p < _num_polar; p++) {
-          track_flux[p*_num_moc_groups+e] *= _flux_ratio->getValue(cmfd_cell,e);
+          track_flux[p*_num_moc_groups+e] *= _flux_ratio->getValue(cell_id,e);
         }
       }
     }
