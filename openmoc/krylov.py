@@ -114,6 +114,7 @@ class IRAMSolver(object):
     self._moc_solver.initializeExpEvaluator()
     self._moc_solver.initializeFluxArrays()
     self._moc_solver.initializeSourceArrays()
+    self._moc_solver.initializeMaterials()
     self._moc_solver.initializeFSRs()
     self._moc_solver.countFissionableFSRs()
     self._moc_solver.zeroTrackFluxes()

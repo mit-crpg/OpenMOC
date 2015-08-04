@@ -5,6 +5,11 @@
  * @date August 26, 2014
  */
 
+#ifndef LINALG_H_
+#define LINALG_H_
+
+#include <vector>
+
 /**
  * @brief Copy a vector to another vector.
  * @param vector_from vector to be copied
@@ -75,7 +80,27 @@ inline void matrix_multiplication(T** matrix, T* vector_x,
 
 
 /**
- * @brief Scale vectgor by some scalar value.
+ * @brief Transpose a 2D matrix.
+ * @param matrix array to transpose
+ * @param dim1 first dimension length
+ * @param dim2 second dimension length
+ */
+template<typename T>
+inline void matrix_transpose(T* matrix, int dim1, int dim2) {
+
+  std::vector<T> temp(dim1 * dim2);
+
+  for (int i=0; i < dim1; i++) {
+    for (int j=0; j < dim2; j++)
+      temp[i * dim1 + j] = matrix[j * dim1 + i];
+  }
+
+  std::copy(temp.begin(), temp.end(), matrix);
+}
+
+
+/**
+ * @brief Scale vector by some scalar value.
  * @param vector vector to be scaled
  * @param scale_value value to scale vector
  * @param length vector length
@@ -86,3 +111,6 @@ inline void vector_scale(T* vector, T scale_value, int length) {
   for (int i = 0; i < length; i++)
     vector[i] *= scale_value;
 }
+
+
+#endif /* LINALG_H_ */

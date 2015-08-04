@@ -69,8 +69,10 @@ public:
   void setGeometry(Geometry* geometry);
 
   void initializeExpEvaluator();
+  void initializeMaterials();
   void initializeFluxArrays();
   void initializeSourceArrays();
+
   void normalizeFluxes();
   void computeFSRSources();
   void addSourceToScalarFlux();

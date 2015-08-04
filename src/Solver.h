@@ -50,7 +50,7 @@
  *  for each FSR and energy group */
 #define fission_sources(r,e) (fission_sources[(r)*_num_groups + (e)])
 
-/** Indexing scheme for the total in-scatter source (\f$ \Sigma_s\Phi \f$)
+/** Indexing scheme for the total scatter source (\f$ Sigma_s\Phi \f$)
  *  for each FSR and energy group */
 #define scatter_sources(r,e) (scatter_sources[(r)*_num_groups + (e)])
 
@@ -207,6 +207,7 @@ public:
   virtual void initializePolarQuadrature();
   virtual void initializeExpEvaluator();
   virtual void initializeFSRs();
+  virtual void initializeMaterials();
   virtual void countFissionableFSRs();
   virtual void initializeCmfd();
 
