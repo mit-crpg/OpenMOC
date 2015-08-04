@@ -206,8 +206,7 @@ class configuration:
   compiler_flags['nvcc'] =  ['--relocatable-device-code', 'true',
                              '-c', '-O3',  '-std=c++11', 
                              '--compiler-options', '-fpic',
-                             '-gencode=arch=compute_20,code=sm_20',
-                             '-gencode=arch=compute_30,code=sm_30']
+                             '-arch=compute_20']
 
 
   #############################################################################
