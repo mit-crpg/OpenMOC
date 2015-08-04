@@ -125,8 +125,8 @@ public:
 
   void initializePolarQuadrature();
   void initializeExpEvaluator();
-  void initializeFSRs();
   void initializeMaterials();
+  void initializeFSRs();
   void initializeTracks();
   void initializeFluxArrays();
   void initializeSourceArrays();

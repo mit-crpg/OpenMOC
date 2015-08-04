@@ -41,8 +41,10 @@ struct dev_material {
   /** An array of the chi \f$ \chi \f$ values for each energy group */
   FP_PRECISION* _chi;
 
-  /** An array of the group-to-group scattering cross-sections. The first
-   *  index is row number; second index is column number */
+  /** A 2D array of the fission matrix from/into each group */
+  FP_PRECISION* _fiss_matrix;
+
+  /** A 2D array of the scattering cross-section matrix from/into each group */
   FP_PRECISION* _sigma_s;
 
   /**
@@ -55,6 +57,7 @@ struct dev_material {
     _sigma_f = NULL;
     _nu_sigma_f = NULL;
     _chi = NULL;
+    _fiss_matrix = NULL;
   }
 
   /**
@@ -73,6 +76,8 @@ struct dev_material {
       delete [] _nu_sigma_f;
     if (_chi != NULL)
       delete [] _chi;
+    if (_fiss_matrix != NULL)
+      delete [] _fiss_matrix;
   }
 
 };
