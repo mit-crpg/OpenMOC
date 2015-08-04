@@ -69,14 +69,15 @@ protected:
                                FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
 
   /**
-   * @brief Computes the contribution to surface current from a Track segment.
+   * @brief Computes the contribution to surface or corner current from a Track
+   *        segment.
    * @param curr_segment a pointer to the Track segment of interest
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param track_flux a pointer to the Track's angular flux
    * @param fwd the direction of integration along the segment
    */
-  virtual void tallySurfaceCurrent(segment* curr_segment, int azim_index,
-                                   FP_PRECISION* track_flux, bool fwd);
+  virtual void tallyCurrent(segment* curr_segment, int azim_index,
+                            FP_PRECISION* track_flux, bool fwd);
 
   /**
    * @brief Updates the boundary flux for a Track given boundary conditions.

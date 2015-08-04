@@ -878,8 +878,11 @@ void Geometry::segmentize(Track* track) {
       start.adjustCoords(-delta_x, -delta_y);
       end.adjustCoords(-delta_x, -delta_y);
 
-      new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell,&end);
-      new_segment->_cmfd_surface_bwd = _cmfd->findCmfdSurface(cmfd_cell,&start);
+      new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell, &end);
+      new_segment->_cmfd_surface_bwd =
+        _cmfd->findCmfdSurface(cmfd_cell, &start);
+      new_segment->_cmfd_corner_fwd = _cmfd->findCmfdCorner(cmfd_cell, &end);
+      new_segment->_cmfd_corner_bwd = _cmfd->findCmfdCorner(cmfd_cell, &start);
 
       /* Re-nudge segments from surface */
       start.adjustCoords(delta_x, delta_y);

@@ -45,8 +45,8 @@ Cmfd::Cmfd() {
   _group_indices = NULL;
   _group_indices_map = NULL;
   _surface_currents = NULL;
+  _corner_currents = NULL;
   _volumes = NULL;
-  _centroid_total_distances = NULL;
 
   /* Initialize boundaries to be reflective */
   _boundaries = new boundaryType[4];
@@ -75,7 +75,7 @@ Cmfd::~Cmfd() {
 
 /**
  * @brief Set the number of Mesh cells in a row.
- * @param num_x number of Mesh cells in a row
+ * @param num_x Number of Mesh cells in a row
  */
 void Cmfd::setNumX(int num_x) {
 
@@ -91,7 +91,7 @@ void Cmfd::setNumX(int num_x) {
 
 /**
  * @brief Set the number of Mesh cells in a column
- * @param num_y number of Mesh cells in a column
+ * @param num_y Number of Mesh cells in a column
  */
 void Cmfd::setNumY(int num_y) {
 
@@ -151,8 +151,8 @@ void Cmfd::setHeight(double height) {
  *        the MOC sweep.
  * @details This method performs a cell-wise energy condensation and volume
  *         average of the cross sections of the fine, unstructured FSR mesh.
- *         The cross sections are condense such that all reaction rates and
- *         the neutron produciton rate from fission are conserved. It is
+ *         The cross sections are condensed such that all reaction rates and
+ *         the neutron production rate from fission are conserved. It is
  *         important to note that the volume averaging is performed before
  *         energy condensation in order to properly collapse the diffusion
  *         coefficients.
@@ -320,7 +320,8 @@ void Cmfd::computeDs(int moc_iteration) {
   log_printf(INFO, "Computing CMFD diffusion coefficients...");
 
   FP_PRECISION d, d_next, d_hat, d_tilde;
-  FP_PRECISION current, flux, flux_next, f, f_next;
+  FP_PRECISION flux, flux_next, f, f_next;
+  FP_PRECISION current, current_out, current_in;
   FP_PRECISION length, length_perpen, next_length_perpen;
   FP_PRECISION sense;
   int next_surface;
@@ -329,7 +330,7 @@ void Cmfd::computeDs(int moc_iteration) {
   /* Loop over mesh cells in y direction */
   #pragma omp parallel for private(d, d_next, d_hat, d_tilde, current, flux, \
     flux_next, f, f_next, length, length_perpen, next_length_perpen, \
-    sense, next_surface, cell, cell_next)
+    sense, next_surface, cell, cell_next, current_in, current_out)
   for (int y = 0; y < _num_y; y++) {
 
     /* Loop over Mesh cells in x direction */
@@ -338,7 +339,7 @@ void Cmfd::computeDs(int moc_iteration) {
       cell = y*_num_x+x;
 
       /* Loop over side surfaces in a cell */
-      for (int surface = 0; surface < 4; surface++) {
+      for (int surface = 0; surface < NUM_SURFACES; surface++) {
 
         /* Loop over groups */
         for (int e = 0; e < _num_cmfd_groups; e++) {
@@ -355,7 +356,7 @@ void Cmfd::computeDs(int moc_iteration) {
             sense = 1.0;
 
           /* Set the length of this Surface and the perpendicular Surface */
-          if (surface == SURFACE_X_MIN || surface== SURFACE_X_MAX) {
+          if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX) {
             length = _cell_height;
             length_perpen = _cell_width;
           }
@@ -370,7 +371,7 @@ void Cmfd::computeDs(int moc_iteration) {
           /* If Surface is on a boundary, choose appropriate BCs */
           if (cell_next == -1) {
 
-            current = sense * _surface_currents->getValue
+            current_out = sense * _surface_currents->getValue
               (cell, surface*_num_cmfd_groups + e);
 
             /* REFLECTIVE BC */
@@ -387,7 +388,7 @@ void Cmfd::computeDs(int moc_iteration) {
               /* Set D's */
               d_hat =  2 * d*f / length_perpen / (1 + 4 * d*f /
                        length_perpen);
-              d_tilde = (sense * d_hat * flux - current / length) / flux;
+              d_tilde = (sense * d_hat * flux - current_out / length) / flux;
              }
           }
 
@@ -423,11 +424,16 @@ void Cmfd::computeDs(int moc_iteration) {
             d_hat = 2.0 * d * f * d_next * f_next / (length_perpen
                     * d * f + next_length_perpen * d_next*f_next);
 
-            /* Compute net current */
-            current = sense * _surface_currents->getValue
-              (cell, surface*_num_cmfd_groups + e)
-              - sense * _surface_currents->getValue
+            /* Get the outward current on surface */
+            current_out = _surface_currents->getValue
+              (cell, surface*_num_cmfd_groups + e);
+
+            /* Get the inward current on the surface */
+            current_in = _surface_currents->getValue
               (cell_next, next_surface*_num_cmfd_groups + e);
+
+            /* Compute net current */
+            current = sense * (current_out - current_in);
 
             /* Compute d_tilde */
             d_tilde = -(sense * d_hat * (flux_next - flux) +
@@ -571,7 +577,7 @@ void Cmfd::constructMatrices() {
   log_printf(INFO,"Constructing matrices...");
     
   FP_PRECISION value, volume;
-  int cell;
+  int cell_id;
   Material* material;
   
   /* Zero _A and _M matrices */
@@ -579,28 +585,28 @@ void Cmfd::constructMatrices() {
   _M->clear();
   
   /* Loop over cells */
-  #pragma omp parallel for private(value, volume, cell, material)
+  #pragma omp parallel for private(value, volume, cell_id, material)
   for (int y = 0; y < _num_y; y++) {
     for (int x = 0; x < _num_x; x++) {
 
-      cell = y*_num_x + x;
-      material = _materials[cell];
-      volume =_volumes->getValue(cell, 0);
+      cell_id = y*_num_x + x;
+      material = _materials[cell_id];
+      volume =_volumes->getValue(cell_id, 0);
 
       /* Loop over groups */
       for (int e = 0; e < _num_cmfd_groups; e++) {
           
         /* Absorption term */
         value = material->getSigmaA()[e] * volume;
-        _A->incrementValue(cell, e, cell, e, value);
+        _A->incrementValue(cell_id, e, cell_id, e, value);
         
         /* Out (1st) and in (2nd) scattering */
         for (int g = 0; g < _num_cmfd_groups; g++) {
           if (e != g) {
             value = material->getSigmaS()[g*_num_cmfd_groups + e] * volume;
-            _A->incrementValue(cell, e, cell, e, value);
+            _A->incrementValue(cell_id, e, cell_id, e, value);
             value = - material->getSigmaS()[e*_num_cmfd_groups + g] * volume;
-            _A->incrementValue(cell, g, cell, e, value);
+            _A->incrementValue(cell_id, g, cell_id, e, value);
           }
         }
 
@@ -609,14 +615,14 @@ void Cmfd::constructMatrices() {
         /* Set transport term on diagonal */
         value = (material->getDifHat()[e] + material->getDifTilde()[e])
           * _cell_height;
-        _A->incrementValue(cell, e, cell, e, value);        
+        _A->incrementValue(cell_id, e, cell_id, e, value);
 
         /* Set transport term on off diagonal */
         if (x != 0) {
           value = - (material->getDifHat()[SURFACE_X_MIN*_num_cmfd_groups + e]
                      - material->getDifTilde()
                      [SURFACE_X_MIN*_num_cmfd_groups + e]) * _cell_height;
-          _A->incrementValue(cell-1, e, cell, e, value);          
+          _A->incrementValue(cell_id-1, e, cell_id, e, value);
         }
 
         /* SURFACE_X_MAX */
@@ -625,14 +631,14 @@ void Cmfd::constructMatrices() {
         value = (material->getDifHat()[SURFACE_X_MAX*_num_cmfd_groups + e]
                 - material->getDifTilde()[SURFACE_X_MAX*_num_cmfd_groups + e])
           * _cell_height;
-        _A->incrementValue(cell, e, cell, e, value);
+        _A->incrementValue(cell_id, e, cell_id, e, value);
 
         /* Set transport term on off diagonal */
         if (x != _num_x - 1) {
           value = - (material->getDifHat()[SURFACE_X_MAX*_num_cmfd_groups + e]
                      + material->getDifTilde()
                      [SURFACE_X_MAX*_num_cmfd_groups + e]) * _cell_height;
-          _A->incrementValue(cell+1, e, cell, e, value);            
+          _A->incrementValue(cell_id+1, e, cell_id, e, value);
         }
 
         /* SURFACE_Y_MIN */
@@ -641,14 +647,14 @@ void Cmfd::constructMatrices() {
         value = (material->getDifHat()[SURFACE_Y_MIN*_num_cmfd_groups + e]
                  + material->getDifTilde()[SURFACE_Y_MIN*_num_cmfd_groups + e])
           * _cell_width;
-        _A->incrementValue(cell, e, cell, e, value);
+        _A->incrementValue(cell_id, e, cell_id, e, value);
 
         /* Set transport term on off diagonal */
         if (y != 0) {
           value = - (material->getDifHat()[SURFACE_Y_MIN*_num_cmfd_groups + e]
                      - material->getDifTilde()
                      [SURFACE_Y_MIN*_num_cmfd_groups + e]) * _cell_width;
-          _A->incrementValue(cell-_num_x, e, cell, e, value);
+          _A->incrementValue(cell_id-_num_x, e, cell_id, e, value);
         }
 
         /* SURFACE_Y_MAX */
@@ -657,21 +663,21 @@ void Cmfd::constructMatrices() {
         value = (material->getDifHat()[SURFACE_Y_MAX*_num_cmfd_groups + e]
                  - material->getDifTilde()[SURFACE_Y_MAX*_num_cmfd_groups + e])
           * _cell_width;
-        _A->incrementValue(cell, e, cell, e, value);
+        _A->incrementValue(cell_id, e, cell_id, e, value);
 
         /* Set transport term on off diagonal */
         if (y != _num_y - 1) {
           value = - (material->getDifHat()[SURFACE_Y_MAX*_num_cmfd_groups + e]
                      + material->getDifTilde()
                      [SURFACE_Y_MAX*_num_cmfd_groups + e]) * _cell_width;
-          _A->incrementValue(cell+_num_x, e, cell, e, value);
+          _A->incrementValue(cell_id+_num_x, e, cell_id, e, value);
         }
 
         /* Source term */
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = material->getChi()[e] * material->getNuSigmaF()[g]
                   * volume;
-          _M->incrementValue(cell, g, cell, e, value);
+          _M->incrementValue(cell_id, g, cell_id, e, value);
         }
       }
     }
@@ -791,14 +797,14 @@ void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux) {
 
 
 /**
- * @brief Set the successive over-relaxation relaxation factor for the
+ * @brief Set the successive over-relaxation factor for the
  *        linear solve within the diffusion eigenvalue solve.
- * @param SOR_factor over-relaxation factor
+ * @param SOR_factor Over-relaxation factor
  */
 void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor) {
 
   if (SOR_factor <= 0.0 || SOR_factor >= 2.0)
-    log_printf(ERROR, "The successive over-relaxation relaxation factor "
+    log_printf(ERROR, "The successive over-relaxation factor "
         "must be > 0 and < 2. Input value: %d", SOR_factor);
 
   _SOR_factor = SOR_factor;
@@ -894,17 +900,21 @@ void Cmfd::initializeMaterials() {
 /**
  * @brief Initializes Cmfd surface currents Vector prior to first MOC iteration.
  */
-void Cmfd::initializeSurfaceCurrents() {
+void Cmfd::initializeCurrents() {
 
   /* Delete old Cmfd surface currents array it it exists */
   if (_surface_currents != NULL)
     delete [] _surface_currents;
 
-  /* Allocate memory for the Cmfd Mesh surface currents array */
-  int num_mesh_cells = _num_x * _num_y;
-  int size = num_mesh_cells * _num_cmfd_groups * NUM_SURFACES;
+  /* Delete old Cmfd corner currents array it it exists */
+  if (_corner_currents != NULL)
+    delete [] _corner_currents;
+
+  /* Allocate memory for the Cmfd Mesh surface and corner currents Vectors */
   _surface_currents = new Vector(_num_x, _num_y,
                                  _num_cmfd_groups * NUM_SURFACES);
+  _corner_currents = new Vector(_num_x, _num_y,
+                                 _num_cmfd_groups * NUM_CORNERS);
 
   return;
 }
@@ -957,7 +967,7 @@ void Cmfd::initializeGroupMap() {
 /**
  * @brief Find the cmfd surface that a LocalCoords object lies on.
  * @details If the coords is not on a surface, -1 is returned. Otherwise,
- *        the surface ID is returned. 
+ *        the surface ID is returned.
  * @param cell The CMFD cell ID that the local coords is in.
  * @param coords The coords being evaluated.
  * @return The surface ID.
@@ -965,6 +975,20 @@ void Cmfd::initializeGroupMap() {
 int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
   return _lattice->getLatticeSurface(cell, point);
+}
+
+
+/**
+ * @brief Find the cmfd corner that a LocalCoords object lies on.
+ * @details If the coords is not on a corner, -1 is returned. Otherwise,
+ *        the corner ID is returned.
+ * @param cell The CMFD cell ID that the local coords is in.
+ * @param coords The coords being evaluated.
+ * @return The corner ID.
+ */
+int Cmfd::findCmfdCorner(int cell, LocalCoords* coords) {
+  Point* point = coords->getHighestLevel()->getPoint();
+  return _lattice->getLatticeCorner(cell, point);
 }
 
 
@@ -1021,7 +1045,7 @@ void Cmfd::addFSRToCell(int cmfd_cell, int fsr_id) {
 
 /**
  * @brief Set the number of MOC energy groups.
- * @param num_groups number of MOC energy groups
+ * @param num_groups Number of MOC energy groups
  */
 void Cmfd::setNumMOCGroups(int num_groups) {
   _num_moc_groups = num_groups;
@@ -1056,104 +1080,100 @@ void Cmfd::setNumFSRs(int num_fsrs) {
 
 
 /** @brief Split the currents of the Mesh cell corners to the nearby surfaces.
- * @details This metohd splits the current from each corner evenly to the two
- *          adjoining surfaces.
+ *  @details This method splits the current from each corner evenly to the two
+ *           adjoining surfaces.
  */
 void Cmfd::splitCorners() {
 
-  log_printf(INFO, "splitting corners...");
-    
+  log_printf(INFO, "Splitting CMFD corner currents...");
+
   FP_PRECISION current;
 
   #pragma omp parallel for private(current)
   for (int y = 0; y < _num_y; y++) {
     for (int x = 0; x < _num_x; x++) {
-      int cell = y*_num_x + x;
-      for (int s = 4; s < NUM_SURFACES; s++) {
+      int cell = y * _num_x + x;
+      for (int c = 0; c < NUM_CORNERS; c++) {
 
-        /* SURFACE_X_MIN_Y_MIN */
-        if (s == SURFACE_X_MIN_Y_MIN) {
+        /* Increment current for surfaces in current cell */
+        for (int e=0; e > _num_cmfd_groups; e++) {
+          current = 0.5 * _corner_currents->getValue
+            (cell, c * _num_cmfd_groups + e);
+
+          /* Increment current for surface clockwise of corner */
+          _surface_currents->incrementValue
+            (cell, c * _num_cmfd_groups + e, current);
+
+          /* Increment current for surface counter-clockwise of corner */
+          _surface_currents->incrementValue
+            (cell, ((c + 1) % NUM_CORNERS) * _num_cmfd_groups + e, current);
+        }
+
+        /* Increment current for surfaces in neighboring cells */
+
+        /* CORNER_X_MIN_Y_MIN */
+        if (c == CORNER_X_MIN_Y_MIN) {
           for (int e=0; e > _num_cmfd_groups; e++) {
-            current = 0.5*_surface_currents->getValue
-              (cell, s*_num_cmfd_groups + e);
-            
-            _surface_currents->incrementValue
-              (cell, SURFACE_X_MIN*_num_cmfd_groups + e, current);
-            _surface_currents->incrementValue
-              (cell, SURFACE_Y_MIN*_num_cmfd_groups + e, current);
-            
+            current = 0.5 * _corner_currents->getValue
+              (cell, c * _num_cmfd_groups + e);
+
             if (x != 0)
               _surface_currents->incrementValue
-                (cell-1, SURFACE_Y_MIN*_num_cmfd_groups + e, current);
+                (cell - 1, SURFACE_Y_MIN * _num_cmfd_groups + e, current);
             if (y != 0)
               _surface_currents->incrementValue
-                (cell-_num_x, SURFACE_X_MIN*_num_cmfd_groups + e, current);
+                (cell - _num_x, SURFACE_X_MIN * _num_cmfd_groups + e, current);
           }
         }
-        
-        /* SURFACE_X_MAX_Y_MIN */
-        else if (s == SURFACE_X_MAX_Y_MIN) {
+
+        /* CORNER_X_MAX_Y_MIN */
+        else if (c == CORNER_X_MAX_Y_MIN) {
           for (int e=0; e > _num_cmfd_groups; e++) {
-            current = 0.5*_surface_currents->getValue
-              (cell, s*_num_cmfd_groups + e);
-            
-            _surface_currents->incrementValue
-              (cell, SURFACE_X_MAX*_num_cmfd_groups + e, current);
-            _surface_currents->incrementValue
-              (cell, SURFACE_Y_MIN*_num_cmfd_groups + e, current);
-            
+            current = 0.5 * _corner_currents->getValue
+              (cell, c * _num_cmfd_groups + e);
+
             if (x != _num_x - 1)
               _surface_currents->incrementValue
-                (cell+1, SURFACE_Y_MIN*_num_cmfd_groups + e, current);
+                (cell + 1, SURFACE_Y_MIN * _num_cmfd_groups + e, current);
             if (y != 0)
               _surface_currents->incrementValue
-                (cell-_num_x, SURFACE_X_MAX*_num_cmfd_groups + e, current);
+                (cell - _num_x, SURFACE_X_MAX * _num_cmfd_groups + e, current);
           }
         }
-        
-        /* SURFACE_X_MIN_Y_MAX */
-        if (s == SURFACE_X_MIN_Y_MAX) {
+
+        /* CORNER_X_MIN_Y_MAX */
+        if (c == CORNER_X_MIN_Y_MAX) {
           for (int e=0; e > _num_cmfd_groups; e++) {
-            current = 0.5*_surface_currents->getValue
-              (cell, s*_num_cmfd_groups + e);
-            
-            _surface_currents->incrementValue
-              (cell, SURFACE_X_MIN*_num_cmfd_groups + e, current);
-            _surface_currents->incrementValue
-              (cell, SURFACE_Y_MAX*_num_cmfd_groups + e, current);
-            
+            current = 0.5 * _corner_currents->getValue
+              (cell, c * _num_cmfd_groups + e);
+
             if (x != 0)
               _surface_currents->incrementValue
-                (cell-1, SURFACE_Y_MAX*_num_cmfd_groups + e, current);
+                (cell - 1, SURFACE_Y_MAX * _num_cmfd_groups + e, current);
             if (y != _num_y - 1)
               _surface_currents->incrementValue
-                (cell+_num_x, SURFACE_X_MIN*_num_cmfd_groups + e, current);
+                (cell + _num_x, SURFACE_X_MIN * _num_cmfd_groups + e, current);
           }
         }
-        
-        /* SURFACE_X_MAX_Y_MAX */
-        if (s == SURFACE_X_MAX_Y_MAX) {
+
+        /* CORNER_X_MAX_Y_MAX */
+        if (c == CORNER_X_MAX_Y_MAX) {
           for (int e=0; e > _num_cmfd_groups; e++) {
-            current = 0.5*_surface_currents->getValue
-              (cell, s*_num_cmfd_groups + e);
-            
-            _surface_currents->incrementValue
-              (cell, SURFACE_X_MAX*_num_cmfd_groups + e, current);
-            _surface_currents->incrementValue
-              (cell, SURFACE_Y_MAX*_num_cmfd_groups + e, current);
-            
+            current = 0.5 * _corner_currents->getValue
+              (cell, c * _num_cmfd_groups + e);
+
             if (x != _num_x - 1)
               _surface_currents->incrementValue
-                (cell+1, SURFACE_Y_MAX*_num_cmfd_groups + e, current);
+                (cell + 1, SURFACE_Y_MAX * _num_cmfd_groups + e, current);
             if (y != _num_y - 1)
               _surface_currents->incrementValue
-                (cell+_num_x, SURFACE_X_MAX*_num_cmfd_groups + e, current);
+                (cell + _num_x, SURFACE_X_MAX * _num_cmfd_groups + e, current);
           }
         }
 
         /* Zero out corner currents */
         for (int e=0; e > _num_cmfd_groups; e++)
-          _surface_currents->setValue(cell, s*_num_cmfd_groups + e, 0.0);
+          _corner_currents->setValue(cell, c * _num_cmfd_groups + e, 0.0);
       }
     }
   }
@@ -1442,14 +1462,23 @@ void Cmfd::generateKNearestStencils() {
     }
   }
 
-  /* Precompute the total distance of each FSR centroid to its k-nearest
-   * CMFD cells */
-  _centroid_total_distances = new FP_PRECISION[_num_FSRs];
+  /* Precompute (1.0 - cell distance / total distance) of each FSR centroid to
+   * its k-nearest CMFD cells */
+  FP_PRECISION total_distance;
   for (int i=0; i < _num_FSRs; i++) {
-    _centroid_total_distances[i] = 1.e-10;
+    total_distance = 1.e-10;
+
+    /* Compute the total distance of each FSR centroid to its k-nearest CMFD
+     * cells */
     for (stencil_iter = _k_nearest_stencils[i].begin();
          stencil_iter < _k_nearest_stencils[i].end(); ++stencil_iter)
-      _centroid_total_distances[i] += stencil_iter->second;
+      total_distance += stencil_iter->second;
+
+    /* Reset the second stencil value to
+     * (1.0 - cell_distance / total_distance) */
+    for (stencil_iter = _k_nearest_stencils[i].begin();
+         stencil_iter < _k_nearest_stencils[i].end(); ++stencil_iter)
+      stencil_iter->second = 1.0 - stencil_iter->second / total_distance;
   }
 }
 
@@ -1479,12 +1508,9 @@ void Cmfd::generateKNearestStencils() {
 FP_PRECISION Cmfd::getUpdateRatio(int cell, int group, int fsr) {
 
   FP_PRECISION ratio = 0.0;
-  FP_PRECISION total_distance;
   std::vector< std::pair<int, FP_PRECISION> >::iterator iter;
 
   if (_centroid_update_on) {
-
-    total_distance = _centroid_total_distances[fsr];
 
     /* Compute the ratio */
     for (iter = _k_nearest_stencils[fsr].begin();
@@ -1492,49 +1518,42 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell, int group, int fsr) {
 
       /* LOWER LEFT CORNER */
       if (iter->first == 0)
-        ratio += (1.0 - iter->second/total_distance) *
-          _flux_ratio->getValue(cell - _num_x - 1, group);
+        ratio += iter->second * _flux_ratio->getValue(cell - _num_x - 1, group);
+
       /* BOTTOM SIDE */
       else if (iter->first == 1)
-        ratio += (1.0 - iter->second/total_distance) *
-          _flux_ratio->getValue(cell - _num_x, group);
+        ratio += iter->second * _flux_ratio->getValue(cell - _num_x, group);
 
       /* LOWER RIGHT CORNER */
       else if (iter->first == 2)
-        ratio += (1.0 - iter->second/total_distance) *
-          _flux_ratio->getValue(cell - _num_x + 1, group);
+        ratio += iter->second * _flux_ratio->getValue(cell - _num_x + 1, group);
 
       /* LEFT SIDE */
       else if (iter->first == 3)
-        ratio += (1.0 - iter->second/total_distance) *
-          _flux_ratio->getValue(cell - 1, group);
+        ratio += iter->second * _flux_ratio->getValue(cell - 1, group);
 
       /* RIGHT SIDE */
       else if (iter->first == 5)
-        ratio += (1.0 - iter->second/total_distance) *
-          _flux_ratio->getValue(cell + 1, group);
+        ratio += iter->second * _flux_ratio->getValue(cell + 1, group);
 
       /* UPPER LEFT CORNER */
       else if (iter->first == 6)
-        ratio += (1.0 - iter->second/total_distance) *
-          _flux_ratio->getValue(cell + _num_x - 1, group);
+        ratio += iter->second * _flux_ratio->getValue(cell + _num_x - 1, group);
 
       /* TOP SIDE */
       else if (iter->first == 7)
-        ratio += (1.0 - iter->second/total_distance) *
-          _flux_ratio->getValue(cell + _num_x, group);
+        ratio += iter->second * _flux_ratio->getValue(cell + _num_x, group);
 
       /* TOP RIGHT CORNER */
       else if (iter->first == 8)
-        ratio += (1.0 - iter->second/total_distance) *
-          _flux_ratio->getValue(cell + _num_x + 1, group);
+        ratio += iter->second * _flux_ratio->getValue(cell + _num_x + 1, group);
     }
 
     /* INTERNAL */
     if (_k_nearest_stencils[fsr].size() == 1)
       ratio += _flux_ratio->getValue(cell, group);
     else{
-      ratio += (1.0 - _k_nearest_stencils[fsr][0].second/total_distance) *
+      ratio += _k_nearest_stencils[fsr][0].second *
         _flux_ratio->getValue(cell, group);
       ratio /= (_k_nearest_stencils[fsr].size() - 1);
     }
@@ -1725,66 +1744,112 @@ void Cmfd::setKNearest(int k_nearest) {
 
 
 /**
- * @brief Zero the surface currents for each mesh cell and energy group.
+ * @brief Zero the surface and corner currents for each mesh cell and energy
+ *        group.
  */
-void Cmfd::zeroSurfaceCurrents() {
+void Cmfd::zeroCurrents() {
   _surface_currents->clear();
+  _corner_currents->clear();
 }
 
 
 /**
  * @brief Tallies the current contribution from this segment across the
- *        the appropriate CMFD mesh cell surface.
- * @param curr_segment the current Track segment
- * @param track_flux the outgoing angular flux for this segment
- * @param polar_weights array of polar weights for some azimuthal angle
- * @param fwd boolean indicating direction of integration along segment
+ *        the appropriate CMFD mesh cell surface or corner.
+ * @param curr_segment The current Track segment
+ * @param track_flux The outgoing angular flux for this segment
+ * @param polar_weights Array of polar weights for some azimuthal angle
+ * @param fwd Boolean indicating direction of integration along segment
  */
-void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
-                               FP_PRECISION* polar_weights, bool fwd) {
+void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
+                        FP_PRECISION* polar_weights, bool fwd) {
 
-  FP_PRECISION surf_current;
-  int surf_id;
+  FP_PRECISION current;
+  int surf_id, corner_id, cell_id;
 
-  if (curr_segment->_cmfd_surface_fwd != -1 && fwd) {
+  if (fwd) {
+    if (curr_segment->_cmfd_surface_fwd != -1) {
 
-    surf_id = curr_segment->_cmfd_surface_fwd % NUM_SURFACES;
-    int cell_id = curr_segment->_cmfd_surface_fwd / NUM_SURFACES;
-    
-    for (int e=0; e < _num_moc_groups; e++) {
-      surf_current = 0.;
+      surf_id = curr_segment->_cmfd_surface_fwd % NUM_SURFACES;
+      cell_id = curr_segment->_cmfd_surface_fwd / NUM_SURFACES;
 
-      int g = getCmfdGroup(e);
+      for (int e=0; e < _num_moc_groups; e++) {
+        current = 0.;
 
-      for (int p=0; p < _num_polar; p++)
-        surf_current += track_flux(p,e) * polar_weights[p] / 2.;
+        int g = getCmfdGroup(e);
 
-      /* Increment current (polar and azimuthal weighted flux, group) */
-      _surface_currents->incrementValue
-        (cell_id, surf_id*_num_cmfd_groups + g, surf_current);
+        for (int p=0; p < _num_polar; p++)
+          current += track_flux(p,e) * polar_weights[p];
+
+        /* Increment current (polar and azimuthal weighted flux, group) */
+        _surface_currents->incrementValue
+          (cell_id, surf_id*_num_cmfd_groups + g, current / 2.);
+      }
+    }
+    else if (curr_segment->_cmfd_corner_fwd != -1) {
+
+      corner_id = curr_segment->_cmfd_corner_fwd % NUM_CORNERS;
+      cell_id = curr_segment->_cmfd_corner_fwd / NUM_CORNERS;
+
+      for (int e=0; e < _num_moc_groups; e++) {
+        current = 0.;
+
+        int g = getCmfdGroup(e);
+
+        for (int p=0; p < _num_polar; p++)
+          current += track_flux(p,e) * polar_weights[p];
+
+        /* Increment current (polar and azimuthal weighted flux, group) */
+        _corner_currents->incrementValue
+          (cell_id, corner_id*_num_cmfd_groups + g, current / 2.);
+      }
     }
   }
-  else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd) {
+  else {
+    if (curr_segment->_cmfd_surface_bwd != -1) {
 
-    surf_id = curr_segment->_cmfd_surface_bwd % NUM_SURFACES;
-    int cell_id = curr_segment->_cmfd_surface_bwd / NUM_SURFACES;
-    
-    for (int e=0; e < _num_moc_groups; e++) {
-      surf_current = 0.;
+      surf_id = curr_segment->_cmfd_surface_bwd % NUM_SURFACES;
+      cell_id = curr_segment->_cmfd_surface_bwd / NUM_SURFACES;
 
-      int g = getCmfdGroup(e);
-      
-      for (int p=0; p < _num_polar; p++)
-        surf_current += track_flux(p,e) * polar_weights[p] / 2.;
+      for (int e=0; e < _num_moc_groups; e++) {
+        current = 0.;
 
-      /* Increment current (polar and azimuthal weighted flux, group) */
-      _surface_currents->incrementValue
-        (cell_id, surf_id*_num_cmfd_groups + g, surf_current);
+        int g = getCmfdGroup(e);
+
+        for (int p=0; p < _num_polar; p++)
+          current += track_flux(p,e) * polar_weights[p];
+
+        /* Increment current (polar and azimuthal weighted flux, group) */
+        _surface_currents->incrementValue
+          (cell_id, surf_id*_num_cmfd_groups + g, current / 2.);
+      }
+    }
+    else if (curr_segment->_cmfd_corner_bwd != -1) {
+
+      corner_id = curr_segment->_cmfd_corner_bwd % NUM_CORNERS;
+      cell_id = curr_segment->_cmfd_corner_bwd / NUM_CORNERS;
+
+      for (int e=0; e < _num_moc_groups; e++) {
+        current = 0.;
+
+        int g = getCmfdGroup(e);
+
+        for (int p=0; p < _num_polar; p++)
+          current += track_flux(p,e) * polar_weights[p];
+
+        /* Increment current (polar and azimuthal weighted flux, group) */
+        _corner_currents->incrementValue
+          (cell_id, corner_id*_num_cmfd_groups + g, current / 2.);
+      }
     }
   }
 }
 
 
+/**
+ * @brief Initialize the Matrix and Vector objects, k-nearest stencils, the
+ *        CMFD cell currents and MOC materials.
+ */
 void Cmfd::initialize() {
 
   try{
@@ -1801,7 +1866,7 @@ void Cmfd::initialize() {
     
     /* Initialize k-nearest stencils, currents, flux, and materials */
     generateKNearestStencils();
-    initializeSurfaceCurrents();
+    initializeCurrents();
     initializeMaterials();
   }
   catch(std::exception &e) {

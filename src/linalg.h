@@ -17,6 +17,7 @@
 #include <omp.h>
 #include "Matrix.h"
 #include "Vector.h"
+#include "constants.h"
 #endif
 
 FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,

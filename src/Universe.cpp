@@ -1346,58 +1346,136 @@ int Lattice::getLatticeCell(Point* point) {
 
 
 /**
+ * @brief Finds the distance from a point to a particular lattice cell surface.
+ * @param cell the cell index that the point is in.
+ * @param point a pointer to a point being evaluated.
+ * @param surface a surface id to get the distance to.
+ * @return the distance to the lattice cell surface of interest.
+ */
+double Lattice::getDistanceToSurface(int cell, Point* point, int surface) {
+
+  /* Get coordinates of the point */
+  double x = point->getX();
+  double y = point->getY();
+
+  /* Check that the surface is valid */
+  if (surface < 0 || surface >= NUM_SURFACES)
+    log_printf(ERROR, "Unable to get the distance from point (%f, %f) to "
+               "lattice surface %d since there are only %d surfaces",
+               x, y, surface, NUM_SURFACES);
+
+  /* Get lattice indices of the cell */
+  int lat_x = cell % _num_x;
+  int lat_y = cell / _num_x;
+
+  double dist;
+
+  /* Return the distance to the corresponding lattice cell surface */
+  if (surface == SURFACE_X_MIN) {
+    dist = lat_x*_width_x - _width_x*_num_x/2.0 + _offset.getX();
+    return fabs(x - dist);
+  }
+  else if (surface == SURFACE_X_MAX) {
+    dist = (lat_x + 1)*_width_x - _width_x*_num_x/2.0 + _offset.getX();
+    return fabs(x - dist);
+  }
+  else if (surface == SURFACE_Y_MIN) {
+    dist = lat_y*_width_y - _width_y*_num_y/2.0 + _offset.getY();
+    return fabs(y - dist);
+  }
+  else {
+    dist = (lat_y + 1)*_width_y - _width_y*_num_y/2.0 + _offset.getY();
+    return fabs(y - dist);
+  }
+}
+
+/**
  * @brief Finds the Lattice cell surface that a point lies on.
- *        If the point is not on a surface, -1 is returned.
- * @details The surface indices for a lattice cell are 0 (left),
- *         1, (bottom), 2 (right), 3 (top), 4 (bottom-left corner),
- *         5 (bottom-right corner), 6 (top-right corner), and 
- *         7 (top-left corner). The index returned takes into account
- *         the cell index and returns 8*cell_index + surface_index.
+ *        If the point is not on exactly one surface, -1 is returned.
+ * @details The surface indices are defined in the constants.h file and the
+ *         index returned takes into account the cell index and returns
+ *         NUM_SURFACES * cell_index + surface_index.
  * @param cell the cell index that the point is in.
  * @param point a pointer to a point being evaluated.
  * @return the Lattice surface index.
  */
 int Lattice::getLatticeSurface(int cell, Point* point) {
 
-  /* Get coordinates of point and cell boundaries */
-  double x = point->getX();
-  double y = point->getY();
-  int lat_x = cell % _num_x;
-  int lat_y = cell / _num_x;
-  double left = lat_x*_width_x - _width_x*_num_x/2.0 + _offset.getX();
-  double right = (lat_x + 1)*_width_x - _width_x*_num_x/2.0 + _offset.getX();
-  double bottom = lat_y*_width_y - _width_y*_num_y/2.0 + _offset.getY();
-  double top = (lat_y+1)*_width_y - _width_y*_num_y/2.0 + _offset.getY();
-  int surface = -1;
+  /* Initialize array of distances to each lattice cell surface */
+  double surface_distances[NUM_SURFACES];
 
-  /* Check if point is on left boundary */ 
-  if (fabs(x - left) <= ON_SURFACE_THRESH) {
-    /* Check if point is on bottom boundary */ 
-    if (fabs(y - bottom) <= ON_SURFACE_THRESH)
-      surface = cell*NUM_SURFACES + SURFACE_X_MIN_Y_MIN;
-    /* Check if point is on top boundary */ 
-    else if (fabs(y - top) <= ON_SURFACE_THRESH)
-      surface = cell*NUM_SURFACES + SURFACE_X_MIN_Y_MAX;
-    else
-      surface = cell*NUM_SURFACES + SURFACE_X_MIN;
-  }
-  /* Check if point is on right boundary */ 
-  else if (fabs(x - right) <= ON_SURFACE_THRESH) {
-    /* Check if point is on bottom boundary */ 
-    if (fabs(y - bottom) <= ON_SURFACE_THRESH)
-      surface = cell*NUM_SURFACES + SURFACE_X_MAX_Y_MIN;
-    /* Check if point is on top boundary */ 
-    else if (fabs(y - top) <= ON_SURFACE_THRESH)
-      surface = cell*NUM_SURFACES + SURFACE_X_MAX_Y_MAX;
-    else
-      surface = cell*NUM_SURFACES + SURFACE_X_MAX;
-  }
-  /* Check if point is on bottom boundary */ 
-  else if (fabs(y - bottom) <= ON_SURFACE_THRESH)
-    surface = cell*NUM_SURFACES + SURFACE_Y_MIN;
-  /* Check if point is on top boundary */ 
-  else if (fabs(y - top) <= ON_SURFACE_THRESH)
-    surface = cell*NUM_SURFACES + SURFACE_Y_MAX;
+  /* Get the distance to all the lattice cell surfaces */
+  for (int s=0; s < NUM_SURFACES; s++)
+    surface_distances[s] = getDistanceToSurface(cell, point, s);
 
-  return surface;
+  /* Loop over the surfaces of the lattice cell */
+  for (int s1=0; s1 < NUM_SURFACES; s1++) {
+
+    /* Check if point is on surface */
+    if (surface_distances[s1] <= ON_SURFACE_THRESH) {
+
+      /* If point is on surface, check if point is also on another surface.
+       * This would indicate a corner crossing, which is not considered a
+       * surface crossing, but rather a corner crossing. */
+      for (int s2=s1 + 1; s2 < NUM_SURFACES; s2++) {
+
+        /* If point touches two surfaces (i.e. a corner), return -1 */
+        if (surface_distances[s2] <= ON_SURFACE_THRESH)
+          return -1;
+      }
+
+      /* If corner was not encountered, return the surface id */
+      return cell*NUM_SURFACES + s1;
+    }
+  }
+
+  /* If no surface was encountered, return -1 */
+  return -1;
+}
+
+
+/**
+ * @brief Finds the Lattice cell corner that a point lies on.
+ *        If the point is on exactly one surface, -1 is returned.
+ * @details The surface and corner indices are defined in the constants.h file
+ *         and the index returned takes into account the cell index and returns
+ *         NUM_SURFACES * cell_index + corner_index.
+ * @param cell the cell index that the point is in.
+ * @param point a pointer to a point being evaluated.
+ * @return the Lattice corner index.
+ */
+int Lattice::getLatticeCorner(int cell, Point* point) {
+
+  /* Initialize array of distances to each lattice cell surface */
+  double surface_distances[NUM_SURFACES];
+  int corner;
+
+  /* Get the distance to all the lattice cell surfaces */
+  for (int s=0; s < NUM_SURFACES; s++)
+    surface_distances[s] = getDistanceToSurface(cell, point, s);
+
+  /* Loop over the surfaces of the lattice cell */
+  for (int s=0; s < NUM_SURFACES; s++) {
+
+    /* Check if point is on surface */
+    if (surface_distances[s] <= ON_SURFACE_THRESH) {
+
+      /* Check if point is on corner in clock-wise direction */
+      corner = s;
+      if (surface_distances[(s+1) % NUM_SURFACES] <= ON_SURFACE_THRESH)
+        return cell*NUM_SURFACES + corner;
+
+      /* Check if point is on corner in counter clock-wise direction */
+      corner = (s - 1 + NUM_SURFACES) % NUM_SURFACES;
+      if (surface_distances[(s - 1 + NUM_SURFACES) % NUM_SURFACES] <=
+          ON_SURFACE_THRESH)
+        return cell*NUM_SURFACES + corner;
+
+      /* If point is only on one surface, return -1 */
+      return -1;
+    }
+  }
+
+  /* If corner was encountered, return -1 */
+  return -1;
 }

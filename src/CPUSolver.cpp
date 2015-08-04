@@ -519,7 +519,7 @@ void CPUSolver::transportSweep() {
   flattenFSRFluxes(0.0);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->zeroSurfaceCurrents();
+    _cmfd->zeroCurrents();
 
   /* Loop over azimuthal angle halfspaces */
   for (int i=0; i < 2; i++) {
@@ -551,7 +551,7 @@ void CPUSolver::transportSweep() {
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
-        tallySurfaceCurrent(curr_segment, azim_index, track_flux, true);
+        tallyCurrent(curr_segment, azim_index, track_flux, true);
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -563,7 +563,7 @@ void CPUSolver::transportSweep() {
       for (int s=num_segments-1; s > -1; s--) {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
-        tallySurfaceCurrent(curr_segment, azim_index, track_flux, false);
+        tallyCurrent(curr_segment, azim_index, track_flux, false);
       }
       delete [] thread_fsr_flux;
 
@@ -621,19 +621,19 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
 
 /**
  * @brief Tallies the current contribution from this segment across the
- *        the appropriate CMFD mesh cell surface.
+ *        the appropriate CMFD mesh cell surface or corner.
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index the azimuthal index for this segmenbt
  * @param track_flux a pointer to the Track's angular flux
  * @param fwd boolean indicating direction of integration along segment
  */
-void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
-                                    FP_PRECISION* track_flux, bool fwd) {
+void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
+                             FP_PRECISION* track_flux, bool fwd) {
 
-  /* Tally surface currents if CMFD is in use */
+  /* Tally surface or corner currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->tallySurfaceCurrent(curr_segment, track_flux, 
-                               &_polar_weights(azim_index,0), fwd);
+    _cmfd->tallyCurrent(curr_segment, track_flux,
+                        &_polar_weights(azim_index,0), fwd);
 }
 
 
