@@ -797,6 +797,7 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   /* Initialize keff to 1 for FSR source calculations */
   _k_eff = 1.;
 
+  _num_iterations = 0;
   FP_PRECISION residual;
 
   /* Initialize data structures */
@@ -828,24 +829,20 @@ void Solver::computeFlux(int max_iters, solverMode mode,
     addSourceToScalarFlux();
     residual = computeResidual(SCALAR_FLUX);
     storeFSRFluxes();
+    _num_iterations++;
 
     log_printf(NORMAL, "Iteration %d:\tres = %1.3E", i, residual);
 
-    /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh) {
-      _num_iterations = i;
-      _timer->stopTimer();
-      _timer->recordSplit("Total time");
-      resetMaterials(mode);
-      return;
-    }
+    /* Check for convergence */
+    if (i > 1 && residual < _converge_thresh)
+      break;
   }
 
-  log_printf(WARNING, "Unable to converge the flux");
+  if (_num_iterations == max_iters-1)
+    log_printf(WARNING, "Unable to converge the flux");
 
   resetMaterials(mode);
 
-  _num_iterations = max_iters;
   _timer->stopTimer();
   _timer->recordSplit("Total time");
 }
@@ -907,7 +904,10 @@ void Solver::computeSource(int max_iters, solverMode mode,
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
 
+  /* Set the eigenvalue to the user-specified value */
   _k_eff = k_eff;
+
+  _num_iterations = 0;
   FP_PRECISION residual;
 
   /* Initialize data structures */
@@ -931,24 +931,20 @@ void Solver::computeSource(int max_iters, solverMode mode,
     addSourceToScalarFlux();
     residual = computeResidual(res_type);
     storeFSRFluxes();
+    _num_iterations++;
 
     log_printf(NORMAL, "Iteration %d:\tres = %1.3E", i, residual);
 
-    /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh) {
-      _num_iterations = i;
-      _timer->stopTimer();
-      _timer->recordSplit("Total time");
-      resetMaterials(mode);
-      return;
-    }
+    /* Check for convergence */
+    if (i > 1 && residual < _converge_thresh)
+      break;
   }
 
-  log_printf(WARNING, "Unable to converge the source");
+  if (_num_iterations == max_iters-1)
+    log_printf(WARNING, "Unable to converge the source distribution");
 
   resetMaterials(mode);
 
-  _num_iterations = max_iters;
   _timer->stopTimer();
   _timer->recordSplit("Total time");
 }
@@ -993,6 +989,7 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();
 
+  _num_iterations = 0;
   FP_PRECISION residual;
 
   /* An initial guess for the eigenvalue */
@@ -1036,22 +1033,18 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
 
     residual = computeResidual(res_type);
     storeFSRFluxes();
+    _num_iterations++;
 
-    /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh) {
-      _num_iterations = i;
-      _timer->stopTimer();
-      _timer->recordSplit("Total time");
-      resetMaterials(mode);
-      return;
-    }
+    /* Check for convergence */
+    if (i > 1 && residual < _converge_thresh)
+      break;
   }
 
-  log_printf(WARNING, "Unable to converge the source distribution");
+  if (_num_iterations == max_iters-1)
+    log_printf(WARNING, "Unable to converge the source distribution");
 
   resetMaterials(mode);
 
-  _num_iterations = max_iters;
   _timer->stopTimer();
   _timer->recordSplit("Total time");
 }

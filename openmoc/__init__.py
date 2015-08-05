@@ -15,6 +15,7 @@ import options
 import materialize
 import plotter
 import process
+import krylov
 
 # Tell Python to recognize CTRL+C and stop the C++ extension module
 # when this is passed in from the keyboard
