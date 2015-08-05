@@ -860,15 +860,15 @@ void TrackGenerator::initializeBoundaryConditions() {
   
   /* Loop over the all the tracks and set the incoming and outgoing tracks
    * and incoming and outgoing boundary conditions. */
-  for (int a=0; a < _num_azim; a++){
+  for (int a=0; a < _num_azim; a++) {
     ac = _num_azim - a - 1;
-    for (int i=0; i < _num_tracks[a]; i++){
+    for (int i=0; i < _num_tracks[a]; i++) {
 
       /* Get current track */
       track = &_tracks[a][i];
 
-      /* Set boundary conditions for tracks in [0,PI/2] */
-      if (a < _num_azim/2){
+      /* Set boundary conditions for tracks in [0, PI/2] */
+      if (a < _num_azim/2) {
         if (i < _num_y[a])
           track->setBCOut(_geometry->getMaxXBoundaryType());
         else
@@ -880,7 +880,7 @@ void TrackGenerator::initializeBoundaryConditions() {
           track->setBCIn(_geometry->getMinXBoundaryType());        
       }
 
-      /* Set boundary conditions for tracks in [PI/2,PI] */
+      /* Set boundary conditions for tracks in [PI/2, PI] */
       else{
         if (i < _num_y[a])
           track->setBCOut(_geometry->getMinXBoundaryType());
