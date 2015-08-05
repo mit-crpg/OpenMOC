@@ -15,11 +15,11 @@ else:
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 # Build a log file name using the date and time
-g = lambda x: x.zfill(2)
+left_pad = lambda x: x.zfill(2)
 now = datetime.datetime.now()
 time = (now.month, now.day, now.year, now.hour, now.minute, now.second)
-year_string = '-'.join(map(g, map(str, (now.month, now.day, now.year))))
-today_string = ':'.join(map(g, map(str, (now.hour, now.minute, now.second))))
+year_string = '-'.join(map(left_pad, map(str, (now.month, now.day, now.year))))
+today_string = ':'.join(map(left_pad, map(str, (now.hour, now.minute, now.second))))
 time_string = year_string + '--' + today_string
 initialize_logger()
 set_log_filename('openmoc-' + time_string + '.log');

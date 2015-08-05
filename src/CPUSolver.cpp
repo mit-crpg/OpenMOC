@@ -371,13 +371,13 @@ void CPUSolver::computeFSRSources() {
       material = _FSR_materials[r];
       sigma_t = material->getSigmaT();
 
-      /* Compute scatter + fission source for group G */
-      for (int G=0; G < _num_groups; G++) {
-        for (int g=0; g < _num_groups; g++) {
-          sigma_s = material->getSigmaSByGroup(g+1,G+1);
-          fiss_mat = material->getFissionMatrixByGroup(g+1,G+1);
-          scatter_sources[g] = sigma_s * _scalar_flux(r,g);
-          fission_sources[g] = fiss_mat * _scalar_flux(r,g);
+      /* Compute scatter + fission source for group g */
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
+          fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
+          scatter_sources[g_prime] = sigma_s * _scalar_flux(r,g_prime);
+          fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
         }
 
         scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
@@ -387,9 +387,9 @@ void CPUSolver::computeFSRSources() {
         fission_source /= _k_eff;
 
         /* Compute total (scatter+fission+fixed) reduced source */
-        _reduced_sources(r,G) = _fixed_sources(r,G);
-        _reduced_sources(r,G) += scatter_source + fission_source;
-        _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
+        _reduced_sources(r,g) = _fixed_sources(r,g);
+        _reduced_sources(r,g) += scatter_source + fission_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI / sigma_t[g];
       }
     }
 
@@ -421,19 +421,19 @@ void CPUSolver::computeFSRFissionSources() {
       material = _FSR_materials[r];
       sigma_t = material->getSigmaT();
 
-      /* Compute scatter + fission source for group G */
-      for (int G=0; G < _num_groups; G++) {
-        for (int g=0; g < _num_groups; g++) {
-          fiss_mat = material->getFissionMatrixByGroup(g+1,G+1);
-          fission_sources[g] = fiss_mat * _scalar_flux(r,g);
+      /* Compute scatter + fission source for group g */
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
+          fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
         }
         
         fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
                                                     _num_groups);
 
         /* Compute total (fission) reduced source */
-        _reduced_sources(r,G) = fission_source;
-        _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
+        _reduced_sources(r,g) = fission_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI / sigma_t[g];
       }
     }
 
@@ -464,19 +464,19 @@ void CPUSolver::computeFSRScatterSources() {
       material = _FSR_materials[r];
       sigma_t = material->getSigmaT();
 
-      /* Compute scatter + fission source for group G */
-      for (int G=0; G < _num_groups; G++) {
-        for (int g=0; g < _num_groups; g++) {
-          sigma_s = material->getSigmaSByGroup(g+1,G+1);
-          scatter_sources[g] = sigma_s * _scalar_flux(r,g);
+      /* Compute scatter + fission source for group g */
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
+          scatter_sources[g_prime] = sigma_s * _scalar_flux(r,g_prime);
         }
 
         scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
                                                     _num_groups);
 
         /* Compute total (scatter) reduced source */
-        _reduced_sources(r,G) = scatter_source;
-        _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
+        _reduced_sources(r,g) = scatter_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI / sigma_t[g];
       }
     }
 
