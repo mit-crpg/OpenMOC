@@ -168,23 +168,23 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
     sigma_s = curr_material->_sigma_s;
     fiss_mat = curr_material->_fiss_matrix;
 
-    /* Compute scatter + fission source for group G */
-    for (int G=0; G < *num_groups; G++) {
+    /* Compute scatter + fission source for group g */
+    for (int g=0; g < *num_groups; g++) {
       scatter_source = 0;
       fission_source = 0;
 
-      for (int g=0; g < *num_groups; g++) {
-        scatter_source += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
-        fission_source += fiss_mat[G*(*num_groups)+g] * scalar_flux(tid,g);
+      for (int g_prime=0; g_prime < *num_groups; g_prime++) {
+        scatter_source += sigma_s[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
+        fission_source += fiss_mat[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
       }
 
       fission_source *= inverse_k_eff;
 
       /* Compute total (scatter+fission+fixed) reduced source */
-      reduced_sources(tid,G) = fixed_sources(tid,G);
-      reduced_sources(tid,G) += scatter_source + fission_source;
-      reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
-      reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
+      reduced_sources(tid,g) = fixed_sources(tid,g);
+      reduced_sources(tid,g) += scatter_source + fission_source;
+      reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
+      reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
     }
 
     /* Increment the thread id */
