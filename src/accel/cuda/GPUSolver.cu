@@ -228,14 +228,14 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
     fission_source = 0;
 
     /* Compute total fission source for current FSR */
-    for (int e=0; e < *num_groups; e++)
-      fission_source += scalar_flux(tid,e) * nu_sigma_f[e];
+    for (int g_prime=0; g_prime < *num_groups; g_prime++)
+      fission_source += scalar_flux(tid,g_prime) * nu_sigma_f[g_prime];
 
-    /* Set the reduced source for FSR r in each group G */
-    for (int G=0; G < *num_groups; G++) {
-      reduced_sources(tid,G) = fission_source * chi[G];
-      reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
-      reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
+    /* Set the reduced source for FSR r in each group g */
+    for (int g=0; g < *num_groups; g++) {
+      reduced_sources(tid,g) = fission_source * chi[g];
+      reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
+      reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
     }
 
     /* Increment the thread id */
@@ -273,17 +273,17 @@ __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
     sigma_s = curr_material->_sigma_s;
     sigma_t = curr_material->_sigma_t;
 
-    /* Compute total scattering source for this FSR in group G */
-    for (int G=0; G < *num_groups; G++) {
+    /* Compute total scattering source for this FSR in group g */
+    for (int g=0; g < *num_groups; g++) {
       scatter_source = 0;
 
-      for (int g=0; g < *num_groups; g++)
-        scatter_source += sigma_s[G*(*num_groups)+g] * scalar_flux(tid,g);
+      for (int g_prime=0; g_prime < *num_groups; g_prime++)
+        scatter_source += sigma_s[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
 
       /* Set the reduced source for FSR r in group G */
-      reduced_sources(tid,G) = scatter_source;
-      reduced_sources(tid,G) *= ONE_OVER_FOUR_PI;
-      reduced_sources(tid,G) = __fdividef(reduced_sources(tid,G), sigma_t[G]);
+      reduced_sources(tid,g) = scatter_source;
+      reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
+      reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
     }
 
     /* Increment the thread id */
