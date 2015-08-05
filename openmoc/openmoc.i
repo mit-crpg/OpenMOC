@@ -67,6 +67,10 @@
 %ignore setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
 %ignore setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
 %ignore initializeFSRVectors();
+
+/* Instruct SWIG to ignore methods used in getting CSR Matrix format and Vector
+ * attributes. These attributes should be used internally only by the Matrix and
+ * Vector class methods and linear algrebra (linalg.h/linalg.cpp) methods. */
 %ignore getArray();
 %ignore getA();
 %ignore getIA();
@@ -126,9 +130,3 @@
 #endif
 
 #define printf PySys_WriteStdout
-
-#ifdef DOUBLE
-typedef double FP_PRECISION;
-#else
-typedef float FP_PRECISION;
-#endif

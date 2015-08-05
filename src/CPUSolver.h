@@ -28,10 +28,6 @@
  *  group for the outgoing reflective track from a given Track */
 #define track_out_flux(p,e) (track_out_flux[(p)*_num_groups + (e)])
 
-/** Indexing macro for the leakage for each polar angle and energy group
- *  for either the forward or reverse direction for a given Track */
-#define track_leakage(p,e) (track_leakage[(p)*_num_groups + (e)])
-
 
 /**
  * @class CPUSolver CPUSolver.h "src/CPUSolver.h"
@@ -48,20 +44,6 @@ protected:
   /** OpenMP mutual exclusion locks for atomic FSR scalar flux updates */
   omp_lock_t* _FSR_locks;
 
-  void initializeFluxArrays();
-  void initializeSourceArrays();
-  void initializeFSRs();
-
-  void zeroTrackFluxes();
-  void flattenFSRFluxes(FP_PRECISION value);
-  void storeFSRFluxes();
-  void normalizeFluxes();
-  void computeFSRSources();
-  void transportSweep();
-  void addSourceToScalarFlux();
-  void computeKeff();
-  double computeResidual(residualType res_type);
-
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
    * @param curr_segment a pointer to the Track segment of interest
@@ -73,14 +55,15 @@ protected:
                                FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
 
   /**
-   * @brief Computes the contribution to surface current from a Track segment.
+   * @brief Computes the contribution to surface or corner current from a Track
+   *        segment.
    * @param curr_segment a pointer to the Track segment of interest
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param track_flux a pointer to the Track's angular flux
    * @param fwd the direction of integration along the segment
    */
-  virtual void tallySurfaceCurrent(segment* curr_segment, int azim_index,
-                                   FP_PRECISION* track_flux, bool fwd);
+  virtual void tallyCurrent(segment* curr_segment, int azim_index,
+                            FP_PRECISION* track_flux, bool fwd);
 
   /**
    * @brief Updates the boundary flux for a Track given boundary conditions.
@@ -97,9 +80,27 @@ public:
   virtual ~CPUSolver();
 
   int getNumThreads();
+  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
   void setNumThreads(int num_threads);
   virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
+
+  void initializeFluxArrays();
+  void initializeSourceArrays();
+  void initializeFSRs();
+
+  void zeroTrackFluxes();
+  void flattenFSRFluxes(FP_PRECISION value);
+  void storeFSRFluxes();
+  void normalizeFluxes();
+  void computeFSRSources();
+  void computeFSRFissionSources();
+  void computeFSRScatterSources();
+  void transportSweep();
+  void addSourceToScalarFlux();
+  void computeKeff();
+  double computeResidual(residualType res_type);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };

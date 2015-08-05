@@ -69,6 +69,8 @@ Surface::~Surface() {
   if (!_neighbors.empty()) {
     _neighbors[-1]->clear();
     _neighbors[+1]->clear();
+    delete _neighbors[-1];
+    delete _neighbors[+1];
     _neighbors.clear();
   }
 }
