@@ -130,9 +130,3 @@
 #endif
 
 #define printf PySys_WriteStdout
-
-#ifdef DOUBLE
-typedef double FP_PRECISION;
-#else
-typedef float FP_PRECISION;
-#endif
