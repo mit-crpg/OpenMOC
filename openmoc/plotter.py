@@ -7,30 +7,10 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date March 10, 2013
 
+import os
 import sys
-
-## @var openmoc
-#  @brief The openmoc module in use in the Python script using the
-#         openmoc.plotter module.
-openmoc = ''
-
-# Determine which OpenMOC module is being used
-if 'openmoc.gnu.double' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.double']
-elif 'openmoc.gnu.single' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.single']
-elif 'openmoc.intel.double' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.double']
-elif 'openmoc.intel.single' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.single']
-elif 'openmoc.bgq.double' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.double']
-elif 'openmoc.bgq.single' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.single']
-else:
-  import openmoc
-
-
+import numpy as np
+import numpy.random
 import matplotlib
 
 # force headless backend, or set 'backend' to 'Agg'
@@ -38,16 +18,10 @@ import matplotlib
 matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
-
-# Force non-interactive mode, or set 'interactive' to False
-# in your ~/.matplotlib/matplotlibrc
-plt.ioff()
-
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
-import numpy as np
-import numpy.random
-import os, sys
+
+import openmoc
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -58,6 +32,9 @@ else:
   from openmoc.log import *
   from openmoc.process import *
 
+# Force non-interactive mode, or set 'interactive' to False
+# in your ~/.matplotlib/matplotlibrc
+plt.ioff()
 
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
@@ -758,7 +735,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
       # Get the scalar flux for each energy group in this FSR
       else:
         for index, group in enumerate(energy_groups):
-          fluxes[index,j,i] = solver.getFSRScalarFlux(fsr_id, group)
+          fluxes[index,j,i] = solver.getFlux(fsr_id, group)
 
   # Loop over all energy group and create a plot
   for index, group in enumerate(energy_groups):
@@ -877,7 +854,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 
     # Extract the flux in each energy group
     for group in range(num_groups):
-        fluxes[group] = solver.getFSRScalarFlux(fsr, group+1)
+        fluxes[group] = solver.getFlux(fsr, group+1)
 
     # Normalize fluxes to the total integrated flux
     if norm:
@@ -920,11 +897,8 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 # @brief This method plots a color-coded 2D surface plot representing the 
 #        FSR fission rates in the Geometry.
 # @details The Solver must have converged the flat source sources prior to
-#          calling this routine. The routine will generate a step plot of the
-#          flat flux across each energy group. 
-#
-#          A user may invoke this function from an OpenMOC Python file 
-#          as follows:
+#          calling this routine. A user may invoke this function from an 
+#          OpenMOC Python file as follows:
 #
 # @code
 #         openmoc.plotter.plot_fission_rates(solver)
@@ -996,6 +970,95 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
   plt.title('Flat Source Region Fission Rates')
   filename = directory + 'fission-rates.png'
   fig.savefig(filename, bbox_inches='tight')
+
+
+##
+# @brief This method plots a color-coded 2D surface plot representing the 
+#        FSR scalar fluxes for various eigenmodes from an IRAMSolver.
+# @details The IRAMSolver must have computed the eigenmodes prior to
+#          calling this routine. A user may invoke this function from 
+#          an OpenMOC Python file as follows:
+#
+# @code
+#         openmoc.plotter.plot_eigenmode_fluxes(iramsolver, energy_groups=[1,7])
+# @endcode
+#
+# @param iramsolver an IRAMSolver object that has computed the eigenmodes
+# @param eigenmodes a Python list of integer eigenmodes to plot
+# @param energy_groups a Python list of integer energy groups to plot
+# @param gridsize an optional number of grid cells for the plot
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1], 
+                          gridsize=250, xlim=None, ylim=None):
+
+  global subdirectory
+
+  directory = openmoc.get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  if not 'IRAMSolver' in str(type(iramsolver)):
+    py_printf('ERROR', 'Unable to plot the eigenmode fluxes ' + \
+              'since input did not contain an IRAMSolver class object')
+
+  if isinstance(eigenmodes, (list, tuple, np.ndarray)):
+
+    # If eigenmodes parameters is empty list, plot all eigenmodes
+    if len(eigenmodes) == 0:
+      eigenmodes = np.arange(1, iramsolver._num_modes+1)
+
+    for mode in eigenmodes:
+      if not is_integer(mode):
+        py_printf('ERROR', 'Unable to plot the eigenmode flux since the ' + \
+                  'eigenmodes contains %s which is not a number', str(mode))
+
+      elif mode <= 0:
+        py_printf('ERROR', 'Unable to plot the eigenmode flux since the ' + \
+                  'eigenmodes contains %d which is negative', mode)
+
+      elif mode > iramsolver._num_modes:
+        py_printf('ERROR', 'Unable to plot the eigenmode flux since the ' + \
+                  'eigenmodes contains %d but the IRAMSolver only ' + \
+                  'computed %d modes', mode)
+
+  else:
+    py_printf('ERROR', 'Unable to plot the eigenmode flux since the ' + \
+              'eigenmodes is not a Python tuple/list or NumPy array')
+
+  py_printf('NORMAL', 'Plotting the eigenmode fluxes...')
+
+  # Extract the MOC Solver from the IRAMSolver
+  moc_solver = iramsolver._moc_solver
+
+  # Loop over each eigenmode
+  for mode in eigenmodes:
+  
+    # Extract the eigenvector for this eigenmode from the IRAMSolver
+    eigenvec = iramsolver._eigenvectors[:,mode-1]
+
+    # Convert it into a form that SWIG will be happy with
+    eigenvec = np.squeeze(np.ascontiguousarray(eigenvec))
+    eigenvec = np.real(eigenvec).astype(iramsolver._precision)
+
+    # Ensure the primary eigenvector is positive
+    if(mode-1 == 0):
+      eigenvec = np.abs(eigenvec)
+        
+    # Insert eigenvector into MOC Solver object
+    moc_solver.setFluxes(eigenvec)
+
+    # Set subdirectory folder for this eigenmode
+    num_digits = len(str(max(eigenmodes)))
+    subdirectory = '/plots/eig-{0}-flux/'.format(str(mode).zfill(num_digits))
+
+    # Plot this eigenmode's spatial fluxes 
+    plot_spatial_fluxes(moc_solver, energy_groups, gridsize, xlim, ylim)
+
+  # Reset global subdirectory
+  subdirectory = '/plots/'
 
 
 ##

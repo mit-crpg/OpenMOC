@@ -421,6 +421,10 @@ class configuration:
 
     # The main openmoc extension (defaults are gcc and single precision)
     self.swig_flags += ['-D' + self.fp.upper()]
+    if self.fp == 'double':
+      self.swig_flags += ['-DFP_PRECISION=double']
+    else:
+      self.swig_flags += ['-DFP_PRECISION=float']
 
     self.extensions.append(
       Extension(name = '_openmoc',
