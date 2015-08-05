@@ -105,7 +105,7 @@ Cmfd::~Cmfd() {
 
   /* Delete Cmfd materials array */
   if (_materials != NULL) {
-    for (int i=0; i < _num_x*_num_y; i++)
+    for (int i=0; i < _num_x * _num_y; i++)
       delete _materials[i];
   }
   delete [] _materials;
@@ -275,7 +275,7 @@ void Cmfd::computeXS() {
           chi = 0.0;
               
           /* Compute the chi for group b */
-          for (int h = _group_indices[b]; h < _group_indices[b+1]; h++)
+          for (int h = _group_indices[b]; h < _group_indices[b + 1]; h++)
             chi += fsr_material->getChi()[h];
 
           for (int h = 0; h < _num_moc_groups; h++) {
@@ -332,17 +332,17 @@ void Cmfd::computeXS() {
 
       /* Set the Mesh cell properties with the tallies */
       _volumes->setValue(i, 0, vol_tally);
-      cell_material->setSigmaAByGroup(abs_tally / rxn_tally, e+1);
-      cell_material->setSigmaTByGroup(tot_tally / rxn_tally, e+1);
-      cell_material->setNuSigmaFByGroup(nu_fis_tally / rxn_tally, e+1);
-      cell_material->setDifCoefByGroup(dif_tally / rxn_tally, e+1);
+      cell_material->setSigmaAByGroup(abs_tally / rxn_tally, e + 1);
+      cell_material->setSigmaTByGroup(tot_tally / rxn_tally, e + 1);
+      cell_material->setNuSigmaFByGroup(nu_fis_tally / rxn_tally, e + 1);
+      cell_material->setDifCoefByGroup(dif_tally / rxn_tally, e + 1);
       _old_flux->setValue(i, e, rxn_tally / vol_tally);
 
       /* Set chi */
       if (neut_prod_tally != 0.0)
-        cell_material->setChiByGroup(chi_tally[e] / neut_prod_tally, e+1);
+        cell_material->setChiByGroup(chi_tally[e] / neut_prod_tally, e + 1);
       else
-        cell_material->setChiByGroup(0.0,e+1);
+        cell_material->setChiByGroup(0.0, e + 1);
 
       log_printf(DEBUG, "cell: %d, group: %d, vol: %e, siga: %e, sigt: %e,"
                  " nu_sigf: %e, dif_coef: %e, flux: %e, chi: %e", i, e,
@@ -352,7 +352,8 @@ void Cmfd::computeXS() {
 
       /* Set scattering xs */
       for (int g = 0; g < _num_cmfd_groups; g++) {
-        cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e+1, g+1);
+        cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e + 1,
+                                        g + 1);
         log_printf(DEBUG, "scattering from %d to %d: %e", e, g,
                    scat_tally[g] / rxn_tally);
       }
@@ -392,7 +393,7 @@ void Cmfd::computeDs(int moc_iteration) {
     /* Loop over Mesh cells in x direction */
     for (int x = 0; x < _num_x; x++) {
 
-      cell_id = y*_num_x+x;
+      cell_id = y*_num_x + x;
 
       /* Loop over side surfaces in a cell */
       for (int surface = 0; surface < NUM_SURFACES; surface++) {
@@ -442,7 +443,7 @@ void Cmfd::computeDs(int moc_iteration) {
             else if (_boundaries[surface] == VACUUM) {
 
               /* Set D's */
-              d_hat =  2 * d*f / length_perpen / (1 + 4 * d*f /
+              d_hat =  2 * d*f / length_perpen / (1 + 4 * d * f /
                        length_perpen);
               d_tilde = (sense * d_hat * flux - current_out / length) / flux;
              }
@@ -478,7 +479,7 @@ void Cmfd::computeDs(int moc_iteration) {
 
             /* Compute d_hat */
             d_hat = 2.0 * d * f * d_next * f_next / (length_perpen
-                    * d * f + next_length_perpen * d_next*f_next);
+                    * d * f + next_length_perpen * d_next * f_next);
 
             /* Get the outward current on surface */
             current_out = _surface_currents->getValue
@@ -504,28 +505,28 @@ void Cmfd::computeDs(int moc_iteration) {
 
                 /* If d_tilde is positive */
                 if (1 - fabs(d_tilde)/d_tilde < 1e-8) {
-                  d_hat   = - current/(2*flux*length);
-                  d_tilde = - current/(2*flux*length);
+                  d_hat   = -current / (2*flux*length);
+                  d_tilde = -current / (2*flux*length);
                 }
 
                 /* If d_tilde is negative */
                 else{
-                  d_hat   = current/(2*flux_next*length);
-                  d_tilde = - current/(2*flux_next*length);
+                  d_hat   = current / (2*flux_next*length);
+                  d_tilde = -current / (2*flux_next*length);
                 }
               }
               else{
 
                 /* If d_tilde is positive */
                 if (1 - fabs(d_tilde)/d_tilde < 1e-8) {
-                  d_hat   = - current/(2*flux_next*length);
-                  d_tilde = - current/(2*flux_next*length);
+                  d_hat   = -current / (2*flux_next*length);
+                  d_tilde = -current / (2*flux_next*length);
                 }
 
                 /* If d_tilde is negative */
                 else{
-                  d_hat   = current/(2*flux*length);
-                  d_tilde = - current/(2*flux*length);
+                  d_hat   = current / (2*flux*length);
+                  d_tilde = -current / (2*flux*length);
                 }
               }
             }
@@ -541,8 +542,8 @@ void Cmfd::computeDs(int moc_iteration) {
               (1 - _relax_factor) + _relax_factor * d_tilde;
 
           /* Set d_hat and d_tilde */
-          _materials[cell_id]->setDifHatByGroup(d_hat, e+1, surface);
-          _materials[cell_id]->setDifTildeByGroup(d_tilde, e+1, surface);
+          _materials[cell_id]->setDifHatByGroup(d_hat, e + 1, surface);
+          _materials[cell_id]->setDifTildeByGroup(d_tilde, e + 1, surface);
 
           log_printf(DEBUG, "cell: %d, group: %d, side: %d, flux: %f,"
                      " current: %f, d: %f, dhat: %f, dtilde: %f",
@@ -678,7 +679,7 @@ void Cmfd::constructMatrices() {
           value = - (material->getDifHat()[SURFACE_X_MIN*_num_cmfd_groups + e]
                      - material->getDifTilde()
                      [SURFACE_X_MIN*_num_cmfd_groups + e]) * _cell_height;
-          _A->incrementValue(cell_id-1, e, cell_id, e, value);
+          _A->incrementValue(cell_id - 1, e, cell_id, e, value);
         }
 
         /* SURFACE_X_MAX */
@@ -694,7 +695,7 @@ void Cmfd::constructMatrices() {
           value = - (material->getDifHat()[SURFACE_X_MAX*_num_cmfd_groups + e]
                      + material->getDifTilde()
                      [SURFACE_X_MAX*_num_cmfd_groups + e]) * _cell_height;
-          _A->incrementValue(cell_id+1, e, cell_id, e, value);
+          _A->incrementValue(cell_id + 1, e, cell_id, e, value);
         }
 
         /* SURFACE_Y_MIN */
@@ -710,7 +711,7 @@ void Cmfd::constructMatrices() {
           value = - (material->getDifHat()[SURFACE_Y_MIN*_num_cmfd_groups + e]
                      - material->getDifTilde()
                      [SURFACE_Y_MIN*_num_cmfd_groups + e]) * _cell_width;
-          _A->incrementValue(cell_id-_num_x, e, cell_id, e, value);
+          _A->incrementValue(cell_id - _num_x, e, cell_id, e, value);
         }
 
         /* SURFACE_Y_MAX */
@@ -726,7 +727,7 @@ void Cmfd::constructMatrices() {
           value = - (material->getDifHat()[SURFACE_Y_MAX*_num_cmfd_groups + e]
                      + material->getDifTilde()
                      [SURFACE_Y_MAX*_num_cmfd_groups + e]) * _cell_width;
-          _A->incrementValue(cell_id+_num_x, e, cell_id, e, value);
+          _A->incrementValue(cell_id + _num_x, e, cell_id, e, value);
         }
 
         /* Source term */
@@ -755,7 +756,7 @@ void Cmfd::updateMOCFlux() {
 
   /* Precompute the CMFD flux ratios */
   #pragma omp parallel for
-  for (int i = 0; i < _num_x*_num_y; i++) {
+  for (int i = 0; i < _num_x * _num_y; i++) {
     for (int e = 0; e < _num_cmfd_groups; e++)
       _flux_ratio->setValue(i, e, _new_flux->getValue(i, e)
                             / _old_flux->getValue(i, e));
@@ -763,7 +764,7 @@ void Cmfd::updateMOCFlux() {
 
   /* Loop over mesh cells */
   #pragma omp parallel for
-  for (int i = 0; i < _num_y*_num_x; i++) {
+  for (int i = 0; i < _num_y * _num_x; i++) {
 
     std::vector<int>::iterator iter;
 
@@ -774,13 +775,13 @@ void Cmfd::updateMOCFlux() {
       for (iter = _cell_fsrs.at(i).begin();
            iter != _cell_fsrs.at(i).end(); ++iter) {
 
-        FP_PRECISION update_ratio = getUpdateRatio(i,e,*iter);
+        FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
 
-        for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
+        for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++) {
 
           /* Update FSR flux using ratio of old and new CMFD flux */
-          _FSR_fluxes[*iter*_num_moc_groups+h] = update_ratio
-            * _FSR_fluxes[*iter*_num_moc_groups+h];
+          _FSR_fluxes[*iter*_num_moc_groups + h] = update_ratio
+            * _FSR_fluxes[*iter*_num_moc_groups + h];
 
           log_printf(DEBUG, "Updating flux in FSR: %d, cell: %d, MOC group: "
             "%d, CMFD group: %d, ratio: %f", *iter ,i, h, e, update_ratio);
@@ -810,7 +811,7 @@ FP_PRECISION Cmfd::computeDiffCorrect(FP_PRECISION d, FP_PRECISION h) {
     /* Loop over polar angles */
     for (int p = 0; p < _num_polar; p++) {
       mu = cos(asin(_polar_quad->getSinTheta(p)));
-      expon = exp(- h / (3 * d * mu));
+      expon = exp(-h / (3 * d * mu));
       alpha = (1 + expon) / (1 - expon) - 2 * (3 * d * mu) / h;
       rho += mu * _polar_quad->getWeight(p) * alpha;
     }
@@ -940,9 +941,9 @@ void Cmfd::initializeMaterials() {
 
     for (int y = 0; y < _num_y; y++) {
       for (int x = 0; x < _num_x; x++) {
-        material = new Material(y*_num_x+x);
+        material = new Material(y*_num_x + x);
         material->setNumEnergyGroups(_num_cmfd_groups);
-        _materials[y*_num_x+x] = material;
+        _materials[y*_num_x + x] = material;
       }
     }
   }
@@ -1010,7 +1011,7 @@ void Cmfd::initializeGroupMap() {
     
   /* Create group indices map */
   for (int e = 0; e < _num_cmfd_groups; e++) {
-    for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
+    for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++) {
       _group_indices_map[h] = e;
     }
   }
@@ -1111,7 +1112,7 @@ int Cmfd::getNumMOCGroups() {
  * @return The number of CMFD cells
  */
 int Cmfd::getNumCells() {
-  return _num_x*_num_y;
+  return _num_x * _num_y;
 }
 
 
@@ -1338,7 +1339,7 @@ int Cmfd::getBoundary(int side) {
 int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 
   std::vector<int>::iterator iter;    
-  for (int cell_id=0; cell_id < _num_x*_num_y; cell_id++) {
+  for (int cell_id=0; cell_id < _num_x * _num_y; cell_id++) {
 
     for (iter = _cell_fsrs.at(cell_id).begin();
          iter != _cell_fsrs.at(cell_id).end(); ++iter) {
@@ -1646,64 +1647,73 @@ FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
 
   /* LOWER LEFT CORNER */
   if (x > 0 && y > 0 && stencil_index == 0) {
-    dist_x = pow(centroid->getX() - (-_width/2.0+(x - 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0+(y - 0.5)*_cell_height), 2.0);
+    dist_x = pow(centroid->getX() - (-_width/2.0 + (x - 0.5)*_cell_width), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y - 0.5)*_cell_height),
+                 2.0);
     found = true;
   }
 
   /* BOTTOM SIDE */
   else if (y > 0 && stencil_index == 1) {
-    dist_x = pow(centroid->getX() - (-_width/2.0+(x + 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0+(y - 0.5)*_cell_height), 2.0);
+    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 0.5)*_cell_width), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y - 0.5)*_cell_height),
+                 2.0);
     found = true;
   }
 
   /* LOWER RIGHT CORNER */
   else if (x < _num_x - 1 && y > 0 && stencil_index == 2) {
-    dist_x = pow(centroid->getX() - (-_width/2.0+(x + 1.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0+(y - 0.5)*_cell_height), 2.0);
+    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 1.5)*_cell_width), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y - 0.5)*_cell_height),
+                 2.0);
     found = true;
   }
 
   /* LEFT SIDE */
   else if (x > 0 && stencil_index == 3) {
-    dist_x = pow(centroid->getX() - (-_width/2.0+(x - 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0+(y + 0.5)*_cell_height), 2.0);
+    dist_x = pow(centroid->getX() - (-_width/2.0 + (x - 0.5)*_cell_width), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 0.5)*_cell_height),
+                 2.0);
     found = true;
   }
 
   /* CURRENT */
   else if (stencil_index == 4) {
-    dist_x = pow(centroid->getX() - (-_width/2.0+(x + 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0+(y + 0.5)*_cell_height), 2.0);
+    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 0.5)*_cell_width), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 0.5)*_cell_height),
+                 2.0);
     found = true;
   }
 
   /* RIGHT SIDE */
   else if (x < _num_x - 1 && stencil_index == 5) {
-    dist_x = pow(centroid->getX() - (-_width/2.0+(x + 1.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0+(y + 0.5)*_cell_height), 2.0);
+    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 1.5)*_cell_width), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 0.5)*_cell_height),
+                 2.0);
     found = true;
   }
 
   /* UPPER LEFT CORNER */
   else if (x > 0 && y < _num_y - 1 && stencil_index == 6) {
-    dist_x = pow(centroid->getX() - (-_width/2.0+(x - 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0+(y + 1.5)*_cell_height), 2.0);
+    dist_x = pow(centroid->getX() - (-_width/2.0 + (x - 0.5)*_cell_width), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 1.5)*_cell_height),
+                 2.0);
     found = true;
   }
 
   /* TOP SIDE */
   else if (y < _num_y - 1 && stencil_index == 7) {
-    dist_x = pow(centroid->getX() - (-_width/2.0+(x + 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0+(y + 1.5)*_cell_height), 2.0);
+    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 0.5)*_cell_width), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 1.5)*_cell_height),
+                 2.0);
     found = true;
   }
 
   /* UPPER RIGHT CORNER */
   else if (x < _num_x - 1 && y < _num_y - 1 && stencil_index == 8) {
-    dist_x = pow(centroid->getX() - (-_width/2.0+(x + 1.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0+(y + 1.5)*_cell_height), 2.0);
+    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 1.5)*_cell_width), 2.0);
+    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 1.5)*_cell_height),
+                 2.0);
     found = true;
   }
 
@@ -1752,20 +1762,22 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
         for (int p=0; p < _num_polar; p++) {
-          track_flux[p*_num_moc_groups+e] *= _flux_ratio->getValue(cell_id,e);
+          track_flux[p*_num_moc_groups + e] *= _flux_ratio->getValue
+            (cell_id, e);
         }
       }
     }
 
     /* Update boundary flux in backwards direction */
     bc = (int)tracks[i]->getBCIn();
-    curr_segment = &segments[num_segments-1];
+    curr_segment = &segments[num_segments - 1];
     track_flux = &boundary_flux[(i*2 + 1)*_num_moc_groups*_num_polar];
     
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
         for (int p=0; p < _num_polar; p++) {
-          track_flux[p*_num_moc_groups+e] *= _flux_ratio->getValue(cell_id,e);
+          track_flux[p*_num_moc_groups + e] *= _flux_ratio->getValue
+            (cell_id, e);
         }
       }
     }
@@ -1831,7 +1843,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)
-          current += track_flux(p,e) * polar_weights[p];
+          current += track_flux(p, e) * polar_weights[p];
 
         /* Increment current (polar and azimuthal weighted flux, group) */
         _surface_currents->incrementValue
@@ -1849,7 +1861,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)
-          current += track_flux(p,e) * polar_weights[p];
+          current += track_flux(p, e) * polar_weights[p];
 
         /* Increment current (polar and azimuthal weighted flux, group) */
         _corner_currents->incrementValue
@@ -1869,7 +1881,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)
-          current += track_flux(p,e) * polar_weights[p];
+          current += track_flux(p, e) * polar_weights[p];
 
         /* Increment current (polar and azimuthal weighted flux, group) */
         _surface_currents->incrementValue
@@ -1887,7 +1899,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)
-          current += track_flux(p,e) * polar_weights[p];
+          current += track_flux(p, e) * polar_weights[p];
 
         /* Increment current (polar and azimuthal weighted flux, group) */
         _corner_currents->incrementValue
