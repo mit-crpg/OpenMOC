@@ -1,6 +1,5 @@
 import openmoc
 
-
 ###############################################################################
 #                          Main Simulation Parameters
 ###############################################################################
@@ -35,17 +34,17 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-# Initialize a CPUSolver to perform fixed source calculations
+# Initialize a CPUSolver to perform adjoint fixed source calculations
 cpu_solver = openmoc.CPUSolver(track_generator)
 cpu_solver.setNumThreads(num_threads)
 
-# Initialize IRAMSolver to perform eigenmode calculation
+# Initialize IRAMSolver to perform adjoint eigenmode calculation
 iram_solver = openmoc.krylov.IRAMSolver(cpu_solver)
 iram_solver.computeEigenmodes(num_modes=num_modes, solver_mode=openmoc.ADJOINT)
 
-# Report the eigenvalues to the user
+# Report the adjoint eigenvalues to the user
 eigenvalues = iram_solver._eigenvalues
-openmoc.log.py_printf('RESULT', 'The adjoint eigenvalues: %s', str(eigenvalues))
+openmoc.log.py_printf('RESULT', 'Adjoint eigenvalues: %s', str(eigenvalues))
         
 
 ###############################################################################
