@@ -107,42 +107,42 @@ public:
    * @param halfspace the halfspace of the Surface to consider
    * @return the minimum x value
    */
-  virtual double getMinX(int halfspace) =0;
+  virtual double getMinX(int halfspace) = 0;
 
   /**
    * @brief Returns the maximum x value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
    * @return the maximum x value
    */
-  virtual double getMaxX(int halfspace) =0;
+  virtual double getMaxX(int halfspace) = 0;
 
   /**
    * @brief Returns the minimum y value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
    * @return the minimum y value
    */
-  virtual double getMinY(int halfspace) =0;
+  virtual double getMinY(int halfspace) = 0;
 
   /**
    * @brief Returns the maximum y value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
    * @return the maximum y value
    */
-  virtual double getMaxY(int halfspace) =0;
+  virtual double getMaxY(int halfspace) = 0;
 
   /**
    * @brief Returns the minimum z value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
    * @return the minimum z value
    */
-  virtual double getMinZ(int halfspace) =0;
+  virtual double getMinZ(int halfspace) = 0;
 
   /**
    * @brief Returns the maximum z value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
    * @return the maximum z value
    */
-  virtual double getMaxZ(int halfspace) =0;
+  virtual double getMaxZ(int halfspace) = 0;
 
   void setName(const char* name);
   void setBoundaryType(const boundaryType boundary_type);
@@ -155,7 +155,7 @@ public:
    * @param point a pointer to the Soint of interest
    * @return the value of Point in the Plane's potential equation.
    */
-  virtual double evaluate(const Point* point) const =0;
+  virtual double evaluate(const Point* point) const = 0;
 
   /**
    * @brief Finds the intersection Point with this Surface from a given
@@ -165,7 +165,7 @@ public:
    * @param points pointer to a Point to store the intersection Point
    * @return the number of intersection Points (0 or 1)
    */
-  virtual int intersection(Point* point, double angle, Point* points) =0;
+  virtual int intersection(Point* point, double angle, Point* points) = 0;
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
@@ -177,7 +177,7 @@ public:
    *          PLANE) and the coefficients in the potential equation.
    * @return a character array of this Surface's attributes
    */
-  virtual std::string toString() =0;
+  virtual std::string toString() = 0;
 
   void printString();
 };
