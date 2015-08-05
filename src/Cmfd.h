@@ -199,6 +199,7 @@ public:
   void initialize();
   void initializeCellMap();
   void initializeGroupMap();
+  void initializeLattice(Point* offset);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell_id, LocalCoords* coords);
   int findCmfdCorner(int cell_id, LocalCoords* coords);
@@ -237,7 +238,6 @@ public:
   void setOpticallyThick(bool thick);
   void setMOCRelaxationFactor(FP_PRECISION relax_factor);
   void setBoundary(int side, boundaryType boundary);
-  void setLattice(Lattice* lattice);
   void setLatticeStructure(int num_x, int num_y);
   void setFluxUpdateOn(bool flux_update_on);
   void setCentroidUpdateOn(bool centroid_update_on);

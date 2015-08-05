@@ -47,6 +47,7 @@ Cmfd::Cmfd() {
   _surface_currents = NULL;
   _corner_currents = NULL;
   _volumes = NULL;
+  _lattice = NULL;
 
   /* Initialize boundaries to be reflective */
   _boundaries = new boundaryType[4];
@@ -70,6 +71,61 @@ Cmfd::~Cmfd() {
 
   if (_group_indices_map != NULL)
     delete [] _group_indices_map;
+
+  /* Delete the Matrix and Vector objects */
+  if (_M != NULL)
+    delete _M;
+
+  if (_A != NULL)
+    delete _A;
+
+  if (_old_source != NULL)
+    delete _old_source;
+
+  if (_new_source != NULL)
+    delete _new_source;
+
+  if (_old_flux != NULL)
+    delete _old_flux;
+
+  if (_new_flux != NULL)
+    delete _new_flux;
+
+  if (_flux_ratio != NULL)
+    delete _flux_ratio;
+
+  if (_surface_currents != NULL)
+    delete _surface_currents;
+
+  if (_corner_currents != NULL)
+    delete _corner_currents;
+
+  if (_volumes != NULL)
+    delete _volumes;
+
+  /* Delete Cmfd materials array */
+  if (_materials != NULL) {
+    for (int i=0; i < _num_x*_num_y; i++)
+      delete _materials[i];
+  }
+  delete [] _materials;
+
+  /* Delete the Cmfd lattice */
+  if (_lattice != NULL)
+    delete _lattice;
+
+  /* Clear the _cell_fsrs vector of vectors */
+  std::vector< std::vector<int> >::iterator iter1;
+  for (iter1 = _cell_fsrs.begin(); iter1 != _cell_fsrs.end(); ++iter1)
+    iter1->clear();
+  _cell_fsrs.clear();
+
+  /* Clear the _k_nearest_stencils map of vectors */
+  std::map<int, std::vector< std::pair<int, FP_PRECISION> > >::iterator iter2;
+  for (iter2 = _k_nearest_stencils.begin(); iter2 != _k_nearest_stencils.end();
+       ++iter2)
+    iter2->second.clear();
+  _k_nearest_stencils.clear();
 }
 
 
@@ -931,10 +987,8 @@ void Cmfd::initializeCellMap() {
 
   /* Allocate memory for mesh cell FSR vectors */
   for (int y = 0; y < _num_y; y++) {
-    for (int x = 0; x < _num_x; x++) {
-      std::vector<int> *fsrs = new std::vector<int>;
-      _cell_fsrs.push_back(*fsrs);
-    }
+    for (int x = 0; x < _num_x; x++)
+      _cell_fsrs.push_back(std::vector<int>());
   }
 }
 
@@ -1000,15 +1054,6 @@ int Cmfd::findCmfdCorner(int cell_id, LocalCoords* coords) {
 int Cmfd::findCmfdCell(LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
   return _lattice->getLatticeCell(point);
-}
-
-
-/**
- * @brief The Lattice object used as the CMFD mesh. 
- * @param lattice Pointer to the lattice object.
- */
-void Cmfd::setLattice(Lattice* lattice) {
-    _lattice = lattice;
 }
 
 
@@ -1437,9 +1482,8 @@ void Cmfd::generateKNearestStencils() {
       centroid = _geometry->getFSRCentroid(fsr_id);
 
       /* Create new stencil */
-      std::vector< std::pair<int, FP_PRECISION> > *stencil =
-        new std::vector< std::pair<int, FP_PRECISION> >;
-      _k_nearest_stencils[fsr_id] = (*stencil);
+      _k_nearest_stencils[fsr_id] =
+        std::vector< std::pair<int, FP_PRECISION> >();
 
       /* Get distance to all cells that touch current cell */
       for (int j=0; j < 9; j++)
@@ -1881,4 +1925,18 @@ void Cmfd::initialize() {
     log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "
                "Backtrace:%s", e.what());
   }
+}
+
+
+/**
+ * @brief Initialize the CMFD lattice.
+ */
+void Cmfd::initializeLattice(Point* offset) {
+
+  /* Initialize the lattice */
+  _lattice = new Lattice();
+  _lattice->setNumX(_num_x);
+  _lattice->setNumY(_num_y);
+  _lattice->setWidth(_cell_width, _cell_height);
+  _lattice->setOffset(offset->getX(), offset->getY());
 }

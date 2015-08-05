@@ -22,8 +22,10 @@ CPUSolver.cpp \
 ExpEvaluator.cpp \
 Geometry.cpp \
 LocalCoords.cpp \
+linalg.cpp \
 log.cpp \
 Material.cpp \
+Matrix.cpp \
 Point.cpp \
 PolarQuad.cpp \
 Solver.cpp \
@@ -31,7 +33,8 @@ Surface.cpp \
 Timer.cpp \
 Track.cpp \
 TrackGenerator.cpp \
-Universe.cpp
+Universe.cpp \
+Vector.cpp
 
 cases = \
 gradients/one-directional/one-directional-gradient.cpp \

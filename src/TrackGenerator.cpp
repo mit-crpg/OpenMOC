@@ -1480,8 +1480,7 @@ bool TrackGenerator::readTracksFromFile() {
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++) {
-      std::vector<int>* fsrs = new std::vector<int>;
-      cell_fsrs.push_back(*fsrs);
+      cell_fsrs.push_back(std::vector<int>());
       ret = fread(&num_FSRs, sizeof(int), 1, in);
 
       /* Loop over FRSs within cell */
@@ -1630,8 +1629,9 @@ void TrackGenerator::generateFSRCentroids() {
   for (int r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
 
-  /* Delete temporary array of FSR volumes */
+  /* Delete temporary array of FSR volumes and centroids */
   delete [] FSR_volumes;
+  delete [] centroids;
 }
 
 
@@ -1694,11 +1694,15 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           new_segment->_region_id = fsr_id;
 
           /* Assign CMFD surface boundaries */
-          if (k == 0)
+          if (k == 0) {
             new_segment->_cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+            new_segment->_cmfd_corner_bwd = curr_segment->_cmfd_corner_bwd;
+          }
 
-          if (k == min_num_cuts-1)
+          if (k == min_num_cuts-1) {
             new_segment->_cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+            new_segment->_cmfd_corner_fwd = curr_segment->_cmfd_corner_fwd;
+          }
 
           /* Insert the new segment to the Track */
           _tracks[i][j].insertSegment(s+k+1, new_segment);

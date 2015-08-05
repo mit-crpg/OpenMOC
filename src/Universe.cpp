@@ -746,12 +746,10 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
  */
 Lattice::~Lattice() {
 
-  std::map<int, Universe*> unique_universes = getUniqueUniverses();
-  std::map<int, Universe*>::iterator iter;
-
-  /* Clear the map of Universes */
-  for (int i = _num_y-1; i > -1;  i--)
-    _universes.at(i).clear();
+  /* Clear the vector of vector of Universes */
+  std::vector< std::vector< std::pair<int, Universe*> > >::iterator iter;
+  for (iter = _universes.begin(); iter != _universes.end(); ++iter)
+    iter->clear();
 
   _universes.clear();
 }
@@ -1043,7 +1041,7 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
   for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter)
     removeUniverse(iter->second);
 
-  /* Clear all Univers maps in the Lattice (from a previous run) */
+  /* Clear all Universe maps in the Lattice (from a previous run) */
   for (int i=0; i < _num_y; i++)
     _universes.at(i).clear();
 

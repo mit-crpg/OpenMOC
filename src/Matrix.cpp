@@ -23,10 +23,8 @@ Matrix::Matrix(int num_x, int num_y, int num_groups) {
   _num_rows = _num_x*_num_y*_num_groups;
   
   /* Initialize variables */
-  for (int i=0; i < _num_rows; i++) {
-    std::map<int, FP_PRECISION> *values = new std::map<int, FP_PRECISION>;
-    _LIL.push_back(*values);
-  }
+  for (int i=0; i < _num_rows; i++)
+    _LIL.push_back(std::map<int, FP_PRECISION>());
 
   _A = NULL;
   _IA = NULL;
@@ -64,6 +62,7 @@ Matrix::~Matrix() {
   
   for (int i=0; i < _num_rows; i++)
     _LIL[i].clear();
+  _LIL.clear();
 
   if (_cell_locks != NULL)
     delete [] _cell_locks;
