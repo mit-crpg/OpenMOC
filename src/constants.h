@@ -43,16 +43,48 @@
  *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */
 #define EXP_PRECISION FP_PRECISION(1E-5)
 
-/** The surfaces of a rectangle used in indexing CMFD data arrays. */
-#define NUM_SURFACES 8
+/** The maximum number of iterations allowed for a power method eigenvalue
+ *  solve in linalg.cpp */
+#define MAX_LINALG_POWER_ITERATIONS 25000
+
+/** The maximum number of iterations allowed for a linear solve in linalg.cpp */
+#define MAX_LINEAR_SOLVE_ITERATIONS 1000
+
+/** The surfaces and corners of a rectangle used in indexing CMFD data
+ *  arrays. Note the the surface IDs and corner IDs are specifically defined
+ *  such that a corner can pass to its neighbor in the clockwise direction
+ *  using the formula:
+ *
+ *                surface_id_clockwise = corner_id
+ *
+ *  Likewise, a corner can pass to its neighbor in the counter-clockwise
+ *  direction using the formula:
+ *
+ *        surface_id_counter_clockwise = (corner_id + 1) % NUM_SURFACES
+ *
+ *  The surface and corner IDs are defined as follows:
+ *
+ *                            3     3     2
+ *                             -----------
+ *                            |           |
+ *                            |           |
+ *                          0 |           | 2
+ *                            |           |
+ *                            |           |
+ *                             -----------
+ *                            0     1     1
+ */
+#define NUM_SURFACES 4
 #define SURFACE_X_MIN 0
 #define SURFACE_Y_MIN 1
 #define SURFACE_X_MAX 2
 #define SURFACE_Y_MAX 3
-#define SURFACE_X_MIN_Y_MIN 4
-#define SURFACE_X_MAX_Y_MIN 5
-#define SURFACE_X_MAX_Y_MAX 6
-#define SURFACE_X_MIN_Y_MAX 7
+
+#define NUM_CORNERS 4
+#define CORNER_X_MIN_Y_MIN 0
+#define CORNER_X_MAX_Y_MIN 1
+#define CORNER_X_MAX_Y_MAX 2
+#define CORNER_X_MIN_Y_MAX 3
 
 #ifdef NVCC
 

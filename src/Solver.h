@@ -50,6 +50,10 @@
  *  for each FSR and energy group */
 #define fission_sources(r,e) (fission_sources[(r)*_num_groups + (e)])
 
+/** Indexing scheme for the total scatter source (\f$ Sigma_s\Phi \f$)
+ *  for each FSR and energy group */
+#define scatter_sources(r,e) (scatter_sources[(r)*_num_groups + (e)])
+
 
 /**
  * @enum residualType
@@ -155,85 +159,17 @@ protected:
   /** The tolerance for converging the source/flux */
   FP_PRECISION _converge_thresh;
 
-  /** En ExpEvaluator to compute exponentials in the transport equation */
+  /** An ExpEvaluator to compute exponentials in the transport equation */
   ExpEvaluator* _exp_evaluator;
+
+  /** Indicator of whether the flux array is defined by the user */
+  bool _user_fluxes;
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;
 
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
-
-  /**
-   * @brief Initializes Track boundary angular and FSR scalar flux arrays.
-   */
-  virtual void initializeFluxArrays() =0;
-
-  /**
-   * @brief Allocates memory for FSR source arrays.
-   */
-  virtual void initializeSourceArrays() =0;
-
-  virtual void initializePolarQuadrature();
-  virtual void initializeExpEvaluator();
-  virtual void initializeMaterials();
-  virtual void initializeFSRs();
-  virtual void countFissionableFSRs();
-  virtual void initializeCmfd();
-
-  /**
-   * @brief Zero each Track's boundary fluxes for each energy group and polar
-   *        angle in the "forward" and "reverse" directions.
-   */
-  virtual void zeroTrackFluxes() =0;
-
-  /**
-   * @brief Set the scalar flux for each FSR and energy group to some value.
-   * @param value the value to assign to each FSR scalar flux
-   */
-  virtual void flattenFSRFluxes(FP_PRECISION value) =0;
-
-  /**
-   * @brief Stores the current scalar fluxes in the old scalar flux array.
-   */
-  virtual void storeFSRFluxes() =0;
-
-  /**
-   * @brief Normalizes all FSR scalar fluxes and Track boundary angular
-   *        fluxes to the total fission source (times \f$ \nu \f$).
-   */
-  virtual void normalizeFluxes() =0;
-
-  /**
-   * @brief Computes the total source (fission, scattering, fixed) for 
-   *        each FSR and energy group.
-   */
-  virtual void computeFSRSources() =0;
-
-  /**
-   * @brief Computes the residual between successive flux/source iterations. 
-   * @param res_type the type of residual (FLUX, FISSIOn_SOURCE, TOTAL_SOURCE)
-   * @return the total residual summed over FSRs and energy groups
-   */
-  virtual double computeResidual(residualType res_type) =0;
-
-  /**
-   * @brief Compute \f$ k_{eff} \f$ from total fission and absorption rates
-   *        in each FSR and energy group.
-   */
-  virtual void computeKeff() =0;
-
-  /**
-   * @brief Add the source term contribution in the transport equation to
-   *        the FSR scalar flux.
-   */
-  virtual void addSourceToScalarFlux() =0;
-
-  /**
-   * @brief This method performs one transport sweep of all azimuthal angles,
-   *        Tracks, segments, polar angles and energy groups.
-   */
-  virtual void transportSweep() =0;
 
   void clearTimerSplits();
 
@@ -255,13 +191,15 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
 
-  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
   virtual FP_PRECISION getFSRSource(int fsr_id, int group);
+  virtual FP_PRECISION getFlux(int fsr_id, int group);
+  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
   virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) = 0;
   void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
   void setFixedSourceByMaterial(Material* material, int group, 
                                 FP_PRECISION source);
@@ -270,7 +208,91 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
+  virtual void initializePolarQuadrature();
+  virtual void initializeExpEvaluator();
+  virtual void initializeFSRs();
+  virtual void initializeMaterials();
+  virtual void countFissionableFSRs();
+  virtual void initializeCmfd();
+
+  virtual void fissionTransportSweep();
+  virtual void scatterTransportSweep();
+
+  /**
+   * @brief Initializes Track boundary angular and FSR scalar flux arrays.
+   */
+  virtual void initializeFluxArrays() = 0;
+
+  /**
+   * @brief Allocates memory for FSR source arrays.
+   */
+  virtual void initializeSourceArrays() = 0;
+
+  /**
+   * @brief Zero each Track's boundary fluxes for each energy group and polar
+   *        angle in the "forward" and "reverse" directions.
+   */
+  virtual void zeroTrackFluxes() = 0;
+
+  /**
+   * @brief Set the scalar flux for each FSR and energy group to some value.
+   * @param value the value to assign to each FSR scalar flux
+   */
+  virtual void flattenFSRFluxes(FP_PRECISION value) = 0;
+
+  /**
+   * @brief Stores the current scalar fluxes in the old scalar flux array.
+   */
+  virtual void storeFSRFluxes() = 0;
+
+  /**
+   * @brief Normalizes all FSR scalar fluxes and Track boundary angular
+   *        fluxes to the total fission source (times \f$ \nu \f$).
+   */
+  virtual void normalizeFluxes() = 0;
+
+  /**
+   * @brief Computes the total source (fission, scattering, fixed) for 
+   *        each FSR and energy group.
+   */
+  virtual void computeFSRSources() = 0;
+
+  /**
+   * @brief Computes the total fission source for each FSR and energy group.
+   */
+  virtual void computeFSRFissionSources() = 0;
+
+  /**
+   * @brief Computes the total scattering source for each FSR and energy group.
+   */
+  virtual void computeFSRScatterSources() = 0;
+
+  /**
+   * @brief Computes the residual between successive flux/source iterations. 
+   * @param res_type the type of residual (FLUX, FISSIOn_SOURCE, TOTAL_SOURCE)
+   * @return the total residual summed over FSRs and energy groups
+   */
+  virtual double computeResidual(residualType res_type) = 0;
+
+  /**
+   * @brief Compute \f$ k_{eff} \f$ from total fission and absorption rates
+   *        in each FSR and energy group.
+   */
+  virtual void computeKeff() = 0;
+
+  /**
+   * @brief Add the source term contribution in the transport equation to
+   *        the FSR scalar flux.
+   */
+  virtual void addSourceToScalarFlux() = 0;
+
+  /**
+   * @brief This method performs one transport swep.
+   */
+  virtual void transportSweep() = 0;
+
   void computeFlux(int max_iters=1000, bool only_fixed_source=true);
+
   void computeSource(int max_iters=1000, double k_eff=1.0, 
                      residualType res_type=TOTAL_SOURCE);
   void computeEigenvalue(int max_iters=1000, 
@@ -292,7 +314,7 @@ public:
   *                      in as a NumPy array from Python)
   * @param num_FSRs the number of FSRs passed in from Python
   */
-  virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) =0;
+  virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) = 0;
 
   void printTimerReport();
 };
