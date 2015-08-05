@@ -4,10 +4,10 @@
  * @brief Constructor initializes Vector object as a floating point array
  *        and sets the vector dimensions.
  * @detail The vector is ordered by cell (as opposed to by group) on the
- *         outside to be consistent with the Matrix object . Locks are used to 
+ *         outside to be consistent with the Matrix object. Locks are used to
  *         make the vector object thread-safe against concurrent writes the 
  *          same value. One lock locks out multiple rows of
- *         the vector at a time reprsenting multiple groups in the same cell.
+ *         the vector at a time representing multiple groups in the same cell.
  * @param num_x The number of cells in the x direction.
  * @param num_y The number of cells in the y direction.
  * @param num_groups The number of energy groups in each cell.
@@ -59,11 +59,11 @@ Vector::~Vector() {
 void Vector::incrementValue(int cell, int group, FP_PRECISION val) {
 
   if (cell >= _num_x*_num_y || cell < 0)
-    log_printf(ERROR, "Unable to increment Vector value for cell %i"
-               " which is not between 0 and %i", cell, _num_x*_num_y-1);
+    log_printf(ERROR, "Unable to increment Vector value for cell %d"
+               " which is not between 0 and %d", cell, _num_x*_num_y-1);
   else if (group >= _num_groups || group < 0)
-    log_printf(ERROR, "Unable to increment Vector value for group %i"
-               " which is not between 0 and %i", group, _num_groups-1);
+    log_printf(ERROR, "Unable to increment Vector value for group %d"
+               " which is not between 0 and %d", group, _num_groups-1);
 
   /* Atomically increment the Vector value from the
    * temporary array using mutual exclusion locks */
@@ -94,11 +94,11 @@ void Vector::setAll(FP_PRECISION val) {
 void Vector::setValue(int cell, int group, FP_PRECISION val) {
 
   if (cell >= _num_x*_num_y || cell < 0)
-    log_printf(ERROR, "Unable to set Vector value for cell %i"
-               " which is not between 0 and %i", cell, _num_x*_num_y-1);
+    log_printf(ERROR, "Unable to set Vector value for cell %d"
+               " which is not between 0 and %d", cell, _num_x*_num_y-1);
   else if (group >= _num_groups || group < 0)
-    log_printf(ERROR, "Unable to set Vector value for group %i"
-               " which is not between 0 and %i", group, _num_groups-1);
+    log_printf(ERROR, "Unable to set Vector value for group %d"
+               " which is not between 0 and %d", group, _num_groups-1);
 
   /* Atomically set the Vector value from the
    * temporary array using mutual exclusion locks */
@@ -233,7 +233,7 @@ FP_PRECISION Vector::getSum() {
 void Vector::setNumX(int num_x) {
 
   if (num_x < 1)
-    log_printf(ERROR, "Unable to set Vector num x to non-positive value %i",
+    log_printf(ERROR, "Unable to set Vector num x to non-positive value %d",
                num_x);
 
   _num_x = num_x;
@@ -247,7 +247,7 @@ void Vector::setNumX(int num_x) {
 void Vector::setNumY(int num_y) {
 
   if (num_y < 1)
-    log_printf(ERROR, "Unable to set Vector num y to non-positive value %i",
+    log_printf(ERROR, "Unable to set Vector num y to non-positive value %d",
                num_y);
 
   _num_y = num_y;
@@ -262,7 +262,7 @@ void Vector::setNumGroups(int num_groups) {
 
   if (num_groups < 1)
     log_printf(ERROR, "Unable to set Vector num groups to non-positive value"
-               " %i", num_groups);
+               " %d", num_groups);
 
   _num_groups = num_groups;
 }
