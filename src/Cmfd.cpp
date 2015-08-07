@@ -2155,7 +2155,7 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
     surf_id = curr_segment->_cmfd_surface_fwd;
 
-    /* Prepare surface current */
+    /* Prepare Cmfd Mesh surface current */
     for (int e=0; e < _num_moc_groups; e++) {
       surf_current[e] = 0.f;
 
@@ -2165,7 +2165,7 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       surf_current[e] = surf_current[e] / 2.f;
     }
 
-    /* SHM write surface current */
+    /* SHM write Cmfd Mesh surface current */
     omp_set_lock(&_surface_locks[surf_id]);
     #pragma omp simd
     for (int e=0; e < _num_moc_groups; e++)
@@ -2177,7 +2177,7 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
     surf_id = curr_segment->_cmfd_surface_bwd;
 
-    /* Prepare surface current */
+    /* Prepare Cmfd Mesh surface current */
     for (int e=0; e < _num_moc_groups; e++) {
       surf_current[e] = 0.f;
 
@@ -2187,7 +2187,7 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       surf_current[e] = surf_current[e] / 2.f;
     }
 
-    /* SHM write surface current */
+    /* SHM write Cmfd Mesh surface current */
     omp_set_lock(&_surface_locks[surf_id]);
     #pragma omp simd
     for (int e=0; e < _num_moc_groups; e++) 
