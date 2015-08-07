@@ -2148,50 +2148,52 @@ void Cmfd::zeroSurfaceCurrents() {
 void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
                                FP_PRECISION* polar_weights, bool fwd) {
 
-  FP_PRECISION surf_current;
+  FP_PRECISION surf_current[_num_moc_groups];
   int surf_id;
 
   if (curr_segment->_cmfd_surface_fwd != -1 && fwd) {
 
     surf_id = curr_segment->_cmfd_surface_fwd;
 
+    /* Prepare surface current */
     for (int e=0; e < _num_moc_groups; e++) {
-      surf_current = 0.;
+      surf_current[e] = 0.f;
 
       for (int p=0; p < _num_polar; p++)
-        surf_current += track_flux(p,e) * polar_weights[p];
+        surf_current[e] += track_flux(p,e) * polar_weights[p];
 
-      /* Atomically increment the Cmfd Mesh surface current from the
-       * temporary array using mutual exclusion locks */
-      omp_set_lock(&_surface_locks[surf_id]);
-
-      /* Increment current (polar and azimuthal weighted flux, group) */
-      _surface_currents(surf_id, e) += surf_current / 2.;
-
-      /* Release Cmfd Mesh surface mutual exclusion lock */
-      omp_unset_lock(&_surface_locks[surf_id]);
+      surf_current[e] = surf_current[e] / 2.f;
     }
+
+	/* SHM write surface current */
+    omp_set_lock(&_surface_locks[surf_id]);
+    #pragma omp simd
+    for (int e=0; e < _num_moc_groups; e++)
+      _surface_currents(surf_id, e) += surf_current[e];
+    omp_unset_lock(&_surface_locks[surf_id]);
+
   }
   else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd) {
 
     surf_id = curr_segment->_cmfd_surface_bwd;
 
+    /* Prepare surface current */
     for (int e=0; e < _num_moc_groups; e++) {
-      surf_current = 0.;
+      surf_current[e] = 0.f;
 
       for (int p=0; p < _num_polar; p++)
-        surf_current += track_flux(p,e) * polar_weights[p];
+        surf_current[e] += track_flux(p,e) * polar_weights[p];
 
-      /* Atomically increment the Cmfd Mesh surface current from the
-       * temporary array using mutual exclusion locks */
-      omp_set_lock(&_surface_locks[surf_id]);
-
-      /* Increment current (polar and azimuthal weighted flux, group) */
-      _surface_currents(surf_id, e) += surf_current / 2.;
-
-      /* Release Cmfd Mesh surface mutual exclusion lock */
-      omp_unset_lock(&_surface_locks[surf_id]);
+      surf_current[e] = surf_current[e] / 2.f;
     }
+
+	/* SHM write surface current */
+    omp_set_lock(&_surface_locks[surf_id]);
+	#pragma omp simd
+    for (int e=0; e < _num_moc_groups; e++) 
+      _surface_currents(surf_id, e) += surf_current[e];
+    omp_unset_lock(&_surface_locks[surf_id]);
+	
   }
 }
 
