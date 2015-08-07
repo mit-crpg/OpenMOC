@@ -30,7 +30,7 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(51,1)
+cmfd.setLatticeStructure(25,25)
 
 ###############################################################################
 #########################   Load the Cubic Geometry   #########################
@@ -39,8 +39,8 @@ cmfd.setLatticeStructure(51,1)
 log.py_printf('NORMAL', 'Importing cubic geometry...')
 
 left.setBoundaryType(VACUUM)
-right.setBoundaryType(VACUUM)
-top.setBoundaryType(REFLECTIVE)
+right.setBoundaryType(REFLECTIVE)
+top.setBoundaryType(VACUUM)
 bottom.setBoundaryType(REFLECTIVE)
 
 geometry.setCmfd(cmfd)

@@ -83,6 +83,7 @@ private:
   void initializeTrackFileDirectory();
   void initializeTracks();
   void recalibrateTracksToOrigin();
+  void initializeTrackUIDs();
   void initializeBoundaryConditions();
   void segmentize();
   void dumpTracksToFile();

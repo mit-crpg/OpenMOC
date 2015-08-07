@@ -4,7 +4,12 @@
 /*
  * @brief Constructor initializes an empty Track.
  */
-Track::Track() { }
+Track::Track() {
+
+  /* Initialize the periodic track index to -1, indicating it has not
+   * been set */
+  _periodic_track_index = -1;
+}
 
 
 
@@ -61,6 +66,18 @@ void Track::setPhi(const double phi) {
  */
 void Track::setAzimAngleIndex(const int index) {
   _azim_angle_index = index;
+}
+
+
+/**
+ * @brief Set the index of a track in a periodic cycle.
+ * @details Tracks form periodic track cycles as they traverse the geometry.
+ *          Tracks can be arbitrarily decomposed into periodic track cycles
+ *          and this index indicates the index in a particular cycle.
+ * @param index of the track in a periodic cycle
+ */
+void Track::setPeriodicTrackIndex(const int index) {
+  _periodic_track_index = index;
 }
 
 
@@ -262,6 +279,15 @@ double Track::getPhi() const {
  */
 int Track::getAzimAngleIndex() const {
   return _azim_angle_index;
+}
+
+
+/**
+ * @brief Get the index of a track in a periodic cycle.
+ * @return index of the track in a periodic cycle
+ */
+int Track::getPeriodicTrackIndex() const {
+  return _periodic_track_index;
 }
 
 

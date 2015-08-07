@@ -528,7 +528,7 @@ void TrackGenerator::generateTracks() {
     /* Allocate memory for the Tracks */
     try {
       _num_tracks = new int[_num_azim];
-      _num_tracks_by_halfspace = new int[5];
+      _num_tracks_by_halfspace = new int[7];
       _num_x = new int[_num_azim];
       _num_y = new int[_num_azim];
       _azim_weights = new FP_PRECISION[_num_azim];
@@ -560,6 +560,7 @@ void TrackGenerator::generateTracks() {
   }
 
   initializeBoundaryConditions();
+  initializeTrackUIDs();
   return;
 }
 
@@ -693,19 +694,24 @@ void TrackGenerator::initializeTracks() {
     _tracks[i] = new Track[_num_tracks[i]];
 
     /* Compute start points for Tracks starting on x-axis */
-    for (int j = 0; j < _num_x[i]; j++)
-      _tracks[i][j].getStart()->setCoords(dx_eff[i] * (0.5+j), 0);
+    for (int j = 0; j < _num_x[i]; j++) {
+      if (i < _num_azim / 2)
+        _tracks[i][j].getStart()->setCoords
+          (dx_eff[i] * (_num_x[i] - j - 0.5), 0);
+      else
+        _tracks[i][j].getStart()->setCoords(dx_eff[i] * (0.5 + j), 0);
+    }
 
     /* Compute start points for Tracks starting on y-axis */
     for (int j = 0; j < _num_y[i]; j++) {
 
       /* If Track points to the upper right */
-      if (sin(phi_eff[i]) > 0 && cos(phi_eff[i]) > 0)
+      if (i < _num_azim / 2)
         _tracks[i][_num_x[i]+j].getStart()->setCoords(0,
                                      dy_eff[i] * (0.5 + j));
 
       /* If Track points to the upper left */
-      else if (sin(phi_eff[i]) > 0 && cos(phi_eff[i]) < 0)
+      else
         _tracks[i][_num_x[i]+j].getStart()->setCoords(width,
                                      dy_eff[i] * (0.5 + j));
     }
@@ -739,8 +745,85 @@ void TrackGenerator::initializeTracks() {
  */
 void TrackGenerator::recalibrateTracksToOrigin() {
 
+  /* Recalibrate the tracks to the origin and set the uid. Note that the
+   * loop structure is unconventional in order to preserve a monotonically
+   * increasing track uid value in the Solver's tracks array. The tracks array
+   * is oriented such the tracks can be broken up into 4 sub arrays that are
+   * guaranteed to contain tracks that do not transport into other tracks both
+   * reflectively and periodically. This is done to guarantee reproducability
+   * in parallel runs. */
+  for (int a=0; a < _num_azim; a++) {
+    for (int i=0; i < _num_tracks[a]; i++) {
+
+      double x0 = _tracks[a][i].getStart()->getX();
+      double y0 = _tracks[a][i].getStart()->getY();
+      double x1 = _tracks[a][i].getEnd()->getX();
+      double y1 = _tracks[a][i].getEnd()->getY();
+      double new_x0 = x0 + _geometry->getMinX();
+      double new_y0 = y0 + _geometry->getMinY();
+      double new_x1 = x1 + _geometry->getMinX();
+      double new_y1 = y1 + _geometry->getMinY();
+      double phi = _tracks[a][i].getPhi();
+
+      _tracks[a][i].setValues(new_x0, new_y0, new_x1,new_y1, phi);
+      _tracks[a][i].setAzimAngleIndex(a);
+    }
+  }
+}
+
+
+/**
+ * @brief Recalibrates Track start and end points to the origin of the Geometry.
+ * @details The origin of the Geometry is designated at its center by
+ *          convention, but for track initialization the origin is assumed to be
+ *          at the bottom right corner for simplicity. This method corrects
+ *          for this by re-assigning the start and end Point coordinates.
+ */
+void TrackGenerator::initializeTrackUIDs() {
+
+  Track* track;
+  int track_index;
+  int last_i;
+
+  /* Set the track periodic cycle index */
+  for (int a=0; a < _num_azim; a++) {
+    for (int i=0; i < _num_tracks[a]; i++) {
+
+      /* Get the current track */
+      track = &_tracks[a][i];
+
+      /* Check if periodic track index has been set */
+      if (track->getPeriodicTrackIndex() == -1) {
+
+        /* Initialize the track index counter */
+        track_index = 0;
+        last_i = i;
+
+        /* Set the periodic track indexes for all tracks in periodic cycle */
+        while (track->getPeriodicTrackIndex() == -1) {
+
+          /* Set the track periodic cycle */
+          track->setPeriodicTrackIndex(track_index);
+
+          /* Get the next track in cycle */
+          if (last_i < _num_y[a]) {
+            track = &_tracks[a][last_i + _num_x[a]];
+            last_i +=_num_x[a];
+          }
+          else{
+            track = &_tracks[a][last_i - _num_y[a]];
+            last_i -=_num_y[a];
+          }
+
+          /* Increment index counter */
+          track_index++;
+        }
+      }
+    }
+  }
+
   int uid = 0;
-  int azim_period, num_azim_periods;
+  int index;
   _num_tracks_by_halfspace[0] = 0;
   
   /* Recalibrate the tracks to the origin and set the uid. Note that the 
@@ -751,35 +834,30 @@ void TrackGenerator::recalibrateTracksToOrigin() {
    * reflectively and periodically. This is done to guarantee reproducability
    * in parallel runs. */
   for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
-    for (int period_halfspace=0; period_halfspace < 2; period_halfspace++) {
+    for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
       for (int a=azim_halfspace*_num_azim/2;
            a < (azim_halfspace+1)*_num_azim/2; a++) {
-        azim_period = std::min(_num_x[a], _num_y[a]);
-        num_azim_periods = _num_tracks[a] / azim_period + 1;
-        for (int period=period_halfspace;
-             period < num_azim_periods; period+=2) {
-          for (int i=azim_period*period;
-               i < std::min((period+1)*azim_period, _num_tracks[a]); i++) {
+        for (int i=0; i < _num_tracks[a]; i++) {
 
-            _tracks[a][i].setUid(uid);
+          track = &_tracks[a][i];
+          index = track->getPeriodicTrackIndex();
+
+          /* Check if track UID should be set */
+          if (period_halfspace == 0 && index == 0) {
+            track->setUid(uid);
             uid++;
-            
-            double x0 = _tracks[a][i].getStart()->getX();
-            double y0 = _tracks[a][i].getStart()->getY();
-            double x1 = _tracks[a][i].getEnd()->getX();
-            double y1 = _tracks[a][i].getEnd()->getY();
-            double new_x0 = x0 + _geometry->getMinX();
-            double new_y0 = y0 + _geometry->getMinY();
-            double new_x1 = x1 + _geometry->getMinX();
-            double new_y1 = y1 + _geometry->getMinY();
-            double phi = _tracks[a][i].getPhi();
-            
-            _tracks[a][i].setValues(new_x0, new_y0, new_x1,new_y1, phi);
-            _tracks[a][i].setAzimAngleIndex(a);
+          }
+          else if (period_halfspace == 1 && index % 2 == 1) {
+            track->setUid(uid);
+            uid++;
+          }
+          else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
+            track->setUid(uid);
+            uid++;
           }
         }
       }
-      _num_tracks_by_halfspace[azim_halfspace*2 + period_halfspace + 1] = uid;
+      _num_tracks_by_halfspace[azim_halfspace*3 + period_halfspace + 1] = uid;
     }
   }
 }
@@ -955,7 +1033,6 @@ void TrackGenerator::segmentize() {
       #pragma omp parallel for firstprivate(track)
       for (int j=0; j < _num_tracks[i]; j++) {
         track = &_tracks[i][j];
-        log_printf(DEBUG, "Segmenting Track %d", track->getUid());
         _geometry->segmentize(track);
       }
     }
@@ -1010,7 +1087,7 @@ void TrackGenerator::dumpTracksToFile() {
 
   /* Write the array with the Track uid separating the azimuthal and periodic
    * halfspaces */
-  fwrite(_num_tracks_by_halfspace, sizeof(int), 5, out);
+  fwrite(_num_tracks_by_halfspace, sizeof(int), 7, out);
   
   Track* curr_track;
   double x0, y0, x1, y1;
@@ -1222,8 +1299,8 @@ bool TrackGenerator::readTracksFromFile() {
   
   /* Import the array with the Track uid separating the azimuthal and periodic
    * halfspaces */
-  _num_tracks_by_halfspace = new int[5];
-  ret = fread(_num_tracks_by_halfspace, sizeof(int), 5, in);
+  _num_tracks_by_halfspace = new int[7];
+  ret = fread(_num_tracks_by_halfspace, sizeof(int), 7, in);
   
   Track* curr_track;
   double x0, y0, x1, y1;
@@ -1244,8 +1321,6 @@ bool TrackGenerator::readTracksFromFile() {
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
-  int uid = 0;
-
   /* Loop over Tracks */
   for (int i=0; i < _num_azim; i++) {
 
@@ -1265,7 +1340,6 @@ bool TrackGenerator::readTracksFromFile() {
       /* Initialize a Track with this data */
       curr_track = &_tracks[i][j];
       curr_track->setValues(x0, y0, x1, y1, phi);
-      curr_track->setUid(uid);
       curr_track->setAzimAngleIndex(azim_angle_index);
 
       /* Loop over all segments in this Track */
@@ -1296,8 +1370,6 @@ bool TrackGenerator::readTracksFromFile() {
         /* Add this segment to the Track */
         curr_track->addSegment(&curr_segment);
       }
-
-      uid++;
     }
   }
 

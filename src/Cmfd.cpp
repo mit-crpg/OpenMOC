@@ -14,7 +14,6 @@ Cmfd::Cmfd() {
   _geometry = NULL;
 
   /* Global variables used in solving CMFD problem */
-  _source_convergence_threshold = 1E-6;
   _num_x = 1;
   _num_y = 1;
   _width = 0.;
@@ -687,7 +686,7 @@ void Cmfd::constructMatrices() {
                      [SURFACE_X_MIN*_num_cmfd_groups + e])
             * _cell_height;
           
-          _A->incrementValue(cell_id + (_num_x-1), e, cell_id, e, value);
+          _A->incrementValue(cell_id + (_num_x - 1), e, cell_id, e, value);
         }
 
         /* SURFACE_X_MAX */
@@ -710,7 +709,7 @@ void Cmfd::constructMatrices() {
                      + material->getDifTilde()
                      [SURFACE_X_MAX*_num_cmfd_groups + e]) * _cell_height;
           
-          _A->incrementValue(cell_id - (_num_x-1), e, cell_id, e, value);
+          _A->incrementValue(cell_id - (_num_x - 1), e, cell_id, e, value);
         }
 
         /* SURFACE_Y_MIN */
@@ -733,7 +732,8 @@ void Cmfd::constructMatrices() {
                      - material->getDifTilde()
                      [SURFACE_Y_MIN*_num_cmfd_groups + e]) * _cell_width;
           
-          _A->incrementValue(cell_id + _num_x*(_num_y-1), e, cell_id, e, value);
+          _A->incrementValue(cell_id + _num_x * (_num_y - 1), e, cell_id, e,
+                             value);
         }
 
         /* SURFACE_Y_MAX */
@@ -757,7 +757,8 @@ void Cmfd::constructMatrices() {
                      [SURFACE_Y_MAX*_num_cmfd_groups + e])
             * _cell_width;
           
-          _A->incrementValue(cell_id - _num_x*(_num_y-1), e, cell_id, e, value);
+          _A->incrementValue(cell_id - _num_x * (_num_y - 1), e, cell_id, e,
+                             value);
         }
 
         /* Source term */
@@ -1275,25 +1276,25 @@ int Cmfd::getCellNext(int cell_id, int surface_id) {
     if (cell_id % _num_x != 0)
       cell_next_id = cell_id - 1;
     else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-      cell_next_id = cell_id + (_num_x-1);
+      cell_next_id = cell_id + (_num_x - 1);
   }
   else if (surface_id == SURFACE_Y_MIN) {
     if (cell_id / _num_x != 0)
       cell_next_id = cell_id - _num_x;
     else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-      cell_next_id = cell_id + _num_x*(_num_y-1);
+      cell_next_id = cell_id + _num_x * (_num_y - 1);
   }
   else if (surface_id == SURFACE_X_MAX) {
     if (cell_id % _num_x != _num_x - 1)
       cell_next_id = cell_id + 1;
     else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-      cell_next_id = cell_id - (_num_x-1);
+      cell_next_id = cell_id - (_num_x - 1);
   }
   else if (surface_id == SURFACE_Y_MAX) {
     if (cell_id / _num_x != _num_y - 1)
       cell_next_id = cell_id + _num_x;
     else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-      cell_next_id = cell_id - _num_x*(_num_y-1);
+      cell_next_id = cell_id - _num_x * (_num_y - 1);
   }
 
   return cell_next_id;
@@ -1690,7 +1691,7 @@ FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
                  2.0);
     found = true;
   }
-  
+
   /* BOTTOM SIDE */
   else if (y > 0 && stencil_index == 1) {
     dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 0.5)*_cell_width), 2.0);

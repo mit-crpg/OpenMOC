@@ -40,7 +40,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _polar_times_groups = 0;
 
   _num_iterations = 0;
-  _converge_thresh = 1E-5;
+  setConvergenceThreshold(1E-5);
   _user_fluxes = false;
 
   _timer = new Timer();
@@ -363,23 +363,35 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
   /* Initialize the tracks array */
   int counter = 0;
-  int azim_period, num_azim_periods;
   int num_x, num_y;
+  Track* track;
+  int index;
 
   for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
-    for (int period_halfspace=0; period_halfspace < 2; period_halfspace++) {
+    for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
       for (int a=azim_halfspace*_num_azim/2;
            a < (azim_halfspace+1)*_num_azim/2; a++) {
+
+        /* Get the number of tracks in x and y directions */
         num_x = _track_generator->getNumX(a);
         num_y = _track_generator->getNumY(a);
-        azim_period = std::min(num_x, num_y);
-        num_azim_periods = num_tracks[a] / azim_period + 1;
-        for (int period=period_halfspace;
-             period < num_azim_periods; period+=2) {
-          for (int i=azim_period*period;
-               i < std::min((period+1)*azim_period, num_tracks[a]); i++) {
 
-            _tracks[counter] = &_track_generator->getTracks()[a][i];
+        for (int i=0; i < num_tracks[a]; i++) {
+
+          track = &_track_generator->getTracks()[a][i];
+          index = track->getPeriodicTrackIndex();
+
+          /* Check if track UID should be set */
+          if (period_halfspace == 0 && index == 0) {
+            _tracks[counter] = track;
+            counter++;
+          }
+          else if (period_halfspace == 1 && index % 2 == 1) {
+            _tracks[counter] = track;
+            counter++;
+          }
+          else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
+            _tracks[counter] = track;
             counter++;
           }
         }
@@ -430,6 +442,9 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
                "since it is not a positive number", threshold);
 
   _converge_thresh = threshold;
+
+  if (_cmfd != NULL)
+    _cmfd->setSourceConvergenceThreshold(threshold);
 }
 
 

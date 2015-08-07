@@ -81,6 +81,9 @@ private:
   /** The azimuthal angle index into the global 2D ragged array of Tracks */
   int _azim_angle_index;
 
+  /** The track index in the periodic cycle */
+  int _periodic_track_index;
+
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
 
@@ -120,6 +123,7 @@ public:
   void setUid(int uid);
   void setPhi(const double phi);
   void setAzimAngleIndex(const int index);
+  void setPeriodicTrackIndex(const int index);
   void setNextIn(const bool next_in);
   void setNextOut(const bool next_out);
   void setBCIn(const boundaryType bc_in);
@@ -132,6 +136,7 @@ public:
   Point* getStart();
   double getPhi() const;
   int getAzimAngleIndex() const;
+  int getPeriodicTrackIndex() const;
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
