@@ -126,7 +126,7 @@
     }
 
     /* Loop over y */
-    for (int j =0; j < $2; j++) {
+    for (int j = 0; j < $2; j++) {
       /* Extract the value from the list at this location and convert
        * SWIG wrapper to pointer to underlying C++ class instance */
       PyObject* o = PyList_GetItem(outer_list, j);

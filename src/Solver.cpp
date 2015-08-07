@@ -24,7 +24,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _tracks = NULL;
   _polar_weights = NULL;
   _boundary_flux = NULL;
-  _boundary_leakage = NULL;
 
   _scalar_flux = NULL;
   _old_scalar_flux = NULL;
@@ -42,6 +41,7 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   _num_iterations = 0;
   _converge_thresh = 1E-5;
+  _user_fluxes = false;
 
   _timer = new Timer();
 }
@@ -68,7 +68,7 @@ Solver::~Solver() {
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
 
-  if (_scalar_flux != NULL)
+  if (_scalar_flux != NULL && !_user_fluxes)
     delete [] _scalar_flux;
 
   if (_old_scalar_flux != NULL)
@@ -82,6 +82,12 @@ Solver::~Solver() {
 
   if (_exp_evaluator != NULL)
     delete _exp_evaluator;
+
+  if (_timer != NULL)
+    delete _timer;
+
+  if (_tracks != NULL)
+    delete [] _tracks;
 
   if (_polar_quad != NULL && !_user_polar_quad)
     delete _polar_quad;
@@ -214,38 +220,6 @@ bool Solver::isUsingExponentialInterpolation() {
 
 
 /**
- * @brief Returns the scalar flux for some FSR and energy group.
- * @param fsr_id the ID for the FSR of interest
- * @param group the energy group of interest
- * @return the FSR scalar flux
- */
-FP_PRECISION Solver::getFSRScalarFlux(int fsr_id, int group) {
-
-  if (fsr_id >= _num_FSRs)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
-               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
-
-  else if (fsr_id < 0)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
-               "since FSRs do not have negative IDs", fsr_id);
-
-  else if (group-1 >= _num_groups)
-    log_printf(ERROR, "Unable to return a scalar flux in group %d "
-               "since there are only %d groups", group, _num_groups);
-
-  else if (group <= 0)
-    log_printf(ERROR, "Unable to return a scalar flux in group %d "
-               "since groups must be greater or equal to 1", group);
-
-  else if (_scalar_flux == NULL)
-    log_printf(ERROR, "Unable to return a scalar flux "
-             "since it has not yet been computed");
-
-  return _scalar_flux(fsr_id,group-1);
-}
-
-
-/**
  * @brief Returns the source for some energy group for a flat source region
  * @details This is a helper routine used by the openmoc.process module.
  * @param fsr_id the ID for the FSR of interest
@@ -274,30 +248,67 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
     log_printf(ERROR, "Unable to return a source "
                "since it has not yet been computed");
  
+  /* Get Material and cross-sections */
   Material* material = _FSR_materials[fsr_id];
-  FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
-  FP_PRECISION* chi = material->getChi();
-  FP_PRECISION source = 0.;
+  FP_PRECISION* sigma_s = material->getSigmaS();
+  FP_PRECISION* fiss_mat = material->getFissionMatrix();
 
-  /* Compute fission source */
-  if (material->isFissionable()) {
-    for (int e=0; e < _num_groups; e++)
-      source += _scalar_flux(fsr_id,e) * nu_sigma_f[e];
-    source /= _k_eff * chi[group-1];
+  FP_PRECISION fission_source = 0.0;
+  FP_PRECISION scatter_source = 0.0;
+  FP_PRECISION total_source;
+
+  /* Compute total scattering and fission sources for this FSR */
+  for (int g=0; g < _num_groups; g++) {
+    scatter_source += sigma_s[(group-1)*(_num_groups)+g] 
+                      * _scalar_flux(fsr_id-1,g);
+    fission_source += fiss_mat[(group-1)*(_num_groups)+g] 
+                      * _scalar_flux(fsr_id-1,g);
   }
 
-  /* Compute scatter source */
-  for (int g=0; g < _num_groups; g++)
-    source += material->getSigmaSByGroupInline(g,group-1)
-              * _scalar_flux(fsr_id,g);
+  fission_source /= _k_eff;
+
+  /* Compute the total source */
+  total_source = fission_source + scatter_source;
 
   /* Add in fixed source (if specified by user) */
-  source += _fixed_sources(fsr_id,group-1);
+  total_source += _fixed_sources(fsr_id,group-1);
 
   /* Normalize to solid angle for isotropic approximation */
-  source *= ONE_OVER_FOUR_PI;
+  total_source *= ONE_OVER_FOUR_PI;
 
-  return source;
+  return total_source;
+}
+
+
+/**
+ * @brief Returns the scalar flux for some FSR and energy group.
+ * @param fsr_id the ID for the FSR of interest
+ * @param group the energy group of interest
+ * @return the FSR scalar flux
+ */
+FP_PRECISION Solver::getFlux(int fsr_id, int group) {
+
+  if (fsr_id >= _num_FSRs)
+    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
+               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
+
+  else if (fsr_id < 0)
+    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
+               "since FSRs do not have negative IDs", fsr_id);
+
+  else if (group-1 >= _num_groups)
+    log_printf(ERROR, "Unable to return a scalar flux in group %d "
+               "since there are only %d groups", group, _num_groups);
+
+  else if (group <= 0)
+    log_printf(ERROR, "Unable to return a scalar flux in group %d "
+               "since groups must be greater or equal to 1", group);
+
+  else if (_scalar_flux == NULL)
+    log_printf(ERROR, "Unable to return a scalar flux "
+             "since it has not yet been computed");
+
+  return _scalar_flux(fsr_id,group-1);
 }
 
 
@@ -571,6 +582,21 @@ void Solver::initializeExpEvaluator() {
 
 
 /**
+ * @brief Initializes the Material fission matrices.
+ */
+void Solver::initializeMaterials() {
+
+  log_printf(INFO, "Initializing materials...");
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+  std::map<int, Material*>::iterator m_iter;
+
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
+    m_iter->second->buildFissionMatrix();
+}
+
+
+/**
  * @brief Initializes the FSR volumes and Materials array.
  * @details This method assigns each FSR a unique, monotonically increasing
  *          ID, sets the Material for each FSR, and assigns a volume based on
@@ -649,7 +675,30 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
-  _cmfd->initializeSurfaceCurrents();
+  _cmfd->setGeometry(_geometry);
+  _cmfd->initialize();
+}
+
+
+/**
+ * @brief This method performs one transport sweep using the fission source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void Solver::fissionTransportSweep() {
+  computeFSRFissionSources();
+  transportSweep();
+  addSourceToScalarFlux();
+}
+
+
+/**
+ * @brief This method performs one transport sweep using the scatter source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void Solver::scatterTransportSweep() {
+  computeFSRScatterSources();
+  transportSweep();
+  addSourceToScalarFlux();
 }
 
 
@@ -738,6 +787,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   }
 
   initializeSourceArrays();
+  initializeMaterials();
   initializeFSRs();
   countFissionableFSRs();
   zeroTrackFluxes();
@@ -834,6 +884,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
+  initializeMaterials();
   initializeFSRs();
 
   /* Guess unity scalar flux for each region */
@@ -916,6 +967,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
+  initializeMaterials();
   initializeFSRs();
   countFissionableFSRs();
 
@@ -934,8 +986,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
-    residual = computeResidual(res_type);
-    storeFSRFluxes();
 
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn()) {
@@ -947,6 +997,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
                "\tres = %1.3E", i, _k_eff, residual);
+
+    residual = computeResidual(res_type);
+    storeFSRFluxes();
 
     /* Check for convergence of the fission source distribution */
     if (i > 1 && residual < _converge_thresh) {
