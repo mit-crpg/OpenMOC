@@ -82,9 +82,6 @@ private:
   /** Thrust vector of angular fluxes for each track */
   thrust::device_vector<FP_PRECISION> _boundary_flux;
 
-  /** Thrust vector of leakages for each track */
-  thrust::device_vector<FP_PRECISION> _boundary_leakage;
-
   /** Thrust vector of FSR scalar fluxes */
   thrust::device_vector<FP_PRECISION> _scalar_flux;
 
@@ -102,24 +99,6 @@ private:
 
   int computeScalarTrackIndex(int i, int j);
 
-  void initializePolarQuadrature();
-  void initializeExpEvaluator();
-  void initializeFSRs();
-  void initializeMaterials();
-  void initializeTracks();
-  void initializeFluxArrays();
-  void initializeSourceArrays();
-
-  void zeroTrackFluxes();
-  void flattenFSRFluxes(FP_PRECISION value);
-  void storeFSRFluxes();
-  void normalizeFluxes();
-  void computeFSRSources();
-  void transportSweep();
-  void addSourceToScalarFlux();
-  void computeKeff();
-  double computeResidual(residualType res_type);
-
 public:
 
   GPUSolver(TrackGenerator* track_generator=NULL);
@@ -132,8 +111,9 @@ public:
    * @return the number of threads per block
    */
   int getNumThreadsPerBlock();
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
   FP_PRECISION getFSRSource(int fsr_id, int group);
+  FP_PRECISION getFlux(int fsr_id, int group);
+  void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
   void setNumThreadBlocks(int num_blocks);
   void setNumThreadsPerBlock(int num_threads);
@@ -141,6 +121,27 @@ public:
                            FP_PRECISION source);
   void setGeometry(Geometry* geometry);
   void setTrackGenerator(TrackGenerator* track_generator);
+  void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
+
+  void initializePolarQuadrature();
+  void initializeExpEvaluator();
+  void initializeMaterials();
+  void initializeFSRs();
+  void initializeTracks();
+  void initializeFluxArrays();
+  void initializeSourceArrays();
+
+  void zeroTrackFluxes();
+  void flattenFSRFluxes(FP_PRECISION value);
+  void storeFSRFluxes();
+  void normalizeFluxes();
+  void computeFSRSources();
+  void computeFSRFissionSources();
+  void computeFSRScatterSources();
+  void transportSweep();
+  void addSourceToScalarFlux();
+  void computeKeff();
+  double computeResidual(residualType res_type);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };

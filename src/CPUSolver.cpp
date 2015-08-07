@@ -38,6 +38,48 @@ int CPUSolver::getNumThreads() {
 
 
 /**
+ * @brief Fills an array with the scalar fluxes.
+ * @details This class method is a helper routine called by the OpenMOC
+ *          Python "openmoc.krylov" module for Krylov subspace methods. 
+ *          Although this method appears to require two arguments, in
+ *          reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_fluxes = num_groups * num_FSRs
+ *          fluxes = solver.getFluxes(num_fluxes)
+ * @endcode
+ *
+ * @param fluxes an array of FSR scalar fluxes in each energy group
+ * @param num_fluxes the total number of FSR flux values
+ */
+void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
+
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
+               "%d groups and %d FSRs which does not match the requested "
+               "%d flux values", _num_groups, _num_FSRs, num_fluxes);
+
+  else if (_scalar_flux == NULL)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since they "
+               "have not yet been allocated");
+
+  /* If the user called setFluxes(...) they already have the flux */
+  if (_user_fluxes && _scalar_flux == out_fluxes)
+    return;
+
+  /* Otherwise, copy the fluxes into the input array */
+  else {
+    #pragma omp parallel for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+      for (int e=0; e < _num_groups; e++)
+        out_fluxes[r*_num_groups+e] = _scalar_flux(r,e);
+    }
+  }
+}
+
+
+/**
  * @brief Sets the number of shared memory OpenMP threads to use (>0).
  * @param num_threads the number of threads
  */
@@ -85,6 +127,39 @@ void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
 
 
 /**
+ * @brief Set the flux array for use in transport sweep source calculations.
+ * @detail This is a helper method for the checkpoint restart capabilities,
+ *         as well as the IRAMSolver in the openmoc.krylov submodule. This
+ *         routine may be used as follows from within Python:
+ *
+ * @code
+ *          fluxes = numpy.random.rand(num_FSRs * num_groups, dtype=np.float)
+ *          solver.setFluxes(fluxes)
+ * @endcode
+ *
+ *          NOTE: This routine stores a pointer to the fluxes for the Solver
+ *          to use during transport sweeps and other calculations. Hence, the 
+ *          flux array pointer is shared between NumPy and the Solver.
+ *
+ * @param in_fluxes an array with the fluxes to use
+ * @param num_fluxes the number of flux values (# groups x # FSRs)
+ */
+void CPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to set an array with %d flux values for %d "
+               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
+
+  /* Allocate array if flux arrays have not yet been initialized */
+  if (_scalar_flux == NULL)
+    initializeFluxArrays();
+
+  /* Set the scalar flux array pointer to the array passed in from NumPy */
+  _scalar_flux = in_fluxes;
+  _user_fluxes = true;
+}
+
+
+/**
  * @brief Initializes the FSR volumes and Materials array.
  * @details This method allocates and initializes an array of OpenMP
  *          mutual exclusion locks for each FSR for use in the
@@ -105,8 +180,7 @@ void CPUSolver::initializeFSRs() {
 
 
 /**
- * @brief Allocates memory for Track boundary angular flux and leakage
- *        and FSR scalar flux arrays.
+ * @brief Allocates memory for Track boundary angular and FSR scalar fluxes.
  * @details Deletes memory for old flux arrays if they were allocated
  *          for a previous simulation.
  */
@@ -116,20 +190,16 @@ void CPUSolver::initializeFluxArrays() {
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
 
-  if (_boundary_leakage != NULL)
-    delete [] _boundary_leakage;
-
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
 
   if (_old_scalar_flux != NULL)
     delete [] _old_scalar_flux;
 
-  /* Allocate memory for the Track boundary flux and leakage arrays */
+  /* Allocate memory for the Track boundary flux arrays */
   try{
     int size = 2 * _tot_num_tracks * _polar_times_groups;
     _boundary_flux = new FP_PRECISION[size];
-    _boundary_leakage = new FP_PRECISION[size];
 
     /* Allocate an array for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
@@ -256,8 +326,10 @@ void CPUSolver::normalizeFluxes() {
 
   #pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r,e) *= norm_factor;
+      _old_scalar_flux(r,e) *= norm_factor;
+    }
   }
 
   /* Normalize angular boundary fluxes for each Track */
@@ -281,60 +353,136 @@ void CPUSolver::normalizeFluxes() {
  */
 void CPUSolver::computeFSRSources() {
 
-  int tid;
-  FP_PRECISION scatter_source, fission_source;
-  FP_PRECISION* nu_sigma_f;
-  FP_PRECISION* sigma_t;
-  FP_PRECISION* chi;
-  Material* material;
+  #pragma omp parallel default(none)
+  {
+    int tid;
+    Material* material;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION sigma_s, fiss_mat;
+    FP_PRECISION scatter_source, fission_source;
+    FP_PRECISION* fission_sources = new FP_PRECISION[_num_groups];
+    FP_PRECISION* scatter_sources = new FP_PRECISION[_num_groups];
 
-  int size = _num_FSRs * _num_groups;
-  FP_PRECISION* fission_sources = new FP_PRECISION[size];
-  size = _num_threads * _num_groups;
-  FP_PRECISION* scatter_sources = new FP_PRECISION[size];
+    /* Compute the total source for each FSR */
+    #pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
 
-  /* For all FSRs, find the source */
-  #pragma omp parallel for private(tid, material, nu_sigma_f, chi, \
-    sigma_t, fission_source, scatter_source) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+      tid = omp_get_thread_num();
+      material = _FSR_materials[r];
+      sigma_t = material->getSigmaT();
 
-    tid = omp_get_thread_num();
-    material = _FSR_materials[r];
-    nu_sigma_f = material->getNuSigmaF();
-    chi = material->getChi();
-    sigma_t = material->getSigmaT();
+      /* Compute scatter + fission source for group g */
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
+          fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
+          scatter_sources[g_prime] = sigma_s * _scalar_flux(r,g_prime);
+          fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
+        }
 
-    /* Initialize the fission sources to zero */
-    fission_source = 0.0;
+        scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
+                                                    _num_groups);
+        fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
+                                                    _num_groups);
+        fission_source /= _k_eff;
 
-    /* Compute fission source for each group */
-    if (material->isFissionable()) {
-      for (int e=0; e < _num_groups; e++)
-        fission_sources(r,e) = _scalar_flux(r,e) * nu_sigma_f[e];
-
-      fission_source = pairwise_sum<FP_PRECISION>(&fission_sources(r,0),
-                                                  _num_groups);
-      fission_source /= _k_eff;
+        /* Compute total (scatter+fission+fixed) reduced source */
+        _reduced_sources(r,g) = _fixed_sources(r,g);
+        _reduced_sources(r,g) += scatter_source + fission_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI / sigma_t[g];
+      }
     }
 
-    /* Compute total (fission+scatter+fixed) source for group G */
-    for (int G=0; G < _num_groups; G++) {
-      for (int g=0; g < _num_groups; g++)
-        scatter_sources(tid,g) = material->getSigmaSByGroupInline(g,G)
-                                  * _scalar_flux(r,g);
-      scatter_source = pairwise_sum<FP_PRECISION>(&scatter_sources(tid,0),
-                                                _num_groups);
-
-      _reduced_sources(r,G) = fission_source * chi[G];
-      _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
-      _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
-    }
+    delete [] fission_sources;
+    delete [] scatter_sources;
   }
-
-  delete [] fission_sources;
-  delete [] scatter_sources;
 }
 
+/**
+ * @brief Computes the total fission source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
+ */
+void CPUSolver::computeFSRFissionSources() {
+
+  #pragma omp parallel default(none)
+  {
+    int tid;
+    Material* material;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION fiss_mat;
+    FP_PRECISION fission_source;
+    FP_PRECISION* fission_sources = new FP_PRECISION[_num_groups];
+
+    /* Compute the total source for each FSR */
+    #pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+
+      tid = omp_get_thread_num();
+      material = _FSR_materials[r];
+      sigma_t = material->getSigmaT();
+
+      /* Compute scatter + fission source for group g */
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
+          fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
+        }
+        
+        fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
+                                                    _num_groups);
+
+        /* Compute total (fission) reduced source */
+        _reduced_sources(r,g) = fission_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI / sigma_t[g];
+      }
+    }
+
+    delete [] fission_sources;
+  }
+}
+
+/**
+ * @brief Computes the total scattering source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
+ */
+void CPUSolver::computeFSRScatterSources() {
+  
+  #pragma omp parallel default(none)
+  {
+    int tid;
+    Material* material;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION sigma_s;
+    FP_PRECISION scatter_source;
+    FP_PRECISION* scatter_sources = new FP_PRECISION[_num_groups];
+
+    /* Compute the total source for each FSR */
+    #pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+
+      tid = omp_get_thread_num();
+      material = _FSR_materials[r];
+      sigma_t = material->getSigmaT();
+
+      /* Compute scatter + fission source for group g */
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
+          scatter_sources[g_prime] = sigma_s * _scalar_flux(r,g_prime);
+        }
+
+        scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
+                                                    _num_groups);
+
+        /* Compute total (scatter) reduced source */
+        _reduced_sources(r,g) = scatter_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI / sigma_t[g];
+      }
+    }
+
+    delete [] scatter_sources;
+  }
+}
 
 /**
  * @brief Computes the residual between source/flux iterations.
@@ -423,9 +571,9 @@ double CPUSolver::computeResidual(residualType res_type) {
       /* Compute total scattering source for group G */
       for (int G=0; G < _num_groups; G++) {
         for (int g=0; g < _num_groups; g++) {
-          new_total_source += material->getSigmaSByGroupInline(g,G)
+          new_total_source += material->getSigmaSByGroup(g+1,G+1)
                               * _scalar_flux(r,g);
-          old_total_source += material->getSigmaSByGroupInline(g,G)
+          old_total_source += material->getSigmaSByGroup(g+1,G+1)
                               * _old_scalar_flux(r,g);
         }
       }
@@ -448,15 +596,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
 
 /**
- * @brief Compute \f$ k_{eff} \f$ from the total, fission and scattering
- *        reaction rates and leakage.
- * @details This method computes the current approximation to the
- *          multiplication factor on this iteration as follows:
- *          \f$ k_{eff} = \frac{\displaystyle\sum_{i \in I}
- *                        \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}}
- *                        {\displaystyle\sum_{i \in I}
- *                        \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} -
- *                        \Sigma^S_g \Phi V_{i} - L_{i,g})} \f$
+ * @brief Compute \f$ k_{eff} \f$ from successive fission sources.
  */
 void CPUSolver::computeKeff() {
 
@@ -465,11 +605,11 @@ void CPUSolver::computeKeff() {
   FP_PRECISION* sigma;
   FP_PRECISION volume;
 
-  FP_PRECISION total, fission, scatter, leakage;
+  FP_PRECISION old_fission, new_fission;
   FP_PRECISION* FSR_rates = new FP_PRECISION[_num_FSRs];
   FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
 
-  /* Loop over all FSRs and compute the volume-integrated total rates */
+  /* Compute the old nu-fission rates in each FSR */
   #pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
@@ -477,19 +617,19 @@ void CPUSolver::computeKeff() {
     tid = omp_get_thread_num() * _num_groups;
     volume = _FSR_volumes[r];
     material = _FSR_materials[r];
-    sigma = material->getSigmaT();
+    sigma = material->getNuSigmaF();
 
     for (int e=0; e < _num_groups; e++)
-      group_rates[tid+e] = sigma[e] * _scalar_flux(r,e);
+      group_rates[tid+e] = sigma[e] * _old_scalar_flux(r,e);
 
     FSR_rates[r]=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
     FSR_rates[r] *= volume;
   }
 
-  /* Reduce total rates across FSRs */
-  total = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
+  /* Reduce old fission rates across FSRs */
+  old_fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
-  /* Loop over all FSRs and compute the volume-integrated nu-fission rates */
+  /* Compute the new nu-fission rates in each FSR */
   #pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
@@ -506,42 +646,10 @@ void CPUSolver::computeKeff() {
     FSR_rates[r] *= volume;
   }
 
-  /* Reduce fission rates across FSRs */
-  fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
+  /* Reduce new fission rates across FSRs */
+  new_fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
-  /* Loop over all FSRs and compute the volume-integrated scattering rates */
-  #pragma omp parallel for private(tid, volume, \
-    material) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
-
-    tid = omp_get_thread_num() * _num_groups;
-    volume = _FSR_volumes[r];
-    material = _FSR_materials[r];
-
-    FSR_rates[r] = 0.;
-
-    for (int G=0; G < _num_groups; G++) {
-      for (int g=0; g < _num_groups; g++)
-        group_rates[tid+g] = material->getSigmaSByGroupInline(g,G)
-                             * _scalar_flux(r,g);
-
-      FSR_rates[r]+=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
-    }
-
-    FSR_rates[r] *= volume;
-  }
-
-  /* Reduce scattering rates across FSRs */
-  scatter = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
-
-  /* Reduce leakage array across Tracks, energy groups, polar angles */
-  int size = 2 * _tot_num_tracks * _polar_times_groups;
-  leakage = pairwise_sum<FP_PRECISION>(_boundary_leakage, size) * 0.5;
-
-  _k_eff = fission / (total - scatter + leakage);
-
-  log_printf(DEBUG, "tot = %f, fiss = %f, scatt = %f, leak = %f,"
-             "k_eff = %f", total, fission, scatter, leakage, _k_eff);
+  _k_eff *= new_fission / old_fission;
 
   delete [] FSR_rates;
   delete [] group_rates;
@@ -571,7 +679,7 @@ void CPUSolver::transportSweep() {
   flattenFSRFluxes(0.0);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->zeroSurfaceCurrents();
+    _cmfd->zeroCurrents();
 
   /* Loop over azimuthal angle halfspaces */
   for (int i=0; i < 2; i++) {
@@ -603,7 +711,7 @@ void CPUSolver::transportSweep() {
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
-        tallySurfaceCurrent(curr_segment, azim_index, track_flux, true);
+        tallyCurrent(curr_segment, azim_index, track_flux, true);
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -615,7 +723,7 @@ void CPUSolver::transportSweep() {
       for (int s=num_segments-1; s > -1; s--) {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
-        tallySurfaceCurrent(curr_segment, azim_index, track_flux, false);
+        tallyCurrent(curr_segment, azim_index, track_flux, false);
       }
       delete [] thread_fsr_flux;
 
@@ -673,27 +781,26 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
 
 /**
  * @brief Tallies the current contribution from this segment across the
- *        the appropriate CMFD mesh cell surface.
+ *        the appropriate CMFD mesh cell surface or corner.
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index the azimuthal index for this segmenbt
  * @param track_flux a pointer to the Track's angular flux
  * @param fwd boolean indicating direction of integration along segment
  */
-void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
-                                    FP_PRECISION* track_flux, bool fwd) {
+void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
+                             FP_PRECISION* track_flux, bool fwd) {
 
-  /* Tally surface currents if CMFD is in use */
+  /* Tally surface or corner currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->tallySurfaceCurrent(curr_segment, track_flux, 
-                               &_polar_weights(azim_index,0), fwd);
+    _cmfd->tallyCurrent(curr_segment, track_flux,
+                        &_polar_weights(azim_index,0), fwd);
 }
 
 
 /**
  * @brief Updates the boundary flux for a Track given boundary conditions.
  * @details For reflective boundary conditions, the outgoing boundary flux
- *          for the Track is given to the reflecting Track. For vacuum
- *          boundary conditions, the outgoing flux tallied as leakage.
+ *          for the Track is given to the reflecting Track.
  * @param track_id the ID number for the Track of interest
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param direction the Track direction (forward - true, reverse - false)
@@ -705,17 +812,14 @@ void CPUSolver::transferBoundaryFlux(int track_id,
                                      FP_PRECISION* track_flux) {
   int start;
   int bc;
-  FP_PRECISION* track_leakage;
   int track_out_id;
 
-  /* Extract boundary conditions for this Track and the pointer to the
-   * outgoing reflective Track, and index into the leakage array */
+  /* Extract boundary conditions for this Track */
 
   /* For the "forward" direction */
   if (direction) {
     start = _tracks[track_id]->isReflOut() * _polar_times_groups;
     bc = (int)_tracks[track_id]->getBCOut();
-    track_leakage = &_boundary_leakage(track_id,0);
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
   }
 
@@ -723,7 +827,6 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   else {
     start = _tracks[track_id]->isReflIn() * _polar_times_groups;
     bc = (int)_tracks[track_id]->getBCIn();
-    track_leakage = &_boundary_leakage(track_id,_polar_times_groups);
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
@@ -731,11 +834,8 @@ void CPUSolver::transferBoundaryFlux(int track_id,
 
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {
-    for (int p=0; p < _num_polar; p++) {
+    for (int p=0; p < _num_polar; p++)
       track_out_flux(p,e) = track_flux(p,e) * bc;
-      track_leakage(p,e) = track_flux(p,e) *
-                           _polar_weights(azim_index,p) * (1-bc);
-    }
   }
 }
 

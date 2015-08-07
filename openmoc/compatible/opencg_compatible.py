@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-import openmoc
-import opencg
 import copy
 import numpy as np
+
+import openmoc
+import opencg
 
 
 # A dictionary of all OpenMOC Materials created

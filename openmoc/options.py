@@ -6,7 +6,8 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date July 24, 2013
 
-import getopt, sys
+import sys
+import getopt
 import multiprocessing
 
 # For Python 2.X.X

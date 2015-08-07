@@ -493,7 +493,6 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
   Cell* cell = NULL;
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
-  Point surf_intersection;
 
   /* Get lowest level coords */
   coords = coords->getLowestLevel();
@@ -878,8 +877,11 @@ void Geometry::segmentize(Track* track) {
       start.adjustCoords(-delta_x, -delta_y);
       end.adjustCoords(-delta_x, -delta_y);
 
-      new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell,&end);
-      new_segment->_cmfd_surface_bwd = _cmfd->findCmfdSurface(cmfd_cell,&start);
+      new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell, &end);
+      new_segment->_cmfd_surface_bwd =
+        _cmfd->findCmfdSurface(cmfd_cell, &start);
+      new_segment->_cmfd_corner_fwd = _cmfd->findCmfdCorner(cmfd_cell, &end);
+      new_segment->_cmfd_corner_bwd = _cmfd->findCmfdCorner(cmfd_cell, &start);
 
       /* Re-nudge segments from surface */
       start.adjustCoords(delta_x, delta_y);
@@ -1062,33 +1064,15 @@ void Geometry::printString() {
  */
 void Geometry::initializeCmfd() {
 
-  /* Get information about geometry and CMFD mesh */
-  int num_x = _cmfd->getNumX();
-  int num_y = _cmfd->getNumY();
-  double height = getHeight();
-  double width = getWidth();
-  double cell_width = width / num_x;
-  double cell_height = height / num_y;
-
-  /* Create CMFD lattice and set properties */
-  Lattice* lattice = new Lattice();
-  lattice->setWidth(cell_width, cell_height);
-  lattice->setNumX(num_x);
-  lattice->setNumY(num_y);
-  lattice->setOffset(getMinX() + getWidth()/2.0, 
-                     getMinY() + getHeight()/2.0);
-  _cmfd->setLattice(lattice);
-
-
   /* Set CMFD mesh boundary conditions */
-  _cmfd->setBoundary(0, getMinXBoundaryType());
-  _cmfd->setBoundary(1, getMinYBoundaryType());
-  _cmfd->setBoundary(2, getMaxXBoundaryType());
-  _cmfd->setBoundary(3, getMaxYBoundaryType());
+  _cmfd->setBoundary(SURFACE_X_MIN, getMinXBoundaryType());
+  _cmfd->setBoundary(SURFACE_Y_MIN, getMinYBoundaryType());
+  _cmfd->setBoundary(SURFACE_X_MAX, getMaxXBoundaryType());
+  _cmfd->setBoundary(SURFACE_Y_MAX, getMaxYBoundaryType());
 
   /* Set CMFD mesh dimensions and number of groups */
-  _cmfd->setWidth(width);
-  _cmfd->setHeight(height);
+  _cmfd->setWidth(getWidth());
+  _cmfd->setHeight(getHeight());
   _cmfd->setNumMOCGroups(getNumEnergyGroups());
 
   /* If user did not set CMFD group structure, create CMFD group
@@ -1099,6 +1083,14 @@ void Geometry::initializeCmfd() {
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
   _cmfd->initializeGroupMap();
+
+  /* Initialize the CMFD lattice */
+  Point offset;
+  double offset_x = getMinX() + getWidth()/2.0;
+  double offset_y = getMinY() + getHeight()/2.0;
+  offset.setX(offset_x);
+  offset.setY(offset_y);
+  _cmfd->initializeLattice(&offset);
 }
 
 
