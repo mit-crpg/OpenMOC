@@ -655,19 +655,24 @@ void TrackGenerator::initializeTracks() {
     _tracks[i] = new Track[_num_tracks[i]];
 
     /* Compute start points for Tracks starting on x-axis */
-    for (int j = 0; j < _num_x[i]; j++)
-      _tracks[i][j].getStart()->setCoords(dx_eff[i] * (0.5+j), 0);
+    for (int j = 0; j < _num_x[i]; j++) {
+      if (i < _num_azim / 2)
+        _tracks[i][j].getStart()->setCoords
+          (dx_eff[i] * (_num_x[i] - j - 0.5), 0);
+      else
+        _tracks[i][j].getStart()->setCoords(dx_eff[i] * (0.5 + j), 0);
+    }
 
     /* Compute start points for Tracks starting on y-axis */
     for (int j = 0; j < _num_y[i]; j++) {
 
       /* If Track points to the upper right */
-      if (sin(phi_eff[i]) > 0 && cos(phi_eff[i]) > 0)
+      if (i < _num_azim / 2)
         _tracks[i][_num_x[i]+j].getStart()->setCoords(0,
                                      dy_eff[i] * (0.5 + j));
 
       /* If Track points to the upper left */
-      else if (sin(phi_eff[i]) > 0 && cos(phi_eff[i]) < 0)
+      else
         _tracks[i][_num_x[i]+j].getStart()->setCoords(width,
                                      dy_eff[i] * (0.5 + j));
     }
