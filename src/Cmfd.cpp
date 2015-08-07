@@ -2189,7 +2189,7 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
     /* SHM write surface current */
     omp_set_lock(&_surface_locks[surf_id]);
-	#pragma omp simd
+    #pragma omp simd
     for (int e=0; e < _num_moc_groups; e++) 
       _surface_currents(surf_id, e) += surf_current[e];
     omp_unset_lock(&_surface_locks[surf_id]);
