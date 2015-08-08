@@ -934,25 +934,51 @@ void TrackGenerator::initializeBoundaryConditions() {
                  " set to PERIODIC");
   
   Track* track;
-  int ac;
+  int ic;
   
   /* Loop over the all the tracks and set the incoming and outgoing tracks
    * and incoming and outgoing boundary conditions. */
-  for (int a=0; a < _num_azim; a++) {
-    ac = _num_azim - a - 1;
-    for (int i=0; i < _num_tracks[a]; i++) {
+  for (int i=0; i < _num_azim; i++) {
+    ic = _num_azim - i - 1;
+    for (int j=0; j < _num_tracks[i]; j++) {
 
       /* Get current track */
-      track = &_tracks[a][i];
+      track = &_tracks[i][j];
+      track->setTrackOutI(ic);
+      track->setTrackInI(ic);
 
+      /* Set connecting tracks in forward direction */
+      if (j < _num_y[i]) {
+        track->setReflOut(false);
+        track->setTrackOut(&_tracks[ic][j + _num_x[i]]);
+        track->setTrackOutJ(j + _num_x[i]);
+      }
+      else{
+        track->setReflOut(true);
+        track->setTrackOut(&_tracks[ic][_num_x[i] + 2*_num_y[i] - j - 1]);
+        track->setTrackOutJ(_num_x[i] + 2*_num_y[i] - j - 1);
+      }
+
+      /* Set connecting tracks in backward direction */
+      if (j < _num_x[i]) {
+        track->setReflIn(false);
+        track->setTrackIn(&_tracks[ic][_num_x[i] - j - 1]);
+        track->setTrackInJ(_num_x[i] - j - 1);
+      }
+      else{
+        track->setReflIn(true);
+        track->setTrackIn(&_tracks[ic][j - _num_x[i]]);
+        track->setTrackInJ(j - _num_x[i]);
+      }
+      
       /* Set boundary conditions for tracks in [0, PI/2] */
-      if (a < _num_azim/2) {
-        if (i < _num_y[a])
+      if (i < _num_azim/2) {
+        if (j < _num_y[i])
           track->setBCOut(_geometry->getMaxXBoundaryType());
         else
           track->setBCOut(_geometry->getMaxYBoundaryType());
 
-        if (i < _num_x[a])
+        if (j < _num_x[i])
           track->setBCIn(_geometry->getMinYBoundaryType());
         else
           track->setBCIn(_geometry->getMinXBoundaryType());        
@@ -960,12 +986,12 @@ void TrackGenerator::initializeBoundaryConditions() {
 
       /* Set boundary conditions for tracks in [PI/2, PI] */
       else{
-        if (i < _num_y[a])
+        if (j < _num_y[i])
           track->setBCOut(_geometry->getMinXBoundaryType());
         else
           track->setBCOut(_geometry->getMaxYBoundaryType());
 
-        if (i < _num_x[a])
+        if (j < _num_x[i])
           track->setBCIn(_geometry->getMinYBoundaryType());
         else
           track->setBCIn(_geometry->getMaxXBoundaryType());
