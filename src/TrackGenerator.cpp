@@ -944,32 +944,6 @@ void TrackGenerator::initializeBoundaryConditions() {
 
       /* Get current track */
       track = &_tracks[i][j];
-      track->setTrackOutI(ic);
-      track->setTrackInI(ic);
-
-      /* Set connecting tracks in forward direction */
-      if (j < _num_y[i]) {
-        track->setReflOut(false);
-        track->setTrackOut(&_tracks[ic][j + _num_x[i]]);
-        track->setTrackOutJ(j + _num_x[i]);
-      }
-      else{
-        track->setReflOut(true);
-        track->setTrackOut(&_tracks[ic][_num_x[i] + 2*_num_y[i] - j - 1]);
-        track->setTrackOutJ(_num_x[i] + 2*_num_y[i] - j - 1);
-      }
-
-      /* Set connecting tracks in backward direction */
-      if (j < _num_x[i]) {
-        track->setReflIn(false);
-        track->setTrackIn(&_tracks[ic][_num_x[i] - j - 1]);
-        track->setTrackInJ(_num_x[i] - j - 1);
-      }
-      else{
-        track->setReflIn(true);
-        track->setTrackIn(&_tracks[ic][j - _num_x[i]]);
-        track->setTrackInJ(j - _num_x[i]);
-      }
       
       /* Set boundary conditions for tracks in [0, PI/2] */
       if (i < _num_azim/2) {
@@ -998,41 +972,41 @@ void TrackGenerator::initializeBoundaryConditions() {
       }
       
       /* Set connecting tracks in forward direction */
-      if (i < _num_y[a]) {
+      if (j < _num_y[i]) {
         track->setNextOut(false);
         if (track->getBCOut() == PERIODIC)
-          track->setTrackOut(&_tracks[a][i + _num_x[a]]);
+          track->setTrackOut(&_tracks[i][j + _num_x[i]]);
         else
-          track->setTrackOut(&_tracks[ac][i + _num_x[a]]);
+          track->setTrackOut(&_tracks[ic][j + _num_x[i]]);
       }
       else{
         if (track->getBCOut() == PERIODIC) {
           track->setNextOut(false);
-          track->setTrackOut(&_tracks[a][i - _num_y[a]]);
+          track->setTrackOut(&_tracks[i][j - _num_y[i]]);
         }
-        else {
+        else{
           track->setNextOut(true);
-          track->setTrackOut(&_tracks[ac][_num_x[a] + 2*_num_y[a] - i - 1]);
+          track->setTrackOut(&_tracks[ic][_num_x[i] + 2*_num_y[i] - j - 1]);
         }
       }
 
       /* Set connecting tracks in backward direction */
-      if (i < _num_x[a]) {
+      if (j < _num_x[i]) {
         if (track->getBCIn() == PERIODIC) {
           track->setNextIn(true);
-          track->setTrackIn(&_tracks[a][i + _num_y[a]]);
+          track->setTrackIn(&_tracks[i][j + _num_y[i]]);
         }
-        else {
+        else{
           track->setNextIn(false);
-          track->setTrackIn(&_tracks[ac][_num_x[a] - i - 1]);
+          track->setTrackIn(&_tracks[ic][_num_x[i] - j - 1]);
         }
       }
       else{
         track->setNextIn(true);
         if (track->getBCIn() == PERIODIC)
-          track->setTrackIn(&_tracks[a][i - _num_x[a]]);
+          track->setTrackIn(&_tracks[i][j - _num_x[i]]);
         else
-          track->setTrackIn(&_tracks[ac][i - _num_x[a]]);
+          track->setTrackIn(&_tracks[ic][j - _num_x[i]]);
       }
     }
   }

@@ -444,7 +444,7 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
   _converge_thresh = threshold;
 
   if (_cmfd != NULL)
-    _cmfd->setSourceConvergenceThreshold(threshold);
+    _cmfd->setSourceConvergenceThreshold(threshold*1.e-1);
 }
 
 

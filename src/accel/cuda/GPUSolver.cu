@@ -1489,6 +1489,24 @@ void GPUSolver::transportSweep() {
                                                  reduced_sources,
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
+
+  /* Sweep the fifth space of azimuthal angle and periodic track halfspaces */
+  tid_offset = _num_tracks_by_halfspace[4] * _num_groups;
+  tid_max = _num_tracks_by_halfspace[5];
+
+  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
+                                                 reduced_sources,
+                                                 _materials, _dev_tracks,
+                                                 tid_offset, tid_max);
+
+  /* Sweep the fifth space of azimuthal angle and periodic track halfspaces */
+  tid_offset = _num_tracks_by_halfspace[5] * _num_groups;
+  tid_max = _num_tracks_by_halfspace[6];
+
+  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
+                                                 reduced_sources,
+                                                 _materials, _dev_tracks,
+                                                 tid_offset, tid_max);
 }
 
 
