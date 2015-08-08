@@ -1457,8 +1457,7 @@ void GPUSolver::transportSweep() {
   tid_max = _num_tracks_by_halfspace[1];
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources, 
-                                                 boundary_leakage,
+                                                 reduced_sources,
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
 
@@ -1467,8 +1466,7 @@ void GPUSolver::transportSweep() {
   tid_max = _num_tracks_by_halfspace[2];
 
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources, 
-                                                 boundary_leakage,
+                                                 reduced_sources,
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
 
