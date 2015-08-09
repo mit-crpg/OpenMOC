@@ -26,7 +26,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
     log_printf(ERROR, "Cannot compute the Matrix-Vector eigenvalue with "
                "different x dimensions for the A matrix, M matrix, and X vector"
                ": (%d, %d, %d)", A->getNumX(), M->getNumX(), X->getNumX());
-  else if (A->getNumX() != M->getNumY() || A->getNumY() != X->getNumY())
+  else if (A->getNumY() != M->getNumY() || A->getNumY() != X->getNumY())
     log_printf(ERROR, "Cannot compute the Matrix-Vector eigenvalue with "
                "different y dimensions for the A matrix, M matrix, and X vector"
                ": (%d, %d, %d)", A->getNumY(), M->getNumY(), X->getNumY());
@@ -114,8 +114,8 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                " for the A matrix, M matrix, B vector, and X vector: "
                "(%d, %d, %d, %d)", A->getNumX(), M->getNumX(),
                B->getNumX(), X->getNumX());
-  else if (A->getNumX() != B->getNumY() || A->getNumY() != X->getNumY() ||
-           A->getNumX() != M->getNumX())
+  else if (A->getNumY() != B->getNumY() || A->getNumY() != X->getNumY() ||
+           A->getNumY() != M->getNumY())
     log_printf(ERROR, "Cannot perform linear solve with different y dimensions"
                " for the A matrix, M matrix, B vector, and X vector: "
                "(%d, %d, %d, %d)", A->getNumY(), M->getNumY(),
@@ -157,29 +157,33 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
     /* Iteration over red/black cells */
     for (int color = 0; color < 2; color++) {
-      #pragma omp parallel for private(row, col)
-      for (int cy = 0; cy < num_y; cy++) {
-        for (int cx = 0; cx < num_x; cx++) {
+      for (int quad = 0; quad < 4; quad++) {
+        #pragma omp parallel for private(row, col)
+        for (int cy = (quad % 2) * num_y/2; cy < (quad % 2 + 1) * num_y/2;
+             cy++) {
+          for (int cx = (quad / 2) * num_x/2; cx < (quad / 2 + 1) * num_x/2;
+               cx++) {
 
-          /* check for correct color */
-          if (((cx % 2)+(cy % 2)) % 2 == color) {
+            /* check for correct color */
+            if (((cx % 2)+(cy % 2)) % 2 == color) {
 
-            for (int g = 0; g < num_groups; g++) {
+              for (int g = 0; g < num_groups; g++) {
 
-              row = (cy*num_x + cx)*num_groups + g;
+                row = (cy*num_x + cx)*num_groups + g;
 
-              /* Over-relax the x array */
-              x[row] = (1.0 - SOR_factor) * x[row];
+                /* Over-relax the x array */
+                x[row] = (1.0 - SOR_factor) * x[row];
 
-              for (int i = IA[row]; i < IA[row+1]; i++) {
+                for (int i = IA[row]; i < IA[row+1]; i++) {
 
-                /* Get the column index */
-                col = JA[i];
+                  /* Get the column index */
+                  col = JA[i];
 
-                if (row == col)
-                  x[row] += SOR_factor * b[row] / DIAG[row];
-                else
-                  x[row] -= SOR_factor * a[i] * x[col] / DIAG[row];
+                  if (row == col)
+                    x[row] += SOR_factor * b[row] / DIAG[row];
+                  else
+                    x[row] -= SOR_factor * a[i] * x[col] / DIAG[row];
+                }
               }
             }
           }
@@ -225,7 +229,7 @@ void matrixMultiplication(Matrix* A, Vector* X, Vector* B) {
     log_printf(ERROR, "Cannot perform matrix multiplication  with different x "
                "dimensions for the A matrix, B vector, and X vector: "
                "(%d, %d, %d)", A->getNumX(), B->getNumX(), X->getNumX());
-  else if (A->getNumX() != B->getNumY() || A->getNumY() != X->getNumY())
+  else if (A->getNumY() != B->getNumY() || A->getNumY() != X->getNumY())
     log_printf(ERROR, "Cannot perform matrix multiplication with different y "
                "dimensions for the A matrix, B vector, and X vector: "
                "(%d, %d, %d)", A->getNumY(), B->getNumY(), X->getNumY());

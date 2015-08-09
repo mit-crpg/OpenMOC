@@ -54,34 +54,33 @@ struct dev_track {
   /** The number of segments making up this Track */
   int _num_segments;
 
-  /** Index of the Track which reflects out of this Track along its "forward"
-   * direction for reflective boundary conditions. */
+  /** Index of the next Track when traveling along this Track in the "forward"
+   * direction. */
   int _track_in;
 
-  /** Index of the Track which reflects out of this Track along its "reverse"
-   * direction for reflective boundary conditions. */
+  /** Index of the next Track when traveling along this Track in the "reverse"
+   * direction. */
   int _track_out;
 
-  /** The first index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "forward" direction for
-   *  reflective boundary conditions. */
-  bool _refl_in;
+  /** A boolean to indicate whether to give the flux to the "forward" (false)
+   *  or "reverse" (true) direction of the next Track going in the "forward"
+   *  direction. */
+  bool _next_in;
 
-  /** A boolean to indicate whether to give the flux to the "forward"
-   *  (false) or "reverse" (true) direction of the Track reflecting out of
-   *  this one along its "forward" direction for reflective boundary
-   *  conditions. */
-  bool _refl_out;
+  /** A boolean to indicate whether to give the flux to the "forward" (false)
+   *  or "reverse" (true) direction of the next Track going in the "reverse"
+   *  direction. */
+  bool _next_out;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
    *  conditions. */
-  bool _bc_in;
+  int _bc_in;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "reverse" direction should be zeroed out for vacuum boundary
    *  conditions. */
-  bool _bc_out;
+  int _bc_out;
 };
 
 
