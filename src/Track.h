@@ -14,6 +14,7 @@
 #endif
 #include "Point.h"
 #include "Material.h"
+#include "boundary_type.h"
 #include <vector>
 #include <algorithm>
 #endif
@@ -80,56 +81,39 @@ private:
   /** The azimuthal angle index into the global 2D ragged array of Tracks */
   int _azim_angle_index;
 
+  /** The track index in the periodic cycle */
+  int _periodic_track_index;
+
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
 
-  /** The Track which reflects out of this Track along its "forward"
-   * direction for reflective boundary conditions. */
+  /** The next Track when traveling along this Track in the "forward"
+   * direction. */
   Track* _track_in;
 
-  /** The Track which reflects out of this Track along its "reverse"
-   * direction for reflective boundary conditions. */
+  /** The next Track when traveling along this Track in the "reverse"
+   * direction. */
   Track* _track_out;
 
-  /** The first index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "forward" direction for
-   *  reflective boundary conditions. */
-  int _track_in_i;
-
-  /** The second index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "forward" direction for
-   *  reflective boundary conditions. */
-  int  _track_in_j;
-
-  /** The first index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "reverse" direction for
-   *  reflective boundary conditions. */
-  int _track_out_i;
-
-  /** The second index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "reverse" direction for
-   *  reflective boundary conditions */
-  int _track_out_j;
+  /** A boolean to indicate whether to give the flux to the "forward" (false)
+   *  or "reverse" (true) direction of the next Track going in the "forward"
+   *  direction. */
+  bool _next_in;
 
   /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the Track reflecting out of this one
-   *  along its "forward" direction for reflective boundary conditions.*/
-  bool _refl_in;
-
-  /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the Track reflecting out of this one
-   *  along its "forward" direction for reflective boundary conditions. */
-  bool _refl_out;
+   *  or "reverse" (true) direction of the next Track going in the "reverse"
+   *  direction. */
+  bool _next_out;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
    *  conditions. */
-  bool _bc_in;
+  boundaryType _bc_in;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "reverse" direction should be zeroed out for vacuum boundary
    *  conditions. */
-  bool  _bc_out;
+  boundaryType  _bc_out;
 
 public:
   Track();
@@ -139,35 +123,29 @@ public:
   void setUid(int uid);
   void setPhi(const double phi);
   void setAzimAngleIndex(const int index);
-  void setReflIn(const bool refl_in);
-  void setReflOut(const bool refl_out);
-  void setBCIn(const bool bc_in);
-  void setBCOut(const bool bc_out);
+  void setPeriodicTrackIndex(const int index);
+  void setNextIn(const bool next_in);
+  void setNextOut(const bool next_out);
+  void setBCIn(const boundaryType bc_in);
+  void setBCOut(const boundaryType bc_out);
   void setTrackIn(Track *track_in);
   void setTrackOut(Track *track_out);
-  void setTrackInI(int i);
-  void setTrackInJ(int j);
-  void setTrackOutI(int i);
-  void setTrackOutJ(int j);
 
   int getUid();
   Point* getEnd();
   Point* getStart();
   double getPhi() const;
   int getAzimAngleIndex() const;
+  int getPeriodicTrackIndex() const;
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
   Track *getTrackIn() const;
   Track *getTrackOut() const;
-  int getTrackInI() const;
-  int getTrackInJ() const;
-  int getTrackOutI() const;
-  int getTrackOutJ() const;
-  bool isReflIn() const;
-  bool isReflOut() const;
-  bool getBCIn() const;
-  bool getBCOut() const;
+  bool isNextIn() const;
+  bool isNextOut() const;
+  boundaryType getBCIn() const;
+  boundaryType getBCOut() const;
 
   bool contains(Point* point);
   void addSegment(segment* to_add);

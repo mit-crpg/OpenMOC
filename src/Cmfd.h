@@ -185,6 +185,7 @@ private:
 
   /* Private getter functions */
   int getCellNext(int cell_id, int surface_id);
+  int getCellByStencil(int cell_id, int stencil_id);
   FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
   FP_PRECISION getDistanceToCentroid(Point* centroid, int cell_id,
                                      int stencil_index);
