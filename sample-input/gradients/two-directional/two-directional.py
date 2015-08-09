@@ -29,8 +29,8 @@ log.py_printf('TITLE', 'Simulating a one group homogeneous, two directional'
 log.py_printf('NORMAL', 'Importing cubic geometry...')
 
 left.setBoundaryType(VACUUM)
-right.setBoundaryType(REFLECTIVE)
-top.setBoundaryType(VACUUM)
+right.setBoundaryType(VACUUM)
+top.setBoundaryType(REFLECTIVE)
 bottom.setBoundaryType(REFLECTIVE)
 
 ###############################################################################

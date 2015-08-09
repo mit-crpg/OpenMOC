@@ -6,7 +6,7 @@ from openmoc import *
 
 length = 10.0
 num_cells_x = 100 
-num_cells_y = 100
+num_cells_y = 1
 
 ###############################################################################
 #######################   Define Material Properties   ########################

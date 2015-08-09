@@ -1165,11 +1165,12 @@ void Cmfd::splitCorners() {
   log_printf(INFO, "Splitting CMFD corner currents...");
 
   FP_PRECISION current;
+  int cell_id, cell_next_id;
 
-  #pragma omp parallel for private(current)
+  #pragma omp parallel for private(current, cell_id, cell_next_id)
   for (int y = 0; y < _num_y; y++) {
     for (int x = 0; x < _num_x; x++) {
-      int cell_id = y * _num_x + x;
+      cell_id = y * _num_x + x;
       for (int c = 0; c < NUM_CORNERS; c++) {
 
         /* Increment current for surfaces in current cell */
@@ -1194,13 +1195,15 @@ void Cmfd::splitCorners() {
             current = 0.5 * _corner_currents->getValue
               (cell_id, c * _num_cmfd_groups + e);
 
-            if (x != 0)
+            cell_next_id = getCellNext(cell_id, SURFACE_X_MIN);
+            if (cell_next_id != -1)
               _surface_currents->incrementValue
-                (cell_id - 1, SURFACE_Y_MIN * _num_cmfd_groups + e, current);
-            if (y != 0)
+                (cell_next_id, SURFACE_Y_MIN * _num_cmfd_groups + e, current);
+
+            cell_next_id = getCellNext(cell_id, SURFACE_Y_MIN);
+            if (cell_next_id != -1)
               _surface_currents->incrementValue
-                (cell_id - _num_x, SURFACE_X_MIN * _num_cmfd_groups + e,
-                 current);
+                (cell_next_id, SURFACE_X_MIN * _num_cmfd_groups + e, current);
           }
         }
 
@@ -1210,13 +1213,15 @@ void Cmfd::splitCorners() {
             current = 0.5 * _corner_currents->getValue
               (cell_id, c * _num_cmfd_groups + e);
 
-            if (x != _num_x - 1)
+            cell_next_id = getCellNext(cell_id, SURFACE_X_MAX);
+            if (cell_next_id != -1)
               _surface_currents->incrementValue
-                (cell_id + 1, SURFACE_Y_MIN * _num_cmfd_groups + e, current);
-            if (y != 0)
+                (cell_next_id, SURFACE_Y_MIN * _num_cmfd_groups + e, current);
+
+            cell_next_id = getCellNext(cell_id, SURFACE_Y_MIN);
+            if (cell_next_id != -1)
               _surface_currents->incrementValue
-                (cell_id - _num_x, SURFACE_X_MAX * _num_cmfd_groups + e,
-                 current);
+                (cell_next_id, SURFACE_X_MAX * _num_cmfd_groups + e, current);
           }
         }
 
@@ -1226,13 +1231,15 @@ void Cmfd::splitCorners() {
             current = 0.5 * _corner_currents->getValue
               (cell_id, c * _num_cmfd_groups + e);
 
-            if (x != 0)
+            cell_next_id = getCellNext(cell_id, SURFACE_X_MIN);
+            if (cell_next_id != -1)
               _surface_currents->incrementValue
-                (cell_id - 1, SURFACE_Y_MAX * _num_cmfd_groups + e, current);
-            if (y != _num_y - 1)
+                (cell_next_id, SURFACE_Y_MAX * _num_cmfd_groups + e, current);
+
+            cell_next_id = getCellNext(cell_id, SURFACE_Y_MAX);
+            if (cell_next_id != -1)
               _surface_currents->incrementValue
-                (cell_id + _num_x, SURFACE_X_MIN * _num_cmfd_groups + e,
-                 current);
+                (cell_next_id, SURFACE_X_MIN * _num_cmfd_groups + e, current);
           }
         }
 
@@ -1242,13 +1249,15 @@ void Cmfd::splitCorners() {
             current = 0.5 * _corner_currents->getValue
               (cell_id, c * _num_cmfd_groups + e);
 
-            if (x != _num_x - 1)
+            cell_next_id = getCellNext(cell_id, SURFACE_X_MAX);
+            if (cell_next_id != -1)
               _surface_currents->incrementValue
-                (cell_id + 1, SURFACE_Y_MAX * _num_cmfd_groups + e, current);
-            if (y != _num_y - 1)
+                (cell_next_id, SURFACE_Y_MAX * _num_cmfd_groups + e, current);
+
+            cell_next_id = getCellNext(cell_id, SURFACE_Y_MAX);
+            if (cell_next_id != -1)
               _surface_currents->incrementValue
-                (cell_id + _num_x, SURFACE_X_MAX * _num_cmfd_groups + e,
-                 current);
+                (cell_next_id, SURFACE_X_MAX * _num_cmfd_groups + e, current);
           }
         }
 
@@ -1526,7 +1535,7 @@ void Cmfd::generateKNearestStencils() {
         std::vector< std::pair<int, FP_PRECISION> >();
 
       /* Get distance to all cells that touch current cell */
-      for (int j=0; j <= NUM_SURFACES; j++)
+      for (int j=0; j <= NUM_SURFACES + NUM_CORNERS; j++)
         _k_nearest_stencils[fsr_id]
           .push_back(std::make_pair<int, FP_PRECISION>
                      (int(j), getDistanceToCentroid(centroid, i, j)));
@@ -1572,6 +1581,72 @@ void Cmfd::generateKNearestStencils() {
 
 
 /**
+ * @brief Get the ID of the Mesh cell given a stencil ID and Mesh cell ID.
+ * @detail The stencil of cells surrounding the current cell is defined as:
+ *
+ *                             6 7 8
+ *                             3 4 5
+ *                             0 1 2
+ *
+ * @param cell_id Current Mesh cell ID
+ * @param stencil_id CMFD cell stencil ID
+ * @return Neighboring CMFD cell ID
+ */
+int Cmfd::getCellByStencil(int cell_id, int stencil_id) {
+
+  int cell_next_id = -1;
+  int x = cell_id % _num_x;
+  int y = cell_id / _num_x;
+  
+  if (stencil_id == 0) {
+    if (x != 0 && y != 0)
+      cell_next_id = cell_id - _num_x - 1;
+  }
+  else if (stencil_id == 1) {
+    if (y != 0)
+      cell_next_id = cell_id - _num_x;
+    else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
+      cell_next_id = cell_id + _num_x * (_num_y - 1);
+  }
+  else if (stencil_id == 2) {
+    if (x != _num_x - 1 && y != 0)
+      cell_next_id = cell_id - _num_x + 1;
+  }
+  else if (stencil_id == 3) {
+    if (x != 0)
+      cell_next_id = cell_id - 1;
+    else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
+      cell_next_id = cell_id + (_num_x - 1);
+  }
+  else if (stencil_id == 4) {
+    cell_next_id = cell_id;
+  }
+  else if (stencil_id == 5) {
+    if (x != _num_x - 1)
+      cell_next_id = cell_id + 1;
+    else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
+      cell_next_id = cell_id - (_num_x - 1);
+  }
+  else if (stencil_id == 6) {
+    if (x != 0 && y != _num_y - 1)
+      cell_next_id = cell_id + _num_x - 1;
+  }
+  else if (stencil_id == 7) {
+    if (y != _num_y - 1)
+      cell_next_id = cell_id + _num_x;
+    else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
+      cell_next_id = cell_id - _num_x * (_num_y - 1);
+  }
+  else if (stencil_id == 8) {
+    if (x != _num_x - 1 && y != _num_y - 1)
+      cell_next_id = cell_id + _num_x + 1;
+  }
+
+  return cell_next_id;
+}
+
+
+/**
  * @brief Get the ratio used to update the FSR flux after converging CMFD.
  * @detail This method takes in a cmfd cell, a MOC energy group, and a FSR
  *         and returns the ratio used to update the FSR flux. There are two
@@ -1597,48 +1672,18 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
 
   FP_PRECISION ratio = 0.0;
   std::vector< std::pair<int, FP_PRECISION> >::iterator iter;
+  int cell_next_id;
 
   if (_centroid_update_on) {
 
-    /* Compute the ratio */
+    /* Compute the ratio for all the surrounding cells */
     for (iter = _k_nearest_stencils[fsr].begin();
          iter != _k_nearest_stencils[fsr].end(); ++iter) {
 
-      /* LOWER LEFT CORNER */
-      if (iter->first == 0)
-        ratio += iter->second * _flux_ratio->getValue
-          (cell_id - _num_x - 1, group);
-
-      /* BOTTOM SIDE */
-      else if (iter->first == 1)
-        ratio += iter->second * _flux_ratio->getValue(cell_id - _num_x, group);
-
-      /* LOWER RIGHT CORNER */
-      else if (iter->first == 2)
-        ratio += iter->second * _flux_ratio->getValue
-          (cell_id - _num_x + 1, group);
-
-      /* LEFT SIDE */
-      else if (iter->first == 3)
-        ratio += iter->second * _flux_ratio->getValue(cell_id - 1, group);
-
-      /* RIGHT SIDE */
-      else if (iter->first == 5)
-        ratio += iter->second * _flux_ratio->getValue(cell_id + 1, group);
-
-      /* UPPER LEFT CORNER */
-      else if (iter->first == 6)
-        ratio += iter->second * _flux_ratio->getValue
-          (cell_id + _num_x - 1, group);
-
-      /* TOP SIDE */
-      else if (iter->first == 7)
-        ratio += iter->second * _flux_ratio->getValue(cell_id + _num_x, group);
-
-      /* TOP RIGHT CORNER */
-      else if (iter->first == 8)
-        ratio += iter->second * _flux_ratio->getValue
-          (cell_id + _num_x + 1, group);
+      if (iter->first != 4) {
+        cell_next_id = getCellByStencil(cell_id, iter->first);
+        ratio += iter->second * _flux_ratio->getValue(cell_next_id, group);
+      }
     }
 
     /* INTERNAL */
