@@ -577,6 +577,40 @@ int Geometry::findFSRId(LocalCoords* coords) {
   return fsr_id;
 }
 
+/**
+ * @brief TODO
+ */
+ExtrudedFSR* Geometry::findExtrudedFSR(LocalCoords* coords) {
+
+  /* Generate unique FSR key */
+  LocalCoords* curr = coords;
+  curr = coords->getLowestLevel();
+  std::hash<std::string> key_hash_function;
+  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
+
+  /* If FSR has not been encountered, update FSR maps and vectors */
+  if (!_extruded_FSR_keys_map.contains(fsr_key_hash)) {
+
+    /* Create the FSR and insert it */
+    ExtrudedFSR* fsr = new ExtrudedFSR;
+    _extruded_FSR_keys_map.insert(fsr_key_hash, fsr);
+
+    /* If FSR key was already inserted, delete the new FSR */
+    if(_extruded_FSR_keys_map.at(fsr_key_hash) != fsr)
+      delete fsr;
+    
+    /* Otherwise, intialize the extruded FSR */
+    else {
+      fsr->_num_fsrs = 0;
+      coords->copyCoords(fsr->_coords);
+    }
+  }
+  
+  return _FSR_keys_map.at(fsr_key_hash);
+
+}
+
+
 
 /**
  * @brief Return the ID of the flat source region that a given
@@ -872,6 +906,76 @@ void Geometry::segmentize2D(Track2D* track, double z_level) {
   return;
 }
 
+/**
+ * @brief TODO YADA YADA YADA segmentize
+ */
+void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
+
+  /* Extract the associated 2D track */
+  Track2D* track = extruded_track->_track_2D;
+  
+  /* Track starting Point coordinates and azimuthal angle */
+  double x0 = track->getStart()->getX();
+  double y0 = track->getStart()->getY();
+  double z0 = 0;
+  double phi = track->getPhi();
+  double delta_x, delta_y, delta_z;
+
+  /* Length of each segment */
+  FP_PRECISION length;
+  ExtrudedFSR* fsr;
+  int num_segments;
+
+  /* Use a LocalCoords for the start and end of each segment */
+  LocalCoords start(x0, y0, z0);
+  LocalCoords end(x0, y0, z0);
+  start.setUniverse(_root_universe);
+  end.setUniverse(_root_universe);
+
+  /* Find the Cell containing the Track starting Point */
+  Cell* curr = findFirstCell(&end, phi);
+  Cell* prev;
+
+  /* If starting Point was outside the bounds of the Geometry */
+  if (curr == NULL)
+    log_printf(ERROR, "Could not find a Cell containing the start Point "
+               "of this Track2D: %s", track->toString().c_str());
+
+  /* While the end of the segment's LocalCoords is still within the Geometry,
+   * move it to the next Cell, create a new segment, and add it to the
+   * Geometry */
+  while (curr != NULL) {
+
+    end.copyCoords(&start);
+
+    /* Find the next Cell along the Track's trajectory */
+    prev = curr;
+    curr = findNextCell(&end, phi);
+
+    /* Checks that segment does not have the same start and end Points */
+    if (start.getX() == end.getX() && start.getY() == end.getY())
+      log_printf(ERROR, "Created segment with same start and end "
+                 "point: x = %f, y = %f", start.getX(), start.getY());
+
+    /* Find the segment length, Material and FSR ID */
+    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    fsr = findExtrudedFSR(&start);
+
+    log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
+               start.getX(), start.getY(), end.getX(), end.getY());
+
+    /* Add the segment to the extruded track */
+    extruded_track->_lengths.push_back(length);
+    extruded_track->_regions.push_back(fsr);
+
+  }
+
+  /* Truncate the linked list for the LocalCoords */
+  start.prune();
+  end.prune();
+
+  return;
+}
 
 /**
  * @brief This method performs ray tracing to create Track segments within each

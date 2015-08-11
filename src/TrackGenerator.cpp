@@ -593,8 +593,10 @@ void TrackGenerator::setNumAzim(int num_azim) {
   _num_azim = num_azim;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
+  _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
+  _contains_extruded_segments = false;
   _use_input_file = false;
   _tracks_filename = "";
 }
@@ -638,8 +640,10 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
   _num_3D_segments = 0;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
+  _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
+  _contains_extruded_segments = false;
 }
 
 
@@ -659,8 +663,10 @@ void TrackGenerator::setDesiredPolarSpacing(double spacing) {
   _num_3D_segments = 0;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
+  _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
+  _contains_extruded_segments = false;
 }
 
 
@@ -676,8 +682,10 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
   _num_3D_segments = 0;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
+  _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
+  _contains_extruded_segments = false;
 }
 
 
@@ -2729,7 +2737,30 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
   }
 }
 
- 
+
+/**
+ * @brief TODO
+ */
+void TrackGenerator::initializeExtrudedTracks() {
+
+  ExtrudedTrack* _extruded_tracks = new ExtrudedTrack[_num_2D_tracks];
+
+  size_t index = 0;
+  for (int a=0; a < _num_azim/2; a++) {
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+
+      _extruded_tracks[index]._azim_index = a;
+      _extruded_tracks[index]._track_index = i;
+      _extruded_tracks[index]._num_segments = 0;
+      _extruded_tracks[index]._track_2D = &_tracks_2D[a][i];
+      
+      index++;
+    }
+  }
+  _contains_extruded_tracks = true;
+}
+
+
 /**
  * @brief Recalibrates Track start and end points to the origin of the Geometry.
  * @details The origin of the Geometry is designated at its center by
@@ -2913,6 +2944,29 @@ void TrackGenerator::segmentize2D() {
 
   _geometry->initializeFSRVectors();
   _contains_2D_segments = true;
+  
+  return;
+}
+
+/**
+ * @brief TODO YADA YADA YADA segmentize
+ */
+void TrackGenerator::segmentizeExtruded() {
+
+  log_printf(NORMAL, "Ray tracing for axially extruded track segmentation...");
+
+  /* Loop over all extruded Tracks */
+  #pragma omp parallel for
+  for (int index=0; index < _num_2D_tracks; index++) {
+
+    log_printf(NORMAL, "segmenting axially extruded tracks - Percent complete:"
+       " %5.2f %%", double(index) / _num_2D_tracks * 100.0);
+    
+    _geometry->segmentizeExtruded(&_extruded_tracks[index]);
+  }
+
+  _geometry->initializeFSRVectors();
+  _contains_extruded_segments = true;
   
   return;
 }

@@ -102,6 +102,7 @@ private:
   
   /** An map of FSR key hashes to unique fsr_data structs */
   ParallelHashMap<std::size_t, fsr_data*> _FSR_keys_map;
+  ParallelHashMap<std::size_t, ExtrudedFSR*> _extruded_FSR_keys_map;
 
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::size_t> _FSRs_to_keys;
@@ -171,6 +172,7 @@ public:
   Cell* findCellContainingCoords(LocalCoords* coords);
   Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
+  ExtrudedFSR* findExtrudedFSR(LocalCoords* coords);
   Cell* findCellContainingFSR(int fsr_id);
   
   /* Other worker methods */
@@ -178,6 +180,7 @@ public:
   void initializeFlatSourceRegions();
   void segmentize2D(Track2D* track, double z_level);
   void segmentize3D(Track3D* track);
+  void segmentizeExtruded(ExtrudedTrack* extruded_track);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
   

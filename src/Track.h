@@ -197,4 +197,52 @@ inline int Track::getNumSegments() {
   return _segments.size();
 }
 
+/**
+ * @struct ExtrudedTrack
+ * @brief TODO
+ */
+struct ExtrudedTrack {
+
+  /** The lengths of the associated 2D segments (cm) */
+  std::vector<FP_PRECISION> _lengths;
+
+  /** Vector of extruded FSR region pointers associated with the 2D segments */
+  std::vector<ExtrudedFSR*> _regions;
+
+  /** The number of 2D segments associated with the extruded track */
+  size_t _num_segments;
+
+  /** Azimuthal index of the 2D and 3D tracks */
+  int _azim_index;
+
+  /** 2D track index of the 2D and 3D tracks */
+  int _track_index;
+  
+  /** Pointer to associated 2D track */
+  int _track_2D;
+}
+
+/**
+ * @stuct ExtrudedFSR
+ * @brief TODO, move to another file
+ */
+struct ExtrudedFSR {
+
+  /** Array defining the axial mesh */
+  FP_PRECISION* _mesh;
+
+  /** Array of 3D FSR IDs */
+  int* _fsr_ids;
+
+  /** Array of material pointers for each FSR */
+  Material** _materials;
+
+  /** Number of FSRs in the axially extruded FSR */
+  size_t _num_fsrs;
+  
+  /** Coordinates inside the FSR */
+  LocalCoords* _coords;
+}
+
+
 #endif /* TRACK_H_ */

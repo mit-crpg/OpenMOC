@@ -95,6 +95,9 @@ private:
   /** An array of 3D tracks (azim, 2D track, polar, z-stack) */
   Track3D**** _tracks_3D_stack;
   Track3D****** _tracks_3D_cycle;
+
+  /** An array of axially extruded track groups */
+  ExtrudedTrack* _extruded_tracks;
   
   /** Pointer to the Geometry */
   Geometry* _geometry;
@@ -117,16 +120,20 @@ private:
   /** Boolean whether the Tracks have been generated (true) or not (false) */
   bool _contains_2D_tracks;
   bool _contains_3D_tracks;
+  bool _contains_extruded_tracks;
   bool _contains_2D_segments;
   bool _contains_3D_segments;
+  bool _contains_extruded_segments;
   void initialize2DTracks();
   void initialize3DTracks();
+  void initializeExtrudedTracks();
   void initialize2DTrackReflections();
   void initialize3DTrackReflections();
   void recalibrate2DTracksToOrigin();
   void recalibrate3DTracksToOrigin();
   void segmentize2D();
   void segmentize3D();
+  void segmentizeExtruded();
   void decomposeLZTrack(Track3D* track, double l_start, double l_end,
                         int azim, int cycle, int polar, int lz_index,
                         bool create_tracks);
