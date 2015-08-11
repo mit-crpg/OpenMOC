@@ -226,6 +226,9 @@ public:
   void initializeTrackFileDirectory();
   void initializeTrackPeriodicIndices();
   void initializeTrackUIDs();
+  void checkBoundaryConditions();
+  void initialize2DTrackCycleIds();
+  void initialize3DTrackCycleIds();
 };
 
 #endif /* TRACKGENERATOR_H_ */

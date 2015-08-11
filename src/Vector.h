@@ -35,38 +35,41 @@ private:
   int _num_y;
   int _num_z;
   int _num_groups;
+
+  /** OpenMP mutual exclusion locks for atomic cell updates */
+  omp_lock_t* _cell_locks;
+
+  void setNumX(int num_x);
+  void setNumY(int num_y);
+  void setNumZ(int num_z);
+  void setNumGroups(int num_groups);
   
 public:
   Vector(int num_x=1, int num_y=1, int num_z=1, int num_groups=1);
   virtual ~Vector();
 
   /* Worker functions */
-  void incrementValue(int row, FP_PRECISION val);
-  void incrementValueByCell(int cell, int g, FP_PRECISION val);
-  void incrementValueByCoords(int x, int y, int z, int g, FP_PRECISION val);
-  void setValue(int row, FP_PRECISION val);
-  void setValueByCoords(int x, int y, int z, int g, FP_PRECISION val);
-  void setValueByCell(int cell, int g, FP_PRECISION val);
-  void setAll(FP_PRECISION val);
+  void incrementValue(int cell, int group, FP_PRECISION val);
+  void incrementValues(int cell, int group_start, int group_end, FP_PRECISION* vals);
   void clear();
   void scaleByValue(FP_PRECISION val);  
-  std::string toString();
   void printString();
   void copyTo(Vector* vector);
-  void random();
-  FP_PRECISION sum();
   
   /* Getter functions */
-  FP_PRECISION getValue(int row);
-  FP_PRECISION getValueByCoords(int x, int y, int z, int g);
-  FP_PRECISION getValueByCell(int cell, int g=0);
+  FP_PRECISION getValue(int cell, int group);
   FP_PRECISION* getArray();
   int getNumX();
   int getNumY();
   int getNumZ();
   int getNumGroups();
   int getNumRows();
-
+  FP_PRECISION getSum();
+  
+  /* Setter functions */
+  void setValue(int cell, int group, FP_PRECISION val);
+  void setValues(int cell, int group_start, int group_end, FP_PRECISION* vals);
+  void setAll(FP_PRECISION val);
 };
 
 #endif /* VECTOR_H_ */

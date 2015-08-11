@@ -1078,6 +1078,45 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
 }
 
 
+void TrackGenerator::checkBoundaryConditions() {
+
+  if ((_geometry->getMinXBoundaryType() == PERIODIC &&
+       _geometry->getMaxXBoundaryType() != PERIODIC) ||
+      (_geometry->getMinXBoundaryType() != PERIODIC &&
+       _geometry->getMaxXBoundaryType() == PERIODIC))
+    log_printf(ERROR, "Cannot create tracks with only one x boundary"
+               " set to PERIODIC");
+  else if ((_geometry->getMinYBoundaryType() == PERIODIC &&
+            _geometry->getMaxYBoundaryType() != PERIODIC) ||
+           (_geometry->getMinYBoundaryType() != PERIODIC &&
+            _geometry->getMaxYBoundaryType() == PERIODIC))
+    log_printf(ERROR, "Cannot create tracks with only one y boundary"
+               " set to PERIODIC");
+  else if ((_geometry->getMinZBoundaryType() == PERIODIC &&
+            _geometry->getMaxZBoundaryType() != PERIODIC) ||
+           (_geometry->getMinZBoundaryType() != PERIODIC &&
+            _geometry->getMaxZBoundaryType() == PERIODIC))
+    log_printf(ERROR, "Cannot create tracks with only one z boundary"
+               " set to PERIODIC");
+  
+  /* Check for correct track method if a PERIODIC bc is present */
+  if (_geometry->getMinXBoundaryType() == PERIODIC ||
+      _geometry->getMinYBoundaryType() == PERIODIC ||
+      _geometry->getMinZBoundaryType() == PERIODIC) {
+    
+    _periodic = true;
+    
+    if (_track_generation_method != MODULAR_RAY_TRACING &&
+        _track_generation_method != SIMPLIFIED_MODULAR_RAY_TRACING &&
+        _solve_3D)
+      log_printf(ERROR, "Cannot create tracks for a geometry containing a"
+                 " periodic BC with a track generation method that is not"
+                 " modular");
+  }
+  else
+    _periodic = false;
+}
+
 /**
  * @brief Generates tracks for some number of azimuthal angles and track spacing
  * @details Computes the effective angles and track spacing. Computes the
@@ -1112,57 +1151,24 @@ void TrackGenerator::generateTracks() {
         _quadrature = new TYPolarQuad();
     }
 
-    /* Check periodic BCs for symmetry */
-    if ((_geometry->getMinXBoundaryType() == PERIODIC &&
-         _geometry->getMaxXBoundaryType() != PERIODIC) ||
-        (_geometry->getMinXBoundaryType() != PERIODIC &&
-         _geometry->getMaxXBoundaryType() == PERIODIC))
-      log_printf(ERROR, "Cannot create tracks with only one x boundary"
-                 " set to PERIODIC");
-    else if ((_geometry->getMinYBoundaryType() == PERIODIC &&
-              _geometry->getMaxYBoundaryType() != PERIODIC) ||
-             (_geometry->getMinYBoundaryType() != PERIODIC &&
-              _geometry->getMaxYBoundaryType() == PERIODIC))
-      log_printf(ERROR, "Cannot create tracks with only one y boundary"
-                 " set to PERIODIC");
-    else if ((_geometry->getMinZBoundaryType() == PERIODIC &&
-              _geometry->getMaxZBoundaryType() != PERIODIC) ||
-             (_geometry->getMinZBoundaryType() != PERIODIC &&
-              _geometry->getMaxZBoundaryType() == PERIODIC))
-      log_printf(ERROR, "Cannot create tracks with only one z boundary"
-                 " set to PERIODIC");
-    
-    /* Check for correct track method if a PERIODIC bc is present */
-    if (_geometry->getMinXBoundaryType() == PERIODIC ||
-        _geometry->getMinYBoundaryType() == PERIODIC ||
-        _geometry->getMinZBoundaryType() == PERIODIC) {
-      
-      _periodic = true;
-
-      if (_track_generation_method != MODULAR_RAY_TRACING &&
-          _track_generation_method != SIMPLIFIED_MODULAR_RAY_TRACING &&
-          _solve_3D)
-        log_printf(ERROR, "Cannot create tracks for a geometry containing a"
-                   " periodic BC with a track generation method that is not"
-                   " modular");
-    }
-    else
-      _periodic = false;
-
+    /* Initialize the quadrature set */
     _quadrature->setNumPolarAngles(_num_polar);
     _quadrature->setNumAzimAngles(_num_azim);
-    
-    /* Initialize the quadrature set */
     _quadrature->initialize();
+    
+    /* Check periodic BCs for symmetry */
+    checkBoundaryConditions();
 
     /* Initialize the 2D tracks */
     initialize2DTracks();
     initialize2DTrackReflections();
-
+    initialize2DTrackCycleIds();
+    
     /* If 3D problem, initialize the 3D tracks */
     if (_solve_3D) {
       initialize3DTracks();
       initialize3DTrackReflections();
+      initialize3DTrackCycleIds();
     }
     
     /* Recalibrate the 2D tracks back to the geometry origin */
@@ -1172,12 +1178,14 @@ void TrackGenerator::generateTracks() {
     if (_solve_3D)
       recalibrate3DTracksToOrigin();
 
+    /* Initialize the track file directory and read in tracks if they exist */
     initializeTrackFileDirectory();
 
+    /* If track file not present, generater segments */
     if (_use_input_file == false) {
 
       /* Segmentize the tracks */
-      if (_solve_3D) {
+      if (_solve_3D){
         segmentize3D();
         dump3DSegmentsToFile();
       }
@@ -1188,9 +1196,7 @@ void TrackGenerator::generateTracks() {
     }
 
     /* Initialize the track UIDs */
-    if (_periodic)
-      initializeTrackPeriodicIndices();
-
+    initializeTrackPeriodicIndices();
     initializeTrackUIDs();
     
     /* Precompute the quadrature weights */
@@ -1309,11 +1315,12 @@ void TrackGenerator::initialize2DTracks() {
     /* Allocate memory for the 2D tracks array */
     _tracks_2D[a] = new Track2D[getNumX(a) + getNumY(a)];
 
-    /* Set the azimuthal angle */
+    /* Get the azimuthal angle for all tracks with this azimuthal angle */
     phi = _quadrature->getPhi(a);
 
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
 
+      /* Get track and set angle and track indices */
       Track2D* track = (&_tracks_2D[a][i]);
       track->setPhi(phi);
       track->setAzimIndex(a);
@@ -1352,12 +1359,15 @@ void TrackGenerator::initialize2DTracks() {
     }
   }
 
+  /* Set the flag indicating 2D tracks have been generated */
   _contains_2D_tracks = true;
 }
 
 
 void TrackGenerator::initialize2DTrackReflections() {
 
+  log_printf(NORMAL, "Initializing 2D tracks reflections...");
+  
   Track* track;
   int ac;
   
@@ -1421,9 +1431,16 @@ void TrackGenerator::initialize2DTrackReflections() {
       }
     }
   }
+}
 
+
+void TrackGenerator::initialize2DTrackCycleIds() {
+
+  log_printf(NORMAL, "Initializing 2D track cycle ids...");
+  
   int id = 0;
   bool fwd;
+  Track* track;
   
   /* Set the periodic track cycle ids */
   for (int a=0; a < _num_azim/2; a++) {
@@ -1684,7 +1701,7 @@ void TrackGenerator::initialize3DTracks() {
 
             /* Decompose the track in the LZ plane by splitting it
              * based on the x and y geometry boundaries */
-            decomposeLZTrack(&track_3D, l_start, l_end, a, c, p, i,
+           decomposeLZTrack(&track_3D, l_start, l_end, a, c, p, i,
                              create_tracks);
           }
         }
@@ -2420,7 +2437,10 @@ void TrackGenerator::initialize3DTrackReflections() {
       }
     }
   }
+}
 
+void TrackGenerator::initialize3DTrackCycleIds() {
+  
   int id = 0;
   Track* track;
   bool fwd;
@@ -2802,13 +2822,6 @@ void TrackGenerator::segmentize2D() {
       _geometry->segmentize2D(&_tracks_2D[a][i], _z_level);
 
     tracks_segmented += getNumX(a) + getNumY(a);
-  }
-
-  _num_2D_segments = 0;
-
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++)
-      _num_2D_segments += _tracks_2D[a][i].getNumSegments();
   }
 
   _geometry->initializeFSRVectors();
@@ -3992,6 +4005,9 @@ bool TrackGenerator::getCycleDirection(int azim, int cycle, int track_index) {
 void TrackGenerator::initializeTrackPeriodicIndices() {
 
   log_printf(NORMAL, "Initializing track periodic indices...");
+
+  if (!_periodic)
+    return;
   
   Track* track;
   int track_index;

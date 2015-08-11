@@ -141,9 +141,6 @@ private:
   /** Array of surface currents for each CMFD cell */
   Vector* _surface_currents;
 
-  /** OpenMP mutual exclusion locks for atomic surface current updates */
-  omp_lock_t* _surface_locks;
-
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
 
