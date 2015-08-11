@@ -96,8 +96,6 @@ protected:
   Track* _track_prdc_bwd;
   bool _refl_fwd_fwd;
   bool _refl_bwd_fwd;
-  bool _prdc_fwd_fwd;
-  bool _prdc_bwd_fwd;
   bool _cycle_fwd;
   
 public:
@@ -114,8 +112,6 @@ public:
   void setTrackPrdcBwd(Track* track);
   void setReflFwdFwd(bool fwd);
   void setReflBwdFwd(bool fwd);
-  void setPrdcFwdFwd(bool fwd);
-  void setPrdcBwdFwd(bool fwd);
   void setXYIndex(int index);
   void setAzimIndex(int index);
   void setPeriodicCycleId(int id);
@@ -133,8 +129,6 @@ public:
   Track* getTrackPrdcBwd();
   bool getReflFwdFwd();
   bool getReflBwdFwd();
-  bool getPrdcFwdFwd();
-  bool getPrdcBwdFwd();
   int getXYIndex();
   int getAzimIndex();
   int getPeriodicCycleId();

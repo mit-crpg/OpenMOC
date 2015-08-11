@@ -759,7 +759,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     bc = _tracks[track_id]->getBCFwd();
     track_leakage = &_boundary_leakage(track_id,0);
     if (bc == PERIODIC){
-      start = _fluxes_per_track * (!_tracks[track_id]->getPrdcFwdFwd());
+      start = 0;
       track_out_id = _tracks[track_id]->getTrackPrdcFwd()->getUid();  
     }
     else{
@@ -773,7 +773,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     bc = _tracks[track_id]->getBCBwd();
     track_leakage = &_boundary_leakage(track_id,_fluxes_per_track);
     if (bc == PERIODIC) {
-      start = _fluxes_per_track * (!_tracks[track_id]->getPrdcBwdFwd());
+      start = _fluxes_per_track;
       track_out_id = _tracks[track_id]->getTrackPrdcBwd()->getUid();
     }
     else {

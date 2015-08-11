@@ -12,8 +12,6 @@ Track::Track() {
   _track_prdc_bwd = NULL;
   _refl_fwd_fwd = true;
   _refl_bwd_fwd = false;
-  _prdc_fwd_fwd = true;
-  _prdc_bwd_fwd = false;
 
   _periodic_cycle_id = -1;
   _reflective_cycle_id = -1;
@@ -214,28 +212,15 @@ void Track::setTrackReflFwd(Track* track){
 
 void Track::setTrackPrdcFwd(Track* track){
 
-  if (_prdc_fwd_fwd) {
-    double dx = fabs(_end.getX() - track->getStart()->getX());
-    double dy = fabs(_end.getY() - track->getStart()->getY());
-    double dz = fabs(_end.getZ() - track->getStart()->getZ());
-    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
-        (dy > 1.e-8 && dz > 1.e-8))
-      log_printf(NORMAL, "INCORRECT TRACK PRDC FWD: (%.4f, %.4f, %.4f) -> "
-                 "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
-                 track->getStart()->getX(), track->getStart()->getY(),
-                 track->getStart()->getZ());
-  }
-  else {
-    double dx = fabs(_end.getX() - track->getEnd()->getX());
-    double dy = fabs(_end.getY() - track->getEnd()->getY());
-    double dz = fabs(_end.getZ() - track->getEnd()->getZ());
-    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
-        (dy > 1.e-8 && dz > 1.e-8))
-      log_printf(NORMAL, "INCORRECT TRACK PRDC FWD: (%.4f, %.4f, %.4f) -> "
-                 "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
-                 track->getEnd()->getX(), track->getEnd()->getY(),
-                 track->getEnd()->getZ());
-  }
+  double dx = fabs(_end.getX() - track->getStart()->getX());
+  double dy = fabs(_end.getY() - track->getStart()->getY());
+  double dz = fabs(_end.getZ() - track->getStart()->getZ());
+  if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
+      (dy > 1.e-8 && dz > 1.e-8))
+    log_printf(NORMAL, "INCORRECT TRACK PRDC FWD: (%.4f, %.4f, %.4f) -> "
+               "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
+               track->getStart()->getX(), track->getStart()->getY(),
+               track->getStart()->getZ());
   
   _track_prdc_fwd = track;
 }
@@ -260,28 +245,15 @@ void Track::setTrackReflBwd(Track* track){
 
 void Track::setTrackPrdcBwd(Track* track){
 
-  if (_prdc_bwd_fwd) {
-    double dx = fabs(_start.getX() - track->getStart()->getX());
-    double dy = fabs(_start.getY() - track->getStart()->getY());
-    double dz = fabs(_start.getZ() - track->getStart()->getZ());
-    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
-        (dy > 1.e-8 && dz > 1.e-8))
-      log_printf(NORMAL, "INCORRECT TRACK PRDC BWD: (%.4f, %.4f, %.4f) -> "
-                 "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
-                 _start.getZ(), track->getStart()->getX(),
-                 track->getStart()->getY(), track->getStart()->getZ());
-  }
-  else {
-    double dx = fabs(_start.getX() - track->getEnd()->getX());
-    double dy = fabs(_start.getY() - track->getEnd()->getY());
-    double dz = fabs(_start.getZ() - track->getEnd()->getZ());
-    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
-        (dy > 1.e-8 && dz > 1.e-8))
-      log_printf(NORMAL, "INCORRECT TRACK PRDC BWD: (%.4f, %.4f, %.4f) -> "
-                 "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
-                 _start.getZ(), track->getEnd()->getX(),
-                 track->getEnd()->getY(), track->getEnd()->getZ());
-  }
+  double dx = fabs(_start.getX() - track->getEnd()->getX());
+  double dy = fabs(_start.getY() - track->getEnd()->getY());
+  double dz = fabs(_start.getZ() - track->getEnd()->getZ());
+  if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
+      (dy > 1.e-8 && dz > 1.e-8))
+    log_printf(NORMAL, "INCORRECT TRACK PRDC BWD: (%.4f, %.4f, %.4f) -> "
+               "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
+               _start.getZ(), track->getEnd()->getX(),
+               track->getEnd()->getY(), track->getEnd()->getZ());
 
   _track_prdc_bwd = track;
 }
@@ -327,16 +299,6 @@ void Track::setReflBwdFwd(bool fwd){
 }
 
 
-void Track::setPrdcFwdFwd(bool fwd){
-  _prdc_fwd_fwd = fwd;
-}
-
-
-void Track::setPrdcBwdFwd(bool fwd){
-  _prdc_bwd_fwd = fwd;
-}
-
-
 bool Track::getReflFwdFwd(){
   return _refl_fwd_fwd;
 }
@@ -344,16 +306,6 @@ bool Track::getReflFwdFwd(){
 
 bool Track::getReflBwdFwd(){
   return _refl_bwd_fwd;
-}
-
-
-bool Track::getPrdcFwdFwd(){
-  return _prdc_fwd_fwd;
-}
-
-
-bool Track::getPrdcBwdFwd(){
-  return _prdc_bwd_fwd;
 }
 
 

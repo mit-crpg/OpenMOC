@@ -1369,10 +1369,6 @@ void TrackGenerator::initialize2DTrackReflections() {
       /* Get current track */
       track = &_tracks_2D[a][i];
 
-      /* Set the direction of periodic tracks */
-      track->setPrdcFwdFwd(true);
-      track->setPrdcBwdFwd(false);
-
       /* Set connecting tracks in forward direction */
       if (i < getNumY(a)) {
         track->setReflFwdFwd(true);
@@ -1803,7 +1799,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                     xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcFwd()->getXYIndex();
                     zp = _tracks_3D_cycle[a][c][p][_num_l[a][p] + i][0]->getZIndex();
                     pi = _tracks_3D_cycle[a][c][p][i][t]->getPolarIndex();
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                     _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcFwd
                       (&_tracks_3D_stack[ai][xp][pi][zp]);
                   }
@@ -1828,7 +1823,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                     ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                     xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcBwd()->getXYIndex();
                     zp = _tracks_3D_cycle[a][c][p][_num_l[a][p] + i][0]->getZIndex();
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                     _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcBwd
                       (&_tracks_3D_stack[ai][xp][pi][zp]);
                   }
@@ -1852,7 +1846,6 @@ void TrackGenerator::initialize3DTrackReflections() {
 
                   /* PERIODIC */
                   if (_periodic) {
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                     _tracks_3D_cycle[a][c][p][i][t]->setTrackPrdcFwd
                       (_tracks_3D_cycle[a][c][p][i - _num_z[a][p]][0]);
                   }
@@ -1872,7 +1865,6 @@ void TrackGenerator::initialize3DTrackReflections() {
 
                   /* PERIODIC */
                   if (_periodic) {
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                     _tracks_3D_cycle[a][c][p][i][t]->setTrackPrdcBwd
                       (_tracks_3D_cycle[a][c][p][i - _num_z[a][p]][0]);
                   }
@@ -1903,7 +1895,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                   ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                   xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcFwd()->getXYIndex();
                   zp = _tracks_3D_cycle[a][c][p][i][t+1]->getZIndex();
-                  _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                   _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcFwd
                     (&_tracks_3D_stack[ai][xp][pi][zp]);
                 }
@@ -1929,7 +1920,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                   ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                   xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcBwd()->getXYIndex();
                   zp = _tracks_3D_cycle[a][c][p][i][t+1]->getZIndex();
-                  _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                   _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcBwd
                     (&_tracks_3D_stack[ai][xp][pi][zp]);
                 }
@@ -1956,7 +1946,6 @@ void TrackGenerator::initialize3DTrackReflections() {
 
                   /* PERIODIC */
                   if (_periodic) {
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                     _tracks_3D_cycle[a][c][p][i][t]->setTrackPrdcBwd
                       (_tracks_3D_cycle[a][c][p][i + _num_z[a][p]]
                        [_tracks_per_train[a][c][p][i + _num_z[a][p]]-1]);
@@ -1978,7 +1967,6 @@ void TrackGenerator::initialize3DTrackReflections() {
 
                   /* PERIODIC */
                   if (_periodic) {
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                     _tracks_3D_cycle[a][c][p][i][t]->setTrackPrdcFwd
                       (_tracks_3D_cycle[a][c][p][i + _num_z[a][p]]
                        [_tracks_per_train[a][c][p][i + _num_z[a][p]]-1]);
@@ -2014,7 +2002,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                     zp = _tracks_3D_cycle[a][c][p][i - _num_l[a][p]]
                       [_tracks_per_train[a][c][p]
                        [i - _num_l[a][p]] - 1]->getZIndex();
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                     _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcBwd
                       (&_tracks_3D_stack[ai][xp][pi][zp]);
                   }
@@ -2044,7 +2031,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                     zp = _tracks_3D_cycle[a][c][p][i - _num_l[a][p]]
                       [_tracks_per_train[a][c][p]
                        [i - _num_l[a][p]] - 1]->getZIndex();
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                     _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcFwd
                       (&_tracks_3D_stack[ai][xp][pi][zp]);
                   }
@@ -2075,7 +2061,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                   ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                   xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcBwd()->getXYIndex();
                   zp = _tracks_3D_cycle[a][c][p][i][t-1]->getZIndex();
-                  _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                   _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcBwd
                     (&_tracks_3D_stack[ai][xp][pi][zp]);
                 }
@@ -2101,7 +2086,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                   ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                   xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcFwd()->getXYIndex();
                   zp = _tracks_3D_cycle[a][c][p][i][t-1]->getZIndex();
-                  _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                   _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcFwd
                     (&_tracks_3D_stack[ai][xp][pi][zp]);
                 }
@@ -2134,7 +2118,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                   
                   /* PERIODIC */
                  if (_periodic) {
-                   _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                    _tracks_3D_cycle[a][c][p][i][t]->setTrackPrdcFwd
                      (_tracks_3D_cycle[a][c][p][i + _num_z[a][pc]][0]);
                  }
@@ -2152,7 +2135,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                   
                   /* PERIODIC */
                   if (_periodic) {
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                     _tracks_3D_cycle[a][c][p][i][t]->setTrackPrdcBwd
                       (_tracks_3D_cycle[a][c][p][i + _num_z[a][pc]][0]);
                   }
@@ -2181,7 +2163,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                     ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                     xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcFwd()->getXYIndex();
                     zp = _tracks_3D_cycle[a][c][p][i - _num_l[a][pc]][0]->getZIndex();
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                     _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcFwd
                       (&_tracks_3D_stack[ai][xp][pi][zp]);
                   }
@@ -2206,7 +2187,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                     ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                     xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcBwd()->getXYIndex();
                     zp = _tracks_3D_cycle[a][c][p][i - _num_l[a][pc]][0]->getZIndex();
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                     _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcBwd
                       (&_tracks_3D_stack[ai][xp][pi][zp]);
                   }
@@ -2237,7 +2217,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                   ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                   xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcFwd()->getXYIndex();
                   zp = _tracks_3D_cycle[a][c][p][i][t+1]->getZIndex();
-                  _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                   _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcFwd
                     (&_tracks_3D_stack[ai][xp][pi][zp]);
                 }
@@ -2263,7 +2242,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                   ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                   xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcBwd()->getXYIndex();
                   zp = _tracks_3D_cycle[a][c][p][i][t+1]->getZIndex();
-                  _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                   _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcBwd
                     (&_tracks_3D_stack[ai][xp][pi][zp]);
                 }
@@ -2300,7 +2278,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                     zp = _tracks_3D_cycle[a][c][p][_num_l[a][pc] + i]
                       [_tracks_per_train[a][c][p]
                        [_num_l[a][pc] + i] - 1]->getZIndex();
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                     _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcBwd
                       (&_tracks_3D_stack[ai][xp][pi][zp]);
                   }
@@ -2330,7 +2307,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                     zp = _tracks_3D_cycle[a][c][p][_num_l[a][pc] + _num_z[a][pc] - i - 1]
                       [_tracks_per_train[a][c][p]
                        [_num_l[a][pc] +_num_z[a][pc] - i - 1] - 1]->getZIndex();
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                     _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcFwd
                       (&_tracks_3D_stack[ai][xp][pi][zp]);
                   }
@@ -2356,7 +2332,6 @@ void TrackGenerator::initialize3DTrackReflections() {
 
                   /* PERIODIC */
                   if (_periodic) {
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                     _tracks_3D_cycle[a][c][p][i][t]->setTrackPrdcBwd
                       (_tracks_3D_cycle[a][c][p][i - _num_z[a][pc]]
                        [_tracks_per_train[a][c][p][i - _num_z[a][pc]]-1]);
@@ -2379,7 +2354,6 @@ void TrackGenerator::initialize3DTrackReflections() {
 
                   /* PERIODIC */
                   if (_periodic) {
-                    _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                     _tracks_3D_cycle[a][c][p][i][t]->setTrackPrdcFwd
                       (_tracks_3D_cycle[a][c][p][i - _num_z[a][pc]]
                        [_tracks_per_train[a][c][p][i - _num_z[a][pc]]-1]);
@@ -2411,7 +2385,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                   ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                   xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcBwd()->getXYIndex();
                   zp = _tracks_3D_cycle[a][c][p][i][t-1]->getZIndex();
-                  _tracks_3D_cycle[a][c][p][i][t]->setPrdcBwdFwd(false);
                   _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcBwd
                     (&_tracks_3D_stack[ai][xp][pi][zp]);
                 }
@@ -2437,7 +2410,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                   ci = _tracks_3D_cycle[a][c][p][i][t]->getCycleTrackIndex();
                   xp = getTrack2DByCycle(a, c, ci)->getTrackPrdcFwd()->getXYIndex();
                   zp = _tracks_3D_cycle[a][c][p][i][t-1]->getZIndex();
-                  _tracks_3D_cycle[a][c][p][i][t]->setPrdcFwdFwd(true);
                   _tracks_3D_stack[ai][xi][pi][zi].setTrackPrdcFwd
                     (&_tracks_3D_stack[ai][xp][pi][zp]);
                 }
