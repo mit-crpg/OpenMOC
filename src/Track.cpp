@@ -17,6 +17,7 @@ Track::Track() {
 
   _periodic_cycle_id = -1;
   _reflective_cycle_id = -1;
+  _periodic_track_index = -1;
 }
 
 
@@ -360,9 +361,19 @@ void Track::setPeriodicCycleId(int id) {
   _periodic_cycle_id = id;
 }
 
+
+void Track::setPeriodicTrackIndex(int index) {
+  _periodic_track_index = index;
+}
+
  
 int Track::getPeriodicCycleId() {
   return _periodic_cycle_id;
+}
+
+
+int Track::getPeriodicTrackIndex() {
+  return _periodic_track_index;
 }
 
 

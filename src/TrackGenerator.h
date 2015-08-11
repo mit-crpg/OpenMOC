@@ -79,6 +79,12 @@ private:
   int _num_2D_segments;
   int _num_3D_segments;
 
+  /** An integer array with the Track uid separating the azimuthal and periodic
+   * halfspaces */
+  int* _num_tracks_by_halfspace;
+  int _num_halfspaces;
+  bool _periodic;
+  
   /** An integer array of the number of Tracks starting on each axis */
   int* _num_x;
   int* _num_y;
@@ -150,6 +156,9 @@ public:
   int getNum3DTracks();
   int getNum2DSegments();
   int getNum3DSegments();
+  int* getNumTracksByHalfspaceArray();
+  int getNumHalfspaces();
+  bool getPeriodic();
   Track2D** get2DTracks();
   Track3D**** get3DTracks();
   double* getAzimSpacings();
@@ -215,6 +224,8 @@ public:
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
+  void initializeTrackPeriodicIndices();
+  void initializeTrackUIDs();
 };
 
 #endif /* TRACKGENERATOR_H_ */

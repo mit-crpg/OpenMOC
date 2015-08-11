@@ -86,6 +86,7 @@ protected:
   int _xy_index;
   int _periodic_cycle_id;
   int _reflective_cycle_id;
+  int _periodic_track_index;
   
   /** The Track which reflects out of this Track along its "forward"
    * direction for reflective boundary conditions. */
@@ -119,6 +120,7 @@ public:
   void setAzimIndex(int index);
   void setPeriodicCycleId(int id);
   void setReflectiveCycleId(int id);
+  void setPeriodicTrackIndex(int index);
   
   int getUid();
   Point* getEnd();
@@ -142,7 +144,8 @@ public:
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
-
+  int getPeriodicTrackIndex();
+  
   /* Worker functions */
   void addSegment(segment* segment);
   void removeSegment(int index);

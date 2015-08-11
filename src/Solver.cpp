@@ -350,108 +350,126 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _polar_spacings = _track_generator->getPolarSpacings();
   _quad = _track_generator->getQuadrature();
   _num_polar = _quad->getNumPolarAngles();
+  _num_tracks_by_halfspace = _track_generator->getNumTracksByHalfspaceArray();
+  _num_halfspaces = _track_generator->getNumHalfspaces();
+  bool periodic = _track_generator->getPeriodic();
   
   /* Initialize the tracks array */
-  int counter_1 = 0;
-  int counter_2 = 0;
   int num_x, num_y, num_l, num_z;
-  int azim_period, polar_period;
+  int counter = 0;
+  Track* track;
+  int index;
   
   if (!_solve_3D){
-    _num_tracks = new int[5];
-    _num_tracks[0] = 0;
     _fluxes_per_track = _num_groups * _num_polar/2;
     _tot_num_tracks = _track_generator->getNum2DTracks();
     _tracks = new Track*[_tot_num_tracks];
 
-    /* Loop over azim reflective halfspaces */
-    for (int azim_refl_half=0; azim_refl_half < 2; azim_refl_half++) {
-
-      /* Loop over azim periodic halfspaces */
-      for (int azim_prdc_half=0; azim_prdc_half < 2; azim_prdc_half++) {
-
-        /* Loop over all tracks in current azim reflective halfspace */
-        for (int a=azim_refl_half*_num_azim/4;
-             a < (azim_refl_half+1)*_num_azim/4; a++) {
-          num_x = _track_generator->getNumX(a);
-          num_y = _track_generator->getNumY(a);
-          azim_period = std::min(num_x, num_y);
-
-          /* Loop over all xy tracks */
-          for (int i=0; i < num_x + num_y; i++) {
-
-            /* Check if track is in current azim periodic halfspace */
-            if ((i / azim_period) % 2 == azim_prdc_half) {
-              _tracks[counter_1] = &_track_generator->get2DTracks()[a][i];
-              counter_1++;
+    for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
+      if (periodic) {
+        for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
+          for (int a=azim_halfspace*_num_azim/4;
+               a < (azim_halfspace+1)*_num_azim/4; a++) {
+            num_x = _track_generator->getNumX(a);
+            num_y = _track_generator->getNumY(a);
+            for (int i=0; i < num_x + num_y; i++) {
+              
+              track = &_track_generator->get2DTracks()[a][i];
+              index = track->getPeriodicTrackIndex();
+              
+              /* Check if track UID should be set */
+              if (period_halfspace == 0 && index == 0) {
+                _tracks[counter] = track;
+                counter++;
+              }
+              else if (period_halfspace == 1 && index % 2 == 1) {
+                _tracks[counter] = track;
+                counter++;
+              }
+              else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
+                _tracks[counter] = track;
+                counter++;
+              }
             }
           }
         }
-        counter_2++;
-        _num_tracks[counter_2] = counter_1;
+      }
+      else {
+        for (int a=azim_halfspace*_num_azim/4;
+             a < (azim_halfspace+1)*_num_azim/4; a++) {
+          num_x = _track_generator->getNumX(a);
+          num_y = _track_generator->getNumY(a);
+          for (int i=0; i < num_x + num_y; i++) {
+            
+            track = &_track_generator->get2DTracks()[a][i];
+            _tracks[counter] = track;
+            counter++;
+          }
+        }
       }
     }
   }
   else{
-    
-    _num_tracks = new int[17];
-    _num_tracks[0] = 0;
+
     _fluxes_per_track = _num_groups;
     _tot_num_tracks = _track_generator->getNum3DTracks();
     _tracks = new Track*[_tot_num_tracks];
-
-    /* Loop over azim reflective halfspaces */
-    for (int azim_refl_half=0; azim_refl_half < 2; azim_refl_half++) {
-
-      /* Loop over azim periodic halfspaces */
-      for (int azim_prdc_half=0; azim_prdc_half < 2; azim_prdc_half++) {
-
-        /* Loop over polar reflective halfspaces */
-        for (int polar_refl_half=0; polar_refl_half < 2; polar_refl_half++) {
-
-          /* Loop over polar periodic halfspaces */
-          for (int polar_prdc_half=0; polar_prdc_half < 2; polar_prdc_half++) {
-
-            /* Loop over azim angles in current azim reflective halfspace */
-            for (int a=azim_refl_half*_num_azim/4;
-                 a < (azim_refl_half+1)*_num_azim/4; a++) {
+    
+    for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
+      for (int polar_halfspace=0; polar_halfspace < 2; polar_halfspace++) {
+        if (periodic) {
+          for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
+            for (int a=azim_halfspace*_num_azim/4;
+                 a < (azim_halfspace+1)*_num_azim/4; a++) {
+              
               num_x = _track_generator->getNumX(a);
               num_y = _track_generator->getNumY(a);
-              azim_period = std::min(num_x, num_y);
-
-              /* Loop over all xy tracks */
+              
               for (int i=0; i < num_x + num_y; i++) {
-
-                /* Check if track is in current azim periodic halfspace */
-                if ((i / azim_period) % 2 == azim_prdc_half) {
-
-                  /* Loop over polar angles in current polar reflective
-                   * halfspace */
-                  for (int p=polar_refl_half*_num_polar/2;
-                       p < (polar_refl_half+1)*_num_polar/2; p++) {
-
-                    num_l = _track_generator->getNumL(a, p);
-                    num_z = _track_generator->getNumZ(a, p);
-                    polar_period = std::min(num_l, num_z);
-
-                    /* Loop over all tracks in z stack */
-                    for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-
-                      /* Check if track is in current polar periodic
-                       * halfspace */
-                      if ((_track_generator->get3DTracks()
-                           [a][i][p][z].getLZIndex() / polar_period)
-                          % 2 == polar_prdc_half) {
-                        _tracks[counter_1] = &_track_generator->get3DTracks()[a][i][p][z];
-                        counter_1++;
-                      }
+                for (int p=polar_halfspace*_num_polar/2;
+                     p < (polar_halfspace+1)*_num_polar/2; p++) {
+                  for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+                    
+                    track = &_track_generator->get3DTracks()[a][i][p][z];
+                    index = track->getPeriodicTrackIndex();
+                    
+                    /* Check if track UID should be set */
+                    if (period_halfspace == 0 && index == 0) {
+                      _tracks[counter] = track;
+                      counter++;
+                    }
+                    else if (period_halfspace == 1 && index % 2 == 1) {
+                      _tracks[counter] = track;
+                      counter++;
+                    }
+                    else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
+                      _tracks[counter] = track;
+                      counter++;
                     }
                   }
                 }
               }
             }
-            counter_2++;
-            _num_tracks[counter_2] = counter_1;
+          }
+        }
+        else {
+          for (int a=azim_halfspace*_num_azim/4;
+               a < (azim_halfspace+1)*_num_azim/4; a++) {
+            
+            num_x = _track_generator->getNumX(a);
+            num_y = _track_generator->getNumY(a);
+            
+            for (int i=0; i < num_x + num_y; i++) {
+              for (int p=polar_halfspace*_num_polar/2;
+                   p < (polar_halfspace+1)*_num_polar/2; p++) {
+                for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+                  
+                  track = &_track_generator->get3DTracks()[a][i][p][z];
+                  _tracks[counter] = track;
+                  counter++;
+                }
+              }
+            }
           }
         }
       }

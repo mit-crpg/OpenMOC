@@ -575,12 +575,12 @@ void CPUSolver::transportSweep() {
     _cmfd->zeroSurfaceCurrents();
 
   /* Loop over each set of tracks in parallel */
-  for (int i=0; i < 4 + 12*_solve_3D; i++){
+  for (int i=0; i < _num_halfspaces; i++){
     
     /* Compute the minimum and maximum Track IDs corresponding to
      * this azimuthal angular halfspace */
-    min_track = _num_tracks[i];
-    max_track = _num_tracks[i+1];
+    min_track = _num_tracks_by_halfspace[i];
+    max_track = _num_tracks_by_halfspace[i+1];
     
     #pragma omp parallel for private(curr_track, azim_index, polar_index, \
                                      num_segments, curr_segment,        \
