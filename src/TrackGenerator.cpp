@@ -18,10 +18,6 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   setNumPolar(num_polar);
   setDesiredAzimSpacing(azim_spacing);
   setDesiredPolarSpacing(polar_spacing);
-  _num_2D_tracks = 0;
-  _num_3D_tracks = 0;
-  _num_2D_segments = 0;
-  _num_3D_segments = 0;
   _contains_2D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_tracks = false;
@@ -164,7 +160,13 @@ Geometry* TrackGenerator::getGeometry() {
  * @return the total number of Tracks
  */
 int TrackGenerator::getNum2DTracks() {
-  return _num_2D_tracks;
+
+  int num_2D_tracks = 0;
+
+  for (int a=0; a < _num_azim/2; a++)
+    num_2D_tracks += getNumX(a) + getNumY(a);
+
+  return num_2D_tracks;
 }
 
 
@@ -173,7 +175,17 @@ int TrackGenerator::getNum2DTracks() {
  * @return the total number of Tracks
  */
 int TrackGenerator::getNum3DTracks() {
-  return _num_3D_tracks;
+
+  int num_3D_tracks = 0;
+  
+  for (int a=0; a < _num_azim/2; a++) {
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+      for (int p=0; p < _num_polar; p++)
+        num_3D_tracks += _tracks_per_stack[a][i][p];
+    }
+  }
+  
+  return num_3D_tracks;
 }
 
 
@@ -187,15 +199,15 @@ int TrackGenerator::getNum2DSegments() {
     log_printf(ERROR, "Cannot get the number of 2D segments since they "
                "have not been generated.");
   
-  _num_2D_segments = 0;
+  int num_2D_segments = 0;
 
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-      _num_2D_segments += _tracks_2D[a][i].getNumSegments();
+      num_2D_segments += _tracks_2D[a][i].getNumSegments();
     }
   }
 
-  return _num_2D_segments;
+  return num_2D_segments;
 }
 
 
@@ -209,19 +221,19 @@ int TrackGenerator::getNum3DSegments() {
     log_printf(ERROR, "Cannot get the number of 3D segments since they "
                "have not been generated.");
 
-  _num_3D_segments = 0;
+  int num_3D_segments = 0;
   
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++)
-          _num_3D_segments += _tracks_3D_stack[a][i][p][z].getNumSegments();
+          num_3D_segments += _tracks_3D_stack[a][i][p][z].getNumSegments();
       }
     }
   }
   
-  return _num_3D_segments;
+  return num_3D_segments;
 }
 
 
@@ -632,10 +644,6 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
                "%f for the TrackGenerator.", spacing);
 
   _azim_spacing = spacing;
-  _num_2D_tracks = 0;
-  _num_3D_tracks = 0;
-  _num_2D_segments = 0;
-  _num_3D_segments = 0;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
@@ -653,10 +661,6 @@ void TrackGenerator::setDesiredPolarSpacing(double spacing) {
                "%f for the TrackGenerator.", spacing);
 
   _polar_spacing = spacing;
-  _num_2D_tracks = 0;
-  _num_3D_tracks = 0;
-  _num_2D_segments = 0;
-  _num_3D_segments = 0;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
@@ -670,10 +674,6 @@ void TrackGenerator::setDesiredPolarSpacing(double spacing) {
  */
 void TrackGenerator::setGeometry(Geometry* geometry) {
   _geometry = geometry;
-  _num_2D_tracks = 0;
-  _num_3D_tracks = 0;
-  _num_2D_segments = 0;
-  _num_3D_segments = 0;
   _contains_2D_tracks = false;
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
@@ -2728,8 +2728,6 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
  */
 void TrackGenerator::recalibrate2DTracksToOrigin() {
 
-  _num_2D_tracks = 0;
-
   /* Recalibrate the tracks to the origin and set the uid. Note that the 
    * loop structure is unconventional in order to preserve an increasing 
    * track uid value in the Solver's tracks array. The tracks array is 
@@ -2751,7 +2749,6 @@ void TrackGenerator::recalibrate2DTracksToOrigin() {
       double new_y1 = y1 + _geometry->getMinY();
             
       _tracks_2D[a][i].setCoords(new_x0, new_y0, new_x1, new_y1);
-      _num_2D_tracks++;
     }
   }
 }
@@ -2766,8 +2763,6 @@ void TrackGenerator::recalibrate2DTracksToOrigin() {
  */
 void TrackGenerator::recalibrate3DTracksToOrigin() {
 
-  _num_3D_tracks = 0;
-  
   /* Recalibrate the tracks to the origin and set the uid. Note that the 
    * loop structure is unconventional in order to preserve an increasing 
    * track uid value in the Solver's tracks array. The tracks array is 
@@ -2796,7 +2791,6 @@ void TrackGenerator::recalibrate3DTracksToOrigin() {
           
           _tracks_3D_stack[a][i][p][z]
             .setCoords(new_x0, new_y0, new_z0, new_x1, new_y1, new_z1);
-          _num_3D_tracks++;            
         }
       }
     }
@@ -2812,11 +2806,12 @@ void TrackGenerator::segmentize2D() {
   log_printf(NORMAL, "Ray tracing for 2D track segmentation...");
 
   int tracks_segmented = 0;
+  int num_2D_tracks = getNum2DTracks();
   
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/2; a++) {
     log_printf(NORMAL, "segmenting 2D tracks - Percent complete: %5.2f %%",
-               double(tracks_segmented) / _num_2D_tracks * 100.0);
+               double(tracks_segmented) / num_2D_tracks * 100.0);
     #pragma omp parallel for
     for (int i=0; i < getNumX(a) + getNumY(a); i++)
       _geometry->segmentize2D(&_tracks_2D[a][i], _z_level);
@@ -2839,12 +2834,13 @@ void TrackGenerator::segmentize3D() {
   log_printf(NORMAL, "Ray tracing for 3D track segmentation...");
 
   int tracks_segmented = 0;
+  int num_3D_tracks = getNum3DTracks();
   
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/2; a++) {
     
     log_printf(NORMAL, "segmenting 3D tracks - Percent complete: %5.2f %%",
-               double(tracks_segmented) / _num_3D_tracks * 100.0);
+               double(tracks_segmented) / num_3D_tracks * 100.0);
     
     #pragma omp parallel for
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {

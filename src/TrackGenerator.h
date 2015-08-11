@@ -61,28 +61,31 @@ private:
   /** An integer array of the number of Tracks in a cycle for each azim angle */
   int* _tracks_per_cycle;
 
-  /* An array of the number of cycles for each azimuthal angle */
+  /** An array of the number of cycles for each azimuthal angle */
   int* _cycles_per_azim;
 
-  /* An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
+  /** An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
   int*** _tracks_per_stack;
+
+  /** An array of the # of 3D tracks in each train train 
+   *  (azim, cycle, polar, lz track) */
   int**** _tracks_per_train;
   
-  /* An array of the cycle length of each cycle for each azimuthal angle */
+  /** An array of the cycle length of each cycle for each azimuthal angle */
   double* _cycle_length;
   
   /** The total number of Tracks for all azimuthal and polar angles */
   int _num_2D_tracks;
   int _num_3D_tracks;
 
-  /** The total number of segments for all Tracks */
-  int _num_2D_segments;
-  int _num_3D_segments;
-
-  /** An integer array with the Track uid separating the azimuthal and periodic
-   * halfspaces */
+  /** An integer array with the Track uid separating the azimuthal, polar, and
+   * periodic halfspaces */
   int* _num_tracks_by_halfspace;
+
+  /** The number of halfspaces created */
   int _num_halfspaces;
+
+  /** Boolen to indicate whether a periodic BC exists */
   bool _periodic;
   
   /** An integer array of the number of Tracks starting on each axis */
@@ -100,6 +103,8 @@ private:
 
   /** An array of 3D tracks (azim, 2D track, polar, z-stack) */
   Track3D**** _tracks_3D_stack;
+
+  /** An array of 3D tracks (azim, cycle, polar, lz track, train index) */
   Track3D****** _tracks_3D_cycle;
   
   /** Pointer to the Geometry */
@@ -120,11 +125,14 @@ private:
   /** The method to use for generating 3D tracks */
   int _track_generation_method;
 
-  /** Boolean whether the Tracks have been generated (true) or not (false) */
+  /** Booleans to indicater whether the Tracks and segments have been generated
+   *  (true) or not (false) */
   bool _contains_2D_tracks;
   bool _contains_3D_tracks;
   bool _contains_2D_segments;
   bool _contains_3D_segments;
+
+  /** Private class methods */
   void initialize2DTracks();
   void initialize3DTracks();
   void initialize2DTrackReflections();
