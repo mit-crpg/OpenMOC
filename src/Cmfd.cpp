@@ -2082,12 +2082,12 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
           pe++;
         }
       }
-    }
 
-    /* Increment current (polar and azimuthal weighted flux, group) */
-    _surface_currents->incrementValues(cell_id, s*_num_cmfd_groups,
-                                       (s+1)*_num_cmfd_groups-1,
-                                       surf_currents);
+      /* Increment current (polar and azimuthal weighted flux, group) */
+      _surface_currents->incrementValues(cell_id, s*_num_cmfd_groups,
+                                         (s+1)*_num_cmfd_groups-1,
+                                         surf_currents);
+    }
   }
   else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd) {
     

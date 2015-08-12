@@ -237,6 +237,16 @@ int TrackGenerator::getNum3DSegments() {
 }
 
 
+Track** TrackGenerator::getTracksArray() {
+
+  if (!contains2DTracks() && !contains3DTracks())
+    log_printf(ERROR, "Unable to return the 1D array of Tracks "
+               "since Tracks have not yet been generated.");
+
+  return _tracks;
+}
+
+
 /**
  * @brief Returns a 3D jagged array of the Tracks.
  * @details The first index into the array is the azimuthal angle and the
@@ -246,7 +256,7 @@ int TrackGenerator::getNum3DSegments() {
  */
 Track2D** TrackGenerator::get2DTracks() {
 
-  if (!_contains_2D_tracks)
+  if (!contains2DTracks())
     log_printf(ERROR, "Unable to return the 3D ragged array of the 2D Tracks "
                "since Tracks have not yet been generated.");
 
@@ -256,7 +266,7 @@ Track2D** TrackGenerator::get2DTracks() {
 
 Track3D**** TrackGenerator::get3DTracks() {
 
-  if (!_contains_3D_tracks)
+  if (!contains3DTracks())
     log_printf(ERROR, "Unable to return the 3D ragged array of the 3D Tracks "
                "since Tracks have not yet been generated.");
 
@@ -631,6 +641,8 @@ void TrackGenerator::setNumPolar(int num_polar) {
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
+  _use_input_file = false;
+  _tracks_filename = "";
 }
 
 
@@ -648,6 +660,8 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
+  _use_input_file = false;
+  _tracks_filename = "";
 }
 
 
@@ -665,6 +679,8 @@ void TrackGenerator::setDesiredPolarSpacing(double spacing) {
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
+  _use_input_file = false;
+  _tracks_filename = "";
 }
 
 
@@ -678,6 +694,8 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
+  _use_input_file = false;
+  _tracks_filename = "";
 }
 
 
@@ -1161,15 +1179,10 @@ void TrackGenerator::generateTracks() {
 
     /* Initialize the 2D tracks */
     initialize2DTracks();
-    initialize2DTrackReflections();
-    initialize2DTrackCycleIds();
     
     /* If 3D problem, initialize the 3D tracks */
-    if (_solve_3D) {
+    if (_solve_3D)
       initialize3DTracks();
-      initialize3DTrackReflections();
-      initialize3DTrackCycleIds();
-    }
     
     /* Recalibrate the 2D tracks back to the geometry origin */
     recalibrate2DTracksToOrigin();
@@ -1195,9 +1208,8 @@ void TrackGenerator::generateTracks() {
       }
     }
 
-    /* Initialize the track UIDs */
-    initializeTrackPeriodicIndices();
-    initializeTrackUIDs();
+    /* Initialize the 1D array of Tracks */
+    initializeTracksArray();
     
     /* Precompute the quadrature weights */
     _quadrature->precomputeWeights(_solve_3D);
@@ -1361,6 +1373,11 @@ void TrackGenerator::initialize2DTracks() {
 
   /* Set the flag indicating 2D tracks have been generated */
   _contains_2D_tracks = true;
+
+  /* Initialize the track reflections and cycle ids */
+  initialize2DTrackReflections();
+  initialize2DTrackCycleIds();
+  initialize2DTrackPeriodicIndices();
 }
 
 
@@ -1771,6 +1788,10 @@ void TrackGenerator::initialize3DTracks() {
   
   _contains_3D_tracks = true;
 
+  /* Initialize the 3D track reflections and cycle ids */
+  initialize3DTrackReflections();
+  initialize3DTrackCycleIds();
+  initialize3DTrackPeriodicIndices();
 }
 
 
@@ -3998,7 +4019,7 @@ bool TrackGenerator::getCycleDirection(int azim, int cycle, int track_index) {
 }
 
 
-void TrackGenerator::initializeTrackPeriodicIndices() {
+void TrackGenerator::initialize2DTrackPeriodicIndices() {
 
   log_printf(NORMAL, "Initializing track periodic indices...");
 
@@ -4036,68 +4057,89 @@ void TrackGenerator::initializeTrackPeriodicIndices() {
       }
     }
   }
+}
+
+
+void TrackGenerator::initialize3DTrackPeriodicIndices() {
+
+  if (!_periodic)
+    return;
   
-  if (_solve_3D) {
-
-    /* Set the track periodic cycle indices for 3D tracks */
-    for (int a=0; a < _num_azim/2; a++) {
-      for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-        for (int p=0; p < _num_polar; p++) {
-          for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-            track = &_tracks_3D_stack[a][i][p][z];
-
-            /* Check if periodic track index has been set */
-            if (track->getPeriodicTrackIndex() == -1) {
-
-              /* Initialize the track index counter */
-              track_index = 0;
+  Track* track;
+  int track_index;
+  
+  /* Set the track periodic cycle indices for 3D tracks */
+  for (int a=0; a < _num_azim/2; a++) {
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+      for (int p=0; p < _num_polar; p++) {
+        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+          track = &_tracks_3D_stack[a][i][p][z];
+          
+          /* Check if periodic track index has been set */
+          if (track->getPeriodicTrackIndex() == -1) {
+            
+            /* Initialize the track index counter */
+            track_index = 0;
+            
+            /* Set the periodic track indexes for all tracks in periodic cycle */
+            while (track->getPeriodicTrackIndex() == -1) {
               
-              /* Set the periodic track indexes for all tracks in periodic cycle */
-              while (track->getPeriodicTrackIndex() == -1) {
-
-                /* Set the track periodic cycle */
-                track->setPeriodicTrackIndex(track_index);
-                
-                /* Get the next track in cycle */
-                track = track->getTrackPrdcFwd();
-                
-                /* Increment index counter */
-                track_index++;
-              }
+              /* Set the track periodic cycle */
+              track->setPeriodicTrackIndex(track_index);
+              
+              /* Get the next track in cycle */
+              track = track->getTrackPrdcFwd();
+              
+              /* Increment index counter */
+              track_index++;
             }
           }
         }
       }
-    } 
+    }
   }
 }
 
 
-void TrackGenerator::initializeTrackUIDs() {
+void TrackGenerator::initializeTracksArray() {
 
-  log_printf(NORMAL, "Initializing track UIDs...");
+  log_printf(NORMAL, "Initializing tracks array...");
   
   Track* track;
   int uid = 0;
-  int index;
+  int num_tracks;
+  int azim_group_id, periodic_group_id, polar_group_id;
+  int track_azim_group_id, track_periodic_group_id, track_polar_group_id;
+  int track_periodic_index;
 
+  /* Set the number of parallel track groups */
   if (_solve_3D) {
     if (_periodic)
-      _num_halfspaces = 12;
+      _num_parallel_track_groups = 12;
     else
-      _num_halfspaces = 4;
+      _num_parallel_track_groups = 4;
   }
   else {
     if (_periodic)
-      _num_halfspaces = 6;
+      _num_parallel_track_groups = 6;
     else
-      _num_halfspaces = 2;
+      _num_parallel_track_groups = 2;
   }
 
-  _num_tracks_by_halfspace = new int[_num_halfspaces + 1];
+  /* Create the array of track ids separating the parallel groups */
+  _num_tracks_by_parallel_group = new int[_num_parallel_track_groups + 1];
 
-  /* Set the first index in the num tracks array to 0 */
-  _num_tracks_by_halfspace[0] = 0;
+  /* Set the first index in the num tracks by parallel group array to 0 */
+  _num_tracks_by_parallel_group[0] = 0;
+
+  /* Set the number of tracks to allocate pointers for in tracks array */
+  if (_solve_3D)
+    num_tracks = getNum3DTracks();
+  else
+    num_tracks = getNum2DTracks();
+
+  /* Allocate memory for tracks array */
+  _tracks = new Track*[num_tracks];
 
   /* Recalibrate the tracks to the origin and set the uid. Note that the 
    * loop structure is unconventional in order to preserve a monotonically
@@ -4106,113 +4148,102 @@ void TrackGenerator::initializeTrackUIDs() {
    * guaranteed to contain tracks that do not transport into other tracks both
    * reflectively and periodically. This is done to guarantee reproducability
    * in parallel runs. */
-  for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
-    if (_periodic) {
-      for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
-        for (int a=azim_halfspace*_num_azim/4;
-             a < (azim_halfspace+1)*_num_azim/4; a++) {
-          for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-            
-            track = &_tracks_2D[a][i];
-            index = track->getPeriodicTrackIndex();
-            
-            /* Check if track UID should be set */
-            if (period_halfspace == 0 && index == 0) {
-              track->setUid(uid);
-              uid++;
-            }
-            else if (period_halfspace == 1 && index % 2 == 1) {
-              track->setUid(uid);
-              uid++;
-            }
-            else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
-              track->setUid(uid);
-              uid++;
-            }
-          }
-        }
-        if (!_solve_3D)
-          _num_tracks_by_halfspace[azim_halfspace*3 + period_halfspace + 1] = uid;
-      }
-    }
-    else {
-      for (int a=azim_halfspace*_num_azim/4;
-           a < (azim_halfspace+1)*_num_azim/4; a++) {
+  if (!_solve_3D) {
+    for (int g = 0; g < _num_parallel_track_groups; g++) {
+      
+      /* Set the azimuthal and periodic group ids */
+      azim_group_id = g % 2;
+      periodic_group_id = g / 2;
+      
+      /* Loop over all 2D tracks */
+      for (int a = 0; a < _num_azim / 2; a++) {      
         for (int i=0; i < getNumX(a) + getNumY(a); i++) {
           
+          /* Get current track and azim group ids */
           track = &_tracks_2D[a][i];
-          track->setUid(uid);
-          uid++;
+          
+          /* Get the track azim group id */
+          track_azim_group_id = a / (_num_azim / 4);
+          
+          /* Get the track periodic group id */
+          if (_periodic) {
+            track_periodic_index = track->getPeriodicTrackIndex();
+            
+            if (track_periodic_index == 0)
+              track_periodic_group_id = 0;
+            else if (track_periodic_index % 2 == 1)
+              track_periodic_group_id = 1;
+            else 
+              track_periodic_group_id = 2;
+          }
+          else
+            track_periodic_group_id = 0;
+          
+          /* Check if track has current azim_group_id and periodic_group_id */
+          if (azim_group_id == track_azim_group_id &&
+              periodic_group_id == track_periodic_group_id) {
+            track->setUid(uid);
+            _tracks[uid] = track;
+            uid++;
+          }
         }
       }
-      if (!_solve_3D)
-        _num_tracks_by_halfspace[azim_halfspace + 1] = uid;
+
+      /* Set the track index boundary for this parallel group */
+      _num_tracks_by_parallel_group[g + 1] = uid;
     }
   }
+  else {
+    for (int g = 0; g < _num_parallel_track_groups; g++) {
+      
+      /* Set the azimuthal, polar, and periodic group ids */
+      azim_group_id = g % 2;
+      polar_group_id = g % 4 / 2;
+      periodic_group_id = g / 4;
+      
+      for (int a = 0; a < _num_azim / 2; a++) {
+        for (int i = 0; i < getNumX(a) + getNumY(a); i++) {
+          for (int p = 0; p < _num_polar; p++) {
+            for (int z = 0; z < _tracks_per_stack[a][i][p]; z++) {
+          
+              /* Get current track and azim group ids */
+              track = &_tracks_3D_stack[a][i][p][z];
+          
+              /* Get the track azim group id */
+              track_azim_group_id = a / (_num_azim / 4);
 
-  uid = 0;
-  
-  if (_solve_3D) {
-    /* Recalibrate the tracks to the origin and set the uid. Note that the 
-     * loop structure is unconventional in order to preserve a monotonically
-     * increasing track uid value in the Solver's tracks array. The tracks array
-     * is oriented such the tracks can be broken up into 4 sub arrays that are
-     * guaranteed to contain tracks that do not transport into other tracks both
-     * reflectively and periodically. This is done to guarantee reproducability
-     * in parallel runs. */
-    for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
-      for (int polar_halfspace=0; polar_halfspace < 2; polar_halfspace++) {
-        if (_periodic) {
-          for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
-            for (int a=azim_halfspace*_num_azim/4;
-                 a < (azim_halfspace+1)*_num_azim/4; a++) {
-              for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-                for (int p=polar_halfspace*_num_polar/2;
-                     p < (polar_halfspace+1)*_num_polar/2; p++) {
-                  for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-                    
-                    track = &_tracks_3D_stack[a][i][p][z];
-                    index = track->getPeriodicTrackIndex();
-                    
-                    /* Check if track UID should be set */
-                    if (period_halfspace == 0 && index == 0) {
-                      track->setUid(uid);
-                      uid++;
-                    }
-                    else if (period_halfspace == 1 && index % 2 == 1) {
-                      track->setUid(uid);
-                      uid++;
-                    }
-                    else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
-                      track->setUid(uid);
-                      uid++;
-                    }
-                  }
-                }
+              /* Get the track polar group id */
+              track_polar_group_id = p / (_num_polar / 2);
+
+              /* Get the track periodic group id */
+              if (_periodic) {
+                track_periodic_index = track->getPeriodicTrackIndex();
+            
+                if (track_periodic_index == 0)
+                  track_periodic_group_id = 0;
+                else if (track_periodic_index % 2 == 1)
+                  track_periodic_group_id = 1;
+                else 
+                  track_periodic_group_id = 2;
               }
-            }
-            _num_tracks_by_halfspace[azim_halfspace*6 + polar_halfspace*3 +
-                                     period_halfspace + 1] = uid;
-          }
-        }
-        else {
-          for (int a=azim_halfspace*_num_azim/4;
-               a < (azim_halfspace+1)*_num_azim/4; a++) {
-            for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-              for (int p=polar_halfspace*_num_polar/2;
-                   p < (polar_halfspace+1)*_num_polar/2; p++) {
-                for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-                  
-                  track = &_tracks_3D_stack[a][i][p][z];
-                  track->setUid(uid);
-                  uid++;
-                }
+              else
+                track_periodic_group_id = 0;
+          
+              /* Check if track has current azim_group_id and periodic_group_id */
+              if (azim_group_id == track_azim_group_id &&
+                  polar_group_id == track_polar_group_id &&
+                  periodic_group_id == track_periodic_group_id) {
+                track->setUid(uid);
+                _tracks[uid] = track;
+                uid++;
               }
             }
           }
-          _num_tracks_by_halfspace[azim_halfspace*2 + polar_halfspace + 1] = uid;
         }
       }
+
+      /* Set the track index boundary for this parallel group */
+      _num_tracks_by_parallel_group[g + 1] = uid;
     }
   }
 }
@@ -4224,18 +4255,18 @@ void TrackGenerator::initializeTrackUIDs() {
  * @return array with the Track uid separating the azimuthal and periodic 
  *         halfspaces
  */
-int* TrackGenerator::getNumTracksByHalfspaceArray() {
+int* TrackGenerator::getNumTracksByParallelGroupArray() {
   if (!_contains_2D_tracks && !_contains_3D_tracks)
     log_printf(ERROR, "Unable to return the array with the Track uid "
                "separating the azimuthal and periodic halspaces since "
                "Tracks have not yet been generated.");
 
-  return _num_tracks_by_halfspace;
+  return _num_tracks_by_parallel_group;
 }
 
 
-int TrackGenerator::getNumHalfspaces() {
-  return _num_halfspaces;
+int TrackGenerator::getNumParallelTrackGroups() {
+  return _num_parallel_track_groups;
 }
 
 

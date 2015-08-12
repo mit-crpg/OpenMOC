@@ -11,7 +11,9 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Track2D.h"
 #include "Track3D.h"
 #include "Geometry.h"
@@ -34,9 +36,6 @@ class TrackGenerator {
 
 private:
 
-  /** The quadrature set */
-  Quadrature* _quadrature;
-  
   /** The number of shared memory OpenMP threads */
   int _num_threads;
 
@@ -80,10 +79,10 @@ private:
 
   /** An integer array with the Track uid separating the azimuthal, polar, and
    * periodic halfspaces */
-  int* _num_tracks_by_halfspace;
+  int* _num_tracks_by_parallel_group;
 
-  /** The number of halfspaces created */
-  int _num_halfspaces;
+  /** The number of parallel groups of tracks */
+  int _num_parallel_track_groups;
 
   /** Boolen to indicate whether a periodic BC exists */
   bool _periodic;
@@ -97,7 +96,10 @@ private:
   double* _dy_eff;
   double** _dz_eff;
   double** _dl_eff;
-  
+
+  /** The quadrature set */
+  Quadrature* _quadrature;
+
   /** A 2D ragged array of 2D tracks (azim, track index) */
   Track2D** _tracks_2D;
 
@@ -106,6 +108,9 @@ private:
 
   /** An array of 3D tracks (azim, cycle, polar, lz track, train index) */
   Track3D****** _tracks_3D_cycle;
+
+  /** An array of track pointers used in the Solver */
+  Track** _tracks;
   
   /** Pointer to the Geometry */
   Geometry* _geometry;
@@ -164,9 +169,10 @@ public:
   int getNum3DTracks();
   int getNum2DSegments();
   int getNum3DSegments();
-  int* getNumTracksByHalfspaceArray();
-  int getNumHalfspaces();
+  int* getNumTracksByParallelGroupArray();
+  int getNumParallelTrackGroups();
   bool getPeriodic();
+  Track** getTracksArray();
   Track2D** get2DTracks();
   Track3D**** get3DTracks();
   double* getAzimSpacings();
@@ -232,8 +238,9 @@ public:
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
-  void initializeTrackPeriodicIndices();
-  void initializeTrackUIDs();
+  void initialize2DTrackPeriodicIndices();
+  void initialize3DTrackPeriodicIndices();
+  void initializeTracksArray();
   void checkBoundaryConditions();
   void initialize2DTrackCycleIds();
   void initialize3DTrackCycleIds();

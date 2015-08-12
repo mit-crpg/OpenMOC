@@ -79,11 +79,13 @@ root_cell.setFill(lattice)
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(1.0)
+cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setOpticallyThick(True)
 cmfd.setLatticeStructure(5, 5, 5)
-cmfd.setKNearest(1)
+#cmfd.setKNearest(4)
+cmfd.setCentroidUpdateOn(False)
+
 
 
 ###############################################################################

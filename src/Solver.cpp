@@ -350,130 +350,18 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _polar_spacings = _track_generator->getPolarSpacings();
   _quad = _track_generator->getQuadrature();
   _num_polar = _quad->getNumPolarAngles();
-  _num_tracks_by_halfspace = _track_generator->getNumTracksByHalfspaceArray();
-  _num_halfspaces = _track_generator->getNumHalfspaces();
-  bool periodic = _track_generator->getPeriodic();
-  
-  /* Initialize the tracks array */
-  int num_x, num_y, num_l, num_z;
-  int counter = 0;
-  Track* track;
-  int index;
-  
-  if (!_solve_3D){
-    _fluxes_per_track = _num_groups * _num_polar/2;
-    _tot_num_tracks = _track_generator->getNum2DTracks();
-    _tracks = new Track*[_tot_num_tracks];
+  _num_tracks_by_parallel_group = _track_generator->getNumTracksByParallelGroupArray();
+  _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
+  _tracks = _track_generator->getTracksArray();
 
-    for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
-      if (periodic) {
-        for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
-          for (int a=azim_halfspace*_num_azim/4;
-               a < (azim_halfspace+1)*_num_azim/4; a++) {
-            num_x = _track_generator->getNumX(a);
-            num_y = _track_generator->getNumY(a);
-            for (int i=0; i < num_x + num_y; i++) {
-              
-              track = &_track_generator->get2DTracks()[a][i];
-              index = track->getPeriodicTrackIndex();
-              
-              /* Check if track UID should be set */
-              if (period_halfspace == 0 && index == 0) {
-                _tracks[counter] = track;
-                counter++;
-              }
-              else if (period_halfspace == 1 && index % 2 == 1) {
-                _tracks[counter] = track;
-                counter++;
-              }
-              else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
-                _tracks[counter] = track;
-                counter++;
-              }
-            }
-          }
-        }
-      }
-      else {
-        for (int a=azim_halfspace*_num_azim/4;
-             a < (azim_halfspace+1)*_num_azim/4; a++) {
-          num_x = _track_generator->getNumX(a);
-          num_y = _track_generator->getNumY(a);
-          for (int i=0; i < num_x + num_y; i++) {
-            
-            track = &_track_generator->get2DTracks()[a][i];
-            _tracks[counter] = track;
-            counter++;
-          }
-        }
-      }
-    }
-  }
-  else{
-
+  /* Set the number of tracks and fluxes per track */
+  if (_solve_3D) {
     _fluxes_per_track = _num_groups;
     _tot_num_tracks = _track_generator->getNum3DTracks();
-    _tracks = new Track*[_tot_num_tracks];
-    
-    for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
-      for (int polar_halfspace=0; polar_halfspace < 2; polar_halfspace++) {
-        if (periodic) {
-          for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
-            for (int a=azim_halfspace*_num_azim/4;
-                 a < (azim_halfspace+1)*_num_azim/4; a++) {
-              
-              num_x = _track_generator->getNumX(a);
-              num_y = _track_generator->getNumY(a);
-              
-              for (int i=0; i < num_x + num_y; i++) {
-                for (int p=polar_halfspace*_num_polar/2;
-                     p < (polar_halfspace+1)*_num_polar/2; p++) {
-                  for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-                    
-                    track = &_track_generator->get3DTracks()[a][i][p][z];
-                    index = track->getPeriodicTrackIndex();
-                    
-                    /* Check if track UID should be set */
-                    if (period_halfspace == 0 && index == 0) {
-                      _tracks[counter] = track;
-                      counter++;
-                    }
-                    else if (period_halfspace == 1 && index % 2 == 1) {
-                      _tracks[counter] = track;
-                      counter++;
-                    }
-                    else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
-                      _tracks[counter] = track;
-                      counter++;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-        else {
-          for (int a=azim_halfspace*_num_azim/4;
-               a < (azim_halfspace+1)*_num_azim/4; a++) {
-            
-            num_x = _track_generator->getNumX(a);
-            num_y = _track_generator->getNumY(a);
-            
-            for (int i=0; i < num_x + num_y; i++) {
-              for (int p=polar_halfspace*_num_polar/2;
-                   p < (polar_halfspace+1)*_num_polar/2; p++) {
-                for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-                  
-                  track = &_track_generator->get3DTracks()[a][i][p][z];
-                  _tracks[counter] = track;
-                  counter++;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+  }
+  else {
+    _fluxes_per_track = _num_groups * _num_polar/2;
+    _tot_num_tracks = _track_generator->getNum2DTracks();
   }
   
   /* Retrieve and store the Geometry from the TrackGenerator */  

@@ -574,13 +574,13 @@ void CPUSolver::transportSweep() {
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroSurfaceCurrents();
 
-  /* Loop over each set of tracks in parallel */
-  for (int i=0; i < _num_halfspaces; i++){
+  /* Loop over each parallel track groups */
+  for (int i=0; i < _num_parallel_track_groups; i++){
     
     /* Compute the minimum and maximum Track IDs corresponding to
-     * this azimuthal angular halfspace */
-    min_track = _num_tracks_by_halfspace[i];
-    max_track = _num_tracks_by_halfspace[i+1];
+     * the current parallel tracks group */
+    min_track = _num_tracks_by_parallel_group[i];
+    max_track = _num_tracks_by_parallel_group[i+1];
     
     #pragma omp parallel for private(curr_track, azim_index, polar_index, \
                                      num_segments, curr_segment,        \
