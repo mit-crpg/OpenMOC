@@ -244,6 +244,7 @@ public:
   void checkBoundaryConditions();
   void initialize2DTrackCycleIds();
   void initialize3DTrackCycleIds();
+  void create3DTracksArrays();
 };
 
 #endif /* TRACKGENERATOR_H_ */

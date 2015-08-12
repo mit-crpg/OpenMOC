@@ -1630,34 +1630,8 @@ void TrackGenerator::initialize3DTracks() {
   for (int create_tracks = 0; create_tracks < 2; create_tracks++) {
 
     /* Allocate memory for 3D track stacks */
-    if (create_tracks) {
-      _tracks_3D_stack = new Track3D***[_num_azim/2];
-      for (int a=0; a < _num_azim/2; a++) {
-        _tracks_3D_stack[a] = new Track3D**[getNumX(a) + getNumY(a)];
-        for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-          _tracks_3D_stack[a][i] = new Track3D*[_num_polar];
-          for (int p=0; p < _num_polar; p++) {
-            _tracks_3D_stack[a][i][p] = new Track3D[_tracks_per_stack[a][i][p]];
-            _tracks_per_stack[a][i][p] = 0;
-          }
-        }
-      }
-
-      /* Allocate memory for 3D tracks cycles */
-      for (int a = 0; a < _num_azim/4; a++) {
-        _tracks_3D_cycle[a] = new Track3D****[_cycles_per_azim[a]];
-        for (int c = 0; c < _cycles_per_azim[a]; c++) {
-          _tracks_3D_cycle[a][c] = new Track3D***[_num_polar];
-          for (int p=0; p < _num_polar; p++) {
-            _tracks_3D_cycle[a][c][p] =
-              new Track3D**[getNumZ(a,p) + getNumL(a,p)];
-            for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++)
-              _tracks_3D_cycle[a][c][p][i] =
-                new Track3D*[_tracks_per_train[a][c][p][i]];
-          }
-        }
-      }
-    }
+    if (create_tracks)
+      create3DTracksArrays();
 
     /* Loop over 3D track cycles */
     for (int a = 0; a < _num_azim/4; a++) {
@@ -2459,6 +2433,7 @@ void TrackGenerator::initialize3DTrackReflections() {
     }
   }
 }
+
 
 void TrackGenerator::initialize3DTrackCycleIds() {
   
@@ -4272,4 +4247,35 @@ int TrackGenerator::getNumParallelTrackGroups() {
 
 bool TrackGenerator::getPeriodic() {
   return _periodic;
+}
+
+
+void TrackGenerator::create3DTracksArrays() {
+
+  _tracks_3D_stack = new Track3D***[_num_azim/2];
+  for (int a=0; a < _num_azim/2; a++) {
+    _tracks_3D_stack[a] = new Track3D**[getNumX(a) + getNumY(a)];
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+      _tracks_3D_stack[a][i] = new Track3D*[_num_polar];
+      for (int p=0; p < _num_polar; p++) {
+        _tracks_3D_stack[a][i][p] = new Track3D[_tracks_per_stack[a][i][p]];
+        _tracks_per_stack[a][i][p] = 0;
+      }
+    }
+  }
+
+  /* Allocate memory for 3D tracks cycles */
+  for (int a = 0; a < _num_azim/4; a++) {
+    _tracks_3D_cycle[a] = new Track3D****[_cycles_per_azim[a]];
+    for (int c = 0; c < _cycles_per_azim[a]; c++) {
+      _tracks_3D_cycle[a][c] = new Track3D***[_num_polar];
+      for (int p=0; p < _num_polar; p++) {
+        _tracks_3D_cycle[a][c][p] =
+          new Track3D**[getNumZ(a,p) + getNumL(a,p)];
+        for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++)
+          _tracks_3D_cycle[a][c][p][i] =
+            new Track3D*[_tracks_per_train[a][c][p][i]];
+      }
+    }
+  }
 }
