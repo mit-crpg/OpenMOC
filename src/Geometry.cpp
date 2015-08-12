@@ -606,7 +606,7 @@ ExtrudedFSR* Geometry::findExtrudedFSR(LocalCoords* coords) {
     }
   }
   
-  return _FSR_keys_map.at(fsr_key_hash);
+  return _extruded_FSR_keys_map.at(fsr_key_hash);
 
 }
 
@@ -906,76 +906,6 @@ void Geometry::segmentize2D(Track2D* track, double z_level) {
   return;
 }
 
-/**
- * @brief TODO YADA YADA YADA segmentize
- */
-void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
-
-  /* Extract the associated 2D track */
-  Track2D* track = extruded_track->_track_2D;
-  
-  /* Track starting Point coordinates and azimuthal angle */
-  double x0 = track->getStart()->getX();
-  double y0 = track->getStart()->getY();
-  double z0 = 0;
-  double phi = track->getPhi();
-  double delta_x, delta_y, delta_z;
-
-  /* Length of each segment */
-  FP_PRECISION length;
-  ExtrudedFSR* fsr;
-  int num_segments;
-
-  /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords start(x0, y0, z0);
-  LocalCoords end(x0, y0, z0);
-  start.setUniverse(_root_universe);
-  end.setUniverse(_root_universe);
-
-  /* Find the Cell containing the Track starting Point */
-  Cell* curr = findFirstCell(&end, phi);
-  Cell* prev;
-
-  /* If starting Point was outside the bounds of the Geometry */
-  if (curr == NULL)
-    log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track2D: %s", track->toString().c_str());
-
-  /* While the end of the segment's LocalCoords is still within the Geometry,
-   * move it to the next Cell, create a new segment, and add it to the
-   * Geometry */
-  while (curr != NULL) {
-
-    end.copyCoords(&start);
-
-    /* Find the next Cell along the Track's trajectory */
-    prev = curr;
-    curr = findNextCell(&end, phi);
-
-    /* Checks that segment does not have the same start and end Points */
-    if (start.getX() == end.getX() && start.getY() == end.getY())
-      log_printf(ERROR, "Created segment with same start and end "
-                 "point: x = %f, y = %f", start.getX(), start.getY());
-
-    /* Find the segment length, Material and FSR ID */
-    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
-    fsr = findExtrudedFSR(&start);
-
-    log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
-               start.getX(), start.getY(), end.getX(), end.getY());
-
-    /* Add the segment to the extruded track */
-    extruded_track->_lengths.push_back(length);
-    extruded_track->_regions.push_back(fsr);
-
-  }
-
-  /* Truncate the linked list for the LocalCoords */
-  start.prune();
-  end.prune();
-
-  return;
-}
 
 /**
  * @brief This method performs ray tracing to create Track segments within each
@@ -1092,6 +1022,131 @@ void Geometry::segmentize3D(Track3D* track) {
   end.prune();
 }
 
+
+/**
+ * @brief TODO YADA YADA YADA segmentize
+ */
+void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
+
+  /* Extract the associated 2D track */
+  Track2D* track = extruded_track->_track_2D;
+  
+  /* Track starting Point coordinates and azimuthal angle */
+  double x0 = track->getStart()->getX();
+  double y0 = track->getStart()->getY();
+  double z0 = 0;
+  double phi = track->getPhi();
+  double delta_x, delta_y, delta_z;
+
+  /* Length of each segment */
+  FP_PRECISION length;
+  ExtrudedFSR* fsr;
+  int num_segments;
+
+  /* Use a LocalCoords for the start and end of each segment */
+  LocalCoords start(x0, y0, z0);
+  LocalCoords end(x0, y0, z0);
+  start.setUniverse(_root_universe);
+  end.setUniverse(_root_universe);
+
+  /* Find the Cell containing the Track starting Point */
+  Cell* curr = findFirstCell(&end, phi);
+  Cell* prev;
+
+  /* If starting Point was outside the bounds of the Geometry */
+  if (curr == NULL)
+    log_printf(ERROR, "Could not find a Cell containing the start Point "
+               "of this Track2D: %s", track->toString().c_str());
+
+  /* While the end of the segment's LocalCoords is still within the Geometry,
+   * move it to the next Cell, create a new segment, and add it to the
+   * Geometry */
+  while (curr != NULL) {
+
+    end.copyCoords(&start);
+
+    /* Find the next Cell along the Track's trajectory */
+    prev = curr;
+    curr = findNextCell(&end, phi);
+
+    /* Checks that segment does not have the same start and end Points */
+    if (start.getX() == end.getX() && start.getY() == end.getY())
+      log_printf(ERROR, "Created segment with same start and end "
+                 "point: x = %f, y = %f", start.getX(), start.getY());
+
+    /* Find the segment length, Material and FSR ID */
+    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    fsr = findExtrudedFSR(&start);
+
+    log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
+               start.getX(), start.getY(), end.getX(), end.getY());
+
+    /* Add the segment to the extruded track */
+    extruded_track->_lengths.push_back(length);
+    extruded_track->_regions.push_back(fsr);
+
+  }
+
+  /* Truncate the linked list for the LocalCoords */
+  start.prune();
+  end.prune();
+
+  return;
+}
+
+
+/**
+ * @brief TODO
+ */
+void Geometry::initializeAxialFSRs() {
+
+  /* Determine the extent of the axial geometry */
+  FP_PRECISION min_z = 0;
+  FP_PRECISION max_z = 12;
+
+  /* Extract list of extruded FSRs */
+  ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
+
+  /* Parallelize over extruded FSRs */
+  #pragma omp for
+  for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
+
+    /* Extract coordinates of extruded FSR */
+    ExtrudedFSR* extruded_FSR = extruded_FSRs[i];
+    double x0 = extruded_FSR->_coords->getX();
+    double y0 = extruded_FSR->_coords->getY();
+    
+    /* Create vertical track in the extruded FSR */
+    Track3D track;
+    track.setValues(x0, y0, min_z, x0, y0, max_z, 0, 0);
+
+    /* Shoot verticle track through the geometry to initialize 3D FSRs */
+    segmentize3D(&track);
+
+    /* Extract segments from track */
+    int num_segments = track.getNumSegments();
+    segment* segments = track.getSegments();
+
+    /* Allocate materials and mesh in extruded FSR */
+    extruded_FSR->_num_fsrs = (size_t) num_segments;
+    extruded_FSR->_materials = new Material*[num_segments];
+    extruded_FSR->_mesh = new FP_PRECISION[num_segments+1];
+    extruded_FSR->_fsr_ids = new int[num_segments];
+
+    /* Initialize values in extruded FSR */
+    FP_PRECISION level = min_z;
+    extruded_FSR->_mesh[0] = level;
+    for (int s=0; s < num_segments; s++) {
+      
+      level += segments[s]._length;
+      extruded_FSR->_materials[s] = segments[s]._material;
+      extruded_FSR->_fsr_ids[s] = segments[s]._region_id;
+      extruded_FSR->_mesh[s+1] = level;
+    
+    }
+  }
+}
+ 
 
 /**
  * @brief Initialize key and material ID vectors for lookup by FSR ID
