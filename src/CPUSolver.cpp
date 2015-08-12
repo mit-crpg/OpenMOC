@@ -565,6 +565,10 @@ void CPUSolver::transportSweep() {
   segment* curr_segment;
   segment* segments;
   FP_PRECISION* track_flux;
+  FP_PRECISION thread_fsr_flux[_num_groups];
+
+  for (int g=0; g < _num_groups; g++)
+    thread_fsr_flux[g] = 0.0;
 
   log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
@@ -584,11 +588,10 @@ void CPUSolver::transportSweep() {
     
     #pragma omp parallel for private(curr_track, azim_index, polar_index, \
                                      num_segments, curr_segment,        \
-                                     segments, track_flux, tid) schedule(guided)
+                                     segments, track_flux, tid) \
+                             firstprivate(thread_fsr_flux) schedule(guided)
     for (int track_id=min_track; track_id < max_track; track_id++) {
 
-      FP_PRECISION* thread_fsr_flux;
-      thread_fsr_flux = new FP_PRECISION[_num_groups];
       tid = omp_get_thread_num();
       curr_track = _tracks[track_id];      
       azim_index = _quad->getFirstOctantAzim
@@ -633,8 +636,6 @@ void CPUSolver::transportSweep() {
       /* Transfer boundary angular flux to outgoing Track */
       transferBoundaryFlux
         (track_id, azim_index, polar_index, false, track_flux);
-
-      delete [] thread_fsr_flux;
     }
   }
 
