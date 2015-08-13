@@ -57,6 +57,7 @@ protected:
   void normalizeFluxes();
   void computeFSRSources();
   void transportSweep();
+  void transportSweepOTF();
   void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);

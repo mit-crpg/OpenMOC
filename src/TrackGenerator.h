@@ -107,6 +107,10 @@ private:
 
   /** Boolean for whether to solve 3D (true) or 2D (false) problem */
   bool _solve_3D;
+  
+  /** Boolean for whether to ray trace on the fly (true) or explicitly generate
+      segments (false) */
+  bool _OTF;
 
   /** The z level where the 3D tracks should be generated */
   double _z_level;
@@ -159,6 +163,7 @@ public:
   int getNum3DSegments();
   Track2D** get2DTracks();
   Track3D**** get3DTracks();
+  ExtrudedTrack* getExtrudedTracks();
   double* getAzimSpacings();
   double getAzimSpacing(int azim);
   double** getPolarSpacings();
@@ -194,6 +199,7 @@ public:
   void setGeometry(Geometry* geometry);
   void setSolve2D();
   void setSolve3D();
+  void setOTF();
   void setZLevel(double z_level);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);

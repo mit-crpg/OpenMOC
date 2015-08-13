@@ -29,6 +29,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _quadrature = NULL;
   _z_level = 0.0;
   _solve_3D = true;
+  _OTF = false;
   _track_generation_method = GLOBAL_TRACKING;
 }
 
@@ -251,6 +252,14 @@ Track3D**** TrackGenerator::get3DTracks() {
   return _tracks_3D_stack;
 }
 
+ExtrudedTrack* TrackGenerator::getExtrudedTracks() {
+  if (!_contains_extruded_tracks)
+    log_printf(ERROR, "Unable to return the array of extruded tracks "
+               "since extruded tracks have not yet been generated.");
+  return _extruded_tracks;
+}
+
+
 
 double* TrackGenerator::getAzimSpacings(){
   return _azim_spacings;
@@ -287,20 +296,23 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
   FP_PRECISION* sigma_t;
   FP_PRECISION max_optical_length = 0.;
 
-  if (_solve_3D){
-    for (int a=0; a < _num_azim/2; a++){
-      for (int i=0; i < getNumX(a) + getNumY(a); i++){
-        for (int p=0; p < _num_polar; p++){
-          for (int z=0; z < _tracks_per_stack[a][i][p]; z++){
-            for (int s=0; s < _tracks_3D_stack[a][i][p][z].getNumSegments(); s++){
-              curr_segment = _tracks_3D_stack[a][i][p][z].getSegment(s);
-              length = curr_segment->_length;
-              material = curr_segment->_material;
-              sigma_t = material->getSigmaT();
-              
-              for (int e=0; e < material->getNumEnergyGroups(); e++)
-                max_optical_length = std::max(max_optical_length,
-                                              length*sigma_t[e]);
+  if (_solve_3D) {
+    if (!_OTF) {
+      for (int a=0; a < _num_azim/2; a++) {
+        for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+          for (int p=0; p < _num_polar; p++) {
+            for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+              for (int s=0; s < _tracks_3D_stack[a][i][p][z].getNumSegments();
+                  s++) {
+                curr_segment = _tracks_3D_stack[a][i][p][z].getSegment(s);
+                length = curr_segment->_length;
+                material = curr_segment->_material;
+                sigma_t = material->getSigmaT();
+                
+                for (int e=0; e < material->getNumEnergyGroups(); e++)
+                  max_optical_length = std::max(max_optical_length,
+                                                length*sigma_t[e]);
+              }
             }
           }
         }
@@ -696,6 +708,10 @@ void TrackGenerator::setSolve2D(){
 
 void TrackGenerator::setSolve3D(){
   _solve_3D = true;
+}
+
+void TrackGenerator::setOTF() {
+  _OTF = true;
 }
 
 
@@ -1183,8 +1199,12 @@ void TrackGenerator::generateTracks() {
 
       /* Segmentize the tracks */
       if (_solve_3D){
-        segmentize3D();
-        dump3DSegmentsToFile();
+        if (_OTF)
+          segmentizeExtruded();
+        else {
+          segmentize3D();
+          dump3DSegmentsToFile();
+        }
       }
       else{
         segmentize2D();
@@ -3176,6 +3196,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
    * angles, and track spacing, and if so, import the ray tracing data */
   if (!stat(_tracks_filename.c_str(), &buffer)) {
     if (_solve_3D){
+      //FIXME
       if (read3DSegmentsFromFile()) {
         _use_input_file = true;
         _contains_3D_segments = true;
@@ -3843,6 +3864,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
   FP_PRECISION* sigma_t;
   int num_groups;
 
+  // FIXME
   if (_solve_3D){
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {

@@ -1101,8 +1101,8 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
 void Geometry::initializeAxialFSRs() {
 
   /* Determine the extent of the axial geometry */
-  FP_PRECISION min_z = 0;
-  FP_PRECISION max_z = 12;
+  FP_PRECISION min_z = getMinZ();
+  FP_PRECISION max_z = getMaxZ();
 
   /* Extract list of extruded FSRs */
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
