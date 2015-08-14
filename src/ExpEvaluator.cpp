@@ -166,9 +166,6 @@ void ExpEvaluator::initialize() {
 
   log_printf(INFO, "Initializing exponential interpolation table...");
 
-  /* Expand max tau slightly to avoid roundoff error approximation */
-  _max_optical_length *= 1.00001;
-
   /* Set size of interpolation table */
   int num_polar = _polar_quad->getNumPolarAngles();
   int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
@@ -219,8 +216,8 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int polar) {
 
   /* Evaluate the exponential using the lookup table - linear interpolation */
   if (_interpolate) {
-    int index;
-    index = floor(tau * _inverse_exp_table_spacing);
+    tau = std::min(tau, (_max_optical_length));
+    int index = floor(tau * _inverse_exp_table_spacing);
     index *= _two_times_num_polar;
     exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                   _exp_table[index + 2 * polar + 1]));
