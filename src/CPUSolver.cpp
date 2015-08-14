@@ -642,10 +642,37 @@ void CPUSolver::transportSweep() {
 
 
 /**
- * @brief TODO Create an actual function then do this a better way, maybe inline
+ * @brief TODO do this a better way, maybe inline
  */
 int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
-  return 0;
+
+  /* Initialize indexes into the values array */
+  int imin = 0;
+  int imax = size-1;
+
+  /* Check if val is outside the range */
+  if (val < values[imin] or val > values[imax]) {
+    log_printf(ERROR, "axial height in extruded FSR out of range"); 
+    return -1;
+  }
+
+  /* Search for interval containing val */
+  while (imax - imin > 1) {
+
+    int imid = (imin + imax) / 2;
+
+    if (val > values[imid])
+      imin = imid;
+    else if (val < values[imid])
+      imax = imid;
+    else {
+      if (sign > 0)
+        return imid;
+      else
+        return imid-1;
+    }
+  }
+  return imin;
 }
 
 
@@ -698,83 +725,106 @@ void CPUSolver::transportSweepOTF() {
       // TODO: forward and backward HERE
       for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
+        /* Extract track and flux data */
         Track* curr_track = &tracks_3D[a][i][p][z];
         int track_id = 0; // FIXME
         track_flux = &_boundary_flux(track_id, 0, 0);
 
-        double z_level = curr_track->getStart()->getZ();
+        /* Tranport track in the forward direction */
+        double z_level = curr_track->getStart()->getZ(); 
+        transportSegments(extruded_track, z_level, sign, z_unit, seg_unit,
+            track_flux, thread_fsr_flux, azim_index, polar_index, 1);
 
-        /* Loop over 2D segments */
-        bool segments_complete = false;
-        for (int s=0; s < extruded_track->_num_segments; s++) {
-
-          /* Extract extruded FSR and determine the axial region */
-          ExtrudedFSR* extruded_FSR = extruded_track->_regions[s];
-          FP_PRECISION* mesh = extruded_FSR->_mesh;
-          int num_regions = extruded_FSR->_num_fsrs;
-          int z_ind = binarySearch(mesh, num_regions, z_level, sign);
-
-          /* Extract 2D segment length */
-          FP_PRECISION remaining_length_2D = extruded_track->_lengths[s];
-          
-          /* Transport along the 2D segment until it is completed */
-          while (remaining_length_2D > 0) {
-
-            /* Calculate 3D distance to z intersection */
-            int mesh_ind = z_ind + (1 + sign) / 2;
-            FP_PRECISION z_dist_3D = (mesh[mesh_ind] - z_level) / z_unit;
-
-            /* Calculate 3D distance to end of segment */
-            FP_PRECISION seg_dist_3D = remaining_length_2D / seg_unit;
-
-            /* Calcualte shortest distance to intersection */
-            FP_PRECISION dist_2D;
-            FP_PRECISION dist_3D;
-            if (z_dist_3D < seg_dist_3D) {
-              dist_2D = z_dist_3D * seg_unit / z_unit;
-              dist_3D = z_dist_3D;
-            }
-            else {
-              dist_2D = remaining_length_2D;
-              dist_3D = seg_dist_3D;
-            }
-
-            /* Create temporary 3D segment */
-            segment temp_segment;
-            temp_segment._length = dist_3D;
-            temp_segment._material = extruded_FSR->_materials[z_ind];
-            temp_segment._region_id = extruded_FSR->_fsr_ids[z_ind];
-
-            /* Apply MOC to segment */
-            tallyScalarFlux(&temp_segment, azim_index, p, track_flux,
-                thread_fsr_flux);
-
-            /* Shorten remaining 2D segment length and move axial level */
-            remaining_length_2D -= dist_2D;
-            z_level += dist_3D * z_unit;
-            z_ind += sign;
-
-            /* Check if the track has crossed a Z boundary */
-            if (z_ind < 0 or z_ind >= num_regions) {
-              segments_complete = true;
-              break;
-            }
-          }
-          
-          /* Check if the track is completed due to an axial boundary */
-          if (segments_complete)
-            break;
-        }
-        
         /* TODO: transfer boundary flux */
         transferBoundaryFlux(track_id, azim_index, polar_index, true, 
             track_flux); //FIXME
+
+        //TODO track backards using Z level to find cell once again
       }
     }
     delete [] thread_fsr_flux;
   }
 }
 
+
+/**
+ * @brief TODO
+ */
+void CPUSolver::transportSegments(ExtrudedTrack* extruded_track, double &z_level,
+    int sign, double z_unit, double seg_unit, FP_PRECISION* track_flux,
+    FP_PRECISION* thread_fsr_flux, int azim_index, int polar_index, 
+    int direction) {
+
+  /* Loop over 2D segments */
+  bool segments_complete = false;
+  for (int s=0; s < extruded_track->_num_segments; s++) {
+
+    /* Extract extruded FSR and determine the axial region */
+    ExtrudedFSR* extruded_FSR = extruded_track->_regions[s];
+    FP_PRECISION* mesh = extruded_FSR->_mesh;
+    int num_regions = extruded_FSR->_num_fsrs;
+    int z_ind = binarySearch(mesh, num_regions, z_level, sign);
+
+    /* Extract 2D segment length */
+    FP_PRECISION remaining_length_2D = extruded_track->_lengths[s];
+    
+    /* Transport along the 2D segment until it is completed */
+    while (remaining_length_2D > 0) {
+
+      /* Calculate 3D distance to z intersection */
+      int mesh_ind = z_ind + (1 + sign) / 2;
+      FP_PRECISION z_dist_3D = (mesh[mesh_ind] - z_level) / z_unit;
+
+      /* Calculate 3D distance to end of segment */
+      FP_PRECISION seg_dist_3D = remaining_length_2D / seg_unit;
+
+      /* Calcualte shortest distance to intersection */
+      FP_PRECISION dist_2D;
+      FP_PRECISION dist_3D;
+      if (z_dist_3D < seg_dist_3D) {
+        dist_2D = z_dist_3D * seg_unit / z_unit;
+        dist_3D = z_dist_3D;
+      }
+      else {
+        dist_2D = remaining_length_2D;
+        dist_3D = seg_dist_3D;
+      }
+
+      /* Create temporary 3D segment */
+      segment temp_segment;
+      temp_segment._length = dist_3D;
+      temp_segment._material = extruded_FSR->_materials[z_ind];
+      temp_segment._region_id = extruded_FSR->_fsr_ids[z_ind];
+
+      /* Apply MOC to segment */
+      tallyScalarFlux(&temp_segment, azim_index, polar_index, track_flux,
+          thread_fsr_flux);
+
+      /* Shorten remaining 2D segment length and move axial level */
+      remaining_length_2D -= dist_2D;
+      z_level += dist_3D * z_unit;
+      z_ind += sign;
+
+      /* Check if the track has crossed a Z boundary */
+      if (z_ind < 0 or z_ind >= num_regions) {
+        
+        /* Reset z index */
+        if (z_ind < 0)
+          z_ind = 0;
+        else
+          z_ind = num_regions - 1;
+
+        /* Mark the 2D segment as complete */
+        segments_complete = true;
+        break;
+      }
+    }
+    
+    /* Check if the track is completed due to an axial boundary */
+    if (segments_complete)
+      break;
+  }
+}
 
 
 /**

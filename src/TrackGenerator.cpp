@@ -102,6 +102,9 @@ TrackGenerator::~TrackGenerator() {
     delete [] _tracks_per_cycle;
     delete [] _cycle_length;
   }
+
+  if (_contains_extruded_tracks)
+    delete[] _extruded_tracks;
 }
 
 
