@@ -27,7 +27,7 @@ openmoc.log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(51,1)
+cmfd.setLatticeStructure(25,1)
 
 ###############################################################################
 #########################   Load the Cubic Geometry   #########################

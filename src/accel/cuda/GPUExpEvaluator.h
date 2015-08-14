@@ -31,7 +31,6 @@ private:
 
 public:
 
-  //FIXME: Put in shared memory!!
   /** The exponential linear interpolation table */
   FP_PRECISION* _exp_table;
 
