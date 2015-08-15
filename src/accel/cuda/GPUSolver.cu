@@ -211,29 +211,26 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
   FP_PRECISION fission_source;
 
   dev_material* curr_material;
-  FP_PRECISION* nu_sigma_f;
   FP_PRECISION* sigma_t;
-  FP_PRECISION* chi;
+  FP_PRECISION* fiss_mat;
 
   /* Iterate over all FSRs */
   while (tid < *num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
 
-    nu_sigma_f = curr_material->_nu_sigma_f;
     sigma_t = curr_material->_sigma_t;
-    chi = curr_material->_chi;
+    fiss_mat = curr_material->_fiss_matrix;
 
-    /* Initialize the fission source to zero for this FSR */
-    fission_source = 0;
-
-    /* Compute total fission source for current FSR */
-    for (int g_prime=0; g_prime < *num_groups; g_prime++)
-      fission_source += scalar_flux(tid,g_prime) * nu_sigma_f[g_prime];
-
-    /* Set the reduced source for FSR r in each group g */
+    /* Compute fission source for group g */
     for (int g=0; g < *num_groups; g++) {
-      reduced_sources(tid,g) = fission_source * chi[g];
+      fission_source = 0;
+
+      for (int g_prime=0; g_prime < *num_groups; g_prime++)
+        fission_source += fiss_mat[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
+
+      /* Compute total (scatter+fission+fixed) reduced source */
+      reduced_sources(tid,g) = fission_source;
       reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
     }
@@ -539,7 +536,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
       curr_segment = &curr_track->_segments[i];
       tallyScalarFlux(curr_segment, azim_index, energy_group, materials,
                       track_flux, reduced_sources, polar_weights, scalar_flux);
-  }
+    }
 
     /* Transfer boundary angular flux to outgoing Track */
     transferBoundaryFlux(curr_track, azim_index, track_flux, boundary_flux,
@@ -1462,6 +1459,8 @@ void GPUSolver::transportSweep() {
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
 
+  cudaDeviceSynchronize();
+
   /* Sweep the second space of azimuthal angle and periodic track halfspaces */
   tid_offset = _num_tracks_by_halfspace[1] * _num_groups;
   tid_max = _num_tracks_by_halfspace[2];
@@ -1470,6 +1469,7 @@ void GPUSolver::transportSweep() {
                                                  reduced_sources,
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
+  cudaDeviceSynchronize();
 
   /* Sweep the third space of azimuthal angle and periodic track halfspaces */
   tid_offset = _num_tracks_by_halfspace[2] * _num_groups;
@@ -1479,6 +1479,7 @@ void GPUSolver::transportSweep() {
                                                  reduced_sources,
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
+  cudaDeviceSynchronize();
 
   /* Sweep the fourth space of azimuthal angle and periodic track halfspaces */
   tid_offset = _num_tracks_by_halfspace[3] * _num_groups;
@@ -1488,6 +1489,7 @@ void GPUSolver::transportSweep() {
                                                  reduced_sources,
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
+  cudaDeviceSynchronize();
 
   /* Sweep the fifth space of azimuthal angle and periodic track halfspaces */
   tid_offset = _num_tracks_by_halfspace[4] * _num_groups;
@@ -1497,6 +1499,7 @@ void GPUSolver::transportSweep() {
                                                  reduced_sources,
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
+  cudaDeviceSynchronize();
 
   /* Sweep the fifth space of azimuthal angle and periodic track halfspaces */
   tid_offset = _num_tracks_by_halfspace[5] * _num_groups;
@@ -1506,6 +1509,7 @@ void GPUSolver::transportSweep() {
                                                  reduced_sources,
                                                  _materials, _dev_tracks,
                                                  tid_offset, tid_max);
+  cudaDeviceSynchronize();
 }
 
 
@@ -1556,8 +1560,6 @@ void GPUSolver::computeKeff() {
                                        _materials, old_flux, old_fiss_ptr);
   computeKeffReactionRates<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
                                        _materials, new_flux, new_fiss_ptr);
-
-  cudaDeviceSynchronize();
 
   /* Compute the old and new fission sources */
   old_fission = thrust::reduce(old_fission_vec.begin(), old_fission_vec.end());
