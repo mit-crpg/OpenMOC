@@ -866,7 +866,7 @@ void CPUSolver::addSourceToScalarFlux() {
 
 
 /**
- * @brief Computes the volume-averaged, energy-integrated nu-fission rate in
+ * @brief Computes the volume-integrated, energy-integrated nu-fission rate in
  *        each FSR and stores them in an array indexed by FSR ID.
  * @details This is a helper method for SWIG to allow users to retrieve
  *          FSR nu-fission rates as a NumPy array. An example of how this 
@@ -890,6 +890,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
   log_printf(INFO, "Computing FSR fission rates...");
 
   FP_PRECISION* nu_sigma_f;
+  FP_PRECISION volume;
 
   /* Initialize fission rates to zero */
   for (int r=0; r < _num_FSRs; r++)
@@ -899,8 +900,9 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
   #pragma omp parallel for private (nu_sigma_f) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
     nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
+    volume = _FSR_volumes[r];
 
     for (int e=0; e < _num_groups; e++)
-      fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e);
+      fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e) * volume;
   }
 }
