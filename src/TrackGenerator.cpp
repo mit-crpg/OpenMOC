@@ -821,11 +821,15 @@ void TrackGenerator::recalibrateTracksToOrigin() {
 
 
 /**
- * @brief Recalibrates Track start and end points to the origin of the Geometry.
- * @details The origin of the Geometry is designated at its center by
- *          convention, but for track initialization the origin is assumed to be
- *          at the bottom right corner for simplicity. This method corrects
- *          for this by re-assigning the start and end Point coordinates.
+ * @brief Set the periodic cycle index for each track.
+ * @details The tracks can be separated into parallel cycles as they
+ *          traverse the geometry. It is important to set the periodic cycle
+ *          indices for problems with periodic boundary conditions so transport
+ *          sweeps can be performed in parallel over groups of tracks that do
+ *          not transfer their flux into each other. In this method, all tracks
+ *          are looped over; if the track's periodic cycle index has not been
+ *          set, the periodic cycle index is incremented and the periodic cycle
+ *          index is set for that track and all tracks in its periodic cycle.
  */
 void TrackGenerator::initializeTrackPeriodicCycleIndices() {
 
@@ -873,11 +877,15 @@ void TrackGenerator::initializeTrackPeriodicCycleIndices() {
 
 
 /**
- * @brief Recalibrates Track start and end points to the origin of the Geometry.
- * @details The origin of the Geometry is designated at its center by
- *          convention, but for track initialization the origin is assumed to be
- *          at the bottom right corner for simplicity. This method corrects
- *          for this by re-assigning the start and end Point coordinates.
+ * @brief Set the Track UIDs for all tracks and generate the 1D array of
+ *        track pointers that separates the groups of tracks by parallel group.
+ * @details The Solver requires the tracks to be separated into groups of tracks
+ *          that can be looped over in parallel without data races. This method
+ *          creates a 1D array of Track pointers where the tracks are arranged
+ *          by parallel group. If the geometry has a periodic BC, 6 periodic
+ *          groups are created; otherwise, 2 periodic groups are created. The
+ *          Track UIDs are also set to their index in the tracks by periodic
+ *          group array.
  */
 void TrackGenerator::initializeTrackUIDs() {
 
