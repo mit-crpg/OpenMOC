@@ -31,11 +31,13 @@ TrackGenerator::~TrackGenerator() {
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
+    delete [] _num_tracks_by_parallel_group;
 
     for (int i = 0; i < _num_azim; i++)
       delete [] _tracks[i];
 
     delete [] _tracks;
+    delete [] _tracks_by_parallel_group;
   }
 }
 
@@ -74,6 +76,10 @@ Geometry* TrackGenerator::getGeometry() {
 }
 
 
+/**
+ * @brief Return the total number of Tracks generated.
+ * @return The number of Tracks generated
+ */
 int TrackGenerator::getNumTracks() {
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the total number of Tracks since "
@@ -89,6 +95,25 @@ int TrackGenerator::getNumTracks() {
 }
 
 
+/**
+ * @brief Return the number of parallel track groups.
+ * @return The number of parallel track groups
+ */
+int TrackGenerator::getNumParallelTrackGroups() {
+
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to return the number of parallel track groups "
+               "since Tracks have not yet been generated.");
+
+  return _num_parallel_track_groups;
+}
+
+
+/**
+ * @brief Return the number of tracks on the x-axis for a given azimuthal angle.
+ * @param azim An azimuthal angle index
+ * @return The number of Tracks on the x-axis
+ */
 int TrackGenerator::getNumX(int azim) {
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the number of Tracks on the x-axis"
@@ -99,6 +124,11 @@ int TrackGenerator::getNumX(int azim) {
 }
 
 
+/**
+ * @brief Return the number of tracks on the y-axis for a given azimuthal angle.
+ * @param azim An azimuthal angle index
+ * @return The number of Tracks on the y-axis
+ */
 int TrackGenerator::getNumY(int azim) {
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the number of Tracks on the y-axis"
@@ -123,18 +153,17 @@ int* TrackGenerator::getNumTracksArray() {
 
 
 /**
- * @brief Return an array with the Track uid separating the azimuthal and
- * periodic halfspaces
- * @return array with the Track uid separating the azimuthal and periodic 
- *         halfspaces
+ * @brief Return an array with the Track uid separating the parallel track
+ *        groups
+ * @return array with the Track uid separating the parallel track groups
  */
-int* TrackGenerator::getNumTracksByHalfspaceArray() {
+int* TrackGenerator::getNumTracksByParallelGroupArray() {
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the array with the Track uid "
-               "separating the azimuthal and periodic halspaces since "
-               "Tracks have not yet been generated.");
+               "separating the parallel track groups since Tracks have not"
+               " yet been generated.");
 
-  return _num_tracks_by_halfspace;
+  return _num_tracks_by_parallel_group;
 }
 
 
@@ -170,6 +199,23 @@ Track **TrackGenerator::getTracks() {
                "since Tracks have not yet been generated.");
 
   return _tracks;
+}
+
+
+/**
+ * @brief Returns a 1D array of Track pointers.
+ * @details The tracks in the _tracks_by_parallel_group array are organized
+ *          by parallel track group. The index into the array is also the
+ *          corresponding Track's UID.
+ * @return The 1D array of Track pointers
+ */
+Track **TrackGenerator::getTracksByParallelGroup() {
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to return the 1D array of the Track pointers "
+               "arranged by parallel group since Tracks have not yet been "
+               "generated.");
+
+  return _tracks_by_parallel_group;
 }
 
 
@@ -505,10 +551,11 @@ void TrackGenerator::generateTracks() {
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_tracks_by_halfspace;
+    delete [] _num_tracks_by_parallel_group;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
+    delete [] _tracks_by_parallel_group;
 
     for (int i = 0; i < _num_azim; i++)
       delete [] _tracks[i];
@@ -528,7 +575,6 @@ void TrackGenerator::generateTracks() {
     /* Allocate memory for the Tracks */
     try {
       _num_tracks = new int[_num_azim];
-      _num_tracks_by_halfspace = new int[7];
       _num_x = new int[_num_azim];
       _num_y = new int[_num_azim];
       _azim_weights = new FP_PRECISION[_num_azim];
@@ -559,7 +605,9 @@ void TrackGenerator::generateTracks() {
     }
   }
 
+  /* Initialize the track bounadry conditions and set the track UIDs */
   initializeBoundaryConditions();
+  initializeTrackPeriodicCycleIndices();
   initializeTrackUIDs();
   return;
 }
@@ -779,7 +827,7 @@ void TrackGenerator::recalibrateTracksToOrigin() {
  *          at the bottom right corner for simplicity. This method corrects
  *          for this by re-assigning the start and end Point coordinates.
  */
-void TrackGenerator::initializeTrackUIDs() {
+void TrackGenerator::initializeTrackPeriodicCycleIndices() {
 
   Track* track;
   int track_index;
@@ -821,44 +869,102 @@ void TrackGenerator::initializeTrackUIDs() {
       }
     }
   }
+}
 
+
+/**
+ * @brief Recalibrates Track start and end points to the origin of the Geometry.
+ * @details The origin of the Geometry is designated at its center by
+ *          convention, but for track initialization the origin is assumed to be
+ *          at the bottom right corner for simplicity. This method corrects
+ *          for this by re-assigning the start and end Point coordinates.
+ */
+void TrackGenerator::initializeTrackUIDs() {
+
+  Track* track;
+  bool periodic;
   int uid = 0;
-  int index;
-  _num_tracks_by_halfspace[0] = 0;
-  
-  /* Recalibrate the tracks to the origin and set the uid. Note that the 
-   * loop structure is unconventional in order to preserve a monotonically
-   * increasing track uid value in the Solver's tracks array. The tracks array
-   * is oriented such the tracks can be broken up into 4 sub arrays that are
-   * guaranteed to contain tracks that do not transport into other tracks both
-   * reflectively and periodically. This is done to guarantee reproducability
-   * in parallel runs. */
-  for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
-    for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
-      for (int a=azim_halfspace*_num_azim/2;
-           a < (azim_halfspace+1)*_num_azim/2; a++) {
-        for (int i=0; i < _num_tracks[a]; i++) {
+  int azim_group_id, periodic_group_id;
+  int track_azim_group_id, track_periodic_group_id;
+  int track_periodic_index;
 
-          track = &_tracks[a][i];
-          index = track->getPeriodicTrackIndex();
+  /* If periodic boundary conditions are present, set the number of parallel
+   * track groups to 6; else, set the number of parallel track groups to 2. Also
+   * set the periodic boolean indicating whether periodic bcs are present. */
+  if (_geometry->getMinXBoundaryType() == PERIODIC ||
+      _geometry->getMinYBoundaryType() == PERIODIC) {
+    _num_parallel_track_groups = 6;
+    periodic = true;
+  }
+  else {
+    _num_parallel_track_groups = 2;
+    periodic = false;
+  }
 
-          /* Check if track UID should be set */
-          if (period_halfspace == 0 && index == 0) {
-            track->setUid(uid);
-            uid++;
-          }
-          else if (period_halfspace == 1 && index % 2 == 1) {
-            track->setUid(uid);
-            uid++;
-          }
-          else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
-            track->setUid(uid);
-            uid++;
-          }
+  /* Allocate memory for the num tracks by parallel group array */
+  _num_tracks_by_parallel_group = new int[_num_parallel_track_groups + 1];
+  _num_tracks_by_parallel_group[0] = 0;
+
+  /* Allocate memory for the tracks by parallel group array */
+  int num_tracks = getNumTracks();
+  _tracks_by_parallel_group = new Track*[num_tracks];
+
+  /* Loop over the parallel track groups */
+  for (int g = 0; g < _num_parallel_track_groups; g++) {
+
+    /* Set the azimuthal and periodic group ids */
+    azim_group_id = g % 2;
+    periodic_group_id = g / 2;
+
+    /* Loop over all tracks and add all tracks belonging to the current
+     * parallel group to the tracks by parallel groups array */
+    for (int a=0; a < _num_azim; a++) {
+      for (int i=0; i < _num_tracks[a]; i++) {
+
+        /* Get current track */
+        track = &_tracks[a][i];
+
+        /* Get the track azim group id */
+        track_azim_group_id = a / (_num_azim / 2);
+
+        /* Get the track periodic group id */
+        if (periodic) {
+          track_periodic_index = track->getPeriodicTrackIndex();
+
+          /* If the track is the first track in periodic cycle, assign it a
+           * periodic group id of 0 */
+          if (track_periodic_index == 0)
+            track_periodic_group_id = 0;
+
+          /* If the track has an odd periodic cycle index, assign it a periodic
+           * group id of 1 */
+          else if (track_periodic_index % 2 == 1)
+            track_periodic_group_id = 1;
+
+          /* Else the track must have an even periodic cycle index and not be
+           * the first track in the periodic cycle; assign it a periodic group
+           * id of 2 */
+          else
+            track_periodic_group_id = 2;
+        }
+
+        /* If the geometry does not have any periodic BCs, assign the track a
+         * periodic group id of 0 */
+        else
+          track_periodic_group_id = 0;
+
+        /* Check if track has current azim_group_id and periodic_group_id */
+        if (azim_group_id == track_azim_group_id &&
+            periodic_group_id == track_periodic_group_id) {
+          track->setUid(uid);
+          _tracks_by_parallel_group[uid] = track;
+          uid++;
         }
       }
-      _num_tracks_by_halfspace[azim_halfspace*3 + period_halfspace + 1] = uid;
     }
+
+    /* Set the track index boundary for this parallel group */
+    _num_tracks_by_parallel_group[g + 1] = uid;
   }
 }
 
@@ -920,19 +1026,18 @@ void TrackGenerator::initializeBoundaryConditions() {
   log_printf(INFO, "Initializing Track boundary conditions...");
 
   /* Check for symmetry of periodic boundary conditions */
-    if ((_geometry->getMinXBoundaryType() == PERIODIC &&
-         _geometry->getMaxXBoundaryType() != PERIODIC) ||
-        (_geometry->getMinXBoundaryType() != PERIODIC &&
-         _geometry->getMaxXBoundaryType() == PERIODIC))
-      log_printf(ERROR, "Cannot create tracks with only one x boundary"
-                 " set to PERIODIC");
-    else if ((_geometry->getMinYBoundaryType() == PERIODIC &&
-              _geometry->getMaxYBoundaryType() != PERIODIC) ||
-             (_geometry->getMinYBoundaryType() != PERIODIC &&
-              _geometry->getMaxYBoundaryType() == PERIODIC))
-      log_printf(ERROR, "Cannot create tracks with only one y boundary"
-                 " set to PERIODIC");
-  
+  if ((_geometry->getMinXBoundaryType() == PERIODIC &&
+       _geometry->getMaxXBoundaryType() != PERIODIC) ||
+      (_geometry->getMinXBoundaryType() != PERIODIC &&
+       _geometry->getMaxXBoundaryType() == PERIODIC))
+    log_printf(ERROR, "Cannot create tracks with only one x boundary"
+               " set to PERIODIC");
+  else if ((_geometry->getMinYBoundaryType() == PERIODIC &&
+            _geometry->getMaxYBoundaryType() != PERIODIC) ||
+           (_geometry->getMinYBoundaryType() != PERIODIC &&
+            _geometry->getMaxYBoundaryType() == PERIODIC))
+    log_printf(ERROR, "Cannot create tracks with only one y boundary"
+               " set to PERIODIC");
   Track* track;
   int ic;
   
@@ -1085,10 +1190,6 @@ void TrackGenerator::dumpTracksToFile() {
   fwrite(azim_weights, sizeof(double), _num_azim, out);
   delete [] azim_weights;
 
-  /* Write the array with the Track uid separating the azimuthal and periodic
-   * halfspaces */
-  fwrite(_num_tracks_by_halfspace, sizeof(int), 7, out);
-  
   Track* curr_track;
   double x0, y0, x1, y1;
   double phi;
@@ -1250,7 +1351,6 @@ bool TrackGenerator::readTracksFromFile() {
   /* Deletes Tracks arrays if tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_tracks_by_halfspace;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
@@ -1303,11 +1403,6 @@ bool TrackGenerator::readTracksFromFile() {
     _azim_weights[i] = azim_weights[i];
 
   delete [] azim_weights;
-  
-  /* Import the array with the Track uid separating the azimuthal and periodic
-   * halfspaces */
-  _num_tracks_by_halfspace = new int[7];
-  ret = fread(_num_tracks_by_halfspace, sizeof(int), 7, in);
   
   Track* curr_track;
   double x0, y0, x1, y1;

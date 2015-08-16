@@ -1452,59 +1452,18 @@ void GPUSolver::transportSweep() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
-  /* Sweep the first space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[0];
-  tid_max = _num_tracks_by_halfspace[1];
+  /* Loop over the parallel track groups and perform transport sweep on tracks
+   * in that group */
+  for (int g=0; g < _num_parallel_track_groups; g++) {
 
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
+    tid_offset = _num_tracks_by_parallel_group[g];
+    tid_max = _num_tracks_by_parallel_group[g+1];
 
-  /* Sweep the second space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[1] * _num_groups;
-  tid_max = _num_tracks_by_halfspace[2];
-
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
-
-  /* Sweep the third space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[2] * _num_groups;
-  tid_max = _num_tracks_by_halfspace[3];
-
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
-
-  /* Sweep the fourth space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[3] * _num_groups;
-  tid_max = _num_tracks_by_halfspace[4];
-
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
-
-  /* Sweep the fifth space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[4] * _num_groups;
-  tid_max = _num_tracks_by_halfspace[5];
-
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
-
-  /* Sweep the fifth space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[5] * _num_groups;
-  tid_max = _num_tracks_by_halfspace[6];
-
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
+    transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
+                                                   reduced_sources,
+                                                   _materials, _dev_tracks,
+                                                   tid_offset, tid_max);
+  }
 }
 
 

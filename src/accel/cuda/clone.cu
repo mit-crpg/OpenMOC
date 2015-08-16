@@ -101,9 +101,28 @@ void clone_track(Track* track_h, dev_track* track_d,
   new_track._next_in = track_h->isNextIn();
   new_track._next_out = track_h->isNextOut();
 
-  new_track._bc_in = std::min((int)track_h->getBCIn(), 1);
-  new_track._bc_out = std::min((int)track_h->getBCOut(), 1);
-    
+  /* If the incoming boundary condition is vacuum, set bc in to 0 indicating the
+   * track flux of the incoming track will be zeroed out */
+  if (track_h->getBCIn() == VACUUM)
+    new_track._bc_in = 0;
+
+  /* If the incoming boundary condition is anything other than vacuum, set
+   * bc in to 1 indicating the flux passed to the incoming track should be the
+   * current track's flux. */
+  else
+    new_track._bc_in = 1;
+
+  /* If the outgoing boundary condition is vacuum, set bc out to 0 indicating the
+   * track flux of the outgoing track will be zeroed out */
+  if (_tracks[track_id]->getBCOut() == VACUUM)
+    new_track._bc_out = 0;
+
+  /* If the outgoing boundary condition is anything other than vacuum, set
+   * bc out to 1 indicating the flux passed to the outgoing track should be the
+   * current track's flux */
+  else
+    new_track._bc_out = 1;
+
   cudaMalloc((void**)&dev_segments,
              track_h->getNumSegments() * sizeof(dev_segment));
   new_track._segments = dev_segments;

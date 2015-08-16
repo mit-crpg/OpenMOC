@@ -126,9 +126,9 @@ protected:
   /** The total number of Tracks */
   int _tot_num_tracks;
 
-  /** An integer array with the Track uid separating the azimuthal and periodic
-   * halfspaces */
-  int* _num_tracks_by_halfspace;
+  /** An integer array with the Track uid separating the parallel track
+   *  groups */
+  int* _num_tracks_by_parallel_group;
 
   /** The weights for each polar angle in the polar angle quadrature */
   FP_PRECISION* _polar_weights;
@@ -170,6 +170,10 @@ protected:
 
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
+
+  /** The number of groups of tracks that can be looped over in parallel
+   *  without data races between threads */
+  int _num_parallel_track_groups;
 
   void clearTimerSplits();
 

@@ -681,13 +681,13 @@ void CPUSolver::transportSweep() {
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroCurrents();
 
-  /* Loop over azimuthal angle and periodic track halfspaces */
-  for (int i=0; i < 6; i++) {
+  /* Loop over the parallel track groups */
+  for (int i=0; i < _num_parallel_track_groups; i++) {
 
     /* Compute the minimum and maximum Track IDs corresponding to
-     * this azimuthal angle and periodic track halfspace */
-    min_track = _num_tracks_by_halfspace[i];
-    max_track = _num_tracks_by_halfspace[i+1];
+     * this parallel track group */
+    min_track = _num_tracks_by_parallel_group[i];
+    max_track = _num_tracks_by_parallel_group[i+1];
 
     /* Loop over each thread within this azimuthal angle halfspace */
     #pragma omp parallel for private(curr_track, azim_index, num_segments, \
@@ -696,7 +696,7 @@ void CPUSolver::transportSweep() {
 
       tid = omp_get_thread_num();
 
-      /* Use local array accumulator to prevent false sharing*/
+      /* Use local array accumulator to prevent false sharing */
       FP_PRECISION* thread_fsr_flux;
       thread_fsr_flux = new FP_PRECISION[_num_groups];
 
@@ -819,14 +819,36 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   /* For the "forward" direction */
   if (direction) {
     start = _tracks[track_id]->isNextOut() * _polar_times_groups;
-    bc = std::min((int)_tracks[track_id]->getBCOut(), 1);
+
+    /* If the outgoing boundary condition is vacuum, set bc to 0 indicating the
+     * track flux of the outgoing track will be zeroed out */
+    if (_tracks[track_id]->getBCOut() == VACUUM)
+      bc = 0;
+
+    /* If the outgoing boundary condition is anything other than vacuum, set
+     * bc to 1 indicating the flux passed to the outgoing track should be the
+     * current track's flux */
+    else
+      bc = 1;
+
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
   }
 
   /* For the "reverse" direction */
   else {
     start = _tracks[track_id]->isNextIn() * _polar_times_groups;
-    bc = std::min((int)_tracks[track_id]->getBCIn(), 1);
+
+    /* If the incoming boundary condition is vacuum, set bc to 0 indicating the
+     * track flux of the incoming track will be zeroed out */
+    if (_tracks[track_id]->getBCIn() == VACUUM)
+      bc = 0;
+
+    /* If the incoming boundary condition is anything other than vacuum, set
+     * bc to 1 indicating the flux passed to the incoming track should be the
+     * current track's flux. */
+    else
+      bc = 1;
+
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
