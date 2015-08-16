@@ -1456,7 +1456,7 @@ void GPUSolver::transportSweep() {
    * in that group */
   for (int g=0; g < _num_parallel_track_groups; g++) {
 
-    tid_offset = _num_tracks_by_parallel_group[g];
+    tid_offset = _num_tracks_by_parallel_group[g] * _num_groups;
     tid_max = _num_tracks_by_parallel_group[g+1];
 
     transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
