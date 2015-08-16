@@ -114,7 +114,7 @@ void clone_track(Track* track_h, dev_track* track_d,
 
   /* If the outgoing boundary condition is vacuum, set bc out to 0 indicating the
    * track flux of the outgoing track will be zeroed out */
-  if (_tracks[track_id]->getBCOut() == VACUUM)
+  if (track_h->getBCOut() == VACUUM)
     new_track._bc_out = 0;
 
   /* If the outgoing boundary condition is anything other than vacuum, set

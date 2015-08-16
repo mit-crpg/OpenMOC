@@ -605,7 +605,7 @@ void TrackGenerator::generateTracks() {
     }
   }
 
-  /* Initialize the track bounadry conditions and set the track UIDs */
+  /* Initialize the track boundary conditions and set the track UIDs */
   initializeBoundaryConditions();
   initializeTrackPeriodicCycleIndices();
   initializeTrackUIDs();
