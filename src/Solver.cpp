@@ -40,7 +40,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _polar_times_groups = 0;
 
   _num_iterations = 0;
-  _converge_thresh = 1E-5;
+  setConvergenceThreshold(1E-5);
   _user_fluxes = false;
 
   _timer = new Timer();
@@ -82,6 +82,12 @@ Solver::~Solver() {
 
   if (_exp_evaluator != NULL)
     delete _exp_evaluator;
+
+  if (_timer != NULL)
+    delete _timer;
+
+  if (_tracks != NULL)
+    delete [] _tracks;
 
   if (_polar_quad != NULL && !_user_polar_quad)
     delete _polar_quad;
@@ -351,16 +357,45 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _track_generator = track_generator;
   _num_azim = _track_generator->getNumAzim() / 2;
   int* num_tracks = _track_generator->getNumTracksArray();
+  _num_tracks_by_halfspace = _track_generator->getNumTracksByHalfspaceArray();
   _tot_num_tracks = _track_generator->getNumTracks();
   _tracks = new Track*[_tot_num_tracks];
 
   /* Initialize the tracks array */
   int counter = 0;
+  int num_x, num_y;
+  Track* track;
+  int index;
 
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < num_tracks[i]; j++) {
-      _tracks[counter] = &_track_generator->getTracks()[i][j];
-      counter++;
+  for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
+    for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
+      for (int a=azim_halfspace*_num_azim/2;
+           a < (azim_halfspace+1)*_num_azim/2; a++) {
+
+        /* Get the number of tracks in x and y directions */
+        num_x = _track_generator->getNumX(a);
+        num_y = _track_generator->getNumY(a);
+
+        for (int i=0; i < num_tracks[a]; i++) {
+
+          track = &_track_generator->getTracks()[a][i];
+          index = track->getPeriodicTrackIndex();
+
+          /* Check if track UID should be set */
+          if (period_halfspace == 0 && index == 0) {
+            _tracks[counter] = track;
+            counter++;
+          }
+          else if (period_halfspace == 1 && index % 2 == 1) {
+            _tracks[counter] = track;
+            counter++;
+          }
+          else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
+            _tracks[counter] = track;
+            counter++;
+          }
+        }
+      }
     }
   }
 
@@ -407,6 +442,9 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
                "since it is not a positive number", threshold);
 
   _converge_thresh = threshold;
+
+  if (_cmfd != NULL)
+    _cmfd->setSourceConvergenceThreshold(threshold*1.e-1);
 }
 
 

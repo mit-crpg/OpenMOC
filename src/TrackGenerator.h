@@ -47,6 +47,10 @@ private:
   /** An integer array of the number of Tracks for each azimuthal angle */
   int* _num_tracks;
 
+  /** An integer array with the Track uid separating the azimuthal and periodic
+   * halfspaces */
+  int* _num_tracks_by_halfspace;
+
   /** An integer array of the number of Tracks starting on the x-axis for each
    *  azimuthal angle */
   int* _num_x;
@@ -79,6 +83,7 @@ private:
   void initializeTrackFileDirectory();
   void initializeTracks();
   void recalibrateTracksToOrigin();
+  void initializeTrackUIDs();
   void initializeBoundaryConditions();
   void segmentize();
   void dumpTracksToFile();
@@ -94,7 +99,10 @@ public:
   double getTrackSpacing();
   Geometry* getGeometry();
   int getNumTracks();
+  int getNumX(int azim);
+  int getNumY(int azim);
   int* getNumTracksArray();
+  int* getNumTracksByHalfspaceArray();
   int getNumSegments();
   Track** getTracks();
   FP_PRECISION* getAzimWeights();

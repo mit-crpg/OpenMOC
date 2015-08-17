@@ -45,7 +45,7 @@ large_circle = Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
 medium_circle = Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
 small_circle = Circle(x=0.0, y=0.0, radius=0.2, name='small pin')
 
-for boundary in boundaries: boundary.setBoundaryType(REFLECTIVE)
+for boundary in boundaries: boundary.setBoundaryType(PERIODIC)
 
 
 ###############################################################################
