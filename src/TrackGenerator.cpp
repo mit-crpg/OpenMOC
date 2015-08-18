@@ -1022,7 +1022,7 @@ void TrackGenerator::initializeTrackUids() {
       }
     }
 
-    /* Set the track index boundary for this parallel group */
+    /* Set the number of tracks in this parallel group */
     _num_tracks_by_parallel_group[g] = num_tracks;
   }
 }
