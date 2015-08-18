@@ -675,14 +675,14 @@ void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
   /* For the "forward" direction */
   if (direction) {
     start = _tracks[track_id]->isNextOut() * _polar_times_groups;
-    transfer_flux = _tracks[track_id]->getTranferFluxOut();
+    transfer_flux = _tracks[track_id]->getTransferFluxOut();
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
   }
 
   /* For the "reverse" direction */
   else {
     start = _tracks[track_id]->isNextIn() * _polar_times_groups;
-    transfer_flux = _tracks[track_id]->getTranferFluxIn();
+    transfer_flux = _tracks[track_id]->getTransferFluxIn();
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
