@@ -97,8 +97,6 @@ private:
   /** Map of Material IDs to indices in _materials array */
   std::map<int, int> _material_IDs_to_indices;
 
-  int computeScalarTrackIndex(int i, int j);
-
 public:
 
   GPUSolver(TrackGenerator* track_generator=NULL);

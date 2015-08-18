@@ -666,12 +666,13 @@ void CPUSolver::computeKeff() {
 void CPUSolver::transportSweep() {
 
   int tid;
-  int min_track, max_track;
   int azim_index, num_segments;
   Track* curr_track;
   segment* curr_segment;
   segment* segments;
   FP_PRECISION* track_flux;
+  int min_track = 0;
+  int max_track = 0;
 
   log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
@@ -686,8 +687,8 @@ void CPUSolver::transportSweep() {
 
     /* Compute the minimum and maximum Track IDs corresponding to
      * this parallel track group */
-    min_track = _num_tracks_by_parallel_group[i];
-    max_track = _num_tracks_by_parallel_group[i+1];
+    min_track = max_track;
+    max_track += _track_generator->getNumTracksByParallelGroup(i);
 
     /* Loop over each thread within this azimuthal angle halfspace */
     #pragma omp parallel for private(curr_track, azim_index, num_segments, \
@@ -813,42 +814,20 @@ void CPUSolver::transferBoundaryFlux(int track_id,
                                      bool direction,
                                      FP_PRECISION* track_flux) {
   int start;
-  int bc;
+  bool transfer_flux;
   int track_out_id;
 
   /* For the "forward" direction */
   if (direction) {
     start = _tracks[track_id]->isNextOut() * _polar_times_groups;
-
-    /* If the outgoing boundary condition is vacuum, set bc to 0 indicating the
-     * track flux of the outgoing track will be zeroed out */
-    if (_tracks[track_id]->getBCOut() == VACUUM)
-      bc = 0;
-
-    /* If the outgoing boundary condition is anything other than vacuum, set
-     * bc to 1 indicating the flux passed to the outgoing track should be the
-     * current track's flux */
-    else
-      bc = 1;
-
+    transfer_flux = _tracks[track_id]->getTransferFluxOut();
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
   }
 
   /* For the "reverse" direction */
   else {
     start = _tracks[track_id]->isNextIn() * _polar_times_groups;
-
-    /* If the incoming boundary condition is vacuum, set bc to 0 indicating the
-     * track flux of the incoming track will be zeroed out */
-    if (_tracks[track_id]->getBCIn() == VACUUM)
-      bc = 0;
-
-    /* If the incoming boundary condition is anything other than vacuum, set
-     * bc to 1 indicating the flux passed to the incoming track should be the
-     * current track's flux. */
-    else
-      bc = 1;
-
+    transfer_flux = _tracks[track_id]->getTransferFluxIn();
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
@@ -857,7 +836,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {
     for (int p=0; p < _num_polar; p++)
-      track_out_flux(p,e) = track_flux(p,e) * bc;
+      track_out_flux(p,e) = track_flux(p,e) * transfer_flux;
   }
 }
 

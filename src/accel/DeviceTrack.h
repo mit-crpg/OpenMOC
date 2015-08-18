@@ -73,14 +73,14 @@ struct dev_track {
   bool _next_out;
 
   /** A boolean to indicate whether the outgoing angular flux along this
-   *  Track's "forward" direction should be zeroed out for vacuum boundary
-   *  conditions. */
-  int _bc_in;
+   *  Track's "forward" direction should be transferred to the outgoing
+   *  Track. */
+  bool _transfer_flux_in;
 
   /** A boolean to indicate whether the outgoing angular flux along this
-   *  Track's "reverse" direction should be zeroed out for vacuum boundary
-   *  conditions. */
-  int _bc_out;
+   *  Track's "reverse" direction should be transferred to the incoming
+   *  Track. */
+  bool _transfer_flux_out;
 };
 
 

@@ -47,7 +47,8 @@ private:
   /** An integer array of the number of Tracks for each azimuthal angle */
   int* _num_tracks;
 
-  /** An integer array with the Track uid separating the parallel groups */
+  /** An integer array with the indices into the _tracks_by_parallel_group array
+   *  separating the parallel track groups */
   int* _num_tracks_by_parallel_group;
 
   /** The number of the track groups needed to ensure data races don't occur
@@ -89,9 +90,9 @@ private:
   void initializeTrackFileDirectory();
   void initializeTracks();
   void recalibrateTracksToOrigin();
-  void initializeTrackUIDs();
+  void initializeTrackUids();
   void initializeBoundaryConditions();
-  void initializeTrackPeriodicCycleIndices();
+  void initializeTrackCycleIndices(boundaryType bc);
   void segmentize();
   void dumpTracksToFile();
   bool readTracksFromFile();
@@ -108,8 +109,7 @@ public:
   int getNumTracks();
   int getNumX(int azim);
   int getNumY(int azim);
-  int* getNumTracksArray();
-  int* getNumTracksByParallelGroupArray();
+  int getNumTracksByParallelGroup(int group);
   int getNumParallelTrackGroups();
   int getNumSegments();
   Track** getTracks();

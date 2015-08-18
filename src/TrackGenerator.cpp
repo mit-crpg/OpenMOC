@@ -140,30 +140,22 @@ int TrackGenerator::getNumY(int azim) {
 
 
 /**
- * @brief Return an array of the number of Tracks for each azimuthal angle.
- * @return array with the number of Tracks
+ * @brief Return the number of tracks in a given parallel track group.
+ * @return the number of tracks in a given parallel track group.
  */
-int* TrackGenerator::getNumTracksArray() {
+int TrackGenerator::getNumTracksByParallelGroup(int group) {
+
+  if (group < 0 || group >= _num_parallel_track_groups)
+    log_printf(ERROR, "Unable to return the number of tracks in parallel track"
+               " group %d which is not between 0 and the number of parallel "
+               "groups, %d", group, _num_parallel_track_groups);
+
   if (!_contains_tracks)
-    log_printf(ERROR, "Unable to return the array of the number of Tracks per "
-               "azimuthal angle since Tracks have not yet been generated.");
+    log_printf(ERROR, "Unable to return the number of tracks in the parallel "
+               "track group %d since Tracks have not yet been generated."
+               , group);
 
-  return _num_tracks;
-}
-
-
-/**
- * @brief Return an array with the Track uid separating the parallel track
- *        groups
- * @return array with the Track uid separating the parallel track groups
- */
-int* TrackGenerator::getNumTracksByParallelGroupArray() {
-  if (!_contains_tracks)
-    log_printf(ERROR, "Unable to return the array with the Track uid "
-               "separating the parallel track groups since Tracks have not"
-               " yet been generated.");
-
-  return _num_tracks_by_parallel_group;
+  return _num_tracks_by_parallel_group[group];
 }
 
 
@@ -607,8 +599,8 @@ void TrackGenerator::generateTracks() {
 
   /* Initialize the track boundary conditions and set the track UIDs */
   initializeBoundaryConditions();
-  initializeTrackPeriodicCycleIndices();
-  initializeTrackUIDs();
+  initializeTrackCycleIndices(PERIODIC);
+  initializeTrackUids();
   return;
 }
 
@@ -793,13 +785,7 @@ void TrackGenerator::initializeTracks() {
  */
 void TrackGenerator::recalibrateTracksToOrigin() {
 
-  /* Recalibrate the tracks to the origin and set the uid. Note that the
-   * loop structure is unconventional in order to preserve a monotonically
-   * increasing track uid value in the Solver's tracks array. The tracks array
-   * is oriented such the tracks can be broken up into 4 sub arrays that are
-   * guaranteed to contain tracks that do not transport into other tracks both
-   * reflectively and periodically. This is done to guarantee reproducability
-   * in parallel runs. */
+  /* Recalibrate the tracks to the origin. */
   for (int a=0; a < _num_azim; a++) {
     for (int i=0; i < _num_tracks[a]; i++) {
 
@@ -821,54 +807,116 @@ void TrackGenerator::recalibrateTracksToOrigin() {
 
 
 /**
- * @brief Set the periodic cycle index for each track.
- * @details The tracks can be separated into parallel cycles as they
- *          traverse the geometry. It is important to set the periodic cycle
- *          indices for problems with periodic boundary conditions so transport
- *          sweeps can be performed in parallel over groups of tracks that do
- *          not transfer their flux into each other. In this method, all tracks
- *          are looped over; if the track's periodic cycle index has not been
- *          set, the periodic cycle index is incremented and the periodic cycle
- *          index is set for that track and all tracks in its periodic cycle.
+ * @brief Set the cycle index for each track in a PERIODIC or REFLECTIVE cycle.
+ * @details The tracks can be separated into cycles as they traverse the
+ *          geometry. It is important to set the periodic cycle indices for
+ *          problems with periodic boundary conditions so transport sweeps can
+ *          be performed in parallel over groups of tracks that do not transfer
+ *          their flux into each other. In this method, all tracks are looped
+ *          over; if the track's cycle index has not been set, the cycle index
+ *          for the input boundaryType is incremented and the cycle index is set
+ *          for that track and all tracks in its cycle.
  */
-void TrackGenerator::initializeTrackPeriodicCycleIndices() {
+void TrackGenerator::initializeTrackCycleIndices(boundaryType bc) {
+
+  if (bc != REFLECTIVE && bc != PERIODIC)
+    log_printf(ERROR, "Cannot initialize Track cycle indices for boundaryType"
+               " other than REFLECTIVE or PERIODIC");
 
   Track* track;
   int track_index;
-  int last_i;
+  int next_i, next_a;
+  bool fwd;
 
-  /* Set the track periodic cycle index */
+  /* Loop over all tracks */
   for (int a=0; a < _num_azim; a++) {
     for (int i=0; i < _num_tracks[a]; i++) {
 
       /* Get the current track */
       track = &_tracks[a][i];
 
-      /* Check if periodic track index has been set */
-      if (track->getPeriodicTrackIndex() == -1) {
+      /* Set the track indices for PERIODIC boundaryType */
+      if (bc == PERIODIC) {
 
-        /* Initialize the track index counter */
-        track_index = 0;
-        last_i = i;
+        /* Check if track index has been set */
+        if (track->getPeriodicTrackIndex() == -1) {
 
-        /* Set the periodic track indexes for all tracks in periodic cycle */
-        while (track->getPeriodicTrackIndex() == -1) {
+          /* Initialize the track index counter */
+          track_index = 0;
+          next_i = i;
 
-          /* Set the track periodic cycle */
-          track->setPeriodicTrackIndex(track_index);
+          /* Set the periodic track indexes for all tracks in periodic cycle */
+          while (track->getPeriodicTrackIndex() == -1) {
 
-          /* Get the next track in cycle */
-          if (last_i < _num_y[a]) {
-            track = &_tracks[a][last_i + _num_x[a]];
-            last_i +=_num_x[a];
+            /* Set the track periodic cycle */
+            track->setPeriodicTrackIndex(track_index);
+
+            /* Get the xy index of the next track in cycle */
+            if (next_i < _num_y[a])
+              next_i +=_num_x[a];
+            else
+              next_i -=_num_y[a];
+
+            /* Set the next track in cycle */
+            track = &_tracks[a][next_i];
+
+            /* Increment index counter */
+            track_index++;
           }
-          else{
-            track = &_tracks[a][last_i - _num_y[a]];
-            last_i -=_num_y[a];
-          }
+        }
+      }
 
-          /* Increment index counter */
-          track_index++;
+      /* Set the track indices for REFLECTIVE boundaryType */
+      else {
+
+        /* Check if track index has been set */
+        if (track->getReflectiveTrackIndex() == -1) {
+
+          /* Initialize the track index counter */
+          track_index = 0;
+          next_i = i;
+          next_a = a;
+          fwd = true;
+
+          /* Set the reflective track indexes for all tracks in reflective
+           * cycle */
+          while (track->getReflectiveTrackIndex() == -1) {
+
+            /* Set the track reflective cycle */
+            track->setReflectiveTrackIndex(track_index);
+
+            /* Set the azimuthal angle of the next track in the cycle */
+            next_a = _num_azim - next_a - 1;
+
+            /* Set the xy index and direction of the next track in the cycle */
+            if (fwd) {
+              if (next_i < _num_y[a]) {
+                next_i = next_i + _num_x[a];
+                fwd = true;
+              }
+              else {
+                next_i = _num_x[a] + 2*_num_y[a] - next_i - 1;
+                fwd = false;
+              }
+            }
+
+            else {
+              if (next_i < _num_x[a]) {
+                next_i = _num_x[a] - next_i - 1;
+                fwd = true;
+              }
+              else{
+                next_i = next_i - _num_x[a];
+                fwd = false;
+              }
+            }
+
+            /* Set the next track in cycle */
+            track = &_tracks[next_a][next_i];
+
+            /* Increment index counter */
+            track_index++;
+          }
         }
       }
     }
@@ -887,7 +935,7 @@ void TrackGenerator::initializeTrackPeriodicCycleIndices() {
  *          Track UIDs are also set to their index in the tracks by periodic
  *          group array.
  */
-void TrackGenerator::initializeTrackUIDs() {
+void TrackGenerator::initializeTrackUids() {
 
   Track* track;
   bool periodic;
@@ -895,6 +943,7 @@ void TrackGenerator::initializeTrackUIDs() {
   int azim_group_id, periodic_group_id;
   int track_azim_group_id, track_periodic_group_id;
   int track_periodic_index;
+  int num_tracks;
 
   /* If periodic boundary conditions are present, set the number of parallel
    * track groups to 6; else, set the number of parallel track groups to 2. Also
@@ -910,15 +959,16 @@ void TrackGenerator::initializeTrackUIDs() {
   }
 
   /* Allocate memory for the num tracks by parallel group array */
-  _num_tracks_by_parallel_group = new int[_num_parallel_track_groups + 1];
-  _num_tracks_by_parallel_group[0] = 0;
+  _num_tracks_by_parallel_group = new int[_num_parallel_track_groups];
 
   /* Allocate memory for the tracks by parallel group array */
-  int num_tracks = getNumTracks();
-  _tracks_by_parallel_group = new Track*[num_tracks];
+  _tracks_by_parallel_group = new Track*[getNumTracks()];
 
   /* Loop over the parallel track groups */
   for (int g = 0; g < _num_parallel_track_groups; g++) {
+
+    /* Initialize the number of tracks counter */
+    num_tracks = 0;
 
     /* Set the azimuthal and periodic group ids */
     azim_group_id = g % 2;
@@ -967,12 +1017,13 @@ void TrackGenerator::initializeTrackUIDs() {
           track->setUid(uid);
           _tracks_by_parallel_group[uid] = track;
           uid++;
+          num_tracks++;
         }
       }
     }
 
     /* Set the track index boundary for this parallel group */
-    _num_tracks_by_parallel_group[g + 1] = uid;
+    _num_tracks_by_parallel_group[g] = num_tracks;
   }
 }
 
@@ -1068,7 +1119,7 @@ void TrackGenerator::initializeBoundaryConditions() {
         if (j < _num_x[i])
           track->setBCIn(_geometry->getMinYBoundaryType());
         else
-          track->setBCIn(_geometry->getMinXBoundaryType());        
+          track->setBCIn(_geometry->getMinXBoundaryType());
       }
 
       /* Set boundary conditions for tracks in [PI/2, PI] */
@@ -1083,7 +1134,7 @@ void TrackGenerator::initializeBoundaryConditions() {
         else
           track->setBCIn(_geometry->getMaxXBoundaryType());
       }
-      
+
       /* Set connecting tracks in forward direction */
       if (j < _num_y[i]) {
         track->setNextOut(false);

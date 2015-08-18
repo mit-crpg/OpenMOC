@@ -126,10 +126,6 @@ protected:
   /** The total number of Tracks */
   int _tot_num_tracks;
 
-  /** An integer array with the Track uid separating the parallel track
-   *  groups */
-  int* _num_tracks_by_parallel_group;
-
   /** The weights for each polar angle in the polar angle quadrature */
   FP_PRECISION* _polar_weights;
 
