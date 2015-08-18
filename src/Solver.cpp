@@ -87,9 +87,6 @@ Solver::~Solver() {
   if (_timer != NULL)
     delete _timer;
 
-  if (_tracks != NULL)
-    delete [] _tracks;
-
   if (_polar_quad != NULL && !_user_polar_quad)
     delete _polar_quad;
 }
