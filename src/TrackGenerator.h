@@ -47,8 +47,7 @@ private:
   /** An integer array of the number of Tracks for each azimuthal angle */
   int* _num_tracks;
 
-  /** An integer array with the indices into the _tracks_by_parallel_group array
-   *  separating the parallel track groups */
+  /** An integer array with the number of Tracks in each parallel track group */
   int* _num_tracks_by_parallel_group;
 
   /** The number of the track groups needed to ensure data races don't occur
