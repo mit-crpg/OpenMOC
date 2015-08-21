@@ -84,6 +84,9 @@ private:
   /** The track index in the periodic cycle */
   int _periodic_track_index;
 
+  /** The track index in the reflective cycle */
+  int _reflective_track_index;
+
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
 
@@ -105,14 +108,10 @@ private:
    *  direction. */
   bool _next_out;
 
-  /** A boolean to indicate whether the outgoing angular flux along this
-   *  Track's "forward" direction should be zeroed out for vacuum boundary
-   *  conditions. */
+  /** An enum to indicate the boundary condition in the "forward" direction. */
   boundaryType _bc_in;
 
-  /** A boolean to indicate whether the outgoing angular flux along this
-   *  Track's "reverse" direction should be zeroed out for vacuum boundary
-   *  conditions. */
+  /** An enum to indicate the boundary condition in the "reverse" direction. */
   boundaryType  _bc_out;
 
 public:
@@ -124,6 +123,7 @@ public:
   void setPhi(const double phi);
   void setAzimAngleIndex(const int index);
   void setPeriodicTrackIndex(const int index);
+  void setReflectiveTrackIndex(const int index);
   void setNextIn(const bool next_in);
   void setNextOut(const bool next_out);
   void setBCIn(const boundaryType bc_in);
@@ -137,6 +137,7 @@ public:
   double getPhi() const;
   int getAzimAngleIndex() const;
   int getPeriodicTrackIndex() const;
+  int getReflectiveTrackIndex() const;
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
@@ -146,6 +147,8 @@ public:
   bool isNextOut() const;
   boundaryType getBCIn() const;
   boundaryType getBCOut() const;
+  bool getTransferFluxIn() const;
+  bool getTransferFluxOut() const;
 
   bool contains(Point* point);
   void addSegment(segment* to_add);

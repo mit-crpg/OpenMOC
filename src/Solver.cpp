@@ -10,6 +10,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _num_materials = 0;
   _num_groups = 0;
   _num_azim = 0;
+  _num_parallel_track_groups = 0;
 
   _num_FSRs = 0;
   _num_fissionable_FSRs = 0;
@@ -85,9 +86,6 @@ Solver::~Solver() {
 
   if (_timer != NULL)
     delete _timer;
-
-  if (_tracks != NULL)
-    delete [] _tracks;
 
   if (_polar_quad != NULL && !_user_polar_quad)
     delete _polar_quad;
@@ -356,48 +354,9 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
   _track_generator = track_generator;
   _num_azim = _track_generator->getNumAzim() / 2;
-  int* num_tracks = _track_generator->getNumTracksArray();
-  _num_tracks_by_halfspace = _track_generator->getNumTracksByHalfspaceArray();
+  _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
   _tot_num_tracks = _track_generator->getNumTracks();
-  _tracks = new Track*[_tot_num_tracks];
-
-  /* Initialize the tracks array */
-  int counter = 0;
-  int num_x, num_y;
-  Track* track;
-  int index;
-
-  for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
-    for (int period_halfspace=0; period_halfspace < 3; period_halfspace++) {
-      for (int a=azim_halfspace*_num_azim/2;
-           a < (azim_halfspace+1)*_num_azim/2; a++) {
-
-        /* Get the number of tracks in x and y directions */
-        num_x = _track_generator->getNumX(a);
-        num_y = _track_generator->getNumY(a);
-
-        for (int i=0; i < num_tracks[a]; i++) {
-
-          track = &_track_generator->getTracks()[a][i];
-          index = track->getPeriodicTrackIndex();
-
-          /* Check if track UID should be set */
-          if (period_halfspace == 0 && index == 0) {
-            _tracks[counter] = track;
-            counter++;
-          }
-          else if (period_halfspace == 1 && index % 2 == 1) {
-            _tracks[counter] = track;
-            counter++;
-          }
-          else if (period_halfspace == 2 && index % 2 == 0 && index != 0) {
-            _tracks[counter] = track;
-            counter++;
-          }
-        }
-      }
-    }
-  }
+  _tracks = _track_generator->getTracksByParallelGroup();
 
   /* Retrieve and store the Geometry from the TrackGenerator */  
   setGeometry(_track_generator->getGeometry());

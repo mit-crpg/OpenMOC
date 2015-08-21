@@ -47,9 +47,12 @@ private:
   /** An integer array of the number of Tracks for each azimuthal angle */
   int* _num_tracks;
 
-  /** An integer array with the Track uid separating the azimuthal and periodic
-   * halfspaces */
-  int* _num_tracks_by_halfspace;
+  /** An integer array with the number of Tracks in each parallel track group */
+  int* _num_tracks_by_parallel_group;
+
+  /** The number of the track groups needed to ensure data races don't occur
+   *  during the Solver's transportSweep */
+  int _num_parallel_track_groups;
 
   /** An integer array of the number of Tracks starting on the x-axis for each
    *  azimuthal angle */
@@ -64,6 +67,9 @@ private:
 
   /** A 2D ragged array of Tracks */
   Track** _tracks;
+
+  /** A 1D array of Track pointers arranged by parallel group */
+  Track** _tracks_by_parallel_group;
 
   /** Pointer to the Geometry */
   Geometry* _geometry;
@@ -83,8 +89,9 @@ private:
   void initializeTrackFileDirectory();
   void initializeTracks();
   void recalibrateTracksToOrigin();
-  void initializeTrackUIDs();
+  void initializeTrackUids();
   void initializeBoundaryConditions();
+  void initializeTrackCycleIndices(boundaryType bc);
   void segmentize();
   void dumpTracksToFile();
   bool readTracksFromFile();
@@ -101,10 +108,11 @@ public:
   int getNumTracks();
   int getNumX(int azim);
   int getNumY(int azim);
-  int* getNumTracksArray();
-  int* getNumTracksByHalfspaceArray();
+  int getNumTracksByParallelGroup(int group);
+  int getNumParallelTrackGroups();
   int getNumSegments();
   Track** getTracks();
+  Track** getTracksByParallelGroup();
   FP_PRECISION* getAzimWeights();
   int getNumThreads();
   FP_PRECISION* getFSRVolumes();

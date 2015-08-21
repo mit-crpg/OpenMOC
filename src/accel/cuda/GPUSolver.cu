@@ -436,19 +436,19 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
                                      bool direction) {
 
   int start = energy_angle_index;
-  bool bc;
+  bool transfer_flux;
   int track_out_id;
 
   /* For the "forward" direction */
   if (direction) {
-    bc = curr_track->_bc_out;
+    transfer_flux = curr_track->_transfer_flux_out;
     track_out_id = curr_track->_track_out;
     start += curr_track->_next_out * (*polar_times_groups);
   }
 
   /* For the "reverse" direction */
   else {
-    bc = curr_track->_bc_in;
+    transfer_flux = curr_track->_transfer_flux_in;
     track_out_id = curr_track->_track_in;
     start += curr_track->_next_in * (*polar_times_groups);
   }
@@ -457,7 +457,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
 
   /* Put Track's flux in the shared memory temporary flux array */
   for (int p=0; p < *num_polar; p++)
-    track_out_flux[p] = track_flux[p] * bc;
+    track_out_flux[p] = track_flux[p] * transfer_flux;
 }
 
 
@@ -1275,34 +1275,6 @@ void GPUSolver::initializeSourceArrays() {
 
 
 /**
- * @brief This method computes the index for the Track j at azimuthal angle i.
- * @details This method is necessary since the array of dev_tracks on the device
- *          is a 1D array which needs a one-to-one mapping from the 2D jagged
- *          array of Tracks on the host.
- * @param i azimuthal angle number
- * @param j the jth track at angle i
- * @return an index into the device track array
- */
-int GPUSolver::computeScalarTrackIndex(int i, int j) {
-
-  int index = 0, p = 0;
-  int* num_tracks = _track_generator->getNumTracksArray();
-
-  /* Iterate over each azimuthal angle and increment index by the number of
-   * Tracks at each angle */
-  while (p < i) {
-    index += num_tracks[p];
-    p++;
-  }
-
-  /* Update index for this Track since it is the jth Track at angle i */
-  index += j;
-
-  return index;
-}
-
-
-/**
  * @brief Zero each Track's boundary fluxes for each energy group and polar
  *        angle in the "forward" and "reverse" directions.
  */
@@ -1436,7 +1408,8 @@ void GPUSolver::computeFSRScatterSources() {
 void GPUSolver::transportSweep() {
 
   int shared_mem = _T * _two_times_num_polar * sizeof(FP_PRECISION);
-  int tid_offset, tid_max;
+  int tid_offset = 0;
+  int tid_max = 0;
 
   log_printf(DEBUG, "Transport sweep on device with %d blocks and %d threads",
              _B, _T);
@@ -1452,59 +1425,20 @@ void GPUSolver::transportSweep() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
-  /* Sweep the first space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[0];
-  tid_max = _num_tracks_by_halfspace[1];
+  /* Loop over the parallel track groups and perform transport sweep on tracks
+   * in that group */
+  for (int g=0; g < _num_parallel_track_groups; g++) {
 
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
+    tid_offset = tid_max * _num_groups;
+    tid_max += _track_generator->getNumTracksByParallelGroup(g);
 
-  /* Sweep the second space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[1] * _num_groups;
-  tid_max = _num_tracks_by_halfspace[2];
+    transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
+                                                   reduced_sources,
+                                                   _materials, _dev_tracks,
+                                                   tid_offset, tid_max);
 
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
-
-  /* Sweep the third space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[2] * _num_groups;
-  tid_max = _num_tracks_by_halfspace[3];
-
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
-
-  /* Sweep the fourth space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[3] * _num_groups;
-  tid_max = _num_tracks_by_halfspace[4];
-
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
-
-  /* Sweep the fifth space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[4] * _num_groups;
-  tid_max = _num_tracks_by_halfspace[5];
-
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
-
-  /* Sweep the fifth space of azimuthal angle and periodic track halfspaces */
-  tid_offset = _num_tracks_by_halfspace[5] * _num_groups;
-  tid_max = _num_tracks_by_halfspace[6];
-
-  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                 reduced_sources,
-                                                 _materials, _dev_tracks,
-                                                 tid_offset, tid_max);
+    cudaDeviceSynchronize();
+  }
 }
 
 

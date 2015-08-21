@@ -9,6 +9,10 @@ Track::Track() {
   /* Initialize the periodic track index to -1, indicating it has not
    * been set */
   _periodic_track_index = -1;
+
+  /* Initialize the reflective track index to -1, indicating it has not
+   * been set */
+  _reflective_track_index = -1;
 }
 
 
@@ -78,6 +82,18 @@ void Track::setAzimAngleIndex(const int index) {
  */
 void Track::setPeriodicTrackIndex(const int index) {
   _periodic_track_index = index;
+}
+
+
+/**
+ * @brief Set the index of a track in a reflective cycle.
+ * @details Tracks form reflective track cycles as they traverse the geometry.
+ *          Tracks can be arbitrarily decomposed into reflective track cycles
+ *          and this index indicates the index in a particular cycle.
+ * @param index of the track in a reflective cycle
+ */
+void Track::setReflectiveTrackIndex(const int index) {
+  _reflective_track_index = index;
 }
 
 
@@ -246,6 +262,40 @@ boundaryType Track::getBCOut() const {
 
 
 /**
+ * @brief Returns a boolean to indicate whether the outgoing flux along this
+ *        Track's "forward" direction should be transferred to the outgoing
+ *        Track.
+ * @details The bool with be false for vacuum BCs and true for all other BCs.
+ * @return bool indicating whether the flux should be passed when tracking in
+ *         the "forward" direction.
+ */
+bool Track::getTransferFluxIn() const {
+
+  if (_bc_in == VACUUM)
+    return false;
+  else
+    return true;
+}
+
+
+/**
+ * @brief Returns a boolean to indicate whether the outgoing flux along this
+ *        Track's "reverse" direction should be transferred to the incoming
+ *        Track.
+ * @details The bool with be false for vacuum BCs and true for all other BCs.
+ * @return bool indicating whether the flux should be passed when tracking in
+ *         the "reverse" direction.
+ */
+bool Track::getTransferFluxOut() const {
+
+  if (_bc_out == VACUUM)
+    return false;
+  else
+    return true;
+}
+
+
+/**
  * @brief Returns a pointer to the Track's end Point.
  * @return a pointer to the Track's end Point
  */
@@ -288,6 +338,15 @@ int Track::getAzimAngleIndex() const {
  */
 int Track::getPeriodicTrackIndex() const {
   return _periodic_track_index;
+}
+
+
+/**
+ * @brief Get the index of a track in a reflective cycle.
+ * @return index of the track in a reflective cycle
+ */
+int Track::getReflectiveTrackIndex() const {
+  return _reflective_track_index;
 }
 
 

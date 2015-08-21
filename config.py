@@ -165,7 +165,7 @@ class configuration:
                      'src/Cmfd.cpp',
                      'src/Vector.cpp',
                      'src/Matrix.cpp',
-                     'src/linalg/cpp']
+                     'src/linalg.cpp']
 
 
   sources['bgxlc'] = ['openmoc/openmoc_wrap.cpp',
