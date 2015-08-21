@@ -100,10 +100,9 @@ void clone_track(Track* track_h, dev_track* track_d,
   new_track._azim_angle_index = track_h->getAzimAngleIndex();
   new_track._next_in = track_h->isNextIn();
   new_track._next_out = track_h->isNextOut();
+  new_track._transfer_flux_in = track_h->getTransferFluxIn();
+  new_track._transfer_flux_out = track_h->getTransferFluxOut();
 
-  new_track._bc_in = std::min((int)track_h->getBCIn(), 1);
-  new_track._bc_out = std::min((int)track_h->getBCOut(), 1);
-    
   cudaMalloc((void**)&dev_segments,
              track_h->getNumSegments() * sizeof(dev_segment));
   new_track._segments = dev_segments;
