@@ -130,7 +130,10 @@ private:
   /** The method to use for generating 3D tracks */
   int _track_generation_method;
 
-  /** Booleans to indicater whether the Tracks and segments have been generated
+  /** Boolean to indicate whether the segments should be dumped */
+  bool _dump_segments;
+
+  /** Booleans to indicate whether the Tracks and segments have been generated
    *  (true) or not (false) */
   bool _contains_2D_tracks;
   bool _contains_3D_tracks;
@@ -213,6 +216,7 @@ public:
   void setZLevel(double z_level);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
+  void setDumpSegments(bool dump_segments);
 
   /* Worker functions */
   bool contains2DTracks();

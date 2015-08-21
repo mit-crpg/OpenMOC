@@ -26,6 +26,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _z_level = 0.0;
   _solve_3D = true;
   _track_generation_method = GLOBAL_TRACKING;
+  _dump_segments = true;
 }
 
 
@@ -3049,6 +3050,10 @@ void TrackGenerator::initializeTrackFileDirectory() {
  */
 void TrackGenerator::dump2DSegmentsToFile() {
 
+  /* Check whether the segments should be dumped */
+  if (!_dump_segments)
+    return;
+
   log_printf(NORMAL, "Dumping 2D segments to file...");
 
   if (!_contains_2D_segments)
@@ -3200,6 +3205,10 @@ void TrackGenerator::dump2DSegmentsToFile() {
  *          tracing for Track segmentation in commonly simulated geometries.
  */
 void TrackGenerator::dump3DSegmentsToFile() {
+
+  /* Check whether the segments should be dumped */
+  if (!_dump_segments)
+    return;
 
   log_printf(NORMAL, "Dumping 3D segments to file...");
 
@@ -4278,4 +4287,9 @@ void TrackGenerator::create3DTracksArrays() {
       }
     }
   }
+}
+
+
+void TrackGenerator::setDumpSegments(bool dump_segments) {
+  _dump_segments = dump_segments;
 }
