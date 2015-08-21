@@ -1635,6 +1635,8 @@ void TrackGenerator::initialize3DTracks() {
       create3DTracksArrays();
 
     /* Loop over 3D track cycles */
+    #pragma omp parallel for private(track_2D, track_3D, pc, l_start, l_end, \
+                                     x1, y1, z1, x2, y2, z2)
     for (int a = 0; a < _num_azim/4; a++) {
       for (int c = 0; c < _cycles_per_azim[a]; c++) {
         
