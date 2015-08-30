@@ -36,6 +36,9 @@
 #define _boundary_flux(i,j,pe) (_boundary_flux[(i)*2*_fluxes_per_track \
                                                 + (j)*_fluxes_per_track \
                                                + (pe)])
+#define _start_flux(i,j,pe) (_start_flux[(i)*2*_fluxes_per_track \
+                                                + (j)*_fluxes_per_track \
+                                               + (pe)])
 
 /** Indexing macro for the leakage for each polar angle and energy group
  *  for both the forward and reverse direction for each track */
@@ -135,6 +138,7 @@ protected:
    *  and azimuthal angles. This array stores the boundary fluxes for a
    *  a Track along both "forward" and "reverse" directions. */
   FP_PRECISION* _boundary_flux;
+  FP_PRECISION* _start_flux;
 
   /** The angular leakages for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the weighted outgoing fluxes

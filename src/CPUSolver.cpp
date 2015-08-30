@@ -115,6 +115,9 @@ void CPUSolver::initializeFluxArrays() {
   /* Delete old flux arrays if they exist */
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
+  
+  if (_start_flux != NULL)
+    delete [] _start_flux;
 
   if (_boundary_leakage != NULL)
     delete [] _boundary_leakage;
@@ -128,10 +131,11 @@ void CPUSolver::initializeFluxArrays() {
   int size;
 
   /* Allocate memory for the Track boundary flux and leakage arrays */
-  try{
+  try {
     size = 2 * _tot_num_tracks * _fluxes_per_track;
       
     _boundary_flux = new FP_PRECISION[size];
+    _start_flux = new FP_PRECISION[size];
     _boundary_leakage = new FP_PRECISION[size];
 
     /* Allocate an array for the FSR scalar flux */
@@ -184,8 +188,25 @@ void CPUSolver::zeroTrackFluxes() {
   #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int pe=0; pe < _fluxes_per_track; pe++)
+      for (int pe=0; pe < _fluxes_per_track; pe++) {
         _boundary_flux(t,d,pe) = 0.0;
+        _start_flux(t,d,pe) = 0.0;
+      }
+    }
+  }
+}
+
+
+/**
+  * TODO: description
+  */
+void CPUSolver::copyBoundaryFluxes() {
+
+  #pragma omp parallel for schedule(guided)
+  for (int t=0; t < _tot_num_tracks; t++) {
+    for (int d=0; d < 2; d++) {
+      for (int pe=0; pe < _fluxes_per_track; pe++)
+        _boundary_flux(t,d,pe) = _start_flux(t,d,pe);
     }
   }
 }
@@ -267,8 +288,10 @@ void CPUSolver::normalizeFluxes() {
   #pragma omp parallel for schedule(guided)
   for (int i=0; i < _tot_num_tracks; i++) {
     for (int j=0; j < 2; j++) {
-      for (int pe=0; pe < _fluxes_per_track; pe++)
+      for (int pe=0; pe < _fluxes_per_track; pe++) {
+        _start_flux(i,j,pe) *= norm_factor;
         _boundary_flux(i,j,pe) *= norm_factor;
+      }
     }
   }
 }
@@ -574,9 +597,12 @@ void CPUSolver::transportSweep() {
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroSurfaceCurrents();
 
+  /* Copy starting flux to current flux */
+  copyBoundaryFluxes();
+
   /* Loop over each set of tracks in parallel */
   for (int i=0; i < 4 + 12*_solve_3D; i++){
-    
+
     /* Compute the minimum and maximum Track IDs corresponding to
      * this azimuthal angular halfspace */
     min_track = _num_tracks[i];
@@ -698,6 +724,9 @@ void CPUSolver::transportSweepOTF() {
   int num_2D_tracks = _track_generator->getNum2DTracks();
   ExtrudedTrack* extruded_tracks = _track_generator->getExtrudedTracks();
   Track3D**** tracks_3D = _track_generator->get3DTracks();
+  
+  /* Copy starting flux to current flux */
+  copyBoundaryFluxes();
   
   /* Parallelize over 2D extruded tracks */
   #pragma omp for
@@ -1005,7 +1034,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     }
   }
 
-  FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,start);
+  FP_PRECISION* track_out_flux = &_start_flux(track_out_id,0,start);
 
   /* Set bc to 1 if bc is PERIODIC (bc == 2) */
   if (bc == PERIODIC)

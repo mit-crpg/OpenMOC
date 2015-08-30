@@ -26,6 +26,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _azim_spacings = NULL;
   _polar_spacings = NULL;
   _boundary_flux = NULL;
+  _start_flux = NULL;
   _boundary_leakage = NULL;
 
   _scalar_flux = NULL;
@@ -63,6 +64,9 @@ Solver::~Solver() {
 
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
+  
+  if (_start_flux != NULL)
+    delete [] _start_flux;
 
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
