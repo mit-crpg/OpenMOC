@@ -59,8 +59,6 @@ protected:
   void computeFSRSources();
   void transportSweep();
   void transportSweepOTF();
-  void traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* start,
-    double theta, segment* segments_3D);
   void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);

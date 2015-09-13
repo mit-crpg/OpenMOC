@@ -22,6 +22,49 @@
 #include <omp.h>
 #endif
 
+// TODO
+class Kernel {
+
+protected:
+
+  segment* _segments;
+  int _count;
+  FP_PRECISION* _buffer;
+  FP_PRECISION _weight;
+  FP_PRECISION _max_tau;
+
+public:
+ 
+  Kernel();
+  virtual ~Kernel(); 
+  void setSegments(segment* segments);
+  void setWeight(FP_PRECISION weight);
+  void setMaxVal(FP_PRECISION max_tau);
+  void resetCount();
+  void setBuffer(FP_PRECISION* buffer);
+  int getCount();
+  virtual void execute(FP_PRECISION length, Material* mat, int id)=0;
+
+};
+
+class CounterKernel: public Kernel {
+
+public:
+  void execute(FP_PRECISION length, Material* mat, int id);
+};
+
+class SegmentationKernel: public Kernel {
+
+public:
+  void execute(FP_PRECISION length, Material* mat, int id);
+};
+
+class VolumeKernel: public Kernel {
+
+public:
+  void execute(FP_PRECISION length, Material* mat, int id);
+};
+
 
 /**
  * @class TrackGenerator TrackGenerator.h "src/TrackGenerator.h"
@@ -121,6 +164,9 @@ private:
   /** The method to use for generating 3D tracks */
   int _track_generation_method;
 
+  // FIXME
+  double _max_optical_length;
+
   /** Boolean whether the Tracks have been generated (true) or not (false) */
   bool _contains_2D_tracks;
   bool _contains_3D_tracks;
@@ -145,6 +191,9 @@ private:
   double convertLtoX(double l, int azim, int cycle);
   double convertLtoY(double l, int azim, int cycle);
   
+  int addFSRTrackVolumeOTF(ExtrudedTrack* extruded_track, Point* start,
+    double theta, FP_PRECISION* FSR_volumes, FP_PRECISION weight);
+
 public:
 
   TrackGenerator(Geometry* geometry, int num_azim, int num_polar,
@@ -161,6 +210,7 @@ public:
   int getNum3DTracks();
   int getNum2DSegments();
   int getNum3DSegments();
+  void countSegments();
   Track2D** get2DTracks();
   Track3D**** get3DTracks();
   ExtrudedTrack* getExtrudedTracks();
@@ -183,6 +233,7 @@ public:
   FP_PRECISION* get2DFSRVolumes();
   FP_PRECISION get2DFSRVolume(int fsr_id);
   FP_PRECISION* get3DFSRVolumes();
+  FP_PRECISION* get3DFSRVolumesOTF();
   FP_PRECISION get3DFSRVolume(int fsr_id);
   double getZLevel();
   Quadrature* getQuadrature();
@@ -203,12 +254,16 @@ public:
   void setZLevel(double z_level);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
+  
+  // FIXME
+  void setMaxOpticalLength(FP_PRECISION tau);
 
   /* Worker functions */
   bool contains2DTracks();
   bool contains3DTracks();
   bool contains2DSegments();
   bool contains3DSegments();
+  bool containsExtrudedSegments();
   void retrieve2DTrackCoords(double* coords, int num_tracks);
   void retrieve2DPeriodicCycleCoords(double* coords, int num_tracks);
   void retrieve2DReflectiveCycleCoords(double* coords, int num_tracks);
@@ -223,11 +278,17 @@ public:
   double leastCommonMultiple(double a, double b);
   bool isSolve2D();
   bool isSolve3D();
+  bool isOTF();
   void dump2DSegmentsToFile();
   void dump3DSegmentsToFile();
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
+  void traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* start,
+    double theta, Kernel* kernel);
 };
+
+
+int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign);
 
 #endif /* TRACKGENERATOR_H_ */

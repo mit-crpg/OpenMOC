@@ -17,6 +17,8 @@ Track::Track() {
 
   _periodic_cycle_id = -1;
   _reflective_cycle_id = -1;
+
+  _num_segments = 0;
 }
 
 

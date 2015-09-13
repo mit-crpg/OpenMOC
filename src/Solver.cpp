@@ -21,6 +21,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
   _solve_3D = false;
+  _OTF = false;
   
   _tracks = NULL;
   _azim_spacings = NULL;
@@ -340,14 +341,16 @@ void Solver::setGeometry(Geometry* geometry) {
  */
 void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
-  if ((!track_generator->contains2DSegments() && track_generator->isSolve2D())
-      || (!track_generator->contains3DSegments() &&
-          track_generator->isSolve3D()))
+  if ((!track_generator->contains2DSegments() && (track_generator->isSolve2D())
+      || (track_generator->isSolve3D() && (track_generator->isOTF() &&
+      !track_generator->containsExtrudedSegments()) ||
+      !track_generator->isOTF() && !track_generator->contains3DSegments())))
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
   _solve_3D = _track_generator->isSolve3D();
+  _OTF = _track_generator->isOTF();
   _num_azim = _track_generator->getNumAzim();
   _tracks_per_stack = _track_generator->getTracksPerStack();
   _azim_spacings = _track_generator->getAzimSpacings();
@@ -610,7 +613,11 @@ void Solver::initializeExpEvaluator() {
     FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
 
     /* Split Track segments so that none has a greater optical length */
-    _track_generator->splitSegments(max_tau);
+    _track_generator->setMaxOpticalLength(max_tau);
+    if (_OTF)
+      _track_generator->countSegments();
+    else
+      _track_generator->splitSegments(max_tau);
 
     /* Initialize exponential interpolation table */
     _exp_evaluator->setMaxOpticalLength(max_tau);  
@@ -637,8 +644,9 @@ void Solver::initializeFSRs() {
     delete [] _FSR_materials;
 
   /* Get an array of volumes indexed by FSR  */
-  if (_solve_3D)
+  if (_solve_3D) 
     _FSR_volumes = _track_generator->get3DFSRVolumes();
+  
   else
     _FSR_volumes = _track_generator->get2DFSRVolumes();
   

@@ -605,7 +605,7 @@ ExtrudedFSR* Geometry::findExtrudedFSR(LocalCoords* coords) {
     /* Create the FSR and insert it */
     ExtrudedFSR* fsr = new ExtrudedFSR;
     _extruded_FSR_keys_map.insert(fsr_key_hash, fsr);
-
+    
     /* If FSR key was already inserted, delete the new FSR */
     if(_extruded_FSR_keys_map.at(fsr_key_hash) != fsr)
       delete fsr;
@@ -613,6 +613,7 @@ ExtrudedFSR* Geometry::findExtrudedFSR(LocalCoords* coords) {
     /* Otherwise, intialize the extruded FSR */
     else {
       fsr->_num_fsrs = 0;
+      fsr->_coords = new LocalCoords(0, 0, 0);
       coords->copyCoords(fsr->_coords);
     }
   }
@@ -1079,7 +1080,7 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
     /* Find the next Cell along the Track's trajectory */
     prev = curr;
     curr = findNextCell(&end, phi);
-
+  
     /* Checks that segment does not have the same start and end Points */
     if (start.getX() == end.getX() && start.getY() == end.getY())
       log_printf(ERROR, "Created segment with same start and end "
@@ -1091,11 +1092,11 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
 
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
-
+    
     /* Add the segment to the extruded track */
     extruded_track->_lengths.push_back(length);
     extruded_track->_regions.push_back(fsr);
-
+    extruded_track->_num_segments++;
   }
 
   /* Truncate the linked list for the LocalCoords */
@@ -1119,7 +1120,7 @@ void Geometry::initializeAxialFSRs() {
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
 
   /* Parallelize over extruded FSRs */
-  #pragma omp for
+  #pragma omp parallel for
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 
     /* Extract coordinates of extruded FSR */
@@ -1156,6 +1157,7 @@ void Geometry::initializeAxialFSRs() {
     
     }
   }
+  delete[] extruded_FSRs;
 }
  
 

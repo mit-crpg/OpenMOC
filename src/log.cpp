@@ -426,9 +426,6 @@ void log_printf(logLevel level, const char* format, ...) {
     case (ERROR):
       {
         /* Create message based on runtime error stack */
-        va_start(args, format);
-        vsprintf(message, format, args);
-        va_end(args);
         std::string msg = std::string(message);
         std::string level_prefix = "";
 

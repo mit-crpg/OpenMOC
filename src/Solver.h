@@ -122,8 +122,12 @@ protected:
 
   /** A pointer to an array with the number of Tracks per azimuthal angle */
   int*** _tracks_per_stack;
-  bool _solve_3D;
   int* _num_tracks;
+  
+  /** Boolean for whether to ray trace on the fly (true) or explicitly generate
+      segments (false) */
+  bool _OTF;
+  bool _solve_3D;
   
   /** The total number of Tracks */
   int _tot_num_tracks;

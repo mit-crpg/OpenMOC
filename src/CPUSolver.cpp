@@ -198,8 +198,8 @@ void CPUSolver::zeroTrackFluxes() {
 
 
 /**
-  * TODO: description
-  */
+ * TODO: description
+ */
 void CPUSolver::copyBoundaryFluxes() {
 
   #pragma omp parallel for schedule(guided)
@@ -580,7 +580,11 @@ void CPUSolver::computeKeff() {
  */
 void CPUSolver::transportSweep() {
 
-  int tid;
+  if (_OTF) {
+    transportSweepOTF();
+    return;
+  }
+
   int min_track, max_track;
   Track* curr_track;
   int azim_index, polar_index;
@@ -610,12 +614,11 @@ void CPUSolver::transportSweep() {
     
     #pragma omp parallel for private(curr_track, azim_index, polar_index, \
                                      num_segments, curr_segment,        \
-                                     segments, track_flux, tid) schedule(guided)
+                                     segments, track_flux) schedule(guided)
     for (int track_id=min_track; track_id < max_track; track_id++) {
 
       FP_PRECISION* thread_fsr_flux;
       thread_fsr_flux = new FP_PRECISION[_num_groups];
-      tid = omp_get_thread_num();
       curr_track = _tracks[track_id];      
       azim_index = _quad->getFirstOctantAzim
         (curr_track->getAzimIndex());
@@ -637,8 +640,10 @@ void CPUSolver::transportSweep() {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, polar_index, track_flux,
                         thread_fsr_flux);
+        /*
         tallySurfaceCurrent(curr_segment, azim_index, polar_index, track_flux,
                             true);
+                            */
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -652,8 +657,10 @@ void CPUSolver::transportSweep() {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, polar_index, track_flux,
                         thread_fsr_flux);
+        /*
         tallySurfaceCurrent(curr_segment, azim_index, polar_index, track_flux,
                             false);
+                            */
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -663,42 +670,6 @@ void CPUSolver::transportSweep() {
       delete [] thread_fsr_flux;
     }
   }
-}
-
-
-
-/**
- * @brief TODO do this a better way, maybe inline
- */
-int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
-
-  /* Initialize indexes into the values array */
-  int imin = 0;
-  int imax = size-1;
-
-  /* Check if val is outside the range */
-  if (val < values[imin] or val > values[imax]) {
-    log_printf(ERROR, "axial height in extruded FSR out of range"); 
-    return -1;
-  }
-
-  /* Search for interval containing val */
-  while (imax - imin > 1) {
-
-    int imid = (imin + imax) / 2;
-
-    if (val > values[imid])
-      imin = imid;
-    else if (val < values[imid])
-      imax = imid;
-    else {
-      if (sign > 0)
-        return imid;
-      else
-        return imid-1;
-    }
-  }
-  return imin;
 }
 
 
@@ -713,13 +684,6 @@ void CPUSolver::transportSweepOTF() {
   /* Initialize flux in each FSr to zero */
   flattenFSRFluxes(0.0);
 
-  /* Extract Z boundaries */
-  double min_z = _geometry->getMinZ();
-  double max_z = _geometry->getMaxZ();
-
-  /* Extract polar angles */
-  double** polar_angles = _quad->getThetas();
-
   /* Unpack information from track generator */
   int num_2D_tracks = _track_generator->getNum2DTracks();
   ExtrudedTrack* extruded_tracks = _track_generator->getExtrudedTracks();
@@ -729,7 +693,7 @@ void CPUSolver::transportSweepOTF() {
   copyBoundaryFluxes();
   
   /* Parallelize over 2D extruded tracks */
-  #pragma omp for
+  #pragma omp parallel for
   for (int ext_id=0; ext_id < num_2D_tracks; ext_id++) {
 
     /* Extract indecies of 3D tracks associated with the extruded track */
@@ -744,151 +708,48 @@ void CPUSolver::transportSweepOTF() {
     /* Loop over polar angles */
     for (int p=0; p < _num_polar; p++) {
 
-      /* Extract polar angle */
-      double theta = polar_angles[a][p];
-
       /* Loop over z-stacked rays */
       for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
         /* Extract track and flux data */
-        Track* curr_track = &tracks_3D[a][i][p][z];
+        Track3D* curr_track = &tracks_3D[a][i][p][z];
         int track_id = curr_track->getUid();
         track_flux = &_boundary_flux(track_id, 0, 0);
+        double theta = curr_track->getTheta();
 
         /* Follow track to determine segments */
         int num_segments = curr_track->getNumSegments();
         segment segments[num_segments];
         Point* start = curr_track->getStart();
-        traceSegmentsOTF(extruded_track, start, theta, segments);
+        SegmentationKernel kernel;
+        kernel.setSegments(segments);
+        _track_generator->traceSegmentsOTF(extruded_track, start, theta,
+            &kernel);
+
+        int polar_index = curr_track->getPolarIndex();
 
         /* Transport segments forward */
         for (int s=0; s < num_segments; s++)
-          tallyScalarFlux(&segments[s], azim_index, p, track_flux, 
+          tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux, 
               thread_fsr_flux);
 
         /* Transfer boundary angular flux to outgoing Track */
-        // FIXME: make point jacobi
-        transferBoundaryFlux(track_id, azim_index, p, true, track_flux);
-        
+        transferBoundaryFlux(track_id, azim_index, polar_index, true, 
+            track_flux);
+ 
+        /* Get the backward track flux */
+        track_flux = &_boundary_flux(track_id, 1, 0);
+       
         /* Transport segments backwards */
         for (int s=num_segments-1; s > -1; s--)
-          tallyScalarFlux(&segments[s], azim_index, p, track_flux,
+          tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
               thread_fsr_flux);
         
         /* Transfer boundary angular flux to outgoing Track */
-        // FIXME: make point jacobi
-        transferBoundaryFlux(track_id, azim_index, p, false, track_flux);
+        transferBoundaryFlux(track_id, azim_index, polar_index, false, 
+            track_flux);
       }
     }
-  }
-}
-
-
-/**
- * @brief TODO
- */
-// TODO: Make function pointer
-void CPUSolver::traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* start,
-    double theta, segment* segments_3D) {
-
-  /* Create unit vector */
-  double phi = extruded_track->_track_2D->getPhi();
-  double z_unit = cos(theta);
-  double seg_unit = sin(theta);
-  int sign = (z_unit > 0) - (z_unit < 0);
-
-  /* Extract starting coordinates */
-  double x_start_3D = start->getX();
-  double x_start_2D = extruded_track->_track_2D->getStart()->getX();
-  double z_level = start->getZ();
-
-  /* Find 2D distance from 2D edge to start of track */
-  double start_dist_2D = (x_start_3D - x_start_2D) / cos(phi);
-
-  /* Find starting 2D segment */
-  int seg_start = 0;
-  for (int s=0; s < extruded_track->_num_segments; s++) {
-
-    /* Determine if start point of track is beyond current 2D segment */
-    double seg_len_2D = extruded_track->_lengths[s];
-    if (start_dist_2D > seg_len_2D) {
-      start_dist_2D -= seg_len_2D;
-      seg_start++;
-    }
-    else
-      break;
-  }
-  
-  /* Loop over 2D segments */
-  bool segments_complete = false;
-  //TODO: set num_segments in 3D tracks
-  for (int s=seg_start; s < extruded_track->_num_segments; s++) {
-
-    /* Extract extruded FSR and determine the axial region */
-    ExtrudedFSR* extruded_FSR = extruded_track->_regions[s];
-    FP_PRECISION* mesh = extruded_FSR->_mesh;
-    int num_regions = extruded_FSR->_num_fsrs;
-    int z_ind = binarySearch(mesh, num_regions, z_level, sign);
-
-    /* Extract 2D segment length */
-    double remaining_length_2D = extruded_track->_lengths[s] - start_dist_2D;
-    start_dist_2D = 0;
-    
-    /* Transport along the 2D segment until it is completed */
-    int ind = 0;
-    while (remaining_length_2D > 0) {
-
-      /* Calculate 3D distance to z intersection */
-      int mesh_ind = z_ind + (1 + sign) / 2;
-      double z_dist_3D = (mesh[mesh_ind] - z_level) / z_unit;
-
-      /* Calculate 3D distance to end of segment */
-      double seg_dist_3D = remaining_length_2D / seg_unit;
-
-      /* Calcualte shortest distance to intersection */
-      double dist_2D;
-      double dist_3D;
-      if (z_dist_3D < seg_dist_3D) {
-        dist_2D = z_dist_3D * seg_unit / z_unit;
-        dist_3D = z_dist_3D;
-      }
-      else {
-        dist_2D = remaining_length_2D;
-        dist_3D = seg_dist_3D;
-      }
-
-      /* Operate on segment */
-      // FIXME addSegmentInfo(
-      // FIXME applyFunction(segments, 
-      segments_3D[ind]._length = dist_3D;
-      segments_3D[ind]._material = extruded_FSR->_materials[z_ind];
-      segments_3D[ind]._region_id = extruded_FSR->_fsr_ids[z_ind];
-
-      /* Shorten remaining 2D segment length and move axial level */
-      remaining_length_2D -= dist_2D;
-      z_level += dist_3D * z_unit;
-      z_ind += sign;
-
-      /* Check if the track has crossed a Z boundary */
-      if (z_ind < 0 or z_ind >= num_regions) {
-        
-        /* Reset z index */
-        if (z_ind < 0)
-          z_ind = 0;
-        else
-          z_ind = num_regions - 1;
-
-        /* Mark the 2D segment as complete */
-        segments_complete = true;
-        break;
-      }
-      else
-        ind++;
-    }
-    
-    /* Check if the track is completed due to an axial boundary */
-    if (segments_complete)
-      break;
   }
 }
 
@@ -1084,6 +945,7 @@ void CPUSolver::addSourceToScalarFlux() {
     sigma_t = _FSR_materials[r]->getSigmaT();
 
     for (int e=0; e < _num_groups; e++) {
+      FP_PRECISION old = _scalar_flux(r,e);
       _scalar_flux(r,e) *= 0.5;
       _scalar_flux(r,e) /= (sigma_t[e] * volume);
       _scalar_flux(r,e) += FOUR_PI * _reduced_sources(r,e);
