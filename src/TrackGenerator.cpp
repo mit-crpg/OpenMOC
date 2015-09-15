@@ -2971,7 +2971,25 @@ void TrackGenerator::recalibrate3DTracksToOrigin() {
         }
       }
     }
-  } 
+  }
+  /* Enusre that all tracks reside within the geometry */
+  FP_PRECISION max_z = _geometry->getMaxZ();
+  FP_PRECISION min_z = _geometry->getMinZ();
+  for (int a=0; a < _num_azim/2; a++) {
+    #pragma omp parallel for
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+      for (int p=0; p < _num_polar; p++) {
+        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+          FP_PRECISION start_z = 
+            _tracks_3D_stack[a][i][p][z].getStart()->getZ();
+          if (start_z > max_z)
+            _tracks_3D_stack[a][i][p][z].getStart()->setZ(max_z);
+          else if (start_z < min_z)
+            _tracks_3D_stack[a][i][p][z].getStart()->setZ(min_z);
+        }
+      }
+    }
+  }   
 }
 
 
@@ -4258,7 +4276,14 @@ int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
 
   /* Check if val is outside the range */
   if (val < values[imin] or val > values[imax]) {
-    log_printf(ERROR, "Axial height in extruded FSR out of range"); 
+    
+    std::cout << "Val = " << val << std::endl;
+    std::cout << "Not in (" << values[imin] << ", " << values[imax] << ")\n";
+    std::cout << "Diff = " << val - values[imax] << std::endl;
+    std::cout << "Diff val = " << val - 32.13 << std::endl;
+    std::cout << "Diff max = " << values[imax] - 32.13 << std::endl;
+    std::cout << "Sign = " << sign << std::endl;
+    log_printf(ERROR, "Axial height in extruded FSR out of range");
     return -1;
   }
 

@@ -1159,6 +1159,9 @@ void Geometry::initializeAxialFSRs() {
     for (int s=0; s < num_segments; s++) {
       
       level += segments[s]._length;
+      if (std::abs(level - max_z) < 1e-12)
+        level = max_z;
+
       extruded_FSR->_materials[s] = segments[s]._material;
       extruded_FSR->_fsr_ids[s] = segments[s]._region_id;
       extruded_FSR->_mesh[s+1] = level;
@@ -1166,6 +1169,7 @@ void Geometry::initializeAxialFSRs() {
     }
   }
   delete[] extruded_FSRs;
+  std::cout << "Finished populating FSRs" << std::endl;
 }
  
 
