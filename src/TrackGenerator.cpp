@@ -3040,7 +3040,6 @@ void TrackGenerator::segmentizeExtruded() {
   for (int index=0; index < _num_2D_tracks; index++)
     _geometry->segmentizeExtruded(&_extruded_tracks[index]);
 
-  std::cout << "Finished ... " << std::endl;
   _geometry->initializeAxialFSRs();
   _geometry->initializeFSRVectors();
   countSegments();
