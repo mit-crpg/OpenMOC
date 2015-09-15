@@ -3035,20 +3035,12 @@ void TrackGenerator::segmentizeExtruded() {
 
   /* Loop over all extruded Tracks */
   int count = 0;
+  int interval = _num_2D_tracks * 0.2 + 1;
   #pragma omp parallel for
-  for (int index=0; index < _num_2D_tracks; index++) {
-
-    double progress = double(index+1) / _num_2D_tracks * 100.0;
-    if (progress > count*20 || index == _num_2D_tracks-1) {
-      log_printf(NORMAL, "segmenting axially extruded tracks - "
-          "Percent complete: %5.2f %%", progress);
-      #pragma omp atomic
-      count++;
-    }
-
+  for (int index=0; index < _num_2D_tracks; index++)
     _geometry->segmentizeExtruded(&_extruded_tracks[index]);
-  }
 
+  std::cout << "Finished ... " << std::endl;
   _geometry->initializeAxialFSRs();
   _geometry->initializeFSRVectors();
   countSegments();
