@@ -1112,6 +1112,8 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
  */
 void Geometry::initializeAxialFSRs() {
 
+  log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions");
+  
   /* Determine the extent of the axial geometry */
   FP_PRECISION min_z = getMinZ();
   FP_PRECISION max_z = getMaxZ();
@@ -1126,8 +1128,6 @@ void Geometry::initializeAxialFSRs() {
   #pragma omp parallel for
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 
-    log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions");
-    
     /* Extract coordinates of extruded FSR */
     ExtrudedFSR* extruded_FSR = extruded_FSRs[i];
     double x0 = extruded_FSR->_coords->getX();
