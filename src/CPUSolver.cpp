@@ -723,6 +723,7 @@ void CPUSolver::transportSweepOTF() {
         Point* start = curr_track->getStart();
         SegmentationKernel kernel;
         kernel.setSegments(segments);
+        kernel.setMaxVal(_track_generator->retrieveMaxOpticalLength());
         _track_generator->traceSegmentsOTF(extruded_track, start, theta,
             &kernel);
 

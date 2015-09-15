@@ -1123,6 +1123,14 @@ void Geometry::initializeAxialFSRs() {
   #pragma omp parallel for
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 
+    int ten_percent = 1 + 0.1 * _extruded_FSR_keys_map.size();
+    if ((i % ten_percent) == 0) {
+      double progress = 100 * (double) i / 
+        (double) _extruded_FSR_keys_map.size();
+      log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions - "
+          "Percent complete: %5.2f %%", progress);
+    }
+
     /* Extract coordinates of extruded FSR */
     ExtrudedFSR* extruded_FSR = extruded_FSRs[i];
     double x0 = extruded_FSR->_coords->getX();

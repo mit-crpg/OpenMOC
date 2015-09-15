@@ -3024,6 +3024,7 @@ void TrackGenerator::segmentizeExtruded() {
     if (progress > count*20 || index == _num_2D_tracks-1) {
       log_printf(NORMAL, "segmenting axially extruded tracks - "
           "Percent complete: %5.2f %%", progress);
+      #pragma omp atomic
       count++;
     }
 
@@ -4052,11 +4053,6 @@ void TrackGenerator::generateFSRCentroids(){
     centroids[r]->setCoords(0.0, 0.0, 0.0);
   }
   
-  /*
-  if (_OTF)
-    countSegments();
-  */
-
   if (_solve_3D){
     FSR_volumes = get3DFSRVolumes();
     for (int a=0; a < _num_azim/2; a++) {
@@ -4078,7 +4074,6 @@ void TrackGenerator::generateFSRCentroids(){
             if (_OTF) {
               
               Point* start = _tracks_3D_stack[a][i][p][z].getStart();
-              //FIXME
               double theta = _tracks_3D_stack[a][i][p][z].getTheta();
               int ext_id = _tracks_2D[a][i].getUid();
               ExtrudedTrack* extruded_track = &_extruded_tracks[ext_id];
@@ -4238,11 +4233,19 @@ bool TrackGenerator::getCycleDirection(int azim, int cycle, int track_index) {
 }
 
 
-// TODO
-void TrackGenerator::setMaxOpticalLength(double tau) {
+/**
+ * @brief Sets the max optical path length for 3D segments for use in
+ *        on-the-fly computation
+ * @param tau maximum optical path length
+ */
+void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
   _max_optical_length = tau;
 }
 
+// TODO
+FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
+  return _max_optical_length;
+}
 
 /**
  * @brief TODO do this a better way, maybe inline
@@ -4280,7 +4283,12 @@ int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
 
 
 /**
- * @brief TODO ... REMOVE
+ * @brief Computes and returns an array of volumes indexed by FSR for
+          on-the-fly computation.
+ * @details Segment lengths are computed on-the-fly and subsequently used to
+            tally FSR volumes. Note: It is the function caller's responsibility
+            to deallocate the memory reserved for the FSR volume array.
+ * @return a pointer to the array of FSR volumes
  */
 FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 
@@ -4331,7 +4339,15 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 }
 
 /**
- * @brief TODO
+ * @brief Computes 3D segment lengths for a given extruded track with a starting
+          point and an angle on-the-fly and stores the lengths in the kernel
+          passed by the user.
+TODO: params
+ * @details Segment lengths are computed on-the-fly using 2D segment lengths
+            stored in an ExtrudedTrack object and 1D meshes from the extruded
+            FSRs. Note: before calling this funciton, the memory for the 
+            segments should be allocated and referenced by the kernel using the
+            setSegments routine in the kernels.
  */
 void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* start,
     double theta, Kernel* kernel) {

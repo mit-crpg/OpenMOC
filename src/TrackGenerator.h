@@ -5,7 +5,6 @@
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
  */
 
-
 #ifndef TRACKGENERATOR_H_
 #define TRACKGENERATOR_H_
 
@@ -164,8 +163,9 @@ private:
   /** The method to use for generating 3D tracks */
   int _track_generation_method;
 
-  // FIXME
-  double _max_optical_length;
+  /** Max segment length for 3D tracks to be split during on-the-fly
+      computation */
+  FP_PRECISION _max_optical_length;
 
   /** Boolean whether the Tracks have been generated (true) or not (false) */
   bool _contains_2D_tracks;
@@ -240,6 +240,7 @@ public:
   int getTrackGenerationMethod();
   Track* getTrack2DByCycle(int azim, int cycle, int track_index);
   bool getCycleDirection(int azim, int cycle, int track_index);
+  FP_PRECISION retrieveMaxOpticalLength();
   
   /* Set parameters */
   void setNumThreads(int num_threads);
@@ -254,8 +255,6 @@ public:
   void setZLevel(double z_level);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
-  
-  // FIXME
   void setMaxOpticalLength(FP_PRECISION tau);
 
   /* Worker functions */
