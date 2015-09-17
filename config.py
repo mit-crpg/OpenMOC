@@ -92,7 +92,7 @@ class configuration:
   extensions = list()
 
   # List of the possible packages to install based on runtime options
-  packages = ['openmoc', 'openmoc.cuda']
+  packages = ['openmoc', 'openmoc.cuda', 'openmoc.compatible']
 
 
   #############################################################################
