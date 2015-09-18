@@ -33,6 +33,9 @@ class Cmfd;
  */
 struct fsr_data {
 
+  //FIXME
+  fsr_data() : _fsr_id(0), _cmfd_cell(0), _mat_id(0), _point(NULL), _centroid(NULL){}
+
   /** The FSR ID */
   int _fsr_id;
  

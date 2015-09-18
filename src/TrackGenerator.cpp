@@ -1,4 +1,5 @@
 #include "TrackGenerator.h"
+#include <fstream> //FIXME
 
 /**
  * @brief Constructor for the TrackGenerator assigns default values.
@@ -492,6 +493,9 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
 
   segment* segment;
   FP_PRECISION volume;
+  
+  //FIXME
+  //std::ofstream out("Segments_reg.txt");
 
   /* Calculate each FSR's "volume" by accumulating the total length of * 
    * all Track segments multipled by the Track "widths" for each FSR.  */
@@ -499,17 +503,69 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
     for (int i=0; i < getNumX(a) + getNumY(a); i++){
       for (int p=0; p < _num_polar; p++){
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++){
+          
+          //FIXME
+          //out << "Track " << _tracks_3D_stack[a][i][p][z].getUid() << ":\n";
+          
           for (int s=0; s < _tracks_3D_stack[a][i][p][z].getNumSegments(); s++){
             segment = _tracks_3D_stack[a][i][p][z].getSegment(s);
             volume = segment->_length * _quadrature->getAzimWeight(a)
               * _quadrature->getPolarWeight(a, p) * getAzimSpacing(a)
               * getPolarSpacing(a,p);
             FSR_volumes[segment->_region_id] += volume;
+        
+            //FIXME
+            /*
+            out << "seg " << s << " = " << segment->_length;
+            
+            FP_PRECISION max_sig_t = 0;
+            FP_PRECISION* sigmas = segment->_material->getSigmaT();
+            int num_groups = segment->_material->getNumEnergyGroups();
+            for (int e=0; e < num_groups; e++)
+              if (sigmas[e] > max_sig_t)
+                max_sig_t = sigmas[e];
+            out << ", tau = " << segment->_length * max_sig_t;
+            if (_tracks_3D_stack[a][i][p][z].getUid() == 16532)
+              out << ", ID = " << segment->_region_id;
+            if (true) {
+              Point* loc = _geometry->getFSRCentroid(segment->_region_id);
+              if(loc != NULL) {
+                double centroid[3];
+                centroid[0] = round(loc->getX() * 1e8) / 1e8;
+                centroid[1] = round(loc->getY() * 1e8) / 1e8;
+                centroid[2] = round(loc->getZ() * 1e8) / 1e8;
+                std::string vals[3];
+                for (int m=0; m<3; m++) {
+                  vals[m] = std::to_string(centroid[m]);
+                  if (vals[m] == "-0.000000")
+                    vals[m] = "0.000000";
+                }
+                out << ", centroid = (" << vals[0] << ", " 
+                  << vals[1] << ", " << vals[2] << ")";
+              }
+            }
+            out << std::endl;
+            */
           }
+          //FIXME
+          //out << std::endl;
         }
       }
     }
   }
+
+  //FIXME
+  /*
+  out.close();
+  out.open("Volumes_reg.txt");
+  FP_PRECISION total_volume = 0;
+  for (int i=0; i < num_FSRs; i++) {
+    out << "Volume of region " << i << " = " << FSR_volumes[i] << std::endl;
+    total_volume += FSR_volumes[i];
+  }
+  out << "TOTAL volume = " << total_volume << std::endl;
+  out.close();
+  */
 
   return FSR_volumes;
 }
@@ -4267,13 +4323,6 @@ int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
 
   /* Check if val is outside the range */
   if (val < values[imin] or val > values[imax]) {
-    
-    std::cout << "Val = " << val << std::endl;
-    std::cout << "Not in (" << values[imin] << ", " << values[imax] << ")\n";
-    std::cout << "Diff = " << val - values[imax] << std::endl;
-    std::cout << "Diff val = " << val - 32.13 << std::endl;
-    std::cout << "Diff max = " << values[imax] - 32.13 << std::endl;
-    std::cout << "Sign = " << sign << std::endl;
     log_printf(ERROR, "Axial height in extruded FSR out of range");
     return -1;
   }
@@ -4314,6 +4363,9 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 
   VolumeKernel kernel;
   kernel.setBuffer(FSR_volumes);
+  
+  //FIXME
+  //std::ofstream out("segments_OTF.txt");
 
   /* Calculate each FSR's "volume" by accumulating the total length of * 
    * all Track segments multipled by the Track "widths" for each FSR.  */
@@ -4347,9 +4399,66 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
         double theta = curr_track->getTheta();
         
         traceSegmentsOTF(extruded_track, start, theta, &kernel);
+        
+        //FIXME
+        /*
+        SegmentationKernel temp_kernel;
+        int num_segments = curr_track->getNumSegments();
+        segment segments[num_segments];
+        temp_kernel.setSegments(segments);
+        temp_kernel.setMaxVal(_max_optical_length);
+        traceSegmentsOTF(extruded_track, start, theta, &temp_kernel);
+        out << "Track " << curr_track->getUid() << ":\n";
+        for (int s=0; s < num_segments; s++) {
+          out << "seg " << s << " = " << segments[s]._length;
+          
+          segment seg = segments[s];
+          FP_PRECISION max_sig_t = 0;
+          FP_PRECISION* sigmas = seg._material->getSigmaT();
+          int num_groups = seg._material->getNumEnergyGroups();
+          for (int e=0; e < num_groups; e++)
+            if (sigmas[e] > max_sig_t)
+              max_sig_t = sigmas[e];
+          out << ", tau = " << seg._length * max_sig_t;
+          if (curr_track->getUid() == 16532) 
+            out << ", ID = " << seg._region_id;
+          if (true) {
+            Point* loc = _geometry->getFSRCentroid(seg._region_id);
+            if(loc != NULL) {
+              double centroid[3];
+              centroid[0] = round(loc->getX() * 1e8) / 1e8;
+              centroid[1] = round(loc->getY() * 1e8) / 1e8;
+              centroid[2] = round(loc->getZ() * 1e8) / 1e8;
+              std::string vals[3];
+              for (int m=0; m<3; m++) {
+                vals[m] = std::to_string(centroid[m]);
+                if (vals[m] == "-0.000000")
+                  vals[m] = "0.000000";
+              }
+              out << ", centroid = (" << vals[0] << ", " 
+                << vals[1] << ", " << vals[2] << ")";
+            }
+          }
+          out << std::endl;
+        }
+        out << std::endl;
+        */
       }
     }
   }
+
+  //FIXME
+  /*
+  out.close();
+  out.open("Volumes_OTF.txt");
+  FP_PRECISION total_volume = 0;
+  for (int i=0; i < num_FSRs; i++) {
+    out << "Volume of region " << i << " = " << FSR_volumes[i] << std::endl;
+    total_volume += FSR_volumes[i];
+  }
+  out << "TOTAL volume = " << total_volume << std::endl;
+  out.close();
+  */
 
   return FSR_volumes;
 }
@@ -4436,8 +4545,9 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* star
       }
 
       /* Operate on segment */
-      kernel->execute(dist_3D, extruded_FSR->_materials[z_ind], 
-          extruded_FSR->_fsr_ids[z_ind]);
+      if (dist_3D > 1e-12)
+        kernel->execute(dist_3D, extruded_FSR->_materials[z_ind], 
+            extruded_FSR->_fsr_ids[z_ind]);
 
       /* Shorten remaining 2D segment length and move axial level */
       remaining_length_2D -= dist_2D;

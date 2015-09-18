@@ -563,10 +563,6 @@ void CPUSolver::computeKeff() {
 
   _k_eff = fission / (total - scatter + leakage);
 
-  std::cout << "FISSION = " << fission << std::endl;
-  std::cout << "TOTAL = " << total << std::endl;
-  std::cout << "SCATTER = " << scatter << std::endl;
-  std::cout << "LEAKAGE = " << leakage << std::endl;
   log_printf(DEBUG, "tot = %f, fiss = %f, scatt = %f, leak = %f,"
              "k_eff = %f", total, fission, scatter, leakage, _k_eff);
 

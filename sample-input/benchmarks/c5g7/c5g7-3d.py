@@ -58,14 +58,14 @@ root_cell.setFill(lattices[-1])
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
-
+'''
 cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,9)
 cmfd.setGroupStructure([1,4,8])
 cmfd.setKNearest(4)
-
+'''
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -75,7 +75,7 @@ log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
-geometry.setCmfd(cmfd)
+#geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
   
 
@@ -92,7 +92,7 @@ track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
                                  polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-track_generator.setOTF()
+#track_generator.setOTF()
 track_generator.generateTracks()
 
 

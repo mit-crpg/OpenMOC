@@ -643,16 +643,16 @@ void Solver::initializeFSRs() {
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
+  /* Generate the FSR centroids */
+  _track_generator->generateFSRCentroids();
+
   /* Get an array of volumes indexed by FSR  */
   if (_solve_3D) 
     _FSR_volumes = _track_generator->get3DFSRVolumes();
   
   else
     _FSR_volumes = _track_generator->get2DFSRVolumes();
-  
-  /* Generate the FSR centroids */
-  _track_generator->generateFSRCentroids();
-
+ 
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 

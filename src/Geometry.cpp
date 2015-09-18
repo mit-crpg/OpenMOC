@@ -1112,7 +1112,7 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
  */
 void Geometry::initializeAxialFSRs() {
 
-  log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions");
+  log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions...");
   
   /* Determine the extent of the axial geometry */
   FP_PRECISION min_z = getMinZ();
