@@ -1744,128 +1744,145 @@ void TrackGenerator::initialize3DTracks() {
       }
     }
 
+    int tot_num_cycles = 0;
+    for (int a = 0; a < _num_azim/4; a++)
+      tot_num_cycles += _cycles_per_azim[a];
+
     /* Loop over 3D track cycles */
-    for (int a = 0; a < _num_azim/4; a++) {
-      for (int c = 0; c < _cycles_per_azim[a]; c++){
-        
-        /* Loop over polar angles < PI/2 */
-        for (int p=0; p < _num_polar/2; p++){
-          
-          /* Create tracks starting on Z_MIN and L_MIN surfaces */
-          /*
-           *             The track layout in the lz plane
-           *       _____________________________________________
-           *      | /    /    /    /    /    /    /    /    /   |
-           *      |/    /    /    /    /    /    /    /    /    |
-           * ^  9 |    /    /    /    /    /    /    /    /    /|
-           * |    |   /    /    /    /    /    /    /    /    / |
-           * z+   |__/____/____/____/____/____/____/____/____/__|
-           *         8    7    6    5    4    3    2    1    0 
-           * l+ ->
-           */
-          for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++){
+    #pragma omp parallel for private(track_2D, track_3D, pc, l_start, l_end, \
+        x1, y1, z1, x2, y2, z2)
+    for (int ac = 0; ac < tot_num_cycles; ac++) {
 
-            /* Get the starting point */
-            if (i < _num_l[a][p]){
-              l_start = _cycle_length[a] - (i + 0.5) * _dl_eff[a][p];
-              x1 = convertLtoX(l_start, a, c);
-              y1 = convertLtoY(l_start, a, c);
-              z1 = 0.0;
-            }
-            else{
-              l_start = 0.0;
-              track_2D = getTrack2DByCycle(a, c, 0);
-              x1 = track_2D->getStart()->getX();
-              y1 = track_2D->getStart()->getY();
-              z1 = _dz_eff[a][p] * (i - _num_l[a][p] + 0.5);
-            }
-            
-            /* Get the end point */
-            if (i < _num_z[a][p]){
-              l_end = _cycle_length[a];
-              track_2D = getTrack2DByCycle(a, c, 0);
-              x2 = track_2D->getStart()->getX();
-              y2 = track_2D->getStart()->getY();
-              z2 = _dz_eff[a][p] * (i + 0.5);
-            }
-            else{
-              l_end = _cycle_length[a] - _dl_eff[a][p] *
-                (i - _num_z[a][p] + 0.5);
-              x2 = convertLtoX(l_end, a, c);
-              y2 = convertLtoY(l_end, a, c);
-              z2 = depth;
-            }
-
-            /* Set start and end points and save polar angle */
-            track_3D.getStart()->setCoords(x1, y1, z1);
-            track_3D.getEnd()->setCoords(x2, y2, z2);
-            track_3D.setTheta(_quadrature->getTheta(a,p));
-
-            /* Decompose the track in the LZ plane by splitting it
-             * based on the x and y geometry boundaries */
-            decomposeLZTrack(&track_3D, l_start, l_end, a, c, p, i,
-                             create_tracks);
-          }
+      int a;
+      int c;
+      int cycle_num = -1;
+      for (a = 0; a < _num_azim/4; a++) {
+        for (c = 0; c < _cycles_per_azim[a]; c++) {
+          cycle_num++;
+          if (ac == cycle_num)
+            break;
         }
+        if (ac == cycle_num)
+          break;
+      }
+      
+      /* Loop over polar angles < PI/2 */
+      for (int p=0; p < _num_polar/2; p++){
+        
+        /* Create tracks starting on Z_MIN and L_MIN surfaces */
+        /*
+         *             The track layout in the lz plane
+         *       _____________________________________________
+         *      | /    /    /    /    /    /    /    /    /   |
+         *      |/    /    /    /    /    /    /    /    /    |
+         * ^  9 |    /    /    /    /    /    /    /    /    /|
+         * |    |   /    /    /    /    /    /    /    /    / |
+         * z+   |__/____/____/____/____/____/____/____/____/__|
+         *         8    7    6    5    4    3    2    1    0 
+         * l+ ->
+         */
+        for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++){
 
-        /* Create tracks for polar angles [PI/2,PI] */
-        for (int p=0; p < _num_polar/2; p++){
-          
-          pc = _num_polar-p-1;
-          
-          /* Create tracks starting on L_MIN and Z_MAX surfaces */
-          /*          1    2    3    4     5    6    7    8   9
-           *       ______________________________________________
-           *      |   \    \    \     \    \    \    \    \    \ |
-           *      |    \    \    \     \    \    \    \    \    \|
-           * ^  0 |\    \    \    \     \    \    \    \    \    |
-           * |    | \    \    \    \     \    \    \    \    \   |
-           * z+   |__\____\____\____\ ____\____\____\____\____\__|
-           *      
-           * l+ ->
-           */
-          for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++){
-
-            /* Get the starting point */
-            if (i < _num_z[a][p]){
-              l_start = 0.0;
-              track_2D = getTrack2DByCycle(a, c, 0);
-              x1 = track_2D->getStart()->getX();
-              y1 = track_2D->getStart()->getY();
-              z1 = _dz_eff[a][p] * (i + 0.5);
-            }
-            else{
-              l_start = _dl_eff[a][p] * (i - _num_z[a][p] + 0.5);
-              x1 = convertLtoX(l_start, a, c);
-              y1 = convertLtoY(l_start, a, c);
-              z1 = depth;
-            }
-            
-            /* Get the end point */
-            if (i < _num_l[a][p]){
-              l_end = _dl_eff[a][p] * (i + 0.5);
-              x2 = convertLtoX(l_end, a, c);
-              y2 = convertLtoY(l_end, a, c);
-              z2 = 0.0;
-            }
-            else{
-              l_end = _cycle_length[a];
-              track_2D = getTrack2DByCycle(a, c, 0);
-              x2 = track_2D->getStart()->getX();
-              y2 = track_2D->getStart()->getY();
-              z2 = _dz_eff[a][p] * (i - _num_l[a][p] + 0.5);
-            }
-            
-            /* Set start and end points and save polar angle */
-            track_3D.getStart()->setCoords(x1, y1, z1);
-            track_3D.getEnd()->setCoords(x2, y2, z2);
-            track_3D.setTheta(_quadrature->getTheta(a,pc));
-            
-            /* Decompose the track in the LZ plane by splitting it
-             * based on the x and y geometry boundaries */
-            decomposeLZTrack(&track_3D, l_start, l_end, a, c, pc, i,
-                             create_tracks);
+          /* Get the starting point */
+          if (i < _num_l[a][p]){
+            l_start = _cycle_length[a] - (i + 0.5) * _dl_eff[a][p];
+            x1 = convertLtoX(l_start, a, c);
+            y1 = convertLtoY(l_start, a, c);
+            z1 = 0.0;
           }
+          else{
+            l_start = 0.0;
+            track_2D = getTrack2DByCycle(a, c, 0);
+            x1 = track_2D->getStart()->getX();
+            y1 = track_2D->getStart()->getY();
+            z1 = _dz_eff[a][p] * (i - _num_l[a][p] + 0.5);
+          }
+          
+          /* Get the end point */
+          if (i < _num_z[a][p]){
+            l_end = _cycle_length[a];
+            track_2D = getTrack2DByCycle(a, c, 0);
+            x2 = track_2D->getStart()->getX();
+            y2 = track_2D->getStart()->getY();
+            z2 = _dz_eff[a][p] * (i + 0.5);
+          }
+          else{
+            l_end = _cycle_length[a] - _dl_eff[a][p] *
+              (i - _num_z[a][p] + 0.5);
+            x2 = convertLtoX(l_end, a, c);
+            y2 = convertLtoY(l_end, a, c);
+            z2 = depth;
+          }
+
+          /* Set start and end points and save polar angle */
+          track_3D.getStart()->setCoords(x1, y1, z1);
+          track_3D.getEnd()->setCoords(x2, y2, z2);
+          track_3D.setTheta(_quadrature->getTheta(a,p));
+
+          /* Decompose the track in the LZ plane by splitting it
+           * based on the x and y geometry boundaries */
+          decomposeLZTrack(&track_3D, l_start, l_end, a, c, p, i,
+                           create_tracks);
+        }
+      }
+
+      /* Create tracks for polar angles [PI/2,PI] */
+      for (int p=0; p < _num_polar/2; p++){
+        
+        pc = _num_polar-p-1;
+        
+        /* Create tracks starting on L_MIN and Z_MAX surfaces */
+        /*          1    2    3    4     5    6    7    8   9
+         *       ______________________________________________
+         *      |   \    \    \     \    \    \    \    \    \ |
+         *      |    \    \    \     \    \    \    \    \    \|
+         * ^  0 |\    \    \    \     \    \    \    \    \    |
+         * |    | \    \    \    \     \    \    \    \    \   |
+         * z+   |__\____\____\____\ ____\____\____\____\____\__|
+         *      
+         * l+ ->
+         */
+        for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++){
+
+          /* Get the starting point */
+          if (i < _num_z[a][p]){
+            l_start = 0.0;
+            track_2D = getTrack2DByCycle(a, c, 0);
+            x1 = track_2D->getStart()->getX();
+            y1 = track_2D->getStart()->getY();
+            z1 = _dz_eff[a][p] * (i + 0.5);
+          }
+          else{
+            l_start = _dl_eff[a][p] * (i - _num_z[a][p] + 0.5);
+            x1 = convertLtoX(l_start, a, c);
+            y1 = convertLtoY(l_start, a, c);
+            z1 = depth;
+          }
+          
+          /* Get the end point */
+          if (i < _num_l[a][p]){
+            l_end = _dl_eff[a][p] * (i + 0.5);
+            x2 = convertLtoX(l_end, a, c);
+            y2 = convertLtoY(l_end, a, c);
+            z2 = 0.0;
+          }
+          else{
+            l_end = _cycle_length[a];
+            track_2D = getTrack2DByCycle(a, c, 0);
+            x2 = track_2D->getStart()->getX();
+            y2 = track_2D->getStart()->getY();
+            z2 = _dz_eff[a][p] * (i - _num_l[a][p] + 0.5);
+          }
+          
+          /* Set start and end points and save polar angle */
+          track_3D.getStart()->setCoords(x1, y1, z1);
+          track_3D.getEnd()->setCoords(x2, y2, z2);
+          track_3D.setTheta(_quadrature->getTheta(a,pc));
+          
+          /* Decompose the track in the LZ plane by splitting it
+           * based on the x and y geometry boundaries */
+          decomposeLZTrack(&track_3D, l_start, l_end, a, c, pc, i,
+                           create_tracks);
         }
       }
     }
