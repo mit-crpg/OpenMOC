@@ -11,10 +11,10 @@ from cells import *
 options = Options()
 
 num_threads = options.getNumThreads()
-azim_spacing = options.getAzimSpacing()
-num_azim = options.getNumAzimAngles()
-polar_spacing = options.getPolarSpacing()
-num_polar = options.getNumPolarAngles()
+azim_spacing = 0.5
+num_azim = 4
+polar_spacing = 0.5
+num_polar = 6
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 refines = 5
@@ -77,14 +77,14 @@ root_cell.setFill(lattice)
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
-
+'''
 cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setOpticallyThick(True)
 cmfd.setLatticeStructure(5, 5, 5)
 cmfd.setKNearest(1)
-
+'''
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -94,7 +94,7 @@ log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
-geometry.setCmfd(cmfd)
+#geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 
 
@@ -111,6 +111,7 @@ track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
                                  polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
+#track_generator.setOTF()
 track_generator.generateTracks()
 
 

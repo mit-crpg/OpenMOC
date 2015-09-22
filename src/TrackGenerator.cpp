@@ -505,8 +505,16 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++){
           
           //FIXME
-          //out << "Track " << _tracks_3D_stack[a][i][p][z].getUid() << ":\n";
-          
+          /*
+          Track3D* curr_track = &_tracks_3D_stack[a][i][p][z];
+          out << "Track " << _tracks_3D_stack[a][i][p][z].getUid() << ":\n";
+          out << "Start = " << "(" << curr_track->getStart()->getX() 
+            << curr_track->getStart()->getY() << curr_track->getStart()->getZ() 
+            << ")\n";
+          out << "End = " << "(" << curr_track->getEnd()->getX() 
+            << curr_track->getEnd()->getY() << curr_track->getEnd()->getZ() 
+            << ")\n";
+          */
           for (int s=0; s < _tracks_3D_stack[a][i][p][z].getNumSegments(); s++){
             segment = _tracks_3D_stack[a][i][p][z].getSegment(s);
             volume = segment->_length * _quadrature->getAzimWeight(a)
@@ -4426,6 +4434,13 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
         temp_kernel.setMaxVal(_max_optical_length);
         traceSegmentsOTF(extruded_track, start, theta, &temp_kernel);
         out << "Track " << curr_track->getUid() << ":\n";
+        out << "Start = " << "(" << curr_track->getStart()->getX() 
+          << curr_track->getStart()->getY() << curr_track->getStart()->getZ() 
+          << ")\n";
+        out << "End = " << "(" << curr_track->getEnd()->getX() 
+          << curr_track->getEnd()->getY() << curr_track->getEnd()->getZ() 
+          << ")\n";
+      
         for (int s=0; s < num_segments; s++) {
           out << "seg " << s << " = " << segments[s]._length;
           
@@ -4551,7 +4566,7 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* star
       double dist_3D;
       int z_move;
       if (z_dist_3D < seg_dist_3D) {
-        dist_2D = z_dist_3D * seg_unit / z_unit;
+        dist_2D = z_dist_3D * seg_unit;
         dist_3D = z_dist_3D;
         z_move = sign;
       }

@@ -982,41 +982,30 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Initialize data structures */
   initializeExpEvaluator();
-  std::cout << "Init exp..." << std::endl;
   initializeFluxArrays();
-  std::cout << "Init flux arrays..." << std::endl;
   initializeSourceArrays();
-  std::cout << "Init source arrays..." << std::endl;
   initializeFSRs();
-  std::cout << "Init FSRs..." << std::endl;
   countFissionableFSRs();
-  std::cout << "Count FSRs..." << std::endl;
  
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       initializeCmfd();
   
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
-  std::cout << "Flatten FSRs..." << std::endl;
  
   zeroTrackFluxes();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    std::cout << "Normalize..." << std::endl;
     normalizeFluxes();
-    std::cout << "Compute FSR Sources..." << std::endl;
     computeFSRSources();
-    std::cout << "Sweep..." << std::endl;
     transportSweep();
-    std::cout << "Add source..." << std::endl;
     addSourceToScalarFlux();
     residual = computeResidual(res_type);
     storeFSRFluxes();
 
     /* Solve CMFD diffusion problem and update MOC flux */
-    std::cout << "Compute Keff..." << std::endl;
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
     else
