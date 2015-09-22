@@ -110,9 +110,6 @@ def get_openmoc_material(opencg_material):
   # Add the OpenCG Material to the global collection of all OpenCG Materials
   OPENCG_MATERIALS[material_id] = opencg_material
 
-  # FIXME
-  openmoc_material.thisown = 0
-
   return openmoc_material
 
 
@@ -261,9 +258,6 @@ def get_openmoc_surface(opencg_surface):
 
   # Add the OpenCG Surface to the global collection of all OpenCG Surfaces
   OPENCG_SURFACES[surface_id] = opencg_surface
-
-  # FIXME
-  openmoc_surface.thisown = 0
 
   return openmoc_surface
 
@@ -560,9 +554,6 @@ def get_openmoc_cell(opencg_cell):
   # Add the OpenCG Cell to the global collection of all OpenCG Cells
   OPENCG_CELLS[cell_id] = opencg_cell
 
-  # FIXME
-  openmoc_cell.thisown = 0
-
   return openmoc_cell
 
 
@@ -633,9 +624,6 @@ def get_openmoc_universe(opencg_universe):
 
   # Add the OpenCG Universe to the global collection of all OpenCG Universes
   OPENCG_UNIVERSES[universe_id] = opencg_universe
-
-  # FIXME
-  openmoc_universe.thisown = 0
 
   return openmoc_universe
 
@@ -745,9 +733,6 @@ def get_openmoc_lattice(opencg_lattice):
   # Add the OpenCG Lattice to the global collection of all OpenCG Lattices
   OPENCG_LATTICES[lattice_id] = opencg_lattice
 
-  # FIXME
-  openmoc_lattice.thisown = 0
-
   return openmoc_lattice
 
 
@@ -815,8 +800,5 @@ def get_openmoc_geometry(opencg_geometry):
 
   openmoc_geometry = openmoc.Geometry()
   openmoc_geometry.setRootUniverse(openmoc_root_universe)
-
-  # FIXME
-  openmoc_geometry.thisown = 0
 
   return openmoc_geometry
